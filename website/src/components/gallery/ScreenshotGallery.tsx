@@ -263,7 +263,7 @@ function Lightbox({
       ref={dialogRef}
       role="dialog"
       aria-modal="true"
-      aria-label={`${shot.title} — larger view`}
+      aria-label={`${t(shot.title)} — larger view`}
       onKeyDown={onKeyDown}
       className="animate-fade-in fixed inset-0 z-[60] flex flex-col"
     >

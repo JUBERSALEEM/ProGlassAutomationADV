@@ -57,12 +57,12 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
     return source.filter((row) => {
       if (tab === "log" && level !== "all" && row.level !== level) return false;
       if (tab === "activity" && section !== "all" && row.module !== section) return false;
-      if (needle && !`${row.module} ${row.message} ${row.document ?? ""} ${row.correlation ?? ""}`.toLowerCase().includes(needle)) {
+      if (needle && !`${t(row.module)} ${row.message} ${row.document ?? ""} ${row.correlation ?? ""}`.toLowerCase().includes(needle)) {
         return false;
       }
       return true;
     });
-  }, [source, tab, level, section, query]);
+  }, [source, tab, level, section, query, t]);
 
   /** Newest first, the way a console reads. */
   const ordered = useMemo(() => [...filtered].reverse(), [filtered]);
@@ -111,7 +111,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
         <div>
           <p className="text-[0.8125rem] font-semibold text-text-primary">{t(logSurfaceStrings.title)}</p>
           <p className="mt-0.5 text-[0.6875rem] text-text-faint font-medium">
-            {source.length} {logSurfaceStrings.entries.toLowerCase()} · {logSurfaceStrings.retention}
+            {source.length} {logSurfaceStrings.entries.toLowerCase()} · {t(logSurfaceStrings.retention)}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -136,7 +136,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
             title={logSurfaceStrings.openFolderNote}
             className="rounded-full border border-line-strong/60 bg-ink-800/60 px-2.5 py-1 font-mono text-3xs uppercase tracking-[0.08em] font-medium text-text-muted transition-colors hover:border-brand-400/40 hover:text-text-primary"
           >
-            {logSurfaceStrings.openFolder}
+            {t(logSurfaceStrings.openFolder)}
           </button>
         </div>
       </div>
@@ -258,10 +258,10 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
                         className={cn("font-mono text-[0.6875rem] font-semibold", isSection || row.level === "error" ? "tracking-wide" : "")}
                         style={{ color: meta?.colour }}
                       >
-                        {meta?.label}
+                        {t(meta?.label ?? "")}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-2.5 py-1 font-mono text-[0.6875rem] text-text-muted">{row.module}</td>
+                    <td className="whitespace-nowrap px-2.5 py-1 font-mono text-[0.6875rem] text-text-muted">{t(row.module)}</td>
                     <td className="px-2.5 py-1 text-[0.75rem] leading-snug">
                       <span className={cn(isSection ? "font-semibold text-brand-200" : "text-text-secondary")}>{row.message}</span>
                       {row.correlation ? (

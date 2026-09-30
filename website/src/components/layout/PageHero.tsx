@@ -84,9 +84,9 @@ export function PageHero({
             <Reveal delay={140}>
               <dl className="grid grid-cols-2 gap-4">
                 {meta.map((item) => (
-                  <div key={item.label} className="rounded-card border border-line/60 bg-ink-900/50 p-4">
+                  <div key={t(item.label)} className="rounded-card border border-line/60 bg-ink-900/50 p-4">
                     <dt className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">{t(item.label)}</dt>
-                    <dd className="mt-1.5 text-sm font-medium text-text-secondary">{item.value}</dd>
+                    <dd className="mt-1.5 text-sm font-medium text-text-secondary">{t(item.value)}</dd>
                   </div>
                 ))}
               </dl>

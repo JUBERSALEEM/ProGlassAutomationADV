@@ -81,13 +81,13 @@ export default async function HomePage({ params }: PageProps) {
               { value: `${site.locales} languages`, label: t("Interface translated, not just labelled") },
             ].map((fact, index) => (
               <li
-                key={fact.value}
+                key={t(fact.value)}
                 className={cn(
                   "flex flex-col gap-1 py-5 sm:px-6 lg:px-8",
                   index === 0 && "sm:pl-0",
                 )}
               >
-                <span className="text-base font-bold text-text-primary">{fact.value}</span>
+                <span className="text-base font-bold text-text-primary">{t(fact.value)}</span>
                 <span className="text-xs font-medium leading-relaxed text-text-muted">{t(fact.label)}</span>
               </li>
             ))}
@@ -135,7 +135,7 @@ export default async function HomePage({ params }: PageProps) {
                   body: t("Margins that do not move after the fact: the profit snapshot is written once and reported forever, and a stale price basis is flagged."),
                 },
               ].map((card, index) => (
-                <div key={`${card.title}-${index}`} className="surface p-5">
+                <div key={`${t(card.title)}-${index}`} className="surface p-5">
                   <p className="eyebrow mb-2">{String(index + 1).padStart(2, "0")}</p>
                   <h3 className="text-base font-semibold text-text-primary">{t(card.title)}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(card.body)}</p>
@@ -197,8 +197,8 @@ export default async function HomePage({ params }: PageProps) {
               { value: "8", label: t("Production stages"), hint: "Cutting through Doubling / Lamination, each with a workstation view." },
               { value: "14", label: t("Report surfaces"), hint: "Executive, relationships, documents and the financial reports, behind one hub." },
             ].map((fact) => (
-              <div key={fact.label} className="stat-tile p-5">
-                <p className="font-mono text-3xl font-bold text-text-primary">{fact.value}</p>
+              <div key={t(fact.label)} className="stat-tile p-5">
+                <p className="font-mono text-3xl font-bold text-text-primary">{t(fact.value)}</p>
                 <p className="mt-2 text-sm font-bold text-text-primary">{t(fact.label)}</p>
                 <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-muted">{t(fact.hint)}</p>
               </div>
@@ -445,8 +445,8 @@ export default async function HomePage({ params }: PageProps) {
               { label: t("Cutting complexity"), value: "6 levels", hint: "Free guillotine through to Z/W trims, refused on laminated stock." },
               { label: t("Verification oracles"), value: "2", hint: "Geometry and piece conservation, both required before export." },
             ].map((item) => (
-              <div key={item.label} className="surface-raised p-5">
-                <p className="font-mono text-xl font-semibold text-brand-300">{item.value}</p>
+              <div key={t(item.label)} className="surface-raised p-5">
+                <p className="font-mono text-xl font-semibold text-brand-300">{t(item.value)}</p>
                 <p className="mt-2 text-sm font-medium text-text-secondary">{t(item.label)}</p>
                 <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">{t(item.hint)}</p>
               </div>
@@ -532,11 +532,11 @@ export default async function HomePage({ params }: PageProps) {
                     { label: t("Licence model"), value: t("Owned, not rented") },
                   ].map((item) => (
                     <li
-                      key={item.label}
+                      key={t(item.label)}
                       className="flex items-baseline justify-between gap-4 rounded-card border border-line/60 bg-ink-950/40 px-4 py-3"
                     >
                       <span className="text-xs uppercase tracking-[0.14em] text-text-faint font-medium">{t(item.label)}</span>
-                      <span className="text-sm font-medium text-text-secondary">{item.value}</span>
+                      <span className="text-sm font-medium text-text-secondary">{t(item.value)}</span>
                     </li>
                   ))}
                 </ul>
@@ -565,7 +565,7 @@ export default async function HomePage({ params }: PageProps) {
                   <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(group.lead)}</p>
                   <ul className="mt-5 space-y-3 border-t border-line/60 pt-5">
                     {group.items.slice(0, 4).map((item) => (
-                      <li key={item.title}>
+                      <li key={t(item.title)}>
                         <p className="text-sm font-medium text-text-secondary">{t(item.title)}</p>
                         <p className="mt-0.5 text-xs leading-relaxed text-text-faint font-medium">{t(item.detail)}</p>
                       </li>

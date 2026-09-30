@@ -115,7 +115,7 @@ export default async function OptimizationPage({ params }: PageProps) {
                     body: t("A piece keeps the orientation it was entered in whenever that fits; the engine only turns it 90° when it has to."),
                   },
                 ].map((item) => (
-                  <div key={item.title} className="surface p-5">
+                  <div key={t(item.title)} className="surface p-5">
                     <p className="text-sm font-semibold text-text-primary">{t(item.title)}</p>
                     <p className="mt-1.5 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
                   </div>
@@ -177,10 +177,10 @@ export default async function OptimizationPage({ params }: PageProps) {
                     <th scope="row" className="border-b border-line/60 px-4 py-4 text-left font-semibold text-text-primary">
                       {row.bucket}
                     </th>
-                    <td className="border-b border-line/60 px-4 py-4 font-mono text-text-secondary">{row.range}</td>
-                    <td className="border-b border-line/60 px-4 py-4 text-text-muted">{row.edges}</td>
+                    <td className="border-b border-line/60 px-4 py-4 font-mono text-text-secondary">{t(row.range)}</td>
+                    <td className="border-b border-line/60 px-4 py-4 text-text-muted">{t(row.edges)}</td>
                     <td className="border-b border-line/60 px-4 py-4 font-mono text-text-secondary">{row.kerf}</td>
-                    <td className="border-b border-line/60 px-4 py-4 text-text-muted">{row.breakout}</td>
+                    <td className="border-b border-line/60 px-4 py-4 text-text-muted">{t(row.breakout)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -219,7 +219,7 @@ export default async function OptimizationPage({ params }: PageProps) {
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {cutComplexities.map((item, index) => (
-              <Reveal key={`${item.name}-${index}`} delay={index * 50} className="surface flex flex-col p-5">
+              <Reveal key={`${t(item.name)}-${index}`} delay={index * 50} className="surface flex flex-col p-5">
                 <IndexChip className="h-7 w-7 text-[0.75rem]">{String(index + 1).padStart(2, "0")}</IndexChip>
                 <p className="mt-4 text-sm font-semibold text-text-primary">{t(item.name)}</p>
                 <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(item.detail)}</p>
@@ -250,10 +250,10 @@ export default async function OptimizationPage({ params }: PageProps) {
 
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
             {verificationOracles.map((oracle, index) => (
-              <Reveal key={`${oracle.name}-${index}`} delay={index * 70} className="surface-raised p-6">
+              <Reveal key={`${t(oracle.name)}-${index}`} delay={index * 70} className="surface-raised p-6">
                 <p className="eyebrow">{t(oracle.evidence)}</p>
                 <h3 className="mt-3 text-base font-semibold text-text-primary">{t(oracle.name)} check</h3>
-                <p className="mt-2 text-sm leading-relaxed text-text-muted">{oracle.checks}</p>
+                <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(oracle.checks)}</p>
               </Reveal>
             ))}
           </div>
@@ -356,7 +356,7 @@ export default async function OptimizationPage({ params }: PageProps) {
                   { title: t("3 · Merged specifications summary"), detail: t("The glass specifications the batch was built from.") },
                   { title: t("4 · Stock plates allocation"), detail: t("Which rack rows were consumed, and what is left.") },
                 ].map((item) => (
-                  <div key={item.title} className="surface p-5">
+                  <div key={t(item.title)} className="surface p-5">
                     <p className="text-sm font-semibold text-text-primary">{t(item.title)}</p>
                     <p className="mt-1.5 text-xs leading-relaxed text-text-muted">{t(item.detail)}</p>
                   </div>
@@ -474,7 +474,7 @@ function EnginePipeline({ t }: { t: Translator }) {
       <p className="mono-label">{t("How a run is produced")}</p>
       <ol className="mt-5">
         {enginePipeline.map((stage, index) => (
-          <li key={`${stage.step}-${index}`} className="relative flex gap-4 pb-5 last:pb-0">
+          <li key={`${t(stage.step)}-${index}`} className="relative flex gap-4 pb-5 last:pb-0">
             {index < enginePipeline.length - 1 ? (
               <span aria-hidden="true" className="absolute left-[0.6875rem] top-6 bottom-0 w-px bg-line-strong" />
             ) : null}

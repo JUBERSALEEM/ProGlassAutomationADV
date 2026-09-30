@@ -132,11 +132,11 @@ export default async function PricingPage({ params }: PageProps) {
                   </span>
                 </div>
                 <p className="mt-1 font-mono text-2xs uppercase tracking-[0.14em] text-brand-300">
-                  {edition.positioning}
+                  {t(edition.positioning)}
                 </p>
 
                 <p className="mt-4 rounded-card border border-line/60 bg-ink-950/50 p-3.5 text-sm leading-relaxed text-text-secondary">
-                  {edition.definition}
+                  {t(edition.definition)}
                 </p>
 
                 <ul className="mt-5 flex-1 space-y-2.5 border-t border-line/60 pt-5">
@@ -176,9 +176,9 @@ export default async function PricingPage({ params }: PageProps) {
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
             <div className="flow">
               {licenceGates.map((gate) => (
-                <Reveal key={gate.group} className="surface-raised p-6">
+                <Reveal key={t(gate.group)} className="surface-raised p-6">
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h3 className="text-base font-semibold text-text-primary">{gate.group}</h3>
+                    <h3 className="text-base font-semibold text-text-primary">{t(gate.group)}</h3>
                     <Badge tone="accent">{gate.minimumEdition} and above</Badge>
                   </div>
                   <p className="mt-2 font-mono text-xs text-text-faint font-medium">requires {gate.requiredFeature}</p>
@@ -243,7 +243,7 @@ export default async function PricingPage({ params }: PageProps) {
               { title: t("Storage"), detail: t("Local SQLite database files in your user profile, plus a licence file.") },
               { title: t("Network"), detail: t("Not required to run. Needed only for updates and any cloud AI provider you choose to configure.") },
             ].map((item, index) => (
-              <Reveal key={`${item.title}-${index}`} delay={index * 50} className="surface p-5">
+              <Reveal key={`${t(item.title)}-${index}`} delay={index * 50} className="surface p-5">
                 <p className="text-sm font-semibold text-text-primary">{t(item.title)}</p>
                 <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(item.detail)}</p>
               </Reveal>

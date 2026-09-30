@@ -108,7 +108,7 @@ function ModulePanel({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="inline-flex items-center gap-2.5 rounded-full border border-line-strong/70 bg-ink-900/70 px-3 py-1.5">
           <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand-400" />
-          <span className="text-xs font-medium text-text-primary">{module.railLabel}</span>
+          <span className="text-xs font-medium text-text-primary">{t(module.railLabel)}</span>
           <span className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-text-faint font-medium">
             {module.railGroup}
           </span>
@@ -119,7 +119,7 @@ function ModulePanel({
       <div className="card-live mt-4 p-3.5 sm:p-4">
         <LiveSurface
           moduleKey={module.moduleKey}
-          name={module.name}
+          name={t(module.name)}
           capabilities={module.capabilities}
           /* A card in a grid of cards: a row of thumbnails, not a pager. */
           compact

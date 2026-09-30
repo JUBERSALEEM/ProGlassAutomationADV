@@ -199,7 +199,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                   <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(document.summary)}</p>
 
                   <p className="mt-auto border-t border-line/60 pt-4 text-xs leading-relaxed text-text-faint font-medium">
-                    {document.handoff}
+                    {t(document.handoff)}
                   </p>
                   <p className="mt-3 font-mono text-[0.75rem] leading-relaxed text-text-faint">{t(document.evidence)}</p>
                 </article>
@@ -688,7 +688,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                   </thead>
                   <tbody>
                     {seedSheets.map((sheet) => (
-                      <tr key={`${sheet.category}-${sheet.thicknessMm}-${sheet.colour}`} className="border-b border-line/40 last:border-0">
+                      <tr key={`${t(sheet.category)}-${sheet.thicknessMm}-${sheet.colour}`} className="border-b border-line/40 last:border-0">
                         <td className="px-4 py-2.5 text-text-secondary">{t(sheet.category)}</td>
                         <td className="px-4 py-2.5 font-mono text-xs text-text-muted">{sheet.thicknessMm} mm</td>
                         <td className="px-4 py-2.5 text-text-muted">{sheet.colour}</td>
@@ -742,9 +742,9 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                           <tr key={item.partNumber} className="border-b border-line/40 last:border-0">
                             <td className="px-4 py-2.5 text-text-secondary">{t(item.name)}</td>
                             <td className="px-4 py-2.5 font-mono text-xs text-text-faint">{item.partNumber}</td>
-                            <td className="px-4 py-2.5 text-text-muted">{item.specification}</td>
+                            <td className="px-4 py-2.5 text-text-muted">{t(item.specification)}</td>
                             <td className="px-4 py-2.5 text-text-muted">{item.supplier}</td>
-                            <td className="px-4 py-2.5 text-xs text-text-faint">{item.uom}</td>
+                            <td className="px-4 py-2.5 text-xs text-text-faint">{t(item.uom)}</td>
                             <td className="px-4 py-2.5 text-right text-text-muted tabular-nums">{aed(item.buy)}</td>
                             <td className="px-4 py-2.5 text-right text-text-primary tabular-nums">{aed(item.sell)}</td>
                             <td className="px-4 py-2.5 text-right text-text-secondary tabular-nums">{item.stock}</td>
@@ -771,7 +771,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                   {reorderAlerts.map((item) => (
                     <p key={item.partNumber} className="mt-3 text-sm leading-relaxed text-text-muted">
                       <span className="font-mono text-text-secondary">{item.partNumber}</span> — {t(item.name)},{" "}
-                      {item.specification}: {item.stock - item.used} {item.uom.toLowerCase()}
+                      {t(item.specification)}: {item.stock - item.used} {item.uom.toLowerCase()}
                       {item.stock - item.used === 1 ? "" : "s"} available against a reorder level of{" "}
                       {item.reorderLevel}. The store reports it without anyone having to go and count.
                     </p>
@@ -811,9 +811,9 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                 <div className="plate h-full p-6 sm:p-7">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="eyebrow">{t(rule.label)}</p>
-                    <p className="font-mono text-sm font-semibold text-brand-200">{rule.value}</p>
+                    <p className="font-mono text-sm font-semibold text-brand-200">{t(rule.value)}</p>
                   </div>
-                  <h3 className="mt-3 text-xl font-semibold text-text-primary">{rule.headline}</h3>
+                  <h3 className="mt-3 text-xl font-semibold text-text-primary">{t(rule.headline)}</h3>
                   <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{t(rule.body)}</p>
                   <p className="mt-4 font-mono text-2xs text-text-faint">{t(rule.evidence)}</p>
                 </div>
@@ -989,7 +989,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                 body: t("Seeding is blocked when the database already holds records, so this workflow can never be mixed into a business's own books. It exists to be looked at, then cleared."),
               },
             ].map((item, index) => (
-              <Reveal key={item.title} delay={Math.min(index, 5) * 45}>
+              <Reveal key={t(item.title)} delay={Math.min(index, 5) * 45}>
                 <article className="surface h-full p-5">
                   <h3 className="text-sm font-semibold text-text-primary">{t(item.title)}</h3>
                   <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>

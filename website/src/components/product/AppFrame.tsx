@@ -175,13 +175,13 @@ export function AppFrame({
             className="hidden w-44 shrink-0 flex-col gap-2 border-r border-line/60 bg-ink-950/70 p-2.5 sm:flex"
           >
             {realRail.map((group) => (
-              <div key={group.label} className="space-y-0.5">
+              <div key={t(group.label)} className="space-y-0.5">
                 <p className="px-1.5 pb-0.5 font-mono text-[0.6875rem] font-semibold tracking-[0.16em] text-text-faint">
                   {t(group.label)}
                 </p>
                 <div className="space-y-px">
                   {group.items.slice(0, group.open ? group.items.length : 2).map((item) => (
-                    <RailRow key={item.label} label={t(item.label)} active={item.label === railActive} />
+                    <RailRow key={t(item.label)} label={t(item.label)} active={item.label === railActive} />
                   ))}
                 </div>
               </div>

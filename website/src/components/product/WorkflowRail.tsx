@@ -52,13 +52,13 @@ export function WorkflowRail({
                       <dt className="w-32 shrink-0 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                         {t("Carries forward")}
                       </dt>
-                      <dd className="text-sm text-text-secondary">{stage.handoff}</dd>
+                      <dd className="text-sm text-text-secondary">{t(stage.handoff)}</dd>
                     </div>
                     <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
                       <dt className="w-32 shrink-0 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                         {t("Guarantee")}
                       </dt>
-                      <dd className="text-sm leading-relaxed text-text-muted">{stage.guarantee}</dd>
+                      <dd className="text-sm leading-relaxed text-text-muted">{t(stage.guarantee)}</dd>
                     </div>
                   </dl>
 
@@ -77,13 +77,13 @@ export function WorkflowRail({
                   <Link
                     href={stage.href}
                     className="link-underline mt-3 text-xs"
-                    aria-label={`Read more about ${stage.name}`}
+                    aria-label={`Read more about ${t(stage.name)}`}
                   >
                     {t("Read more")}
                   </Link>
                 </>
               ) : (
-                <p className="mono-label mt-2.5">{stage.handoff}</p>
+                <p className="mono-label mt-2.5">{t(stage.handoff)}</p>
               )}
             </div>
           </div>

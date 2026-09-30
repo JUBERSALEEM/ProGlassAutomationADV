@@ -97,7 +97,7 @@ export default async function AboutPage({ params }: PageProps) {
                     body: t("If the profit figure changes depending on when you opened the screen, it cannot be used to price the next job. It has to be written once and read forever."),
                   },
                 ].map((item, index) => (
-                  <div key={`${item.title}-${index}`} className="flex gap-4">
+                  <div key={`${t(item.title)}-${index}`} className="flex gap-4">
                     <IndexChip>{String(index + 1).padStart(2, "0")}</IndexChip>
                     <div className="surface flex-1 p-5">
                       <p className="text-sm font-semibold text-text-primary">{t(item.title)}</p>
@@ -137,7 +137,7 @@ export default async function AboutPage({ params }: PageProps) {
                 body: t("Real grid geometry crosses from quotation to job order — sheet selections and air-spacer gaps included — so the panel that was priced is the panel that gets built."),
               },
             ].map((pillar, index) => (
-              <Reveal key={`${pillar.title}-${index}`} delay={index * 70} className="surface-raised p-6">
+              <Reveal key={`${t(pillar.title)}-${index}`} delay={index * 70} className="surface-raised p-6">
                 <p className="eyebrow mb-3">{String(index + 1).padStart(2, "0")}</p>
                 <h3 className="text-lg font-semibold text-text-primary">{t(pillar.title)}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(pillar.body)}</p>
@@ -239,7 +239,7 @@ export default async function AboutPage({ params }: PageProps) {
                 body: t("The one who wants the margin visible at the moment of quoting rather than at the end of the quarter."),
               },
             ].map((item, index) => (
-              <Reveal key={`${item.title}-${index}`} delay={index * 50} className="surface p-5">
+              <Reveal key={`${t(item.title)}-${index}`} delay={index * 50} className="surface p-5">
                 <h3 className="text-sm font-semibold text-text-primary">{t(item.title)}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
               </Reveal>
@@ -273,7 +273,7 @@ export default async function AboutPage({ params }: PageProps) {
                     body: t("A feature is described on this website when it runs, and the description matches what a customer will see on screen."),
                   },
                 ].map((item) => (
-                  <li key={item.title} className="flex gap-4 rounded-card border border-line/60 bg-ink-900/50 p-4">
+                  <li key={t(item.title)} className="flex gap-4 rounded-card border border-line/60 bg-ink-900/50 p-4">
                     <span aria-hidden="true" className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-400" />
                     <div>
                       <p className="text-sm font-semibold text-text-secondary">{t(item.title)}</p>

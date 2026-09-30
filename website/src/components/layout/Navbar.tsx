@@ -175,7 +175,7 @@ export function Navbar() {
             if (!entry.children) {
               return (
                 <Link
-                  key={entry.label}
+                  key={t(entry.label)}
                   href={entry.href ?? "#"}
                   aria-current={active ? "page" : undefined}
                   className={cn(NAV_CARD, active ? NAV_CARD_ON : NAV_CARD_OFF)}
@@ -189,7 +189,7 @@ export function Navbar() {
             const open = openMenu === entry.label;
             return (
               <div
-                key={entry.label}
+                key={t(entry.label)}
                 className="relative"
                 onMouseEnter={() => {
                   cancelClose();
@@ -313,7 +313,7 @@ export function Navbar() {
         <div className="shell max-h-[calc(100vh-var(--nav-height))] overflow-y-auto py-5">
           <nav aria-label={t("Mobile")} className="space-y-6">
             {entries.map((entry) => (
-              <div key={entry.label}>
+              <div key={t(entry.label)}>
                 {entry.href ? (
                   <Link
                     href={entry.href}

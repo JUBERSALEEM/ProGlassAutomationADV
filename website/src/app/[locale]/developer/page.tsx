@@ -226,9 +226,9 @@ const faq = [
                 { label: t("On this project"), value: t("Everything"), note: t("Code, documents, tests, this site.") },
                 { label: t("On support"), value: t("The only tier"), note: t("Questions arrive at his inbox.") },
               ].map((item) => (
-                <div key={item.label} className="stat-tile p-3.5">
+                <div key={t(item.label)} className="stat-tile p-3.5">
                   <dt className="mono-label">{t(item.label)}</dt>
-                  <dd className="mt-1.5 text-base font-semibold text-text-primary">{item.value}</dd>
+                  <dd className="mt-1.5 text-base font-semibold text-text-primary">{t(item.value)}</dd>
                   <dd className="mt-1 text-[0.75rem] leading-relaxed text-text-muted">{t(item.note)}</dd>
                 </div>
               ))}
@@ -253,9 +253,9 @@ const faq = [
               { label: t("Funding"), value: t("None"), hint: "No investors, and no sponsors so far." },
               { label: t("Formal training"), value: t("None in software"), hint: "An estimator's background instead." },
             ].map((item) => (
-              <div key={item.label} className="stat-tile p-3.5">
+              <div key={t(item.label)} className="stat-tile p-3.5">
                 <dt className="mono-label">{t(item.label)}</dt>
-                <dd className="mt-1.5 text-base font-semibold text-text-primary">{item.value}</dd>
+                <dd className="mt-1.5 text-base font-semibold text-text-primary">{t(item.value)}</dd>
                 <dd className="mt-1 text-[0.75rem] leading-relaxed text-text-muted">{t(item.hint)}</dd>
               </div>
             ))}
@@ -292,7 +292,7 @@ const faq = [
 
             <ol className="relative space-y-4 border-l-2 border-line-strong/60 pl-6 sm:pl-8">
               {history.map((entry, index) => (
-                <Reveal key={`${entry.date}-${entry.title}`} delay={index * 45}>
+                <Reveal key={`${entry.date}-${t(entry.title)}`} delay={index * 45}>
                   <li className="relative">
                     {/* The marker on the rule. */}
                     <span
@@ -327,7 +327,7 @@ const faq = [
             />
             <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {workingMethod.map((item, index) => (
-                <Reveal key={item.title} delay={index * 50}>
+                <Reveal key={t(item.title)} delay={index * 50}>
                   <article className="surface h-full p-5">
                     <IndexChip>{item.index}</IndexChip>
                     <h3 className="mt-3 text-base font-semibold text-text-primary">{t(item.title)}</h3>
@@ -356,7 +356,7 @@ const faq = [
 
             <ol className="flow">
               {before.map((item, index) => (
-                <Reveal key={`${item.title}-${index}`} delay={index * 60}>
+                <Reveal key={`${t(item.title)}-${index}`} delay={index * 60}>
                   <li className="card-live flex gap-4 p-5">
                     <IndexChip>{item.index}</IndexChip>
                     <div className="min-w-0">
@@ -383,7 +383,7 @@ const faq = [
 
           <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             {consequences.map((item, index) => (
-              <Reveal key={`${item.title}-${index}`} delay={index * 50}>
+              <Reveal key={`${t(item.title)}-${index}`} delay={index * 50}>
                 <article className="card-live card-interactive flex h-full flex-col p-5">
                   <span className="font-mono text-2xs text-brand-300">{item.index}</span>
                   <h3 className="mt-2 text-base font-semibold text-text-primary">{t(item.title)}</h3>
@@ -407,7 +407,7 @@ const faq = [
 
           <div className="mt-10 grid gap-4 lg:grid-cols-3">
             {principles.map((item, index) => (
-              <Reveal key={`${item.title}-${index}`} delay={index * 60}>
+              <Reveal key={`${t(item.title)}-${index}`} delay={index * 60}>
                 <article className="surface h-full p-6">
                   <div className="flex items-center gap-3">
                     <IndexChip>{item.index}</IndexChip>
@@ -448,8 +448,8 @@ const faq = [
 
             <dl className="grid gap-3 sm:grid-cols-2">
               {stack.map((row) => (
-                <div key={row.group} className="surface p-4">
-                  <dt className="mono-label">{row.group}</dt>
+                <div key={t(row.group)} className="surface p-4">
+                  <dt className="mono-label">{t(row.group)}</dt>
                   <dd className="mt-2 flex flex-wrap gap-1.5">
                     {row.items.map((item) => (
                       <span key={item} className="chip">
@@ -487,7 +487,7 @@ const faq = [
 
             <ul className="grid gap-3 sm:grid-cols-2">
               {gaps.map((gap) => (
-                <li key={gap.title} className="card-accent p-4">
+                <li key={t(gap.title)} className="card-accent p-4">
                   <h3 className="text-sm font-semibold text-text-primary">{t(gap.title)}</h3>
                   <p className="mt-2 text-xs leading-relaxed text-text-secondary">{t(gap.body)}</p>
                 </li>

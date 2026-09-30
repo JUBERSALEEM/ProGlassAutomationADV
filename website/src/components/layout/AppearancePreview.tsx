@@ -142,7 +142,7 @@ export function AppearancePreview() {
           const active = Math.abs(studio.edge - preset.edge) < 0.001;
           return (
             <button
-              key={preset.label}
+              key={t(preset.label)}
               type="button"
               aria-pressed={active}
               onClick={() => setStudio({ edge: preset.edge })}

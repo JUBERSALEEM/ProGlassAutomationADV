@@ -65,7 +65,7 @@ export function LiveSurface({
               const active = index === safeIndex;
               return (
                 <button
-                  key={`${entry.label}-${index}`}
+                  key={`${t(entry.label)}-${index}`}
                   type="button"
                   role="tab"
                   aria-selected={active}
@@ -240,7 +240,7 @@ function TableEngine({
           </thead>
           <tbody>
             {visible.map((row, index) => {
-              const id = `${view.label}-${index}-${row[columns[0]?.key ?? "ref"] ?? index}`;
+              const id = `${t(view.label)}-${index}-${row[columns[0]?.key ?? "ref"] ?? index}`;
               const isSelected = selected === id;
               return (
                 <tr
@@ -298,7 +298,7 @@ function TableEngine({
           {view.summary && view.summary.length > 0 ? (
             <dl className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
               {view.summary.map((item) => (
-                <div key={item.label} className="flex items-baseline gap-1.5">
+                <div key={t(item.label)} className="flex items-baseline gap-1.5">
                   <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
                     {t(item.label)}
                   </dt>
@@ -416,7 +416,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
             className="rounded-lg border border-line-strong/60 bg-ink-900/80 px-2 py-1 text-[0.75rem] text-text-primary outline-none"
           >
             {sheetSizes.map((entry, index) => (
-              <option key={`${entry.label}-${index}`} value={index}>
+              <option key={`${t(entry.label)}-${index}`} value={index}>
                 {t(entry.label)}
               </option>
             ))}
@@ -488,7 +488,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
             { label: t("Part area"), value: `${partArea.toFixed(2)} m²` },
             { label: t("Scrap"), value: `${scrap.toFixed(2)} m²`, bad: true },
           ].map((item) => (
-            <div key={item.label} className="stat-tile px-2.5 py-2">
+            <div key={t(item.label)} className="stat-tile px-2.5 py-2">
               <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t(item.label)}</dt>
               <dd
                 className={cn(
@@ -498,7 +498,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
                   !item.good && !item.bad && "text-text-primary",
                 )}
               >
-                {item.value}
+                {t(item.value)}
               </dd>
             </div>
           ))}
@@ -708,7 +708,7 @@ function WizardEngine({
               const active = entry.step === step;
               return (
                 <button
-                  key={entry.label}
+                  key={t(entry.label)}
                   type="button"
                   onClick={() => goToStep(entry.step!)}
                   aria-pressed={active}
@@ -911,7 +911,7 @@ function DashboardEngine({
         >
           {demo.views.map((entry, index) => (
             <button
-              key={entry.label}
+              key={t(entry.label)}
               type="button"
               role="tab"
               aria-selected={index === viewIndex}
@@ -947,9 +947,9 @@ function DashboardEngine({
 
       <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {summary.map((item, index) => (
-          <div key={`${item.label}-${index}`} className="stat-tile p-2.5">
+          <div key={`${t(item.label)}-${index}`} className="stat-tile p-2.5">
             <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t(item.label)}</dt>
-            <dd className="mt-1 text-[0.8125rem] font-semibold leading-snug text-text-primary">{item.value}</dd>
+            <dd className="mt-1 text-[0.8125rem] font-semibold leading-snug text-text-primary">{t(item.value)}</dd>
           </div>
         ))}
       </dl>
@@ -991,7 +991,7 @@ function DashboardEngine({
       )}
 
       {!compact && demo.footnote ? (
-        <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{demo.footnote}</p>
+        <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{t(demo.footnote)}</p>
       ) : null}
 
       {!compact ? (
@@ -1022,12 +1022,12 @@ function FormEngine({ moduleKey, demo, view }: { moduleKey: string; demo: Demo; 
       <dl className="space-y-1.5">
         {(view?.summary ?? []).map((item) => (
           <div
-            key={item.label}
+            key={t(item.label)}
             className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line/40 pb-1.5 last:border-0"
           >
             <dt className="text-[0.75rem] font-medium text-text-secondary">{t(item.label)}</dt>
             <dd className="font-mono text-[0.75rem] text-text-muted">
-              <NoTranslate>{item.value}</NoTranslate>
+              <NoTranslate>{t(item.value)}</NoTranslate>
             </dd>
           </div>
         ))}

@@ -151,19 +151,19 @@ export default async function HowItWorksPage({ params }: PageProps) {
                         href={row.href}
                         className="link-underline mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-brand-200"
                       >
-                        {row.anchor}
+                        {t(row.anchor)}
                         <ArrowRight />
                       </Link>
                     </div>
 
                     <div className="bg-ink-950/40 px-5 py-5 sm:px-6">
                       <p className="mono-label text-state-warning/80">{t("On paper and in spreadsheets")}</p>
-                      <p className="mt-3 text-sm leading-relaxed text-text-muted">{row.before}</p>
+                      <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(row.before)}</p>
                     </div>
 
                     <div className="bg-ink-900/60 px-5 py-5 sm:px-6">
                       <p className="mono-label text-state-success/80">{t("In ProGlass Automation")}</p>
-                      <p className="mt-3 text-sm leading-relaxed text-text-secondary">{row.after}</p>
+                      <p className="mt-3 text-sm leading-relaxed text-text-secondary">{t(row.after)}</p>
                     </div>
                   </div>
                 </article>
@@ -310,7 +310,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
                 rail: "Overview",
               },
             ].map((moment, index) => (
-              <Reveal key={`${moment.title}-${index}`} delay={index * 70}>
+              <Reveal key={`${t(moment.title)}-${index}`} delay={index * 70}>
                 <div className="flex h-full flex-col gap-5">
                   <div className="flex items-start gap-4">
                     <IndexChip>{String(index + 1).padStart(2, "0")}</IndexChip>
@@ -324,7 +324,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
                   <AppFrame
       t={t}
                     title={moment.frame}
-                    railActive={moment.rail}
+                    railActive={t(moment.rail)}
                     compact
                     note={t("Interactive preview — real chrome and real fields, sample data, not a screen capture.")}
                   >

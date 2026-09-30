@@ -61,13 +61,13 @@ export function ModuleBrowser() {
           </FilterChip>
           {counts.map((entry) => (
             <FilterChip
-              key={entry.group}
+              key={t(entry.group)}
               active={group === entry.group}
               onClick={() => setGroup(entry.group)}
               count={entry.count}
               title={t(entry.note)}
             >
-              {entry.group}
+              {t(entry.group)}
             </FilterChip>
           ))}
         </div>
@@ -165,7 +165,7 @@ function ModuleCard({ module }: { module: ProductModule }) {
       <div className="mt-auto pt-5">
         <p className="mono-label border-t border-line/60 pt-3">
           <span className="sr-only">{t("Navigation label:")}</span>
-          {module.railLabel}
+          {t(module.railLabel)}
         </p>
       </div>
     </article>

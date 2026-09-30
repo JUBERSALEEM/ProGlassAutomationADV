@@ -169,7 +169,7 @@ export function SpecificationSurface({
     if (!entry) return;
     setActive(index);
     setStatus(
-      `Specification ${entry.number} · ${entry.name} — ${entry.rows.length} rows on a base rate of ${entry.baseRate.toFixed(2)} with a ${entry.surchargePercent}% surcharge for panels that reach ${SURCHARGE_THRESHOLD_SQM} m².`,
+      `Specification ${entry.number} · ${t(entry.name)} — ${entry.rows.length} rows on a base rate of ${entry.baseRate.toFixed(2)} with a ${entry.surchargePercent}% surcharge for panels that reach ${SURCHARGE_THRESHOLD_SQM} m².`,
     );
   }
   /** Serial of each row a person has touched, so the rate switch is explained. */
@@ -808,7 +808,7 @@ export function SpecificationSurface({
     setBlocks((current) => [...current, extra]);
     setActive(1);
     setStatus(
-      `Specification ${extra.number} added — ${extra.name}, SURCHARGE % pre-filled at the shop's standard ${STANDARD_SURCHARGE_PERCENT}%. Its oversize lite prices at base + ${STANDARD_SURCHARGE_PERCENT}% the moment it is added.`,
+      `Specification ${extra.number} added — ${t(extra.name)}, SURCHARGE % pre-filled at the shop's standard ${STANDARD_SURCHARGE_PERCENT}%. Its oversize lite prices at base + ${STANDARD_SURCHARGE_PERCENT}% the moment it is added.`,
     );
   }
 
@@ -847,7 +847,7 @@ export function SpecificationSurface({
                     type="button"
                     aria-pressed={index === active}
                     onClick={() => selectBlock(index)}
-                    title={`Specification ${entry.number} · ${entry.name} — ${entry.rows.length} rows`}
+                    title={`Specification ${entry.number} · ${t(entry.name)} — ${entry.rows.length} rows`}
                     className={cn(
                       "inline-flex h-7 min-w-7 items-center justify-center rounded-lg px-1.5 font-mono text-[0.8125rem] font-semibold transition-colors",
                       index === active

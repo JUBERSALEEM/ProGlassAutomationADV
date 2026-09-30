@@ -181,9 +181,9 @@ export default async function FeaturesPage({ params }: PageProps) {
                 <div className="plate h-full p-6">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="eyebrow">{t(rule.label)}</p>
-                    <p className="font-mono text-sm font-semibold text-brand-200">{rule.value}</p>
+                    <p className="font-mono text-sm font-semibold text-brand-200">{t(rule.value)}</p>
                   </div>
-                  <h3 className="mt-3 text-lg font-semibold text-text-primary">{rule.headline}</h3>
+                  <h3 className="mt-3 text-lg font-semibold text-text-primary">{t(rule.headline)}</h3>
                   <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{t(rule.body)}</p>
                   <p className="mt-4 font-mono text-2xs text-text-faint">{t(rule.evidence)}</p>
                 </div>
@@ -254,7 +254,7 @@ export default async function FeaturesPage({ params }: PageProps) {
               <Reveal key={fact.id} delay={index * 60}>
                 <div className="plate h-full p-6">
                   <p className="eyebrow">{t(fact.label)}</p>
-                  <h3 className="mt-3 text-lg font-semibold text-text-primary">{fact.headline}</h3>
+                  <h3 className="mt-3 text-lg font-semibold text-text-primary">{t(fact.headline)}</h3>
                   <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{t(fact.body)}</p>
                   <p className="mt-4 font-mono text-2xs text-text-faint">{t(fact.evidence)}</p>
                 </div>
@@ -389,7 +389,7 @@ export default async function FeaturesPage({ params }: PageProps) {
                 <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(group.lead)}</p>
                 <ul className="mt-5 space-y-3.5 border-t border-line/60 pt-5">
                   {group.items.map((item) => (
-                    <li key={item.title} className="flex gap-3">
+                    <li key={t(item.title)} className="flex gap-3">
                       <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
                       <div>
                         <p className="text-sm font-medium text-text-secondary">{t(item.title)}</p>

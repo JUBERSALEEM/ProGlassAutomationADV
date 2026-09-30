@@ -91,7 +91,7 @@ export default async function ContactPage({ params }: PageProps) {
                       detail: t("Quoting, stock accuracy, deliveries, or the margin you cannot see until too late."),
                     },
                   ].map((item) => (
-                    <li key={item.title}>
+                    <li key={t(item.title)}>
                       <p className="text-sm font-medium text-text-secondary">{t(item.title)}</p>
                       <p className="mt-0.5 text-xs leading-relaxed text-text-faint font-medium">{t(item.detail)}</p>
                     </li>

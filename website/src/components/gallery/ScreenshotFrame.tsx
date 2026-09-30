@@ -122,7 +122,7 @@ export function ScreenshotFrame({
     >
       <LiveSurface
         moduleKey={shot.moduleKey}
-        name={shot.title}
+        name={t(shot.title)}
         capabilities={owner?.capabilities ?? shot.highlights}
         /* A slide: the run is shown as a strip of plates, not paged. */
         compact

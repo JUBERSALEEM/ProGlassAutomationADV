@@ -58,7 +58,7 @@ export function StrategyPicker() {
             const selected = index === familyIndex;
             return (
               <button
-                key={`${item.name}-${index}`}
+                key={`${t(item.name)}-${index}`}
                 ref={(node) => {
                   familyTabs.current[index] = node;
                 }}
@@ -120,7 +120,7 @@ export function StrategyPicker() {
             const selected = index === patternIndex;
             return (
               <button
-                key={`${item.name}-${index}`}
+                key={`${t(item.name)}-${index}`}
                 type="button"
                 aria-pressed={selected}
                 onClick={() => setPatternIndex(index)}

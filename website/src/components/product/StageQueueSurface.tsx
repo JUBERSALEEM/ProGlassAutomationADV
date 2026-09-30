@@ -92,7 +92,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
                 setCurrent(entry.id);
                 setGap(0);
               }}
-              title={`${entry.label} — ${entry.open} open, ${entry.done}/${entry.total} done`}
+              title={`${t(entry.label)} — ${entry.open} open, ${entry.done}/${entry.total} done`}
               className={cn(
                 "rounded-lg border px-2 py-1 text-left transition-colors duration-200",
                 entry.id === current
@@ -164,7 +164,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
           { label: `${kpiLabels.load} (${metric})`, value: arrived, tone: "" },
           { label: kpiLabels.readyForDispatch, value: readyCount, tone: readyCount > 0 ? "text-emerald-300" : "text-text-faint" },
         ].map((tile) => (
-          <div key={tile.label} className="rounded-lg border border-line/50 bg-ink-900/50 px-2 py-1.5">
+          <div key={t(tile.label)} className="rounded-lg border border-line/50 bg-ink-900/50 px-2 py-1.5">
             <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t(tile.label)}</p>
             <p className={cn("text-[0.9375rem] font-semibold tabular-nums", tile.tone || "text-text-primary")}>{tile.value}</p>
           </div>

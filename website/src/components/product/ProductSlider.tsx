@@ -100,7 +100,7 @@ export function ProductSlider({
             className="w-full shrink-0 snap-center px-0.5"
             role="group"
             aria-roledescription="slide"
-            aria-label={`${slideIndex + 1} of ${count}: ${slide.label}`}
+            aria-label={`${slideIndex + 1} of ${count}: ${t(slide.label)}`}
             aria-hidden={slideIndex !== index}
           >
             <div className={cn("overflow-hidden rounded-panel", aspectClass)}>{slide.content}</div>

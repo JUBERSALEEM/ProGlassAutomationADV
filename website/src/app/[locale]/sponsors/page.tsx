@@ -156,7 +156,7 @@ export default async function SponsorsPage({ params }: PageProps) {
 
                   <div className="mt-4 rounded-card border border-line/60 bg-ink-950/40 p-4">
                     <p className="mono-label">{t("What would change")}</p>
-                    <p className="mt-2 text-sm leading-relaxed text-text-secondary">{need.ask}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-text-secondary">{t(need.ask)}</p>
                   </div>
 
                   {need.evidence ? (
@@ -208,7 +208,7 @@ export default async function SponsorsPage({ params }: PageProps) {
                   },
                 ].map((item) => (
                   <li
-                    key={item.step}
+                    key={t(item.step)}
                     className="flex gap-4 rounded-card border border-line/60 bg-ink-900/50 p-4"
                   >
                     <span className="font-mono text-2xs text-brand-300">{t(item.step)}</span>
