@@ -47,15 +47,15 @@ export function Footer({ t }: { t: Translator }) {
             </p>
             <dl className="mt-6 space-y-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
               <div className="flex gap-2">
-                <dt>Version</dt>
+                <dt>{t("Version")}</dt>
                 <dd className="text-text-muted">{site.version}</dd>
               </div>
               <div className="flex gap-2">
-                <dt>Platform</dt>
-                <dd className="text-text-muted">{site.platform}</dd>
+                <dt>{t("Platform")}</dt>
+                <dd className="text-text-muted">{t(site.platform)}</dd>
               </div>
               <div className="flex gap-2">
-                <dt>Built with</dt>
+                <dt>{t("Built with")}</dt>
                 <dd className="text-text-muted">{site.framework}</dd>
               </div>
             </dl>
@@ -70,8 +70,12 @@ export function Footer({ t }: { t: Translator }) {
         </div>
 
         <div className="mt-12 flex flex-col gap-4 border-t border-line/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-text-faint font-medium">{site.copyrightLine}</p>
-          <p className="text-xs text-text-faint font-medium">{t("{v1}to sign in to on this website.", { v1: t("ProGlass Automation is desktop software. There is no cloud account, no subscription dashboard and nothing") })}</p>
+          <p className="text-xs text-text-faint font-medium">{t(site.copyrightLine)}</p>
+          <p className="text-xs text-text-faint font-medium">
+            {t(
+              "ProGlass Automation is desktop software. There is no cloud account, no subscription dashboard and nothing to sign in to on this website.",
+            )}
+          </p>
         </div>
       </div>
     </footer>

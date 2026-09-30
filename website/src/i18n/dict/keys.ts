@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 2500 keys.
+ * 2504 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -17,20 +17,20 @@ export const KEYS: string[] = [
   " · SGU",
   "— open the theme studio. Current: {v1} mode, {v2} palette.",
   "— the border line and the corner",
+  "— this is a working reconstruction of the {title} screen, not a screen capture. {caption}",
   "{count} languages",
   "{count} languages, chosen from the menu above and remembered on this device.",
   "{shown} of {total} sheets · the rest page through on",
+  "{stage} stage queue — {rows} work items for the seeded job, with the pieces that arrived, the pieces recorded done and the balance.",
   "{v1} — shipped inside the application, declared in ProGlassAutomation.csproj.",
   "{v1} {v2}underlining below are drawn rather than slanted and thickened.",
   "{v1} A job becomes dispatch-ready when the full quantity has finished the chain — press Advance to walk one through.",
   "{v1} Arranged here with a shelf packer over the sample cut list, so the figures are genuinely calculated — change the sheet or the quantity and read them again.",
   "{v1} mm plate · trim {v2} mm · kerf {v3} mm",
-  "{v1} of {v2} rows · grid shows 100 at a time",
-  "{v1} stage queue — {v2} work items for the seeded job, with the pieces that arrived, the pieces recorded done and the balance.",
   "{v1}· {v2}· contract {v3}. The quotation is priced in three specification groups and the delivery is deliberately partial, so the balance workflow is visible rather than described.",
   "{v1}above. The required value is that specification's area at its base rate plus {v2}%.",
   "{v1}setting in the application.",
-  "{v1}to sign in to on this website.",
+  "{visible} of {rows} rows · grid shows 100 at a time",
   "© 2026 Juber Saleem. Made in India. All rights reserved.",
   "1 · Industrial cut schedule",
   "2 · Money — revenue, glass cost and margin",
@@ -302,6 +302,7 @@ export const KEYS: string[] = [
   "Built in",
   "Built in the open about its limits",
   "Built on borrowed and shared machines.",
+  "Built with",
   "Bundled with this site",
   "Business software",
   "BUY / M²",
@@ -687,6 +688,7 @@ export const KEYS: string[] = [
   "Filter modules by navigation group",
   "Filter rows",
   "Filter screenshots by module",
+  "Filter the stage queue",
   "Finance & Accounting",
   "Find and find-and-replace across the rows, paste REF / W1 / H1 / W2 / H2 / QTY straight from Excel or a BOQ, generate rows in bulk up to ten thousand, and delete a line from the row itself. Under it all sits the grand total summary: one row per specification — qty, total SQM, value — and the grand row across them, read-only, rolled up before Step 6 adds charges.",
   "Find and replace, Excel paste, bulk row generation and a grand total summary rolled up under the grid",
@@ -1492,7 +1494,7 @@ export const KEYS: string[] = [
   "ProGlass Automation is built as one document chain carried by twenty-five view areas. This page walks the modules that make up the working day: what each one does, which screens it opens, and where in the product it sits.",
   "ProGlass Automation is built by one developer. What sponsorship funds, which work is open to collaborators, and how to get involved without buying influence.",
   "ProGlass Automation is desktop software for glass fabrication businesses: what it is, the problem it solves, how it is built and what it does not do.",
-  "ProGlass Automation is desktop software. There is no cloud account, no subscription dashboard and nothing",
+  "ProGlass Automation is desktop software. There is no cloud account, no subscription dashboard and nothing to sign in to on this website.",
   "ProGlass Automation is developed by {v1}. The developer page covers the build, the technology and the thinking behind it.",
   "ProGlass Automation is licensed per business with a signed licence file activated offline. The editions below are the ones the application itself defines, and the feature gating is the same map the navigation rail uses — so what this page says and what the application does cannot drift apart.",
   "ProGlass Automation is licensed with a signed licence file that is activated offline. There is no licence server that has to be reachable, and no account to create. This page describes what a customer needs to know.",
@@ -1936,6 +1938,7 @@ export const KEYS: string[] = [
   "surcharge rate once a panel reaches {SURCHARGE_THRESHOLD_SQM} square metres.",
   "Surcharged rows",
   "Surfaced at 14 days remaining",
+  "Switch appearance mode",
   "Switch the signed-in user without closing the app.",
   "System — Logs & Activity",
   "System Center",
@@ -2348,6 +2351,7 @@ export const KEYS: string[] = [
   "Vent light",
   "Verification",
   "Verification oracles",
+  "Version",
   "View module",
   "View result",
   "View screenshots",

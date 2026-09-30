@@ -113,7 +113,10 @@ export function ScreenshotFrame({
           <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">
             {t("Interactive preview")}
           </span>{" "}
-          — this is a working reconstruction of the {t(shot.title)} screen, not a screen capture. {t(shot.caption)}
+          {t(
+            "— this is a working reconstruction of the {title} screen, not a screen capture. {caption}",
+            { title: t(shot.title), caption: t(shot.caption) },
+          )}
         </>
       }
     >

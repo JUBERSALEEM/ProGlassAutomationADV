@@ -174,7 +174,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
       {/* ── FILTER BAR + WAITING UPSTREAM ──────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-2">
         <label className="flex items-center gap-1.5 rounded-lg border border-line-strong/60 bg-ink-900/70 px-2 py-1">
-          <span className="sr-only">Filter the stage queue</span>
+          <span className="sr-only">{t("Filter the stage queue")}</span>
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -193,13 +193,16 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
             {t("waiting upstream · {length}", { length: waiting.length })}
           </span>
         ) : null}
-        <span className="ml-auto font-mono text-[0.6875rem] tabular-nums text-text-faint font-medium">{t("{v1} of {v2} rows · grid shows 100 at a time", { v1: visible.length, v2: rows.length })}</span>
+        <span className="ml-auto font-mono text-[0.6875rem] tabular-nums text-text-faint font-medium">{t("{visible} of {rows} rows · grid shows 100 at a time", { visible: visible.length, rows: rows.length })}</span>
       </div>
 
       {/* ── THE GRID ───────────────────────────────────────────────────── */}
       <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-line/60 bg-ink-950/50">
         <table className="w-full min-w-[46rem] border-collapse text-left">
-          <caption className="sr-only">{t("{v1} stage queue — {v2} work items for the seeded job, with the pieces that arrived, the pieces recorded done and the balance.", { v1: current, v2: rows.length })}</caption>
+          <caption className="sr-only">{t(
+              "{stage} stage queue — {rows} work items for the seeded job, with the pieces that arrived, the pieces recorded done and the balance.",
+              { stage: current, rows: rows.length },
+            )}</caption>
           <thead className="sticky top-0 z-10 bg-ink-900/95 backdrop-blur">
             <tr className="border-b border-line/60">
               {columns.map((column) => (

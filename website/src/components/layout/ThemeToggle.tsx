@@ -82,7 +82,7 @@ export function ThemeToggle({ className }: { className?: string }) {
             style={{ background: activeFamily.swatch }}
           />
           <ModeIcon name={activeMode.icon} />
-          <span className="sr-only">Switch appearance mode</span>
+          <span className="sr-only">{t("Switch appearance mode")}</span>
         </button>
         <button
           type="button"

@@ -75,7 +75,7 @@ const SCRIPTS = {
  * it a reader of the language would recognise.
  */
 const ENGLISH_TELLS =
-  /\b(?:the|and|with|for|your|from|this|that|these|those|every|each|you|they|their|there|when|which|what|where|how|into|without|than|then|is|are|was|were|has|have|had|not|all|any|both|same|other|only|also|about|above|below|between|against|before|after|over|under|again|because|while|during|until)\b/i;
+  /\b(?:the|and|with|for|your|from|this|that|these|those|every|each|you|they|their|there|when|which|what|where|how|into|without|than|then|is|are|were|has|have|had|not|all|any|both|same|other|only|also|about|above|below|between|against|before|after|over|under|again|because|while|during|until)\b/i;
 const LATIN = new Set(["en-US", "de-DE", "es-ES", "fr-FR", "id-ID", "pt-BR", "tr-TR"]);
 function looksEnglish(text) {
   if (LATIN.has(locale)) return ENGLISH_TELLS.test(text);
