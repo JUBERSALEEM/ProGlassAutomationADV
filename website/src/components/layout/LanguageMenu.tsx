@@ -6,6 +6,7 @@ import { cn } from "@/lib/cn";
 import { LOCALES, type Locale } from "@/i18n/locales";
 import { LOCALE_COOKIE, pathWithoutLocale } from "@/i18n/core";
 import { useI18n } from "@/i18n/provider";
+import { coverageOf } from "@/i18n/coverage";
 
 /**
  * The language menu.
@@ -26,6 +27,20 @@ import { useI18n } from "@/i18n/provider";
  * visit, so the language someone picked survives going away and coming back —
  * and it outranks the country guess, because a person's choice is better
  * evidence than their IP address.
+ *
+ * **The menu says how complete each language is, and where the rest comes
+ * from.** Every language that is not finished shows its real share, computed
+ * from the dictionary in this build, and the menu states the alternative the
+ * browser already offers: translate the remainder in the browser. A menu that
+ * shows fifteen languages and lets the reader assume they are all finished is
+ * lying by omission; a menu that shows twelve at 14 % invites the reader to use
+ * the better tool for the remainder, which is the browser.
+ *
+ * **The menu is marked `translate="no"`.** A language list is a list of names —
+ * "Bahasa Indonesia", "العربية", "日本語" — and a machine translator rendering
+ * those into the page's current language would destroy the only thing the list
+ * is for. Chrome, Edge and Safari all honour the attribute (and the
+ * `notranslate` class, which is set alongside it).
  */
 /**
  * Remember the choice.
@@ -96,7 +111,7 @@ export function LanguageMenu({ compact = false }: { compact?: boolean }) {
   };
 
   return (
-    <div className="relative" ref={wrap}>
+    <div className="notranslate relative" ref={wrap} translate="no" data-notranslate="">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
@@ -156,6 +171,17 @@ export function LanguageMenu({ compact = false }: { compact?: boolean }) {
                     {entry.english}
                   </span>
                 </span>
+                <span
+                  dir="ltr"
+                  className={cn(
+                    "ms-auto shrink-0 rounded-full border px-1.5 py-0.5 font-mono text-3xs tabular-nums",
+                    entry.code === "en-US" || coverageOf(entry.code).complete
+                      ? "border-money-positive/35 text-money-positive"
+                      : "border-line-strong/60 text-text-faint",
+                  )}
+                >
+                  {entry.code === "en-US" ? "source" : `${coverageOf(entry.code).percent}%`}
+                </span>
                 {active ? (
                   <svg
                     aria-hidden="true"
@@ -176,6 +202,9 @@ export function LanguageMenu({ compact = false }: { compact?: boolean }) {
           <p className="mt-2 border-t border-line/60 px-2 pt-2 text-2xs leading-relaxed text-text-faint">
             {t("{count} languages, chosen from the menu above and remembered on this device.", { count: LOCALES.length })}
           </p>
+          <p className="px-2 pb-1 pt-1.5 text-2xs leading-relaxed text-text-faint">
+            {t("The percentage is the share of this site's sentences that ship in that language. For the rest, use your browser's own translation — the numbers and part numbers are marked so it leaves them alone.")}
+          </p>
         </div>
       ) : null}
     </div>
@@ -195,7 +224,11 @@ export function LanguageMenuBlock() {
   };
 
   return (
-    <div className="rounded-card border-2 border-line-strong/50 bg-ink-900/60 p-2">
+    <div
+      className="notranslate rounded-card border-2 border-line-strong/50 bg-ink-900/60 p-2"
+      translate="no"
+      data-notranslate=""
+    >
       <p className="flex items-center gap-2 px-1 pb-2 text-2xs font-semibold uppercase tracking-[0.14em] text-text-faint">
         <GlobeIcon className="h-3.5 w-3.5" />
         {t("Language")}

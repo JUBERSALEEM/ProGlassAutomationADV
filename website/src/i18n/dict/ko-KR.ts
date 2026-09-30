@@ -280,6 +280,7 @@ const dict: Overlay = {
   "The document chain": "문서 체인",
   "The guillotine nesting engine: eight tabs, two oracles, five machine export formats.": "기요틴 중첩 엔진: 8개 탭, 2개 오라클, 5가지 기계 내보내기 형식.",
   "The nine-step estimation wizard — the single pricing engine the whole application reads from.": "9단계 견적 마법사 — 애플리케이션 전체가 읽는 유일한 가격 엔진.",
+  "The percentage is the share of this site's sentences that ship in that language. For the rest, use your browser's own translation — the numbers and part numbers are marked so it leaves them alone.": "백분율은 이 사이트의 문장 중 해당 언어로 제공되는 비율입니다. 나머지는 브라우저 자체 번역을 사용하세요. 숫자와 부품 번호는 표시해 두어 번역이 건드리지 않습니다.",
   "The rack, as records: buy and use movements with history, never an edited number.": "랙은 기록으로: 입고와 사용 이동이 이력과 함께 남고, 편집된 숫자가 되지 않습니다.",
   "Thickness · COLOUR · TREATMENT · EDGE POLISH · PANEL EXTRA": "두께 · 색상 · 처리 · 모서리 연마 · 패널 추가",
   "This website and the desktop application": "이 웹사이트와 데스크톱 애플리케이션",

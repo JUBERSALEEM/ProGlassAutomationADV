@@ -23,6 +23,7 @@ import { packGuillotine, plateViews } from "@/lib/guillotinePack";
 import { optimizerLimits } from "@/data/liveDemos";
 import { cn } from "@/lib/cn";
 import { useT } from "@/i18n/provider";
+import { NoTranslate } from "@/components/i18n/NoTranslate";
 
 /**
  * Step 5 — the specification, working.
@@ -954,7 +955,9 @@ export function SpecificationSurface({
           {/* The generated name, exactly as the panel composes it. */}
           <p className="mt-2 flex flex-wrap items-baseline gap-2 rounded-lg border border-line/50 bg-ink-900/50 px-2.5 py-1.5">
             <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Spec</span>
-            <span className="font-mono text-[0.8125rem] font-semibold text-brand-100">{generatedName}</span>
+            <NoTranslate as="span" className="font-mono text-[0.8125rem] font-semibold text-brand-100">
+              {generatedName}
+            </NoTranslate>
           </p>
 
           <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -1234,7 +1237,9 @@ export function SpecificationSurface({
                   find.trim() && row.ref.includes(find.trim()) ? "bg-brand-400/8" : "",
                 )}
               >
-                <td className="px-2.5 py-1.5 font-mono text-[0.75rem] text-text-faint">{row.serial}</td>
+                <td className="px-2.5 py-1.5 font-mono text-[0.75rem] text-text-faint">
+                  <NoTranslate>{row.serial}</NoTranslate>
+                </td>
                 <td className="whitespace-nowrap px-2.5 py-1.5 font-mono text-[0.75rem] text-text-secondary">{row.ref}</td>
                 <NumCell value={row.w1} onChange={(value) => editRow(row.serial, { w1: value })} label={`Width 1 for ${row.ref}`} />
                 <NumCell value={row.h1} onChange={(value) => editRow(row.serial, { h1: value })} label={`Height 1 for ${row.ref}`} />

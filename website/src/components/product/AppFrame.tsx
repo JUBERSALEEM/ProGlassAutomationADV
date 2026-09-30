@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { LogoMark } from "@/components/brand/Logo";
 import type { Translator } from "@/i18n/core";
+import { NoTranslate } from "@/components/i18n/NoTranslate";
 
 /**
  * The ProGlass application frame.
@@ -156,7 +157,7 @@ export function AppFrame({
         <div className="flex items-center gap-2.5">
           <LogoMark size={20} />
           <span className="font-mono text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-text-faint">
-            {t("ProGlass Automation")}
+            <NoTranslate>{t("ProGlass Automation")}</NoTranslate>
           </span>
         </div>
         <div className="flex items-center gap-1.5" aria-hidden="true">

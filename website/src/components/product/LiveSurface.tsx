@@ -21,6 +21,7 @@ import { stageChain, type StageChainId } from "@/data/stageQueue";
 import { SheetGallery } from "@/components/optimization/SheetGallery";
 import { packGuillotine, plateViews } from "@/lib/guillotinePack";
 import { useT } from "@/i18n/provider";
+import { NoTranslate } from "@/components/i18n/NoTranslate";
 
 /**
  * The live module preview.
@@ -1014,7 +1015,9 @@ function FormEngine({ moduleKey, demo, view }: { moduleKey: string; demo: Demo; 
     <div className="flex h-full flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SampleTag />
-        <p className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-text-faint font-medium">{moduleKey}</p>
+        <NoTranslate as="p" className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-text-faint font-medium">
+          {moduleKey}
+        </NoTranslate>
       </div>
 
       <dl className="space-y-1.5">
@@ -1024,7 +1027,9 @@ function FormEngine({ moduleKey, demo, view }: { moduleKey: string; demo: Demo; 
             className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line/40 pb-1.5 last:border-0"
           >
             <dt className="text-[0.75rem] font-medium text-text-secondary">{t(item.label)}</dt>
-            <dd className="font-mono text-[0.75rem] text-text-muted">{item.value}</dd>
+            <dd className="font-mono text-[0.75rem] text-text-muted">
+              <NoTranslate>{item.value}</NoTranslate>
+            </dd>
           </div>
         ))}
       </dl>

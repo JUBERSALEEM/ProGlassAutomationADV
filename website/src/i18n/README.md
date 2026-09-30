@@ -176,6 +176,65 @@ truncated answer is refused rather than misaligned), a fresh split deletes the
 previous chunk files so a stale URL cannot be answered, and the applier keeps a
 key's own leading space (`" — clamped"` is a key).
 
+## Browser translation: what it is for, and what it is not for
+
+Chrome translates a whole page in about a second and it costs nothing, so the
+honest question is why this site ships 2,554 sentences per language at all. The
+answer is not "we did it first" — it is that the two tools answer different
+questions, and this site has one question that a browser translator gets wrong
+every time.
+
+**What the browser is good at.** A visitor reading Indonesian, Turkish or
+Japanese meets a site whose dictionaries are 12 % filled. Chrome will render
+the remaining paragraphs competently, in place, for free, and it will do it for
+a language nobody has thought to fill. That is a real service and this site does
+not fight it: the document carries a correct `lang` and `dir`, which is exactly
+what makes the browser offer the translation, and the language menu says so out
+loud instead of letting the reader assume fifteen finished languages.
+
+**What the browser must not be asked to do here.**
+
+1. **Trade vocabulary.** A machine translator has never seen a proforma, an SGU
+   air space, a Z/W trim or an edge-deletion table. It renders them plausibly
+   and wrongly, and the reader is an estimator who will recognise the wrong word
+   immediately. The product's own words live in `Themes/Languages/*.xaml`, and
+   the site is built so the two cannot drift.
+2. **Numbers as prose.** Machine translation rewrites `34,762.19` as
+   `34.762,19`, `40 pcs` as `40 pieces`, `3210 × 2250` as something with a
+   different multiplication sign, and it will happily translate a unit. Every
+   figure on this site is a real one from the seeded documents; a translated
+   number is a false statement about the product.
+3. **The half-page problem.** The optimizer, the specification grid and the P&L
+   tabs recompute their text in the browser. Chrome translates the DOM it can
+   see, so a run, a tab switch or a rule tick inside a translated page inserts
+   English into a translated page — the exact "partially translated" state this
+   round exists to remove.
+4. **Attributes and metadata.** `aria-label`, `title`, `placeholder`, the
+   per-page `<meta name="description">` and the JSON-LD are translated
+   unreliably or not at all, and they are the parts a screen reader and a search
+   engine read.
+5. **Its own vocabulary.** A language list written in the languages themselves
+   is destroyed by translating it, and a brand name translated is a brand name
+   lost.
+
+**So the policy is: ship the sentences, mark the data, cooperate with the
+browser for the rest.** Concretely, in this repository:
+
+- the language menu states each language's real coverage, computed from the
+  dictionary in the build (`src/i18n/coverage.ts`) rather than typed into a
+  table, and tells the reader that the browser can translate the remainder;
+- the menu and the brand mark are marked `translate="no"` (with the
+  `notranslate` class, because engines differ on which they read);
+- anything that is data rather than prose — a spec name, a serial, a module
+  key, a rack code — goes through `<NoTranslate>`, which is the same line
+  `scripts/i18n-extract.mjs` already draws when it refuses to treat identifiers
+  and proper nouns as language. Prose stays translatable; data does not.
+
+A third-party translation widget was considered and rejected for the same
+reason: it would put a second, ungoverned dictionary in front of the reader,
+break the 4,560 `hreflang` links that already tell search engines about
+fifteen real versions, and hide the gap instead of closing it.
+
 ## What is not language
 
 The extractor excludes, deliberately and visibly:

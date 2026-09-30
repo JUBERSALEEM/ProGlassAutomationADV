@@ -25,8 +25,9 @@ export function LogoMark({
       viewBox="0 0 32 32"
       width={size}
       height={size}
-      className={cn("shrink-0", className)}
+      className={cn("notranslate shrink-0", className)}
       role="img"
+      data-notranslate=""
       aria-label="ProGlass Automation"
     >
 

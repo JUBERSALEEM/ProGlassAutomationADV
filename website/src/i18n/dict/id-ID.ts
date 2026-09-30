@@ -280,6 +280,7 @@ const dict: Overlay = {
   "The document chain": "Rantai dokumen",
   "The guillotine nesting engine: eight tabs, two oracles, five machine export formats.": "Mesin penyusunan guillotine: delapan tab, dua oracle, lima format ekspor mesin.",
   "The nine-step estimation wizard — the single pricing engine the whole application reads from.": "Panduan estimasi sembilan langkah — satu-satunya mesin harga yang dibaca seluruh aplikasi.",
+  "The percentage is the share of this site's sentences that ship in that language. For the rest, use your browser's own translation — the numbers and part numbers are marked so it leaves them alone.": "Persentase adalah bagian kalimat situs ini yang tersedia dalam bahasa tersebut. Untuk sisanya, gunakan terjemahan peramban Anda sendiri — angka dan nomor komponen ditandai agar tidak diubahnya.",
   "The rack, as records: buy and use movements with history, never an edited number.": "Rak, sebagai catatan: pergerakan beli dan pakai dengan riwayat, tidak pernah angka yang diedit.",
   "Thickness · COLOUR · TREATMENT · EDGE POLISH · PANEL EXTRA": "KETEBALAN · WARNA · PERLAKUAN · POLES TEPI · EXTRA PANEL",
   "This website and the desktop application": "Situs web ini dan aplikasi desktop",

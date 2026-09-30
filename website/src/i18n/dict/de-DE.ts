@@ -1209,6 +1209,7 @@ const dict: Overlay = {
   "The partial delivery": "Die Teillieferung",
   "The parts of the job this application holds.": "Die Teile des Auftrags, die diese Anwendung führt.",
   "The per-proforma profit and loss the engine already computed, over a period.": "Der Gewinn und Verlust je Proformarechnung, den die Engine bereits berechnet hat, über einen Zeitraum.",
+  "The percentage is the share of this site's sentences that ship in that language. For the rest, use your browser's own translation — the numbers and part numbers are marked so it leaves them alone.": "Die Prozentangabe ist der Anteil der Sätze dieser Website, die in dieser Sprache vorliegen. Den Rest kann die Übersetzung Ihres Browsers übernehmen — Zahlen und Teilenummern sind gekennzeichnet, damit sie unangetastet bleiben.",
   "The period's VAT figures inside the reporting hub.": "Die MwSt.-Zahlen des Zeitraums im Berichtshub.",
   "The period's VAT figures, gathered from one calculator so they agree with the invoices.": "Die MwSt.-Zahlen des Zeitraums, aus einem Rechner gesammelt, damit sie zu den Rechnungen passen.",
   "The person building it": "Die Person, die es baut",

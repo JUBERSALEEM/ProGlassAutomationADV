@@ -280,6 +280,7 @@ const dict: Overlay = {
   "The document chain": "La cadena documental",
   "The guillotine nesting engine: eight tabs, two oracles, five machine export formats.": "El motor de anidado de guillotina: ocho pestañas, dos oráculos, cinco formatos de exportación a máquina.",
   "The nine-step estimation wizard — the single pricing engine the whole application reads from.": "El asistente de estimación de nueve pasos — el único motor de precios del que lee toda la aplicación.",
+  "The percentage is the share of this site's sentences that ship in that language. For the rest, use your browser's own translation — the numbers and part numbers are marked so it leaves them alone.": "El porcentaje es la proporción de frases de este sitio disponibles en ese idioma. Para el resto, use la traducción de su propio navegador: los números y las referencias de piezas están marcados para que no los toque.",
   "The rack, as records: buy and use movements with history, never an edited number.": "El estante, como registros: movimientos de compra y consumo con historial, nunca una cifra editada.",
   "Thickness · COLOUR · TREATMENT · EDGE POLISH · PANEL EXTRA": "ESPESOR · COLOR · TRATAMIENTO · PULIDO DE BORDE · EXTRA DE PANEL",
   "This website and the desktop application": "Este sitio web y la aplicación de escritorio",

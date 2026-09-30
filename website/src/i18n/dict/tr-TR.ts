@@ -280,6 +280,7 @@ const dict: Overlay = {
   "The document chain": "Belge zinciri",
   "The guillotine nesting engine: eight tabs, two oracles, five machine export formats.": "Giytotin yerleştirme motoru: sekiz sekme, iki oracle, beş makine dışa aktarma biçimi.",
   "The nine-step estimation wizard — the single pricing engine the whole application reads from.": "Dokuz adımlı fiyatlandırma sihirbazı — tüm uygulamanın okuduğu tek fiyat motoru.",
+  "The percentage is the share of this site's sentences that ship in that language. For the rest, use your browser's own translation — the numbers and part numbers are marked so it leaves them alone.": "Yüzde, bu sitenin cümlelerinden kaçının o dilde yayımlandığını gösterir. Geri kalanı için tarayıcınızın kendi çevirisini kullanın — sayılar ve parça numaraları işaretlidir, onlara dokunmaz.",
   "The rack, as records: buy and use movements with history, never an edited number.": "Raf, kayıt olarak: geçmişiyle alım ve tüketim hareketleri, asla düzenlenmiş bir sayı değil.",
   "Thickness · COLOUR · TREATMENT · EDGE POLISH · PANEL EXTRA": "KALINLIK · RENK · İŞLEM · KENAR CİLASI · PANEL EKSTRASI",
   "This website and the desktop application": "Bu web sitesi ve masaüstü uygulaması",

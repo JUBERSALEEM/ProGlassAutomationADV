@@ -119,6 +119,14 @@ proforma, a job order, a delivery note, a production stage and a base rate are
 called what `Themes/Languages/<code>.xaml` calls them, so the website and the
 software cannot drift apart.
 
+The menu also states how complete each language is — computed from the
+dictionary in the build — and tells the reader that the browser's own
+translation can carry the remainder. That is a deliberate division of labour
+rather than a fallback: the shipped dictionaries carry the product's words and
+the real figures, the browser carries the prose nobody has filled yet, and
+everything that is data rather than prose (spec names, serials, module keys,
+the brand) is marked `translate="no"` so no translator rewrites it.
+
 The whole pipeline — how keys are extracted, how a language is filled, how
 coverage is measured, and how to see what English is still on a page — is in
 [`src/i18n/README.md`](src/i18n/README.md). That file also carries the measured

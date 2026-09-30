@@ -280,6 +280,7 @@ const dict: Overlay = {
   "The document chain": "文档链",
   "The guillotine nesting engine: eight tabs, two oracles, five machine export formats.": "闸刀排版引擎：八个标签页、两个校验器、五种机床导出格式。",
   "The nine-step estimation wizard — the single pricing engine the whole application reads from.": "九步估价向导 — 整个应用读取的唯一定价引擎。",
+  "The percentage is the share of this site's sentences that ship in that language. For the rest, use your browser's own translation — the numbers and part numbers are marked so it leaves them alone.": "百分比表示本站句子中已提供该语言的比例。其余部分可使用浏览器自带的翻译——数字和零件编号已作标记，翻译不会改动它们。",
   "The rack, as records: buy and use movements with history, never an edited number.": "料架即记录：入库与领用变动都带历史，绝不是被改过的数字。",
   "Thickness · COLOUR · TREATMENT · EDGE POLISH · PANEL EXTRA": "厚度 · 颜色 · 处理 · 边缘抛光 · 面板附加",
   "This website and the desktop application": "本网站与桌面应用",

@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 2553 keys.
+ * 2554 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -2174,6 +2174,7 @@ export const KEYS: string[] = [
   "The partial delivery",
   "The parts of the job this application holds.",
   "The per-proforma profit and loss the engine already computed, over a period.",
+  "The percentage is the share of this site's sentences that ship in that language. For the rest, use your browser's own translation — the numbers and part numbers are marked so it leaves them alone.",
   "The period's VAT figures inside the reporting hub.",
   "The period's VAT figures, gathered from one calculator so they agree with the invoices.",
   "The person building it",

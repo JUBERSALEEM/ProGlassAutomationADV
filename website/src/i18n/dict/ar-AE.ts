@@ -2184,6 +2184,7 @@ const dict: Overlay = {
   "The partial delivery": "التسليم الجزئي",
   "The parts of the job this application holds.": "أجزاء العمل التي يحفظها هذا التطبيق.",
   "The per-proforma profit and loss the engine already computed, over a period.": "أرباح وخسائر كل فاتورة أولية كما حسبها المحرّك، على مدى مدة.",
+  "The percentage is the share of this site's sentences that ship in that language. For the rest, use your browser's own translation — the numbers and part numbers are marked so it leaves them alone.": "النسبة هي حصة جمل هذا الموقع المنشورة بهذه اللغة. وما تبقّى فيمكنك ترجمته بترجمة المتصفح نفسه — الأرقام وأرقام القطع معلَّمة كي لا يمسّها.",
   "The period's VAT figures inside the reporting hub.": "أرقام ضريبة المدة داخل محور التقارير.",
   "The period's VAT figures, gathered from one calculator so they agree with the invoices.": "أرقام ضريبة المدة، مجمّعة من حاسبة واحدة لتتفق مع الفواتير.",
   "The person building it": "من يبنيه",
