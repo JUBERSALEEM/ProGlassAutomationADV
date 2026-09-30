@@ -77,7 +77,7 @@ export function LegalPage({
                   <div className="flow mt-4">
                     {section.paragraphs.map((paragraph) => (
                       <p key={paragraph} className="text-sm leading-relaxed text-text-secondary sm:text-base">
-                        {paragraph}
+                        {t(paragraph)}
                       </p>
                     ))}
                     {section.list ? (
@@ -85,7 +85,7 @@ export function LegalPage({
                         {section.list.map((item) => (
                           <li key={item} className="flex gap-3 text-sm leading-relaxed text-text-muted">
                             <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/70" />
-                            {item}
+                            {t(item)}
                           </li>
                         ))}
                       </ul>

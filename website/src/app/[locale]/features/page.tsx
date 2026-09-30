@@ -386,7 +386,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             {featureGroups.map((group, index) => (
               <Reveal key={group.id} id={group.id} delay={index * 60} className="surface-raised p-6 sm:p-7">
                 <h3 className="text-lg font-semibold text-text-primary">{t(group.title)}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-text-muted">{group.lead}</p>
+                <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(group.lead)}</p>
                 <ul className="mt-5 space-y-3.5 border-t border-line/60 pt-5">
                   {group.items.map((item) => (
                     <li key={item.title} className="flex gap-3">

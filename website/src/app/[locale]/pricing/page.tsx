@@ -188,7 +188,7 @@ export default async function PricingPage({ params }: PageProps) {
                         key={module}
                         className="rounded-lg border border-line-strong/70 bg-ink-900/60 px-2.5 py-1 text-xs text-text-secondary"
                       >
-                        {module}
+                        {t(module)}
                       </li>
                     ))}
                   </ul>

@@ -455,7 +455,7 @@ const faq = [
                   <dd className="mt-2 flex flex-wrap gap-1.5">
                     {row.items.map((item) => (
                       <span key={item} className="chip">
-                        {item}
+                        {t(item)}
                       </span>
                     ))}
                   </dd>

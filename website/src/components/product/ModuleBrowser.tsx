@@ -157,7 +157,7 @@ function ModuleCard({ module }: { module: ProductModule }) {
         {module.capabilities.slice(0, 3).map((item) => (
           <li key={item} className="flex gap-2.5 text-xs leading-relaxed text-text-muted">
             <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
-            {item}
+            {t(item)}
           </li>
         ))}
       </ul>

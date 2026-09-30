@@ -82,7 +82,7 @@ export default async function ResourcesPage({ params }: PageProps) {
                 key={category}
                 className="rounded-full border border-line-strong/70 bg-ink-900/60 px-3.5 py-1.5 text-xs font-medium text-text-muted"
               >
-                {category}
+                {t(category)}
               </span>
             ))}
           </Reveal>

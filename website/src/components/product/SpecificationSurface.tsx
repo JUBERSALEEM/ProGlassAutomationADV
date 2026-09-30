@@ -1033,8 +1033,19 @@ export function SpecificationSurface({
           </div>
 
           <p className="mt-2 text-[0.6875rem] leading-snug text-text-muted font-medium">
-            The outer sheet rate comes from the sheet store — {cash(step4RatePerSqm(block.glassType as GlassBuildCode, build.thickness ?? "6mm", build.colour ?? "Clear", block.glassType === "DGU" || block.glassType === "DGU+LAM"))} / m² on
-            this build. Changing any field above re-derives the specification&apos;s base rate and re-prices every row, the way
+            {t(
+              "The outer sheet rate comes from the sheet store — {v0} / m² on this build. Changing any field above re-derives the specification's base rate and re-prices every row, the way",
+              {
+                v0: cash(
+                  step4RatePerSqm(
+                    block.glassType as GlassBuildCode,
+                    build.thickness ?? "6mm",
+                    build.colour ?? "Clear",
+                    block.glassType === "DGU" || block.glassType === "DGU+LAM",
+                  ),
+                ),
+              },
+            )}
             <span className="mx-1 font-mono">ApplyStep4PricingSnapshot</span>
             {t("does on the Continue button.")}
           </p>
@@ -1515,8 +1526,9 @@ export function SpecificationSurface({
         </div>
         <table className="mt-2 w-full border-collapse text-left">
           <caption className="sr-only">
-            {t("One row per specification with its quantity, total square metres and value, then the grand total across the")}
-            specification the grid is showing.
+            {t(
+              "One row per specification with its quantity, total square metres and value, then the grand total across the specification the grid is showing.",
+            )}
           </caption>
           <thead>
             <tr className="border-b border-line/60">
@@ -1579,8 +1591,9 @@ export function SpecificationSurface({
           </tfoot>
         </table>
         <p className="mt-1.5 text-[0.6875rem] leading-snug text-text-faint font-medium">
-          Grand total of the specification data only. Other charges, discount and VAT are added on the steps after this one —
-          the document&apos;s own grand total is the one the invoice summary prints, not this rollup.
+          {t(
+            "Grand total of the specification data only. Other charges, discount and VAT are added on the steps after this one — the document's own grand total is the one the invoice summary prints, not this rollup.",
+          )}
         </p>
       </div>
 

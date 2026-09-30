@@ -166,7 +166,7 @@ export default async function OptimizationPage({ params }: PageProps) {
                       scope="col"
                       className="border-b border-line-strong/70 px-4 py-3 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium"
                     >
-                      {heading}
+                      {t(heading)}
                     </th>
                   ))}
                 </tr>
@@ -280,7 +280,7 @@ export default async function OptimizationPage({ params }: PageProps) {
                   {engineHonestyNotes.map((note) => (
                     <li key={note} className="flex gap-3 text-sm leading-relaxed text-text-muted">
                       <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
-                      {note}
+                      {t(note)}
                     </li>
                   ))}
                 </ul>
@@ -327,7 +327,7 @@ export default async function OptimizationPage({ params }: PageProps) {
                   {tab.bullets.map((bullet) => (
                     <li key={bullet} className="flex gap-2.5 text-xs leading-relaxed text-text-faint font-medium">
                       <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-line-strong" />
-                      {bullet}
+                      {t(bullet)}
                     </li>
                   ))}
                 </ul>

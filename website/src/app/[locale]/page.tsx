@@ -25,6 +25,7 @@ import { screenshots, screenshotById } from "@/data/screenshots";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
+import type { Translator } from "@/i18n/core";
 import { translatorFor } from "@/i18n/server";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -157,7 +158,7 @@ export default async function HomePage({ params }: PageProps) {
 
           <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-14">
             <div className="lg:sticky lg:top-28 lg:self-start">
-              <ChainDiagram />
+              <ChainDiagram t={t} />
               <p className="mt-6 text-xs leading-relaxed text-text-faint font-medium">{t("Status vocabularies and handoff guarantees are taken from the application's own workflow documentation and the transition code that enforces them.")}</p>
             </div>
             <WorkflowRail
@@ -356,8 +357,8 @@ export default async function HomePage({ params }: PageProps) {
                     <div className="flex gap-4 rounded-card border border-line/60 bg-ink-900/50 p-3.5 transition-colors duration-300 hover:border-line-strong">
                       <IndexChip className="h-7 w-7 text-[0.75rem]">{String(index + 1).padStart(2, "0")}</IndexChip>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-text-primary">{step}</p>
-                        <p className="mt-0.5 text-xs leading-relaxed text-text-muted">{detail}</p>
+                        <p className="text-sm font-medium text-text-primary">{t(step ?? "")}</p>
+                        <p className="mt-0.5 text-xs leading-relaxed text-text-muted">{t(detail ?? "")}</p>
                       </div>
                     </div>
                   </Reveal>
@@ -399,8 +400,8 @@ export default async function HomePage({ params }: PageProps) {
                     ["Downstream", "Job profitability, statements and reports read this snapshot"],
                   ].map(([term, detail]) => (
                     <div key={term} className="rounded-card border border-line/60 bg-ink-950/50 p-3.5">
-                      <dt className="text-xs font-medium uppercase tracking-[0.1em] text-text-faint">{term}</dt>
-                      <dd className="mt-1 text-sm leading-relaxed text-text-secondary">{detail}</dd>
+                      <dt className="text-xs font-medium uppercase tracking-[0.1em] text-text-faint">{t(term ?? "")}</dt>
+                      <dd className="mt-1 text-sm leading-relaxed text-text-secondary">{t(detail ?? "")}</dd>
                     </div>
                   ))}
                 </dl>
@@ -561,7 +562,7 @@ export default async function HomePage({ params }: PageProps) {
               .map((group, index) => (
                 <Reveal key={group.id} delay={index * 70} className="surface-raised flex flex-col p-6">
                   <h3 className="text-lg font-semibold text-text-primary">{t(group.title)}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-text-muted">{group.lead}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(group.lead)}</p>
                   <ul className="mt-5 space-y-3 border-t border-line/60 pt-5">
                     {group.items.slice(0, 4).map((item) => (
                       <li key={item.title}>
@@ -730,7 +731,7 @@ export default async function HomePage({ params }: PageProps) {
 }
 
 /** The chain as a compact vertical diagram for the sticky column. */
-function ChainDiagram() {
+function ChainDiagram({ t }: { t: Translator }) {
   const stages = ["Inquiry", "Proforma", "Job order", "Production", "Delivery", "Tax invoice", "Statement"];
   return (
     <ol className="space-y-1.5">
@@ -738,7 +739,7 @@ function ChainDiagram() {
         <li key={`${stage}-${index}`} className="flex items-center gap-3">
           <span className="font-mono text-2xs tabular-nums text-text-faint font-medium">{String(index + 1).padStart(2, "0")}</span>
           <span className="flex-1 rounded-lg border border-line/60 bg-ink-900/60 px-3 py-2 text-sm text-text-secondary">
-            {stage}
+            {t(stage)}
           </span>
         </li>
       ))}

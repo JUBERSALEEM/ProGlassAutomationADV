@@ -48,7 +48,7 @@ export function ModuleShowcase({
                   {module.capabilities.map((item) => (
                     <li key={item} className="flex gap-2.5 text-sm leading-relaxed text-text-muted">
                       <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
-                      {item}
+                      {t(item)}
                     </li>
                   ))}
                 </ul>

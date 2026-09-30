@@ -256,7 +256,11 @@ function TableEngine({
                         column.hideBelow === "md" && "hidden md:table-cell",
                       )}
                     >
-                      {column.kind === "status" ? <StatusPill value={row[column.key] ?? ""} /> : row[column.key]}
+                      {column.kind === "status" ? (
+                        <StatusPill value={String(row[column.key] ?? "")} />
+                      ) : (
+                        t(String(row[column.key] ?? ""))
+                      )}
                     </td>
                   ))}
                 </tr>
@@ -292,7 +296,7 @@ function TableEngine({
                       item.money ? "text-money-neutral" : "text-text-primary",
                     )}
                   >
-                    {item.value}
+                    {t(item.value)}
                   </dd>
                 </div>
               ))}
@@ -780,7 +784,7 @@ function StepCard({ step, label, note }: { step: number; label: string; note?: s
       <p className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-brand-300 font-medium">
         Step {String(step).padStart(2, "0")} · {label}
       </p>
-      <p className="mt-2 max-w-[60ch] text-[0.8125rem] leading-relaxed text-text-secondary font-medium">{note}</p>
+      <p className="mt-2 max-w-[60ch] text-[0.8125rem] leading-relaxed text-text-secondary font-medium">{t(note ?? "")}</p>
       <p className="mt-3 text-[0.6875rem] text-text-faint font-medium">
         {t("Press 05 or 09 in the rail for the specification grid and the profit-and-loss analysis — those two screens are the live ones.")}
       </p>

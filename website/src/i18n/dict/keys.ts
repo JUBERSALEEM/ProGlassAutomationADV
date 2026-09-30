@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 2549 keys.
+ * 2552 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -819,6 +819,7 @@ export const KEYS: string[] = [
   "Glazing contractor / installer",
   "Glazing contractors and installers",
   "Grand total",
+  "Grand total of the specification data only. Other charges, discount and VAT are added on the steps after this one — the document's own grand total is the one the invoice summary prints, not this rollup.",
   "Grand total summary",
   "Grand total summary — one row per specification and the grand row, alongside every spec footer",
   "Grey",
@@ -1237,7 +1238,7 @@ export const KEYS: string[] = [
   "One row per customer: what they bought, what they owe, what is overdue.",
   "One row per database file, so drift is visible at a glance",
   "One row per specification",
-  "One row per specification with its quantity, total square metres and value, then the grand total across the",
+  "One row per specification with its quantity, total square metres and value, then the grand total across the specification the grid is showing.",
   "One shared dashboard grammar across seven module dashboards, with an order-to-cash pipeline rail on Overview.",
   "One solution, held to one standard.",
   "One VAT calculator",
@@ -1591,6 +1592,7 @@ export const KEYS: string[] = [
   "Read one module and tell us what is wrong with it. A concrete critique of the piece-flow clamping in the production stages, or of a nesting heuristic, is worth more than a generic offer to help. The repository is structured so a single module can be understood without the whole system.",
   "Read something more concrete next.",
   "Read the guides",
+  "Read the note",
   "Read the seeded records out of that file and you will find the customer, the project reference, each glass reference, each size, each rate, the sheet stock and the consumables reproduced below.",
   "Read this before quoting anything",
   "Read-heavy by design",
@@ -2163,6 +2165,7 @@ export const KEYS: string[] = [
   "The optimization engine",
   "The optimizer runs Auto or one of five stages, tries six plate patterns and six cut complexities, and two independent oracles check the plan before it is used. The result exports to CSV, Excel, DXF, Bottero .OPT, Intermac .ISO or Lisec .DAT.",
   "The other nine are above their reorder level, so only this one raises a flag — which is what a store report is for.",
+  "The outer sheet rate comes from the sheet store — {v0} / m² on this build. Changing any field above re-derives the specification's base rate and re-prices every row, the way",
   "The overall order report: a four-step wizard that reconciles the whole document chain.",
   "The overflow menu for secondary shell actions.",
   "The owner who prices the awkward jobs",

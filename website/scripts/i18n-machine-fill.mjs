@@ -186,10 +186,6 @@ function protect(text, glossary) {
 
 /** Put the tokens back, tolerating an engine that spaced them out. */
 function restore(text, table) {
-  const swap = (kind, index) => {
-    const entry = table.find((row) => row.kind === kind && row.value && row.index === index);
-    return entry ? ` ${entry.value} ` : null;
-  };
   /* Number the table by position, which is how the tokens were minted. */
   let counter = 0;
   const numbered = table.map((row) => ({ ...row, index: counter++ }));

@@ -96,7 +96,7 @@ export default async function BlogPage({ params }: PageProps) {
                 </h2>
                 <p className="lede mt-4 max-w-3xl">{t(lead.summary)}</p>
                 <span className="link-underline mt-6 text-sm">
-                  Read the note <ArrowRight />
+                  {t("Read the note")} <ArrowRight />
                 </span>
               </Link>
             </Reveal>
@@ -133,7 +133,7 @@ export default async function BlogPage({ params }: PageProps) {
                   <p className="mt-3 flex-1 text-sm leading-relaxed text-text-muted">{t(post.summary)}</p>
                   <div className="mt-5 flex items-center justify-between border-t border-line/60 pt-4">
                     <span className="link-underline text-xs">
-                      Read the note <ArrowRight />
+                      {t("Read the note")} <ArrowRight />
                     </span>
                     <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                       {post.readingMinutes} min
