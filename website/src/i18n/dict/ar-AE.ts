@@ -29,6 +29,7 @@ const dict: Overlay = {
   "{build} — {panes}": "{build} — {panes}",
   "{count} languages": "{count} لغة",
   "{count} languages, chosen from the menu above and remembered on this device.": "{count} لغة، تُختار من القائمة أعلاه وتُحفَظ على هذا الجهاز.",
+  "{shown} of {total} rows": "{shown} من {total} صفوف",
   "{shown} of {total} sheets · the rest page through on": "{shown} من {total} لوحًا · والباقي يتنقّل بين صفحاته على",
   "{stage} stage queue — {rows} work items for the seeded job, with the pieces that arrived, the pieces recorded done and the balance.": "قائمة مرحلة {stage} — {rows} عنصر عمل للمهمة المزروعة، مع القطع التي وصلت والقطع المسجّلة كمنتهية والرصيد.",
   "{v1} — shipped inside the application, declared in ProGlassAutomation.csproj.": "{v1} — يُشحن داخل التطبيق، ومُعلَن في ProGlassAutomation.csproj.",

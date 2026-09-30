@@ -348,8 +348,8 @@ export default async function FeaturesPage({ params }: PageProps) {
                     {stageRouting.map((entry) => (
                       <tr key={entry.charge} className="border-b border-line/30 last:border-0">
                         <td className="py-1 font-mono text-xs text-text-secondary">{entry.charge}</td>
-                        <td className="py-1 text-xs font-medium text-text-muted">{entry.stage}</td>
-                        <td className="py-1 text-right text-xs font-medium text-text-faint">{entry.quantity}</td>
+                        <td className="py-1 text-xs font-medium text-text-muted">{t(entry.stage)}</td>
+                        <td className="py-1 text-right text-xs font-medium text-text-faint">{t(entry.quantity)}</td>
                       </tr>
                     ))}
                   </tbody>

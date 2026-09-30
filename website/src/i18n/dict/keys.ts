@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 2552 keys.
+ * 2553 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -21,6 +21,7 @@ export const KEYS: string[] = [
   "{build} — {panes}",
   "{count} languages",
   "{count} languages, chosen from the menu above and remembered on this device.",
+  "{shown} of {total} rows",
   "{shown} of {total} sheets · the rest page through on",
   "{stage} stage queue — {rows} work items for the seeded job, with the pieces that arrived, the pieces recorded done and the balance.",
   "{v1} — shipped inside the application, declared in ProGlassAutomation.csproj.",

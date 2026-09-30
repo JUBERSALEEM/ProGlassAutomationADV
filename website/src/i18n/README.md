@@ -195,11 +195,17 @@ holes.
 
 Run `npm run i18n:audit`. Coverage is honest per language:
 
-| language | entries | notes |
-| --- | --- | --- |
-| ar-AE | 2,552 / 2,552 | 100 % — the reference language, filled by hand and by app import |
-| de-DE | 1,226 / 2,552 | 48 % — mid-grind, machine pass in progress |
-| the other twelve | 297 / 2,552 | the app-memory pass (the software's own vocabulary) is in |
+| language | entries | English still on 16 pages | notes |
+| --- | --- | --- | --- |
+| ar-AE | 2,553 / 2,553 | 919 nodes | 100 % — the reference language |
+| de-DE | 1,402 / 2,553 | 843 nodes | 55 % — the most complete of the filled ones |
+| ur-PK · hi-IN · bn-BD · ru-RU | 364 / 2,553 each | ~2,244 nodes | app vocabulary + the highest-frequency band |
+| fr-FR | 357 / 2,553 | 1,783 nodes | same |
+| the rest | 297 / 2,553 each | ~2,394 nodes | the app-memory pass only |
+
+An English page renders 2,680 English text nodes across the same sixteen pages,
+so the node column is directly comparable: it counts what a visitor still reads
+in English, not what a dictionary contains.
 
 The site is built so the remaining work is data entry through this pipeline
 rather than code: adding a language is a file, and filling one is a batch. The

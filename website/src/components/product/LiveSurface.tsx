@@ -122,9 +122,17 @@ function stageFromKey(moduleKey: string): StageChainId {
  * Shared chrome
  * ════════════════════════════════════════════════════════════════════════ */
 
-function StatusPill({ value }: { value: string }) {
-  const positive = /ready|complete|settled|delivered|active|ok|pass/i.test(value);
-  const warning = /warn|pending|part|transit|loaded/i.test(value);
+/*
+ * The pill colours itself from the status the application stores, and prints
+ * the status the reader understands. Those are two different strings once the
+ * page is in another language — "Ready to dispatch" becomes "جاهز للإرسال" and
+ * no colour rule would match it — so the English value keeps doing the colour
+ * test while the translated one is what is shown.
+ */
+function StatusPill({ value, tone }: { value: string; tone?: string }) {
+  const probe = tone ?? value;
+  const positive = /ready|complete|settled|delivered|active|ok|pass/i.test(probe);
+  const warning = /warn|pending|part|transit|loaded/i.test(probe);
 
   return (
     <span
@@ -257,7 +265,10 @@ function TableEngine({
                       )}
                     >
                       {column.kind === "status" ? (
-                        <StatusPill value={String(row[column.key] ?? "")} />
+                        <StatusPill
+                          value={t(String(row[column.key] ?? ""))}
+                          tone={String(row[column.key] ?? "")}
+                        />
                       ) : (
                         t(String(row[column.key] ?? ""))
                       )}
@@ -280,7 +291,7 @@ function TableEngine({
       {!compact ? (
         <div className="mt-2.5 flex flex-wrap items-center justify-between gap-3 border-t border-line/50 pt-2.5">
           <p className="text-[0.75rem] text-text-faint">
-            {visible.length} of {rows.length} rows
+            {t("{shown} of {total} rows", { shown: visible.length, total: rows.length })}
             {selected ? t(" · one row selected") : ""}
           </p>
           {view.summary && view.summary.length > 0 ? (
