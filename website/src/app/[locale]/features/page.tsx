@@ -382,26 +382,42 @@ export default async function FeaturesPage({ params }: PageProps) {
             lead={t("Each group below lists the specific behaviours it covers. The evidence line names the part of the source tree that backs it.")}
           />
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-2">
-            {featureGroups.map((group, index) => (
-              <Reveal key={group.id} id={group.id} delay={index * 60} className="surface-raised p-6 sm:p-7">
-                <h3 className="text-lg font-semibold text-text-primary">{t(group.title)}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(group.lead)}</p>
-                <ul className="mt-5 space-y-3.5 border-t border-line/60 pt-5">
-                  {group.items.map((item) => (
-                    <li key={t(item.title)} className="flex gap-3">
-                      <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
-                      <div>
-                        <p className="text-sm font-medium text-text-secondary">{t(item.title)}</p>
-                        <p className="mt-0.5 text-sm leading-relaxed text-text-muted">{t(item.detail)}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-                <p className="mono-label mt-5 border-t border-line/60 pt-4">{t(group.evidence)}</p>
-              </Reveal>
-            ))}
-          </div>
+          {/*
+            Six groups, eight lessons each — presented as a disclosure list
+            rather than as six cards that were all open at once.
+
+            The information is unchanged: every group, every capability and
+            every evidence line is one tap away, and the first group is open so
+            the pattern is obvious. What changed is that a reader can now see
+            what the six groups *are* without scrolling past roughly eight
+            screens of bullets first, which on a phone was most of the page.
+          */}
+          <Reveal className="mt-10">
+            <Accordion
+              defaultOpen={0}
+              items={featureGroups.map((group) => ({
+                id: group.id,
+                question: t(group.title),
+                body: (
+                  <div>
+                    <p className="text-sm leading-relaxed text-text-muted">{t(group.lead)}</p>
+                    <ul className="mt-5 grid gap-x-8 gap-y-3.5 border-t border-line/60 pt-5 sm:grid-cols-2">
+                      {group.items.map((item) => (
+                        <li key={t(item.title)} className="flex gap-3">
+                          <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
+                          <div>
+                            <p className="text-sm font-medium text-text-secondary">{t(item.title)}</p>
+                            <p className="mt-0.5 text-sm leading-relaxed text-text-muted">{t(item.detail)}</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mono-label mt-5 border-t border-line/60 pt-4">{t(group.evidence)}</p>
+                  </div>
+                ),
+              }))}
+            />
+          </Reveal>
         </Container>
       </Section>
 

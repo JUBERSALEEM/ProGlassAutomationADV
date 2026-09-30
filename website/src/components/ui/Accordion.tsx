@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { useT } from "@/i18n/provider";
 import { cn } from "@/lib/cn";
 
@@ -15,7 +15,13 @@ export function Accordion({
   defaultOpen = -1,
   className,
 }: {
-  items: { id?: string; question: string; answer: string }[];
+  /**
+   * One row. `answer` is the plain-text case, which is what an FAQ needs;
+   * `body` is the same disclosure holding structure — a list of capabilities,
+   * an evidence line — for the panels that would otherwise be a wall of items
+   * on a phone. Exactly one of the two is rendered, and `body` wins.
+   */
+  items: { id?: string; question: string; answer?: string; body?: ReactNode }[];
   defaultOpen?: number;
   className?: string;
 }) {
@@ -71,7 +77,13 @@ export function Accordion({
               )}
             >
               <div className="overflow-hidden">
-                <p className="px-5 pb-5 text-sm leading-relaxed text-text-muted sm:px-6 sm:pb-6">{t(item.answer)}</p>
+                {item.body ? (
+                  <div className="px-5 pb-5 sm:px-6 sm:pb-6">{item.body}</div>
+                ) : (
+                  <p className="px-5 pb-5 text-sm leading-relaxed text-text-muted sm:px-6 sm:pb-6">
+                    {t(item.answer ?? "")}
+                  </p>
+                )}
               </div>
             </div>
           </div>

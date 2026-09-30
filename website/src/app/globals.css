@@ -1428,6 +1428,34 @@
     box-shadow: 0 0 16px 0 rgb(var(--brand-500) / 0.18);
   }
 
+  /*
+   * In Crystal a card carries its rim of light and its inner edges in the same
+   * `box-shadow`, so the hover state has to restate them — otherwise the
+   * highlight would replace the glass rather than sit on it, and a card would
+   * go flat under the cursor.
+   */
+  [data-appearance="crystal"] .card-interactive:hover,
+  [data-appearance="crystal"] .card-interactive:focus-visible {
+    box-shadow: 0 0 20px 0 rgb(var(--brand-500) / 0.22), 0 0 0 1px var(--glass-ring),
+      inset 0 1px 0 0 var(--glass-edge-light), inset 0 -1px 0 0 var(--glass-edge-dark);
+  }
+
+  /*
+   * A filled button in Crystal is a small piece of the same material: the
+   * label sits on the family's accent, and the face catches the light at the
+   * top edge. It is the one place the site paints a solid accent, so it is the
+   * one place the treatment matters.
+   */
+  [data-appearance="crystal"] .btn-primary {
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.3),
+      0 10px 30px -12px rgb(var(--brand-500) / 0.75);
+  }
+
+  [data-appearance="crystal"] .btn-primary:hover {
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.38),
+      0 16px 38px -12px rgb(var(--brand-500) / 0.85);
+  }
+
   /* A status stripe down the left edge — PriorityCardStyle's `4,1,1,1`. */
   .card-stripe {
     border-left-width: 4px;
