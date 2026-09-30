@@ -98,6 +98,31 @@ src/data/resources.ts           guides and blog posts
 src/data/assets.ts              image paths for the real product assets
 ```
 
+## Languages
+
+The site ships the application's own fifteen languages: English (the bare
+addresses), Arabic, Bengali, German, Spanish, French, Hindi, Indonesian,
+Japanese, Korean, Portuguese, Russian, Turkish, Urdu and Chinese. Two of them —
+Arabic and Urdu — are right-to-left, and the whole tree lays out for that.
+
+**A visitor is not asked which language they want.** The first request is
+resolved in `src/proxy.ts`, in this order: the cookie the language menu wrote
+last time, the country header (`x-vercel-ip-country`), the browser's own
+`Accept-Language`, then English. A visitor from Germany lands on `/de-DE/…`
+without a splash page; the language menu in the header of every page switches
+it, keeps the page you were reading, and remembers the answer.
+
+**Nothing is translated by hand twice.** A sentence is looked up in the site's
+dictionary, then in the application's own language file — indexed by its English
+value — and then shown in English. That second step is the important one: a
+proforma, a job order, a delivery note, a production stage and a base rate are
+called what `Themes/Languages/<code>.xaml` calls them, so the website and the
+software cannot drift apart.
+
+The whole pipeline — how keys are extracted, how a language is filled, how
+coverage is measured, and how to see what English is still on a page — is in
+[`src/i18n/README.md`](src/i18n/README.md).
+
 ## The honesty rules this site is built on
 
 These are not style preferences; breaking one is a defect:

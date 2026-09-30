@@ -95,27 +95,6 @@ function isProse(value) {
   return true;
 }
 
-function translatedSpans(text) {
-  const spans = [];
-  const call = /(?<![A-Za-z0-9_$.])t\s*\(/g;
-  let match;
-  while ((match = call.exec(text))) {
-    let depth = 0;
-    let index = match.index + match[0].length - 1;
-    for (; index < text.length; index += 1) {
-      const ch = text[index];
-      if (ch === "(") depth += 1;
-      else if (ch === ")") {
-        depth -= 1;
-        if (depth === 0) break;
-      }
-    }
-    spans.push([match.index, index + 1]);
-  }
-  return spans;
-}
-
-const insideAny = (spans, start, end) => spans.some(([a, b]) => start >= a && end <= b);
 
 /* ── wrapping ──────────────────────────────────────────────────────── */
 
@@ -447,7 +426,6 @@ function installProp(text, log) {
     text = `${text.slice(0, at)}\n  t,${text.slice(at)}`;
   }
   /* …and the type of that destructured parameter. */
-  const typed = /(\}: \{\n)(?=  [a-zA-Z])/g;
   text = text.replace(/(\}:\s*\{)/g, (whole) => `${whole}\n  /** The page's translator — this component renders on the server. */\n  t: Translator;`);
   log.push(`t prop ×${matches.length}`);
   return text;

@@ -26,7 +26,7 @@
  *
  * Run:  node scripts/build-app-strings.mjs
  */
-import { mkdtempSync, readFileSync, mkdirSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
@@ -77,16 +77,39 @@ mkdirSync(out, { recursive: true });
 mkdirSync(scratch, { recursive: true });
 
 const english = readLanguage("en-US");
+
+/*
+ * Every sentence the website can render, generated into `dict/keys.ts` by
+ * `scripts/i18n-extract.mjs`. Optional: the script is also useful before that
+ * list exists, when only the curated groups are imported.
+ */
+const KEY_SENTENCES = new Set();
+const keysFile = join(website, "src", "i18n", "dict", "keys.ts");
+if (existsSync(keysFile)) {
+  for (const match of readFileSync(keysFile, "utf8").matchAll(/^\s*"((?:[^"\\]|\\.)*)",?\s*$/gm)) {
+    KEY_SENTENCES.add(JSON.parse(`"${match[1]}"`));
+  }
+}
+
 const curated = [];
 let curatedCount = 0;
 
 for (const locale of LOCALES) {
   const entries = locale === "en-US" ? english : readLanguage(locale);
 
-  /* Shipped: the curated view, keyed by XAML key. */
+  /*
+   * Shipped: the curated view, keyed by XAML key. Two ways in — the six groups
+   * whose words appear on a page, and any key at all whose English value is a
+   * sentence the site itself renders. The second rule is what lets the site
+   * inherit a translation without writing it: if the application already says
+   * "Delivery Note" as "Lieferschein" in a settings screen nobody visits, that
+   * is still this product's word for it, and the site should use it rather
+   * than a second translation that can drift.
+   */
   const byKey = {};
   for (const [key, value] of entries) {
-    if (!GROUPS.some((group) => key.startsWith(group))) continue;
+    const source = english.get(key) ?? "";
+    if (!GROUPS.some((group) => key.startsWith(group)) && !(source && KEY_SENTENCES.has(source))) continue;
     byKey[key] = value;
   }
   mkdirSync(out, { recursive: true });
@@ -112,4 +135,5 @@ for (const locale of LOCALES) {
 
 console.log(`app strings: ${curated.join(" · ")}`);
 console.log(`             ${curatedCount} curated keys per language, written to src/i18n/app-strings/`);
+console.log(`             ${KEY_SENTENCES.size} website sentences known, matched against every value in the file`);
 console.log(`             full value index (${LOCALES.length - 1} languages) in ${scratch}`);

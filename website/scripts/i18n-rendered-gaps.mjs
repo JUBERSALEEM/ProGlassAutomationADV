@@ -115,7 +115,35 @@ function visibleText(html) {
 const own = SCRIPTS[locale] ?? null;
 const notAKey = new Map();
 const untranslated = new Map();
+const joined = new Map();
 let checked = 0;
+
+/*
+ * Markup splits a sentence: `<Link>Dashboard</Link> <Link>Sheet Store</Link>`
+ * arrives here as one node reading "Dashboard Sheet Store", which is not a key
+ * and would otherwise be reported as a wiring gap for ever. If a node can be
+ * taken apart into two or more keys with nothing but separators in between, it
+ * is those keys rendered side by side — real text, already translatable — and
+ * not a gap at all.
+ */
+const SEPARATOR = /^[\s·—–→>.,:;()\[\]/\\|+%&#\u00a0-]+/;
+function segmentsIntoKeys(text) {
+  let rest = text;
+  let found = 0;
+  while (rest.length) {
+    rest = rest.replace(SEPARATOR, "");
+    if (!rest.length) break;
+    let best = null;
+    for (const key of KEYS) {
+      if (key.length < 12) continue;
+      if (rest.startsWith(key) && (best === null || key.length > best.length)) best = key;
+    }
+    if (best === null) return rest.trim().length < 12 && found >= 2;
+    rest = rest.slice(best.length);
+    found += 1;
+  }
+  return found >= 2;
+}
 
 /* A text node that is part of a key, or has a key inside it, is a fragment the
    markup produced — `— this is a working reconstruction of the` on its own is
@@ -151,6 +179,8 @@ for (const path of PAGES) {
     checked += 1;
     if (KEYS.has(text)) {
       untranslated.set(text, (untranslated.get(text) ?? 0) + 1);
+    } else if (segmentsIntoKeys(text)) {
+      joined.set(text, (joined.get(text) ?? 0) + 1);
     } else if (!relatedToAKey(text)) {
       notAKey.set(text, (notAKey.get(text) ?? 0) + 1);
     }
@@ -164,7 +194,14 @@ const dump = flag("--dump", null);
 if (dump) {
   const { writeFileSync } = await import("node:fs");
   const sorted = (map) => [...map.entries()].sort((a, b) => b[1] - a[1]).map(([text, count]) => ({ text, count }));
-  writeFileSync(dump, `${JSON.stringify({ locale, notAKey: sorted(notAKey), untranslated: sorted(untranslated) }, null, 1)}\n`);
+  writeFileSync(
+    dump,
+    `${JSON.stringify(
+      { locale, notAKey: sorted(notAKey), untranslated: sorted(untranslated), joined: sorted(joined) },
+      null,
+      1,
+    )}\n`,
+  );
   console.log(`written to ${dump}`);
 }
 
@@ -177,4 +214,5 @@ const list = (title, map) => {
 
 console.log(`${locale}: ${checked} English text nodes across ${PAGES.length} pages`);
 list("NOT A KEY — a wiring gap, no dictionary can fix it", notAKey);
+list("SEVERAL KEYS TOGETHER — markup glued them, not a gap", joined);
 list("KEY, NOT TRANSLATED — a translation gap", untranslated);

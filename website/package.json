@@ -14,7 +14,13 @@
     "typecheck": "tsc --noEmit",
     "doctor": "node scripts/check-deps.mjs --report",
     "fix": "node scripts/fix.mjs",
-    "assets:optimize": "node scripts/optimize-assets.mjs"
+    "assets:optimize": "node scripts/optimize-assets.mjs",
+    "i18n:keys": "node scripts/i18n-extract.mjs",
+    "i18n:audit": "node --experimental-strip-types scripts/i18n-audit.mjs",
+    "i18n:gaps": "node --experimental-strip-types scripts/i18n-audit.mjs --gaps",
+    "i18n:rendered": "node scripts/i18n-rendered-gaps.mjs",
+    "i18n:wire": "node scripts/i18n-wire.mjs && node scripts/i18n-wire-components.mjs && node scripts/i18n-wire-data.mjs && node scripts/i18n-fix-t-scope.mjs",
+    "i18n:app": "node scripts/build-app-strings.mjs"
   },
   "dependencies": {
     "next": "16.3.6",

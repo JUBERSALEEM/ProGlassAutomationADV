@@ -127,7 +127,17 @@ const entries = sorted
   .map(([key, value]) => `  ${JSON.stringify(key)}: ${JSON.stringify(value)},`)
   .join("\n");
 
-const next = `${head.slice(0, head.indexOf("\n  "))}\n${entries}${body}`;
+/*
+ * The head is everything above the entries. It has to end with the opening
+ * brace of the object literal — and it is rebuilt from that brace every time
+ * rather than trimmed by one character, because a dictionary with no entries
+ * yet has no line to trim up to and the brace itself would be the character
+ * thrown away.
+ */
+const assign = "\nconst dict: Overlay = ";
+const headEnd = head.lastIndexOf(assign);
+const prefix = headEnd === -1 ? head : head.slice(0, headEnd);
+const next = `${prefix}${assign}{\n${entries}${body}`;
 writeFileSync(file, next.endsWith("\n") ? next : `${next}\n`);
 
 console.log(
