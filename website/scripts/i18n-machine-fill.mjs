@@ -406,6 +406,15 @@ function remask(text, placeholders) {
   });
 }
 
+function normalizeDevanagari(str) {
+  if (typeof str !== "string") return str;
+  const devDigits = "०१२३४५६७८९";
+  let s = str.replace(/[०-९]/g, (d) => devDigits.indexOf(d));
+  s = s.replace(/\[\s*\[\s*जी\s*(\d+)\s*\]\s*\]/g, "[[G$1]]");
+  s = s.replace(/\[\s*\[\s*(?:पी|प)\s*(\d+)\s*\]\s*\]/g, "[[P$1]]");
+  return s;
+}
+
 function ingestBatch(locale, wave) {
   const tag = flag("--tag", flag("--chunk") ? `c${flag("--chunk")}` : `w${wave}`);
   const prepared = JSON.parse(readFileSync(`${OUT}/${locale}-${tag}.src.json`, "utf8"));
@@ -432,7 +441,8 @@ function ingestBatch(locale, wave) {
   for (let index = 0; index < prepared.length; index += 1) {
     const row = prepared[index];
     if (typeof list[index] !== "string") { skipped += 1; refused.push(row.key); continue; }
-    const text = tidy(remask(restore(list[index], row.table), row.placeholders));
+    const rawText = normalizeDevanagari(list[index]);
+    const text = tidy(remask(restore(rawText, row.table), row.placeholders));
     const complete = row.placeholders.every((token) => text.includes(token));
     if (text.length === 0 || !complete || !looksRight(text, locale) || /\[\[/.test(text)) { skipped += 1; refused.push(row.key); continue; }
     rows.push([row.key, text]);
