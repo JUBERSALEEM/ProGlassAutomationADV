@@ -30,7 +30,7 @@ const BASE = `http://127.0.0.1:${PORT}`;
 /* Which languages the site is prepared to promise. `in-progress` languages
    are reported and never fail — the language menu shows their real coverage
    and hands the rest to the browser. */
-const COMPLETE = new Set(["ar-AE", "de-DE", "es-ES", "fr-FR", "en-US"]);
+const COMPLETE = new Set(["ar-AE", "de-DE", "es-ES", "fr-FR", "pt-BR", "en-US"]);
 
 const KEYS = [...readFileSync("src/i18n/dict/keys.ts", "utf8").matchAll(/^ {2}(".*"),$/gm)].map(
   (match) => JSON.parse(match[1]),
