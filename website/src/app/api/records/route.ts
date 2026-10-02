@@ -54,11 +54,36 @@ export async function GET(request: NextRequest) {
       zohoStatus: searchParams.get("zohoStatus") || "",
     };
 
+    // Extract Bearer token from authorization header or cookie
+    const authHeader = request.headers.get("authorization");
+    const authToken = authHeader ? authHeader.replace(/^Bearer\s+/i, "").trim() : null;
+
+    // In production, enforce authentication to protect operational records
+    if (process.env.NODE_ENV === "production" && !authToken) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: {
+            message: "Authentication required. Please sign in to access operational reports.",
+            code: "UNAUTHORIZED",
+          },
+        },
+        {
+          status: 401,
+          headers: {
+            "WWW-Authenticate": "Bearer realm=\"Operational Records\"",
+            "Cache-Control": "no-store",
+          },
+        },
+      );
+    }
+
     const result = await fetchRecordsDashboardData({
       filters,
       sort,
       page,
       pageSize,
+      authToken,
     });
 
     return NextResponse.json(

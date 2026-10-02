@@ -52,15 +52,15 @@ export default async function HowItWorksPage({ params }: PageProps) {
       <PageHero
       t={t}
         eyebrow={t("How it works")}
-        title={t("One job, eight stages, and nothing typed twice.")}
-        lead={t("This is the whole application in sequence. Each stage below names the statuses it stores, what it carries into the next stage, and the guarantee that keeps the handoff honest — because a chain is only as good as the weakest conversion.")}
+        title={t("One job, nine stages, and nothing typed twice.")}
+        lead={t("This is the complete business journey in sequence. Each stage below shows what it captures, what it carries into the next stage, and the operational guarantees that keep the process reliable.")}
         banner="production"
         breadcrumb={[
           { label: t("Home"), href: "/" },
           { label: t("How it works"), href: "/how-it-works" },
         ]}
         meta={[
-          { label: t("Stages"), value: "8 in the chain" },
+          { label: t("Stages"), value: "9 in the chain" },
           { label: t("Documents"), value: t("Snapshot-based") },
           { label: t("Pricing engine"), value: t("One, at Step 9") },
           { label: t("Money maths"), value: t("Never recomputed") },
@@ -86,8 +86,8 @@ export default async function HowItWorksPage({ params }: PageProps) {
           <SectionHeading
             id="chain-heading"
             eyebrow={t("The chain")}
-            title={t("Inquiry → quote → confirm → produce → deliver → invoice → settle.")}
-            lead={t("Every arrow is a conversion of the previous record with an audit entry behind it. Nothing downstream invents data that the upstream record did not carry.")}
+            title={t("Inquiry → Estimation → Quotation → Job Order → Production → Optimization → Delivery → Invoicing → Reporting.")}
+            lead={t("Every arrow is a conversion of the previous record with full audit traceability. Nothing downstream invents data that the upstream record did not carry.")}
           />
 
           <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-14">

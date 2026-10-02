@@ -495,3 +495,36 @@ ON public.records USING gin (pi_number gin_trgm_ops);
 
 CREATE INDEX IF NOT EXISTS idx_records_customer_ref_trgm 
 ON public.records USING gin (customer_ref gin_trgm_ops);
+
+
+-- ---------------------------------------------------------------------
+-- 4. ROW LEVEL SECURITY (RLS) POLICIES FOR OPERATIONAL REPORTS
+-- ---------------------------------------------------------------------
+-- Operational records must NOT be publicly readable anonymously.
+-- Anonymous visitors cannot view operational business data.
+-- Only authenticated registered users can SELECT active records.
+-- Service role retains full management access for external sync.
+-- ---------------------------------------------------------------------
+
+-- Enable Row Level Security
+ALTER TABLE public.records ENABLE ROW LEVEL SECURITY;
+
+-- 1. Remove anonymous read access (if previously granted)
+DROP POLICY IF EXISTS "Allow anon read" ON public.records;
+
+-- 2. Allow authenticated registered users to view active records
+DROP POLICY IF EXISTS "Allow authenticated read" ON public.records;
+CREATE POLICY "Allow authenticated read" 
+ON public.records 
+FOR SELECT 
+TO authenticated 
+USING (is_active IS NOT FALSE);
+
+-- 3. Service role retained for Excel Sync / Windowfilehost backend
+DROP POLICY IF EXISTS "Allow service role all" ON public.records;
+CREATE POLICY "Allow service role all" 
+ON public.records 
+FOR ALL 
+TO service_role 
+USING (true) 
+WITH CHECK (true);

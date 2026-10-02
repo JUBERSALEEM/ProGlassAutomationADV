@@ -13,6 +13,8 @@ type RecordsHeaderProps = {
   density: "comfortable" | "compact";
   onToggleDensity: () => void;
   totalEntries: number;
+  userEmail?: string | null;
+  onSignOut?: () => void;
 };
 
 export function RecordsHeader({
@@ -24,6 +26,8 @@ export function RecordsHeader({
   density,
   onToggleDensity,
   totalEntries,
+  userEmail,
+  onSignOut,
 }: RecordsHeaderProps) {
   const formattedTime = serverTime
     ? new Date(serverTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
@@ -92,6 +96,22 @@ export function RecordsHeader({
             >
               Refresh
             </Button>
+
+            {userEmail ? (
+              <div className="flex items-center gap-2 rounded-xl border border-line-strong/70 bg-ink-900/80 px-3 py-1.5 shadow-sm">
+                <span className="h-2 w-2 rounded-full bg-state-success animate-pulse" />
+                <span className="text-2xs font-mono text-text-secondary">{userEmail}</span>
+                {onSignOut && (
+                  <button
+                    type="button"
+                    onClick={onSignOut}
+                    className="ml-1 text-2xs font-semibold text-text-muted hover:text-state-warning underline transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                )}
+              </div>
+            ) : null}
 
             <Link
               href="/"

@@ -168,42 +168,55 @@ export default async function HomePage({ params }: PageProps) {
         </Container>
       </Section>
 
-      {/* ═══ 04 · Numbers ════════════════════════════════════════════ */}
+      {/* ═══ 04 · Operational Scale ═════════════════════════════════ */}
       <Section tone="sunken" aria-labelledby="scale-heading">
         <Container>
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <SectionHeading
               id="scale-heading"
-              eyebrow={t("Scale")}
-              title={t("What is actually in the application.")}
-              lead={t("Each card names where in the source tree the behaviour is defined, so a claim can be checked rather than believed. These are counts of what the repository contains — modules, locales, databases and tests. They are not performance claims, and the application makes none.")}
+              eyebrow={t("Operational Scale")}
+              title={t("Engineered for complete factory operations.")}
+              lead={t("ProGlass Automation connects every department into one integrated workflow — from estimating multi-layer architectural glass to floor-level production queues, cutting optimization, and multi-drop delivery.")}
             />
-            <p className="max-w-sm text-xs leading-relaxed text-text-faint font-medium">{t("Counted against the application tree on {v1}: {v2}, {v3}, {v4}. obj/, bin/ and .git/ are excluded.", { v1: site.statsMeasuredOn, v2: site.framework, v3: site.pattern, v4: site.database })}</p>
+            <p className="max-w-sm text-xs leading-relaxed text-text-faint font-medium">
+              {t("Unified Windows desktop software covering nine integrated modules and 15 business languages.")}
+            </p>
           </div>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCounter
-              value={modules.length}
-              label={t("Navigation targets")}
-              hint={t("Every address the sidebar rail can open, across nine groups.")}
+              value={9}
+              label={t("Workflow stages")}
+              hint={t("Inquiry, estimation, proforma, job order, production, optimization, delivery, invoicing, and reporting.")}
             />
-            <StatCounter value={site.databaseCount} label={t("SQLite databases")} hint={t("One DbContext per bounded context, with additive-only migrations.")} />
-            <StatCounter value={site.locales} label="Languages" hint={t("Locales are resource dictionaries — adding one needs no code change.")} />
-            <StatCounter value={site.testCount} label={t("Test methods")} hint={t.template`[Fact] and [Theory] methods across ${site.testFiles} test files, plus ${site.testInlineCases.toLocaleString("en-GB")} [InlineData] cases.`} />
+            <StatCounter
+              value={4}
+              label={t("Glass calculators")}
+              hint={t("SGU, DGU, laminated and DGU + laminated build-ups, priced pane by pane.")}
+            />
+            <StatCounter
+              value={8}
+              label={t("Production stations")}
+              hint={t("Workstation queues from cutting and edge processing through tempering and doubling.")}
+            />
+            <StatCounter
+              value={14}
+              label={t("Analytical reports")}
+              hint={t("Job profitability, quotation conversion, delivery balance, and VAT submission.")}
+            />
           </div>
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            {[
-              { value: "9", label: t("Navigation groups"), hint: "Main, Inventory, Sales, Production, Dispatch, Finance, Reports, Master Data, System." },
-              { value: "8", label: t("Production stages"), hint: "Cutting through Doubling / Lamination, each with a workstation view." },
-              { value: "14", label: t("Report surfaces"), hint: "Executive, relationships, documents and the financial reports, behind one hub." },
-            ].map((fact) => (
-              <div key={t(fact.label)} className="stat-tile p-5">
-                <p className="font-mono text-3xl font-bold text-text-primary">{t(fact.value)}</p>
-                <p className="mt-2 text-sm font-bold text-text-primary">{t(fact.label)}</p>
-                <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-muted">{t(fact.hint)}</p>
-              </div>
-            ))}
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-line-strong/60 bg-ink-900/50 p-4">
+            <span className="text-xs text-text-muted">
+              {t("Looking for technical codebase metrics, SQLite architecture, and test statistics?")}
+            </span>
+            <Link
+              href="/developer"
+              className="text-xs font-semibold text-brand-300 hover:text-brand-200 inline-flex items-center gap-1.5 transition-colors"
+            >
+              {t("View developer & engineering architecture")}
+              <ArrowRight />
+            </Link>
           </div>
         </Container>
       </Section>
@@ -458,6 +471,39 @@ export default async function HomePage({ params }: PageProps) {
                   <GlassMetric key={t(item.label)} value={t(item.value)} label={t(item.label)} hint={t(item.hint)} />
                 ))}
               </GlassMetricRow>
+
+              <GlassDivider />
+
+              {/* ── User-Facing Optimization Journey ────────────────────────── */}
+              <div className="py-2">
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <p className="eyebrow text-text-muted">{t("Optimization Pipeline")}</p>
+                  <span className="text-2xs font-mono text-brand-300">
+                    {t("Stock Plate to Cutting Table")}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
+                  {[
+                    { step: "01", name: t("Glass Parts"), desc: t("Dimensions from confirmed orders") },
+                    { step: "02", name: t("Nesting / Layout"), desc: t("Guillotine cuts fitted to plates") },
+                    { step: "03", name: t("Rotation"), desc: t("Smart 90° orientation handling") },
+                    { step: "04", name: t("Kerf / Trims"), desc: t("Safety margins and blade offsets") },
+                    { step: "05", name: t("Sheet Yield"), desc: t("Maximum usable area per plate") },
+                    { step: "06", name: t("Wastage & Offcuts"), desc: t("Reusable stock saved to racks") },
+                  ].map((item) => (
+                    <div
+                      key={item.step}
+                      className="rounded-xl border border-line-strong/60 bg-ink-900/60 p-3 flex flex-col justify-between"
+                    >
+                      <div>
+                        <span className="font-mono text-2xs text-brand-300 font-bold">{item.step}</span>
+                        <h4 className="mt-1 text-xs font-semibold text-text-primary">{item.name}</h4>
+                      </div>
+                      <p className="mt-1.5 text-2xs text-text-muted leading-tight">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               <GlassDivider />
 
@@ -740,7 +786,17 @@ export default async function HomePage({ params }: PageProps) {
 
 /** The chain as a compact vertical diagram for the sticky column. */
 function ChainDiagram({ t }: { t: Translator }) {
-  const stages = ["Inquiry", "Proforma", "Job order", "Production", "Delivery", "Tax invoice", "Statement"];
+  const stages = [
+    "Inquiry",
+    "Estimation",
+    "Proforma / Quotation",
+    "Job Order",
+    "Production",
+    "Optimization",
+    "Delivery",
+    "Invoicing",
+    "Reporting",
+  ];
   return (
     <ol className="space-y-1.5">
       {stages.map((stage, index) => (

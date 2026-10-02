@@ -265,3 +265,83 @@ export const dream = {
     "I came to this from the glass trade, not from software. I am not a company, I do not have a team, and I have written this in the hours around a job that also expects me to estimate. What I do have is a product that works, a record of everything that is wrong with it, and no intention of letting it stop here.",
   attribution: "Juber Saleem · author of ProGlass Automation",
 };
+
+/**
+ * The technical implementation ledger.
+ *
+ * Maps high-level workflow stages to their exact C# services and architectural
+ * guarantees inside the ProGlass Automation application tree.
+ */
+export type TechnicalWorkflowMapping = {
+  stage: string;
+  index: string;
+  sourceFiles: string[];
+  architecture: string;
+};
+
+export const technicalWorkflowArchitecture: TechnicalWorkflowMapping[] = [
+  {
+    stage: "Inquiry to BOQ Conversion",
+    index: "01",
+    sourceFiles: ["Services/ProformaInvoice/InquiryBoqConversion.cs", "Models/Inquiry/InquiryRecord.cs"],
+    architecture:
+      "Atomic BOQ row transfer into the Proforma specification grid. Unparseable rows are preserved as annotations rather than dropped. Conversion state changes are permission-gated and logged.",
+  },
+  {
+    stage: "Glass Build-up Estimation",
+    index: "02",
+    sourceFiles: ["Services/Glass/GlassBuildUpCalculator.cs", "Services/Glass/PaneCostingEngine.cs"],
+    architecture:
+      "Pane-by-pane multi-lite calculations for SGU, DGU, Laminated, and Hybrid constructions. Applies base rates, interlayer costs, edge processing, and minimum 0.5 m² area rules.",
+  },
+  {
+    stage: "Proforma & Pricing Stamper",
+    index: "03",
+    sourceFiles: ["Views/ProformaInvoice/Step9ProfitLoss/", "Services/ProformaInvoice/GlassPriceStamper.cs"],
+    architecture:
+      "Step 9 serves as the authoritative pricing engine. The calculated price basis and profit snapshot are stamped permanently onto the quotation record to prevent retrospective margin drift.",
+  },
+  {
+    stage: "Job Order Mapping",
+    index: "04",
+    sourceFiles: ["Services/JobOrder/Mapper/JobOrderMapper.cs", "Models/JobOrder/SavedJobOrder.cs"],
+    architecture:
+      "Lossless conversion of confirmed proforma lines into factory job orders. Exact panel dimensions, glass types, spacer specifications, and tolerances cross without manual re-keying.",
+  },
+  {
+    stage: "Production Control Center",
+    index: "05",
+    sourceFiles: ["ViewModels/Production/ProductionControlCenterViewModel.cs", "Models/Production/"],
+    architecture:
+      "State-machine driven queue management across 8 factory workstations (Cutting through Lamination). Dispatches, holds, and releases jobs with explicit blockage reason telemetry.",
+  },
+  {
+    stage: "Cutting Optimization Engine",
+    index: "06",
+    sourceFiles: ["Services/Optimization/GuillotinePacker.cs", "Services/Optimization/PlatePatternOracle.cs"],
+    architecture:
+      "5 search families plus Auto, 6 plate patterns, and 6 cutting complexity levels. Enforces blade kerf and safety trim margins. Double verification oracles validate geometry before machine export.",
+  },
+  {
+    stage: "Delivery Balance Tracking",
+    index: "07",
+    sourceFiles: ["Services/DeliveryNote/DeliveryNoteValidationService.cs", "Models/DeliveryNote/"],
+    architecture:
+      "Double-count-safe balance tracking supporting multiple incremental delivery movements per order. Prevents shipping quantities exceeding remaining order line balances.",
+  },
+  {
+    stage: "Tax Invoice & VAT Calculation",
+    index: "08",
+    sourceFiles: ["Services/Reporting/VatCalculator.cs", "Services/TaxInvoice/"],
+    architecture:
+      "Centralized UAE VAT (5%) rounding engine. Directly converts delivery note movements or proforma invoices into fiscal tax invoices with line-level rounding consistency.",
+  },
+  {
+    stage: "Reporting & Ledger Synthesis",
+    index: "09",
+    sourceFiles: ["ViewModels/JobProfitability/", "Services/Reporting/ReportingExportService.cs"],
+    architecture:
+      "Persisted document aggregation across sales, profitability, statements, and VAT returns. Reads stamped historical cost bases rather than recalculating past quotes.",
+  },
+];
+

@@ -56,7 +56,7 @@ export const nav = {
     { label: "How It Works", href: "/how-it-works" },
     { label: "Worked Example", href: "/worked-example" },
     { label: "Screenshots", href: "/screenshots" },
-    { label: "Records", href: "/records" },
+    { label: "Reports", href: "/reports" },
   ],
   primary: [
     { label: "Features", href: "/features" },
@@ -79,7 +79,7 @@ export const nav = {
       { label: "Worked Example", href: "/worked-example" },
       { label: "Screenshots", href: "/screenshots" },
       { label: "Pricing", href: "/pricing" },
-      { label: "Records", href: "/records" },
+      { label: "Reports", href: "/reports" },
     ],
     company: [
       { label: "About ProGlass", href: "/about" },

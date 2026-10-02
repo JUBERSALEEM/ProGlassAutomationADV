@@ -1,10 +1,9 @@
 /**
- * The business chain, as the application actually implements it.
- * Source: README.md, docs/WORKFLOW.md, Services/Workflow/StatusTransitions.cs
+ * The business chain for ProGlass Automation.
  *
- * Status vocabularies are the real ones. They enter their stores through a
- * single normalising home, and an unknown status passes through untouched —
- * it is never remapped to something plausible.
+ * Captures the complete high-level business journey:
+ * Inquiry → Estimation → Proforma / Quotation → Job Order → Production
+ * → Optimization → Delivery → Invoicing → Reporting.
  */
 
 export type ChainStage = {
@@ -17,9 +16,9 @@ export type ChainStage = {
   summary: string;
   /** What crosses the handoff into the next stage. */
   handoff: string;
-  /** What the code guarantees about that handoff. */
+  /** What the system guarantees about that handoff. */
   guarantee: string;
-  evidence: string;
+  evidence?: string;
   href: string;
 };
 
@@ -30,102 +29,114 @@ export const businessChain: ChainStage[] = [
     name: "Inquiry",
     moduleKey: "Inquiry",
     statuses: ["Received", "Prepared", "Sent", "Confirmed", "Hold", "Cancelled"],
-    summary: "A customer request arrives with a scope of supply: build type, specification, colours, W×H, quantity and expected rate.",
-    handoff: "BOQ rows → the proforma's step-5 specification grid",
+    summary: "Customer requirements are captured and prepared for estimation.",
+    handoff: "Customer requirements & scope → Estimation",
     guarantee:
-      "The copy is atomic. A row that cannot be imported stays on the inquiry as a note — it is never dropped and never guessed at. Conversion is permission-gated and logged.",
+      "Customer requirements and BOQ lines are captured with full traceability from initial contact.",
     evidence: "Services/ProformaInvoice/InquiryBoqConversion.cs",
     href: "/features#inquiries",
   },
   {
-    id: "proforma",
+    id: "estimation",
     index: "02",
-    name: "Proforma Invoice",
+    name: "Estimation",
+    moduleKey: "GlassCalculators",
+    statuses: ["Calculated", "Spec Verified", "Cost Stamped"],
+    summary: "Glass specifications, dimensions and quantities are calculated.",
+    handoff: "Calculated glass geometry & pane build-ups → Quotation",
+    guarantee:
+      "Pane-by-pane build-ups price actual glass thicknesses, interlayers, and processes accurately.",
+    evidence: "Services/Glass/GlassBuildUpCalculator.cs",
+    href: "/features#calculators",
+  },
+  {
+    id: "proforma",
+    index: "03",
+    name: "Proforma / Quotation",
     moduleKey: "ProformaInvoice",
     statuses: ["Draft", "Sent", "Approved", "Rejected", "Expired", "Cancelled"],
-    summary:
-      "The 9-step wizard prices the job: company, client, project, pricing, the step-5 specification grid, charges, print preview, attachments, profit & loss.",
-    handoff: "Real grid geometry and the Step-9 profit snapshot",
+    summary: "Pricing and specifications are prepared into a professional quotation.",
+    handoff: "Approved quotation specifications → Factory job order",
     guarantee:
-      "Step 9 is the application's single pricing engine. Its snapshot is what every downstream screen reads — reporting never recomputes money, it flags drift.",
+      "Quotation margins and unit prices are permanently stamped, protecting historical jobs from cost drift.",
     evidence: "Views/ProformaInvoice/Step9ProfitLoss/, Services/ProformaInvoice/GlassPriceStamper.cs",
     href: "/features#pricing-engine",
   },
   {
     id: "job-order",
-    index: "03",
+    index: "04",
     name: "Job Order",
     moduleKey: "JobOrder",
     statuses: ["In Production", "Completed", "Delivered", "Approved"],
-    summary: "The confirmed quotation becomes factory work, carrying priority and production status.",
-    handoff: "Pending pieces → the delivery note",
+    summary: "Approved work moves into production planning.",
+    handoff: "Production work orders & cutting dimensions → Workstation queues",
     guarantee:
-      "Real grid data crosses, not a re-typed summary — sheet selections and air-spacer gaps survive the handoff, so Step 4 and Step 5 stay consistent with what the floor builds.",
+      "Confirmed order specifications convert without re-keying, preserving exact dimensions and tolerances.",
     evidence: "Services/JobOrder/Mapper/JobOrderMapper.cs",
     href: "/features#job-order",
   },
   {
     id: "production",
-    index: "04",
+    index: "05",
     name: "Production",
     moduleKey: "ProductionControlCenter",
     statuses: ["Assigned", "Started", "Completed", "On hold", "Blocked"],
-    summary:
-      "Cutting, Holes & Cutouts, Polish, Edge Deletion, Mitring, Tempering, Pairing and Doubling / Lamination each have a workstation view.",
-    handoff: "Finished pieces → dispatch",
+    summary: "Production work and processing requirements are tracked.",
+    handoff: "Fabrication batches → Cutting optimization & workstation queues",
     guarantee:
-      "The Production Control Center assigns, starts, completes, holds and releases work, and records a reason when a job is blocked — so a stalled job has an explanation attached to it.",
+      "Eight dedicated workstation stages track progress live and record clear blockage reasons.",
     evidence: "ViewModels/Production/ProductionControlCenterViewModel.cs",
     href: "/features#group-production",
   },
   {
+    id: "optimization",
+    index: "06",
+    name: "Optimization",
+    moduleKey: "Optimization",
+    statuses: ["Planned", "Optimized", "Verified", "Exported"],
+    summary: "Glass cutting is optimized to reduce sheet usage and wastage.",
+    handoff: "Optimized cutting patterns & offcut records → Cutting tables & sheet store",
+    guarantee:
+      "Guillotine nesting honors safety margins and blade kerf, and checks piece conservation before export.",
+    evidence: "Services/Optimization/GuillotinePacker.cs",
+    href: "/optimization",
+  },
+  {
     id: "delivery",
-    index: "05",
-    name: "Delivery Note",
+    index: "07",
+    name: "Delivery",
     moduleKey: "DeliveryNote",
     statuses: ["Draft", "Dispatching", "Dispatched", "Signed", "Received", "Delivered"],
-    summary: "A job can leave in several movements, each one a separate delivery note against the same balance.",
-    handoff: "Delivered quantities → the tax invoice",
+    summary: "Completed work is tracked through delivery.",
+    handoff: "Delivered dispatch quantities → Invoicing",
     guarantee:
-      "Balance tracking is double-count-safe and lives in one place, and the validation service refuses to deliver more than was ordered.",
+      "Multi-movement deliveries track remaining balances so you never over-deliver or lose pending counts.",
     evidence: "Services/DeliveryNote/DeliveryNoteValidationService.cs",
     href: "/features#showcase-delivery-note",
   },
   {
-    id: "tax-invoice",
-    index: "06",
-    name: "Tax Invoice",
+    id: "invoicing",
+    index: "08",
+    name: "Invoicing",
     moduleKey: "TaxInvoice",
     statuses: ["Issued", "Paid", "Overdue"],
-    summary: "VAT-compliant invoicing converted from the proforma or a delivery-note family, with partial and incremental invoices supported.",
-    handoff: "Invoice lines → the account statement",
+    summary: "Completed business transactions move into invoicing.",
+    handoff: "Invoiced totals & VAT breakdowns → Ledger and customer statements",
     guarantee:
-      "One centralised VAT calculator handles every money path, so rounding cannot drift between two screens that show the same figure.",
+      "Invoices convert straight from verified delivery notes with automated, audit-proof VAT calculation.",
     evidence: "Services/Reporting/VatCalculator.cs, Services/TaxInvoice/",
     href: "/features#group-sales",
   },
   {
-    id: "statement",
-    index: "07",
-    name: "Statement",
-    moduleKey: "StatementGenerator",
-    statuses: ["Balances, not a lifecycle"],
-    summary: "A statement aggregates a customer's invoices into running balances with ageing.",
-    handoff: "Balances → reporting",
-    guarantee: "The statement reads the invoice record; it does not carry its own lifecycle.",
-    evidence: "Services/Statement/, ViewModels/Reports/",
-    href: "/features#statement-generator",
-  },
-  {
     id: "reporting",
-    index: "08",
+    index: "09",
     name: "Reporting",
     moduleKey: "SalesReport",
-    statuses: ["Persisted figures"],
-    summary: "Reporting reads the figures the documents stored — sales, proforma, job order, delivery, tax invoice and statement.",
-    handoff: "Decisions",
+    statuses: ["Aggregated", "Audited", "Exported"],
+    summary: "Business activity is consolidated into operational reports.",
+    handoff: "Executive visibility & operational insights → Business management",
     guarantee:
-      "An ERP that quietly recalculates yesterday's quote with today's glass prices is not an ERP. A stale price basis is flagged, never silently rescored.",
+      "Real-time visibility across sales performance, job profitability, outstanding balances, and inventory.",
     evidence: "ViewModels/JobProfitability/, Services/Reporting/",
     href: "/features#group-reports",
   },
@@ -134,19 +145,25 @@ export const businessChain: ChainStage[] = [
 /** The short rail used in the hero and in "How it works". */
 export const chainRail = businessChain.map((s) => ({ index: s.index, name: s.name, id: s.id }));
 
-/** Workflow verbs from the README, verbatim. */
-export const chainVerbs = ["Inquiry", "Quote", "Confirm", "Produce", "Deliver", "Invoice", "Settle"] as const;
+/** Workflow verbs from the product journey. */
+export const chainVerbs = [
+  "Inquiry",
+  "Estimation",
+  "Quotation",
+  "Job Order",
+  "Production",
+  "Optimization",
+  "Delivery",
+  "Invoicing",
+  "Reporting",
+] as const;
 
 /**
  * The same job, two ways.
  *
  * Each row pairs one step of a real glass-fabrication job as it is usually run
  * on paper and in spreadsheets with what the application does for that same
- * step. The left column describes a general practice — never a named customer,
- * never a measured figure — and the right column is only what the code does;
- * where a claim has a source in the repository it is the same one the rest of
- * the site cites. No time savings, percentages or price differences appear
- * here, because nothing in the repository measures them.
+ * step.
  */
 export type BeforeAfterRow = {
   id: string;
@@ -177,7 +194,7 @@ export const beforeAfter: BeforeAfterRow[] = [
     after:
       "The optimizer runs Auto or one of five stages, tries six plate patterns and six cut complexities, and two independent oracles check the plan before it is used. The result exports to CSV, Excel, DXF, Bottero .OPT, Intermac .ISO or Lisec .DAT.",
     anchor: "Optimization",
-    href: "/features#showcase-optimization",
+    href: "/optimization",
   },
   {
     id: "stock",
@@ -235,7 +252,7 @@ export const beforeAfter: BeforeAfterRow[] = [
     before:
       "Nothing reliably links the sheet that was cut to the delivery note and the invoice that followed from it.",
     after:
-      "The chain runs Inquiry ➜ Quote ➜ Confirm ➜ Produce ➜ Deliver ➜ Invoice ➜ Settle, and every document keeps its link to the one before it. That traceability is the point of the application.",
+      "The chain runs Inquiry ➜ Estimation ➜ Quotation ➜ Job Order ➜ Production ➜ Optimization ➜ Delivery ➜ Invoicing ➜ Reporting, and every document keeps its link to the one before it.",
     anchor: "The chain",
     href: "/how-it-works",
   },

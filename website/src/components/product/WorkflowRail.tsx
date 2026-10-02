@@ -40,7 +40,9 @@ export function WorkflowRail({
             <div className="min-w-0 flex-1 rounded-card border border-line/60 bg-ink-900/55 p-4 transition-colors duration-300 group-hover:border-line-strong sm:p-5">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
                 <h3 className="text-base font-semibold text-text-primary">{t(stage.name)}</h3>
-                <span className="mono-label">{stage.moduleKey}</span>
+                <span className="rounded-md border border-line-strong/60 bg-brand-500/10 px-2 py-0.5 font-mono text-[0.7rem] font-medium text-brand-300">
+                  {t("Stage")} {stage.index}
+                </span>
               </div>
 
               <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(stage.summary)}</p>
@@ -73,7 +75,6 @@ export function WorkflowRail({
                     ))}
                   </div>
 
-                  <p className="mono-label mt-3">{t(stage.evidence)}</p>
                   <Link
                     href={stage.href}
                     className="link-underline mt-3 text-xs"

@@ -27,7 +27,7 @@ const entries: NavEntry[] = [
       { label: "Worked Example", href: "/worked-example", description: "One real job, every figure" },
       { label: "Screenshots", href: "/screenshots", description: "The interface, screen by screen" },
       { label: "Pricing", href: "/pricing", description: "Editions and what each one unlocks" },
-      { label: "Records", href: "/records", description: "Operations and live sync data" },
+      { label: "Reports", href: "/reports", description: "Operations and live sync data" },
     ],
   },
   { label: "Optimization", href: "/optimization" },

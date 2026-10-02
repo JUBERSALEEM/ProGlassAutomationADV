@@ -7,7 +7,16 @@ import { Badge, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
-import { dream, history, journey, overthinking, workingDocuments, workingMethod } from "@/data/developerHistory";
+import {
+  dream,
+  history,
+  journey,
+  overthinking,
+  technicalWorkflowArchitecture,
+  workingDocuments,
+  workingMethod,
+} from "@/data/developerHistory";
+import { modules } from "@/data/modules";
 import { StatCounter, StatBadge } from "@/components/ui/Stat";
 import { site } from "@/lib/site";
 import { RouteSchema } from "@/components/seo/RouteSchema";
@@ -589,6 +598,106 @@ const faq = [
                 </div>
               ))}
             </dl>
+          </div>
+
+          {/* ── Engineering Scale & Codebase Metrics ──────────────────────── */}
+          <div className="mt-14 pt-12 border-t border-line/50">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="eyebrow mb-2 text-brand-300">{t("Engineering Metrics")}</p>
+                <h3 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
+                  {t("What the repository contains.")}
+                </h3>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-muted">
+                  {t("Every number below is counted directly from the source tree: bounded contexts, test suites, and localization dictionaries.")}
+                </p>
+              </div>
+              <p className="max-w-xs text-xs leading-relaxed text-text-faint font-medium">
+                {t("Measured on {v1}: {v2}, {v3}, {v4}. obj/, bin/ and .git/ excluded.", {
+                  v1: site.statsMeasuredOn,
+                  v2: site.framework,
+                  v3: site.pattern,
+                  v4: site.database,
+                })}
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <StatCounter
+                value={modules.length}
+                label={t("Navigation targets")}
+                hint={t("Every address the sidebar rail can open, across nine groups.")}
+              />
+              <StatCounter
+                value={site.databaseCount}
+                label={t("SQLite databases")}
+                hint={t("One DbContext per bounded context, with additive-only migrations.")}
+              />
+              <StatCounter
+                value={site.locales}
+                label={t("Languages")}
+                hint={t("Locales are resource dictionaries — adding one needs no code change.")}
+              />
+              <StatCounter
+                value={site.testCount}
+                label={t("Test methods")}
+                hint={t.template`[Fact] and [Theory] methods across ${site.testFiles} test files, plus ${site.testInlineCases.toLocaleString("en-GB")} [InlineData] cases.`}
+              />
+            </div>
+          </div>
+
+          {/* ── Workflow Implementation & C# Service Mapping ────────────────── */}
+          <div className="mt-14 pt-12 border-t border-line/50">
+            <div>
+              <p className="eyebrow mb-2 text-brand-300">{t("Workflow Architecture")}</p>
+              <h3 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
+                {t("C# services & implementation guarantees.")}
+              </h3>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-text-muted">
+                {t("How the nine business workflow stages are structured across the application code. Each entry lists the authoritative services enforcing transitions, pricing calculations, and balance safety.")}
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {technicalWorkflowArchitecture.map((item) => (
+                <div
+                  key={item.index}
+                  className="rounded-card border border-line-strong/60 bg-ink-900/60 p-5 flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono text-2xs text-brand-300 font-bold">
+                        {item.index}
+                      </span>
+                      <span className="text-2xs font-mono text-text-faint">
+                        {item.stage}
+                      </span>
+                    </div>
+                    <h4 className="mt-2 text-sm font-semibold text-text-primary">
+                      {t(item.stage)}
+                    </h4>
+                    <p className="mt-2 text-xs leading-relaxed text-text-muted">
+                      {t(item.architecture)}
+                    </p>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-line/40">
+                    <p className="font-mono text-2xs text-text-faint uppercase tracking-wider mb-1.5">
+                      {t("Service files")}
+                    </p>
+                    <ul className="space-y-1">
+                      {item.sourceFiles.map((src) => (
+                        <li
+                          key={src}
+                          className="font-mono text-2xs text-brand-200/90 break-all bg-ink-950/60 rounded px-1.5 py-0.5"
+                        >
+                          {src}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </Container>
       </Section>

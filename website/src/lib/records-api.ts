@@ -14,7 +14,7 @@
  *   displayed in production when Supabase is unavailable.
  */
 
-import { isSupabaseConfigured, supabaseServer } from "@/lib/supabase";
+import { isSupabaseConfigured, supabaseServer, supabaseServerWithToken } from "@/lib/supabase";
 import type {
   BreakdownItem,
   DatePreset,
@@ -195,11 +195,13 @@ export async function fetchRecordsDashboardData({
   sort = { field: "date", direction: "desc" },
   page = 1,
   pageSize = 50,
+  authToken,
 }: {
   filters: RecordFilters;
   sort?: RecordSort;
   page?: number;
   pageSize?: number;
+  authToken?: string | null;
 }): Promise<RecordsApiSuccessResponse["data"]> {
   const started = Date.now();
   const clampedPageSize = Math.min(Math.max(Number(pageSize) || 50, 10), 250);
@@ -222,7 +224,7 @@ export async function fetchRecordsDashboardData({
   }
 
   if (isSupabaseConfigured()) {
-    const client = supabaseServer();
+    const client = authToken ? supabaseServerWithToken(authToken) : supabaseServer();
     let warning: string | undefined;
 
     // 1. Fetch paginated records slice (50, 100, or 250 rows only)

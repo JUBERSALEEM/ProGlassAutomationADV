@@ -177,3 +177,17 @@ export function supabaseServer(): SupabaseClient {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
 }
+
+/**
+ * The server's client authenticated with a user's JWT access token.
+ *
+ * Propagates the user's session token into Supabase PostgREST requests,
+ * activating the 'authenticated' role under Row Level Security (RLS).
+ */
+export function supabaseServerWithToken(token: string): SupabaseClient {
+  const { url, key } = credentials();
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
+}

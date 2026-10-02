@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Badge } from "@/components/ui/Badge";
+import { isSupabaseConfigured, supabaseBrowser } from "@/lib/supabase";
 import type {
   DatePreset,
   FilterOptions,
@@ -80,7 +83,76 @@ export function RecordsDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [selectedRecord, setSelectedRecord] = useState<RecordRow | null>(null);
 
+  // Authentication & operator session state
+  const [authChecking, setAuthChecking] = useState(() => isSupabaseConfigured());
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [isAuthRequired, setIsAuthRequired] = useState(false);
+
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Monitor Supabase Auth state for protected reports access
+  useEffect(() => {
+    if (!isSupabaseConfigured()) {
+      return;
+    }
+
+    let isSubscribed = true;
+
+    async function checkSession() {
+      try {
+        const supabase = supabaseBrowser();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!isSubscribed) return;
+
+        if (session?.user) {
+          setUserEmail(session.user.email ?? null);
+          setAuthToken(session.access_token);
+          setIsAuthRequired(false);
+        } else if (process.env.NODE_ENV === "production") {
+          setIsAuthRequired(true);
+        }
+      } catch (err) {
+        console.warn("[records-dashboard] Session check failed:", err);
+      } finally {
+        if (isSubscribed) {
+          setAuthChecking(false);
+        }
+      }
+    }
+
+    checkSession();
+
+    let unsubscribe = () => {};
+    try {
+      const {
+        data: { subscription },
+      } = supabaseBrowser().auth.onAuthStateChange((_event, session) => {
+        if (!isSubscribed) return;
+        if (session?.user) {
+          setUserEmail(session.user.email ?? null);
+          setAuthToken(session.access_token);
+          setIsAuthRequired(false);
+        } else {
+          setUserEmail(null);
+          setAuthToken(null);
+          if (process.env.NODE_ENV === "production") {
+            setIsAuthRequired(true);
+          }
+        }
+      });
+      unsubscribe = () => subscription.unsubscribe();
+    } catch {
+      // ignore
+    }
+
+    return () => {
+      isSubscribed = false;
+      unsubscribe();
+    };
+  }, []);
 
   // Sync state to URL search parameters
   const updateUrlParams = useCallback(
@@ -141,9 +213,21 @@ export function RecordsDashboard() {
         if (filters.typeOfWork) params.set("typeOfWork", filters.typeOfWork);
         if (filters.zohoStatus) params.set("zohoStatus", filters.zohoStatus);
 
+        const headers: Record<string, string> = {};
+        if (authToken) {
+          headers["Authorization"] = `Bearer ${authToken}`;
+        }
+
         const response = await fetch(`/api/records?${params.toString()}`, {
           signal: controller.signal,
+          headers,
         });
+
+        if (response.status === 401) {
+          setIsAuthRequired(true);
+          setLoading(false);
+          return;
+        }
 
         const json: RecordsApiResponse = await response.json();
 
@@ -164,15 +248,30 @@ export function RecordsDashboard() {
       }
     }
 
-    load();
+    if (!isAuthRequired) {
+      load();
+    }
 
     return () => {
       isCancelled = true;
       controller.abort();
     };
-  }, [page, pageSize, sort, filters, refreshCounter]);
+  }, [page, pageSize, sort, filters, refreshCounter, authToken, isAuthRequired]);
 
   // Handlers
+  const handleSignOut = useCallback(async () => {
+    try {
+      if (isSupabaseConfigured()) {
+        await supabaseBrowser().auth.signOut();
+      }
+    } finally {
+      setUserEmail(null);
+      setAuthToken(null);
+      setIsAuthRequired(true);
+      router.push(`/reports/login?redirect=${encodeURIComponent(pathname)}`);
+    }
+  }, [pathname, router]);
+
   const handleRefresh = useCallback(() => {
     setLoading(true);
     setRefreshCounter((c) => c + 1);
@@ -228,6 +327,60 @@ export function RecordsDashboard() {
     zohoStatuses: [],
   };
 
+  if (authChecking) {
+    return (
+      <div className="min-h-screen bg-ink-950 flex items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 rounded-full border-2 border-brand-400 border-t-transparent animate-spin" />
+          <span className="text-xs font-mono text-text-muted">Verifying operator credentials...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (isAuthRequired) {
+    return (
+      <div className="min-h-screen bg-ink-950 flex flex-col justify-center items-center py-20 px-4">
+        <div className="w-full max-w-md rounded-panel border border-line-strong/80 bg-ink-900/80 p-8 text-center shadow-raised backdrop-blur-xl">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-400/40 bg-brand-500/10 text-brand-300">
+            <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.8}
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+          </div>
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <Badge tone="warning" className="text-2xs font-mono">Restricted Access</Badge>
+            <span className="text-2xs text-text-faint font-mono">Authentication Required</span>
+          </div>
+          <h2 className="mt-3 text-xl font-bold tracking-tight text-text-primary">
+            Reports & Operations Sign In
+          </h2>
+          <p className="mt-2 text-xs leading-relaxed text-text-muted">
+            Live operational records, factory transactions, and Excel Sync aggregation are restricted to registered operators and authorized staff.
+          </p>
+          <div className="mt-6 flex flex-col gap-3">
+            <Link
+              href={`/reports/login?redirect=${encodeURIComponent(pathname)}`}
+              className="flex h-11 items-center justify-center rounded-xl bg-brand-400 px-5 text-sm font-semibold text-accent-ink transition-colors hover:bg-brand-300"
+            >
+              Sign In to Access Reports
+            </Link>
+            <Link
+              href="/"
+              className="flex h-10 items-center justify-center rounded-xl border border-line-strong/70 bg-ink-950/60 text-xs font-semibold text-text-muted hover:text-text-primary transition-colors"
+            >
+              ← Back to Public Website
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-ink-950 pb-20 text-text-primary">
       {/* Header */}
@@ -240,6 +393,8 @@ export function RecordsDashboard() {
         density={density}
         onToggleDensity={() => setDensity(density === "comfortable" ? "compact" : "comfortable")}
         totalEntries={data?.summary.totalEntries ?? 0}
+        userEmail={userEmail}
+        onSignOut={handleSignOut}
       />
 
       <div className="shell mt-6 space-y-6">
