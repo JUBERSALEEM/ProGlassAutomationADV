@@ -9,6 +9,13 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { useT } from "@/i18n/provider";
 
+/**
+ * Reports & Records Authentication Form — Passwordless Email OTP.
+ *
+ * Authoritative Architecture:
+ *   Browser → supabase.auth.signInWithOtp({ email }) → Supabase Auth → Gmail SMTP → Operator Inbox
+ *   Browser → supabase.auth.verifyOtp({ email, token, type: "email" }) → Valid Session → /reports
+ */
 export function ReportsAuthForm() {
   const t = useT();
   const router = useRouter();
@@ -23,13 +30,13 @@ export function ReportsAuthForm() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  // Rate-limiting resend countdown (60s minimum interval)
+  // Rate-limiting resend countdown (60s minimum interval mandated by Supabase SMTP)
   const [resendCountdown, setResendCountdown] = useState(0);
 
   const otpInputRef = useRef<HTMLInputElement | null>(null);
   const configured = isSupabaseConfigured();
 
-  // Handle countdown interval
+  // Handle 60s cooldown timer
   useEffect(() => {
     if (resendCountdown <= 0) return;
     const timer = setInterval(() => {
@@ -38,7 +45,7 @@ export function ReportsAuthForm() {
     return () => clearInterval(timer);
   }, [resendCountdown]);
 
-  // Focus OTP input when switching to OTP step
+  // Auto-focus OTP input when advancing to Step B
   useEffect(() => {
     if (step === "otp") {
       otpInputRef.current?.focus();
@@ -46,7 +53,7 @@ export function ReportsAuthForm() {
   }, [step]);
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // STEP A: Request 6-digit OTP code to email
+  // STEP A: Request 6-digit OTP code to email via Supabase Auth
   // ─────────────────────────────────────────────────────────────────────────────
   const handleSendOtp = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -77,68 +84,52 @@ export function ReportsAuthForm() {
     setLoading(true);
 
     try {
-      let otpSent = false;
-      let lastErrorMessage = "";
+      const supabase = supabaseBrowser();
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email: cleanEmail,
+      });
 
-      // 1. Direct browser client call using supabase.auth.signInWithOtp
-      try {
-        const supabase = supabaseBrowser();
-        const { error: otpError } = await supabase.auth.signInWithOtp({
-          email: cleanEmail,
-        });
+      if (otpError) {
+        // Safely extract error metadata (never log credentials, tokens, or secrets)
+        const errMeta = {
+          message: otpError.message,
+          code: otpError.code,
+          status: otpError.status,
+          name: otpError.name,
+        };
+        console.error("[ReportsAuthForm] Supabase signInWithOtp error details:", errMeta);
 
-        if (!otpError) {
-          otpSent = true;
-        } else {
-          lastErrorMessage = otpError.message;
-          console.warn("[ReportsAuthForm] Client signInWithOtp error:", otpError);
-        }
-      } catch (clientErr) {
-        console.warn("[ReportsAuthForm] Client fetch failed, attempting server route:", clientErr);
+        // Format detailed error for operator UI: "Error sending verification code: <message> (status: <status>, code: <code>)"
+        const statusDetails = [
+          otpError.status ? `status: ${otpError.status}` : null,
+          otpError.code ? `code: ${otpError.code}` : null,
+        ]
+          .filter(Boolean)
+          .join(", ");
+
+        const formattedError = statusDetails
+          ? `Error sending verification code: ${otpError.message} (${statusDetails})`
+          : `Error sending verification code: ${otpError.message}`;
+
+        setError(formattedError);
+        return;
       }
 
-      // 2. Resilient fallback to same-origin server route if browser direct call encountered network/CORS issues
-      if (!otpSent) {
-        try {
-          const res = await fetch("/api/auth/otp/send", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: cleanEmail }),
-          });
-          const serverJson = await res.json();
-          if (res.ok && serverJson.ok) {
-            otpSent = true;
-          } else {
-            lastErrorMessage = serverJson.error?.message || lastErrorMessage;
-          }
-        } catch (serverErr) {
-          console.error("[ReportsAuthForm] Server route error:", serverErr);
-        }
-      }
-
-      if (!otpSent) {
-        throw new Error(
-          lastErrorMessage ||
-            t("Failed to send verification code. Please check your email or wait before trying again."),
-        );
-      }
-
-      // Success: advance to OTP input step and start 60s countdown
+      // Success: advance to OTP input step and start 60s cooldown
       setNotice(t("Verification code sent to your email."));
       setStep("otp");
       setResendCountdown(60);
     } catch (err) {
-      console.error("[ReportsAuthForm] Error sending OTP:", err);
-      const message =
-        err instanceof Error ? err.message : t("Failed to send verification code. Please try again.");
-      setError(message);
+      console.error("[ReportsAuthForm] Unexpected exception sending OTP:", err);
+      const rawMessage = err instanceof Error ? err.message : String(err);
+      setError(`Error sending verification code: ${rawMessage}`);
     } finally {
       setLoading(false);
     }
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // STEP B: Verify 6-digit OTP code and establish authenticated session
+  // STEP B: Verify 6-digit OTP code and establish authenticated Supabase session
   // ─────────────────────────────────────────────────────────────────────────────
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,58 +147,39 @@ export function ReportsAuthForm() {
     setLoading(true);
 
     try {
-      let verified = false;
-      let lastErrorMessage = "";
+      const supabase = supabaseBrowser();
+      const { data, error: verifyError } = await supabase.auth.verifyOtp({
+        email: cleanEmail,
+        token: cleanToken,
+        type: "email",
+      });
 
-      // 1. Direct browser client call using supabase.auth.verifyOtp
-      try {
-        const supabase = supabaseBrowser();
-        const { data, error: verifyError } = await supabase.auth.verifyOtp({
-          email: cleanEmail,
-          token: cleanToken,
-          type: "email",
-        });
+      if (verifyError) {
+        const errMeta = {
+          message: verifyError.message,
+          code: verifyError.code,
+          status: verifyError.status,
+          name: verifyError.name,
+        };
+        console.error("[ReportsAuthForm] Supabase verifyOtp error details:", errMeta);
 
-        if (!verifyError && data.session) {
-          verified = true;
-        } else if (verifyError) {
-          lastErrorMessage = verifyError.message;
-          console.warn("[ReportsAuthForm] Client verifyOtp error:", verifyError);
-        }
-      } catch (clientErr) {
-        console.warn("[ReportsAuthForm] Client verify fetch failed, attempting server route:", clientErr);
+        const statusDetails = [
+          verifyError.status ? `status: ${verifyError.status}` : null,
+          verifyError.code ? `code: ${verifyError.code}` : null,
+        ]
+          .filter(Boolean)
+          .join(", ");
+
+        const formattedError = statusDetails
+          ? `Verification failed: ${verifyError.message} (${statusDetails})`
+          : `Verification failed: ${verifyError.message}`;
+
+        setError(formattedError);
+        return;
       }
 
-      // 2. Resilient fallback to server route if browser encountered network/transport issue
-      if (!verified) {
-        try {
-          const res = await fetch("/api/auth/otp/verify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: cleanEmail, token: cleanToken }),
-          });
-          const serverJson = await res.json();
-          if (res.ok && serverJson.ok && serverJson.session) {
-            // Synchronize session back into the client singleton
-            const supabase = supabaseBrowser();
-            await supabase.auth.setSession({
-              access_token: serverJson.session.access_token,
-              refresh_token: serverJson.session.refresh_token,
-            });
-            verified = true;
-          } else {
-            lastErrorMessage = serverJson.error?.message || lastErrorMessage;
-          }
-        } catch (serverErr) {
-          console.error("[ReportsAuthForm] Server verify route error:", serverErr);
-        }
-      }
-
-      if (!verified) {
-        throw new Error(
-          lastErrorMessage ||
-            t("Invalid or expired verification code. Please check your email or request a new code."),
-        );
+      if (!data.session) {
+        throw new Error(t("Authentication session could not be established. Please try again."));
       }
 
       // Success: authenticated session confirmed
@@ -215,10 +187,9 @@ export function ReportsAuthForm() {
       router.push(redirectTo);
       router.refresh();
     } catch (err) {
-      console.error("[ReportsAuthForm] Error verifying OTP:", err);
-      const message =
-        err instanceof Error ? err.message : t("Verification failed. Please try again.");
-      setError(message);
+      console.error("[ReportsAuthForm] Unexpected exception verifying OTP:", err);
+      const rawMessage = err instanceof Error ? err.message : String(err);
+      setError(`Verification failed: ${rawMessage}`);
     } finally {
       setLoading(false);
     }
