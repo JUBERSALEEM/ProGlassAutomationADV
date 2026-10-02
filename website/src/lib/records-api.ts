@@ -137,6 +137,9 @@ export function extractFilterOptionsFromRecords(records: RecordRow[]): FilterOpt
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   };
 
+  const sourceFiles = extractDistinct((r) => r.source_file);
+  const currentSourceFile = records.length > 0 ? (records[0]?.source_file || null) : null;
+
   return {
     companies: extractDistinct((r) => r.company),
     salesmen: extractDistinct((r) => r.salesman),
@@ -145,6 +148,8 @@ export function extractFilterOptionsFromRecords(records: RecordRow[]): FilterOpt
     piStatuses: extractDistinct((r) => r.pi_status),
     typesOfWork: extractDistinct((r) => r.type_of_work),
     zohoStatuses: extractDistinct((r) => r.zoho_status),
+    sourceFiles,
+    currentSourceFile,
   };
 }
 
@@ -258,9 +263,75 @@ export async function fetchRecordsDashboardData({
     const client = authToken ? supabaseServerWithToken(authToken) : supabaseServer();
     let warning: string | undefined;
 
+    // Determine current attached Excel workbook from Supabase public.records
+    let currentSourceFile: string | null = null;
+    let availableSourceFiles: string[] = [];
+
+    try {
+      // Query the latest active source file (most recently synced/updated)
+      const { data: latestSourceRows } = await client
+        .from("records")
+        .select("source_file")
+        .not("source_file", "is", null)
+        .neq("source_file", "")
+        .order("updated_at", { ascending: false })
+        .limit(1);
+
+      if (latestSourceRows && latestSourceRows.length > 0 && latestSourceRows[0]?.source_file) {
+        currentSourceFile = latestSourceRows[0].source_file;
+      } else {
+        const { data: createdSourceRows } = await client
+          .from("records")
+          .select("source_file")
+          .not("source_file", "is", null)
+          .neq("source_file", "")
+          .order("created_at", { ascending: false })
+          .limit(1);
+        if (createdSourceRows && createdSourceRows.length > 0 && createdSourceRows[0]?.source_file) {
+          currentSourceFile = createdSourceRows[0].source_file;
+        }
+      }
+
+      // Also retrieve distinct active source files
+      const { data: sfRows } = await client
+        .from("records")
+        .select("source_file")
+        .not("source_file", "is", null)
+        .neq("source_file", "")
+        .limit(200);
+
+      if (sfRows && sfRows.length > 0) {
+        const sfSet = new Set<string>();
+        for (const row of sfRows) {
+          if (row.source_file && typeof row.source_file === "string") {
+            const t = row.source_file.trim();
+            if (t) sfSet.add(t);
+          }
+        }
+        availableSourceFiles = Array.from(sfSet).sort((a, b) => a.localeCompare(b));
+      }
+    } catch {
+      // Gracefully continue if source_file column or order is unavailable
+    }
+
+    // Determine effective source file scoping:
+    // - "all": operator explicitly requests viewing all historical Excel files combined
+    // - specific filename: operator selected a specific attached workbook
+    // - empty or "current" (default): strictly scope to current attached workbook to prevent reading old files
+    const effectiveSourceFile =
+      filters.sourceFile === "all"
+        ? null
+        : filters.sourceFile && filters.sourceFile !== "current"
+          ? filters.sourceFile
+          : currentSourceFile;
+
     // 1. Fetch paginated records slice (50, 100, or 250 rows only)
-    // Filter by is_active = true to represent current active Excel worksheet state
+    // Filter by is_active = true and scope to current attached Excel file
     let query = client.from("records").select("*", { count: "exact" }).eq("is_active", true);
+
+    if (effectiveSourceFile) {
+      query = query.eq("source_file", effectiveSourceFile);
+    }
 
     if (filters.search) {
       const s = filters.search.trim().replace(/[%_]/g, "\\$&");
@@ -286,6 +357,9 @@ export async function fetchRecordsDashboardData({
     if (recordsError && (recordsError.code === "42703" || recordsError.message?.toLowerCase().includes("is_active"))) {
       console.warn("[records-api] 'is_active' column not yet present in public.records, querying all records during schema migration");
       let fallbackQuery = client.from("records").select("*", { count: "exact" });
+      if (effectiveSourceFile) {
+        fallbackQuery = fallbackQuery.eq("source_file", effectiveSourceFile);
+      }
       if (filters.search) {
         const s = filters.search.trim().replace(/[%_]/g, "\\$&");
         fallbackQuery = fallbackQuery.or(`pi_number.ilike.%${s}%,customer_ref.ilike.%${s}%,company.ilike.%${s}%`);
@@ -331,7 +405,7 @@ export async function fetchRecordsDashboardData({
 
       // 2. Perform server-side database aggregation via PostgreSQL RPC
       // No rows are fetched into JavaScript — PostgreSQL executes COUNT/SUM/GROUP BY
-      const rpcParams = {
+      const rpcParams: Record<string, unknown> = {
         p_search: filters.search.trim() || null,
         p_date_from: resolvedFrom || null,
         p_date_to: resolvedTo || null,
@@ -342,6 +416,7 @@ export async function fetchRecordsDashboardData({
         p_pi_status: filters.piStatus || null,
         p_type_of_work: filters.typeOfWork || null,
         p_zoho_status: filters.zohoStatus || null,
+        p_source_file: effectiveSourceFile || null,
       };
 
       let summary: RecordSummary = {
@@ -363,10 +438,27 @@ export async function fetchRecordsDashboardData({
       let capturedRpcError: { message: string; code?: string; details?: string; hint?: string } | null = null;
 
       try {
-        const { data: rpcData, error: rpcError } = await client.rpc(
+        let { data: rpcData, error: rpcError } = await client.rpc(
           "get_records_dashboard_aggregates",
           rpcParams,
         );
+
+        // Resilient fallback if Supabase RPC function is still the 10-param signature without p_source_file
+        if (
+          rpcError &&
+          (rpcError.code === "PGRST202" ||
+            rpcError.message?.toLowerCase().includes("argument") ||
+            rpcError.message?.toLowerCase().includes("parameter") ||
+            rpcError.message?.toLowerCase().includes("function"))
+        ) {
+          const legacyParams = { ...rpcParams };
+          delete legacyParams.p_source_file;
+          const legacyRes = await client.rpc("get_records_dashboard_aggregates", legacyParams);
+          if (!legacyRes.error) {
+            rpcData = legacyRes.data;
+            rpcError = null;
+          }
+        }
 
         if (rpcError) {
           capturedRpcError = {
@@ -408,6 +500,13 @@ export async function fetchRecordsDashboardData({
                   zohoStatuses: Array.isArray(res.filterOptions.zohoStatuses)
                     ? res.filterOptions.zohoStatuses.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
                     : [],
+                  sourceFiles: Array.isArray(res.filterOptions.sourceFiles)
+                    ? res.filterOptions.sourceFiles.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                    : availableSourceFiles,
+                  currentSourceFile:
+                    typeof res.filterOptions.currentSourceFile === "string"
+                      ? res.filterOptions.currentSourceFile
+                      : currentSourceFile,
                 }
               : extractFilterOptionsFromRecords((recordsData || []) as RecordRow[]);
         } else {
@@ -535,6 +634,9 @@ export async function fetchRecordsDashboardData({
         serverTime: new Date().toISOString(),
         source: "supabase",
         executionMs: Date.now() - started,
+        currentSourceFile,
+        sourceFiles: filterOptions.sourceFiles || availableSourceFiles,
+        isCurrentSourceScoped: Boolean(effectiveSourceFile),
         warning,
         diagnostics: {
           targetHost: getSupabaseHost(),
@@ -592,6 +694,10 @@ function executeMockQuery({
 }): RecordsApiSuccessResponse["data"] {
   // Mirror active Excel contents only
   let matched = GLOBAL_MOCK_RECORDS.filter((r) => r.is_active !== false);
+
+  if (filters.sourceFile && filters.sourceFile !== "all" && filters.sourceFile !== "current") {
+    matched = matched.filter((r) => r.source_file === filters.sourceFile);
+  }
 
   if (filters.search) {
     const q = filters.search.toLowerCase().trim();
@@ -714,7 +820,11 @@ function executeMockQuery({
     records: pagedRecords,
     summary,
     breakdowns,
-    filterOptions: extractFilterOptionsFromRecords(matched),
+    filterOptions: {
+      ...extractFilterOptionsFromRecords(matched),
+      sourceFiles: ["Daily_Orders_Master_2026.xlsx"],
+      currentSourceFile: "Daily_Orders_Master_2026.xlsx",
+    },
     pagination: {
       page,
       pageSize,
@@ -724,6 +834,9 @@ function executeMockQuery({
     serverTime: new Date().toISOString(),
     source: "mock_preview",
     executionMs: Date.now() - started,
+    currentSourceFile: "Daily_Orders_Master_2026.xlsx",
+    sourceFiles: ["Daily_Orders_Master_2026.xlsx"],
+    isCurrentSourceScoped: true,
     warning: "Local development preview (Supabase environment variables not set).",
   };
 }

@@ -47,6 +47,7 @@ export type RecordFilters = {
   piStatus: string;
   typeOfWork: string;
   zohoStatus: string;
+  sourceFile?: string;
 };
 
 export type RecordSortField =
@@ -102,6 +103,8 @@ export type FilterOptions = {
   piStatuses: string[];
   typesOfWork: string[];
   zohoStatuses: string[];
+  sourceFiles?: string[];
+  currentSourceFile?: string | null;
 };
 
 export type PaginationInfo = {
@@ -122,6 +125,9 @@ export type RecordsApiSuccessResponse = {
     serverTime: string;
     source: "supabase" | "mock_preview";
     executionMs: number;
+    currentSourceFile?: string | null;
+    sourceFiles?: string[];
+    isCurrentSourceScoped?: boolean;
     warning?: string;
     diagnostics?: {
       targetHost: string;

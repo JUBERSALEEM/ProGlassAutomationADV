@@ -35,6 +35,7 @@ const INITIAL_FILTERS: RecordFilters = {
   piStatus: "",
   typeOfWork: "",
   zohoStatus: "",
+  sourceFile: "",
 };
 
 const INITIAL_SORT: RecordSort = {
@@ -60,6 +61,7 @@ export function RecordsDashboard() {
     piStatus: searchParams.get("piStatus") || "",
     typeOfWork: searchParams.get("typeOfWork") || "",
     zohoStatus: searchParams.get("zohoStatus") || "",
+    sourceFile: searchParams.get("sourceFile") || "",
   }));
 
   const [sort, setSort] = useState<RecordSort>(() => ({
@@ -92,6 +94,7 @@ export function RecordsDashboard() {
     piStatuses: [],
     typesOfWork: [],
     zohoStatuses: [],
+    sourceFiles: [],
   });
 
   // Authentication & operator session state
@@ -181,6 +184,7 @@ export function RecordsDashboard() {
       if (newFilters.piStatus) params.set("piStatus", newFilters.piStatus);
       if (newFilters.typeOfWork) params.set("typeOfWork", newFilters.typeOfWork);
       if (newFilters.zohoStatus) params.set("zohoStatus", newFilters.zohoStatus);
+      if (newFilters.sourceFile) params.set("sourceFile", newFilters.sourceFile);
 
       if (newSort.field !== "date") params.set("sortBy", newSort.field);
       if (newSort.direction !== "desc") params.set("sortOrder", newSort.direction);
@@ -223,6 +227,7 @@ export function RecordsDashboard() {
         if (filters.piStatus) params.set("piStatus", filters.piStatus);
         if (filters.typeOfWork) params.set("typeOfWork", filters.typeOfWork);
         if (filters.zohoStatus) params.set("zohoStatus", filters.zohoStatus);
+        if (filters.sourceFile) params.set("sourceFile", filters.sourceFile);
 
         const headers: Record<string, string> = {};
         if (authToken) {
@@ -248,10 +253,11 @@ export function RecordsDashboard() {
             throw new Error(json.ok ? "Failed to load records" : json.error.message);
           }
           const loadedRecords = json.data?.records || [];
+          const apiOptions = json.data?.filterOptions;
           if (loadedRecords.length > 0) {
             setAccumulatedOptions((prev) => {
-              const mergeDistinct = (existing: string[], getter: (r: RecordRow) => unknown): string[] => {
-                const set = new Set<string>(existing);
+              const mergeDistinct = (existing: string[], serverList: string[] = [], getter: (r: RecordRow) => unknown): string[] => {
+                const set = new Set<string>([...existing, ...serverList]);
                 for (const r of loadedRecords) {
                   const val = getter(r);
                   if (typeof val === "string") {
@@ -272,13 +278,15 @@ export function RecordsDashboard() {
               };
 
               return {
-                companies: mergeDistinct(prev.companies, (r) => r.company),
-                salesmen: mergeDistinct(prev.salesmen, (r) => r.salesman),
-                preparedBy: mergeDistinct(prev.preparedBy, (r) => r.prepared_by),
-                statuses: mergeDistinct(prev.statuses, (r) => r.status),
-                piStatuses: mergeDistinct(prev.piStatuses, (r) => r.pi_status),
-                typesOfWork: mergeDistinct(prev.typesOfWork, (r) => r.type_of_work),
-                zohoStatuses: mergeDistinct(prev.zohoStatuses, (r) => r.zoho_status),
+                companies: mergeDistinct(prev.companies, apiOptions?.companies, (r) => r.company),
+                salesmen: mergeDistinct(prev.salesmen, apiOptions?.salesmen, (r) => r.salesman),
+                preparedBy: mergeDistinct(prev.preparedBy, apiOptions?.preparedBy, (r) => r.prepared_by),
+                statuses: mergeDistinct(prev.statuses, apiOptions?.statuses, (r) => r.status),
+                piStatuses: mergeDistinct(prev.piStatuses, apiOptions?.piStatuses, (r) => r.pi_status),
+                typesOfWork: mergeDistinct(prev.typesOfWork, apiOptions?.typesOfWork, (r) => r.type_of_work),
+                zohoStatuses: mergeDistinct(prev.zohoStatuses, apiOptions?.zohoStatuses, (r) => r.zoho_status),
+                sourceFiles: Array.from(new Set([...(prev.sourceFiles || []), ...(apiOptions?.sourceFiles || [])])).sort((a, b) => a.localeCompare(b)),
+                currentSourceFile: apiOptions?.currentSourceFile ?? json.data?.currentSourceFile ?? prev.currentSourceFile,
               };
             });
           }
@@ -327,11 +335,33 @@ export function RecordsDashboard() {
   }, [pathname, router]);
 
   const handleRefresh = useCallback(() => {
+    setAccumulatedOptions({
+      companies: [],
+      salesmen: [],
+      preparedBy: [],
+      statuses: [],
+      piStatuses: [],
+      typesOfWork: [],
+      zohoStatuses: [],
+      sourceFiles: [],
+    });
     setLoading(true);
     setRefreshCounter((c) => c + 1);
   }, []);
 
   const handleFiltersChange = (updated: Partial<RecordFilters>) => {
+    if (updated.sourceFile !== undefined && updated.sourceFile !== filters.sourceFile) {
+      setAccumulatedOptions({
+        companies: [],
+        salesmen: [],
+        preparedBy: [],
+        statuses: [],
+        piStatuses: [],
+        typesOfWork: [],
+        zohoStatuses: [],
+        sourceFiles: [],
+      });
+    }
     const nextFilters = { ...filters, ...updated };
     setLoading(true);
     setFilters(nextFilters);
@@ -408,6 +438,8 @@ export function RecordsDashboard() {
       piStatuses: extractStrictlyFromRecords(accumulatedOptions.piStatuses, (r) => r.pi_status),
       typesOfWork: extractStrictlyFromRecords(accumulatedOptions.typesOfWork, (r) => r.type_of_work),
       zohoStatuses: extractStrictlyFromRecords(accumulatedOptions.zohoStatuses, (r) => r.zoho_status),
+      sourceFiles: data?.filterOptions?.sourceFiles || accumulatedOptions.sourceFiles || [],
+      currentSourceFile: data?.currentSourceFile || data?.filterOptions?.currentSourceFile || null,
     };
 
     // If entries have yielded any values, return them strictly
@@ -447,8 +479,10 @@ export function RecordsDashboard() {
       piStatuses: sanitizeList(backendOptions?.piStatuses),
       typesOfWork: sanitizeList(backendOptions?.typesOfWork),
       zohoStatuses: sanitizeList(backendOptions?.zohoStatuses),
+      sourceFiles: backendOptions?.sourceFiles || [],
+      currentSourceFile: backendOptions?.currentSourceFile || null,
     };
-  }, [accumulatedOptions, data?.filterOptions, data?.records]);
+  }, [accumulatedOptions, data?.currentSourceFile, data?.filterOptions, data?.records]);
 
   if (authChecking) {
     return (
@@ -518,6 +552,8 @@ export function RecordsDashboard() {
         totalEntries={data?.summary.totalEntries ?? 0}
         userEmail={userEmail}
         onSignOut={handleSignOut}
+        currentSourceFile={data?.currentSourceFile || data?.filterOptions?.currentSourceFile}
+        isCurrentSourceScoped={data?.isCurrentSourceScoped}
       />
 
       <div className="shell mt-6 space-y-6">

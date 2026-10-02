@@ -65,7 +65,8 @@ CREATE OR REPLACE FUNCTION public.get_records_dashboard_aggregates(
   p_status text DEFAULT NULL,
   p_pi_status text DEFAULT NULL,
   p_type_of_work text DEFAULT NULL,
-  p_zoho_status text DEFAULT NULL
+  p_zoho_status text DEFAULT NULL,
+  p_source_file text DEFAULT NULL
 )
 RETURNS json
 LANGUAGE plpgsql
@@ -99,6 +100,7 @@ BEGIN
     FROM public.records
     WHERE
       (is_active IS NOT FALSE)
+      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file)
       AND (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
       AND (p_date_to IS NULL OR p_date_to = '' OR date <= p_date_to)
       AND (p_company IS NULL OR p_company = '' OR company = p_company)
@@ -148,6 +150,7 @@ BEGIN
     FROM public.records
     WHERE
       (is_active IS NOT FALSE)
+      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file)
       AND (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
       AND (p_date_to IS NULL OR p_date_to = '' OR date <= p_date_to)
       AND (p_company IS NULL OR p_company = '' OR company = p_company)
@@ -198,6 +201,7 @@ BEGIN
     FROM public.records
     WHERE
       (is_active IS NOT FALSE)
+      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file)
       AND (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
       AND (p_date_to IS NULL OR p_date_to = '' OR date <= p_date_to)
       AND (p_company IS NULL OR p_company = '' OR company = p_company)
@@ -248,6 +252,7 @@ BEGIN
     FROM public.records
     WHERE
       (is_active IS NOT FALSE)
+      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file)
       AND (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
       AND (p_date_to IS NULL OR p_date_to = '' OR date <= p_date_to)
       AND (p_company IS NULL OR p_company = '' OR company = p_company)
@@ -298,6 +303,7 @@ BEGIN
     FROM public.records
     WHERE
       (is_active IS NOT FALSE)
+      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file)
       AND (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
       AND (p_date_to IS NULL OR p_date_to = '' OR date <= p_date_to)
       AND (p_company IS NULL OR p_company = '' OR company = p_company)
@@ -339,15 +345,17 @@ BEGIN
   ), '[]'::json) INTO v_type_of_work
   FROM grouped g, tot t;
 
-  -- 6. Distinct filter options directly from PostgreSQL (Active records only)
+  -- 6. Distinct filter options directly from PostgreSQL (Active records scoped to source)
   SELECT json_build_object(
-    'companies', (SELECT COALESCE(json_agg(company), '[]'::json) FROM (SELECT DISTINCT company FROM public.records WHERE is_active IS NOT FALSE AND company IS NOT NULL AND trim(company) <> '' ORDER BY company) c),
-    'salesmen', (SELECT COALESCE(json_agg(salesman), '[]'::json) FROM (SELECT DISTINCT salesman FROM public.records WHERE is_active IS NOT FALSE AND salesman IS NOT NULL AND trim(salesman) <> '' ORDER BY salesman) s),
-    'preparedBy', (SELECT COALESCE(json_agg(prepared_by), '[]'::json) FROM (SELECT DISTINCT prepared_by FROM public.records WHERE is_active IS NOT FALSE AND prepared_by IS NOT NULL AND trim(prepared_by) <> '' ORDER BY prepared_by) p),
-    'statuses', (SELECT COALESCE(json_agg(status), '[]'::json) FROM (SELECT DISTINCT status FROM public.records WHERE is_active IS NOT FALSE AND status IS NOT NULL AND trim(status) <> '' ORDER BY status) st),
-    'piStatuses', (SELECT COALESCE(json_agg(pi_status), '[]'::json) FROM (SELECT DISTINCT pi_status FROM public.records WHERE is_active IS NOT FALSE AND pi_status IS NOT NULL AND trim(pi_status) <> '' ORDER BY pi_status) pis),
-    'typesOfWork', (SELECT COALESCE(json_agg(type_of_work), '[]'::json) FROM (SELECT DISTINCT type_of_work FROM public.records WHERE is_active IS NOT FALSE AND type_of_work IS NOT NULL AND trim(type_of_work) <> '' ORDER BY type_of_work) tw),
-    'zohoStatuses', (SELECT COALESCE(json_agg(zoho_status), '[]'::json) FROM (SELECT DISTINCT zoho_status FROM public.records WHERE is_active IS NOT FALSE AND zoho_status IS NOT NULL AND trim(zoho_status) <> '' ORDER BY zoho_status) z)
+    'companies', (SELECT COALESCE(json_agg(company), '[]'::json) FROM (SELECT DISTINCT company FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND company IS NOT NULL AND trim(company) <> '' ORDER BY company) c),
+    'salesmen', (SELECT COALESCE(json_agg(salesman), '[]'::json) FROM (SELECT DISTINCT salesman FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND salesman IS NOT NULL AND trim(salesman) <> '' ORDER BY salesman) s),
+    'preparedBy', (SELECT COALESCE(json_agg(prepared_by), '[]'::json) FROM (SELECT DISTINCT prepared_by FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND prepared_by IS NOT NULL AND trim(prepared_by) <> '' ORDER BY prepared_by) p),
+    'statuses', (SELECT COALESCE(json_agg(status), '[]'::json) FROM (SELECT DISTINCT status FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND status IS NOT NULL AND trim(status) <> '' ORDER BY status) st),
+    'piStatuses', (SELECT COALESCE(json_agg(pi_status), '[]'::json) FROM (SELECT DISTINCT pi_status FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND pi_status IS NOT NULL AND trim(pi_status) <> '' ORDER BY pi_status) pis),
+    'typesOfWork', (SELECT COALESCE(json_agg(type_of_work), '[]'::json) FROM (SELECT DISTINCT type_of_work FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND type_of_work IS NOT NULL AND trim(type_of_work) <> '' ORDER BY type_of_work) tw),
+    'zohoStatuses', (SELECT COALESCE(json_agg(zoho_status), '[]'::json) FROM (SELECT DISTINCT zoho_status FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND zoho_status IS NOT NULL AND trim(zoho_status) <> '' ORDER BY zoho_status) z),
+    'sourceFiles', (SELECT COALESCE(json_agg(sf), '[]'::json) FROM (SELECT DISTINCT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY source_file) sf),
+    'currentSourceFile', (SELECT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST LIMIT 1)
   ) INTO v_filter_options;
 
   RETURN json_build_object(
@@ -455,7 +463,73 @@ GRANT EXECUTE ON FUNCTION public.reconcile_records_active_state TO anon, authent
 
 
 -- ---------------------------------------------------------------------
--- 3. RECOMMENDED INDEXES FOR LARGE SCALE (MILLIONS OF RECORDS)
+-- 3. CURRENT EXCEL SOURCE RESOLUTION & WORKBOOK ACTIVATION RPCs
+-- ---------------------------------------------------------------------
+
+-- Resolves the current active source file name (latest sync timestamp)
+CREATE OR REPLACE FUNCTION public.get_current_excel_source()
+RETURNS text
+LANGUAGE sql
+STABLE
+SECURITY INVOKER
+AS $$
+  SELECT source_file
+  FROM public.records
+  WHERE is_active IS NOT FALSE
+    AND source_file IS NOT NULL
+    AND trim(source_file) <> ''
+  ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
+  LIMIT 1;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_current_excel_source TO anon, authenticated, service_role;
+
+-- Designates a specific workbook as the active Excel dataset
+CREATE OR REPLACE FUNCTION public.set_current_excel_file(
+  p_source_file text,
+  p_deactivate_others boolean DEFAULT false
+)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_activated integer := 0;
+  v_deactivated integer := 0;
+BEGIN
+  IF p_source_file IS NULL OR trim(p_source_file) = '' THEN
+    RAISE EXCEPTION 'p_source_file cannot be empty';
+  END IF;
+
+  -- 1. Ensure records for this source file are active and touch updated_at
+  UPDATE public.records
+  SET is_active = true, updated_at = NOW()
+  WHERE source_file = p_source_file;
+  GET DIAGNOSTICS v_activated = ROW_COUNT;
+
+  -- 2. Optionally deactivate older superseded workbooks to guarantee single-source view
+  IF p_deactivate_others THEN
+    UPDATE public.records
+    SET is_active = false, updated_at = NOW()
+    WHERE source_file <> p_source_file AND is_active = true;
+    GET DIAGNOSTICS v_deactivated = ROW_COUNT;
+  END IF;
+
+  RETURN json_build_object(
+    'ok', true,
+    'currentSourceFile', p_source_file,
+    'activated', v_activated,
+    'deactivated', v_deactivated
+  );
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.set_current_excel_file TO anon, authenticated, service_role;
+
+
+-- ---------------------------------------------------------------------
+-- 4. RECOMMENDED INDEXES FOR LARGE SCALE (MILLIONS OF RECORDS)
 -- ---------------------------------------------------------------------
 -- Evaluate before applying: each index accelerates specific read queries
 -- while adding modest write overhead on Excel Sync bulk INSERTs/UPDATEs.
@@ -485,7 +559,12 @@ ON public.records(status);
 CREATE INDEX IF NOT EXISTS idx_records_company_date 
 ON public.records(company, date DESC);
 
--- Index 4: Trigram Substring Search Index (GIN)
+-- Index 4: Composite Index for Attached Excel Scoping and Active Filtering
+-- Accelerates: WHERE source_file = '...' AND is_active = true ORDER BY updated_at DESC
+CREATE INDEX IF NOT EXISTS idx_records_source_active_updated 
+ON public.records(source_file, is_active, updated_at DESC);
+
+-- Index 5: Trigram Substring Search Index (GIN)
 -- Accelerates: ILIKE '%search%' across PI number and customer reference
 -- Requires pg_trgm extension.
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
@@ -498,7 +577,7 @@ ON public.records USING gin (customer_ref gin_trgm_ops);
 
 
 -- ---------------------------------------------------------------------
--- 4. ROW LEVEL SECURITY (RLS) POLICIES FOR OPERATIONAL REPORTS
+-- 5. ROW LEVEL SECURITY (RLS) POLICIES FOR OPERATIONAL REPORTS
 -- ---------------------------------------------------------------------
 -- Operational records must NOT be publicly readable anonymously.
 -- Anonymous visitors cannot view operational business data.

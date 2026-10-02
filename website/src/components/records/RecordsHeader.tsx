@@ -15,6 +15,8 @@ type RecordsHeaderProps = {
   totalEntries: number;
   userEmail?: string | null;
   onSignOut?: () => void;
+  currentSourceFile?: string | null;
+  isCurrentSourceScoped?: boolean;
 };
 
 export function RecordsHeader({
@@ -28,6 +30,8 @@ export function RecordsHeader({
   totalEntries,
   userEmail,
   onSignOut,
+  currentSourceFile,
+  isCurrentSourceScoped,
 }: RecordsHeaderProps) {
   const formattedTime = serverTime
     ? new Date(serverTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
@@ -52,6 +56,20 @@ export function RecordsHeader({
                   <span className="h-1.5 w-1.5 rounded-full bg-state-warning" />
                   Demo Preview
                 </Badge>
+              )}
+              {currentSourceFile && (
+                <span className="inline-flex items-center gap-1.5 rounded-md border border-line-strong/80 bg-ink-900/90 px-2 py-0.5 text-2xs font-mono text-text-secondary">
+                  <span className="h-1.5 w-1.5 rounded-full bg-glass-teal" />
+                  <span className="text-text-faint">Workbook:</span>
+                  <strong className="text-brand-200 truncate max-w-[200px]" title={currentSourceFile}>
+                    {currentSourceFile}
+                  </strong>
+                  {isCurrentSourceScoped && (
+                    <span className="rounded bg-brand-500/20 px-1 py-0.2 text-3xs font-semibold text-brand-300 uppercase">
+                      Current Active
+                    </span>
+                  )}
+                </span>
               )}
             </div>
 

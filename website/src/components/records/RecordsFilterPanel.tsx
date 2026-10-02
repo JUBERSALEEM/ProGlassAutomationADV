@@ -63,6 +63,7 @@ export function RecordsFilterPanel({
     Boolean(filters.piStatus),
     Boolean(filters.typeOfWork),
     Boolean(filters.zohoStatus),
+    Boolean(filters.sourceFile && filters.sourceFile !== ""),
   ].filter(Boolean).length;
 
   return (
@@ -151,7 +152,28 @@ export function RecordsFilterPanel({
       )}
 
       {/* Filter dropdowns row */}
-      <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-7 border-t border-line/60 pt-4">
+      <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4 lg:grid-cols-8 border-t border-line/60 pt-4">
+        {/* Attached Excel File Dropdown */}
+        <div>
+          <label className="block text-3xs font-semibold uppercase tracking-wider text-text-faint mb-1">
+            Attached File
+          </label>
+          <select
+            value={filters.sourceFile || ""}
+            onChange={(e) => onChange({ sourceFile: e.target.value })}
+            className="w-full rounded-lg border border-line-strong/70 bg-ink-950 py-1.5 px-2 text-xs text-text-primary focus:border-brand-400 focus:outline-none truncate"
+            title="Scope data strictly to the current attached Excel workbook or view all files"
+          >
+            <option value="">Current File (Auto)</option>
+            <option value="all">All Attached Files</option>
+            {filterOptions.sourceFiles?.map((f) => (
+              <option key={f} value={f}>
+                {f}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Company Dropdown */}
         <div>
           <label className="block text-3xs font-semibold uppercase tracking-wider text-text-faint mb-1">
@@ -324,6 +346,19 @@ export function RecordsFilterPanel({
               <button
                 type="button"
                 onClick={() => onChange({ search: "" })}
+                className="hover:text-state-danger text-text-faint"
+              >
+                ×
+              </button>
+            </span>
+          )}
+
+          {filters.sourceFile && (
+            <span className="inline-flex items-center gap-1 rounded-md border border-line-strong bg-ink-850 px-2 py-0.5 text-2xs text-text-secondary">
+              File: {filters.sourceFile === "all" ? "All Files" : filters.sourceFile}
+              <button
+                type="button"
+                onClick={() => onChange({ sourceFile: "" })}
                 className="hover:text-state-danger text-text-faint"
               >
                 ×
