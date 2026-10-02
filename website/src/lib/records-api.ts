@@ -430,11 +430,37 @@ export async function fetchRecordsDashboardData({
             summary.averageSqm = Number((summary.totalSqm / summary.totalQty).toFixed(2));
           }
 
+          const groupSlice = (keyFn: (r: RecordRow) => string | null | undefined): BreakdownItem[] => {
+            const map = new Map<string, { count: number; totalQty: number; totalSqm: number }>();
+            for (const row of (recordsData || [])) {
+              const name = keyFn(row as RecordRow)?.trim() || "(Unassigned)";
+              const existing = map.get(name) || { count: 0, totalQty: 0, totalSqm: 0 };
+              existing.count += 1;
+              existing.totalQty += Number(row.qty) || 0;
+              existing.totalSqm += Number(row.sqm) || 0;
+              map.set(name, existing);
+            }
+
+            const items: BreakdownItem[] = [];
+            const sliceTotal = (recordsData || []).length;
+            for (const [name, val] of map.entries()) {
+              items.push({
+                name,
+                count: val.count,
+                totalQty: val.totalQty,
+                totalSqm: Number(val.totalSqm.toFixed(2)),
+                percentage: sliceTotal > 0 ? Number(((val.count / sliceTotal) * 100).toFixed(1)) : 0,
+              });
+            }
+
+            return items.sort((a, b) => b.count - a.count);
+          };
+
           breakdowns = {
-            preparedBy: [],
-            salesman: [],
-            company: [],
-            typeOfWork: [],
+            preparedBy: groupSlice((r) => r.prepared_by),
+            salesman: groupSlice((r) => r.salesman),
+            company: groupSlice((r) => r.company),
+            typeOfWork: groupSlice((r) => r.type_of_work),
           };
           // Data-driven extraction directly from actual record entries
           filterOptions = extractFilterOptionsFromRecords((recordsData || []) as RecordRow[]);

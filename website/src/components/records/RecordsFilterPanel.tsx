@@ -206,7 +206,7 @@ export function RecordsFilterPanel({
             onChange={(e) => onChange({ preparedBy: e.target.value })}
             className="w-full rounded-lg border border-line-strong/70 bg-ink-950 py-1.5 px-2 text-xs text-text-primary focus:border-brand-400 focus:outline-none truncate"
           >
-            <option value="">All Authors</option>
+            <option value="">All Prepared By</option>
             {filters.preparedBy && !filterOptions.preparedBy.includes(filters.preparedBy) && (
               <option value={filters.preparedBy}>{filters.preparedBy}</option>
             )}
@@ -272,7 +272,7 @@ export function RecordsFilterPanel({
             onChange={(e) => onChange({ typeOfWork: e.target.value })}
             className="w-full rounded-lg border border-line-strong/70 bg-ink-950 py-1.5 px-2 text-xs text-text-primary focus:border-brand-400 focus:outline-none truncate"
           >
-            <option value="">All Work Types</option>
+            <option value="">All Types of Work</option>
             {filters.typeOfWork && !filterOptions.typesOfWork.includes(filters.typeOfWork) && (
               <option value={filters.typeOfWork}>{filters.typeOfWork}</option>
             )}
@@ -294,7 +294,7 @@ export function RecordsFilterPanel({
             onChange={(e) => onChange({ zohoStatus: e.target.value })}
             className="w-full rounded-lg border border-line-strong/70 bg-ink-950 py-1.5 px-2 text-xs text-text-primary focus:border-brand-400 focus:outline-none truncate"
           >
-            <option value="">All Zoho Status</option>
+            <option value="">All Zoho Statuses</option>
             {filters.zohoStatus && !filterOptions.zohoStatuses.includes(filters.zohoStatus) && (
               <option value={filters.zohoStatus}>{filters.zohoStatus}</option>
             )}
