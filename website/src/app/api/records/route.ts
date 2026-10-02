@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
         ok: false,
         error: {
           message: "Unable to load records. Please try again or adjust your filters.",
-          details: process.env.NODE_ENV === "development" ? message : undefined,
+          details: message,
         },
       },
       {

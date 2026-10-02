@@ -87,6 +87,29 @@ export function resolveDateRange(
   return { from: "", to: "" };
 }
 
+function getSupabaseHost(): string {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL || "").host;
+  } catch {
+    return "unknown";
+  }
+}
+
+function getAnonRole(): string | null {
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!key) return null;
+  const parts = key.split(".");
+  if (parts.length !== 3 || !parts[1]) return null;
+  try {
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
+    const claims = JSON.parse(Buffer.from(padded, "base64").toString("utf-8")) as { role?: unknown };
+    return typeof claims.role === "string" ? claims.role : null;
+  } catch {
+    return null;
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // REALISTIC LOCAL PREVIEW DATASET
 // Used ONLY in local development when Supabase credentials are absent.
@@ -224,9 +247,16 @@ export async function fetchRecordsDashboardData({
     const { data: recordsData, count: totalCount, error: recordsError } = await query;
 
     if (recordsError) {
-      console.error("[records-api] Supabase query failed:", recordsError.message);
+      console.error("[records-api] Supabase query failed:", {
+        message: recordsError.message,
+        code: recordsError.code,
+        details: recordsError.details,
+        hint: recordsError.hint,
+      });
       if (isProduction) {
-        throw new Error(`Supabase query failed: ${recordsError.message}`);
+        throw new Error(
+          `Supabase records query failed [${recordsError.code || "unknown"}]: ${recordsError.message}`
+        );
       }
       // In local dev, fall through to mock
     } else {
@@ -247,10 +277,24 @@ export async function fetchRecordsDashboardData({
         p_zoho_status: filters.zohoStatus || null,
       };
 
-      let summary: RecordSummary;
-      let breakdowns: RecordBreakdowns;
-      let filterOptions: FilterOptions;
+      let summary: RecordSummary = {
+        totalEntries,
+        totalQty: 0,
+        totalSqm: 0,
+        averageSqm: 0,
+        activeCompaniesCount: 0,
+        activeSalesmenCount: 0,
+      };
+      let breakdowns: RecordBreakdowns = {
+        preparedBy: [],
+        salesman: [],
+        company: [],
+        typeOfWork: [],
+      };
+      let filterOptions: FilterOptions = getFallbackFilterOptions();
       let warning: string | undefined;
+      let rpcStatus: "success" | "error" | "not_installed" = "not_installed";
+      let capturedRpcError: { message: string; code?: string; details?: string; hint?: string } | null = null;
 
       try {
         const { data: rpcData, error: rpcError } = await client.rpc(
@@ -258,20 +302,30 @@ export async function fetchRecordsDashboardData({
           rpcParams,
         );
 
-        if (!rpcError && rpcData && typeof rpcData === "object") {
-          // Native PostgreSQL aggregation succeeded across the complete filtered dataset
+        if (rpcError) {
+          capturedRpcError = {
+            message: rpcError.message,
+            code: rpcError.code,
+            details: rpcError.details,
+            hint: rpcError.hint,
+          };
+          rpcStatus = "error";
+          console.error("[records-api] Database aggregation RPC error:", rpcError);
+          warning = `Aggregation RPC error [${rpcError.code || "unknown"}]: ${rpcError.message}`;
+        } else if (rpcData && typeof rpcData === "object") {
+          rpcStatus = "success";
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const res = rpcData as any;
           summary = res.summary;
           breakdowns = res.breakdowns;
           filterOptions = res.filterOptions || getFallbackFilterOptions();
         } else {
-          // RPC is not yet created in the database.
-          // Note: We deliberately DO NOT download 10,000+ rows to compute in JS!
-          // We provide exact count from PostgreSQL and notify the user to install the RPC.
+          rpcStatus = "not_installed";
           warning =
             "Database aggregation RPC (public.get_records_dashboard_aggregates) is not installed in Supabase. Run 'website/supabase-dashboard.sql' in Supabase SQL Editor for instant server-side aggregation across millions of records.";
+        }
 
+        if (rpcStatus !== "success") {
           // Compute preliminary slice summary from current paginated slice only
           summary = {
             totalEntries,
@@ -294,7 +348,11 @@ export async function fetchRecordsDashboardData({
           filterOptions = getFallbackFilterOptions();
         }
       } catch (err) {
-        warning = `Aggregation RPC error: ${err instanceof Error ? err.message : String(err)}`;
+        rpcStatus = "error";
+        const errMsg = err instanceof Error ? err.message : String(err);
+        capturedRpcError = { message: errMsg };
+        console.error("[records-api] RPC invocation exception:", err);
+        warning = `Aggregation RPC error: ${errMsg}`;
         summary = {
           totalEntries,
           totalQty: 0,
@@ -305,6 +363,28 @@ export async function fetchRecordsDashboardData({
         };
         breakdowns = { preparedBy: [], salesman: [], company: [], typeOfWork: [] };
         filterOptions = getFallbackFilterOptions();
+      }
+
+      const hasActiveFilters = Boolean(
+        filters.search ||
+        resolvedFrom ||
+        resolvedTo ||
+        filters.company ||
+        filters.salesman ||
+        filters.preparedBy ||
+        filters.status ||
+        filters.piStatus ||
+        filters.typeOfWork ||
+        filters.zohoStatus
+      );
+
+      const possibleRlsBlock = totalEntries === 0 && !hasActiveFilters && !recordsError && !capturedRpcError;
+
+      if (possibleRlsBlock && !warning) {
+        warning =
+          "0 records visible to Supabase role '" +
+          (getAnonRole() || "anon") +
+          "'. If rows exist in public.records, Row Level Security (RLS) is filtering them out because no SELECT policy exists for this role. To grant read access, run in Supabase SQL Editor: CREATE POLICY \"Allow anon read\" ON public.records FOR SELECT TO anon USING (true);";
       }
 
       return {
@@ -322,6 +402,16 @@ export async function fetchRecordsDashboardData({
         source: "supabase",
         executionMs: Date.now() - started,
         warning,
+        diagnostics: {
+          targetHost: getSupabaseHost(),
+          authRole: getAnonRole(),
+          recordsCount: totalCount,
+          recordsLength: recordsData?.length ?? 0,
+          recordsError: null,
+          rpcStatus,
+          rpcError: capturedRpcError,
+          possibleRlsBlock,
+        },
       };
     }
   }

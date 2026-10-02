@@ -122,6 +122,16 @@ export type RecordsApiSuccessResponse = {
     source: "supabase" | "mock_preview";
     executionMs: number;
     warning?: string;
+    diagnostics?: {
+      targetHost: string;
+      authRole: string | null;
+      recordsCount: number | null;
+      recordsLength: number;
+      recordsError: { message: string; code?: string; details?: string; hint?: string } | null;
+      rpcStatus: "success" | "error" | "not_installed";
+      rpcError: { message: string; code?: string; details?: string; hint?: string } | null;
+      possibleRlsBlock: boolean;
+    };
   };
 };
 
