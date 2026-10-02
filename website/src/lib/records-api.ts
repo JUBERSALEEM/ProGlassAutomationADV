@@ -1,10 +1,17 @@
 /**
  * ProGlass Automation — Records Dashboard Data Layer
  *
- * Implements server-side filtering, aggregation, sorting, and pagination
- * against Supabase `public.records`, with graceful fallback for local development.
+ * Implements database-driven aggregation, filtering, sorting, and pagination
+ * against Supabase `public.records`.
  *
- * All operations run on the server — the browser never downloads unbounded rows.
+ * Scalability Architecture:
+ * - Summary statistics (Total Entries, Total Qty, Total SQM, Averages) and
+ *   Breakdowns (Prepared By, Salesman, Company, Type of Work) are computed
+ *   natively inside PostgreSQL via the `get_records_dashboard_aggregates` RPC.
+ * - ZERO unbounded row fetching in JavaScript.
+ * - Table records are strictly paginated at 50, 100, or 250 rows.
+ * - Production strictly queries Supabase; fake/preview data is NEVER silently
+ *   displayed in production when Supabase is unavailable.
  */
 
 import { isSupabaseConfigured, supabaseServer } from "@/lib/supabase";
@@ -58,8 +65,7 @@ export function resolveDateRange(
   }
 
   if (preset === "this_week") {
-    // Current week starting Monday
-    const dayOfWeek = now.getUTCDay(); // 0 is Sunday, 1 is Monday...
+    const dayOfWeek = now.getUTCDay();
     const diff = (dayOfWeek + 6) % 7; // days since Monday
     const monday = new Date(Date.UTC(y, m, d - diff));
     const sunday = new Date(Date.UTC(y, m, d - diff + 6));
@@ -83,7 +89,7 @@ export function resolveDateRange(
 
 // ─────────────────────────────────────────────────────────────────────────────
 // REALISTIC LOCAL PREVIEW DATASET
-// Used when Supabase is not configured or when RLS prevents anonymous reads.
+// Used ONLY in local development when Supabase credentials are absent.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const MOCK_COMPANIES = [
@@ -110,7 +116,6 @@ function generateMockRecords(): RecordRow[] {
   const records: RecordRow[] = [];
   const baseDate = new Date("2026-10-02T12:00:00Z");
 
-  // Generate 120 realistic records spread over the past 90 days
   for (let i = 1; i <= 120; i++) {
     const daysAgo = Math.floor((i * 90) / 120);
     const dateObj = new Date(baseDate.getTime() - daysAgo * 86400000);
@@ -158,7 +163,7 @@ function generateMockRecords(): RecordRow[] {
 const GLOBAL_MOCK_RECORDS = generateMockRecords();
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SERVER-SIDE QUERY IMPLEMENTATION
+// SERVER-SIDE DATABASE-DRIVEN QUERY IMPLEMENTATION
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function fetchRecordsDashboardData({
@@ -183,74 +188,124 @@ export async function fetchRecordsDashboardData({
     filters.dateTo,
   );
 
-  // Check if live Supabase is available
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // Production check: Must have Supabase configured
+  if (isProduction && !isSupabaseConfigured()) {
+    throw new Error(
+      "Supabase environment variables (NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY) are not configured in Vercel Production.",
+    );
+  }
+
   if (isSupabaseConfigured()) {
-    try {
-      const client = supabaseServer();
+    const client = supabaseServer();
 
-      // 1. Build filtered query for the paginated records
-      let query = client.from("records").select("*", { count: "exact" });
+    // 1. Fetch paginated records slice (50, 100, or 250 rows only)
+    let query = client.from("records").select("*", { count: "exact" });
 
-      if (filters.search) {
-        const s = filters.search.trim().replace(/[%_]/g, "\\$&");
-        query = query.or(
-          `pi_number.ilike.%${s}%,customer_ref.ilike.%${s}%,company.ilike.%${s}%`,
-        );
+    if (filters.search) {
+      const s = filters.search.trim().replace(/[%_]/g, "\\$&");
+      query = query.or(`pi_number.ilike.%${s}%,customer_ref.ilike.%${s}%,company.ilike.%${s}%`);
+    }
+    if (resolvedFrom) query = query.gte("date", resolvedFrom);
+    if (resolvedTo) query = query.lte("date", resolvedTo);
+    if (filters.company) query = query.eq("company", filters.company);
+    if (filters.salesman) query = query.eq("salesman", filters.salesman);
+    if (filters.preparedBy) query = query.eq("prepared_by", filters.preparedBy);
+    if (filters.status) query = query.eq("status", filters.status);
+    if (filters.piStatus) query = query.eq("pi_status", filters.piStatus);
+    if (filters.typeOfWork) query = query.eq("type_of_work", filters.typeOfWork);
+    if (filters.zohoStatus) query = query.eq("zoho_status", filters.zohoStatus);
+
+    query = query
+      .order(sort.field, { ascending: sort.direction === "asc" })
+      .range(offset, offset + clampedPageSize - 1);
+
+    const { data: recordsData, count: totalCount, error: recordsError } = await query;
+
+    if (recordsError) {
+      console.error("[records-api] Supabase query failed:", recordsError.message);
+      if (isProduction) {
+        throw new Error(`Supabase query failed: ${recordsError.message}`);
       }
-      if (resolvedFrom) query = query.gte("date", resolvedFrom);
-      if (resolvedTo) query = query.lte("date", resolvedTo);
-      if (filters.company) query = query.eq("company", filters.company);
-      if (filters.salesman) query = query.eq("salesman", filters.salesman);
-      if (filters.preparedBy) query = query.eq("prepared_by", filters.preparedBy);
-      if (filters.status) query = query.eq("status", filters.status);
-      if (filters.piStatus) query = query.eq("pi_status", filters.piStatus);
-      if (filters.typeOfWork) query = query.eq("type_of_work", filters.typeOfWork);
-      if (filters.zohoStatus) query = query.eq("zoho_status", filters.zohoStatus);
-
-      // Sort and paginate
-      query = query
-        .order(sort.field, { ascending: sort.direction === "asc" })
-        .range(offset, offset + clampedPageSize - 1);
-
-      const { data: recordsData, count: totalCount, error: recordsError } = await query;
-
-      if (recordsError) {
-        console.warn("[records-api] Supabase records query returned error:", recordsError.message);
-        throw recordsError;
-      }
-
+      // In local dev, fall through to mock
+    } else {
       const totalEntries = totalCount ?? (recordsData?.length || 0);
 
-      // 2. Query summary and breakdowns
-      // Projected query for aggregation (capped to prevent extreme payloads)
-      let aggQuery = client
-        .from("records")
-        .select("qty, sqm, prepared_by, salesman, company, type_of_work");
+      // 2. Perform server-side database aggregation via PostgreSQL RPC
+      // No rows are fetched into JavaScript — PostgreSQL executes COUNT/SUM/GROUP BY
+      const rpcParams = {
+        p_search: filters.search.trim() || null,
+        p_date_from: resolvedFrom || null,
+        p_date_to: resolvedTo || null,
+        p_company: filters.company || null,
+        p_salesman: filters.salesman || null,
+        p_prepared_by: filters.preparedBy || null,
+        p_status: filters.status || null,
+        p_pi_status: filters.piStatus || null,
+        p_type_of_work: filters.typeOfWork || null,
+        p_zoho_status: filters.zohoStatus || null,
+      };
 
-      if (filters.search) {
-        const s = filters.search.trim().replace(/[%_]/g, "\\$&");
-        aggQuery = aggQuery.or(
-          `pi_number.ilike.%${s}%,customer_ref.ilike.%${s}%,company.ilike.%${s}%`,
+      let summary: RecordSummary;
+      let breakdowns: RecordBreakdowns;
+      let filterOptions: FilterOptions;
+      let warning: string | undefined;
+
+      try {
+        const { data: rpcData, error: rpcError } = await client.rpc(
+          "get_records_dashboard_aggregates",
+          rpcParams,
         );
+
+        if (!rpcError && rpcData && typeof rpcData === "object") {
+          // Native PostgreSQL aggregation succeeded across the complete filtered dataset
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const res = rpcData as any;
+          summary = res.summary;
+          breakdowns = res.breakdowns;
+          filterOptions = res.filterOptions || getFallbackFilterOptions();
+        } else {
+          // RPC is not yet created in the database.
+          // Note: We deliberately DO NOT download 10,000+ rows to compute in JS!
+          // We provide exact count from PostgreSQL and notify the user to install the RPC.
+          warning =
+            "Database aggregation RPC (public.get_records_dashboard_aggregates) is not installed in Supabase. Run 'website/supabase-dashboard.sql' in Supabase SQL Editor for instant server-side aggregation across millions of records.";
+
+          // Compute preliminary slice summary from current paginated slice only
+          summary = {
+            totalEntries,
+            totalQty: (recordsData || []).reduce((acc, r) => acc + (Number(r.qty) || 0), 0),
+            totalSqm: Number((recordsData || []).reduce((acc, r) => acc + (Number(r.sqm) || 0), 0).toFixed(2)),
+            averageSqm: 0,
+            activeCompaniesCount: new Set((recordsData || []).map((r) => r.company)).size,
+            activeSalesmenCount: new Set((recordsData || []).map((r) => r.salesman)).size,
+          };
+          if (summary.totalQty > 0) {
+            summary.averageSqm = Number((summary.totalSqm / summary.totalQty).toFixed(2));
+          }
+
+          breakdowns = {
+            preparedBy: [],
+            salesman: [],
+            company: [],
+            typeOfWork: [],
+          };
+          filterOptions = getFallbackFilterOptions();
+        }
+      } catch (err) {
+        warning = `Aggregation RPC error: ${err instanceof Error ? err.message : String(err)}`;
+        summary = {
+          totalEntries,
+          totalQty: 0,
+          totalSqm: 0,
+          averageSqm: 0,
+          activeCompaniesCount: 0,
+          activeSalesmenCount: 0,
+        };
+        breakdowns = { preparedBy: [], salesman: [], company: [], typeOfWork: [] };
+        filterOptions = getFallbackFilterOptions();
       }
-      if (resolvedFrom) aggQuery = aggQuery.gte("date", resolvedFrom);
-      if (resolvedTo) aggQuery = aggQuery.lte("date", resolvedTo);
-      if (filters.company) aggQuery = aggQuery.eq("company", filters.company);
-      if (filters.salesman) aggQuery = aggQuery.eq("salesman", filters.salesman);
-      if (filters.preparedBy) aggQuery = aggQuery.eq("prepared_by", filters.preparedBy);
-      if (filters.status) aggQuery = aggQuery.eq("status", filters.status);
-      if (filters.piStatus) aggQuery = aggQuery.eq("pi_status", filters.piStatus);
-      if (filters.typeOfWork) aggQuery = aggQuery.eq("type_of_work", filters.typeOfWork);
-      if (filters.zohoStatus) aggQuery = aggQuery.eq("zoho_status", filters.zohoStatus);
-
-      // Capped server projection query for calculating compact aggregates
-      const { data: aggData } = await aggQuery.limit(10000);
-
-      const summary = computeSummary(aggData || recordsData || [], totalEntries);
-      const breakdowns = computeBreakdowns(aggData || recordsData || [], totalEntries);
-
-      // Distinct filter options query
-      const filterOptions = await fetchFilterOptionsFromSupabase(client);
 
       return {
         records: (recordsData as RecordRow[]) || [],
@@ -266,17 +321,18 @@ export async function fetchRecordsDashboardData({
         serverTime: new Date().toISOString(),
         source: "supabase",
         executionMs: Date.now() - started,
+        warning,
       };
-    } catch (err) {
-      console.warn(
-        "[records-api] Supabase query failed, falling back to mock preview dataset:",
-        err instanceof Error ? err.message : String(err),
-      );
-      // Fall through to mock dataset with a warning
     }
   }
 
-  // Fallback: Local dataset execution (server-side)
+  // Fallback: Local dataset execution (only used for offline local dev)
+  if (isProduction) {
+    throw new Error(
+      "Supabase connection is not available in production. Refusing to serve mock data in production environment.",
+    );
+  }
+
   return executeMockQuery({
     filters,
     sort,
@@ -286,117 +342,6 @@ export async function fetchRecordsDashboardData({
     resolvedTo,
     started,
   });
-}
-
-function computeSummary(
-  rows: { qty?: number | null; sqm?: number | null; company?: string | null; salesman?: string | null }[],
-  totalEntries: number,
-): RecordSummary {
-  let totalQty = 0;
-  let totalSqm = 0;
-  const companies = new Set<string>();
-  const salesmen = new Set<string>();
-
-  for (const row of rows) {
-    if (row.qty) totalQty += Number(row.qty) || 0;
-    if (row.sqm) totalSqm += Number(row.sqm) || 0;
-    if (row.company) companies.add(row.company);
-    if (row.salesman) salesmen.add(row.salesman);
-  }
-
-  return {
-    totalEntries,
-    totalQty,
-    totalSqm: Number(totalSqm.toFixed(2)),
-    averageSqm: totalQty > 0 ? Number((totalSqm / totalQty).toFixed(2)) : 0,
-    activeCompaniesCount: companies.size,
-    activeSalesmenCount: salesmen.size,
-  };
-}
-
-function computeBreakdowns(
-  rows: {
-    qty?: number | null;
-    sqm?: number | null;
-    prepared_by?: string | null;
-    salesman?: string | null;
-    company?: string | null;
-    type_of_work?: string | null;
-  }[],
-  totalEntries: number,
-): RecordBreakdowns {
-  const group = (keyFn: (r: (typeof rows)[0]) => string | null | undefined): BreakdownItem[] => {
-    const map = new Map<string, { count: number; totalQty: number; totalSqm: number }>();
-    for (const row of rows) {
-      const name = keyFn(row)?.trim() || "(Unassigned)";
-      const existing = map.get(name) || { count: 0, totalQty: 0, totalSqm: 0 };
-      existing.count += 1;
-      existing.totalQty += Number(row.qty) || 0;
-      existing.totalSqm += Number(row.sqm) || 0;
-      map.set(name, existing);
-    }
-
-    const items: BreakdownItem[] = [];
-    for (const [name, val] of map.entries()) {
-      items.push({
-        name,
-        count: val.count,
-        totalQty: val.totalQty,
-        totalSqm: Number(val.totalSqm.toFixed(2)),
-        percentage: totalEntries > 0 ? Number(((val.count / totalEntries) * 100).toFixed(1)) : 0,
-      });
-    }
-
-    // Sort descending by count
-    return items.sort((a, b) => b.count - a.count);
-  };
-
-  return {
-    preparedBy: group((r) => r.prepared_by),
-    salesman: group((r) => r.salesman),
-    company: group((r) => r.company),
-    typeOfWork: group((r) => r.type_of_work),
-  };
-}
-
-async function fetchFilterOptionsFromSupabase(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  client: any,
-): Promise<FilterOptions> {
-  try {
-    const { data } = await client
-      .from("records")
-      .select("company, salesman, prepared_by, status, pi_status, type_of_work, zoho_status")
-      .limit(1000);
-
-    if (!data || data.length === 0) {
-      return getFallbackFilterOptions();
-    }
-
-    const setOf = (key: string): string[] =>
-      (
-        Array.from(
-          new Set(
-            data
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              .map((r: any) => r[key])
-              .filter((v: unknown): v is string => typeof v === "string" && v.trim().length > 0),
-          ),
-        ) as string[]
-      ).sort();
-
-    return {
-      companies: setOf("company"),
-      salesmen: setOf("salesman"),
-      preparedBy: setOf("prepared_by"),
-      statuses: setOf("status"),
-      piStatuses: setOf("pi_status"),
-      typesOfWork: setOf("type_of_work"),
-      zohoStatuses: setOf("zoho_status"),
-    };
-  } catch {
-    return getFallbackFilterOptions();
-  }
 }
 
 function getFallbackFilterOptions(): FilterOptions {
@@ -412,7 +357,7 @@ function getFallbackFilterOptions(): FilterOptions {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// LOCAL MOCK QUERY EXECUTION
+// LOCAL MOCK QUERY EXECUTION (DEVELOPMENT PREVIEW ONLY)
 // ─────────────────────────────────────────────────────────────────────────────
 
 function executeMockQuery({
@@ -497,8 +442,59 @@ function executeMockQuery({
   const offset = (page - 1) * pageSize;
   const pagedRecords = sorted.slice(offset, offset + pageSize);
 
-  const summary = computeSummary(matched, totalEntries);
-  const breakdowns = computeBreakdowns(matched, totalEntries);
+  // Compute summary for local mock
+  let totalQty = 0;
+  let totalSqm = 0;
+  const companies = new Set<string>();
+  const salesmen = new Set<string>();
+
+  for (const row of matched) {
+    if (row.qty) totalQty += Number(row.qty) || 0;
+    if (row.sqm) totalSqm += Number(row.sqm) || 0;
+    if (row.company) companies.add(row.company);
+    if (row.salesman) salesmen.add(row.salesman);
+  }
+
+  const summary: RecordSummary = {
+    totalEntries,
+    totalQty,
+    totalSqm: Number(totalSqm.toFixed(2)),
+    averageSqm: totalQty > 0 ? Number((totalSqm / totalQty).toFixed(2)) : 0,
+    activeCompaniesCount: companies.size,
+    activeSalesmenCount: salesmen.size,
+  };
+
+  const group = (keyFn: (r: RecordRow) => string | null | undefined): BreakdownItem[] => {
+    const map = new Map<string, { count: number; totalQty: number; totalSqm: number }>();
+    for (const row of matched) {
+      const name = keyFn(row)?.trim() || "(Unassigned)";
+      const existing = map.get(name) || { count: 0, totalQty: 0, totalSqm: 0 };
+      existing.count += 1;
+      existing.totalQty += Number(row.qty) || 0;
+      existing.totalSqm += Number(row.sqm) || 0;
+      map.set(name, existing);
+    }
+
+    const items: BreakdownItem[] = [];
+    for (const [name, val] of map.entries()) {
+      items.push({
+        name,
+        count: val.count,
+        totalQty: val.totalQty,
+        totalSqm: Number(val.totalSqm.toFixed(2)),
+        percentage: totalEntries > 0 ? Number(((val.count / totalEntries) * 100).toFixed(1)) : 0,
+      });
+    }
+
+    return items.sort((a, b) => b.count - a.count);
+  };
+
+  const breakdowns: RecordBreakdowns = {
+    preparedBy: group((r) => r.prepared_by),
+    salesman: group((r) => r.salesman),
+    company: group((r) => r.company),
+    typeOfWork: group((r) => r.type_of_work),
+  };
 
   return {
     records: pagedRecords,
@@ -514,8 +510,6 @@ function executeMockQuery({
     serverTime: new Date().toISOString(),
     source: "mock_preview",
     executionMs: Date.now() - started,
-    warning: isSupabaseConfigured()
-      ? undefined
-      : "Connected to local mock dataset (Supabase credentials not set in local environment).",
+    warning: "Local development preview (Supabase environment variables not set).",
   };
 }
