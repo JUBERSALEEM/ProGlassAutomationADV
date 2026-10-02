@@ -173,6 +173,7 @@ function generateMockRecords(): RecordRow[] {
       status,
       pi_status,
       zoho_status,
+      is_active: true,
       source_file: "Daily_Orders_Master_2026.xlsx",
       source_worksheet: "Orders_Active",
       created_at: new Date(dateObj.getTime() + 3600000).toISOString(),
@@ -222,9 +223,11 @@ export async function fetchRecordsDashboardData({
 
   if (isSupabaseConfigured()) {
     const client = supabaseServer();
+    let warning: string | undefined;
 
     // 1. Fetch paginated records slice (50, 100, or 250 rows only)
-    let query = client.from("records").select("*", { count: "exact" });
+    // Filter by is_active = true to represent current active Excel worksheet state
+    let query = client.from("records").select("*", { count: "exact" }).eq("is_active", true);
 
     if (filters.search) {
       const s = filters.search.trim().replace(/[%_]/g, "\\$&");
@@ -244,7 +247,38 @@ export async function fetchRecordsDashboardData({
       .order(sort.field, { ascending: sort.direction === "asc" })
       .range(offset, offset + clampedPageSize - 1);
 
-    const { data: recordsData, count: totalCount, error: recordsError } = await query;
+    let { data: recordsData, count: totalCount, error: recordsError } = await query;
+
+    // Resilient transition guard: if is_active column is not yet migrated in PostgreSQL
+    if (recordsError && (recordsError.code === "42703" || recordsError.message?.toLowerCase().includes("is_active"))) {
+      console.warn("[records-api] 'is_active' column not yet present in public.records, querying all records during schema migration");
+      let fallbackQuery = client.from("records").select("*", { count: "exact" });
+      if (filters.search) {
+        const s = filters.search.trim().replace(/[%_]/g, "\\$&");
+        fallbackQuery = fallbackQuery.or(`pi_number.ilike.%${s}%,customer_ref.ilike.%${s}%,company.ilike.%${s}%`);
+      }
+      if (resolvedFrom) fallbackQuery = fallbackQuery.gte("date", resolvedFrom);
+      if (resolvedTo) fallbackQuery = fallbackQuery.lte("date", resolvedTo);
+      if (filters.company) fallbackQuery = fallbackQuery.eq("company", filters.company);
+      if (filters.salesman) fallbackQuery = fallbackQuery.eq("salesman", filters.salesman);
+      if (filters.preparedBy) fallbackQuery = fallbackQuery.eq("prepared_by", filters.preparedBy);
+      if (filters.status) fallbackQuery = fallbackQuery.eq("status", filters.status);
+      if (filters.piStatus) fallbackQuery = fallbackQuery.eq("pi_status", filters.piStatus);
+      if (filters.typeOfWork) fallbackQuery = fallbackQuery.eq("type_of_work", filters.typeOfWork);
+      if (filters.zohoStatus) fallbackQuery = fallbackQuery.eq("zoho_status", filters.zohoStatus);
+
+      fallbackQuery = fallbackQuery
+        .order(sort.field, { ascending: sort.direction === "asc" })
+        .range(offset, offset + clampedPageSize - 1);
+
+      const fallbackRes = await fallbackQuery;
+      if (!fallbackRes.error) {
+        recordsData = fallbackRes.data;
+        totalCount = fallbackRes.count;
+        recordsError = null;
+        warning = "Database schema notice: 'is_active' column not found. Execute website/supabase-dashboard.sql migration to enable soft-delete reconciliation.";
+      }
+    }
 
     if (recordsError) {
       console.error("[records-api] Supabase query failed:", {
@@ -292,7 +326,6 @@ export async function fetchRecordsDashboardData({
         typeOfWork: [],
       };
       let filterOptions: FilterOptions = getFallbackFilterOptions();
-      let warning: string | undefined;
       let rpcStatus: "success" | "error" | "not_installed" = "not_installed";
       let capturedRpcError: { message: string; code?: string; details?: string; hint?: string } | null = null;
 
@@ -468,7 +501,8 @@ function executeMockQuery({
   resolvedTo: string;
   started: number;
 }): RecordsApiSuccessResponse["data"] {
-  let matched = GLOBAL_MOCK_RECORDS;
+  // Mirror active Excel contents only
+  let matched = GLOBAL_MOCK_RECORDS.filter((r) => r.is_active !== false);
 
   if (filters.search) {
     const q = filters.search.toLowerCase().trim();

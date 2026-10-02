@@ -19,6 +19,7 @@ export type RecordRow = {
   status: string;
   pi_status: string;
   zoho_status: string;
+  is_active?: boolean;
   source_file?: string | null;
   source_worksheet?: string | null;
   created_at?: string | null;
