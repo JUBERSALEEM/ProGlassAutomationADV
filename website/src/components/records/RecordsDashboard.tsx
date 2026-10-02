@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
@@ -324,15 +324,67 @@ export function RecordsDashboard() {
     updateUrlParams(filters, sort, 1, newSize);
   };
 
-  const emptyFilterOptions: FilterOptions = {
-    companies: [],
-    salesmen: [],
-    preparedBy: [],
-    statuses: [],
-    piStatuses: [],
-    typesOfWork: [],
-    zohoStatuses: [],
-  };
+  // Dynamically compute data-driven filter options strictly from actual entries
+  const dataDrivenFilterOptions = useMemo<FilterOptions>(() => {
+    const backendOptions = data?.filterOptions;
+    const records = data?.records || [];
+
+    const extractDistinct = (
+      backendList: string[] | undefined,
+      accessor: (r: RecordRow) => unknown,
+    ): string[] => {
+      const set = new Set<string>();
+
+      // 1. Always prioritize values present in actual loaded entry rows
+      for (const r of records) {
+        const val = accessor(r);
+        if (typeof val === "string") {
+          const trimmed = val.trim();
+          if (
+            trimmed.length > 0 &&
+            trimmed !== "(Unassigned)" &&
+            trimmed !== "—" &&
+            trimmed !== "-" &&
+            trimmed.toLowerCase() !== "null" &&
+            trimmed.toLowerCase() !== "undefined"
+          ) {
+            set.add(trimmed);
+          }
+        }
+      }
+
+      // 2. Include backend distinct values if they are non-empty and valid
+      if (backendList && Array.isArray(backendList)) {
+        for (const item of backendList) {
+          if (typeof item === "string") {
+            const trimmed = item.trim();
+            if (
+              trimmed.length > 0 &&
+              trimmed !== "(Unassigned)" &&
+              trimmed !== "—" &&
+              trimmed !== "-" &&
+              trimmed.toLowerCase() !== "null" &&
+              trimmed.toLowerCase() !== "undefined"
+            ) {
+              set.add(trimmed);
+            }
+          }
+        }
+      }
+
+      return Array.from(set).sort((a, b) => a.localeCompare(b));
+    };
+
+    return {
+      companies: extractDistinct(backendOptions?.companies, (r) => r.company),
+      salesmen: extractDistinct(backendOptions?.salesmen, (r) => r.salesman),
+      preparedBy: extractDistinct(backendOptions?.preparedBy, (r) => r.prepared_by),
+      statuses: extractDistinct(backendOptions?.statuses, (r) => r.status),
+      piStatuses: extractDistinct(backendOptions?.piStatuses, (r) => r.pi_status),
+      typesOfWork: extractDistinct(backendOptions?.typesOfWork, (r) => r.type_of_work),
+      zohoStatuses: extractDistinct(backendOptions?.zohoStatuses, (r) => r.zoho_status),
+    };
+  }, [data?.filterOptions, data?.records]);
 
   if (authChecking) {
     return (
@@ -436,7 +488,7 @@ export function RecordsDashboard() {
         {/* Section 2: Filters Panel */}
         <RecordsFilterPanel
           filters={filters}
-          filterOptions={data?.filterOptions || emptyFilterOptions}
+          filterOptions={dataDrivenFilterOptions}
           onChange={handleFiltersChange}
           onReset={handleResetFilters}
           totalFiltered={data?.summary.totalEntries ?? 0}

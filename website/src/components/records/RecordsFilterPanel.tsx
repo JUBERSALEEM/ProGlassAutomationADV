@@ -163,6 +163,9 @@ export function RecordsFilterPanel({
             className="w-full rounded-lg border border-line-strong/70 bg-ink-950 py-1.5 px-2 text-xs text-text-primary focus:border-brand-400 focus:outline-none truncate"
           >
             <option value="">All Companies</option>
+            {filters.company && !filterOptions.companies.includes(filters.company) && (
+              <option value={filters.company}>{filters.company}</option>
+            )}
             {filterOptions.companies.map((c) => (
               <option key={c} value={c}>
                 {c}
@@ -182,6 +185,9 @@ export function RecordsFilterPanel({
             className="w-full rounded-lg border border-line-strong/70 bg-ink-950 py-1.5 px-2 text-xs text-text-primary focus:border-brand-400 focus:outline-none truncate"
           >
             <option value="">All Salesmen</option>
+            {filters.salesman && !filterOptions.salesmen.includes(filters.salesman) && (
+              <option value={filters.salesman}>{filters.salesman}</option>
+            )}
             {filterOptions.salesmen.map((s) => (
               <option key={s} value={s}>
                 {s}
@@ -201,6 +207,9 @@ export function RecordsFilterPanel({
             className="w-full rounded-lg border border-line-strong/70 bg-ink-950 py-1.5 px-2 text-xs text-text-primary focus:border-brand-400 focus:outline-none truncate"
           >
             <option value="">All Authors</option>
+            {filters.preparedBy && !filterOptions.preparedBy.includes(filters.preparedBy) && (
+              <option value={filters.preparedBy}>{filters.preparedBy}</option>
+            )}
             {filterOptions.preparedBy.map((p) => (
               <option key={p} value={p}>
                 {p}
@@ -220,6 +229,9 @@ export function RecordsFilterPanel({
             className="w-full rounded-lg border border-line-strong/70 bg-ink-950 py-1.5 px-2 text-xs text-text-primary focus:border-brand-400 focus:outline-none truncate"
           >
             <option value="">All Statuses</option>
+            {filters.status && !filterOptions.statuses.includes(filters.status) && (
+              <option value={filters.status}>{filters.status}</option>
+            )}
             {filterOptions.statuses.map((st) => (
               <option key={st} value={st}>
                 {st}
@@ -239,6 +251,9 @@ export function RecordsFilterPanel({
             className="w-full rounded-lg border border-line-strong/70 bg-ink-950 py-1.5 px-2 text-xs text-text-primary focus:border-brand-400 focus:outline-none truncate"
           >
             <option value="">All PI Statuses</option>
+            {filters.piStatus && !filterOptions.piStatuses.includes(filters.piStatus) && (
+              <option value={filters.piStatus}>{filters.piStatus}</option>
+            )}
             {filterOptions.piStatuses.map((pi) => (
               <option key={pi} value={pi}>
                 {pi}
@@ -258,6 +273,9 @@ export function RecordsFilterPanel({
             className="w-full rounded-lg border border-line-strong/70 bg-ink-950 py-1.5 px-2 text-xs text-text-primary focus:border-brand-400 focus:outline-none truncate"
           >
             <option value="">All Work Types</option>
+            {filters.typeOfWork && !filterOptions.typesOfWork.includes(filters.typeOfWork) && (
+              <option value={filters.typeOfWork}>{filters.typeOfWork}</option>
+            )}
             {filterOptions.typesOfWork.map((t) => (
               <option key={t} value={t}>
                 {t}
@@ -277,6 +295,9 @@ export function RecordsFilterPanel({
             className="w-full rounded-lg border border-line-strong/70 bg-ink-950 py-1.5 px-2 text-xs text-text-primary focus:border-brand-400 focus:outline-none truncate"
           >
             <option value="">All Zoho Status</option>
+            {filters.zohoStatus && !filterOptions.zohoStatuses.includes(filters.zohoStatus) && (
+              <option value={filters.zohoStatus}>{filters.zohoStatus}</option>
+            )}
             {filterOptions.zohoStatuses.map((z) => (
               <option key={z} value={z}>
                 {z}

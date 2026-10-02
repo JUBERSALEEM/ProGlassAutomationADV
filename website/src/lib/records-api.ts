@@ -111,51 +111,82 @@ function getAnonRole(): string | null {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// REALISTIC LOCAL PREVIEW DATASET
-// Used ONLY in local development when Supabase credentials are absent.
+// DATA-DRIVEN FILTER OPTIONS EXTRACTION
+// Extracts distinct, trimmed values strictly from actual record entries
 // ─────────────────────────────────────────────────────────────────────────────
 
-const MOCK_COMPANIES = [
-  "Emirates Glass LLC",
-  "Al Gurg Glass",
-  "Gulf Glass Industries",
-  "Guardian Glass Middle East",
-  "AGC Glass Fabrications",
-  "Sisecam Glass Gulf",
-  "Arabian Glass Co.",
+export function extractFilterOptionsFromRecords(records: RecordRow[]): FilterOptions {
+  const extractDistinct = (getter: (r: RecordRow) => unknown): string[] => {
+    const set = new Set<string>();
+    for (const r of records) {
+      const raw = getter(r);
+      if (typeof raw === "string") {
+        const trimmed = raw.trim();
+        if (
+          trimmed.length > 0 &&
+          trimmed !== "(Unassigned)" &&
+          trimmed !== "—" &&
+          trimmed !== "-" &&
+          trimmed.toLowerCase() !== "null" &&
+          trimmed.toLowerCase() !== "undefined"
+        ) {
+          set.add(trimmed);
+        }
+      }
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  };
+
+  return {
+    companies: extractDistinct((r) => r.company),
+    salesmen: extractDistinct((r) => r.salesman),
+    preparedBy: extractDistinct((r) => r.prepared_by),
+    statuses: extractDistinct((r) => r.status),
+    piStatuses: extractDistinct((r) => r.pi_status),
+    typesOfWork: extractDistinct((r) => r.type_of_work),
+    zohoStatuses: extractDistinct((r) => r.zoho_status),
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CANONICAL PROGLASS ERP REFERENCE DATASET
+// Used ONLY in local development when Supabase credentials are absent.
+// Uses canonical ProGlass client & estimator references (Al Noor Glazing, Juber Saleem, Ahmed Rahman)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const CANONICAL_COMPANIES = [
+  "Al Noor Glazing Contracting LLC",
+  "Al Noor Glass Factory LLC",
   "Crystal Clear Glass L.L.C.",
-  "Al Abbar Architectural Glass",
-  "White Aluminium & Glass",
 ];
 
-const MOCK_SALESMEN = ["Ahmed", "John", "Maria", "Tariq", "Vikram", "David"];
-const MOCK_PREPARED_BY = ["Juber Saleem", "Sharmi", "Ebin Benny", "Farooq"];
-const MOCK_TYPES = ["DGU", "SGU", "LAMINATION", "DGU + LAM", "TEMPERED", "CERAMIC FRIT"];
-const MOCK_STATUSES = ["Confirmed", "In Production", "Completed", "Pending", "Dispatched"];
-const MOCK_PI_STATUSES = ["Approved", "Draft", "Sent", "Revised"];
-const MOCK_ZOHO_STATUSES = ["Synced", "Pending", "Excluded", "Failed"];
+const CANONICAL_SALESMEN = ["Ahmed Rahman"];
+const CANONICAL_PREPARED_BY = ["Juber Saleem"];
+const CANONICAL_TYPES = ["DGU", "SGU", "Laminated", "Tempered"];
+const CANONICAL_STATUSES = ["Confirmed", "In Production", "Completed", "Ready"];
+const CANONICAL_PI_STATUSES = ["Approved", "Draft", "Sent"];
+const CANONICAL_ZOHO_STATUSES = ["Synced", "Pending"];
 
 function generateMockRecords(): RecordRow[] {
   const records: RecordRow[] = [];
   const baseDate = new Date("2026-10-02T12:00:00Z");
 
-  for (let i = 1; i <= 120; i++) {
-    const daysAgo = Math.floor((i * 90) / 120);
+  for (let i = 1; i <= 60; i++) {
+    const daysAgo = Math.floor((i * 90) / 60);
     const dateObj = new Date(baseDate.getTime() - daysAgo * 86400000);
     const dateStr = dateObj.toISOString().split("T")[0]!;
 
-    const company = MOCK_COMPANIES[(i * 7) % MOCK_COMPANIES.length] || "Emirates Glass LLC";
-    const salesman = MOCK_SALESMEN[(i * 3) % MOCK_SALESMEN.length] || "Ahmed";
-    const prepared_by = MOCK_PREPARED_BY[(i * 5) % MOCK_PREPARED_BY.length] || "Juber Saleem";
-    const type_of_work = MOCK_TYPES[(i * 2) % MOCK_TYPES.length] || "DGU";
-    const status = MOCK_STATUSES[(i * 4) % MOCK_STATUSES.length] || "Confirmed";
-    const pi_status = MOCK_PI_STATUSES[(i * 3) % MOCK_PI_STATUSES.length] || "Approved";
-    const zoho_status = MOCK_ZOHO_STATUSES[(i * 2) % MOCK_ZOHO_STATUSES.length] || "Synced";
+    const company = CANONICAL_COMPANIES[i % CANONICAL_COMPANIES.length] || "Al Noor Glazing Contracting LLC";
+    const salesman = CANONICAL_SALESMEN[0] || "Ahmed Rahman";
+    const prepared_by = CANONICAL_PREPARED_BY[0] || "Juber Saleem";
+    const type_of_work = CANONICAL_TYPES[i % CANONICAL_TYPES.length] || "DGU";
+    const status = CANONICAL_STATUSES[i % CANONICAL_STATUSES.length] || "Confirmed";
+    const pi_status = CANONICAL_PI_STATUSES[i % CANONICAL_PI_STATUSES.length] || "Approved";
+    const zoho_status = CANONICAL_ZOHO_STATUSES[i % CANONICAL_ZOHO_STATUSES.length] || "Synced";
 
     const piNum = `PI-2026-${String(1000 + i).padStart(4, "0")}`;
-    const companyCode = (company.split(" ")[0] || "PRO").toUpperCase();
-    const custRef = `PO-${companyCode}-${String(200 + (i % 50))}`;
-    const qty = 4 + ((i * 17) % 180);
+    const custRef = `PO-ALNOOR-${String(200 + (i % 50))}`;
+    const qty = 4 + ((i * 17) % 80);
     const avgSqmPerPiece = 0.45 + ((i * 31) % 150) / 100;
     const sqm = Number((qty * avgSqmPerPiece).toFixed(2));
 
@@ -327,7 +358,7 @@ export async function fetchRecordsDashboardData({
         company: [],
         typeOfWork: [],
       };
-      let filterOptions: FilterOptions = getFallbackFilterOptions();
+      let filterOptions: FilterOptions = extractFilterOptionsFromRecords((recordsData || []) as RecordRow[]);
       let rpcStatus: "success" | "error" | "not_installed" = "not_installed";
       let capturedRpcError: { message: string; code?: string; details?: string; hint?: string } | null = null;
 
@@ -353,7 +384,32 @@ export async function fetchRecordsDashboardData({
           const res = rpcData as any;
           summary = res.summary;
           breakdowns = res.breakdowns;
-          filterOptions = res.filterOptions || getFallbackFilterOptions();
+          filterOptions =
+            res.filterOptions && typeof res.filterOptions === "object"
+              ? {
+                  companies: Array.isArray(res.filterOptions.companies)
+                    ? res.filterOptions.companies.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                    : [],
+                  salesmen: Array.isArray(res.filterOptions.salesmen)
+                    ? res.filterOptions.salesmen.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                    : [],
+                  preparedBy: Array.isArray(res.filterOptions.preparedBy)
+                    ? res.filterOptions.preparedBy.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                    : [],
+                  statuses: Array.isArray(res.filterOptions.statuses)
+                    ? res.filterOptions.statuses.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                    : [],
+                  piStatuses: Array.isArray(res.filterOptions.piStatuses)
+                    ? res.filterOptions.piStatuses.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                    : [],
+                  typesOfWork: Array.isArray(res.filterOptions.typesOfWork)
+                    ? res.filterOptions.typesOfWork.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                    : [],
+                  zohoStatuses: Array.isArray(res.filterOptions.zohoStatuses)
+                    ? res.filterOptions.zohoStatuses.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                    : [],
+                }
+              : extractFilterOptionsFromRecords((recordsData || []) as RecordRow[]);
         } else {
           rpcStatus = "not_installed";
           warning =
@@ -367,8 +423,8 @@ export async function fetchRecordsDashboardData({
             totalQty: (recordsData || []).reduce((acc, r) => acc + (Number(r.qty) || 0), 0),
             totalSqm: Number((recordsData || []).reduce((acc, r) => acc + (Number(r.sqm) || 0), 0).toFixed(2)),
             averageSqm: 0,
-            activeCompaniesCount: new Set((recordsData || []).map((r) => r.company)).size,
-            activeSalesmenCount: new Set((recordsData || []).map((r) => r.salesman)).size,
+            activeCompaniesCount: new Set((recordsData || []).map((r) => r.company).filter(Boolean)).size,
+            activeSalesmenCount: new Set((recordsData || []).map((r) => r.salesman).filter(Boolean)).size,
           };
           if (summary.totalQty > 0) {
             summary.averageSqm = Number((summary.totalSqm / summary.totalQty).toFixed(2));
@@ -380,7 +436,23 @@ export async function fetchRecordsDashboardData({
             company: [],
             typeOfWork: [],
           };
-          filterOptions = getFallbackFilterOptions();
+          // Data-driven extraction directly from actual record entries
+          filterOptions = extractFilterOptionsFromRecords((recordsData || []) as RecordRow[]);
+
+          // If the page slice has fewer rows than the total dataset, fetch distinct values from records
+          if (totalEntries > (recordsData?.length || 0)) {
+            try {
+              const { data: colRows } = await client
+                .from("records")
+                .select("company, salesman, prepared_by, status, pi_status, type_of_work, zoho_status")
+                .limit(1000);
+              if (colRows && colRows.length > 0) {
+                filterOptions = extractFilterOptionsFromRecords(colRows as RecordRow[]);
+              }
+            } catch {
+              // Ignore and retain preliminary slice filter options
+            }
+          }
         }
       } catch (err) {
         rpcStatus = "error";
@@ -397,7 +469,8 @@ export async function fetchRecordsDashboardData({
           activeSalesmenCount: 0,
         };
         breakdowns = { preparedBy: [], salesman: [], company: [], typeOfWork: [] };
-        filterOptions = getFallbackFilterOptions();
+        // Data-driven extraction directly from actual record entries
+        filterOptions = extractFilterOptionsFromRecords((recordsData || []) as RecordRow[]);
       }
 
       const hasActiveFilters = Boolean(
@@ -468,18 +541,6 @@ export async function fetchRecordsDashboardData({
     resolvedTo,
     started,
   });
-}
-
-function getFallbackFilterOptions(): FilterOptions {
-  return {
-    companies: [...MOCK_COMPANIES].sort(),
-    salesmen: [...MOCK_SALESMEN].sort(),
-    preparedBy: [...MOCK_PREPARED_BY].sort(),
-    statuses: [...MOCK_STATUSES].sort(),
-    piStatuses: [...MOCK_PI_STATUSES].sort(),
-    typesOfWork: [...MOCK_TYPES].sort(),
-    zohoStatuses: [...MOCK_ZOHO_STATUSES].sort(),
-  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -627,7 +688,7 @@ function executeMockQuery({
     records: pagedRecords,
     summary,
     breakdowns,
-    filterOptions: getFallbackFilterOptions(),
+    filterOptions: extractFilterOptionsFromRecords(matched),
     pagination: {
       page,
       pageSize,
