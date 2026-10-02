@@ -10,6 +10,26 @@ import { Badge } from "@/components/ui/Badge";
 import { useT } from "@/i18n/provider";
 
 /**
+ * Helper to distinguish browser/network transport failures from Supabase Auth API errors.
+ */
+function isNetworkError(err: unknown): boolean {
+  if (!err) return false;
+  if (typeof err === "object") {
+    const name = "name" in err && typeof err.name === "string" ? err.name : "";
+    const msg = "message" in err && typeof err.message === "string" ? err.message : "";
+    if (name === "AuthRetryableFetchError" || name === "TypeError") {
+      if (/failed to fetch|network|fetch failed|load failed|abort|timeout/i.test(msg)) {
+        return true;
+      }
+    }
+    if (/failed to fetch|network error|networkrequestfailed|load failed/i.test(msg)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Reports & Records Authentication Form — Passwordless Email OTP.
  *
  * Authoritative Architecture:
@@ -90,6 +110,16 @@ export function ReportsAuthForm() {
       });
 
       if (otpError) {
+        // Distinguish browser/network failure from Supabase Auth API error
+        if (isNetworkError(otpError)) {
+          console.error("[ReportsAuthForm] Browser network error contacting Supabase Auth:", {
+            name: otpError.name,
+            message: otpError.message,
+          });
+          setError(t("Unable to contact authentication service. Please try again."));
+          return;
+        }
+
         // Safely extract error metadata (never log credentials, tokens, or secrets)
         const errMeta = {
           message: otpError.message,
@@ -121,8 +151,12 @@ export function ReportsAuthForm() {
       setResendCountdown(60);
     } catch (err) {
       console.error("[ReportsAuthForm] Unexpected exception sending OTP:", err);
-      const rawMessage = err instanceof Error ? err.message : String(err);
-      setError(`Error sending verification code: ${rawMessage}`);
+      if (isNetworkError(err)) {
+        setError(t("Unable to contact authentication service. Please try again."));
+      } else {
+        const rawMessage = err instanceof Error ? err.message : String(err);
+        setError(`Error sending verification code: ${rawMessage}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -155,6 +189,16 @@ export function ReportsAuthForm() {
       });
 
       if (verifyError) {
+        // Distinguish browser/network failure from Supabase Auth API error
+        if (isNetworkError(verifyError)) {
+          console.error("[ReportsAuthForm] Browser network error verifying OTP:", {
+            name: verifyError.name,
+            message: verifyError.message,
+          });
+          setError(t("Unable to contact authentication service. Please try again."));
+          return;
+        }
+
         const errMeta = {
           message: verifyError.message,
           code: verifyError.code,
@@ -188,8 +232,12 @@ export function ReportsAuthForm() {
       router.refresh();
     } catch (err) {
       console.error("[ReportsAuthForm] Unexpected exception verifying OTP:", err);
-      const rawMessage = err instanceof Error ? err.message : String(err);
-      setError(`Verification failed: ${rawMessage}`);
+      if (isNetworkError(err)) {
+        setError(t("Unable to contact authentication service. Please try again."));
+      } else {
+        const rawMessage = err instanceof Error ? err.message : String(err);
+        setError(`Verification failed: ${rawMessage}`);
+      }
     } finally {
       setLoading(false);
     }
