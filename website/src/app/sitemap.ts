@@ -27,6 +27,7 @@ const pages: { path: string; priority: number; changeFrequency: ChangeFrequency 
   { path: "/worked-example", priority: 0.9, changeFrequency: "monthly" },
   { path: "/screenshots", priority: 0.8, changeFrequency: "monthly" },
   { path: "/pricing", priority: 0.8, changeFrequency: "monthly" },
+  { path: "/records", priority: 0.8, changeFrequency: "daily" },
   { path: "/about", priority: 0.7, changeFrequency: "yearly" },
   { path: "/developer", priority: 0.7, changeFrequency: "monthly" },
   { path: "/sponsors", priority: 0.7, changeFrequency: "monthly" },
