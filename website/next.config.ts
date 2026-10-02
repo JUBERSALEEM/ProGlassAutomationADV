@@ -83,12 +83,10 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  /* `https://*.supabase.co` in development only: /supabase-check.html asks the
-     browser to probe the project's REST endpoint, and `connect-src` would block
-     it before the request left the page. Production keeps `'self'` — nothing on
-     the deployed site talks to Supabase yet, and when it does the project's own
-     origin is the honest thing to allow. */
-  isDevelopment ? "connect-src 'self' ws: wss: https://*.supabase.co" : "connect-src 'self'",
+  /* `https://*.supabase.co` in development; in production, strictly allow the project's own origin. */
+  isDevelopment
+    ? "connect-src 'self' ws: wss: https://*.supabase.co"
+    : "connect-src 'self' https://afpbdyamedpanwijxghk.supabase.co",
   "form-action 'self'",
   "frame-ancestors 'none'",
   "base-uri 'self'",
