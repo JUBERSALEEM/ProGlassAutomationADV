@@ -6,6 +6,7 @@
 --
 -- This script provides:
 -- 1. Native PostgreSQL server-side aggregation function for millions of records
+--    with safe numeric casting for text columns (qty, sqm).
 -- 2. Performance indexes tailored to ERP operations and dashboard filtering
 -- 3. Strict RLS preservation using SECURITY INVOKER (no permission bypass)
 --
@@ -19,6 +20,9 @@
 -- Computes Total Entries, Total Qty, Total SQM, Average SQM, Active
 -- Companies, Active Salesmen, and all 4 breakdowns (Prepared By, Salesman,
 -- Company, Type of Work) directly inside PostgreSQL.
+--
+-- Note: public.records.qty and public.records.sqm are PostgreSQL text columns.
+-- They are safely cast to numeric using NULLIF(TRIM(...), '')::numeric.
 --
 -- Security model:
 -- - SECURITY INVOKER: Runs with caller privileges, strictly enforcing
@@ -64,17 +68,10 @@ BEGIN
   -- 1. Summary aggregates across the complete filtered dataset
   WITH filtered AS (
     SELECT
-      id,
-      date,
       company,
       salesman,
-      prepared_by,
-      status,
-      pi_status,
-      type_of_work,
-      zoho_status,
-      qty,
-      sqm
+      NULLIF(TRIM(qty), '')::numeric AS num_qty,
+      NULLIF(TRIM(sqm), '')::numeric AS num_sqm
     FROM public.records
     WHERE
       (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
@@ -96,15 +93,15 @@ BEGIN
   summary_calc AS (
     SELECT
       COUNT(*)::bigint AS total_entries,
-      COALESCE(SUM(qty), 0)::bigint AS total_qty,
-      ROUND(COALESCE(SUM(sqm), 0)::numeric, 2) AS total_sqm,
+      COALESCE(SUM(num_qty), 0)::bigint AS total_qty,
+      ROUND(COALESCE(SUM(num_sqm), 0), 2) AS total_sqm,
       CASE 
-        WHEN COALESCE(SUM(qty), 0) > 0 
-        THEN ROUND((COALESCE(SUM(sqm), 0) / SUM(qty))::numeric, 2)
+        WHEN COUNT(*) > 0 
+        THEN ROUND((COALESCE(SUM(num_sqm), 0) / COUNT(*))::numeric, 2)
         ELSE 0 
       END AS average_sqm,
-      COUNT(DISTINCT company)::integer AS active_companies_count,
-      COUNT(DISTINCT salesman)::integer AS active_salesmen_count
+      COUNT(DISTINCT NULLIF(TRIM(company), ''))::integer AS active_companies_count,
+      COUNT(DISTINCT NULLIF(TRIM(salesman), ''))::integer AS active_salesmen_count
     FROM filtered
   )
   SELECT json_build_object(
@@ -119,7 +116,10 @@ BEGIN
 
   -- 2. Prepared By breakdown (GROUP BY prepared_by)
   WITH filtered AS (
-    SELECT prepared_by, qty, sqm
+    SELECT
+      prepared_by,
+      NULLIF(TRIM(qty), '')::numeric AS num_qty,
+      NULLIF(TRIM(sqm), '')::numeric AS num_sqm
     FROM public.records
     WHERE
       (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
@@ -145,8 +145,8 @@ BEGIN
     SELECT
       COALESCE(NULLIF(trim(prepared_by), ''), '(Unassigned)') AS name,
       COUNT(*)::bigint AS count,
-      COALESCE(SUM(qty), 0)::bigint AS total_qty,
-      ROUND(COALESCE(SUM(sqm), 0)::numeric, 2) AS total_sqm
+      COALESCE(SUM(num_qty), 0)::bigint AS total_qty,
+      ROUND(COALESCE(SUM(num_sqm), 0), 2) AS total_sqm
     FROM filtered
     GROUP BY COALESCE(NULLIF(trim(prepared_by), ''), '(Unassigned)')
     ORDER BY count DESC
@@ -165,7 +165,10 @@ BEGIN
 
   -- 3. Salesman breakdown (GROUP BY salesman)
   WITH filtered AS (
-    SELECT salesman, qty, sqm
+    SELECT
+      salesman,
+      NULLIF(TRIM(qty), '')::numeric AS num_qty,
+      NULLIF(TRIM(sqm), '')::numeric AS num_sqm
     FROM public.records
     WHERE
       (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
@@ -191,8 +194,8 @@ BEGIN
     SELECT
       COALESCE(NULLIF(trim(salesman), ''), '(Unassigned)') AS name,
       COUNT(*)::bigint AS count,
-      COALESCE(SUM(qty), 0)::bigint AS total_qty,
-      ROUND(COALESCE(SUM(sqm), 0)::numeric, 2) AS total_sqm
+      COALESCE(SUM(num_qty), 0)::bigint AS total_qty,
+      ROUND(COALESCE(SUM(num_sqm), 0), 2) AS total_sqm
     FROM filtered
     GROUP BY COALESCE(NULLIF(trim(salesman), ''), '(Unassigned)')
     ORDER BY count DESC
@@ -211,7 +214,10 @@ BEGIN
 
   -- 4. Company breakdown (GROUP BY company)
   WITH filtered AS (
-    SELECT company, qty, sqm
+    SELECT
+      company,
+      NULLIF(TRIM(qty), '')::numeric AS num_qty,
+      NULLIF(TRIM(sqm), '')::numeric AS num_sqm
     FROM public.records
     WHERE
       (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
@@ -237,8 +243,8 @@ BEGIN
     SELECT
       COALESCE(NULLIF(trim(company), ''), '(Unassigned)') AS name,
       COUNT(*)::bigint AS count,
-      COALESCE(SUM(qty), 0)::bigint AS total_qty,
-      ROUND(COALESCE(SUM(sqm), 0)::numeric, 2) AS total_sqm
+      COALESCE(SUM(num_qty), 0)::bigint AS total_qty,
+      ROUND(COALESCE(SUM(num_sqm), 0), 2) AS total_sqm
     FROM filtered
     GROUP BY COALESCE(NULLIF(trim(company), ''), '(Unassigned)')
     ORDER BY count DESC
@@ -257,7 +263,10 @@ BEGIN
 
   -- 5. Type of Work breakdown (GROUP BY type_of_work)
   WITH filtered AS (
-    SELECT type_of_work, qty, sqm
+    SELECT
+      type_of_work,
+      NULLIF(TRIM(qty), '')::numeric AS num_qty,
+      NULLIF(TRIM(sqm), '')::numeric AS num_sqm
     FROM public.records
     WHERE
       (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
@@ -283,8 +292,8 @@ BEGIN
     SELECT
       COALESCE(NULLIF(trim(type_of_work), ''), '(Unassigned)') AS name,
       COUNT(*)::bigint AS count,
-      COALESCE(SUM(qty), 0)::bigint AS total_qty,
-      ROUND(COALESCE(SUM(sqm), 0)::numeric, 2) AS total_sqm
+      COALESCE(SUM(num_qty), 0)::bigint AS total_qty,
+      ROUND(COALESCE(SUM(num_sqm), 0), 2) AS total_sqm
     FROM filtered
     GROUP BY COALESCE(NULLIF(trim(type_of_work), ''), '(Unassigned)')
     ORDER BY count DESC
@@ -303,13 +312,13 @@ BEGIN
 
   -- 6. Distinct filter options directly from PostgreSQL
   SELECT json_build_object(
-    'companies', (SELECT COALESCE(json_agg(company), '[]'::json) FROM (SELECT DISTINCT company FROM public.records WHERE company IS NOT NULL AND company <> '' ORDER BY company) c),
-    'salesmen', (SELECT COALESCE(json_agg(salesman), '[]'::json) FROM (SELECT DISTINCT salesman FROM public.records WHERE salesman IS NOT NULL AND salesman <> '' ORDER BY salesman) s),
-    'preparedBy', (SELECT COALESCE(json_agg(prepared_by), '[]'::json) FROM (SELECT DISTINCT prepared_by FROM public.records WHERE prepared_by IS NOT NULL AND prepared_by <> '' ORDER BY prepared_by) p),
-    'statuses', (SELECT COALESCE(json_agg(status), '[]'::json) FROM (SELECT DISTINCT status FROM public.records WHERE status IS NOT NULL AND status <> '' ORDER BY status) st),
-    'piStatuses', (SELECT COALESCE(json_agg(pi_status), '[]'::json) FROM (SELECT DISTINCT pi_status FROM public.records WHERE pi_status IS NOT NULL AND pi_status <> '' ORDER BY pi_status) pis),
-    'typesOfWork', (SELECT COALESCE(json_agg(type_of_work), '[]'::json) FROM (SELECT DISTINCT type_of_work FROM public.records WHERE type_of_work IS NOT NULL AND type_of_work <> '' ORDER BY type_of_work) tw),
-    'zohoStatuses', (SELECT COALESCE(json_agg(zoho_status), '[]'::json) FROM (SELECT DISTINCT zoho_status FROM public.records WHERE zoho_status IS NOT NULL AND zoho_status <> '' ORDER BY zoho_status) z)
+    'companies', (SELECT COALESCE(json_agg(company), '[]'::json) FROM (SELECT DISTINCT company FROM public.records WHERE company IS NOT NULL AND trim(company) <> '' ORDER BY company) c),
+    'salesmen', (SELECT COALESCE(json_agg(salesman), '[]'::json) FROM (SELECT DISTINCT salesman FROM public.records WHERE salesman IS NOT NULL AND trim(salesman) <> '' ORDER BY salesman) s),
+    'preparedBy', (SELECT COALESCE(json_agg(prepared_by), '[]'::json) FROM (SELECT DISTINCT prepared_by FROM public.records WHERE prepared_by IS NOT NULL AND trim(prepared_by) <> '' ORDER BY prepared_by) p),
+    'statuses', (SELECT COALESCE(json_agg(status), '[]'::json) FROM (SELECT DISTINCT status FROM public.records WHERE status IS NOT NULL AND trim(status) <> '' ORDER BY status) st),
+    'piStatuses', (SELECT COALESCE(json_agg(pi_status), '[]'::json) FROM (SELECT DISTINCT pi_status FROM public.records WHERE pi_status IS NOT NULL AND trim(pi_status) <> '' ORDER BY pi_status) pis),
+    'typesOfWork', (SELECT COALESCE(json_agg(type_of_work), '[]'::json) FROM (SELECT DISTINCT type_of_work FROM public.records WHERE type_of_work IS NOT NULL AND trim(type_of_work) <> '' ORDER BY type_of_work) tw),
+    'zohoStatuses', (SELECT COALESCE(json_agg(zoho_status), '[]'::json) FROM (SELECT DISTINCT zoho_status FROM public.records WHERE zoho_status IS NOT NULL AND trim(zoho_status) <> '' ORDER BY zoho_status) z)
   ) INTO v_filter_options;
 
   RETURN json_build_object(

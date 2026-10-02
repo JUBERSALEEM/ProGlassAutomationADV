@@ -71,8 +71,8 @@ export function RecordsRecordDetailModal({ record, onClose }: RecordsRecordDetai
           <DetailField label="Salesman" value={record.salesman} />
           <DetailField label="Prepared By" value={record.prepared_by} />
           <DetailField label="Type of Work" value={record.type_of_work} highlight />
-          <DetailField label="Quantity" value={`${record.qty.toLocaleString()} pcs`} mono />
-          <DetailField label="Total Area" value={`${record.sqm.toFixed(2)} m²`} mono highlight />
+          <DetailField label="Quantity" value={`${(Number(record.qty) || 0).toLocaleString()} pcs`} mono />
+          <DetailField label="Total Area" value={`${(Number(record.sqm) || 0).toFixed(2)} m²`} mono highlight />
           
           <div className="col-span-1">
             <span className="block text-3xs font-semibold uppercase tracking-wider text-text-faint mb-1">

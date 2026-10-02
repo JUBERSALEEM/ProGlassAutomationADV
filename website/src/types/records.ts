@@ -13,8 +13,8 @@ export type RecordRow = {
   pi_number: string;
   type_of_work: string;
   customer_ref: string;
-  qty: number;
-  sqm: number;
+  qty: number | string;
+  sqm: number | string;
   prepared_by: string;
   status: string;
   pi_status: string;

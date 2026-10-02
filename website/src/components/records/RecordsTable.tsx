@@ -144,10 +144,10 @@ const TableRow = memo(function TableRow({
         </span>
       </td>
       <td className={`px-3 ${cellPy} text-right font-mono text-xs font-semibold text-text-primary whitespace-nowrap`}>
-        {record.qty.toLocaleString()}
+        {(Number(record.qty) || 0).toLocaleString()}
       </td>
       <td className={`px-3 ${cellPy} text-right font-mono text-xs font-semibold text-glass-teal whitespace-nowrap`}>
-        {record.sqm.toFixed(2)}
+        {(Number(record.sqm) || 0).toFixed(2)}
       </td>
       <td className={`px-3 ${cellPy} whitespace-nowrap`}>
         <StatusBadge status={record.status} />
