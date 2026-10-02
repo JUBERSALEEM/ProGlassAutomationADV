@@ -254,10 +254,57 @@ export function RecordsDashboard() {
           }
           const loadedRecords = json.data?.records || [];
           const apiOptions = json.data?.filterOptions;
-          if (loadedRecords.length > 0) {
+          const currentFile = json.data?.currentSourceFile || apiOptions?.currentSourceFile || null;
+
+          const sanitizeList = (list: string[] | undefined): string[] => {
+            if (!list || !Array.isArray(list)) return [];
+            return list
+              .filter(
+                (x): x is string =>
+                  typeof x === "string" &&
+                  x.trim().length > 0 &&
+                  x !== "(Unassigned)" &&
+                  x !== "—" &&
+                  x !== "-" &&
+                  x.toLowerCase() !== "null" &&
+                  x.toLowerCase() !== "undefined",
+              )
+              .map((x) => x.trim())
+              .sort((a, b) => a.localeCompare(b));
+          };
+
+          const serverHasData =
+            apiOptions &&
+            ((apiOptions.companies?.length || 0) > 0 ||
+              (apiOptions.salesmen?.length || 0) > 0 ||
+              (apiOptions.preparedBy?.length || 0) > 0);
+
+          if (serverHasData && apiOptions) {
+            setAccumulatedOptions({
+              companies: sanitizeList(apiOptions.companies),
+              salesmen: sanitizeList(apiOptions.salesmen),
+              preparedBy: sanitizeList(apiOptions.preparedBy),
+              statuses: sanitizeList(apiOptions.statuses),
+              piStatuses: sanitizeList(apiOptions.piStatuses),
+              typesOfWork: sanitizeList(apiOptions.typesOfWork),
+              zohoStatuses: sanitizeList(apiOptions.zohoStatuses),
+              sourceFiles: apiOptions.sourceFiles || [],
+              currentSourceFile: currentFile,
+            });
+          } else if (loadedRecords.length > 0) {
             setAccumulatedOptions((prev) => {
-              const mergeDistinct = (existing: string[], serverList: string[] = [], getter: (r: RecordRow) => unknown): string[] => {
-                const set = new Set<string>([...existing, ...serverList]);
+              const isDifferentFile =
+                Boolean(currentFile && prev.currentSourceFile && currentFile !== prev.currentSourceFile);
+              const baseCompanies = isDifferentFile ? [] : prev.companies;
+              const baseSalesmen = isDifferentFile ? [] : prev.salesmen;
+              const basePreparedBy = isDifferentFile ? [] : prev.preparedBy;
+              const baseStatuses = isDifferentFile ? [] : prev.statuses;
+              const basePiStatuses = isDifferentFile ? [] : prev.piStatuses;
+              const baseTypesOfWork = isDifferentFile ? [] : prev.typesOfWork;
+              const baseZohoStatuses = isDifferentFile ? [] : prev.zohoStatuses;
+
+              const mergeDistinct = (existing: string[], getter: (r: RecordRow) => unknown): string[] => {
+                const set = new Set<string>(existing);
                 for (const r of loadedRecords) {
                   const val = getter(r);
                   if (typeof val === "string") {
@@ -278,15 +325,20 @@ export function RecordsDashboard() {
               };
 
               return {
-                companies: mergeDistinct(prev.companies, apiOptions?.companies, (r) => r.company),
-                salesmen: mergeDistinct(prev.salesmen, apiOptions?.salesmen, (r) => r.salesman),
-                preparedBy: mergeDistinct(prev.preparedBy, apiOptions?.preparedBy, (r) => r.prepared_by),
-                statuses: mergeDistinct(prev.statuses, apiOptions?.statuses, (r) => r.status),
-                piStatuses: mergeDistinct(prev.piStatuses, apiOptions?.piStatuses, (r) => r.pi_status),
-                typesOfWork: mergeDistinct(prev.typesOfWork, apiOptions?.typesOfWork, (r) => r.type_of_work),
-                zohoStatuses: mergeDistinct(prev.zohoStatuses, apiOptions?.zohoStatuses, (r) => r.zoho_status),
-                sourceFiles: Array.from(new Set([...(prev.sourceFiles || []), ...(apiOptions?.sourceFiles || [])])).sort((a, b) => a.localeCompare(b)),
-                currentSourceFile: apiOptions?.currentSourceFile ?? json.data?.currentSourceFile ?? prev.currentSourceFile,
+                companies: mergeDistinct(baseCompanies, (r) => r.company),
+                salesmen: mergeDistinct(baseSalesmen, (r) => r.salesman),
+                preparedBy: mergeDistinct(basePreparedBy, (r) => r.prepared_by),
+                statuses: mergeDistinct(baseStatuses, (r) => r.status),
+                piStatuses: mergeDistinct(basePiStatuses, (r) => r.pi_status),
+                typesOfWork: mergeDistinct(baseTypesOfWork, (r) => r.type_of_work),
+                zohoStatuses: mergeDistinct(baseZohoStatuses, (r) => r.zoho_status),
+                sourceFiles: Array.from(
+                  new Set([
+                    ...(isDifferentFile ? [] : prev.sourceFiles || []),
+                    ...(apiOptions?.sourceFiles || []),
+                  ]),
+                ).sort((a, b) => a.localeCompare(b)),
+                currentSourceFile: currentFile ?? prev.currentSourceFile,
               };
             });
           }
@@ -344,6 +396,7 @@ export function RecordsDashboard() {
       typesOfWork: [],
       zohoStatuses: [],
       sourceFiles: [],
+      currentSourceFile: null,
     });
     setLoading(true);
     setRefreshCounter((c) => c + 1);
@@ -360,7 +413,18 @@ export function RecordsDashboard() {
         typesOfWork: [],
         zohoStatuses: [],
         sourceFiles: [],
+        currentSourceFile: null,
       });
+      const nextFilters: RecordFilters = {
+        ...INITIAL_FILTERS,
+        search: filters.search,
+        sourceFile: updated.sourceFile,
+      };
+      setLoading(true);
+      setFilters(nextFilters);
+      setPage(1);
+      updateUrlParams(nextFilters, sort, 1, pageSize);
+      return;
     }
     const nextFilters = { ...filters, ...updated };
     setLoading(true);
@@ -370,6 +434,17 @@ export function RecordsDashboard() {
   };
 
   const handleResetFilters = () => {
+    setAccumulatedOptions({
+      companies: [],
+      salesmen: [],
+      preparedBy: [],
+      statuses: [],
+      piStatuses: [],
+      typesOfWork: [],
+      zohoStatuses: [],
+      sourceFiles: [],
+      currentSourceFile: null,
+    });
     setLoading(true);
     setFilters(INITIAL_FILTERS);
     setSort(INITIAL_SORT);

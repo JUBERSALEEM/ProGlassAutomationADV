@@ -267,38 +267,120 @@ export async function fetchRecordsDashboardData({
     let currentSourceFile: string | null = null;
     let availableSourceFiles: string[] = [];
 
+    // Step 1: Attempt to resolve active Excel source via dedicated RPC if installed
     try {
-      // Query the latest active source file (most recently synced/updated)
-      const { data: latestSourceRows } = await client
-        .from("records")
-        .select("source_file")
-        .not("source_file", "is", null)
-        .neq("source_file", "")
-        .order("updated_at", { ascending: false })
-        .limit(1);
+      const { data: rpcCurrentSource } = await client.rpc("get_current_excel_source");
+      if (rpcCurrentSource && typeof rpcCurrentSource === "string" && rpcCurrentSource.trim().length > 0) {
+        currentSourceFile = rpcCurrentSource.trim();
+      } else if (Array.isArray(rpcCurrentSource) && rpcCurrentSource.length > 0 && rpcCurrentSource[0]?.source_file) {
+        currentSourceFile = String(rpcCurrentSource[0].source_file).trim();
+      }
+    } catch {
+      // RPC may not be installed; fallback to direct table query
+    }
 
-      if (latestSourceRows && latestSourceRows.length > 0 && latestSourceRows[0]?.source_file) {
-        currentSourceFile = latestSourceRows[0].source_file;
-      } else {
+    // Step 2: Query public.records for the latest active record
+    // PostgreSQL ORDER BY ... DESC defaults to NULLS FIRST.
+    // nullsFirst: false ensures non-null timestamps are selected instead of nulls.
+    if (!currentSourceFile) {
+      try {
+        const { data: latestSourceRows } = await client
+          .from("records")
+          .select("source_file")
+          .eq("is_active", true)
+          .not("source_file", "is", null)
+          .neq("source_file", "")
+          .order("updated_at", { ascending: false, nullsFirst: false })
+          .limit(1);
+
+        if (latestSourceRows && latestSourceRows.length > 0 && latestSourceRows[0]?.source_file) {
+          currentSourceFile = latestSourceRows[0].source_file.trim();
+        }
+      } catch {
+        // updated_at column may not exist or error
+      }
+    }
+
+    if (!currentSourceFile) {
+      try {
         const { data: createdSourceRows } = await client
+          .from("records")
+          .select("source_file")
+          .eq("is_active", true)
+          .not("source_file", "is", null)
+          .neq("source_file", "")
+          .order("created_at", { ascending: false, nullsFirst: false })
+          .limit(1);
+
+        if (createdSourceRows && createdSourceRows.length > 0 && createdSourceRows[0]?.source_file) {
+          currentSourceFile = createdSourceRows[0].source_file.trim();
+        }
+      } catch {
+        // created_at column may not exist
+      }
+    }
+
+    if (!currentSourceFile) {
+      try {
+        const { data: idSourceRows } = await client
+          .from("records")
+          .select("source_file")
+          .eq("is_active", true)
+          .not("source_file", "is", null)
+          .neq("source_file", "")
+          .order("id", { ascending: false })
+          .limit(1);
+
+        if (idSourceRows && idSourceRows.length > 0 && idSourceRows[0]?.source_file) {
+          currentSourceFile = idSourceRows[0].source_file.trim();
+        }
+      } catch {
+        // id may not exist or error
+      }
+    }
+
+    // Step 3: Resilient fallback without is_active in case is_active column is not yet migrated
+    if (!currentSourceFile) {
+      try {
+        const { data: rawRows } = await client
           .from("records")
           .select("source_file")
           .not("source_file", "is", null)
           .neq("source_file", "")
-          .order("created_at", { ascending: false })
+          .order("updated_at", { ascending: false, nullsFirst: false })
           .limit(1);
-        if (createdSourceRows && createdSourceRows.length > 0 && createdSourceRows[0]?.source_file) {
-          currentSourceFile = createdSourceRows[0].source_file;
-        }
-      }
 
-      // Also retrieve distinct active source files
+        if (rawRows && rawRows.length > 0 && rawRows[0]?.source_file) {
+          currentSourceFile = rawRows[0].source_file.trim();
+        }
+      } catch {}
+    }
+
+    if (!currentSourceFile) {
+      try {
+        const { data: rawRows } = await client
+          .from("records")
+          .select("source_file")
+          .not("source_file", "is", null)
+          .neq("source_file", "")
+          .order("created_at", { ascending: false, nullsFirst: false })
+          .limit(1);
+
+        if (rawRows && rawRows.length > 0 && rawRows[0]?.source_file) {
+          currentSourceFile = rawRows[0].source_file.trim();
+        }
+      } catch {}
+    }
+
+    // Step 4: Retrieve distinct active source files for filter selection
+    try {
       const { data: sfRows } = await client
         .from("records")
         .select("source_file")
+        .eq("is_active", true)
         .not("source_file", "is", null)
         .neq("source_file", "")
-        .limit(200);
+        .limit(300);
 
       if (sfRows && sfRows.length > 0) {
         const sfSet = new Set<string>();
@@ -311,7 +393,34 @@ export async function fetchRecordsDashboardData({
         availableSourceFiles = Array.from(sfSet).sort((a, b) => a.localeCompare(b));
       }
     } catch {
-      // Gracefully continue if source_file column or order is unavailable
+      // is_active column may not exist
+    }
+
+    if (availableSourceFiles.length === 0) {
+      try {
+        const { data: sfRows } = await client
+          .from("records")
+          .select("source_file")
+          .not("source_file", "is", null)
+          .neq("source_file", "")
+          .limit(300);
+
+        if (sfRows && sfRows.length > 0) {
+          const sfSet = new Set<string>();
+          for (const row of sfRows) {
+            if (row.source_file && typeof row.source_file === "string") {
+              const t = row.source_file.trim();
+              if (t) sfSet.add(t);
+            }
+          }
+          availableSourceFiles = Array.from(sfSet).sort((a, b) => a.localeCompare(b));
+        }
+      } catch {}
+    }
+
+    if (currentSourceFile && !availableSourceFiles.includes(currentSourceFile)) {
+      availableSourceFiles.push(currentSourceFile);
+      availableSourceFiles.sort((a, b) => a.localeCompare(b));
     }
 
     // Determine effective source file scoping:
@@ -509,6 +618,10 @@ export async function fetchRecordsDashboardData({
                       : currentSourceFile,
                 }
               : extractFilterOptionsFromRecords((recordsData || []) as RecordRow[]);
+
+          if (!currentSourceFile && typeof res.filterOptions?.currentSourceFile === "string" && res.filterOptions.currentSourceFile.trim()) {
+            currentSourceFile = res.filterOptions.currentSourceFile.trim();
+          }
         } else {
           rpcStatus = "not_installed";
           warning =
@@ -562,20 +675,51 @@ export async function fetchRecordsDashboardData({
             typeOfWork: groupSlice((r) => r.type_of_work),
           };
           // Data-driven extraction directly from actual record entries
-          filterOptions = extractFilterOptionsFromRecords((recordsData || []) as RecordRow[]);
+          filterOptions = {
+            ...extractFilterOptionsFromRecords((recordsData || []) as RecordRow[]),
+            sourceFiles: availableSourceFiles,
+            currentSourceFile,
+          };
 
           // If the page slice has fewer rows than the total dataset, fetch distinct values from records
+          // STRICTLY SCOPED to active records within the effective source file
           if (totalEntries > (recordsData?.length || 0)) {
             try {
-              const { data: colRows } = await client
+              let colQuery = client
                 .from("records")
                 .select("company, salesman, prepared_by, status, pi_status, type_of_work, zoho_status")
-                .limit(1000);
+                .eq("is_active", true);
+
+              if (effectiveSourceFile) {
+                colQuery = colQuery.eq("source_file", effectiveSourceFile);
+              }
+
+              let colRows: typeof recordsData = null;
+              const { data: initialColRows, error: colError } = await colQuery.limit(1000);
+              colRows = initialColRows;
+
+              // If is_active column doesn't exist yet, retry without is_active but STILL scoped to source_file
+              if (colError) {
+                let fallbackCol = client
+                  .from("records")
+                  .select("company, salesman, prepared_by, status, pi_status, type_of_work, zoho_status");
+                if (effectiveSourceFile) {
+                  fallbackCol = fallbackCol.eq("source_file", effectiveSourceFile);
+                }
+                const res = await fallbackCol.limit(1000);
+                colRows = res.data;
+              }
+
               if (colRows && colRows.length > 0) {
-                filterOptions = extractFilterOptionsFromRecords(colRows as RecordRow[]);
+                const fullOptions = extractFilterOptionsFromRecords(colRows as RecordRow[]);
+                filterOptions = {
+                  ...fullOptions,
+                  sourceFiles: availableSourceFiles,
+                  currentSourceFile,
+                };
               }
             } catch {
-              // Ignore and retain preliminary slice filter options
+              // Retain preliminary slice filter options
             }
           }
         }

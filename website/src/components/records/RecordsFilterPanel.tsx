@@ -164,7 +164,9 @@ export function RecordsFilterPanel({
             className="w-full rounded-lg border border-line-strong/70 bg-ink-950 py-1.5 px-2 text-xs text-text-primary focus:border-brand-400 focus:outline-none truncate"
             title="Scope data strictly to the current attached Excel workbook or view all files"
           >
-            <option value="">Current File (Auto)</option>
+            <option value="">
+              Current File (Auto){filterOptions.currentSourceFile ? ` (${filterOptions.currentSourceFile})` : ""}
+            </option>
             <option value="all">All Attached Files</option>
             {filterOptions.sourceFiles?.map((f) => (
               <option key={f} value={f}>
