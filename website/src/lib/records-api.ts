@@ -405,6 +405,7 @@ export async function fetchRecordsDashboardData({
         diagnostics: {
           targetHost: getSupabaseHost(),
           authRole: getAnonRole(),
+          hasServerServiceKey: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY),
           recordsCount: totalCount,
           recordsLength: recordsData?.length ?? 0,
           recordsError: null,

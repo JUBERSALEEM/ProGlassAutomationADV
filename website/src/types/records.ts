@@ -125,6 +125,7 @@ export type RecordsApiSuccessResponse = {
     diagnostics?: {
       targetHost: string;
       authRole: string | null;
+      hasServerServiceKey?: boolean;
       recordsCount: number | null;
       recordsLength: number;
       recordsError: { message: string; code?: string; details?: string; hint?: string } | null;
