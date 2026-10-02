@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
-    let body: { email?: string; password?: string };
+    let body: { email?: string };
     try {
       body = await request.json();
     } catch {
@@ -15,29 +15,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, password } = body || {};
-
-    if (!email || typeof email !== "string" || !password || typeof password !== "string") {
+    const { email } = body || {};
+    if (!email || typeof email !== "string") {
       return NextResponse.json(
-        { ok: false, error: { message: "Email and password are required.", code: "MISSING_FIELDS" } },
+        { ok: false, error: { message: "Valid email address is required.", code: "MISSING_EMAIL" } },
         { status: 400 },
       );
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
+    const cleanEmail = email.trim().toLowerCase();
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(cleanEmail)) {
       return NextResponse.json(
         { ok: false, error: { message: "Please provide a valid email address.", code: "INVALID_EMAIL" } },
-        { status: 400 },
-      );
-    }
-
-    if (password.length < 6) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: { message: "Password must be at least 6 characters.", code: "PASSWORD_TOO_SHORT" },
-        },
         { status: 400 },
       );
     }
@@ -57,19 +47,18 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = supabaseServer();
-    const { data, error } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
+    const { error } = await supabase.auth.signInWithOtp({
+      email: cleanEmail,
     });
 
     if (error) {
-      console.warn("[api/auth/signup] Supabase signUp error:", error.message, error.status);
+      console.warn("[api/auth/otp/send] Supabase signInWithOtp error:", error.message, error.status);
       return NextResponse.json(
         {
           ok: false,
           error: {
-            message: error.message || "Registration failed.",
-            code: "SIGNUP_FAILED",
+            message: error.message || "Failed to send verification code.",
+            code: error.status === 429 ? "RATE_LIMITED" : "OTP_SEND_FAILED",
             status: error.status || 400,
           },
         },
@@ -80,29 +69,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         ok: true,
-        session: data.session,
-        user: data.user
-          ? {
-              id: data.user.id,
-              email: data.user.email,
-              role: data.user.role,
-            }
-          : null,
+        message: "Verification code sent to your email.",
       },
       {
         status: 200,
-        headers: {
-          "Cache-Control": "no-store, max-age=0",
-        },
+        headers: { "Cache-Control": "no-store, max-age=0" },
       },
     );
   } catch (err) {
-    console.error("[api/auth/signup] Unexpected server error:", err);
+    console.error("[api/auth/otp/send] Unexpected error:", err);
     return NextResponse.json(
       {
         ok: false,
         error: {
-          message: err instanceof Error ? err.message : "Internal registration server error.",
+          message: err instanceof Error ? err.message : "Internal server error.",
           code: "SERVER_ERROR",
         },
       },

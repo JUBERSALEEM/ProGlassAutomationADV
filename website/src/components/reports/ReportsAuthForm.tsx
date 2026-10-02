@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { isSupabaseConfigured, supabaseBrowser } from "@/lib/supabase";
@@ -15,23 +15,45 @@ export function ReportsAuthForm() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/reports";
 
-  const [mode, setMode] = useState<"signin" | "register">("signin");
+  // Flow states: "email" (Step A) -> "otp" (Step B)
+  const [step, setStep] = useState<"email" | "otp">("email");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
+  // Rate-limiting resend countdown (60s minimum interval)
+  const [resendCountdown, setResendCountdown] = useState(0);
+
+  const otpInputRef = useRef<HTMLInputElement | null>(null);
   const configured = isSupabaseConfigured();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Handle countdown interval
+  useEffect(() => {
+    if (resendCountdown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCountdown((prev) => (prev > 1 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCountdown]);
+
+  // Focus OTP input when switching to OTP step
+  useEffect(() => {
+    if (step === "otp") {
+      otpInputRef.current?.focus();
+    }
+  }, [step]);
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // STEP A: Request 6-digit OTP code to email
+  // ─────────────────────────────────────────────────────────────────────────────
+  const handleSendOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setError(null);
     setNotice(null);
 
-    const cleanEmail = email.trim();
+    const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail) {
       setError(t("Please enter your email address."));
       return;
@@ -43,137 +65,159 @@ export function ReportsAuthForm() {
       return;
     }
 
-    if (password.length < 6) {
-      setError(t("Password must be at least 6 characters."));
-      return;
-    }
-
-    if (mode === "register" && password !== confirmPassword) {
-      setError(t("Passwords do not match."));
+    if (!configured) {
+      setError(
+        t(
+          "Supabase authentication is not configured in this environment (NEXT_PUBLIC_SUPABASE_URL is missing).",
+        ),
+      );
       return;
     }
 
     setLoading(true);
 
     try {
-      // 1. First attempt authenticated request via server-side route
-      // This protects against browser CORS failures, ad-blockers, and network fetch rejections
-      const endpoint = mode === "signin" ? "/api/auth/signin" : "/api/auth/signup";
-      let res: Response | null = null;
-      let serverJson: {
-        ok: boolean;
-        session?: { access_token: string; refresh_token: string };
-        user?: { id: string; email?: string };
-        error?: { message?: string; code?: string };
-      } | null = null;
+      let otpSent = false;
+      let lastErrorMessage = "";
 
+      // 1. Direct browser client call using supabase.auth.signInWithOtp
       try {
-        res = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: cleanEmail, password }),
+        const supabase = supabaseBrowser();
+        const { error: otpError } = await supabase.auth.signInWithOtp({
+          email: cleanEmail,
         });
-        serverJson = await res.json();
-      } catch (fetchErr) {
-        console.warn("[ReportsAuthForm] Server endpoint fetch issue, attempting direct browser client:", fetchErr);
+
+        if (!otpError) {
+          otpSent = true;
+        } else {
+          lastErrorMessage = otpError.message;
+          console.warn("[ReportsAuthForm] Client signInWithOtp error:", otpError);
+        }
+      } catch (clientErr) {
+        console.warn("[ReportsAuthForm] Client fetch failed, attempting server route:", clientErr);
       }
 
-      // 2. If server route gave a decisive response, handle it
-      if (serverJson) {
-        if (!serverJson.ok) {
-          throw new Error(serverJson.error?.message || t("Authentication failed. Please check your credentials."));
-        }
-
-        // Successfully authenticated via server route
-        if (serverJson.session) {
-          try {
-            if (configured) {
-              const supabase = supabaseBrowser();
-              await supabase.auth.setSession({
-                access_token: serverJson.session.access_token,
-                refresh_token: serverJson.session.refresh_token,
-              });
-            }
-          } catch (syncErr) {
-            console.warn("[ReportsAuthForm] Client session sync warning:", syncErr);
+      // 2. Resilient fallback to same-origin server route if browser direct call encountered network/CORS issues
+      if (!otpSent) {
+        try {
+          const res = await fetch("/api/auth/otp/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: cleanEmail }),
+          });
+          const serverJson = await res.json();
+          if (res.ok && serverJson.ok) {
+            otpSent = true;
+          } else {
+            lastErrorMessage = serverJson.error?.message || lastErrorMessage;
           }
-
-          setNotice(
-            mode === "signin"
-              ? t("Authenticated successfully. Redirecting to reports...")
-              : t("Operator account created and authenticated. Redirecting..."),
-          );
-          router.push(redirectTo);
-          router.refresh();
-          return;
+        } catch (serverErr) {
+          console.error("[ReportsAuthForm] Server route error:", serverErr);
         }
-
-        // Sign up succeeded but email confirmation is enabled on Supabase
-        setNotice(
-          t(
-            "Account registration submitted. If email confirmation is enabled on your Supabase project, please check your email inbox before logging in.",
-          ),
-        );
-        setMode("signin");
-        return;
       }
 
-      // 3. Fallback to direct client-side Supabase Auth if API route is unreachable
-      if (!configured) {
+      if (!otpSent) {
         throw new Error(
-          t("Supabase credentials are not configured in this environment. In production, configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."),
+          lastErrorMessage ||
+            t("Failed to send verification code. Please check your email or wait before trying again."),
         );
       }
 
-      const supabase = supabaseBrowser();
-      if (mode === "signin") {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: cleanEmail,
-          password,
-        });
-
-        if (signInError) {
-          throw signInError;
-        }
-
-        setNotice(t("Authenticated successfully. Redirecting to reports..."));
-        router.push(redirectTo);
-        router.refresh();
-      } else {
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email: cleanEmail,
-          password,
-        });
-
-        if (signUpError) {
-          throw signUpError;
-        }
-
-        if (signUpData.session) {
-          setNotice(t("Account created and authenticated. Redirecting..."));
-          router.push(redirectTo);
-          router.refresh();
-        } else {
-          setNotice(
-            t(
-              "Account registration submitted. If email confirmation is enabled on your Supabase project, please check your email inbox before logging in.",
-            ),
-          );
-          setMode("signin");
-        }
-      }
+      // Success: advance to OTP input step and start 60s countdown
+      setNotice(t("Verification code sent to your email."));
+      setStep("otp");
+      setResendCountdown(60);
     } catch (err) {
-      console.error("[ReportsAuthForm] Authentication exception:", err);
-      let message = t("Authentication request failed. Please check your credentials.");
-      if (err instanceof Error) {
-        if (/fetch failed|failed to fetch|networkerror/i.test(err.message)) {
-          message = t(
-            "Network connection failed. Please verify your internet connection or check that the server is reachable.",
-          );
-        } else {
-          message = err.message;
+      console.error("[ReportsAuthForm] Error sending OTP:", err);
+      const message =
+        err instanceof Error ? err.message : t("Failed to send verification code. Please try again.");
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // STEP B: Verify 6-digit OTP code and establish authenticated session
+  // ─────────────────────────────────────────────────────────────────────────────
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setNotice(null);
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanToken = otp.trim().replace(/\D/g, "");
+
+    if (cleanToken.length !== 6) {
+      setError(t("Please enter the complete 6-digit verification code."));
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      let verified = false;
+      let lastErrorMessage = "";
+
+      // 1. Direct browser client call using supabase.auth.verifyOtp
+      try {
+        const supabase = supabaseBrowser();
+        const { data, error: verifyError } = await supabase.auth.verifyOtp({
+          email: cleanEmail,
+          token: cleanToken,
+          type: "email",
+        });
+
+        if (!verifyError && data.session) {
+          verified = true;
+        } else if (verifyError) {
+          lastErrorMessage = verifyError.message;
+          console.warn("[ReportsAuthForm] Client verifyOtp error:", verifyError);
+        }
+      } catch (clientErr) {
+        console.warn("[ReportsAuthForm] Client verify fetch failed, attempting server route:", clientErr);
+      }
+
+      // 2. Resilient fallback to server route if browser encountered network/transport issue
+      if (!verified) {
+        try {
+          const res = await fetch("/api/auth/otp/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: cleanEmail, token: cleanToken }),
+          });
+          const serverJson = await res.json();
+          if (res.ok && serverJson.ok && serverJson.session) {
+            // Synchronize session back into the client singleton
+            const supabase = supabaseBrowser();
+            await supabase.auth.setSession({
+              access_token: serverJson.session.access_token,
+              refresh_token: serverJson.session.refresh_token,
+            });
+            verified = true;
+          } else {
+            lastErrorMessage = serverJson.error?.message || lastErrorMessage;
+          }
+        } catch (serverErr) {
+          console.error("[ReportsAuthForm] Server verify route error:", serverErr);
         }
       }
+
+      if (!verified) {
+        throw new Error(
+          lastErrorMessage ||
+            t("Invalid or expired verification code. Please check your email or request a new code."),
+        );
+      }
+
+      // Success: authenticated session confirmed
+      setNotice(t("Code verified successfully. Redirecting to reports..."));
+      router.push(redirectTo);
+      router.refresh();
+    } catch (err) {
+      console.error("[ReportsAuthForm] Error verifying OTP:", err);
+      const message =
+        err instanceof Error ? err.message : t("Verification failed. Please try again.");
       setError(message);
     } finally {
       setLoading(false);
@@ -196,52 +240,20 @@ export function ReportsAuthForm() {
           </div>
 
           <h1 className="mt-2 text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
-            {mode === "signin" ? t("Sign In to Reports") : t("Register Operator Account")}
+            {step === "email" ? t("Sign In with Email OTP") : t("Enter Verification Code")}
           </h1>
           <p className="mt-2 text-xs leading-relaxed text-text-muted">
-            {mode === "signin"
-              ? t("Authenticated access to live factory operations, Excel Sync transactions, and financial analytics.")
-              : t("Create registered operator credentials to access protected reports and dashboard data.")}
+            {step === "email"
+              ? t("Enter your operator email address. We will send a 6-digit one-time passcode to access protected factory reports.")
+              : t.template`Enter the 6-digit verification code sent to ${email}`}
           </p>
-        </div>
-
-        {/* Mode Selector Tabs */}
-        <div className="mt-6 grid grid-cols-2 gap-1 rounded-xl border border-line-strong/60 bg-ink-950/60 p-1">
-          <button
-            type="button"
-            onClick={() => {
-              setMode("signin");
-              setError(null);
-            }}
-            className={`rounded-lg py-2 text-xs font-semibold transition-all ${
-              mode === "signin"
-                ? "bg-brand-500/20 text-brand-200 shadow-sm border border-brand-400/30"
-                : "text-text-muted hover:text-text-primary"
-            }`}
-          >
-            {t("Sign In")}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setMode("register");
-              setError(null);
-            }}
-            className={`rounded-lg py-2 text-xs font-semibold transition-all ${
-              mode === "register"
-                ? "bg-brand-500/20 text-brand-200 shadow-sm border border-brand-400/30"
-                : "text-text-muted hover:text-text-primary"
-            }`}
-          >
-            {t("Register")}
-          </button>
         </div>
 
         {/* Alerts */}
         {error && (
           <div
             role="alert"
-            className="mt-4 rounded-xl border border-state-danger/40 bg-state-danger/10 p-3 text-xs text-state-danger leading-relaxed flex items-start gap-2"
+            className="mt-5 rounded-xl border border-state-danger/40 bg-state-danger/10 p-3 text-xs text-state-danger leading-relaxed flex items-start gap-2"
           >
             <span aria-hidden="true" className="shrink-0 font-bold">!</span>
             <span>{error}</span>
@@ -251,7 +263,7 @@ export function ReportsAuthForm() {
         {notice && (
           <div
             role="status"
-            className="mt-4 rounded-xl border border-state-success/40 bg-state-success/10 p-3 text-xs text-state-success leading-relaxed flex items-start gap-2"
+            className="mt-5 rounded-xl border border-state-success/40 bg-state-success/10 p-3 text-xs text-state-success leading-relaxed flex items-start gap-2"
           >
             <span aria-hidden="true" className="shrink-0 font-bold">✓</span>
             <span>{notice}</span>
@@ -259,95 +271,121 @@ export function ReportsAuthForm() {
         )}
 
         {!configured && (
-          <div className="mt-4 rounded-xl border border-state-warning/40 bg-state-warning/10 p-3 text-2xs text-state-warning leading-relaxed">
+          <div className="mt-5 rounded-xl border border-state-warning/40 bg-state-warning/10 p-3 text-2xs text-state-warning leading-relaxed">
             {t("Note: Supabase URL/key not configured in local environment. In production, registered users authenticate against Supabase Auth.")}
           </div>
         )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <div>
-            <label
-              htmlFor="reports-email"
-              className="block text-2xs font-mono uppercase tracking-wider text-text-secondary font-medium mb-1.5"
-            >
-              {t("Email address")}
-            </label>
-            <input
-              id="reports-email"
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="operator@proglass.ae"
-              className="w-full rounded-xl border border-line-strong/80 bg-ink-950/80 px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400 transition-colors"
-            />
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label
-                htmlFor="reports-password"
-                className="block text-2xs font-mono uppercase tracking-wider text-text-secondary font-medium"
-              >
-                {t("Password")}
-              </label>
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="text-2xs font-mono text-text-faint hover:text-text-secondary transition-colors"
-              >
-                {showPassword ? t("Hide") : t("Show")}
-              </button>
-            </div>
-            <input
-              id="reports-password"
-              type={showPassword ? "text" : "password"}
-              required
-              minLength={6}
-              autoComplete={mode === "signin" ? "current-password" : "new-password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full rounded-xl border border-line-strong/80 bg-ink-950/80 px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400 transition-colors"
-            />
-          </div>
-
-          {mode === "register" && (
+        {/* STEP A: Email Address Submission */}
+        {step === "email" ? (
+          <form onSubmit={handleSendOtp} className="mt-6 space-y-4">
             <div>
               <label
-                htmlFor="reports-confirm-password"
+                htmlFor="reports-email"
                 className="block text-2xs font-mono uppercase tracking-wider text-text-secondary font-medium mb-1.5"
               >
-                {t("Confirm password")}
+                {t("Email address")}
               </label>
               <input
-                id="reports-confirm-password"
-                type={showPassword ? "text" : "password"}
+                id="reports-email"
+                type="email"
                 required
-                minLength={6}
-                autoComplete="new-password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="operator@proglass.ae"
                 className="w-full rounded-xl border border-line-strong/80 bg-ink-950/80 px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400 transition-colors"
               />
             </div>
-          )}
 
-          <div className="pt-2">
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              loading={loading}
-              className="w-full justify-center text-sm font-semibold"
-            >
-              {mode === "signin" ? t("Sign In to Reports") : t("Create Registered Account")}
-            </Button>
-          </div>
-        </form>
+            <div className="pt-2">
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                loading={loading}
+                className="w-full justify-center text-sm font-semibold"
+              >
+                {t("Send verification code")}
+              </Button>
+            </div>
+          </form>
+        ) : (
+          /* STEP B: 6-Digit OTP Verification */
+          <form onSubmit={handleVerifyOtp} className="mt-6 space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label
+                  htmlFor="reports-otp"
+                  className="block text-2xs font-mono uppercase tracking-wider text-text-secondary font-medium"
+                >
+                  {t("Enter verification code")}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep("email");
+                    setOtp("");
+                    setError(null);
+                    setNotice(null);
+                  }}
+                  className="text-2xs text-brand-300 hover:text-brand-200 transition-colors font-medium"
+                >
+                  {t("Change email")}
+                </button>
+              </div>
+
+              <input
+                ref={otpInputRef}
+                id="reports-otp"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                required
+                autoComplete="one-time-code"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                placeholder="123456"
+                className="w-full text-center tracking-[0.35em] font-mono text-xl sm:text-2xl font-bold rounded-xl border border-line-strong/80 bg-ink-950/80 px-3.5 py-3 text-brand-100 placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400 transition-colors"
+              />
+              <p className="mt-1.5 text-center text-3xs text-text-faint">
+                {t("Enter the 6-digit numeric code from your inbox")}
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                loading={loading}
+                disabled={otp.length !== 6}
+                className="w-full justify-center text-sm font-semibold"
+              >
+                {t("Verify and continue")}
+              </Button>
+            </div>
+
+            {/* Resend OTP with 60s cooldown */}
+            <div className="pt-2 text-center">
+              {resendCountdown > 0 ? (
+                <p className="text-2xs font-mono text-text-faint">
+                  {t.template`Resend available in ${resendCountdown} seconds`}
+                </p>
+              ) : (
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => handleSendOtp()}
+                  className="text-xs text-brand-300 hover:text-brand-200 transition-colors font-medium underline underline-offset-4 disabled:opacity-50"
+                >
+                  {t("Resend verification code")}
+                </button>
+              )}
+            </div>
+          </form>
+        )}
 
         {/* Security Scope Footer */}
         <div className="mt-7 pt-5 border-t border-line/50 text-center space-y-2">
