@@ -83,6 +83,17 @@ export function RecordsDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [selectedRecord, setSelectedRecord] = useState<RecordRow | null>(null);
 
+  // Keep an accumulated set of distinct values observed strictly from loaded record entries
+  const [accumulatedOptions, setAccumulatedOptions] = useState<FilterOptions>({
+    companies: [],
+    salesmen: [],
+    preparedBy: [],
+    statuses: [],
+    piStatuses: [],
+    typesOfWork: [],
+    zohoStatuses: [],
+  });
+
   // Authentication & operator session state
   const [authChecking, setAuthChecking] = useState(() => isSupabaseConfigured());
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -221,6 +232,7 @@ export function RecordsDashboard() {
         const response = await fetch(`/api/records?${params.toString()}`, {
           signal: controller.signal,
           headers,
+          cache: "no-store",
         });
 
         if (response.status === 401) {
@@ -234,6 +246,41 @@ export function RecordsDashboard() {
         if (!isCancelled) {
           if (!response.ok || !json.ok) {
             throw new Error(json.ok ? "Failed to load records" : json.error.message);
+          }
+          const loadedRecords = json.data?.records || [];
+          if (loadedRecords.length > 0) {
+            setAccumulatedOptions((prev) => {
+              const mergeDistinct = (existing: string[], getter: (r: RecordRow) => unknown): string[] => {
+                const set = new Set<string>(existing);
+                for (const r of loadedRecords) {
+                  const val = getter(r);
+                  if (typeof val === "string") {
+                    const trimmed = val.trim();
+                    if (
+                      trimmed.length > 0 &&
+                      trimmed !== "(Unassigned)" &&
+                      trimmed !== "—" &&
+                      trimmed !== "-" &&
+                      trimmed.toLowerCase() !== "null" &&
+                      trimmed.toLowerCase() !== "undefined"
+                    ) {
+                      set.add(trimmed);
+                    }
+                  }
+                }
+                return Array.from(set).sort((a, b) => a.localeCompare(b));
+              };
+
+              return {
+                companies: mergeDistinct(prev.companies, (r) => r.company),
+                salesmen: mergeDistinct(prev.salesmen, (r) => r.salesman),
+                preparedBy: mergeDistinct(prev.preparedBy, (r) => r.prepared_by),
+                statuses: mergeDistinct(prev.statuses, (r) => r.status),
+                piStatuses: mergeDistinct(prev.piStatuses, (r) => r.pi_status),
+                typesOfWork: mergeDistinct(prev.typesOfWork, (r) => r.type_of_work),
+                zohoStatuses: mergeDistinct(prev.zohoStatuses, (r) => r.zoho_status),
+              };
+            });
           }
           setData(json.data);
           setError(null);
@@ -326,18 +373,15 @@ export function RecordsDashboard() {
 
   // Dynamically compute data-driven filter options strictly from actual entries
   const dataDrivenFilterOptions = useMemo<FilterOptions>(() => {
-    const backendOptions = data?.filterOptions;
-    const records = data?.records || [];
+    const currentRecords = data?.records || [];
 
-    const extractDistinct = (
-      backendList: string[] | undefined,
-      accessor: (r: RecordRow) => unknown,
+    const extractStrictlyFromRecords = (
+      accumulatedList: string[],
+      getter: (r: RecordRow) => unknown,
     ): string[] => {
-      const set = new Set<string>();
-
-      // 1. Always prioritize values present in actual loaded entry rows
-      for (const r of records) {
-        const val = accessor(r);
+      const set = new Set<string>(accumulatedList);
+      for (const r of currentRecords) {
+        const val = getter(r);
         if (typeof val === "string") {
           const trimmed = val.trim();
           if (
@@ -352,39 +396,59 @@ export function RecordsDashboard() {
           }
         }
       }
-
-      // 2. Include backend distinct values if they are non-empty and valid
-      if (backendList && Array.isArray(backendList)) {
-        for (const item of backendList) {
-          if (typeof item === "string") {
-            const trimmed = item.trim();
-            if (
-              trimmed.length > 0 &&
-              trimmed !== "(Unassigned)" &&
-              trimmed !== "—" &&
-              trimmed !== "-" &&
-              trimmed.toLowerCase() !== "null" &&
-              trimmed.toLowerCase() !== "undefined"
-            ) {
-              set.add(trimmed);
-            }
-          }
-        }
-      }
-
       return Array.from(set).sort((a, b) => a.localeCompare(b));
     };
 
-    return {
-      companies: extractDistinct(backendOptions?.companies, (r) => r.company),
-      salesmen: extractDistinct(backendOptions?.salesmen, (r) => r.salesman),
-      preparedBy: extractDistinct(backendOptions?.preparedBy, (r) => r.prepared_by),
-      statuses: extractDistinct(backendOptions?.statuses, (r) => r.status),
-      piStatuses: extractDistinct(backendOptions?.piStatuses, (r) => r.pi_status),
-      typesOfWork: extractDistinct(backendOptions?.typesOfWork, (r) => r.type_of_work),
-      zohoStatuses: extractDistinct(backendOptions?.zohoStatuses, (r) => r.zoho_status),
+    // If records are present or accumulated, use STRICTLY the record entry column values
+    const optionsFromEntries = {
+      companies: extractStrictlyFromRecords(accumulatedOptions.companies, (r) => r.company),
+      salesmen: extractStrictlyFromRecords(accumulatedOptions.salesmen, (r) => r.salesman),
+      preparedBy: extractStrictlyFromRecords(accumulatedOptions.preparedBy, (r) => r.prepared_by),
+      statuses: extractStrictlyFromRecords(accumulatedOptions.statuses, (r) => r.status),
+      piStatuses: extractStrictlyFromRecords(accumulatedOptions.piStatuses, (r) => r.pi_status),
+      typesOfWork: extractStrictlyFromRecords(accumulatedOptions.typesOfWork, (r) => r.type_of_work),
+      zohoStatuses: extractStrictlyFromRecords(accumulatedOptions.zohoStatuses, (r) => r.zoho_status),
     };
-  }, [data?.filterOptions, data?.records]);
+
+    // If entries have yielded any values, return them strictly
+    const hasAnyRecordValues =
+      optionsFromEntries.companies.length > 0 ||
+      optionsFromEntries.salesmen.length > 0 ||
+      optionsFromEntries.preparedBy.length > 0;
+
+    if (hasAnyRecordValues) {
+      return optionsFromEntries;
+    }
+
+    // Otherwise (initial loading before rows arrive), sanitize backend options
+    const backendOptions = data?.filterOptions;
+    const sanitizeList = (list: string[] | undefined): string[] => {
+      if (!list || !Array.isArray(list)) return [];
+      return list
+        .filter(
+          (x): x is string =>
+            typeof x === "string" &&
+            x.trim().length > 0 &&
+            x !== "(Unassigned)" &&
+            x !== "—" &&
+            x !== "-" &&
+            x.toLowerCase() !== "null" &&
+            x.toLowerCase() !== "undefined",
+        )
+        .map((x) => x.trim())
+        .sort((a, b) => a.localeCompare(b));
+    };
+
+    return {
+      companies: sanitizeList(backendOptions?.companies),
+      salesmen: sanitizeList(backendOptions?.salesmen),
+      preparedBy: sanitizeList(backendOptions?.preparedBy),
+      statuses: sanitizeList(backendOptions?.statuses),
+      piStatuses: sanitizeList(backendOptions?.piStatuses),
+      typesOfWork: sanitizeList(backendOptions?.typesOfWork),
+      zohoStatuses: sanitizeList(backendOptions?.zohoStatuses),
+    };
+  }, [accumulatedOptions, data?.filterOptions, data?.records]);
 
   if (authChecking) {
     return (
