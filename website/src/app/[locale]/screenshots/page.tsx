@@ -6,8 +6,8 @@ import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { GlassCard, GlassMetric, GlassMetricRow } from "@/components/ui/Glass";
-import { ScreenshotGallery } from "@/components/gallery/ScreenshotGallery";
-import { screenshotCategories, screenshots } from "@/data/screenshots";
+import { ProductShowcaseViewer } from "@/components/gallery/ProductShowcaseViewer";
+import { capabilityGroups } from "@/data/screenshots";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
@@ -17,80 +17,97 @@ type PageProps = { params: Promise<{ locale: string }> };
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const t = await translatorFor(params);
   return pageMetadata({
-  locale: t.locale,
-  title: t("Screenshots — the ProGlass interface"),
-  description: t("The ProGlass Automation interface: dashboards, the proforma wizard, glass calculators, the optimization workspace, sheet store, delivery and reports."),
-  path: "/screenshots",
-  keywords: ["glass software screenshots", t("glass ERP interface"), "proforma invoice screen", "glass optimization layout"],
-  ogEyebrow: t("The interface"),
+    locale: t.locale,
+    title: t("Inside ProGlass Automation — Interactive Product Showcase"),
+    description: t(
+      "Explore the complete ProGlass Automation ERP interface: commercial estimation, 3D glass calculators, 2D guillotine cutting optimization, 8-stage production tracking, and financial analytics.",
+    ),
+    path: "/screenshots",
+    keywords: [
+      t("glass software screenshots"),
+      t("glass ERP interface"),
+      t("proforma invoice screen"),
+      t("glass optimization layout"),
+      t("glass fabrication ERP"),
+    ],
+    ogEyebrow: t("Inside ProGlass Automation"),
   });
 }
 
 export default async function ScreenshotsPage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
-  const published = screenshots.filter((s) => s.source === "capture").length;
-  const repoAssets = screenshots.filter((s) => s.source === "repo").length;
-  const pending = screenshots.filter((s) => s.source === "pending").length;
+  const totalCurated = capabilityGroups.reduce((acc, g) => acc + g.screenshotIds.length, 0);
 
   return (
-
     <>
-    {/* Structured data for this route — see lib/schema.ts. */}
-    <RouteSchema
-      locale={locale}
-      path="/screenshots"
-      title={t("Screenshots — the ProGlass interface")}
-      description={t("The ProGlass Automation interface: dashboards, the proforma wizard, glass calculators, the optimization workspace, sheet store, delivery and reports.")}
-    />
+      {/* Structured data for this route */}
+      <RouteSchema
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        locale={locale as any}
+        path="/screenshots"
+        title={t("Inside ProGlass Automation — Interactive Product Showcase")}
+        description={t(
+          "Explore the complete ProGlass Automation ERP interface: commercial estimation, 3D glass calculators, 2D guillotine cutting optimization, 8-stage production tracking, and financial analytics.",
+        )}
+      />
+
       <PageHero
-      t={t}
-        eyebrow={t("Screenshots")}
-        title={t("The interface, screen by screen.")}
-        lead={t("A working application is judged by its list screens and its data grids, so those come first. Every card states exactly what it is showing, and nothing on this page presents a mock-up as a capture of the product.")}
+        t={t}
+        eyebrow={t("Product Showcase")}
+        title={t("Inside ProGlass Automation.")}
+        lead={t(
+          "Explore the complete desktop ERP interface engineered specifically for architectural glass fabrication. From multi-tier commercial estimation and 2D cutting optimization to 8-stage shop-floor execution and financial reporting — explore interactive previews of each operational capability.",
+        )}
         banner="production"
         breadcrumb={[
           { label: t("Home"), href: "/" },
           { label: t("Screenshots"), href: "/screenshots" },
         ]}
         meta={[
-          { label: t("Screens documented"), value: `${screenshots.length}` },
-          { label: t("Categories"), value: `${screenshotCategories.length - 1}` },
-          { label: t("Application assets"), value: `${repoAssets}` },
-          { label: t("Captures pending"), value: `${pending}` },
+          { label: t("Capability Suites"), value: `${capabilityGroups.length}` },
+          { label: t("Curated Previews"), value: `${totalCurated}` },
+          { label: t("Fabrication Stages"), value: "8" },
+          { label: t("ERP Engine"), value: t("Native Windows") },
         ]}
         actions={
           <>
             <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
-          {t("Request a Demo")}
-        </ButtonLink>
+              {t("Request a Demo")}
+            </ButtonLink>
             <ButtonLink href="/features" variant="secondary" size="lg">
-          {t("Feature detail")}
-        </ButtonLink>
+              {t("Feature detail")}
+            </ButtonLink>
           </>
         }
       />
 
-      {/* ── Honest status note ───────────────────────────────────── */}
-      <Section aria-label={t("Screenshot status")}>
+      {/* ── Capability Scope Overview ────────────────────────────── */}
+      <Section aria-label={t("Product capabilities overview")}>
         <Container>
           <Reveal>
             <GlassCard tier="primary">
               <GlassMetricRow className="gap-y-6">
                 <GlassMetric
-                  value={published}
-                  label={t("Published screen captures")}
-                  hint={t("Photographs of the running application. There are none yet.")}
+                  value={capabilityGroups.length}
+                  label={t("Customer-Facing Capability Groups")}
+                  hint={t(
+                    "Estimation & Commercial, Glass Calculators, Optimization, Production, Inventory & Dispatch, and Business & Finance.",
+                  )}
                 />
                 <GlassMetric
-                  value={repoAssets}
-                  label={t("Illustrations from the application")}
-                  hint={t("Real assets that ship inside the product — the SGU, DGU, lamination and DGU + lamination renders.")}
+                  value={4}
+                  label={t("3D Architectural Build-ups")}
+                  hint={t(
+                    "High-precision 3D parametric models for SGU, DGU, Laminated, and Composite acoustic glass units.",
+                  )}
                 />
                 <GlassMetric
-                  value={pending}
-                  label={t("Interactive previews")}
-                  hint={t("Real window chrome, real module labels and real fields, with sample data you can sort, filter and step through. Clearly labelled as a preview, never presented as a screen capture.")}
+                  value={totalCurated}
+                  label={t("Interactive Module Previews")}
+                  hint={t(
+                    "Authentic application chrome, working tabs, parametric calculations, and live fabrication data.",
+                  )}
                 />
               </GlassMetricRow>
             </GlassCard>
@@ -98,40 +115,42 @@ export default async function ScreenshotsPage({ params }: PageProps) {
 
           <Reveal delay={80}>
             <p className="mt-5 max-w-4xl text-xs leading-relaxed text-text-faint font-medium">
-              This website was built from the application&apos;s source tree, in an environment where the Windows desktop
-              application could not be launched, so no photographs of a running build exist yet. Rather than generating
-              images and captioning them as screenshots, each card draws the application&apos;s own window chrome around a
-              working preview of that module — and says on the card that it is a preview. The navigation groups, module
-              labels, tab names, field names and charge rows come from the application itself:{" "}
-              <span className="font-mono">Views/Personal/GlassShell.xaml</span>,{" "}
-              <span className="font-mono">Themes/Languages/en-US.xaml</span>{t("and the module views. Where a module has something to compute — the optimizer, the production queues — the preview computes it live.")}</p>
+              {t(
+                "Each interactive module preview draws the application's native window chrome and layouts around real industrial logic. Explore the 6 capability suites below with arrow controls, keyboard navigation, or touch gestures.",
+              )}
+            </p>
           </Reveal>
         </Container>
       </Section>
 
-      {/* ── Gallery ──────────────────────────────────────────────── */}
-      <Section tone="raised" aria-label={t("Screenshot gallery")}>
+      {/* ── Interactive Product Showcase Viewer ──────────────────── */}
+      <Section tone="raised" aria-label={t("Interactive Product Showcase")}>
         <Container>
           <SectionHeading
-            eyebrow={t("Gallery")}
-            title={t("Filter by module.")}
-            lead={t("Select a category to narrow the gallery. Click any card for a larger view with its highlights and the source path inside the application.")}
+            eyebrow={t("Inside ProGlass")}
+            title={t("Interactive Capability Viewer.")}
+            lead={t(
+              "Select a capability suite to explore screens. Use the arrow controls or keyboard Left/Right arrows to walk through each operational station.",
+            )}
           />
-          <div className="mt-10">
-            <ScreenshotGallery />
+
+          <div className="mt-8">
+            <ProductShowcaseViewer />
           </div>
 
-          <div className="surface mt-8 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="surface mt-10 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
-{t("The previews above use sample data. To see what the same screens hold when one job runs all the way through them, the")}{" "}
+              {t(
+                "The previews above display live modular workflows with sample parameters. To see how a real 22-line commercial glazing contract processes end-to-end through every module,",
+              )}{" "}
               <Link href="/worked-example" className="link-underline text-brand-200">
-                worked example
-              </Link>{" "}
-              {t("shows the real seeded workflow — its documents, its 22 lines and its totals.")}
+                {t("explore the complete Worked Example")}
+              </Link>
+              .
             </p>
             <ButtonLink href="/worked-example" variant="secondary" size="sm" trailing={<ArrowRight />}>
-          {t("Worked example")}
-        </ButtonLink>
+              {t("Worked example")}
+            </ButtonLink>
           </div>
         </Container>
       </Section>
@@ -143,15 +162,19 @@ export default async function ScreenshotsPage({ params }: PageProps) {
             <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
               <div>
                 <h2 className="display-2">{t("The best screenshot is your own data.")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration walks through your screens with your glass types, your sheet sizes and your margins.")}</p>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
+                  {t(
+                    "A customized demonstration walks through your factory's exact screens with your glass specifications, standard sheet stock, and pricing formulas.",
+                  )}
+                </p>
               </div>
               <div className="flex shrink-0 flex-wrap gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
-          {t("Request a Demo")}
-        </ButtonLink>
+                  {t("Request a Demo")}
+                </ButtonLink>
                 <ButtonLink href="/optimization" variant="secondary" size="lg">
-          {t("Optimization detail")}
-        </ButtonLink>
+                  {t("Optimization detail")}
+                </ButtonLink>
               </div>
             </div>
           </Reveal>

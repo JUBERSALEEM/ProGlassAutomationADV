@@ -161,7 +161,12 @@ export const optimizerLimits = { kerf: 4, marginLeft: 15, marginRight: 15, margi
  * Sample data
  * ──────────────────────────────────────────────────────────────────────────── */
 
-const sampleParties = ["Northgate Contracting", "Harbour View Tower", "Cedar Interiors", "Metro Facades"];
+const sampleParties = [
+  "Commercial Facades Ltd",
+  "Glazing Contractor A",
+  "Architectural Glass LLC",
+  "Fenestration Project B",
+];
 
 const sampleJobs: DemoRow[] = [
   { job: "JO-24101", party: sampleParties[0]!, glass: "DGU 6-12-6", qty: "24", cut: "18", balance: "6", status: "In production" },

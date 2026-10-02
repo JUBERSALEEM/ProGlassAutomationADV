@@ -248,21 +248,28 @@ export function RecordsDashboard() {
       }
     }
 
-    if (!isAuthRequired) {
-      load();
+    if (authChecking || (isAuthRequired && !authToken)) {
+      return;
     }
+
+    load();
 
     return () => {
       isCancelled = true;
       controller.abort();
     };
-  }, [page, pageSize, sort, filters, refreshCounter, authToken, isAuthRequired]);
+  }, [page, pageSize, sort, filters, refreshCounter, authToken, isAuthRequired, authChecking]);
 
   // Handlers
   const handleSignOut = useCallback(async () => {
     try {
       if (isSupabaseConfigured()) {
         await supabaseBrowser().auth.signOut();
+      }
+      try {
+        await fetch("/api/auth/signout", { method: "POST" });
+      } catch {
+        // ignore
       }
     } finally {
       setUserEmail(null);

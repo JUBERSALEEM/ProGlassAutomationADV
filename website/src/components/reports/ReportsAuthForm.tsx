@@ -19,6 +19,7 @@ export function ReportsAuthForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -30,31 +31,104 @@ export function ReportsAuthForm() {
     setError(null);
     setNotice(null);
 
-    if (!configured) {
-      setError(
-        "Supabase credentials (NEXT_PUBLIC_SUPABASE_URL) are not configured in this environment.",
-      );
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+      setError(t("Please enter your email address."));
       return;
     }
 
-    if (mode === "register" && password !== confirmPassword) {
-      setError("Passwords do not match.");
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(cleanEmail)) {
+      setError(t("Please enter a valid email address."));
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+      setError(t("Password must be at least 6 characters."));
+      return;
+    }
+
+    if (mode === "register" && password !== confirmPassword) {
+      setError(t("Passwords do not match."));
       return;
     }
 
     setLoading(true);
 
     try {
-      const supabase = supabaseBrowser();
+      // 1. First attempt authenticated request via server-side route
+      // This protects against browser CORS failures, ad-blockers, and network fetch rejections
+      const endpoint = mode === "signin" ? "/api/auth/signin" : "/api/auth/signup";
+      let res: Response | null = null;
+      let serverJson: {
+        ok: boolean;
+        session?: { access_token: string; refresh_token: string };
+        user?: { id: string; email?: string };
+        error?: { message?: string; code?: string };
+      } | null = null;
 
+      try {
+        res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: cleanEmail, password }),
+        });
+        serverJson = await res.json();
+      } catch (fetchErr) {
+        console.warn("[ReportsAuthForm] Server endpoint fetch issue, attempting direct browser client:", fetchErr);
+      }
+
+      // 2. If server route gave a decisive response, handle it
+      if (serverJson) {
+        if (!serverJson.ok) {
+          throw new Error(serverJson.error?.message || t("Authentication failed. Please check your credentials."));
+        }
+
+        // Successfully authenticated via server route
+        if (serverJson.session) {
+          try {
+            if (configured) {
+              const supabase = supabaseBrowser();
+              await supabase.auth.setSession({
+                access_token: serverJson.session.access_token,
+                refresh_token: serverJson.session.refresh_token,
+              });
+            }
+          } catch (syncErr) {
+            console.warn("[ReportsAuthForm] Client session sync warning:", syncErr);
+          }
+
+          setNotice(
+            mode === "signin"
+              ? t("Authenticated successfully. Redirecting to reports...")
+              : t("Operator account created and authenticated. Redirecting..."),
+          );
+          router.push(redirectTo);
+          router.refresh();
+          return;
+        }
+
+        // Sign up succeeded but email confirmation is enabled on Supabase
+        setNotice(
+          t(
+            "Account registration submitted. If email confirmation is enabled on your Supabase project, please check your email inbox before logging in.",
+          ),
+        );
+        setMode("signin");
+        return;
+      }
+
+      // 3. Fallback to direct client-side Supabase Auth if API route is unreachable
+      if (!configured) {
+        throw new Error(
+          t("Supabase credentials are not configured in this environment. In production, configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."),
+        );
+      }
+
+      const supabase = supabaseBrowser();
       if (mode === "signin") {
         const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
+          email: cleanEmail,
           password,
         });
 
@@ -62,12 +136,12 @@ export function ReportsAuthForm() {
           throw signInError;
         }
 
-        setNotice("Authenticated successfully. Redirecting to reports...");
+        setNotice(t("Authenticated successfully. Redirecting to reports..."));
         router.push(redirectTo);
         router.refresh();
       } else {
-        const { data, error: signUpError } = await supabase.auth.signUp({
-          email: email.trim(),
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: cleanEmail,
           password,
         });
 
@@ -75,20 +149,31 @@ export function ReportsAuthForm() {
           throw signUpError;
         }
 
-        if (data.session) {
-          setNotice("Account created and authenticated. Redirecting...");
+        if (signUpData.session) {
+          setNotice(t("Account created and authenticated. Redirecting..."));
           router.push(redirectTo);
           router.refresh();
         } else {
           setNotice(
-            "Account registration submitted. If email confirmation is enabled on your Supabase project, please check your email inbox before logging in.",
+            t(
+              "Account registration submitted. If email confirmation is enabled on your Supabase project, please check your email inbox before logging in.",
+            ),
           );
           setMode("signin");
         }
       }
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Authentication request failed. Please check your credentials.";
+      console.error("[ReportsAuthForm] Authentication exception:", err);
+      let message = t("Authentication request failed. Please check your credentials.");
+      if (err instanceof Error) {
+        if (/fetch failed|failed to fetch|networkerror/i.test(err.message)) {
+          message = t(
+            "Network connection failed. Please verify your internet connection or check that the server is reachable.",
+          );
+        } else {
+          message = err.message;
+        }
+      }
       setError(message);
     } finally {
       setLoading(false);
@@ -201,15 +286,24 @@ export function ReportsAuthForm() {
           </div>
 
           <div>
-            <label
-              htmlFor="reports-password"
-              className="block text-2xs font-mono uppercase tracking-wider text-text-secondary font-medium mb-1.5"
-            >
-              {t("Password")}
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label
+                htmlFor="reports-password"
+                className="block text-2xs font-mono uppercase tracking-wider text-text-secondary font-medium"
+              >
+                {t("Password")}
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-2xs font-mono text-text-faint hover:text-text-secondary transition-colors"
+              >
+                {showPassword ? t("Hide") : t("Show")}
+              </button>
+            </div>
             <input
               id="reports-password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
               minLength={6}
               autoComplete={mode === "signin" ? "current-password" : "new-password"}
@@ -230,7 +324,7 @@ export function ReportsAuthForm() {
               </label>
               <input
                 id="reports-confirm-password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 minLength={6}
                 autoComplete="new-password"

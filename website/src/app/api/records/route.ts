@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
       zohoStatus: searchParams.get("zohoStatus") || "",
     };
 
-    // Extract Bearer token from authorization header or cookie
+    // Extract Bearer token from authorization header
     const authHeader = request.headers.get("authorization");
     const authToken = authHeader ? authHeader.replace(/^Bearer\s+/i, "").trim() : null;
 
@@ -101,17 +101,28 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("[records-api-route] Unhandled error:", error);
     const message = error instanceof Error ? error.message : "Internal error occurred";
+    const isAuthError =
+      /jwt|token|expired|unauthorized|permission denied|42501|PGRST301/i.test(message);
 
     return NextResponse.json(
       {
         ok: false,
         error: {
-          message: "Unable to load records. Please try again or adjust your filters.",
+          message: isAuthError
+            ? "Your operator session has expired or is unauthorized. Please sign in again."
+            : "Unable to load records. Please try again or adjust your filters.",
+          code: isAuthError ? "UNAUTHORIZED" : "INTERNAL_ERROR",
           details: message,
         },
       },
       {
-        status: 500,
+        status: isAuthError ? 401 : 500,
+        headers: isAuthError
+          ? {
+              "WWW-Authenticate": "Bearer error=\"invalid_token\"",
+              "Cache-Control": "no-store",
+            }
+          : undefined,
       },
     );
   }
