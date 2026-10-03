@@ -684,31 +684,23 @@ ON public.records USING gin (customer_ref gin_trgm_ops);
 -- ---------------------------------------------------------------------
 -- 5. ROW LEVEL SECURITY (RLS) POLICIES FOR OPERATIONAL REPORTS
 -- ---------------------------------------------------------------------
--- Operational records must NOT be publicly readable anonymously.
--- Anonymous visitors cannot view operational business data.
--- Only authenticated registered users can SELECT active records.
--- Service role retains full management access for external sync.
+-- RLS policies are preserved as configured in your Supabase project.
+-- (Uncomment if setting up a fresh database from scratch)
 -- ---------------------------------------------------------------------
+-- ALTER TABLE public.records ENABLE ROW LEVEL SECURITY;
+-- DROP POLICY IF EXISTS "Allow anon read" ON public.records;
+-- DROP POLICY IF EXISTS "Allow authenticated read" ON public.records;
+-- CREATE POLICY "Allow authenticated read" ON public.records FOR SELECT TO authenticated USING (is_active IS NOT FALSE);
+-- DROP POLICY IF EXISTS "Allow service role all" ON public.records;
+-- CREATE POLICY "Allow service role all" ON public.records FOR ALL TO service_role USING (true) WITH CHECK (true);
 
--- Enable Row Level Security
-ALTER TABLE public.records ENABLE ROW LEVEL SECURITY;
 
--- 1. Remove anonymous read access (if previously granted)
-DROP POLICY IF EXISTS "Allow anon read" ON public.records;
+-- ---------------------------------------------------------------------
+-- 6. RELOAD POSTGREST SCHEMA CACHE
+-- ---------------------------------------------------------------------
+-- Immediately signals PostgREST to refresh its schema cache so newly
+-- registered RPC functions (get_records_dashboard_aggregates, etc.)
+-- are recognized instantly without error PGRST202.
+-- ---------------------------------------------------------------------
+NOTIFY pgrst, 'reload schema';
 
--- 2. Allow authenticated registered users to view active records
-DROP POLICY IF EXISTS "Allow authenticated read" ON public.records;
-CREATE POLICY "Allow authenticated read" 
-ON public.records 
-FOR SELECT 
-TO authenticated 
-USING (is_active IS NOT FALSE);
-
--- 3. Service role retained for Excel Sync / Windowfilehost backend
-DROP POLICY IF EXISTS "Allow service role all" ON public.records;
-CREATE POLICY "Allow service role all" 
-ON public.records 
-FOR ALL 
-TO service_role 
-USING (true) 
-WITH CHECK (true);

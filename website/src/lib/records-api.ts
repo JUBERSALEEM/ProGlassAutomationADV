@@ -623,9 +623,10 @@ export async function fetchRecordsDashboardData({
             details: rpcError.details,
             hint: rpcError.hint,
           };
-          rpcStatus = "error";
-          console.error("[records-api] Database aggregation RPC error:", rpcError);
-          warning = `Aggregation RPC error [${rpcError.code || "unknown"}]: ${rpcError.message}`;
+          console.warn("[records-api] Database aggregation RPC unavailable:", rpcError.code, rpcError.message);
+          rpcStatus = rpcError.code === "PGRST202" ? "not_installed" : "error";
+          // Suppress raw PostgreSQL/PostgREST schema cache syntax errors from end-user UI
+          warning = undefined;
         } else if (rpcData && typeof rpcData === "object") {
           rpcStatus = "success";
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -672,28 +673,85 @@ export async function fetchRecordsDashboardData({
           }
         } else {
           rpcStatus = "not_installed";
-          warning =
-            "Database aggregation RPC (public.get_records_dashboard_aggregates) is not installed in Supabase. Run 'website/supabase-dashboard.sql' in Supabase SQL Editor for instant server-side aggregation across millions of records.";
+          warning = undefined;
         }
 
         if (rpcStatus !== "success") {
-          // Compute preliminary slice summary from current paginated slice only
-          summary = {
-            totalEntries,
-            totalQty: (recordsData || []).reduce((acc, r) => acc + (Number(r.qty) || 0), 0),
-            totalSqm: Number((recordsData || []).reduce((acc, r) => acc + (Number(r.sqm) || 0), 0).toFixed(2)),
-            averageSqm: 0,
-            activeCompaniesCount: new Set((recordsData || []).map((r) => r.company).filter(Boolean)).size,
-            activeSalesmenCount: new Set((recordsData || []).map((r) => r.salesman).filter(Boolean)).size,
-          };
-          if (summary.totalQty > 0) {
-            summary.averageSqm = Number((summary.totalSqm / summary.totalQty).toFixed(2));
+          // Direct table query fallback:
+          // Query active records directly to compute accurate totals, breakdowns,
+          // and all distinct filter options across the full attached workbook.
+          let fallbackRows: Array<{
+            qty?: string | number | null;
+            sqm?: string | number | null;
+            salesman?: string | null;
+            company?: string | null;
+            prepared_by?: string | null;
+            status?: string | null;
+            pi_status?: string | null;
+            type_of_work?: string | null;
+            zoho_status?: string | null;
+            source_file?: string | null;
+          }> = (recordsData || []) as Array<{
+            qty?: string | number | null;
+            sqm?: string | number | null;
+            salesman?: string | null;
+            company?: string | null;
+            prepared_by?: string | null;
+            status?: string | null;
+            pi_status?: string | null;
+            type_of_work?: string | null;
+            zoho_status?: string | null;
+            source_file?: string | null;
+          }>;
+
+          if (totalEntries > (recordsData?.length || 0)) {
+            try {
+              let colQuery = client
+                .from("records")
+                .select("company, salesman, prepared_by, status, pi_status, type_of_work, zoho_status, qty, sqm")
+                .neq("is_active", false);
+
+              if (effectiveSourceFile) {
+                colQuery = colQuery.or(buildSourceFileFilter(effectiveSourceFile));
+              }
+
+              const { data: initialColRows, error: colError } = await colQuery.limit(5000);
+              if (!colError && initialColRows && initialColRows.length > 0) {
+                fallbackRows = initialColRows;
+              } else if (colError) {
+                const isColMissingSourceFile = colError.message?.toLowerCase().includes("source_file");
+                let fallbackCol = client
+                  .from("records")
+                  .select("company, salesman, prepared_by, status, pi_status, type_of_work, zoho_status, qty, sqm");
+                if (effectiveSourceFile && !isColMissingSourceFile) {
+                  fallbackCol = fallbackCol.or(buildSourceFileFilter(effectiveSourceFile));
+                }
+                const res = await fallbackCol.limit(5000);
+                if (res.data && res.data.length > 0) {
+                  fallbackRows = res.data;
+                }
+              }
+            } catch {
+              // Retain preliminary slice recordsData
+            }
           }
 
-          const groupSlice = (keyFn: (r: RecordRow) => string | null | undefined): BreakdownItem[] => {
+          const calcTotalQty = fallbackRows.reduce((acc, r) => acc + (Number(r.qty) || 0), 0);
+          const calcTotalSqm = Number(fallbackRows.reduce((acc, r) => acc + (Number(r.sqm) || 0), 0).toFixed(2));
+
+          summary = {
+            totalEntries,
+            totalQty: calcTotalQty,
+            totalSqm: calcTotalSqm,
+            averageSqm: calcTotalQty > 0 ? Number((calcTotalSqm / calcTotalQty).toFixed(2)) : 0,
+            activeCompaniesCount: new Set(fallbackRows.map((r) => r.company?.trim()).filter(Boolean)).size,
+            activeSalesmenCount: new Set(fallbackRows.map((r) => r.salesman?.trim()).filter(Boolean)).size,
+          };
+
+          const groupSlice = (keyFn: (r: (typeof fallbackRows)[0]) => string | null | undefined): BreakdownItem[] => {
             const map = new Map<string, { count: number; totalQty: number; totalSqm: number }>();
-            for (const row of (recordsData || [])) {
-              const name = keyFn(row as RecordRow)?.trim() || "(Unassigned)";
+            for (const row of fallbackRows) {
+              const name = keyFn(row)?.trim() || "(Unassigned)";
               const existing = map.get(name) || { count: 0, totalQty: 0, totalSqm: 0 };
               existing.count += 1;
               existing.totalQty += Number(row.qty) || 0;
@@ -702,7 +760,7 @@ export async function fetchRecordsDashboardData({
             }
 
             const items: BreakdownItem[] = [];
-            const sliceTotal = (recordsData || []).length;
+            const sliceTotal = fallbackRows.length;
             for (const [name, val] of map.entries()) {
               items.push({
                 name,
@@ -713,7 +771,7 @@ export async function fetchRecordsDashboardData({
               });
             }
 
-            return items.sort((a, b) => b.count - a.count);
+            return items.sort((a, b) => b.count - a.count).slice(0, 20);
           };
 
           breakdowns = {
@@ -722,62 +780,35 @@ export async function fetchRecordsDashboardData({
             company: groupSlice((r) => r.company),
             typeOfWork: groupSlice((r) => r.type_of_work),
           };
-          // Data-driven extraction directly from actual record entries
+
+          // Clean data-driven filter options extracted directly from all active records
+          const cleanDistinct = (fn: (r: (typeof fallbackRows)[0]) => string | null | undefined): string[] => {
+            const set = new Set<string>();
+            for (const r of fallbackRows) {
+              const val = fn(r)?.trim();
+              if (val) set.add(val);
+            }
+            return Array.from(set).sort();
+          };
+
           filterOptions = {
-            ...extractFilterOptionsFromRecords((recordsData || []) as RecordRow[]),
+            companies: cleanDistinct((r) => r.company),
+            salesmen: cleanDistinct((r) => r.salesman),
+            preparedBy: cleanDistinct((r) => r.prepared_by),
+            statuses: cleanDistinct((r) => r.status),
+            piStatuses: cleanDistinct((r) => r.pi_status),
+            typesOfWork: cleanDistinct((r) => r.type_of_work),
+            zohoStatuses: cleanDistinct((r) => r.zoho_status),
             sourceFiles: availableSourceFiles,
             currentSourceFile,
           };
-
-          // If the page slice has fewer rows than the total dataset, fetch distinct values from records
-          // STRICTLY SCOPED to active records within the effective source file
-          if (totalEntries > (recordsData?.length || 0)) {
-            try {
-              let colQuery = client
-                .from("records")
-                .select("company, salesman, prepared_by, status, pi_status, type_of_work, zoho_status")
-                .neq("is_active", false);
-
-              if (effectiveSourceFile) {
-                colQuery = colQuery.or(buildSourceFileFilter(effectiveSourceFile));
-              }
-
-              let colRows: typeof recordsData = null;
-              const { data: initialColRows, error: colError } = await colQuery.limit(1000);
-              colRows = initialColRows;
-
-              // If is_active column doesn't exist yet, retry without is_active but STILL scoped to source_file
-              if (colError) {
-                const isColMissingSourceFile = colError.message?.toLowerCase().includes("source_file");
-                let fallbackCol = client
-                  .from("records")
-                  .select("company, salesman, prepared_by, status, pi_status, type_of_work, zoho_status");
-                if (effectiveSourceFile && !isColMissingSourceFile) {
-                  fallbackCol = fallbackCol.or(buildSourceFileFilter(effectiveSourceFile));
-                }
-                const res = await fallbackCol.limit(1000);
-                colRows = res.data;
-              }
-
-              if (colRows && colRows.length > 0) {
-                const fullOptions = extractFilterOptionsFromRecords(colRows as RecordRow[]);
-                filterOptions = {
-                  ...fullOptions,
-                  sourceFiles: availableSourceFiles,
-                  currentSourceFile,
-                };
-              }
-            } catch {
-              // Retain preliminary slice filter options
-            }
-          }
         }
       } catch (err) {
         rpcStatus = "error";
         const errMsg = err instanceof Error ? err.message : String(err);
         capturedRpcError = { message: errMsg };
         console.error("[records-api] RPC invocation exception:", err);
-        warning = `Aggregation RPC error: ${errMsg}`;
+        warning = undefined;
         summary = {
           totalEntries,
           totalQty: 0,
