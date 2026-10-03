@@ -94,12 +94,20 @@ DECLARE
   v_type_of_work json;
   v_filter_options json;
   v_search text;
+  v_clean_source text;
 BEGIN
   -- Normalize substring search pattern
   IF p_search IS NOT NULL AND trim(p_search) <> '' THEN
     v_search := '%' || trim(p_search) || '%';
   ELSE
     v_search := NULL;
+  END IF;
+
+  -- Normalize attached workbook source pattern
+  IF p_source_file IS NOT NULL AND trim(p_source_file) <> '' AND p_source_file <> 'all' THEN
+    v_clean_source := regexp_replace(p_source_file, '^.*[\\/]', '');
+  ELSE
+    v_clean_source := NULL;
   END IF;
 
   -- 1. Summary aggregates across the complete filtered active dataset
@@ -112,7 +120,7 @@ BEGIN
     FROM public.records
     WHERE
       (is_active IS NOT FALSE)
-      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file)
+      AND (v_clean_source IS NULL OR source_file = p_source_file OR source_file ILIKE '%' || v_clean_source || '%' OR v_clean_source ILIKE '%' || source_file || '%')
       AND (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
       AND (p_date_to IS NULL OR p_date_to = '' OR date <= p_date_to)
       AND (p_company IS NULL OR p_company = '' OR company = p_company)
@@ -162,7 +170,7 @@ BEGIN
     FROM public.records
     WHERE
       (is_active IS NOT FALSE)
-      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file)
+      AND (v_clean_source IS NULL OR source_file = p_source_file OR source_file ILIKE '%' || v_clean_source || '%' OR v_clean_source ILIKE '%' || source_file || '%')
       AND (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
       AND (p_date_to IS NULL OR p_date_to = '' OR date <= p_date_to)
       AND (p_company IS NULL OR p_company = '' OR company = p_company)
@@ -213,7 +221,7 @@ BEGIN
     FROM public.records
     WHERE
       (is_active IS NOT FALSE)
-      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file)
+      AND (v_clean_source IS NULL OR source_file = p_source_file OR source_file ILIKE '%' || v_clean_source || '%' OR v_clean_source ILIKE '%' || source_file || '%')
       AND (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
       AND (p_date_to IS NULL OR p_date_to = '' OR date <= p_date_to)
       AND (p_company IS NULL OR p_company = '' OR company = p_company)
@@ -264,7 +272,7 @@ BEGIN
     FROM public.records
     WHERE
       (is_active IS NOT FALSE)
-      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file)
+      AND (v_clean_source IS NULL OR source_file = p_source_file OR source_file ILIKE '%' || v_clean_source || '%' OR v_clean_source ILIKE '%' || source_file || '%')
       AND (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
       AND (p_date_to IS NULL OR p_date_to = '' OR date <= p_date_to)
       AND (p_company IS NULL OR p_company = '' OR company = p_company)
@@ -315,7 +323,7 @@ BEGIN
     FROM public.records
     WHERE
       (is_active IS NOT FALSE)
-      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file)
+      AND (v_clean_source IS NULL OR source_file = p_source_file OR source_file ILIKE '%' || v_clean_source || '%' OR v_clean_source ILIKE '%' || source_file || '%')
       AND (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
       AND (p_date_to IS NULL OR p_date_to = '' OR date <= p_date_to)
       AND (p_company IS NULL OR p_company = '' OR company = p_company)
@@ -359,15 +367,15 @@ BEGIN
 
   -- 6. Distinct filter options directly from PostgreSQL (Active records scoped to source)
   SELECT json_build_object(
-    'companies', (SELECT COALESCE(json_agg(company), '[]'::json) FROM (SELECT DISTINCT company FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND company IS NOT NULL AND trim(company) <> '' ORDER BY company) c),
-    'salesmen', (SELECT COALESCE(json_agg(salesman), '[]'::json) FROM (SELECT DISTINCT salesman FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND salesman IS NOT NULL AND trim(salesman) <> '' ORDER BY salesman) s),
-    'preparedBy', (SELECT COALESCE(json_agg(prepared_by), '[]'::json) FROM (SELECT DISTINCT prepared_by FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND prepared_by IS NOT NULL AND trim(prepared_by) <> '' ORDER BY prepared_by) p),
-    'statuses', (SELECT COALESCE(json_agg(status), '[]'::json) FROM (SELECT DISTINCT status FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND status IS NOT NULL AND trim(status) <> '' ORDER BY status) st),
-    'piStatuses', (SELECT COALESCE(json_agg(pi_status), '[]'::json) FROM (SELECT DISTINCT pi_status FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND pi_status IS NOT NULL AND trim(pi_status) <> '' ORDER BY pi_status) pis),
-    'typesOfWork', (SELECT COALESCE(json_agg(type_of_work), '[]'::json) FROM (SELECT DISTINCT type_of_work FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND type_of_work IS NOT NULL AND trim(type_of_work) <> '' ORDER BY type_of_work) tw),
-    'zohoStatuses', (SELECT COALESCE(json_agg(zoho_status), '[]'::json) FROM (SELECT DISTINCT zoho_status FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND zoho_status IS NOT NULL AND trim(zoho_status) <> '' ORDER BY zoho_status) z),
+    'companies', (SELECT COALESCE(json_agg(company), '[]'::json) FROM (SELECT DISTINCT company FROM public.records WHERE is_active IS NOT FALSE AND (v_clean_source IS NULL OR source_file = p_source_file OR source_file ILIKE '%' || v_clean_source || '%' OR v_clean_source ILIKE '%' || source_file || '%') AND company IS NOT NULL AND trim(company) <> '' ORDER BY company) c),
+    'salesmen', (SELECT COALESCE(json_agg(salesman), '[]'::json) FROM (SELECT DISTINCT salesman FROM public.records WHERE is_active IS NOT FALSE AND (v_clean_source IS NULL OR source_file = p_source_file OR source_file ILIKE '%' || v_clean_source || '%' OR v_clean_source ILIKE '%' || source_file || '%') AND salesman IS NOT NULL AND trim(salesman) <> '' ORDER BY salesman) s),
+    'preparedBy', (SELECT COALESCE(json_agg(prepared_by), '[]'::json) FROM (SELECT DISTINCT prepared_by FROM public.records WHERE is_active IS NOT FALSE AND (v_clean_source IS NULL OR source_file = p_source_file OR source_file ILIKE '%' || v_clean_source || '%' OR v_clean_source ILIKE '%' || source_file || '%') AND prepared_by IS NOT NULL AND trim(prepared_by) <> '' ORDER BY prepared_by) p),
+    'statuses', (SELECT COALESCE(json_agg(status), '[]'::json) FROM (SELECT DISTINCT status FROM public.records WHERE is_active IS NOT FALSE AND (v_clean_source IS NULL OR source_file = p_source_file OR source_file ILIKE '%' || v_clean_source || '%' OR v_clean_source ILIKE '%' || source_file || '%') AND status IS NOT NULL AND trim(status) <> '' ORDER BY status) st),
+    'piStatuses', (SELECT COALESCE(json_agg(pi_status), '[]'::json) FROM (SELECT DISTINCT pi_status FROM public.records WHERE is_active IS NOT FALSE AND (v_clean_source IS NULL OR source_file = p_source_file OR source_file ILIKE '%' || v_clean_source || '%' OR v_clean_source ILIKE '%' || source_file || '%') AND pi_status IS NOT NULL AND trim(pi_status) <> '' ORDER BY pi_status) pis),
+    'typesOfWork', (SELECT COALESCE(json_agg(type_of_work), '[]'::json) FROM (SELECT DISTINCT type_of_work FROM public.records WHERE is_active IS NOT FALSE AND (v_clean_source IS NULL OR source_file = p_source_file OR source_file ILIKE '%' || v_clean_source || '%' OR v_clean_source ILIKE '%' || source_file || '%') AND type_of_work IS NOT NULL AND trim(type_of_work) <> '' ORDER BY type_of_work) tw),
+    'zohoStatuses', (SELECT COALESCE(json_agg(zoho_status), '[]'::json) FROM (SELECT DISTINCT zoho_status FROM public.records WHERE is_active IS NOT FALSE AND (v_clean_source IS NULL OR source_file = p_source_file OR source_file ILIKE '%' || v_clean_source || '%' OR v_clean_source ILIKE '%' || source_file || '%') AND zoho_status IS NOT NULL AND trim(zoho_status) <> '' ORDER BY zoho_status) z),
     'sourceFiles', (SELECT COALESCE(json_agg(sf), '[]'::json) FROM (SELECT DISTINCT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY source_file) sf),
-    'currentSourceFile', (SELECT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY id DESC, COALESCE(updated_at, created_at, NOW()) DESC, date DESC LIMIT 1)
+    'currentSourceFile', (SELECT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY COALESCE(updated_at, created_at) DESC NULLS LAST, date DESC NULLS LAST LIMIT 1)
   ) INTO v_filter_options;
 
   RETURN json_build_object(
@@ -478,7 +486,7 @@ GRANT EXECUTE ON FUNCTION public.reconcile_records_active_state TO anon, authent
 -- 3. CURRENT EXCEL SOURCE RESOLUTION & WORKBOOK ACTIVATION RPCs
 -- ---------------------------------------------------------------------
 
--- Resolves the current active source file name (latest inserted ID, newest timestamps, or latest transaction date)
+-- Resolves the current active source file name (newest timestamps, or latest transaction date)
 CREATE OR REPLACE FUNCTION public.get_current_excel_source()
 RETURNS text
 LANGUAGE sql
@@ -491,9 +499,8 @@ AS $$
     AND source_file IS NOT NULL
     AND trim(source_file) <> ''
   ORDER BY 
-    id DESC,
-    COALESCE(updated_at, created_at, NOW()) DESC,
-    date DESC
+    COALESCE(updated_at, created_at) DESC NULLS LAST,
+    date DESC NULLS LAST
   LIMIT 1;
 $$;
 
@@ -592,16 +599,15 @@ DECLARE
   v_latest_file text;
   v_result json;
 BEGIN
-  -- First inspect active records
+  -- First inspect active records by newest timestamp or transaction date
   SELECT source_file INTO v_latest_file
   FROM public.records
   WHERE is_active IS NOT FALSE
     AND source_file IS NOT NULL 
     AND trim(source_file) <> ''
   ORDER BY 
-    id DESC,
-    COALESCE(updated_at, created_at, NOW()) DESC,
-    date DESC
+    COALESCE(updated_at, created_at) DESC NULLS LAST,
+    date DESC NULLS LAST
   LIMIT 1;
 
   -- If not found, inspect all records regardless of is_active
@@ -610,9 +616,8 @@ BEGIN
     FROM public.records
     WHERE source_file IS NOT NULL AND trim(source_file) <> ''
     ORDER BY 
-      id DESC,
-      COALESCE(updated_at, created_at, NOW()) DESC,
-      date DESC
+      COALESCE(updated_at, created_at) DESC NULLS LAST,
+      date DESC NULLS LAST
     LIMIT 1;
   END IF;
 
