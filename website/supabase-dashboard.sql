@@ -29,6 +29,18 @@
 ALTER TABLE public.records 
 ADD COLUMN IF NOT EXISTS is_active boolean NOT NULL DEFAULT true;
 
+ALTER TABLE public.records 
+ADD COLUMN IF NOT EXISTS source_file text;
+
+ALTER TABLE public.records 
+ADD COLUMN IF NOT EXISTS source_worksheet text;
+
+ALTER TABLE public.records 
+ADD COLUMN IF NOT EXISTS created_at timestamptz DEFAULT NOW();
+
+ALTER TABLE public.records 
+ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT NOW();
+
 -- High-speed index for active records filtering
 CREATE INDEX IF NOT EXISTS idx_records_is_active 
 ON public.records(is_active);
@@ -100,7 +112,7 @@ BEGIN
     FROM public.records
     WHERE
       (is_active IS NOT FALSE)
-      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file)
+      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file)
       AND (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
       AND (p_date_to IS NULL OR p_date_to = '' OR date <= p_date_to)
       AND (p_company IS NULL OR p_company = '' OR company = p_company)
@@ -150,7 +162,7 @@ BEGIN
     FROM public.records
     WHERE
       (is_active IS NOT FALSE)
-      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file)
+      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file)
       AND (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
       AND (p_date_to IS NULL OR p_date_to = '' OR date <= p_date_to)
       AND (p_company IS NULL OR p_company = '' OR company = p_company)
@@ -201,7 +213,7 @@ BEGIN
     FROM public.records
     WHERE
       (is_active IS NOT FALSE)
-      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file)
+      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file)
       AND (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
       AND (p_date_to IS NULL OR p_date_to = '' OR date <= p_date_to)
       AND (p_company IS NULL OR p_company = '' OR company = p_company)
@@ -252,7 +264,7 @@ BEGIN
     FROM public.records
     WHERE
       (is_active IS NOT FALSE)
-      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file)
+      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file)
       AND (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
       AND (p_date_to IS NULL OR p_date_to = '' OR date <= p_date_to)
       AND (p_company IS NULL OR p_company = '' OR company = p_company)
@@ -303,7 +315,7 @@ BEGIN
     FROM public.records
     WHERE
       (is_active IS NOT FALSE)
-      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file)
+      AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file)
       AND (p_date_from IS NULL OR p_date_from = '' OR date >= p_date_from)
       AND (p_date_to IS NULL OR p_date_to = '' OR date <= p_date_to)
       AND (p_company IS NULL OR p_company = '' OR company = p_company)
@@ -347,13 +359,13 @@ BEGIN
 
   -- 6. Distinct filter options directly from PostgreSQL (Active records scoped to source)
   SELECT json_build_object(
-    'companies', (SELECT COALESCE(json_agg(company), '[]'::json) FROM (SELECT DISTINCT company FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND company IS NOT NULL AND trim(company) <> '' ORDER BY company) c),
-    'salesmen', (SELECT COALESCE(json_agg(salesman), '[]'::json) FROM (SELECT DISTINCT salesman FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND salesman IS NOT NULL AND trim(salesman) <> '' ORDER BY salesman) s),
-    'preparedBy', (SELECT COALESCE(json_agg(prepared_by), '[]'::json) FROM (SELECT DISTINCT prepared_by FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND prepared_by IS NOT NULL AND trim(prepared_by) <> '' ORDER BY prepared_by) p),
-    'statuses', (SELECT COALESCE(json_agg(status), '[]'::json) FROM (SELECT DISTINCT status FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND status IS NOT NULL AND trim(status) <> '' ORDER BY status) st),
-    'piStatuses', (SELECT COALESCE(json_agg(pi_status), '[]'::json) FROM (SELECT DISTINCT pi_status FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND pi_status IS NOT NULL AND trim(pi_status) <> '' ORDER BY pi_status) pis),
-    'typesOfWork', (SELECT COALESCE(json_agg(type_of_work), '[]'::json) FROM (SELECT DISTINCT type_of_work FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND type_of_work IS NOT NULL AND trim(type_of_work) <> '' ORDER BY type_of_work) tw),
-    'zohoStatuses', (SELECT COALESCE(json_agg(zoho_status), '[]'::json) FROM (SELECT DISTINCT zoho_status FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND zoho_status IS NOT NULL AND trim(zoho_status) <> '' ORDER BY zoho_status) z),
+    'companies', (SELECT COALESCE(json_agg(company), '[]'::json) FROM (SELECT DISTINCT company FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND company IS NOT NULL AND trim(company) <> '' ORDER BY company) c),
+    'salesmen', (SELECT COALESCE(json_agg(salesman), '[]'::json) FROM (SELECT DISTINCT salesman FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND salesman IS NOT NULL AND trim(salesman) <> '' ORDER BY salesman) s),
+    'preparedBy', (SELECT COALESCE(json_agg(prepared_by), '[]'::json) FROM (SELECT DISTINCT prepared_by FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND prepared_by IS NOT NULL AND trim(prepared_by) <> '' ORDER BY prepared_by) p),
+    'statuses', (SELECT COALESCE(json_agg(status), '[]'::json) FROM (SELECT DISTINCT status FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND status IS NOT NULL AND trim(status) <> '' ORDER BY status) st),
+    'piStatuses', (SELECT COALESCE(json_agg(pi_status), '[]'::json) FROM (SELECT DISTINCT pi_status FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND pi_status IS NOT NULL AND trim(pi_status) <> '' ORDER BY pi_status) pis),
+    'typesOfWork', (SELECT COALESCE(json_agg(type_of_work), '[]'::json) FROM (SELECT DISTINCT type_of_work FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND type_of_work IS NOT NULL AND trim(type_of_work) <> '' ORDER BY type_of_work) tw),
+    'zohoStatuses', (SELECT COALESCE(json_agg(zoho_status), '[]'::json) FROM (SELECT DISTINCT zoho_status FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND zoho_status IS NOT NULL AND trim(zoho_status) <> '' ORDER BY zoho_status) z),
     'sourceFiles', (SELECT COALESCE(json_agg(sf), '[]'::json) FROM (SELECT DISTINCT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY source_file) sf),
     'currentSourceFile', (SELECT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY COALESCE(updated_at, created_at) DESC NULLS LAST, created_at DESC NULLS LAST, id DESC LIMIT 1)
   ) INTO v_filter_options;
@@ -536,14 +548,20 @@ BEGIN
   -- 1. Ensure records for this source file are active and touch updated_at
   UPDATE public.records
   SET is_active = true, updated_at = NOW()
-  WHERE source_file = p_source_file;
+  WHERE source_file = p_source_file 
+     OR source_file ILIKE '%' || p_source_file
+     OR p_source_file ILIKE '%' || source_file;
   GET DIAGNOSTICS v_activated = ROW_COUNT;
 
   -- 2. Optionally deactivate older superseded workbooks to guarantee single-source view
   IF p_deactivate_others THEN
     UPDATE public.records
     SET is_active = false, updated_at = NOW()
-    WHERE source_file <> p_source_file AND is_active = true;
+    WHERE NOT (
+      source_file = p_source_file 
+      OR source_file ILIKE '%' || p_source_file
+      OR p_source_file ILIKE '%' || source_file
+    ) AND is_active = true;
     GET DIAGNOSTICS v_deactivated = ROW_COUNT;
   END IF;
 
