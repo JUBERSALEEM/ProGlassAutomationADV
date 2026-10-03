@@ -659,9 +659,10 @@ export async function fetchRecordsDashboardData({
                     ? res.filterOptions.sourceFiles.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
                     : availableSourceFiles,
                   currentSourceFile:
-                    typeof res.filterOptions.currentSourceFile === "string"
-                      ? res.filterOptions.currentSourceFile
-                      : currentSourceFile,
+                    currentSourceFile ||
+                    (typeof res.filterOptions.currentSourceFile === "string"
+                      ? res.filterOptions.currentSourceFile.trim()
+                      : null),
                 }
               : extractFilterOptionsFromRecords((recordsData || []) as RecordRow[]);
 

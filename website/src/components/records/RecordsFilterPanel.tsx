@@ -174,6 +174,9 @@ export function RecordsFilterPanel({
               Current File (Auto){filterOptions.currentSourceFile ? ` (${getDisplayFileName(filterOptions.currentSourceFile)})` : ""}
             </option>
             <option value="all">All Attached Files</option>
+            {filters.sourceFile && filters.sourceFile !== "all" && !filterOptions.sourceFiles?.includes(filters.sourceFile) && (
+              <option value={filters.sourceFile}>{getDisplayFileName(filters.sourceFile)}</option>
+            )}
             {filterOptions.sourceFiles?.map((f) => (
               <option key={f} value={f}>
                 {getDisplayFileName(f)}
