@@ -27,6 +27,18 @@ import type {
   RecordsApiSuccessResponse,
 } from "@/types/records";
 
+let rpcLastChecked = 0;
+let rpcFunctionExists: boolean | null = null;
+
+function shouldAttemptRpc(): boolean {
+  if (rpcFunctionExists === true) return true;
+  if (rpcFunctionExists === false) {
+    // Retry once every 60 seconds in case developer just ran the SQL migration in Supabase
+    return Date.now() - rpcLastChecked > 60_000;
+  }
+  return true;
+}
+
 /**
  * Calculates start and end ISO date strings for a given preset in UTC.
  */
@@ -593,88 +605,101 @@ export async function fetchRecordsDashboardData({
       let rpcStatus: "success" | "error" | "not_installed" = "not_installed";
       let capturedRpcError: { message: string; code?: string; details?: string; hint?: string } | null = null;
 
-      try {
-        let { data: rpcData, error: rpcError } = await client.rpc(
-          "get_records_dashboard_aggregates",
-          rpcParams,
-        );
+      if (shouldAttemptRpc()) {
+        rpcLastChecked = Date.now();
+        try {
+          let { data: rpcData, error: rpcError } = await client.rpc(
+            "get_records_dashboard_aggregates",
+            rpcParams,
+          );
 
-        // Resilient fallback if Supabase RPC function is still the 10-param signature without p_source_file
-        if (
-          rpcError &&
-          (rpcError.code === "PGRST202" ||
-            rpcError.message?.toLowerCase().includes("argument") ||
-            rpcError.message?.toLowerCase().includes("parameter") ||
-            rpcError.message?.toLowerCase().includes("function"))
-        ) {
-          const legacyParams = { ...rpcParams };
-          delete legacyParams.p_source_file;
-          const legacyRes = await client.rpc("get_records_dashboard_aggregates", legacyParams);
-          if (!legacyRes.error) {
-            rpcData = legacyRes.data;
-            rpcError = null;
+          // Resilient fallback if Supabase RPC function is still the 10-param signature without p_source_file
+          if (
+            rpcError &&
+            rpcError.code !== "PGRST202" &&
+            (rpcError.message?.toLowerCase().includes("argument") ||
+              rpcError.message?.toLowerCase().includes("parameter") ||
+              rpcError.message?.toLowerCase().includes("function"))
+          ) {
+            const legacyParams = { ...rpcParams };
+            delete legacyParams.p_source_file;
+            const legacyRes = await client.rpc("get_records_dashboard_aggregates", legacyParams);
+            if (!legacyRes.error) {
+              rpcData = legacyRes.data;
+              rpcError = null;
+            }
           }
-        }
 
-        if (rpcError) {
-          capturedRpcError = {
-            message: rpcError.message,
-            code: rpcError.code,
-            details: rpcError.details,
-            hint: rpcError.hint,
-          };
-          console.warn("[records-api] Database aggregation RPC unavailable:", rpcError.code, rpcError.message);
-          rpcStatus = rpcError.code === "PGRST202" ? "not_installed" : "error";
-          // Suppress raw PostgreSQL/PostgREST schema cache syntax errors from end-user UI
-          warning = undefined;
-        } else if (rpcData && typeof rpcData === "object") {
-          rpcStatus = "success";
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const res = rpcData as any;
-          summary = res.summary;
-          breakdowns = res.breakdowns;
-          filterOptions =
-            res.filterOptions && typeof res.filterOptions === "object"
-              ? {
-                  companies: Array.isArray(res.filterOptions.companies)
-                    ? res.filterOptions.companies.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
-                    : [],
-                  salesmen: Array.isArray(res.filterOptions.salesmen)
-                    ? res.filterOptions.salesmen.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
-                    : [],
-                  preparedBy: Array.isArray(res.filterOptions.preparedBy)
-                    ? res.filterOptions.preparedBy.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
-                    : [],
-                  statuses: Array.isArray(res.filterOptions.statuses)
-                    ? res.filterOptions.statuses.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
-                    : [],
-                  piStatuses: Array.isArray(res.filterOptions.piStatuses)
-                    ? res.filterOptions.piStatuses.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
-                    : [],
-                  typesOfWork: Array.isArray(res.filterOptions.typesOfWork)
-                    ? res.filterOptions.typesOfWork.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
-                    : [],
-                  zohoStatuses: Array.isArray(res.filterOptions.zohoStatuses)
-                    ? res.filterOptions.zohoStatuses.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
-                    : [],
-                  sourceFiles: Array.isArray(res.filterOptions.sourceFiles)
-                    ? res.filterOptions.sourceFiles.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
-                    : availableSourceFiles,
-                  currentSourceFile:
-                    currentSourceFile ||
-                    (typeof res.filterOptions.currentSourceFile === "string"
-                      ? res.filterOptions.currentSourceFile.trim()
-                      : null),
-                }
-              : extractFilterOptionsFromRecords((recordsData || []) as RecordRow[]);
+          if (rpcError) {
+            if (rpcError.code === "PGRST202") {
+              rpcFunctionExists = false;
+              rpcStatus = "not_installed";
+            } else {
+              rpcStatus = "error";
+            }
+            capturedRpcError = {
+              message: rpcError.message,
+              code: rpcError.code,
+              details: rpcError.details,
+              hint: rpcError.hint,
+            };
+            console.warn("[records-api] Database aggregation RPC unavailable:", rpcError.code, rpcError.message);
+            // Suppress raw PostgreSQL/PostgREST schema cache syntax errors from end-user UI
+            warning = undefined;
+          } else if (rpcData && typeof rpcData === "object") {
+            rpcFunctionExists = true;
+            rpcStatus = "success";
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const res = rpcData as any;
+            summary = res.summary;
+            breakdowns = res.breakdowns;
+            filterOptions =
+              res.filterOptions && typeof res.filterOptions === "object"
+                ? {
+                    companies: Array.isArray(res.filterOptions.companies)
+                      ? res.filterOptions.companies.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                      : [],
+                    salesmen: Array.isArray(res.filterOptions.salesmen)
+                      ? res.filterOptions.salesmen.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                      : [],
+                    preparedBy: Array.isArray(res.filterOptions.preparedBy)
+                      ? res.filterOptions.preparedBy.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                      : [],
+                    statuses: Array.isArray(res.filterOptions.statuses)
+                      ? res.filterOptions.statuses.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                      : [],
+                    piStatuses: Array.isArray(res.filterOptions.piStatuses)
+                      ? res.filterOptions.piStatuses.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                      : [],
+                    typesOfWork: Array.isArray(res.filterOptions.typesOfWork)
+                      ? res.filterOptions.typesOfWork.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                      : [],
+                    zohoStatuses: Array.isArray(res.filterOptions.zohoStatuses)
+                      ? res.filterOptions.zohoStatuses.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                      : [],
+                    sourceFiles: Array.isArray(res.filterOptions.sourceFiles)
+                      ? res.filterOptions.sourceFiles.filter((x: unknown) => typeof x === "string" && x.trim().length > 0)
+                      : availableSourceFiles,
+                    currentSourceFile:
+                      currentSourceFile ||
+                      (typeof res.filterOptions.currentSourceFile === "string"
+                        ? res.filterOptions.currentSourceFile.trim()
+                        : null),
+                  }
+                : extractFilterOptionsFromRecords((recordsData || []) as RecordRow[]);
 
-          if (!currentSourceFile && typeof res.filterOptions?.currentSourceFile === "string" && res.filterOptions.currentSourceFile.trim()) {
-            currentSourceFile = res.filterOptions.currentSourceFile.trim();
+            if (!currentSourceFile && typeof res.filterOptions?.currentSourceFile === "string" && res.filterOptions.currentSourceFile.trim()) {
+              currentSourceFile = res.filterOptions.currentSourceFile.trim();
+            }
+          } else {
+            rpcStatus = "not_installed";
+            warning = undefined;
           }
-        } else {
+        } catch {
           rpcStatus = "not_installed";
-          warning = undefined;
+          rpcFunctionExists = false;
         }
+      }
 
         if (rpcStatus !== "success") {
           // Direct table query fallback:
@@ -803,24 +828,6 @@ export async function fetchRecordsDashboardData({
             currentSourceFile,
           };
         }
-      } catch (err) {
-        rpcStatus = "error";
-        const errMsg = err instanceof Error ? err.message : String(err);
-        capturedRpcError = { message: errMsg };
-        console.error("[records-api] RPC invocation exception:", err);
-        warning = undefined;
-        summary = {
-          totalEntries,
-          totalQty: 0,
-          totalSqm: 0,
-          averageSqm: 0,
-          activeCompaniesCount: 0,
-          activeSalesmenCount: 0,
-        };
-        breakdowns = { preparedBy: [], salesman: [], company: [], typeOfWork: [] };
-        // Data-driven extraction directly from actual record entries
-        filterOptions = extractFilterOptionsFromRecords((recordsData || []) as RecordRow[]);
-      }
 
       const hasActiveFilters = Boolean(
         filters.search ||
