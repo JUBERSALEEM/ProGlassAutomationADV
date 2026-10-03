@@ -367,7 +367,7 @@ BEGIN
     'typesOfWork', (SELECT COALESCE(json_agg(type_of_work), '[]'::json) FROM (SELECT DISTINCT type_of_work FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND type_of_work IS NOT NULL AND trim(type_of_work) <> '' ORDER BY type_of_work) tw),
     'zohoStatuses', (SELECT COALESCE(json_agg(zoho_status), '[]'::json) FROM (SELECT DISTINCT zoho_status FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND zoho_status IS NOT NULL AND trim(zoho_status) <> '' ORDER BY zoho_status) z),
     'sourceFiles', (SELECT COALESCE(json_agg(sf), '[]'::json) FROM (SELECT DISTINCT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY source_file) sf),
-    'currentSourceFile', (SELECT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY GREATEST(COALESCE(created_at, '1970-01-01'::timestamptz), COALESCE(updated_at, '1970-01-01'::timestamptz)) DESC NULLS LAST, date DESC NULLS LAST, id DESC LIMIT 1)
+    'currentSourceFile', (SELECT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY id DESC, COALESCE(updated_at, created_at, NOW()) DESC, date DESC LIMIT 1)
   ) INTO v_filter_options;
 
   RETURN json_build_object(
@@ -478,7 +478,7 @@ GRANT EXECUTE ON FUNCTION public.reconcile_records_active_state TO anon, authent
 -- 3. CURRENT EXCEL SOURCE RESOLUTION & WORKBOOK ACTIVATION RPCs
 -- ---------------------------------------------------------------------
 
--- Resolves the current active source file name (latest creation timestamp, latest date, or highest ID)
+-- Resolves the current active source file name (latest inserted ID, newest timestamps, or latest transaction date)
 CREATE OR REPLACE FUNCTION public.get_current_excel_source()
 RETURNS text
 LANGUAGE sql
@@ -491,9 +491,9 @@ AS $$
     AND source_file IS NOT NULL
     AND trim(source_file) <> ''
   ORDER BY 
-    GREATEST(COALESCE(created_at, '1970-01-01'::timestamptz), COALESCE(updated_at, '1970-01-01'::timestamptz)) DESC NULLS LAST,
-    date DESC NULLS LAST,
-    id DESC
+    id DESC,
+    COALESCE(updated_at, created_at, NOW()) DESC,
+    date DESC
   LIMIT 1;
 $$;
 
@@ -552,8 +552,8 @@ BEGIN
   UPDATE public.records
   SET is_active = true, updated_at = NOW()
   WHERE source_file = p_source_file 
-     OR source_file ILIKE '%' || v_clean_name
-     OR p_source_file ILIKE '%' || source_file;
+     OR source_file ILIKE '%' || v_clean_name || '%'
+     OR p_source_file ILIKE '%' || source_file || '%';
   GET DIAGNOSTICS v_activated = ROW_COUNT;
 
   -- 2. Optionally deactivate older superseded workbooks to guarantee single-source view
@@ -562,8 +562,8 @@ BEGIN
     SET is_active = false, updated_at = NOW()
     WHERE NOT (
       source_file = p_source_file 
-      OR source_file ILIKE '%' || v_clean_name
-      OR p_source_file ILIKE '%' || source_file
+      OR source_file ILIKE '%' || v_clean_name || '%'
+      OR p_source_file ILIKE '%' || source_file || '%'
     ) AND is_active = true;
     GET DIAGNOSTICS v_deactivated = ROW_COUNT;
   END IF;
@@ -592,14 +592,29 @@ DECLARE
   v_latest_file text;
   v_result json;
 BEGIN
+  -- First inspect active records
   SELECT source_file INTO v_latest_file
   FROM public.records
-  WHERE source_file IS NOT NULL AND trim(source_file) <> ''
+  WHERE is_active IS NOT FALSE
+    AND source_file IS NOT NULL 
+    AND trim(source_file) <> ''
   ORDER BY 
-    GREATEST(COALESCE(created_at, '1970-01-01'::timestamptz), COALESCE(updated_at, '1970-01-01'::timestamptz)) DESC NULLS LAST,
-    date DESC NULLS LAST,
-    id DESC
+    id DESC,
+    COALESCE(updated_at, created_at, NOW()) DESC,
+    date DESC
   LIMIT 1;
+
+  -- If not found, inspect all records regardless of is_active
+  IF v_latest_file IS NULL THEN
+    SELECT source_file INTO v_latest_file
+    FROM public.records
+    WHERE source_file IS NOT NULL AND trim(source_file) <> ''
+    ORDER BY 
+      id DESC,
+      COALESCE(updated_at, created_at, NOW()) DESC,
+      date DESC
+    LIMIT 1;
+  END IF;
 
   IF v_latest_file IS NULL THEN
     RETURN json_build_object('ok', false, 'message', 'No records with source_file found.');
