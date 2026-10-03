@@ -22,6 +22,12 @@ const DATE_PRESETS: { id: DatePreset; label: string }[] = [
   { id: "custom", label: "Custom Range" },
 ];
 
+function getDisplayFileName(filepath: string): string {
+  if (!filepath) return "";
+  const parts = filepath.split(/[\\/]/);
+  return parts[parts.length - 1] || filepath;
+}
+
 export function RecordsFilterPanel({
   filters,
   filterOptions,
@@ -165,12 +171,12 @@ export function RecordsFilterPanel({
             title="Scope data strictly to the current attached Excel workbook or view all files"
           >
             <option value="">
-              Current File (Auto){filterOptions.currentSourceFile ? ` (${filterOptions.currentSourceFile})` : ""}
+              Current File (Auto){filterOptions.currentSourceFile ? ` (${getDisplayFileName(filterOptions.currentSourceFile)})` : ""}
             </option>
             <option value="all">All Attached Files</option>
             {filterOptions.sourceFiles?.map((f) => (
               <option key={f} value={f}>
-                {f}
+                {getDisplayFileName(f)}
               </option>
             ))}
           </select>
@@ -357,7 +363,7 @@ export function RecordsFilterPanel({
 
           {filters.sourceFile && (
             <span className="inline-flex items-center gap-1 rounded-md border border-line-strong bg-ink-850 px-2 py-0.5 text-2xs text-text-secondary">
-              File: {filters.sourceFile === "all" ? "All Files" : filters.sourceFile}
+              File: {filters.sourceFile === "all" ? "All Files" : getDisplayFileName(filters.sourceFile)}
               <button
                 type="button"
                 onClick={() => onChange({ sourceFile: "" })}

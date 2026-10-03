@@ -62,7 +62,7 @@ export function RecordsHeader({
                   <span className="h-1.5 w-1.5 rounded-full bg-glass-teal" />
                   <span className="text-text-faint">Workbook:</span>
                   <strong className="text-brand-200 truncate max-w-[200px]" title={currentSourceFile}>
-                    {currentSourceFile}
+                    {currentSourceFile.split(/[\\/]/).pop() || currentSourceFile}
                   </strong>
                   {isCurrentSourceScoped && (
                     <span className="rounded bg-brand-500/20 px-1 py-0.2 text-3xs font-semibold text-brand-300 uppercase">

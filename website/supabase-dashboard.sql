@@ -355,7 +355,7 @@ BEGIN
     'typesOfWork', (SELECT COALESCE(json_agg(type_of_work), '[]'::json) FROM (SELECT DISTINCT type_of_work FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND type_of_work IS NOT NULL AND trim(type_of_work) <> '' ORDER BY type_of_work) tw),
     'zohoStatuses', (SELECT COALESCE(json_agg(zoho_status), '[]'::json) FROM (SELECT DISTINCT zoho_status FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file) AND zoho_status IS NOT NULL AND trim(zoho_status) <> '' ORDER BY zoho_status) z),
     'sourceFiles', (SELECT COALESCE(json_agg(sf), '[]'::json) FROM (SELECT DISTINCT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY source_file) sf),
-    'currentSourceFile', (SELECT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST LIMIT 1)
+    'currentSourceFile', (SELECT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY COALESCE(updated_at, created_at) DESC NULLS LAST, created_at DESC NULLS LAST, id DESC LIMIT 1)
   ) INTO v_filter_options;
 
   RETURN json_build_object(
@@ -466,7 +466,7 @@ GRANT EXECUTE ON FUNCTION public.reconcile_records_active_state TO anon, authent
 -- 3. CURRENT EXCEL SOURCE RESOLUTION & WORKBOOK ACTIVATION RPCs
 -- ---------------------------------------------------------------------
 
--- Resolves the current active source file name (latest sync timestamp)
+-- Resolves the current active source file name (latest sync timestamp or highest ID)
 CREATE OR REPLACE FUNCTION public.get_current_excel_source()
 RETURNS text
 LANGUAGE sql
@@ -478,11 +478,42 @@ AS $$
   WHERE is_active IS NOT FALSE
     AND source_file IS NOT NULL
     AND trim(source_file) <> ''
-  ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
+  ORDER BY 
+    COALESCE(updated_at, created_at) DESC NULLS LAST,
+    created_at DESC NULLS LAST,
+    id DESC
   LIMIT 1;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.get_current_excel_source TO anon, authenticated, service_role;
+
+-- ---------------------------------------------------------------------
+-- 3B. AUTOMATIC TIMESTAMP & ACTIVE STATE TRIGGER
+-- ---------------------------------------------------------------------
+-- Guarantees that newly inserted or synced rows from Excel always have
+-- created_at, updated_at, and is_active populated automatically even
+-- if ProGlassExcelSync does not explicitly pass them in the payload.
+-- ---------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION public.trg_records_set_timestamps()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    NEW.created_at = COALESCE(NEW.created_at, NOW());
+    NEW.updated_at = COALESCE(NEW.updated_at, NOW());
+    NEW.is_active = COALESCE(NEW.is_active, true);
+  ELSIF TG_OP = 'UPDATE' THEN
+    NEW.updated_at = NOW();
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_records_timestamps ON public.records;
+CREATE TRIGGER trg_records_timestamps
+BEFORE INSERT OR UPDATE ON public.records
+FOR EACH ROW
+EXECUTE FUNCTION public.trg_records_set_timestamps();
 
 -- Designates a specific workbook as the active Excel dataset
 CREATE OR REPLACE FUNCTION public.set_current_excel_file(
