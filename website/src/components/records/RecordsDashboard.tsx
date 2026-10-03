@@ -650,12 +650,16 @@ export function RecordsDashboard() {
         )}
 
         {/* Local Mock Notice if in preview */}
-        {data?.warning && !error && (
-          <div className="rounded-xl border border-state-warning/30 bg-state-warning/10 px-4 py-2 text-2xs text-state-warning flex items-center justify-between">
-            <span>{data.warning}</span>
-            <span className="font-mono text-3xs text-text-faint">Data isolation: active</span>
-          </div>
-        )}
+        {data?.warning &&
+          !error &&
+          !data.warning.includes("PGRST") &&
+          !data.warning.includes("Aggregation RPC") &&
+          !data.warning.includes("schema cache") && (
+            <div className="rounded-xl border border-state-warning/30 bg-state-warning/10 px-4 py-2 text-2xs text-state-warning flex items-center justify-between">
+              <span>{data.warning}</span>
+              <span className="font-mono text-3xs text-text-faint">Data isolation: active</span>
+            </div>
+          )}
 
         {/* Section 1: Summary Statistics Cards */}
         <RecordsSummaryCards summary={data?.summary || null} loading={loading} />
