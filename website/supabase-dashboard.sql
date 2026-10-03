@@ -367,7 +367,7 @@ BEGIN
     'typesOfWork', (SELECT COALESCE(json_agg(type_of_work), '[]'::json) FROM (SELECT DISTINCT type_of_work FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND type_of_work IS NOT NULL AND trim(type_of_work) <> '' ORDER BY type_of_work) tw),
     'zohoStatuses', (SELECT COALESCE(json_agg(zoho_status), '[]'::json) FROM (SELECT DISTINCT zoho_status FROM public.records WHERE is_active IS NOT FALSE AND (p_source_file IS NULL OR p_source_file = '' OR p_source_file = 'all' OR source_file = p_source_file OR source_file ILIKE '%' || p_source_file OR p_source_file ILIKE '%' || source_file) AND zoho_status IS NOT NULL AND trim(zoho_status) <> '' ORDER BY zoho_status) z),
     'sourceFiles', (SELECT COALESCE(json_agg(sf), '[]'::json) FROM (SELECT DISTINCT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY source_file) sf),
-    'currentSourceFile', (SELECT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY COALESCE(updated_at, created_at) DESC NULLS LAST, created_at DESC NULLS LAST, id DESC LIMIT 1)
+    'currentSourceFile', (SELECT source_file FROM public.records WHERE is_active IS NOT FALSE AND source_file IS NOT NULL AND trim(source_file) <> '' ORDER BY GREATEST(COALESCE(created_at, '1970-01-01'::timestamptz), COALESCE(updated_at, '1970-01-01'::timestamptz)) DESC NULLS LAST, date DESC NULLS LAST, id DESC LIMIT 1)
   ) INTO v_filter_options;
 
   RETURN json_build_object(
@@ -478,7 +478,7 @@ GRANT EXECUTE ON FUNCTION public.reconcile_records_active_state TO anon, authent
 -- 3. CURRENT EXCEL SOURCE RESOLUTION & WORKBOOK ACTIVATION RPCs
 -- ---------------------------------------------------------------------
 
--- Resolves the current active source file name (latest sync timestamp or highest ID)
+-- Resolves the current active source file name (latest creation timestamp, latest date, or highest ID)
 CREATE OR REPLACE FUNCTION public.get_current_excel_source()
 RETURNS text
 LANGUAGE sql
@@ -491,8 +491,8 @@ AS $$
     AND source_file IS NOT NULL
     AND trim(source_file) <> ''
   ORDER BY 
-    COALESCE(updated_at, created_at) DESC NULLS LAST,
-    created_at DESC NULLS LAST,
+    GREATEST(COALESCE(created_at, '1970-01-01'::timestamptz), COALESCE(updated_at, '1970-01-01'::timestamptz)) DESC NULLS LAST,
+    date DESC NULLS LAST,
     id DESC
   LIMIT 1;
 $$;
@@ -540,16 +540,19 @@ AS $$
 DECLARE
   v_activated integer := 0;
   v_deactivated integer := 0;
+  v_clean_name text;
 BEGIN
   IF p_source_file IS NULL OR trim(p_source_file) = '' THEN
     RAISE EXCEPTION 'p_source_file cannot be empty';
   END IF;
 
+  v_clean_name := regexp_replace(p_source_file, '^.*[\\/]', '');
+
   -- 1. Ensure records for this source file are active and touch updated_at
   UPDATE public.records
   SET is_active = true, updated_at = NOW()
   WHERE source_file = p_source_file 
-     OR source_file ILIKE '%' || p_source_file
+     OR source_file ILIKE '%' || v_clean_name
      OR p_source_file ILIKE '%' || source_file;
   GET DIAGNOSTICS v_activated = ROW_COUNT;
 
@@ -559,7 +562,7 @@ BEGIN
     SET is_active = false, updated_at = NOW()
     WHERE NOT (
       source_file = p_source_file 
-      OR source_file ILIKE '%' || p_source_file
+      OR source_file ILIKE '%' || v_clean_name
       OR p_source_file ILIKE '%' || source_file
     ) AND is_active = true;
     GET DIAGNOSTICS v_deactivated = ROW_COUNT;
@@ -568,6 +571,7 @@ BEGIN
   RETURN json_build_object(
     'ok', true,
     'currentSourceFile', p_source_file,
+    'cleanName', v_clean_name,
     'activated', v_activated,
     'deactivated', v_deactivated
   );
@@ -575,6 +579,38 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.set_current_excel_file TO anon, authenticated, service_role;
+
+-- Helper function to automatically set the most recently inserted/uploaded Excel file as active
+-- and mark older files as inactive
+CREATE OR REPLACE FUNCTION public.reconcile_latest_excel_as_active()
+RETURNS json
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_latest_file text;
+  v_result json;
+BEGIN
+  SELECT source_file INTO v_latest_file
+  FROM public.records
+  WHERE source_file IS NOT NULL AND trim(source_file) <> ''
+  ORDER BY 
+    GREATEST(COALESCE(created_at, '1970-01-01'::timestamptz), COALESCE(updated_at, '1970-01-01'::timestamptz)) DESC NULLS LAST,
+    date DESC NULLS LAST,
+    id DESC
+  LIMIT 1;
+
+  IF v_latest_file IS NULL THEN
+    RETURN json_build_object('ok', false, 'message', 'No records with source_file found.');
+  END IF;
+
+  SELECT public.set_current_excel_file(v_latest_file, true) INTO v_result;
+  RETURN v_result;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.reconcile_latest_excel_as_active TO anon, authenticated, service_role;
 
 
 -- ---------------------------------------------------------------------

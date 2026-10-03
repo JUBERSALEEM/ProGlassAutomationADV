@@ -269,14 +269,15 @@ export async function fetchRecordsDashboardData({
     let detectedLatestHasNoSourceFile = false;
 
     // Step 1 & 2: Multi-dimensional source resolution (ranking by newest effective activity)
-    // Excel sync tools may insert rows (populating created_at or id) without touching updated_at.
-    // Query candidate records across RPC, created_at, updated_at, and sequential id to find the true latest workbook.
+    // Excel sync tools may insert rows (populating created_at, date, or id) without touching updated_at.
+    // Query candidate records across RPC, created_at, date, updated_at, and sequential id to find the true latest workbook.
     type CandidateRecord = {
       source_file: string;
       created_at?: string | null;
       updated_at?: string | null;
+      date?: string | null;
       id?: string | number | null;
-      source_type: "rpc" | "latest_id" | "latest_created" | "latest_updated";
+      source_type: "rpc" | "latest_created" | "latest_date" | "latest_id" | "latest_updated";
     };
 
     const candidates: CandidateRecord[] = [];
@@ -295,204 +296,167 @@ export async function fetchRecordsDashboardData({
       }
     } catch {}
 
-    // Query candidate by highest sequential id (most recently inserted row in database)
-    try {
-      const { data: rows } = await client
-        .from("records")
-        .select("source_file, created_at, updated_at, id")
-        .neq("is_active", false)
-        .not("source_file", "is", null)
-        .neq("source_file", "")
-        .order("id", { ascending: false })
-        .limit(1);
-      if (rows && rows.length > 0 && rows[0]?.source_file) {
-        candidates.push({
-          source_file: rows[0].source_file.trim(),
-          created_at: rows[0].created_at,
-          updated_at: rows[0].updated_at,
-          id: rows[0].id,
-          source_type: "latest_id",
-        });
-      }
-    } catch {}
+    // Resilient candidate query helper: tries with is_active first, falls back if is_active column does not exist
+    const fetchTopCandidate = async (
+      orderColumn: string,
+      sourceType: CandidateRecord["source_type"],
+    ) => {
+      try {
+        let res = await client
+          .from("records")
+          .select("source_file, created_at, updated_at, date, id")
+          .neq("is_active", false)
+          .not("source_file", "is", null)
+          .neq("source_file", "")
+          .order(orderColumn, { ascending: false, nullsFirst: false })
+          .limit(1);
 
-    // Query candidate by newest created_at
+        if (res.error) {
+          // If is_active column doesn't exist (code 42703) or orderColumn fails, retry without is_active
+          res = await client
+            .from("records")
+            .select("source_file, created_at, updated_at, date, id")
+            .not("source_file", "is", null)
+            .neq("source_file", "")
+            .order(orderColumn, { ascending: false, nullsFirst: false })
+            .limit(1);
+        }
+
+        if (res.data && res.data.length > 0 && res.data[0]?.source_file) {
+          const row = res.data[0];
+          candidates.push({
+            source_file: String(row.source_file).trim(),
+            created_at: row.created_at,
+            updated_at: row.updated_at,
+            date: row.date,
+            id: row.id,
+            source_type: sourceType,
+          });
+        }
+      } catch {}
+    };
+
+    // Query candidates across creation timestamp, transaction date, row id, and update timestamp
+    await fetchTopCandidate("created_at", "latest_created");
+    await fetchTopCandidate("date", "latest_date");
+    await fetchTopCandidate("id", "latest_id");
+    await fetchTopCandidate("updated_at", "latest_updated");
+
+    // Diagnostic check: inspect whether the latest rows in the database have source_file populated
     try {
-      const { data: rows } = await client
+      let latestRowsRes = await client
         .from("records")
-        .select("source_file, created_at, updated_at, id")
+        .select("source_file, created_at, date, id")
         .neq("is_active", false)
-        .not("source_file", "is", null)
-        .neq("source_file", "")
         .order("created_at", { ascending: false, nullsFirst: false })
-        .limit(1);
-      if (rows && rows.length > 0 && rows[0]?.source_file) {
-        candidates.push({
-          source_file: rows[0].source_file.trim(),
-          created_at: rows[0].created_at,
-          updated_at: rows[0].updated_at,
-          id: rows[0].id,
-          source_type: "latest_created",
+        .limit(5);
+
+      if (latestRowsRes.error || !latestRowsRes.data || latestRowsRes.data.length === 0) {
+        latestRowsRes = await client
+          .from("records")
+          .select("source_file, created_at, date, id")
+          .order("date", { ascending: false, nullsFirst: false })
+          .limit(5);
+      }
+
+      if (latestRowsRes.data && latestRowsRes.data.length > 0) {
+        const hasAnySource = latestRowsRes.data.some((r) => {
+          const raw = r as Record<string, unknown>;
+          const sf =
+            r.source_file ||
+            (typeof raw.file_name === "string" ? raw.file_name : null) ||
+            (typeof raw.filename === "string" ? raw.filename : null);
+          return sf && typeof sf === "string" && sf.trim().length > 0;
         });
+        if (!hasAnySource) {
+          detectedLatestHasNoSourceFile = true;
+        }
       }
     } catch {}
 
-    // Query candidate by newest updated_at
-    try {
-      const { data: rows } = await client
-        .from("records")
-        .select("source_file, created_at, updated_at, id")
-        .neq("is_active", false)
-        .not("source_file", "is", null)
-        .neq("source_file", "")
-        .order("updated_at", { ascending: false, nullsFirst: false })
-        .limit(1);
-      if (rows && rows.length > 0 && rows[0]?.source_file) {
-        candidates.push({
-          source_file: rows[0].source_file.trim(),
-          created_at: rows[0].created_at,
-          updated_at: rows[0].updated_at,
-          id: rows[0].id,
-          source_type: "latest_updated",
-        });
-      }
-    } catch {}
-
-    // Fallback: If is_active column is not present in schema, try without is_active
-    if (candidates.length === 0) {
-      try {
-        const { data: rows } = await client
-          .from("records")
-          .select("source_file, created_at, updated_at, id")
-          .not("source_file", "is", null)
-          .neq("source_file", "")
-          .order("id", { ascending: false })
-          .limit(1);
-        if (rows && rows.length > 0 && rows[0]?.source_file) {
-          candidates.push({
-            source_file: rows[0].source_file.trim(),
-            created_at: rows[0].created_at,
-            updated_at: rows[0].updated_at,
-            id: rows[0].id,
-            source_type: "latest_id",
-          });
-        }
-      } catch {}
-      try {
-        const { data: rows } = await client
-          .from("records")
-          .select("source_file, created_at, updated_at, id")
-          .not("source_file", "is", null)
-          .neq("source_file", "")
-          .order("created_at", { ascending: false, nullsFirst: false })
-          .limit(1);
-        if (rows && rows.length > 0 && rows[0]?.source_file) {
-          candidates.push({
-            source_file: rows[0].source_file.trim(),
-            created_at: rows[0].created_at,
-            updated_at: rows[0].updated_at,
-            id: rows[0].id,
-            source_type: "latest_created",
-          });
-        }
-      } catch {}
-    }
-
-    // Rank candidate files to select the definitive active workbook:
-    // 1. Give highest priority to the row with highest ID (most recently inserted from sync)
-    //    unless an existing file has a newer updated_at timestamp.
-    if (candidates.length > 0) {
-      const latestInserted = candidates.find((c) => c.source_type === "latest_id");
-      const latestUpdated = candidates.find((c) => c.source_type === "latest_updated");
+    // Rank candidates to determine the true active workbook:
+    // If the newest rows in the database have no source_file, currentSourceFile stays null to avoid locking onto an ancient file
+    if (!detectedLatestHasNoSourceFile && candidates.length > 0) {
       const latestCreated = candidates.find((c) => c.source_type === "latest_created");
+      const latestDate = candidates.find((c) => c.source_type === "latest_date");
+      const latestId = candidates.find((c) => c.source_type === "latest_id");
+      const latestUpdated = candidates.find((c) => c.source_type === "latest_updated");
       const rpcCandidate = candidates.find((c) => c.source_type === "rpc");
 
-      const tUpdated = latestUpdated?.updated_at ? new Date(latestUpdated.updated_at).getTime() : -1;
       const tCreated = latestCreated?.created_at ? new Date(latestCreated.created_at).getTime() : -1;
-      const tInserted = latestInserted?.created_at ? new Date(latestInserted.created_at).getTime() : -1;
+      const tUpdated = latestUpdated?.updated_at ? new Date(latestUpdated.updated_at).getTime() : -1;
+      const dLatest = latestDate?.date ? new Date(latestDate.date).getTime() : -1;
 
-      // If an existing file was explicitly touched via updated_at after the last insert:
-      if (tUpdated > Math.max(tCreated, tInserted) && latestUpdated?.source_file) {
-        currentSourceFile = latestUpdated.source_file;
-      } else if (latestInserted?.source_file) {
-        // Most recently inserted rows represent the newest attached workbook
-        currentSourceFile = latestInserted.source_file;
-      } else if (latestCreated?.source_file) {
+      // Evaluation precedence:
+      // 1. If created_at is valid on latest_created, the newest inserted rows represent the current file
+      if (tCreated > 0 && latestCreated?.source_file) {
         currentSourceFile = latestCreated.source_file;
-      } else if (rpcCandidate?.source_file) {
+      }
+      // 2. If business transaction date is newer on latest_date, that workbook has the newest operations
+      else if (dLatest > 0 && latestDate?.source_file) {
+        currentSourceFile = latestDate.source_file;
+      }
+      // 3. If explicit updated_at exists and is newer than created_at
+      else if (tUpdated > tCreated && latestUpdated?.source_file) {
+        currentSourceFile = latestUpdated.source_file;
+      }
+      // 4. Fall back to highest row id
+      else if (latestId?.source_file) {
+        currentSourceFile = latestId.source_file;
+      }
+      // 5. Fall back to RPC candidate
+      else if (rpcCandidate?.source_file) {
         currentSourceFile = rpcCandidate.source_file;
       } else {
         currentSourceFile = candidates[0]?.source_file ?? null;
       }
     }
 
-    // Diagnostic check: inspect whether the latest rows in the database have source_file populated
-    try {
-      const { data: absoluteLatest } = await client
-        .from("records")
-        .select("source_file, id, created_at")
-        .neq("is_active", false)
-        .order("id", { ascending: false })
-        .limit(1);
+    // Step 3: Retrieve distinct active source files for filter selection from multiple angles
+    const sfSet = new Set<string>();
 
-      if (absoluteLatest && absoluteLatest.length > 0) {
-        const sf = absoluteLatest[0]?.source_file;
-        if (!sf || typeof sf !== "string" || sf.trim().length === 0) {
-          detectedLatestHasNoSourceFile = true;
-        }
-      }
-    } catch {}
-
-    // Step 3: Retrieve distinct active source files for filter selection
-    try {
-      const { data: sfRows } = await client
-        .from("records")
-        .select("source_file")
-        .neq("is_active", false)
-        .not("source_file", "is", null)
-        .neq("source_file", "")
-        .limit(300);
-
-      if (sfRows && sfRows.length > 0) {
-        const sfSet = new Set<string>();
-        for (const row of sfRows) {
-          if (row.source_file && typeof row.source_file === "string") {
-            const t = row.source_file.trim();
-            if (t) sfSet.add(t);
-          }
-        }
-        availableSourceFiles = Array.from(sfSet).sort((a, b) => a.localeCompare(b));
-      }
-    } catch {
-      // is_active column may not exist
-    }
-
-    if (availableSourceFiles.length === 0) {
+    const collectSourceFiles = async (orderCol?: string) => {
       try {
-        const { data: sfRows } = await client
+        let q = client
           .from("records")
           .select("source_file")
+          .neq("is_active", false)
           .not("source_file", "is", null)
-          .neq("source_file", "")
-          .limit(300);
-
-        if (sfRows && sfRows.length > 0) {
-          const sfSet = new Set<string>();
-          for (const row of sfRows) {
+          .neq("source_file", "");
+        if (orderCol) {
+          q = q.order(orderCol, { ascending: false, nullsFirst: false });
+        }
+        let res = await q.limit(200);
+        if (res.error) {
+          let fallbackQ = client
+            .from("records")
+            .select("source_file")
+            .not("source_file", "is", null)
+            .neq("source_file", "");
+          if (orderCol) {
+            fallbackQ = fallbackQ.order(orderCol, { ascending: false, nullsFirst: false });
+          }
+          res = await fallbackQ.limit(200);
+        }
+        if (res.data) {
+          for (const row of res.data) {
             if (row.source_file && typeof row.source_file === "string") {
               const t = row.source_file.trim();
               if (t) sfSet.add(t);
             }
           }
-          availableSourceFiles = Array.from(sfSet).sort((a, b) => a.localeCompare(b));
         }
       } catch {}
-    }
+    };
 
-    if (currentSourceFile && !availableSourceFiles.includes(currentSourceFile)) {
-      availableSourceFiles.push(currentSourceFile);
-      availableSourceFiles.sort((a, b) => a.localeCompare(b));
+    await collectSourceFiles("created_at");
+    await collectSourceFiles("date");
+    await collectSourceFiles();
+
+    if (currentSourceFile) {
+      sfSet.add(currentSourceFile);
     }
+    availableSourceFiles = Array.from(sfSet).sort((a, b) => a.localeCompare(b));
 
     // Determine effective source file scoping:
     // - "all": operator explicitly requests viewing all historical Excel files combined
@@ -508,13 +472,20 @@ export async function fetchRecordsDashboardData({
             ? null
             : currentSourceFile;
 
+    // Helper to safely format PostgREST .or() filter with double-quoted values
+    const buildSourceFileFilter = (sourceFile: string) => {
+      const cleanName = sourceFile.split(/[\\/]/).pop()?.trim() || sourceFile;
+      const qFull = `"${sourceFile.replace(/"/g, '""')}"`;
+      const qClean = `"%${cleanName.replace(/"/g, '""')}%"`;
+      return `source_file.eq.${qFull},source_file.ilike.${qClean}`;
+    };
+
     // 1. Fetch paginated records slice (50, 100, or 250 rows only)
     // Filter by is_active is not false and scope to current attached Excel file
     let query = client.from("records").select("*", { count: "exact" }).neq("is_active", false);
 
     if (effectiveSourceFile) {
-      const cleanName = effectiveSourceFile.split(/[\\/]/).pop()?.trim() || effectiveSourceFile;
-      query = query.or(`source_file.eq.${effectiveSourceFile},source_file.ilike.%${cleanName}`);
+      query = query.or(buildSourceFileFilter(effectiveSourceFile));
     }
 
     if (filters.search) {
@@ -542,8 +513,7 @@ export async function fetchRecordsDashboardData({
       console.warn("[records-api] 'is_active' column not yet present in public.records, querying all records during schema migration");
       let fallbackQuery = client.from("records").select("*", { count: "exact" });
       if (effectiveSourceFile) {
-        const cleanName = effectiveSourceFile.split(/[\\/]/).pop()?.trim() || effectiveSourceFile;
-        fallbackQuery = fallbackQuery.or(`source_file.eq.${effectiveSourceFile},source_file.ilike.%${cleanName}`);
+        fallbackQuery = fallbackQuery.or(buildSourceFileFilter(effectiveSourceFile));
       }
       if (filters.search) {
         const s = filters.search.trim().replace(/[%_]/g, "\\$&");
@@ -767,8 +737,7 @@ export async function fetchRecordsDashboardData({
                 .neq("is_active", false);
 
               if (effectiveSourceFile) {
-                const cleanName = effectiveSourceFile.split(/[\\/]/).pop()?.trim() || effectiveSourceFile;
-                colQuery = colQuery.or(`source_file.eq.${effectiveSourceFile},source_file.ilike.%${cleanName}`);
+                colQuery = colQuery.or(buildSourceFileFilter(effectiveSourceFile));
               }
 
               let colRows: typeof recordsData = null;
@@ -781,8 +750,7 @@ export async function fetchRecordsDashboardData({
                   .from("records")
                   .select("company, salesman, prepared_by, status, pi_status, type_of_work, zoho_status");
                 if (effectiveSourceFile) {
-                  const cleanName = effectiveSourceFile.split(/[\\/]/).pop()?.trim() || effectiveSourceFile;
-                  fallbackCol = fallbackCol.or(`source_file.eq.${effectiveSourceFile},source_file.ilike.%${cleanName}`);
+                  fallbackCol = fallbackCol.or(buildSourceFileFilter(effectiveSourceFile));
                 }
                 const res = await fallbackCol.limit(1000);
                 colRows = res.data;
