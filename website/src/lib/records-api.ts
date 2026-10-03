@@ -15,6 +15,11 @@
  */
 
 import { isSupabaseConfigured, supabaseServer, supabaseServerWithToken } from "@/lib/supabase";
+import {
+  formatDateDDMMYYYY,
+  getDateEpoch,
+  compareRecordDates,
+} from "./date-utils";
 import type {
   BreakdownItem,
   DatePreset,
@@ -186,12 +191,14 @@ const CANONICAL_ZOHO_STATUSES = ["Synced", "Pending"];
 
 function generateMockRecords(): RecordRow[] {
   const records: RecordRow[] = [];
-  const baseDate = new Date("2026-10-02T12:00:00Z");
+  const startDay = 1;
 
   for (let i = 1; i <= 60; i++) {
-    const daysAgo = Math.floor((i * 90) / 60);
-    const dateObj = new Date(baseDate.getTime() - daysAgo * 86400000);
-    const dateStr = dateObj.toISOString().split("T")[0]!;
+    // 2 entries per calendar day starting from 01-10-2026: 01-10-2026, 02-10-2026, 03-10-2026...
+    const dayOffset = Math.floor((i - 1) / 2);
+    const day = startDay + dayOffset;
+    const dateObj = new Date(Date.UTC(2026, 9, day));
+    const dateStr = formatDateDDMMYYYY(dateObj); // "01-10-2026", "02-10-2026", etc.
 
     const company = CANONICAL_COMPANIES[i % CANONICAL_COMPANIES.length] || "Al Noor Glazing Contracting LLC";
     const salesman = CANONICAL_SALESMEN[0] || "Ahmed Rahman";
@@ -206,6 +213,11 @@ function generateMockRecords(): RecordRow[] {
     const qty = 4 + ((i * 17) % 80);
     const avgSqmPerPiece = 0.45 + ((i * 31) % 150) / 100;
     const sqm = Number((qty * avgSqmPerPiece).toFixed(2));
+
+    // Data update serialization: earlier rows have earlier update times on the same date
+    const serializationOffset = ((i - 1) % 2) * 3600000;
+    const createdAt = new Date(dateObj.getTime() + 28800000 + serializationOffset).toISOString();
+    const updatedAt = new Date(dateObj.getTime() + 32400000 + serializationOffset).toISOString();
 
     records.push({
       id: `rec-${i}`,
@@ -224,8 +236,8 @@ function generateMockRecords(): RecordRow[] {
       is_active: true,
       source_file: "Daily_Orders_Master_2026.xlsx",
       source_worksheet: "Orders_Active",
-      created_at: new Date(dateObj.getTime() + 3600000).toISOString(),
-      updated_at: new Date(dateObj.getTime() + 7200000).toISOString(),
+      created_at: createdAt,
+      updated_at: updatedAt,
     });
   }
 
@@ -240,7 +252,7 @@ const GLOBAL_MOCK_RECORDS = generateMockRecords();
 
 export async function fetchRecordsDashboardData({
   filters,
-  sort = { field: "date", direction: "desc" },
+  sort = { field: "date", direction: "asc" },
   page = 1,
   pageSize = 50,
   authToken,
@@ -379,8 +391,8 @@ export async function fetchRecordsDashboardData({
 
         const tCreated = topCreated?.created_at ? new Date(topCreated.created_at).getTime() : 0;
         const tUpdated = topCreated?.updated_at ? new Date(topCreated.updated_at).getTime() : 0;
-        const dCreated = topCreated?.date ? new Date(topCreated.date).getTime() : 0;
-        const dTop = topDate?.date ? new Date(topDate.date).getTime() : 0;
+        const dCreated = getDateEpoch(topCreated?.date);
+        const dTop = getDateEpoch(topDate?.date);
 
         // Primary score: physical insertion / sync epoch timestamp
         const syncTime = Math.max(tCreated, tUpdated);
@@ -429,9 +441,7 @@ export async function fetchRecordsDashboardData({
         const unlabelledTime = unlabelledRows[0]?.created_at
           ? new Date(unlabelledRows[0].created_at).getTime()
           : 0;
-        const unlabelledDate = unlabelledRows[0]?.date
-          ? new Date(unlabelledRows[0].date).getTime()
-          : 0;
+        const unlabelledDate = getDateEpoch(unlabelledRows[0]?.date);
 
         if (
           (unlabelledTime > 0 && unlabelledTime > winningScore) ||
@@ -505,9 +515,15 @@ export async function fetchRecordsDashboardData({
     if (filters.typeOfWork) query = query.eq("type_of_work", filters.typeOfWork);
     if (filters.zohoStatus) query = query.eq("zoho_status", filters.zohoStatus);
 
-    query = query
-      .order(sort.field, { ascending: sort.direction === "asc" })
-      .range(offset, offset + clampedPageSize - 1);
+    if (sort.field === "date") {
+      query = query
+        .order("date", { ascending: sort.direction === "asc" })
+        .order("updated_at", { ascending: sort.direction === "asc", nullsFirst: false })
+        .order("created_at", { ascending: sort.direction === "asc", nullsFirst: false });
+    } else {
+      query = query.order(sort.field, { ascending: sort.direction === "asc" });
+    }
+    query = query.range(offset, offset + clampedPageSize - 1);
 
     let { data: recordsData, count: totalCount, error: recordsError } = await query;
 
@@ -540,9 +556,15 @@ export async function fetchRecordsDashboardData({
       if (filters.typeOfWork) fallbackQuery = fallbackQuery.eq("type_of_work", filters.typeOfWork);
       if (filters.zohoStatus) fallbackQuery = fallbackQuery.eq("zoho_status", filters.zohoStatus);
 
-      fallbackQuery = fallbackQuery
-        .order(sort.field, { ascending: sort.direction === "asc" })
-        .range(offset, offset + clampedPageSize - 1);
+      if (sort.field === "date") {
+        fallbackQuery = fallbackQuery
+          .order("date", { ascending: sort.direction === "asc" })
+          .order("updated_at", { ascending: sort.direction === "asc", nullsFirst: false })
+          .order("created_at", { ascending: sort.direction === "asc", nullsFirst: false });
+      } else {
+        fallbackQuery = fallbackQuery.order(sort.field, { ascending: sort.direction === "asc" });
+      }
+      fallbackQuery = fallbackQuery.range(offset, offset + clampedPageSize - 1);
 
       const fallbackRes = await fallbackQuery;
       if (!fallbackRes.error) {
@@ -855,18 +877,26 @@ export async function fetchRecordsDashboardData({
       }
 
       return {
-        records: ((recordsData as RecordRow[]) || []).map((r) => {
-          const raw = r as Record<string, unknown>;
-          const resolvedSf =
-            r.source_file ||
-            (typeof raw.file_name === "string" ? raw.file_name : null) ||
-            (typeof raw.filename === "string" ? raw.filename : null) ||
-            (typeof raw.excel_file === "string" ? raw.excel_file : null);
-          return {
-            ...r,
-            source_file: resolvedSf,
-          };
-        }),
+        records: ((recordsData as RecordRow[]) || [])
+          .map((r) => {
+            const raw = r as Record<string, unknown>;
+            const resolvedSf =
+              r.source_file ||
+              (typeof raw.file_name === "string" ? raw.file_name : null) ||
+              (typeof raw.filename === "string" ? raw.filename : null) ||
+              (typeof raw.excel_file === "string" ? raw.excel_file : null);
+            return {
+              ...r,
+              date: formatDateDDMMYYYY(r.date),
+              source_file: resolvedSf,
+            };
+          })
+          .sort((a, b) => {
+            if (sort.field === "date") {
+              return compareRecordDates(a, b, sort.direction === "asc");
+            }
+            return 0;
+          }),
         summary,
         breakdowns,
         filterOptions,
@@ -955,10 +985,22 @@ function executeMockQuery({
   }
 
   if (resolvedFrom) {
-    matched = matched.filter((r) => r.date >= resolvedFrom);
+    const epochFrom = getDateEpoch(resolvedFrom);
+    if (epochFrom !== null) {
+      matched = matched.filter((r) => {
+        const ep = getDateEpoch(r.date);
+        return ep !== null && ep >= epochFrom;
+      });
+    }
   }
   if (resolvedTo) {
-    matched = matched.filter((r) => r.date <= resolvedTo);
+    const epochTo = getDateEpoch(resolvedTo);
+    if (epochTo !== null) {
+      matched = matched.filter((r) => {
+        const ep = getDateEpoch(r.date);
+        return ep !== null && ep <= epochTo;
+      });
+    }
   }
   if (filters.company) {
     matched = matched.filter((r) => r.company === filters.company);
@@ -984,15 +1026,20 @@ function executeMockQuery({
 
   const totalEntries = matched.length;
 
-  // Sorting
+  // Sorting with chronological Excel date handling and serialization tie-breaking
   const sorted = [...matched].sort((a, b) => {
+    if (sort.field === "date") {
+      return compareRecordDates(a, b, sort.direction === "asc");
+    }
     const field = sort.field;
     const dir = sort.direction === "asc" ? 1 : -1;
 
     const valA = a[field];
     const valB = b[field];
 
-    if (valA === valB) return 0;
+    if (valA === valB) {
+      return compareRecordDates(a, b, true);
+    }
     if (valA === null || valA === undefined) return 1;
     if (valB === null || valB === undefined) return -1;
 
@@ -1005,7 +1052,10 @@ function executeMockQuery({
 
   // Pagination
   const offset = (page - 1) * pageSize;
-  const pagedRecords = sorted.slice(offset, offset + pageSize);
+  const pagedRecords = sorted.slice(offset, offset + pageSize).map((r) => ({
+    ...r,
+    date: formatDateDDMMYYYY(r.date),
+  }));
 
   // Compute summary for local mock
   let totalQty = 0;

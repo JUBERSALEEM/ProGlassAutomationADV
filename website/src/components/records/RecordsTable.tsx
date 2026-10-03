@@ -3,6 +3,7 @@
 import { memo } from "react";
 import type { RecordRow, RecordSort, RecordSortField } from "@/types/records";
 import { Badge } from "@/components/ui/Badge";
+import { formatDateDDMMYYYY } from "@/lib/date-utils";
 
 type RecordsTableProps = {
   records: RecordRow[];
@@ -121,7 +122,7 @@ const TableRow = memo(function TableRow({
       className="group transition-colors hover:bg-ink-850/80 cursor-pointer"
     >
       <td className={`pl-4 pr-3 ${cellPy} font-mono text-2xs text-text-muted whitespace-nowrap`}>
-        {record.date}
+        {formatDateDDMMYYYY(record.date)}
       </td>
       <td className={`px-3 ${cellPy} font-mono text-xs font-semibold text-brand-300 group-hover:text-brand-200 whitespace-nowrap`}>
         {record.pi_number}

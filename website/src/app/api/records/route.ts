@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     const pageSize = Math.min(250, Math.max(10, parseInt(searchParams.get("pageSize") || "50", 10) || 50));
 
     const sortField = (searchParams.get("sortBy") || "date") as RecordSortField;
-    const sortDirection = (searchParams.get("sortOrder") || "desc") as SortDirection;
+    const sortDirection = (searchParams.get("sortOrder") || "asc") as SortDirection;
 
     const validSortFields: RecordSortField[] = [
       "date",

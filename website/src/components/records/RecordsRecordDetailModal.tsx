@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { RecordRow } from "@/types/records";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { formatDateDDMMYYYY } from "@/lib/date-utils";
 
 type RecordsRecordDetailModalProps = {
   record: RecordRow | null;
@@ -67,7 +68,7 @@ export function RecordsRecordDetailModal({ record, onClose }: RecordsRecordDetai
 
         {/* Content Grid */}
         <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto pr-1">
-          <DetailField label="Date" value={record.date} mono />
+          <DetailField label="Date" value={formatDateDDMMYYYY(record.date)} mono />
           <DetailField label="Salesman" value={record.salesman} />
           <DetailField label="Prepared By" value={record.prepared_by} />
           <DetailField label="Type of Work" value={record.type_of_work} highlight />

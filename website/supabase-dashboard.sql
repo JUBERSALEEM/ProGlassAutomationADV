@@ -641,9 +641,12 @@ GRANT EXECUTE ON FUNCTION public.reconcile_latest_excel_as_active TO anon, authe
 -- ---------------------------------------------------------------------
 
 -- Index 1: Accelerated Date Sorting & Range Filtering
--- Accelerates: WHERE date >= '...' AND date <= '...' ORDER BY date DESC
+-- Accelerates: WHERE date >= '...' AND date <= '...' ORDER BY date ASC / DESC
 CREATE INDEX IF NOT EXISTS idx_records_date_desc 
 ON public.records(date DESC);
+
+CREATE INDEX IF NOT EXISTS idx_records_date_asc_serialized 
+ON public.records(date ASC, updated_at ASC, id ASC);
 
 -- Index 2: Categorical Equality Filters
 -- Accelerates: WHERE company = '...' / salesman = '...' / prepared_by = '...'

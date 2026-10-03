@@ -22,6 +22,7 @@ import { RecordsBreakdowns } from "./RecordsBreakdowns";
 import { RecordsTable } from "./RecordsTable";
 import { RecordsPagination } from "./RecordsPagination";
 import { RecordsRecordDetailModal } from "./RecordsRecordDetailModal";
+import { compareRecordDates } from "@/lib/date-utils";
 
 const INITIAL_FILTERS: RecordFilters = {
   search: "",
@@ -40,7 +41,7 @@ const INITIAL_FILTERS: RecordFilters = {
 
 const INITIAL_SORT: RecordSort = {
   field: "date",
-  direction: "desc",
+  direction: "asc",
 };
 
 export function RecordsDashboard() {
@@ -66,7 +67,7 @@ export function RecordsDashboard() {
 
   const [sort, setSort] = useState<RecordSort>(() => ({
     field: (searchParams.get("sortBy") || "date") as RecordSortField,
-    direction: searchParams.get("sortOrder") === "asc" ? "asc" : "desc",
+    direction: searchParams.get("sortOrder") === "desc" ? "desc" : "asc",
   }));
 
   const [page, setPage] = useState<number>(() => {
@@ -187,7 +188,7 @@ export function RecordsDashboard() {
       if (newFilters.sourceFile) params.set("sourceFile", newFilters.sourceFile);
 
       if (newSort.field !== "date") params.set("sortBy", newSort.field);
-      if (newSort.direction !== "desc") params.set("sortOrder", newSort.direction);
+      if (newSort.direction !== "asc") params.set("sortOrder", newSort.direction);
 
       if (newPage > 1) params.set("page", String(newPage));
       if (newPageSize !== 50) params.set("pageSize", String(newPageSize));
@@ -559,6 +560,35 @@ export function RecordsDashboard() {
     };
   }, [accumulatedOptions, data?.currentSourceFile, data?.filterOptions, data?.records]);
 
+  // Memoized records guaranteed sorted by Excel date and update date serialization
+  const displayedRecords = useMemo(() => {
+    const recs = data?.records || [];
+    if (recs.length === 0) return recs;
+
+    if (sort.field === "date") {
+      return [...recs].sort((a, b) => compareRecordDates(a, b, sort.direction === "asc"));
+    }
+
+    const field = sort.field;
+    const dir = sort.direction === "asc" ? 1 : -1;
+    return [...recs].sort((a, b) => {
+      const valA = a[field];
+      const valB = b[field];
+
+      if (valA === valB) {
+        return compareRecordDates(a, b, true);
+      }
+      if (valA === null || valA === undefined) return 1;
+      if (valB === null || valB === undefined) return -1;
+
+      if (typeof valA === "number" && typeof valB === "number") {
+        return (valA - valB) * dir;
+      }
+
+      return String(valA).localeCompare(String(valB)) * dir;
+    });
+  }, [data?.records, sort.field, sort.direction]);
+
   if (authChecking) {
     return (
       <div className="min-h-screen bg-ink-950 flex items-center justify-center p-6">
@@ -690,7 +720,7 @@ export function RecordsDashboard() {
 
         {/* Section 4: Records Table */}
         <RecordsTable
-          records={data?.records || []}
+          records={displayedRecords}
           loading={loading}
           sort={sort}
           onSortChange={handleSortChange}
