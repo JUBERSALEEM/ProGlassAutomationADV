@@ -409,8 +409,16 @@ namespace ProGlassAutomation.Services.Audit
                     .OrderBy(s => s)
                     .ToListAsync().ConfigureAwait(false);
             }
-            catch
+            catch (Exception ex)
             {
+                // Phase 26d: was a bare catch. An empty section list is
+                // indistinguishable from "nobody has done anything yet", so a
+                // corrupt or locked audit database presented as a brand-new
+                // install with no history at all. GetRecentAsync already logs
+                // on this path; this one did not.
+                AppLogService.Error(
+                    "[Audit] Could not read the activity sections list — the "
+                    + "Diagnostics filters will appear empty.", ex);
                 return new List<string>();
             }
         }
@@ -429,8 +437,14 @@ namespace ProGlassAutomation.Services.Audit
 
                 return rows.ToDictionary(r => r.Section, r => r.Count);
             }
-            catch
+            catch (Exception ex)
             {
+                // Phase 26d: System Center renders these counts directly, so a
+                // read failure showed a wall of zeros that reads as "no
+                // activity recorded" rather than "activity could not be read".
+                AppLogService.Error(
+                    "[Audit] Could not count activity per section — the System "
+                    + "Center overview will show zeros.", ex);
                 return new Dictionary<string, int>();
             }
         }
@@ -449,8 +463,17 @@ namespace ProGlassAutomation.Services.Audit
                     .OrderBy(u => u.Id)
                     .ToListAsync().ConfigureAwait(false);
             }
-            catch
+            catch (Exception ex)
             {
+                // Phase 26d: the worst of the silent ones. User management
+                // renders this list, so a transient read failure showed an
+                // administrator an EMPTY user table — which looks exactly like
+                // "the user accounts are gone", and invites them to recreate
+                // accounts that in fact still exist.
+                AppLogService.Error(
+                    "[Audit] Could not read the user list — user management "
+                    + "will appear empty even though the accounts still exist.",
+                    ex);
                 return new List<AppUser>();
             }
         }
@@ -476,8 +499,22 @@ namespace ProGlassAutomation.Services.Audit
                 using var db = new AuditDbContext();
                 return await db.Users.AnyAsync().ConfigureAwait(false);
             }
-            catch
+            catch (Exception ex)
             {
+                // Phase 26d: this catch is load-bearing and it was completely
+                // invisible. Returning false here is deliberately kept — see
+                // the summary above — but false means "fresh install", so a
+                // TRANSIENT read error sends an established operator to the
+                // first-run wizard instead of the login form, where the
+                // recovery action offered is "create the first administrator".
+                // Keeping the fail-safe direction is right (crashing is worse),
+                // but it must not be silent: an Error entry is now the only
+                // way to tell afterwards that a machine was offered the setup
+                // wizard by mistake rather than because it genuinely was new.
+                AppLogService.Error(
+                    "[Audit] Could not determine whether any user exists. "
+                    + "Treating it as a first run and showing the setup wizard.",
+                    ex);
                 return false;
             }
         }
@@ -631,8 +668,17 @@ namespace ProGlassAutomation.Services.Audit
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                // Phase 26d: a bare `false` with nothing recorded. The caller
+                // can only say "that didn't work", and an administrator trying
+                // to disable an account has no way to know whether the write
+                // failed or was refused — which matters, because a failed
+                // deactivation leaves an account active that was believed to
+                // be switched off.
+                AppLogService.Error(
+                    "[Audit] Could not change a user's active state. The account "
+                    + "is unchanged and may still be active.", ex);
                 return false;
             }
         }

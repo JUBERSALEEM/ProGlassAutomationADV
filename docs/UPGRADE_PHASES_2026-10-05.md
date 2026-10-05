@@ -866,7 +866,7 @@ feature.
 
 ---
 
-## Phase 26 — Security observability: refused authentication, and bounded logs
+## Phase 26 — Security observability: refused auth, bounded logs, silent audit failures
 
 **Severity: P1 · Security / operability · Applied 2026-10-05**
 
@@ -943,6 +943,65 @@ silent-catch audit stays green: the new `catch { }` in `RotateLog` falls under
 the existing `("AppLogService.cs", "*", "Logger must never throw")` entry, and
 `CrashReportServiceTests.BuildReport_includes_recent_log_lines` reads the
 in-memory ring buffer, not the file, so rotation cannot affect it.
+
+### 26c. The last unsanctioned `async void` ✅ applied (`1335ecd0`)
+
+`docs/ARCHITECTURE.md` claimed `AsyncUtility.SafeFireAndForget` was the single
+sanctioned `async void` and that no sync-over-async remained. Checking that
+claim instead of trusting it found one exception —
+`OptimizationViewModel.Jobs.cs:351 private async void LoadJobsAsync()` — reached
+from both the Refresh command and the constructor. An `async void` that throws
+re-raises on the captured synchronization context rather than on a returned
+task, and `ICommand` handlers are exactly the case where nothing is awaiting to
+observe it. It now returns `Task` and both call sites go through
+`SafeFireAndForget`, gaining the central logging, correlation id and
+`ReadOnlyModeException` dialog every other fire-and-forget call already has.
+
+Worth recording because it also **disproved two metrics that had been driving
+the backlog**. Measured properly (`async void <name>(`):
+
+| Believed | Actual |
+|---|---|
+| 55 `async void` | 1 outside `AsyncUtility`, now 0 — the 55 was counting *comment* mentions such as `// Phase 3: Was async void` |
+| 102 `.Result` / `.Wait()` | `.GetAwaiter().GetResult()` = 0, `.Wait()` = 0; the `.Result` hits are a domain property named `Result` on the optimisation row model |
+
+So "async/await hygiene" was never a work item — Phase 3 had already finished
+it. Both claims are now stated in `ARCHITECTURE.md` with the grep that backs
+them.
+
+### 26d. Audit and user-management failures were indistinguishable from empty data ✅ applied
+
+Five data-access paths in `AuditService.Part1.cs` caught every exception,
+returned an empty result, and recorded nothing. `GetRecentAsync` already logged
+on failure; these did not, which made a corrupt, locked or unreachable
+`audit.db` present as an installation that simply had nothing to show:
+
+| Method | What the operator saw on failure |
+|---|---|
+| `GetUsersAsync` | An **empty user table** — reads as "the accounts are gone", inviting an administrator to recreate accounts that still exist |
+| `HasAnyUsersAsync` | `false`, i.e. **"fresh install"** — see below |
+| `SetUserActiveAsync` | `false` with no reason, after a deactivation that may not have applied |
+| `GetSectionsWithActivityAsync` | No sections in the Diagnostics filter |
+| `GetSectionCountsAsync` | A wall of zeros in the System Center |
+
+`HasAnyUsersAsync` is the consequential one. Its `false` return is the
+first-run signal at `App.StartupCore.cs:821`, which chooses
+`splash.RunFirstRunSetupAsync()` over `RunLoginAsync()`. So a *transient* read
+error sends an established operator to the setup wizard, where the action
+offered is "create the first administrator". The existing summary already
+reasoned that returning `false` is the safe side rather than crashing, and that
+reasoning is kept — but it must not be silent, because an `Error` entry is now
+the only way to establish afterwards that a machine was offered the wizard by
+mistake rather than because it genuinely was new.
+
+All five now log at `Error` with the exception. Control flow is unchanged, so
+no caller, test or translation moves. `AppLogService.Write` reads
+`AuditService.CurrentUsername` (a pure static property, no database access), so
+logging from inside an audit failure cannot re-enter it.
+
+**Acceptance.** Empty `catch` bodies in the file: 0 before, 0 after — the
+silent-catch audit is untouched. All 25 XML doc-comment blocks in the file
+parse as well-formed XML.
 
 ---
 
