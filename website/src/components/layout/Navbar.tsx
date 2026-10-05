@@ -36,6 +36,7 @@ const entries: NavEntry[] = [
       },
     ],
   },
+  { label: "Job Orders", href: "/job-orders" },
   { label: "Optimization", href: "/optimization" },
   {
     label: "Resources",
@@ -43,18 +44,17 @@ const entries: NavEntry[] = [
       { label: "Resources", href: "/resources", description: "Guides to the glass workflows" },
       { label: "Blog", href: "/blog", description: "Notes on the build and the industry" },
       { label: "Sponsors", href: "/sponsors", description: "Back the build, or join it" },
+      { label: "Developer", href: "/developer", description: "Engineering notes and product development" },
     ],
   },
-  /* About and Developer are separate pages with separate jobs, and both get a
-     top-level slot rather than being buried in a dropdown. */
+  /* About stays a top-level destination; Developer lives under Resources so
+     the production Job Orders page can also have a direct navigation slot. */
   { label: "About", href: "/about" },
-  { label: "Developer", href: "/developer" },
   /*
    * Collaboration takes the top-level slot, and Sponsors keeps the one it
    * already had inside this same nav's Resources menu (and in the footer, and
-   * on the collaboration page itself). Adding an eighth top-level item instead
-   * would push the pill past what `lg` has room for, and a navigation that
-   * wraps is worse than one page reached by two routes.
+   * on the collaboration page itself). The seven-slot ceiling preserves room
+   * for the direct Job Orders link without wrapping the navigation.
    */
   { label: "Collaborate", href: "/collaborate" },
 ];
