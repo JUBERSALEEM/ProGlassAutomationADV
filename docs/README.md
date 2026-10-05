@@ -329,7 +329,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | `CI/` | Pipeline definitions (`build-test.yml`). (2 files) |
 | `Chat5/` | Working notes and data from an earlier session. (6 files) |
 | `Chat5-9/` | Working notes, prompts and data from an earlier session. (7 files) |
-| `ci/` | Pipeline definitions — duplicate casing of `CI/`; see `CI.md`. (2 files) |
+| `ci/` | Pipeline definitions — duplicate casing of `CI/`; see `CI.md`. (5 files) |
 | `dashboard/` | Supporting artefacts. (1 files) |
 | `lists/` | Supporting artefacts. (2 files) |
 | `optimization/` | Supporting artefacts. (10 files) |

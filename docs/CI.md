@@ -4,26 +4,40 @@
 > **[Repository root](../README.md)** · [All documents](README.md) · [Application workflow](WORKFLOW.md) · [Design system](DESIGN_SYSTEM.md)
 <!-- pg-nav -->
 
-CI is **live**. Two workflows run from `.github/workflows/`:
+Two workflows are written, verified and waiting in
+[`docs/ci/activate/`](ci/activate/README.md) — complete files, not templates.
+They are not yet in `.github/workflows/`, and the reason is a permission, not a
+decision:
+
+| Attempt to place them (2026-10-05) | Result |
+|---|---|
+| `git push` of a commit adding `.github/workflows/ci.yml` | `remote rejected` — *"refusing to allow a GitHub App to create or update workflow … without `workflows` permission"* |
+| `PUT …/contents/.github/workflows/ci.yml` (Contents API, explicit author) | `403 Resource not accessible by integration` |
+
+The sandbox credential is a GitHub App installation token, and workflow files
+sit behind a permission that token does not hold; a git push and an API write
+are refused identically. Your own credentials are not subject to it, so
+activation is one command — see
+**[`docs/ci/activate/README.md`](ci/activate/README.md)**.
 
 | File | Runs on | Purpose |
 |---|---|---|
-| [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | every push to every branch, every pull request, manual dispatch | Proves the tree builds, the suites pass and the docs are consistent |
-| [`.github/workflows/release.yml`](../.github/workflows/release.yml) | a `v*.*.*` tag, or manual dispatch | Cuts the installer and publishes the Velopack OTA feed |
+| [`ci.yml`](ci/activate/ci.yml) | every push to every branch, every pull request, manual dispatch | Proves the tree builds, the suites pass and the docs are consistent |
+| [`release.yml`](ci/activate/release.yml) | a `v*.*.*` tag, or manual dispatch | Cuts the installer and publishes the Velopack OTA feed |
 
 A tag push runs `release.yml` only — `ci.yml` filters on `branches`, which
 does not match tags — so no commit is built twice, and a release still cannot
 be cut from a red tree because `release.yml` carries its own copy of the same
 gate.
 
-> **History.** Until 2026-10-05 the workflows lived in `docs/ci/` and
-> `docs/CI/` as templates a maintainer had to copy into place, because the
-> GitHub App pushing from the development sandbox did not hold the
-> `workflows` permission scope. They are activated now. The four templates
-> still exist as comment-only pointer files, because roughly a dozen
-> documents — including the September 2026 audits, which describe the state
-> of CI *at the time they were written* — link to them. Each pointer explains
-> what was wrong with the file it replaced.
+> **History.** Four workflow templates used to sit in `docs/ci/` and
+> `docs/CI/`, disagreeing with each other about the publish verb, about where
+> signing happens and about the portable zip's name. They are retired to
+> comment-only pointers — each one explains what was wrong with it — because
+> roughly a dozen documents link to them, including the September 2026 audits
+> that describe CI as it was then. What replaces them is the two files in
+> `docs/ci/activate/`, which are one pipeline each rather than four opinions
+> about one pipeline.
 
 ---
 

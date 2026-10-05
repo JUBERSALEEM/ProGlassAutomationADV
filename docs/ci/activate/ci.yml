@@ -1,0 +1,172 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# CI — the verification gate for ProGlass Automation
+# ═══════════════════════════════════════════════════════════════════════════
+# Runs on every push to every branch and on every pull request. Tag pushes
+# (v*.*.*) deliberately do NOT run this workflow — they run release.yml,
+# which carries its own copy of the same gate, so a release is never
+# published on a red suite and no commit is built twice.
+#
+# Three jobs, cheapest first:
+#
+#   static-checks   ubuntu, no SDK. The repository's own Python verifiers:
+#                   docs links + index freshness + folder nav, the docs
+#                   index count, and a string/comment-aware brace balance
+#                   scan over every tracked .cs file. These are the checks
+#                   that catch the mistakes a build cannot see (a stale doc
+#                   index, a truncated file) and they cost seconds.
+#
+#   test-portable   ubuntu, .NET 8. The two test projects that target
+#                   portable net8.0 — the licensing contract and the engine
+#                   regression suite. Neither is reachable from
+#                   ProGlassAutomation.slnx, so before this workflow they
+#                   were never compiled by any documented run.
+#
+#   build-test      windows-latest, .NET 8. The real gate: the app targets
+#                   net8.0-windows with UseWPF and cannot build on Ubuntu.
+#                   It builds Tests/ProGlassAutomation.Tests.csproj (NOT the
+#                   app project — the app csproj carries
+#                   <Compile Remove="Tests/**" />, so building the app never
+#                   compiles the test project and a later --no-build test run
+#                   fails with "test source file not found"), which pulls the
+#                   app in through the ProjectReference. Because the app sets
+#                   <TreatWarningsAsErrors>true</TreatWarningsAsErrors>, a
+#                   green box here is the only evidence in this repository
+#                   that the tree compiles.
+#
+# If build-test goes red on tests that pass locally, the first thing to
+# suspect is a test that needs a desktop session: the suite is a WPF project
+# and the runner's session is not the one a workstation provides. Triage the
+# failing test — do not silence it with a filter here.
+# ═══════════════════════════════════════════════════════════════════════════
+
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch makes the older run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+
+jobs:
+  # ──────────────────────────────────────────────────────────────────────────
+  static-checks:
+    name: Docs + source hygiene
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Broken relative links, a stale docs index and folder READMEs that lost
+      # their navigation. Exits non-zero on any of the three.
+      - name: Verify documentation links, index and nav
+        run: python3 scripts/verify-readmes.py
+
+      # Separate guard: the index is generated, so "verify" alone can pass
+      # while the count drifts.
+      - name: Check the docs index is current
+        run: python3 scripts/gen-docs-index.py --check
+
+      # Not a compile check — a string- and comment-aware brace scanner. It
+      # catches the one class of mistake a scripted find-and-replace makes:
+      # a truncated or duplicated block. xargs batches the file list and
+      # returns 123 if any batch exits non-zero.
+      - name: Brace balance across every tracked .cs file
+        run: git ls-files '*.cs' | xargs -r python3 scripts/check-csharp-balance.py
+
+  # ──────────────────────────────────────────────────────────────────────────
+  test-portable:
+    name: Licensing + engine regression tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          cache: true
+
+      # global.json pins 8.0.100 with rollForward latestFeature, so any
+      # 8.0.x SDK satisfies it. A 9.x SDK would be refused by design —
+      # AnalysisLevel=latest + TreatWarningsAsErrors makes a new analyzer
+      # rule a build error on code nobody touched.
+      - name: Licensing contract tests
+        run: >
+          dotnet test Licensing/ProGlass.Licensing.Tests/ProGlass.Licensing.Tests.csproj
+          -c Release
+          --verbosity normal
+
+      - name: Engine regression tests
+        run: >
+          dotnet test Tools/EngineRegression/EngineRegression.csproj
+          -c Release
+          --verbosity normal
+
+  # ──────────────────────────────────────────────────────────────────────────
+  build-test:
+    name: Build + test (Windows, WPF)
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          cache: true
+
+      - name: Restore
+        run: dotnet restore Tests/ProGlassAutomation.Tests.csproj --verbosity minimal
+
+      # TreatWarningsAsErrors is on in the app csproj, so this step is the
+      # compile gate for 1,391 production files as well as for the suite.
+      - name: Build (Release)
+        run: >
+          dotnet build Tests/ProGlassAutomation.Tests.csproj
+          -c Release
+          --no-restore
+          --verbosity minimal
+          -p:ContinuousIntegrationBuild=true
+
+      # Same sequence the installer script uses: the test DLL already exists,
+      # so --no-build is honest here (and only here).
+      - name: Test
+        run: >
+          dotnet test Tests/ProGlassAutomation.Tests.csproj
+          -c Release
+          --no-build
+          --verbosity normal
+          --logger "trx;LogFileName=proglas-automation-tests.trx"
+          --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-windows
+          path: TestResults/**/*.trx
+          if-no-files-found: warn
+          retention-days: 14

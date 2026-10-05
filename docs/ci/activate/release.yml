@@ -1,0 +1,252 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Release — publish + Velopack OTA feed, on a version tag
+# ═══════════════════════════════════════════════════════════════════════════
+# Triggered by a `v*.*.*` tag (or a manual dispatch). A normal push never
+# creates a release.
+#
+# The pipeline deliberately does NOT re-implement packaging. It runs
+# scripts/build-installer.ps1 — the same script a developer runs locally —
+# so there is exactly one declaration of what a release contains: publish
+# through Release.pubxml, strip PRODUCTION_READINESS, bundle FFmpeg, paint
+# the splash and MSI art, vpk pack (Setup.exe + full nupkg + portable zip),
+# SHA-256 summary. The workflow adds the only two things a local box cannot
+# do: assert the tag agrees with the csproj, and publish the feed as a
+# GitHub Release.
+#
+# OTA wiring: VelopackUpdateService builds
+#   new UpdateManager(new GithubSource("https://github.com/JUBERSALEEM/ProGlassAutomationADV",
+#                                      accessToken: null, prerelease: false))
+# and reads the RELEASES file that `vpk upload github` publishes here. The
+# channel is "stable" on both sides — installer/velopack.json declares it and
+# the pack step passes it — because a feed written to one channel and read
+# from another reports "no update available" forever.
+#
+# Version: <Version> in ProGlassAutomation.csproj is the single source. A tag
+# that disagrees with it fails the job rather than publishing a package whose
+# name and binaries disagree (UpdateService.IsNewer is a strict greater-than
+# compare, so a mislabelled package is either unreachable or skips a release).
+#
+# Known limitations, stated rather than hidden:
+#   * UNSIGNED. Neither this workflow nor the script signs anything, so a CI
+#     release is unsigned exactly like a local `build-installer.ps1` run.
+#     Wiring code signing means giving the script a --signParams passthrough
+#     and signing DURING pack — a post-pack signtool pass would miss the
+#     Setup.exe/Update.exe that vpk generates and would invalidate the feed
+#     checksums. Tracked in docs/UPGRADE_PHASES_2026-10-05.md.
+#   * FULL PACKAGES ONLY, NO DELTAS. The script clears releases\ immediately
+#     before packing, and deltas are computed against packages already in the
+#     output directory, so `vpk download github` cannot feed it. Every update
+#     downloads the full package. Correct, just not minimal.
+# ═══════════════════════════════════════════════════════════════════════════
+
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (MAJOR.MINOR.PATCH). Leave empty to use <Version> from ProGlassAutomation.csproj."
+        required: false
+        default: ""
+      prerelease:
+        description: "Publish as a pre-release (kept out of the stable OTA feed)"
+        type: boolean
+        required: false
+        default: false
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+  # Pinned to the Velopack 1.2.0 NuGet library the app references, so the CLI
+  # writes a RELEASES feed in the format the in-app updater reads.
+  VPK_VERSION: "1.2.0"
+  VPK_CHANNEL: "stable"
+
+jobs:
+  # ────────────────────────────────────────────────────────────────────────────
+  # The same gate as ci.yml, repeated on purpose: a workflow cannot `needs`
+  # across files, and a release must never be cut from a tree that does not
+  # build and test green.
+  # ────────────────────────────────────────────────────────────────────────────
+  build-test:
+    name: Build + test (Windows, WPF)
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          cache: true
+
+      - name: Restore
+        run: dotnet restore Tests/ProGlassAutomation.Tests.csproj --verbosity minimal
+
+      - name: Build (Release)
+        run: >
+          dotnet build Tests/ProGlassAutomation.Tests.csproj
+          -c Release
+          --no-restore
+          --verbosity minimal
+          -p:ContinuousIntegrationBuild=true
+
+      - name: Test
+        run: >
+          dotnet test Tests/ProGlassAutomation.Tests.csproj
+          -c Release
+          --no-build
+          --verbosity normal
+          --logger "trx;LogFileName=release-gate.trx"
+          --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-gate-test-results
+          path: TestResults/**/*.trx
+          if-no-files-found: warn
+          retention-days: 14
+
+  # ────────────────────────────────────────────────────────────────────────────
+  release:
+    name: Package + publish OTA feed
+    needs: build-test
+    runs-on: windows-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write # vpk creates the GitHub Release and uploads the feed
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          cache: true
+
+      # One version, checked against the csproj before anything is built.
+      - name: Resolve release version
+        id: version
+        shell: pwsh
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          $csproj = Get-Content ProGlassAutomation.csproj -Raw
+          $m = [regex]::Match($csproj, '<Version>(?<v>[^<]+)</Version>')
+          if (-not $m.Success) {
+            Write-Host "::error::No <Version> element in ProGlassAutomation.csproj."
+            exit 1
+          }
+          $csprojVersion = $m.Groups['v'].Value.Trim()
+
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -match '^[vV]') {
+            $version = $env:GITHUB_REF_NAME.TrimStart('v', 'V')
+          }
+          elseif ($env:INPUT_VERSION) {
+            $version = $env:INPUT_VERSION.TrimStart('v', 'V')
+          }
+          else {
+            $version = $csprojVersion
+          }
+
+          if ($version -notmatch '^\d+\.\d+\.\d+$') {
+            Write-Host "::error::Resolved version '$version' is not MAJOR.MINOR.PATCH."
+            exit 1
+          }
+
+          if ($csprojVersion -ne $version) {
+            Write-Host "::error::Release version '$version' does not match <Version>$csprojVersion</Version> in ProGlassAutomation.csproj. Bump the csproj, commit, then re-tag."
+            exit 1
+          }
+
+          "VERSION=$version"     | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "TAG=v$version"        | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Releasing ProGlass Automation $version (tag v$version, channel $env:VPK_CHANNEL)"
+
+      # Installed globally and put on PATH for every later step, because the
+      # build script invokes `vpk` by name and exits 1 if it is missing.
+      - name: Install the Velopack CLI
+        shell: pwsh
+        run: |
+          dotnet tool install --global vpk --version $env:VPK_VERSION
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Join-Path $env:USERPROFILE ".dotnet\tools" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+      - name: Warn if no code-signing certificate is configured
+        shell: pwsh
+        env:
+          PFX_CERT: ${{ secrets.CODESIGN_PFX_BASE64 }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:PFX_CERT)) {
+            Write-Host "::warning::No CODESIGN_PFX_BASE64 secret - publishing UNSIGNED, exactly as a local build-installer.ps1 run does. Fine for internal testing; do not ship unsigned builds to customers."
+          }
+          else {
+            Write-Host "::warning::A signing certificate is configured but scripts/build-installer.ps1 has no signing passthrough yet, so this release is still UNSIGNED. See the header of this workflow."
+          }
+
+      # The one release recipe: restore, build, test gate, publish through
+      # Release.pubxml, strip PRODUCTION_READINESS, bundle FFmpeg, generate
+      # the splash/MSI art, vpk pack, portable zip, SHA-256 summary.
+      # Its test gate runs again here on purpose - the packaged bits must be
+      # the bits that passed, not just the commit that did.
+      - name: Build the installer payload
+        shell: pwsh
+        env:
+          APP_VERSION: ${{ steps.version.outputs.VERSION }}
+        run: |
+          .\scripts\build-installer.ps1 -Version $env:APP_VERSION
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::error::build-installer.ps1 exited with $LASTEXITCODE (1=toolchain, 2=build/test gate, 3=publish, 4=vpk pack)."
+            exit $LASTEXITCODE
+          }
+
+      # Publishes the RELEASES feed as a GitHub Release. This is the step the
+      # in-app updater reads: VelopackUpdateService's GithubSource fetches the
+      # feed uploaded here on launch.
+      - name: Publish the OTA feed to GitHub Releases
+        shell: pwsh
+        env:
+          APP_VERSION: ${{ steps.version.outputs.VERSION }}
+          APP_TAG: ${{ steps.version.outputs.TAG }}
+          IS_PRERELEASE: ${{ inputs.prerelease }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $repo = "https://github.com/$env:GITHUB_REPOSITORY"
+          $uploadArgs = @(
+            "upload", "github",
+            "--repoUrl", $repo,
+            "--channel", $env:VPK_CHANNEL,
+            "--outputDir", "releases",
+            "--publish",
+            "--releaseName", "ProGlass Automation $env:APP_VERSION",
+            "--tag", $env:APP_TAG
+          )
+          if ($env:IS_PRERELEASE -eq 'true') { $uploadArgs += "--pre" }
+
+          & vpk @uploadArgs
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::error::vpk upload github failed with $LASTEXITCODE. The packages are in releases\ - attach them to the release by hand if needed."
+            exit $LASTEXITCODE
+          }
+          Write-Host "OTA feed published: $repo/releases/tag/$env:APP_TAG"
+
+      # Tiny, and the first thing to read when an update reports "nothing new":
+      # if the channel or version line is wrong here, the client cannot see it.
+      - name: Upload the RELEASES feed for diagnosis
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: velopack-feed-${{ steps.version.outputs.VERSION }}
+          path: releases/RELEASES*
+          if-no-files-found: warn
+          retention-days: 30

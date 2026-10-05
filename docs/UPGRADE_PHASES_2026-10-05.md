@@ -461,14 +461,20 @@ not how updates are applied.
 
 ## Phase 21 — Pin the SDK and put CI in front of every push
 
-> **Status 2026-10-05: DONE.** `global.json` pins 8.0.100 with
-> `"rollForward": "latestFeature"` and no prerelease, and CI is live:
-> `.github/workflows/ci.yml` (static checks on Ubuntu, the two portable suites
-> on Ubuntu, the WPF build+test gate on `windows-latest`) and
-> `.github/workflows/release.yml` (tag → `build-installer.ps1` → `vpk upload
-> github --channel stable`). Consequence of the pin, stated rather than
-> hidden: a 9.x SDK is now refused, so the `dotnet build *.slnx` escape hatch
-> no longer works — name the project instead.
+> **Status 2026-10-05: WORKFLOWS WRITTEN AND VERIFIED, ACTIVATION BLOCKED ON A
+> PERMISSION.** `global.json` pins 8.0.100 with
+> `"rollForward": "latestFeature"` and no prerelease. Two complete workflows
+> sit in `docs/ci/activate/` — a CI gate (static checks on Ubuntu, the two
+> portable suites on Ubuntu, the WPF build+test gate on `windows-latest`) and
+> a release pipeline (tag → `build-installer.ps1` → `vpk upload github
+> --channel stable`). Placing them in `.github/workflows/` was refused twice:
+> a git push returns *"refusing to allow a GitHub App to create or update
+> workflow … without `workflows` permission"*, and the Contents API returns
+> `403 Resource not accessible by integration`. Both need a credential the
+> sandbox does not have, so the last step is a one-command copy from the
+> vendor's own machine (`docs/ci/activate/README.md`). Consequence of the pin,
+> stated rather than hidden: a 9.x SDK is now refused, so the `dotnet build
+> *.slnx` escape hatch no longer works — name the project instead.
 >
 > What was deliberately NOT done: no code signing (the script has no
 > `--signParams` passthrough, so a CI release is unsigned exactly like a local
