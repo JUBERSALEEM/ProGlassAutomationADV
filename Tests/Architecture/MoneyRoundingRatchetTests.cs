@@ -194,22 +194,49 @@ namespace ProGlassAutomation.Tests.Architecture
         }
 
         /// <summary>
-        /// The only two files that may name the rounding mode directly.
+        /// The files that may name the rounding mode directly.
         ///
-        /// The first is the money home — the whole point of Phase 2. The second
-        /// is NOT money: it rounds a parsed piece count to an integer
-        /// (<c>(int)Math.Round(d, MidpointRounding.AwayFromZero)</c>), where
-        /// away-from-zero is simply "round half up" for a count. Routing that
-        /// through MoneyRounding would be wrong, because it would assert a
-        /// currency precision on a quantity.
+        /// Exactly one of them is money: <c>Services/Reporting/MoneyRounding.cs</c>,
+        /// the money home and the whole point of Phase 2. Every other entry is a
+        /// QUANTITY — a piece count, a frame count, an area in m², a length, or a
+        /// display total — where away-from-zero is simply "round half up" and
+        /// routing it through MoneyRounding would be wrong, because that would
+        /// assert a currency precision on a measurement.
         ///
-        /// This was verified rather than assumed — an earlier draft of this test
-        /// asserted only the first file and would have failed on the second.
+        /// 2026-10-05: this list was pinned at two files while the production and
+        /// optimisation modules were still being written, so the assertion below
+        /// (an exact collection equality, not a subset check) went red as soon as
+        /// they declared a mode. The seven additions are all quantities; none is
+        /// a money path. Adding a file here is the correct action ONLY when the
+        /// value being rounded is not money — the allow-list in this same file is
+        /// what tracks money still awaiting migration.
+        ///
+        /// ORDER MATTERS: the assertion is <c>Assert.Equal</c> against a list
+        /// sorted with <see cref="StringComparer.Ordinal"/>, so this array must
+        /// stay in ordinal order.
+        ///
+        ///   file                                         what it rounds
+        //   WindowScreenRecorder.cs                      frames: fps x 1.5 -> integer frame count
+        //   VideoEncoder.cs                              frames: fps x keyframe interval -> integer count
+        //   OptimizationModels.cs                        area to 4 dp and utilisation percentage
+        //   ProductionDistributionEngine.cs              length to 3 dp
+        //   ProductionRepository.cs                      SQM to 3 dp on flow and arrival totals
+        //   CutListImportParser.cs                       parsed piece count -> integer (the original carve-out)
+        //   MoneyRounding.cs                             the money home - the whole point of Phase 2
+        //   OptimizationViewModel.Preview.cs             piece area m2 to 3 dp
+        //   ProductionStageViewModelBase.Detail.cs       SQM/LM display totals to 2 dp
         /// </summary>
         private static readonly string[] AllowedModeDeclarations =
         {
+            "Agent/Demo/Recording/WindowScreenRecorder.cs",
+            "Agent/Demo/Video/VideoEncoder.cs",
+            "Services/Optimization/OptimizationModels.cs",
+            "Services/Production/ProductionDistributionEngine.cs",
+            "Services/Production/ProductionRepository.cs",
             "Services/ProformaInvoice/Step5Grid/CutListImportParser.cs",
-            "Services/Reporting/MoneyRounding.cs"
+            "Services/Reporting/MoneyRounding.cs",
+            "ViewModels/Optimization/OptimizationViewModel.Preview.cs",
+            "ViewModels/Production/ProductionStageViewModelBase.Detail.cs"
         };
 
         [Fact]

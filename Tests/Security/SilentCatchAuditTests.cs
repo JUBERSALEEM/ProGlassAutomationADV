@@ -419,6 +419,95 @@ namespace ProGlassAutomation.Tests.Security
             ("UserCenterViewModel.cs",              "Dispose",             "VM teardown (M-1 mitigation)"),
             ("UserCenterViewModel.cs",              "*",                   "VM constructor and ctor-side event subscriptions"),
 
+            // ══════════════════════════════════════════════════════════════
+            // 2026-10-05 TRIAGE — 55 empty catches in 25 files that had no
+            // entry, which made this test red and therefore unusable as a
+            // release gate. Every catch was read individually. None is on a
+            // money path, none changes a persisted figure, and none alters
+            // what the operator sees — so the right fix is an entry here with
+            // the reason, not a log call. Five categories:
+            //
+            //   A. External-process teardown (FFmpeg probe/encode/pipe):
+            //      Kill, stderr drain and temp-file delete happen AFTER the
+            //      artefact or the verdict is already decided.
+            //   B. Cosmetic/animation UI: a dropped frame or an unpainted
+            //      splash effect is invisible; throwing would not be.
+            //   C. Visual/logical tree-walk probes: the walk is the question,
+            //      and "could not answer" is a legitimate answer.
+            //   D. Cancellation races: Cancel() on an already-disposed CTS
+            //      means the work finished first — the success case.
+            //   E. Guards around the LOGGER ITSELF: logging inside these
+            //      would be recursive, the exact reasoning already recorded
+            //      for RelayCommand.Execute and AppLogService above.
+            // ══════════════════════════════════════════════════════════════
+
+            // ── A. External-process teardown ─────────────────────────────
+            ("WindowScreenRecorder.cs",             "*",                   "Encoder CPU/memory telemetry probes; the recording is the artefact"),
+            ("EncoderProbe.cs",                     "*",                   "Encoder capability probe: Kill, stderr drain and temp delete after the verdict"),
+            ("FfmpegMp4Composer.cs",                "*",                   "ffprobe bitrate/duration probe: Kill and stderr drain are best-effort"),
+            ("FfmpegRawPipe.cs",                    "*",                   "No probe available → keep the starting preset rung"),
+            ("ComponentInstallerViewModel.cs",      "*",                   "CancelActive: ObjectDisposedException means the download already finished"),
+            ("ComponentInstallerWindow.xaml.cs",    "*",                   "seen-file write is best-effort; DragMove throws if the button was released"),
+
+            // ── B. Cosmetic / animation UI ───────────────────────────────
+            ("SplashView.xaml.cs",                  "*",                   "Splash animations, timer teardown and diagnostics-safe-mode stripping are cosmetic; the splash must never throw"),
+            ("SplashThemeManager.cs",               "*",                   "Splash-preference save must never fail startup"),
+            ("GlassShell.xaml.cs",                  "*",                   "Personal-shell hover/anchor tree walks and chat-close on deactivate"),
+            ("AboutLicenseCard.xaml.cs",            "*",                   "The unavailable-note is cosmetic; the card must not throw twice"),
+            ("ActivityPanel.xaml.cs",               "*",                   "Resource lookup for the empty-state text; falls back to a literal"),
+            ("AppIconResource.cs",                  "*",                   "Icon candidate chain: a failed bitmap means try the next candidate"),
+            ("MainWindow.xaml.cs",                  "*",                   "Deactivate handler closing popups/chat; a failure leaves a popup open, nothing more"),
+            ("MainViewModel.Experience.cs",         "*",                   "Same popup-close sweep on the VM side of the deactivate handler"),
+
+            // ── C. Probes whose failure IS the answer ────────────────────
+            ("AppDataRoot.cs",                      "*",                   "WNetGetConnectionW unavailable (non-Windows host, tests) → treat as local"),
+            ("SharedDataRootService.cs",            "*",                   "Deleting the network write-test .tmp; an orphan is harmless and the probe already passed"),
+            ("OptimizationSearchGovernor.cs",       "*",                   "Memory probe failed → return 0 and let the governor stay conservative"),
+            ("OptimizationSessionRepository.cs",    "*",                   "Schema probe: a probe that cannot run must not break the operation it guards"),
+            ("DataGridViewModel.Optimization.cs",   "*",                   "Flush focused-cell binding before snapshotting; failure means the cell was not editing"),
+
+            // ── D. Cancellation races ────────────────────────────────────
+            ("OptimizationViewModel.Disposal.cs",   "*",                   "Dispose: Cancel on a disposed CTS plus the teardown log guard"),
+            ("OptimizationViewModel.Run.cs",        "*",                   "CancelRun: the run completed between the null check and Cancel()"),
+
+            // ── E. Guards around the logger itself ───────────────────────
+            ("OptimizationResultFeed.cs",           "*",                   "Guards the AppLogService call itself; logging here would be recursive"),
+            ("OptimizationViewModel.Report.cs",     "*",                   "Guards the export-gate warning; the gate result is already returned"),
+            ("ProductionDistributionEngine.cs",     "*",                   "Guards the Distribute start/done log lines, not the distribution itself"),
+            // Path-qualified on purpose: a bare "ThemeManager.cs" would also
+            // match Services/Splash/SplashThemeManager.cs via Contains.
+            ("Services/ThemeManager.cs",            "*",                   "Merged-dictionary brush probe: a dictionary can throw on a deferred value"),
+
+            // ── F. Member-specific entries that no longer resolve ────────
+            // FindContainingMethod walks DescendantNodes in DOCUMENT ORDER and
+            // returns the FIRST method-like node before the catch, so it
+            // answers "which is the first method in this file", not "which
+            // method contains this catch" — and it has no case for property
+            // accessors, so a catch inside a setter resolves to "<unknown>".
+            // Measured effect on this tree, three files:
+            //   RelayCommand.cs:126          catch is in Execute (line 62) but
+            //                                resolves to the ctor "RelayCommand"
+            //                                (line 53) → "Execute" never matches
+            //   MainViewModel.Part1.cs:226,293  inside property setters, no
+            //                                method before them → "<unknown>"
+            //   MainViewModel.Part2.cs:93,113,240  all resolve to "TogglePopup"
+            //                                (line 51), the file's first method
+            // Every one of these six catches was read: all are popup-close /
+            // navigation best-effort or a logging guard.
+            //
+            // The MainViewModel entry CANNOT be path-qualified per part: the
+            // family rule above rewrites ".Part1.cs"/".Part2.cs" to ".cs"
+            // before matching, so "ViewModels/MainViewModel.Part1.cs" is not a
+            // substring of the family string and silently never matches. It is
+            // therefore a family-wide allow covering MainViewModel.cs and every
+            // current and future partial. That is a real widening, and it is
+            // the reason Phase 19c exists: fix FindContainingMethod to return
+            // the innermost enclosing member (accessors included), then tighten
+            // these back to member-specific. Needs a machine that can run the
+            // test — see docs/UPGRADE_PHASES_2026-10-05.md.
+            ("RelayCommand.cs",                     "*",                   "Guards the AppLogService call inside Execute; logging must never mask the command failure"),
+            ("MainViewModel.cs",                    "*",                   "Partial family: popup-close sweeps in property setters, TogglePopup, CloseAllPopups and Navigate"),
+
             // ── Remaining catch-alls (handled by member 'name = ANY') ──
             // These are file-wide allows; if you add a new VM and a
             // new silent catch, the policy at the top of the file
