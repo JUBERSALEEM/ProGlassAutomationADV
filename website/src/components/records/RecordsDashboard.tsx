@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
-import { isSupabaseConfigured, supabaseBrowser } from "@/lib/supabase";
+import { LocaleLink } from "@/components/ui/LocaleLink";
 import type {
   DatePreset,
   FilterOptions,
@@ -23,6 +23,8 @@ import { RecordsTable } from "./RecordsTable";
 import { RecordsPagination } from "./RecordsPagination";
 import { RecordsRecordDetailModal } from "./RecordsRecordDetailModal";
 import { compareRecordDates } from "@/lib/date-utils";
+import { useOperatorSession } from "@/lib/useOperatorSession";
+import { deliveriesHrefFromRecordFilters } from "@/lib/delivery-links";
 
 const INITIAL_FILTERS: RecordFilters = {
   search: "",
@@ -98,76 +100,18 @@ export function RecordsDashboard() {
     sourceFiles: [],
   });
 
-  // Authentication & operator session state
-  const [authChecking, setAuthChecking] = useState(() => isSupabaseConfigured());
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [authToken, setAuthToken] = useState<string | null>(null);
-  const [isAuthRequired, setIsAuthRequired] = useState(false);
-
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Monitor Supabase Auth state for protected reports access
-  useEffect(() => {
-    if (!isSupabaseConfigured()) {
-      return;
-    }
-
-    let isSubscribed = true;
-
-    async function checkSession() {
-      try {
-        const supabase = supabaseBrowser();
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        if (!isSubscribed) return;
-
-        if (session?.user) {
-          setUserEmail(session.user.email ?? null);
-          setAuthToken(session.access_token);
-          setIsAuthRequired(false);
-        } else if (process.env.NODE_ENV === "production") {
-          setIsAuthRequired(true);
-        }
-      } catch (err) {
-        console.warn("[records-dashboard] Session check failed:", err);
-      } finally {
-        if (isSubscribed) {
-          setAuthChecking(false);
-        }
-      }
-    }
-
-    checkSession();
-
-    let unsubscribe = () => {};
-    try {
-      const {
-        data: { subscription },
-      } = supabaseBrowser().auth.onAuthStateChange((_event, session) => {
-        if (!isSubscribed) return;
-        if (session?.user) {
-          setUserEmail(session.user.email ?? null);
-          setAuthToken(session.access_token);
-          setIsAuthRequired(false);
-        } else {
-          setUserEmail(null);
-          setAuthToken(null);
-          if (process.env.NODE_ENV === "production") {
-            setIsAuthRequired(true);
-          }
-        }
-      });
-      unsubscribe = () => subscription.unsubscribe();
-    } catch {
-      // ignore
-    }
-
-    return () => {
-      isSubscribed = false;
-      unsubscribe();
-    };
-  }, []);
+  // One operator session, shared with the Deliveries Tracker. The hook owns
+  // the check, the token and the sign-out; this page only renders the gate.
+  const {
+    checking: authChecking,
+    userEmail,
+    authToken,
+    isAuthRequired,
+    signOut: handleSignOut,
+    requireAuth,
+  } = useOperatorSession();
 
   // Sync state to URL search parameters
   const updateUrlParams = useCallback(
@@ -242,7 +186,7 @@ export function RecordsDashboard() {
         });
 
         if (response.status === 401) {
-          setIsAuthRequired(true);
+          requireAuth();
           setLoading(false);
           return;
         }
@@ -366,27 +310,19 @@ export function RecordsDashboard() {
       isCancelled = true;
       controller.abort();
     };
-  }, [page, pageSize, sort, filters, refreshCounter, authToken, isAuthRequired, authChecking]);
+  }, [
+    page,
+    pageSize,
+    sort,
+    filters,
+    refreshCounter,
+    authToken,
+    isAuthRequired,
+    authChecking,
+    requireAuth,
+  ]);
 
   // Handlers
-  const handleSignOut = useCallback(async () => {
-    try {
-      if (isSupabaseConfigured()) {
-        await supabaseBrowser().auth.signOut();
-      }
-      try {
-        await fetch("/api/auth/signout", { method: "POST" });
-      } catch {
-        // ignore
-      }
-    } finally {
-      setUserEmail(null);
-      setAuthToken(null);
-      setIsAuthRequired(true);
-      router.push(`/reports/login?redirect=${encodeURIComponent(pathname)}`);
-    }
-  }, [pathname, router]);
-
   const handleRefresh = useCallback(() => {
     setAccumulatedOptions({
       companies: [],
@@ -690,6 +626,32 @@ export function RecordsDashboard() {
               <span className="font-mono text-3xs text-text-faint">Data isolation: active</span>
             </div>
           )}
+
+        {/* Cross-link: the same workbook, seen as dispatch obligations.
+            Reports lists every row of every status; the tracker narrows the same
+            data to confirmed PIs and follows each one movement by movement. The
+            link carries the current slice of the workbook across so the operator
+            lands on the same view rather than on a blank page. */}
+        <div className="flex flex-col gap-3 rounded-2xl border border-brand-400/25 bg-brand-500/[0.06] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="eyebrow text-brand-300">Deliveries Tracker</span>
+              <Badge tone="accent" className="text-3xs font-mono">
+                Confirmed PIs only
+              </Badge>
+            </div>
+            <p className="mt-1 text-xs leading-relaxed text-text-muted">
+              Same workbook, different question: how much of each confirmed PI has gone out, what is
+              still owed, and which deliveries were part loads. One PI can carry several movements.
+            </p>
+          </div>
+          <LocaleLink
+            href={deliveriesHrefFromRecordFilters(filters)}
+            className="inline-flex h-9 shrink-0 items-center justify-center rounded-xl border border-brand-400/40 bg-ink-950/60 px-4 text-xs font-semibold text-brand-200 transition-colors hover:border-brand-300 hover:text-brand-100"
+          >
+            Open Deliveries Tracker →
+          </LocaleLink>
+        </div>
 
         {/* Section 1: Summary Statistics Cards */}
         <RecordsSummaryCards summary={data?.summary || null} loading={loading} />

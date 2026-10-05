@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import type { RecordRow } from "@/types/records";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { LocaleLink } from "@/components/ui/LocaleLink";
+import { deliveriesHrefFromRecordFilters } from "@/lib/delivery-links";
 import { formatDateDDMMYYYY } from "@/lib/date-utils";
 
 type RecordsRecordDetailModalProps = {
@@ -114,14 +116,24 @@ export function RecordsRecordDetailModal({ record, onClose }: RecordsRecordDetai
         </div>
 
         {/* Footer Actions */}
-        <div className="mt-6 flex items-center justify-between border-t border-line-strong/60 pt-4">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line-strong/60 pt-4">
           <Button variant="secondary" size="sm" onClick={handleCopyJson}>
             {copied ? "✓ Copied JSON" : "Copy Raw JSON"}
           </Button>
 
-          <Button variant="primary" size="sm" onClick={onClose}>
-            Done
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Reports shows the row; the tracker shows what has left the
+                building against it. Same PI, one click, no retyping. */}
+            <LocaleLink
+              href={deliveriesHrefFromRecordFilters({}, record.pi_number)}
+              className="inline-flex h-8 items-center justify-center rounded-xl border border-line-strong/80 bg-ink-850/80 px-3.5 text-xs font-semibold text-text-muted transition-colors hover:border-brand-400 hover:text-brand-200"
+            >
+              Track deliveries →
+            </LocaleLink>
+            <Button variant="primary" size="sm" onClick={onClose}>
+              Done
+            </Button>
+          </div>
         </div>
       </div>
     </div>
