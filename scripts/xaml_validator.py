@@ -48,7 +48,7 @@ Static analysis gate for every .xaml file in the repository.
       own containers: IsItemItsOwnContainerOverride = 'item is UIElement').
       Added 2026-09-19 (GB-B6, PgSkeletonKpiBandStyle startup crash).
 
-Usage:  python3 tools/xaml_validator.py [--files <paths...>]
+Usage:  python3 scripts/xaml_validator.py [--files <paths...>]
 Writes: docs/ui-audit/XAML_VALIDATION_REPORT.{md,json}
 Exit:   0 = no ERROR-level findings, 1 = ERRORs present.
 

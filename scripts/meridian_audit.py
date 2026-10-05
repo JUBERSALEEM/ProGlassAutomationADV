@@ -182,8 +182,8 @@ def main():
         A(f"- `{s}` {p}")
     A("")
     A("Untracked new files: `Themes/Professional/` (ProfessionalCore/Shell + README), `mockups/` "
-      "(8-screen acceptance mockup + REWRITE_PHASES.md), `tools/ui_inventory.py`, "
-      "`tools/meridian_audit.py`, `docs/ui-audit/` (this audit set).")
+      "(8-screen acceptance mockup + REWRITE_PHASES.md), `scripts/ui_inventory.py`, "
+      "`scripts/meridian_audit.py`, `docs/ui-audit/` (this audit set).")
     A("")
     A("## Template-part note (x:Name audit refinement)")
     A("")
