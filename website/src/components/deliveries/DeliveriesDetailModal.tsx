@@ -165,7 +165,7 @@ export function DeliveriesDetailModal({
 
           <div className="flex flex-wrap items-center gap-2">
             <LocaleLink
-              href={reportsHrefForPi(row.pi_number)}
+              href={reportsHrefForPi(row.pi_number, { sourceFile: row.source_file ?? "all" })}
               className="inline-flex h-9 items-center justify-center rounded-xl border border-line-strong/80 bg-ink-850/80 px-4 text-xs font-semibold text-text-muted transition-colors hover:border-glass-teal hover:text-glass-teal"
             >
               View source rows in Reports →

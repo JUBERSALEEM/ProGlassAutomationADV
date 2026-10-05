@@ -27,9 +27,10 @@ const entries: NavEntry[] = [
       { label: "Worked Example", href: "/worked-example", description: "One real job, every figure" },
       { label: "Screenshots", href: "/screenshots", description: "The interface, screen by screen" },
       { label: "Pricing", href: "/pricing", description: "Editions and what each one unlocks" },
-      { label: "Reports", href: "/reports", description: "Operations and live sync data" },
+      { label: "Proforma Invoices", href: "/reports?status=Confirmed", description: "Confirmed proformas from Excel Sync" },
+      { label: "Job Orders", href: "/job-orders", description: "Confirmed PI hand-off queue" },
       {
-        label: "Deliveries",
+        label: "Delivery Notes",
         href: "/deliveries",
         description: "Confirmed PIs, part loads and outstanding balance",
       },

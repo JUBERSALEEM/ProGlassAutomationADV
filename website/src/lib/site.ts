@@ -56,8 +56,9 @@ export const nav = {
     { label: "How It Works", href: "/how-it-works" },
     { label: "Worked Example", href: "/worked-example" },
     { label: "Screenshots", href: "/screenshots" },
-    { label: "Reports", href: "/reports" },
-    { label: "Deliveries", href: "/deliveries" },
+    { label: "Proforma Invoices", href: "/reports?status=Confirmed" },
+    { label: "Job Orders", href: "/job-orders" },
+    { label: "Delivery Notes", href: "/deliveries" },
   ],
   primary: [
     { label: "Features", href: "/features" },
@@ -80,8 +81,9 @@ export const nav = {
       { label: "Worked Example", href: "/worked-example" },
       { label: "Screenshots", href: "/screenshots" },
       { label: "Pricing", href: "/pricing" },
-      { label: "Reports", href: "/reports" },
-      { label: "Deliveries Tracker", href: "/deliveries" },
+      { label: "Proforma Invoices", href: "/reports?status=Confirmed" },
+      { label: "Job Orders", href: "/job-orders" },
+      { label: "Delivery Notes Tracker", href: "/deliveries" },
     ],
     company: [
       { label: "About ProGlass", href: "/about" },

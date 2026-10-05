@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/Badge";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { formatDateDDMMYYYY } from "@/lib/date-utils";
+import { confirmedProformaHrefForJobOrder } from "@/lib/job-order-links";
 import type { JobOrderRow, JobOrderSort, JobOrderSortField } from "@/types/job-orders";
 
 type Props = {
@@ -71,7 +72,7 @@ export function JobOrdersTable({ rows, loading, sort, onSortChange, onSelect, on
                 <td className="whitespace-nowrap px-4 py-3.5 font-mono text-2xs text-text-muted">{formatDateDDMMYYYY(row.order_date) || "—"}</td>
                 <td className="whitespace-nowrap px-3 py-3.5 font-mono text-xs font-semibold">
                   <LocaleLink
-                    href={`/reports?search=${encodeURIComponent(row.pi_number)}`}
+                    href={confirmedProformaHrefForJobOrder(row.pi_number, row.source_file)}
                     title={`Open ${row.pi_number} in the records dashboard`}
                     className="text-brand-300 underline-offset-2 transition-colors hover:text-brand-200 hover:underline"
                   >

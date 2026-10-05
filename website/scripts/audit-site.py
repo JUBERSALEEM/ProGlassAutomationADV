@@ -42,10 +42,10 @@ PAGES = [
     "/blog/why-the-price-basis-is-stamped", "/blog/guillotine-versus-free-nesting",
     "/blog/why-delivery-balance-is-hard",
     "/legal/privacy", "/legal/terms", "/legal/license",
-    # The two operations pages read Supabase and are behind an operator session
-    # in production; in a local crawl they render their sign-in or preview state,
+    # The operations pages read Supabase and are behind an operator session in
+    # production; in a local crawl they render their sign-in or preview state,
     # which still has to carry the metadata, one h1 and working links.
-    "/reports", "/deliveries",
+    "/reports", "/job-orders", "/deliveries",
 ]
 
 # Addresses that must NOT exist. A page that renders a "not found" body with a

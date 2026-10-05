@@ -24,7 +24,7 @@ import { RecordsPagination } from "./RecordsPagination";
 import { RecordsRecordDetailModal } from "./RecordsRecordDetailModal";
 import { compareRecordDates } from "@/lib/date-utils";
 import { useOperatorSession } from "@/lib/useOperatorSession";
-import { deliveriesHrefFromRecordFilters } from "@/lib/delivery-links";
+import { jobOrdersHrefFromRecordFilters } from "@/lib/job-order-links";
 
 const INITIAL_FILTERS: RecordFilters = {
   search: "",
@@ -627,29 +627,26 @@ export function RecordsDashboard() {
             </div>
           )}
 
-        {/* Cross-link: the same workbook, seen as dispatch obligations.
-            Reports lists every row of every status; the tracker narrows the same
-            data to confirmed PIs and follows each one movement by movement. The
-            link carries the current slice of the workbook across so the operator
-            lands on the same view rather than on a blank page. */}
+        {/* Proforma → Job Order is the next hand-off in the document chain.
+            The destination API owns the strict Confirmed gate and this link
+            carries the operator's active workbook and filters across. */}
         <div className="flex flex-col gap-3 rounded-2xl border border-brand-400/25 bg-brand-500/[0.06] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="eyebrow text-brand-300">Deliveries Tracker</span>
+              <span className="eyebrow text-brand-300">Next: Job Order</span>
               <Badge tone="accent" className="text-3xs font-mono">
                 Confirmed PIs only
               </Badge>
             </div>
             <p className="mt-1 text-xs leading-relaxed text-text-muted">
-              Same workbook, different question: how much of each confirmed PI has gone out, what is
-              still owed, and which deliveries were part loads. One PI can carry several movements.
+              Continue from proforma to production hand-off. The queue groups each confirmed PI once and excludes drafts and later statuses.
             </p>
           </div>
           <LocaleLink
-            href={deliveriesHrefFromRecordFilters(filters)}
+            href={jobOrdersHrefFromRecordFilters(filters)}
             className="inline-flex h-9 shrink-0 items-center justify-center rounded-xl border border-brand-400/40 bg-ink-950/60 px-4 text-xs font-semibold text-brand-200 transition-colors hover:border-brand-300 hover:text-brand-100"
           >
-            Open Deliveries Tracker →
+            Open Job Order Queue →
           </LocaleLink>
         </div>
 

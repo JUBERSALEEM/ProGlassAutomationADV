@@ -1,28 +1,25 @@
 "use client";
 
 /**
- * The two halves of one operational question, one tab apart.
+ * The visible document hand-off chain shared by the operations pages.
  *
- * Reports answers "what is in the workbook?" — every row, every status, the
- * source of truth. The Deliveries Tracker answers "how much of what we confirmed
- * has actually gone out?" — the same workbook, narrowed to the PIs that became
- * commitments, followed movement by movement.
- *
- * They are presented as tabs rather than as two unrelated pages because they
- * are two views of one dataset and an operator moves between them constantly:
- * read a PI in Reports, track its dispatch in Deliveries, come back to reconcile
- * the row. The tab is the cheapest possible connection between them, and the
- * deep links each page offers (`?search=` and `?pi=`) are the second.
+ * The first three steps have live website views: confirmed proformas, the
+ * read-only Job Order queue, and the delivery ledger. Tax Invoice and Statement
+ * are the next product modules in the chain; until their live dashboards exist,
+ * their links deliberately lead to the product overview rather than a fake
+ * operational screen.
  */
-
 import { usePathname } from "next/navigation";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { pathWithoutLocale } from "@/i18n/core";
 import { cn } from "@/lib/cn";
 
-const TABS = [
-  { href: "/reports", label: "Reports & Records", hint: "All statuses" },
-  { href: "/deliveries", label: "Deliveries Tracker", hint: "Confirmed only" },
+const STEPS = [
+  { href: "/reports?status=Confirmed", match: "/reports", label: "Proforma Invoice", hint: "Confirmed" },
+  { href: "/job-orders", match: "/job-orders", label: "Job Order", hint: "Hand-off" },
+  { href: "/deliveries", match: "/deliveries", label: "Delivery Note", hint: "Dispatch" },
+  { href: "/features#group-sales", match: null, label: "Tax Invoice", hint: "Overview" },
+  { href: "/features#group-reports", match: null, label: "Statement", hint: "Overview" },
 ] as const;
 
 export function OperationsTabs({ className }: { className?: string }) {
@@ -31,36 +28,39 @@ export function OperationsTabs({ className }: { className?: string }) {
 
   return (
     <nav
-      aria-label="Operations suite"
+      aria-label="Proforma Invoice to Statement document chain"
       className={cn(
-        "inline-flex items-center gap-1 rounded-xl border border-line-strong/70 bg-ink-950/70 p-1",
+        "inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-xl border border-line-strong/70 bg-ink-950/70 p-1",
         className,
       )}
     >
-      {TABS.map((tab) => {
-        const isActive = current === tab.href || current.startsWith(`${tab.href}/`);
+      {STEPS.map((step, index) => {
+        const isActive = step.match !== null && (current === step.match || current.startsWith(`${step.match}/`));
         return (
-          <LocaleLink
-            key={tab.href}
-            href={tab.href}
-            aria-current={isActive ? "page" : undefined}
-            className={cn(
-              "group flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
-              isActive
-                ? "bg-brand-500/25 text-brand-200 shadow-sm"
-                : "text-text-muted hover:bg-ink-900/80 hover:text-text-primary",
-            )}
-          >
-            <span>{tab.label}</span>
-            <span
+          <div key={step.label} className="flex shrink-0 items-center gap-1">
+            {index > 0 && <span aria-hidden="true" className="px-0.5 font-mono text-3xs text-text-faint/70">›</span>}
+            <LocaleLink
+              href={step.href}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
-                "hidden font-mono text-3xs uppercase tracking-wider sm:inline",
-                isActive ? "text-brand-300/80" : "text-text-faint",
+                "group flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3",
+                isActive
+                  ? "bg-brand-500/25 text-brand-200 shadow-sm"
+                  : "text-text-muted hover:bg-ink-900/80 hover:text-text-primary",
               )}
+              title={step.match ? step.label : `${step.label} product overview`}
             >
-              {tab.hint}
-            </span>
-          </LocaleLink>
+              <span>{step.label}</span>
+              <span
+                className={cn(
+                  "hidden font-mono text-3xs uppercase tracking-wider sm:inline",
+                  isActive ? "text-brand-300/80" : "text-text-faint",
+                )}
+              >
+                {step.hint}
+              </span>
+            </LocaleLink>
+          </div>
         );
       })}
     </nav>

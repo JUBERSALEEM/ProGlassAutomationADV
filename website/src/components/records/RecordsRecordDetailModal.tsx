@@ -5,7 +5,6 @@ import type { RecordRow } from "@/types/records";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { LocaleLink } from "@/components/ui/LocaleLink";
-import { deliveriesHrefFromRecordFilters } from "@/lib/delivery-links";
 import { formatDateDDMMYYYY } from "@/lib/date-utils";
 
 type RecordsRecordDetailModalProps = {
@@ -122,14 +121,18 @@ export function RecordsRecordDetailModal({ record, onClose }: RecordsRecordDetai
           </Button>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* Reports shows the row; the tracker shows what has left the
-                building against it. Same PI, one click, no retyping. */}
-            <LocaleLink
-              href={deliveriesHrefFromRecordFilters({}, record.pi_number)}
-              className="inline-flex h-8 items-center justify-center rounded-xl border border-line-strong/80 bg-ink-850/80 px-3.5 text-xs font-semibold text-text-muted transition-colors hover:border-brand-400 hover:text-brand-200"
-            >
-              Track deliveries →
-            </LocaleLink>
+            {record.status.toLocaleLowerCase() === "confirmed" ? (
+              <LocaleLink
+                href={`/job-orders?search=${encodeURIComponent(record.pi_number)}`}
+                className="inline-flex h-8 items-center justify-center rounded-xl border border-brand-400/40 bg-brand-400/10 px-3.5 text-xs font-semibold text-brand-200 transition-colors hover:bg-brand-400/20"
+              >
+                Open Job Order Queue →
+              </LocaleLink>
+            ) : (
+              <span className="inline-flex h-8 items-center rounded-xl border border-line-strong/70 bg-ink-950/60 px-3 text-2xs font-mono text-text-faint" title="Only confirmed proformas enter the Job Order queue">
+                Job Order requires Confirmed
+              </span>
+            )}
             <Button variant="primary" size="sm" onClick={onClose}>
               Done
             </Button>

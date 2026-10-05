@@ -47,7 +47,7 @@ const number = (value: unknown): number => {
 const round2 = (value: number): number => Math.round((value + Number.EPSILON) * 100) / 100;
 
 function confirmedStatus(value: unknown): boolean {
-  return text(value).toLocaleLowerCase() === "confirmed";
+  return typeof value === "string" && value.toLocaleLowerCase() === "confirmed";
 }
 
 function normalizeSource(value: unknown): string {

@@ -1,11 +1,11 @@
 /**
- * Deep links between the two operational dashboards.
+ * Deep links across the operations document chain.
  *
- * A tab gets an operator to the other page. A deep link gets them to the *same
- * PI* on the other page, which is what "connect both pages" actually means in
- * use: the person reading a row in Reports should be able to see its dispatch
- * history without retyping an eleven-character PI number, and the person
- * looking at a delivery balance should be able to reconcile the original row.
+ * A tab gets an operator to another stage. A deep link gets them to the *same
+ * PI* on that stage, which is what a connected document chain means in use:
+ * the person reading a proforma can see its dispatch history without retyping
+ * an eleven-character PI number, and the person looking at a delivery balance
+ * can reconcile the source record.
  *
  * Both builders drop empty values rather than emitting `&company=`, so a link
  * from an unfiltered page stays a clean URL and the receiving page's defaults
@@ -49,5 +49,6 @@ export function reportsHrefForPi(piNumber: string, deliveryFilters?: Partial<Del
     salesman: deliveryFilters?.salesman,
     preparedBy: deliveryFilters?.preparedBy,
     typeOfWork: deliveryFilters?.typeOfWork,
+    sourceFile: deliveryFilters?.sourceFile,
   })}`;
 }

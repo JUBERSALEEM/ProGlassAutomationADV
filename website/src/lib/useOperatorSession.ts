@@ -1,15 +1,14 @@
 "use client";
 
 /**
- * One operator session, two dashboards.
+ * One operator session, three dashboards.
  *
- * The Reports dashboard and the Deliveries Tracker stand behind the same door:
- * the same Supabase project, the same Row Level Security policies, the same
- * operator account. Before this hook existed, the session logic lived inside
- * `RecordsDashboard` — and the second page that needed it would either have
- * copied it (two behaviours to keep in step) or silently skipped it (one page
- * protected, one page open). Both are the kind of bug that shows up after the
- * release, in production, on the page nobody re-tested.
+ * Reports, the Job Order queue and the Deliveries Tracker stand behind the
+ * same door: the same Supabase project, the same Row Level Security policies,
+ * the same operator account. Before this hook existed, session logic lived
+ * inside `RecordsDashboard` — every new operations page either copied it or
+ * risked drifting out of step. Both are the kind of bug that shows up after
+ * the release, in production, on the page nobody re-tested.
  *
  * So the logic lives here: check the session once, subscribe to auth changes,
  * expose the access token so the API route can forward it to PostgREST as the

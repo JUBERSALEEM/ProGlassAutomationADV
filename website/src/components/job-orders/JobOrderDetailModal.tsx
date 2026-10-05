@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { formatDateDDMMYYYY } from "@/lib/date-utils";
+import { confirmedProformaHrefForJobOrder, deliveryNoteHrefForJobOrder } from "@/lib/job-order-links";
 import type { JobOrderRow } from "@/types/job-orders";
 
 export function JobOrderDetailModal({ row, onClose }: { row: JobOrderRow | null; onClose: () => void }) {
@@ -66,8 +67,11 @@ export function JobOrderDetailModal({ row, onClose }: { row: JobOrderRow | null;
         </p>
 
         <div className="mt-5 flex flex-wrap items-center justify-end gap-2 border-t border-line-strong/60 pt-4">
-          <LocaleLink href={`/reports?search=${encodeURIComponent(row.pi_number)}`} className="inline-flex h-9 items-center justify-center rounded-xl border border-line-strong/80 bg-ink-850/80 px-3.5 text-xs font-semibold text-text-muted transition-colors hover:border-brand-400 hover:text-brand-200">
+          <LocaleLink href={confirmedProformaHrefForJobOrder(row.pi_number, row.source_file)} className="inline-flex h-9 items-center justify-center rounded-xl border border-line-strong/80 bg-ink-850/80 px-3.5 text-xs font-semibold text-text-muted transition-colors hover:border-brand-400 hover:text-brand-200">
             Open Proforma Records
+          </LocaleLink>
+          <LocaleLink href={deliveryNoteHrefForJobOrder(row.pi_number, row.source_file)} className="inline-flex h-9 items-center justify-center rounded-xl border border-brand-400/40 bg-brand-400/10 px-3.5 text-xs font-semibold text-brand-200 transition-colors hover:bg-brand-400/20">
+            Next: Delivery Note →
           </LocaleLink>
           <button type="button" onClick={onClose} className="inline-flex h-9 items-center justify-center rounded-xl bg-brand-400 px-4 text-xs font-semibold text-accent-ink transition-colors hover:bg-brand-300">Done</button>
         </div>

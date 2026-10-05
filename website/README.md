@@ -77,24 +77,28 @@ Deploy → then Settings → Domains → add the domain and its www form
 | `/resources` | Reference guides |
 | `/blog`, `/blog/[slug]` | Short notes, one file each in `src/data/resources.ts` |
 | `/legal/privacy`, `/legal/terms`, `/legal/license` | Website and licence terms |
-| `/reports` | Operations dashboard: every row Excel Sync has written, every status, with server-side aggregation |
-| `/deliveries` | Deliveries tracker: confirmed PIs only, each with its own movement ledger, so a PI delivered in three part loads shows one obligation and three entries |
-| `/reports/login` | Operator sign-in for both dashboards |
+| `/reports` | Proforma and operations records: every active Excel Sync row and status, with server-side aggregation |
+| `/job-orders` | Read-only production hand-off queue: only active proforma rows with status exactly `Confirmed`; multiple source rows are grouped into one PI. This view does not create a desktop Job Order document. |
+| `/deliveries` | Delivery Note tracker: confirmed PIs only, each with its own movement ledger, so a PI delivered in three part loads shows one obligation and three entries |
+| `/reports/login` | Operator sign-in for the operations dashboards |
 
 `/sitemap.xml` and `/robots.txt` are generated from the same data.
 
 ## Operations data (Supabase)
 
-The two operations pages read a Supabase project; every other page is static
-and needs no environment at all. They are connected by design — same workbook
-scoping (`src/lib/source-scope.ts`), same operator session
-(`src/lib/useOperatorSession.ts`), and a tab and deep links between them.
+The three operations views read the same Supabase project; every other page is
+static and needs no environment at all. They are connected by design — shared
+workbook scoping (`src/lib/source-scope.ts`), the same operator session
+(`src/lib/useOperatorSession.ts`), and a document chain in this order:
+Proforma Invoice → Job Order → Delivery Note → Tax Invoice → Statement. The
+first three have live website views; Tax Invoice and Statement link to their
+product overviews until their live operations views are built.
 
 | Variable | Used by | Notes |
 |---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | both dashboards | Project address |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | both dashboards | Publishable key; Row Level Security decides what it may read. The service key is refused if pasted here |
-| `PROGLASS_CONFIRMED_STATUSES` | `/deliveries` | Server-side. Which `public.records.status` values count as a delivery obligation. Defaults to `Confirmed`; widen with `"Confirmed,In Production,Ready"` |
+| `NEXT_PUBLIC_SUPABASE_URL` | all three dashboards | Project address |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | all three dashboards | Publishable key; Row Level Security decides what it may read. The service key is refused if pasted here |
+| `PROGLASS_CONFIRMED_STATUSES` | `/deliveries` | Server-side. Which `public.records.status` values count as a delivery obligation. Defaults to `Confirmed`; widen with `"Confirmed,In Production,Ready"`. `/job-orders` intentionally stays strict and accepts only `Confirmed`. |
 
 Two SQL files are meant to be run once, in the Supabase SQL editor:
 

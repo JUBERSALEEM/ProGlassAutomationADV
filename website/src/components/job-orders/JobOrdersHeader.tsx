@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { LocaleLink } from "@/components/ui/LocaleLink";
+import { OperationsTabs } from "@/components/operations/OperationsTabs";
 import type { JobOrdersApiData } from "@/types/job-orders";
 
 type JobOrdersHeaderProps = {
@@ -15,6 +16,7 @@ type JobOrdersHeaderProps = {
   userEmail?: string | null;
   onSignOut?: () => void;
   currentSourceFile?: string | null;
+  sourceFileFilter?: string;
   isCurrentSourceScoped?: boolean;
 };
 
@@ -28,8 +30,17 @@ export function JobOrdersHeader({
   userEmail,
   onSignOut,
   currentSourceFile,
+  sourceFileFilter,
   isCurrentSourceScoped,
 }: JobOrdersHeaderProps) {
+  const explicitSourceFile = sourceFileFilter && sourceFileFilter !== "current" && sourceFileFilter !== "all"
+    ? sourceFileFilter
+    : null;
+  const displayedSourceFile = sourceFileFilter === "all"
+    ? "All workbooks"
+    : explicitSourceFile || currentSourceFile;
+  const isCurrentScope = Boolean(isCurrentSourceScoped) &&
+    (!explicitSourceFile || explicitSourceFile === currentSourceFile);
   const updatedAt = serverTime
     ? new Date(serverTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
     : null;
@@ -55,14 +66,16 @@ export function JobOrdersHeader({
                 </Badge>
               )}
               <Badge tone="accent" className="font-mono">Confirmed only</Badge>
-              {currentSourceFile && (
+              {displayedSourceFile && (
                 <span className="inline-flex max-w-full items-center gap-1.5 rounded-md border border-line-strong/80 bg-ink-900/90 px-2 py-0.5 font-mono text-2xs text-text-secondary">
                   <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-glass-teal" />
                   <span className="shrink-0 text-text-faint">Workbook:</span>
-                  <strong className="truncate text-brand-200" title={currentSourceFile}>
-                    {currentSourceFile.split(/[\\/]/).pop() || currentSourceFile}
+                  <strong className="truncate text-brand-200" title={displayedSourceFile}>
+                    {displayedSourceFile === "All workbooks"
+                      ? displayedSourceFile
+                      : displayedSourceFile.split(/[\\/]/).pop() || displayedSourceFile}
                   </strong>
-                  {isCurrentSourceScoped && (
+                  {isCurrentScope && (
                     <span className="shrink-0 rounded bg-brand-500/20 px-1 py-0.5 text-3xs font-semibold uppercase text-brand-300">
                       Current
                     </span>
@@ -71,7 +84,9 @@ export function JobOrdersHeader({
               )}
             </div>
 
-            <div className="mt-2 flex flex-wrap items-baseline gap-3">
+            <OperationsTabs className="mt-3" />
+
+            <div className="mt-1 flex flex-wrap items-baseline gap-3">
               <h1 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">Job Orders</h1>
               <span className="font-mono text-xs text-text-faint">
                 {totalJobOrders.toLocaleString()} confirmed {totalJobOrders === 1 ? "PI" : "PIs"} ready for hand-off

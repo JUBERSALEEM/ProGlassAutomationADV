@@ -29,6 +29,7 @@ const pages: { path: string; priority: number; changeFrequency: ChangeFrequency 
   { path: "/pricing", priority: 0.8, changeFrequency: "monthly" },
   { path: "/reports", priority: 0.8, changeFrequency: "daily" },
   { path: "/records", priority: 0.8, changeFrequency: "daily" },
+  { path: "/job-orders", priority: 0.8, changeFrequency: "daily" },
   { path: "/deliveries", priority: 0.8, changeFrequency: "daily" },
   { path: "/about", priority: 0.7, changeFrequency: "yearly" },
   { path: "/developer", priority: 0.7, changeFrequency: "monthly" },

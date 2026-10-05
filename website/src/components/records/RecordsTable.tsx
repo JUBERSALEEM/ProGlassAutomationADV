@@ -5,7 +5,6 @@ import type { RecordRow, RecordSort, RecordSortField } from "@/types/records";
 import { Badge } from "@/components/ui/Badge";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { formatDateDDMMYYYY } from "@/lib/date-utils";
-import { deliveriesHrefFromRecordFilters } from "@/lib/delivery-links";
 
 type RecordsTableProps = {
   records: RecordRow[];
@@ -118,6 +117,8 @@ const TableRow = memo(function TableRow({
   cellPy: string;
   onSelect: () => void;
 }) {
+  const isConfirmed = record.status.toLocaleLowerCase() === "confirmed";
+
   return (
     <tr
       onClick={onSelect}
@@ -127,16 +128,20 @@ const TableRow = memo(function TableRow({
         {formatDateDDMMYYYY(record.date)}
       </td>
       <td className={`px-3 ${cellPy} font-mono text-xs font-semibold whitespace-nowrap`}>
-        {/* The row itself opens the detail modal; the PI cell goes one hop
-            further, to that PI's dispatch ledger on the deliveries tracker. */}
-        <LocaleLink
-          href={deliveriesHrefFromRecordFilters({}, record.pi_number)}
-          title={`Track deliveries for ${record.pi_number}`}
-          onClick={(event) => event.stopPropagation()}
-          className="text-brand-300 underline-offset-2 transition-colors hover:text-brand-200 hover:underline"
-        >
-          {record.pi_number}
-        </LocaleLink>
+        {isConfirmed ? (
+          <LocaleLink
+            href={`/job-orders?search=${encodeURIComponent(record.pi_number)}`}
+            title={`Open confirmed Job Order hand-off for ${record.pi_number}`}
+            onClick={(event) => event.stopPropagation()}
+            className="text-brand-300 underline-offset-2 transition-colors hover:text-brand-200 hover:underline"
+          >
+            {record.pi_number}
+          </LocaleLink>
+        ) : (
+          <span title="Only proformas marked Confirmed enter the Job Order queue" className="text-text-secondary">
+            {record.pi_number}
+          </span>
+        )}
       </td>
       <td className={`px-3 ${cellPy} font-mono text-3xs text-text-faint truncate max-w-[120px]`}>
         {record.customer_ref || "—"}

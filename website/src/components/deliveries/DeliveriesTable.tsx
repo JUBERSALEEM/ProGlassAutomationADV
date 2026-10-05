@@ -248,7 +248,7 @@ export function DeliveriesTable({
                           {isOpen ? "Hide ledger" : "Ledger"}
                         </button>
                         <LocaleLink
-                          href={reportsHrefForPi(row.pi_number)}
+                          href={reportsHrefForPi(row.pi_number, { sourceFile: row.source_file ?? "all" })}
                           className="rounded-md border border-line-strong px-2 py-1 text-3xs font-semibold text-text-faint transition-colors hover:border-glass-teal hover:text-glass-teal"
                           title="Open the source rows for this PI in Reports"
                         >

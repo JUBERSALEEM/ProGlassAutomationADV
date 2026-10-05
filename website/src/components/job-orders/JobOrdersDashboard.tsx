@@ -2,11 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type { Session } from "@supabase/supabase-js";
 import { Badge } from "@/components/ui/Badge";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { RecordsPagination } from "@/components/records/RecordsPagination";
-import { isSupabaseConfigured, supabaseBrowser } from "@/lib/supabase";
+import { useOperatorSession } from "@/lib/useOperatorSession";
 import { JobOrderDetailModal } from "@/components/job-orders/JobOrderDetailModal";
 import { JobOrdersHeader } from "@/components/job-orders/JobOrdersHeader";
 import { JobOrdersSummaryCards } from "@/components/job-orders/JobOrdersSummaryCards";
@@ -100,6 +99,7 @@ export function JobOrdersDashboard() {
     salesman: searchParams.get("salesman") || "",
     preparedBy: searchParams.get("preparedBy") || "",
     typeOfWork: searchParams.get("typeOfWork") || "",
+    sourceFile: searchParams.get("sourceFile") || "",
   }));
   const [searchInput, setSearchInput] = useState(searchParams.get("search") || "");
   const [sort, setSort] = useState<JobOrderSort>(() => ({
@@ -117,43 +117,15 @@ export function JobOrdersDashboard() {
   const [selectedRow, setSelectedRow] = useState<JobOrderRow | null>(null);
   const [refreshCounter, setRefreshCounter] = useState(0);
 
-  // Kept in step with the Reports dashboard until both pages use the shared
-  // operator-session hook from the confirmed-PI deliveries integration.
-  const [authChecking, setAuthChecking] = useState(() => isSupabaseConfigured());
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [authToken, setAuthToken] = useState<string | null>(null);
-  const [isAuthRequired, setIsAuthRequired] = useState(false);
+  const {
+    checking: authChecking,
+    userEmail,
+    authToken,
+    isAuthRequired,
+    signOut: handleSignOut,
+    requireAuth,
+  } = useOperatorSession();
   const abortControllerRef = useRef<AbortController | null>(null);
-
-  useEffect(() => {
-    if (!isSupabaseConfigured()) return;
-    let subscribed = true;
-
-    const applySession = (session: Session | null) => {
-      if (!subscribed) return;
-      if (session?.user) {
-        setUserEmail(session.user.email ?? null);
-        setAuthToken(session.access_token);
-        setIsAuthRequired(false);
-      } else {
-        setUserEmail(null);
-        setAuthToken(null);
-        if (process.env.NODE_ENV === "production") setIsAuthRequired(true);
-      }
-    };
-
-    void supabaseBrowser().auth.getSession().then(({ data }) => applySession(data.session)).catch((sessionError: unknown) => {
-      console.warn("[job-orders-dashboard] Session check failed:", sessionError);
-    }).finally(() => {
-      if (subscribed) setAuthChecking(false);
-    });
-
-    const { data: { subscription } } = supabaseBrowser().auth.onAuthStateChange((_event, session) => applySession(session));
-    return () => {
-      subscribed = false;
-      subscription.unsubscribe();
-    };
-  }, []);
 
   const updateUrl = useCallback((nextFilters: JobOrderFilters, nextSort: JobOrderSort, nextPage: number, nextPageSize: number) => {
     const params = new URLSearchParams();
@@ -165,6 +137,7 @@ export function JobOrdersDashboard() {
     if (nextFilters.salesman) params.set("salesman", nextFilters.salesman);
     if (nextFilters.preparedBy) params.set("preparedBy", nextFilters.preparedBy);
     if (nextFilters.typeOfWork) params.set("typeOfWork", nextFilters.typeOfWork);
+    if (nextFilters.sourceFile) params.set("sourceFile", nextFilters.sourceFile);
     if (nextSort.field !== INITIAL_SORT.field) params.set("sortBy", nextSort.field);
     if (nextSort.direction !== INITIAL_SORT.direction) params.set("sortOrder", nextSort.direction);
     if (nextPage > 1) params.set("page", String(nextPage));
@@ -196,6 +169,7 @@ export function JobOrdersDashboard() {
         if (filters.salesman) params.set("salesman", filters.salesman);
         if (filters.preparedBy) params.set("preparedBy", filters.preparedBy);
         if (filters.typeOfWork) params.set("typeOfWork", filters.typeOfWork);
+        if (filters.sourceFile) params.set("sourceFile", filters.sourceFile);
 
         const headers: Record<string, string> = {};
         if (authToken) headers.Authorization = `Bearer ${authToken}`;
@@ -207,7 +181,7 @@ export function JobOrdersDashboard() {
         const json: JobOrdersApiResponse = await response.json();
         if (cancelled) return;
         if (response.status === 401) {
-          setIsAuthRequired(true);
+          requireAuth();
           setLoading(false);
           return;
         }
@@ -229,7 +203,7 @@ export function JobOrdersDashboard() {
       cancelled = true;
       controller.abort();
     };
-  }, [authChecking, authToken, filters, isAuthRequired, page, pageSize, refreshCounter, sort]);
+  }, [authChecking, authToken, filters, isAuthRequired, page, pageSize, refreshCounter, requireAuth, sort]);
 
   const handleRefresh = useCallback(() => {
     setLoading(true);
@@ -279,22 +253,14 @@ export function JobOrdersDashboard() {
     handleFilterChange({ search: searchInput.trim() });
   };
 
-  const handleSignOut = useCallback(async () => {
-    try {
-      if (isSupabaseConfigured()) await supabaseBrowser().auth.signOut();
-      await fetch("/api/auth/signout", { method: "POST" }).catch(() => undefined);
-    } finally {
-      setUserEmail(null);
-      setAuthToken(null);
-      if (process.env.NODE_ENV === "production") setIsAuthRequired(true);
-    }
-  }, []);
-
   if (authChecking) return <LoadingScreen />;
   if (isAuthRequired) return <AccessGate pathname={pathname || "/job-orders"} />;
 
   const rows = data?.rows ?? [];
-  const activeFilters = Boolean(filters.search || filters.company || filters.salesman || filters.preparedBy || filters.typeOfWork || filters.datePreset !== "all");
+  const activeFilters = Boolean(
+    filters.search || filters.company || filters.salesman || filters.preparedBy || filters.typeOfWork ||
+    filters.sourceFile || filters.datePreset !== "all",
+  );
   const pagination = data?.pagination ?? { page, pageSize, totalEntries: 0, totalPages: 1 };
 
   return (
@@ -309,6 +275,7 @@ export function JobOrdersDashboard() {
         userEmail={userEmail}
         onSignOut={handleSignOut}
         currentSourceFile={data?.currentSourceFile || data?.filterOptions.currentSourceFile}
+        sourceFileFilter={filters.sourceFile}
         isCurrentSourceScoped={data?.isCurrentSourceScoped}
       />
 
@@ -340,6 +307,11 @@ export function JobOrdersDashboard() {
             <FilterSelect label="Company" value={filters.company} options={data?.filterOptions.companies ?? []} onChange={(value) => handleFilterChange({ company: value })} />
             <FilterSelect label="Salesman" value={filters.salesman} options={data?.filterOptions.salesmen ?? []} onChange={(value) => handleFilterChange({ salesman: value })} />
             <FilterSelect label="Work type" value={filters.typeOfWork} options={data?.filterOptions.typesOfWork ?? []} onChange={(value) => handleFilterChange({ typeOfWork: value })} />
+            <SourceFileSelect
+              value={filters.sourceFile || ""}
+              files={data?.filterOptions.sourceFiles ?? []}
+              onChange={(value) => handleFilterChange({ sourceFile: value })}
+            />
             <label className="min-w-36 text-3xs font-semibold uppercase tracking-wider text-text-faint">
               Order date
               <select value={filters.datePreset} onChange={(event) => handleFilterChange({ datePreset: validDatePreset(event.target.value), dateFrom: "", dateTo: "" })} className="mt-1.5 block w-full rounded-xl border border-line-strong/70 bg-ink-950/80 px-3 py-2.5 text-xs font-normal normal-case tracking-normal text-text-primary focus:border-brand-400 focus:outline-none">
@@ -392,13 +364,49 @@ export function JobOrdersDashboard() {
   );
 }
 
-function FilterSelect({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (value: string) => void }) {
+function FilterSelect({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}) {
+  const placeholders: Record<string, string> = {
+    Company: "All companies",
+    Salesman: "All salesmen",
+    "Work type": "All work types",
+  };
   return (
     <label className="min-w-36 text-3xs font-semibold uppercase tracking-wider text-text-faint">
       {label}
       <select value={value} onChange={(event) => onChange(event.target.value)} className="mt-1.5 block w-full rounded-xl border border-line-strong/70 bg-ink-950/80 px-3 py-2.5 text-xs font-normal normal-case tracking-normal text-text-primary focus:border-brand-400 focus:outline-none">
-        <option value="">All {label.toLowerCase()}s</option>
+        <option value="">{placeholders[label] || `All ${label.toLowerCase()}`}</option>
         {options.map((option) => <option key={option} value={option}>{option}</option>)}
+      </select>
+    </label>
+  );
+}
+
+function SourceFileSelect({
+  value,
+  files,
+  onChange,
+}: {
+  value: string;
+  files: string[];
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="min-w-44 text-3xs font-semibold uppercase tracking-wider text-text-faint">
+      Workbook
+      <select value={value} onChange={(event) => onChange(event.target.value)} className="mt-1.5 block w-full rounded-xl border border-line-strong/70 bg-ink-950/80 px-3 py-2.5 text-xs font-normal normal-case tracking-normal text-text-primary focus:border-brand-400 focus:outline-none">
+        <option value="">Current workbook (auto)</option>
+        <option value="all">All workbooks</option>
+        {files.map((file) => <option key={file} value={file}>{file.split(/[\\/]/).pop() || file}</option>)}
       </select>
     </label>
   );

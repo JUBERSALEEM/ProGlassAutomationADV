@@ -2,14 +2,15 @@
  * Which Excel workbook is the site reading, and which one did the operator ask for?
  *
  * The records table accumulates every workbook that was ever synced, so "the
- * data" is not one dataset — it is a stack of them. The Reports dashboard and
- * the Deliveries Tracker must agree on which slice of that stack is on screen,
- * or the two pages will show two different realities for the same PI number.
+ * data" is not one dataset — it is a stack of them. Reports, the Job Order
+ * queue and the Deliveries Tracker must agree on which slice of that stack is
+ * on screen, or the same PI number could resolve to different workbook rows.
  *
  * This module is that agreement, in one place. It was lifted out of
- * `records-api.ts` when the deliveries tracker needed the same rules: the
- * resolution is subtle enough (freshness ranking, unlabelled recent rows, an
- * RPC fallback) that a second copy would drift within one release.
+ * `records-api.ts` so the deliveries tracker and Job Order queue share the
+ * same rules: the resolution is subtle enough (freshness ranking, unlabelled
+ * recent rows, an RPC fallback) that a second copy would drift within one
+ * release.
  *
  * The rules it encodes, in the order they apply:
  *

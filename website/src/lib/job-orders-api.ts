@@ -8,6 +8,7 @@
  */
 import { isSupabaseConfigured, supabaseServer, supabaseServerWithToken } from "@/lib/supabase";
 import { fetchRecordsDashboardData, resolveDateRange } from "@/lib/records-api";
+import { buildSourceFileFilter, resolveSourceScope } from "@/lib/source-scope";
 import {
   buildJobOrderFilterOptions,
   buildJobOrderSummary,
@@ -43,7 +44,7 @@ const CORE_COLUMNS = [
   "qty",
   "sqm",
 ].join(", ");
-const EXTENDED_COLUMNS = ["source_file", "source_worksheet", "created_at", "updated_at"].join(", ");
+const EXTENDED_COLUMNS = "source_file";
 
 function isMissingColumn(error: { code?: string; message?: string }, column: string): boolean {
   const message = `${error.code ?? ""} ${error.message ?? ""}`.toLocaleLowerCase();
@@ -57,7 +58,10 @@ function errorMessage(error: { code?: string; message?: string }): string {
   return `Supabase confirmed-proforma query failed [${error.code || "unknown"}]: ${error.message || "Unknown database error"}`;
 }
 
-async function readConfirmedSourceRows(client: ReturnType<typeof supabaseServer>): Promise<{
+async function readConfirmedSourceRows(
+  client: ReturnType<typeof supabaseServer>,
+  effectiveSourceFile: string | null,
+): Promise<{
   rows: JobOrderSourceRecord[];
   truncated: boolean;
   degraded: boolean;
@@ -84,6 +88,9 @@ async function readConfirmedSourceRows(client: ReturnType<typeof supabaseServer>
       .range(offset, offset + READ_BATCH_SIZE - 1);
 
     if (useActiveFlag) query = query.neq("is_active", false);
+    if (effectiveSourceFile && useExtendedColumns) {
+      query = query.or(buildSourceFileFilter(effectiveSourceFile));
+    }
 
     const { data, error } = await query;
     if (error) {
@@ -92,7 +99,10 @@ async function readConfirmedSourceRows(client: ReturnType<typeof supabaseServer>
         degraded = true;
         continue;
       }
-      if (useExtendedColumns && EXTENDED_COLUMNS.split(", ").some((column) => isMissingColumn(error, column))) {
+      if (useExtendedColumns && isMissingColumn(error, "source_file")) {
+        if (effectiveSourceFile) {
+          throw new Error(`Workbook scope '${effectiveSourceFile}' cannot be applied because public.records.source_file is unavailable.`);
+        }
         useExtendedColumns = false;
         degraded = true;
         continue;
@@ -146,13 +156,21 @@ export async function fetchJobOrdersDashboardData({
   let truncated = false;
   let degraded = false;
 
+  let availableSourceFiles: string[] = [];
+  let latestRowsAreUnlabelled = false;
+
   if (isSupabaseConfigured()) {
     const client = authToken ? supabaseServerWithToken(authToken) : supabaseServer();
-    const result = await readConfirmedSourceRows(client);
+    const scope = await resolveSourceScope(client, filters.sourceFile);
+    const result = await readConfirmedSourceRows(client, scope.effectiveSourceFile);
     rawRows = result.rows;
     truncated = result.truncated;
     degraded = result.degraded;
     source = "supabase";
+    currentSourceFile = scope.currentSourceFile;
+    availableSourceFiles = scope.availableSourceFiles;
+    isCurrentSourceScoped = Boolean(scope.effectiveSourceFile);
+    latestRowsAreUnlabelled = scope.detectedLatestHasNoSourceFile;
   } else {
     // Keep local development useful without a Supabase project. This reuses the
     // records dashboard's isolated mock data and still fixes the status filter
@@ -170,7 +188,7 @@ export async function fetchJobOrdersDashboardData({
         piStatus: "",
         typeOfWork: "",
         zohoStatus: "",
-        sourceFile: "",
+        sourceFile: filters.sourceFile || "",
       },
       sort: { field: "date", direction: "asc" },
       page: 1,
@@ -180,6 +198,7 @@ export async function fetchJobOrdersDashboardData({
     rawRows = mock.records as RecordRow[] as JobOrderSourceRecord[];
     source = mock.source;
     currentSourceFile = mock.currentSourceFile ?? mock.filterOptions.currentSourceFile ?? null;
+    availableSourceFiles = mock.sourceFiles ?? mock.filterOptions.sourceFiles ?? [];
     isCurrentSourceScoped = Boolean(mock.isCurrentSourceScoped);
     if (mock.pagination.totalEntries > mock.records.length) {
       warning =
@@ -193,15 +212,20 @@ export async function fetchJobOrdersDashboardData({
   const totalEntries = sorted.length;
   const offset = (clampedPage - 1) * clampedPageSize;
   const rows = sorted.slice(offset, offset + clampedPageSize);
-  const sourceFiles = Array.from(
-    new Set(grouped.map((row) => row.source_file).filter((value): value is string => Boolean(value))),
-  ).sort((a, b) => a.localeCompare(b));
+  const sourceFiles = availableSourceFiles.length > 0
+    ? availableSourceFiles
+    : Array.from(
+        new Set(grouped.map((row) => row.source_file).filter((value): value is string => Boolean(value))),
+      ).sort((a, b) => a.localeCompare(b));
 
   if (truncated) {
     warning = `The confirmed PI read reached the ${MAX_SOURCE_ROWS.toLocaleString()} source-row safety limit. Counts are a lower bound; narrow the workbook or date range.`;
   } else if (degraded) {
     warning =
-      "Some optional workbook metadata columns are unavailable. Confirmed proformas are still read, but the queue cannot identify a source workbook for every row.";
+      "The source_file column is unavailable. Confirmed proformas are still read, but workbook scoping cannot be enforced.";
+  } else if (latestRowsAreUnlabelled) {
+    warning =
+      "Recent source rows are not labelled with a workbook. All active workbooks are included so newer confirmed proformas are not hidden.";
   } else if (grouped.length === 0 && rawRows.length > 0) {
     warning = "Confirmed source rows were read, but none contained a usable PI number.";
   }
