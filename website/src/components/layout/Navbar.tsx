@@ -22,21 +22,20 @@ const entries: NavEntry[] = [
   {
     label: "Product",
     children: [
-      { label: "Job Orders", href: "/job-orders", description: "Release Confirmed PIs and track production progress" },
-      { label: "Proforma Invoices", href: "/reports?status=Confirmed", description: "Confirmed proformas from Excel Sync" },
       { label: "Features", href: "/features", description: "Every module, in the app's own vocabulary" },
       { label: "How It Works", href: "/how-it-works", description: "Inquiry to statement, step by step" },
       { label: "Worked Example", href: "/worked-example", description: "One real job, every figure" },
       { label: "Screenshots", href: "/screenshots", description: "The interface, screen by screen" },
       { label: "Pricing", href: "/pricing", description: "Editions and what each one unlocks" },
+      { label: "Reports", href: "/reports?status=Confirmed", description: "Confirmed proformas from Excel Sync" },
+      { label: "Job Order", href: "/job-orders", description: "Release Confirmed PIs and track production progress" },
       {
-        label: "Delivery Notes",
+        label: "Deliveries",
         href: "/deliveries",
-        description: "Confirmed PIs, part loads and outstanding balance",
+        description: "Delivery Notes, part loads and outstanding balance",
       },
     ],
   },
-  { label: "Job Orders", href: "/job-orders" },
   { label: "Optimization", href: "/optimization" },
   {
     label: "Resources",
@@ -44,17 +43,18 @@ const entries: NavEntry[] = [
       { label: "Resources", href: "/resources", description: "Guides to the glass workflows" },
       { label: "Blog", href: "/blog", description: "Notes on the build and the industry" },
       { label: "Sponsors", href: "/sponsors", description: "Back the build, or join it" },
-      { label: "Developer", href: "/developer", description: "Engineering notes and product development" },
     ],
   },
-  /* About stays a top-level destination; Developer lives under Resources so
-     the production Job Orders page can also have a direct navigation slot. */
+  /* About and Developer are separate pages with separate jobs, and both get a
+     top-level slot rather than being buried in a menu. */
   { label: "About", href: "/about" },
+  { label: "Developer", href: "/developer" },
   /*
    * Collaboration takes the top-level slot, and Sponsors keeps the one it
    * already had inside this same nav's Resources menu (and in the footer, and
-   * on the collaboration page itself). The seven-slot ceiling preserves room
-   * for the direct Job Orders link without wrapping the navigation.
+   * on the collaboration page itself). Adding an eighth top-level item instead
+   * would push the pill past what `lg` has room for, and a navigation that
+   * wraps is worse than one page reached by two routes.
    */
   { label: "Collaborate", href: "/collaborate" },
 ];
