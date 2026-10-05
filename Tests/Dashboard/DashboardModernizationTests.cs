@@ -4,7 +4,7 @@
 // MODULE: Dashboard modernization (Aug 2026)
 //
 // Hermetic source-file tests that lock the "modern analytics app" pass on
-// the seven dashboards. They do NOT boot WPF or touch a DB — they read the
+// the dashboards. They do NOT boot WPF or touch a DB — they read the
 // XAML / theme / chart source relative to the project root and assert the
 // upgrade is present, so a future edit that drops the modern look fails.
 //
@@ -67,6 +67,8 @@ namespace ProGlassAutomation.Tests.Dashboard
         [InlineData("Views/Dashboard/JobOrder/JoDashboard/JoDashboardView.xaml")]
         [InlineData("Views/Dashboard/DeliveryNote/DnDashboard/DnDashboardView.xaml")]
         [InlineData("Views/Dashboard/TaxInvoice/TiDashboard/TiDashboardView.xaml")]
+        [InlineData("Views/Dashboard/Optimization/OptimizationDashboardView.xaml")]
+        [InlineData("Views/Dashboard/Production/ProductionDashboardView.xaml")]
         public void All_dashboard_charts_declare_both_series_brushes(string rel)
         {
             var root = LocateProjectRoot();

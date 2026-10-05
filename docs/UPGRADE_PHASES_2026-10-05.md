@@ -1075,6 +1075,83 @@ and both doc verifiers pass.
 
 ---
 
+## Phase 28 — Optimization and Production dashboards
+
+**Severity: P2 · Feature parity · Applied 2026-10-05**
+
+Seven module dashboards existed — Overview, Sheet Store, Proforma, Job Order,
+Delivery Note, Tax Invoice, Statement. The two modules with the most to say
+about shop-floor money had none: Optimization (sheet yield) and Production
+(queue pressure, QC backlog, due-date risk). Both are added, following the
+existing page contract rather than inventing a parallel one.
+
+### What was reused rather than rebuilt
+
+| Need | Reused |
+|---|---|
+| Page lifecycle, loading/error state, refresh stamp, theme swap, reentrancy guard | `DashboardPageBase` — untouched |
+| Card / bar / slice models | `Models/Dashboard/*` — no new chart models |
+| Layout, skeleton states, theme brushes, scroll behaviour | `IndigoDashboardResources.xaml`, `IndigoDashboardPanel`, `SmoothScrollBehavior` |
+| Hero titles | `Module.Optimization` / `Module.Production`, already present in all 15 locale files |
+| **Production data** | `ProductionDashboardService` — already existed and already served the Control Center and the control report, so this page cannot drift from them |
+
+Only one new data path was needed, for Optimization.
+
+### The one new query path, and why it is a projection
+
+`OptimizationSessionRepository.ListAsync` returns whole `SavedOptimizationSession`
+entities, and each carries `MarginsJson` / `StocksJson` / `PiecesJson` /
+`ResultJson` — the full nest payload, hundreds of KB to megabytes per row. A
+dashboard needs four totals and twelve small rows, so
+`OptimizationDashboardService` projects instead:
+
+- totals are `COUNT` / `SUM` / `AVG` / `MAX` computed by SQL, so the row count of
+  `optimization.db` never affects how much crosses the wire;
+- the recent-runs list selects six scalar columns and is capped at
+  `RecentRunLimit = 12`, ordered on the indexed `CreatedUtc`;
+- nothing is tracked;
+- the reserved `__latest_run__:` rows written by `UpsertLatestRunAsync` are
+  excluded — they are copies of real runs kept for fast lookup, so counting them
+  would double-count the run total and every sum.
+
+Each figure is its own EF call rather than one `GroupBy(_ => 1)` projection.
+Both work; the separate calls are individually documented methods whose
+translation is not in question, and no runtime exists here to prove the grouped
+form translates. Four indexed queries on a small table, once per tab visit, is
+the cheaper risk.
+
+### Smoothness, concretely
+
+- The Production page calls its three service methods **sequentially, not
+  `Task.WhenAll`**. Each independently calls
+  `ProductionQueueService.GetQueueAsync` and two call
+  `ProductionRepository.EnsureInitialized`, so running them concurrently would
+  triple the queue build and race a static initialiser that was never written to
+  be re-entered.
+- Bars are normalised against 100 for utilisation, not against the tallest bar,
+  so a page of 92% runs does not draw one full-height bar and eleven stubs and
+  imply a spread that is not there.
+- Zero-valued donut slices are filtered out rather than drawn — an empty slice
+  still takes an arc and a legend row, which is how a quiet floor ends up
+  looking busy.
+- The bottleneck line is shown only when the service's own deterministic rule
+  found one, so this page can never contradict the Control Center.
+
+### Acceptance
+
+No .NET SDK here, so nothing was compiled, run or clicked. Verified statically:
+all 36 referenced types and members exist at the exact paths and signatures used;
+every `StaticResource` / `DynamicResource` key in both views resolves (the two
+converters come from the app-wide `Themes/Styles/ConverterResources.xaml`); every
+`{Binding …}` in both views is a public property on its VM or on
+`DashboardPageBase`; XAML tags balance; 1,686 `.cs` files balanced; 21 new XML
+doc-comment blocks well-formed; both `TrendChartControl` instances declare
+`SeriesBrush` and `SeriesEndBrush`, which is what
+`DashboardModernizationTests.All_dashboard_charts_declare_both_series_brushes`
+asserts — both views are added to that theory.
+
+---
+
 ## Suggested order
 
 ```

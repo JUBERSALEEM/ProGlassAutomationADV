@@ -535,4 +535,29 @@
 
 	</ItemGroup>
 
+	<!-- ═══════════════════════════════════════════════════════════════
+	     Phase 28 — Optimization + Production dashboard pages.
+	     Designer metadata only (Generator / SubType / DependentUpon);
+	     SDK-style globbing already compiles these as Page + Compile.
+	═══════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<Page Update="Views\Dashboard\Optimization\OptimizationDashboardView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Dashboard\Optimization\OptimizationDashboardView.xaml.cs">
+			<DependentUpon>OptimizationDashboardView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<Page Update="Views\Dashboard\Production\ProductionDashboardView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Dashboard\Production\ProductionDashboardView.xaml.cs">
+			<DependentUpon>ProductionDashboardView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+	</ItemGroup>
+
 </Project>

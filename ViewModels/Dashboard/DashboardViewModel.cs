@@ -5,6 +5,11 @@
 // CHAT 16: Added StDashboardViewModel as the 7th dashboard tab.
 //          Added NavigateTo callback wiring for the Statement tab.
 //          All other code UNCHANGED.
+//
+// PHASE 28: Added OptimizationDashboardViewModel and ProductionDashboardViewModel
+//          as the 8th and 9th tabs. Construction, the Pages list and the
+//          DataTemplate map in DashboardView.xaml are the only three places a
+//          dashboard page is registered; nothing else needed to change.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
@@ -67,6 +72,13 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         public TiDashboardViewModel TaxInvoiceVM { get; }  // Chat 15
         public StDashboardViewModel StatementVM { get; }  // Chat 16 NEW
 
+        // Phase 28 — Optimization and Production pages. Both live in this
+        // namespace (not a sub-namespace) exactly like SheetStoreDashboardViewModel,
+        // so no extra using is needed here and the XAML DataTemplate can reach
+        // them through the existing vm: prefix.
+        public OptimizationDashboardViewModel OptimizationVM { get; }
+        public ProductionDashboardViewModel ProductionVM { get; }
+
         // ── commands ──────────────────────────────────────────────────────
         public ICommand SelectTabCommand { get; }
 
@@ -128,6 +140,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             DeliveryNoteVM = new DnDashboardViewModel();
             TaxInvoiceVM = new TiDashboardViewModel();   // Chat 15
             StatementVM = new StDashboardViewModel();   // Chat 16 NEW
+            OptimizationVM = new OptimizationDashboardViewModel();   // Phase 28
+            ProductionVM = new ProductionDashboardViewModel();       // Phase 28
 
             Pages = new List<DashboardPageBase>
             {
@@ -137,7 +151,9 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 JobOrderVM,
                 DeliveryNoteVM,
                 TaxInvoiceVM,                              // Chat 15
-                StatementVM                                // Chat 16 NEW
+                StatementVM,                               // Chat 16 NEW
+                OptimizationVM,                            // Phase 28
+                ProductionVM                               // Phase 28
             };
 
             SelectTabCommand = new RelayCommand(p =>
