@@ -1,0 +1,517 @@
+<UserControl x:Class="ProGlassAutomation.Views.Reports.PiReport.PiReportView"
+             TextOptions.TextHintingMode="Fixed"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
+             xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}"
+             Foreground="{DynamicResource Ov.Ink}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Shared/Lists/StudioListResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Reclaimed vertical space: module title/subtitle lives in shell header -->
+        <StackPanel Grid.Row="0" Visibility="Collapsed"/>
+
+        <!-- Main Shell Card -->
+        <Border Grid.Row="1" Style="{StaticResource Sl.Shell}" Margin="16,6,16,14">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- KPI Strip -->
+                    <RowDefinition Height="Auto"/> <!-- Filter Bar -->
+                    <RowDefinition Height="*"/>    <!-- Table + Sidebar -->
+                    <RowDefinition Height="Auto"/> <!-- Pagination Footer -->
+                </Grid.RowDefinitions>
+
+                <!-- ══════════════════════════════════════════════════════════
+                     1. KPI STRIP — dynamically follows the active filters
+                ══════════════════════════════════════════════════════════════ -->
+                <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Card 1: Total PI -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.PiReport.TotalQuotationVolumeCombinedAEDValueRespects}">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintBlueBrush}">
+                                <TextBlock Text="&#xE8A5;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Reports.PiReport.TotalPI}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Summary.TotalPi}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
+                                <TextBlock Style="{StaticResource ModuleListKpiHintStyle}"><Run Text="AED "/><Run Text="{Binding Summary.TotalValue, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                        <!-- Card 2: Confirmed -->
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing}">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintGreenBrush}">
+                                <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Inquiry.Confirmed}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Summary.Confirmed}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
+                                <TextBlock Style="{StaticResource ModuleListKpiHintStyle}">
+                                    <TextBlock.Inlines>
+                                        <Run Text="{Binding Summary.Pending, Mode=OneWay}"/>
+                                        <Run Text=" "/>
+                                        <Run Text="{DynamicResource Reports.PiReport.PendingApproval}"/>
+                                    </TextBlock.Inlines>
+                                </TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                        <!-- Card 3: Converted -->
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.PiReport.ProformaInvoicesConvertedActiveFactoryJob}">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintAmberBrush}">
+                                <TextBlock Text="&#xE71C;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Reports.PiReport.Converted}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Summary.Converted}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
+                                <TextBlock Style="{StaticResource ModuleListKpiHintStyle}">
+                                    <TextBlock.Inlines>
+                                        <Run Text="{Binding Summary.NotConverted, Mode=OneWay}"/>
+                                        <Run Text=" "/>
+                                        <Run Text="{DynamicResource Reports.PiReport.AwaitingConversion}"/>
+                                    </TextBlock.Inlines>
+                                </TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                        <!-- Card 4: Quantity -->
+                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.PiReport.TotalGlassPieceCountAggregateSurfaceArea}">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintIndigoBrush}">
+                                <TextBlock Text="&#xE913;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Common.Quantity}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Summary.TotalQty, StringFormat={}{0:N0} pcs}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
+                                <TextBlock Text="{Binding Summary.TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=area}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ══════════════════════════════════════════════════════════
+                     2. FILTER BAR
+                ══════════════════════════════════════════════════════════════ -->
+                <Border Grid.Row="1" Style="{StaticResource ReportFilterCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <WrapPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <!-- Date From -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="{DynamicResource Common.FromDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateFrom}" ToolTip="{DynamicResource Reports.PiReport.FilterStartDate}"/>
+                            </StackPanel>
+
+                            <!-- Date To -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="{DynamicResource Common.ToDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateTo}" ToolTip="{DynamicResource Reports.PiReport.FilterEndDate}"/>
+                            </StackPanel>
+
+                            <!-- Company -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="130" Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding CompanyOptions}" SelectedItem="{Binding SelectedCompany}" ToolTip="{DynamicResource Reports.PiReport.FilterCompany}"/>
+                            </StackPanel>
+
+                            <!-- Customer -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="130" Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding CustomerOptions}" SelectedItem="{Binding SelectedCustomer}" ToolTip="{DynamicResource Reports.DeliveryReport.FilterCustomer}"/>
+                            </StackPanel>
+
+                            <!-- Project -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="140" Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding ProjectOptions}" SelectedItem="{Binding SelectedProject}" ToolTip="{DynamicResource Reports.DeliveryReport.FilterProject}"/>
+                            </StackPanel>
+
+                            <!-- Status -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="{DynamicResource Common.Status}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="115" Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding SelectedStatus}" ToolTip="{DynamicResource Reports.PiReport.FilterInvoiceStatus}"/>
+                            </StackPanel>
+
+                            <!-- Sort by + direction -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="{DynamicResource Reports.Common.SortBy}" Style="{StaticResource ModuleFieldLabelStyle}" Foreground="{DynamicResource AccentBrush}"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <ComboBox Width="120" Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" DisplayMemberPath="Display" ToolTip="{DynamicResource Reports.Common.SortByTip}"/>
+                                    <Button Command="{Binding ToggleSortDirectionCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" Margin="6,0,0,0" ToolTip="{Binding SortDirectionTooltip}" Content="{Binding SortDirectionGlyph}" FontFamily="{DynamicResource FontFamily.Icon}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Action Buttons -->
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,6,6">
+                                <Button Content="{DynamicResource Action.Clear}" Tag="&#xE711;" Command="{Binding ClearFilterCommand}" Style="{StaticResource OutlinedPillButton}" MinWidth="110" ToolTip="{DynamicResource Reports.DeliveryReport.ResetFilters}"/>
+                            </StackPanel>
+                        </WrapPanel>
+
+                        <StackPanel Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom" Margin="8,0,0,6">
+                            <TextBlock Text="{DynamicResource Action.Export}" Style="{StaticResource ModuleFieldLabelStyle}" HorizontalAlignment="Right"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="{DynamicResource Reports.PiReport.ExportFilteredRecordsCSV}"/>
+                                <Button Content="{DynamicResource JobOrder.Excel}" Command="{Binding ExportExcelCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="{DynamicResource Reports.PiReport.ExportFilteredRecordsExcelXlsx}"/>
+                                <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource ReportExportPrimaryButton}" ToolTip="{DynamicResource Reports.DeliveryReport.ExportProfessionalPDFReport}"/>
+                                <Button Content="&#xE72D;" FontFamily="{DynamicResource FontFamily.Icon}" Command="{Binding ShareCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="{DynamicResource Sharing.Share}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    
+                        <!-- Full-width search band — inventory-style accent
+                             magnifier + borderless input (2026-09-10). -->
+                        <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource ReportSearchBandStyle}" Margin="0,12,0,0">
+                            <DockPanel>
+                                <TextBlock Text="&#xE721;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
+                                           Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <TextBox Style="{StaticResource ReportSearchInputStyle}"
+                                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                                         ToolTip="PI # / Customer..."/>
+                            </DockPanel>
+                        </Border>
+</Grid>
+                </Border>
+
+                                <!-- ══════════════════════════════════════════════════════════
+                     3. SINGLE TABLE (header + rows, inline PI detail + specs)
+                ══════════════════════════════════════════════════════════ -->
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Table header -->
+                    <Border Grid.Row="0" Style="{StaticResource ReportTableHeaderStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.9*"/>
+                                <ColumnDefinition Width="0.8*"/>
+                                <ColumnDefinition Width="0.8*"/>
+                                <ColumnDefinition Width="1.1*"/>
+                                <ColumnDefinition Width="1.1*"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="0.8*"/>
+                                <ColumnDefinition Width="1.0*"/>
+                                <ColumnDefinition Width="60"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="{DynamicResource Reports.PiReport.PIDATE2}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Inquiry.Prepared2}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="2" Text="{DynamicResource Common.Salesman}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="3" Text="{DynamicResource Common.Customer}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="5" Text="{DynamicResource Common.Status}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="6" Text="{DynamicResource Reports.PiReport.PIAmount}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="7" Text="{DynamicResource Reports.JoReport.QTYSQM}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="8" Text="{DynamicResource Reports.PiReport.ROWS}" HorizontalAlignment="Center" Style="{StaticResource ReportHeaderTextStyle}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- States -->
+                    <loading:LoadingStateControl Grid.Row="1" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading Proforma Invoice intelligence…"/>
+                    <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="{DynamicResource Reports.PiReport.NoProformaInvoicesFound}" Message="Try adjusting your filters or date range. The report queries live records in proformainvoices.db." Icon="&#xE8A5;"/>
+
+                    <!-- Error State -->
+                    <Border Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
+                            Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                            CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE783;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Reports.DeliveryReport.UnableLoadRecords}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                            <TextBlock Text="{Binding ErrorMessage}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
+                            <Button Content="{DynamicResource Action.Retry}" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="{DynamicResource Reports.DeliveryReport.RetryLoadingRecords}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <ListBox Grid.Row="1" ItemsSource="{Binding Rows}"
+                             Style="{StaticResource ModuleReportListBoxStyle}"
+                             Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <!-- Row -->
+<!-- 2026-09-18 (P4b): this row had no shared row grammar, so it drew no
+                                                                                     divider, took no hover and - because the P4 zebra
+                                                                                     alternation trigger lives in ModuleListRowStyle -
+                                                                                     no second-row tint either. ModuleListBoxItemStyle is a
+                                                                                     bare ContentPresenter, so nothing else supplies them:
+                                                                                     adjacent rows read as one undifferentiated block of
+                                                                                     text. Local Padding stays (it wins over the style
+                                                                                     setter), so only the grammar changes, not the layout. -->
+                                    <Border Style="{StaticResource ModuleListRowStyle}" Padding="14,9">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="0.9*"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="1.1*"/>
+                                                <ColumnDefinition Width="1.1*"/>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="0.7*"/>
+                                                <ColumnDefinition Width="60"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,6,0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding SerialNumber}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="Serial number on this page"/>
+                                                    <TextBlock Text="{Binding ProformaId}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                                    <!-- Warning glyph: draft or missing Step-5 line items. -->
+                                                    <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource WarningBrush}" Margin="6,0,0,0" VerticalAlignment="Center" ToolTip="{Binding WarningReason}" Visibility="{Binding HasWarning, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,1,0,0"/>
+                                                <!-- Compact warning chips so the state is legible without hover. -->
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0" Visibility="{Binding HasWarning, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <Border Background="{DynamicResource TintGrayBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding IsDraft, Converter={StaticResource BoolToVisibilityConverter}}" ToolTip="Draft — not yet sent or approved">
+                                                        <TextBlock Text="DRAFT" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                    </Border>
+                                                    <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Margin="4,0,0,0" Visibility="{Binding IsMissingLineItems, Converter={StaticResource BoolToVisibilityConverter}}" ToolTip="No glass line items — Step 5 not completed">
+                                                        <TextBlock Text="NO ITEMS" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
+                                                    </Border>
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <TextBlock Grid.Column="1" Text="{Binding PreparedBy}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Salesman}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding CustomerName}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="0,0,6,0">
+                                                <TextBlock Text="{Binding ProjectName}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+
+                                            <Border Grid.Column="5" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Approved"><Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Sent"><Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Rejected"><Setter Property="Background" Value="{DynamicResource TintRedBrush}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Draft"><Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/></DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock Text="{Binding Status}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Approved"><Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/></DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Sent"><Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/></DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Rejected"><Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/></DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Draft"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/></DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Border>
+
+                                            <TextBlock Grid.Column="6" Text="{Binding GrandTotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+
+                                            <StackPanel Grid.Column="7" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,6,0">
+                                                <TextBlock HorizontalAlignment="Right" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" TextAlignment="Right">
+                                                    <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" pcs · "/><Run Text="{Binding TotalSqm, Mode=OneWay, StringFormat={}{0:N2}}"/><Run Text=" m²"/>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding RateDisplay}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Right" ToolTip="Spec price from the proforma invoice"/>
+                                            </StackPanel>
+
+                                            <TextBlock Grid.Column="8" Text="{Binding TotalRows}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- Inline PI detail + specification rows (single grid — no side panel) -->
+                                    <Expander IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
+                                              Expanded="RowExpander_Expanded"
+                                              Margin="0,2,0,6">
+                                        <Expander.Header>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="&#xE8A5;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{DynamicResource Reports.PiReport.ProformaInvoiceDetails}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Expander.Header>
+                                        <StackPanel Margin="0,8,0,0">
+                                            <!-- Open original PI -->
+                                            <Button Content="{DynamicResource Inquiry.OpenProformaInvoice}"
+                                                    Command="{Binding DataContext.OpenDocumentCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource PrimaryPillButton}"
+                                                    Height="36" Margin="0,0,0,10"
+                                                    HorizontalAlignment="Left"
+                                                    ToolTip="{DynamicResource Reports.PiReport.OpenOriginalProformaInvoiceWizard}"/>
+
+                                            <!-- Key facts -->
+                                            <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="108"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Reports.DeliveryReport.PINumber}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding ProformaId}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource AccentBrush}" Margin="0,2"/>
+
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Reports.PiReport.PIDATE}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
+
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource Common.Status}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Status}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
+
+                                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource Inquiry.Prepared2}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding PreparedBy}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
+
+                                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="{DynamicResource Common.Salesman}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Salesman}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
+
+                                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="{DynamicResource Common.Customer}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding CustomerName}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2" TextWrapping="Wrap"/>
+
+                                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="{DynamicResource Common.Company}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding CompanyName}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2" TextWrapping="Wrap"/>
+
+                                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="{DynamicResource Common.Project}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding ProjectName}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2" TextWrapping="Wrap"/>
+
+                                                    <TextBlock Grid.Row="8" Grid.Column="0" Text="{DynamicResource Reports.PiReport.PIAmount}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding GrandTotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}" Margin="0,2"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <!-- Audit timestamps: aligned label/value grid so the
+                                                 date never touches its label and both rows line up. -->
+                                            <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Margin="0,8,0,0">
+                                                <StackPanel>
+                                                    <TextBlock Text="{DynamicResource Reports.JoReport.Audit}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="108"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Reports.JoReport.Created}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CreatedAt, Mode=OneWay, StringFormat={}{0:dd MMM yyyy  HH:mm}}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Reports.JoReport.LastUpdated}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding UpdatedAt, Mode=OneWay, StringFormat={}{0:dd MMM yyyy  HH:mm}}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2"/>
+                                                    </Grid>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <!-- Specification rows -->
+                                            <TextBlock Text="{DynamicResource Reports.PiReport.SpecificationROWS}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,12,0,6"/>
+                                            <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="10,8">
+                                                <StackPanel>
+                                                    <ItemsControl ItemsSource="{Binding DetailRows}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.BottomHairlineThickness}" Padding="2,5">
+                                                                    <Grid>
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="*"/>
+                                                                            <ColumnDefinition Width="Auto"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <StackPanel Grid.Column="0">
+                                                                            <TextBlock Text="{Binding SpecName}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                                                            <TextBlock FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,1,0,0">
+                                                                                <Run Text="{Binding GlassRef, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding W1, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding H1, Mode=OneWay}"/><Run Text=" × "/><Run Text="{Binding Qty, Mode=OneWay}"/><Run Text=" pcs"/>
+                                                                            </TextBlock>
+                                                                        </StackPanel>
+                                                                        <TextBlock Grid.Column="1" Text="{Binding Amount, StringFormat={}AED {0:N0}}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" VerticalAlignment="Center" Foreground="{DynamicResource AccentBrush}"/>
+                                                                    </Grid>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                    <TextBlock Text="{DynamicResource Reports.PiReport.NoSpecificationRowsLoaded}"
+                                                               FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}"
+                                                               Visibility="{Binding DetailRows.Count, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=0}"
+                                                               Margin="2,6"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
+                                    </Expander>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+
+
+                <!-- ══════════════════════════════════════════════════════════
+                     4. PAGINATION FOOTER
+                ══════════════════════════════════════════════════════════════ -->
+                <Border Grid.Row="3" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.TopHairlineThickness}" Padding="12,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <Button Content="{DynamicResource Reports.DeliveryReport.Prev}" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="{DynamicResource Reports.DeliveryReport.GoPreviousPage}"/>
+                            <Button Content="{DynamicResource Reports.DeliveryReport.Next}" Command="{Binding NextPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="{DynamicResource Reports.DeliveryReport.GoNextPage}"/>
+                            <Button Content="↻" Command="{Binding RefreshCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="{DynamicResource Reports.DeliveryReport.RefreshReportData}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

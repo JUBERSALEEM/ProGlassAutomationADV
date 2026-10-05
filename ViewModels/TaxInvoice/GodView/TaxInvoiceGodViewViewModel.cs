@@ -1,0 +1,196 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: ViewModels/TaxInvoice/GodView/TaxInvoiceGodViewViewModel.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Tax Invoice — God View tab
+//
+// Read-only overview of EVERY tax invoice: KPI tiles + searchable
+// table. Lives behind the module tab strip; opening a row hands off
+// to the normal Tax Invoice detail view.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Commands;
+using ProGlassAutomation.Utilities;
+using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
+using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.ViewModels.Shared;
+using System;
+using System.Threading.Tasks;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows.Input;
+
+using ProGlassAutomation.Services.TaxInvoice.Repository;
+using Microsoft.Extensions.DependencyInjection;
+namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
+{
+    /// <summary>All-records overview for the Tax Invoice module.</summary>
+    public class TaxInvoiceGodViewViewModel : ViewModelBase
+    {
+        private readonly ITaxInvoiceRepository _taxInvoices = null!;
+
+        public TaxInvoiceGodViewViewModel(ITaxInvoiceRepository? taxInvoices)
+        {
+            _taxInvoices = taxInvoices!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
+        }
+
+        private ObservableCollection<TaxInvoiceListItem> _allRows = new();
+
+        public BulkObservableCollection<TaxInvoiceListItem> Rows { get; } = new();
+
+        public ObservableCollection<GodViewKpiViewModel> Kpis { get; } = new();
+
+        /// <summary>Raised with the TI database Id when a row is opened.</summary>
+        public Action<int>? OnOpenRequested { get; set; }
+
+        public ICommand RefreshCommand { get; private set; }
+        public ICommand OpenCommand { get; private set; }
+
+        private string _searchText = "";
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                _searchText = value;
+                OnPropertyChanged();
+                ApplyFilter();
+            }
+        }
+
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            private set { _isLoading = value; OnPropertyChanged(); }
+        }
+
+        public TaxInvoiceGodViewViewModel()
+         : this(
+            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
+            RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
+
+            OpenCommand = new RelayCommand(param =>
+            {
+                if (param is TaxInvoiceListItem item)
+                    OnOpenRequested?.Invoke(item.Id);
+            });
+        }
+
+        /// <summary>Loads every tax invoice and recomputes KPIs.</summary>
+        public async Task LoadAsync()
+        {
+            if (_taxInvoices == null) return;
+
+            try
+            {
+                UiDispatch.Run(() => IsLoading = true);
+
+                var items = await _taxInvoices.GetAllAsync();
+
+                // Sort on background thread (not UI thread)
+                var sorted = items.OrderByDescending(i => i.CreatedAt).ToList();
+
+                UiDispatch.Run(() =>
+                {
+                    _allRows = new ObservableCollection<TaxInvoiceListItem>(sorted);
+                    RebuildKpis();
+                    ApplyFilter();
+                    IsLoading = false;
+                });
+
+                AuditService.Log(
+                    AuditSections.TaxInvoice,
+                    "God View opened",
+                    $"{_allRows.Count} tax invoices listed");
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug(
+                    $"[TI GodView] Load failed: {ExceptionMessages.Deep(ex)}");
+                UiDispatch.Run(() => IsLoading = false);
+            }
+        }
+
+        private void ApplyFilter()
+        {
+            var filter = (SearchText ?? "").Trim();
+
+            var filtered = filter.Length == 0
+                ? _allRows.ToList()
+                : _allRows.Where(r => Matches(r, filter)).ToList();
+
+            Rows.ClearSilent();
+            Rows.AddRangeSilent(filtered);
+            Rows.RaiseReset();
+        }
+
+        private static bool Matches(TaxInvoiceListItem r, string filter)
+        {
+            return Utilities.SearchHelper.MatchesAny(filter,
+                r.InvoiceNumber, r.ProformaId, r.JobOrderId,
+                r.CustomerName, r.ProjectName, r.Status, r.InvoiceType);
+        }
+
+        private void RebuildKpis()
+        {
+            Kpis.Clear();
+
+            Kpis.Add(new GodViewKpiViewModel
+            {
+                Icon = "🧾",
+                Value = _allRows.Count.ToString("N0"),
+                Label = "Tax invoices",
+                TintBrushKey = "TintIndigoBrush"
+            });
+
+            Kpis.Add(new GodViewKpiViewModel
+            {
+                Icon = "📨",
+                Value = _allRows.Count(i => i.Status == "Issued").ToString("N0"),
+                Label = "Issued",
+                TintBrushKey = "TintBlueBrush",
+                ValueBrushKey = "InfoBrush"
+            });
+
+            Kpis.Add(new GodViewKpiViewModel
+            {
+                Icon = "💵",
+                Value = _allRows.Count(i => i.Status == "Paid").ToString("N0"),
+                Label = "Paid",
+                TintBrushKey = "TintGreenBrush",
+                ValueBrushKey = "SuccessBrush"
+            });
+
+            Kpis.Add(new GodViewKpiViewModel
+            {
+                Icon = "⏰",
+                Value = _allRows.Count(i => i.Status == "Overdue").ToString("N0"),
+                Label = "Overdue",
+                TintBrushKey = "TintRedBrush",
+                ValueBrushKey = "DangerBrush"
+            });
+
+            decimal total = _allRows.Sum(i => i.GrandTotal);
+            Kpis.Add(new GodViewKpiViewModel
+            {
+                Icon = "💰",
+                Value = total.ToString("N0"),
+                Label = "Total billed (AED)",
+                TintBrushKey = "TintAmberBrush",
+                ValueBrushKey = "WarningBrush"
+            });
+        }
+    }
+}

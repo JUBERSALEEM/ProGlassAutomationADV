@@ -1,0 +1,62 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Shared/CountryPhoneControl.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Global locale (2026-09-01)
+     Phone input with the country code box:  🇦🇪 +971 | [ 501 234 567 ]
+     Default country is detected from the user's IP/region
+     (GeoService) and can be changed freely per record.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Shared.CountryPhoneControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:loc="clr-namespace:ProGlassAutomation.Services.Localization"
+             mc:Ignorable="d"
+             d:DesignHeight="36" d:DesignWidth="320"
+             FontFamily="{DynamicResource AppFontFamily}"
+             Background="{DynamicResource Ov.Canvas}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="8"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <ComboBox x:Name="CountryBox"
+                  AutomationProperties.AutomationId="Locale.PhoneCountry"
+                  Height="34"
+                  VerticalContentAlignment="Center"
+                  ScrollViewer.CanContentScroll="True" Style="{StaticResource ComboBoxStyle}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type loc:CountryInfo}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Flag}" FontFamily="Segoe UI Emoji"
+                                   Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" MaxWidth="86"/>
+                        <TextBlock Text="{Binding DialCode}" VerticalAlignment="Center"
+                                   Margin="6,0,0,0" Opacity="0.72"
+                                   Typography.NumeralAlignment="Tabular"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <TextBox x:Name="NumberBox"
+                 Grid.Column="2"
+                 Height="34"
+                 VerticalContentAlignment="Center"
+                 AutomationProperties.AutomationId="Locale.PhoneNumber" Style="{StaticResource TextBoxStyle}"/>
+    </Grid>
+</UserControl>

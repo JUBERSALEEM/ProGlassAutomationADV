@@ -1,0 +1,1286 @@
+{
+ "App.xaml": [
+  "MODERNIZED",
+  "P1: PagePatterns merge entry"
+ ],
+ "MainWindow.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Agent/UI/AgentChatView.xaml": [
+  "EXEMPT",
+  "AI surface: 3 hex = AI brand indigo (#6366F1/#3730A3) + high-signal listening red (#B91C1C); tokenizing needs visual sign-off"
+ ],
+ "Controls/AutoCompleteTextBox/AutoCompleteTextBox.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Controls/DonutChart/DonutChartControl.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Controls/EmptyState/EmptyStateControl.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Controls/GlobalSearch/GlobalSearchBar.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Controls/LoadingState/LoadingStateControl.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Controls/MiniBarChart/MiniBarChartControl.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Controls/Reporting/MixPanel.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Controls/StatCard/StatCardControl.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Controls/TrendChart/TrendChartControl.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Styles/ButtonStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Styles/ContextMenuStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Styles/DashboardStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Styles/Step4SectionStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/DarkTheme.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/LightTheme.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/CrystalFluid/CrystalFluidBrushes.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/CrystalFluid/CrystalFluidColors.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/CrystalFluid/CrystalFluidControls.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/CrystalFluid/CrystalFluidDataGrid.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/CrystalFluid/CrystalFluidMetrics.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/CrystalFluid/CrystalFluidNavigation.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/CrystalFluid/CrystalFluidStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/CrystalFluid/CrystalFluidTokens.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Languages/ar-AE.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Languages/bn-BD.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Languages/de-DE.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Languages/en-US.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Languages/es-ES.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Languages/fr-FR.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Languages/hi-IN.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Languages/id-ID.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Languages/ja-JP.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Languages/ko-KR.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Languages/pt-BR.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Languages/ru-RU.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Languages/tr-TR.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Languages/ur-PK.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Languages/zh-CN.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/AboutSurface.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/AboutTypeScale.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/AppStage.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/CardStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/ComboTemplates.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/ComponentTokens.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/ConverterResources.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/DataGridStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/DesignTokens.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/DialogStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/GlobalDesignSystem.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/IconBadgeStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/InputStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/LayoutTokens.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/LiquidGlassDesign.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/LiquidGlassStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/ListPageStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/MaterialTokens.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/ModuleTabStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/NavigationRailStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/OptimizationStyles.xaml": [
+  "MODERNIZED",
+  "P4: shared OptHeader FontSize tokenized"
+ ],
+ "Themes/Styles/PagePatterns.xaml": [
+  "MODERNIZED",
+  "P1: new shared page-level pattern library"
+ ],
+ "Themes/Styles/PiIndustrialStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/PillStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/PrintTokens.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/SemanticTokens.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/SharedSectionStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/ShellStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/TypeScaleTokens.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Styles/TypographyStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/ProGlassDesignSystem/ProGlassDesignSystem.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/ProGlassDesignSystem/Compatibility/LegacyAliases.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/ProGlassDesignSystem/Materials/ProGlassMaterials.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/ProGlassDesignSystem/Tokens/SemanticColors.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/ProGlassDesignSystem/Tokens/SemanticDensity.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/ProGlassDesignSystem/Tokens/SemanticElevation.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/ProGlassDesignSystem/Tokens/SemanticGeometry.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/ProGlassDesignSystem/Tokens/SemanticMotion.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/ProGlassDesignSystem/Tokens/SemanticSpacing.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/ProGlassDesignSystem/Tokens/SemanticTypography.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Professional/ProfessionalCore.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Themes/Professional/ProfessionalShell.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Tools/LicenseGenerator/App.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Tools/LicenseGenerator/MainWindow.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Tools/LicenseGenerator/Theme.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/AI/AiChatView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/About/AboutIos26Theme.xaml": [
+  "EXEMPT",
+  "About Ios26 showcase: intentionally personal-styled section (Ios-17 lineage)"
+ ],
+ "Views/About/AboutStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/About/AboutView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/About/Sections/AboutCrashReportsCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/About/Sections/AboutLicenseCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/About/Sections/AboutOverviewSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/About/Sections/DeveloperSection.xaml": [
+  "MODERNIZED",
+  "3 avatar circles r19 = h/2 \u2014 structural keeps documented"
+ ],
+ "Views/About/Sections/DiagnosticsSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/About/Sections/ModulesSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/About/Sections/SystemSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/CompanyCenter/CompanyCenterView.xaml": [
+  "MODERNIZED",
+  "P3: 5 exact-value tokenizations"
+ ],
+ "Views/CrashReports/CrashReportDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/CrashReports/CrashReportDialogStyles.xaml": [
+  "EXEMPT",
+  "Crash dialog self-contained by design (must render in unknown app state; 2026-09-14 fix)"
+ ],
+ "Views/Dashboard/DashboardView.xaml": [
+  "MODERNIZED",
+  "P2: tab label/subtitle tokenized to PgFont tokens"
+ ],
+ "Views/Dashboard/DeliveryNote/DnDashboard/DnDashboardView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Dashboard/JobOrder/JoDashboard/JoDashboardView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Dashboard/Overview/OverviewDashboardView.xaml": [
+  "MODERNIZED",
+  "Factory Pulse 26 = Viewbox-scaled design size \u2014 structural keeps documented"
+ ],
+ "Views/Dashboard/ProformaInvoice/PiDashboardView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Dashboard/SheetStore/SheetStoreDashboardView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Dashboard/Statement/StDashboardView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Dashboard/TaxInvoice/TiDashboard/TiDashboardView.xaml": [
+  "MODERNIZED",
+  "severity bars r4/2.5 = h/2 capsule internals \u2014 structural keeps documented"
+ ],
+ "Views/DeliveryNote/DeliveryNoteView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/DeliveryNote/DeliveryNoteDetail/Attachments/Rename/RenameAttachmentDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/DeliveryNote/DeliveryNoteDetail/Sections/DnAttachmentsSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/DeliveryNote/DeliveryNoteDetail/Sections/DnHistorySection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/DeliveryNote/DeliveryNoteDetail/Sections/DnOverviewSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/DeliveryNote/DeliveryNoteDetail/Sections/DnSectionStyles.xaml": [
+  "EXEMPT",
+  "DN detail module layer: 9 styles BasedOn shared bases (GridNumericCell, Button.Ghost, Typography.Label)"
+ ],
+ "Views/DeliveryNote/DeliveryNoteList/DeliveryNoteListView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/DeliveryNote/DeliveryNoteList/JobOrderPicker/JobOrderPickerDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/DeliveryNote/GodView/DeliveryNoteGodView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Diagnostics/DiagnosticsView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Inquiry/InquiryAttachmentPreviewWindow.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Inquiry/InquiryEditorWindow.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Inquiry/InquiryListView.xaml": [
+  "BLOCKED",
+  "EmptyState gap: needs a new i18n key in all 13 language files (no suitable Inquiry.No* key; other lists use Dashboard.No*Yet). VM props HasInquiries/HasActiveFilters ready. Blocked on i18n+visual verification, not on XAML."
+ ],
+ "Views/JobOrder/JobOrderView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/JobOrder/GodView/JobOrderGodView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/JobOrder/JobOrderDetail/JobOrderDetailView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/JobOrder/JobOrderDetail/Sections/JoOverviewSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/JobOrder/JobOrderDetail/Sections/JoProductionSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/JobOrder/JobOrderDetail/Sections/JoSectionStyles.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/JobOrder/SavedJobOrdersList/JobOrderAttachmentWarningDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/JobOrder/SavedJobOrdersList/SavedJobOrdersListView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/JobOrder/SavedJobOrdersList/ProformaPicker/JobOrderProformaPickerDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/JobProfitability/JobDetailPanel.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/JobProfitability/JobFullDetailView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/JobProfitability/JobProfitabilityView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/JobProfitability/PortfolioGlassTypeComparisonView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/JobProfitability/PortfolioServiceProfitabilityView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/JobProfitability/PortfolioWastageAnalysisView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Login/AuthSurfaceStyles.xaml": [
+  "EXEMPT",
+  "Login brand surface: pre-shell glass showcase (orbs/liquid card/frost), intentionally outside ERP chrome"
+ ],
+ "Views/Login/FirstRunSetupPanel.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Login/ForcePasswordChangeWindow.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Login/LoginPanel.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Login/LoginWindow.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Login/ResetPasswordWindow.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Optimization/OptimizationView.xaml": [
+  "MODERNIZED",
+  "P4: 4 exact-value tokenizations"
+ ],
+ "Views/Optimization/Tabs/CutListTabView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Optimization/Tabs/JobsTabView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Optimization/Tabs/ReportTabView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Optimization/Tabs/SettingsTabView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Optimization/Tabs/SizesTabView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Optimization/Tabs/StocksTabView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Optimization/Tabs/SummaryTabView.xaml": [
+  "MODERNIZED",
+  "P4: 4 exact-value tokenizations"
+ ],
+ "Views/Optimization/Tabs/TwoDViewTabView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Production/CuttingView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Production/CuttingWorkCenterView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Production/DoublingLaminationView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Production/EdgeDeletionView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Production/HolesCutoutsView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Production/MitringView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Production/PairingView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Production/PolishView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Production/ProcessWorkCenterView.xaml": [
+  "MODERNIZED",
+  "P4: 11 exact-value tokenizations"
+ ],
+ "Views/Production/ProductionControlCenterView.xaml": [
+  "MODERNIZED",
+  "P4: 11 exact-value tokenizations"
+ ],
+ "Views/Production/TemperingView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Production/Controls/ProductionFilterBar.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Production/Controls/ProductionKpiStrip.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Production/Controls/ProductionPipelineBar.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Production/Controls/ProductionReleaseBar.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Production/Controls/ProductionStationBody.xaml": [
+  "EXEMPT",
+  "Station grid module layer: BasedOn shared GodViewHeaderStyle"
+ ],
+ "Views/Production/Controls/ProductionUnitDetailControl.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Production/Controls/ProductionUnitDetailTemplates.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/ProformaInvoiceView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/SavedInvoicesList/InvoiceApprovalDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/SavedInvoicesList/SavedInvoicesListDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/SavedInvoicesList/SavedInvoicesListView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/SavedInvoicesList/VersionsDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step1CompanySetup/CompanySetupView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step2ClientProfile/ClientProfileView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step3ProjectSpecs/ProjectSpecsView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step4PricingEstimator/PricingEstimatorView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step4PricingEstimator/DguLamParameters/DguLamParametersView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step4PricingEstimator/DguParameters/DguParametersView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step4PricingEstimator/LamParameters/LamParametersView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step4PricingEstimator/SguParameters/SguParametersView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step5DataGrid/DataGridView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step5DataGrid/GrandTotalSummary/GrandTotalSummaryView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step6OtherCharges/OtherChargesView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step6OtherCharges/CustomCharges/CustomChargesSectionView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step7PrintPreview/PrintPreviewView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step7PrintPreview/InvoiceMainSummary/InvoiceMainSummaryView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceView.xaml": [
+  "EXEMPT",
+  "Print surface: 18 radii are print-locked pt-derived geometry, not theme chrome"
+ ],
+ "Views/ProformaInvoice/Step7PrintPreview/TermsAndConditions/TermsAndConditionsView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step8Attachments/AttachmentsStepView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step9ProfitLoss/GlassTypeComparisonView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step9ProfitLoss/ProfitLossStepView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step9ProfitLoss/ServiceProfitabilityView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/ProformaInvoice/Step9ProfitLoss/SheetProfitabilityView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/SalesReportView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/DeliveryReport/DeliveryReportView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/JoReport/JoReportView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/PiReport/PiReportView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/StatementGenerator/Filter/FilterStep.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/StatementGenerator/Pipeline/ExecuteStep.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/StatementGenerator/Preview/PreviewStep.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/StatementGenerator/Review/ReviewStep.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/StatementGenerator/Shell/StatementGeneratorView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/StatementGenerator/Styles/WizardStyles.xaml": [
+  "EXEMPT",
+  "Statement wizard shell: numbered-step grammar, self-contained gradients/shadows (DynamicResource values)"
+ ],
+ "Views/Reports/StatementList/StatementListView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/StatementModule/StatementModuleView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/StatementReport/StatementReportView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/TaxInvoiceReport/TaxInvoiceReportView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/VatSubmission/VatSubmissionView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/Workflow/WorkflowProgressDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/Workflow/WorkflowWarningDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/CompanyReport/CompanyReportView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/CustomerReport/CustomerReportView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/ExecutiveReport/ExecutiveReportView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/GlassSpecReport/GlassSpecReportView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/OrderReport/OrderReportGeneratorView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/OrderReport/OrderReportListView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/OrderReport/OrderReportModuleView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/OrderReport/Filter/FilterStep.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/OrderReport/Pipeline/ExecuteStep.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/OrderReport/Preview/PreviewStep.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/OrderReport/Review/ReviewStep.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/OrderReport/Specifications/SpecificationsStep.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/ProfitabilityReport/ProfitabilityReportView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/ProjectReport/ProjectReportView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Reports/SalesmanReport/SalesmanReportView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/SettingsCardStyles.xaml": [
+  "EXEMPT",
+  "Settings module design layer: 47 keys mostly spacing constants + self-contained card/tile/chip/segment grammar; full merge onto shared Card/Pill = future candidate needing build verification"
+ ],
+ "Views/Settings/SettingsPageTemplates.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/SettingsSectionStyles.xaml": [
+  "EXEMPT",
+  "Settings module design layer (12 keys) \u2014 see SettingsCardStyles"
+ ],
+ "Views/Settings/SettingsView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/SettingsAboutSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/SettingsAgentSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/SettingsAiSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/SettingsAppearanceSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/SettingsDataSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/SettingsDemoSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/SettingsFeaturesSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/SettingsLicenseSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/SettingsSharingSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/SettingsThemesSection.xaml": [
+  "MODERNIZED",
+  "P3: 4 exact-value tokenizations"
+ ],
+ "Views/Settings/Sections/SettingsUpdatesSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/SettingsVoiceSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AgentCoreCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AgentDataCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AiAssistantCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AiProvidersCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AiSecurityCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AppearanceAccentFontCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AppearanceCardEdgesTile.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AppearanceCrystalTile.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AppearanceDensityCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AppearanceFontColorTile.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AppearanceFrostTile.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AppearanceGradientTile.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AppearanceLanguageCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AppearanceModeCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AppearancePreviewTile.xaml": [
+  "MODERNIZED",
+  "P3: 4 exact-value tokenizations"
+ ],
+ "Views/Settings/Sections/Cards/AppearanceRadiusTile.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AppearanceSplashCard.xaml": [
+  "MODERNIZED",
+  "P3: 2 exact-value tokenizations"
+ ],
+ "Views/Settings/Sections/Cards/AppearanceThemeFamilyTile.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AppearanceThemeLayoutCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/AppearanceWallpapersCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/DataBackupCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/DataHealthCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/DataRootCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/DataSampleCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/DemoFfmpegCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/DemoHistoryCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/DemoIsolationCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/DemoOutputCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/DemoQualityCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/DemoRecordCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/DemoWorkflowCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/FeaturesDeliveryNoteCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/FeaturesInquiryCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/FeaturesJobOrderCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/FeaturesProformaCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/FeaturesSessionCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Settings/Sections/Cards/FeaturesTaxInvoiceCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Shared/ActivityPanel.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Shared/AuditReportDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Shared/ChangesDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Shared/ComingSoonView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Shared/CountryPhoneControl.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Shared/LanguageSuggestionDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Shared/QuickSettingsPanel.xaml": [
+  "MODERNIZED",
+  "P3: 2 exact-value tokenizations"
+ ],
+ "Views/Shared/RecordOverlayWindow.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Shared/ScreenRecordPanel.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Shared/ScreenshotPanel.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Shared/SectionActivityView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Shared/StorageDetailsPanel.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Shared/StorageSidebarCard.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Shared/UnsavedChangesDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Shared/UserSwitchPanel.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Shared/VoidReasonDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/SheetStore/AddEditSheetView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/SheetStore/SheetDetailWindow.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/SheetStore/SheetStoreView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/SheetStore/SheetStoreBuy/BuyDialogView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/SheetStore/SheetStoreCsv/DuplicateResolutionView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/SheetStore/SheetStoreHistory/HistoryView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/SheetStore/SheetStoreUse/UseDialogView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/SheetStore/SheetStoreItems/ItemMovementView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Specifications/SpecificationsCenterView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/Splash/SplashView.xaml": [
+  "EXEMPT",
+  "Brand splash: 9 hex = material alpha recipe (white/gray sheen layers), identical Light/Dark; cinematic surface outside ERP chrome"
+ ],
+ "Views/SystemCenter/SystemCenterView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/TaxInvoice/TaxInvoiceView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/TaxInvoice/GodView/TaxInvoiceGodView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/TaxInvoice/TaxInvoiceDetail/IssueDraftsDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/TaxInvoice/TaxInvoiceDetail/Sections/TiAttachmentsSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/TaxInvoice/TaxInvoiceDetail/Sections/TiFamilySection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/TaxInvoice/TaxInvoiceDetail/Sections/TiOverviewSection.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/TaxInvoice/TaxInvoiceDetail/Sections/TiSectionStyles.xaml": [
+  "EXEMPT",
+  "TI detail module layer: 3 styles BasedOn shared bases (SurfaceDetailStyle)"
+ ],
+ "Views/TaxInvoice/TaxInvoiceList/ProformaPickerDialog.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/TaxInvoice/TaxInvoiceList/TaxInvoiceListView.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ],
+ "Views/UserCenter/UserCenterView.xaml": [
+  "MODERNIZED",
+  "P3: 5 exact-value tokenizations"
+ ],
+ "Views/Sharing/ShareComposerWindow.xaml": [
+  "COMPLIANT",
+  "already on shared chrome + dynamic tokens (census-verified: no literals, shared styles adopted)"
+ ]
+}

@@ -1,0 +1,419 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Production/Controls/ProductionUnitDetailControl.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Production — right-side full-height job panel (row click)
+
+     Step-5 cut-list style, not cards: the job's panes are two editable
+     grids side by side — OUTER (left, W1/H1) and INNER (right, W2/H2) —
+     with columns # · GLASS REF · W · H · TOTAL · QTY · DONE · BALANCE.
+     Every unit of the selected Job Order is listed as a row; DONE is an
+     editable cell and one SAVE DONE writes the whole grid in a batch.
+     Each grid has an AutoSum footer (TOTAL/DONE/BALANCE column ends).
+     Fully completed panes move to the COMPLETED section at the end.
+     Single-glass jobs render one grid, centered, titled by the spec
+     name. KPI cards on top update on every save; the main list
+     live-refreshes.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Production.Controls.ProductionUnitDetailControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch"
+             Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVisibilityConverter}}"
+             Background="{DynamicResource Ov.Canvas}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Production/Controls/ProductionUnitDetailTemplates.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Border
+            Padding="20"
+            SnapsToDevicePixels="True">
+        <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource OptHeroCard}" Margin="0,0,0,16" Padding="18,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Width="44" Height="44" CornerRadius="12"
+                        Background="{StaticResource OptOnIndigoChip}" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Icon}" FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="20" Foreground="{StaticResource OptOnIndigo}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,0,12,0">
+                    <TextBlock Text="{Binding ModuleName}"
+                               FontSize="12" FontWeight="Bold"
+                               Foreground="{StaticResource OptOnIndigoMuted}"/>
+                    <TextBlock Text="{Binding SelectedSerialLabel}"
+                               FontSize="20" FontWeight="SemiBold"
+                               Foreground="{StaticResource OptOnIndigo}"
+                               TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                    <TextBlock Text="{Binding SelectedCustomer}"
+                               FontSize="12" Foreground="{StaticResource OptOnIndigoMuted}"
+                               TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="2"
+                        Style="{StaticResource OutlinedPillButton}"
+                        Tag="&#xE711;" Content="CLOSE"
+                        MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
+                        VerticalAlignment="Center"
+                        Command="{Binding CloseDetailCommand}"
+                        ToolTip="Close panel"/>
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel HorizontalAlignment="Stretch">
+
+                <StackPanel>
+                    <TextBlock Text="JOB" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding SelectedProject}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"
+                               ToolTip="{Binding SelectedProject}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedProject}" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SelectedProject}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Text="{Binding SelectedJobNo}" FontWeight="{DynamicResource Weight.SemiBold}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2,0,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedProject}" Value="">
+                                        <Setter Property="FontSize" Value="{DynamicResource FontSize.H2}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SelectedProject}" Value="{x:Null}">
+                                        <Setter Property="FontSize" Value="{DynamicResource FontSize.H2}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Text="{Binding SelectedCustomer}" FontSize="{DynamicResource FontSize.Title}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding SelectedSpecLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
+                               Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="0,4,0,12"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Style="{StaticResource PrimaryPillButton}"
+                                Tag="&#xE8A5;" Content="JOB ORDER"
+                                MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
+                                Command="{Binding OpenJobOrderCommand}"
+                                ToolTip="Open the source Job Order"/>
+                        <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
+                                Tag="&#xE8A1;" Content="OPEN PI"
+                                MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
+                                Command="{Binding OpenProformaCommand}"
+                                ToolTip="Open the confirmed Proforma Invoice"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- ══ Completed-KPI strip ═════════════════════════════ -->
+                <UniformGrid Columns="2" Margin="-6,6,-6,0">
+                        <Border Style="{StaticResource OptKpiCard}" Margin="6" Padding="14,12" MinHeight="88">
+                            <StackPanel>
+                                <TextBlock Text="TOTAL" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedUnitTotalLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                </Viewbox>
+                                <TextBlock Text="{Binding HeroMetricCaption}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource OptKpiCard}" Margin="6" Padding="14,12" MinHeight="88">
+                            <StackPanel>
+                                <TextBlock Text="DONE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedUnitDoneLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </Viewbox>
+                                <TextBlock Text="marked completed" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource OptKpiCard}" Margin="6" Padding="14,12" MinHeight="88">
+                            <StackPanel>
+                                <TextBlock Text="BALANCE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedUnitBalanceLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                </Viewbox>
+                                <TextBlock Text="remaining at this stage" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource OptKpiCard}" Margin="6" Padding="14,12" MinHeight="88">
+                            <StackPanel>
+                                <TextBlock Text="COMPLETED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedUnitCompletedPctLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                </Viewbox>
+                                <TextBlock Text="of job progress" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Style="{StaticResource SuccessPillButton}"
+                            Tag="&#xE74E;" Content="SAVE DONE"
+                            MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
+                            Command="{Binding SaveAllDoneCommand}"/>
+                    <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
+                            Tag="&#xE73E;" Content="COMPLETE ALL"
+                            MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
+                            Command="{Binding CompleteUnitCommand}"/>
+                </Grid>
+
+                <!-- ══ Grids: OUTER (left) · INNER (right) — half-half,
+                     SIDE BY SIDE, so related glasses (outer sheet ↔ inner
+                     cuts) can be tracked row against row. Single-glass
+                     jobs render one full-width grid. ═ -->
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <ContentControl Grid.Column="0" Grid.ColumnSpan="3"
+                                    Content="{Binding}" ContentTemplate="{StaticResource OuterGridTemplate}"
+                                    HorizontalContentAlignment="Stretch"
+                                    Visibility="{Binding IsSingleGlass, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <ContentControl Grid.Column="0"
+                                    Content="{Binding}" ContentTemplate="{StaticResource OuterGridTemplate}"
+                                    HorizontalContentAlignment="Stretch"
+                                    Visibility="{Binding HasInnerGrid, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <ContentControl Grid.Column="2"
+                                    Content="{Binding}" ContentTemplate="{StaticResource InnerGridTemplate}"
+                                    HorizontalContentAlignment="Stretch"
+                                    Visibility="{Binding HasInnerGrid, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </Grid>
+
+                <!-- ══ COMPLETED — panes that finished this stage ═══════ -->
+                <Border Background="{DynamicResource TintGreenBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Padding="12,8" Margin="0,12,0,0"
+                        Visibility="{Binding HasCompletedSection, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
+                                       Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Text="COMPLETED" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}"
+                                    Padding="8,4" Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding CompletedStageItems.Count, StringFormat={}{0} rows}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                           Foreground="{DynamicResource TextTertiaryBrush}"/>
+                            </Border>
+                        </StackPanel>
+
+                        <Border Style="{StaticResource PiTableHeaderStyle}" Margin="0,8,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="28"/>
+                                    <ColumnDefinition Width="1.5*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="1.4*"/>
+                                    <ColumnDefinition Width="1.3*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="#" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="1" Text="GLASS REF" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left" Margin="6,0,0,0"/>
+                                <TextBlock Grid.Column="2" Text="W" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="3" Text="H" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="4" Text="QTY" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="5" Text="DONE" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="6" Text="COMPLETED BY" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left" Margin="6,0,0,0"/>
+                                <TextBlock Grid.Column="7" Text="COMPLETED AT" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left" Margin="6,0,0,0"/>
+                            </Grid>
+                        </Border>
+
+                        <ItemsControl ItemsSource="{Binding CompletedStageItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="0,0,0,1" Padding="0,2">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="28"/>
+                                                <ColumnDefinition Width="1.5*"/>
+                                                <ColumnDefinition Width="0.7*"/>
+                                                <ColumnDefinition Width="0.7*"/>
+                                                <ColumnDefinition Width="0.7*"/>
+                                                <ColumnDefinition Width="0.7*"/>
+                                                <ColumnDefinition Width="1.4*"/>
+                                                <ColumnDefinition Width="1.3*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding RowIndex}" Style="{StaticResource LineItemsSerialStyle}"/>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="6,0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding SerialLabel}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                           Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                <TextBlock Text="{Binding GlassRef}" FontSize="{DynamicResource FontSize.Body}"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="{Binding WLabel}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding HLabel}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                            <TextBlock Grid.Column="4" Text="{Binding QtyLabel}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                            <TextBlock Grid.Column="5" Text="{Binding DoneLabel}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                                       Foreground="{DynamicResource SuccessBrush}" FontWeight="{DynamicResource Weight.SemiBold}"/>
+                                            <TextBlock Grid.Column="6" Text="{Binding DoneBy}" FontSize="{DynamicResource FontSize.Body}"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"
+                                                       HorizontalAlignment="Left" Margin="6,0" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="7" Text="{Binding CompletedAtLabel}" FontSize="{DynamicResource FontSize.Body}"
+                                                       Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"
+                                                       HorizontalAlignment="Left" Margin="6,0"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border Style="{StaticResource LineItemsFooterStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="28"/>
+                                    <ColumnDefinition Width="1.5*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="1.4*"/>
+                                    <ColumnDefinition Width="1.3*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="1" Text="TOTALS" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Left"
+                                           VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                <Viewbox Grid.Column="4" MaxHeight="18">
+                                    <TextBlock Text="{Binding CompletedTotalSum}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                </Viewbox>
+                                <Viewbox Grid.Column="5" MaxHeight="18">
+                                    <TextBlock Text="{Binding CompletedDoneSum}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
+                                </Viewbox>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- ══ Auto-flow caption ═══════════════════════════════ -->
+                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                    <TextBlock Text="&#xE930;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
+                               Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Text="Completed pieces move to the next stage automatically — the AutoSum and KPI cards update the instant SAVE DONE is pressed."
+                               FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <!-- ══ Recent entries log ══════════════════════════════ -->
+                <Border Style="{StaticResource OptPanelCard}" Margin="0,12,0,0" Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Text="RECENT ENTRIES" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                        <StackPanel Visibility="{Binding HasDetailEntries, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ItemsControl ItemsSource="{Binding DetailEntries}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
+                                                       Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                            <TextBlock Text="{Binding}" FontSize="{DynamicResource FontSize.Body}"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                        <TextBlock Text="No entries yet for this job — save a done quantity to record the operator, date and time."
+                                   FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}"
+                                   TextWrapping="Wrap"
+                                   Visibility="{Binding HasDetailEntries, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ══ Dispatch ════════════════════════════════════════ -->
+                <Border Style="{StaticResource OptPanelCard}" Margin="0,12,0,0" Padding="16,12"
+                        Visibility="{Binding HasDispatchPanel, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel>
+                        <TextBlock Text="DISPATCH" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}" Padding="12,8" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="FINISHED " FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding SelectedDispatchReadyLabel}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}" Padding="12,8" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="DELIVERED " FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding SelectedDispatchDeliveredLabel}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}" Padding="12,8">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="BALANCE " FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding SelectedDispatchBalanceLabel}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                        <Button Content="Create Delivery Note" Style="{StaticResource PrimaryPillButton}"
+                                Command="{Binding CreateDeliveryNoteCommand}" Margin="0,12,0,0" HorizontalAlignment="Left"
+                                ToolTip="Create the Dispatching delivery note for this Job Order — only finished (DONE) pieces can be delivered."/>
+                        <TextBlock Text="DONE ≠ DELIVERED — pieces finished in production ship only on a delivery note."
+                                   FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}"
+                                   TextWrapping="Wrap" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+        </Grid>
+    </Border>
+</UserControl>

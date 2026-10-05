@@ -1,0 +1,365 @@
+<UserControl x:Class="ProGlassAutomation.Views.Personal.PersonalTaxInvoiceDashboardView"
+             TextOptions.TextHintingMode="Fixed"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         GB-P10 — GLASS BLUSH TAX INVOICE / INVOICE AGING PAGE (glass-07)
+
+         Personal page for the Dashboard module's "Tax Invoices" tab,
+         rendered by PersonalDashboardView (the Personal dashboard shell)
+         when ActivePage is a TiDashboardViewModel (DataContext inherited
+         from the host).
+
+         Contract (TiDashboardViewModel): KpiTiles (5), HasOverdueInvoices/
+         OverdueCount/OverdueAmountDisplay, ViewOverdueCommand/
+         ViewAllInvoicesCommand (both navigate to the TaxInvoice module —
+         the VM exposes no live filter state), RecentInvoices
+         (RecentInvoiceItem: InvoiceNumber/CustomerName/IssueDateDisplay/
+         AmountDisplay/Status/StatusColor) + HasRecentInvoices +
+         OpenInvoiceCommand (row click), AgingBrackets (AgingBracket:
+         Label/AmountDisplay/CountDisplay/NormalizedWidth 0..1/
+         SeverityColor/TintColor/HasData) + HasAgingData, plus the
+         DashboardPageBase four-state contract (IsLoading/HasError/
+         ErrorMessage/LastRefreshed).
+
+         NOTE: the glass-07 reference PNG was lost from the workspace when
+         this session was restored; the composition below follows the
+         measured composition map recorded in GB-P1 (filter pills · stat
+         cards · invoice table + glowing aging bars).
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        <!-- skeleton (page-level, glass) -->
+        <Style x:Key="GbSkeletonBlock" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+            <Setter Property="CornerRadius" Value="10"/>
+        </Style>
+        <Style x:Key="GbSkeletonCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource GlassBlush.Surface}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.Border}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource GlassBlush.CardRadius}"/>
+            <Setter Property="Effect" Value="{StaticResource GlassBlush.CardShadowFx}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+            </ResourceDictionary>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False"
+                  PanningMode="VerticalOnly"
+                  Focusable="False"
+                  FocusVisualStyle="{x:Null}"
+                  Background="Transparent">
+        <StackPanel Margin="0,0,0,8">
+
+            <!-- ══ FILTER PILLS (All Invoices | Overdue) ══════════════
+                 The VM exposes these as NAVIGATION actions (both open the
+                 TaxInvoice module) — no live filter state exists, so the
+                 pills carry that affordance + an overdue badge. -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                <Button Content="All Invoices"
+                        Style="{StaticResource GlassBlush.GlassButtonSoft}"
+                        Padding="18,9"
+                        Command="{Binding ViewAllInvoicesCommand}"
+                        Margin="0,0,10,0"/>
+                <Border Background="{DynamicResource GlassBlush.DangerSoft}"
+                        BorderBrush="{DynamicResource GlassBlush.Danger}"
+                        BorderThickness="1"
+                        CornerRadius="{DynamicResource GlassBlush.PillRadius}"
+                        Cursor="Hand"
+                        SnapsToDevicePixels="True">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick"
+                                      Command="{Binding ViewOverdueCommand}"/>
+                    </Border.InputBindings>
+                    <StackPanel Orientation="Horizontal" Margin="18,9">
+                        <TextBlock Text="Overdue"
+                                   FontSize="{DynamicResource GlassBlush.FontCaption}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource GlassBlush.Danger}"
+                                   VerticalAlignment="Center"/>
+                        <Border Background="{DynamicResource GlassBlush.Danger}"
+                                CornerRadius="{DynamicResource GlassBlush.PillRadius}"
+                                Padding="8,2"
+                                Margin="9,0,0,0"
+                                VerticalAlignment="Center"
+                                Visibility="{Binding HasOverdueInvoices,
+                                          Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="{Binding OverdueCount}"
+                                       FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource GlassBlush.Text}"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- ══ LOADING SKELETON ══════════════════════════════════ -->
+            <StackPanel Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid Margin="0,0,0,24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Style="{StaticResource GbSkeletonCard}" Margin="0,0,24,0" Height="110">
+                        <Border Style="{StaticResource GbSkeletonBlock}" Height="60" Margin="20,20"/>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource GbSkeletonCard}" Margin="0,0,24,0" Height="110">
+                        <Border Style="{StaticResource GbSkeletonBlock}" Height="60" Margin="20,20"/>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource GbSkeletonCard}" Height="110">
+                        <Border Style="{StaticResource GbSkeletonBlock}" Height="60" Margin="20,20"/>
+                    </Border>
+                </Grid>
+                <Grid Margin="0,0,0,24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1.6*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Style="{StaticResource GbSkeletonCard}" Margin="0,0,24,0" Height="280">
+                        <Border Style="{StaticResource GbSkeletonBlock}" Height="180" Margin="20,20"/>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource GbSkeletonCard}" Height="280">
+                        <Border Style="{StaticResource GbSkeletonBlock}" Height="180" Margin="20,20"/>
+                    </Border>
+                </Grid>
+            </StackPanel>
+
+            <!-- ══ ERROR STATE ═══════════════════════════════════════ -->
+            <Border Style="{StaticResource GbSkeletonCard}"
+                    Background="{DynamicResource GlassBlush.DangerSoft}"
+                    BorderBrush="{DynamicResource GlassBlush.Danger}"
+                    Margin="0,0,0,24"
+                    Padding="20,16"
+                    Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="{DynamicResource GlassBlush.FontBody}"
+                           Foreground="{DynamicResource GlassBlush.Text}"
+                           TextWrapping="Wrap"/>
+            </Border>
+
+            <!-- ══ DATA ══════════════════════════════════════════════ -->
+            <StackPanel Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+
+                <!-- STAT CARDS — the TI dashboard's KPI tiles -->
+                <ItemsControl ItemsSource="{Binding KpiTiles}" Margin="0,0,0,24">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Margin" Value="0,0,24,0"/>
+                            <Setter Property="Width" Value="220"/>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ContentControl Content="{Binding}"
+                                            ContentTemplate="{StaticResource GlassBlush.KpiTileTemplate}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- AGING BARS + RECENT INVOICES (the reference pair) -->
+                <Grid Margin="0,0,0,24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1.6*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- invoice aging — glowing bars -->
+                    <ContentControl Grid.Column="0"
+                                    Style="{StaticResource GlassBlush.GlassCard}"
+                                    Margin="0,0,24,0">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top"
+                                       Text="Invoice Aging"
+                                       Style="{StaticResource GlassBlush.SectionTitle}"
+                                       Margin="0,0,0,14"/>
+                            <ContentControl Style="{StaticResource GlassBlush.EmptyState}"
+                                            Tag="&#xE8EF;"
+                                            Content="No overdue invoices"
+                                            Margin="0,16,0,16"
+                                            Visibility="{Binding HasAgingData,
+                                                      Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                            <ItemsControl ItemsSource="{Binding AgingBrackets}"
+                                          Visibility="{Binding HasAgingData,
+                                                    Converter={StaticResource BoolToVisibilityConverter}}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,14">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding Label}"
+                                                           FontSize="{DynamicResource GlassBlush.FontBody}"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource GlassBlush.Text}"/>
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding AmountDisplay}"
+                                                           FontSize="{DynamicResource GlassBlush.FontBody}"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource GlassBlush.Text}"
+                                                           Typography.NumeralAlignment="Tabular"/>
+                                            </Grid>
+                                            <ProgressBar Margin="0,7,0,0"
+                                                         Minimum="0" Maximum="1"
+                                                         Value="{Binding NormalizedWidth}"
+                                                         Foreground="{Binding SeverityColor,
+                                                               Converter={StaticResource BrushKeyConverter}}"
+                                                         IsEnabled="False">
+                                                <ProgressBar.Style>
+                                                    <Style TargetType="ProgressBar" BasedOn="{StaticResource GlassBlush.Progress}"/>
+                                                </ProgressBar.Style>
+                                            </ProgressBar>
+                                            <TextBlock Text="{Binding CountDisplay}"
+                                                       FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                       Foreground="{DynamicResource GlassBlush.TextFaint}"
+                                                       Margin="0,5,0,0"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </DockPanel>
+                    </ContentControl>
+
+                    <!-- recent invoices — glass list (row click = OpenInvoiceCommand) -->
+                    <ContentControl Grid.Column="1"
+                                    Style="{StaticResource GlassBlush.GlassCard}">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top"
+                                       Text="{DynamicResource Dashboard.RecentInvoices}"
+                                       Style="{StaticResource GlassBlush.SectionTitle}"
+                                       Margin="0,0,0,14"/>
+                            <ContentControl Style="{StaticResource GlassBlush.EmptyState}"
+                                            Tag="&#xE8EF;"
+                                            Content="{DynamicResource Common.Empty}"
+                                            Margin="0,16,0,16"
+                                            Visibility="{Binding HasRecentInvoices,
+                                                      Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                            <ListBox ItemsSource="{Binding RecentInvoices}"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     Focusable="False"
+                                     MaxHeight="360"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                     ScrollViewer.CanContentScroll="True"
+                                     VirtualizingStackPanel.IsVirtualizing="True"
+                                     VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                     VirtualizingStackPanel.ScrollUnit="Pixel"
+                                     VirtualizingStackPanel.CacheLength="200,400"
+                                     VirtualizingStackPanel.CacheLengthUnit="Pixel"
+                                     Visibility="{Binding HasRecentInvoices,
+                                               Converter={StaticResource BoolToVisibilityConverter}}">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="Margin" Value="0"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Focusable" Value="False"/>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                                                BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                                                BorderThickness="1"
+                                                CornerRadius="12"
+                                                Padding="14,10"
+                                                Margin="0,0,0,8"
+                                                Cursor="Hand">
+                                            <Border.InputBindings>
+                                                <!-- same contract as Professional:
+                                                     whole-row click → OpenInvoiceCommand (item) -->
+                                                <MouseBinding MouseAction="LeftClick"
+                                                              Command="{Binding DataContext.OpenInvoiceCommand,
+                                                                                RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                              CommandParameter="{Binding}"/>
+                                            </Border.InputBindings>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0">
+                                                    <TextBlock Text="{Binding InvoiceNumber}"
+                                                               FontSize="{DynamicResource GlassBlush.FontBody}"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource GlassBlush.Text}"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding CustomerName}"
+                                                               FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                               Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                                               Margin="0,2,0,0"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding IssueDateDisplay}"
+                                                           FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                           Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,16,0"/>
+                                                <TextBlock Grid.Column="2"
+                                                           Text="{Binding AmountDisplay}"
+                                                           FontSize="{DynamicResource GlassBlush.FontBody}"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource GlassBlush.Text}"
+                                                           Typography.NumeralAlignment="Tabular"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,16,0"/>
+                                                <Border Grid.Column="3"
+                                                        Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                                                        BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="{DynamicResource GlassBlush.PillRadius}"
+                                                        Padding="10,5"
+                                                        VerticalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Ellipse Width="7" Height="7"
+                                                                 Fill="{Binding StatusColor,
+                                                                       Converter={StaticResource BrushKeyConverter}}"
+                                                                 VerticalAlignment="Center"
+                                                                 Margin="0,0,6,0"/>
+                                                        <TextBlock Text="{Binding Status}"
+                                                                   FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource GlassBlush.Text}"
+                                                                   VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </DockPanel>
+                    </ContentControl>
+                </Grid>
+
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

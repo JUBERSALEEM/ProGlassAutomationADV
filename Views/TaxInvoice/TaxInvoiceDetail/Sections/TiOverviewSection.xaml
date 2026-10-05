@@ -1,0 +1,634 @@
+<!-- LAYOUT — standard UAE tax invoice. Header fields auto from PI.
+     Line grid matches PI Step 5: separate RATE and VALUE, centred SQM. -->
+<UserControl x:Class="ProGlassAutomation.Views.TaxInvoice.TaxInvoiceDetail.Sections.TiOverviewSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:features="clr-namespace:ProGlassAutomation.Services.Features"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="TiSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False"
+                  PanningMode="VerticalOnly"
+                  Focusable="True"
+                  FocusVisualStyle="{x:Null}"
+                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+        <StackPanel>
+
+        <!-- ══ INVOICE DOCUMENT ══════════════════════════════════════ -->
+        <Border Padding="16,8" Margin="0,0,0,6">
+            <StackPanel>
+                <!-- Title + totals -->
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Module.TaxInvoice}"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock Text="{Binding CustomerName}"
+                                   FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   TextTrimming="CharacterEllipsis"
+                                   Margin="0,4,16,0"/>
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,4,0,0"
+                                   TextTrimming="CharacterEllipsis">
+                            <Run Text="{Binding ProjectIdentifierName, Mode=OneWay}"/>
+                            <Run Text="  ·  "/>
+                            <Run Text="{Binding ProjectReference, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                        <Viewbox MaxHeight="36" HorizontalAlignment="Right">
+                            <TextBlock Text="{Binding GrandTotalDisplay}"
+                                       FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource SuccessBrush}"/>
+                        </Viewbox>
+                        <TextBlock Text="{Binding GrandTotalInWords}"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   HorizontalAlignment="Right"
+                                   MaxWidth="280"
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Right"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Only the fields a clerk actually sets -->
+                <!-- Auto-compact: fields turned OFF in Settings ► Features
+                     ► Tax Invoice COLLAPSE and the rest re-flow. Issue Date
+                     always shows (it anchors the invoice). -->
+                <WrapPanel Margin="0,0,0,14">
+                    <StackPanel Style="{StaticResource Field.Panel}" MinWidth="180" MaxWidth="260" Margin="0,0,12,12">
+                        <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource ProformaInvoice.IssueDATE}"/>
+                        <DatePicker SelectedDate="{Binding IssueDate}"
+                                    FontSize="{DynamicResource FontSize.Body}" Height="{DynamicResource DensityInputHeight}"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource Field.Panel}" MinWidth="180" MaxWidth="260" Margin="0,0,12,12"
+                                Visibility="{Binding Path=ShowDueDate,
+                                    Source={x:Static features:TaxInvoiceFieldVisibility.Instance},
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource Reports.TaxInvoiceReport.DUEDATE}"/>
+                        <DatePicker SelectedDate="{Binding DueDate}"
+                                    FontSize="{DynamicResource FontSize.Body}" Height="{DynamicResource DensityInputHeight}"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource Field.Panel}" MinWidth="180" MaxWidth="260" Margin="0,0,12,12"
+                                Visibility="{Binding Path=ShowPaymentTerms,
+                                    Source={x:Static features:TaxInvoiceFieldVisibility.Instance},
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource Settings.PaymentTerms}"/>
+                        <ComboBox ItemsSource="{Binding PaymentTermsOptions}"
+                                  SelectedItem="{Binding PaymentTerms}"
+                                  FontSize="{DynamicResource FontSize.Body}" Height="{DynamicResource DensityInputHeight}" Style="{StaticResource ComboBoxStyle}"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource Field.Panel}" MinWidth="160" MaxWidth="220" Margin="0,0,12,12"
+                                Visibility="{Binding Path=ShowDiscountPercent,
+                                    Source={x:Static features:TaxInvoiceFieldVisibility.Instance},
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource Settings.Discount}"/>
+                        <TextBox Text="{Binding DiscountPercent,
+                                       UpdateSourceTrigger=PropertyChanged,
+                                       StringFormat={}{0:0.##}}"
+                                 behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                 FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
+                    </StackPanel>
+                </WrapPanel>
+
+                <!-- Bill from / Bill to — FTA required identities -->
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource CompactStatTileStyle}"
+                            MinHeight="0" Padding="14,12">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Field.Label}"
+                                       Text="{DynamicResource TaxInvoice.Supplier}"/>
+                            <TextBlock Text="{Binding CompanyName}"
+                                       Style="{StaticResource Typography.Body}"/>
+                            <TextBlock Margin="0,6,0,0" FontSize="{DynamicResource FontSize.Body}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}">
+                                <Run Text="TRN  " FontWeight="{DynamicResource Weight.Bold}"/>
+                                <Run Text="{Binding CompanyTrn, Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock Text="{Binding CompanyLocation}"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource CompactStatTileStyle}"
+                            MinHeight="0" Padding="14,12">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Field.Label}"
+                                       Text="{DynamicResource TaxInvoice.BILLCustomer}"/>
+                            <TextBlock Text="{Binding CustomerName}"
+                                       Style="{StaticResource Typography.Body}"/>
+                            <Grid Margin="0,6,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="TRN" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                           VerticalAlignment="Center" Margin="0,0,8,0"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                <TextBox Grid.Column="1"
+                                         Text="{Binding CustomerTrn, UpdateSourceTrigger=PropertyChanged}"
+                                         FontSize="{DynamicResource FontSize.Body}"
+                                         ToolTip="{DynamicResource TaxInvoice.RequiredFullUAETaxInvoiceWhenBuyerVAT}" Style="{StaticResource TextBoxStyle}"/>
+                            </Grid>
+                            <TextBlock Text="{Binding CustomerAddress}"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,6,0,0"/>
+                            <TextBlock Text="{Binding ContactPerson}"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Refs — auto from PI / DN, not a wall of inputs -->
+                <WrapPanel Margin="0,0,0,4">
+                    <Border Style="{StaticResource Chip.Primary}">
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}">
+                            <Run Text="PI  " FontWeight="{DynamicResource Weight.Bold}"
+                                 Foreground="{DynamicResource TextTertiaryBrush}"/>
+                            <Run Text="{Binding ProformaId, Mode=OneWay}"
+                                 FontWeight="{DynamicResource Weight.SemiBold}"
+                                 Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </TextBlock>
+                    </Border>
+                    <Border Style="{StaticResource Chip.Primary}">
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}">
+                            <Run Text="DN  " FontWeight="{DynamicResource Weight.Bold}"
+                                 Foreground="{DynamicResource TextTertiaryBrush}"/>
+                            <Run Text="{Binding DeliveryNoteReference, Mode=OneWay}"
+                                 FontWeight="{DynamicResource Weight.SemiBold}"
+                                 Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </TextBlock>
+                    </Border>
+                    <Border Style="{StaticResource Chip.Primary}">
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}">
+                            <Run Text="JO  " FontWeight="{DynamicResource Weight.Bold}"
+                                 Foreground="{DynamicResource TextTertiaryBrush}"/>
+                            <Run Text="{Binding JobOrderId, Mode=OneWay}"
+                                 FontWeight="{DynamicResource Weight.SemiBold}"
+                                 Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </TextBlock>
+                    </Border>
+                    <Border Style="{StaticResource Chip.Primary}">
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}">
+                            <Run Text="PO  " FontWeight="{DynamicResource Weight.Bold}"
+                                 Foreground="{DynamicResource TextTertiaryBrush}"/>
+                            <Run Text="{Binding PurchaseOrderNumber, Mode=OneWay}"
+                                 FontWeight="{DynamicResource Weight.SemiBold}"
+                                 Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </TextBlock>
+                    </Border>
+                    <Border>
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}">
+                            <Run Text="{DynamicResource ProformaInvoice.SITE}" FontWeight="{DynamicResource Weight.Bold}"
+                                 Foreground="{DynamicResource TextTertiaryBrush}"/>
+                            <Run Text="{Binding SiteDeliveryLocation, Mode=OneWay}"
+                                 FontWeight="{DynamicResource Weight.SemiBold}"
+                                 Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </TextBlock>
+                    </Border>
+                </WrapPanel>
+
+                <!-- Payment — printed on PDF. Bank/account come from PI. -->
+                <Border Background="{DynamicResource TintGrayBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Padding="12,10"
+                        Margin="0,4,0,12">
+                    <!-- Auto-compact bank block: Bank Name + Account No (from
+                         company setup) always show; IBAN / SWIFT collapse if
+                         turned OFF in Settings ► Features ► Tax Invoice. -->
+                    <WrapPanel>
+                        <StackPanel MinWidth="180" MaxWidth="280" Margin="0,0,12,12">
+                            <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource ProformaInvoice.BANK}"/>
+                            <TextBlock Text="{Binding BankName}"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                        <StackPanel MinWidth="180" MaxWidth="280" Margin="0,0,12,12">
+                            <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource TaxInvoice.AccountNO}"/>
+                            <TextBlock Text="{Binding BankAccountNumber}"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource Field.Panel}" MinWidth="180" MaxWidth="280" Margin="0,0,12,12"
+                                    Visibility="{Binding Path=ShowIban,
+                                        Source={x:Static features:TaxInvoiceFieldVisibility.Instance},
+                                        Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource Settings.IBAN}"/>
+                            <TextBox Text="{Binding Iban, UpdateSourceTrigger=PropertyChanged}"
+                                     FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource Field.Panel}" MinWidth="170" MaxWidth="260" Margin="0,0,12,12"
+                                    Visibility="{Binding Path=ShowSwiftCode,
+                                        Source={x:Static features:TaxInvoiceFieldVisibility.Instance},
+                                        Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource Settings.Swift}"/>
+                            <TextBox Text="{Binding SwiftCode, UpdateSourceTrigger=PropertyChanged}"
+                                     FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
+                        </StackPanel>
+                    </WrapPanel>
+                </Border>
+
+                <!-- Financial strip -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" MinHeight="56" Padding="12,8">
+                        <StackPanel HorizontalAlignment="Center">
+                            <Viewbox MaxHeight="24" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding SubtotalDisplay}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </Viewbox>
+                            <TextBlock Text="{DynamicResource TaxInvoice.Subtotal}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                       HorizontalAlignment="Center" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="2" MinHeight="56" Padding="12,8">
+                        <StackPanel HorizontalAlignment="Center">
+                            <Viewbox MaxHeight="24" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding VatDisplay}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </Viewbox>
+                            <TextBlock Text="{DynamicResource TaxInvoice.VAT5}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                       HorizontalAlignment="Center" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="4"
+                            Background="{DynamicResource TintAmberBrush}" MinHeight="56" Padding="12,8">
+                        <StackPanel HorizontalAlignment="Center">
+                            <Viewbox MaxHeight="24" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding DiscountAmountDisplay}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource WarningBrush}"/>
+                            </Viewbox>
+                            <TextBlock Text="{DynamicResource ProformaInvoice.Discount}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                       HorizontalAlignment="Center" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource WarningBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="6"
+                            Background="{DynamicResource TintGreenBrush}" MinHeight="56" Padding="12,8">
+                        <StackPanel HorizontalAlignment="Center">
+                            <Viewbox MaxHeight="24" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding GrandTotalDisplay}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource SuccessBrush}"/>
+                            </Viewbox>
+                            <TextBlock Text="{DynamicResource ProformaInvoice.GrandTotal}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                       HorizontalAlignment="Center" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource SuccessBrush}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- ══ LINE ITEMS — PI Step 5 columns ════════════════════════ -->
+        <Border Margin="0,0,0,8">
+            <StackPanel Margin="12,10,12,10">
+
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}">
+                            <Run Text="&#xE7B8;" FontFamily="{DynamicResource FontFamily.Icon}"/>
+                            <Run Text="{DynamicResource TaxInvoice.GlassItems}"/>
+                        </TextBlock>
+                        <TextBlock Text="{DynamicResource TaxInvoice.QtyRateDeliverySQMValueFollowPIGrid}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,2,0,0"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                    <Button Grid.Column="1"
+                            Style="{StaticResource RowOutlinedButton}"
+                            Tag="&#xE710;" Content="{DynamicResource TaxInvoice.ADDSPECGroup}"
+                            Command="{Binding AddSpecGroupCommand}"
+                            VerticalAlignment="Center"/>
+                </Grid>
+
+                <Border Padding="32,40">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SpecGroups.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="&#xE7B8;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}"
+                                   HorizontalAlignment="Center" Opacity="0.3"/>
+                        <TextBlock Text="{DynamicResource TaxInvoice.NoGlassItemsYet}"
+                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   HorizontalAlignment="Center" Margin="0,10,0,4"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Text="{DynamicResource TaxInvoice.ItemsImportProformaWhenCreateInvoiceDN}"
+                                   FontSize="{DynamicResource FontSize.Body}" HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+
+                <ItemsControl ItemsSource="{Binding SpecGroups}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource SpecGroupCardStyle}">
+                                    <StackPanel>
+                                        <Border Background="{DynamicResource SurfaceTertiaryBrush}"
+                                                BorderBrush="{DynamicResource DividerBrush}"
+                                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
+                                                Padding="12,8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="22" Height="22"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                        Background="{DynamicResource AccentBrush}"
+                                                        Margin="0,0,10,0">
+                                                    <TextBlock Text="&#xE8A5;"
+                                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                                               FontSize="{DynamicResource FontSize.Body}"
+                                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBox Grid.Column="1"
+                                                         Text="{Binding GroupName, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                                         Background="Transparent"
+                                                         Foreground="{DynamicResource TextPrimaryBrush}"
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}"
+                                                         Padding="4,2"
+                                                         MinWidth="160"
+                                                         VerticalContentAlignment="Center" Style="{StaticResource TextBoxStyle}"/>
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                                            VerticalAlignment="Center" Margin="12,0,0,0">
+                                                    <TextBlock Text="{DynamicResource TaxInvoice.RateSQM}"
+                                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox Text="{Binding BaseRate,
+                                                                   UpdateSourceTrigger=PropertyChanged,
+                                                                   StringFormat={}{0:0.00}}"
+                                                             behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                                             Style="{StaticResource LineItemsDecimalCellStyle}"
+                                                             Width="72"/>
+                                                </StackPanel>
+                                                <Button Grid.Column="3"
+                                                        Style="{StaticResource RowOutlinedButton}"
+                                                        Tag="&#xE710;" Content="{DynamicResource TaxInvoice.ROW}"
+                                                        Command="{Binding AddRowCommand}"
+                                                        Margin="12,0,6,0"/>
+                                                <Button Grid.Column="4"
+                                                        Style="{StaticResource RowDangerButton}"
+                                                        Tag="&#xE74D;" Content="{DynamicResource TaxInvoice.Group}"
+                                                        Command="{Binding DataContext.RemoveSpecGroupCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                                        Padding="8,4"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <Border Background="{DynamicResource SurfaceTertiaryBrush}"
+                                                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
+                                                Padding="4,6">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="28"/>
+                                                    <ColumnDefinition Width="1.2*"/>
+                                                    <ColumnDefinition Width="0.75*"/>
+                                                    <ColumnDefinition Width="0.75*"/>
+                                                    <ColumnDefinition Width="0.75*"/>
+                                                    <ColumnDefinition Width="0.75*"/>
+                                                    <ColumnDefinition Width="0.65*"/>
+                                                    <ColumnDefinition Width="0.85*"/>
+                                                    <ColumnDefinition Width="0.85*"/>
+                                                    <ColumnDefinition Width="0.85*"/>
+                                                    <ColumnDefinition Width="1.15*"/>
+                                                    <ColumnDefinition Width="32"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="#"
+                                                           Style="{StaticResource GridHeaderCell}"
+                                                           HorizontalAlignment="Center" TextAlignment="Center"/>
+                                                <TextBlock Grid.Column="1" Text="{DynamicResource DeliveryNote.GlassRef}"
+                                                           Style="{StaticResource GridHeaderCell}"/>
+                                                <TextBlock Grid.Column="2" Text="W1"
+                                                           Style="{StaticResource GridHeaderCell}"
+                                                           HorizontalAlignment="Center" TextAlignment="Center"/>
+                                                <TextBlock Grid.Column="3" Text="H1"
+                                                           Style="{StaticResource GridHeaderCell}"
+                                                           HorizontalAlignment="Center" TextAlignment="Center"/>
+                                                <TextBlock Grid.Column="4" Text="W2"
+                                                           Style="{StaticResource GridHeaderCell}"
+                                                           HorizontalAlignment="Center" TextAlignment="Center"/>
+                                                <TextBlock Grid.Column="5" Text="H2"
+                                                           Style="{StaticResource GridHeaderCell}"
+                                                           HorizontalAlignment="Center" TextAlignment="Center"/>
+                                                <TextBlock Grid.Column="6" Text="QTY"
+                                                           Style="{StaticResource GridHeaderCell}"
+                                                           HorizontalAlignment="Center" TextAlignment="Center"/>
+                                                <TextBlock Grid.Column="7" Text="SQM"
+                                                           Style="{StaticResource GridHeaderCell}"
+                                                           HorizontalAlignment="Center" TextAlignment="Center"/>
+                                                <TextBlock Grid.Column="8" Text="{DynamicResource DeliveryNote.TotalSQM}"
+                                                           Style="{StaticResource GridHeaderCell}"
+                                                           HorizontalAlignment="Center" TextAlignment="Center"/>
+                                                <TextBlock Grid.Column="9" Text="{DynamicResource Common.Rate}"
+                                                           Style="{StaticResource GridHeaderCell}"
+                                                           HorizontalAlignment="Center" TextAlignment="Center"/>
+                                                <TextBlock Grid.Column="10" Text="{DynamicResource Inquiry.Value}"
+                                                           Style="{StaticResource GridHeaderCell}"
+                                                           HorizontalAlignment="Right" TextAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <ItemsControl ItemsSource="{Binding Rows}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                                            BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
+                                                            Padding="4,3">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="28"/>
+                                                                <ColumnDefinition Width="1.2*"/>
+                                                                <ColumnDefinition Width="0.75*"/>
+                                                                <ColumnDefinition Width="0.75*"/>
+                                                                <ColumnDefinition Width="0.75*"/>
+                                                                <ColumnDefinition Width="0.75*"/>
+                                                                <ColumnDefinition Width="0.65*"/>
+                                                                <ColumnDefinition Width="0.85*"/>
+                                                                <ColumnDefinition Width="0.85*"/>
+                                                                <ColumnDefinition Width="0.85*"/>
+                                                                <ColumnDefinition Width="1.15*"/>
+                                                                <ColumnDefinition Width="32"/>
+                                                            </Grid.ColumnDefinitions>
+
+                                                            <TextBlock Grid.Column="0"
+                                                                       Text="{Binding SerialNumber}"
+                                                                       Style="{StaticResource GridDataCell}"
+                                                                       HorizontalAlignment="Center"
+                                                                       TextAlignment="Center"/>
+                                                            <TextBox Grid.Column="1"
+                                                                     Text="{Binding GlassRef, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Style="{StaticResource LineItemsTextCellStyle}"
+                                                                     Margin="2,2"/>
+                                                            <TextBox Grid.Column="2"
+                                                                     Text="{Binding W1, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Style="{StaticResource LineItemsIntCellStyle}"
+                                                                     Margin="2,2"/>
+                                                            <TextBox Grid.Column="3"
+                                                                     Text="{Binding H1, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Style="{StaticResource LineItemsIntCellStyle}"
+                                                                     Margin="2,2"/>
+                                                            <TextBox Grid.Column="4"
+                                                                     Text="{Binding W2, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Style="{StaticResource LineItemsIntCellStyle}"
+                                                                     Opacity="0.7" Margin="2,2"/>
+                                                            <TextBox Grid.Column="5"
+                                                                     Text="{Binding H2, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Style="{StaticResource LineItemsIntCellStyle}"
+                                                                     Opacity="0.7" Margin="2,2"/>
+                                                            <TextBox Grid.Column="6"
+                                                                     Text="{Binding Qty, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Style="{StaticResource LineItemsIntCellStyle}"
+                                                                     Margin="2,2"/>
+                                                            <TextBlock Grid.Column="7"
+                                                                       Text="{Binding Sqm, StringFormat={}{0:0.000}}"
+                                                                       Style="{StaticResource Typography.DataGrid}"
+                                                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                            <TextBlock Grid.Column="8"
+                                                                       Text="{Binding TotalSqm, StringFormat={}{0:0.000}}"
+                                                                       Style="{StaticResource Typography.DataGrid}"
+                                                                       FontWeight="{DynamicResource Weight.Bold}"/>
+                                                            <TextBox Grid.Column="9"
+                                                                     Text="{Binding Rate,
+                                                                           UpdateSourceTrigger=PropertyChanged,
+                                                                           StringFormat={}{0:0.00}}"
+                                                                     Style="{StaticResource LineItemsDecimalCellStyle}"
+                                                                     Margin="2,2"/>
+                                                            <TextBlock Grid.Column="10"
+                                                                       Text="{Binding Value, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
+                                                                       Style="{StaticResource GridNumericCell}"
+                                                                       FontWeight="{DynamicResource Weight.Bold}"
+                                                                       Foreground="{DynamicResource SuccessBrush}"/>
+                                                            <Button Grid.Column="11"
+                                                                    Style="{StaticResource RowDangerButton}"
+                                                                    Tag="&#xE74D;" MinWidth="28"
+                                                                    ToolTip="{DynamicResource TaxInvoice.RemoveRow}"
+                                                                    Command="{Binding DataContext.RemoveRowCommand,
+                                                                              RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                    CommandParameter="{Binding}"
+                                                                    Padding="4,3" Margin="2,2"/>
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <Border Background="{DynamicResource TintIndigoBrush}"
+                                                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                                BorderThickness="{DynamicResource Border.TopHairlineThickness}"
+                                                Padding="12,8"
+                                                CornerRadius="{DynamicResource Radius.Bottom.Medium}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="28"/>
+                                                    <ColumnDefinition Width="1.2*"/>
+                                                    <ColumnDefinition Width="0.75*"/>
+                                                    <ColumnDefinition Width="0.75*"/>
+                                                    <ColumnDefinition Width="0.75*"/>
+                                                    <ColumnDefinition Width="0.75*"/>
+                                                    <ColumnDefinition Width="0.65*"/>
+                                                    <ColumnDefinition Width="0.85*"/>
+                                                    <ColumnDefinition Width="0.85*"/>
+                                                    <ColumnDefinition Width="0.85*"/>
+                                                    <ColumnDefinition Width="1.15*"/>
+                                                    <ColumnDefinition Width="32"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="1" Text="{DynamicResource TaxInvoice.GroupTotal}"
+                                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource AccentBrush}"/>
+                                                <TextBlock Grid.Column="6"
+                                                           Text="{Binding GroupTotalQty, Mode=OneWay, StringFormat={}{0} pcs}"
+                                                           Style="{StaticResource Typography.DataGrid}"
+                                                           FontWeight="{DynamicResource Weight.Bold}"/>
+                                                <TextBlock Grid.Column="8"
+                                                           Text="{Binding GroupTotalSqm, Mode=OneWay, StringFormat={}{0:0.000}}"
+                                                           Style="{StaticResource Typography.DataGrid}"
+                                                           FontWeight="{DynamicResource Weight.Bold}"/>
+                                                <TextBlock Grid.Column="10"
+                                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                                           HorizontalAlignment="Right"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource SuccessBrush}">
+                                                    <Run Text="AED "/>
+                                                    <Run Text="{Binding GroupTotalValue, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    ProGlass.Licensing — the permanent, standalone licensing contract.
+
+    This library is the SINGLE SOURCE OF TRUTH for the license format,
+    canonical serialization, signing, verification and validation. It is
+    intentionally dead-simple:
+      • net8.0 (portable) — no WPF, no Windows-only APIs, no EF, no SQL.
+      • No reference to ProGlassAutomation or any of its services.
+      • No AppLogService / AuditService / CorrelationContext / App.Config /
+        Database / AI — anything the main app owns stays out of here.
+      • No stub facades. The licensing core never needed app services.
+
+    Both ProGlassAutomation (verify) and the LicenseGenerator (sign) depend
+    on THIS library, never on each other:
+
+        ┌─────────────────────┐
+        │ ProGlass.Licensing  │   license format, canonical JSON,
+        │  (contract + core)  │   RSA-PSS sign/verify, validation,
+        └──────────┬──────────┘   error codes, key IDs, version policy
+                   │
+        ┌──────────┴──────────┐
+        │                    │
+        ▼                    ▼
+   LicenseGenerator     ProGlassAutomation
+   (PRIVATE KEY, SIGN)  (PUBLIC KEY, VERIFY)
+
+    The private signing key NEVER lives here and NEVER lives in the app.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>ProGlass.Licensing</RootNamespace>
+    <AssemblyName>ProGlass.Licensing</AssemblyName>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>CS8600;CS8601;CS8602;CS8603;CS8604;CS8605;CS8618;CS8625;CA1305;CA1307;CA1416</WarningsNotAsErrors>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The test project lives in a sibling folder; SDK-style default globbing
+         would otherwise compile the xUnit tests into THIS library. Exclude it. -->
+    <Compile Remove="ProGlass.Licensing.Tests/**" />
+    <None Remove="ProGlass.Licensing.Tests/**" />
+  </ItemGroup>
+
+</Project>

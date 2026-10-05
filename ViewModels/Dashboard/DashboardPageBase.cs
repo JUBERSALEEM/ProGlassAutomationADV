@@ -1,0 +1,215 @@
+using ProGlassAutomation.Services;
+using System;
+using ProGlassAutomation.Utilities;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace ProGlassAutomation.ViewModels.Dashboard
+{
+    /// <summary>
+    /// Base class for all module dashboard sub-pages.
+    /// Provides: IsLoading, HasError, ErrorMessage, LastRefreshed,
+    /// TabTitle, TabIcon, and a reentrancy-guarded LoadAsync().
+    /// Sub-pages override LoadCoreAsync() with their own data logic.
+    ///
+    /// Phase 8.2f: Added ThemeManager.ThemeChanged subscription and
+    /// virtual OnThemeChanged() hook so sub-pages can force a rebuild
+    /// of their bound collections when the user toggles theme. This
+    /// makes brush-key-driven card backgrounds swap instantly instead
+    /// of waiting for a navigation-triggered DataTemplate rebuild.
+    /// </summary>
+    public abstract class DashboardPageBase : ViewModelBase, IDisposable
+    {
+        private int _loadingFlag = 0;
+
+        // ── loading state ─────────────────────────────────────────────────
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            protected set { if (_isLoading == value) return; _isLoading = value; OnPropertyChanged(); }
+        }
+
+        private bool _hasError;
+        public bool HasError
+        {
+            get => _hasError;
+            protected set { if (_hasError == value) return; _hasError = value; OnPropertyChanged(); }
+        }
+
+        private string _errorMessage = string.Empty;
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            protected set
+            {
+                if (_errorMessage == value) return;
+                _errorMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _lastRefreshed = string.Empty;
+        public string LastRefreshed
+        {
+            get => _lastRefreshed;
+            protected set
+            {
+                if (_lastRefreshed == value) return;
+                _lastRefreshed = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // ── tab identity (implemented by each sub-page) ───────────────────
+        public abstract string TabTitle { get; }
+        public abstract string TabIcon { get; }
+
+        /// <summary>
+        /// One-line description shown under the title in the module rail.
+        ///
+        /// Virtual with an empty default rather than abstract: making it
+        /// abstract would force an edit to all seven existing pages and
+        /// break any future one that does not need a subtitle.
+        /// </summary>
+        public virtual string TabSubtitle => string.Empty;
+
+        // ═════════════════════════════════════════════════════════════════
+        // CONSTRUCTOR — subscribe to theme changes
+        // ═════════════════════════════════════════════════════════════════
+
+        protected DashboardPageBase()
+        {
+            ThemeManager.ThemeChanged += OnThemeManagerChanged;
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // AUDIT M-2 — UNSUBSCRIBE FROM THE STATIC THEME EVENT
+        //
+        // ThemeManager.ThemeChanged is static, so it holds a strong
+        // reference to every page that ever subscribed. Nothing detached,
+        // which meant:
+        //
+        //   • each dashboard page (and everything it reaches — its KPI
+        //     models, chart bars and activity feed collections) stayed
+        //     alive for the whole session, and
+        //   • every one of those dead pages still ran OnThemeChanged on
+        //     each theme toggle, so the cost of switching Light/Dark grew
+        //     with the number of pages ever opened.
+        //
+        // Today DashboardViewModel is built once, so the leak is bounded.
+        // That is exactly the assumption DashboardFilterService was written
+        // to avoid relying on (see its header), and it stops being true the
+        // moment a page is created per navigation. Making the cleanup
+        // explicit costs nothing and removes the trap.
+        // ═════════════════════════════════════════════════════════════════
+
+        private bool _disposed;
+
+        /// <summary>
+        /// Detaches this page from ThemeManager. Idempotent. Override
+        /// <see cref="DisposeCore"/> in a sub-page that owns further
+        /// resources; do not hide this method.
+        /// </summary>
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+
+            ThemeManager.ThemeChanged -= OnThemeManagerChanged;
+
+            try
+            {
+                DisposeCore();
+            }
+            catch (System.Exception ex)
+            {
+                // Teardown must never throw out of Dispose.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[DashboardPageBase] DisposeCore failed: " + ExceptionMessages.Deep(ex));
+            }
+
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Sub-page cleanup hook. Default does nothing.
+        /// </summary>
+        protected virtual void DisposeCore()
+        {
+        }
+
+        private void OnThemeManagerChanged(object sender, EventArgs e)
+        {
+            // marshal to UI thread for safety when force-refreshing bindings
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+            if (dispatcher != null && !dispatcher.CheckAccess())
+            {
+                dispatcher.BeginInvoke(new Action(OnThemeChanged));
+                return;
+            }
+
+            OnThemeChanged();
+        }
+
+        /// <summary>
+        /// Called when the app theme swaps (Light ↔ Dark).
+        /// Sub-pages override this to force WPF to rebuild data-bound
+        /// templates that depend on brush-key-driven colors. Default
+        /// implementation does nothing — override in each sub-page.
+        /// </summary>
+        protected virtual void OnThemeChanged()
+        {
+            // no-op by default
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // PUBLIC LOAD ENTRY POINT
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Called by DashboardViewModel when this tab becomes active,
+        /// and by DashboardView.OnLoaded to refresh on navigation.
+        /// Reentrancy guard prevents parallel loads.
+        /// </summary>
+        public async Task LoadAsync()
+        {
+            if (Interlocked.CompareExchange(ref _loadingFlag, 1, 0) != 0)
+                return;
+
+            try
+            {
+                IsLoading = true;
+                HasError = false;
+                ErrorMessage = string.Empty;
+
+                await LoadCoreAsync();
+
+                // One stamp format for all seven dashboards. This used to be
+                // "Updated HH:mm:ss" here while JobOrder and DeliveryNote
+                // each shadowed LastRefreshed with their own
+                // "Last refreshed dd MMM yyyy, HH:mm" — so the same app
+                // showed the refresh time three different ways, and the
+                // assignment below was dead on those two pages because the
+                // view bound the derived property instead. Sub-pages must
+                // NOT redeclare LastRefreshed; this is the only writer.
+                LastRefreshed = $"Last refreshed {DateTime.Now:dd MMM yyyy, HH:mm}";
+            }
+            catch (Exception ex)
+            {
+                HasError = true;
+                ErrorMessage = $"Failed to load data: {ExceptionMessages.Deep(ex)}";
+            }
+            finally
+            {
+                IsLoading = false;
+                Interlocked.Exchange(ref _loadingFlag, 0);
+            }
+        }
+
+        /// <summary>
+        /// Override in each sub-page to load and push data to properties.
+        /// Do NOT call LoadAsync() from here — already inside the guard.
+        /// </summary>
+        protected abstract Task LoadCoreAsync();
+    }
+}

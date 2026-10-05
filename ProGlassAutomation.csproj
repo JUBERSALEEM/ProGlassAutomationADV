@@ -1,0 +1,538 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon>favicon.ico</ApplicationIcon>
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<AnalysisLevel>latest</AnalysisLevel>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<!-- Non-blocking warnings: nullable analysis (CS86xx/CS876x), obsolete members (CS0618),
+		     fire-and-forget (CS4014), unused fields (CS0414/CS0649), and NuGet/analyzer noise.
+		     These stay visible as warnings but never fail the build. -->
+		<WarningsNotAsErrors>CS0618;CS0414;CS0649;CS4014;CS8600;CS8601;CS8602;CS8603;CS8604;CS8605;CS8618;CS8619;CS8620;CS8621;CS8622;CS8625;CS8629;CS8632;CS8765;CS8766;CS8767;CS8768;IDE0059;NU1603;NU1605;NU1701;CA1515;CA1305;CA1307;CA1310;CA1311</WarningsNotAsErrors>
+		<NoWarn>$(NoWarn);NU1603;NU1605;CA1515;CA1305</NoWarn>
+		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+		<Deterministic>true</Deterministic>
+		<!-- One entry point: WPF-generated Main from ApplicationDefinition.
+		     Do not also declare Main in App.xaml.cs (CS0017). Velopack is
+		     invoked from Application_Startup. Do NOT reclassify App.xaml
+		     as Page: that yields CS1061 InitializeComponent. -->
+
+		<!-- ── ONE authoritative version source (OTA spec §5) ────────
+		     About / Settings / update checker / installer / releases all
+		     read this via AppInfo (assembly identity). Bump HERE only:
+		     MAJOR.MINOR.PATCH  →  2.0.0 → 2.0.1 → 2.1.0 ...
+
+		     RC-014 (2026-09-20): this sat at 2.0.1 from d6fb00e7
+		     (2026-09-10) through 6c7224f1 and e32f0caf (2026-09-19).
+		     UpdateService.IsNewer is a STRICT greater-than compare, so
+		     every one of those behaviour-changing builds was
+		     indistinguishable to OTA and to About — a machine on an
+		     older 2.0.1 was never offered the fix, and no log excerpt
+		     could say which 2.0.1 produced it. Bump the PATCH digit on
+		     every behavioural fix; that is what makes the update
+		     reachable and the build identifiable.          -->
+		<Version>2.0.11</Version>
+		<AssemblyVersion>2.0.11.0</AssemblyVersion>
+		<FileVersion>2.0.11.0</FileVersion>
+	</PropertyGroup>
+
+	<!-- ══════════════════════════════════════════════════════════════
+	     CS0029 hardening — explicit System.Threading.Tasks import.
+
+	     The previous build broke with four CS0029 errors at the
+	     right-click per-stage navigation lambdas in MainViewModel
+	     (Task → InquiryListRow). ImplicitUsings normally injects
+	     System.Threading.Tasks for net8.0-windows SDK-style projects,
+	     but the IDE IntelliSense / Roslyn incremental parser can lose
+	     the implicit using during partial edits. The explicit
+	     <Using> below guarantees the namespace is in scope in every
+	     .cs file regardless of IDE state. Combined with the
+	     fully-qualified System.Threading.Tasks.Task references in
+	     the affected lambdas, the build is robust.
+	══════════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<Using Include="System.Threading.Tasks" />
+	</ItemGroup>
+
+	<!-- App.xaml stays ApplicationDefinition (App.g.cs Main +
+	     InitializeComponent). No custom Main in App.xaml.cs (CS0017).
+	     Do NOT reclassify App.xaml as Page (CS1061 InitializeComponent). -->
+
+	<!-- ══════════════════════════════════════════════════════════════
+	     PHASE P — keep the test project out of the app project.
+
+	     The app project lives at the repository ROOT, so SDK-style default
+	     globbing would otherwise compile Tests/**/*.cs into the
+	     application itself. That would drag xUnit into the shipped binary
+	     and create a circular reference, because the test project already
+	     references this one.
+	══════════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<Compile Remove="Tests/**" />
+		<None Remove="Tests/**" />
+		<Page Remove="Tests/**" />
+		<Resource Remove="Tests/**" />
+		<!--
+		  The licensing contract lives under Licensing/ as its OWN project
+		  (ProGlass.Licensing.csproj). SDK-style default globbing would
+		  otherwise compile Licensing/Contracts/*.cs and the xUnit test file
+		  directly into the app — dragging xUnit in and breaking the build
+		  with CS0246. The app references ProGlass.Licensing as a library
+		  (see the ProjectReference above); it never recompiles its sources.
+		-->
+		<Compile Remove="Licensing/**" />
+		<None Remove="Licensing/**" />
+		<Page Remove="Licensing/**" />
+		<Resource Remove="Licensing/**" />
+		<!--
+		  PHASE L — keep the developer-only tool out of the
+		  app project.
+
+		  The license generator lives under Tools/ and is a
+		  separate console executable. If SDK-style default
+		  globbing pulled Tools\**\*.cs into the app
+		  project, we'd get CS5001 (multiple entry points)
+		  and CS0234 (Program type already defined) on
+		  every build of the shipped app.
+		-->
+		<Compile Remove="Tools/**" />
+		<None Remove="Tools/**" />
+		<Page Remove="Tools/**" />
+		<Resource Remove="Tools/**" />
+		<!-- Release evidence. Not application code. Must not ship. -->
+		<Compile Remove="PRODUCTION_READINESS/**" />
+		<None Remove="PRODUCTION_READINESS/**" />
+		<Content Remove="PRODUCTION_READINESS/**" />
+		<Page Remove="PRODUCTION_READINESS/**" />
+		<Resource Remove="PRODUCTION_READINESS/**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="ClosedXML" Version="0.105.0" />
+		<PackageReference Include="CsvHelper" Version="33.1.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="NAudio" Version="2.2.1" />
+		<!-- QuestPDF 2025.12.4 (upgraded from 2024.12.2): pulls in the
+		     2025.1.3 Table layout fix, the 2025.4.0 redesigned Column
+		     implementation + small-maxWidth text-measuring fix, and the
+		     2025.12 layout-debugging improvements — the three areas that
+		     produce the "conflicting size constraints" DocumentLayoutException
+		     on tall/narrow table layouts. -->
+		<PackageReference Include="QuestPDF" Version="2025.12.4" />
+		<PackageReference Include="PdfSharp-WPF" Version="6.1.1" />
+		<PackageReference Include="SkiaSharp" Version="2.88.8" />
+		<PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.8" />
+		<!-- Windows DPAPI (ProtectedData) — used by Services/Security/SecretVault
+		     to keep API keys out of plain-text config files. -->
+		<PackageReference Include="System.Management" Version="8.0.0" />
+		<PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.0" />
+		<PackageReference Include="System.Speech" Version="8.0.0" />
+
+		<!--
+		     ═══════════════════════════════════════════════════════════
+		     WHISPER.NET — Local neural Speech-to-Text (offline)
+
+		     PACKAGE NAME CORRECTION vs previous versions:
+		       WRONG (does not exist on NuGet):
+		         Whisper.net.Runtime.Cpu  ← NU1101 error
+		       CORRECT for Whisper.net 1.7.x:
+		         Whisper.net.Runtime      ← bundled native runtimes
+
+		     Whisper.net         — managed C# API wrapper
+		     Whisper.net.Runtime — native GGML inference engine
+		                          (CPU + GPU auto-select, Windows x64)
+		                          Without this, WhisperFactory throws
+		                          DllNotFoundException at runtime.
+
+		     Both packages MUST be the same version.
+		     ═══════════════════════════════════════════════════════════
+		-->
+		<PackageReference Include="LLamaSharp" Version="0.22.0" />
+		<!-- CPU-only backend: no GPU driver requirements (factory PCs ship
+		     stock Intel graphics). Native binaries are bundled by the
+		     backend package and unpacked next to the app automatically. -->
+		<PackageReference Include="LLamaSharp.Backend.Cpu" Version="0.22.0" />
+		<PackageReference Include="Whisper.net" Version="1.7.4" />
+		<PackageReference Include="Velopack" Version="1.2.0" />
+		<PackageReference Include="Whisper.net.Runtime" Version="1.7.4" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+
+	</ItemGroup>
+
+	<ItemGroup>
+		<Resource Include="favicon.ico" />
+		<!-- Windows-native separators: the XAML DESIGNER indexes resources
+		     conservatively and has reported XDG0003 for forward-slash paths
+		     even though runtime packing accepts them (2026-09-05).
+		     Single Resource entry only — duplicate entries with different
+		     LogicalName cause RG1000 'same key already added' in WinFX.targets.
+		     The SDK lower-cases the logical name to resources/... internally,
+		     so both /Resources/... and /resources/... pack URIs resolve. -->
+		<Resource Include="Resources\proglass_icon_256.png" />
+		<Resource Include="Resources\Glass3D\sgu-3d.png" />
+		<Resource Include="Resources\Glass3D\dgu-3d.png" />
+		<Resource Include="Resources\Glass3D\lam-3d.png" />
+		<Resource Include="Resources\Glass3D\dgulam-3d.png" />
+	</ItemGroup>
+
+	<!-- Fallback on-disk copy for AppIconResource disk fallback path.
+	     If Resource packing ever fails (e.g., SDK globbing on Linux),
+	     the PNG still exists next to the exe and the app shows the icon
+	     instead of crashing. -->
+	<ItemGroup>
+		<Content Include="Resources\proglass_icon_256.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<!--
+	  The permanent licensing contract. ProGlassAutomation verifies
+	  .proglasslicense files through ProGlass.Licensing. This is the ONLY
+	  place license format/signature logic lives; the app NEVER re-implements
+	  signing/verification and NEVER contains a private signing key.
+	  The LicenseGenerator (a separate project) signs against the SAME
+	  library; the two do not reference each other.
+	-->
+	<ItemGroup>
+		<ProjectReference Include="Licensing\ProGlass.Licensing.csproj" />
+	</ItemGroup>
+
+	<!-- ═══════════════════════════════════════════════════════════════
+	     Phase 8.3 — Explicit registration for Controls folder
+	═══════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<Page Update="Controls\**\*.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Controls\**\*.xaml.cs">
+			<DependentUpon>%(Filename)</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+	</ItemGroup>
+
+	<!-- Themes/Styles folder -->
+	<ItemGroup>
+		<Page Update="Themes\Styles\**\*.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Themes\Styles\**\*.xaml.cs">
+			<DependentUpon>%(Filename)</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+	</ItemGroup>
+
+	<!--
+	     Licensing activation view — CODE-ONLY CONTROL (2026-08-29).
+	     The XAML + generated partial (InitializeComponent + x:Name
+	     fields) was a recurring build breakage point; the view is now
+	     fully code-constructed, so only a plain Compile entry is
+	     needed and no markup-compilation failure can ever remove its
+	     members. Removing the SDK default item first keeps this safe
+	     whether the default WPF globs are enabled by the current SDK
+	     or by an IDE design-time build.
+	-->
+	<ItemGroup>
+		<Compile Remove="Views\Licensing\LicenseActivationView.xaml.cs" />
+		<Compile Include="Views\Licensing\LicenseActivationView.xaml.cs" />
+	</ItemGroup>
+
+	<!-- ═══════════════════════════════════════════════════════════════
+	     Login windows — explicit Page/Compile linkage so the XAML
+	     markup compiler generates InitializeComponent() and x:Name
+	     fields for ForcePasswordChangeWindow and ResetPasswordWindow.
+	═══════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<Page Update="Views\Login\ForcePasswordChangeWindow.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Login\ForcePasswordChangeWindow.xaml.cs">
+			<DependentUpon>ForcePasswordChangeWindow.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<Page Update="Views\Login\ResetPasswordWindow.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Login\ResetPasswordWindow.xaml.cs">
+			<DependentUpon>ResetPasswordWindow.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+	</ItemGroup>
+
+	<!-- ═══════════════════════════════════════════════════════════════
+	     Chat 16 — Sales Report + Statement List
+	═══════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<Page Update="Views\Reports\SalesReportView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\SalesReportView.xaml.cs">
+			<DependentUpon>SalesReportView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<Page Update="Views\Reports\StatementList\StatementListView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementList\StatementListView.xaml.cs">
+			<DependentUpon>StatementListView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<Page Update="Views\Reports\StatementModule\StatementModuleView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementModule\StatementModuleView.xaml.cs">
+			<DependentUpon>StatementModuleView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<Page Update="Views\Dashboard\Statement\StDashboardView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Dashboard\Statement\StDashboardView.xaml.cs">
+			<DependentUpon>StDashboardView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+	</ItemGroup>
+
+	<!-- ═══════════════════════════════════════════════════════════════
+	     Chat 21 v3 — Statement Generator WIZARD (4 steps)
+	═══════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+
+		<!-- Shell -->
+		<Page Update="Views\Reports\StatementGenerator\Shell\StatementGeneratorView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementGenerator\Shell\StatementGeneratorView.xaml.cs">
+			<DependentUpon>StatementGeneratorView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 1: Filter -->
+		<Page Update="Views\Reports\StatementGenerator\Filter\FilterStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementGenerator\Filter\FilterStep.xaml.cs">
+			<DependentUpon>FilterStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 2: Preview -->
+		<Page Update="Views\Reports\StatementGenerator\Preview\PreviewStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementGenerator\Preview\PreviewStep.xaml.cs">
+			<DependentUpon>PreviewStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 3: Execute -->
+		<Page Update="Views\Reports\StatementGenerator\Pipeline\ExecuteStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementGenerator\Pipeline\ExecuteStep.xaml.cs">
+			<DependentUpon>ExecuteStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 4: Review -->
+		<Page Update="Views\Reports\StatementGenerator\Review\ReviewStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementGenerator\Review\ReviewStep.xaml.cs">
+			<DependentUpon>ReviewStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Shared wizard styles -->
+		<Page Update="Views\Reports\StatementGenerator\Styles\WizardStyles.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+
+	</ItemGroup>
+
+	<!-- ═══════════════════════════════════════════════════════════════
+	     Global Reporting — module-based (Master Prompt)
+	═══════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<Page Update="Views\Reports\PiReport\*.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\PiReport\*.xaml.cs">
+			<DependentUpon>%(Filename)</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+		<Page Update="Views\Reports\JoReport\*.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\JoReport\*.xaml.cs">
+			<DependentUpon>%(Filename)</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+		<Page Update="Views\Reports\DeliveryReport\*.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\DeliveryReport\*.xaml.cs">
+			<DependentUpon>%(Filename)</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+		<Page Update="Views\Reports\TaxInvoiceReport\*.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\TaxInvoiceReport\*.xaml.cs">
+			<DependentUpon>%(Filename)</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+		<Page Update="Views\Reports\StatementReport\*.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementReport\*.xaml.cs">
+			<DependentUpon>%(Filename)</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Update="Views\JobProfitability\JobDetailPanel.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\JobProfitability\JobDetailPanel.xaml.cs">
+			<DependentUpon>JobDetailPanel.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+		<Page Update="Views\JobProfitability\JobFullDetailView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\JobProfitability\JobFullDetailView.xaml.cs">
+			<DependentUpon>JobFullDetailView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+	</ItemGroup>
+
+	<!-- ═══════════════════════════════════════════════════════════════
+	     Chat 22 v5 — Overall Report Generator (standalone module)
+	     List ↔ 4-step wizard (Filter → Preview → Execute → Review).
+	═══════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+
+		<!-- Module shell (list ↔ generator toggle) -->
+		<Page Update="Views\Reports\OrderReport\OrderReportModuleView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\OrderReportModuleView.xaml.cs">
+			<DependentUpon>OrderReportModuleView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Saved reports list -->
+		<Page Update="Views\Reports\OrderReport\OrderReportListView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\OrderReportListView.xaml.cs">
+			<DependentUpon>OrderReportListView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Wizard shell -->
+		<Page Update="Views\Reports\OrderReport\OrderReportGeneratorView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\OrderReportGeneratorView.xaml.cs">
+			<DependentUpon>OrderReportGeneratorView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 1: Filter -->
+		<Page Update="Views\Reports\OrderReport\Filter\FilterStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\Filter\FilterStep.xaml.cs">
+			<DependentUpon>FilterStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 2: Preview -->
+		<Page Update="Views\Reports\OrderReport\Preview\PreviewStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\Preview\PreviewStep.xaml.cs">
+			<DependentUpon>PreviewStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 3: Execute -->
+		<Page Update="Views\Reports\OrderReport\Pipeline\ExecuteStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\Pipeline\ExecuteStep.xaml.cs">
+			<DependentUpon>ExecuteStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 4: Review -->
+		<Page Update="Views\Reports\OrderReport\Review\ReviewStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\Review\ReviewStep.xaml.cs">
+			<DependentUpon>ReviewStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 5: Specifications -->
+		<Page Update="Views\Reports\OrderReport\Specifications\SpecificationsStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\Specifications\SpecificationsStep.xaml.cs">
+			<DependentUpon>SpecificationsStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+	</ItemGroup>
+
+</Project>

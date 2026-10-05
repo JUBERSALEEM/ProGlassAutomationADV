@@ -1,0 +1,111 @@
+<!--
+  CrashReportDialog — a small modal that appears after an
+  unhandled crash. Gives the user three concrete actions
+  (open the crash folder, copy the Error ID, restart the
+  app) plus a Close. Self-contained WPF, no third-party deps.
+
+  2026-09 dialog audit: rebuilt on the shared ThemedDialogWindow chrome.
+  Crash-path safety: if App resources are not available when this opens,
+  ThemedDialogWindow automatically falls back to the stock OS window
+  frame with identical content. ShowInTaskbar/CenterScreen kept as the
+  deliberate crash-context choices (there may be no owner window).
+-->
+<dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.CrashReports.CrashReportDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+        Title="{DynamicResource CrashReports.ProglassAutomationError}"
+        Width="560" Height="380"
+        MinWidth="480" MinHeight="320"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize"
+        ShowInTaskbar="True"
+        DialogIcon="&#xE783;"
+        DialogIconBrush="{DynamicResource DangerBrush}"
+        DialogSubtitle="{DynamicResource CrashReports.ProglassAutomationRecoveredUnexpectedError}"
+             FontFamily="{DynamicResource AppFontFamily}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="CrashReportDialogStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <!-- ── Headline + detail block ───────────────────────────────────── -->
+    <StackPanel>
+        <TextBlock Text="{DynamicResource CrashReports.SomethingWentWrong}"
+                   FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.SemiBold}"
+                   Foreground="{DynamicResource DangerBrush}"
+                   TextWrapping="Wrap"/>
+        <Border Margin="0,8,0,0" Padding="12,10"
+            Background="{DynamicResource SurfaceSecondaryBrush}"
+            BorderBrush="{DynamicResource BorderBrush}"
+            BorderThickness="{DynamicResource Border.HairlineThickness}"
+            CornerRadius="{DynamicResource Radius.Small}">
+        <StackPanel>
+            <Grid Margin="0,0,0,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource CrashReports.ErrorID}"
+                           Style="{StaticResource Field.Label}"/>
+                <TextBlock Grid.Row="0" Grid.Column="1"
+                           Text="{Binding ErrorId}"
+                           Style="{StaticResource Typography.Body}"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Common.Type}"
+                           Style="{StaticResource Field.Label}"/>
+                <TextBlock Grid.Row="1" Grid.Column="1"
+                           Text="{Binding ExceptionType}"
+                           Style="{StaticResource Typography.Body}"/>
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource CrashReports.Message}"
+                           Style="{StaticResource Field.Label}"/>
+                <TextBlock Grid.Row="2" Grid.Column="1"
+                           Text="{Binding ExceptionMessage}"
+                           TextWrapping="Wrap"
+                           Style="{StaticResource Typography.Body}"/>
+            </Grid>
+
+            <TextBlock Text="{DynamicResource CrashReports.CrashReportSaved}"
+                       Style="{StaticResource Field.Label}"
+                       Margin="0,4,0,4"/>
+            <TextBlock Text="{Binding ReportPath}"
+                       FontFamily="{DynamicResource FontFamily.Code}"
+                       FontSize="{DynamicResource FontSize.Body}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       TextWrapping="Wrap"/>
+        </StackPanel>
+    </Border>
+    </StackPanel>
+
+    <dialogs:ThemedDialogWindow.FooterContent>
+        <StackPanel Orientation="Horizontal">
+            <Button Style="{StaticResource Button.Primary}"
+                    Content="{DynamicResource CrashReports.RestartAPP}"
+                    Command="{Binding RestartCommand}"
+                    Margin="0,0,8,0"/>
+            <Button Style="{StaticResource Button.Secondary}"
+                    Content="{DynamicResource CrashReports.COPYErrorID}"
+                    Command="{Binding CopyErrorIdCommand}"
+                    Margin="0,0,8,0"/>
+            <Button Style="{StaticResource Button.Secondary}"
+                    Content="{DynamicResource CrashReports.OPENCrashFolder}"
+                    Command="{Binding OpenFolderCommand}"
+                    Margin="0,0,8,0"/>
+            <Button Style="{StaticResource Button.Ghost}"
+                    Content="{DynamicResource Action.Close}"
+                    Command="{Binding CloseCommand}"
+                    IsCancel="True"/>
+        </StackPanel>
+    </dialogs:ThemedDialogWindow.FooterContent>
+</dialogs:ThemedDialogWindow>

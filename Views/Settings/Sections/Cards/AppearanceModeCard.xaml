@@ -1,0 +1,60 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/AppearanceModeCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — Appearance: Base Color Mode (Studio Bento)
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceModeCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Border Style="{StaticResource SettingsCompactCardStyle}">
+        <StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                    <TextBlock Text="&#xE706;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                </Border>
+                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                    <TextBlock Text="{DynamicResource Settings.Mode}"
+                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                    <TextBlock Text="{DynamicResource Settings.ModeHelp}"
+                               Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                </StackPanel>
+                <Border Grid.Column="2" Style="{StaticResource SettingsChipMutedStyle}" VerticalAlignment="Center">
+                    <TextBlock Text="Dynamic Palette" Style="{StaticResource SettingsChipMutedTextStyle}"/>
+                </Border>
+            </Grid>
+
+            <!-- Segmented control (grammar: SettingsSegmentTrackStyle +
+                 SettingsSegmentItemStyle). SelectedValue + Tag, so the
+                 VM holds the persisted token ("Light"/"Dark") and the
+                 labels stay in the language files. -->
+            <ListBox Style="{StaticResource SettingsSegmentTrackStyle}"
+                     Margin="{StaticResource SettingsStackGap12}"
+                     AutomationProperties.Name="{DynamicResource Settings.Mode}"
+                     SelectedValuePath="Tag"
+                     SelectedValue="{Binding ThemeMode, Mode=TwoWay}"
+                     AutomationProperties.AutomationId="Settings.ThemeMode">
+                <ListBoxItem Tag="Light"
+                             Content="{DynamicResource Settings.ModeLight}"
+                             Style="{StaticResource SettingsSegmentItemStyle}"/>
+                <ListBoxItem Tag="Dark"
+                             Content="{DynamicResource Settings.ModeDark}"
+                             Style="{StaticResource SettingsSegmentItemStyle}"/>
+            </ListBox>
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -1,0 +1,69 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Styles/AboutTypeScale.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: About — the module type scale (size contract, not a colour)
+
+     WHY THIS IS A SEPARATE, APP-LEVEL DICTIONARY
+     ────────────────────────────────────────────
+     2026-09-15 owner directive: "convert all cards and fonts safely move
+     to dynamic so this about module can adapt the theme style."
+
+     The About scale used to be declared inside
+     Views/About/AboutIos26Theme.xaml — a dictionary merged LOCALLY by
+     every About view. A locally declared key shadows Application.Resources,
+     so nothing outside About could ever rewrite it: the module was frozen
+     to one size ladder on every density profile.
+
+     The scale is now declared once, at application level, where the
+     density publisher (Services/Theme/AboutDensityTypeScale.cs, called
+     from ThemeManager.PublishDensity) can rewrite it in place on every
+     density switch. The values below are the COMPACT profile — the
+     approved mockup scale and the app default — so the default rendering
+     is unchanged; Normal / Comfortable / Spacious lift the sizes that are
+     13 px or larger by 1–2 whole pixels.
+
+     SNAPPING / WEIGHT RULES (unchanged, still enforced by the audit lock)
+     ─────────────────────────────────────────────────────────────────────
+     Every size is a whole pixel and every size has a ROLE. The module
+     used to hard-code 20 sizes, half of them fractional (13.5 / 12.5 /
+     11.5 / 10.5); under TextOptions.TextFormattingMode="Display" a
+     fractional size is hinted at a half-pixel grid, stems land between
+     pixels, and the Bold / SemiBold cuts read muddy. Fractional sizes are
+     banned outright.
+
+     Weights reuse the ONE global scale (Weight.Regular / SemiBold / Bold
+     from Themes/Styles/GlobalDesignSystem.xaml):
+       • Weight.Regular   — body copy, muted field labels
+       • Weight.SemiBold  — micro labels, chips, buttons, COMPACT (<= 13 px)
+                            field values
+       • Weight.Bold      — card / section titles, hero metrics, and field
+                            VALUES at >= 14 px
+     NEVER Weight.Bold below 12 px, and never Weight.SemiBold for a 17 px+
+     title. AboutModuleAuditTests locks both rules.
+
+     MDL2 glyph sizes reuse this same scale (a 16 px glyph is 16 px), so
+     the module still has exactly ONE place where a font size is written
+     down. Read a token as a size step, not as a text role, when it is
+     applied to FontFamily.Icon.
+═══════════════════════════════════════════════════════════════════ -->
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <sys:Double x:Key="Ios26FontSizeCaption">10</sys:Double>      <!-- micro kicker / footer note -->
+    <sys:Double x:Key="Ios26FontSizeLabel">11</sys:Double>        <!-- small label -->
+    <sys:Double x:Key="Ios26FontSizeSmall">12</sys:Double>        <!-- secondary / meta text -->
+    <sys:Double x:Key="Ios26FontSizeBody">13</sys:Double>         <!-- body copy, field labels -->
+    <sys:Double x:Key="Ios26FontSizeValue">14</sys:Double>        <!-- emphasised value -->
+    <sys:Double x:Key="Ios26FontSizeSubtitle">15</sys:Double>     <!-- subtitle / large value -->
+    <sys:Double x:Key="Ios26FontSizeCardTitleSm">16</sys:Double>  <!-- compact card title -->
+    <sys:Double x:Key="Ios26FontSizeCardTitle">17</sys:Double>    <!-- card title -->
+    <sys:Double x:Key="Ios26FontSizeSectionTitle">18</sys:Double> <!-- section title -->
+    <sys:Double x:Key="Ios26FontSizeGlyph">19</sys:Double>        <!-- MDL2 glyph in a disc -->
+    <sys:Double x:Key="Ios26FontSizeH2">20</sys:Double>           <!-- status headline -->
+    <sys:Double x:Key="Ios26FontSizeH1">22</sys:Double>           <!-- page title -->
+    <sys:Double x:Key="Ios26FontSizeMetric">24</sys:Double>       <!-- big number -->
+    <sys:Double x:Key="Ios26FontSizeStat">28</sys:Double>         <!-- principle / stat number -->
+    <sys:Double x:Key="Ios26FontSizeDisplay">30</sys:Double>      <!-- hero app name -->
+</ResourceDictionary>

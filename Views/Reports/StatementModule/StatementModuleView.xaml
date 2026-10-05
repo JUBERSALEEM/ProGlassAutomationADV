@@ -1,0 +1,71 @@
+﻿<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Reports/StatementModule/StatementModuleView.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Statement Generator (standalone module shell)
+
+     Toggles between the saved-statement list and the 4-step generation
+     wizard. Previously this list↔wizard toggle lived inside the Reports
+     hub (SalesReportView) as a hidden overlay; it is now a first-class
+     module in the Dispatch section.
+═══════════════════════════════════════════════════════════════════ -->
+
+<UserControl x:Class="ProGlassAutomation.Views.Reports.StatementModule.StatementModuleView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vmList="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementList"
+             xmlns:vmGen="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementGenerator"
+             xmlns:vList="clr-namespace:ProGlassAutomation.Views.Reports.StatementList"
+             xmlns:vGen="clr-namespace:ProGlassAutomation.Views.Reports.StatementGenerator.Shell"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        <DataTemplate DataType="{x:Type vmList:StatementListViewModel}">
+            <vList:StatementListView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmGen:StatementGeneratorViewModel}">
+            <vGen:StatementGeneratorView/>
+        </DataTemplate>
+            </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Background="Transparent">
+
+        <!-- Saved statements list -->
+        <ContentControl Content="{Binding ListVM}">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ShowGenerator}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
+
+        <!-- 4-step generation wizard -->
+        <ContentControl Content="{Binding GeneratorVM}">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ShowGenerator}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
+    </Grid>
+</UserControl>

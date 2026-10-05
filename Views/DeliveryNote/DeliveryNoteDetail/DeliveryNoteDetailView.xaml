@@ -1,0 +1,286 @@
+<!-- Delivery Note detail — document workspace shell.
+     InputBindings, ActionsMenuButton / ActionsMenuPopup, section tabs,
+     IsBodyEditable, BodyLockBannerVisibility: unchanged. -->
+<UserControl Style="{StaticResource ErpPageRootStyle}"
+             x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.DeliveryNoteDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:sections="clr-namespace:ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Sections"
+             xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Sections/DnSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <UserControl.InputBindings>
+        <KeyBinding Key="Escape" Command="{Binding BackCommand}"/>
+    </UserControl.InputBindings>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  Background="{DynamicResource Ov.Canvas}">
+        <Grid Background="Transparent">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Style="{StaticResource ModuleDetailActionBarStyle}"
+                    Margin="16,8,16,6">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0"
+                            Style="{StaticResource OutlinedPillButton}"
+                            Tag="&#xE72B;"
+                            Content="{DynamicResource Action.Back}"
+                            Command="{Binding BackCommand}"
+                            Margin="0,0,12,0"
+                            ToolTip="{DynamicResource DeliveryNote.BackListEsc}"/>
+
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="{Binding DeliveryNoteId}"
+                                   Style="{StaticResource ModuleDetailTitleStyle}"/>
+                        <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="8,4"
+                                Margin="12,0,0,0"
+                                VerticalAlignment="Center"
+                                Background="{DynamicResource TintIndigoBrush}">
+                            <TextBlock Text="{Binding DeliveryType}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Border>
+                        <Border Style="{StaticResource Badge.Primary}">
+                            <TextBlock Text="{DynamicResource DeliveryNote.FREECharge}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Border>
+                        <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="8,4"
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                Background="{DynamicResource TintGreenBrush}">
+                            <TextBlock Text="{Binding Status}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource SuccessBrush}"/>
+                        </Border>
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Column="2"
+                                  VerticalScrollBarVisibility="Disabled"
+                                  HorizontalScrollBarVisibility="Auto">
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <Button Style="{StaticResource PrimaryPillButton}"
+                                    Tag="&#xE74E;"
+                                    Content="{DynamicResource Action.Save}"
+                                    Command="{Binding SaveCommand}"
+                                    Margin="0,0,8,0"
+                                    ToolTip="{DynamicResource DeliveryNote.SaveDispatchingDNDispatchedRemainingQtyStays}"
+                                    Visibility="{Binding IsNotMasterDn,
+                                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Tag="&#xE7B8;"
+                                    Content="{DynamicResource DeliveryNote.CreateBalance}"
+                                    Command="{Binding CreateNewDnFromMasterCommand}"
+                                    Margin="0,0,8,0"
+                                    ToolTip="{DynamicResource DeliveryNote.CreateNewDispatchingDNRemainingBalance}"/>
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    x:Name="ActionsMenuButton"
+                                    Tag="&#xE712;"
+                                    Content="{DynamicResource Common.Actions}"
+                                    ToolTip="{DynamicResource DeliveryNote.SaveDispatchExportMore}"
+                                    behaviors:DropdownButtonBehavior.Popup="{Binding ElementName=ActionsMenuPopup}"/>
+                            <Popup x:Name="ActionsMenuPopup"
+                                   PlacementTarget="{Binding ElementName=ActionsMenuButton}"
+                                   Placement="Bottom"
+                                   HorizontalAlignment="Right"
+                                   VerticalOffset="4"
+                                   AllowsTransparency="True"
+                                   StaysOpen="True"
+                                   PopupAnimation="Fade">
+                                <Border Background="{DynamicResource PopupSurfaceBrush}"
+                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
+                                        Padding="8"
+                                        MinWidth="220"
+                                        SnapsToDevicePixels="True">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="20" ShadowDepth="4"
+                                                          Direction="270" Opacity="0.25"
+                                                          Color="{DynamicResource LiquidShadowColor}"/>
+                                    </Border.Effect>
+                                    <StackPanel>
+                                        <Button Style="{StaticResource PrimaryPillButton}"
+                                                Tag="&#xE74E;"
+                                                Content="{DynamicResource DeliveryNote.SaveDispatch}"
+                                                Command="{Binding SaveCommand}"
+                                                behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                        <Button Style="{StaticResource OutlinedPillButton}"
+                                                Tag="&#xE81C;"
+                                                Content="{DynamicResource Common.VersionHistory}"
+                                                Command="{Binding ShowVersionsCommand}"
+                                                behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                        <Border Height="1" Margin="8,4"
+                                                Background="{DynamicResource BorderDefaultBrush}"/>
+                                        <Button Style="{StaticResource OutlinedPillButton}"
+                                                Tag="&#xE8A5;"
+                                                Content="{DynamicResource DeliveryNote.ExportPDF}"
+                                                Command="{Binding ExportPdfCommand}"
+                                                behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                        <Button Style="{StaticResource OutlinedPillButton}"
+                                                Tag="&#xE9F9;"
+                                                Content="{DynamicResource DeliveryNote.ExportExcel}"
+                                                Command="{Binding ExportExcelCommand}"
+                                                behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                        <Button Style="{StaticResource OutlinedPillButton}"
+                                                Tag="&#xE72D;"
+                                                Content="{DynamicResource DeliveryNote.ExportCSV}"
+                                                Command="{Binding ExportCsvCommand}"
+                                                behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                        <Button Style="{StaticResource OutlinedPillButton}"
+                                                Tag="&#xE72D;"
+                                                Content="{DynamicResource Sharing.Share}"
+                                                Command="{Binding ShareCommand}"
+                                                behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                        <Border Height="1" Margin="8,4"
+                                                Background="{DynamicResource BorderDefaultBrush}"/>
+                                        <Button Style="{StaticResource DangerButton}"
+                                                Tag="&#xE74D;"
+                                                Content="{DynamicResource DeliveryNote.DeleteDeliveryNote}"
+                                                Command="{Binding DeleteDnCommand}"
+                                                behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Popup>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <StackPanel Grid.Row="1" Margin="16,0,16,8">
+                <loading:LoadingStateControl
+                        Visibility="{Binding IsLoading,
+                                     Converter={StaticResource BoolToVisibilityConverter}}"
+                        Message="Loading delivery note…"/>
+                <Border Visibility="{Binding HasError,
+                                     Converter={StaticResource BoolToVisibilityConverter}}"
+                        Style="{StaticResource ModuleErrorBannerStyle}">
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Foreground="{DynamicResource DangerBrush}"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               TextWrapping="Wrap"/>
+                </Border>
+                <Border Style="{StaticResource ModuleWarningBannerStyle}"
+                        Visibility="{Binding BodyLockBannerVisibility}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE72E;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource FontSize.Title}"
+                                   Foreground="{DynamicResource WarningBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,12,0"/>
+                        <TextBlock Text="{DynamicResource Lock.PostedBodyLocked}"
+                                   TextWrapping="Wrap"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="16,0,16,8">
+                <Button Content="{DynamicResource Nav.Overview}"
+                        Tag="&#xE8A5;"
+                        Margin="0,0,8,0"
+                        ToolTip="{DynamicResource DeliveryNote.StatsDeliveredItems}"
+                        Command="{Binding SwitchDetailTabCommand}"
+                        CommandParameter="Overview">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource Tab.InactiveControl}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsOverviewTab}" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Content="{DynamicResource DeliveryNote.Attachments}"
+                        Tag="&#xE723;"
+                        Margin="0,0,8,0"
+                        ToolTip="{DynamicResource DeliveryNote.AttachedPhotosSignedCopies}"
+                        Command="{Binding SwitchDetailTabCommand}"
+                        CommandParameter="Attachments">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource Tab.InactiveControl}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsAttachmentsTab}" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Content="{DynamicResource DeliveryNote.History}"
+                        Tag="&#xE81C;"
+                        ToolTip="{DynamicResource DeliveryNote.DeliveryHistoryTimeline}"
+                        Command="{Binding SwitchDetailTabCommand}"
+                        CommandParameter="History">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource Tab.InactiveControl}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsHistoryTab}" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+
+            <Grid Grid.Row="3" Margin="16,0,16,16">
+                <sections:DnOverviewSection
+                    IsEnabled="{Binding IsBodyEditable}"
+                    Visibility="{Binding IsOverviewTab, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <sections:DnAttachmentsSection
+                    Visibility="{Binding IsAttachmentsTab, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <sections:DnHistorySection
+                    Visibility="{Binding IsHistoryTab, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,71 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!--
+      Self-contained light theme for the crash dialog.
+      The main app uses dark / glass; the crash dialog
+      must be readable when the app is in an unknown
+      state, so it has its own minimal palette.
+    -->
+
+    
+
+    
+
+    <!-- 2026-09-14: Both styles were BasedOn="{StaticResource {x:Type Button}}" — an
+         implicit Button style that does not exist in this app, so this dictionary
+         threw at load time (the crash dialog could not open). Both styles are
+         self-contained (custom template + all visual properties), so the BasedOn
+         is removed rather than re-pointed. -->
+    <Style x:Key="CrashPrimaryButton" TargetType="Button">
+        <Setter Property="Background"   Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="Foreground"   Value="White"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding"      Value="14,8"/>
+        <Setter Property="FontWeight"   Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Cursor"       Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource Radius.XSmall}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="CrashOutlinedButton" TargetType="Button">
+        <Setter Property="Background"     Value="White"/>
+        <Setter Property="Foreground"     Value="{DynamicResource TextSecondaryBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding"        Value="14,8"/>
+        <Setter Property="FontWeight"     Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Cursor"         Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource Radius.XSmall}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    
+
+</ResourceDictionary>

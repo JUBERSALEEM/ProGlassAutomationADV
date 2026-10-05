@@ -1,0 +1,364 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Styles/ButtonStyles.xaml
+     PROJECT: ProGlassAutomation
+     PURPOSE: Centralized button design system — Liquid Glass (2026-08-29).
+              Every button in every view uses one of these styles.
+              All materials resolve to the canonical reference
+              (Themes/Styles/LiquidGlassDesign.xaml): frosted glass
+              fills, white top glare, glass shadows, press squish.
+
+     STYLES PROVIDED:
+       • PrimaryPillButton    — blue liquid glass, main actions
+       • SuccessPillButton    — green liquid glass, export/confirm
+       • OutlinedPillButton   — frosted glass, secondary
+       • DangerButton         — frosted glass + red edge
+       • TabPillButton        — nav tabs (alias of OutlinedPillButton)
+       • Row* compact variants + Report toolbar variants
+
+     USAGE (unchanged):
+       <Button Style="{StaticResource PrimaryPillButton}"
+               Command="{Binding SaveCommand}"
+               Tag="&#xE74E;" Content="SAVE"/>
+═══════════════════════════════════════════════════════════════════ -->
+
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+
+    <!-- Shared base -->
+    <Style x:Key="PillButtonBase" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="MinWidth" Value="{DynamicResource DensityButtonMinWidth}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Shared layered glass pill template — crystal edge, specular highlight,
+         reflection gradient, bottom refraction, spring press animation,
+         icon-aware via Tag property. -->
+    <!-- 2026-09-20 industrial ERP: one flat control surface, Tag-as-icon
+         preserved. Glass glare / specular / press-scale removed so every
+         Primary/Outlined/Danger pill matches Button.Primary language. -->
+    <ControlTemplate x:Key="GlassPillButtonTemplate" TargetType="Button">
+        <Border x:Name="Bg"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{DynamicResource Radius.Control}"
+                Padding="{TemplateBinding Padding}"
+                Height="{TemplateBinding Height}"
+                SnapsToDevicePixels="True">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <TextBlock x:Name="Icon"
+                           Text="{TemplateBinding Tag}"
+                           FontFamily="{DynamicResource FontFamily.Icon}"
+                           FontSize="{DynamicResource FontSize.Title}"
+                           Foreground="{TemplateBinding Foreground}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,10,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </Trigger>
+                                <Trigger Property="Text" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <ContentPresenter VerticalAlignment="Center"
+                                  TextElement.FontSize="{DynamicResource FontSize.Body}"
+                                  TextElement.FontWeight="SemiBold"
+                                  TextElement.Foreground="{TemplateBinding Foreground}"/>
+            </StackPanel>
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bg" Property="Opacity" Value="0.92"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="Bg" Property="Opacity" Value="0.82"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource State.Focus}"/>
+                <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <!-- VARIANT 1 — PrimaryPillButton: accent liquid glass -->
+    <Style x:Key="PrimaryPillButton" TargetType="Button"
+           BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="{DynamicResource DensityButtonHeight}"/>
+        <Setter Property="Padding" Value="22,0"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template" Value="{StaticResource GlassPillButtonTemplate}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="0.96"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- VARIANT 2 — SuccessPillButton: success glass -->
+    <Style x:Key="SuccessPillButton" TargetType="Button"
+           BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="{DynamicResource DensityButtonHeight}"/>
+        <Setter Property="Padding" Value="22,0"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template" Value="{StaticResource GlassPillButtonTemplate}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="0.9"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- VARIANT 3 — OutlinedPillButton: transparent glass -->
+    <Style x:Key="OutlinedPillButton" TargetType="Button"
+           BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="{DynamicResource DensityButtonHeight}"/>
+        <Setter Property="Padding" Value="20,0"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template" Value="{StaticResource GlassPillButtonTemplate}"/>
+    </Style>
+
+    <!-- VARIANT 4 — DangerButton: transparent glass + danger edge -->
+    <Style x:Key="DangerButton" TargetType="Button"
+           BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="MinWidth" Value="92"/>
+        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template" Value="{StaticResource GlassPillButtonTemplate}"/>
+    </Style>
+
+    <!-- VARIANT 5 — TabPillButton (real tab, not an outlined alias) -->
+    <Style x:Key="TabPillButton" TargetType="Button"
+           BasedOn="{StaticResource OutlinedPillButton}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="18,9"/>
+        <Setter Property="Margin" Value="0,0,4,0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            </Trigger>
+            <DataTrigger Binding="{Binding Path=(behaviors:TabState.IsActive),
+                                           RelativeSource={RelativeSource Self}}"
+                         Value="True">
+                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+
+    <!-- ═════════════════════════════════════════════════════════════
+         COMPACT ROW VARIANTS — one glass shape (corner radius from the
+         theme), colours per role, top glare retained.
+    ════════════════════════════════════════════════════════════════ -->
+    <!-- Compact row button — layered glass with spring animation.
+
+         PERF-7 (2026-08-30): the DropShadowEffect previously placed on
+         the ShadowHost was removed ON PURPOSE. Row buttons are
+         instantiated inside VIRTUALIZED list item templates (every list
+         page has 2-3 row buttons per visible row). WPF re-runs a pixel
+         shader for EVERY effect, on EVERY frame the element redraws, and
+         with VirtualizationMode=Recycling the ~60 visible effects are
+         torn down and re-created as the viewport scrolls — the single
+         biggest cause of scroll stutter on 1000+ row lists. A 26px-high
+         button does not need a 32px-radius blur; the 1px crystal border
+         + top glare already give it depth. Toolbar buttons keep their
+         shadow (few dozen on screen at most) via GlassPillButtonTemplate.
+    -->
+    <ControlTemplate x:Key="RowButtonTemplate" TargetType="Button">
+        <Border x:Name="Bg"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{DynamicResource Radius.Control}"
+                Padding="{TemplateBinding Padding}"
+                Height="{TemplateBinding Height}"
+                SnapsToDevicePixels="True">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <TextBlock Text="{TemplateBinding Tag}"
+                           FontFamily="{DynamicResource FontFamily.Icon}"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
+                           Foreground="{TemplateBinding Foreground}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,6,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </Trigger>
+                                <Trigger Property="Text" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <ContentPresenter VerticalAlignment="Center"
+                                  TextElement.FontSize="{DynamicResource FontSize.BodySmall}"
+                                  TextElement.FontWeight="SemiBold"
+                                  TextElement.Foreground="{TemplateBinding Foreground}"/>
+            </StackPanel>
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bg" Property="Opacity" Value="0.92"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="Bg" Property="Opacity" Value="0.82"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource State.Focus}"/>
+                <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="RowSuccessButton" TargetType="Button"
+           BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="MinWidth" Value="56"/>
+        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
+    </Style>
+
+    <Style x:Key="RowPrimaryButton" TargetType="Button"
+           BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="MinWidth" Value="56"/>
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
+    </Style>
+
+    <Style x:Key="RowOutlinedButton" TargetType="Button"
+           BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="MinWidth" Value="56"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
+    </Style>
+
+    <Style x:Key="RowDangerButton" TargetType="Button"
+           BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="MinWidth" Value="50"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
+    </Style>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         REPORT TOOLBAR BUTTONS — glass, one size, one spacing rhythm.
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- Apply — the primary filter action -->
+    <Style x:Key="ReportToolbarPrimaryButton" TargetType="Button"
+           BasedOn="{StaticResource RowPrimaryButton}">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="MinWidth" Value="76"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+    </Style>
+
+    <!-- Clear — secondary filter action -->
+    <Style x:Key="ReportToolbarOutlinedButton" TargetType="Button"
+           BasedOn="{StaticResource RowOutlinedButton}">
+        <!-- 40px (2026-09-10): matches the inventory-grade filter fields
+             so toolbar buttons align with combos/date pickers on one row. -->
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="MinWidth" Value="76"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+    </Style>
+
+    <!-- Export CSV / Excel -->
+    <Style x:Key="ReportExportOutlinedButton" TargetType="Button"
+           BasedOn="{StaticResource RowOutlinedButton}">
+        <!-- 40px (2026-09-10): alignment with the filter row. -->
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="14,0"/>
+        <Setter Property="MinWidth" Value="64"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+    </Style>
+
+    <!-- Export PDF — the primary export action -->
+    <Style x:Key="ReportExportPrimaryButton" TargetType="Button"
+           BasedOn="{StaticResource PrimaryPillButton}">
+        <!-- 40px (2026-09-10): alignment with the filter row. -->
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="MinWidth" Value="64"/>
+    </Style>
+
+    <!-- Pagination Prev / Next -->
+    <Style x:Key="ReportPaginationButton" TargetType="Button"
+           BasedOn="{StaticResource RowOutlinedButton}">
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="MinWidth" Value="64"/>
+        <Setter Property="Margin" Value="0,0,8,0"/>
+    </Style>
+
+    <!-- Retry on the error state -->
+    <Style x:Key="ReportRetryButton" TargetType="Button"
+           BasedOn="{StaticResource RowPrimaryButton}">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="20,0"/>
+        <Setter Property="MinWidth" Value="88"/>
+    </Style>
+
+</ResourceDictionary>

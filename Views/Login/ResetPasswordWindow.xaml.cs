@@ -1,0 +1,122 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: Views/Login/ResetPasswordWindow.xaml.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Authentication
+//
+// PHASE 13 / forgot-password — admin-mediated password reset.
+//
+// This is the honest recovery path for a local, offline ERP: there is no
+// email address to mail a reset link to, so the gate is the local
+// Administrator's live credential. The Administrator proves their own
+// password, then sets a fresh one for the target account (and any persisted
+// lockout on that account is cleared).
+//
+// Passwords are read straight from the PasswordBoxes and never stored in a
+// field — they are passed directly to AuditService.AdminResetPasswordAsync.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Utilities;
+using System.Windows;
+
+namespace ProGlassAutomation.Views.Login
+{
+    public partial class ResetPasswordWindow : Window
+    {
+        public ResetPasswordWindow()
+        {
+            InitializeComponent();
+            AdminUsernameBox.Text = AuditService.DefaultAdminUsername;
+            // Read from the policy so the hint number can never drift from
+            // the enforced rule again (it said 8 while the rule was 6).
+            PasswordHintText.Text =
+                ProGlassAutomation.Services.Security.PasswordPolicy.HintText;
+            Loaded += (s, e) => AdminPasswordBox.Focus();
+            TargetUsernameBox.TextChanged += (_, __) => RefreshMeter();
+        }
+
+        private void NewPasswordBox_PasswordChanged(
+            object sender, RoutedEventArgs e) => RefreshMeter();
+
+        private void RefreshMeter() =>
+            Shared.PasswordMeterHelper.Update(
+                PasswordMeter, PasswordMeterLabel, PasswordGuidance,
+                NewPasswordBox.Password,
+                TargetUsernameBox.Text?.Trim());
+
+        private async void Reset_Click(object sender, RoutedEventArgs e)
+        {
+            string adminUsername = AdminUsernameBox.Text?.Trim() ?? "";
+            string adminPassword = AdminPasswordBox.Password ?? "";
+            string targetUsername = TargetUsernameBox.Text?.Trim() ?? "";
+            string newPassword = NewPasswordBox.Password ?? "";
+            string confirm = ConfirmPasswordBox.Password ?? "";
+
+            if (adminUsername.Length == 0)
+            {
+                ShowError("Enter the Administrator username.");
+                AdminUsernameBox.Focus();
+                return;
+            }
+            if (targetUsername.Length == 0)
+            {
+                ShowError("Enter the account to reset.");
+                TargetUsernameBox.Focus();
+                return;
+            }
+
+            // Mirrors AuditService.AdminResetPasswordAsync via the same
+            // single home (PasswordPolicy) — instant feedback, no drift.
+            var policy = ProGlassAutomation.Services.Security.PasswordPolicy
+                .ValidateNewPassword(newPassword, targetUsername);
+            if (!policy.Accepted)
+            {
+                ShowError(policy.Error);
+                NewPasswordBox.Focus();
+                return;
+            }
+            if (newPassword != confirm)
+            {
+                ShowError("New password and confirmation do not match.");
+                ConfirmPasswordBox.Focus();
+                return;
+            }
+
+            ResetButton.IsEnabled = false;
+            ResetButton.Content = "RESETTING…";
+
+            try
+            {
+                var (ok, error) = await AuditService.AdminResetPasswordAsync(
+                    adminUsername, adminPassword, targetUsername, newPassword,
+                    reason: "Login screen forgot-password reset.");
+
+                if (ok)
+                {
+                    DialogResult = true;
+                    return;
+                }
+
+                ShowError(error);
+                AdminPasswordBox.Clear();
+                NewPasswordBox.Clear();
+                ConfirmPasswordBox.Clear();
+            }
+            catch (System.Exception ex)
+            {
+                ShowError("Could not reset password: " + ExceptionMessages.Deep(ex));
+            }
+            finally
+            {
+                ResetButton.IsEnabled = true;
+                ResetButton.Content = "RESET PASSWORD";
+            }
+        }
+
+        private void ShowError(string message)
+        {
+            ErrorText.Text = message;
+            ErrorPanel.Visibility = Visibility.Visible;
+        }
+    }
+}

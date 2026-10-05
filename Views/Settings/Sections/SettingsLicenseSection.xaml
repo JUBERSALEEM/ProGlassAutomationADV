@@ -1,0 +1,214 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/SettingsLicenseSection.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings — LICENSE page (Full Light Studio Bento redesign)
+     Preserves all ViewModel bindings while elevating to Studio Bento:
+     hero header, activation details, hardware ID, and licensed modules matrix.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsLicenseSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vmLicensing="clr-namespace:ProGlassAutomation.ViewModels.Licensing"
+             xmlns:viewsLicensing="clr-namespace:ProGlassAutomation.Views.Licensing"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             RenderOptions.ClearTypeHint="Enabled"
+             RenderOptions.EdgeMode="Aliased">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False"
+                  PanningMode="VerticalOnly"
+                  behaviors:SmoothScrollBehavior.IsEnabled="True"
+                  Focusable="False"
+                  FocusVisualStyle="{x:Null}"
+                  Padding="{StaticResource SettingsPagePadding}">
+        <StackPanel DataContext="{x:Static vmLicensing:LicenseStatusViewModel.Instance}">
+
+            <!-- ═══ BENTO HERO BANNER — LICENSE & WORKSTATION ACTIVATION ═══ -->
+            <Border Style="{StaticResource SettingsHeroCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                        <TextBlock Text="&#xE762;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                        <TextBlock Text="License &amp; Workstation Activation" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                        <TextBlock Text="Perpetual commercial activation, hardware PC-ID fingerprint, and licensed CNC capabilities" Style="{StaticResource SettingsHeroNoteStyle}"/>
+                    </StackPanel>
+
+                    <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                        <TextBlock Text="Perpetual Active" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- ═══ CARD 1 — STATUS AT A GLANCE (BENTO HERO) ═══ -->
+            <Border Style="{StaticResource SettingsPageCardStyle}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                            <TextBlock Text="&#xE762;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1"
+                                    Margin="{StaticResource SettingsIconTextMargin}"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Settings.LicenseStatus}"
+                                       Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="{Binding EditionDisplay}"
+                                       Style="{StaticResource SettingsRowTitleStyle}"
+                                       Margin="{StaticResource SettingsStackGap2}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <Border Style="{StaticResource SettingsChipGreenStyle}">
+                                <TextBlock Text="{Binding StatusBadge}"
+                                           Style="{StaticResource SettingsChipGreenTextStyle}"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="{Binding StatusDescription}"
+                               Style="{StaticResource SettingsCardNoteStyle}"/>
+
+                    <Grid Margin="{StaticResource SettingsCardContentMargin}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Settings.Remaining}"
+                                       Style="{StaticResource SettingsFieldLabelStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings.AutoUpdatesLicenseserviceStatuschanged}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <Border Grid.Column="1"
+                                Style="{StaticResource SettingsValuePillStyle}"
+                                Margin="{StaticResource SettingsInlineGap12}"
+                                VerticalAlignment="Center">
+                            <Viewbox MaxHeight="24">
+                                <TextBlock Text="{Binding DaysRemainingDisplay}"
+                                           Style="{StaticResource SettingsValuePillTextStyle}"
+                                           FontSize="{DynamicResource Ios26FontSizeSubtitle}"/>
+                            </Viewbox>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ CARD 2 — LICENSED MODULE CAPABILITIES MATRIX ═══ -->
+            <Border Style="{StaticResource SettingsPageCardStyle}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                            <TextBlock Text="&#xE8F1;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                            <TextBlock Text="Licensed Module Capabilities" Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="Industrial modules active on this workstation" Style="{StaticResource SettingsCardNoteStyle}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
+                        <StackPanel Margin="{StaticResource SettingsTileGridMargin}" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="{DynamicResource FontSize.Body}" Margin="{StaticResource SettingsInlineGap10R}" VerticalAlignment="Center"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="2D Guillotine Optimization Engine" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
+                                <TextBlock Text="High-yield layout calculation &amp; offcut management" Style="{StaticResource SettingsRowMetaStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Margin="{StaticResource SettingsTileGridMargin}" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="{DynamicResource FontSize.Body}" Margin="{StaticResource SettingsInlineGap10R}" VerticalAlignment="Center"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="CNC Machine Output (Lisec, Bottero)" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
+                                <TextBlock Text="Direct G-Code export to industrial cutting bridges" Style="{StaticResource SettingsRowMetaStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Margin="{StaticResource SettingsTileGridMargin}" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="{DynamicResource FontSize.Body}" Margin="{StaticResource SettingsInlineGap10R}" VerticalAlignment="Center"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Multi-Currency &amp; VAT Submissions" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
+                                <TextBlock Text="Live exchange rates &amp; UAE Federal Tax Authority VAT export" Style="{StaticResource SettingsRowMetaStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Margin="{StaticResource SettingsTileGridMargin}" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="{DynamicResource FontSize.Body}" Margin="{StaticResource SettingsInlineGap10R}" VerticalAlignment="Center"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="AI Estimator &amp; Whisper Voice Input" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
+                                <TextBlock Text="Local on-device transcription &amp; cost analysis" Style="{StaticResource SettingsRowMetaStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ CARD 3 — ACTIVATION & KEY MANAGEMENT ═══ -->
+            <Border Style="{StaticResource SettingsPageCardStyle}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                            <TextBlock Text="&#xE72E;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1"
+                                    Margin="{StaticResource SettingsIconTextMargin}"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Settings.Activation}"
+                                       Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings.PickPlanPressGETLicenseKEYPasteVendorKey}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+
+                    <!-- Reuses LicenseActivationView -->
+                    <viewsLicensing:LicenseActivationView IsClosable="False"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

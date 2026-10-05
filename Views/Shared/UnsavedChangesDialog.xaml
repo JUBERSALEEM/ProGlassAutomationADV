@@ -1,0 +1,51 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Shared/UnsavedChangesDialog.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Shared — unsaved changes confirmation (§28)
+
+     2026-09 dialog audit: rebuilt on the shared ThemedDialogWindow chrome.
+     Previously an OS-framed window with three locally templated buttons —
+     the same tri-state choice is now presented with the shared header
+     (warning badge), shared message typography and the standard pill
+     buttons (Danger for Discard, Primary for Save & Continue).
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.Shared.UnsavedChangesDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+        Title="{DynamicResource Inquiry.UnsavedChanges}"
+        Width="520"
+        DialogIcon="&#xE7BA;"
+        DialogIconBrush="{DynamicResource WarningBrush}"
+             FontFamily="{DynamicResource AppFontFamily}">
+
+    <StackPanel>
+        <TextBlock x:Name="MessageText"
+                   FontSize="{DynamicResource FontSize.Body}"
+                   LineHeight="18"
+                   TextWrapping="Wrap"
+                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+    </StackPanel>
+
+    <dialogs:ThemedDialogWindow.FooterContent>
+        <StackPanel Orientation="Horizontal">
+            <Button x:Name="CancelButton"
+                    Style="{StaticResource OutlinedPillButton}"
+                    Tag="&#xE711;"
+                    Content="{DynamicResource Action.Cancel}"
+                    Margin="0,0,10,0"
+                    IsCancel="True"/>
+            <Button x:Name="DiscardButton"
+                    Style="{StaticResource DangerButton}"
+                    Tag="&#xE74D;"
+                    Content="{DynamicResource Inquiry.Discard}"
+                    Margin="0,0,10,0"/>
+            <Button x:Name="SaveButton"
+                    Style="{StaticResource PrimaryPillButton}"
+                    Tag="&#xE74E;"
+                    Content="{DynamicResource Login.SAVEContinue}"
+                    IsDefault="True"/>
+        </StackPanel>
+    </dialogs:ThemedDialogWindow.FooterContent>
+</dialogs:ThemedDialogWindow>

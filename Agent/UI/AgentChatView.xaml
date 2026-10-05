@@ -1,0 +1,387 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Agent/UI/AgentChatView.xaml
+     PROJECT: ProGlassAutomation — ProGlass Agent (PHASE L)
+     MODULE: Agent chat — the conversational surface
+
+     The typed counterpart to the voice pipeline. Every message runs
+     through the same ProGlassAgent.HandleAsync gate chain, so this adds
+     a surface, never a capability.
+
+     Layout rules observed here, learned from the Settings overlap bug:
+       • The ScrollViewer sets HorizontalScrollBarVisibility="Disabled".
+         At the default (Auto) WPF measures content at INFINITE width,
+         which makes TextWrapping inert and runs bubbles off-screen.
+       • Bubbles cap at MaxWidth so a long answer wraps instead of
+         stretching the row. The cap MUST be smaller than the hosting
+         overlay (520px) or it never engages.
+       • This control does NOT replace its own root DataContext.
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Agent.UI.AgentChatView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             Background="Transparent"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+
+        <!-- Message bubbles -->
+        <Style x:Key="AgentUserBubble" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="CornerRadius" Value="16,16,4,16"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="Margin" Value="48,4,0,4"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="MaxWidth" Value="420"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <Style x:Key="AgentReplyBubble" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="16,16,16,4"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="Margin" Value="0,4,48,4"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="MaxWidth" Value="420"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <!-- ══════════════════════════════════════════════════════════
+             COMPACT HEADER ICON BUTTON — modelled on AiChatView's
+             ChatIconBtn, which solves exactly this problem.
+
+             WHY THIS EXISTS: the header previously used OutlinedPillButton
+             for four controls. That style inherits MinWidth=120 from
+             PillButtonBase, so four of them demand 4x120 + 24px margins =
+             504px MINIMUM. The overlay is 560px wide; a fifth 36px close
+             button still leaves room for the title.
+
+             36x36 icon buttons need 5x36 + margins = ~204px, which fits
+             the 560px overlay with room to spare for the title.
+        ══════════════════════════════════════════════════════════ -->
+        <Style x:Key="AgentHeaderIconButton" TargetType="Button">
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="{DynamicResource MenuHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="{DynamicResource TintIndigoBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══ HEADER ══════════════════════════════════════════════════ -->
+        <Border CornerRadius="{DynamicResource Radius.Top.Medium}" Grid.Row="0"
+                Padding="20,16"
+                Background="{DynamicResource ModuleBackgroundBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderThickness="{DynamicResource Border.BottomHairlineThickness}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Width="38" Height="38"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Background="{DynamicResource TintIndigoBrush}"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="&#xE946;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="{StaticResource TextTitle}"
+                               Foreground="{DynamicResource AccentBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Column="1"
+                            Margin="14,0,20,0"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="ProGlass Agent"
+                               FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock FontSize="{StaticResource TextBody}"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Text="{DynamicResource Shell.AgentAsksFirst}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+
+                    <!-- LISTEN. Glyph and tooltip come from the VM, and the
+                         button turns solid red while the microphone is open
+                         so there is never any doubt it is hearing you. -->
+                    <Button Command="{Binding SpeakCommand}"
+                            Content="{Binding MicButtonText}"
+                            ToolTip="Listen — capture one spoken request">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource AgentHeaderIconButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsListening}" Value="True">
+                                        <Setter Property="Background" Value="#B91C1C"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- STOP. CanExecute greys it out when there is nothing
+                         to stop, so it never lies about being actionable. -->
+                    <Button Content="&#xE71A;"
+                            Style="{StaticResource AgentHeaderIconButton}"
+                            Command="{Binding StopCommand}"
+                            ToolTip="Stop speaking and cancel listening"/>
+
+                    <!-- MUTE. Glyph and tooltip bound to VM state so they
+                         cannot disagree with what is actually happening. -->
+                    <Button Content="{Binding MuteButtonText}"
+                            Style="{StaticResource AgentHeaderIconButton}"
+                            Command="{Binding ToggleMuteCommand}"
+                            ToolTip="{Binding MuteButtonTooltip}"/>
+
+                    <Button Content="&#xE74D;"
+                            Style="{StaticResource AgentHeaderIconButton}"
+                            Command="{Binding ClearCommand}"
+                            ToolTip="Clear this transcript — taught rules and knowledge are kept"/>
+
+                    <Button Content="&#xE711;"
+                            Style="{StaticResource AgentHeaderIconButton}"
+                            Margin="0"
+                            Command="{Binding DataContext.ToggleAgentChatCommand,
+                                RelativeSource={RelativeSource AncestorType=Window}}"
+                            ToolTip="Close"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ══ TRANSCRIPT ══════════════════════════════════════════════ -->
+        <ScrollViewer Grid.Row="1"
+                      x:Name="TranscriptScroller"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly"
+                      Padding="20,14">
+            <ItemsControl ItemsSource="{Binding Messages}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+
+                            <!-- User -->
+                            <Border Style="{StaticResource AgentUserBubble}"
+                                    Visibility="{Binding IsUser,
+                                        Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="{Binding Text}"
+                                           FontSize="{StaticResource TextBodyLarge}"
+                                           TextWrapping="Wrap"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            </Border>
+
+                            <!-- Agent -->
+                            <Border Style="{StaticResource AgentReplyBubble}"
+                                    Visibility="{Binding IsAgent,
+                                        Converter={StaticResource BoolToVisibilityConverter}}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Text}"
+                                               FontSize="{StaticResource TextBodyLarge}"
+                                               TextWrapping="Wrap">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground"
+                                                        Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsFailure}" Value="True">
+                                                        <Setter Property="Foreground"
+                                                                Value="{DynamicResource WarningBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <TextBlock Text="{Binding TimeDisplay}"
+                                               FontSize="{StaticResource TextXSmall}"
+                                               Margin="0,6,0,0"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- ══ COMPOSER ════════════════════════════════════════════════ -->
+        <Border CornerRadius="{DynamicResource Radius.Bottom.Medium}" Grid.Row="2"
+                Padding="20,16"
+                Background="{DynamicResource ModuleBackgroundBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderThickness="{DynamicResource Border.TopHairlineThickness}">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- ══════════════════════════════════════════════
+                         WHY THE TEXT WAS INVISIBLE — THE REAL CAUSE.
+
+                         App.xaml line 82 defines an IMPLICIT style for
+                         {x:Type TextBox} with a full ControlTemplate, and
+                         it hard-sets Height="38". My previous attempt only
+                         set colours, which was treating a symptom: the
+                         actual problem is that a fixed 38px Height fought
+                         MinHeight="40" + TextWrapping, so PART_ContentHost
+                         was clipped and the caret and glyphs rendered
+                         outside the visible box.
+
+                         AiChatView never hits this because it does what is
+                         copied below: a Border owns the surface and the
+                         TextBox inside is Transparent, borderless and
+                         template-free of its own chrome. Same layout,
+                         applied exactly.
+                    ══════════════════════════════════════════════ -->
+                    <Border Grid.Column="0"
+                            Background="{DynamicResource Surface.Primary.BackgroundBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
+                            Padding="14,0"
+                            Height="40"
+                            VerticalAlignment="Center"
+                            SnapsToDevicePixels="True"
+                            UseLayoutRounding="True">
+                        <TextBox x:Name="InputBox"
+                                 Text="{Binding Input, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="Auto"
+                                 MinHeight="0"
+                                 Padding="0"
+                                 Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}"
+                                 Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                 CaretBrush="{DynamicResource PrimaryForegroundBrush}"
+                                 SelectionBrush="{DynamicResource AccentBrush}"
+                                 FontSize="{StaticResource TextBodyLarge}"
+                                 VerticalAlignment="Center"
+                                 VerticalContentAlignment="Center"
+                                 AcceptsReturn="False"
+                                 ToolTip="Ask a question, or teach: whenever I say X, open Y">
+                                <TextBox.InputBindings>
+                                    <!-- ERR-918BAB (2026-09-02): Modifiers="None" is
+                                         REJECTED by WPF's ModifierKeysConverter with
+                                         NotSupportedException "Unrecognized ModifierKeys
+                                         'NONE'", even though ModifierKeys.None exists as
+                                         an enum value. Omitting the attribute is the
+                                         correct way to express "no modifier" and is
+                                         exactly what Views/AI/AiChatView.xaml already
+                                         does for the same Enter-to-send binding. -->
+                                    <KeyBinding Key="Enter" Command="{Binding SendCommand}"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
+                    </Border>
+
+                    <!-- Circular send, matching AiChatView's SendBtn (42px,
+                         CornerRadius 21). A 120px-wide word button in a
+                         520px panel crowded the input; the glyph does not.
+                         PrimaryPillButton could not be used here because it
+                         inherits MinWidth=120 from PillButtonBase. -->
+                    <Button Grid.Column="2"
+                            Width="40" Height="40"
+                            Content="&#xE725;"
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="{StaticResource TextSubhead}"
+                            Foreground="{DynamicResource OnAccentForegroundBrush}"
+                            Cursor="Hand"
+                            FocusVisualStyle="{x:Null}"
+                            BorderThickness="{DynamicResource Border.NoneThickness}"
+                            Command="{Binding SendCommand}"
+                            IsDefault="True"
+                            ToolTip="Send (Enter)">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd"
+                                        Background="{DynamicResource AccentBrush}"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
+                                        SnapsToDevicePixels="True">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background"
+                                                Value="#6366F1"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="bd" Property="Background"
+                                                Value="#3730A3"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.4"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+
+                <TextBlock Text="{Binding StatusText}"
+                           FontSize="{StaticResource TextBody}"
+                           Margin="2,8,0,0"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource AccentBrush}"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

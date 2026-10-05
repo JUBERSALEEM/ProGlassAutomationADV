@@ -1,0 +1,449 @@
+<Application x:Class="ProGlassAutomation.App"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:conv="clr-namespace:ProGlassAutomation.Converters"
+                 xmlns:beh="clr-namespace:ProGlassAutomation.Behaviors"
+                 xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+                 Startup="Application_Startup">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+
+                <!-- ── Converters MUST be merged FIRST (2026-09-02, ERR-2FFFF1).
+                     {StaticResource} resolves at parse time against what is
+                     already defined. Merged dictionaries are parsed BEFORE
+                     the inline body below, so converters declared inline
+                     were invisible to every style dictionary that needed
+                     them — ShellStyles.xaml aborted mid-parse, SidebarNavItem
+                     never got defined, and MainWindow.xaml:702 crashed the
+                     app. Declare new converters in this file, not inline. ── -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ConverterResources.xaml"/>
+
+                <!-- ── Theme (must be first so styles can reference brushes) ── -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/LightTheme.xaml"/>
+
+                <!-- Authoritative ProGlass Design System (tokens + materials).
+                     Families still paint via VisualThemeEngine; ThemeManager
+                     dual-writes these semantic keys at runtime. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/ProGlassDesignSystem/ProGlassDesignSystem.xaml"/>
+
+                <!-- Liquid Glass Design System (2026-08-29) — the CANONICAL
+                     frosted-glass reference: brushes, shadows, typography,
+                     panel/card/button/switch/input styles. Merged before
+                     every shared dictionary so they can BasedOn/Static
+                     reference it; it wins over theme defaults. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/LiquidGlassDesign.xaml"/>
+
+                <!-- ── Global type scale (TextXSmall…TextDisplayLarge).
+                     Every FontSize below 30 DIPs references these tokens. ── -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/TypeScaleTokens.xaml"/>
+
+                <!-- v2 design system: semantic ERP surfaces and shared module primitives.
+                     Loaded before Shell/Card/List/Dialog/module dictionaries so all
+                     non-print XAML can consume SurfacePrimary/Secondary/Detail. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DesignTokens.xaml"/>
+                <!-- Shared rail open/close button — needs SurfacePrimaryStyle
+                     from DesignTokens above, and must precede the modules that use it. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/NavigationRailStyles.xaml"/>
+                <!-- ProGlass Design System SEMANTIC TOKEN LAYER (2026-09-13).
+                     Purely additive DynamicResource aliases that expose the
+                     canonical semantic names (SurfaceWorkspaceBrush,
+                     TextMutedBrush, RadiusCard, Motion.*) over the existing
+                     engine-managed material keys. Merged right after
+                     DesignTokens so every downstream dictionary and view can
+                     consume the semantic vocabulary. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/SemanticTokens.xaml"/>
+                <!-- ComboBox templates — must precede ListPageStyles,
+                     Step4SectionStyles and PiIndustrialStyles, which inherit them. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ComboTemplates.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/PrintTokens.xaml"/>
+                <!-- ProGlass Design System LAYOUT LAYER (2026-09-13).
+                     Additive canonical density vocabulary (ProGlassLayout.*)
+                     over the runtime Density* keys published by
+                     ThemeManager.ApplyDisplayDensity (Light/Dark fallbacks
+                     exist). Merged with the other canonical token layers. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/LayoutTokens.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ShellStyles.xaml"/>
+
+                <!-- ── Shared style dictionaries (order matters for BasedOn chains) ── -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/TypographyStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/IconBadgeStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/PillStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/CardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/SharedSectionStyles.xaml"/>
+                <!-- MASTER MODERNIZATION Phase 1 (2026-09-18): app-wide
+                     page-level patterns that previously had no shared
+                     home (page surface, page header, toolbar band,
+                     loading state, error banner). Purely additive,
+                     DynamicResource-only, no BasedOn chains. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/PagePatterns.xaml"/>
+                <!-- CRYSTAL FLUID "Ios-17pm" token plane (P1 2026-09-05).
+                     Authored source-of-truth trio, load order per the
+                     theme master (colors → brushes → metrics; brushes
+                     StaticResource-reference the color nouns), then the
+                     app's pipeline-extension tokens (studio/engine-
+                     managed keys + transitional brushes). Consumed via
+                     DynamicResource by components, overridden at runtime
+                     ONLY by the VisualThemeEngine/Theme Studio. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidColors.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidBrushes.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidMetrics.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidTokens.xaml"/>
+                <!-- Ios-17pm P2: authored control templates + opt-in
+                     styles (buttons/inputs/tooltip), navigation,
+                     DataGrid, scrollbar — authored master order. All
+                     purely additive nouns; nothing existing changes
+                     until a host adopts these (P4). -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidControls.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidNavigation.xaml"/>
+                <!-- Glass Blush — Personal UI family plane (GB-P1, 2026-09-18).
+                     Measured token plane for the second ProGlass experience.
+                     Managed keys are republished by the family painter (GB-P14). -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/GlassBlush/GlassBlushTokens.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/GlassBlush/GlassShellStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/GlassBlush/GlassComponents.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidDataGrid.xaml"/>
+                <!-- Phase 11: CrystalFluidScrollBar.xaml un-merged — keys unused outside the file. File kept on disk until Phase 12. -->
+                <!-- Industrial list-page chrome (PI / JO / DN / TI) -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ListPageStyles.xaml"/>
+                <!-- Line-item table chrome (Step 5 + JO/DN/TI details) -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DataGridStyles.xaml"/>
+                <!-- v3 centralized button design system — single source
+                     of truth for all button visuals project-wide. -->
+                <ResourceDictionary Source="Styles/ButtonStyles.xaml"/>
+
+                <!-- Shared chrome for the four Step 4 parameter panels.
+                     Merged app-wide so all four reference one definition
+                     instead of each keeping its own drifting copy. -->
+                <ResourceDictionary Source="Styles/Step4SectionStyles.xaml"/>
+
+                <!-- Proforma Invoice industrial work-surface / KPI / ACTIONS
+                     primitives. DynamicResource only — light, dark, Monet. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/PiIndustrialStyles.xaml"/>
+
+                <!-- Module tab strip + God View styles (DN/JO/TI tabs) -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ModuleTabStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/OptimizationStyles.xaml"/>
+
+                <!-- Phase 8/9: shared theme-adaptive input styles (TextBox /
+                     PasswordBox / ComboBox). Adopted incrementally by views
+                     instead of each view declaring its own input chrome. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/InputStyles.xaml"/>
+
+                <!-- Phase 8/9: shared dialog card/footer/title chrome. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DialogStyles.xaml"/>
+
+                <!-- Liquid Glass design system (2026-08-29): crystal card
+                     surface (Controls/LiquidGlassCard), crystal button
+                     hierarchy, iPhone-style liquid switch, crystal inputs,
+                     crystal DataGrid, navigation capsule, dialog chrome.
+                     Every colour resolves via DynamicResource so
+                     Light/Dark and the active visual family re-tint the
+                     whole system live. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/LiquidGlassStyles.xaml"/>
+
+                <!-- ProGlass Design System MATERIAL ENGINE LAYER (2026-09-13).
+                     Purely additive: canonical material levels
+                     (ProGlassSurface.Solid/Elevated/Frosted/Glass/
+                     CrystalLiquid + Detail/Panel) over the token-driven
+                     Surface* and LiquidGlass* primitives. Merged after both
+                     implementations so StaticResource BasedOn resolves.
+                     No template duplicated; crystal theatre stays confined
+                     to the CrystalFluid environment dictionaries. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/MaterialTokens.xaml"/>
+
+                <!-- Modern rounded context-menu styles for every module's
+                     right-click menu (Proforma / Job Order / Delivery Note /
+                     Tax Invoice). -->
+                <ResourceDictionary Source="Styles/ContextMenuStyles.xaml"/>
+
+                <!-- MERIDIAN PHASE 7 (2026-09-18): the dashboard kit is
+                     retired. All 7 module dashboards + the module bar now
+                     use the Pg* grammar below. This file keeps only the
+                     two keys still consumed by non-dashboard views
+                     (SectionTitle → ReviewStep.xaml; SoftCardStyle →
+                     MixPanel / DeliveryReportView /
+                     SpecificationsCenterView). Styles/DashboardKit.xaml
+                     (the 2026-09-08 Db* grammar) was deleted — every one
+                     of its 57 keys had zero consumers left. -->
+                <ResourceDictionary Source="Styles/DashboardStyles.xaml"/>
+
+                <!-- ═══════════════════════════════════════════════════════
+                     MERIDIAN (Pg*) — the full 0→100 UI rewrite system.
+                     One design language for the shell + all 7 dashboards:
+                     geometry, type scale, semantic brushes, card/KPI/feed
+                     grammar, skeleton + empty states, buttons. Order
+                     matters: Core (geometry + dashboard grammar) before
+                     Shell (top bar + sidebar, which reads the core
+                     tokens). Page margins read {DynamicResource
+                     PgPageMargin} so ThemeManager.ApplyDisplayDensity
+                     republishes them live per Density setting.
+                ═══════════════════════════════════════════════════════ -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Professional/ProfessionalCore.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Professional/ProfessionalShell.xaml"/>
+
+                <!-- ProGlass Design System COMPONENT TOKEN LAYER.
+                     Merged AFTER Button/Pill/Tab/Input/Dialog/LiquidGlass/
+                     PiIndustrial/ListPage/Professional so BasedOn aliases
+                     (Ghost, Toggle, KPI, DatePicker, Dialog) resolve. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ComponentTokens.xaml"/>
+
+                <!-- ═══════════════════════════════════════════════════════════════
+                         CHAT 21 v3 — Statement Generator WIZARD shared styles
+                         Registered globally so all 4 wizard step UserControls
+                         (Filter/Preview/Execute/Review) can reference:
+                           StepTitleStyle, StepSubtitleStyle, StepNumberBadgeStyle,
+                           StepLabelStyle, StepperConnectorStyle, WizardCardStyle,
+                           WizardCardHeaderStyle, NavButton*Style, FieldLabelStyle,
+                           SectionSubHeaderStyle, FormComboBoxStyle, OptionCardStyle,
+                           MetricCardStyle
+                         via {StaticResource ...} without duplication.
+                    ═══════════════════════════════════════════════════════════════ -->
+                <ResourceDictionary Source="pack://application:,,,/Views/Reports/StatementGenerator/Styles/WizardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Production/Controls/ProductionUnitDetailTemplates.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+
+                <!-- ── DEFAULT LANGUAGE (2026-09-05 — XDG-0001 cleanup).
+                     Language keys (Splash.* / Shell.* / module captions) were
+                     merged ONLY at runtime by LocalizationService, so every
+                     design surface flagged each {DynamicResource <lang.key>}
+                     as "could not be resolved", and any window built before
+                     language init showed nothing. The primary language is
+                     merged here once; LocalizationService.ApplyLanguage now
+                     DETECTS and re-uses this pre-merged instance instead of
+                     stacking a duplicate (see FindMergedBySource). ── -->
+                <!-- ONE AUTHORITATIVE DESIGN SYSTEM — GlobalDesignSystem.xaml
+                     Visual SSOT. Merged AFTER module kits so unification aliases win. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/GlobalDesignSystem.xaml"/>
+
+                <ResourceDictionary Source="pack://application:,,,/Themes/Languages/en-US.xaml"/>
+
+                <!-- ── App stage + About type scale (2026-09-15/16).
+                     LAST on purpose, and deliberately NOT part of the theme
+                     swap:
+                       • AppStage.xaml — the About page stage (pastel canvas +
+                         four orbs). The page background is theme-INVARIANT
+                         by owner directive ("Background page dont make it
+                         dynamic"), so it must not live in a theme file.
+                       • AboutTypeScale.xaml — the About module type scale,
+                         declared at application level so
+                         ThemeManager.ApplyDisplayDensity can rewrite it in
+                         place. Inside Views/About it would shadow
+                         Application.Resources and stay frozen.
+                     Merged last so that a problem in an earlier dictionary
+                     cannot strand the About palette: WPF resolves merged
+                     dictionaries in order, and everything below is consumed
+                     through {DynamicResource} only — nothing needs them at
+                     parse time. (Reported symptom of getting this wrong:
+                     About cards with no edge and no fill, silently, because
+                     an unresolved DynamicResource leaves a Border with a
+                     null BorderBrush instead of throwing.) ── -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/AppStage.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/AboutTypeScale.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/AboutSurface.xaml"/>
+
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- ═══ GLOBAL FONT (FontService) ══════════════════════════
+                 Referenced with DynamicResource across the app so
+                 FontService.ApplyFont can restyle the whole UI at once.
+                 Bold / italic are applied via AppFontWeight / AppFontStyle.
+                 Declared AFTER the merged dictionaries (XAML requires
+                 property elements before content, not interleaved). -->
+            <FontFamily x:Key="AppFontFamily">Segoe UI</FontFamily>
+            <FontWeight x:Key="AppFontWeight">Normal</FontWeight>
+            <FontStyle x:Key="AppFontStyle">Normal</FontStyle>
+            <x:Null x:Key="AppTextDecorations"/>
+
+            <!-- BUILT-IN + CUSTOM CONVERTERS moved to
+                 Themes/Styles/ConverterResources.xaml and merged FIRST
+                 above, so merged style dictionaries can resolve them at
+                 parse time (ERR-2FFFF1). Do not re-declare them here. -->
+
+            <sys:Double x:Key="UiScale">1.0</sys:Double>
+
+            <!-- Density defaults (overwritten at startup by ThemeManager). -->
+
+
+            <!-- ══════════════════════════════════════════════════════════
+                     GLOBAL TEXTBOX STYLE — Bug 2 + Bug 5
+                     ──────────────────────────────────────────────────────────
+                     No x:Key = implicit style (applies to every TextBox).
+
+                     SelectAllOnFocus="True" — click or tab selects all text.
+                     Multi-line / Notes TextBoxes must opt out explicitly:
+                       beh:TextBoxBehaviors.SelectAllOnFocus="False"
+
+                     AcceptDecimals / AcceptIntegersOnly are opt-IN behaviors.
+                     Set them per-field in individual views, NOT globally,
+                     because not every TextBox is a numeric field.
+
+                     UI/UX mandate:
+                       Height=38, CornerRadius=8, Padding=12,0
+                       Focus ring: indigo glow 200ms QuinticEase
+                       Hover: border shifts to accent indigo tint
+                       Disabled: 45% opacity
+                       ReadOnly: muted background
+                ══════════════════════════════════════════════════════════ -->
+            <Style TargetType="{x:Type TextBox}">
+
+                <!-- Layout -->
+                    <Setter Property="Height"                   Value="{DynamicResource DensityInputHeight}"/>
+                <Setter Property="VerticalAlignment"        Value="Center"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="Padding"                  Value="12,0"/>
+
+                <!-- Typography — 13px body, theme foreground. Font family is
+                     the global AppFontFamily so FontService restyles the
+                     whole app; icons keep their own Segoe MDL2 family. -->
+                <Setter Property="FontSize"   Value="{DynamicResource DensityBodyFontSize}"/>
+                <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+
+                <!-- Surface — TokenStore input material (not card/button brushes). -->
+                <Setter Property="Background"     Value="{DynamicResource SurfaceInputBrush}"/>
+                <Setter Property="BorderBrush"    Value="{DynamicResource InputBorderBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+
+                <!-- Rendering -->
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                <Setter Property="UseLayoutRounding"   Value="True"/>
+
+                <!-- Bug 2: SelectAll on focus — global default ON -->
+                <!-- Multi-line Notes must set this False explicitly  -->
+                <Setter Property="beh:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
+
+                <!-- CornerRadius + focus ring glow via ControlTemplate -->
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type TextBox}">
+                            <Grid>
+
+                                <!--
+                                        Focus ring — indigo glow behind the border.
+                                        Opacity animates 0→0.20 on focus.
+                                        Margin=-2 so it peeks out slightly around MainBorder.
+                                    -->
+                                <Border x:Name="FocusRing"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            Margin="-2"
+                                            Opacity="0"
+                                            IsHitTestVisible="False">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{DynamicResource AccentColor}"/>
+                                    </Border.Background>
+                                    <Border.Effect>
+                                        <BlurEffect Radius="0"/>
+                                    </Border.Effect>
+                                </Border>
+
+                                <!--
+                                        Main input container.
+                                        CornerRadius=8 per UI/UX mandate.
+                                        BorderBrush animates via triggers below.
+                                    -->
+                                <Border x:Name="MainBorder"
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}">
+                                    <ScrollViewer x:Name="PART_ContentHost"
+                                                      Focusable="False"
+                                                      Margin="{TemplateBinding Padding}"
+                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                      HorizontalScrollBarVisibility="Hidden"
+                                                      VerticalScrollBarVisibility="Hidden"/>
+                                </Border>
+
+                            </Grid>
+
+                            <ControlTemplate.Triggers>
+
+                                <!-- Hover: border shifts to theme accent hover -->
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="MainBorder"
+                                                Property="BorderBrush"
+                                                Value="{DynamicResource AccentHoverBrush}"/>
+                                </Trigger>
+
+                                <!-- Focus: border = theme accent + glow animates in -->
+                                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                    <Setter TargetName="MainBorder"
+                                                Property="BorderBrush"
+                                                Value="{DynamicResource AccentBrush}"/>
+                                    <Setter TargetName="MainBorder"
+                                                Property="BorderThickness"
+                                                Value="2"/>
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <!-- Glow opacity: 0 → 0.20 -->
+                                                <DoubleAnimation
+                                                        Storyboard.TargetName="FocusRing"
+                                                        Storyboard.TargetProperty="Opacity"
+                                                        To="0.20"
+                                                        Duration="0:0:0.2">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <QuinticEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <!-- Glow blur: 0 → 8px -->
+                                                <DoubleAnimation
+                                                        Storyboard.TargetName="FocusRing"
+                                                        Storyboard.TargetProperty="(UIElement.Effect).(BlurEffect.Radius)"
+                                                        To="8"
+                                                        Duration="0:0:0.2">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <QuinticEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <!-- Glow fades out on blur -->
+                                                <DoubleAnimation
+                                                        Storyboard.TargetName="FocusRing"
+                                                        Storyboard.TargetProperty="Opacity"
+                                                        To="0"
+                                                        Duration="0:0:0.15"/>
+                                                <DoubleAnimation
+                                                        Storyboard.TargetName="FocusRing"
+                                                        Storyboard.TargetProperty="(UIElement.Effect).(BlurEffect.Radius)"
+                                                        To="0"
+                                                        Duration="0:0:0.15"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
+                                </Trigger>
+
+                                <!-- Disabled: 45% opacity — muted but visible -->
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="MainBorder"
+                                                Property="Opacity"
+                                                Value="0.45"/>
+                                </Trigger>
+
+                                <!-- ReadOnly: muted background, secondary text -->
+                                <Trigger Property="IsReadOnly" Value="True">
+                                    <Setter TargetName="MainBorder"
+                                                Property="Background"
+                                                Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                    <Setter Property="Foreground"
+                                                Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                </Trigger>
+
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+
+            </Style>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

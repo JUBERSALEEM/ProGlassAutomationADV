@@ -1,0 +1,378 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: Services/Reporting/ReportingDataService.TaxInvoice.cs
+// PROJECT: ProGlassAutomation
+// ─────────────────────────────────────────────────────────────────────────
+// Phase 3.2 — ReportingDataService partial split. This part owns the TaxInvoice
+// report family members; the class declaration + shared helpers live in
+// ReportingDataService.cs.
+// ═══════════════════════════════════════════════════════════════════════
+
+using Microsoft.EntityFrameworkCore;
+using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
+using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
+using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.DeliveryNote.Database;
+using ProGlassAutomation.Services.JobOrder.Database;
+using ProGlassAutomation.Services.JobOrder.Mapper;
+using ProGlassAutomation.Services.MasterData.Database;
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Models.Statement;
+using ProGlassAutomation.Services.Statement.Database;
+using ProGlassAutomation.Services.TaxInvoice.Database;
+using ProGlassAutomation.Models.TaxInvoice.Common.TaxInvoiceStatus;
+using ProGlassAutomation.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace ProGlassAutomation.Services.Reporting
+{
+    public sealed partial class ReportingDataService : IReportingDataService
+    {
+        // ════════════════════════════════════════════════════════════════
+        //  TAX INVOICE REPORT (DB-Side Filtered & Paginated)
+        // ════════════════════════════════════════════════════════════════
+
+        public async Task<TaxInvoiceReportSummary> GetTaxInvoiceSummaryAsync(ReportingFilter filter, CancellationToken ct = default)
+        {
+            filter ??= new ReportingFilter();
+            using var db = new TaxInvoiceDbContext();
+            var query = Live(db.TaxInvoices.AsNoTracking()).AsQueryable();
+
+            query = ApplyTiFilters(query, filter);
+
+            var summary = new TaxInvoiceReportSummary();
+            summary.TotalInvoices = await query.CountAsync(ct).ConfigureAwait(false);
+
+            // PENDING INVOICE must be computed even when this period has no
+            // invoices at all — confirmed quotes without a TI are exactly
+            // the interesting number then.
+            summary.PendingInvoice = await CountPendingInvoicesAsync(filter, ct)
+                .ConfigureAwait(false);
+
+            // INVOICABLE pipeline: confirmed quotations value under the same
+            // filter; balance = invoicable − invoiced (what is left to bill).
+            summary.InvoicableAmount = await SumConfirmedPiValueAsync(filter, ct)
+                .ConfigureAwait(false);
+            summary.BalanceInvoicableAmount =
+                Math.Max(0m, summary.InvoicableAmount - summary.TotalAmount);
+
+            if (summary.TotalInvoices == 0) return summary;
+
+            var tiAmounts = await query.Select(t => new { t.GrandTotal, t.VatAmount, t.Status, t.DueDate }).ToListAsync(ct).ConfigureAwait(false);
+            summary.TotalAmount = tiAmounts.Sum(x => x.GrandTotal);
+            summary.TotalVat = tiAmounts.Sum(x => x.VatAmount);
+
+            summary.Issued = tiAmounts.Count(t => t.Status == TaxInvoiceStatusValues.Issued);
+            summary.Paid = tiAmounts.Count(t => t.Status == TaxInvoiceStatusValues.Paid);
+            summary.PartiallyPaid = tiAmounts.Count(t => t.Status == TaxInvoiceStatusValues.PartiallyPaid || t.Status == TaxInvoiceStatusValues.PartiallyPaidDisplay);
+            summary.Overdue = tiAmounts.Count(t => t.Status == TaxInvoiceStatusValues.Overdue || (t.Status == TaxInvoiceStatusValues.Issued && t.DueDate < DateTime.Today));
+            summary.Draft = tiAmounts.Count(t => t.Status == TaxInvoiceStatusValues.Draft);
+            summary.Outstanding = tiAmounts.Where(t => t.Status == TaxInvoiceStatusValues.Issued || t.Status == TaxInvoiceStatusValues.Overdue || t.Status == TaxInvoiceStatusValues.PartiallyPaid || t.Status == TaxInvoiceStatusValues.PartiallyPaidDisplay).Sum(x => x.GrandTotal);
+
+            return summary;
+        }
+
+        /// <summary>
+        /// THE tax-invoice filter — single source of truth for how a
+        /// ReportingFilter narrows the TI table (summary, rows and the
+        /// executive cohort funnel share it). (Extracted 2026-09-10 from two
+        /// identical inline copies. DateTo compares against the true end of
+        /// day — IssueDate is stamped with DateTime.Now.)
+        /// </summary>
+        private static IQueryable<SavedTaxInvoice> ApplyTiFilters(
+            IQueryable<SavedTaxInvoice> query, ReportingFilter filter)
+        {
+            if (!string.IsNullOrWhiteSpace(filter.ProformaId))
+                query = query.Where(t => t.ProformaId == filter.ProformaId);
+            if (!string.IsNullOrWhiteSpace(filter.TaxInvoiceNumber))
+                query = query.Where(t => t.InvoiceNumber == filter.TaxInvoiceNumber);
+            if (!string.IsNullOrWhiteSpace(filter.Customer))
+                query = query.Where(t => EF.Functions.Like(t.CustomerName, $"%{filter.Customer}%"));
+            if (!string.IsNullOrWhiteSpace(filter.Company))
+                query = query.Where(t => EF.Functions.Like(t.CompanyName, $"%{filter.Company}%"));
+            if (!string.IsNullOrWhiteSpace(filter.Status))
+            {
+                var st = filter.Status.Trim();
+                if (Eq(st, "Partially Paid") || Eq(st, "PartiallyPaid"))
+                    query = query.Where(t => t.Status == TaxInvoiceStatusValues.PartiallyPaid || t.Status == TaxInvoiceStatusValues.PartiallyPaidDisplay);
+                else
+                    query = query.Where(t => t.Status == st);
+            }
+            if (filter.DateFrom.HasValue)
+                query = query.Where(t => t.IssueDate >= filter.DateFrom.Value);
+            if (filter.DateTo.HasValue)
+                query = query.Where(t => t.IssueDate <= DayEnd(filter.DateTo));
+            if (filter.HasSearch)
+            {
+                var term = filter.SearchText.Trim();
+                query = query.Where(t =>
+                    EF.Functions.Like(t.InvoiceNumber, $"%{term}%") ||
+                    EF.Functions.Like(t.ProformaId, $"%{term}%") ||
+                    EF.Functions.Like(t.CustomerName, $"%{term}%"));
+            }
+            return query;
+        }
+
+        /// <summary>
+        /// Confirmed quotes (same statuses the PI report maps to Confirmed)
+        /// that have no live tax invoice yet. Best-effort: a failure here
+        /// degrades to 0 with a warning — which was the previous behaviour
+        /// anyway, because the field was never assigned before 2026-09-10
+        /// (both the TaxInvoice KPI and the executive UNINVOICED card read a
+        /// constant 0).
+        /// </summary>
+        private static async Task<int> CountPendingInvoicesAsync(ReportingFilter filter, CancellationToken ct)
+        {
+            try
+            {
+                List<string> confirmedIds;
+                using (var piDb = new ProformaInvoicesDbContext())
+                {
+                    confirmedIds = await ApplyPiFilters(
+                            Live(piDb.ProformaInvoices.AsNoTracking()).AsQueryable(), filter)
+                        .Where(i => i.Status == "Approved" || i.Status == "Confirmed" || i.Status == "Issued")
+                        .Select(i => i.ProformaId)
+                        .ToListAsync(ct).ConfigureAwait(false);
+                }
+
+                if (confirmedIds.Count == 0) return 0;
+
+                using var tiDb = new TaxInvoiceDbContext();
+                var invoicedCount = await Live(tiDb.TaxInvoices.AsNoTracking())
+                    .Where(t => confirmedIds.Contains(t.ProformaId))
+                    .Select(t => t.ProformaId)
+                    .Distinct()
+                    .CountAsync(ct).ConfigureAwait(false);
+
+                return Math.Max(0, confirmedIds.Count - invoicedCount);
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception ex)
+            {
+                AppLogService.Warning($"Pending-invoice count warning: {ex.Message}");
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Sum of GrandTotalVatInclusive across CONFIRMED quotations under
+        /// the filter — the "total invoicable amount" for the Tax Invoice
+        /// hub. Best-effort: degrades to 0 with a warning.
+        /// </summary>
+        private static async Task<decimal> SumConfirmedPiValueAsync(ReportingFilter filter, CancellationToken ct)
+        {
+            try
+            {
+                using var piDb = new ProformaInvoicesDbContext();
+                var values = await ApplyPiFilters(
+                        Live(piDb.ProformaInvoices.AsNoTracking()).AsQueryable(), filter)
+                    .Where(i => i.Status == "Approved" || i.Status == "Confirmed" || i.Status == "Issued")
+                    .Select(i => i.GrandTotalVatInclusive)
+                    .ToListAsync(ct).ConfigureAwait(false);
+                return values.Sum();
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception ex)
+            {
+                AppLogService.Warning($"Invoicable value warning: {ex.Message}");
+                return 0m;
+            }
+        }
+
+        public async Task<PagedResult<TaxInvoiceReportRow>> GetTaxInvoiceRowsAsync(ReportingFilter filter, CancellationToken ct = default)
+        {
+            filter ??= new ReportingFilter();
+            using var db = new TaxInvoiceDbContext();
+            var query = Live(db.TaxInvoices.AsNoTracking()).AsQueryable();
+
+            query = ApplyTiFilters(query, filter);
+
+            var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
+            if (totalCount == 0)
+                return new PagedResult<TaxInvoiceReportRow> { Items = new List<TaxInvoiceReportRow>(), TotalCount = 0, Page = filter.Page, PageSize = filter.PageSize };
+
+            bool tiDesc = filter.SortDescending;
+            IOrderedQueryable<SavedTaxInvoice> tiOrdered = (filter.SortField) switch
+            {
+                "Amount"   => tiDesc ? query.OrderByDescending(t => t.GrandTotal) : query.OrderBy(t => t.GrandTotal),
+                "Customer" => tiDesc ? query.OrderByDescending(t => t.CustomerName) : query.OrderBy(t => t.CustomerName),
+                "Company"  => tiDesc ? query.OrderByDescending(t => t.CompanyName) : query.OrderBy(t => t.CompanyName),
+                "Status"   => tiDesc ? query.OrderByDescending(t => t.Status) : query.OrderBy(t => t.Status),
+                "Invoice"  => tiDesc ? query.OrderByDescending(t => t.InvoiceNumber) : query.OrderBy(t => t.InvoiceNumber),
+                "DueDate"  => tiDesc ? query.OrderByDescending(t => t.DueDate) : query.OrderBy(t => t.DueDate),
+                _          => tiDesc ? query.OrderByDescending(t => t.IssueDate) : query.OrderBy(t => t.IssueDate),
+            };
+
+            var page = await tiOrdered
+                .Skip(filter.Skip)
+                .Take(filter.Take)
+                .Select(t => new TaxInvoiceReportRow
+                {
+                    Id = t.Id,
+                    InvoiceNumber = t.InvoiceNumber,
+                    ProformaId = t.ProformaId,
+                    JobOrderId = t.JobOrderId,
+                    DeliveryNoteReference = t.DeliveryNoteReference,
+                    CustomerName = t.CustomerName,
+                    ProjectName = t.ProjectName,
+                    CompanyName = t.CompanyName,
+                    Status = t.Status,
+                    InvoiceType = t.InvoiceType,
+                    IssueDate = t.IssueDate,
+                    DueDate = t.DueDate,
+                    GrandTotal = t.GrandTotal,
+                    VatAmount = t.VatAmount,
+                    TotalQty = t.TotalQty,
+                    TotalSqm = t.TotalSqm,
+                    CreatedAt = t.CreatedAt
+                })
+                .ToListAsync(ct).ConfigureAwait(false);
+
+            // Enrich the visible page (≤100 rows) with Salesman + Prepared By
+            // from the linked PI snapshot JSON — never the full dataset.
+            await EnrichTiPageAsync(page, ct);
+
+            // Page-scoped Sr for the report's serial column (2026-09-10).
+            for (int i = 0; i < page.Count; i++)
+                page[i].SerialNumber = i + 1;
+
+            return new PagedResult<TaxInvoiceReportRow> { Items = page, TotalCount = totalCount, Page = filter.Page, PageSize = filter.PageSize };
+        }
+
+        /// <summary>
+        /// Page-only enrichment of TI rows with Salesman and Prepared By from
+        /// the source PI snapshot. Reads at most one PI snapshot per distinct
+        /// ProformaId on the visible page.
+        /// </summary>
+        private static async Task EnrichTiPageAsync(
+            List<TaxInvoiceReportRow> rows, CancellationToken ct)
+        {
+            var piIds = rows
+                .Select(r => r.ProformaId)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .ToList();
+            if (piIds.Count == 0) return;
+
+            try
+            {
+                using var piDb = new ProformaInvoicesDbContext();
+                var snapshots = await Live(piDb.ProformaInvoices.AsNoTracking())
+                    .Where(p => piIds.Contains(p.ProformaId))
+                    .Select(p => new { p.ProformaId, p.FullSnapshotJson })
+                    .ToListAsync(ct).ConfigureAwait(false);
+
+                foreach (var s in snapshots)
+                {
+                    var snap = TryDeserializePiSnapshot(s.FullSnapshotJson);
+                    if (snap == null) continue;
+
+                    string salesman = snap.Client?.SalesRepresentative ?? "";
+                    string preparedBy = snap.PreparedBy?.PreparedByName ?? "";
+
+                    foreach (var r in rows)
+                    {
+                        if (!string.Equals(r.ProformaId, s.ProformaId, StringComparison.OrdinalIgnoreCase))
+                            continue;
+                        if (string.IsNullOrWhiteSpace(r.Salesman))
+                            r.Salesman = salesman;
+                        if (string.IsNullOrWhiteSpace(r.PreparedBy))
+                            r.PreparedBy = preparedBy;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning($"TI report enrichment failed: {ex.Message}");
+            }
+
+            // ── Delivered / balance for the QUANTITY & AREA panel ──────────
+            // Row-level reconciliation per quotation — the same predicate
+            // family as the Delivery report (live parents, master notes
+            // contribute 0, per-row MAX ordered so splits never inflate).
+            try
+            {
+                using var dnDb = new DeliveryNotesDbContext();
+                var raw = await dnDb.DeliveryNoteItems.AsNoTracking()
+                    .Where(i => i.DeliveryNote != null
+                                && !i.DeliveryNote.IsVoid
+                                && !i.DeliveryNote.IsMasterDn
+                                && i.DeliveryNote.ProformaId != null
+                                && piIds.Contains(i.DeliveryNote.ProformaId))
+                    .Select(i => new
+                    {
+                        ProformaId = i.DeliveryNote!.ProformaId!,
+                        i.SpecGroupNumber,
+                        i.SerialNumber,
+                        i.OrderedQty,
+                        Delivered = i.DeliveryNote!.IsMasterDn ? 0 : i.DeliveredQty
+                    })
+                    .ToListAsync(ct).ConfigureAwait(false);
+
+                var byPi = raw
+                    .GroupBy(x => x.ProformaId, StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(g => g.Key, g => (
+                        Ordered: g.GroupBy(x => new { x.SpecGroupNumber, x.SerialNumber })
+                                  .Sum(rg => rg.Max(x => x.OrderedQty)),
+                        Delivered: g.Sum(x => x.Delivered)),
+                    StringComparer.OrdinalIgnoreCase);
+
+                foreach (var r in rows)
+                {
+                    if (!byPi.TryGetValue(r.ProformaId, out var v)) continue;
+                    r.TotalDeliveredQty = v.Delivered;
+                    r.TotalBalanceQty = Math.Max(0, v.Ordered - v.Delivered);
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning($"TI delivery reconciliation failed: {ex.Message}");
+            }
+        }
+
+        public async Task<List<TaxInvoiceReportRow>> GetPendingInvoicesAsync(ReportingFilter filter, CancellationToken ct = default)
+        {
+            filter ??= new ReportingFilter();
+            var result = new List<TaxInvoiceReportRow>();
+            try
+            {
+                using var piDb = new ProformaInvoicesDbContext();
+                using var tiDb = new TaxInvoiceDbContext();
+
+                var confirmedPis = await Live(piDb.ProformaInvoices.AsNoTracking())
+                    .Where(p => p.Status == "Approved" || p.Status == "Confirmed" || p.Status == "Issued" || p.Status == "Sent")
+                    .Select(p => new { p.ProformaId, p.CustomerName, p.ProjectName, p.CompanyName, p.GrandTotalVatInclusive, p.IssueDate })
+                    .ToListAsync(ct).ConfigureAwait(false);
+
+                var invoicedPis = (await Live(tiDb.TaxInvoices.AsNoTracking()).Select(t => t.ProformaId).ToListAsync(ct))
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                foreach (var pi in confirmedPis.Where(p => !invoicedPis.Contains(p.ProformaId)))
+                {
+                    if (filter.HasCustomer && !ContainsCI(pi.CustomerName, filter.Customer)) continue;
+                    if (filter.HasCompany && !ContainsCI(pi.CompanyName, filter.Company)) continue;
+                    if (filter.HasProject && !ContainsCI(pi.ProjectName, filter.Project)) continue;
+                    result.Add(new TaxInvoiceReportRow
+                    {
+                        ProformaId = pi.ProformaId,
+                        CustomerName = pi.CustomerName,
+                        ProjectName = pi.ProjectName,
+                        CompanyName = pi.CompanyName,
+                        Status = "Pending Invoice",
+                        GrandTotal = pi.GrandTotalVatInclusive,
+                        IssueDate = pi.IssueDate
+                    });
+                }
+            }
+            catch (Exception ex) { AppLogService.Warning($"Pending invoices query warning: {ex.Message}"); }
+            return result;
+        }
+    }
+}

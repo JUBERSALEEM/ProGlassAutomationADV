@@ -1,0 +1,282 @@
+<!-- Sheet Store history & audit ledger — Studio Bento list, same visual
+     contract as the Proforma Invoice list (SavedInvoicesListView):
+     Sl.* filter card, soft table header, virtualized rows. All filter,
+     row and undo bindings retained. -->
+<dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreHistory.HistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+             Title="{DynamicResource SheetStore.HistoryLOG}"
+             Width="1140" Height="740"
+             MinWidth="840" MinHeight="520"
+             MaxWidth="1440"
+             SizeToContent="Manual"
+             ResizeMode="CanResize"
+             DialogIcon="&#xE81C;"
+             DialogSubtitle="{DynamicResource SheetStore.ChangeSheetStoreRecordedHere}"
+             FontFamily="{DynamicResource AppFontFamily}"
+             Background="{DynamicResource Ov.Canvas}"
+             Foreground="{DynamicResource Ov.Ink}">
+
+    <Window.InputBindings>
+        <KeyBinding Key="Escape" Command="{Binding CloseCommand}"/>
+    </Window.InputBindings>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Shared/Lists/StudioListResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" MinHeight="280"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══ FILTER CARD ═══════════════════════════════════════════ -->
+        <Border Grid.Row="0" Style="{StaticResource Sl.FilterBar}" Margin="0,0,0,10">
+            <WrapPanel>
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Shared.Action}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                    <ComboBox Margin="0,0,8,4" Width="150"
+                              SelectedValue="{Binding FilterAction, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedValuePath="Tag"
+                              Style="{StaticResource Sl.Combo}">
+                        <ComboBoxItem Content="{DynamicResource Common.All}" Tag="All"/>
+                        <ComboBoxItem Content="{DynamicResource ProformaInvoice.Added}" Tag="Added"/>
+                        <ComboBoxItem Content="{DynamicResource SheetStore.Edited}" Tag="Edited"/>
+                        <ComboBoxItem Content="{DynamicResource SheetStore.Deleted}" Tag="Deleted"/>
+                        <ComboBoxItem Content="{DynamicResource SheetStore.Bought}" Tag="Bought"/>
+                        <ComboBoxItem Content="{DynamicResource SheetStore.USED}" Tag="Used"/>
+                        <ComboBoxItem Content="Reversed" Tag="Reversed"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Common.FromDate}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                    <DatePicker Margin="0,0,8,4" Width="150"
+                                SelectedDate="{Binding FromDate, Mode=TwoWay}"
+                                Style="{StaticResource Sl.Date}"/>
+                </StackPanel>
+
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Common.ToDate}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                    <DatePicker Margin="0,0,8,4" Width="150"
+                                SelectedDate="{Binding ToDate, Mode=TwoWay}"
+                                Style="{StaticResource Sl.Date}"/>
+                </StackPanel>
+
+                <Button Style="{StaticResource Sl.Button}" VerticalAlignment="Bottom" Margin="0,0,8,4"
+                        Tag="&#xE711;" Content="{DynamicResource SheetStore.ClearDates}"
+                        ToolTip="{DynamicResource SheetStore.ClearDateFilter}"
+                        Command="{Binding ClearDatesCommand}"
+                        Visibility="{Binding HasDateFilter, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                <Button Style="{StaticResource Sl.PrimaryButton}" VerticalAlignment="Bottom" Margin="0,0,8,4"
+                        Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
+                        ToolTip="{DynamicResource SheetStore.ReloadHistory}"
+                        Command="{Binding RefreshCommand}"/>
+
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Action.Search}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                    <TextBox Margin="0,0,0,4" Width="240"
+                             behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                             Style="{StaticResource Sl.Input}"/>
+                </StackPanel>
+            </WrapPanel>
+        </Border>
+
+        <!-- ══ RESULTS TABLE ═════════════════════════════════════════ -->
+        <Border Grid.Row="1" Style="{StaticResource Sl.Card}" Padding="0" MinHeight="280">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*" MinHeight="240"/>
+                </Grid.RowDefinitions>
+
+                <!-- Column headers -->
+                <Border Grid.Row="0" Style="{StaticResource Sl.TableHeader}" Margin="0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="96"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="1.6*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="2.2*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="65"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="100"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{DynamicResource Shared.Action}" Style="{StaticResource Sl.ColumnLabel}" Margin="12,0,0,0"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource SheetStore.SheetDetails}" Style="{StaticResource Sl.ColumnLabel}"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource Shared.Details}" Style="{StaticResource Sl.ColumnLabel}"/>
+                        <TextBlock Grid.Column="6" Text="{DynamicResource Common.Qty}" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="8" Text="{DynamicResource SystemCenter.USER}" Style="{StaticResource Sl.ColumnLabel}"/>
+                        <TextBlock Grid.Column="10" Text="{DynamicResource Shared.DATETIME}" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                    </Grid>
+                </Border>
+
+                <!-- Virtualized history rows -->
+                <ListBox Grid.Row="1"
+                         ItemsSource="{Binding Entries}"
+                         ItemContainerStyle="{StaticResource Sl.ListItem}"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         Padding="0"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         ScrollViewer.CanContentScroll="False"
+                         VirtualizingStackPanel.IsVirtualizing="True"
+                         VirtualizingStackPanel.VirtualizationMode="Recycling"
+                         VirtualizingStackPanel.ScrollUnit="Pixel"
+                         behaviors:SmoothScrollBehavior.IsEnabled="True"
+                         Visibility="{Binding HasEntries, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource Sl.Row}" MinHeight="52">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="96"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="1.6*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="2.2*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="65"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="100"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Action badge -->
+                                    <Border Grid.Column="0" CornerRadius="{DynamicResource Radius.Small}" Padding="8,4"
+                                            Margin="12,0,0,0"
+                                            VerticalAlignment="Center" HorizontalAlignment="Left">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{Binding ActionColor, Converter={StaticResource ColorStringConverter}}"/>
+                                        </Border.Background>
+                                        <TextBlock Text="{Binding Action}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource Ov.OnAccent}"/>
+                                    </Border>
+
+                                    <!-- Sheet description -->
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding SheetDescription}"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               FontWeight="{DynamicResource Weight.SemiBold}"
+                                               Foreground="{DynamicResource Ov.Ink}"
+                                               TextTrimming="CharacterEllipsis"
+                                               VerticalAlignment="Center"
+                                               ToolTip="{Binding SheetDescription}"/>
+
+                                    <!-- Details & reversed badge -->
+                                    <StackPanel Grid.Column="4" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Details}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Foreground="{DynamicResource Ov.Ink}"
+                                                   ToolTip="{Binding Details}"/>
+                                        <Border Margin="0,3,0,0" Padding="8,2"
+                                                HorizontalAlignment="Left" CornerRadius="{DynamicResource Radius.Small}"
+                                                Background="{DynamicResource Ov.WarningSoft}"
+                                                Visibility="{Binding IsReversed, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <TextBlock Text="{DynamicResource SheetStore.ReversedBadge}"
+                                                       FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource Ov.Warning}"/>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <!-- Quantity changed -->
+                                    <TextBlock Grid.Column="6"
+                                               Text="{Binding QuantityChanged, StringFormat=N0}"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Center"
+                                               Typography.NumeralAlignment="Tabular"
+                                               Foreground="{DynamicResource Ov.Ink}"/>
+
+                                    <!-- User name -->
+                                    <TextBlock Grid.Column="8"
+                                               Text="{Binding UserName}"
+                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                               TextTrimming="CharacterEllipsis"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource Ov.Muted}"
+                                               ToolTip="{Binding UserName}"/>
+
+                                    <!-- Date & time -->
+                                    <StackPanel Grid.Column="10" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding DateDisplay}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                                   HorizontalAlignment="Right"
+                                                   Foreground="{DynamicResource Ov.Ink}"
+                                                   Typography.NumeralAlignment="Tabular"/>
+                                        <TextBlock Text="{Binding TimeDisplay}"
+                                                   FontSize="{DynamicResource FontSize.Caption}"
+                                                   HorizontalAlignment="Right"
+                                                   Foreground="{DynamicResource Ov.Muted}"
+                                                   Typography.NumeralAlignment="Tabular"/>
+                                    </StackPanel>
+
+                                    <!-- Undo movement -->
+                                    <Button Grid.Column="12"
+                                            HorizontalAlignment="Right" VerticalAlignment="Center"
+                                            Style="{StaticResource Sl.Button}"
+                                            MinHeight="30" Padding="10,4"
+                                            Tag="&#xE7A7;"
+                                            Content="{DynamicResource SheetStore.UndoMovement}"
+                                            Command="{Binding DataContext.UndoMovementCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}"
+                                            ToolTip="{DynamicResource SheetStore.UndoMovementTooltip}"
+                                            Visibility="{Binding CanReverse, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Border>
+    </Grid>
+
+    <dialogs:ThemedDialogWindow.FooterContent>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock VerticalAlignment="Center"
+                       Margin="0,0,16,0"
+                       FontSize="{DynamicResource FontSize.Body}"
+                       Foreground="{DynamicResource Ov.Muted}">
+                <TextBlock.Inlines>
+                    <Run Text="{Binding TotalEntries, Mode=OneWay}"/>
+                    <Run Text=" "/>
+                    <Run Text="{DynamicResource SheetStore.Entries}"/>
+                </TextBlock.Inlines>
+            </TextBlock>
+            <Button Style="{StaticResource Sl.Button}"
+                    MinHeight="36" Padding="14,8"
+                    Tag="&#xE711;" Content="{DynamicResource Action.Close}"
+                    ToolTip="{DynamicResource SheetStore.CloseHistory}"
+                    Command="{Binding CloseCommand}"/>
+        </StackPanel>
+    </dialogs:ThemedDialogWindow.FooterContent>
+</dialogs:ThemedDialogWindow>

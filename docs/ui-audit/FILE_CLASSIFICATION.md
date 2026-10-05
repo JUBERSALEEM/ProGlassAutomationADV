@@ -1,0 +1,343 @@
+# FILE CLASSIFICATION — final quality pass (2026-09-18)
+
+**321 XAML files classified. No unexplained UI debt.**
+
+| Class | Count | Meaning |
+|---|---|---|
+| MODERNIZED | 17 | changed by this stream (P1-P6) or verified with documented structural keeps |
+| COMPLIANT | 291 | already on shared chrome + dynamic tokens (census-verified) |
+| EXEMPT | 12 | intentionally legacy/exempt — each with a documented reason |
+| BLOCKED | 1 | documented blocker, not silently skipped |
+
+## MODERNIZED
+
+- `App.xaml` — P1: PagePatterns merge entry
+- `Themes/Styles/OptimizationStyles.xaml` — P4: shared OptHeader FontSize tokenized
+- `Themes/Styles/PagePatterns.xaml` — P1: new shared page-level pattern library
+- `Views/About/Sections/DeveloperSection.xaml` — 3 avatar circles r19 = h/2 — structural keeps documented
+- `Views/CompanyCenter/CompanyCenterView.xaml` — P3: 5 exact-value tokenizations
+- `Views/Dashboard/DashboardView.xaml` — P2: tab label/subtitle tokenized to PgFont tokens
+- `Views/Dashboard/Overview/OverviewDashboardView.xaml` — Factory Pulse 26 = Viewbox-scaled design size — structural keeps documented
+- `Views/Dashboard/TaxInvoice/TiDashboard/TiDashboardView.xaml` — severity bars r4/2.5 = h/2 capsule internals — structural keeps documented
+- `Views/Optimization/OptimizationView.xaml` — P4: 4 exact-value tokenizations
+- `Views/Optimization/Tabs/SummaryTabView.xaml` — P4: 4 exact-value tokenizations
+- `Views/Production/ProcessWorkCenterView.xaml` — P4: 11 exact-value tokenizations
+- `Views/Production/ProductionControlCenterView.xaml` — P4: 11 exact-value tokenizations
+- `Views/Settings/Sections/Cards/AppearancePreviewTile.xaml` — P3: 4 exact-value tokenizations
+- `Views/Settings/Sections/Cards/AppearanceSplashCard.xaml` — P3: 2 exact-value tokenizations
+- `Views/Settings/Sections/SettingsThemesSection.xaml` — P3: 4 exact-value tokenizations
+- `Views/Shared/QuickSettingsPanel.xaml` — P3: 2 exact-value tokenizations
+- `Views/UserCenter/UserCenterView.xaml` — P3: 5 exact-value tokenizations
+
+## EXEMPT (intentional, documented)
+
+- `Agent/UI/AgentChatView.xaml` — AI surface: 3 hex = AI brand indigo (#6366F1/#3730A3) + high-signal listening red (#B91C1C); tokenizing needs visual sign-off
+- `Views/About/AboutIos26Theme.xaml` — About Ios26 showcase: intentionally personal-styled section (Ios-17 lineage)
+- `Views/CrashReports/CrashReportDialogStyles.xaml` — Crash dialog self-contained by design (must render in unknown app state; 2026-09-14 fix)
+- `Views/DeliveryNote/DeliveryNoteDetail/Sections/DnSectionStyles.xaml` — DN detail module layer: 9 styles BasedOn shared bases (GridNumericCell, Button.Ghost, Typography.Label)
+- `Views/Login/AuthSurfaceStyles.xaml` — Login brand surface: pre-shell glass showcase (orbs/liquid card/frost), intentionally outside ERP chrome
+- `Views/Production/Controls/ProductionStationBody.xaml` — Station grid module layer: BasedOn shared GodViewHeaderStyle
+- `Views/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceView.xaml` — Print surface: 18 radii are print-locked pt-derived geometry, not theme chrome
+- `Views/Reports/StatementGenerator/Styles/WizardStyles.xaml` — Statement wizard shell: numbered-step grammar, self-contained gradients/shadows (DynamicResource values)
+- `Views/Settings/SettingsCardStyles.xaml` — Settings module design layer: 47 keys mostly spacing constants + self-contained card/tile/chip/segment grammar; full merge onto shared Card/Pill = future candidate needing build verification
+- `Views/Settings/SettingsSectionStyles.xaml` — Settings module design layer (12 keys) — see SettingsCardStyles
+- `Views/Splash/SplashView.xaml` — Brand splash: 9 hex = material alpha recipe (white/gray sheen layers), identical Light/Dark; cinematic surface outside ERP chrome
+- `Views/TaxInvoice/TaxInvoiceDetail/Sections/TiSectionStyles.xaml` — TI detail module layer: 3 styles BasedOn shared bases (SurfaceDetailStyle)
+
+## BLOCKED (documented reason)
+
+- `Views/Inquiry/InquiryListView.xaml` — EmptyState gap: needs a new i18n key in all 13 language files (no suitable Inquiry.No* key; other lists use Dashboard.No*Yet). VM props HasInquiries/HasActiveFilters ready. Blocked on i18n+visual verification, not on XAML.
+
+## COMPLIANT (already converged)
+
+- `Controls/AutoCompleteTextBox/AutoCompleteTextBox.xaml`
+- `Controls/DonutChart/DonutChartControl.xaml`
+- `Controls/EmptyState/EmptyStateControl.xaml`
+- `Controls/GlobalSearch/GlobalSearchBar.xaml`
+- `Controls/LoadingState/LoadingStateControl.xaml`
+- `Controls/MiniBarChart/MiniBarChartControl.xaml`
+- `Controls/Reporting/MixPanel.xaml`
+- `Controls/StatCard/StatCardControl.xaml`
+- `Controls/TrendChart/TrendChartControl.xaml`
+- `MainWindow.xaml`
+- `Styles/ButtonStyles.xaml`
+- `Styles/ContextMenuStyles.xaml`
+- `Styles/DashboardStyles.xaml`
+- `Styles/Step4SectionStyles.xaml`
+- `Themes/CrystalFluid/CrystalFluidBrushes.xaml`
+- `Themes/CrystalFluid/CrystalFluidColors.xaml`
+- `Themes/CrystalFluid/CrystalFluidControls.xaml`
+- `Themes/CrystalFluid/CrystalFluidDataGrid.xaml`
+- `Themes/CrystalFluid/CrystalFluidMetrics.xaml`
+- `Themes/CrystalFluid/CrystalFluidNavigation.xaml`
+- `Themes/CrystalFluid/CrystalFluidStyles.xaml`
+- `Themes/CrystalFluid/CrystalFluidTokens.xaml`
+- `Themes/DarkTheme.xaml`
+- `Themes/Languages/ar-AE.xaml`
+- `Themes/Languages/bn-BD.xaml`
+- `Themes/Languages/de-DE.xaml`
+- `Themes/Languages/en-US.xaml`
+- `Themes/Languages/es-ES.xaml`
+- `Themes/Languages/fr-FR.xaml`
+- `Themes/Languages/hi-IN.xaml`
+- `Themes/Languages/id-ID.xaml`
+- `Themes/Languages/ja-JP.xaml`
+- `Themes/Languages/ko-KR.xaml`
+- `Themes/Languages/pt-BR.xaml`
+- `Themes/Languages/ru-RU.xaml`
+- `Themes/Languages/tr-TR.xaml`
+- `Themes/Languages/ur-PK.xaml`
+- `Themes/Languages/zh-CN.xaml`
+- `Themes/LightTheme.xaml`
+- `Themes/ProGlassDesignSystem/Compatibility/LegacyAliases.xaml`
+- `Themes/ProGlassDesignSystem/Materials/ProGlassMaterials.xaml`
+- `Themes/ProGlassDesignSystem/ProGlassDesignSystem.xaml`
+- `Themes/ProGlassDesignSystem/Tokens/SemanticColors.xaml`
+- `Themes/ProGlassDesignSystem/Tokens/SemanticDensity.xaml`
+- `Themes/ProGlassDesignSystem/Tokens/SemanticElevation.xaml`
+- `Themes/ProGlassDesignSystem/Tokens/SemanticGeometry.xaml`
+- `Themes/ProGlassDesignSystem/Tokens/SemanticMotion.xaml`
+- `Themes/ProGlassDesignSystem/Tokens/SemanticSpacing.xaml`
+- `Themes/ProGlassDesignSystem/Tokens/SemanticTypography.xaml`
+- `Themes/Professional/ProfessionalCore.xaml`
+- `Themes/Professional/ProfessionalShell.xaml`
+- `Themes/Styles/AboutSurface.xaml`
+- `Themes/Styles/AboutTypeScale.xaml`
+- `Themes/Styles/AppStage.xaml`
+- `Themes/Styles/CardStyles.xaml`
+- `Themes/Styles/ComboTemplates.xaml`
+- `Themes/Styles/ComponentTokens.xaml`
+- `Themes/Styles/ConverterResources.xaml`
+- `Themes/Styles/DataGridStyles.xaml`
+- `Themes/Styles/DesignTokens.xaml`
+- `Themes/Styles/DialogStyles.xaml`
+- `Themes/Styles/GlobalDesignSystem.xaml`
+- `Themes/Styles/IconBadgeStyles.xaml`
+- `Themes/Styles/InputStyles.xaml`
+- `Themes/Styles/LayoutTokens.xaml`
+- `Themes/Styles/LiquidGlassDesign.xaml`
+- `Themes/Styles/LiquidGlassStyles.xaml`
+- `Themes/Styles/ListPageStyles.xaml`
+- `Themes/Styles/MaterialTokens.xaml`
+- `Themes/Styles/ModuleTabStyles.xaml`
+- `Themes/Styles/NavigationRailStyles.xaml`
+- `Themes/Styles/PiIndustrialStyles.xaml`
+- `Themes/Styles/PillStyles.xaml`
+- `Themes/Styles/PrintTokens.xaml`
+- `Themes/Styles/SemanticTokens.xaml`
+- `Themes/Styles/SharedSectionStyles.xaml`
+- `Themes/Styles/ShellStyles.xaml`
+- `Themes/Styles/TypeScaleTokens.xaml`
+- `Themes/Styles/TypographyStyles.xaml`
+- `Tools/LicenseGenerator/App.xaml`
+- `Tools/LicenseGenerator/MainWindow.xaml`
+- `Tools/LicenseGenerator/Theme.xaml`
+- `Views/AI/AiChatView.xaml`
+- `Views/About/AboutStyles.xaml`
+- `Views/About/AboutView.xaml`
+- `Views/About/Sections/AboutCrashReportsCard.xaml`
+- `Views/About/Sections/AboutLicenseCard.xaml`
+- `Views/About/Sections/AboutOverviewSection.xaml`
+- `Views/About/Sections/DiagnosticsSection.xaml`
+- `Views/About/Sections/ModulesSection.xaml`
+- `Views/About/Sections/SystemSection.xaml`
+- `Views/CrashReports/CrashReportDialog.xaml`
+- `Views/Dashboard/DeliveryNote/DnDashboard/DnDashboardView.xaml`
+- `Views/Dashboard/JobOrder/JoDashboard/JoDashboardView.xaml`
+- `Views/Dashboard/ProformaInvoice/PiDashboardView.xaml`
+- `Views/Dashboard/SheetStore/SheetStoreDashboardView.xaml`
+- `Views/Dashboard/Statement/StDashboardView.xaml`
+- `Views/DeliveryNote/DeliveryNoteDetail/Attachments/Rename/RenameAttachmentDialog.xaml`
+- `Views/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailView.xaml`
+- `Views/DeliveryNote/DeliveryNoteDetail/Sections/DnAttachmentsSection.xaml`
+- `Views/DeliveryNote/DeliveryNoteDetail/Sections/DnHistorySection.xaml`
+- `Views/DeliveryNote/DeliveryNoteDetail/Sections/DnOverviewSection.xaml`
+- `Views/DeliveryNote/DeliveryNoteList/DeliveryNoteListView.xaml`
+- `Views/DeliveryNote/DeliveryNoteList/JobOrderPicker/JobOrderPickerDialog.xaml`
+- `Views/DeliveryNote/DeliveryNoteView.xaml`
+- `Views/DeliveryNote/GodView/DeliveryNoteGodView.xaml`
+- `Views/Diagnostics/DiagnosticsView.xaml`
+- `Views/Inquiry/InquiryAttachmentPreviewWindow.xaml`
+- `Views/Inquiry/InquiryEditorWindow.xaml`
+- `Views/JobOrder/GodView/JobOrderGodView.xaml`
+- `Views/JobOrder/JobOrderDetail/JobOrderDetailView.xaml`
+- `Views/JobOrder/JobOrderDetail/Sections/JoOverviewSection.xaml`
+- `Views/JobOrder/JobOrderDetail/Sections/JoProductionSection.xaml`
+- `Views/JobOrder/JobOrderDetail/Sections/JoSectionStyles.xaml`
+- `Views/JobOrder/JobOrderView.xaml`
+- `Views/JobOrder/SavedJobOrdersList/JobOrderAttachmentWarningDialog.xaml`
+- `Views/JobOrder/SavedJobOrdersList/ProformaPicker/JobOrderProformaPickerDialog.xaml`
+- `Views/JobOrder/SavedJobOrdersList/SavedJobOrdersListView.xaml`
+- `Views/JobProfitability/JobDetailPanel.xaml`
+- `Views/JobProfitability/JobFullDetailView.xaml`
+- `Views/JobProfitability/JobProfitabilityView.xaml`
+- `Views/JobProfitability/PortfolioGlassTypeComparisonView.xaml`
+- `Views/JobProfitability/PortfolioServiceProfitabilityView.xaml`
+- `Views/JobProfitability/PortfolioWastageAnalysisView.xaml`
+- `Views/Login/FirstRunSetupPanel.xaml`
+- `Views/Login/ForcePasswordChangeWindow.xaml`
+- `Views/Login/LoginPanel.xaml`
+- `Views/Login/LoginWindow.xaml`
+- `Views/Login/ResetPasswordWindow.xaml`
+- `Views/Optimization/Tabs/CutListTabView.xaml`
+- `Views/Optimization/Tabs/JobsTabView.xaml`
+- `Views/Optimization/Tabs/ReportTabView.xaml`
+- `Views/Optimization/Tabs/SettingsTabView.xaml`
+- `Views/Optimization/Tabs/SizesTabView.xaml`
+- `Views/Optimization/Tabs/StocksTabView.xaml`
+- `Views/Optimization/Tabs/TwoDViewTabView.xaml`
+- `Views/Production/Controls/ProductionFilterBar.xaml`
+- `Views/Production/Controls/ProductionKpiStrip.xaml`
+- `Views/Production/Controls/ProductionPipelineBar.xaml`
+- `Views/Production/Controls/ProductionReleaseBar.xaml`
+- `Views/Production/Controls/ProductionUnitDetailControl.xaml`
+- `Views/Production/Controls/ProductionUnitDetailTemplates.xaml`
+- `Views/Production/CuttingView.xaml`
+- `Views/Production/CuttingWorkCenterView.xaml`
+- `Views/Production/DoublingLaminationView.xaml`
+- `Views/Production/EdgeDeletionView.xaml`
+- `Views/Production/HolesCutoutsView.xaml`
+- `Views/Production/MitringView.xaml`
+- `Views/Production/PairingView.xaml`
+- `Views/Production/PolishView.xaml`
+- `Views/Production/TemperingView.xaml`
+- `Views/ProformaInvoice/ProformaInvoiceView.xaml`
+- `Views/ProformaInvoice/SavedInvoicesList/InvoiceApprovalDialog.xaml`
+- `Views/ProformaInvoice/SavedInvoicesList/SavedInvoicesListDialog.xaml`
+- `Views/ProformaInvoice/SavedInvoicesList/SavedInvoicesListView.xaml`
+- `Views/ProformaInvoice/SavedInvoicesList/VersionsDialog.xaml`
+- `Views/ProformaInvoice/Step1CompanySetup/CompanySetupView.xaml`
+- `Views/ProformaInvoice/Step2ClientProfile/ClientProfileView.xaml`
+- `Views/ProformaInvoice/Step3ProjectSpecs/ProjectSpecsView.xaml`
+- `Views/ProformaInvoice/Step4PricingEstimator/DguLamParameters/DguLamParametersView.xaml`
+- `Views/ProformaInvoice/Step4PricingEstimator/DguParameters/DguParametersView.xaml`
+- `Views/ProformaInvoice/Step4PricingEstimator/LamParameters/LamParametersView.xaml`
+- `Views/ProformaInvoice/Step4PricingEstimator/PricingEstimatorView.xaml`
+- `Views/ProformaInvoice/Step4PricingEstimator/SguParameters/SguParametersView.xaml`
+- `Views/ProformaInvoice/Step5DataGrid/DataGridView.xaml`
+- `Views/ProformaInvoice/Step5DataGrid/GrandTotalSummary/GrandTotalSummaryView.xaml`
+- `Views/ProformaInvoice/Step6OtherCharges/CustomCharges/CustomChargesSectionView.xaml`
+- `Views/ProformaInvoice/Step6OtherCharges/OtherChargesView.xaml`
+- `Views/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionView.xaml`
+- `Views/ProformaInvoice/Step7PrintPreview/InvoiceMainSummary/InvoiceMainSummaryView.xaml`
+- `Views/ProformaInvoice/Step7PrintPreview/PrintPreviewView.xaml`
+- `Views/ProformaInvoice/Step7PrintPreview/TermsAndConditions/TermsAndConditionsView.xaml`
+- `Views/ProformaInvoice/Step8Attachments/AttachmentsStepView.xaml`
+- `Views/ProformaInvoice/Step9ProfitLoss/GlassTypeComparisonView.xaml`
+- `Views/ProformaInvoice/Step9ProfitLoss/ProfitLossStepView.xaml`
+- `Views/ProformaInvoice/Step9ProfitLoss/ServiceProfitabilityView.xaml`
+- `Views/ProformaInvoice/Step9ProfitLoss/SheetProfitabilityView.xaml`
+- `Views/Reports/CompanyReport/CompanyReportView.xaml`
+- `Views/Reports/CustomerReport/CustomerReportView.xaml`
+- `Views/Reports/DeliveryReport/DeliveryReportView.xaml`
+- `Views/Reports/ExecutiveReport/ExecutiveReportView.xaml`
+- `Views/Reports/GlassSpecReport/GlassSpecReportView.xaml`
+- `Views/Reports/JoReport/JoReportView.xaml`
+- `Views/Reports/OrderReport/Filter/FilterStep.xaml`
+- `Views/Reports/OrderReport/OrderReportGeneratorView.xaml`
+- `Views/Reports/OrderReport/OrderReportListView.xaml`
+- `Views/Reports/OrderReport/OrderReportModuleView.xaml`
+- `Views/Reports/OrderReport/Pipeline/ExecuteStep.xaml`
+- `Views/Reports/OrderReport/Preview/PreviewStep.xaml`
+- `Views/Reports/OrderReport/Review/ReviewStep.xaml`
+- `Views/Reports/OrderReport/Specifications/SpecificationsStep.xaml`
+- `Views/Reports/PiReport/PiReportView.xaml`
+- `Views/Reports/ProfitabilityReport/ProfitabilityReportView.xaml`
+- `Views/Reports/ProjectReport/ProjectReportView.xaml`
+- `Views/Reports/SalesReportView.xaml`
+- `Views/Reports/SalesmanReport/SalesmanReportView.xaml`
+- `Views/Reports/StatementGenerator/Filter/FilterStep.xaml`
+- `Views/Reports/StatementGenerator/Pipeline/ExecuteStep.xaml`
+- `Views/Reports/StatementGenerator/Preview/PreviewStep.xaml`
+- `Views/Reports/StatementGenerator/Review/ReviewStep.xaml`
+- `Views/Reports/StatementGenerator/Shell/StatementGeneratorView.xaml`
+- `Views/Reports/StatementList/StatementListView.xaml`
+- `Views/Reports/StatementModule/StatementModuleView.xaml`
+- `Views/Reports/StatementReport/StatementReportView.xaml`
+- `Views/Reports/TaxInvoiceReport/TaxInvoiceReportView.xaml`
+- `Views/Reports/VatSubmission/VatSubmissionView.xaml`
+- `Views/Reports/Workflow/WorkflowProgressDialog.xaml`
+- `Views/Reports/Workflow/WorkflowWarningDialog.xaml`
+- `Views/Settings/Sections/Cards/AgentCoreCard.xaml`
+- `Views/Settings/Sections/Cards/AgentDataCard.xaml`
+- `Views/Settings/Sections/Cards/AiAssistantCard.xaml`
+- `Views/Settings/Sections/Cards/AiProvidersCard.xaml`
+- `Views/Settings/Sections/Cards/AiSecurityCard.xaml`
+- `Views/Settings/Sections/Cards/AppearanceAccentFontCard.xaml`
+- `Views/Settings/Sections/Cards/AppearanceCardEdgesTile.xaml`
+- `Views/Settings/Sections/Cards/AppearanceCrystalTile.xaml`
+- `Views/Settings/Sections/Cards/AppearanceDensityCard.xaml`
+- `Views/Settings/Sections/Cards/AppearanceFontColorTile.xaml`
+- `Views/Settings/Sections/Cards/AppearanceFrostTile.xaml`
+- `Views/Settings/Sections/Cards/AppearanceGradientTile.xaml`
+- `Views/Settings/Sections/Cards/AppearanceLanguageCard.xaml`
+- `Views/Settings/Sections/Cards/AppearanceModeCard.xaml`
+- `Views/Settings/Sections/Cards/AppearanceRadiusTile.xaml`
+- `Views/Settings/Sections/Cards/AppearanceThemeFamilyTile.xaml`
+- `Views/Settings/Sections/Cards/AppearanceThemeLayoutCard.xaml`
+- `Views/Settings/Sections/Cards/AppearanceWallpapersCard.xaml`
+- `Views/Settings/Sections/Cards/DataBackupCard.xaml`
+- `Views/Settings/Sections/Cards/DataHealthCard.xaml`
+- `Views/Settings/Sections/Cards/DataRootCard.xaml`
+- `Views/Settings/Sections/Cards/DataSampleCard.xaml`
+- `Views/Settings/Sections/Cards/DemoFfmpegCard.xaml`
+- `Views/Settings/Sections/Cards/DemoHistoryCard.xaml`
+- `Views/Settings/Sections/Cards/DemoIsolationCard.xaml`
+- `Views/Settings/Sections/Cards/DemoOutputCard.xaml`
+- `Views/Settings/Sections/Cards/DemoQualityCard.xaml`
+- `Views/Settings/Sections/Cards/DemoRecordCard.xaml`
+- `Views/Settings/Sections/Cards/DemoWorkflowCard.xaml`
+- `Views/Settings/Sections/Cards/FeaturesDeliveryNoteCard.xaml`
+- `Views/Settings/Sections/Cards/FeaturesInquiryCard.xaml`
+- `Views/Settings/Sections/Cards/FeaturesJobOrderCard.xaml`
+- `Views/Settings/Sections/Cards/FeaturesProformaCard.xaml`
+- `Views/Settings/Sections/Cards/FeaturesSessionCard.xaml`
+- `Views/Settings/Sections/Cards/FeaturesTaxInvoiceCard.xaml`
+- `Views/Settings/Sections/SettingsAboutSection.xaml`
+- `Views/Settings/Sections/SettingsAgentSection.xaml`
+- `Views/Settings/Sections/SettingsAiSection.xaml`
+- `Views/Settings/Sections/SettingsAppearanceSection.xaml`
+- `Views/Settings/Sections/SettingsDataSection.xaml`
+- `Views/Settings/Sections/SettingsDemoSection.xaml`
+- `Views/Settings/Sections/SettingsFeaturesSection.xaml`
+- `Views/Settings/Sections/SettingsLicenseSection.xaml`
+- `Views/Settings/Sections/SettingsSharingSection.xaml`
+- `Views/Settings/Sections/SettingsUpdatesSection.xaml`
+- `Views/Settings/Sections/SettingsVoiceSection.xaml`
+- `Views/Settings/SettingsPageTemplates.xaml`
+- `Views/Settings/SettingsView.xaml`
+- `Views/Shared/ActivityPanel.xaml`
+- `Views/Shared/AuditReportDialog.xaml`
+- `Views/Shared/ChangesDialog.xaml`
+- `Views/Shared/ComingSoonView.xaml`
+- `Views/Shared/CountryPhoneControl.xaml`
+- `Views/Shared/LanguageSuggestionDialog.xaml`
+- `Views/Shared/RecordOverlayWindow.xaml`
+- `Views/Shared/ScreenRecordPanel.xaml`
+- `Views/Shared/ScreenshotPanel.xaml`
+- `Views/Shared/SectionActivityView.xaml`
+- `Views/Shared/StorageDetailsPanel.xaml`
+- `Views/Shared/StorageSidebarCard.xaml`
+- `Views/Shared/UnsavedChangesDialog.xaml`
+- `Views/Shared/UserSwitchPanel.xaml`
+- `Views/Shared/VoidReasonDialog.xaml`
+- `Views/Sharing/ShareComposerWindow.xaml`
+- `Views/SheetStore/AddEditSheetView.xaml`
+- `Views/SheetStore/SheetDetailWindow.xaml`
+- `Views/SheetStore/SheetStoreBuy/BuyDialogView.xaml`
+- `Views/SheetStore/SheetStoreCsv/DuplicateResolutionView.xaml`
+- `Views/SheetStore/SheetStoreHistory/HistoryView.xaml`
+- `Views/SheetStore/SheetStoreItems/ItemMovementView.xaml`
+- `Views/SheetStore/SheetStoreUse/UseDialogView.xaml`
+- `Views/SheetStore/SheetStoreView.xaml`
+- `Views/Specifications/SpecificationsCenterView.xaml`
+- `Views/SystemCenter/SystemCenterView.xaml`
+- `Views/TaxInvoice/GodView/TaxInvoiceGodView.xaml`
+- `Views/TaxInvoice/TaxInvoiceDetail/IssueDraftsDialog.xaml`
+- `Views/TaxInvoice/TaxInvoiceDetail/Sections/TiAttachmentsSection.xaml`
+- `Views/TaxInvoice/TaxInvoiceDetail/Sections/TiFamilySection.xaml`
+- `Views/TaxInvoice/TaxInvoiceDetail/Sections/TiOverviewSection.xaml`
+- `Views/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailView.xaml`
+- `Views/TaxInvoice/TaxInvoiceList/ProformaPickerDialog.xaml`
+- `Views/TaxInvoice/TaxInvoiceList/TaxInvoiceListView.xaml`
+- `Views/TaxInvoice/TaxInvoiceView.xaml`

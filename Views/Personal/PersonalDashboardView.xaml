@@ -1,0 +1,111 @@
+<UserControl x:Class="ProGlassAutomation.Views.Personal.PersonalDashboardView"
+             TextOptions.TextHintingMode="Fixed"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:pv="clr-namespace:ProGlassAutomation.Views.Personal"
+             xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Dashboard"
+             xmlns:vmTi="clr-namespace:ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         GB-P4 / GB-P10 — GLASS BLUSH DASHBOARD SHELL (Personal)
+
+         2026-09-19 restructure: the routed module VM is DashboardViewModel
+         (a multi-page shell: Pages / ActivePage / SelectTabCommand — the
+         SAME contract as the Professional DashboardView tab strip).
+         This view is now the Personal version of that shell:
+           • glass page-pill strip over DashboardViewModel.Pages
+             (active pill via ReferenceEquality vs ActivePage, the
+              Professional mechanism; SelectTabCommand same command+param)
+           • content host Content="{Binding ActivePage}"
+         Scoped implicit templates resolve each page:
+           • OverviewDashboardViewModel → PersonalDashboardOverviewView
+             (the glass-01 overview surface)
+           • TiDashboardViewModel       → PersonalTaxInvoiceDashboardView
+             (glass-07: aging brackets, KPI tiles, recent invoices)
+           • other pages (SheetStore/PI/JO/DN module VMs) → their Personal
+             views via GlassShell's scoped templates; un-forked pages fall
+             back to the Professional views (functional, documented).
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        <DataTemplate DataType="{x:Type vm:OverviewDashboardViewModel}">
+            <pv:PersonalDashboardOverviewView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmTi:TiDashboardViewModel}">
+            <pv:PersonalTaxInvoiceDashboardView/>
+        </DataTemplate>
+
+        <!-- page pill: glass soft button + active glow trigger -->
+        <Style x:Key="GbPagePill" TargetType="Button"
+               BasedOn="{StaticResource GlassBlush.GlassButtonSoft}">
+            <Setter Property="Padding" Value="18,10"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Style.Triggers>
+                <DataTrigger Value="True">
+                    <DataTrigger.Binding>
+                        <MultiBinding Converter="{StaticResource ReferenceEqualityConverter}">
+                            <Binding Path="DataContext.ActivePage"
+                                     RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                            <Binding/>
+                        </MultiBinding>
+                    </DataTrigger.Binding>
+                    <Setter Property="Background" Value="{DynamicResource GlassBlush.AccentSoft}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+            </ResourceDictionary>
+    </UserControl.Resources>
+
+    <DockPanel>
+        <!-- ══ PAGE PILL STRIP (same Pages / SelectTabCommand contract) ══ -->
+        <ItemsControl DockPanel.Dock="Top"
+                      ItemsSource="{Binding Pages}"
+                      Margin="0,0,0,20"
+                      Focusable="False">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Style="{StaticResource GbPagePill}"
+                            ToolTip="{Binding TabSubtitle}"
+                            AutomationProperties.Name="{Binding TabTitle}"
+                            Command="{Binding DataContext.SelectTabCommand,
+                                      RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                            CommandParameter="{Binding}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding TabIcon}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,9,0"
+                                       Foreground="{DynamicResource GlassBlush.TextMuted}"/>
+                            <TextBlock Text="{Binding TabTitle}"
+                                       FontSize="{DynamicResource GlassBlush.FontCaption}"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource GlassBlush.Text}"/>
+                        </StackPanel>
+                    </Button>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- ══ PAGE CONTENT (ActivePage; scoped templates above) ══════ -->
+        <ContentControl Content="{Binding ActivePage}"
+                        Focusable="False"/>
+    </DockPanel>
+</UserControl>

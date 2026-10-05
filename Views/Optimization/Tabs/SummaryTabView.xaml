@@ -1,0 +1,389 @@
+<!-- ═══════════════════════════════════════════════════════════════
+     FILE: Views/Optimization/Tabs/SummaryTabView.xaml
+     MODULE: Optimization — Summary Tab (Studio Bento Redesign)
+     DataContext = OptimizationViewModel (inherited from the shell).
+
+     Studio Bento layout:
+     Top: 4-Card Bento KPI Strip (Yield Hero, Scrap Offcuts, Unplaced, Oracle).
+     Center: Per-Cutting-Group Performance Ledger.
+     Bottom: Interactive Sheet Schedule with 1-Click CAD Navigation.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Optimization.Tabs.SummaryTabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=4}"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Border Style="{StaticResource OptPanelCard}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- ══ 1. BENTO KPI CARDS STRIP ══ -->
+                <Grid Grid.Row="0" Margin="0,0,0,18">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.4*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1.2*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Hero Card: Overall Yield & Total Sheets -->
+                    <Border Grid.Column="0" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0" Padding="18,14">
+                        <StackPanel>
+                            <TextBlock Text="OVERALL YIELD EFFICIENCY" FontSize="11" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Viewbox MaxHeight="36" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding ResultUtilization}" FontSize="32" FontWeight="Bold"
+                                               Foreground="{DynamicResource AccentBrush}" Typography.NumeralAlignment="Tabular"/>
+                                </Viewbox>
+                                <Border Background="{DynamicResource SuccessBrush}" CornerRadius="4" Padding="6,2" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Optimal" FontSize="10" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                </Border>
+                            </StackPanel>
+                            <TextBlock Text="{Binding ResultSheets, StringFormat='Total Sheets Required: {0}'}"
+                                       FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Waste & Offcuts Card -->
+                    <Border Grid.Column="1" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0" Padding="16,14">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,4">
+                                <TextBlock Text="TOTAL OFFCUT / SCRAP" Style="{StaticResource OptHeader}"/>
+                                <Border HorizontalAlignment="Right" Style="{StaticResource OptKpiBadge}"
+                                        Width="26" Height="26" Background="{StaticResource OptWarningBg}"
+                                        BorderBrush="{StaticResource OptWarningBorder}" BorderThickness="1">
+                                    <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                                               Foreground="{StaticResource OptWarningInk}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                            <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding ResultWaste}" Style="{StaticResource OptKpiValue}"
+                                           Foreground="{StaticResource OptWarningInk}"/>
+                            </Viewbox>
+                            <TextBlock Text="Remnant &amp; kerf loss" FontSize="11"
+                                       Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Unplaced Pieces Card -->
+                    <Border Grid.Column="2" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0" Padding="16,14">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,4">
+                                <TextBlock Text="UNPLACED PIECES" Style="{StaticResource OptHeader}"/>
+                                <Border HorizontalAlignment="Right" Style="{StaticResource OptKpiBadge}"
+                                        Width="26" Height="26" Background="{StaticResource OptInfoBg}"
+                                        BorderBrush="{StaticResource OptInfoBorder}" BorderThickness="1">
+                                    <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                                               Foreground="{StaticResource OptInfoInk}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                            <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding ResultUnplaced}" Style="{StaticResource OptKpiValue}"/>
+                            </Viewbox>
+                            <TextBlock Text="Capacity violations" FontSize="11"
+                                       Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Verification Oracle Card -->
+                    <Border Grid.Column="3" Style="{StaticResource OptKpiCard}" Padding="16,14">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,4">
+                                <TextBlock Text="ENGINE VERIFICATION" Style="{StaticResource OptHeader}"/>
+                                <Border HorizontalAlignment="Right" Style="{StaticResource OptKpiBadge}"
+                                        Width="26" Height="26" Background="{StaticResource OptSuccessBg}"
+                                        BorderBrush="{StaticResource OptSuccessBorder}" BorderThickness="1">
+                                    <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                                               Foreground="{StaticResource OptSuccessInk}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                            <TextBlock Text="{Binding ResultOracle}" FontSize="13" FontWeight="Bold"
+                                       Foreground="{StaticResource OptSuccessInk}" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding ResultStage}" FontSize="11"
+                                       Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- ══ 2. DETAILED BREAKDOWN & SHEET SCHEDULE WORKSPACE ══ -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+
+                        <!-- ══ RUN NOTES ══
+                             The engine writes 38 different notes into
+                             OptimizationResult.ScaleNotes. The run pipeline
+                             used to join them all into one RunMessage
+                             paragraph, so "this layout cannot be cut" sat in
+                             the same sentence as a utilisation percentage and
+                             read as background noise. Shown here instead,
+                             rated by severity; the critical ones also raise a
+                             popup the moment the run finishes. -->
+                        <Border Margin="0,0,0,14" Padding="14,12" CornerRadius="8"
+                                Background="{DynamicResource SurfaceSecondaryBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                Visibility="{Binding HasRunNotes, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="RUN NOTES" Style="{StaticResource OptHeader}" Margin="0,0,0,10"/>
+                                <ItemsControl ItemsSource="{Binding RunNotes}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,0,0,9">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="4"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Grid.Column="0" CornerRadius="2" Margin="0,0,10,0">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="{DynamicResource TextTertiaryBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Severity}" Value="Warning">
+                                                                    <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Severity}" Value="Error">
+                                                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                </Border>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text}" FontSize="11"
+                                                           TextWrapping="Wrap"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           ToolTip="{Binding Text}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Per Cutting Group Breakdown Section -->
+                        <TextBlock Text="PER-CUTTING-GROUP BREAKDOWN" Style="{StaticResource OptHeader}" Margin="0,0,0,10"/>
+                        <ItemsControl ItemsSource="{Binding GroupResults}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource OptInnerCard}" Margin="0,0,0,10" Padding="14,12">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="90"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="{Binding Composition}" FontSize="13"
+                                                           FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding Note}" FontSize="11"
+                                                           Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" Margin="0,2,0,0"
+                                                           Visibility="{Binding HasNote, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="PIECES" Style="{StaticResource OptHeader}"/>
+                                                <TextBlock Text="{Binding PieceCount}" FontSize="14" FontWeight="Bold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="SHEETS" Style="{StaticResource OptHeader}"/>
+                                                <TextBlock Text="{Binding Sheets}" FontSize="14" FontWeight="Bold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="3">
+                                                <TextBlock Text="STOCK SIZE" Style="{StaticResource OptHeader}"/>
+                                                <TextBlock Text="{Binding StockSize}" FontSize="12"
+                                                           FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="4">
+                                                <TextBlock Text="YIELD" Style="{StaticResource OptHeader}"/>
+                                                <Border Background="{DynamicResource AccentSoftBrush}"
+                                                        BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
+                                                        CornerRadius="4" Padding="6,1" HorizontalAlignment="Left" Margin="0,2,0,0">
+                                                    <TextBlock Text="{Binding Utilization}" FontSize="11" FontWeight="Bold"
+                                                               Foreground="{DynamicResource AccentBrush}"/>
+                                                </Border>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="5">
+                                                <TextBlock Text="WASTE" Style="{StaticResource OptHeader}"/>
+                                                <TextBlock Text="{Binding Waste}" FontSize="12"
+                                                           FontWeight="Bold" Foreground="{StaticResource OptWarningInk}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Individual Sheet Schedule (1-Click Jump to CAD View) -->
+                        <TextBlock Text="CUTTING PLAN SHEET EXECUTION SCHEDULE" Style="{StaticResource OptHeader}" Margin="0,18,0,8"/>
+
+                        <!-- Header -->
+                        <Border Background="{DynamicResource SurfaceSecondaryBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                CornerRadius="6" Padding="12,8" Margin="0,0,0,6">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="110"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="SHEET" Style="{StaticResource OptHeader}"/>
+                                <TextBlock Grid.Column="1" Text="GLASS SPECIFICATION" Style="{StaticResource OptHeader}"/>
+                                <TextBlock Grid.Column="2" Text="STOCK SIZE (MM)" Style="{StaticResource OptHeader}"/>
+                                <TextBlock Grid.Column="3" Text="PARTS" Style="{StaticResource OptHeader}"/>
+                                <TextBlock Grid.Column="4" Text="YIELD %" Style="{StaticResource OptHeader}"/>
+                                <TextBlock Grid.Column="5" Text="OFFCUT LOSS" Style="{StaticResource OptHeader}"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Rows with interactive button jump -->
+                        <ItemsControl ItemsSource="{Binding SheetRows}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding DataContext.JumpToSheetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding SheetNo}"
+                                            Cursor="Hand" Margin="0,0,0,4"
+                                            ToolTip="Open this sheet in the 2D VIEW to check its layout before it reaches the table.">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="Row" Padding="12,9" BorderThickness="0,0,0,1"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        Background="Transparent">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="80"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="140"/>
+                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="110"/>
+                                                            <ColumnDefinition Width="110"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Border Grid.Column="0" Background="{DynamicResource AccentSoftBrush}"
+                                                                BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
+                                                                CornerRadius="4" Padding="6,2" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding SheetNo, StringFormat='Sheet #{0}'}"
+                                                                       FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                                        </Border>
+                                                        <TextBlock Grid.Column="1" Text="{Binding Composition}" FontSize="12"
+                                                                   FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                   TextTrimming="CharacterEllipsis" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="2" Text="{Binding StockLabel}" FontSize="12"
+                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="3" Text="{Binding PieceCount, StringFormat='{}{0} pcs'}" FontSize="12"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
+                                                        <Border Grid.Column="4" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                                CornerRadius="4" Padding="6,2">
+                                                            <Border.Style>
+                                                                <Style TargetType="Border">
+                                                                    <Setter Property="Background" Value="{StaticResource OptSuccessBg}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding UtilizationTone}" Value="Mid">
+                                                                            <Setter Property="Background" Value="{StaticResource OptWarningBg}"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding UtilizationTone}" Value="Low">
+                                                                            <Setter Property="Background" Value="#FEE2E2"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                            <TextBlock Text="{Binding Utilization}" FontSize="11" FontWeight="Bold">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Foreground" Value="{StaticResource OptSuccessInk}"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding UtilizationTone}" Value="Mid">
+                                                                                <Setter Property="Foreground" Value="{StaticResource OptWarningInk}"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding UtilizationTone}" Value="Low">
+                                                                                <Setter Property="Foreground" Value="#991B1B"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </Border>
+                                                        <TextBlock Grid.Column="5" Text="{Binding WasteLabel}" FontSize="12"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
+                                                    </Grid>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Row" Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Text="{Binding SheetRowsOverflowLabel}" FontSize="12" FontStyle="Italic"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,8,0,0"
+                                   Visibility="{Binding HasSheetRowsOverflow, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                        <!-- Unplaced pieces warning alert banner -->
+                        <StackPanel Margin="0,16,0,0" Visibility="{Binding HasUnplaced, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Border CornerRadius="8" Background="{StaticResource OptWarningBg}"
+                                    BorderBrush="{StaticResource OptWarningBorder}" BorderThickness="1"
+                                    Padding="14,10" Margin="0,0,0,8">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="16"
+                                               Foreground="{StaticResource OptWarningInk}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Unplaced Pieces Detected" FontSize="13" FontWeight="Bold"
+                                                   Foreground="{StaticResource OptWarningInk}"/>
+                                        <TextBlock Text="The pieces listed below could not fit on any available stock sheet sizes."
+                                                   FontSize="11" Foreground="{StaticResource OptWarningInk}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <ItemsControl ItemsSource="{Binding UnplacedRows}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="8,4" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource BorderBrush}">
+                                            <TextBlock Text="{Binding}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock Text="{Binding UnplacedOverflowLabel}" FontSize="11" FontStyle="Italic"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,4,0,0"
+                                       Visibility="{Binding HasUnplacedOverflow, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

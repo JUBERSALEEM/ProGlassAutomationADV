@@ -1,0 +1,58 @@
+# ─────────────────────────────────────────────────────────────────────
+# ProGlass Automation — CI template (Phase 10: production hardening)
+#
+# ACTIVATION (one-time): copy this file to  .github/workflows/ci.yml
+# (the Arena sandbox cannot push into .github/workflows/ — see OTA.md).
+#
+# Runs on a real Windows runner because the project targets
+# net8.0-windows with UseWPF (Linux/macOS runners cannot compile it).
+#
+# Gates every push + PR on:
+#   1. Release build of the app with TreatWarningsAsErrors=true
+#   2. The full xUnit suite (Tests/Agent — now 53 test files)
+#
+# Note: the solution file is ProGlassAutomation.slnx (new XML format),
+# which older 8.0.x SDK CLI builds do not resolve — so the two projects
+# are built explicitly here.
+# ─────────────────────────────────────────────────────────────────────
+name: CI (Windows)
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-test:
+    name: Build & Test (net8.0-windows)
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore (app)
+        run: dotnet restore ProGlassAutomation.csproj
+
+      - name: Build (Release, warnings-as-errors)
+        run: dotnet build ProGlassAutomation.csproj -c Release --no-restore -v minimal
+
+      - name: Test (53 test files)
+        run: >
+          dotnet test Tests/ProGlassAutomation.Tests.csproj -c Release
+          --logger "trx;LogFileName=results.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/*.trx'
+          if-no-files-found: ignore

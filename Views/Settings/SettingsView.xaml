@@ -1,0 +1,359 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/SettingsView.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v2 — SHELL (navigation rail + section hosts)
+
+     v2 REDESIGN (was a single 2000-line scrolling page):
+       • Left navigation rail — Appearance / AI Assistant / Voice /
+         Updates / Data & Backup / About & Help.
+       • Each page is an independent UserControl under Sections/.
+       • Shared styles live in SettingsSectionStyles.xaml.
+       • Buttons come from global Styles/ButtonStyles.xaml.
+       • Page switching: SettingsViewModel.SettingsPage +
+         SwitchSettingsPageCommand (same proven pattern as the
+         TI/DN/JO detail tab strips).
+
+     Sections:
+       SettingsAppearanceSection — theme, wallpaper, accent, motion
+       SettingsThemesSection     — visual family + Crystal Fluid tuning
+       SettingsAiSection         — providers, keys, tuning, security
+       SettingsVoiceSection      — Whisper speech-to-text models
+       SettingsUpdatesSection    — OTA check / download / install
+       SettingsDataSection       — backup & restore, sample data
+       SettingsDemoSection       — live module recordings + ffmpeg
+       SettingsAboutSection      — product knowledge cards
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.SettingsView"
+             x:Name="SettingsRoot"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sections="clr-namespace:ProGlassAutomation.Views.Settings.Sections"
+             xmlns:local="clr-namespace:ProGlassAutomation.Views.Settings"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             RenderOptions.BitmapScalingMode="HighQuality"
+             RenderOptions.ClearTypeHint="Enabled"
+             RenderOptions.EdgeMode="Aliased"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- The module design system: cards, tiles, chips, pills,
+                     type roles, spacing scale. Declared before the section
+                     styles so both are resolvable by the sections. -->
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+                <!-- v3 lazy host: one DataTemplate per page (SettingsPageTemplates.xaml) -->
+                <ResourceDictionary Source="SettingsPageTemplates.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- 2026-09-16 rail redesign: the row list groups by its localized
+                 GroupLabel so the rail gets caption headers ("Studio",
+                 "System"…) without a second hand-maintained list in the VM.
+                 BUILD FIX 2026-09-17 (XDG0046): this entry MUST live inside
+                 the ResourceDictionary. Sitting beside it turned
+                 UserControl.Resources into an IMPLICIT dictionary whose
+                 children are the entries — so this keyed view and the
+                 keyless ResourceDictionary became siblings, the merged
+                 dictionaries below were unreachable, and every style in the
+                 shell stopped resolving. -->
+            <CollectionViewSource x:Key="SettingsNavGroups" Source="{Binding NavRows}">
+                <CollectionViewSource.GroupDescriptions>
+                    <PropertyGroupDescription PropertyName="GroupLabel"/>
+                </CollectionViewSource.GroupDescriptions>
+            </CollectionViewSource>
+
+            <!-- v3 (2026-09-17): the page host builds ONE section at a time.
+                 v2 stacked all twelve in the Grid below with Visibility
+                 converters — opening Settings instantiated 6,000+ lines of
+                 XAML and every theme switch re-measured all twelve trees. -->
+            <local:SettingsPageTemplateSelector x:Key="SettingsPageTemplateSelector"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource BackgroundBrush}">
+        <Grid.ColumnDefinitions>
+            <!-- ERR-BEFC44 follow-up + 2026-09-05 drawer behaviour:
+                 ERR-BEFC44: rail was a hard 232px, clipping long labels.
+                 The AUTO-SIZE contract (Min 232 / Max 420) now lives on the
+                 rail Border itself; the column is plain Auto so the rail can
+                 shrink to 0 when the user closes it (single-click toggle +
+                 auto-close on page pick — the section then gets the full
+                 module width). -->
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ══════════════════════════════════════════════════════════
+             LEFT — NAVIGATION RAIL (rounded floating card, clearly visible)
+             Visibility = IsSettingsRailOpen (drawer: closes on page pick,
+             re-opens via the floating menu button).
+        ══════════════════════════════════════════════════════════════ -->
+        <!-- Rail — shares SettingsPageCardStyle crystal material with the
+             page cards; exactly 232px wide matching approved design specification. -->
+        <!-- Local fill and an aliased stroke used to hide the plate and
+             square the corner. The card style owns face, edge, weight,
+             and the rounded arc. -->
+        <Border Grid.Column="0"
+                Margin="14,10,6,14"
+                Width="232"
+                Visibility="{Binding IsSettingsRailOpen,
+                    Converter={StaticResource BoolToVisibilityConverter}}"
+                Style="{StaticResource SettingsPageCardStyle}">
+            <Border.Resources>
+                <!-- Rail instance: no inherited card margin. -->
+                <Thickness x:Key="SettingsCardMargin">0</Thickness>
+            </Border.Resources>
+            <Grid>
+                <DockPanel Margin="12,12,12,12">
+
+                <!-- Sidebar header: "Menu" with X close ONLY (no logo) -->
+                <Grid DockPanel.Dock="Top" Margin="10,6,8,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="Menu"
+                               FontSize="{DynamicResource FontSize.Title}"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               VerticalAlignment="Center"
+                               Margin="4,0,0,0"/>
+                    <Button Grid.Column="1"
+                            Command="{Binding ToggleSettingsRailCommand}"
+                            ToolTip="{DynamicResource ToolTip.ToggleMenu}"
+                            Width="30" Height="30"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            Cursor="Hand"
+                            VerticalAlignment="Center">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="CloseBorder"
+                                        Background="Transparent"
+                                        CornerRadius="{DynamicResource Radius.Small}"
+                                        Width="28" Height="28">
+                                    <TextBlock Text="&#xE711;"
+                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="CloseBorder" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+                <Border DockPanel.Dock="Top" Height="1"
+                        Background="{DynamicResource BorderDefaultBrush}"
+                        Margin="6,0,6,8"/>
+
+                <!-- Nav items — grouped, scrollable safety net. -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              CanContentScroll="False"
+                              PanningMode="VerticalOnly">
+                        <ItemsControl ItemsSource="{Binding Source={StaticResource SettingsNavGroups}}"
+                              KeyboardNavigation.TabNavigation="Cycle">
+                            <ItemsControl.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}"
+                                                       Style="{StaticResource SettingsNavGroupHeaderStyle}"/>
+                                        </DataTemplate>
+                                    </GroupStyle.HeaderTemplate>
+                                </GroupStyle>
+                            </ItemsControl.GroupStyle>
+                    <!-- Data-driven rail: NavRows is THE page registry. -->
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding DataContext.SwitchSettingsPageCommand, ElementName=SettingsRoot}"
+                                    CommandParameter="{Binding Key}">
+                                        <Button.Style>
+                                            <Style TargetType="Button"
+                                           BasedOn="{StaticResource SettingsNavButtonStyle}">
+                                                <Setter Property="FocusVisualStyle"
+                                                Value="{StaticResource SettingsNavFocusStyle}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                        <Setter Property="Tag" Value="Active"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                <!-- Glyph + label via Settings row grammar;
+                                     active pill flips both inks together. -->
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Glyph}"
+                                               Style="{StaticResource SettingsRowGlyphStyle}"/>
+                                            <TextBlock Text="{Binding Label}"
+                                               Style="{StaticResource SettingsRowLabelStyle}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Grid>
+        </Border>
+
+        <!-- ══════════════════════════════════════════════════════════
+             RIGHT — SECTION HOSTS (visibility-switched pages)
+        ══════════════════════════════════════════════════════════════ -->
+        <!-- ═══════════════════════════════════════════════════════════
+             CRITICAL: every Visibility binding below MUST be anchored to
+             this SettingsView's own DataContext via ElementName.
+
+             A binding declared on an element resolves against THAT
+             ELEMENT'S DataContext. SettingsAgentSection used to replace
+             its root DataContext with an AgentSettingsViewModel, which has
+             no page-flag property, so an unanchored binding here silently
+             failed, Visibility fell back to its default of Visible, and
+             the Agent page rendered on TOP of every other settings page.
+
+             ElementName=SettingsRoot pins the source to this view
+             (DataContext = SettingsViewModel), so a section may own its
+             DataContext without breaking page switching.
+             FallbackValue/TargetNullValue=Collapsed means any future
+             binding failure hides the page instead of stacking it.
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- ══════════ CONTENT COLUMN (header strip + stacked sections) ══════════ -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- ══════════════════════════════════════════════════════
+                 PAGE HEADER (2026-09-16 redesign — mockup sheet 01)
+
+                 The same card material as every page card, and the page name
+                 read from the SAME registry row the rail highlights
+                 (SettingsViewModel.ActivePageLabel). One source: a page cannot
+                 announce itself under the wrong name, which is exactly what
+                 the hand-copied top panel used to do.
+
+                 No icon disc beside the title: the approved sheets head every
+                 page with the hamburger and the name, and keep icons for the
+                 rows (sheet 01/02/03/10).
+
+                 The hamburger stays here so a collapsed rail re-opens in
+                 one click from inside the content column.
+
+                 2026-09-17: Margin was 14,10,12,0. The sections below all
+                 carry Margin 18,14,18,18, so the strip sat 4 px left of every
+                 card it heads and 6 px right of them — a misalignment that is
+                 invisible in a screenshot of one card and obvious on the page.
+                 Now 18,14,18,8: same left and right edge as the cards, same top
+                 edge as the rail (14), and an 8 + 14 = 22 gap to the first card,
+                 which is exactly the card-to-card rhythm.
+            ══════════════════════════════════════════════════════════ -->
+            <Border Grid.Row="0" Margin="14,10,14,6" Padding="12,8"
+                    Style="{StaticResource SettingsPageCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Rail open/close — the Reports-hub button (2026-09-16).
+                         Was a hand-drawn hamburger built from three separate
+                         2.5px <Border> bars in an inline template: the "separate
+                         line ... to trigger sidebar open close" the owner asked
+                         to remove, and the only module in the app that drew its
+                         own. Same command, now the same control as Reports. -->
+                    <Button Grid.Column="0"
+                            Style="{StaticResource RailHamburgerButton}"
+                            VerticalAlignment="Center"
+                            ToolTip="{DynamicResource ToolTip.ToggleMenu}"
+                            Command="{Binding ToggleSettingsRailCommand}"/>
+
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Margin="{StaticResource SettingsIconTextMargin}">
+                        <TextBlock VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"
+                                   Text="{Binding ActivePageLabel}"
+                                   Style="{StaticResource SettingsPageTitleStyle}"/>
+
+                        <!-- MODE CHIP (sheet 02) — the live base colour mode beside
+                             the page name, on every page. Old panel: a static
+                             "LIGHT"/"DARK" label that was right only until the first
+                             toggle. Now the chip reads a brush KEY from the VM and
+                             resolves it through BrushKeyConverter, so the fill and
+                             the text are state-driven (neutral pill in Light,
+                             accent-soft in Dark) and a theme switch repaints them
+                             without one colour literal in this file. Text comes
+                             from the language files; visibility from IsDarkTheme. -->
+                        <Border Margin="10,0,0,0"
+                                Style="{StaticResource SettingsChipStyle}"
+                                Background="{Binding ThemeModeChipBackgroundKey,
+                                    Converter={StaticResource BrushKeyConverter}}"
+                                AutomationProperties.AutomationId="Settings.ModeChip">
+                            <Grid>
+                                <TextBlock Text="{DynamicResource Settings.ModeBadgeLight}"
+                                           Style="{StaticResource SettingsChipTextStyle}"
+                                           Foreground="{Binding ThemeModeChipForegroundKey,
+                                               Converter={StaticResource BrushKeyConverter}}"
+                                           Visibility="{Binding IsDarkTheme,
+                                               Converter={StaticResource InverseBoolToVis}}"/>
+                                <TextBlock Text="{DynamicResource Settings.ModeBadgeDark}"
+                                           Style="{StaticResource SettingsChipTextStyle}"
+                                           Foreground="{Binding ThemeModeChipForegroundKey,
+                                               Converter={StaticResource BrushKeyConverter}}"
+                                           Visibility="{Binding IsDarkTheme,
+                                               Converter={StaticResource BoolToVis}}"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- PAGE HOST — lazy: the section for SettingsPage is built on
+                 first visit and released on leave (Loaded/Unloaded in each
+                 section already drive the VM Initialize/Teardown hooks).
+                 One scroller lives at a time (the section's own), so the
+                 wheel never scrolls a hidden page behind the visible one. -->
+            <!-- SYNC FIX (2026-09-17): Content WAS "{Binding}" — the shell VM,
+                 which never changes. WPF re-runs a ContentTemplateSelector
+                 ONLY when Content changes, so the selector was evaluated once
+                 at load and the page never followed the rail: clicking any
+                 menu highlighted the row and renamed the header, but the pane
+                 kept showing the first page. Content is now the page KEY, so
+                 every rail click changes Content and re-runs the selector.
+                 CORRECTION 2026-09-16: this comment originally claimed "the
+                 sections still inherit the shell VM through the visual tree,
+                 so no binding moved". They do not. A ContentControl hands its
+                 CONTENT to the DataTemplate as the template's DataContext, so
+                 binding Content to a page-key string gave all twelve sections
+                 DataContext = "Appearance" (etc.) and every binding inside
+                 them failed — all dropdowns opened with zero rows, and the
+                 `DataContext is SettingsViewModel` lifetime guards never
+                 fired. The rail-sync fix itself is correct and stays; each
+                 template root in SettingsPageTemplates.xaml now re-acquires
+                 the shell VM via RelativeSource. See that file's header. -->
+            <ContentControl Grid.Row="1"
+                            Content="{Binding SettingsPage}"
+                            ContentTemplateSelector="{StaticResource SettingsPageTemplateSelector}"
+                            Focusable="False"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"/>
+        </Grid>
+    </Grid>
+</UserControl>

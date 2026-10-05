@@ -1,0 +1,198 @@
+<UserControl x:Class="ProGlassAutomation.Views.Shared.ScreenRecordPanel"
+             TextOptions.TextHintingMode="Fixed"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Margin="10,8,10,16">
+    <Border Width="380" CornerRadius="{DynamicResource CardCornerRadiusLarge}">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="22" ShadowDepth="3"
+                              Opacity="0.18" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
+        </Border.Effect>
+        <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                Background="{DynamicResource Ov.Surface}"
+                BorderBrush="{DynamicResource Ov.Line}"
+                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                ClipToBounds="True">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Background="{DynamicResource Ov.Hero}"
+                    CornerRadius="{DynamicResource Radius.Top.Medium}"
+                    Padding="16,12">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Shared.ScreenRecording}"
+                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                    <TextBlock Text="{DynamicResource Shared.AppWindowDesktop}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
+                               Opacity="0.85" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <StackPanel Grid.Row="1" Margin="14,12,14,14">
+                <!-- PHASE 5 (2026-09-14): encoder selection. H.264 is
+                     always the codec; Auto = best available hardware
+                     H.264 (NVENC → QSV) with automatic libx264 fallback.
+                     NVIDIA/Intel rows appear only when the background
+                     probe proves the encoder initializes. -->
+                <TextBlock Text="{DynamicResource Settings.Encoder}"
+                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           Margin="0,0,0,4"/>
+                <ComboBox ItemsSource="{Binding EncoderOptions}"
+                          SelectedItem="{Binding SelectedEncoder, Mode=TwoWay}"
+                          DisplayMemberPath="Title"
+                          IsEnabled="{Binding IsIdle}"
+                          IsSynchronizedWithCurrentItem="False"
+                          Padding="10,7"
+                          FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+
+                <!-- PHASE 4 (2026-09-14): encoder quality tier (CRF).
+                     Standard = smallest files, High (default) = sharp
+                     ERP text at reasonable size, Very High = the
+                     near-lossless setting the recorder shipped with. -->
+                <TextBlock Text="{DynamicResource Settings.Quality}"
+                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           Margin="0,12,0,4"/>
+                <ComboBox ItemsSource="{Binding QualityTiers}"
+                          SelectedItem="{Binding SelectedQualityTier, Mode=TwoWay}"
+                          DisplayMemberPath="Title"
+                          IsEnabled="{Binding IsIdle}"
+                          IsSynchronizedWithCurrentItem="False"
+                          Padding="10,7"
+                          FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+
+                <TextBlock Text="{DynamicResource Settings.Resolution}"
+                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           Margin="0,12,0,4"/>
+                <ComboBox ItemsSource="{Binding Qualities}"
+                          SelectedItem="{Binding SelectedQuality, Mode=TwoWay}"
+                          DisplayMemberPath="Title"
+                          IsEnabled="{Binding IsIdle}"
+                          IsSynchronizedWithCurrentItem="False"
+                          Padding="10,7"
+                          FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+
+                <TextBlock Text="{DynamicResource Settings.FrameRate}"
+                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           Margin="0,12,0,4"/>
+                <ComboBox ItemsSource="{Binding FpsChoices}"
+                          SelectedItem="{Binding SelectedFps, Mode=TwoWay}"
+                          DisplayMemberPath="Title"
+                          IsEnabled="{Binding IsIdle}"
+                          IsSynchronizedWithCurrentItem="False"
+                          Padding="10,7"
+                          FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+
+                <DockPanel Margin="0,14,0,0">
+                    <TextBlock Text="{DynamicResource Settings.InternalAudio}"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               VerticalAlignment="Center"/>
+                    <CheckBox HorizontalAlignment="Right"
+                              IsChecked="{Binding CaptureLiveAudio, Mode=TwoWay}"
+                              IsEnabled="{Binding IsIdle}"
+                              VerticalAlignment="Center"/>
+                </DockPanel>
+                <DockPanel Margin="0,10,0,0">
+                    <TextBlock Text="{DynamicResource Settings.Microphone}"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               VerticalAlignment="Center"/>
+                    <CheckBox HorizontalAlignment="Right"
+                              IsChecked="{Binding CaptureMicrophone, Mode=TwoWay}"
+                              IsEnabled="{Binding IsIdle}"
+                              VerticalAlignment="Center"/>
+                </DockPanel>
+
+                <TextBlock Text="{Binding Hint}"
+                           FontSize="{DynamicResource FontSize.Body}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           TextWrapping="Wrap"
+                           Margin="0,12,0,0"/>
+
+                <WrapPanel Margin="0,14,0,0">
+                    <Button Content="{DynamicResource Shared.Start}"
+                            Command="{Binding StartCommand}"
+                            AutomationProperties.AutomationId="ScreenRecord.Start"
+                            MinWidth="96" Height="32" Padding="14,0"
+                            Margin="0,0,8,8" Cursor="Hand"
+                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                            Foreground="{DynamicResource OnAccentForegroundBrush}"
+                            Background="{DynamicResource AccentBrush}"
+                            BorderThickness="{DynamicResource Border.NoneThickness}"
+                            Visibility="{Binding IsIdle,
+                                Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SecondaryButtonStyle}"/>
+                    <Button Content="{DynamicResource Shared.PauseResume}"
+                            Command="{Binding PauseCommand}"
+                            MinWidth="120" Height="32" Padding="14,0"
+                            Margin="0,0,8,8" Cursor="Hand"
+                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                            Foreground="{DynamicResource TextPrimaryBrush}"
+                            Background="{DynamicResource SurfaceTertiaryBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
+                            Visibility="{Binding IsRecording,
+                                Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource PrimaryButtonStyle}"/>
+                    <Button Content="{DynamicResource Shared.STOPSAVE}"
+                            Command="{Binding StopCommand}"
+                            AutomationProperties.AutomationId="ScreenRecord.Stop"
+                            MinWidth="120" Height="32" Padding="14,0"
+                            Margin="0,0,8,8" Cursor="Hand"
+                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                            Foreground="{DynamicResource OnAccentForegroundBrush}"
+                            Background="{DynamicResource DangerBrush}"
+                            BorderThickness="{DynamicResource Border.NoneThickness}"
+                            Visibility="{Binding IsRecording,
+                                Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SecondaryButtonStyle}"/>
+                    <Button Content="{DynamicResource About.OPENFolder}"
+                            Command="{Binding OpenOutputCommand}"
+                            MinWidth="110" Height="32" Padding="14,0"
+                            Margin="0,0,0,8" Cursor="Hand"
+                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                            Foreground="{DynamicResource TextPrimaryBrush}"
+                            Background="{DynamicResource SurfaceTertiaryBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource PrimaryButtonStyle}"/>
+                </WrapPanel>
+
+                <TextBlock Text="{Binding Status}"
+                           FontSize="{DynamicResource FontSize.Body}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           TextWrapping="Wrap"
+                           Margin="0,4,0,0"/>
+                <TextBlock Text="{Binding LastMp4Text}"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
+                           Foreground="{DynamicResource TextTertiaryBrush}"
+                           TextWrapping="Wrap"
+                           Margin="0,6,0,0"/>
+            </StackPanel>
+        </Grid>
+        </Border>
+    </Border>
+    </Grid>
+</UserControl>

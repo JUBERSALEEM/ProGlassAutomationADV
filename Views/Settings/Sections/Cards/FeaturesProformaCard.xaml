@@ -1,0 +1,411 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/FeaturesProformaCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — one card of the FeaturesSection page, split out of
+     SettingsFeaturesSection.xaml (2026-09-17) so no section carries six cards in one
+     1,200+ line tree. DataContext inherits SettingsViewModel from the
+     section; styles come from the two merged module dictionaries.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.FeaturesProformaCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                <TextBlock Text="&#xE8A5;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Module.ProformaInvoice}"
+                                           Style="{StaticResource SettingsCardTitleStyle}"/>
+                                <TextBlock Text="{DynamicResource Settings.ShowHideOptionalFieldsSteps13InvoiceWizard}"
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Settings.STEP1Company}"
+                                   Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings.CompanyNameProformaIDStayVisibleRequired}"
+                                   Style="{StaticResource SettingsRowMetaStyle}"/>
+
+                            <UniformGrid Columns="4" Margin="{StaticResource SettingsTileGridBleed}">
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource ProformaInvoice.FederalTRN}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.15DigitUAETaxRegistrationNumber}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCompanyTrn}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.FederalTRN}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource ProformaInvoice.Headquarters}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.ShortCityEmirateLinePrintedLetterhead}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCompanyLocation}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.Headquarters}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource CompanyCenter.Representative}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.NamePersonSigningBehalfCompany}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowRepresentative}"
+                                        AutomationProperties.Name="{DynamicResource CompanyCenter.Representative}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.RepresentativeMobile}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.DirectNumberSigningRepresentative}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowRepresentativeMobile}"
+                                        AutomationProperties.Name="{DynamicResource Settings.RepresentativeMobile}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource CompanyCenter.CompanyEMAIL}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.ContactEMailPrintedHeader}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCompanyEmail}"
+                                        AutomationProperties.Name="{DynamicResource CompanyCenter.CompanyEMAIL}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource CompanyCenter.BANKNAME}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.PayeeBankNameInvoiceFooter}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowBankName}"
+                                        AutomationProperties.Name="{DynamicResource CompanyCenter.BANKNAME}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource ProformaInvoice.AccountIBAN}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AccountNumberIBANPairedBankName}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowAccountNumber}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.AccountIBAN}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource ProformaInvoice.IssueDATE}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.DateProformaIssuedDefaultsTodayWhenHidden}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowIssueDate}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.IssueDATE}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource ProformaInvoice.ValidUntil}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.QuotationExpiryDate}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowValidUntil}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.ValidUntil}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Common.Status}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.DraftSentApprovedWorkflowPicker}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProformaStatus}"
+                                        AutomationProperties.Name="{DynamicResource Common.Status}"
+                                        />
+                                    </Grid>
+                            </UniformGrid>
+
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Settings.STEP2Client}"
+                                   Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings.CustomerNameStaysVisibleRequiredDatabase}"
+                                   Style="{StaticResource SettingsRowMetaStyle}"/>
+
+                            <UniformGrid Columns="4" Margin="{StaticResource SettingsTileGridBleed}">
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource ProformaInvoice.CustomerTRN}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.ClientSTaxRegistrationNumber}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCustomerTrn}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.CustomerTRN}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource ProformaInvoice.ReferenceCODE}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.InternalCustomerCodeCRMKeyLedgerCodeEtc}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCustomerReferenceCode}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.ReferenceCODE}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource ProformaInvoice.SalesRepresentative}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.SalespersonWhoOwnsDeal}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSalesRepresentative}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.SalesRepresentative}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Inquiry.Prepared2}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.OperatorWhoTypedQuotation}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDocumentPreparedBy}"
+                                        AutomationProperties.Name="{DynamicResource Inquiry.Prepared2}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.AttentionKindAttn}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.PersonInvoiceShouldAddressed}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowAttentionExecutive}"
+                                        AutomationProperties.Name="{DynamicResource Settings.AttentionKindAttn}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.ClientPhone}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.BillContactPhoneNumber}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowClientContactPhone}"
+                                        AutomationProperties.Name="{DynamicResource Settings.ClientPhone}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource ProformaInvoice.BillingAddress}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.MultiLinePostalAddressInvoiceHeader}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowBillingAddress}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.BillingAddress}"
+                                        />
+                                    </Grid>
+                            </UniformGrid>
+
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Settings.STEP3Project}"
+                                   Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                            <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource ProformaInvoice.ProjectNAME}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.ShortProjectHandleUsedListsInvoices}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProjectName}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.ProjectNAME}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource ProformaInvoice.ProjectReference}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.FullDescriptiveReferenceEGHouseIMADHabib}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProjectReference}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.ProjectReference}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.ContractNumber}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.InternalContractIdentifierEG428IMADHabib}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowContractNo}"
+                                        AutomationProperties.Name="{DynamicResource Settings.ContractNumber}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource ProformaInvoice.LPOPONumber}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.ClientSuppliedPurchaseOrderNumber}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowLpoNumber}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.LPOPONumber}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource ProformaInvoice.SITEDeliveryLocation}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.EmirateSpecificSiteWhereGlassDelivered}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryLocation}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.SITEDeliveryLocation}"
+                                        />
+                                    </Grid>
+                            </UniformGrid>
+
+
+
+                                        <!-- ── STEP 9 · TARGET PRICING ─────────────────────
+                             Numeric default (not a visibility toggle): the expected
+                             profit margin that Step 9's required-target formula uses
+                             (× 1.15 → × (1 + margin/100)). New invoices capture this
+                             value at creation; Step 4 margin boxes seed from it.
+                             Literal text on purpose — the value travels through
+                             AppConfig.ProformaInvoiceFields.ExpectedProfitMarginPercent
+                             and the live mirror Step9PricingDefaults. -->
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="STEP 9 · TARGET PRICING &amp; BULK CONTROLS"
+                                   Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                            <Grid Margin="{StaticResource SettingsRowMargin}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8FD;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="Profit margin % — global default" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="Global default expected profit margin applied to every NEW invoice: Step 9's required-target formula adds it (15% default → ×1.15) and Step 4 margin boxes seed from it. Job Profitability judges every job against this base."/>
+                                        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="{StaticResource SettingsStackGap8}">
+                                            <TextBox Text="{Binding ExpectedProfitMarginPercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource ModernTextBoxStyle}"
+                                                 Width="88"
+                                                 VerticalAlignment="Center"
+                                                 AutomationProperties.Name="Expected profit margin percent"/>
+                                            <TextBlock Text="%" FontSize="{DynamicResource FontSize.Title}"
+                                                   VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap6}"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                <Grid Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.FlipOptionalFieldOnceRestoreBoxLayout}"/>
+                                        <UniformGrid Grid.Row="3" Columns="3" Margin="{StaticResource SettingsStackGap10}">
+                                            <Button Content="{DynamicResource Settings.Enable}"
+                                                    Command="{Binding EnableAllCommand}"
+                                                    Style="{StaticResource SettingsActionButtonStyle}"
+                                                    ToolTip="{DynamicResource Settings.ShowOptionalFieldWizard}"/>
+                                            <Button Content="{DynamicResource Settings.HideOptional}"
+                                                    Command="{Binding DisableAllOptionalCommand}"
+                                                    Style="{StaticResource SettingsActionButtonStyle}"
+                                                    ToolTip="{DynamicResource Settings.CollapseOptionalFieldThreeDBRequiredFields}"/>
+                                            <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
+                                                    Command="{Binding ResetToDefaultsCommand}"
+                                                    Style="{StaticResource SettingsActionButtonStyle}"
+                                                    Margin="0"
+                                                    ToolTip="{DynamicResource Settings.RestoreBoxLayoutFieldVisible}"/>
+                                        </UniformGrid>
+                                    </Grid>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+    </StackPanel>
+</UserControl>

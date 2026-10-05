@@ -1,0 +1,258 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/About/AboutStyles.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: About — shared item templates (iOS-26 Liquid Glass)
+
+     Merged by: AboutView.xaml + every About section UserControl.
+
+     PALETTE OWNERSHIP (2026-09-15, second revision)
+     ───────────────────────────────────────────────
+     The module is no longer rendered from a fixed palette. Owner
+     directive: "convert all cards and fonts safely move to dynamic so
+     this about module can adapt the theme style … Keeping the cards as
+     it is design." The Ios26* palettes now live in
+     Themes/LightTheme.xaml + DarkTheme.xaml (light column = the
+     approved mockup literals, verbatim), the five pastel stage colours
+     in Themes/Styles/AppStage.xaml (deliberately invariant), and the
+     type scale in Themes/Styles/AboutTypeScale.xaml. See the header of
+     AboutIos26Theme.xaml.
+
+     This file holds only the shared ITEM TEMPLATES. All radii, card /
+     chip / button / bar styles live in AboutIos26Theme.xaml (merged
+     first, below); every colour and size resolves to an Ios26* key
+     owned by the layers above.
+
+     Token discipline: no hex colours and no literal CornerRadius
+     values in any About view file (audit lock) — everything resolves
+     to an Ios26* key.
+═══════════════════════════════════════════════════════════════════════ -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="AboutIos26Theme.xaml"/>
+        <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- ═══ HERO PILLAR — soft chip: icon tile + value + label
+         (mockup hero stat row). Item = HeroPillar(Icon, Value, Label). -->
+    <DataTemplate x:Key="HeroPillarTemplate">
+        <Border Style="{StaticResource Ios26InnerTileStyle}"
+                Padding="10,7"
+                Margin="0,0,8,8">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="22" Height="22"
+                        Style="{StaticResource Ios26IconTileStyle}"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Icon}"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource Ios26FontSizeLabel}"
+                               Foreground="{DynamicResource Ios26AccentBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Margin="8,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Value}"
+                               FontSize="{DynamicResource Ios26FontSizeBody}"
+                               FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                               IsHitTestVisible="False"/>
+                    <TextBlock Text="{Binding Label}"
+                               FontSize="{DynamicResource Ios26FontSizeCaption}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               Foreground="{DynamicResource Ios26TextMutedBrush}"
+                               IsHitTestVisible="False"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+    <!-- ═══ CAPABILITY ROW — icon-left tile (mockup 01 left card).
+         Item = CapabilityInfo(Icon, Title, Description). -->
+    <DataTemplate x:Key="CapabilityRowTemplate">
+        <Border Style="{StaticResource Ios26InnerTileStyle}"
+                Margin="0,0,10,10">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="34" Height="34"
+                        Style="{StaticResource Ios26IconTileStyle}"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Icon}"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource Ios26FontSizeSubtitle}"
+                               Foreground="{DynamicResource Ios26AccentBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Title}"
+                               FontSize="{DynamicResource Ios26FontSizeBody}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                               TextWrapping="Wrap"
+                               IsHitTestVisible="False"/>
+                    <TextBlock Text="{Binding Description}"
+                               FontSize="{DynamicResource Ios26FontSizeLabel}"
+                               Foreground="{DynamicResource Ios26TextMutedBrush}"
+                               TextWrapping="Wrap"
+                               Margin="0,2,0,0"
+                               IsHitTestVisible="False"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+    <!-- ═══ CAPABILITY TILE — icon-top tile (mockup 01 right card).
+         Item = CapabilityInfo(Icon, Title, Description). -->
+    <DataTemplate x:Key="CapabilityTileTemplate">
+        <Border Style="{StaticResource Ios26InnerTileStyle}"
+                Margin="0,0,10,10">
+            <StackPanel>
+                <Border Width="34" Height="34"
+                        Style="{StaticResource Ios26IconTileStyle}"
+                        HorizontalAlignment="Left"
+                        Margin="0,0,0,10">
+                    <TextBlock Text="{Binding Icon}"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource Ios26FontSizeSubtitle}"
+                               Foreground="{DynamicResource Ios26AccentBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="{Binding Title}"
+                           FontSize="{DynamicResource Ios26FontSizeBody}"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
+                           Foreground="{DynamicResource Ios26TextTitleBrush}"
+                           TextWrapping="Wrap"
+                           IsHitTestVisible="False"/>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+    <!-- ═══ TECH TILE — icon + kicker + value (mockup 04 Tech Stack).
+         Item = TechItem(Icon, Label, Value). Quiet accent hover. -->
+    <DataTemplate x:Key="TechItemTemplate">
+        <Border Margin="0,0,10,10">
+            <Border.Style>
+                <Style TargetType="Border" BasedOn="{StaticResource Ios26InnerTileStyle}">
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="BorderBrush" Value="{DynamicResource Ios26AccentBrush}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="30" Height="30"
+                        Style="{StaticResource Ios26IconTileStyle}"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Icon}"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource Ios26FontSizeValue}"
+                               Foreground="{DynamicResource Ios26AccentBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Label}"
+                               FontSize="{DynamicResource Ios26FontSizeCaption}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               Foreground="{DynamicResource Ios26TextMutedBrush}"
+                               IsHitTestVisible="False"/>
+                    <TextBlock Text="{Binding Value}"
+                               FontSize="{DynamicResource Ios26FontSizeBody}"
+                               FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                               TextTrimming="CharacterEllipsis"
+                               IsHitTestVisible="False"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+    <!-- ═══ WORKFLOW TILE — icon + title + description (Modules →
+         end-to-end workflow card). Item = WorkflowStage(Icon, Title, Description). -->
+    <DataTemplate x:Key="WorkflowCardTemplate">
+        <Border Style="{StaticResource Ios26InnerTileStyle}"
+                Margin="0,0,10,10"
+                ClipToBounds="True">
+            <StackPanel>
+                <Border Width="30" Height="30"
+                        Style="{StaticResource Ios26IconTileStyle}"
+                        HorizontalAlignment="Left"
+                        Margin="0,0,0,10">
+                    <TextBlock Text="{Binding Icon}"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource Ios26FontSizeValue}"
+                               Foreground="{DynamicResource Ios26AccentBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="{Binding Title}"
+                           FontSize="{DynamicResource Ios26FontSizeBody}"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
+                           Foreground="{DynamicResource Ios26TextTitleBrush}"
+                           TextWrapping="Wrap"
+                           TextTrimming="CharacterEllipsis"
+                           IsHitTestVisible="False"/>
+                <TextBlock Text="{Binding Description}"
+                           FontSize="{DynamicResource Ios26FontSizeLabel}"
+                           Foreground="{DynamicResource Ios26TextMutedBrush}"
+                           TextWrapping="Wrap"
+                           TextTrimming="CharacterEllipsis"
+                           Margin="0,3,0,0"
+                           IsHitTestVisible="False"/>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+
+    <!-- ═══ RAIL HAMBURGER (2026-09-16) ═══
+         The Reports hub's open/close action, restyled onto the About token
+         set so it adapts to this module's surface like everything else here.
+         Owner: "sidebar in setting implement reports sidebar action open
+         close same styles dont include any separate line etc to trigger
+         sidebar open close check reports hub sidebar implement that in
+         settings and about sidebar properly."
+
+         Same contract as SalesReportView's ReportHamburgerButton — E700
+         glyph, transparent 30px hit target, hover wash + accent glyph — but
+         every colour and radius resolves to an Ios26* key, so it follows the
+         theme family AND the corner-radius setting rather than being frozen.
+         No literal radius or hex colour (About audit contract). -->
+    <Style x:Key="AboutRailHamburger" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextSecondaryBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource Ios26RadiusInner}"
+                            SnapsToDevicePixels="True">
+                        <TextBlock Text="&#xE700;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource Ios26FontSizeSubtitle}"
+                                   Foreground="{TemplateBinding Foreground}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ios26HoverBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Ios26AccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ios26TileBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

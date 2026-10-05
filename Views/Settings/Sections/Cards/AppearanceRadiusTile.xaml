@@ -1,0 +1,43 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/AppearanceRadiusTile.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — Appearance: Card Corner Radius
+     Studio Bento tile with concentric curvature and accessible contrast.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceRadiusTile"
+             xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel Margin="{StaticResource SettingsStackGap8}">
+        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
+            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B3;" VerticalAlignment="Center"/>
+            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.CardCornerRadius}"/>
+            <Viewbox MaxHeight="18" VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}">
+                <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                           Foreground="{DynamicResource AccentBrush}">
+                    <Run Text="{Binding CardCornerRadius, Mode=OneWay, StringFormat={}{0:0}}"/>
+                    <Run Text="{DynamicResource Settings.Px}"/>
+                </TextBlock>
+            </Viewbox>
+        </StackPanel>
+        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                   Text="{DynamicResource Settings.HowRoundCardButtonDefault12Px0Sharp}"/>
+        <Slider Style="{StaticResource ModernSliderStyle}"
+                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                Minimum="4" Maximum="24"
+                TickFrequency="2"
+                IsSnapToTickEnabled="True"
+                Value="{Binding CardCornerRadius, Mode=TwoWay}"
+                VerticalAlignment="Center"/>
+    </StackPanel>
+</UserControl>

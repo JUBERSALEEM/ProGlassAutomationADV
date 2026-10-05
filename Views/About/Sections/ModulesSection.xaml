@@ -1,0 +1,492 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/About/Sections/ModulesSection.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: About → "Modules" tab
+
+     2026-09-15 iOS-26 full restyle (approved mockup 03):
+       • ONE card: "Production Modules" header + live search pill,
+         scope filter chips, one row per module (icon tile ·
+         name — description · stat chip · green Active pill),
+         hairlines between rows.
+       • The end-to-end workflow card below, in the same card
+         language.
+     Self-contained Ios26 palette. Audit contracts kept:
+     responsive WrapPanel (scope chips), no 2-col / 2×4 UniformGrid
+     regressions. Search + scope combine in AboutViewModel.
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.About.Sections.ModulesSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../AboutStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- ═══ SEARCH PILL (mockup 03) — grey pill, no border,
+                 accent border on focus. Placeholder via template
+                 triggers (no Storyboard). -->
+            <Style x:Key="ModuleSearchBoxStyle" TargetType="TextBox">
+                <Setter Property="MinWidth" Value="0"/>
+                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                <Setter Property="Padding" Value="14,8"/>
+                <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
+                <Setter Property="Foreground" Value="{DynamicResource Ios26TextBodyBrush}"/>
+                <Setter Property="CaretBrush" Value="{DynamicResource Ios26AccentBrush}"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TextBox">
+                            <Border x:Name="SearchBg"
+                                    Background="{DynamicResource Ios26SearchBrush}"
+                                    BorderBrush="Transparent"
+                                    BorderThickness="1"
+                                    CornerRadius="{DynamicResource Ios26RadiusInner}"
+                                    SnapsToDevicePixels="True">
+                                <Grid>
+                                    <ScrollViewer x:Name="PART_ContentHost"
+                                                  Margin="0"
+                                                  VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="SearchPlaceholder"
+                                               Text="{DynamicResource About.SearchModules}"
+                                               FontSize="{DynamicResource Ios26FontSizeBody}"
+                                               Foreground="{DynamicResource Ios26TextFaintBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="15,0,0,0"
+                                               IsHitTestVisible="False"
+                                               Visibility="Collapsed"/>
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="Text" Value="">
+                                    <Setter TargetName="SearchPlaceholder"
+                                            Property="Visibility"
+                                            Value="Visible"/>
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                    <Setter TargetName="SearchBg"
+                                            Property="BorderBrush"
+                                            Value="{DynamicResource Ios26AccentBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- ═══ MODULE ROW (mockup 03) — full-width, single line:
+                 icon tile · "Name — description" · stat chip · Active. -->
+            <DataTemplate x:Key="ModuleRowTemplate">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusInner}"/>
+                                <Setter Property="Padding" Value="10,11"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource Ios26HoverBrush}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*" MinWidth="0"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0"
+                                    Style="{StaticResource Ios26IconTileStyle}"
+                                    Width="36" Height="36"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Icon}"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource Ios26FontSizeSubtitle}"
+                                           Foreground="{DynamicResource Ios26AccentBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+
+                            <!-- Run.Text is TwoWay-by-default; record props
+                                 are read-only → explicit OneWay. -->
+                            <TextBlock Grid.Column="2"
+                                       FontSize="{DynamicResource Ios26FontSizeValue}"
+                                       VerticalAlignment="Center"
+                                       TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis"
+                                       IsHitTestVisible="False">
+                                <Run Text="{Binding Name, Mode=OneWay}"
+                                     FontWeight="{DynamicResource Weight.Bold}"
+                                     Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                                <Run Text=" — "
+                                     Foreground="{DynamicResource Ios26TextMutedBrush}"/>
+                                <Run Text="{Binding Description, Mode=OneWay}"
+                                     Foreground="{DynamicResource Ios26TextMutedBrush}"/>
+                            </TextBlock>
+
+                            <!-- Optional live stat chip (e.g. "LIVE
+                                 STOCK") — visible only when present. -->
+                            <Border Grid.Column="3"
+                                    Style="{StaticResource Ios26ChipSoftStyle}"
+                                    Padding="10,4"
+                                    Margin="0,0,10,0"
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding StatChip, Converter={StaticResource StringToVisibilityConverter}}">
+                                <TextBlock Text="{Binding StatChip}"
+                                           FontSize="{DynamicResource Ios26FontSizeCaption}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
+                                           Foreground="{DynamicResource Ios26AccentSoftTextBrush}"
+                                           IsHitTestVisible="False"/>
+                            </Border>
+
+                            <!-- Green "Active" pill (mockup). -->
+                            <Border Grid.Column="4"
+                                    Style="{StaticResource Ios26ChipGreenStyle}"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource About.Active}"
+                                           FontSize="{DynamicResource Ios26FontSizeCaption}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
+                                           Foreground="{DynamicResource Ios26SuccessBrush}"
+                                           IsHitTestVisible="False"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Hairline divider between rows. -->
+                    <Border Grid.Row="1"
+                            Height="1"
+                            Margin="12,0"
+                            Background="{DynamicResource Ios26HairlineBrush}"/>
+                </Grid>
+            </DataTemplate>
+
+            <!-- ═══ SCOPE CHIP (All / Operations / Finance / Platform)
+                 — keeps the live scope filter; mockup chip language. -->
+            <Style x:Key="ScopePillItemStyle" TargetType="ListBoxItem">
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                <Setter Property="Foreground" Value="{DynamicResource Ios26TextSecondaryBrush}"/>
+                <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeSmall}"/>
+                <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+                <Setter Property="Margin" Value="0,0,8,8"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border x:Name="PillBg"
+                                    Background="{DynamicResource Ios26TileBrush}"
+                                    BorderBrush="{DynamicResource Ios26TileBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="{DynamicResource Ios26RadiusInner}"
+                                    Padding="14,6"
+                                    SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="PillBg" Property="Background" Value="{DynamicResource Ios26HoverBrush}"/>
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="PillBg" Property="Background" Value="{DynamicResource Ios26AccentBrush}"/>
+                                    <Setter TargetName="PillBg" Property="BorderBrush" Value="{DynamicResource Ios26AccentBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource Ios26OnAccentBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel>
+
+        <!-- ═══ HERO · INTEGRATED GLASS MANUFACTURING SUITE (Screen 03) ═══ -->
+        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="14"/>
+                        <ColumnDefinition Width="*" MinWidth="0"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Width="48" Height="48"
+                            Style="{StaticResource Ios26IconTileStyle}"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="&#xE74C;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                                   Foreground="{DynamicResource Ios26AccentBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock Text="Integrated Glass Manufacturing Suite"
+                                   FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="Continuous end-to-end traceability across 12 production &amp; optimization modules"
+                                   FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"
+                                   Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <Border Grid.Column="3" Style="{StaticResource Ios26ChipGreenStyle}"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="12 / 12 Active"
+                                   FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource Ios26SuccessBrush}"/>
+                    </Border>
+                </Grid>
+
+                <WrapPanel>
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="12,8" Margin="0,0,8,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE7F4;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       Foreground="{DynamicResource Ios26AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Full Traceability" FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ios26TextTitleBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="12,8" Margin="0,0,8,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE8B7;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       Foreground="{DynamicResource Ios26AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Zero Latency SQLite" FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ios26TextTitleBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="12,8" Margin="0,0,8,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       Foreground="{DynamicResource Ios26SuccessBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Offline Certified" FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ios26TextTitleBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ PRODUCTION MODULES (mockup 03: one card) ═══ -->
+        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <Grid Margin="0,0,0,6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="0"/>
+                        <ColumnDefinition Width="*" MinWidth="120" MaxWidth="220"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="{DynamicResource About.ModulesProduction}"
+                               FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                               FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                               TextWrapping="NoWrap"
+                               TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0"/>
+                    <TextBox Grid.Column="1"
+                             Style="{StaticResource ModuleSearchBoxStyle}"
+                             Text="{Binding ModuleSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+
+                <!-- Scope filter chips (responsive wrap layout —
+                     audit lock). Combines with search (AboutViewModel). -->
+                <ListBox ItemsSource="{Binding ModuleScopes}"
+                         SelectedItem="{Binding SelectedScopeItem, Mode=TwoWay}"
+                         DisplayMemberPath="Label"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         Focusable="False"
+                         FocusVisualStyle="{x:Null}"
+                         ItemContainerStyle="{StaticResource ScopePillItemStyle}">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+
+                <ItemsControl ItemsSource="{Binding FilteredModules}"
+                              ItemTemplate="{StaticResource ModuleRowTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ END-TO-END WORKFLOW (same card language) ═══ -->
+        <Border Style="{StaticResource Ios26CardStyle}">
+            <StackPanel>
+                <Grid Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="0"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                        <TextBlock Text="{DynamicResource About.EndEndProductionWorkflow}"
+                                   FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{DynamicResource About.CommercialIntakeProductionPreparation}"
+                                   FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"
+                                   Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <Border Grid.Column="1" Style="{StaticResource Ios26ChipSoftStyle}"
+                            VerticalAlignment="Top">
+                        <TextBlock FontSize="{DynamicResource Ios26FontSizeLabel}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource Ios26AccentSoftTextBrush}"
+                                   Text="{DynamicResource About.14Stages}"/>
+                    </Border>
+                </Grid>
+
+                <Border Style="{StaticResource AboutInsetStyle}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" MinWidth="0"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                <TextBlock Text="{DynamicResource About.SalesCycle}"
+                                           FontSize="{DynamicResource Ios26FontSizeCaption}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
+                                           Foreground="{DynamicResource Ios26TextMutedBrush}"/>
+                                <TextBlock Text="{DynamicResource About.SheetAvailabilityReleasedProductionPaperwork}"
+                                           FontSize="{DynamicResource Ios26FontSizeBody}"
+                                           Foreground="{DynamicResource Ios26TextSecondaryBrush}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,3,0,0"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Style="{StaticResource Ios26ChipSoftStyle}"
+                                    VerticalAlignment="Top">
+                                <TextBlock FontSize="{DynamicResource Ios26FontSizeLabel}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
+                                           Foreground="{DynamicResource Ios26AccentSoftTextBrush}"
+                                           Text="{DynamicResource About.3Stages}"/>
+                            </Border>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding SalesCycle}"
+                                      ItemTemplate="{StaticResource WorkflowCardTemplate}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="3"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource AboutInsetStyle}" Margin="0,10,0,0">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" MinWidth="0"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                <TextBlock Text="{DynamicResource About.ProductionStagesUpcoming}"
+                                           FontSize="{DynamicResource Ios26FontSizeCaption}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
+                                           Foreground="{DynamicResource Ios26TextMutedBrush}"/>
+                                <TextBlock Text="{DynamicResource About.PlannedFactoryExecutionStagesSlotControlled}"
+                                           FontSize="{DynamicResource Ios26FontSizeBody}"
+                                           Foreground="{DynamicResource Ios26TextSecondaryBrush}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,3,0,0"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Style="{StaticResource Ios26ChipSoftStyle}"
+                                    VerticalAlignment="Top">
+                                <TextBlock FontSize="{DynamicResource Ios26FontSizeLabel}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
+                                           Foreground="{DynamicResource Ios26AccentSoftTextBrush}"
+                                           Text="{DynamicResource About.8Stages}"/>
+                            </Border>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding ProductionStages}"
+                                      ItemTemplate="{StaticResource WorkflowCardTemplate}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="4"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource AboutInsetStyle}" Margin="0,10,0,0">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" MinWidth="0"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                <TextBlock Text="{DynamicResource About.DispatchBilling}"
+                                           FontSize="{DynamicResource Ios26FontSizeCaption}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
+                                           Foreground="{DynamicResource Ios26TextMutedBrush}"/>
+                                <TextBlock Text="{DynamicResource About.DeliveryEvidenceInvoicingReportingClosedOne}"
+                                           FontSize="{DynamicResource Ios26FontSizeBody}"
+                                           Foreground="{DynamicResource Ios26TextSecondaryBrush}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,3,0,0"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Style="{StaticResource Ios26ChipSoftStyle}"
+                                    VerticalAlignment="Top">
+                                <TextBlock FontSize="{DynamicResource Ios26FontSizeLabel}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
+                                           Foreground="{DynamicResource Ios26AccentSoftTextBrush}"
+                                           Text="{DynamicResource About.3Stages}"/>
+                            </Border>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding DispatchBilling}"
+                                      ItemTemplate="{StaticResource WorkflowCardTemplate}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="3"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+</UserControl>

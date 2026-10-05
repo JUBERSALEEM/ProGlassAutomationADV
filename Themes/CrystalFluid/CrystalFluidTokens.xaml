@@ -1,0 +1,88 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<!-- xmlns:po (presentation options) dropped at P4b — its only users
+     were the retired transitional Freeze brushes -->
+    <!-- ═══════════════════════════════════════════════════════════════════
+         CRYSTAL FLUID — PIPELINE EXTENSION TOKENS (Ios-17pm, P1 2026-09-05)
+
+         The token PLANE now lives in three byte-verbatim reference
+         dictionaries (the "Ios-17pm" authored source of truth):
+           CrystalFluidColors.xaml   — 47 color nouns
+           CrystalFluidBrushes.xaml  — 60 brush nouns
+           CrystalFluidMetrics.xaml  — radii/padding/type/motion/opacity
+         This file carries ONLY what those three deliberately do NOT:
+
+           (A) PIPELINE KEYS (5) — app-lifecycle material parameters the
+               VisualThemeEngine overrides at runtime and the Theme Studio
+               binds live (engine key list: VisualThemeEngine.Part1.cs
+               CrystalFluidTokenKeys + the family gate). They belong to the
+               app integration layer, not the authored design system.
+           (B) TRANSITIONAL BRUSHES — RETIRED P4b (2026-09-05). The
+               interim Controls/CrystalFluid/CrystalWater.xaml(+cs) and
+               its three interim brushes (CrystalWaterBrush /
+               CrystalWaterSurfaceBrush / CrystalBubbleBrush) are
+               deleted. StatCard now hosts the AUTHORED
+               CrystalWaterControl (paints from CrystalWaterBodyBrush /
+               CrystalWaterHighlightBrush / CrystalWaterDepthBrush /
+               CrystalBubbleFillBrush …) as settled at P2: nothing is
+               tombstoned here any more.
+
+         Nothing else may be added here: new visual nouns go into the
+         three authored dictionaries; new app switches need the same
+         lifecycle wiring the pipeline keys below already have.
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- ── (A) PIPELINE KEYS ──────────────────────────────────────────── -->
+
+    <!-- Engine-managed ambient speed scale (authored system has no
+         speed axis). Consumed by CrystalWater (style setter) and the
+         VisualThemeEngine. -->
+    <sys:Double x:Key="CrystalWaterSpeed">1.0</sys:Double>
+
+    <!-- Engine-managed bubble PEAK opacity — an ABSOLUTE axis
+         (Ios-17pm P3): the authored BubbleIntensity baseline is 0.70
+         (which also equals the authored design ceiling
+         CrystalBubbleMaxOpacity). Consumed by CrystalWater + the authored
+         CrystalWaterControl (bubble keyframes) and the VisualThemeEngine.
+         Single number home: CrystalFluidSettings.BaselineBubbleIntensity. -->
+    <sys:Double x:Key="CrystalBubbleOpacity">0.70</sys:Double>
+
+    <!-- Engine-managed wave sway amplitude (Ios-17pm P3 axis, authored
+         baseline 3.0 — single number home:
+         CrystalFluidSettings.BaselineWaveAmplitude). Consumed by the
+         authored CrystalWaterControl wave storyboard via style setter. -->
+    <sys:Double x:Key="CrystalWaveAmplitude">3.0</sys:Double>
+
+    <!-- §43 reduced motion — global switch; CrystalWater renders a
+         STATIC water body when True. Engine-managed; authored
+         components read it as their default ReducedMotion value. -->
+    <sys:Boolean x:Key="CrystalReducedMotion">False</sys:Boolean>
+
+    <!-- Family-aware water gate: Crystal Fluid's painter publishes True
+         at app level; the switch-away path removes it (see
+         VisualThemeEngine next to ClearOverrides). Every other family
+         sees this static False — water is a Crystal Fluid material,
+         not a global effect (industrial families keep their
+         no-theatre law). Consumed by StatCardControl | StatCard XAML. -->
+    <sys:Boolean x:Key="CrystalWaterDefaultEnabled">False</sys:Boolean>
+
+    <!-- FAMILY-GATE STATIC DEFAULTS (2026-09-05 — XDG-0001 / family
+         leak fix). The engine WRITES these as Visible under Crystal
+         Fluid and REMOVES them at every family switch (Part1 ×2 +
+         Part3). The same contract as CrystalWaterDefaultEnabled above
+         requires a static default here, because the removal means the
+         key must still RESOLVE to the non-crystal answer: Designer
+         tooling needs the key present, and at runtime an unresolvable
+         DynamicResource falls back to Visibility's CLR default
+         (Visible) — the crystal chrome would then render under every
+         other family, exactly what the gate exists to prevent. -->
+    <Visibility x:Key="CrystalAmbientHostVisibility">Collapsed</Visibility>
+    <Visibility x:Key="CrystalPreviewHostVisibility">Collapsed</Visibility>
+
+    <!-- §42 card-lift duration (0.32 s). The authored metrics carry
+         hover/transition/water durations but no card-lift axis; P2's
+         card tilt/lift consumes this. -->
+    <Duration x:Key="CrystalCardDuration">0:0:0.32</Duration>
+</ResourceDictionary>

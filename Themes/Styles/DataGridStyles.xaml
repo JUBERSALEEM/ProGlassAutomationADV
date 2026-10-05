@@ -1,0 +1,233 @@
+<!--
+    PROPOSED — line-item table chrome (PI Step 5 + JO/DN/TI overview).
+    Not consumed yet. Register from App.xaml after approval, then swap
+    local Compact* / header / row styles one file at a time.
+
+    Column recipe (header = row = footer):
+      26 | 1.8* | 0.75* ×4 | 0.7* | 0.9* | 0.9* | 0.85* | 1.2* | 28
+      #    REF    W1 H1 W2 H2   QTY    SQM    T.SQM   RATE    VALUE   del
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+
+    <Style x:Key="LineItemsTableStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Setter Property="Background" Value="{DynamicResource SurfaceWindowBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="Padding" Value="12"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="LineItemsHeaderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
+        <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding" Value="4,8"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="LineItemsHeaderTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="LineItemsFooterStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
+        <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="Padding" Value="4,8"/>
+        <Setter Property="Margin" Value="0,4,0,0"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="LineItemsSerialStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="LineItemsReadonlyStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="LineItemsMoneyStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0,0,4,0"/>
+    </Style>
+
+    <Style x:Key="LineItemsIntCellStyle" TargetType="TextBox">
+        <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
+        <Setter Property="behaviors:TextBoxBehaviors.AcceptIntegersOnly" Value="True"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="6,0"/>
+        <Setter Property="Height" Value="{DynamicResource DensityRowHeight}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="InputBorder"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource Radius.None}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            SnapsToDevicePixels="True">
+                        <ScrollViewer x:Name="PART_ContentHost"
+                                      Focusable="False"
+                                      HorizontalScrollBarVisibility="Hidden"
+                                      VerticalScrollBarVisibility="Hidden"
+                                      Margin="{TemplateBinding Padding}"
+                                      VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="InputBorder" Property="BorderBrush"
+                                    Value="{DynamicResource AccentHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter TargetName="InputBorder" Property="BorderBrush"
+                                    Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="InputBorder" Property="BorderThickness" Value="2"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="LineItemsDecimalCellStyle" TargetType="TextBox"
+           BasedOn="{StaticResource LineItemsIntCellStyle}">
+        <Setter Property="behaviors:TextBoxBehaviors.AcceptIntegersOnly" Value="False"/>
+        <Setter Property="behaviors:TextBoxBehaviors.AcceptDecimals" Value="True"/>
+    </Style>
+
+    <Style x:Key="LineItemsTextCellStyle" TargetType="TextBox"
+           BasedOn="{StaticResource LineItemsIntCellStyle}">
+        <Setter Property="behaviors:TextBoxBehaviors.AcceptIntegersOnly" Value="False"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    </Style>
+
+    <!-- WPF's theme ListViewItem binds Horizontal/VerticalContentAlignment
+         to AncestorType=ItemsControl. That binding runs when the container
+         is created, before it has a parent — Output floods with
+         System.Windows.Data Error: 4 and DataItem=null. OverridesDefaultStyle
+         drops the theme setters so the ancestor lookup never happens. -->
+    <Style x:Key="LineItemsListViewItemStyle" TargetType="ListViewItem">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListViewItem">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalAlignment="Stretch">
+                        <ContentPresenter HorizontalAlignment="Stretch"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+    <!-- Enterprise ERP grid chrome — opt-in for legacy screens and the
+         default target for new grids. Keeps virtualization on, row heights
+         density-aware and focus/selection visible for keyboard operators. -->
+    <Style x:Key="ErpDataGridStyle" TargetType="DataGrid">
+        <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
+        <Setter Property="RowHeight" Value="{DynamicResource DensityRowHeight}"/>
+        <Setter Property="MinRowHeight" Value="28"/>
+        <Setter Property="ColumnHeaderHeight" Value="34"/>
+        <!-- P2: manual column-width dragging removed app-wide (owner
+             directive). Equal widths come from the per-grid column policy. -->
+        <Setter Property="CanUserResizeColumns" Value="False"/>
+        <Setter Property="CanUserReorderColumns" Value="False"/>
+        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="VerticalGridLinesBrush" Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="CanUserResizeColumns" Value="True"/>
+        <Setter Property="EnableRowVirtualization" Value="True"/>
+        <Setter Property="EnableColumnVirtualization" Value="True"/>
+        <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
+        <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="ErpDataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="{DynamicResource Surface.Detail.BackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        <Setter Property="Padding" Value="8,6"/>
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="ErpDataGridCellStyle" TargetType="DataGridCell">
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource SelectionForegroundBrush}"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ErpDataGridRowStyle" TargetType="DataGridRow">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="MinHeight" Value="{DynamicResource DensityRowHeight}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{DynamicResource SelectionBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>

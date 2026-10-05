@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ProGlassAutomation.Tools.LicenseGenerator</RootNamespace>
+    <AssemblyName>ProGlassAutomation.LicenseGenerator</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>CS8600;CS8601;CS8602;CS8603;CS8604;CS8605;CS8618;CS8625;CA1305;CA1307;CA1416</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Licensing\ProGlass.Licensing.csproj" />
+  </ItemGroup>
+
+</Project>

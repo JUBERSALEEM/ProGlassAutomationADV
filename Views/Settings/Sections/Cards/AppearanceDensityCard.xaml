@@ -1,0 +1,97 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/AppearanceDensityCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — Appearance: Display Density (Studio Bento)
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceDensityCard"
+             xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Border Style="{StaticResource SettingsCompactCardStyle}">
+        <StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                    <TextBlock Text="&#xE8F1;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                </Border>
+                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                    <TextBlock Text="{DynamicResource Settings.GrpDensity}"
+                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                    <TextBlock Text="{DynamicResource Settings.CompactFitsMoreLaptopComfortableGivesLarger}"
+                               Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                </StackPanel>
+                <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
+                        Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
+                    <Viewbox MaxHeight="20">
+                        <TextBlock Style="{StaticResource SettingsChipTextStyle}" Foreground="{DynamicResource AccentBrush}">
+                            <Run Text="{Binding UiScalePercent, Mode=OneWay}"/><Run Text="%"/>
+                        </TextBlock>
+                    </Viewbox>
+                </Border>
+            </Grid>
+
+            <!-- Data-driven segments: ItemsSource + SelectedItem read
+                 the VM list, so the option set still has ONE source.
+                 The fill variant spans the card (sheet 03). -->
+            <ListBox Style="{StaticResource SettingsSegmentTrackFillStyle}"
+                     Margin="{StaticResource SettingsStackGap12}"
+                     AutomationProperties.Name="{DynamicResource Settings.GrpDensity}"
+                     ItemsSource="{Binding DisplayDensityOptions}"
+                     SelectedItem="{Binding DisplayDensity, Mode=TwoWay}"
+                     AutomationProperties.AutomationId="Settings.DisplayDensity"/>
+
+            <!-- UI Scale slider row directly on card canvas -->
+            <Grid Margin="{StaticResource SettingsStackGap12}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE71E;" FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
+                               Foreground="{DynamicResource AccentBrush}" Margin="{StaticResource SettingsInlineGap8R}"/>
+                    <TextBlock Text="{DynamicResource Settings.UIScale}"
+                               Style="{StaticResource SettingsRowTitleStyle}" VerticalAlignment="Center"/>
+                    <TextBlock Text=" — " Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}" VerticalAlignment="Center">
+                        <Run Text="{Binding UiScalePercent, Mode=OneWay}"/><Run Text="% native display DPI"/>
+                    </TextBlock>
+                </StackPanel>
+
+                <Button Grid.Row="0" Grid.Column="1"
+                        Style="{StaticResource RowOutlinedButton}"
+                        Height="24" Padding="10,0"
+                        Content="{DynamicResource Settings.Reset}"
+                        Command="{Binding ResetUiScaleCommand}"
+                        VerticalAlignment="Center"/>
+
+                <Slider Grid.Row="1" Grid.ColumnSpan="2"
+                        Style="{StaticResource ModernSliderStyle}"
+                        Margin="{StaticResource SettingsStackGap8}"
+                        Minimum="0.75" Maximum="1.50"
+                        SmallChange="0.05" LargeChange="0.10"
+                        Value="{Binding UiScale, Mode=TwoWay}"
+                        AutomationProperties.Name="{DynamicResource Settings.UIScale}"/>
+            </Grid>
+        </StackPanel>
+    </Border>
+</UserControl>

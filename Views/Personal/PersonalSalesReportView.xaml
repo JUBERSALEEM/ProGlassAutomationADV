@@ -1,0 +1,106 @@
+<UserControl x:Class="ProGlassAutomation.Views.Personal.PersonalSalesReportView"
+             TextOptions.TextHintingMode="Fixed"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:pv="clr-namespace:ProGlassAutomation.Views.Personal"
+             xmlns:vmExec="clr-namespace:ProGlassAutomation.ViewModels.Reports.ExecutiveReport"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         GB-P11 — GLASS BLUSH REPORTS HUB (glass-08 family)
+
+         Personal version of the SalesReport module (routed
+         "SalesReport" → SalesReportVM, ActiveKey="Overview"). SAME
+         contract as the Professional SalesReportView hub:
+           • NavItems (ReportNavItem: Key/TitleKey/Icon/SubtitleKey/Group)
+           • NavigateReportCommand (parameter = Key) — rail selection
+           • ActiveKey string — active state via StringEqualsMultiConverter
+           • content host Content="{Binding ActiveViewModel}"
+         Scoped template: ExecutiveReportViewModel → the glass-08 executive
+         page (PersonalExecutiveReportView). All other sub-reports resolve
+         to their Professional views via the app-level implicit templates
+         (functional fallback, documented).
+         NOTE: the glass-08 reference PNG was lost when this session was
+         restored; the composition follows the GB-P1 measured map
+         ("filter bar · multi-line hero chart · radial gauge · bar cards").
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        <DataTemplate DataType="{x:Type vmExec:ExecutiveReportViewModel}">
+            <pv:PersonalExecutiveReportView/>
+        </DataTemplate>
+
+        <!-- report pill (nav item) + active trigger -->
+        <Style x:Key="GbReportPill" TargetType="Button"
+               BasedOn="{StaticResource GlassBlush.GlassButtonSoft}">
+            <Setter Property="Padding" Value="16,9"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Style.Triggers>
+                <DataTrigger Value="True">
+                    <DataTrigger.Binding>
+                        <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
+                            <Binding Path="Key"/>
+                            <Binding Path="DataContext.ActiveKey"
+                                     RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                        </MultiBinding>
+                    </DataTrigger.Binding>
+                    <Setter Property="Background" Value="{DynamicResource GlassBlush.AccentSoft}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+            </ResourceDictionary>
+    </UserControl.Resources>
+
+    <DockPanel>
+        <!-- ══ REPORT PILL STRIP (NavItems / NavigateReportCommand) ═══ -->
+        <ItemsControl DockPanel.Dock="Top"
+                      ItemsSource="{Binding NavItems}"
+                      Margin="0,0,0,20"
+                      Focusable="False">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Style="{StaticResource GbReportPill}"
+                            AutomationProperties.Name="{Binding TitleKey,
+                                      Converter={StaticResource ResourceKeyToString}}"
+                            Command="{Binding DataContext.NavigateReportCommand,
+                                      RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                            CommandParameter="{Binding Key}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Icon}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,8,0"
+                                       Foreground="{DynamicResource GlassBlush.TextMuted}"/>
+                            <TextBlock Text="{Binding TitleKey,
+                                       Converter={StaticResource ResourceKeyToString}}"
+                                       FontSize="{DynamicResource GlassBlush.FontCaption}"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource GlassBlush.Text}"/>
+                        </StackPanel>
+                    </Button>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- ══ REPORT CONTENT (ActiveViewModel; scoped templates above) ═ -->
+        <ContentControl Content="{Binding ActiveViewModel}"
+                        Focusable="False"/>
+    </DockPanel>
+</UserControl>

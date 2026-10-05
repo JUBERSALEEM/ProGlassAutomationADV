@@ -1,0 +1,27 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <CornerRadius x:Key="RadiusSmall">6</CornerRadius>
+    <CornerRadius x:Key="RadiusPanel">14</CornerRadius>
+    <!-- 2026-09-14: 999 capsule removed per the global 12px standard. -->
+    <CornerRadius x:Key="RadiusFull">12</CornerRadius>
+
+    <Thickness x:Key="BorderThin">1</Thickness>
+    <Thickness x:Key="BorderDefault">1</Thickness>
+    <Thickness x:Key="BorderStrong">1.5</Thickness>
+
+    <sys:Double x:Key="ControlHeightSmall">28</sys:Double>
+    <sys:Double x:Key="ControlHeightMedium">34</sys:Double>
+    <sys:Double x:Key="ControlHeightLarge">40</sys:Double>
+
+    <sys:Double x:Key="IconSizeSmall">14</sys:Double>
+    <sys:Double x:Key="IconSizeMedium">16</sys:Double>
+    <sys:Double x:Key="IconSizeLarge">22</sys:Double>
+
+    <sys:Double x:Key="KpiHeight">86</sys:Double>
+    <sys:Double x:Key="TopBarHeight">48</sys:Double>
+    <sys:Double x:Key="SidebarWidth">248</sys:Double>
+    <sys:Double x:Key="SidebarCollapsedWidth">64</sys:Double>
+
+</ResourceDictionary>

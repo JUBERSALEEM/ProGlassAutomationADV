@@ -1,0 +1,67 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: Views/CrashReports/CrashReportDialog.xaml.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Crash report — user-facing dialog
+//
+// A small modal that appears after an unhandled crash.
+// Shows the ErrorId, exception type and message, and
+// the path to the saved report. Four buttons:
+//
+//   [RESTART APP]      — closes the app cleanly and
+//                         re-launches via Process.Start
+//                         (ProcessStartGuard-validated).
+//   [COPY ERROR ID]    — copies the ErrorId to the
+//                         clipboard.
+//   [OPEN CRASH FOLDER]— opens Explorer with the
+//                         crash report selected.
+//   [CLOSE]            — dismisses the dialog.
+//
+// 2026-09-02 (Phase 3.7): display data + the four actions moved to
+// CrashReportViewModel (bound). This file only wires the two window-side
+// callbacks (Close / Shutdown) and the VM. The dialog is read-only and
+// never throws — showing it must not make a bad situation worse.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.ViewModels.CrashReports;
+using ProGlassAutomation.Views.Shared.Dialogs;
+using System.Windows;
+
+namespace ProGlassAutomation.Views.CrashReports
+{
+    public partial class CrashReportDialog : ThemedDialogWindow
+    {
+        /// <summary>
+        /// Show the dialog modally. Returns when the user
+        /// closes it (any button). The caller does not
+        /// need to do anything — the report is already
+        /// on disk; the dialog is purely informational +
+        /// action-button.
+        /// </summary>
+        public CrashReportDialog(
+            string errorId,
+            string reportPath,
+            string exceptionType,
+            string exceptionMessage)
+        {
+            InitializeComponent();
+
+            var vm = new CrashReportViewModel(
+                errorId, reportPath, exceptionType, exceptionMessage);
+
+            // Wire the two window-side callbacks the VM's commands invoke.
+            // [Close] dismisses this dialog; the dispatcher's exception
+            // handler force-exits the app afterwards (a UI-thread crash
+            // must not be resumed). [Restart] closes this dialog and shuts
+            // the app down — the replacement instance was already launched
+            // by the VM before RequestShutdown fires.
+            vm.RequestClose = () => Close();
+            vm.RequestShutdown = () =>
+            {
+                Close();
+                Application.Current?.Shutdown();
+            };
+
+            DataContext = vm;
+        }
+    }
+}

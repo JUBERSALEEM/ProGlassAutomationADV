@@ -1,0 +1,42 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!-- Global analyzer settings — Phase 1 CI Quality Gates -->
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <!--
+      AnalysisMode is intentionally NOT set to AllEnabledByDefault here.
+      That value enables ~150 opt-in "nitpick" rules (CA1834, CA1845,
+      CA1847, CA1865/66, CA1510, CA2249, …) which, together with
+      TreatWarningsAsErrors, turned a green build into 1336 errors.
+      Default mode keeps the important rules without the opt-in noise;
+      rule severity is governed by .editorconfig (analyzer rules are
+      'suggestion' = non-blocking; only compiler warnings fail).
+    -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- Phase 1: Treat warnings as errors in CI, but allow nullable/IDE + NuGet version warnings as non-blocking -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Nullable analysis (CS86xx/CS876x), obsolete members (CS0618), fire-and-forget
+         (CS4014), unused fields (CS0414/CS0649) and NuGet/analyzer noise stay warnings,
+         never errors. Real compiler errors (CS0xxx not listed here) still fail. -->
+    <WarningsNotAsErrors>CS0618;CS0414;CS0649;CS4014;CS8600;CS8601;CS8602;CS8603;CS8604;CS8605;CS8618;CS8619;CS8620;CS8621;CS8622;CS8625;CS8629;CS8632;CS8765;CS8766;CS8767;CS8768;IDE0059;NU1603;NU1605;NU1701;CA1515;CA1305;CA1307;CA1310;CA1311</WarningsNotAsErrors>
+    <NoWarn>$(NoWarn);NU1603;NU1605;CA1515;CA1305</NoWarn>
+    <!-- Additional quality gates -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+    <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <!-- Code coverage & test settings -->
+  <PropertyGroup>
+    <CollectCoverage>true</CollectCoverage>
+    <CoverletOutputFormat>cobertura</CoverletOutputFormat>
+  </PropertyGroup>
+</Project>

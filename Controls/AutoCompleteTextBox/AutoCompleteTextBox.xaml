@@ -1,0 +1,133 @@
+<UserControl x:Class="ProGlassAutomation.Controls.AutoCompleteTextBox.AutoCompleteTextBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             mc:Ignorable="d"
+             x:Name="RootControl"
+             d:DesignHeight="38" d:DesignWidth="400"
+             FontFamily="{DynamicResource AppFontFamily}"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             Popup ListBoxItem — indigo hover/selected state
+        ═══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="AutoCompleteItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Padding"    Value="12,8"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="Cursor"     Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="ItemBorder"
+                                Background="Transparent"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Padding="{TemplateBinding Padding}"
+                                Margin="2,1">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- ═══════════════════════════════════════════════════════════════
+             Input row: TextBox + chevron button
+        ═══════════════════════════════════════════════════════════════ -->
+        <Border x:Name="MainBorder"
+                Background="{DynamicResource SurfacePrimaryBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                CornerRadius="{DynamicResource CardCornerRadius}"
+                SnapsToDevicePixels="True"
+                Height="38">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="30"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Real TextBox — no ComboBox quirks -->
+                <TextBox x:Name="PART_TextBox"
+                         Grid.Column="0"
+                         Background="Transparent"
+                         Foreground="{DynamicResource TextPrimaryBrush}"
+                         BorderThickness="{DynamicResource Border.NoneThickness}"
+                         Padding="12,0"
+                         VerticalContentAlignment="Center"
+                         FontSize="{StaticResource TextBodyLarge}"
+                         CaretBrush="{DynamicResource TextPrimaryBrush}"
+                         SelectionBrush="{DynamicResource AccentBrush}"
+                         Focusable="True"/>
+
+                <!-- Chevron button — toggles popup open/close -->
+                <Button x:Name="PART_ToggleButton"
+                        Grid.Column="1"
+                        Background="Transparent"
+                        BorderThickness="{DynamicResource Border.NoneThickness}"
+                        Cursor="Hand"
+                        Focusable="False">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="Transparent">
+                                <Path Data="M 0 0 L 4 4 L 8 0 Z"
+                                      Fill="{DynamicResource SecondaryForegroundBrush}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             Suggestions popup — separate ListBox, no focus-sync issues
+        ═══════════════════════════════════════════════════════════════ -->
+        <Popup x:Name="PART_Popup"
+               PlacementTarget="{Binding ElementName=MainBorder}"
+               Placement="Bottom"
+               AllowsTransparency="True"
+               PopupAnimation="Slide"
+               StaysOpen="False"
+               Focusable="False">
+            <Border Width="{Binding ActualWidth, ElementName=MainBorder}"
+                    MaxHeight="300"
+                    Background="{DynamicResource PopupSurfaceBrush}"
+                    BorderBrush="{DynamicResource AccentBrush}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Margin="0,4,0,0">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.20" Color="{DynamicResource LiquidShadowColor}"/>
+                </Border.Effect>
+                <ListBox x:Name="PART_ListBox"
+                         Background="Transparent"
+                         BorderThickness="{DynamicResource Border.NoneThickness}"
+                         Padding="4"
+                         Focusable="False"
+                         ItemContainerStyle="{StaticResource AutoCompleteItemStyle}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+            </Border>
+        </Popup>
+    </Grid>
+</UserControl>

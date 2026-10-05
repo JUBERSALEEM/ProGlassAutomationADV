@@ -1,0 +1,21 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <sys:Double x:Key="SpacingXS">4</sys:Double>
+    <sys:Double x:Key="SpacingSM">8</sys:Double>
+    <sys:Double x:Key="SpacingMD">12</sys:Double>
+    <sys:Double x:Key="SpacingLG">16</sys:Double>
+    <sys:Double x:Key="SpacingXL">24</sys:Double>
+    <sys:Double x:Key="SpacingXXL">32</sys:Double>
+
+    <Thickness x:Key="PagePadding">12</Thickness>
+    <Thickness x:Key="SectionSpacing">12,0,12,12</Thickness>
+    <Thickness x:Key="CardPadding">12,9</Thickness>
+    <Thickness x:Key="ControlPadding">12,0</Thickness>
+    <Thickness x:Key="DialogPadding">24</Thickness>
+    <Thickness x:Key="ToolbarPadding">12,8</Thickness>
+    <sys:Double x:Key="KpiGap">8</sys:Double>
+    <sys:Double x:Key="GridGap">8</sys:Double>
+
+</ResourceDictionary>

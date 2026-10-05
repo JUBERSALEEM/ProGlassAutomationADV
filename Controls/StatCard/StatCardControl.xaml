@@ -1,0 +1,257 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Controls/StatCard/StatCardControl.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Shared UI — reusable statistic card (§11)
+
+     One component, every state a statistic can be in:
+       Normal / Loading / Empty / Updating / Success / Warning / Error
+     Hideable (IsHidden), compact, theme-aware. The DATA belongs to
+     the module; this is only presentation.
+
+     Usage:
+       <controls:StatCardControl Icon="🧾" Title="Invoices"
+                                 Value="128" Unit="AED"
+                                 State="Success"/>
+═══════════════════════════════════════════════════════════════════════ -->
+
+<UserControl x:Class="ProGlassAutomation.Controls.StatCard.StatCardControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:ProGlassAutomation.Converters"
+             xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid"
+             x:Name="Root"
+             FontFamily="{DynamicResource AppFontFamily}"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <conv:IconFontFamilyConverter x:Key="IconFont"/>
+    </UserControl.Resources>
+
+    <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+            BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
+            MinWidth="170"
+            SnapsToDevicePixels="True">
+        <Border.Style>
+            <Style TargetType="Border" BasedOn="{StaticResource ErpKpiSurfaceStyle}">
+                <Setter Property="Background"
+                        Value="{DynamicResource SurfaceSecondaryBrush}"/>
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource BorderDefaultBrush}"/>
+                <Setter Property="BorderThickness" Value="1.5"/>
+                <Setter Property="Visibility" Value="Visible"/>
+                <Style.Triggers>
+                    <!-- IsHidden collapses the card entirely so it never
+                         obstructs the working area -->
+                    <DataTrigger Binding="{Binding IsHidden,
+                                             ElementName=Root}" Value="True">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                    </DataTrigger>
+
+                    <!-- ═══ IOS-17PM P4b (2026-09-05): AUTHORED KPI CHROME,
+                         family-gated on the SAME plane as the water. When
+                         the water plane is on (Crystal Fluid — every KPI
+                         host binds the CrystalWaterDefaultEnabled gate),
+                         the card wears the authored KPI-card chrome
+                         (file 06): crystal glass surface + crystal border
+                         + authored water-weight shadow. Declared BEFORE
+                         the state triggers below so Success/Warning/Error
+                         tint the glass exactly as before and Transparent
+                         stays transparent. Under every other family the
+                         gate is False; this never fires — pixel-identical. -->
+                    <DataTrigger Binding="{Binding WaterEnabled,
+                                             ElementName=Root}" Value="True">
+                        <Setter Property="Background"
+                                Value="{DynamicResource CrystalGlassSurfaceBrush}"/>
+                        <Setter Property="BorderBrush"
+                                Value="{DynamicResource CrystalGlassBorderBrush}"/>
+                        <Setter Property="BorderThickness"
+                                Value="{DynamicResource CrystalBorderThickness}"/>
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect
+                                        Color="{DynamicResource CrystalShadowColor}"
+                                        BlurRadius="22" ShadowDepth="8"
+                                        Direction="270" Opacity="0.30"/>
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+
+                    <!-- State tints -->
+                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                 Value="Success">
+                        <Setter Property="Background"
+                                Value="{DynamicResource TintGreenBrush}"/>
+                        <Setter Property="BorderBrush"
+                                Value="{DynamicResource SuccessBrush}"/>
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                 Value="Warning">
+                        <Setter Property="Background"
+                                Value="{DynamicResource TintAmberBrush}"/>
+                        <Setter Property="BorderBrush"
+                                Value="{DynamicResource WarningBrush}"/>
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                 Value="Error">
+                        <Setter Property="Background"
+                                Value="{DynamicResource TintRedBrush}"/>
+                        <Setter Property="BorderBrush"
+                                Value="{DynamicResource DangerBrush}"/>
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                 Value="Transparent">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+
+        <Grid>
+            <!-- Crystal Fluid: the KPI water reservoir — renders ONLY
+                 when WaterEnabled (family gate / explicit); under every
+                 other family this is Collapsed and the card is
+                 pixel-identical to before.
+                 Ios-17pm P4b (2026-09-05): the interim CrystalWater
+                 UserControl is retired; this is now the AUTHORED
+                 CrystalWaterControl (Transforms-only motion, D5/D6/D9/
+                 D35-class lifecycle fixes included) with the exact same
+                 public wiring carried over DP-for-DP. Its TargetType style
+                 feeds CrystalWaterOpacity/Speed/Bubble/Wave tokens via
+                 the authored defaults, the studio live-writes land
+                 through those same tokens. -->
+            <crystal:CrystalWaterControl
+                WaterEnabled="{Binding WaterEnabled, ElementName=Root}"
+                WaterLevel="{Binding WaterLevel, ElementName=Root}"
+                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                IsHitTestVisible="False"/>
+
+            <Grid Margin="16,13">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Icon badge -->
+            <Border Grid.Column="0"
+                    Width="40" Height="40"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Background="{DynamicResource TintIndigoBrush}"
+                    VerticalAlignment="Center">
+                <TextBlock Text="{Binding Icon, ElementName=Root}"
+                           FontFamily="{Binding Icon, ElementName=Root,
+                                        Converter={StaticResource IconFont}}"
+                           FontSize="{StaticResource TextTitle}"
+                           Foreground="{DynamicResource AccentBrush}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Border>
+
+            <StackPanel Grid.Column="1"
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Center">
+
+                <TextBlock Text="{Binding Title, ElementName=Root}"
+                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           TextTrimming="CharacterEllipsis"/>
+
+                <!-- Value row: loading shows a pulse, empty shows — -->
+                <Grid Margin="0,2,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                                 Value="Loading">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                                 Value="Updating">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <TextBlock FontSize="{StaticResource TextHeadline}" FontWeight="Bold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text"
+                                            Value="{Binding DisplayValue,
+                                                    ElementName=Root}"/>
+                                    <Setter Property="Foreground"
+                                            Value="{DynamicResource TextPrimaryBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                                     Value="Success">
+                                            <Setter Property="Foreground"
+                                                    Value="{DynamicResource SuccessBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                                     Value="Warning">
+                                            <Setter Property="Foreground"
+                                                    Value="{DynamicResource WarningBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                                     Value="Error">
+                                            <Setter Property="Foreground"
+                                                    Value="{DynamicResource DangerBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <TextBlock Text="{Binding Unit, ElementName=Root}"
+                                   FontSize="{StaticResource TextBody}"
+                                   Margin="4,0,0,2"
+                                   VerticalAlignment="Bottom"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    </StackPanel>
+
+                    <!-- Loading / updating indicator -->
+                    <TextBlock Text="• • •" FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                               Foreground="{DynamicResource TextTertiaryBrush}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                                 Value="Loading">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                                 Value="Updating">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+
+                <!-- Trend / secondary line -->
+                <TextBlock Text="{Binding TrendText, ElementName=Root}"
+                           FontSize="{StaticResource TextCaption}"
+                           Margin="0,2,0,0"
+                           TextTrimming="CharacterEllipsis"
+                           Foreground="{DynamicResource TextTertiaryBrush}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding TrendText, ElementName=Root}"
+                                             Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

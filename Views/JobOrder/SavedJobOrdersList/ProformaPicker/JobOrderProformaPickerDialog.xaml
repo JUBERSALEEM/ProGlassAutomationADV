@@ -1,0 +1,133 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/JobOrder/SavedJobOrdersList/ProformaPicker/JobOrderProformaPickerDialog.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Job Order — pick the approved Proforma Invoice
+
+     2026-09 dialog audit: rebuilt on the shared ThemedDialogWindow chrome
+     (previously fixed 820×660 NoResize — taller than small laptop work
+     areas). Resizable, work-area clamped, search/list/warning unchanged;
+     the selected-label row lives in the shared footer.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.JobOrder.SavedJobOrdersList.ProformaPicker.JobOrderProformaPickerDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+             Title="{DynamicResource JobOrder.CreateJOBOrder}"
+             Width="820" Height="660"
+             MinWidth="640" MinHeight="440"
+             ResizeMode="CanResize"
+             DialogIcon="&#xE7B8;"
+             DialogSubtitle="{DynamicResource JobOrder.ApprovedProformaInvoicesGoProduction}"
+             FontFamily="{DynamicResource AppFontFamily}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── SEARCH ──────────────────────────────────────────────── -->
+        <Grid Grid.Row="0" Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBox Grid.Column="0"
+                     MinHeight="{DynamicResource DensityInputHeight}"
+                     VerticalContentAlignment="Center"
+                     Padding="12,0"
+                     FontSize="{DynamicResource FontSize.Title}"
+                     Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                     Background="{DynamicResource SurfacePrimaryBrush}"
+                     Foreground="{DynamicResource TextPrimaryBrush}"
+                     BorderBrush="{DynamicResource BorderBrush}"
+                     BorderThickness="{DynamicResource Border.HairlineThickness}"
+                     ToolTip="{DynamicResource JobOrder.SearchPINumberCustomerProject}" Style="{StaticResource TextBoxStyle}"/>
+
+            <!-- Off by default: production should normally only start from an
+                 approved quote. The toggle exists because the status
+                 vocabulary (Draft/Sent/Approved/Rejected/Expired) is set by
+                 hand, so a real approval can lag the paperwork. -->
+            <CheckBox Grid.Column="1"
+                      Margin="14,0,0,0"
+                      VerticalAlignment="Center"
+                      Content="{DynamicResource JobOrder.ShowStatuses}"
+                      FontSize="{DynamicResource FontSize.Body}"
+                      Foreground="{DynamicResource TextSecondaryBrush}"
+                      IsChecked="{Binding ShowAll, Mode=TwoWay}"
+                      ToolTip="{DynamicResource JobOrder.IncludeDraftSentRejectedExpiredQuotes}"/>
+        </Grid>
+
+        <!-- ── COUNT LINE ──────────────────────────────────────────── -->
+        <TextBlock Grid.Row="1"
+                   Margin="0,0,0,6"
+                   FontSize="{DynamicResource FontSize.Body}"
+                   Foreground="{DynamicResource TextTertiaryBrush}"
+                   Text="{Binding CountText}"/>
+
+        <!-- ── LIST ────────────────────────────────────────────────── -->
+        <ScrollViewer Grid.Row="2"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel x:Name="PiList"/>
+        </ScrollViewer>
+
+        <!-- ── APPROVAL WARNING ────────────────────────────────────── -->
+        <Border Grid.Row="3"
+                Margin="0,8,0,0"
+                Padding="10,6"
+                CornerRadius="{DynamicResource ControlCornerRadius}"
+                Visibility="{Binding WarningVisibility}"
+                Background="{DynamicResource TintAmberBrush}"
+                BorderBrush="{DynamicResource WarningBrush}"
+                BorderThickness="{DynamicResource CardBorderThickness}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE7BA;"
+                           FontFamily="{DynamicResource FontFamily.Icon}"
+                           FontSize="{DynamicResource FontSize.H2}"
+                           VerticalAlignment="Top"
+                           Margin="0,1,10,0"
+                           Foreground="{DynamicResource WarningBrush}"/>
+                <TextBlock FontSize="{DynamicResource FontSize.Body}"
+                           Text="{Binding WarningText}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+
+    <dialogs:ThemedDialogWindow.FooterContent>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0"
+                       Text="{Binding SelectedLabelText}"
+                       FontSize="{DynamicResource FontSize.Body}"
+                       VerticalAlignment="Center"
+                       Margin="0,0,12,0"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Style="{StaticResource OutlinedPillButton}"
+                        Tag="&#xE711;"
+                        Content="{DynamicResource Action.Cancel}"
+                        Margin="0,0,10,0"
+                        IsCancel="True"/>
+                <Button Style="{StaticResource PrimaryPillButton}"
+                        Tag="&#xE7B8;"
+                        Content="{DynamicResource JobOrder.CreateJOBOrder}"
+                        MinWidth="180"
+                        IsEnabled="{Binding IsConfirmEnabled}"
+                        Command="{Binding ConfirmCommand}"/>
+            </StackPanel>
+        </Grid>
+    </dialogs:ThemedDialogWindow.FooterContent>
+</dialogs:ThemedDialogWindow>

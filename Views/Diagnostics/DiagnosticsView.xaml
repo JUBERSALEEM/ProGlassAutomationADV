@@ -1,0 +1,290 @@
+<!-- Logs and Activity. Same Studio list contract as the proforma invoice list:
+     indigo hero, KPI cards, actions, filter chips, then a register that fills
+     the remaining height. Tab commands and both feed view-models are unchanged. -->
+<UserControl x:Class="ProGlassAutomation.Views.Diagnostics.DiagnosticsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:shared="clr-namespace:ProGlassAutomation.Views.Shared"
+             xmlns:diagVm="clr-namespace:ProGlassAutomation.ViewModels.Diagnostics"
+             xmlns:sharedVm="clr-namespace:ProGlassAutomation.ViewModels.Shared"
+             xmlns:layout="clr-namespace:ProGlassAutomation.Views.Dashboard"
+             xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:conv="clr-namespace:ProGlassAutomation.Converters"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}"
+             Foreground="{DynamicResource Ov.Ink}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Shared/Lists/StudioListResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <conv:EmojiToGlyphConverter x:Key="EmojiToGlyph"/>
+
+            <Style x:Key="LogsTabButton" TargetType="Button" BasedOn="{StaticResource Sl.Button}">
+                <Setter Property="Margin" Value="0,0,8,8"/>
+                <Setter Property="MinWidth" Value="0"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                        <Setter Property="Background" Value="{DynamicResource Ov.Accent}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource Ov.OnAccent}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+
+            <DataTemplate DataType="{x:Type sharedVm:SectionActivityViewModel}">
+                <shared:SectionActivityView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type diagVm:AppLogPanelViewModel}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Style="{StaticResource Sl.FilterBar}">
+                        <WrapPanel>
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Diagnostics.Level}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                                <ComboBox ItemsSource="{Binding LevelOptions}"
+                                          SelectedItem="{Binding SelectedLevel}"
+                                          Style="{StaticResource Sl.Combo}"
+                                          Width="200"
+                                          Margin="0,0,8,4"/>
+                            </StackPanel>
+                            <Button Style="{StaticResource Sl.PrimaryButton}"
+                                    Command="{Binding OpenLogsFolderCommand}"
+                                    Tag="&#xE8B7;"
+                                    Content="{DynamicResource Diagnostics.OPENLOGFolder}"
+                                    ToolTip="{DynamicResource Diagnostics.OpenApplicationLogFolder}"
+                                    VerticalAlignment="Bottom"
+                                    Margin="0,0,8,4"/>
+                        </WrapPanel>
+                    </Border>
+                    <Border Grid.Row="1" Style="{StaticResource Sl.Card}" Padding="0">
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" CanContentScroll="False" x:Name="LogViewport">
+                            <Grid MinWidth="980" Width="{Binding ViewportWidth, ElementName=LogViewport, Converter={StaticResource Sl.Extent}}" Height="{Binding ViewportHeight, ElementName=LogViewport, Converter={StaticResource Sl.Extent}}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" Style="{StaticResource Sl.TableHeader}" Margin="{Binding Source={x:Static SystemParameters.VerticalScrollBarWidth}, Converter={StaticResource Sl.Gutter}}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="3"/>
+                                            <ColumnDefinition Width="140"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="260"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="1" Text="{DynamicResource Diagnostics.TIME}" Style="{StaticResource Sl.ColumnLabel}" Margin="12,0"/>
+                                        <TextBlock Grid.Column="2" Text="{DynamicResource Diagnostics.Level}" Style="{StaticResource Sl.ColumnLabel}" Margin="12,0"/>
+                                        <TextBlock Grid.Column="3" Text="{DynamicResource Diagnostics.ModuleFunction}" Style="{StaticResource Sl.ColumnLabel}" Margin="12,0"/>
+                                        <TextBlock Grid.Column="4" Text="{DynamicResource CrashReports.Message}" Style="{StaticResource Sl.ColumnLabel}" Margin="12,0"/>
+                                    </Grid>
+                                </Border>
+                                <Grid Grid.Row="1">
+                                    <Border Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Entries.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <emptyState:EmptyStateControl Icon="&#xE946;"
+                                                                       Title="{DynamicResource Diagnostics.NoLogEntriesYet}"
+                                                                       Message="{DynamicResource Diagnostics.StartupWarningsErrorsCrashesAppearHere}"/>
+                                    </Border>
+                                    <ListBox Panel.ZIndex="0"
+                                             ItemsSource="{Binding Entries}"
+                                             ItemContainerStyle="{StaticResource Sl.ListItem}"
+                                             BorderThickness="0"
+                                             Background="Transparent"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                             ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                             ScrollViewer.CanContentScroll="True"
+                                             VirtualizingStackPanel.IsVirtualizing="True"
+                                             VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                             VirtualizingStackPanel.ScrollUnit="Pixel"
+                                             behaviors:SmoothScrollBehavior.IsEnabled="True">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <VirtualizingStackPanel/>
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource Sl.Row}" MinHeight="52">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="3"/>
+                                                            <ColumnDefinition Width="140"/>
+                                                            <ColumnDefinition Width="110"/>
+                                                            <ColumnDefinition Width="260"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Border Grid.Column="0">
+                                                            <Border.Style>
+                                                                <Style TargetType="Border">
+                                                                    <Setter Property="Background" Value="{DynamicResource Ov.Accent}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding LevelDisplay}" Value="WARN">
+                                                                            <Setter Property="Background" Value="{DynamicResource Ov.Warning}"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding LevelDisplay}" Value="ERROR">
+                                                                            <Setter Property="Background" Value="{DynamicResource Ov.Danger}"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding LevelDisplay}" Value="CRITICAL">
+                                                                            <Setter Property="Background" Value="{DynamicResource Ov.Danger}"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                        </Border>
+                                                        <TextBlock Grid.Column="1" Text="{Binding TimeDisplay}" Padding="12,8" VerticalAlignment="Center"
+                                                                   FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ov.Ink}"
+                                                                   Typography.NumeralAlignment="Tabular"/>
+                                                        <TextBlock Grid.Column="2" Text="{Binding LevelDisplay}" Padding="12,8" VerticalAlignment="Center"
+                                                                   FontWeight="{DynamicResource Weight.Bold}">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Accent}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding LevelDisplay}" Value="WARN">
+                                                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Warning}"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding LevelDisplay}" Value="ERROR">
+                                                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Danger}"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding LevelDisplay}" Value="CRITICAL">
+                                                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Danger}"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                        <TextBlock Grid.Column="3" Text="{Binding ContextDisplay}" Padding="12,8" VerticalAlignment="Center"
+                                                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding ContextDisplay}"
+                                                                   Foreground="{DynamicResource Ov.Muted}"/>
+                                                        <TextBlock Grid.Column="4" Padding="12,8" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                                                   Foreground="{DynamicResource Ov.Ink}" ToolTip="{Binding Message}">
+                                                            <Run Text="{Binding Message, Mode=OneWay}"/>
+                                                            <Run Text="{Binding ErrorIdDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.Bold}"/>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </Grid>
+                            </Grid>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+            </DataTemplate>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <!-- Clear of the shell top panel and the sidebar. Padding 0 sat on both. -->
+    <Grid Background="Transparent" Margin="28,24,28,24">
+        <Border Style="{StaticResource Sl.Shell}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <ScrollViewer Grid.Row="0"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              CanContentScroll="False"
+                              MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Border}, Converter={StaticResource Sl.ToolbarHeight}}">
+                    <StackPanel Margin="0,0,0,8">
+                        <layout:IndigoDashboardPanel MaxColumns="3" MinimumColumnWidth="270" Gap="14">
+                            <Border Style="{StaticResource Sl.Hero}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Nav.LogsActivity}"
+                                               Style="{StaticResource Sl.Label}"
+                                               Foreground="{DynamicResource Ov.OnAccent}"/>
+                                    <TextBlock Text="{Binding ErrorCount}"
+                                               Style="{StaticResource Sl.Value}"
+                                               FontSize="30"
+                                               Foreground="{DynamicResource Ov.OnAccent}"
+                                               Typography.NumeralAlignment="Tabular"/>
+                                    <TextBlock Text="{DynamicResource Diagnostics.Errors}"
+                                               Style="{StaticResource Sl.Subtitle}"
+                                               Foreground="{DynamicResource Ov.OnAccent}"/>
+                                    <TextBlock Text="{DynamicResource Diagnostics.TechnicalDiagnosticsModuleUserActivityLive}"
+                                               Style="{StaticResource Sl.Subtitle}"
+                                               Foreground="{DynamicResource Ov.OnAccentMuted}"
+                                               Margin="0,12,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <layout:IndigoDashboardPanel MaxColumns="1" MinimumColumnWidth="110" Gap="10">
+                                <Border Style="{StaticResource Sl.Card}" Padding="14,10">
+                                    <StackPanel>
+                                        <TextBlock Text="{DynamicResource Diagnostics.LOGEntries}" Style="{StaticResource Sl.Label}"/>
+                                        <TextBlock Text="{Binding TotalEntries}" Style="{StaticResource Sl.Value}" Typography.NumeralAlignment="Tabular"/>
+                                        <TextBlock Text="{DynamicResource Diagnostics.Last500KeptMemory}" Style="{StaticResource Sl.Subtitle}"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Sl.Card}" Padding="14,10">
+                                    <StackPanel>
+                                        <TextBlock Text="{DynamicResource Diagnostics.Warnings}" Style="{StaticResource Sl.Label}"/>
+                                        <TextBlock Text="{Binding WarningCount}" Style="{StaticResource Sl.Value}" Typography.NumeralAlignment="Tabular"/>
+                                        <TextBlock Text="{DynamicResource Diagnostics.InclCritical}" Style="{StaticResource Sl.Subtitle}"/>
+                                    </StackPanel>
+                                </Border>
+                            </layout:IndigoDashboardPanel>
+                            <Border Style="{StaticResource Sl.Card}">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Common.Actions}" Style="{StaticResource Sl.Label}"/>
+                                    <Button Style="{StaticResource Sl.PrimaryButton}"
+                                            Command="{Binding RefreshCommand}"
+                                            Tag="&#xE72C;"
+                                            Content="{DynamicResource Action.Refresh}"
+                                            Margin="0,8,0,0"
+                                            HorizontalAlignment="Stretch"/>
+                                    <TextBlock Text="{DynamicResource Shell.UserHint}" Style="{StaticResource Sl.Label}" Margin="0,14,0,0"/>
+                                    <TextBlock Text="{Binding ActiveUser}" Style="{StaticResource Sl.Value}" FontSize="18"/>
+                                </StackPanel>
+                            </Border>
+                        </layout:IndigoDashboardPanel>
+                        <Border Style="{StaticResource Sl.FilterBar}">
+                            <ItemsControl ItemsSource="{Binding Tabs}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Content="{Binding Label}"
+                                                Tag="{Binding Icon, Converter={StaticResource EmojiToGlyph}}"
+                                                ToolTip="{Binding Label}"
+                                                Command="{Binding DataContext.SwitchTabCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource LogsTabButton}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+                <ContentControl Grid.Row="1"
+                                Content="{Binding ActiveContent}"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,28 @@
+<!--
+  SINGLE ENTRY for the ProGlass Design System.
+
+  Load order:
+    1. Tokens (colors → type → geometry → spacing → elevation → motion → density)
+    2. Materials
+    3. Compatibility aliases (new names over engine-managed legacy keys)
+
+  Theme families (Industrial / Monet / Crystal) are NOT extra architectures:
+  VisualThemeEngine paints the legacy material keys; ThemeManager then
+  dual-writes the semantic keys in PublishProGlassDesignSystem.
+
+  Component templates remain in Themes/Styles/* until screens migrate.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Themes/ProGlassDesignSystem/Tokens/SemanticColors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Themes/ProGlassDesignSystem/Tokens/SemanticTypography.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Themes/ProGlassDesignSystem/Tokens/SemanticGeometry.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Themes/ProGlassDesignSystem/Tokens/SemanticSpacing.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Themes/ProGlassDesignSystem/Tokens/SemanticElevation.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Themes/ProGlassDesignSystem/Tokens/SemanticMotion.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Themes/ProGlassDesignSystem/Tokens/SemanticDensity.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Themes/ProGlassDesignSystem/Materials/ProGlassMaterials.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Themes/ProGlassDesignSystem/Compatibility/LegacyAliases.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

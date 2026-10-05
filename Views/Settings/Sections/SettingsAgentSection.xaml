@@ -1,0 +1,111 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/SettingsAgentSection.xaml
+     PROJECT: ProGlassAutomation — ProGlass Agent (PHASE F)
+     MODULE: Settings — AI & AGENT page (tile-grid redesign Aug 2026)
+     REDESIGN
+       Was: four full-width cards stacked vertically (Privacy,
+       Provider Credentials, Taught Phrases, Memory & Knowledge).
+       The Privacy card alone held two full-width toggle rows plus two
+       stacked info cards — on a wide monitor most of the row was
+       empty.
+       Now: privacy toggles become two compact 320-wide tiles side by
+       side; the two explanatory info cards collapse into full-row
+       tiles beneath; credentials / taught phrases / memory keep
+       their wide surfaces. All bindings preserved. The AgentRoot
+       DataContext handoff stays in this section's code-behind;
+       AgentKeyBox, StoreKey_Click and OpenModelLicense_Click live in
+       AgentCoreCard.xaml.cs, beside the controls they act on.
+     DataContext is an AgentSettingsViewModel, created by the
+     code-behind so the agent subsystem owns its own state and the
+     existing SettingsViewModel is not modified. The root Grid keeps
+     x:Name="AgentRoot" — leaving the root's DataContext untouched so
+     SettingsView's page-visibility bindings keep working.
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsAgentSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:cards="clr-namespace:ProGlassAutomation.Views.Settings.Sections.Cards"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             RenderOptions.ClearTypeHint="Enabled"
+             RenderOptions.EdgeMode="Aliased">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <!-- x:Name="AgentRoot": the code-behind assigns the
+         AgentSettingsViewModel to THIS Grid, not to the UserControl root.
+         Why it matters: SettingsView sets this control's Visibility with a
+         binding. If the root's DataContext were replaced by the agent VM,
+         that binding would resolve IsAgentPage against a VM that has no
+         such property, fail, and fall back to Visible - which made this
+         page render on top of every other settings page.
+         Keeping the agent VM one level down leaves the root inheriting
+         SettingsViewModel, so page switching works, while every child
+         here still binds to the agent VM exactly as before. -->
+    <Grid x:Name="AgentRoot">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly"
+                      behaviors:SmoothScrollBehavior.IsEnabled="True">
+            <StackPanel Margin="{StaticResource SettingsPagePadding}">
+
+                <!-- ═══ BENTO HERO BANNER — AGENT & WORKFLOW ═══ -->
+                <Border Style="{StaticResource SettingsHeroCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                            <TextBlock Text="&#xE99A;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                            <TextBlock Text="Autonomous Agent &amp; Workflow" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="Autonomy tiers, tool permissions, vector knowledge retrieval, and offline brain" Style="{StaticResource SettingsHeroNoteStyle}"/>
+                        </StackPanel>
+
+                        <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                            <TextBlock Text="Supervised Tier" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- ═══ BENTO ROW — PRIVACY & MEMORY / KNOWLEDGE ═══ -->
+                <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- ═══ CARD — PRIVACY ═══ -->
+                    <cards:AgentCoreCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" VerticalAlignment="Top"/>
+
+                    <!-- ═══ CARD — MEMORY & KNOWLEDGE ═══ -->
+                    <cards:AgentDataCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" VerticalAlignment="Top"/>
+                </Grid>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

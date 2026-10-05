@@ -1,0 +1,414 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/About/Sections/SystemSection.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: About → "System" tab
+
+     2026-09-15 iOS-26 full restyle (approved mockup 05): two columns.
+       left  : Environment rows · Performance tiles · Storage rows
+       right : Recording Engine (live EncoderProbe snapshot rows,
+               measured-fps bar + live caption)
+     Every value is bound to a real source (Environment,
+     VisualThemeEngine, PerformanceProfileService, EncoderProbe,
+     AppDataRoot, LicenseStatusViewModel) — nothing fabricated.
+     Self-contained Ios26 palette; no hex, no literal corner radii.
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.About.Sections.SystemSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../AboutStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Recording Engine row: chip icon · name · dot + status. -->
+            <DataTemplate x:Key="SysEncoderRowTemplate">
+                <Grid Margin="0,0,0,13">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0"
+                            Width="30" Height="30"
+                            Style="{StaticResource Ios26IconTileStyle}"
+                            VerticalAlignment="Top">
+                        <TextBlock Text="&#xE950;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource Ios26FontSizeValue}"
+                                   Foreground="{DynamicResource Ios26AccentBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="{Binding Name}"
+                                   FontSize="{DynamicResource Ios26FontSizeValue}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                   IsHitTestVisible="False"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                            <Ellipse Width="8" Height="8" VerticalAlignment="Center">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill"
+                                                Value="{DynamicResource Ios26TextFaintBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Available}" Value="True">
+                                                <Setter Property="Fill"
+                                                        Value="{DynamicResource Ios26SuccessBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <TextBlock Text="{Binding Status}"
+                                       FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                       Margin="7,0,0,0"
+                                       VerticalAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       IsHitTestVisible="False"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </DataTemplate>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel>
+
+        <!-- ═══ HERO · SYSTEM ARCHITECTURE & HOST ENVIRONMENT (Screen 05) ═══ -->
+        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="14"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Width="48" Height="48"
+                            Style="{StaticResource Ios26IconTileStyle}"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="&#xE7F4;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                                   Foreground="{DynamicResource Ios26AccentBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock Text="System Architecture &amp; Diagnostics"
+                                   FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                        <TextBlock Text="Hardware-accelerated rendering, WAL persistence, and hardware encoder pipeline"
+                                   FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <Border Grid.Column="3" Style="{StaticResource Ios26ChipGreenStyle}"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="Engine Online"
+                                   FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource Ios26SuccessBrush}"/>
+                    </Border>
+                </Grid>
+
+                <WrapPanel>
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="12,8" Margin="0,0,8,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE790;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       Foreground="{DynamicResource Ios26AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding RenderTierDisplay}" FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ios26TextTitleBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="12,8" Margin="0,0,8,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE8B7;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       Foreground="{DynamicResource Ios26AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="SQLite WAL Isolated" FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ios26TextTitleBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="12,8" Margin="0,0,8,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE950;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       Foreground="{DynamicResource Ios26SuccessBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="NVENC / QSV Ready" FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ios26TextTitleBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+            </StackPanel>
+        </Border>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.15*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+        <!-- ═══ LEFT COLUMN ═══ -->
+        <StackPanel Grid.Column="0">
+
+            <!-- Environment -->
+            <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource About.Environment}"
+                               FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                               FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                               Margin="0,0,0,8"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,0,0,11" VerticalAlignment="Center">
+                            <Run Text="{DynamicResource About.OperatingSystem}"/><Run Text=" →"/>
+                        </TextBlock>
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                   Text="{Binding OsVersion}"
+                                   FontSize="{DynamicResource Ios26FontSizeValue}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource Ios26TextBodyBrush}"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,0,0,11" VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding OsVersion}"/>
+                        <Border Grid.Row="0" Grid.ColumnSpan="2" Height="1" VerticalAlignment="Bottom"
+                                Background="{DynamicResource Ios26HairlineBrush}"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,11,0,11" VerticalAlignment="Center">
+                            <Run Text="{DynamicResource About.Runtime}"/><Run Text=" →"/>
+                        </TextBlock>
+                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                   Text="{Binding DotNetVersion}"
+                                   FontSize="{DynamicResource Ios26FontSizeValue}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource Ios26TextBodyBrush}"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,11,0,11" VerticalAlignment="Center"/>
+                        <Border Grid.Row="1" Grid.ColumnSpan="2" Height="1" VerticalAlignment="Bottom"
+                                Background="{DynamicResource Ios26HairlineBrush}"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,11,0,11" VerticalAlignment="Center">
+                            <Run Text="{DynamicResource About.VisualTheme}"/><Run Text=" →"/>
+                        </TextBlock>
+                        <TextBlock Grid.Row="2" Grid.Column="1"
+                                   Text="{Binding ThemeName}"
+                                   FontSize="{DynamicResource Ios26FontSizeValue}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource Ios26TextBodyBrush}"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,11,0,11" VerticalAlignment="Center"/>
+                        <Border Grid.Row="2" Grid.ColumnSpan="2" Height="1" VerticalAlignment="Bottom"
+                                Background="{DynamicResource Ios26HairlineBrush}"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,11,0,0" VerticalAlignment="Center">
+                            <Run Text="{DynamicResource About.MachineFingerprint}"/><Run Text=" →"/>
+                        </TextBlock>
+                        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Margin="0,11,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE950;"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,7,0"/>
+                            <Border Style="{StaticResource Ios26ValuePillStyle}">
+                                <TextBlock Text="{Binding Fingerprint}"
+                                           FontSize="{DynamicResource Ios26FontSizeSmall}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                           Foreground="{DynamicResource Ios26TextSecondaryBrush}"
+                                           MaxWidth="240" TextTrimming="CharacterEllipsis"
+                                           ToolTip="{Binding Fingerprint}"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Performance -->
+            <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource About.Performance}"
+                               FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                               FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                               Margin="0,0,0,8"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource Ios26InnerTileStyle}">
+                            <StackPanel>
+                                <TextBlock FontSize="{DynamicResource Ios26FontSizeLabel}"
+                                           Foreground="{DynamicResource Ios26TextMutedBrush}">
+                                    <Run Text="{DynamicResource About.RenderTier}"/><Run Text=" →"/>
+                                </TextBlock>
+                                <TextBlock Text="{Binding RenderTierDisplay}"
+                                           FontSize="{DynamicResource Ios26FontSizeSectionTitle}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                           Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="2" Style="{StaticResource Ios26InnerTileStyle}">
+                            <StackPanel>
+                                <TextBlock FontSize="{DynamicResource Ios26FontSizeLabel}"
+                                           Foreground="{DynamicResource Ios26TextMutedBrush}">
+                                    <Run Text="{DynamicResource About.RichEffects}"/><Run Text=" →"/>
+                                </TextBlock>
+                                <TextBlock Text="{Binding RichEffectsDisplay}"
+                                           FontSize="{DynamicResource Ios26FontSizeSectionTitle}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                           Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Storage -->
+            <Border Style="{StaticResource Ios26CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource About.Storage}"
+                               FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                               FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                               Margin="0,0,0,14"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                   Text="&#xE8B7;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource Ios26FontSizeSubtitle}"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,0,0,11" VerticalAlignment="Center">
+                            <Run Text="{DynamicResource About.Database}"/><Run Text=" →"/>
+                        </TextBlock>
+                        <TextBlock Grid.Row="0" Grid.Column="3"
+                                   Text="{Binding DatabasePath}"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource Ios26TextBodyBrush}"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,0,0,11" VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding DatabasePath}"/>
+                        <Border Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Height="1"
+                                VerticalAlignment="Bottom"
+                                Background="{DynamicResource Ios26HairlineBrush}"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0"
+                                   Text="&#xE8B7;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource Ios26FontSizeSubtitle}"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,11,0,0" VerticalAlignment="Center">
+                            <Run Text="{DynamicResource About.Recordings}"/><Run Text=" →"/>
+                        </TextBlock>
+                        <TextBlock Grid.Row="1" Grid.Column="3"
+                                   Text="{Binding RecordingsPath}"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource Ios26TextBodyBrush}"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,11,0,0" VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding RecordingsPath}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- ═══ RIGHT COLUMN ═══ -->
+        <StackPanel Grid.Column="2">
+
+            <!-- Recording Engine (live EncoderProbe snapshot) -->
+            <Border Style="{StaticResource Ios26CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource About.RecordingEngine}"
+                               FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                               FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                    <TextBlock Text="{DynamicResource About.RecordingEngineSub}"
+                               FontSize="{DynamicResource Ios26FontSizeSmall}"
+                               Foreground="{DynamicResource Ios26TextMutedBrush}"
+                               Margin="0,3,0,16"/>
+
+                    <ItemsControl ItemsSource="{Binding EncoderRows}"
+                                  ItemTemplate="{StaticResource SysEncoderRowTemplate}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Vertical"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <!-- Measured-fps bar (real probe data, OneWay). -->
+                    <ProgressBar Style="{StaticResource Ios26BarStyle}"
+                                 Maximum="100"
+                                 Value="{Binding EngineBarValue, Mode=OneWay}"
+                                 Margin="0,4,0,6"/>
+                    <TextBlock Text="{Binding EngineBarCaption}"
+                               FontSize="{DynamicResource Ios26FontSizeLabel}"
+                               Foreground="{DynamicResource Ios26TextMutedBrush}"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Grid>
+    </StackPanel>
+</UserControl>

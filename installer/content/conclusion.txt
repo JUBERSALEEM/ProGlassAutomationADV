@@ -1,0 +1,1 @@
+ProGlass Automation is installed. Launch it to sign in. FFmpeg is included with this setup. The offline model stays optional and can be downloaded from Settings.

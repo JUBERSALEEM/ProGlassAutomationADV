@@ -1,0 +1,324 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: Views/Login/FirstRunSetupPanel.xaml.cs
+// PROJECT: ProGlassAutomation
+// MODULE: First-run user setup wizard
+//
+// Commit 5 of the licensing refactor. Replaces the
+// admin/admin seed that AuditService.InitializeAsync
+// used to write. The splash shows THIS panel when the
+// audit database has no users yet (fresh install or
+// after a destructive DB reset). The operator types a
+// username, display name, and password; the panel
+// creates the first administrator and hands the splash
+// back to the regular LoginPanel so the same operator
+// can sign in with the credentials they just chose.
+//
+// Behaviour contract:
+//   • Same instant-feedback shape as LoginPanel: Enter
+//     anywhere submits, the button flips to "CREATING…"
+//     and the form locks BEFORE any await, so the
+//     feedback is the same frame the user pressed
+//     Enter.
+//   • Re-entrancy guard prevents double submission.
+//   • No skip / no Exit button. The only way out is
+//     closing the splash window via the OS. This is
+//     deliberate: ProGlass cannot run without a user.
+//   • Password rules match CreateUserAsync's: at least
+//     6 characters, two passwords must match. Username
+//     at least 3 characters. Display name required.
+//   • On success, the panel raises Created with the new
+//     username so the splash can swap the LoginPanel
+//     in pre-populated with the same username.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Services.AI.AIConfig;
+using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Security;
+using System;
+using ProGlassAutomation.Utilities;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+
+namespace ProGlassAutomation.Views.Login
+{
+    public partial class FirstRunSetupPanel : UserControl
+    {
+        /// <summary>
+        /// Raised when the operator successfully creates
+        /// the first administrator. The arguments are the
+        /// new <c>(username, password)</c> pair, so the
+        /// splash can silently sign the operator in and
+        /// go straight to the main window — the industrial
+        /// UX contract is "type your credentials once, land
+        /// in the app". Any subsequent boot goes through
+        /// the standard login form.
+        /// </summary>
+        public event Action<string, string>? Created;
+
+        /// <summary>Prevents double submission (Enter + click racing).</summary>
+        private bool _creating;
+
+        public FirstRunSetupPanel()
+        {
+            InitializeComponent();
+            Loaded += OnLoaded;
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            FocusField(UsernameBox);
+            // The meter's identity check depends on the username / display
+            // name being typed, so it refreshes as they change too.
+            UsernameBox.TextChanged += (_, __) => RefreshMeter();
+            DisplayNameBox.TextChanged += (_, __) => RefreshMeter();
+        }
+
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e) =>
+            RefreshMeter();
+
+        private void RefreshMeter() =>
+            Views.Shared.PasswordMeterHelper.Update(
+                PasswordMeter, PasswordMeterLabel, PasswordGuidance,
+                PasswordBox.Password,
+                UsernameBox.Text?.Trim(), DisplayNameBox.Text?.Trim());
+
+        // ── Keyboard ───────────────────────────────────────────
+
+        /// <summary>
+        /// Enter (main or num-pad) ANYWHERE on the page
+        /// submits, exactly like the LoginPanel.
+        /// </summary>
+        private void Root_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if ((e.Key == Key.Enter || e.Key == Key.Return) && !_creating)
+            {
+                e.Handled = true;
+                _ = TryCreateAsync();
+            }
+        }
+
+        private void Create_Click(object sender, RoutedEventArgs e)
+        {
+            if (!_creating)
+                _ = TryCreateAsync();
+        }
+
+        // ── Submit ─────────────────────────────────────────────
+
+        private async Task TryCreateAsync()
+        {
+            if (_creating) return;
+            _creating = true;
+
+            string username = UsernameBox.Text?.Trim() ?? "";
+            string displayName = DisplayNameBox.Text?.Trim() ?? "";
+            string password = PasswordBox.Password ?? "";
+            string confirm = ConfirmPasswordBox.Password ?? "";
+
+            if (username.Length < 3)
+            {
+                _creating = false;
+                ShowError("Username must be at least 3 characters.");
+                FocusField(UsernameBox);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(displayName))
+            {
+                _creating = false;
+                ShowError("Display name is required.");
+                FocusField(DisplayNameBox);
+                return;
+            }
+
+            // Mirrors AuditService.CreateUserAsync via the same single home
+            // (PasswordPolicy), so the local pre-check and the enforced rule
+            // can never disagree — instant feedback without a DB round-trip.
+            var policy = PasswordPolicy.ValidateNewPassword(
+                password, username, displayName);
+            if (!policy.Accepted)
+            {
+                _creating = false;
+                ShowError(policy.Error);
+                FocusField(PasswordBox);
+                return;
+            }
+
+            if (password != confirm)
+            {
+                _creating = false;
+                ShowError("The two passwords do not match.");
+                FocusField(ConfirmPasswordBox);
+                return;
+            }
+
+            // INSTANT feedback: flip the button + lock the
+            // form BEFORE any database work, then yield so
+            // "CREATING…" paints this frame.
+            SetBusyState(true, "Creating administrator…");
+            await Task.Yield();
+
+            try
+            {
+                var (ok, error) = await Task.Run(() =>
+                    AuditService.CreateUserAsync(
+                        username, displayName,
+                        AppRoles.Administrator, password,
+                        reason: "First-run setup (Commit 5)."));
+
+                if (!ok)
+                {
+                    SetBusyState(false, "");
+                    ShowError(error);
+                    PasswordBox.Clear();
+                    ConfirmPasswordBox.Clear();
+                    FocusField(UsernameBox);
+                    return;
+                }
+
+                // Remember the fresh username so the login form on
+                // the NEXT boot pre-fills it. We deliberately do
+                // NOT arm the auto-sign-in pill here — the operator
+                // has not been shown that consent surface yet, and
+                // a senior-ERP UX contract requires an explicit
+                // opt-in for silent sign-in. See
+                // PersistFirstRunUsername for the reasoning and the
+                // subsequent-boot flow.
+                PersistFirstRunUsername(username);
+
+                SetBusyState(false, "Administrator created — signing in…");
+                PasswordBox.Clear();
+                ConfirmPasswordBox.Clear();
+                // Emit the (username, password) so the splash can
+                // establish the session without asking the operator
+                // to type the same password again. The local
+                // `password` variable is still in scope; clearing
+                // the PasswordBox above only wipes the UI state.
+                Created?.Invoke(username, password);
+            }
+            catch (Exception ex)
+            {
+                SetBusyState(false, "");
+                ShowError("Could not create administrator: " + ExceptionMessages.Deep(ex));
+                AppLogService.Error(
+                    "First-run user creation failed.", ex,
+                    new LogContext
+                    {
+                        Module = "Auth",
+                        Class = nameof(FirstRunSetupPanel),
+                        Operation = "TryCreateAsync"
+                    });
+            }
+            finally
+            {
+                // Keep the button locked on success so the
+                // user does not double-click while the
+                // splash swaps panels. The splash sets
+                // IsEnabled = false on the whole panel
+                // after Created fires, so the busy lock
+                // gets released implicitly.
+                if (!_creating) { /* nothing */ }
+            }
+        }
+
+        // ── UI state helpers (mirror LoginPanel) ─────────────
+
+        private void ShowError(string message)
+        {
+            ErrorText.Text = message;
+            ErrorPanel.Visibility = Visibility.Visible;
+        }
+
+        /// <summary>
+        /// Flips the button label, locks the form, and
+        /// shows the status strip. Mirrors
+        /// <c>LoginPanel.SetSigningState</c> so the two
+        /// panels feel the same to the operator.
+        /// </summary>
+        private void SetBusyState(bool busy, string status)
+        {
+            bool showStatus = busy || status.Length > 0;
+            StatusStrip.Visibility = showStatus
+                ? Visibility.Visible
+                : Visibility.Hidden;
+            CreateStatusText.Text = status ?? string.Empty;
+            CreateBusyDot.Visibility = showStatus
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            bool enable = !busy;
+            UsernameBox.IsEnabled = enable;
+            DisplayNameBox.IsEnabled = enable;
+            PasswordBox.IsEnabled = enable;
+            ConfirmPasswordBox.IsEnabled = enable;
+            CreateButton.IsEnabled = enable;
+            CreateButton.Content = busy ? "CREATING…" : "CREATE ADMINISTRATOR";
+
+            if (busy)
+                ErrorPanel.Visibility = Visibility.Collapsed;
+        }
+
+        private static void FocusField(UIElement element)
+        {
+            if (element == null) return;
+            element.Focus();
+            Keyboard.Focus(element);
+        }
+
+        /// <summary>
+        /// Remembers the freshly-created username so the login form
+        /// on the NEXT boot pre-fills it. Does NOT arm the auto-login
+        /// pill — the operator has not yet been shown that consent
+        /// surface, and a senior-ERP UX pattern requires an explicit
+        /// opt-in for silent auto-sign-in on subsequent boots. The
+        /// user's typed password is deliberately NOT written to the
+        /// vault here; it will be captured the first time they tick
+        /// the pill on the login form.
+        ///
+        /// Flow:
+        ///   First boot   → setup → straight to main (this method).
+        ///   Second boot  → splash → login (with username pre-filled,
+        ///                  pill visible, off by default).
+        ///   User ticks pill and signs in → auto-login armed for
+        ///                  every subsequent boot until the next
+        ///                  installed update.
+        /// </summary>
+        private static void PersistFirstRunUsername(string username)
+        {
+            try
+            {
+                if (App.Config == null) return;
+                App.Config.LastUsername = username;
+                App.Config.RememberUsername = true;
+
+                // Explicitly DO NOT auto-arm the skip-login pill
+                // on first run — the operator has not opted in yet.
+                // The next boot must present the login form so
+                // they can consent (or not) on their own terms.
+                App.Config.SkipLoginUntilUpdate = false;
+                App.Config.SkipLoginBoundVersion = "";
+                ConfigService.Save(App.Config);
+
+                // Clear any stale vault entry left over from a
+                // previous install / user so a future auto-login
+                // attempt cannot pick up someone else's password.
+                try { SecretVault.Remove(LoginPanel.SkipLoginSecretKey); }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[FirstRunSetupPanel.xaml] PersistFirstRunUsername: best effort: " + ExceptionMessages.Deep(ex)); }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "Could not persist first-run username: " + ExceptionMessages.Deep(ex),
+                    new LogContext
+                    {
+                        Module = "Auth",
+                        Class = nameof(FirstRunSetupPanel),
+                        Operation = "PersistFirstRunUsername"
+                    });
+            }
+        }
+    }
+}

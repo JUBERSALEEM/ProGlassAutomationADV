@@ -1,0 +1,419 @@
+<UserControl x:Class="ProGlassAutomation.Views.Personal.PersonalProformaInvoiceView"
+             TextOptions.TextHintingMode="Fixed"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:step1="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step1CompanySetup"
+             xmlns:step2="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step2ClientProfile"
+             xmlns:step3="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step3ProjectSpecs"
+             xmlns:step4="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator"
+             xmlns:step5="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step5DataGrid"
+             xmlns:step6="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges"
+             xmlns:step7="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview"
+             xmlns:step8="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step8Attachments"
+             xmlns:step9="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step9ProfitLoss"
+             xmlns:pilist="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList"
+             mc:Ignorable="d"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         GB-P5 — GLASS BLUSH PROFORMA INVOICE (glass-02 reference)
+
+         PERSONAL view fork: the glass-02 composition (floating glass
+         header, 9-step GLOWING stepper strip, glass step panel, glass
+         progress bar) is not expressible by re-styling the Professional
+         PI shell without altering it. References the SAME
+         ProformaInvoiceViewModel — every binding, command, AutomationId
+         and i18n key is preserved from
+         Views/ProformaInvoice/ProformaInvoiceView.xaml (contract).
+         The nine step panels host the SAME step views (business logic
+         untouched) inside the glass step panel.
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        <!-- glass wizard step (WizardStep: StationCode/RailLabel/IsCompleted/IsActive) -->
+        <DataTemplate x:Key="GbPiStepTemplate">
+            <Button Command="{Binding DataContext.GoToStepCommand,
+                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    CommandParameter="{Binding}"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Padding="0"
+                    Margin="3,0"
+                    Height="52"
+                    Cursor="Hand"
+                    FocusVisualStyle="{x:Null}"
+                    ToolTip="{Binding Subtitle}">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid SnapsToDevicePixels="True">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <!-- glowing dot (28px, per glass-02) -->
+                            <Border x:Name="Dot"
+                                    Grid.Row="0"
+                                    Width="28" Height="28"
+                                    CornerRadius="14"
+                                    Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                                    BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                                    BorderThickness="1"
+                                    HorizontalAlignment="Center"
+                                    SnapsToDevicePixels="True">
+                                <TextBlock x:Name="Num"
+                                           Text="{Binding StationCode}"
+                                           FontSize="12" FontWeight="Bold"
+                                           Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock x:Name="Lbl"
+                                       Grid.Row="1"
+                                       Text="{Binding RailLabel}"
+                                       FontSize="10.5" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,0"
+                                       TextTrimming="CharacterEllipsis"
+                                       MaxWidth="110"
+                                       TextAlignment="Center"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <!-- completed: soft accent + check (same data logic as Professional) -->
+                            <DataTrigger Binding="{Binding IsCompleted}" Value="True">
+                                <Setter TargetName="Dot" Property="Background" Value="{DynamicResource GlassBlush.SuccessSoft}"/>
+                                <Setter TargetName="Dot" Property="BorderBrush" Value="{DynamicResource GlassBlush.Success}"/>
+                                <Setter TargetName="Num" Property="Text" Value="&#xE73E;"/>
+                                <Setter TargetName="Num" Property="FontFamily" Value="Segoe MDL2 Assets"/>
+                                <Setter TargetName="Num" Property="FontSize" Value="12"/>
+                                <Setter TargetName="Num" Property="Foreground" Value="{DynamicResource GlassBlush.Success}"/>
+                                <Setter TargetName="Lbl" Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+                            </DataTrigger>
+                            <!-- active: accent fill + cyan glow -->
+                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                <Setter TargetName="Dot" Property="Background" Value="{DynamicResource GlassBlush.AccentDeep}"/>
+                                <Setter TargetName="Dot" Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                                <Setter TargetName="Dot" Property="Effect" Value="{StaticResource GlassBlush.GlowAccent}"/>
+                                <Setter TargetName="Num" Property="Foreground" Value="{DynamicResource GlassBlush.OnAccent}"/>
+                                <Setter TargetName="Num" Property="FontWeight" Value="Bold"/>
+                                <Setter TargetName="Lbl" Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+                                <Setter TargetName="Lbl" Property="FontWeight" Value="Bold"/>
+                            </DataTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Dot" Property="Background" Value="{DynamicResource GlassBlush.Surface}"/>
+                                <Setter TargetName="Lbl" Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </DataTemplate>
+            </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Background="Transparent">
+
+        <!-- ══ LIST MODE ═════════════════════════════════════════════ -->
+        <Grid>
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsListView}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- glass header with actions -->
+            <ContentControl Style="{StaticResource GlassBlush.GlassCard}" Margin="0,0,0,24">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{DynamicResource ProformaInvoice.ProformaInvoices}"
+                                   Style="{StaticResource GlassBlush.SectionTitle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.SavedQuotationsReadyConvertJobOrders}"
+                                   Style="{StaticResource GlassBlush.SectionSubtitle}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Command="{Binding NewFromInquiryCommand}"
+                                Style="{StaticResource GlassBlush.GlassButton}"
+                                Content="{DynamicResource ProformaInvoice.NEWInquiry}"
+                                ToolTip="{DynamicResource ProformaInvoice.CreateNewProformaInvoiceConfirmedInquiry}"
+                                AutomationProperties.AutomationId="ProformaInvoice.NewFromInquiryButton"
+                                AutomationProperties.Name="New From Inquiry"
+                                Margin="0,0,12,0"/>
+                        <Button Margin="0"
+                                Command="{Binding NewInvoiceCommand}"
+                                Style="{StaticResource GlassBlush.GlassButtonSoft}"
+                                Content="{DynamicResource ProformaInvoice.BlankRecommended}"
+                                ToolTip="{DynamicResource ProformaInvoice.CreateBlankProformaInvoiceWithoutInquiryUse}"
+                                AutomationProperties.AutomationId="ProformaInvoice.NewInvoiceButton"
+                                AutomationProperties.Name="New Invoice Blank"/>
+                    </StackPanel>
+                </Grid>
+            </ContentControl>
+
+            <ContentControl Grid.Row="1" Content="{Binding SavedInvoicesListVM}">
+                <ContentControl.ContentTemplate>
+                    <DataTemplate>
+                        <ContentControl Style="{StaticResource GlassBlush.GlassCard}">
+                            <pilist:SavedInvoicesListView/>
+                        </ContentControl>
+                    </DataTemplate>
+                </ContentControl.ContentTemplate>
+            </ContentControl>
+        </Grid>
+
+        <!-- ══ WIZARD MODE ═══════════════════════════════════════════ -->
+        <Grid>
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsWizardView}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- glass header: back + 9-step glowing strip + progress text -->
+            <ContentControl Style="{StaticResource GlassBlush.GlassCard}"
+                            Margin="0,0,0,24">
+                <Grid Margin="8,2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Command="{Binding BackToListCommand}"
+                            Style="{StaticResource GlassBlush.GlassButtonSoft}"
+                            Height="36"
+                            Content="{DynamicResource ProformaInvoice.Invoices}"
+                            VerticalAlignment="Center"
+                            Margin="0,0,16,0"
+                            ToolTip="{DynamicResource ProformaInvoice.BackInvoiceList}"/>
+
+                    <ItemsControl Grid.Column="1"
+                                  ItemsSource="{Binding WizardSteps}"
+                                  ItemTemplate="{StaticResource GbPiStepTemplate}"
+                                  VerticalAlignment="Center">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="1"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding StepProgressText}"
+                               FontSize="{DynamicResource GlassBlush.FontCaption}"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource GlassBlush.TextMuted}"
+                               VerticalAlignment="Center"
+                               Margin="16,0,8,0"/>
+                </Grid>
+            </ContentControl>
+
+            <!-- glass step panel (same step views, same triggers) -->
+            <ContentControl Style="{StaticResource GlassBlush.GlassCard}"
+                            Grid.Row="1"
+                            Margin="0,0,0,24">
+                <Grid Margin="6,6">
+                    <ContentControl Content="{Binding Step1VM}" Visibility="Collapsed">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStepNumber}" Value="1">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate><step1:CompanySetupView/></DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                    <ContentControl Content="{Binding Step2VM}" Visibility="Collapsed">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStepNumber}" Value="2">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate><step2:ClientProfileView/></DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                    <ContentControl Content="{Binding Step3VM}" Visibility="Collapsed">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStepNumber}" Value="3">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate><step3:ProjectSpecsView/></DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                    <ContentControl Content="{Binding Step4VM}" Visibility="Collapsed">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStepNumber}" Value="4">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate><step4:PricingEstimatorView/></DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                    <ContentControl Content="{Binding Step5VM}" Visibility="Collapsed">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStepNumber}" Value="5">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate><step5:DataGridView/></DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                    <ContentControl Content="{Binding Step6VM}" Visibility="Collapsed">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStepNumber}" Value="6">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate><step6:OtherChargesView/></DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                    <ContentControl Content="{Binding Step7VM}" Visibility="Collapsed">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStepNumber}" Value="7">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate><step7:PrintPreviewView/></DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                    <ContentControl Content="{Binding Step8VM}" Visibility="Collapsed">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStepNumber}" Value="8">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate><step8:AttachmentsStepView/></DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                    <ContentControl Content="{Binding Step9VM}" Visibility="Collapsed">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStepNumber}" Value="9">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate><step9:ProfitLossStepView/></DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                </Grid>
+            </ContentControl>
+
+            <!-- glass footer: back / progress / continue (AutomationIds preserved) -->
+            <ContentControl Style="{StaticResource GlassBlush.GlassCard}" Grid.Row="2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Command="{Binding PreviousStepCommand}"
+                            Style="{StaticResource GlassBlush.GlassButtonSoft}"
+                            Content="{DynamicResource Action.Back}"
+                            AutomationProperties.AutomationId="ProformaInvoice.BackButton"
+                            AutomationProperties.Name="Back"
+                            VerticalAlignment="Center"/>
+                    <ProgressBar Grid.Column="1"
+                                 Style="{StaticResource GlassBlush.Progress}"
+                                 Height="8"
+                                 Maximum="1" Minimum="0"
+                                 Value="{Binding ProgressPercent, Mode=OneWay}"
+                                 Margin="24,10"
+                                 VerticalAlignment="Center"/>
+                    <Button Grid.Column="2"
+                            Command="{Binding NextStepCommand}"
+                            Style="{StaticResource GlassBlush.GlassButton}"
+                            Content="{DynamicResource ProformaInvoice.Continue}"
+                            AutomationProperties.AutomationId="ProformaInvoice.ContinueButton"
+                            AutomationProperties.Name="Continue"
+                            VerticalAlignment="Center"/>
+                </Grid>
+            </ContentControl>
+        </Grid>
+    </Grid>
+</UserControl>

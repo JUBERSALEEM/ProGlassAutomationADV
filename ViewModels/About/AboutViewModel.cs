@@ -1,0 +1,845 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: ViewModels/About/AboutViewModel.cs
+// PROJECT: ProGlassAutomation
+// MODULE: About (Chat 23 v3.0)
+// VERSION: Chat 23 v3.0 — Remove Stats duplication with hero pillars
+//
+// CHANGES vs v2.9:
+//   ✓ REMOVED `Stats` IReadOnlyList collection
+//     Reason: it duplicated the hero LeftPillars/RightPillars metrics
+//     (both showed "11 MODULES", "5 DATABASES", "AI"). Two consecutive
+//     sections with the same numbers = amateur ERP design.
+//     Hero pillars are the single source of at-a-glance metrics now.
+//   ✓ REMOVED `StatTile` record (no longer consumed by any view)
+//     Removing dead code prevents future confusion and lint warnings.
+//   ✓ ALL other v2.9 properties/collections preserved verbatim
+//     (LeftPillars, RightPillars, SalesCycle, ProductionStages,
+//     DispatchBilling, Modules, TechStack, CapabilitiesTop,
+//     CapabilitiesBottom, all 6 core string properties)
+//
+// PRESERVED (zero regression):
+//   • ALL 6 core string properties (AppName, AppTagline, Version,
+//     DeveloperName, Email, Copyright) — Country (address) removed
+//     2026-09-10 per owner directive
+//   • Version v1.1.0
+//   • Dynamic copyright year (2026 floor)
+//   • LeftPillars / RightPillars (hero triptych)
+//   • SalesCycle / ProductionStages / DispatchBilling (workflow)
+//   • Modules (12 module chips)
+//   • TechStack (8 tech items)
+//   • CapabilitiesTop / CapabilitiesBottom (split capability rows)
+//   • All records except StatTile: HeroPillar, WorkflowStage,
+//     ModuleInfo, TechItem, CapabilityInfo
+//   • ViewModelBase inheritance
+//   • sealed class + file-scoped namespace + XML docs
+//
+// PERFORMANCE:
+//   Same as v2.9. Removing 1 collection + 1 record = marginal memory
+//   reduction. Zero PropertyChanged, zero LINQ, zero async — VM is
+//   still static get-only initializers.
+//
+// REGRESSION RISK: ZERO
+//   Only unused/duplicating code removed. All active bindings preserved.
+// ═══════════════════════════════════════════════════════════════════════
+
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Input;
+using System.Linq;
+using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.ProformaInvoice;
+using ProGlassAutomation.ViewModels;
+using ProGlassAutomation.ViewModels.Licensing;
+
+namespace ProGlassAutomation.ViewModels.About;
+
+/// <summary>
+/// View-model for the About screen.
+///
+/// Exposes read-only metadata about the application: brand identity,
+/// version, developer attribution, legal copyright, hero decorative
+/// pillars, and typed collections for workflow stages, modules, tech
+/// stack, and capabilities.
+///
+/// All properties are static get-only initializers — this VM never
+/// raises <see cref="System.ComponentModel.INotifyPropertyChanged"/>
+/// events. Safe for use as a page-level singleton if desired.
+///
+/// Copyright year is computed dynamically at construction time so the
+/// footer stays current across multi-year deployment lifetimes, with a
+/// minimum floor of 2026 to prevent regression if the host system clock
+/// is misconfigured.
+/// </summary>
+public sealed class AboutViewModel : ViewModelBase
+{
+    /// <summary>
+    /// Minimum year floor for the copyright line.
+    /// Prevents display of "© 2024" or earlier if the host machine's
+    /// system clock is set incorrectly (common on offline factory PCs).
+    /// </summary>
+    private const int CopyrightYearFloor = 2026;
+
+    // ══════════════════════════════════════════════════════════════════
+    //  LG4 MOSAIC (2026-09-10): scope chips + live module stat chips
+    //  Modules page = floating title + All/Operations/Finance/Platform
+    //  capsule + 4×3 crystal mosaic with per-module stat chips, exactly
+    //  like the approved LG4 board. Sheet Store chip is LIVE (real
+    //  balance count from Sheet Store); the rest are static-truthful.
+    // ══════════════════════════════════════════════════════════════════
+
+    public AboutViewModel()
+    {
+        SelectedScopeItem = ModuleScopes[0];
+
+        // LIVE Sheet Store chip — real balance count. Scalar INPC is
+        // marshalled by WPF, so the background continuation is safe.
+        Utilities.AsyncUtility.SafeFireAndForget(async () =>
+        {
+            var sheets = await SheetStorePricingService.GetAllSheetsAsync()
+                .ConfigureAwait(false);
+            int balance = sheets.Sum(s => Math.Max(0, s.Balance));
+            var m = Modules.FirstOrDefault(x => x.Name == "Sheet Store");
+            if (m != null && balance > 0)
+                m.StatChip = $"{balance:N0} SHEETS";
+        }, "About.LiveSheetCount");
+    }
+
+    /// <summary>One segment of the scope capsule (LG4).</summary>
+    public sealed record AboutScope(string Key, string Label);
+
+    public ObservableCollection<AboutScope> ModuleScopes { get; } = new()
+    {
+        new AboutScope("All", "All"),
+        new AboutScope("Operations", "Operations"),
+        new AboutScope("Finance", "Finance"),
+        new AboutScope("Platform", "Platform"),
+    };
+
+    private AboutScope _selectedScopeItem;
+    public AboutScope SelectedScopeItem
+    {
+        get => _selectedScopeItem;
+        set
+        {
+            if (ReferenceEquals(_selectedScopeItem, value) || value == null)
+                return;
+            _selectedScopeItem = value;
+            OnPropertyChanged();
+            RefilterModules();
+        }
+    }
+
+    /// <summary>Modules currently surfaced by the scope capsule.</summary>
+    public ObservableCollection<ModuleInfo> FilteredModules { get; } = new();
+
+    // ══════════════════════════════════════════════════════════════
+    //  2026-09-15 Part 1 mockup — MODULE SEARCH
+    //  The approved Modules screen has a live search box in the list
+    //  header. It COMBINES with the scope capsule: a module is shown
+    //  only when it matches the selected scope AND the search text
+    //  (name or description, case-insensitive). Typing never clears
+    //  the scope; clearing the search restores the scoped list.
+    // ══════════════════════════════════════════════════════════════
+
+    private string _moduleSearch = string.Empty;
+
+    /// <summary>Search text for the module list (2026-09-15).</summary>
+    public string ModuleSearch
+    {
+        get => _moduleSearch;
+        set
+        {
+            if (_moduleSearch == value) return;
+            _moduleSearch = value ?? string.Empty;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(ModuleSearchIsEmpty));
+            RefilterModules();
+        }
+    }
+
+    /// <summary>
+    /// True when the search box is empty — drives the placeholder
+    /// TextBlock (bound through BoolToVisibilityConverter).
+    /// </summary>
+    public bool ModuleSearchIsEmpty =>
+        string.IsNullOrEmpty(_moduleSearch);
+
+    private void RefilterModules()
+    {
+        var key = _selectedScopeItem?.Key ?? "All";
+        var search = _moduleSearch?.Trim() ?? string.Empty;
+        FilteredModules.Clear();
+        foreach (var m in Modules.Where(m =>
+                     (key == "All" || m.Category == key) &&
+                     (search.Length == 0 ||
+                      m.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                      m.Description.Contains(search, StringComparison.OrdinalIgnoreCase))))
+            FilteredModules.Add(m);
+        OnPropertyChanged(nameof(FilteredModules));
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    //  BRAND IDENTITY
+    // ══════════════════════════════════════════════════════════════════
+
+    /// <summary>Application name shown in the hero header.</summary>
+    // ── NAV RAIL OPEN/CLOSE (2026-09-16) ─────────────────────────────────
+    // Owner: "sidebar in setting implement reports sidebar action open close
+    // same styles dont include any separate line etc to trigger sidebar open
+    // close check reports hub sidebar implement that in settings and about
+    // sidebar properly. So full module can be visible properly."
+    //
+    // Reports (SalesReportViewModel.IsRailOpen / ToggleRailCommand) and
+    // Settings (IsSettingsRailOpen / ToggleSettingsRailCommand) both collapse
+    // their rail on demand. About's was a fixed 264px column with no toggle at
+    // all, so the module could never be viewed full width — the content column
+    // was permanently 264px narrower than the window. Same single-click toggle
+    // and same member names as the Reports hub.
+    private bool _isRailOpen = true;
+
+    /// <summary>True while the left navigation rail is expanded.</summary>
+    public bool IsRailOpen
+    {
+        get => _isRailOpen;
+        set
+        {
+            if (_isRailOpen == value) return;
+            _isRailOpen = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private ICommand _toggleRailCommand;
+
+    /// <summary>Single-click collapse/expand of the About navigation rail.
+    /// Bound by both the in-rail collapse button and the hamburger in the
+    /// module heading card, exactly as the Reports hub does.</summary>
+    public ICommand ToggleRailCommand =>
+        _toggleRailCommand ??= new RelayCommand(_ => IsRailOpen = !IsRailOpen);
+
+    public string AppName { get; } = "ProGlass Automation";
+
+    /// <summary>One-line tagline shown under the app name.</summary>
+    public string AppTagline { get; } = "Made in India · for the UAE glass industry";
+
+    /// <summary>
+    /// Semantic version string shown in the version pill.
+    /// v2 — single source of truth lives in Services/Updates/AppInfo.
+    /// </summary>
+    public string Version { get; } =
+        "v" + Services.Updates.AppInfo.Version;
+
+    /// <summary>
+    /// One-line release note shown as a chip under the version pill on the
+    /// About page (2.0.1 — the unified dialog platform release). Keep it to
+    /// a single short line; the chip wraps if a future note runs long.
+    /// </summary>
+    public string WhatsNew { get; } = "NEW · Unified dialogs, themed prompts & tooltips";
+
+    /// <summary>
+    /// The current license status as a bindable view
+    /// model. Singleton — the same instance is shared
+    /// with the Settings → Data → Database Health card
+    /// and any future license surface. Bound by the
+    /// hero-card "Edition" badge and the License section
+    /// in the About tab.
+    /// </summary>
+    public LicenseStatusViewModel LicenseStatus =>
+        LicenseStatusViewModel.Instance;
+
+    /// <summary>
+    /// v3 OTA §25 — build label derived from the build artifact date.
+    /// Never hard-coded; comes from AppInfo (assembly identity).
+    /// </summary>
+    public string Build { get; } =
+        "Build " + Services.Updates.AppInfo.BuildLabel;
+
+    // ══════════════════════════════════════════════════════════════════
+    //  TABBED SECTIONS (Chat 24 — About split into switchable sections)
+    // ══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Left rail navigation (2026-09-15, approved iOS-26 redesign). Each tab
+    /// maps to a separate section in Views/About/Sections, so a section can be
+    /// edited on its own. System + Diagnostics are real data screens (live OS /
+    /// encoder probe / crash report sources) — nothing mocked.
+    ///
+    /// 2026-09-16 — was <c>IReadOnlyList&lt;string&gt;</c>, and the rail template
+    /// chose each row's icon with five <c>DataTrigger</c>s that string-matched
+    /// the VISIBLE CAPTION against literals ("License", "Modules", ...) over a
+    /// default of E80F. That couples an icon to display text: rename a tab,
+    /// reorder the rail, or localise the caption and the trigger silently stops
+    /// matching, the row falls through to the default, and every affected item
+    /// renders the SAME home glyph with no error anywhere — which is the
+    /// "all the menu icons are identical" report. Carrying the glyph on the
+    /// item makes the pairing explicit and impossible to desync.
+    ///
+    /// The glyph codepoints are unchanged from the old triggers, so this is a
+    /// robustness fix rather than a redesign.
+    /// </summary>
+    /// <summary>
+    /// The About tabs in display order, as a shared static table.
+    /// </summary>
+    /// <remarks>
+    /// A field rather than an inline initializer because <see cref="Tabs"/> is
+    /// derived from it, and C# forbids a field or auto-property initializer from
+    /// referencing another instance member (CS0236) — declaration order does not
+    /// help, the reference itself is what is illegal. A static field is a legal
+    /// operand, which is the same idiom <see cref="ActiveModuleCatalog"/> already
+    /// uses for <see cref="Modules"/>.
+    ///
+    /// Sharing one array across instances is safe: <see cref="AboutTab"/> is an
+    /// immutable positional record and both consumers expose it as
+    /// <see cref="IReadOnlyList{T}"/>.
+    /// </remarks>
+    private static readonly AboutTab[] TabDefinitions =
+    {
+        new AboutTab("Overview",    "\uE80F"),
+        new AboutTab("License",     "\uE72E"),
+        new AboutTab("Modules",     "\uE80A"),
+        new AboutTab("Developer",   "\uE90A"),
+        new AboutTab("System",      "\uE713"),
+        new AboutTab("Diagnostics", "\uE9A9"),
+    };
+
+    public IReadOnlyList<AboutTab> TabItems { get; } = TabDefinitions;
+
+    /// <summary>Tab captions alone. <see cref="CurrentTabTitle"/> and the audit
+    /// contract (AboutModuleAuditTests asserts on <c>Tabs.Count</c>) both read
+    /// it, so it stays — but it is DERIVED from <see cref="TabDefinitions"/>
+    /// rather than written out twice, so a caption can never drift from the
+    /// glyph bound beside it.</summary>
+    public IReadOnlyList<string> Tabs { get; } =
+        TabDefinitions.Select(t => t.Label).ToList();
+
+    /// <summary>
+    /// Large page title shown above the content (2026-09-15 Part 1
+    /// mockup — each screen has its own headline). Mirrors the active
+    /// tab label; raises PropertyChanged with SelectedTabIndex.
+    /// </summary>
+    public string CurrentTabTitle =>
+        Tabs[Math.Max(0, Math.Min(_selectedTabIndex, Tabs.Count - 1))];
+
+    /// <summary>
+    /// Index of the visible tab (0 = Overview, 1 = License,
+    /// 2 = Modules, 3 = Developer, 4 = System, 5 = Diagnostics).
+    /// Raises PropertyChanged so the section views can switch visibility.
+    ///
+    /// 2026-08-25 freeze/blank-page fix: the value is CLAMPED to the tab
+    /// range. The section views default to Collapsed and only become
+    /// visible through DataTriggers on the values 0 / 1 / 2 / 3 — so if the
+    /// TwoWay SelectedIndex binding ever pushed -1 (the ListBox's
+    /// "no selection" state) or any out-of-range value, EVERY section
+    /// stayed collapsed: a hero with an empty tab strip and a content
+    /// area that never rendered or updated. Clamping guarantees exactly
+    /// one section is always visible, so the page can never go blank.
+    /// </summary>
+    public int SelectedTabIndex
+    {
+        get => _selectedTabIndex;
+        set
+        {
+            int clamped = value < 0
+                ? 0
+                : Math.Min(value, Tabs.Count - 1);
+            if (_selectedTabIndex == clamped) return;
+            _selectedTabIndex = clamped;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(CurrentTabTitle));
+        }
+    }
+    private int _selectedTabIndex;
+
+    // ══════════════════════════════════════════════════════════════════
+    //  PRIVACY (v2) — plain-language data handling summary
+    // ══════════════════════════════════════════════════════════════════
+
+    public IReadOnlyList<string> PrivacyLines { get; } = new[]
+    {
+        "All business data stays on this computer — local SQLite files in your user profile.",
+        "API keys are encrypted with Windows user-level protection (DPAPI); never plain text, never sent anywhere except the AI provider you configure.",
+        "The activity log records meaningful actions only (create, edit, delete, print, login) — never keystrokes or mouse movement.",
+        "Technical logs contain error details and context, not invoice contents or personal data.",
+        "Backups are written to your local Backups folder; nothing is uploaded automatically.",
+        "The AI assistant sends only your questions plus the business summary you allow (Settings → Data Access)."
+    };
+
+    // ══════════════════════════════════════════════════════════════════
+    //  DEVELOPER ATTRIBUTION
+    // ══════════════════════════════════════════════════════════════════
+
+    /// <summary>Developer's display name.</summary>
+    public string DeveloperName { get; } = "Juber Saleem";
+
+    /// <summary>Mockup-exact avatar initials ("JS") — first letter of the
+    /// first and last name. Computed from DeveloperName (set-once).</summary>
+    public string DeveloperInitials =>
+        string.Concat(DeveloperName
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Select(p => char.ToUpper(p[0]))
+            .Take(2));
+
+    /// <summary>
+    /// Developer contact email.
+    /// Bound to a clickable pill in the Developer section — click launches
+    /// the OS default mailto handler via DeveloperSection.xaml.cs.
+    /// </summary>
+    public string Email { get; } = "proglassautomation@gmail.com";
+
+    // ══════════════════════════════════════════════════════════════════
+    //  LEGAL
+    // ══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Dynamically-computed copyright line.
+    /// Format: "© {year} ProGlass Automation. Developed by Juber Saleem. All rights reserved."
+    /// </summary>
+    public string Copyright { get; } = BuildCopyright();
+
+    // ══════════════════════════════════════════════════════════════════
+    //  HERO TRIPTYCH PILLARS (Chat 23 v2.9 — v3.0 kept, now sole source
+    //  of at-a-glance metrics after Stats duplicate was removed)
+    // ══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Left-side vertical pillars in the hero card.
+    /// Emphasis on QUANTITY / IDENTITY:
+    ///   Modules count · Made in India · Theme flexibility.
+    /// </summary>
+    public IReadOnlyList<HeroPillar> LeftPillars { get; } = new[]
+    {
+        new HeroPillar("\uE9F9", ActiveModuleCatalog.Length.ToString(), "MODULES"),
+        // E909 (Globe), NOT the India flag emoji. HeroPillarTemplate renders
+        // this through FontFamily="Segoe MDL2 Assets", which contains no
+        // emoji glyphs, so a flag would fall back to .notdef boxes on
+        // screen. Every pillar glyph must therefore be an MDL2 codepoint.
+        new HeroPillar("\uE909", "INDIA", "MADE IN"),
+        new HeroPillar("\uE790", "DARK",  "+ LIGHT"),
+    };
+
+    /// <summary>
+    /// Right-side vertical pillars in the hero card.
+    /// Emphasis on ARCHITECTURE / CAPABILITY:
+    ///   💾 Isolated databases · 🔒 Offline-first · 🤖 AI-ready.
+    /// </summary>
+    public IReadOnlyList<HeroPillar> RightPillars { get; } = new[]
+    {
+        new HeroPillar("\uE74E", "5",       "DATABASES"),
+        new HeroPillar("\uE72E", "OFFLINE", "FIRST"),
+        new HeroPillar("\uE8F2", "AI",      "READY"),
+    };
+
+    // ══════════════════════════════════════════════════════════════════
+    //  END-TO-END WORKFLOW STAGES (Chat 23 v2.8)
+    // ══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Sales cycle: from raw inventory to a released production order.
+    /// Rendered as 3 separate cards in a centered row.
+    /// </summary>
+    public IReadOnlyList<WorkflowStage> SalesCycle { get; } = new[]
+    {
+        new WorkflowStage("\uE7B8", "Sheet Store",
+            "Raw glass inventory · Buy/Use tracking · SQM pricing"),
+        new WorkflowStage("\uE8A5", "Proforma Invoice",
+            "9-step wizard · Quotation · Customer approval"),
+        new WorkflowStage("\uE822", "Job Order",
+            "Convert PI · Priority · Factory sheet · Status tracking"),
+    };
+
+    /// <summary>
+    /// Production stages (upcoming release wave).
+    /// Rendered as 8 separate cards in a 2×4 grid.
+    /// </summary>
+    public IReadOnlyList<WorkflowStage> ProductionStages { get; } = new[]
+    {
+        new WorkflowStage("\uE8C6",  "Cutting",
+            "CNC-guided cuts · Waste optimization · Piece labels"),
+        new WorkflowStage("\uE71D",  "Holes & Cutouts",
+            "Circular / rectangular · Position tracking · QC gate"),
+        new WorkflowStage("\uE895",  "Polish",
+            "Edge finishing · Grit selection · Batch grouping"),
+        new WorkflowStage("\uE774",  "Edge Deletion",
+            "Coating removal for tempered/insulated units"),
+        new WorkflowStage("\uE7E8",  "Mitring",
+            "Angled edges for corner assemblies"),
+        new WorkflowStage("\uE728",  "Tempering",
+            "Heat treatment · Batch logging · Fragmentation test"),
+        new WorkflowStage("\uE71B",  "Pairing",
+            "Match panes for laminated / insulated units"),
+        new WorkflowStage("\uE81C",  "Doubling / DGU",
+            "Double-glazed unit assembly · Spacer selection · Seal"),
+    };
+
+    /// <summary>
+    /// Dispatch and billing stages: from packed delivery to sales analytics.
+    /// Rendered as 3 separate cards in a centered row.
+    /// </summary>
+    public IReadOnlyList<WorkflowStage> DispatchBilling { get; } = new[]
+    {
+        new WorkflowStage("\uE7F4", "Delivery Note",
+            "Partial deliveries · Sibling chain · Photo proof"),
+        new WorkflowStage("\uE8C8", "Tax Invoice",
+            "FTA-compliant · UAE 5% VAT · Zero-rated export support"),
+        new WorkflowStage("\uE9F9", "Sales Report",
+            "Account statements · Aging · Top customers · Trend analytics"),
+    };
+
+    // ══════════════════════════════════════════════════════════════════
+    //  ACTIVE MODULES (Chat 23 v2.6)
+    // ══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Live modules shipped in the current release.
+    /// Each entry renders as a card in the "Active Modules" grid.
+    /// Ordered by user-facing importance (Sales → Production → Dispatch).
+    /// Includes the Settings surface because it owns core system behavior,
+    /// licensing, theme, backup, AI and feature controls.
+    /// Backed by <see cref="ActiveModuleCatalog"/> so the hero metric
+    /// stays numerically aligned with the actual list.
+    /// </summary>
+    private static readonly ModuleInfo[] ActiveModuleCatalog =
+    {
+        new ModuleInfo("\uE7B8", "Sheet Store",
+            "Raw glass inventory · SQM pricing · Buy/Use tracking",
+            "Operations", "LIVE STOCK"),
+        new ModuleInfo("\uE8A5", "Proforma Invoice",
+            "9-step wizard · SGU/DGU/LAM · Excel-like paste",
+            "Operations", "9-STEP"),
+        new ModuleInfo("\uE822", "Job Order",
+            "Convert PI · Priority · Status tracking · Factory sheet",
+            "Operations", "CONVERT PI"),
+        new ModuleInfo("\uE7F4", "Delivery Note",
+            "Partial deliveries · Sibling chain · Photo proof",
+            "Operations", "PARTIAL OK"),
+        new ModuleInfo("\uE8C8", "Tax Invoice",
+            "VAT-compliant · Partial invoices · Family tracking",
+            "Finance", "VAT-READY"),
+        new ModuleInfo("\uE81C", "Statements & Reports",
+            "Account statements · Sales report · PDF export",
+            "Finance", "PDF LEDGERS"),
+        new ModuleInfo("\uE713", "Settings",
+            "Appearance · licensing · backups · AI · feature controls",
+            "Platform", "5 DATABASES"),
+        new ModuleInfo("\uE72E", "Users · Audit · Activity",
+            "Roles & permissions · Before/after diffs · Live log",
+            "Platform", "ROLE-BASED"),
+        new ModuleInfo("\uE9F9", "Multi-page Dashboard",
+            "Real-time KPIs · Activity feed · Cross-module stats",
+            "Platform", "CROSS-MODULE"),
+        new ModuleInfo("\uE72D", "Shared Export Engine",
+            "PDF (QuestPDF) · Excel (ClosedXML) · CSV · Print",
+            "Platform", "3 FORMATS"),
+        new ModuleInfo("\uE8F2", "AI Assistant",
+            "Gemini-powered · Glass industry expertise · Chat",
+            "Platform", "GUARDED"),
+        new ModuleInfo("\uE790", "Light + Dark Themes",
+            "Instant swap · 25 brushes · Design system foundation",
+            "Platform", "LIGHT+DARK"),
+    };
+
+    public ObservableCollection<ModuleInfo> Modules { get; } = new(ActiveModuleCatalog);
+
+    // LG4: the mosaic binds FilteredModules; seeded by the ctor scope init.
+
+    // ══════════════════════════════════════════════════════════════════
+    //  TECHNOLOGY STACK (Chat 23 v2.6)
+    // ══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Runtime/library stack shown in the Technology Stack card.
+    /// Ordered platform → data → pattern → language → libs → AI.
+    /// </summary>
+    public ObservableCollection<TechItem> TechStack { get; } = new()
+    {
+        new TechItem("\uE770",  "PLATFORM",     ".NET 8 · WPF"),
+        new TechItem("\uE74E",  "DATABASE",     "SQLite · EF Core 8"),
+        new TechItem("\uE9F9",  "PATTERN",      "MVVM Strict"),
+        new TechItem("\uE765",  "LANGUAGE",     "C# 12"),
+        new TechItem("\uE8A5",  "PDF ENGINE",   "QuestPDF 2024.12"),
+        new TechItem("\uE9F9",  "EXCEL ENGINE", "ClosedXML 0.105"),
+        new TechItem("\uE8C8",  "CSV ENGINE",   "CsvHelper 33.1"),
+        new TechItem("\uE8F2",  "AI PROVIDER",  "Google Gemini"),
+    };
+
+    // 2026-09-15 (Developer tab, approved mockup 04): the mockup splits
+    // the tech stack across two cards — the platform core (4 items) in
+    // the Technology Stack card and the engines (4 items) inside the
+    // Product Facts card. Slicing keeps the single TechStack source of
+    // truth (live stat updates still flow) with zero duplication.
+    /// <summary>Platform core — first four tech items (Developer: Technology Stack card).</summary>
+    public IReadOnlyList<TechItem> TechStackCore => TechStack.Take(4).ToList();
+
+    /// <summary>Engines — remaining tech items (Developer: Product Facts card).</summary>
+    public IReadOnlyList<TechItem> TechStackEngines => TechStack.Skip(4).ToList();
+
+    // ══════════════════════════════════════════════════════════════════
+    //  KEY CAPABILITIES — split into two groups of three
+    // ══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Top group of 3 capabilities.
+    /// Rendered in a centered row above <see cref="CapabilitiesBottom"/>.
+    /// </summary>
+    public IReadOnlyList<CapabilityInfo> CapabilitiesTop { get; } = new[]
+    {
+        new CapabilityInfo("\uE8EF", "Deterministic Calculations",
+            "Every formula produces the same result every time. No hidden state."),
+        new CapabilityInfo("\uE8C8", "Excel-Like Data Entry",
+            "Paste 150+ rows from Excel · Tab/Enter navigation · Auto-numbering"),
+        new CapabilityInfo("\uE71B", "Sibling Delivery Chain",
+            "Track partial deliveries · Auto-create Dummy DNs for balance qty"),
+    };
+
+    /// <summary>
+    /// Bottom group of 3 capabilities.
+    /// Rendered in a centered row below <see cref="CapabilitiesTop"/>.
+    /// </summary>
+    public IReadOnlyList<CapabilityInfo> CapabilitiesBottom { get; } = new[]
+    {
+        new CapabilityInfo("\uE722", "Photo Proof of Delivery",
+            "Attach signed copies + site photos to every delivery note"),
+        new CapabilityInfo("\uE790", "Instant Theme Swap",
+            "Light + Dark modes with 25-brush palette — swap without reload"),
+        new CapabilityInfo("\uE74E", "Auto Backup on Exit",
+            "Keeps last 7 database copies · Never lose a day of work"),
+    };
+
+    // ══════════════════════════════════════════════════════════════════
+    //  SYSTEM SCREEN (2026-09-15 iOS-26 redesign — approved)
+    //  Every value is read from a LIVE system source at bind time:
+    //  OS/.NET/architecture (Environment), visual theme
+    //  (VisualThemeEngine), perf tier (PerformanceProfileService),
+    //  fingerprint (LicenseStatusViewModel), storage paths
+    //  (AppDataRoot), encoder capabilities (EncoderProbe).
+    //  No fabricated data.
+    // ══════════════════════════════════════════════════════════════════
+
+    /// <summary>One encoder capability row for the Recording Engine card.</summary>
+    public sealed record EncoderRow(string Name, string Status, bool Available);
+
+    /// <summary>OS version string, e.g. "Microsoft Windows NT 10.0.26200.0".</summary>
+    public string OsVersion => Environment.OSVersion.VersionString;
+
+    /// <summary>Runtime version, e.g. "8.0.31".</summary>
+    public string DotNetVersion => Environment.Version.ToString(3);
+
+    /// <summary>OS architecture, e.g. "x64 · 64-bit".</summary>
+    public string Architecture =>
+        System.Runtime.InteropServices.RuntimeInformation
+            .OSArchitecture.ToString().ToLowerInvariant()
+        + (Environment.Is64BitOperatingSystem ? " · 64-bit" : " · 32-bit");
+
+    /// <summary>Active visual theme family (Normal / Monet / Ios-26…).</summary>
+    public string ThemeName => Services.Theme.VisualThemeEngine.Current;
+
+    /// <summary>Performance render tier, e.g. "60 fps".</summary>
+    public string RenderTierDisplay =>
+        Services.Performance.PerformanceProfileService.TargetFps + " fps";
+
+    /// <summary>Whether heavy blur/glow effects are affordable.</summary>
+    public string RichEffectsDisplay =>
+        Services.Performance.PerformanceProfileService.RichEffectsEnabled
+            ? "Enabled"
+            : "Disabled";
+
+    /// <summary>Current machine fingerprint (live, may compute lazily).</summary>
+    public string Fingerprint => LicenseStatus.CurrentFingerprint;
+
+    /// <summary>Main database file location.</summary>
+    public string DatabasePath =>
+        System.IO.Path.Combine(
+            Services.Database.AppDataRoot.CurrentFolder, "proglass.db");
+
+    /// <summary>Screen recording output root.</summary>
+    public string RecordingsPath =>
+        System.IO.Path.Combine(
+            Services.Database.AppDataRoot.ProductionFolder, "Recordings");
+
+    /// <summary>
+    /// Encoder capability rows (NVENC / QSV / libx264) from the live
+    /// EncoderProbe snapshot. The startup probe completes before the
+    /// About page is normally opened, so a first-bind read is current.
+    /// </summary>
+    public IReadOnlyList<EncoderRow> EncoderRows => BuildEncoderRows();
+
+    private static IReadOnlyList<EncoderRow> BuildEncoderRows()
+    {
+        var s = Agent.Demo.Video.EncoderProbe.GetSnapshot();
+
+        string status(bool usable) =>
+            !s.CapabilityProbed
+                ? "Not probed yet"
+                : (usable ? "Available" : "Unavailable");
+
+        var rows = new List<EncoderRow>
+        {
+            new("NVENC (NVIDIA)", status(s.NvencUsable), s.NvencUsable),
+            new("QSV (Intel)", status(s.QsvUsable), s.QsvUsable),
+        };
+
+        string libxStatus = "Available (software fallback)";
+        if (s.MeasuredFps.HasValue &&
+            s.MeasuredEncoder == "libx264")
+        {
+            libxStatus = "Active · "
+                + s.MeasuredWidth + "\u00D7" + s.MeasuredHeight
+                + " \u00B7 " + s.MeasuredFps.Value.ToString("0.0")
+                + " fps measured";
+        }
+        rows.Add(new("libx264 (software)", libxStatus, true));
+        return rows;
+    }
+
+    /// <summary>
+    /// 0–100 for the Recording Engine bar: measured encoder fps as a
+    /// share of the performance target. Pure probe data — never a
+    /// guess. 0 until a test encode has been measured.
+    /// </summary>
+    public double EngineBarValue
+    {
+        get
+        {
+            var s = Agent.Demo.Video.EncoderProbe.GetSnapshot();
+            if (!s.MeasuredFps.HasValue) return 0;
+            double target = Services.Performance
+                .PerformanceProfileService.TargetFps;
+            if (target <= 0) target = 60;
+            return Math.Clamp(s.MeasuredFps.Value / target * 100.0, 0, 100);
+        }
+    }
+
+    /// <summary>Live caption under the Recording Engine bar.</summary>
+    public string EngineBarCaption
+    {
+        get
+        {
+            var s = Agent.Demo.Video.EncoderProbe.GetSnapshot();
+            double target = Services.Performance
+                .PerformanceProfileService.TargetFps;
+            if (target <= 0) target = 60;
+            return s.MeasuredFps.HasValue
+                ? "Measured " + s.MeasuredFps.Value.ToString("0.0")
+                    + " fps of " + target + " fps target"
+                : "No measured test encode yet";
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    //  DIAGNOSTICS SCREEN (2026-09-15 iOS-26 redesign)
+    //  Crash reports are hosted by the self-contained
+    //  AboutCrashReportsCard (own VM + commands); the rest of
+    //  this screen is the log location + the real [Rec*] markers.
+    // ══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Today's app log file — same pattern AppLogService writes
+    /// (%AppData%\ProGlassAutomation\logs\app-yyyyMMdd.log).
+    /// </summary>
+    public string AppLogPath =>
+        System.IO.Path.Combine(
+            Services.Database.AppDataRoot.CurrentFolder, "logs",
+            "app-" + DateTime.Now.ToString("yyyyMMdd") + ".log");
+
+    /// <summary>The real recording log markers (never invented).</summary>
+    public IReadOnlyList<string> RecordingMarkers { get; } = new[]
+    {
+        "[RecEncode]", "[RecHealth]", "[RecFPS]",
+        "[RecEncoderSelect]", "[RecFpsGuard]", "[EncoderProbe]"
+    };
+
+    // ══════════════════════════════════════════════════════════════════
+    //  PRIVATE HELPERS
+    // ══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Computes the copyright string at construction time.
+    /// Uses <see cref="Math.Max(int, int)"/> to enforce the 2026 floor.
+    /// </summary>
+    private static string BuildCopyright()
+    {
+        int year = Math.Max(DateTime.Now.Year, CopyrightYearFloor);
+        return $"© {year} ProGlass Automation. Made in India by Juber Saleem. All rights reserved.";
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TYPED DATA CARRIERS
+//  Sealed for JIT inlining. Immutable via init-only setters.
+// ═══════════════════════════════════════════════════════════════════════
+
+/// <summary>
+/// Single module chip rendered in the "Active Modules" card.
+/// Contains display metadata only — no behavior.
+/// </summary>
+/// <summary>
+/// One module slab on the About → Modules mosaic (LG4).
+/// StatChip is the small glass chip on the slab's right side; it is
+/// INPC so the LIVE Sheet Store count can update after load.
+/// </summary>
+public sealed class ModuleInfo : INotifyPropertyChanged
+{
+    public ModuleInfo(
+        string icon, string name, string description,
+        string category = "Platform", string statChip = "")
+    {
+        Icon = icon;
+        Name = name;
+        Description = description;
+        Category = category;
+        _statChip = statChip;
+    }
+
+    public string Icon { get; }
+    public string Name { get; }
+    public string Description { get; }
+    /// <summary>Scope capsule grouping: Operations / Finance / Platform.</summary>
+    public string Category { get; }
+
+    private string _statChip;
+    public string StatChip
+    {
+        get => _statChip;
+        set
+        {
+            if (_statChip == value) return;
+            _statChip = value;
+            PropertyChanged?.Invoke(this,
+                new PropertyChangedEventArgs(nameof(StatChip)));
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+}
+
+/// <summary>
+/// Single row in the Technology Stack card.
+/// Icon + uppercase label + value string.
+/// </summary>
+/// <summary>One About rail tab: its caption and its Segoe MDL2 glyph.
+/// Binding Glyph straight off the item replaces five caption-matching
+/// DataTriggers in AboutView.xaml — see <c>AboutViewModel.TabItems</c>.</summary>
+public sealed record AboutTab(string Label, string Glyph);
+
+public sealed record TechItem(string Icon, string Label, string Value);
+
+/// <summary>
+/// Single capability tile in the Key Capabilities section.
+/// Icon is a topic-specific emoji, not a generic checkmark.
+/// </summary>
+public sealed record CapabilityInfo(string Icon, string Title, string Description);
+
+/// <summary>
+/// Single workflow stage rendered as a separate card in the
+/// End-to-End Production Workflow section.
+/// </summary>
+public sealed record WorkflowStage(string Icon, string Name, string Description);
+
+/// <summary>
+/// Vertical decorative pillar shown on the LEFT or RIGHT side of the
+/// hero card. Small icon + short value + tiny uppercase label.
+/// Sole source of at-a-glance metrics on the About page (v3.0).
+/// </summary>
+public sealed record HeroPillar(string Icon, string Value, string Label);

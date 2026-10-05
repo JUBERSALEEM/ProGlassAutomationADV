@@ -1,0 +1,267 @@
+<!-- Statement Generator shell. Indigo bento generator: hero, live progress,
+     step chips, then the existing step surfaces. Commands and the step-3
+     auto-run in the code-behind are unchanged. -->
+<UserControl x:Class="ProGlassAutomation.Views.Reports.StatementGenerator.Shell.StatementGeneratorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:layout="clr-namespace:ProGlassAutomation.Views.Dashboard"
+             xmlns:filter="clr-namespace:ProGlassAutomation.Views.Reports.StatementGenerator.Filter"
+             xmlns:preview="clr-namespace:ProGlassAutomation.Views.Reports.StatementGenerator.Preview"
+             xmlns:pipeline="clr-namespace:ProGlassAutomation.Views.Reports.StatementGenerator.Pipeline"
+             xmlns:review="clr-namespace:ProGlassAutomation.Views.Reports.StatementGenerator.Review"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}"
+             Foreground="{DynamicResource Ov.Ink}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Shared/GeneratorStudio.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Margin="16,12,16,12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource Sl.ToolbarHeight}}">
+            <StackPanel>
+                <layout:IndigoDashboardPanel MaxColumns="2" MinimumColumnWidth="320" Gap="14">
+                    <Border Style="{StaticResource Sl.Hero}">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Nav.StatementGenerator}"
+                                       Style="{StaticResource Sl.Label}"
+                                       Foreground="{DynamicResource Ov.OnAccent}"/>
+                            <TextBlock Text="{Binding PageTitle}"
+                                       Style="{StaticResource Sl.Value}"
+                                       FontSize="26"
+                                       Foreground="{DynamicResource Ov.OnAccent}"/>
+                            <TextBlock Text="{Binding CurrentStepTitle}"
+                                       Style="{StaticResource Sl.Subtitle}"
+                                       Foreground="{DynamicResource Ov.OnAccentMuted}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Sl.Card}">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Generator" Style="{StaticResource Sl.Label}"/>
+                                    <TextBlock Text="{Binding LastWorkflowStatusText}" Style="{StaticResource Sl.Value}" FontSize="20"/>
+                                </StackPanel>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding LastWorkflowProgressDisplay}"
+                                           Style="{StaticResource Sl.Value}"
+                                           Foreground="{DynamicResource Ov.Accent}"
+                                           VerticalAlignment="Center"/>
+                            </Grid>
+                            <ProgressBar Margin="0,10,0,0">
+                                <ProgressBar.Style>
+                                    <Style TargetType="ProgressBar" BasedOn="{StaticResource Gen.Track}">
+                                        <Setter Property="IsIndeterminate" Value="False"/>
+                                        <Setter Property="Value" Value="{Binding LastWorkflowProgressPercent, Mode=OneWay}"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding IsLoading}" Value="True"/>
+                                                    <Condition Binding="{Binding IsGenerating}" Value="False"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="IsIndeterminate" Value="True"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ProgressBar.Style>
+                            </ProgressBar>
+                            <TextBlock Text="{Binding StatusMessage}"
+                                       Style="{StaticResource Sl.Subtitle}"
+                                       Margin="0,8,0,0"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </layout:IndigoDashboardPanel>
+
+                <Border Style="{StaticResource Sl.FilterBar}">
+                    <WrapPanel>
+                        <Button Content="Filter" Tag="&#xE71C;" Command="{Binding GoToStepCommand}" CommandParameter="1" ToolTip="Filter">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Gen.Step}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsStep1Complete}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource Ov.Success}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsStep1Active}" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource Ov.Accent}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource Ov.OnAccent}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Preview" Tag="&#xE8A5;" Command="{Binding GoToStepCommand}" CommandParameter="2" ToolTip="Preview">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Gen.Step}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsStep2Complete}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource Ov.Success}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsStep2Active}" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource Ov.Accent}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource Ov.OnAccent}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Execute" Tag="&#xE768;" Command="{Binding GoToStepCommand}" CommandParameter="3" ToolTip="Execute">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Gen.Step}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsStep3Complete}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource Ov.Success}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsStep3Active}" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource Ov.Accent}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource Ov.OnAccent}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Review" Tag="&#xE8A1;" Command="{Binding GoToStepCommand}" CommandParameter="4" ToolTip="Review">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Gen.Step}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsStep4Complete}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource Ov.Success}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsStep4Active}" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource Ov.Accent}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource Ov.OnAccent}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </WrapPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="1" Style="{StaticResource Sl.Card}" Padding="0" Margin="0,0,0,10">
+            <Grid>
+                <filter:FilterStep>
+                    <filter:FilterStep.Style>
+                        <Style TargetType="filter:FilterStep">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentStep}" Value="1">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </filter:FilterStep.Style>
+                </filter:FilterStep>
+                <preview:PreviewStep>
+                    <preview:PreviewStep.Style>
+                        <Style TargetType="preview:PreviewStep">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentStep}" Value="2">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </preview:PreviewStep.Style>
+                </preview:PreviewStep>
+                <pipeline:ExecuteStep>
+                    <pipeline:ExecuteStep.Style>
+                        <Style TargetType="pipeline:ExecuteStep">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </pipeline:ExecuteStep.Style>
+                </pipeline:ExecuteStep>
+                <review:ReviewStep>
+                    <review:ReviewStep.Style>
+                        <Style TargetType="review:ReviewStep">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </review:ReviewStep.Style>
+                </review:ReviewStep>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource Sl.Card}" Padding="14,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0"
+                        Command="{Binding CancelCommand}"
+                        Style="{StaticResource Sl.DangerButton}"
+                        Tag="&#xE711;"
+                        Content="{DynamicResource Action.Cancel}"
+                        VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1"
+                           Text="{Binding StatusMessage}"
+                           Style="{StaticResource Sl.Subtitle}"
+                           VerticalAlignment="Center"
+                           Margin="12,0"
+                           TextTrimming="CharacterEllipsis"/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Command="{Binding PreviousStepCommand}"
+                            Style="{StaticResource Sl.Button}"
+                            Tag="&#xE72B;"
+                            Content="{DynamicResource Reports.StatementGenerator.Previous}"
+                            Margin="0,0,8,0"
+                            Visibility="{Binding CanGoPrevious, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <Button Command="{Binding NextStepCommand}"
+                            Style="{StaticResource Sl.PrimaryButton}"
+                            Tag="&#xE72A;"
+                            Content="{DynamicResource Reports.StatementGenerator.NextStep}"
+                            Visibility="{Binding ShowNextButton, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <Button Command="{Binding NextStepCommand}"
+                            Style="{StaticResource Sl.PrimaryButton}"
+                            Tag="&#xE768;"
+                            Content="{DynamicResource Reports.StatementGenerator.GenerateStatement}"
+                            Visibility="{Binding ShowGenerateButton, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <Button Command="{Binding FinishCommand}"
+                            Style="{StaticResource Sl.SuccessButton}"
+                            Tag="&#xE73E;"
+                            Content="{DynamicResource Reports.StatementGenerator.Finish}"
+                            Visibility="{Binding ShowFinishButton, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

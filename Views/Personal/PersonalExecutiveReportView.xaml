@@ -1,0 +1,433 @@
+<UserControl x:Class="ProGlassAutomation.Views.Personal.PersonalExecutiveReportView"
+             TextOptions.TextHintingMode="Fixed"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         GB-P11 — GLASS BLUSH EXECUTIVE REPORT (glass-08 reference)
+
+         Personal page for the Reports hub's Executive tab, rendered by
+         PersonalSalesReportView when ActiveViewModel is an
+         ExecutiveReportViewModel (DataContext inherited from the host).
+
+         Contract (ExecutiveReportViewModel, member-verified): filter
+         (DateFrom/DateTo TwoWay DatePickers, RefreshCommand,
+         ClearFilterCommand, PeriodDescription), state (IsLoading/HasError/
+         ErrorMessage/IsEmpty/IsContentVisible), SummaryCards (KpiItem
+         Title/Value/Subtitle/BrushKey ×4), Funnel (FunnelStage Label/
+         CountDisplay/ValueDisplay/SharePctDisplay/
+         StepConversionDisplay), HealthCards (KpiItem ×4),
+         TopSpecifications/TopCustomers (MixRow Label/SharePctDisplay/
+         Value/SqmDisplay), HasCostGap/CostGapNote.
+
+         NOTE: the glass-08 reference PNG was lost when this session was
+         restored; the composition follows the GB-P1 measured map
+         ("filter bar · multi-line hero chart · radial gauge · bar cards")
+         mapped onto the data the VM actually exposes (no fabrication).
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        <Style x:Key="GbSkeletonBlock" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+            <Setter Property="CornerRadius" Value="10"/>
+        </Style>
+        <Style x:Key="GbSkeletonCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource GlassBlush.Surface}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.Border}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource GlassBlush.CardRadius}"/>
+            <Setter Property="Effect" Value="{StaticResource GlassBlush.CardShadowFx}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+            </ResourceDictionary>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False"
+                  PanningMode="VerticalOnly"
+                  Focusable="False"
+                  FocusVisualStyle="{x:Null}"
+                  Background="Transparent">
+        <StackPanel Margin="0,0,0,8">
+
+            <!-- ══ FILTER BAR ════════════════════════════════════════ -->
+            <ContentControl Style="{StaticResource GlassBlush.GlassCard}"
+                            Margin="0,0,0,20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="From"
+                               FontSize="{DynamicResource GlassBlush.FontCaption}"
+                               Foreground="{DynamicResource GlassBlush.TextMuted}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    <DatePicker Grid.Column="1" Width="140"
+                                SelectedDate="{Binding DateFrom, Mode=TwoWay}"
+                                VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="2"
+                               Text="To"
+                               FontSize="{DynamicResource GlassBlush.FontCaption}"
+                               Foreground="{DynamicResource GlassBlush.TextMuted}"
+                               VerticalAlignment="Center"
+                               Margin="14,0,8,0"/>
+                    <DatePicker Grid.Column="3" Width="140"
+                                HorizontalAlignment="Left"
+                                SelectedDate="{Binding DateTo, Mode=TwoWay}"
+                                VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="4" Orientation="Horizontal">
+                        <Button Content="{DynamicResource Action.Clear}"
+                                Style="{StaticResource GlassBlush.GlassButtonSoft}"
+                                Padding="14,8"
+                                Command="{Binding ClearFilterCommand}"
+                                ToolTip="All time"
+                                Margin="0,0,8,0"/>
+                        <Button Content="&#xE72C;"
+                                FontFamily="Segoe MDL2 Assets"
+                                Style="{StaticResource GlassBlush.GlassButton}"
+                                Padding="14,8"
+                                Command="{Binding RefreshCommand}"
+                                ToolTip="Refresh"
+                                AutomationProperties.Name="Refresh report"/>
+                    </StackPanel>
+                </Grid>
+            </ContentControl>
+
+            <!-- ══ PERIOD HEADER + COST GAP NOTE ═════════════════════ -->
+            <StackPanel Margin="0,0,0,16">
+                <TextBlock Text="{Binding PeriodDescription}"
+                           FontSize="{DynamicResource GlassBlush.FontHeading}"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource GlassBlush.Text}"/>
+                <TextBlock Text="{Binding CostGapNote}"
+                           FontSize="{DynamicResource GlassBlush.FontMeta}"
+                           Foreground="{DynamicResource GlassBlush.Warning}"
+                           TextWrapping="Wrap"
+                           Margin="0,6,0,0"
+                           Visibility="{Binding HasCostGap,
+                                     Converter={StaticResource BoolToVisibilityConverter}}"/>
+            </StackPanel>
+
+            <!-- ══ LOADING SKELETON ══════════════════════════════════ -->
+            <StackPanel Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid Margin="0,0,0,24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Style="{StaticResource GbSkeletonCard}" Margin="0,0,24,0" Height="110">
+                        <Border Style="{StaticResource GbSkeletonBlock}" Height="60" Margin="20,20"/>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource GbSkeletonCard}" Margin="0,0,24,0" Height="110">
+                        <Border Style="{StaticResource GbSkeletonBlock}" Height="60" Margin="20,20"/>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource GbSkeletonCard}" Margin="0,0,24,0" Height="110">
+                        <Border Style="{StaticResource GbSkeletonBlock}" Height="60" Margin="20,20"/>
+                    </Border>
+                    <Border Grid.Column="3" Style="{StaticResource GbSkeletonCard}" Height="110">
+                        <Border Style="{StaticResource GbSkeletonBlock}" Height="60" Margin="20,20"/>
+                    </Border>
+                </Grid>
+                <Border Style="{StaticResource GbSkeletonCard}" Height="220">
+                    <Border Style="{StaticResource GbSkeletonBlock}" Height="140" Margin="20,20"/>
+                </Border>
+            </StackPanel>
+
+            <!-- ══ ERROR STATE ═══════════════════════════════════════ -->
+            <Border Style="{StaticResource GbSkeletonCard}"
+                    Background="{DynamicResource GlassBlush.DangerSoft}"
+                    BorderBrush="{DynamicResource GlassBlush.Danger}"
+                    Margin="0,0,0,24"
+                    Padding="20,16"
+                    Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="{DynamicResource GlassBlush.FontBody}"
+                           Foreground="{DynamicResource GlassBlush.Text}"
+                           TextWrapping="Wrap"/>
+            </Border>
+
+            <!-- ══ EMPTY STATE ═══════════════════════════════════════ -->
+            <ContentControl Style="{StaticResource GlassBlush.EmptyState}"
+                            Tag="&#xE9F9;"
+                            Content="{DynamicResource Common.Empty}"
+                            Margin="0,24,0,24"
+                            Visibility="{Binding IsEmpty,
+                                      Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+            <!-- ══ DATA ══════════════════════════════════════════════ -->
+            <StackPanel Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                <!-- SUMMARY CARDS (bar cards) -->
+                <ItemsControl ItemsSource="{Binding SummaryCards}" Margin="0,0,0,24">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="1"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ContentControl Margin="0,0,24,0">
+                                <ContentControl.Template>
+                                    <ControlTemplate TargetType="ContentControl">
+                                        <Border Background="{DynamicResource GlassBlush.SurfaceStrong}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="{DynamicResource GlassBlush.CardRadius}"
+                                                Padding="18,14"
+                                                Effect="{StaticResource GlassBlush.CardShadowFx}"
+                                                SnapsToDevicePixels="True">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Title}"
+                                                           FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                           FontWeight="Bold"
+                                                           Foreground="{Binding BrushKey,
+                                                                 Converter={StaticResource BrushKeyConverter}}"/>
+                                                <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,6,0,2">
+                                                    <TextBlock Text="{Binding Value}"
+                                                               FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
+                                                               FontWeight="Bold"
+                                                               Foreground="{DynamicResource GlassBlush.Text}"
+                                                               Typography.NumeralAlignment="Tabular"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                </Viewbox>
+                                                <TextBlock Text="{Binding Subtitle}"
+                                                           FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                           Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ContentControl.Template>
+                            </ContentControl>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- ORDER-TO-CASH FUNNEL (glowing hero bars) -->
+                <ContentControl Style="{StaticResource GlassBlush.GlassCard}"
+                                Margin="0,0,0,24">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top"
+                                   Text="Order-to-Cash Funnel"
+                                   Style="{StaticResource GlassBlush.SectionTitle}"
+                                   Margin="0,0,0,16"/>
+                        <ItemsControl ItemsSource="{Binding Funnel}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding Label}"
+                                               FontSize="{DynamicResource GlassBlush.FontBody}"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource GlassBlush.Text}"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <Border x:Name="FunnelTrack" Grid.Column="1" Height="14"
+                                            CornerRadius="7"
+                                            Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                                            BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                                            BorderThickness="1"
+                                            VerticalAlignment="Center">
+                                        <Grid ClipToBounds="True">
+                                            <!-- Professional's exact percent→width
+                                                 pattern (PercentToWidthConverter,
+                                                 MultiBinding pct + track ActualWidth) -->
+                                            <Border HorizontalAlignment="Left"
+                                                    CornerRadius="7"
+                                                    Effect="{StaticResource GlassBlush.GlowAccent}">
+                                                <Border.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                        <GradientStop Color="{DynamicResource GlassBlush.AccentColor}" Offset="0"/>
+                                                        <GradientStop Color="{DynamicResource GlassBlush.AccentGlowColor}" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                                <Border.Width>
+                                                    <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
+                                                        <Binding Path="SharePct"/>
+                                                        <Binding Path="ActualWidth"
+                                                                 ElementName="FunnelTrack"/>
+                                                    </MultiBinding>
+                                                </Border.Width>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding SharePctDisplay}"
+                                               FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                               VerticalAlignment="Center"
+                                               Margin="10,0,0,0"/>
+                                </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </DockPanel>
+                </ContentControl>
+
+                <!-- HEALTH CARDS -->
+                <ItemsControl ItemsSource="{Binding HealthCards}" Margin="0,0,0,24">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="1"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ContentControl Margin="0,0,24,0">
+                                <ContentControl.Template>
+                                    <ControlTemplate TargetType="ContentControl">
+                                        <Border Background="{DynamicResource GlassBlush.Surface}"
+                                                BorderBrush="{DynamicResource GlassBlush.Border}"
+                                                BorderThickness="1"
+                                                CornerRadius="{DynamicResource GlassBlush.CardRadius}"
+                                                Padding="18,14"
+                                                Effect="{StaticResource GlassBlush.CardShadowFx}"
+                                                SnapsToDevicePixels="True">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Title}"
+                                                           FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                           FontWeight="Bold"
+                                                           Foreground="{Binding BrushKey,
+                                                                 Converter={StaticResource BrushKeyConverter}}"/>
+                                                <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,6,0,2">
+                                                    <TextBlock Text="{Binding Value}"
+                                                               FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
+                                                               FontWeight="Bold"
+                                                               Foreground="{DynamicResource GlassBlush.Text}"
+                                                               Typography.NumeralAlignment="Tabular"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                </Viewbox>
+                                                <TextBlock Text="{Binding Subtitle}"
+                                                           FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                           Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ContentControl.Template>
+                            </ContentControl>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- TOP SPECIFICATIONS / TOP CUSTOMERS (mix rows) -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <ContentControl Grid.Column="0"
+                                    Style="{StaticResource GlassBlush.GlassCard}"
+                                    Margin="0,0,24,0">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top"
+                                       Text="Top Specifications"
+                                       Style="{StaticResource GlassBlush.SectionTitle}"
+                                       Margin="0,0,0,12"/>
+                            <ItemsControl ItemsSource="{Binding TopSpecifications}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding Label}"
+                                                           FontSize="{DynamicResource GlassBlush.FontBody}"
+                                                           Foreground="{DynamicResource GlassBlush.Text}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding SharePctDisplay}"
+                                                           FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource GlassBlush.TextMuted}"/>
+                                            </Grid>
+                                            <ProgressBar Margin="0,6,0,0"
+                                                         Minimum="0" Maximum="100"
+                                                         Value="{Binding SharePct}"
+                                                         IsEnabled="False">
+                                                <ProgressBar.Style>
+                                                    <Style TargetType="ProgressBar" BasedOn="{StaticResource GlassBlush.Progress}"/>
+                                                </ProgressBar.Style>
+                                            </ProgressBar>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </DockPanel>
+                    </ContentControl>
+
+                    <ContentControl Grid.Column="1"
+                                    Style="{StaticResource GlassBlush.GlassCard}">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top"
+                                       Text="Top Customers"
+                                       Style="{StaticResource GlassBlush.SectionTitle}"
+                                       Margin="0,0,0,12"/>
+                            <ItemsControl ItemsSource="{Binding TopCustomers}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding Label}"
+                                                           FontSize="{DynamicResource GlassBlush.FontBody}"
+                                                           Foreground="{DynamicResource GlassBlush.Text}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding SharePctDisplay}"
+                                                           FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource GlassBlush.TextMuted}"/>
+                                            </Grid>
+                                            <ProgressBar Margin="0,6,0,0"
+                                                         Minimum="0" Maximum="100"
+                                                         Value="{Binding SharePct}"
+                                                         IsEnabled="False">
+                                                <ProgressBar.Style>
+                                                    <Style TargetType="ProgressBar" BasedOn="{StaticResource GlassBlush.Progress}"/>
+                                                </ProgressBar.Style>
+                                            </ProgressBar>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </DockPanel>
+                    </ContentControl>
+                </Grid>
+
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

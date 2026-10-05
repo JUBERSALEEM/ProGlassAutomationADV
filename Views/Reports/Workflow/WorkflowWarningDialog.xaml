@@ -1,0 +1,306 @@
+<dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.Reports.Workflow.WorkflowWarningDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+    xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+    Title="{DynamicResource Reports.MissingInvoiceWarning}"
+    Width="720" Height="580"
+    MinWidth="560" MinHeight="440"
+    ResizeMode="CanResize"
+    DialogIcon="&#xE7BA;"
+    DialogIconBrush="{DynamicResource WarningBrush}"
+    DialogSubtitle="{DynamicResource Reports.SomeDeliveredItemsNoMatchingTaxInvoice}"
+             FontFamily="{DynamicResource AppFontFamily}">
+
+    <StackPanel>
+
+        <!-- ══ AMBER HEADLINE STRIP (kept from the old header band) ══ -->
+        <Border Background="{DynamicResource WarningBrush}"
+                CornerRadius="{DynamicResource Radius.Medium}"
+                Padding="18,12">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}"
+                           FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
+                           Margin="0,0,8,0"
+                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                <TextBlock Text="{DynamicResource Reports.MissingInvoiceDetected}"
+                           FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+            </StackPanel>
+        </Border>
+
+            <!-- ══ SUMMARY STATS ══ -->
+            <Grid Margin="0,16,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Delivered -->
+                <Border Grid.Column="0"
+                        Background="{DynamicResource SuccessBrush}"
+                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                        Padding="12,10">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Common.Delivered}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}">
+                                <Run Text="{Binding DeliveredQty, Mode=OneWay}"/>
+                                <Run Text=" pcs"/>
+                            </TextBlock>
+                        </Viewbox>
+                    </StackPanel>
+                </Border>
+
+                <!-- Invoiced -->
+                <Border Grid.Column="2"
+                        Background="{DynamicResource AccentBrush}"
+                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                        Padding="12,10">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Common.Invoiced}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}">
+                                <Run Text="{Binding InvoicedQty, Mode=OneWay}"/>
+                                <Run Text=" pcs"/>
+                            </TextBlock>
+                        </Viewbox>
+                    </StackPanel>
+                </Border>
+
+                <!-- Missing -->
+                <Border Grid.Column="4"
+                        Background="{DynamicResource DangerBrush}"
+                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                        Padding="12,10">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Reports.Missing}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}">
+                                <Run Text="{Binding UninvoicedDeliveredQty, Mode=OneWay}"/>
+                                <Run Text=" pcs"/>
+                            </TextBlock>
+                        </Viewbox>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ══ UNINVOICED DN LIST ══ -->
+            <Border Margin="0,8,0,8"
+                    Padding="14,12"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                    Background="{DynamicResource SideMenuBackgroundBrush}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Reports.UninvoicedDeliveryNotes}"
+                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"
+                               Margin="0,0,0,8"/>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  MaxHeight="200"
+                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+                        <ItemsControl ItemsSource="{Binding UninvoicedDeliveryNotes}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource SurfacePrimaryBrush}"
+                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                            BorderThickness="{DynamicResource CardBorderThickness}"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            Padding="12,10"
+                                            Margin="0,0,0,6">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Left: DN identity -->
+                                            <StackPanel Grid.Column="0"
+                                                        VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding DeliveryNoteId, Mode=OneWay}"
+                                                           FontSize="{DynamicResource FontSize.Title}"
+                                                           FontWeight="{DynamicResource Weight.Bold}"
+                                                           Foreground="{DynamicResource AccentBrush}"/>
+                                                <StackPanel Orientation="Horizontal"
+                                                            Margin="0,3,0,0">
+                                                    <TextBlock Text="{Binding DeliveryNoteType, Mode=OneWay}"
+                                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                                               FontWeight="{DynamicResource Weight.SemiBold}"
+                                                               Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                                    <TextBlock Text="  ·  "
+                                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                                               Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
+                                                               Foreground="{DynamicResource TextTertiaryBrush}">
+                                                        <Run Text="{DynamicResource Common.Delivered}"/>
+                                                        <Run Text="{Binding DeliveryDate,
+                                                                StringFormat=dd MMM yyyy, Mode=OneWay}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <!-- Middle: Delivered qty -->
+                                            <Border Grid.Column="1"
+                                                    Background="{DynamicResource DangerBrush}"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                    Padding="10,4"
+                                                    Margin="8,0,0,0"
+                                                    VerticalAlignment="Center">
+                                                <TextBlock FontSize="{DynamicResource FontSize.Body}"
+                                                           FontWeight="{DynamicResource Weight.Bold}"
+                                                           Foreground="{DynamicResource OnAccentForegroundBrush}">
+                                                    <Run Text="{Binding DeliveredQty, Mode=OneWay}"/>
+                                                    <Run Text=" pcs"/>
+                                                </TextBlock>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </StackPanel>
+            </Border>
+
+            <!-- ══ QUESTION ══ -->
+            <TextBlock Text="{DynamicResource Reports.WhatWouldLike}"
+                       FontSize="{DynamicResource FontSize.H3}"
+                       FontWeight="{DynamicResource Weight.SemiBold}"
+                       Foreground="{DynamicResource TextPrimaryBrush}"
+                       HorizontalAlignment="Center"
+                       Margin="0,8,0,12"/>
+
+    </StackPanel>
+
+    <dialogs:ThemedDialogWindow.FooterContent>
+<Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- CREATE INVOICE -->
+                    <Button Grid.Column="0"
+                            Command="{Binding CreateInvoiceCommand}"
+                            Height="52"
+                            Cursor="Hand"
+                            BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource PrimaryButtonStyle}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd"
+                                        Background="{DynamicResource AccentBrush}"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                        Padding="12,10">
+                                    <StackPanel>
+                                        <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                   HorizontalAlignment="Center">
+                                            <Run Text="&#xE70F; " FontFamily="{DynamicResource FontFamily.Icon}"/><Run Text="{DynamicResource Reports.CreateInvoice}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{DynamicResource Reports.FixMissingInvoiceNow}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,3,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <!-- SKIP -->
+                    <Button Grid.Column="2"
+                            Command="{Binding SkipCommand}"
+                            Height="52"
+                            Cursor="Hand"
+                            BorderThickness="{DynamicResource Border.NoneThickness}"
+                            IsDefault="True" Style="{StaticResource SecondaryButtonStyle}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd"
+                                        Background="{DynamicResource WarningBrush}"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                        Padding="12,10">
+                                    <StackPanel>
+                                        <TextBlock Text="{DynamicResource Reports.SKIPContinue}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                   HorizontalAlignment="Center"/>
+                                        <TextBlock Text="{DynamicResource Reports.GenerateWarning}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,3,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <!-- ABORT -->
+                    <Button Grid.Column="4"
+                            Command="{Binding AbortCommand}"
+                            Height="52"
+                            Cursor="Hand"
+                            BorderThickness="{DynamicResource Border.NoneThickness}"
+                            IsCancel="True" Style="{StaticResource SecondaryButtonStyle}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd"
+                                        Background="{DynamicResource DangerBrush}"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                        Padding="12,10">
+                                    <StackPanel>
+                                        <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                   HorizontalAlignment="Center">
+                                            <Run Text="&#xE711; " FontFamily="{DynamicResource FontFamily.Icon}"/><Run Text="{DynamicResource Reports.Abort}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{DynamicResource Reports.CancelGeneration}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,3,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+    </dialogs:ThemedDialogWindow.FooterContent>
+</dialogs:ThemedDialogWindow>

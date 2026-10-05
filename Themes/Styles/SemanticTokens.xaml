@@ -1,0 +1,107 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Styles/SemanticTokens.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: ProGlass Design System — SEMANTIC TOKEN LAYER (Phase C)
+
+     WHY THIS FILE
+       The master design-system directive requires module XAML to consume
+       SEMANTIC names (SurfaceWorkspaceBrush, TextMutedBrush, RadiusCard…),
+       never theme-specific implementation brushes (GlassUltraClearBrush,
+       ModuleBackgroundBrush…). The existing dictionaries are correct and
+       battle-tested, but their key names are the legacy/material names.
+
+       This file is the COMPATIBILITY / ALIAS layer: it adds the canonical
+       semantic names on top of the existing, engine-managed keys. Nothing
+       here overrides or deletes anything — it is 100% additive.
+
+       CRITICAL (2026-09-14 — post-splash launch crash fix):
+       These entries MUST be CONCRETE fallback values, never
+       <DynamicResource x:Key=...> alias entries. That markup form stores
+       a ResourceReferenceExpression marker object as the resource VALUE;
+       the first control assigning it to a typed property (Background,
+       CornerRadius, ...) throws
+       "ResourceReferenceExpression is not a valid value for property ...".
+       The concrete values below only cover the pre-publish window — after
+       startup, ProGlassThemeEngine.Publish() owns these keys at higher
+       (Application-level) priority via DualWriteSemanticAliases.
+
+       ALIAS DIRECTION (documented decision)
+         canonical  →  legacy material key
+       The VisualThemeEngine keeps publishing the legacy keys at runtime
+       (ManagedKeys + family painters). Each alias re-resolves through
+       DynamicResource, so a family switch (Industrial / Monet / iPhone 17
+       Pro Max / iOS 26) or a Light/Dark flip re-tints every canonical
+       consumer live. Modules that already use the legacy keys keep
+       working unchanged; new/refactored modules adopt the semantic names.
+
+     DO NOT
+       · add a key here that already exists elsewhere (merged-dictionary
+         later-wins would silently shadow it);
+       · reintroduce markup-extension alias entries (they re-create the
+         ResourceReferenceExpression crash);
+       · delete a legacy key — the compatibility layer exists precisely so
+         the two vocabularies can coexist until views are migrated.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!-- ── LEVEL 2 · SEMANTIC SURFACES ────────────────────────────────
+         One name per surface ROLE, resolved per theme family:
+           Industrial → solid slate/white material
+           Monet      → Monet-tinted material
+           Crystal    → crystal glass material                            -->
+    <SolidColorBrush x:Key="BackgroundBrush"       Color="#FFF8FAFC"/>
+    <SolidColorBrush x:Key="SurfaceWindowBrush"    Color="#FFF5F7FA"/>
+    <SolidColorBrush x:Key="SurfaceWorkspaceBrush" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceCardBrush"      Color="#F8FFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceElevatedBrush"  Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceInputBrush"     Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="SurfacePopupBrush"     Color="#FFF8FAFC"/>
+    <SolidColorBrush x:Key="SurfaceSidebarBrush"   Color="#FFEEF1F5"/>
+
+    <!-- ── LEVEL 2 · SEMANTIC TEXT ────────────────────────────────────
+         TextPrimaryBrush / TextSecondaryBrush already exist in Light/Dark
+         themes — do NOT redeclare. Only fill the missing muted alias.
+         Concrete fallback; Publish() re-paints it live. -->
+    <SolidColorBrush x:Key="TextMutedBrush" Color="#FF64748B"/>
+
+    <!-- ── LEVEL 2 · SEMANTIC BORDERS / DIVIDERS ────────────────────── -->
+    <SolidColorBrush x:Key="BorderSubtleBrush" Color="#FFCBD5E1"/>
+    <SolidColorBrush x:Key="BorderStrongBrush" Color="#FF94A3B8"/>
+
+    <!-- ── LEVEL 2 · FOCUS & ACCENT STATES ──────────────────────────── -->
+    <SolidColorBrush x:Key="FocusBrush"        Color="#660369A1"/>
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="#FF1D4ED8"/>
+
+    <!-- ── LEVEL 1 · RADIUS (semantic geometry) ───────────────────────
+         RadiusControl / RadiusCard / RadiusLarge / RadiusDialog alias the
+         FAMILY-MANAGED corner tokens (ControlCornerRadius, CardCornerRadius,
+         CardCornerRadiusLarge) so a theme family can change the whole
+         radius hierarchy in one place; RadiusCompact rides the fixed fine
+         scale; RadiusPill was the 999 capsule (removed 2026-09-14).          -->
+    <CornerRadius x:Key="RadiusNone">0</CornerRadius>
+    <CornerRadius x:Key="RadiusCompact">6</CornerRadius>
+    <!-- 2026-09-14: 8 → 12 to match the canonical control radius
+         (Radius.Large / ControlCornerRadius in GlobalDesignSystem). -->
+    <CornerRadius x:Key="RadiusControl">12</CornerRadius>
+    <CornerRadius x:Key="RadiusCard">12</CornerRadius>
+    <CornerRadius x:Key="RadiusLarge">16</CornerRadius>
+    <CornerRadius x:Key="RadiusDialog">16</CornerRadius>
+    <!-- 2026-09-14: 999 capsule removed per the global 12px standard. -->
+    <CornerRadius x:Key="RadiusPill">12</CornerRadius>
+
+    <!-- ── LEVEL 1 · MOTION (semantic durations) ──────────────────────
+         Published as sys:String exactly like the engine's
+         MotionEaseOutKeySpline / MotionSpringKeySpline tokens; WPF's
+         DurationConverter parses them where a Storyboard consumes one.
+         ReducedMotion is honoured by the consumers, not by these values.  -->
+    <sys:String x:Key="Motion.Instant">0:0:0</sys:String>
+    <sys:String x:Key="Motion.Fast">0:0:0.15</sys:String>
+    <sys:String x:Key="Motion.Standard">0:0:0.2</sys:String>
+    <sys:String x:Key="Motion.Slow">0:0:0.35</sys:String>
+    <sys:String x:Key="Motion.Emphasis">0:0:0.5</sys:String>
+    <sys:Boolean x:Key="ReducedMotion">False</sys:Boolean>
+
+</ResourceDictionary>

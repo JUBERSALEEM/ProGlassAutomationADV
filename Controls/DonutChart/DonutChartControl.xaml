@@ -1,0 +1,52 @@
+<UserControl x:Class="ProGlassAutomation.Controls.DonutChart.DonutChartControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             SizeChanged="OnSizeChanged"
+             Background="Transparent"
+             Focusable="False">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid x:Name="PlotHost" MinWidth="120" MinHeight="120">
+            <Canvas x:Name="SliceLayer" IsHitTestVisible="False"/>
+            <StackPanel VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        IsHitTestVisible="False">
+                <TextBlock x:Name="CenterValue"
+                           FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           Typography.NumeralAlignment="Tabular"
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                <TextBlock x:Name="CenterLabel"
+                           FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           Margin="0,2,0,0"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+            </StackPanel>
+            <StackPanel x:Name="EmptyState"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed">
+                <TextBlock Text="&#xE9D9;"
+                           FontFamily="Segoe MDL2 Assets"
+                           FontSize="{StaticResource TextTitleLarge}"
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource TextTertiaryBrush}"/>
+                <TextBlock x:Name="EmptyText"
+                           Text="No data"
+                           FontSize="{StaticResource TextBody}"
+                           Margin="0,6,0,0"
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource TextTertiaryBrush}"/>
+            </StackPanel>
+        </Grid>
+
+        <ItemsControl x:Name="LegendHost"
+                      Grid.Column="1"
+                      Margin="16,0,0,0"
+                      VerticalAlignment="Center"/>
+    </Grid>
+</UserControl>

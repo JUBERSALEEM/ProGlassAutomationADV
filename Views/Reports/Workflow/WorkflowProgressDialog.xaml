@@ -1,0 +1,342 @@
+<dialogs:ThemedDialogWindow
+    x:Class="ProGlassAutomation.Views.Reports.Workflow.WorkflowProgressDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+    xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+    Title="{DynamicResource Reports.StatementGenerationProgress}"
+    Width="800" Height="700"
+    MinWidth="680" MinHeight="540"
+    ResizeMode="CanResize"
+    DialogIcon="&#xE713;"
+    DialogSubtitle="{Binding StatementNumber}"
+    Loaded="OnLoaded"
+             FontFamily="{DynamicResource AppFontFamily}">
+
+    <StackPanel>
+
+        <!-- ══ STATEMENT INFO STRIP (kept from the old header band) ══ -->
+        <Border Background="{DynamicResource TintIndigoBrush}"
+                CornerRadius="{DynamicResource Radius.Medium}"
+                Padding="12,6">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding StatementNumber}"
+                           FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                           Foreground="{DynamicResource AccentBrush}"/>
+                <TextBlock Text="{Binding CustomerName}"
+                           FontSize="{DynamicResource FontSize.Body}"
+                           Margin="12,0,0,0"
+                           TextTrimming="CharacterEllipsis"
+                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+            </StackPanel>
+        </Border>
+
+            <!-- ══ PROGRESS BAR ══ -->
+            <Grid Margin="0,10,0,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Height="10"
+                        CornerRadius="{DynamicResource Radius.Small}"
+                        Background="{DynamicResource SurfaceTertiaryBrush}"
+                        ClipToBounds="True">
+                    <Border Height="10"
+                            HorizontalAlignment="Left"
+                            CornerRadius="{DynamicResource Radius.Small}"
+                            Background="{DynamicResource AccentBrush}">
+                        <Border.Width>
+                            <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
+                                <Binding Path="OverallProgress"/>
+                                <Binding Path="ActualWidth"
+                                         RelativeSource="{RelativeSource AncestorType=Border}"/>
+                            </MultiBinding>
+                        </Border.Width>
+                    </Border>
+                </Border>
+
+                <TextBlock Grid.Column="1"
+                           Text="{Binding OverallProgressText}"
+                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           Margin="12,0,0,0"
+                           VerticalAlignment="Center"
+                           MinWidth="40"
+                           TextAlignment="Right"/>
+            </Grid>
+
+            <!-- ══ STEPS LIST ══ -->
+            <ScrollViewer Margin="0,8,0,8"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          behaviors:SmoothScrollBehavior.IsEnabled="True">
+                <ItemsControl ItemsSource="{Binding Steps}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <!-- Step row card -->
+                            <Border Margin="0,0,0,4"
+                                    Padding="10,6"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    BorderThickness="{DynamicResource CardBorderThickness}"
+                                    Background="{DynamicResource SideMenuBackgroundBrush}"
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40"/>
+                                        <!-- Step icon -->
+                                        <ColumnDefinition Width="*"/>
+                                        <!-- Title + detail -->
+                                        <ColumnDefinition Width="Auto"/>
+                                        <!-- Status icon -->
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Step icon -->
+                                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Grid.Column="0"
+                                            Width="32" Height="32"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            Background="{DynamicResource SurfacePrimaryBrush}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Top">
+                                        <TextBlock Text="{Binding Icon}"
+                                                   FontSize="{DynamicResource FontSize.H2}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <!-- Title + description + message + detail rows -->
+                                    <StackPanel Grid.Column="1"
+                                                Margin="12,0,12,0">
+
+                                        <!-- Title -->
+                                        <TextBlock Text="{Binding Title, Mode=OneWay}"
+                                                   FontSize="{DynamicResource FontSize.Title}"
+                                                   FontWeight="{DynamicResource Weight.Bold}"
+                                                  />
+
+                                        <!-- Description (subtitle) -->
+                                        <TextBlock Text="{Binding Description, Mode=OneWay}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                  
+                                                   Margin="0,2,0,0"/>
+
+                                        <!-- Current message (colored by status) -->
+                                        <TextBlock Text="{Binding CurrentMessage, Mode=OneWay}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                                   Margin="0,6,0,0"
+                                                   TextWrapping="Wrap"
+                                                   Visibility="{Binding HasMessage,
+                                                       Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <TextBlock.Foreground>
+                                                <SolidColorBrush
+                                                    Color="{Binding StatusColor,
+                                                        Converter={StaticResource ColorStringConverter}}"/>
+                                            </TextBlock.Foreground>
+                                        </TextBlock>
+
+                                        <!-- Detail rows (expandable list) -->
+                                        <ItemsControl ItemsSource="{Binding DetailRows}"
+                                                      Margin="0,4,0,0">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}"
+                                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                                              
+                                                               Margin="0,1,0,1"
+                                                               TextWrapping="Wrap"
+                                                               FontFamily="{DynamicResource FontFamily.Code}"/>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <!-- Warning badge -->
+                                        <Border
+                                                CornerRadius="{DynamicResource Radius.Small}"
+                                                Padding="6,2"
+                                                Margin="0,6,0,0"
+                                                HorizontalAlignment="Left"
+                                                Visibility="{Binding HasWarnings,
+                                                    Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                            <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
+                                                       FontWeight="{DynamicResource Weight.Bold}"
+                                                      >
+                                                <Run Text="&#xE7BA; " FontFamily="{DynamicResource FontFamily.Icon}"/>
+                                                <Run Text="{Binding Warnings.Count, Mode=OneWay}"/>
+                                                <Run Text="{DynamicResource Reports.StatementGenerator.WarningS}"/>
+                                            </TextBlock>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <!-- Status icon (large, colored) -->
+                                    <Border Grid.Column="2"
+                                            Width="32" Height="32"
+                                            CornerRadius="{DynamicResource CardCornerRadius}"
+                                            VerticalAlignment="Top"
+                                            HorizontalAlignment="Center">
+                                        <Border.Background>
+                                            <SolidColorBrush
+                                                Color="{Binding StatusColor,
+                                                    Converter={StaticResource ColorStringConverter}}"
+                                                Opacity="0.15"/>
+                                        </Border.Background>
+                                        <TextBlock Text="{Binding StatusIcon, Mode=OneWay}"
+                                                   FontSize="{DynamicResource FontSize.H2}"
+                                                   FontWeight="{DynamicResource Weight.Bold}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center">
+                                            <TextBlock.Foreground>
+                                                <SolidColorBrush
+                                                    Color="{Binding StatusColor,
+                                                        Converter={StaticResource ColorStringConverter}}"/>
+                                            </TextBlock.Foreground>
+                                        </TextBlock>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- ══ RESULT SUMMARY (shown when engine completes) ══ -->
+            <Border Margin="0,4,0,12"
+                    Padding="14,10"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                    BorderThickness="{DynamicResource Border.HairlineThickness}"
+                    Visibility="{Binding HasResult,
+                        Converter={StaticResource BoolToVisibilityConverter}}">
+                <Border.Background>
+                    <SolidColorBrush
+                        Color="{Binding ResultOutcomeColor,
+                            Converter={StaticResource ColorStringConverter}}"
+                        Opacity="0.10"/>
+                </Border.Background>
+                <Border.BorderBrush>
+                    <SolidColorBrush
+                        Color="{Binding ResultOutcomeColor,
+                            Converter={StaticResource ColorStringConverter}}"/>
+                </Border.BorderBrush>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding ResultOutcomeIcon, Mode=OneWay}"
+                               FontSize="{DynamicResource FontSize.H1}"
+                               FontWeight="{DynamicResource Weight.Bold}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0">
+                        <TextBlock.Foreground>
+                            <SolidColorBrush
+                                Color="{Binding ResultOutcomeColor,
+                                    Converter={StaticResource ColorStringConverter}}"/>
+                        </TextBlock.Foreground>
+                    </TextBlock>
+                    <TextBlock Text="{Binding ResultSummary, Mode=OneWay}"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               VerticalAlignment="Center"
+                               TextWrapping="Wrap">
+                        <TextBlock.Foreground>
+                            <SolidColorBrush
+                                Color="{Binding ResultOutcomeColor,
+                                    Converter={StaticResource ColorStringConverter}}"/>
+                        </TextBlock.Foreground>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+    </StackPanel>
+
+    <dialogs:ThemedDialogWindow.FooterContent>
+<Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- View warnings button -->
+                    <Button Grid.Column="0"
+                            Command="{Binding ViewWarningsCommand}"
+                            MinHeight="{DynamicResource DensityInputHeight}" Padding="16,0"
+                            Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
+                            Visibility="{Binding HasWarnings,
+                                Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SecondaryButtonStyle}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd"
+                                        Background="{DynamicResource WarningBrush}"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
+                                        Padding="{TemplateBinding Padding}">
+                                    <StackPanel Orientation="Horizontal"
+                                                VerticalAlignment="Center">
+                                        <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,6,0"/>
+                                        <TextBlock Text="{DynamicResource Reports.VIEWWarnings}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <!-- Running indicator -->
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Visibility="{Binding IsRunning,
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="⏳" FontSize="{DynamicResource FontSize.H3}"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0"/>
+                        <TextBlock Text="{DynamicResource Reports.Processing}"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Close button -->
+                    <Button Grid.Column="2"
+                            Command="{Binding CloseCommand}"
+                            MinHeight="{DynamicResource DensityInputHeight}" Padding="24,0"
+                            Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
+                            IsDefault="True" Style="{StaticResource SecondaryButtonStyle}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd"
+                                        Background="{DynamicResource AccentBrush}"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
+                                        Padding="{TemplateBinding Padding}">
+                                    <TextBlock Text="{DynamicResource Action.Close}"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+    </dialogs:ThemedDialogWindow.FooterContent>
+</dialogs:ThemedDialogWindow>

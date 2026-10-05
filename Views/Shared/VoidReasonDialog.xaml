@@ -1,0 +1,81 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Shared/VoidReasonDialog.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Shared — mandatory reason before voiding a posted document
+
+     2026-09 dialog audit: rebuilt on the shared ThemedDialogWindow chrome
+     (single source of truth in Themes/Styles/DialogStyles.xaml). Previously
+     a fixed 540×420 NoResize window with hand-rolled header/footer — long
+     localized strings clipped and the box could not grow. Now:
+       • SizeToContent=Height (grows with wrapped text, work-area clamped);
+       • shared header (danger icon badge, wrapping title, document label
+         as subtitle) and shared footer strip with pill buttons;
+       • the same fix applies to every module that voids (Delivery Note,
+         Proforma, Tax Invoice, Job Order) — there is only one dialog.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.Shared.VoidReasonDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+        Title="{DynamicResource Void.Title}"
+        Width="540"
+        DialogIcon="&#xE7BA;"
+        DialogIconBrush="{DynamicResource DangerBrush}"
+        DialogSubtitle="{Binding DocumentLabel}"
+             FontFamily="{DynamicResource AppFontFamily}">
+
+    <!-- Reason input -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="{DynamicResource Void.ReasonLabel}"
+                   Style="{StaticResource DialogFieldLabelStyle}"/>
+
+        <Border Grid.Row="1"
+                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                BorderThickness="{DynamicResource CardBorderThickness}"
+                CornerRadius="{DynamicResource ControlCornerRadius}">
+            <TextBox x:Name="ReasonTextBox"
+                     MinHeight="90"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     Padding="10,6"
+                     FontSize="{DynamicResource FontSize.Title}"
+                     Foreground="{DynamicResource TextPrimaryBrush}"
+                     TextWrapping="Wrap"
+                     AcceptsReturn="True"
+                     VerticalScrollBarVisibility="Auto"
+                     VerticalContentAlignment="Top"
+                     Text="{Binding Reason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStyle}"/>
+        </Border>
+
+        <!-- Validation hint -->
+        <TextBlock Grid.Row="2"
+                   Text="{DynamicResource Void.ReasonRequired}"
+                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                   Margin="2,8,0,0"
+                   Foreground="{DynamicResource DangerBrush}"
+                   Visibility="{Binding ValidationVisibility}"/>
+    </Grid>
+
+    <dialogs:ThemedDialogWindow.FooterContent>
+        <StackPanel Orientation="Horizontal">
+            <Button Style="{StaticResource OutlinedPillButton}"
+                    Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
+                    Margin="0,0,10,0"
+                    Command="{Binding CancelCommand}"
+                    IsCancel="True"/>
+            <Button Style="{StaticResource PrimaryPillButton}"
+                    Tag="&#xE7BA;" Content="{DynamicResource Void.ConfirmButton}"
+                    Command="{Binding ConfirmCommand}"
+                    IsDefault="True"/>
+        </StackPanel>
+    </dialogs:ThemedDialogWindow.FooterContent>
+</dialogs:ThemedDialogWindow>

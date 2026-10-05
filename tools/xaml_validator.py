@@ -1,0 +1,603 @@
+#!/usr/bin/env python3
+"""ProGlass XAML safety validator (release-safe protocol, Phases 5–8 + 17).
+
+Static analysis gate for every .xaml file in the repository.
+
+  W1  malformed XML (parse failure)
+  W2  duplicate x:Name within a namescope (file root / template / style)
+  W3  duplicate x:Key within a dictionary file
+  W4  duplicate attributes on one element
+  W5  StaticResource declared AFTER its use within the same file
+  W6  StaticResource / BasedOn key not resolvable in the file's parse scope
+      (same file, or a dictionary merged earlier than this file in App.xaml)
+  W7  DynamicResource key declared nowhere and not runtime-published
+  W8  invalid Thickness / CornerRadius / GridLength / numeric syntax / negatives
+  W9  impossible Min > Max on the same element
+  W10 Border / ContentControl / ScrollViewer with >1 content child
+  W11 ItemsControl with both Items and ItemsSource
+  W12 Grid.Row / Grid.Column beyond declared definitions (NOTE: WPF auto-extends)
+  W14 x:Class without matching .xaml.cs
+  W15 FindName("X") in code-behind where X is not declared in the XAML
+  W16 unauthorized StaticResource on runtime-owned tokens (Pg font / density /
+      radius tokens must be DynamicResource — 2026-09-18 policy flip)
+  W17 hardcoded hex colour in a view (NOTE; theme files are exempt)
+  W18 root element default xmlns is the XAML (non-presentation) namespace —
+      WPF UI types (incl. ResourceDictionary) live in .../xaml/presentation,
+      so the whole dictionary fails markup compilation (MC6002). Added
+      2026-09-19 after the first real build (GB-B1).
+  W19 non-existent WPF property in the denylist (e.g. FontFeatures — a CSS
+      property with no WPF equivalent; markup compilation fails MC3072).
+      Added 2026-09-19 (GB-B1).
+  W20 a property set BOTH as an attribute AND as a property element on the
+      same element (e.g. Style attribute + <Border.Style>) — MC3024
+      "can be set only once". Added 2026-09-19 (GB-B1).
+  W21 a Setter with TargetName outside a ControlTemplate/DataTemplate
+      context (e.g. TargetName in <Style.Triggers> of an explicit Style) —
+      MC4011 "TargetName property cannot be set on a Style Setter".
+      Added 2026-09-19 (GB-B2).
+  W22 a star GridLength ("N*") on a Length-typed property (any element
+      other than ColumnDefinition.Width / RowDefinition.Height) — runtime
+      XamlParseException "'N*' string cannot be converted to Length"
+      (startup crash from BAML parse; markup compile does not catch it).
+      Added 2026-09-19 (GB-B5, GlassShell AI-overlay crash).
+  W23 an ItemsControl with element children whose effective
+      ItemContainerStyle (inline, or via a keyed Style + BasedOn chain)
+      targets a type that does not cover the child — runtime
+      InvalidOperationException "A style intended for type 'X' cannot be
+      applied to type 'Y'" on first layout (element children are their
+      own containers: IsItemItsOwnContainerOverride = 'item is UIElement').
+      Added 2026-09-19 (GB-B6, PgSkeletonKpiBandStyle startup crash).
+
+Usage:  python3 tools/xaml_validator.py [--files <paths...>]
+Writes: docs/ui-audit/XAML_VALIDATION_REPORT.{md,json}
+Exit:   0 = no ERROR-level findings, 1 = ERRORs present.
+
+HONESTY GATE: static analysis only — it cannot prove runtime layout, visual
+tree construction or actual WPF parse of merged dictionaries. BUILD / RUNTIME
+verification = NOT RUN unless a .NET SDK is available.
+"""
+import re, os, sys, json, datetime
+import xml.etree.ElementTree as ET
+from collections import defaultdict
+
+ROOT = os.getcwd()
+XAML_NS = "http://schemas.microsoft.com/winfx/2006/xaml"
+
+def _load(p):
+    with open(p, encoding="utf-8") as f:
+        return f.read()
+
+# --- runtime-published tokens (services write to Application.Resources)
+# Two publish styles exist: resources["Key"] = … (ThemeManager) and
+# indexer d["Key"] = … (PrintTokenService print-time dictionary).
+def _runtime_keys():
+    s = set()
+    for dp, dn, fn in os.walk("Services"):
+        for f in fn:
+            if f.endswith(".cs"):
+                t = _load(os.path.join(dp, f))
+                s |= set(re.findall(r'resources\["([A-Za-z0-9_.]+)"\]\s*=', t))
+                s |= set(re.findall(r'\["([A-Za-z0-9_.]+)"\]\s*=', t))
+    return s
+
+RUNTIME_PUBLISHED = _runtime_keys()
+RUNTIME_PUBLISHED |= {
+    "DensityInputHeight", "DensityButtonHeight", "DensityRowHeight",
+    "DensityTitleFontSize", "DensityKpiValueFontSize", "DensityBodyFontSize",
+    "DensityButtonMinWidth", "DensityCardPadding", "DensityStripPadding",
+    "DensityPageMargin",
+}
+# --- runtime-owned tokens that MUST be consumed dynamically
+MUST_BE_DYNAMIC = {"PgFontHero", "PgFontHeroSub", "PgFontCardTitle", "PgFontCardSub",
+    "PgFontKpiValue", "PgFontKpiLabel", "PgFontKpiFoot", "PgFontStatValue",
+    "PgFontStatLabel", "PgFontStatFoot", "PgFontStageValue", "PgFontStageName",
+    "PgFontStageFoot", "PgFontBody", "PgFontBodySm", "PgFontMeta", "PgFontBtn",
+    "PgFontGlyph", "PgFontGlyphSm", "PgTopFont", "PgTopFontBtn", "PgTopFontCap",
+    "PgPageMargin", "PgCardPadding", "PgTilePadding", "PgRowPadding",
+    "PgGutter", "PgGutterHalfMargin", "PgKpiTileMinHeight", "PgChartMinHeight",
+    "PgCardRadius", "PgTileRadius", "PgCtrlRadius", "PgIconRadius", "PgIconSmRadius"}
+
+# W19 denylist — names that look like WPF properties but do not exist.
+# Each entry was a real build break (GB-B1, first real build 2026-09-19).
+# Add here, with the error code, whenever a new one is discovered.
+NONEXISTENT_PROPS = {
+    "FontFeatures",             # CSS font-feature-settings; WPF has no XAML property
+    "IsDirectionalLightOnly",   # no WPF effect carries this (MC3072, GB-B2)
+}
+
+NUM = re.compile(r"^-?\d+(\.\d+)?$")
+THICK = re.compile(r"^(-?\d+(\.\d+)?|Auto|\*)(,(-?\d+(\.\d+)?)){0,3}$")
+CORNER = re.compile(r"^\d+(\.\d+)?(,\d+(\.\d+)?){0,3}$")
+
+# property-element local names that are NOT content children
+PROP_EL = {
+    "Background", "BorderBrush", "BorderThickness", "Padding", "Margin", "Effect",
+    "Child", "Content", "ContentStringFormat", "ContentTemplate",
+    "ContentTemplateSelector", "Style", "Template", "Tag", "ToolTip", "Resources",
+    "InputBindings", "CornerRadius", "SnapsToDevicePixels", "SnapsToDevicePixels",
+    "RenderOptions.EdgeMode", "VerticalAlignment", "HorizontalAlignment",
+    "FontSize", "FontWeight", "Foreground", "Background", "Opacity", "Cursor",
+    "FocusVisualStyle", "Visibility", "Width", "Height", "Items", "ItemsSource",
+    "ItemTemplate", "ItemsPanel", "Command", "CommandParameter", "IsEnabled",
+    "Grid.Row", "Grid.Column", "Grid.RowSpan", "Grid.ColumnSpan", "Text",
+    "Grid.RowDefinitions", "Grid.ColumnDefinitions", "Trigger", "DataTrigger",
+    "Style.Triggers", "ControlTemplate.Triggers", "Setter", "Setter.Value",
+    "Setter.Triggers", "ControlTemplate.Resources",
+}
+
+def local(tag):
+    return tag.split("}")[-1] if isinstance(tag, str) else ""
+
+def find_xamls():
+    out = []
+    for dp, dn, fn in os.walk(ROOT):
+        dn[:] = [d for d in dn if d not in (".git", ".claude", "node_modules")]
+        for f in fn:
+            if f.endswith(".xaml"):
+                out.append(os.path.relpath(os.path.join(dp, f), ROOT))
+    return sorted(out)
+
+def app_merge_order():
+    app = _load("App.xaml")
+    order, index = [], {}
+    all_x = find_xamls()
+    for i, m in enumerate(re.finditer(r'<ResourceDictionary\s+Source="([^"]+)"', app)):
+        base = m.group(1).split("/")[-1]
+        cands = [c for c in all_x if c == base or c.endswith("/" + base)]
+        if cands:
+            index[cands[0]] = i
+            order.append(cands[0])
+    return order, index
+
+def i18n_keys():
+    s = set()
+    for dp, dn, fn in os.walk(os.path.join(ROOT, "Themes", "Languages")):
+        for f in fn:
+            if f.endswith(".xaml"):
+                s |= set(re.findall(r'x:Key="([^"]+)"', _load(os.path.join(dp, f))))
+    return s
+
+def content_children(el):
+    """Direct children that are actual CONTENT (not property elements).
+    Property elements appear two ways: bare (<Style>, <Template>, …) or
+    dot-qualified (<Border.Background>, <TextBlock.Style>) — the latter keeps
+    the full 'Parent.Property' name as its local part in ElementTree."""
+    pl = local(el.tag)
+    out = []
+    for c in el:
+        if not isinstance(c.tag, str):
+            continue
+        lt = local(c.tag)
+        if lt in PROP_EL:
+            continue
+        if "." in lt and lt.split(".", 1)[0] == pl:
+            continue
+        out.append(c)
+    return out
+
+def check_file(path, merge_index, all_declared, i18n, findings, style_ict=None):
+    F = lambda level, code, msg: findings.append({"file": path, "level": level, "code": code, "msg": msg})
+    raw = _load(path)
+    nocomm = re.sub(r"<!--.*?-->", "", raw, flags=re.S)
+    try:
+        root = ET.fromstring(raw)
+    except ET.ParseError as e:
+        F("ERROR", "W1", f"malformed XML: {e}")
+        return
+    # W18 root default xmlns must be the PRESENTATION namespace. WPF UI
+    # types (Border, Style, …) and ResourceDictionary itself live in
+    # System.Windows / System.Windows.Media → .../xaml/presentation. A root
+    # defaulting to .../xaml (the XAML language namespace) fails markup
+    # compilation with MC6002 'Unrecognized tag'. Static ET parsing cannot
+    # catch this (the XML is well-formed) — hence the explicit check.
+    if isinstance(root.tag, str) and root.tag.startswith("{" + XAML_NS + "}"):
+        F("ERROR", "W18",
+          "root element defaults xmlns to the XAML namespace — must be "
+          "http://schemas.microsoft.com/winfx/2006/xaml/presentation (MC6002)")
+    # (W13 removed: ET parsing already guarantees xmlns prefixes are declared —
+    #  an undeclared prefix is a W1 parse failure, not a separate check.)
+    # W4 duplicate attributes (raw scan, comments stripped, QUOTE-AWARE tokenizer
+    # so 'ElementName=' inside a binding string is not mistaken for an attr)
+    ATTR_RE = re.compile(r"([A-Za-z_][\w.:-]*)\s*=\s*(\"([^\"]*)\"|'([^']*)'|[^\s>]+)")
+    TAG_RE = re.compile(r"<([A-Za-z_][\w.:-]*)((?:[^>\"']|\"[^\"]*\"|'[^']*')*)>")
+    for m in TAG_RE.finditer(nocomm):
+        tagname = m.group(1)
+        attrregion = m.group(2)
+        attrnames = [mm.group(1) for mm in ATTR_RE.finditer(attrregion)]
+        dupes = sorted({a for a in attrnames if attrnames.count(a) > 1})
+        if dupes:
+            F("ERROR", "W4", f"duplicate attribute(s) {dupes} on <{tagname}>")
+    # parent map for scopes
+    parent = {c: p for p in root.iter() for c in p}
+    # W2 / W3
+    names = defaultdict(set)
+    keys, keydup = set(), set()
+    for el in root.iter():
+        if not isinstance(el.tag, str):
+            continue
+        scope = "root"
+        anc = parent.get(el)
+        while anc is not None:
+            if local(anc.tag) in ("DataTemplate", "ControlTemplate", "Style"):
+                scope = f"scope@{id(anc)}"
+                break
+            anc = parent.get(anc)
+        nm = el.get(f"{{{XAML_NS}}}Name") or el.get("Name") or el.get("x:Name")
+        if nm:
+            if nm in names[scope]:
+                F("ERROR", "W2", f"duplicate x:Name '{nm}' (scope: {scope})")
+            names[scope].add(nm)
+        k = el.get(f"{{{XAML_NS}}}Key") or el.get("x:Key")
+        if k is not None:
+            if k in keys:
+                keydup.add(k)
+            keys.add(k)
+    for k in sorted(keydup):
+        F("WARN", "W3", f"duplicate x:Key '{k}' — later declaration shadows the earlier one (latent bug)")
+    all_names = {n for s in names.values() for n in s}
+    # W5 / W6 / W7 — resource markers
+    is_merged_dict = path in merge_index
+    my_order = merge_index.get(path, 999999)
+    for el in root.iter():
+        if not isinstance(el.tag, str):
+            continue
+        for k, v in el.attrib.items():
+            for marker, key in re.findall(r"\{(StaticResource|DynamicResource)\s+([A-Za-z0-9_.]+)", v):
+                if key in keys:
+                    if marker == "StaticResource":
+                        # positions in comment-stripped text (comment mentions
+                        # of the key must not count as a "use")
+                        use_pos = nocomm.find(key)
+                        decl_pos = nocomm.find(f'x:Key="{key}"')
+                        if use_pos != -1 and decl_pos != -1 and decl_pos > use_pos:
+                            F("WARN", "W5", f"StaticResource '{key}' declared after first use in file")
+                    continue
+                if marker == "StaticResource":
+                    if is_merged_dict:
+                        # must be in same file (checked) or an EARLIER-merged file
+                        ok = any(
+                            p in merge_index and merge_index[p] < my_order and
+                            f'x:Key="{key}"' in _load(p)
+                            for p in merge_index
+                        )
+                        if not ok:
+                            F("ERROR", "W6", f"StaticResource '{key}' not resolvable in parse scope (dict merged at order {my_order})")
+                    else:
+                        if key not in all_declared:
+                            F("ERROR", "W6", f"StaticResource '{key}' not declared anywhere")
+                else:
+                    if key not in all_declared and key not in RUNTIME_PUBLISHED and key not in i18n:
+                        F("WARN", "W7", f"DynamicResource '{key}' declared nowhere & not runtime-published")
+    # W16 unauthorized static on runtime-owned tokens
+    for k in re.findall(r"\bStaticResource\s+(Pg[A-Za-z0-9]+)", nocomm):
+        if k in MUST_BE_DYNAMIC:
+            F("ERROR", "W16", f"StaticResource {k} — runtime-owned token must be DynamicResource")
+    # W19 — non-existent WPF properties (denylist). These are real properties
+    # in OTHER technologies (CSS) that have no WPF equivalent; the markup
+    # compiler rejects them (MC3072 / XLS0413) but static XML parsing passes.
+    for el in root.iter():
+        if not isinstance(el.tag, str):
+            continue
+        for attr, val in el.attrib.items():
+            an = local(attr)
+            if an in NONEXISTENT_PROPS:
+                F("ERROR", "W19", f"non-existent WPF property '{an}' (no such member — markup compile fails)")
+        for c in el:
+            if isinstance(c.tag, str) and c.get("Property") in NONEXISTENT_PROPS:
+                F("ERROR", "W19", f"Setter Property='{c.get('Property')}' is not a WPF property")
+    # W21 — TargetName is only legal inside a ControlTemplate or DataTemplate
+    # (template parts / named template elements). A Setter with TargetName in
+    # <Style.Setters> or <Style.Triggers> of an explicit Style fails markup
+    # compilation with MC4011 'TargetName property cannot be set on a Style
+    # Setter'. Static ET parsing passes — hence the explicit ancestry check.
+    for el in root.iter():
+        if not isinstance(el.tag, str) or local(el.tag) != "Setter":
+            continue
+        if not el.get("TargetName"):
+            continue
+        anc = parent.get(el)
+        in_template = False
+        while anc is not None:
+            if local(anc.tag) in ("ControlTemplate", "DataTemplate"):
+                in_template = True
+                break
+            anc = parent.get(anc)
+        if not in_template:
+            F("ERROR", "W21",
+              f"Setter TargetName='{el.get('TargetName')}' outside a "
+              "ControlTemplate/DataTemplate (MC4011)")
+    # W22 — star GridLength ("N*") on a Length-typed property. Stars are
+    # ONLY legal on ColumnDefinition.Width / RowDefinition.Height (GridLength).
+    # On every other property (Width/MaxWidth/Height/... on any FrameworkElement)
+    # the LengthConverter fails at RUNTIME parse with
+    # "'0.94*' string cannot be converted to Length" (XamlParseException from
+    # BAML load — crashes startup; markup compile does NOT catch it, the value
+    # is only converted when the BAML is parsed at load time). Added 2026-09-19
+    # after the GlassShell AI-overlay crash (GB-B5).
+    LENGTH_ATTRS = {"Width","Height","MinWidth","MaxWidth","MinHeight","MaxHeight",
+                    "RadiusX","RadiusY","StrokeThickness","BorderThickness",
+                    "Thickness","CornerRadius","Padding","Margin","FontSize",
+                    "Indent","LineHeight","MaxLineHeight","MinLineHeight"}
+    STAR_OK = {("ColumnDefinition","Width"), ("RowDefinition","Height")}
+    STAR_RE = re.compile(r"^\d*\.?\d+\*$")
+    for el in root.iter():
+        if not isinstance(el.tag, str):
+            continue
+        t = local(el.tag)
+        for attr, val in el.attrib.items():
+            if local(attr) in LENGTH_ATTRS and (t, local(attr)) not in STAR_OK \
+                    and not val.startswith("{") and STAR_RE.match(val):
+                F("ERROR", "W22",
+                  f"star GridLength '{val}' on Length property "
+                  f"{t}.{local(attr)} — star is valid only on "
+                  f"ColumnDefinition.Width/RowDefinition.Height; "
+                  f"LengthConverter throws at runtime parse")
+        for c in el:
+            if isinstance(c.tag, str) and local(c.tag) == "Setter" \
+                    and c.get("Property","").split(".")[-1] in LENGTH_ATTRS \
+                    and (t, c.get("Property","").split(".")[-1]) not in STAR_OK:
+                v = c.get("Value","")
+                if not v.startswith("{") and STAR_RE.match(v):
+                    F("ERROR", "W22",
+                      f"Setter {c.get('Property')}='{v}' — star GridLength on a "
+                      f"Length property; LengthConverter throws at runtime parse")
+    # W23 — an ItemsControl with ELEMENT children (explicit <ContentControl>,
+    # <Border>, …) + an ItemContainerStyle whose TargetType does not cover
+    # the child's type. In .NET (Core) WPF, ItemsControl.
+    # IsItemItsOwnContainerOverride is 'item is UIElement', so element
+    # children are their OWN containers and ApplyItemContainerStyle
+    # validates style.TargetType against them — a ContentPresenter-targeted
+    # style throws InvalidOperationException at runtime: "A style intended
+    # for type 'ContentPresenter' cannot be applied to type 'ContentControl'".
+    # Markup compile + designer do NOT catch it (fails on first layout).
+    # Added 2026-09-19 (GB-B6) after the PgSkeletonKpiBandStyle startup
+    # crash (inherited ItemContainerStyle via BasedOn).
+    if style_ict:
+        WPF_BASES = {
+            "UIElement": set(),
+            "FrameworkElement": {"UIElement"},
+            "FrameworkContentElement": {"UIElement"},
+            "Decorator": {"FrameworkElement", "UIElement"},
+            "Border": {"Decorator", "FrameworkElement", "UIElement"},
+            "Panel": {"FrameworkElement", "UIElement"},
+            "Grid": {"Panel", "FrameworkElement", "UIElement"},
+            "StackPanel": {"Panel", "FrameworkElement", "UIElement"},
+            "WrapPanel": {"Panel", "FrameworkElement", "UIElement"},
+            "UniformGrid": {"Panel", "FrameworkElement", "UIElement"},
+            "DockPanel": {"Panel", "FrameworkElement", "UIElement"},
+            "Canvas": {"Panel", "FrameworkElement", "UIElement"},
+            "Control": {"FrameworkElement", "UIElement"},
+            "ContentControl": {"Control", "FrameworkElement", "UIElement"},
+            "ContentPresenter": {"FrameworkElement", "UIElement"},
+            "Label": {"ContentControl", "Control", "FrameworkElement", "UIElement"},
+            "Button": {"Control", "FrameworkElement", "UIElement"},
+            "ItemsControl": {"Control", "FrameworkElement", "UIElement"},
+            "Selector": {"ItemsControl", "Control", "FrameworkElement", "UIElement"},
+            "ListBox": {"Selector", "ItemsControl", "Control", "FrameworkElement", "UIElement"},
+            "TextBlock": {"FrameworkContentElement", "UIElement"},
+            "Image": {"FrameworkElement", "UIElement"},
+        }
+        IC_PROP_ELEMS = {"ItemsPanel", "ItemsSource", "ItemTemplate",
+                         "ItemTemplateSelector", "ItemStringFormat",
+                         "ItemContainerStyle", "ItemContainerStyleSelector",
+                         "AlternationCount", "ItemBindingGroup", "GroupStyle",
+                         "Style", "Template", "Triggers", "Tag", "Content"}
+        def eff_ict_target(ic_el):
+            for c in ic_el:
+                if isinstance(c.tag, str) and local(c.tag) == "ItemContainerStyle":
+                    for vv in c.iter():
+                        if isinstance(vv.tag, str) and local(vv.tag) == "Style":
+                            return vv.get("TargetType")
+            mk = re.search(r"StaticResource\s+([A-Za-z0-9_.]+)", ic_el.get("Style") or "")
+            key, seen = (mk.group(1) if mk else None), set()
+            while key and key in style_ict and key not in seen:
+                seen.add(key)
+                s = style_ict[key]
+                if s["ict"]:
+                    return s["ict"]
+                key = s["basedon"]
+            return None
+        def wpf_covers(tgt, child):
+            if tgt == "UIElement" or tgt == child:
+                return True
+            return tgt in WPF_BASES.get(child, set())
+        for el in root.iter():
+            if not isinstance(el.tag, str) or local(el.tag) != "ItemsControl":
+                continue
+            kids = [local(c.tag) for c in el
+                    if isinstance(c.tag, str)
+                    and "." not in local(c.tag)
+                    and local(c.tag) not in IC_PROP_ELEMS]
+            if not kids:
+                continue
+            tgt = eff_ict_target(el)
+            if not tgt:
+                continue
+            for ln in set(kids):
+                if not wpf_covers(tgt, ln):
+                    F("ERROR", "W23",
+                      f"ItemsControl child <{ln}> is its own container "
+                      f"(IsItemItsOwnContainerOverride = 'item is UIElement') "
+                      f"but ItemContainerStyle targets '{tgt}' — runtime "
+                      f"InvalidOperationException (StyleForWrongType)")
+    # element checks
+    for el in root.iter():
+        if not isinstance(el.tag, str):
+            continue
+        t = local(el.tag)
+        a = el.attrib
+        children = content_children(el)
+        # W20 — property set both as attribute AND as a property element
+        # (e.g. Style="..." attribute + <Border.Style> child). WPF: a property
+        # can be set only once (MC3024). Dot-qualified child local names keep
+        # the 'Parent.Property' form in ElementTree.
+        for c in el:
+            if not isinstance(c.tag, str):
+                continue
+            lt = local(c.tag)
+            if "." in lt:
+                qual, prop = lt.split(".", 1)
+                if qual == t and prop in a:
+                    F("ERROR", "W20", f"'{prop}' set as attribute AND as <{t}.{prop}> property element (set-once violation)")
+        if t in ("Border", "ScrollViewer") and len(children) > 1:
+            F("ERROR", "W10", f"<{t}> has {len(children)} content children (must be 1)")
+        if t == "ContentControl" and len(children) > 1:
+            F("ERROR", "W10", f"<ContentControl> has {len(children)} content children (must be 1)")
+        if t == "ItemsControl":
+            if "ItemsSource" in a:
+                for c in el:
+                    if isinstance(c.tag, str) and local(c.tag) == "Items":
+                        F("ERROR", "W11", "ItemsControl has <Items> child AND ItemsSource")
+        # W8 — skip values that are markup extensions ({...}): the value's
+        # type comes from the resolved resource, not the literal.
+        for prop in ("Margin", "Padding", "BorderThickness"):
+            if prop in a and not a[prop].startswith("{") and not THICK.match(a[prop]):
+                F("ERROR", "W8", f"invalid {prop} '{a[prop]}'")
+        for prop in ("Width", "Height", "MinWidth", "MaxWidth", "MinHeight",
+                     "MaxHeight", "FontSize", "Opacity"):
+            if prop in a:
+                v2 = a[prop]
+                if v2.startswith("{"):
+                    continue
+                if v2 in ("Auto", "*"):
+                    continue
+                if NUM.match(v2):
+                    if float(v2) < 0:
+                        F("ERROR", "W8", f"negative {prop} '{v2}'")
+                elif not re.match(r"^\d+(\.\d+)?\*$", v2):
+                    F("ERROR", "W8", f"invalid {prop} '{v2}'")
+        if "CornerRadius" in a and not a["CornerRadius"].startswith("{") \
+           and not CORNER.match(a["CornerRadius"]):
+            F("ERROR", "W8", f"invalid CornerRadius '{a['CornerRadius']}'")
+        for mn, mx in (("MinWidth", "MaxWidth"), ("MinHeight", "MaxHeight")):
+            if mn in a and mx in a and NUM.match(a[mn]) and NUM.match(a[mx]) \
+               and float(a[mn]) > float(a[mx]):
+                F("ERROR", "W9", f"{mn} {a[mn]} > {mx} {a[mx]}")
+        if t == "Grid":
+            rows = cols = 0
+            for c in el:
+                if not isinstance(c.tag, str):
+                    continue
+                lt = local(c.tag)
+                if lt in ("RowDefinitions", "Grid.RowDefinitions"):
+                    rows += len([x for x in c if isinstance(x.tag, str)])
+                elif lt in ("ColumnDefinitions", "Grid.ColumnDefinitions"):
+                    cols += len([x for x in c if isinstance(x.tag, str)])
+            for c in el:
+                if not isinstance(c.tag, str):
+                    continue
+                ca = c.attrib
+                if rows and "Grid.Row" in ca and NUM.match(ca["Grid.Row"]) and int(ca["Grid.Row"]) >= rows:
+                    F("NOTE", "W12", f"Grid.Row={ca['Grid.Row']} >= {rows} RowDefinitions (WPF auto-extends)")
+                if cols and "Grid.Column" in ca and NUM.match(ca["Grid.Column"]) and int(ca["Grid.Column"]) >= cols:
+                    F("NOTE", "W12", f"Grid.Column={ca['Grid.Column']} >= {cols} ColumnDefinitions (WPF auto-extends)")
+    # W14 / W15 code-behind
+    xc = root.get(f"{{{XAML_NS}}}Class")
+    if xc:
+        rel_cls = xc.replace("ProGlassAutomation.", "").replace(".", "/")
+        cb = os.path.join(ROOT, rel_cls + ".xaml.cs")
+        if not os.path.exists(cb) and not path.startswith("Tools/"):
+            F("ERROR", "W14", f"x:Class {xc} has no code-behind ({rel_cls}.xaml.cs)")
+        elif os.path.exists(cb):
+            cs = _load(cb)
+            for fn_ in re.findall(r'FindName\("([^"]+)"\)', cs):
+                if fn_ not in all_names:
+                    F("ERROR", "W15", f'FindName("{fn_}") in code-behind but not declared in XAML')
+    # W17 hex in views
+    hexc = len(re.findall(r"#[0-9A-Fa-f]{6,8}\b", nocomm))
+    if hexc and not (path.startswith("Themes/") or path.startswith("Tools/")):
+        F("NOTE", "W17", f"{hexc} hardcoded hex value(s) in view")
+
+def main():
+    args = sys.argv[1:]
+    files = args[1:] if args and args[0] == "--files" else find_xamls()
+    _, merge_index = app_merge_order()
+    all_declared = set()
+    for p in find_xamls():
+        all_declared |= set(re.findall(r'x:Key="([A-Za-z0-9_.]+)"', _load(p)))
+    # W23 prepass — keyed Styles → their ItemContainerStyle TargetType
+    # (BasedOn chain resolved inside check_file). Cross-file because a
+    # style can be declared in ProfessionalCore.xaml and consumed by a
+    # dashboard view.
+    style_ict = {}
+    for p in find_xamls():
+        try:
+            rt = ET.fromstring(_load(p))
+        except ET.ParseError:
+            continue
+        for el in rt.iter():
+            if not isinstance(el.tag, str) or local(el.tag) != "Style":
+                continue
+            k = el.get("{" + XAML_NS + "}Key")
+            if not k or k in style_ict:
+                continue
+            ict = None
+            for c in el:
+                if isinstance(c.tag, str) and local(c.tag) == "Setter" \
+                        and local(c.get("Property", "")) == "ItemContainerStyle":
+                    for vv in c.iter():
+                        if isinstance(vv.tag, str) and local(vv.tag) == "Style":
+                            ict = vv.get("TargetType")
+                            break
+                    break
+            bo = el.get("BasedOn") or ""
+            mbo = re.search(r"StaticResource\s+([A-Za-z0-9_.]+)", bo)
+            style_ict[k] = {"ict": ict, "basedon": mbo.group(1) if mbo else None}
+    i18n = i18n_keys()
+    findings = []
+    for p in files:
+        check_file(p, merge_index, all_declared, i18n, findings, style_ict)
+    os.makedirs("docs/ui-audit", exist_ok=True)
+    errors = sum(1 for f in findings if f["level"] == "ERROR")
+    warns = sum(1 for f in findings if f["level"] == "WARN")
+    notes = sum(1 for f in findings if f["level"] == "NOTE")
+    with open("docs/ui-audit/XAML_VALIDATION_REPORT.json", "w") as fh:
+        json.dump({"generated": datetime.date.today().isoformat(), "files": len(files),
+                   "errors": errors, "warns": warns, "notes": notes,
+                   "findings": findings}, fh, indent=1)
+    L = []
+    A = L.append
+    A("# XAML Safety Validation Report (Phase 17 gate)")
+    A("")
+    A(f"**Generated:** {datetime.date.today().isoformat()} · **Files checked:** {len(files)} · "
+      f"**ERROR {errors} / WARN {warns} / NOTE {notes}**")
+    A("")
+    A("**Legend:** W1 malformed · W2 dup x:Name · W3 dup x:Key · W4 dup attribute · W5 static declared-after-use · "
+      "W6 static unresolved in parse scope · W7 dynamic unresolved & not runtime-published · W8 invalid numeric syntax · "
+      "W9 Min>Max · W10 single-child violation · W11 Items+ItemsSource · W12 grid out-of-bounds (auto-extends) · "
+      "W14 missing code-behind · W15 FindName missing · W16 unauthorized static on runtime token · "
+      "W17 hardcoded hex in view · W18 root xmlns = XAML (not presentation) namespace · "
+      "W19 non-existent WPF property (denylist) · W20 property set as attribute AND property element · "
+      "W21 TargetName setter outside a template (MC4011). "
+      "W22 star GridLength ('N*') on a Length property — runtime "
+      "LengthConverter crash (GlassShell AI overlay). "
+      "W23 ItemsControl element-child vs ItemContainerStyle TargetType "
+      "mismatch (via BasedOn chain) — runtime StyleForWrongType crash. "
+      "W3 duplicate x:Key is WARN (WPF last-wins shadowing, latent). "
+      "W7 covers keys published at runtime by Services (ThemeManager, PrintTokenService, …).")
+    A("")
+    A("**Honesty gate:** static analysis only. It cannot prove runtime layout, visual-tree construction or the "
+      "actual WPF parse of merged dictionaries. **BUILD / RUNTIME verification: NOT RUN** (no .NET SDK in this "
+      "environment) — do not treat this report as build or runtime proof.")
+    A("")
+    for lvl in ("ERROR", "WARN", "NOTE"):
+        sub = [f for f in findings if f["level"] == lvl]
+        A(f"## {lvl} ({len(sub)})")
+        A("")
+        if not sub:
+            A("_none_")
+            A("")
+            continue
+        for f in sub:
+            A(f"- `{f['code']}` **{f['file']}** — {f['msg']}")
+        A("")
+    with open("docs/ui-audit/XAML_VALIDATION_REPORT.md", "w") as fh:
+        fh.write("\n".join(L))
+    print(f"files={len(files)} ERROR={errors} WARN={warns} NOTE={notes}")
+    for f in findings:
+        if f["level"] == "ERROR":
+            print(f"  ERROR {f['code']} {f['file']}: {f['msg'][:140]}")
+    sys.exit(1 if errors else 0)
+
+if __name__ == "__main__":
+    main()

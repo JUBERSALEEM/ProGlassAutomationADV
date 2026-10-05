@@ -1,0 +1,73 @@
+{
+  "baseline": "024a1148d5db98049e780a88136f616492802fa8",
+  "source": "b43782d",
+  "sha256": {
+    "Models/Optimization/OptimizationEntities.cs": "993b6719026671d5e505399a7a7ae9ea66732935a1022cab48ff0a9cae7440cf",
+    "Services/Optimization/CompositionKey.cs": "ed484e990e92f0151f09080737edbbe46f50572820c0a8146a572128e2bbaeeb",
+    "Services/Optimization/GuillotinePacker.Advanced.cs": "6bde30ffc4cf23f6f346a5067006c516255cb66aa459314e5cdcdca7c8dff2d5",
+    "Services/Optimization/GuillotinePacker.BestSplit.cs": "9e04c14653869673e38c7797a52ac264bc6aabf7ecabaaeca31b6fb4f4065612",
+    "Services/Optimization/GuillotinePacker.Partitioned.cs": "f0fa0ab01f6956e105d1276dc61b142c907817f28f21d27f3692163b1138360a",
+    "Services/Optimization/GuillotinePacker.Smart.cs": "617543b32faf0be40e52048f5c695ffca3cbb5412f19381fc15fd426d2b17a8d",
+    "Services/Optimization/GuillotinePacker.SmartPlacement.cs": "3429ebf341505a75c9a7bd473f7bfa0ad4e9b19b4d32cf4b06405a2fa544a265",
+    "Services/Optimization/GuillotinePacker.cs": "38b55708617faa49dc05f01ba9b93eb2e47402fdf185decaea9091525c9c95e0",
+    "Services/Optimization/OptimizationDbContext.cs": "bfe2bb718e22c94d346a4c35289597812fb014a1157b5ecc12cec84f4d201f76",
+    "Services/Optimization/OptimizationDocumentKey.cs": "cff354799857b26cdd0973febfe31c6124efb1c25c4054e7d8c5b043716e71de",
+    "Services/Optimization/OptimizationMaterialIdentity.cs": "eeba757c129418119d3e9baaffd72d407038b752e6c84a4ddc41f39f758367a9",
+    "Services/Optimization/OptimizationModels.cs": "28821a03d60171d78ab73847cb80aac2238a4aa6b863e763cfc6195e172ad8ae",
+    "Services/Optimization/OptimizationPartitionModels.cs": "5d06df59e60541dddda5d9c634071505daad4ee7d3e6598e466cf8e6ae4f7067",
+    "Services/Optimization/OptimizationProgress.cs": "66bb03ae3cf1c03a6c745e7d56ac3073902d2ffdc08eb6a3de71fcbfcb758f84",
+    "Services/Optimization/OptimizationResultFeed.cs": "3ebbe367e6d6f8437885e25be5298c17fad2b7eaca416bd907076900cf7506b2",
+    "Services/Optimization/OptimizationSearchGovernor.cs": "34809c032fbd0a7b94a393a7e157290d429ef7990d71d6d770f9be9c0037e796",
+    "Services/Optimization/OptimizationSessionIdentity.cs": "df00513d1c934a5373cbc20f6d5001e9c464eda02290f4aba768070cc119404b",
+    "Services/Optimization/OptimizationSessionRepository.cs": "641e484a03308c816c60cc2e41c59c4c0bd1852585bc9b594ad0384d7f7c22d1",
+    "Services/Optimization/PieceCandidateIndex.cs": "af008dfd03aff2aa435e8c4f01fc5dd1626d99d8dcce4e5e64a765659f00145e"
+  },
+  "approved_changes": {
+    "Services/Optimization/OptimizationModels.cs": {
+      "sha256": "69ea1f3220e33e5b2766a897485f436b9b091ecf9846885eeb2453c9008f2509",
+      "reason": "2026-09-21 owner request: thick-glass LM/RM/BM 50, TM 0; breakout 50 or 40. Only the house table and its comments changed; baseline hash above retained."
+    },
+    "Services/Optimization/GuillotinePacker.cs": {
+      "sha256": "b5553325f82a89385aeb76fc7559a7c7e57f941afd563633cdc20be1d764f3ef",
+      "reason": "2026-09-21 explicit owner request to improve QUICK generically: retain legacy passes, add capacity-strip portfolio, valid-first candidate selection and comprehensive breakout/conservation/stock-cap validation. Not a source-engine port; baseline hash retained. 2026-09-21 owner request: promote beam 4/8 to bounded Level 1 pattern search, add cumulative wider/order-diverse searches at levels 2-5, preserve inventory and rotation distinctions during state deduplication. Owner-authorized quantity-aware repeated-pattern master in QUICK and deeper floors; bounded industrial dispatch without changing the input ceiling."
+    },
+    "Services/Optimization/GuillotinePacker.Partitioned.cs": {
+      "sha256": "96717db54786b0fc5c680bfddf87364c96003114a0d9164c688808fa6a177ce2",
+      "reason": "2026-09-21 explicit owner request: retain advanced partitioned search, include capacity strips in batch/global floors, validate candidates before selection, and enforce finite stock globally. Baseline hash retained. 2026-09-21 owner request: promote beam 4/8 to bounded Level 1 pattern search, add cumulative wider/order-diverse searches at levels 2-5, preserve inventory and rotation distinctions during state deduplication. Owner-authorized quantity-aware repeated-pattern master in QUICK and deeper floors; bounded industrial dispatch without changing the input ceiling."
+    },
+    "Services/Optimization/GuillotinePacker.BestSplit.cs": {
+      "reason": "Original baseline hash retained; existing Best-Split algorithm preserved. 2026-09-21 owner request: promote beam 4/8 to bounded Level 1 pattern search, add cumulative wider/order-diverse searches at levels 2-5, preserve inventory and rotation distinctions during state deduplication.",
+      "sha256": "43239f572f09fd56392f5f602d09b7696dccea35cc314769a8353a011bfc81fc"
+    }
+  },
+  "approved_additions": {
+    "Services/Optimization/GuillotinePacker.CapacityStrips.cs": {
+      "sha256": "7f94d451089d1cb55b20a1b6ff9bfc62eb5f1397999de2f0d3f9d8b3617ec6cb",
+      "reason": "2026-09-21 explicit owner authorization: generic bounded row/column capacity lookahead and capacity-family widening; no customer-specific dimensions or quantity cap."
+    },
+    "Services/Optimization/GuillotinePacker.PatternSearch.cs": {
+      "sha256": "89bb9bed5588f89103cb45e9abd12c0e9f7ffa7fdc620b8e8a1f241789751b13",
+      "reason": "2026-09-21 owner-authorized Level 1 strategy promotion: bounded whole-small-job or weak-sheet-window pattern search, finite-stock reservation and validated immutable-floor comparison. No customer cutting-list data."
+    },
+    "Services/Optimization/GuillotinePacker.RepeatMaster.cs": {
+      "sha256": "062a212d0b1684c108fdc43915704b1d269f91affc19d6d5f0e4abc0d9f03221",
+      "reason": "Owner requested promotion of whole-order, quantity-aware pattern search into Level 1 for small through million-pane orders. Generic managed implementation, no customer fixture or native solver dependency."
+    },
+    "Services/Optimization/GuillotinePacker.RepeatPricing.cs": {
+      "sha256": "2aed65ac29f8589720a633d0529d9a2596c38ac8c8e086d523eb97001366a3c3",
+      "reason": "Owner requested promotion of whole-order, quantity-aware pattern search into Level 1 for small through million-pane orders. Generic managed implementation, no customer fixture or native solver dependency."
+    },
+    "Services/Optimization/GuillotinePacker.RepeatInteger.cs": {
+      "sha256": "28db571fec4794a4716595844772369f5ca3e05a9f69b93af00a738f441f209f",
+      "reason": "Owner requested promotion of whole-order, quantity-aware pattern search into Level 1 for small through million-pane orders. Generic managed implementation, no customer fixture or native solver dependency."
+    },
+    "Services/Optimization/GuillotinePacker.RepeatTail.cs": {
+      "sha256": "6c9fe6f39a1ebb330001f4bdd4145d16a20c6e8f0a37f38fd43d8c06268c5832",
+      "reason": "Owner requested promotion of whole-order, quantity-aware pattern search into Level 1 for small through million-pane orders. Generic managed implementation, no customer fixture or native solver dependency."
+    },
+    "Services/Optimization/GuillotinePacker.RepeatedPatterns.cs": {
+      "sha256": "9c38c841a7818d105d83e21bc928760e0fb3a84ac920c307ea7808f35ccbc4f2",
+      "reason": "Owner requested promotion of whole-order, quantity-aware pattern search into Level 1 for small through million-pane orders. Generic managed implementation, no customer fixture or native solver dependency."
+    }
+  }
+}

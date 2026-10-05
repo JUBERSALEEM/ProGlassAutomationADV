@@ -1,0 +1,371 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/SettingsVoiceSection.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v2 — VOICE page (card grammar, 2026-09-16)
+
+     REDESIGN
+       Was: the last page on the Aug-2026 layout — unstyled heading
+       TextBlocks, a bare Border as the model picker, the retired shims
+       (SettingsFullRowTileStyle / SettingsTileHeaderPanelStyle /
+       SettingsGroupSeparatorStyle) and four hard-coded English strings
+       ("Whisper — Not Installed", "NOT INSTALLED", "DOWNLOAD MODEL",
+       "DOWNLOADING…") on top of the module's own new grammar.
+
+       Now: two page cards, exactly like every other page in the module —
+       card title + helper line from the group heading, rows directly in
+       the card, the model picker rows as the card's own list, and the
+       install state as a state-driven chip in the status card's header.
+
+       Preserved byte-for-byte: the ModelOption_MouseLeftButtonDown
+       handler and the Tag="{Binding Key}" that carries the model key
+       ("base" / "medium" / "large-v3") into SelectedWhisperModel, plus
+       every binding and language key the page had.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsVoiceSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:cards="clr-namespace:ProGlassAutomation.Views.Settings.Sections.Cards"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             RenderOptions.ClearTypeHint="Enabled"
+             RenderOptions.EdgeMode="Aliased">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly"
+                      behaviors:SmoothScrollBehavior.IsEnabled="True"
+                      Focusable="False"
+                      FocusVisualStyle="{x:Null}">
+            <StackPanel Margin="{StaticResource SettingsPagePadding}">
+
+                <!-- ═══ BENTO HERO BANNER — VOICE INPUT & WHISPER ═══ -->
+                <Border Style="{StaticResource SettingsHeroCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                            <TextBlock Text="&#xE720;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                            <TextBlock Text="Voice Input &amp; Speech Recognition" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="Local on-device transcription powered by OpenAI Whisper C++ engine" Style="{StaticResource SettingsHeroNoteStyle}"/>
+                        </StackPanel>
+
+                        <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                            <TextBlock Text="Neural Engine" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- ═══ BENTO ROW — WHISPER MODEL PICKER & STATUS ═══ -->
+                <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- ═══ CARD — WHISPER MODEL ═══ -->
+                    <Border Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" Style="{StaticResource SettingsPageCardStyle}" VerticalAlignment="Top">
+                        <StackPanel>
+                            <Grid Margin="{StaticResource SettingsStackBottom8}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                    <TextBlock Text="&#xE720;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Settings.WhisperModel}"
+                                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                                    <TextBlock Text="{DynamicResource Settings.PickModelSizeDownloadOnceLargerModelsMore}"
+                                               Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Row heading for the picker. The row title stays a row
+                                 title: the card already owns the subject heading. -->
+                            <TextBlock Text="{DynamicResource Settings.ChooseModel}"
+                                       Style="{StaticResource SettingsRowTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings.ClickCardSelectOneModelActiveTimeSwitch}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
+
+                            <ItemsControl ItemsSource="{Binding WhisperModelOptions}"
+                                          Margin="{StaticResource SettingsStackGap10}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <!-- The click handler + Tag are the code-behind
+                                             contract (SettingsVoiceSection.xaml.cs):
+                                             Tag carries the model key into
+                                             vm.SelectedWhisperModel. -->
+                                        <Border Margin="{StaticResource SettingsStackBottom8}"
+                                                MouseLeftButtonDown="ModelOption_MouseLeftButtonDown"
+                                                Tag="{Binding Key}">
+                                            <Border.Style>
+                                                <Style TargetType="Border"
+                                                       BasedOn="{StaticResource ModelOptionCardStyle}">
+                                                    <Setter Property="Padding" Value="12,10"/>
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="BorderBrush"
+                                                                    Value="{DynamicResource AccentBrush}"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+
+                                            <StackPanel IsHitTestVisible="False">
+                                                <TextBlock Text="{Binding DisplayName}"
+                                                           Style="{StaticResource SettingsRowTitleStyle}"/>
+                                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}">
+                                                    <Run Text="{Binding SizeMB, Mode=OneWay}"/>
+                                                    <Run Text="{DynamicResource Settings.MB}"/>
+                                                    <Run Text="{Binding Accuracy, Mode=OneWay}"/>
+                                                    <Run Text="{DynamicResource Settings.Accuracy}"/>
+                                                    <Run Text="{Binding Speed, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding Description}"
+                                                           TextWrapping="Wrap"
+                                                           Style="{StaticResource SettingsRowMetaStyle}"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ═══ CARD — MODEL STATUS ═══ -->
+                    <Border Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" Style="{StaticResource SettingsPageCardStyle}" VerticalAlignment="Top">
+                    <StackPanel>
+                        <Grid Margin="{StaticResource SettingsStackBottom8}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                <TextBlock Text="&#xE9D2;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                            </Border>
+
+                            <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Common.Status}"
+                                           Style="{StaticResource SettingsCardTitleStyle}"/>
+                                <TextBlock Text="{DynamicResource Settings.WhereSelectedModelStandsDownloadCancelDelete}"
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            </StackPanel>
+
+                            <!-- Install-state chip in the card header (sheet 07 puts
+                                 the state control beside the card title). Driven by
+                                 a brush KEY from the VM through BrushKeyConverter —
+                                 the same mechanism as the page-header mode chip — so
+                                 the colour follows the state instead of one fixed
+                                 tint, and the two labels are language keys. -->
+                            <Border Grid.Column="2"
+                                    VerticalAlignment="Center"
+                                    Margin="{StaticResource SettingsInlineGap10Top2}"
+                                    Style="{StaticResource SettingsChipStyle}"
+                                    Background="{Binding WhisperStatusChipBackgroundKey,
+                                        Converter={StaticResource BrushKeyConverter}}">
+                                <Grid>
+                                    <TextBlock Text="{DynamicResource Settings.VoiceStatusNotInstalled}"
+                                               Style="{StaticResource SettingsChipTextStyle}"
+                                               Foreground="{Binding WhisperStatusChipForegroundKey,
+                                                   Converter={StaticResource BrushKeyConverter}}"
+                                               Visibility="{Binding IsWhisperModelReady,
+                                                   Converter={StaticResource InverseBoolToVis}}"/>
+                                    <TextBlock Text="{DynamicResource Settings.VoiceStatusInstalled}"
+                                               Style="{StaticResource SettingsChipTextStyle}"
+                                               Foreground="{Binding WhisperStatusChipForegroundKey,
+                                                   Converter={StaticResource BrushKeyConverter}}"
+                                               Visibility="{Binding IsWhisperModelReady,
+                                                   Converter={StaticResource BoolToVis}}"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <!-- Which model is selected, and where it stands -->
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource SettingsRowGlyphStyle}"
+                                       Text="&#xE720;"/>
+                            <StackPanel>
+                                <TextBlock>
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock"
+                                               BasedOn="{StaticResource SettingsRowTitleStyle}">
+                                            <Setter Property="Text"
+                                                    Value="{DynamicResource Settings.VoiceModelNotInstalled}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsWhisperModelReady}" Value="True">
+                                                    <Setter Property="Text"
+                                                            Value="{DynamicResource Settings.VoiceModelReady}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBlock Text="{Binding SelectedModelInfo.FileName}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"/>
+                                <TextBlock>
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock"
+                                               BasedOn="{StaticResource SettingsRowMetaStyle}">
+                                            <Setter Property="Text"
+                                                    Value="{DynamicResource Settings.VoiceDownloadRequired}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsWhisperModelReady}" Value="True">
+                                                    <Setter Property="Text"
+                                                            Value="{DynamicResource Settings.VoiceInstalledOfflineSTT}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Download progress — replaces the status line while running -->
+                        <StackPanel Margin="{StaticResource SettingsStackGap12}"
+                                    Visibility="{Binding IsDownloadingModel,
+                                        Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ProgressBar Value="{Binding DownloadProgress}"
+                                         Style="{StaticResource DownloadProgressBarStyle}"
+                                         HorizontalAlignment="Stretch"/>
+                            <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackGap6}">
+                                <TextBlock Foreground="{DynamicResource AccentBrush}"
+                                           Style="{StaticResource SettingsRowTitleStyle}"
+                                           IsHitTestVisible="False">
+                                    <Run Text="{Binding DownloadProgress, Mode=OneWay}"/><Run Text="%"/>
+                                </TextBlock>
+                                <TextBlock Text="{Binding DownloadSizeText}"
+                                           Margin="{StaticResource SettingsIconTextMargin}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           IsHitTestVisible="False"/>
+                                <TextBlock Text="{Binding DownloadSpeedText}"
+                                           Margin="{StaticResource SettingsIconTextMargin}"
+                                           Foreground="{DynamicResource SuccessBrush}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           IsHitTestVisible="False"/>
+                                <TextBlock Text="{Binding DownloadEtaText}"
+                                           Margin="{StaticResource SettingsIconTextMargin}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           IsHitTestVisible="False"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Actions. The primary button takes the star and the two
+                             cancellable actions collapse to zero width when hidden,
+                             so the row always reads as one unbroken action bar. -->
+                        <Grid Margin="{StaticResource SettingsStackGap12}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0"
+                                    Margin="{StaticResource SettingsInlineGap8R}"
+                                    Command="{Binding DownloadWhisperModelCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    Visibility="{Binding IsWhisperModelReady,
+                                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                <Button.Style>
+                                    <Style TargetType="Button"
+                                           BasedOn="{StaticResource SettingsPrimaryButtonStyle}">
+                                        <Setter Property="Content"
+                                                Value="{DynamicResource Settings.VoiceDownloadModel}"/>
+                                        <Setter Property="IsEnabled" Value="True"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDownloadingModel}" Value="True">
+                                                <Setter Property="Content"
+                                                        Value="{DynamicResource Settings.VoiceDownloading}"/>
+                                                <Setter Property="IsEnabled" Value="False"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource OutlinedPillButton}"
+                                    Content="{DynamicResource Action.Cancel}"
+                                    Command="{Binding CancelDownloadCommand}"
+                                    Margin="{StaticResource SettingsInlineGap8R}"
+                                    HorizontalAlignment="Stretch"
+                                    Visibility="{Binding IsDownloadingModel,
+                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            <Button Grid.Column="2"
+                                    Style="{StaticResource DangerButton}"
+                                    Content="{DynamicResource Settings.DeleteModel}"
+                                    Command="{Binding DeleteWhisperModelCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    Visibility="{Binding IsWhisperModelReady,
+                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        </Grid>
+
+                        <!-- Status line (hidden while the progress bar is up) -->
+                        <TextBlock Text="{Binding VoiceStatus}"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   Margin="{StaticResource SettingsStackGap8}"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock"
+                                       BasedOn="{StaticResource SettingsRowTitleStyle}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsDownloadingModel}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <!-- Where the file lives -->
+                        <TextBlock Text="{DynamicResource Settings.ModelStored}"
+                                   Margin="{StaticResource SettingsStackGap12Bottom4}"
+                                   Style="{StaticResource SettingsFieldLabelStyle}"
+                                   Visibility="{Binding IsWhisperModelReady,
+                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <TextBlock Text="{Binding ModelFilePath}"
+                                   TextTrimming="CharacterEllipsis"
+                                   IsHitTestVisible="False"
+                                   Style="{StaticResource SettingsFieldValueStyle}"
+                                   Visibility="{Binding IsWhisperModelReady,
+                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    </StackPanel>
+                </Border>
+                </Grid>
+
+                <!-- ═══ BENTO ROW — AUDIO CAPTURE & LIVE INPUT VISUALIZER ═══ -->
+                <cards:VoiceAudioCard/>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

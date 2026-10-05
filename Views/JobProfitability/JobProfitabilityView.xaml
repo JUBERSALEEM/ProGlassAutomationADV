@@ -1,0 +1,830 @@
+<UserControl x:Class="ProGlassAutomation.Views.JobProfitability.JobProfitabilityView"
+             TextOptions.TextHintingMode="Fixed"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:local="clr-namespace:ProGlassAutomation.Views.JobProfitability"
+             mc:Ignorable="d"
+             d:DesignHeight="820" d:DesignWidth="1280"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}"
+             Foreground="{DynamicResource Ov.Ink}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Shared/Lists/StudioListResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+
+    <!-- Root surface: switches between the two-column layout (list +
+         sidebar) and the full-screen detail page opened on double-click.
+         The full page mirrors the Step 9 Profit & Loss module's
+         full-screen spec report. -->
+    <Grid Background="Transparent">
+
+        <!-- ═══ LAYER 1 — two-column layout: main content + detail sidebar
+             (hidden while the full-screen detail page is open) ═══ -->
+        <Grid Visibility="{Binding HasFullDetail, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+        <!-- ═══ LEFT: Main Content ═══ -->
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ══════════ HEADER + FILTERS — SINGLE ROW ══════════
+                 Search (flexible, small), Company, Customer, Salesman,
+                 Date range and Refresh all on ONE row with compact widths
+                 so they fit without wrapping. -->
+            <Border Grid.Row="0"
+                    Style="{StaticResource Sl.Card}"
+                    Margin="20,10,20,0"
+                    Padding="16,10">
+                <StackPanel>
+
+                    <!-- Title row -->
+                    <Grid Margin="0,0,0,0" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Background="{DynamicResource Ov.Soft}"
+                                BorderBrush="{DynamicResource Ov.Line}"
+                                BorderThickness="1"
+                                Width="32" Height="32"
+                                CornerRadius="8"
+                                VerticalAlignment="Center"
+                                Margin="0,0,10,0">
+                            <TextBlock Text="&#xE9D9;"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.Title}"
+                                       Foreground="{DynamicResource Ov.Accent}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Grid.Column="1" Text="{Binding Title}"
+                                   Style="{StaticResource Sl.Title}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="{Binding Subtitle}"
+                                   Style="{StaticResource Sl.Subtitle}"
+                                   TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center"
+                                   Margin="14,0,10,0"/>
+                    </Grid>
+
+                    <!-- ONE filter row -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" MinWidth="120"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="0">
+                            <TextBlock Text="{DynamicResource JobProfitability.SearchProformaCustomerProject}"
+                                       Style="{StaticResource Sl.Label}"/>
+                            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                                     Style="{StaticResource Sl.Input}"/>
+                        </StackPanel>
+
+                        <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="2">
+                            <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource Sl.Label}"/>
+                            <ComboBox ItemsSource="{Binding CompanyFilterOptions}"
+                                      SelectedItem="{Binding CompanyFilter}"
+                                      Style="{StaticResource Sl.Combo}"/>
+                        </StackPanel>
+
+                        <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="4">
+                            <TextBlock Text="{DynamicResource Common.Customer}" Style="{StaticResource Sl.Label}"/>
+                            <ComboBox ItemsSource="{Binding CustomerFilterOptions}"
+                                      SelectedItem="{Binding CustomerFilter}"
+                                      Style="{StaticResource Sl.Combo}"/>
+                        </StackPanel>
+
+                        <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="6">
+                            <TextBlock Text="{DynamicResource Common.Salesman}" Style="{StaticResource Sl.Label}"/>
+                            <ComboBox ItemsSource="{Binding SalesmanFilterOptions}"
+                                      SelectedItem="{Binding SalesmanFilter}"
+                                      Style="{StaticResource Sl.Combo}"/>
+                        </StackPanel>
+
+                        <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="8">
+                            <TextBlock Text="{DynamicResource JobProfitability.DATERange}" Style="{StaticResource Sl.Label}"/>
+                            <ComboBox ItemsSource="{Binding DateRangeOptions}"
+                                      SelectedItem="{Binding DateRangeFilter}"
+                                      Style="{StaticResource Sl.Combo}"/>
+                        </StackPanel>
+
+                        <Button Grid.Column="10"
+                                Content="{DynamicResource Action.Refresh}"
+                                Style="{StaticResource Sl.PrimaryButton}"
+                                Command="{Binding RefreshCommand}"
+                                VerticalAlignment="Bottom"
+                                MinHeight="38" Padding="14,0"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ══════════ TAB CONTROL ══════════ -->
+            <TabControl Grid.Row="1" Margin="20,12,20,0"
+                        Style="{StaticResource PillTabControlStyle}">
+
+                <!-- ═══ TAB 1: JOB PROFITABILITY (summary + jobs) ═══ -->
+                <TabItem Style="{StaticResource PillTabItemStyle}">
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE9D9;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
+                                       VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="JOB PROFITABILITY" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </TabItem.Header>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  CanContentScroll="False"
+                                  PanningMode="VerticalOnly">
+                        <StackPanel Margin="0,12,0,20">
+
+                            <!-- ═══ FOUR KPI CARDS — DYNAMIC per selection ══════════
+                                 Step 9 inspects ONE PI. Click any row in the
+                                 jobs table and these cards switch from the
+                                 portfolio aggregate to that PI's own figures:
+                                 REQUIRED TARGET, EXPECTED PROFIT MARGIN,
+                                 MARGIN AGAINST TARGET (Step 9's approved KPI)
+                                 and OVERALL margin as the 4th card. -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- CARD 1 — REQUIRED TARGET VALUE -->
+                                <Border Grid.Column="0"
+                                        Style="{StaticResource Sl.Hero}"
+                                        Padding="16,14"
+                                        ToolTip="Base-price required target (DGU formula × uplift). A U-insert covered by the given price or billed separately in Step 6 is shown as information and is never added to the target. Click a row to see that PI's own required target.">
+                                    <StackPanel>
+                                        <TextBlock Text="REQUIRED TARGET VALUE"
+                                                   Style="{StaticResource Sl.Label}"
+                                                   Foreground="{DynamicResource Ov.OnAccentMuted}"/>
+                                        <Viewbox MaxHeight="32" HorizontalAlignment="Left" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding TopRequiredTargetValueDisplay}"
+                                                       FontSize="{DynamicResource FontSize.H1}"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource Ov.OnAccent}"
+                                                       Typography.NumeralAlignment="Tabular"/>
+                                        </Viewbox>
+                                        <TextBlock Text="{Binding TopRequiredTargetScope}"
+                                                   Style="{StaticResource Sl.Subtitle}"
+                                                   Foreground="{DynamicResource Ov.OnAccentMuted}"
+                                                   Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- CARD 2 — EXPECTED PROFIT MARGIN (company default, same as Step 9) -->
+                                <Border Grid.Column="2"
+                                        Style="{StaticResource Sl.Card}"
+                                        Padding="16,14"
+                                        ToolTip="The company base expected profit margin every PI's achieved margin is judged against (Settings > Features > Proforma Invoice > Step 9).">
+                                    <StackPanel>
+                                        <TextBlock Text="EXPECTED PROFIT MARGIN"
+                                                   Style="{StaticResource Sl.Label}"/>
+                                        <Viewbox MaxHeight="32" HorizontalAlignment="Left" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding BaseExpectedMarginDisplay}"
+                                                       FontSize="{DynamicResource FontSize.H1}"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource Ov.Ink}"
+                                                       Typography.NumeralAlignment="Tabular"/>
+                                        </Viewbox>
+                                        <TextBlock Style="{StaticResource Sl.Subtitle}"
+                                                   Margin="0,4,0,0">
+                                            <Run Text="Uplift "/><Run Text="{Binding BaseExpectedMarginFactorLabel, Mode=OneWay}"/>
+                                            <Run Text=" — company default (Step 9)"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- CARD 3 — MARGIN AGAINST TARGET (Step 9 approved KPI) -->
+                                <Border Grid.Column="4"
+                                        Style="{StaticResource Sl.Card}"
+                                        Padding="16,14">
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="MARGIN AGAINST TARGET"
+                                                       Style="{StaticResource Sl.Label}"
+                                                       VerticalAlignment="Center"/>
+                                            <Border Grid.Column="1"
+                                                    CornerRadius="6"
+                                                    Padding="8,2"
+                                                    Background="{DynamicResource Ov.SuccessSoft}">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsTopTargetBelow}" Value="True">
+                                                                <Setter Property="Background" Value="{DynamicResource Ov.DangerSoft}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsTopTargetIncomplete}" Value="True">
+                                                                <Setter Property="Background" Value="{DynamicResource Ov.WarningSoft}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsTopTargetStale}" Value="True">
+                                                                <Setter Property="Background" Value="{DynamicResource Ov.WarningSoft}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock Text="{Binding TopTargetStatusLabel}"
+                                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource Ov.Ink}"/>
+                                            </Border>
+                                        </Grid>
+                                        <Viewbox MaxHeight="32" HorizontalAlignment="Left" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding TopTargetMarginDisplay}"
+                                                       FontSize="{DynamicResource FontSize.H1}"
+                                                       FontWeight="Bold"
+                                                       Typography.NumeralAlignment="Tabular">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsTopTargetBelow}" Value="True">
+                                                                <Setter Property="Foreground" Value="{DynamicResource Ov.Danger}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding HasTopTargetMargin}" Value="False">
+                                                                <Setter Property="Foreground" Value="{DynamicResource Ov.Muted}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Viewbox>
+                                        <TextBlock Text="Given judged vs base price · Step 9 KPI"
+                                                   Style="{StaticResource Sl.Subtitle}"
+                                                   Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- CARD 4 — OVERALL MARGIN (actual P&L, 4th card) -->
+                                <Border Grid.Column="6"
+                                        Style="{StaticResource Sl.Card}"
+                                        Padding="16,14">
+                                    <StackPanel>
+                                        <TextBlock Text="OVERALL MARGIN"
+                                                   Style="{StaticResource Sl.Label}"/>
+                                        <Viewbox MaxHeight="32" HorizontalAlignment="Left" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding TopOverallMarginDisplay}"
+                                                       FontSize="{DynamicResource FontSize.H1}"
+                                                       FontWeight="Bold"
+                                                       Typography.NumeralAlignment="Tabular">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsTopOverallLoss}" Value="True">
+                                                                <Setter Property="Foreground" Value="{DynamicResource Ov.Danger}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Viewbox>
+                                        <TextBlock Text="{Binding TopOverallVerdict}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontWeight="SemiBold"
+                                                   Margin="0,4,0,0"
+                                                   TextWrapping="Wrap">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Muted}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsTopOverallAboveBase}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Success}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsTopOverallBelowBase}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Danger}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <!-- Scope line: which PI (or all) the cards show -->
+                            <Grid Margin="2,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding TopScopeSummary}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           Foreground="{DynamicResource Ov.Muted}"
+                                           TextWrapping="Wrap"
+                                           VerticalAlignment="Center"/>
+                                <Button Grid.Column="1"
+                                        Content="Show all PIs"
+                                        Command="{Binding ClearRowSelectionCommand}"
+                                        Padding="12,4"
+                                        MinHeight="28"
+                                        VerticalAlignment="Center">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource Sl.Button}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasRowSelection}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </Grid>
+
+                            <!-- ═══ VALUE + COUNT STRIP (5 compact chips) ═══
+                                 Portfolio-wide totals across the filtered PIs;
+                                 sized to stay visible in a normal window. -->
+                            <UniformGrid Columns="5" Margin="0,10,0,0">
+                                <Border Style="{StaticResource Sl.Card}" Padding="12,10" Margin="0,0,4,0">
+                                    <StackPanel>
+                                        <TextBlock Text="CONFIRMED JOBS" Style="{StaticResource Sl.Label}"/>
+                                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding ConfirmedJobCountDisplay}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource Ov.Ink}" Typography.NumeralAlignment="Tabular" TextWrapping="Wrap"/>
+                                        </Viewbox>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Sl.Card}" Padding="12,10" Margin="4,0">
+                                    <StackPanel>
+                                        <TextBlock Text="REQUIRED TARGET" Style="{StaticResource Sl.Label}"/>
+                                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding TargetTotalRequiredValueDisplay}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource Ov.Ink}" Typography.NumeralAlignment="Tabular" TextWrapping="Wrap"/>
+                                        </Viewbox>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Sl.Card}" Padding="12,10" Margin="4,0">
+                                    <StackPanel>
+                                        <TextBlock Text="STEP 5 GIVEN VALUE" Style="{StaticResource Sl.Label}"/>
+                                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding TargetTotalGivenValueDisplay}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource Ov.Ink}" Typography.NumeralAlignment="Tabular" TextWrapping="Wrap"/>
+                                        </Viewbox>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Sl.Card}" Padding="12,10" Margin="4,0">
+                                    <StackPanel>
+                                        <TextBlock Text="TOTAL DIFFERENCE" Style="{StaticResource Sl.Label}"/>
+                                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding TargetTotalDifferenceValueDisplay}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       Typography.NumeralAlignment="Tabular">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{DynamicResource Ov.Success}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding HasTargetShortfall}" Value="True">
+                                                                <Setter Property="Foreground" Value="{DynamicResource Ov.Danger}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding HasAnyTargetData}" Value="False">
+                                                                <Setter Property="Foreground" Value="{DynamicResource Ov.Muted}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Viewbox>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Sl.Card}" Padding="12,10" Margin="4,0,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="VALID · INCOMPLETE · STALE" Style="{StaticResource Sl.Label}" TextWrapping="Wrap"/>
+                                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                                            <TextBlock FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Ink}" Typography.NumeralAlignment="Tabular">
+                                                <Run Text="{Binding ValidTargetJobCountDisplay, Mode=OneWay}"/><Run Text=" · "/>
+                                                <Run Text="{Binding IncompleteTargetJobCountDisplay, Mode=OneWay}"/><Run Text=" · "/>
+                                                <Run Text="{Binding StaleTargetJobCountDisplay, Mode=OneWay}"/>
+                                            </TextBlock>
+                                        </Viewbox>
+                                    </StackPanel>
+                                </Border>
+                            </UniformGrid>
+
+                            <TextBlock Text="{Binding TargetDataBasisNote}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                       TextWrapping="Wrap" Margin="2,8,0,0"/>
+
+<!-- ═══ TABLE TOOLBAR ═══ -->
+                            <Grid Margin="0,14,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="CONFIRMED PIs" Style="{StaticResource JpSectionLabelStyle}"/>
+                                    <TextBlock Style="{StaticResource JpSectionHintStyle}">
+                                        <Run Text="One row per PI-confirmed invoice — click a row for the full Step 9 detail in the sidebar, double-click for the full page. "/>
+                                        <Run Text="{Binding PortfolioStatusLine, Mode=OneWay}"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="1" Width="150" VerticalAlignment="Bottom">
+                                    <TextBlock Style="{StaticResource Sl.Label}">
+                                        <Run Text="Margin vs "/><Run Text="{Binding BaseExpectedMarginDisplay, Mode=OneWay}"/><Run Text=" base"/>
+                                    </TextBlock>
+                                    <ComboBox ItemsSource="{Binding MarginBandFilterOptions}"
+                                              SelectedItem="{Binding MarginBandFilter}"
+                                              Style="{StaticResource Sl.Combo}"/>
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="3" Width="160" VerticalAlignment="Bottom">
+                                    <TextBlock Text="Sort by" Style="{StaticResource Sl.Label}"/>
+                                    <ComboBox ItemsSource="{Binding SortByOptions}"
+                                              SelectedItem="{Binding SortBy}"
+                                              Style="{StaticResource Sl.Combo}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- ═══ JOBS TABLE — stretches to fill the width ═══ -->
+                            <Border Style="{StaticResource Sl.Shell}"
+                                    CornerRadius="14"
+                                    Padding="0"
+                                    ClipToBounds="True"
+                                    Margin="0,10,0,0">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <ScrollViewer Grid.Row="1"
+                                                  VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Auto"
+                                                  MaxHeight="520"
+                                                  behaviors:SmoothScrollBehavior.IsEnabled="True"
+                                                  Visibility="{Binding HasRows, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                                        <!-- Content stretches to the viewport width:
+                                             header and every row share identical
+                                             column definitions, so the table fills
+                                             edge-to-edge. On narrow windows the
+                                             row keeps a comfortable minimum and a
+                                             horizontal scrollbar appears only when
+                                             really needed. -->
+                                        <Grid MinWidth="1040">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="*" MinWidth="150"/>
+                                                <ColumnDefinition Width="92"/>
+                                                <ColumnDefinition Width="112"/>
+                                                <ColumnDefinition Width="112"/>
+                                                <ColumnDefinition Width="112"/>
+                                                <ColumnDefinition Width="176"/>
+                                                <ColumnDefinition Width="156"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- header -->
+                                            <Border Grid.Row="0" Grid.ColumnSpan="8"
+                                                    Style="{StaticResource Sl.TableHeader}"
+                                                    Padding="12,10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="100"/>
+                                                        <ColumnDefinition Width="*" MinWidth="150"/>
+                                                        <ColumnDefinition Width="92"/>
+                                                        <ColumnDefinition Width="112"/>
+                                                        <ColumnDefinition Width="112"/>
+                                                        <ColumnDefinition Width="112"/>
+                                                        <ColumnDefinition Width="176"/>
+                                                        <ColumnDefinition Width="156"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="PROFORMA" Style="{StaticResource Sl.ColumnLabel}"/>
+                                                    <TextBlock Grid.Column="1" Text="CUSTOMER / PROJECT" Style="{StaticResource Sl.ColumnLabel}"/>
+                                                    <TextBlock Grid.Column="2" Text="CONFIRMED" Style="{StaticResource Sl.ColumnLabel}"/>
+                                                    <TextBlock Grid.Column="3" Text="NET" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                                                    <TextBlock Grid.Column="4" Text="COST" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                                                    <TextBlock Grid.Column="5" Text="PROFIT" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                                                    <TextBlock Grid.Column="6" Text="MARGIN VS TARGET" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                                                    <TextBlock Grid.Column="7" Text="STATUS" Style="{StaticResource Sl.ColumnLabel}"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <ItemsControl Grid.Row="1" Grid.ColumnSpan="8"
+                                                          ItemsSource="{Binding Rows}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <ContentControl Cursor="Hand">
+                                                            <ContentControl.InputBindings>
+                                                                <MouseBinding MouseAction="LeftClick"
+                                                                              Command="{Binding DataContext.SelectRowCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                              CommandParameter="{Binding}"/>
+                                                                <MouseBinding MouseAction="LeftDoubleClick"
+                                                                              Command="{Binding DataContext.OpenFullDetailCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                              CommandParameter="{Binding}"/>
+                                                            </ContentControl.InputBindings>
+                                                            <Border Padding="12,8">
+                                                                <Border.Style>
+                                                                    <Style TargetType="Border" BasedOn="{StaticResource Sl.Row}">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsSelectedRow}" Value="True">
+                                                                                <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Border.Style>
+                                                                <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="100"/>
+                                                                    <ColumnDefinition Width="*" MinWidth="150"/>
+                                                                    <ColumnDefinition Width="92"/>
+                                                                    <ColumnDefinition Width="112"/>
+                                                                    <ColumnDefinition Width="112"/>
+                                                                    <ColumnDefinition Width="112"/>
+                                                                    <ColumnDefinition Width="176"/>
+                                                                    <ColumnDefinition Width="156"/>
+                                                                </Grid.ColumnDefinitions>
+
+                                                                <TextBlock Grid.Column="0"
+                                                                           Text="{Binding ProformaId}"
+                                                                          
+                                                                           FontWeight="{DynamicResource Weight.SemiBold}"
+                                                                           Foreground="{DynamicResource AccentBrush}"/>
+
+                                                                <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                                                    <TextBlock Text="{Binding CustomerName}"
+                                                                              
+                                                                               FontWeight="{DynamicResource Weight.SemiBold}"
+                                                                               MaxWidth="340"
+                                                                               TextTrimming="CharacterEllipsis"/>
+                                                                    <TextBlock Text="{Binding ProjectName}"
+                                                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                                                               Foreground="{DynamicResource TextTertiaryBrush}"
+                                                                               MaxWidth="340"
+                                                                               TextTrimming="CharacterEllipsis"
+                                                                               Margin="0,1,0,0"/>
+                                                                </StackPanel>
+
+                                                                <TextBlock Grid.Column="2"
+                                                                           Text="{Binding IssueDateDisplay}"
+                                                                          
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+
+                                                                <TextBlock Grid.Column="3"
+                                                                           Text="{Binding NetDisplay}"
+                                                                          
+                                                                           HorizontalAlignment="Right"/>
+
+                                                                <TextBlock Grid.Column="4"
+                                                                           Text="{Binding CostDisplay}"
+                                                                          
+                                                                           HorizontalAlignment="Right"/>
+
+                                                                <TextBlock Grid.Column="5"
+                                                                           Text="{Binding ProfitDisplay}"
+                                                                           HorizontalAlignment="Right"
+                                                                           ToolTip="{Binding RecalculationWarning}">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock" BasedOn="{StaticResource JpCellStyle}">
+                                                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding IsCosted}" Value="False">
+                                                                                    <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+                                                                                    <Setter Property="FontWeight" Value="Normal"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+
+                                                                <StackPanel Grid.Column="6" HorizontalAlignment="Right" Margin="0,0,30,0">
+                                                                    <TextBlock Text="{Binding TargetExtraMarginDisplay}"
+                                                                               HorizontalAlignment="Right"
+                                                                               ToolTip="Margin over the base price — judged on the given price (net of any U-insert inside it).">
+                                                                        <TextBlock.Style>
+                                                                            <Style TargetType="TextBlock" BasedOn="{StaticResource JpCellStyle}">
+                                                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding HasValidExtraMargin}" Value="False">
+                                                                                        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+                                                                                        <Setter Property="FontWeight" Value="Normal"/>
+                                                                                    </DataTrigger>
+                                                                                    <DataTrigger Binding="{Binding IsBelowTarget}" Value="True">
+                                                                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </TextBlock.Style>
+                                                                    </TextBlock>
+                                                                </StackPanel>
+
+                                                                <Border Grid.Column="7" HorizontalAlignment="Left" Margin="10,0,0,0">
+                                                                    <Border.Style>
+                                                                        <Style TargetType="Border" BasedOn="{StaticResource JpStatusPill}">
+                                                                            <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding IsBelowTarget}" Value="True">
+                                                                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
+                                                                                    <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding IsTargetStale}" Value="True">
+                                                                                    <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Border.Style>
+                                                                    <TextBlock Text="{Binding TargetStatusLabel}"
+                                                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                                                               FontWeight="{DynamicResource Weight.Bold}"
+                                                                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                                                </Border>
+                                                            </Grid>
+                                                        </Border>
+                                                        </ContentControl>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </Grid>
+                                    </ScrollViewer>
+
+                                    <!-- Empty state -->
+                                    <Border Grid.Row="1"
+                                            Padding="24,40"
+                                            Visibility="{Binding HasRows, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
+                                            <TextBlock Text="&#xE9D9;"
+                                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                                       FontSize="{DynamicResource FontSize.Kpi}"
+                                                       HorizontalAlignment="Center"
+                                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                                       Margin="0,0,0,12"/>
+                                            <TextBlock Text="{DynamicResource JobProfitability.NoJobsShow}"
+                                                       FontSize="{DynamicResource FontSize.H3}"
+                                                       FontWeight="{DynamicResource Weight.SemiBold}"
+                                                       HorizontalAlignment="Center"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            <TextBlock Text="{DynamicResource JobProfitability.NoSavedProformaMarkedPIConfirmedYetConfirm}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
+                                                       HorizontalAlignment="Center"
+                                                       Margin="0,4,0,0"
+                                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- ═══ TAB 2: Service Profitability ═══ -->
+                <TabItem Style="{StaticResource PillTabItemStyle}"
+                         DataContext="{Binding PortfolioServiceProfitability}">
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE71D;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
+                                       VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="SERVICE DETAIL" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <local:PortfolioServiceProfitabilityView/>
+                </TabItem>
+
+                <!-- ═══ TAB 3: Wastage Analysis ═══ -->
+                <TabItem Style="{StaticResource PillTabItemStyle}"
+                         DataContext="{Binding PortfolioWastageAnalysis}">
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
+                                       VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="SHEET / WASTAGE DETAIL" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <local:PortfolioWastageAnalysisView/>
+                </TabItem>
+
+                <!-- ═══ TAB 4: Glass Type Comparison ═══ -->
+                <TabItem Style="{StaticResource PillTabItemStyle}"
+                         DataContext="{Binding PortfolioGlassTypeComparison}">
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE8FD;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
+                                       VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="GLASS / SPEC COMPARISON" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <local:PortfolioGlassTypeComparisonView/>
+                </TabItem>
+
+            </TabControl>
+
+            <!-- Status line -->
+            <Border Grid.Row="2"
+                    Margin="20,8,20,14"
+                    Padding="4,0">
+                <TextBlock Text="{Binding StatusMessage}"
+                           FontSize="{DynamicResource FontSize.Body}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource TextTertiaryBrush}"/>
+            </Border>
+
+        </Grid>
+
+        <!-- ═══ RIGHT: Detail Sidebar ═══ -->
+        <Border Grid.Column="1" Width="420"
+                Visibility="{Binding JobDetail.IsPanelVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+            <local:JobDetailPanel DataContext="{Binding JobDetail}"/>
+        </Border>
+
+        </Grid>
+
+        <!-- ═══ LAYER 2 — full-screen detail page (double-click on a row).
+             Opens as the whole module surface, exactly like the Step 9
+             Profit & Loss full-screen spec report: an accent toolbar with
+             a BACK button, then the full-width detail (same JobDetail VM
+             as the sidebar, so the figures always agree). ═══ -->
+        <Grid Visibility="{Binding HasFullDetail, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Toolbar: back to jobs · hint -->
+            <Border Grid.Row="0"
+                    Background="{DynamicResource SurfacePrimaryBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
+                    BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
+                    Padding="20,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0"
+                            Content="← BACK TO JOBS"
+                            Command="{Binding CloseFullDetailCommand}"
+                            Style="{StaticResource OutlinedPillButton}"
+                            VerticalAlignment="Center"
+                            Cursor="Hand"
+                            ToolTip="Return to the confirmed-jobs list."/>
+                    <TextBlock Grid.Column="1"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center"
+                               Margin="16,0,0,0">
+                        <Run Text="Full detail for "/><Run Text="{Binding JobDetail.ProformaId, Mode=OneWay}"/>
+                        <Run Text=" — double-click any row in the jobs list to open it here; a single click opens the sidebar."/>
+                    </TextBlock>
+                </Grid>
+            </Border>
+
+            <local:JobFullDetailView Grid.Row="1" DataContext="{Binding JobDetail}"/>
+        </Grid>
+
+    </Grid>
+</UserControl>

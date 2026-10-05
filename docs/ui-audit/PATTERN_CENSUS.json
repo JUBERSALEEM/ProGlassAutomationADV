@@ -1,0 +1,7491 @@
+{
+ "generated": "2026-09-18",
+ "files": 321,
+ "rows": [
+  {
+   "file": "App.xaml",
+   "module": "(root)",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "ListPage",
+    "DataGrid",
+    "Dialog",
+    "Input",
+    "Button",
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "form_field",
+    "table",
+    "dialog",
+    "navigation"
+   ]
+  },
+  {
+   "file": "MainWindow.xaml",
+   "module": "(root)",
+   "fams": {
+    "Nav": 46,
+    "ToolTip": 12,
+    "Shell": 9,
+    "Border": 4,
+    "FontSize": 3,
+    "Radius": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 2,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Agent/UI/AgentChatView.xaml",
+   "module": "Agent",
+   "fams": {
+    "Border": 5,
+    "Radius": 2,
+    "Surface": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 3,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "header",
+    "section_card",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Controls/AutoCompleteTextBox/AutoCompleteTextBox.xaml",
+   "module": "Controls",
+   "fams": {
+    "Border": 4
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Controls/DonutChart/DonutChartControl.xaml",
+   "module": "Controls",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "header",
+    "empty"
+   ]
+  },
+  {
+   "file": "Controls/EmptyState/EmptyStateControl.xaml",
+   "module": "Controls",
+   "fams": {
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "header",
+    "section_card",
+    "empty"
+   ]
+  },
+  {
+   "file": "Controls/GlobalSearch/GlobalSearchBar.xaml",
+   "module": "Controls",
+   "fams": {
+    "ToolTip": 3,
+    "Shell": 3,
+    "Border": 3,
+    "FontSize": 1,
+    "Surface": 1,
+    "Radius": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 4,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Controls/LoadingState/LoadingStateControl.xaml",
+   "module": "Controls",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "loading"
+   ]
+  },
+  {
+   "file": "Controls/MiniBarChart/MiniBarChartControl.xaml",
+   "module": "Controls",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Controls/Reporting/MixPanel.xaml",
+   "module": "Controls",
+   "fams": {
+    "Radius": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card"
+   ],
+   "patterns": [
+    "section_card",
+    "table"
+   ]
+  },
+  {
+   "file": "Controls/StatCard/StatCardControl.xaml",
+   "module": "Controls",
+   "fams": {
+    "Surface": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "header",
+    "section_card",
+    "kpi",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Controls/TrendChart/TrendChartControl.xaml",
+   "module": "Controls",
+   "fams": {
+    "Border": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card",
+    "empty"
+   ]
+  },
+  {
+   "file": "Styles/ButtonStyles.xaml",
+   "module": "Styles",
+   "fams": {
+    "FontSize": 4,
+    "Radius": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 16,
+   "local_templates": 2,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Styles/ContextMenuStyles.xaml",
+   "module": "Styles",
+   "fams": {
+    "FontSize": 3,
+    "Radius": 2,
+    "Border": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 4,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Styles/DashboardStyles.xaml",
+   "module": "Styles",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Styles/Step4SectionStyles.xaml",
+   "module": "Styles",
+   "fams": {
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 5,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field"
+   ]
+  },
+  {
+   "file": "Themes/DarkTheme.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "header",
+    "dialog",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Themes/LightTheme.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "header",
+    "table",
+    "dialog",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Themes/CrystalFluid/CrystalFluidBrushes.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Themes/CrystalFluid/CrystalFluidColors.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Themes/CrystalFluid/CrystalFluidControls.xaml",
+   "module": "Themes",
+   "fams": {
+    "Border": 6,
+    "Radius": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/CrystalFluid/CrystalFluidDataGrid.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 4,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid"
+   ],
+   "patterns": [
+    "table"
+   ]
+  },
+  {
+   "file": "Themes/CrystalFluid/CrystalFluidMetrics.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Themes/CrystalFluid/CrystalFluidNavigation.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Themes/CrystalFluid/CrystalFluidStyles.xaml",
+   "module": "Themes",
+   "fams": {
+    "Border": 4,
+    "Radius": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 6,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Themes/CrystalFluid/CrystalFluidTokens.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "kpi"
+   ]
+  },
+  {
+   "file": "Themes/Languages/ar-AE.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "dialog",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Languages/bn-BD.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "dialog",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Languages/de-DE.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "dialog",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Languages/en-US.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "dialog",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Languages/es-ES.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "dialog",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Languages/fr-FR.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "dialog",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Languages/hi-IN.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "dialog",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Languages/id-ID.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "dialog",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Languages/ja-JP.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "dialog",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Languages/ko-KR.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "dialog",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Languages/pt-BR.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "dialog",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Languages/ru-RU.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "dialog",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Languages/tr-TR.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "dialog",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Languages/ur-PK.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "dialog",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Languages/zh-CN.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "dialog",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Styles/AboutSurface.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Themes/Styles/AboutTypeScale.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Themes/Styles/AppStage.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Themes/Styles/CardStyles.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 15,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card"
+   ],
+   "patterns": [
+    "section_card",
+    "kpi",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Styles/ComboTemplates.xaml",
+   "module": "Themes",
+   "fams": {
+    "Border": 4,
+    "FontSize": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 2,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field"
+   ]
+  },
+  {
+   "file": "Themes/Styles/ComponentTokens.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 55,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "ListPage",
+    "Dialog",
+    "Input",
+    "Button",
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "toolbar",
+    "kpi",
+    "form_field",
+    "dialog",
+    "error",
+    "action_buttons",
+    "navigation"
+   ]
+  },
+  {
+   "file": "Themes/Styles/ConverterResources.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Themes/Styles/DataGridStyles.xaml",
+   "module": "Themes",
+   "fams": {
+    "Surface": 4,
+    "Radius": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 14,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid"
+   ],
+   "patterns": [
+    "section_card",
+    "table"
+   ]
+  },
+  {
+   "file": "Themes/Styles/DesignTokens.xaml",
+   "module": "Themes",
+   "fams": {
+    "Surface": 15
+   },
+   "fams_bare_top5": {},
+   "local_styles": 24,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "header",
+    "toolbar",
+    "section_card",
+    "kpi",
+    "empty",
+    "error",
+    "action_buttons",
+    "navigation"
+   ]
+  },
+  {
+   "file": "Themes/Styles/DialogStyles.xaml",
+   "module": "Themes",
+   "fams": {
+    "Border": 2,
+    "Surface": 2,
+    "FontSize": 2,
+    "Radius": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 11,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Dialog",
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "header",
+    "section_card",
+    "dialog"
+   ]
+  },
+  {
+   "file": "Themes/Styles/GlobalDesignSystem.xaml",
+   "module": "Themes",
+   "fams": {
+    "FontSize": 27,
+    "Weight": 21,
+    "FontFamily": 15,
+    "Radius": 13,
+    "Border": 11,
+    "Space": 11,
+    "Density": 7,
+    "Print": 2,
+    "Surface": 1,
+    "State": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 177,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Input",
+    "Button",
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "header",
+    "toolbar",
+    "section_card",
+    "kpi",
+    "form_field",
+    "table",
+    "dialog",
+    "empty",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Themes/Styles/IconBadgeStyles.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 10,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "header",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Styles/InputStyles.xaml",
+   "module": "Themes",
+   "fams": {
+    "FontSize": 1,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 7,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field"
+   ]
+  },
+  {
+   "file": "Themes/Styles/LayoutTokens.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "ListPage",
+    "DataGrid"
+   ],
+   "patterns": [
+    "table"
+   ]
+  },
+  {
+   "file": "Themes/Styles/LiquidGlassDesign.xaml",
+   "module": "Themes",
+   "fams": {
+    "Radius": 58,
+    "Border": 20,
+    "FontSize": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 24,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Themes/Styles/LiquidGlassStyles.xaml",
+   "module": "Themes",
+   "fams": {
+    "Radius": 5,
+    "Border": 3
+   },
+   "fams_bare_top5": {},
+   "local_styles": 21,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Dialog",
+    "Button",
+    "Card"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "table",
+    "dialog",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Themes/Styles/ListPageStyles.xaml",
+   "module": "Themes",
+   "fams": {
+    "FontSize": 3,
+    "Border": 1,
+    "Radius": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 22,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Card"
+   ],
+   "patterns": [
+    "section_card",
+    "kpi",
+    "form_field"
+   ]
+  },
+  {
+   "file": "Themes/Styles/MaterialTokens.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 7,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Card"
+   ],
+   "patterns": [
+    "table"
+   ]
+  },
+  {
+   "file": "Themes/Styles/ModuleTabStyles.xaml",
+   "module": "Themes",
+   "fams": {
+    "Border": 3,
+    "FontSize": 3,
+    "Radius": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 18,
+   "local_templates": 1,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "kpi",
+    "table",
+    "navigation"
+   ]
+  },
+  {
+   "file": "Themes/Styles/NavigationRailStyles.xaml",
+   "module": "Themes",
+   "fams": {
+    "FontFamily": 1,
+    "FontSize": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Themes/Styles/OptimizationStyles.xaml",
+   "module": "Themes",
+   "fams": {
+    "FontSize": 2,
+    "FontFamily": 1,
+    "Surface": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 15,
+   "local_templates": 0,
+   "hard_fontsize": 1,
+   "hard_corner": 4,
+   "shared": [],
+   "patterns": [
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Styles/PagePatterns.xaml",
+   "module": "Themes",
+   "fams": {
+    "FontSize": 4,
+    "X": 2,
+    "Border": 2,
+    "Weight": 1,
+    "Common": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 11,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "header",
+    "toolbar",
+    "empty",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Styles/PiIndustrialStyles.xaml",
+   "module": "Themes",
+   "fams": {
+    "Border": 3,
+    "Radius": 3
+   },
+   "fams_bare_top5": {},
+   "local_styles": 48,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "kpi",
+    "action_buttons",
+    "navigation"
+   ]
+  },
+  {
+   "file": "Themes/Styles/PillStyles.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 17,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Styles/PrintTokens.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Themes/Styles/SemanticTokens.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "dialog"
+   ]
+  },
+  {
+   "file": "Themes/Styles/SharedSectionStyles.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 10,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Themes/Styles/ShellStyles.xaml",
+   "module": "Themes",
+   "fams": {
+    "FontSize": 7,
+    "Radius": 3,
+    "Surface": 2,
+    "Shell": 2,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 9,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Themes/Styles/TypeScaleTokens.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "header"
+   ]
+  },
+  {
+   "file": "Themes/Styles/TypographyStyles.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 14,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "header"
+   ]
+  },
+  {
+   "file": "Themes/ProGlassDesignSystem/ProGlassDesignSystem.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Themes/ProGlassDesignSystem/Compatibility/LegacyAliases.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Themes/ProGlassDesignSystem/Materials/ProGlassMaterials.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 6,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Themes/ProGlassDesignSystem/Tokens/SemanticColors.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/ProGlassDesignSystem/Tokens/SemanticDensity.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Themes/ProGlassDesignSystem/Tokens/SemanticElevation.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "dialog"
+   ]
+  },
+  {
+   "file": "Themes/ProGlassDesignSystem/Tokens/SemanticGeometry.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Themes/ProGlassDesignSystem/Tokens/SemanticMotion.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Themes/ProGlassDesignSystem/Tokens/SemanticSpacing.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "toolbar",
+    "dialog"
+   ]
+  },
+  {
+   "file": "Themes/ProGlassDesignSystem/Tokens/SemanticTypography.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 8,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Themes/Professional/ProfessionalCore.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {
+    "Pg": 1
+   },
+   "local_styles": 54,
+   "local_templates": 7,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "header",
+    "section_card",
+    "kpi",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Professional/ProfessionalShell.xaml",
+   "module": "Themes",
+   "fams": {},
+   "fams_bare_top5": {
+    "Pg": 1
+   },
+   "local_styles": 29,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 7,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "error"
+   ]
+  },
+  {
+   "file": "Tools/LicenseGenerator/App.xaml",
+   "module": "Tools",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Tools/LicenseGenerator/MainWindow.xaml",
+   "module": "Tools",
+   "fams": {
+    "Radius": 2,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "header",
+    "section_card",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Tools/LicenseGenerator/Theme.xaml",
+   "module": "Tools",
+   "fams": {
+    "Radius": 2,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 12,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "header",
+    "section_card",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/AI/AiChatView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 21,
+    "AI": 10,
+    "FontFamily": 9,
+    "Border": 5,
+    "Radius": 4,
+    "Weight": 4,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/About/AboutIos26Theme.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 4
+   },
+   "fams_bare_top5": {},
+   "local_styles": 12,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "header"
+   ]
+  },
+  {
+   "file": "Views/About/AboutStyles.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 7,
+    "FontFamily": 6
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 5,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "header"
+   ]
+  },
+  {
+   "file": "Views/About/AboutView.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 10,
+    "FontFamily": 5,
+    "About": 3,
+    "Common": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "header",
+    "navigation"
+   ]
+  },
+  {
+   "file": "Views/About/Sections/AboutCrashReportsCard.xaml",
+   "module": "Views",
+   "fams": {
+    "About": 5,
+    "Weight": 3,
+    "Action": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "header",
+    "empty",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/About/Sections/AboutLicenseCard.xaml",
+   "module": "Views",
+   "fams": {
+    "About": 16,
+    "Weight": 9,
+    "FontFamily": 4,
+    "Common": 2,
+    "Settings": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 1,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "header"
+   ]
+  },
+  {
+   "file": "Views/About/Sections/AboutOverviewSection.xaml",
+   "module": "Views",
+   "fams": {
+    "About": 29,
+    "Weight": 21,
+    "FontFamily": 2,
+    "Common": 1,
+    "ToolTip": 1,
+    "Nav": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "header"
+   ]
+  },
+  {
+   "file": "Views/About/Sections/DeveloperSection.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 20,
+    "About": 8,
+    "FontFamily": 5,
+    "Common": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 3,
+   "shared": [
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "header"
+   ]
+  },
+  {
+   "file": "Views/About/Sections/DiagnosticsSection.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 4,
+    "About": 4,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 1,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "header"
+   ]
+  },
+  {
+   "file": "Views/About/Sections/ModulesSection.xaml",
+   "module": "Views",
+   "fams": {
+    "About": 15,
+    "Weight": 13,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 1,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "header",
+    "toolbar"
+   ]
+  },
+  {
+   "file": "Views/About/Sections/SystemSection.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 13,
+    "About": 13,
+    "FontFamily": 4
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 1,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "header",
+    "table"
+   ]
+  },
+  {
+   "file": "Views/CompanyCenter/CompanyCenterView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 20,
+    "CompanyCenter": 14,
+    "Weight": 10,
+    "Radius": 6,
+    "Action": 3,
+    "Border": 3,
+    "FontFamily": 2,
+    "Surface": 2,
+    "Module": 1,
+    "Phone": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 1,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/CrashReports/CrashReportDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "CrashReports": 9,
+    "FontSize": 2,
+    "Weight": 1,
+    "Border": 1,
+    "Radius": 1,
+    "Common": 1,
+    "FontFamily": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Dialog"
+   ],
+   "patterns": [
+    "section_card",
+    "dialog",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/CrashReports/CrashReportDialogStyles.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 2,
+    "Radius": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Dashboard/DashboardView.xaml",
+   "module": "Views",
+   "fams": {
+    "Border": 1,
+    "Dashboard": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 1,
+   "hard_fontsize": 0,
+   "hard_corner": 2,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Dashboard/DeliveryNote/DnDashboard/DnDashboardView.xaml",
+   "module": "Views",
+   "fams": {
+    "Dashboard": 15,
+    "Common": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card"
+   ],
+   "patterns": [
+    "kpi",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Dashboard/JobOrder/JoDashboard/JoDashboardView.xaml",
+   "module": "Views",
+   "fams": {
+    "Dashboard": 15,
+    "Common": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card"
+   ],
+   "patterns": [
+    "kpi",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Dashboard/Overview/OverviewDashboardView.xaml",
+   "module": "Views",
+   "fams": {
+    "Dashboard": 16,
+    "Common": 2,
+    "Nav": 2,
+    "Module": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 1,
+   "hard_corner": 0,
+   "shared": [
+    "Card"
+   ],
+   "patterns": [
+    "kpi",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Dashboard/ProformaInvoice/PiDashboardView.xaml",
+   "module": "Views",
+   "fams": {
+    "Dashboard": 12,
+    "Module": 1,
+    "Common": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card"
+   ],
+   "patterns": [
+    "kpi",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Dashboard/SheetStore/SheetStoreDashboardView.xaml",
+   "module": "Views",
+   "fams": {
+    "Dashboard": 8,
+    "Module": 1,
+    "Common": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card"
+   ],
+   "patterns": [
+    "kpi",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Dashboard/Statement/StDashboardView.xaml",
+   "module": "Views",
+   "fams": {
+    "Dashboard": 19,
+    "Common": 5,
+    "Sharing": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 1,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card"
+   ],
+   "patterns": [
+    "kpi",
+    "empty",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Dashboard/TaxInvoice/TiDashboard/TiDashboardView.xaml",
+   "module": "Views",
+   "fams": {
+    "Dashboard": 24,
+    "Common": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 3,
+   "hard_fontsize": 0,
+   "hard_corner": 4,
+   "shared": [
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "kpi",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/DeliveryNote/DeliveryNoteView.xaml",
+   "module": "Views",
+   "fams": {
+    "DeliveryNote": 8,
+    "Common": 4
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "action_buttons",
+    "navigation"
+   ]
+  },
+  {
+   "file": "Views/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailView.xaml",
+   "module": "Views",
+   "fams": {
+    "DeliveryNote": 16,
+    "Weight": 5,
+    "Action": 2,
+    "Common": 2,
+    "Border": 1,
+    "Sharing": 1,
+    "Lock": 1,
+    "Nav": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/DeliveryNote/DeliveryNoteDetail/Attachments/Rename/RenameAttachmentDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "DeliveryNote": 3,
+    "FontSize": 3,
+    "Weight": 3,
+    "Radius": 2,
+    "Action": 2,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "dialog",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/DeliveryNote/DeliveryNoteDetail/Sections/DnAttachmentsSection.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 9,
+    "DeliveryNote": 9,
+    "Weight": 4,
+    "FontFamily": 1,
+    "Border": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/DeliveryNote/DeliveryNoteDetail/Sections/DnHistorySection.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 20,
+    "Weight": 14,
+    "DeliveryNote": 8,
+    "Common": 5,
+    "FontFamily": 4,
+    "Radius": 4
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/DeliveryNote/DeliveryNoteDetail/Sections/DnOverviewSection.xaml",
+   "module": "Views",
+   "fams": {
+    "DeliveryNote": 45,
+    "FontSize": 33,
+    "Weight": 33,
+    "Common": 9,
+    "Border": 7,
+    "Radius": 4,
+    "FontFamily": 3
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "table",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/DeliveryNote/DeliveryNoteDetail/Sections/DnSectionStyles.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 4,
+    "FontSize": 4
+   },
+   "fams_bare_top5": {},
+   "local_styles": 9,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Section"
+   ],
+   "patterns": [
+    "form_field"
+   ]
+  },
+  {
+   "file": "Views/DeliveryNote/DeliveryNoteList/DeliveryNoteListView.xaml",
+   "module": "Views",
+   "fams": {
+    "Dnl": 31,
+    "FontSize": 25,
+    "Weight": 21,
+    "God": 8,
+    "Border": 6,
+    "Radius": 4,
+    "FontFamily": 4,
+    "DeliveryNote": 3,
+    "Void": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 1,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "kpi",
+    "form_field",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/DeliveryNote/DeliveryNoteList/JobOrderPicker/JobOrderPickerDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "DeliveryNote": 7,
+    "FontSize": 3,
+    "Border": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "toolbar",
+    "form_field",
+    "dialog"
+   ]
+  },
+  {
+   "file": "Views/DeliveryNote/GodView/DeliveryNoteGodView.xaml",
+   "module": "Views",
+   "fams": {
+    "God": 16,
+    "FontSize": 4,
+    "Border": 2,
+    "Weight": 1,
+    "Nav": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "table",
+    "empty",
+    "action_buttons",
+    "navigation"
+   ]
+  },
+  {
+   "file": "Views/Diagnostics/DiagnosticsView.xaml",
+   "module": "Views",
+   "fams": {
+    "Diagnostics": 18,
+    "FontSize": 12,
+    "Weight": 4,
+    "FontFamily": 3,
+    "Border": 2,
+    "CrashReports": 1,
+    "Nav": 1,
+    "Shell": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "kpi",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Inquiry/InquiryAttachmentPreviewWindow.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 9,
+    "Inquiry": 6,
+    "Radius": 3,
+    "FontFamily": 3,
+    "Weight": 3,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Inquiry/InquiryEditorWindow.xaml",
+   "module": "Views",
+   "fams": {
+    "Inquiry": 33,
+    "Border": 13,
+    "Radius": 5,
+    "Weight": 5,
+    "Common": 5,
+    "Action": 2,
+    "CompanyCenter": 1,
+    "Phone": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "header",
+    "toolbar",
+    "section_card",
+    "form_field",
+    "table",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Inquiry/InquiryListView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 46,
+    "Weight": 26,
+    "Border": 5,
+    "Radius": 4,
+    "Sharing": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "ListPage",
+    "Input",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "kpi",
+    "form_field",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/JobOrder/JobOrderView.xaml",
+   "module": "Views",
+   "fams": {
+    "DeliveryNote": 8,
+    "Common": 4
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "action_buttons",
+    "navigation"
+   ]
+  },
+  {
+   "file": "Views/JobOrder/GodView/JobOrderGodView.xaml",
+   "module": "Views",
+   "fams": {
+    "God": 14,
+    "FontSize": 4,
+    "Border": 2,
+    "Weight": 1,
+    "Nav": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "table",
+    "empty",
+    "action_buttons",
+    "navigation"
+   ]
+  },
+  {
+   "file": "Views/JobOrder/JobOrderDetail/JobOrderDetailView.xaml",
+   "module": "Views",
+   "fams": {
+    "JobOrder": 8,
+    "DeliveryNote": 3,
+    "Action": 2,
+    "FontSize": 2,
+    "Sharing": 2,
+    "Common": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill",
+    "Section"
+   ],
+   "patterns": [
+    "kpi",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/JobOrder/JobOrderDetail/Sections/JoOverviewSection.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 11,
+    "Weight": 8,
+    "JobOrder": 6,
+    "Common": 2,
+    "Border": 1,
+    "DeliveryNote": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "kpi",
+    "table"
+   ]
+  },
+  {
+   "file": "Views/JobOrder/JobOrderDetail/Sections/JoProductionSection.xaml",
+   "module": "Views",
+   "fams": {
+    "JobOrder": 10,
+    "FontSize": 4,
+    "Common": 2,
+    "FontFamily": 1,
+    "Lock": 1,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Section"
+   ],
+   "patterns": [
+    "form_field"
+   ]
+  },
+  {
+   "file": "Views/JobOrder/JobOrderDetail/Sections/JoSectionStyles.xaml",
+   "module": "Views",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/JobOrder/SavedJobOrdersList/JobOrderAttachmentWarningDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "JobOrder": 6,
+    "FontSize": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "dialog",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/JobOrder/SavedJobOrdersList/SavedJobOrdersListView.xaml",
+   "module": "Views",
+   "fams": {
+    "JobOrder": 14,
+    "Common": 9,
+    "Weight": 8,
+    "Action": 4,
+    "Dashboard": 3,
+    "Border": 3,
+    "Void": 2,
+    "Radius": 2,
+    "Nav": 1,
+    "DeliveryNote": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "kpi",
+    "form_field",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/JobOrder/SavedJobOrdersList/ProformaPicker/JobOrderProformaPickerDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "JobOrder": 6,
+    "FontSize": 6,
+    "Border": 1,
+    "FontFamily": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "form_field",
+    "dialog"
+   ]
+  },
+  {
+   "file": "Views/JobProfitability/JobDetailPanel.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 32,
+    "Radius": 9,
+    "Border": 8
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid"
+   ],
+   "patterns": [
+    "header",
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/JobProfitability/JobFullDetailView.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 20,
+    "Radius": 4,
+    "Border": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Card"
+   ],
+   "patterns": [
+    "header",
+    "section_card",
+    "table",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/JobProfitability/JobProfitabilityView.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 12,
+    "JobProfitability": 4,
+    "Common": 3,
+    "Border": 2,
+    "Action": 1,
+    "Radius": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Pill",
+    "Section"
+   ],
+   "patterns": [
+    "header",
+    "toolbar",
+    "section_card",
+    "form_field",
+    "table",
+    "error",
+    "navigation"
+   ]
+  },
+  {
+   "file": "Views/JobProfitability/PortfolioGlassTypeComparisonView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 17,
+    "Weight": 16,
+    "Border": 9,
+    "Radius": 9,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid"
+   ],
+   "patterns": [
+    "section_card",
+    "table",
+    "empty",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/JobProfitability/PortfolioServiceProfitabilityView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 17,
+    "Weight": 15,
+    "Border": 9,
+    "Radius": 9,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid"
+   ],
+   "patterns": [
+    "section_card",
+    "table",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/JobProfitability/PortfolioWastageAnalysisView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 17,
+    "Weight": 16,
+    "Border": 9,
+    "Radius": 9,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid"
+   ],
+   "patterns": [
+    "section_card",
+    "table",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Login/AuthSurfaceStyles.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 8,
+    "Radius": 4,
+    "Border": 3,
+    "FontFamily": 3,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 5,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Login/FirstRunSetupPanel.xaml",
+   "module": "Views",
+   "fams": {
+    "Login": 11,
+    "FontSize": 11,
+    "Radius": 6,
+    "Weight": 4,
+    "Border": 2,
+    "FontFamily": 1,
+    "About": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Login/ForcePasswordChangeWindow.xaml",
+   "module": "Views",
+   "fams": {
+    "Login": 12,
+    "FontSize": 9,
+    "Radius": 6,
+    "Border": 3,
+    "Weight": 3,
+    "FontFamily": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Login/LoginPanel.xaml",
+   "module": "Views",
+   "fams": {
+    "Login": 13,
+    "FontSize": 10,
+    "Weight": 6,
+    "Border": 4,
+    "Radius": 4,
+    "FontFamily": 2,
+    "Shell": 1,
+    "About": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Login/LoginWindow.xaml",
+   "module": "Views",
+   "fams": {
+    "Login": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Views/Login/ResetPasswordWindow.xaml",
+   "module": "Views",
+   "fams": {
+    "Login": 12,
+    "FontSize": 9,
+    "Radius": 6,
+    "Border": 3,
+    "Weight": 3,
+    "FontFamily": 2,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Optimization/OptimizationView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 24,
+    "Weight": 13,
+    "FontFamily": 9,
+    "Surface": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 4,
+   "hard_corner": 2,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Optimization/Tabs/CutListTabView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 14,
+    "Dg": 13,
+    "Weight": 7,
+    "Border": 4,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "form_field",
+    "table",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Optimization/Tabs/JobsTabView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 21,
+    "Weight": 8,
+    "Radius": 4
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field"
+   ]
+  },
+  {
+   "file": "Views/Optimization/Tabs/ReportTabView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 62,
+    "Weight": 16
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "table",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Optimization/Tabs/SettingsTabView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Optimization/Tabs/SizesTabView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 11,
+    "Weight": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "table"
+   ]
+  },
+  {
+   "file": "Views/Optimization/Tabs/StocksTabView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 7,
+    "Weight": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Optimization/Tabs/SummaryTabView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 25,
+    "Weight": 8,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 1,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "table",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Optimization/Tabs/TwoDViewTabView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 18,
+    "Radius": 5,
+    "Weight": 4,
+    "FontFamily": 3,
+    "Surface": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Production/CuttingView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 2,
+    "FontFamily": 1,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Production/CuttingWorkCenterView.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 17,
+    "FontSize": 6,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "table"
+   ]
+  },
+  {
+   "file": "Views/Production/DoublingLaminationView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 2,
+    "FontFamily": 1,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Production/EdgeDeletionView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 2,
+    "FontFamily": 1,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Production/HolesCutoutsView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 2,
+    "FontFamily": 1,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Production/MitringView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 2,
+    "FontFamily": 1,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Production/PairingView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 2,
+    "FontFamily": 1,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Production/PolishView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 2,
+    "FontFamily": 1,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Production/ProcessWorkCenterView.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 14,
+    "FontSize": 13,
+    "FontFamily": 7
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 4,
+   "hard_corner": 2,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "header",
+    "section_card",
+    "form_field",
+    "table"
+   ]
+  },
+  {
+   "file": "Views/Production/ProductionControlCenterView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 15,
+    "Weight": 8,
+    "FontFamily": 6,
+    "Surface": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 3,
+   "hard_corner": 1,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "header",
+    "toolbar",
+    "section_card",
+    "form_field",
+    "table",
+    "navigation"
+   ]
+  },
+  {
+   "file": "Views/Production/TemperingView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 2,
+    "FontFamily": 1,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Production/Controls/ProductionFilterBar.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 4,
+    "FontFamily": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card",
+    "form_field"
+   ]
+  },
+  {
+   "file": "Views/Production/Controls/ProductionKpiStrip.xaml",
+   "module": "Views",
+   "fams": {
+    "FontFamily": 6,
+    "FontSize": 6
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "kpi"
+   ]
+  },
+  {
+   "file": "Views/Production/Controls/ProductionPipelineBar.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 8,
+    "Weight": 4,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Production/Controls/ProductionReleaseBar.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 4,
+    "Weight": 1,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Production/Controls/ProductionStationBody.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 12,
+    "FontSize": 8,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 3,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid"
+   ],
+   "patterns": [
+    "table"
+   ]
+  },
+  {
+   "file": "Views/Production/Controls/ProductionUnitDetailControl.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 29,
+    "Weight": 19,
+    "FontFamily": 4,
+    "Border": 4
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "kpi"
+   ]
+  },
+  {
+   "file": "Views/Production/Controls/ProductionUnitDetailTemplates.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 16,
+    "FontSize": 10
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 2,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid"
+   ],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/ProformaInvoiceView.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 9,
+    "Border": 5,
+    "Weight": 4,
+    "FontSize": 3,
+    "Radius": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "table",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/SavedInvoicesList/InvoiceApprovalDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 7,
+    "FontSize": 4,
+    "Weight": 3,
+    "Surface": 2,
+    "Border": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Dialog",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "dialog",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/SavedInvoicesList/SavedInvoicesListDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 2,
+    "Action": 2,
+    "Surface": 1,
+    "Border": 1,
+    "FontSize": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "dialog"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/SavedInvoicesList/SavedInvoicesListView.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 19,
+    "FontSize": 11,
+    "Common": 9,
+    "FontFamily": 5,
+    "Action": 3,
+    "Weight": 3,
+    "Void": 2,
+    "Inquiry": 1,
+    "Shell": 1,
+    "Border": 1,
+    "Sharing": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "kpi",
+    "form_field",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/SavedInvoicesList/VersionsDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 5,
+    "ProformaInvoice": 3,
+    "Weight": 3,
+    "Border": 2,
+    "Common": 1,
+    "About": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "dialog"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step1CompanySetup/CompanySetupView.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 18,
+    "FontSize": 11,
+    "Weight": 5,
+    "Common": 4,
+    "CompanyCenter": 3,
+    "FontFamily": 3,
+    "Surface": 1,
+    "Border": 1,
+    "Radius": 1,
+    "Action": 1,
+    "Phone": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "table",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step2ClientProfile/ClientProfileView.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 14,
+    "FontSize": 10,
+    "Weight": 3,
+    "JobOrder": 1,
+    "Inquiry": 1,
+    "Phone": 1,
+    "FontFamily": 1,
+    "Common": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "form_field",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step3ProjectSpecs/ProjectSpecsView.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 22,
+    "FontSize": 10,
+    "Weight": 3,
+    "Common": 2,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "form_field",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step4PricingEstimator/PricingEstimatorView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 16,
+    "Weight": 10,
+    "ProformaInvoice": 8,
+    "Border": 7,
+    "FontFamily": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step4PricingEstimator/DguLamParameters/DguLamParametersView.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 31,
+    "FontSize": 8,
+    "Weight": 8,
+    "Common": 5,
+    "Module": 1,
+    "Nav": 1,
+    "Inquiry": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "form_field"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step4PricingEstimator/DguParameters/DguParametersView.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 19,
+    "FontSize": 3,
+    "Weight": 3,
+    "Common": 3
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "form_field"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step4PricingEstimator/LamParameters/LamParametersView.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 21,
+    "FontSize": 3,
+    "Weight": 3,
+    "Common": 3,
+    "Nav": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "form_field"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step4PricingEstimator/SguParameters/SguParametersView.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 11,
+    "FontSize": 1,
+    "Weight": 1,
+    "Module": 1,
+    "Nav": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "form_field"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step5DataGrid/DataGridView.xaml",
+   "module": "Views",
+   "fams": {
+    "Dg": 43,
+    "FontSize": 12,
+    "Weight": 10,
+    "Border": 3,
+    "FontFamily": 2,
+    "Sharing": 1,
+    "God": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "table",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step5DataGrid/GrandTotalSummary/GrandTotalSummaryView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 10,
+    "Weight": 7,
+    "ProformaInvoice": 2,
+    "DeliveryNote": 1,
+    "Inquiry": 1,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid"
+   ],
+   "patterns": [
+    "table"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step6OtherCharges/OtherChargesView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 23,
+    "ProformaInvoice": 23,
+    "Weight": 13,
+    "Border": 4,
+    "FontFamily": 1,
+    "DeliveryNote": 1,
+    "Nav": 1,
+    "Common": 1,
+    "Radius": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Input",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "table"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step6OtherCharges/CustomCharges/CustomChargesSectionView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 6,
+    "ProformaInvoice": 5,
+    "Common": 5,
+    "Weight": 4,
+    "Border": 1,
+    "FontFamily": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Button"
+   ],
+   "patterns": [
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionView.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 28,
+    "FontSize": 27,
+    "Weight": 12,
+    "Border": 3,
+    "FontFamily": 2,
+    "Common": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "table",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step7PrintPreview/PrintPreviewView.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 11,
+    "DeliveryNote": 3,
+    "Sharing": 2,
+    "Print": 2,
+    "Weight": 2,
+    "Action": 1,
+    "Phone": 1,
+    "Radius": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step7PrintPreview/InvoiceMainSummary/InvoiceMainSummaryView.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 13,
+    "FontSize": 10,
+    "Weight": 10,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Section"
+   ],
+   "patterns": [
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceView.xaml",
+   "module": "Views",
+   "fams": {
+    "Print": 204,
+    "ProformaInvoice": 46,
+    "Common": 9,
+    "Module": 2,
+    "CompanyCenter": 1,
+    "DeliveryNote": 1,
+    "JobOrder": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 18,
+   "shared": [
+    "DataGrid"
+   ],
+   "patterns": [
+    "form_field",
+    "table",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step7PrintPreview/TermsAndConditions/TermsAndConditionsView.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 13,
+    "FontSize": 7,
+    "FontFamily": 4,
+    "Weight": 3
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Section"
+   ],
+   "patterns": [
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step8Attachments/AttachmentsStepView.xaml",
+   "module": "Views",
+   "fams": {
+    "ProformaInvoice": 7,
+    "FontSize": 7,
+    "Weight": 3,
+    "Common": 3,
+    "Action": 2,
+    "Attachments": 1,
+    "FontFamily": 1,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step9ProfitLoss/GlassTypeComparisonView.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 13,
+    "Border": 3,
+    "Radius": 2,
+    "Sharing": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "kpi",
+    "table",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step9ProfitLoss/ProfitLossStepView.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 34,
+    "ProformaInvoice": 11,
+    "Border": 5,
+    "Radius": 4,
+    "Sharing": 3,
+    "Common": 3
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Input",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "form_field",
+    "table",
+    "error",
+    "navigation"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step9ProfitLoss/ServiceProfitabilityView.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 20,
+    "Border": 3,
+    "Radius": 2,
+    "Sharing": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "kpi",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/ProformaInvoice/Step9ProfitLoss/SheetProfitabilityView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 32,
+    "Weight": 23,
+    "Border": 6,
+    "Radius": 6,
+    "Chart": 4,
+    "Sharing": 1,
+    "ProformaInvoice": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "table",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/SalesReportView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 63,
+    "Weight": 32,
+    "Reports": 30,
+    "Radius": 28,
+    "Border": 27,
+    "FontFamily": 16,
+    "Common": 5,
+    "Module": 4,
+    "Nav": 2,
+    "JobProfitability": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/DeliveryReport/DeliveryReportView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 52,
+    "Reports": 46,
+    "Weight": 33,
+    "Common": 17,
+    "Border": 9,
+    "FontFamily": 8,
+    "DeliveryNote": 8,
+    "JobOrder": 4,
+    "Action": 3,
+    "Radius": 2,
+    "Sharing": 1,
+    "Inquiry": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "kpi",
+    "table",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/JoReport/JoReportView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 58,
+    "Reports": 50,
+    "Weight": 31,
+    "Common": 17,
+    "FontFamily": 9,
+    "Border": 5,
+    "Action": 4,
+    "Radius": 4,
+    "Inquiry": 3,
+    "JobOrder": 1,
+    "Sharing": 1,
+    "Nav": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "kpi",
+    "form_field",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/PiReport/PiReportView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 55,
+    "Reports": 44,
+    "Weight": 30,
+    "Common": 16,
+    "FontFamily": 10,
+    "Border": 6,
+    "Radius": 6,
+    "Inquiry": 4,
+    "Action": 3,
+    "JobOrder": 1,
+    "Sharing": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Input",
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "kpi",
+    "form_field",
+    "table",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/StatementGenerator/Filter/FilterStep.xaml",
+   "module": "Views",
+   "fams": {
+    "Reports": 39,
+    "FontSize": 32,
+    "Weight": 21,
+    "Border": 5,
+    "Radius": 5,
+    "Common": 4,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 2,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Reports/StatementGenerator/Pipeline/ExecuteStep.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 33,
+    "Weight": 28,
+    "Reports": 8,
+    "Radius": 6,
+    "Common": 6,
+    "Border": 3,
+    "FontFamily": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Reports/StatementGenerator/Preview/PreviewStep.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 80,
+    "Weight": 65,
+    "Reports": 20,
+    "Common": 16,
+    "DeliveryNote": 3,
+    "Radius": 2,
+    "Inquiry": 1,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "table",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/StatementGenerator/Review/ReviewStep.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 127,
+    "Weight": 91,
+    "Reports": 35,
+    "FontFamily": 19,
+    "Border": 18,
+    "Common": 13,
+    "DeliveryNote": 2,
+    "Radius": 2,
+    "Diagnostics": 1,
+    "Sharing": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "table",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/StatementGenerator/Shell/StatementGeneratorView.xaml",
+   "module": "Views",
+   "fams": {
+    "Reports": 11,
+    "Weight": 9,
+    "FontSize": 5,
+    "Border": 3,
+    "Action": 2,
+    "Phone": 1,
+    "Surface": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/StatementGenerator/Styles/WizardStyles.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 8,
+    "FontSize": 6
+   },
+   "fams_bare_top5": {},
+   "local_styles": 5,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Dialog",
+    "Button"
+   ],
+   "patterns": [
+    "dialog",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/StatementList/StatementListView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 28,
+    "Reports": 14,
+    "Weight": 13,
+    "FontFamily": 7,
+    "Common": 7,
+    "Border": 6,
+    "Dashboard": 3,
+    "Nav": 1,
+    "Action": 1,
+    "DeliveryNote": 1,
+    "Sharing": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "section_card",
+    "kpi",
+    "form_field",
+    "empty",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Reports/StatementModule/StatementModuleView.xaml",
+   "module": "Views",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Views/Reports/StatementReport/StatementReportView.xaml",
+   "module": "Views",
+   "fams": {
+    "Reports": 41,
+    "FontSize": 39,
+    "Weight": 22,
+    "Common": 14,
+    "FontFamily": 9,
+    "Action": 3,
+    "Border": 3,
+    "JobOrder": 1,
+    "Sharing": 1,
+    "Radius": 1,
+    "Inquiry": 1,
+    "Module": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "kpi",
+    "form_field",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/TaxInvoiceReport/TaxInvoiceReportView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 57,
+    "Reports": 38,
+    "Weight": 29,
+    "Common": 20,
+    "FontFamily": 11,
+    "Border": 5,
+    "Radius": 4,
+    "Action": 3,
+    "Inquiry": 3,
+    "Dashboard": 1,
+    "JobOrder": 1,
+    "Sharing": 1,
+    "ProformaInvoice": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "kpi",
+    "form_field",
+    "table",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/VatSubmission/VatSubmissionView.xaml",
+   "module": "Views",
+   "fams": {
+    "Reports": 51,
+    "FontSize": 36,
+    "Weight": 26,
+    "Common": 17,
+    "Radius": 8,
+    "FontFamily": 7,
+    "Border": 7,
+    "Action": 3,
+    "JobOrder": 1,
+    "Sharing": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "section_card",
+    "kpi",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/Workflow/WorkflowProgressDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 17,
+    "Weight": 11,
+    "Reports": 4,
+    "Radius": 4,
+    "Border": 4,
+    "FontFamily": 3,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "table",
+    "dialog"
+   ]
+  },
+  {
+   "file": "Views/Reports/Workflow/WorkflowWarningDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 21,
+    "Weight": 15,
+    "Reports": 12,
+    "FontFamily": 3,
+    "Common": 3,
+    "Border": 3,
+    "Radius": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "dialog",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/CompanyReport/CompanyReportView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 46,
+    "Weight": 22,
+    "FontFamily": 11,
+    "Radius": 4,
+    "Border": 3,
+    "Reports": 2,
+    "Action": 2,
+    "JobOrder": 1,
+    "Sharing": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "kpi",
+    "form_field",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/CustomerReport/CustomerReportView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 47,
+    "Weight": 22,
+    "FontFamily": 11,
+    "Radius": 3,
+    "Common": 2,
+    "Reports": 2,
+    "Action": 2,
+    "Border": 2,
+    "JobOrder": 1,
+    "Sharing": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "kpi",
+    "form_field",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/ExecutiveReport/ExecutiveReportView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 27,
+    "Weight": 17,
+    "Radius": 8,
+    "Border": 7,
+    "FontFamily": 4,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "form_field",
+    "empty",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Reports/GlassSpecReport/GlassSpecReportView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 27,
+    "Weight": 12,
+    "FontFamily": 10,
+    "Radius": 6,
+    "Common": 3,
+    "Border": 2,
+    "Reports": 2,
+    "Action": 2,
+    "JobOrder": 1,
+    "Sharing": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "kpi",
+    "form_field",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/OrderReport/OrderReportGeneratorView.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 12,
+    "FontSize": 8,
+    "Border": 3,
+    "Radius": 1,
+    "Surface": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/OrderReport/OrderReportListView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 50,
+    "Weight": 34,
+    "Border": 13,
+    "Surface": 2,
+    "Radius": 2,
+    "Sharing": 1,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/OrderReport/OrderReportModuleView.xaml",
+   "module": "Views",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Views/Reports/OrderReport/Filter/FilterStep.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 14,
+    "Weight": 10,
+    "Radius": 5
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Reports/OrderReport/Pipeline/ExecuteStep.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 6,
+    "Weight": 3,
+    "Radius": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Reports/OrderReport/Preview/PreviewStep.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 8,
+    "Weight": 3
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Reports/OrderReport/Review/ReviewStep.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 33,
+    "Surface": 4,
+    "Border": 3,
+    "FontFamily": 2,
+    "FontSize": 2,
+    "Sharing": 2,
+    "Radius": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "header",
+    "section_card",
+    "table",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Reports/OrderReport/Specifications/SpecificationsStep.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 12,
+    "FontSize": 9,
+    "Surface": 3,
+    "Radius": 2,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card",
+    "table"
+   ]
+  },
+  {
+   "file": "Views/Reports/ProfitabilityReport/ProfitabilityReportView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 20,
+    "FontFamily": 10,
+    "Weight": 6,
+    "Common": 3,
+    "Reports": 3,
+    "Radius": 3,
+    "Action": 2,
+    "JobOrder": 1,
+    "Sharing": 1,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "kpi",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/ProjectReport/ProjectReportView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 44,
+    "Weight": 20,
+    "FontFamily": 11,
+    "Radius": 3,
+    "Common": 2,
+    "Reports": 2,
+    "Action": 2,
+    "Border": 2,
+    "JobOrder": 1,
+    "Sharing": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "kpi",
+    "form_field",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Reports/SalesmanReport/SalesmanReportView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 18,
+    "FontFamily": 10,
+    "Weight": 5,
+    "Reports": 2,
+    "Action": 2,
+    "Border": 2,
+    "Radius": 2,
+    "JobOrder": 1,
+    "Sharing": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "toolbar",
+    "section_card",
+    "kpi",
+    "form_field",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/SettingsCardStyles.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 13,
+    "FontFamily": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 47,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card"
+   ],
+   "patterns": [
+    "header",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/SettingsPageTemplates.xaml",
+   "module": "Views",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 12,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/SettingsSectionStyles.xaml",
+   "module": "Views",
+   "fams": {
+    "Surface": 9,
+    "FontSize": 7,
+    "Weight": 5,
+    "Radius": 2,
+    "Border": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 12,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/SettingsView.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 4,
+    "FontSize": 3,
+    "Radius": 1,
+    "FontFamily": 1,
+    "Weight": 1,
+    "ToolTip": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/SettingsAboutSection.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 33
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/SettingsAgentSection.xaml",
+   "module": "Views",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/SettingsAiSection.xaml",
+   "module": "Views",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/SettingsAppearanceSection.xaml",
+   "module": "Views",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/SettingsDataSection.xaml",
+   "module": "Views",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/SettingsDemoSection.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 2,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/SettingsFeaturesSection.xaml",
+   "module": "Views",
+   "fams": {
+    "Module": 4,
+    "Common": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/SettingsLicenseSection.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 5
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/SettingsSharingSection.xaml",
+   "module": "Views",
+   "fams": {
+    "Sharing": 25,
+    "FontSize": 7,
+    "Weight": 4
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "form_field",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/SettingsThemesSection.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 35,
+    "FontSize": 18,
+    "Border": 3,
+    "Radius": 1,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 1,
+   "hard_corner": 1,
+   "shared": [
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/SettingsUpdatesSection.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 15,
+    "FontSize": 13,
+    "Weight": 7,
+    "Nav": 1,
+    "About": 1,
+    "FontFamily": 1,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/SettingsVoiceSection.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 17,
+    "Common": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AgentCoreCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 21,
+    "FontSize": 6,
+    "Weight": 2,
+    "About": 1,
+    "FontFamily": 1,
+    "Action": 1,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AgentDataCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 9,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AiAssistantCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 14
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AiProvidersCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 19,
+    "FontSize": 10,
+    "Weight": 3,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AiSecurityCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 11
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AppearanceAccentFontCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 10,
+    "FontSize": 6,
+    "FontFamily": 3,
+    "Radius": 1,
+    "Border": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "dialog",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AppearanceCardEdgesTile.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 8,
+    "FontSize": 2,
+    "Weight": 1,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "form_field",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AppearanceCrystalTile.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 3
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Button",
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "table"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AppearanceDensityCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 3
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AppearanceFontColorTile.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 2,
+    "FontSize": 1,
+    "FontFamily": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "form_field",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AppearanceFrostTile.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 2,
+    "Weight": 1,
+    "Settings": 1,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "form_field",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AppearanceGradientTile.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 3
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AppearanceLanguageCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 17,
+    "FontSize": 4,
+    "FontFamily": 3
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AppearanceModeCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 5
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AppearancePreviewTile.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 5,
+    "Settings": 2,
+    "Border": 2,
+    "Radius": 1,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 1,
+   "hard_corner": 1,
+   "shared": [
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AppearanceRadiusTile.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 4,
+    "FontSize": 1,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AppearanceSplashCard.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 3,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AppearanceThemeFamilyTile.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 2,
+    "FontSize": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AppearanceThemeLayoutCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 25,
+    "FontSize": 7,
+    "Weight": 7,
+    "FontFamily": 1,
+    "Border": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "loading",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/AppearanceWallpapersCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 30,
+    "FontSize": 15,
+    "Weight": 8,
+    "Action": 1,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "table",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/DataBackupCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 11,
+    "FontSize": 2,
+    "Action": 1,
+    "About": 1,
+    "ProformaInvoice": 1,
+    "Weight": 1,
+    "Border": 1,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/DataHealthCard.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 8,
+    "Settings": 6,
+    "Weight": 2,
+    "FontFamily": 1,
+    "About": 1,
+    "Action": 1,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/DataRootCard.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 4,
+    "Weight": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/DataSampleCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 9
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/DemoFfmpegCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 13,
+    "FontSize": 3,
+    "Weight": 2,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/DemoHistoryCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 3,
+    "Common": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/DemoIsolationCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 5
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/DemoOutputCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 2,
+    "FontSize": 2,
+    "DeliveryNote": 1,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/DemoQualityCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 12,
+    "FontSize": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card",
+    "Section"
+   ],
+   "patterns": []
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/DemoRecordCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 6
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/DemoWorkflowCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 6,
+    "Inquiry": 1,
+    "FontSize": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/FeaturesDeliveryNoteCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 13,
+    "DeliveryNote": 6,
+    "Common": 2,
+    "Module": 1,
+    "ProformaInvoice": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/FeaturesInquiryCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 20,
+    "Common": 6,
+    "Inquiry": 4,
+    "Module": 1,
+    "ProformaInvoice": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/FeaturesJobOrderCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 19,
+    "JobOrder": 8,
+    "Common": 1,
+    "ProformaInvoice": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/FeaturesProformaCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 43,
+    "ProformaInvoice": 27,
+    "CompanyCenter": 6,
+    "Common": 2,
+    "Inquiry": 2,
+    "Module": 1,
+    "FontSize": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "form_field",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/FeaturesSessionCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 6,
+    "Login": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Settings/Sections/Cards/FeaturesTaxInvoiceCard.xaml",
+   "module": "Views",
+   "fams": {
+    "Settings": 19,
+    "Reports": 2,
+    "Module": 1,
+    "ProformaInvoice": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Shared/ActivityPanel.xaml",
+   "module": "Views",
+   "fams": {
+    "Border": 1,
+    "Radius": 1,
+    "ToolTip": 1,
+    "FontSize": 1,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Shared/AuditReportDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 15,
+    "Weight": 12
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "dialog",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Shared/ChangesDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 6,
+    "Border": 4,
+    "Weight": 2,
+    "FontFamily": 2,
+    "Shared": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "dialog",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Shared/ComingSoonView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 5,
+    "Shared": 2,
+    "Weight": 2,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Shared/CountryPhoneControl.xaml",
+   "module": "Views",
+   "fams": {},
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "form_field"
+   ]
+  },
+  {
+   "file": "Views/Shared/LanguageSuggestionDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 4,
+    "Weight": 2,
+    "Border": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "dialog",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Shared/QuickSettingsPanel.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 4,
+    "Border": 1,
+    "Radius": 1,
+    "Shell": 1,
+    "Weight": 1,
+    "Settings": 1,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 1,
+   "hard_corner": 1,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "table"
+   ]
+  },
+  {
+   "file": "Views/Shared/RecordOverlayWindow.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 7,
+    "FontFamily": 4,
+    "Shared": 3,
+    "Weight": 2,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Shared/ScreenRecordPanel.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 19,
+    "Weight": 11,
+    "Settings": 6,
+    "Border": 5,
+    "Shared": 5,
+    "Radius": 1,
+    "About": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Shared/ScreenshotPanel.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 4,
+    "Shared": 3,
+    "Border": 1,
+    "Radius": 1,
+    "ToolTip": 1,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Shared/SectionActivityView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 18,
+    "Weight": 5,
+    "FontFamily": 2,
+    "Surface": 2,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "table",
+    "empty"
+   ]
+  },
+  {
+   "file": "Views/Shared/StorageDetailsPanel.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 9,
+    "Storage": 6,
+    "Radius": 3,
+    "Weight": 3,
+    "Border": 2,
+    "FontFamily": 2
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button"
+   ],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Shared/StorageSidebarCard.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 4,
+    "Weight": 2,
+    "Radius": 2,
+    "Storage": 1,
+    "Border": 1,
+    "FontFamily": 1,
+    "Nav": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [],
+   "patterns": [
+    "section_card",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Shared/UnsavedChangesDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "Inquiry": 2,
+    "FontSize": 1,
+    "Action": 1,
+    "Login": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "dialog",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Shared/UserSwitchPanel.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 6,
+    "Shared": 4,
+    "Border": 3,
+    "Radius": 2,
+    "Weight": 2,
+    "Login": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Shared/VoidReasonDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "Void": 4,
+    "FontSize": 2,
+    "Surface": 1,
+    "Weight": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Dialog",
+    "Pill"
+   ],
+   "patterns": [
+    "form_field",
+    "dialog",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/SheetStore/AddEditSheetView.xaml",
+   "module": "Views",
+   "fams": {
+    "SheetStore": 12,
+    "FontSize": 4,
+    "Weight": 3,
+    "Surface": 1,
+    "ProformaInvoice": 1,
+    "FontFamily": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Dialog",
+    "Input",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "form_field",
+    "dialog",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/SheetStore/SheetDetailWindow.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 8,
+    "Radius": 2,
+    "Action": 1,
+    "Surface": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Pill"
+   ],
+   "patterns": [
+    "header",
+    "section_card",
+    "kpi",
+    "form_field",
+    "table",
+    "dialog",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/SheetStore/SheetStoreView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 72,
+    "Weight": 57,
+    "SheetStore": 40,
+    "Border": 15,
+    "FontFamily": 6,
+    "DeliveryNote": 5,
+    "ProformaInvoice": 4,
+    "Radius": 4,
+    "Common": 3,
+    "Action": 3,
+    "Module": 1,
+    "Nav": 1,
+    "Sharing": 1,
+    "Login": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "kpi",
+    "form_field",
+    "table",
+    "dialog",
+    "empty",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/SheetStore/SheetStoreBuy/BuyDialogView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 24,
+    "SheetStore": 15,
+    "Weight": 14,
+    "Common": 1,
+    "DeliveryNote": 1,
+    "JobProfitability": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Dialog",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "dialog",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/SheetStore/SheetStoreCsv/DuplicateResolutionView.xaml",
+   "module": "Views",
+   "fams": {
+    "SheetStore": 18,
+    "Weight": 3,
+    "Radius": 2,
+    "Common": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "dialog",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/SheetStore/SheetStoreHistory/HistoryView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 19,
+    "SheetStore": 16,
+    "Weight": 8,
+    "FontFamily": 4,
+    "Common": 3,
+    "Action": 2,
+    "Shared": 1,
+    "ProformaInvoice": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Dialog",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "dialog",
+    "empty",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/SheetStore/SheetStoreUse/UseDialogView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 27,
+    "SheetStore": 21,
+    "Weight": 17,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "dialog",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/SheetStore/SheetStoreItems/ItemMovementView.xaml",
+   "module": "Views",
+   "fams": {
+    "Weight": 12,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Dialog",
+    "Pill"
+   ],
+   "patterns": [
+    "header",
+    "section_card",
+    "form_field",
+    "dialog",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/Specifications/SpecificationsCenterView.xaml",
+   "module": "Views",
+   "fams": {
+    "Specifications": 23,
+    "Border": 15,
+    "Common": 7,
+    "Sharing": 2,
+    "Nav": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Card"
+   ],
+   "patterns": [
+    "kpi",
+    "empty",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/Splash/SplashView.xaml",
+   "module": "Views",
+   "fams": {
+    "Splash": 31,
+    "Weight": 15,
+    "FontSize": 14,
+    "Radius": 8,
+    "Border": 6,
+    "Shell": 1,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 2,
+   "local_templates": 1,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "loading"
+   ]
+  },
+  {
+   "file": "Views/SystemCenter/SystemCenterView.xaml",
+   "module": "Views",
+   "fams": {
+    "SystemCenter": 48,
+    "Weight": 14,
+    "Login": 6,
+    "Shared": 4,
+    "Border": 3,
+    "Module": 1,
+    "Common": 1,
+    "Action": 1,
+    "Diagnostics": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "header",
+    "section_card",
+    "form_field",
+    "table",
+    "error",
+    "action_buttons",
+    "navigation"
+   ]
+  },
+  {
+   "file": "Views/TaxInvoice/TaxInvoiceView.xaml",
+   "module": "Views",
+   "fams": {
+    "DeliveryNote": 8,
+    "Common": 4
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "action_buttons",
+    "navigation"
+   ]
+  },
+  {
+   "file": "Views/TaxInvoice/GodView/TaxInvoiceGodView.xaml",
+   "module": "Views",
+   "fams": {
+    "God": 15,
+    "FontSize": 4,
+    "Border": 2,
+    "Weight": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "table",
+    "empty",
+    "action_buttons",
+    "navigation"
+   ]
+  },
+  {
+   "file": "Views/TaxInvoice/TaxInvoiceDetail/IssueDraftsDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "TaxInvoice": 5,
+    "FontSize": 3,
+    "Weight": 2,
+    "Inquiry": 1,
+    "Border": 1,
+    "Action": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "dialog"
+   ]
+  },
+  {
+   "file": "Views/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailView.xaml",
+   "module": "Views",
+   "fams": {
+    "TaxInvoice": 12,
+    "FontSize": 8,
+    "Weight": 6,
+    "DeliveryNote": 3,
+    "FontFamily": 2,
+    "Common": 2,
+    "Action": 1,
+    "Border": 1,
+    "Sharing": 1,
+    "Lock": 1,
+    "Nav": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 1,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Pill",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "loading",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/TaxInvoice/TaxInvoiceDetail/Sections/TiAttachmentsSection.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 10,
+    "TaxInvoice": 9,
+    "Weight": 4,
+    "FontFamily": 2,
+    "DeliveryNote": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Section"
+   ],
+   "patterns": [
+    "error"
+   ]
+  },
+  {
+   "file": "Views/TaxInvoice/TaxInvoiceDetail/Sections/TiFamilySection.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 19,
+    "Weight": 13,
+    "TaxInvoice": 8,
+    "FontFamily": 4,
+    "Radius": 3,
+    "Common": 2,
+    "DeliveryNote": 1,
+    "Border": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/TaxInvoice/TaxInvoiceDetail/Sections/TiOverviewSection.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 43,
+    "Weight": 36,
+    "TaxInvoice": 16,
+    "Border": 6,
+    "ProformaInvoice": 5,
+    "Settings": 4,
+    "FontFamily": 3,
+    "DeliveryNote": 2,
+    "Module": 1,
+    "Reports": 1,
+    "Common": 1,
+    "Inquiry": 1,
+    "Radius": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "DataGrid",
+    "Button",
+    "Card",
+    "Section"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "table",
+    "error"
+   ]
+  },
+  {
+   "file": "Views/TaxInvoice/TaxInvoiceDetail/Sections/TiSectionStyles.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 2,
+    "Weight": 1,
+    "Radius": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 3,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Button",
+    "Card"
+   ],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/TaxInvoice/TaxInvoiceList/ProformaPickerDialog.xaml",
+   "module": "Views",
+   "fams": {
+    "TaxInvoice": 5,
+    "FontSize": 2,
+    "Action": 1,
+    "DeliveryNote": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "toolbar",
+    "form_field",
+    "dialog"
+   ]
+  },
+  {
+   "file": "Views/TaxInvoice/TaxInvoiceList/TaxInvoiceListView.xaml",
+   "module": "Views",
+   "fams": {
+    "TaxInvoice": 19,
+    "FontSize": 18,
+    "Weight": 10,
+    "Border": 5,
+    "Common": 5,
+    "FontFamily": 5,
+    "Action": 4,
+    "Radius": 2,
+    "Dashboard": 2,
+    "DeliveryNote": 1,
+    "Reports": 1,
+    "JobOrder": 1,
+    "JobProfitability": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 1,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Input",
+    "Button",
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "kpi",
+    "form_field",
+    "empty",
+    "loading",
+    "error",
+    "action_buttons"
+   ]
+  },
+  {
+   "file": "Views/UserCenter/UserCenterView.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 21,
+    "UserCenter": 20,
+    "Weight": 11,
+    "SystemCenter": 4,
+    "Radius": 3,
+    "FontFamily": 2,
+    "Login": 2,
+    "Border": 1,
+    "Module": 1,
+    "Shell": 1,
+    "Action": 1,
+    "CompanyCenter": 1,
+    "Sharing": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 1,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card"
+   ]
+  },
+  {
+   "file": "Views/Sharing/ShareComposerWindow.xaml",
+   "module": "Views",
+   "fams": {
+    "FontSize": 25,
+    "Sharing": 13,
+    "Weight": 8,
+    "Border": 5,
+    "FontFamily": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "section_card",
+    "form_field",
+    "dialog",
+    "error",
+    "action_buttons"
+   ]
+  }
+ ],
+ "modules": {
+  "(root)": {
+   "files": 2,
+   "local_styles": 0,
+   "local_templates": 0,
+   "hard_fontsize": 2,
+   "hard_corner": 0,
+   "fams": {
+    "Nav": 46,
+    "ToolTip": 12,
+    "Shell": 9,
+    "Border": 4,
+    "FontSize": 3,
+    "Radius": 1
+   },
+   "dyn": 131,
+   "sta": 101
+  },
+  "Agent": {
+   "files": 1,
+   "local_styles": 3,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "fams": {
+    "Border": 5,
+    "Radius": 2,
+    "Surface": 1
+   },
+   "dyn": 38,
+   "sta": 21
+  },
+  "Controls": {
+   "files": 9,
+   "local_styles": 5,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "fams": {
+    "Border": 10,
+    "ToolTip": 3,
+    "Shell": 3,
+    "Radius": 3,
+    "Surface": 2,
+    "FontSize": 1
+   },
+   "dyn": 139,
+   "sta": 52
+  },
+  "Styles": {
+   "files": 4,
+   "local_styles": 27,
+   "local_templates": 2,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "fams": {
+    "FontSize": 7,
+    "Radius": 4,
+    "Border": 3
+   },
+   "dyn": 114,
+   "sta": 41
+  },
+  "Themes": {
+   "files": 67,
+   "local_styles": 641,
+   "local_templates": 10,
+   "hard_fontsize": 1,
+   "hard_corner": 11,
+   "fams": {
+    "Radius": 88,
+    "Border": 61,
+    "FontSize": 54,
+    "Surface": 25,
+    "Weight": 22,
+    "FontFamily": 17,
+    "Space": 11,
+    "Density": 7,
+    "Print": 2,
+    "X": 2,
+    "Shell": 2,
+    "Action": 1,
+    "State": 1,
+    "Common": 1
+   },
+   "dyn": 1314,
+   "sta": 853
+  },
+  "Tools": {
+   "files": 3,
+   "local_styles": 12,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "fams": {
+    "Radius": 4,
+    "Border": 2
+   },
+   "dyn": 28,
+   "sta": 73
+  },
+  "Views": {
+   "files": 235,
+   "local_styles": 139,
+   "local_templates": 33,
+   "hard_fontsize": 15,
+   "hard_corner": 38,
+   "fams": {
+    "FontSize": 2452,
+    "Weight": 1780,
+    "Settings": 502,
+    "Reports": 460,
+    "Border": 407,
+    "ProformaInvoice": 388,
+    "FontFamily": 387,
+    "Common": 327,
+    "Radius": 293,
+    "Print": 206,
+    "DeliveryNote": 162,
+    "SheetStore": 122,
+    "Dashboard": 119,
+    "Action": 107,
+    "About": 101,
+    "Sharing": 76,
+    "JobOrder": 76,
+    "TaxInvoice": 74,
+    "Inquiry": 67,
+    "Login": 61,
+    "Dg": 56,
+    "God": 54,
+    "SystemCenter": 52,
+    "Surface": 35,
+    "Dnl": 31,
+    "Splash": 31,
+    "CompanyCenter": 26,
+    "Module": 26,
+    "Shared": 23,
+    "Specifications": 23,
+    "Nav": 21,
+    "Diagnostics": 20,
+    "UserCenter": 20,
+    "AI": 10,
+    "CrashReports": 10,
+    "Void": 10,
+    "JobProfitability": 7,
+    "Storage": 7,
+    "Phone": 6,
+    "Shell": 6,
+    "ToolTip": 4,
+    "Chart": 4,
+    "Lock": 3,
+    "Attachments": 1
+   },
+   "dyn": 15750,
+   "sta": 7498
+  }
+ }
+}

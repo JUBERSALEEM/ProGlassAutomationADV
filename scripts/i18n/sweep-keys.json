@@ -1,0 +1,23 @@
+{
+  "Inquiry.Import": "IMPORT",
+  "Inquiry.Prepared": "Prepared",
+  "Inquiry.Value": "VALUE",
+  "JobOrder.CreateDN": "CREATE DN",
+  "JobOrder.DeliveryDATE": "DELIVERY DATE",
+  "JobOrder.Excel": "EXCEL",
+  "JobOrder.GlassType": "Glass type",
+  "JobOrder.RefreshList": "Refresh list",
+  "JobOrder.ValueAED": "VALUE (AED)",
+  "JobProfitability.CustomerProject": "CUSTOMER · PROJECT",
+  "ProformaInvoice.ADDROW": "+ ADD ROW",
+  "ProformaInvoice.IssueDATE": "ISSUE DATE",
+  "Reports.JoReport.JO": "JO #",
+  "Reports.JoReport.NoJobOrdersFound": "No Job Orders found",
+  "Reports.JoReport.SourcePI": "SOURCE PI",
+  "Reports.TaxInvoiceReport.DUEDATE": "DUE DATE",
+  "Reports.TaxInvoiceReport.Invoice": "INVOICE #",
+  "Reports.TaxInvoiceReport.NoTaxInvoicesFound": "No Tax Invoices found",
+  "TaxInvoice.ClearSearchFilters": "Clear search and filters",
+  "TaxInvoice.ClearSelection": "Clear selection",
+  "TaxInvoice.Selected": "Selected"
+}

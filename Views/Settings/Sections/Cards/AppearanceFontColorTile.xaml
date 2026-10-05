@@ -1,0 +1,76 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/AppearanceFontColorTile.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — Appearance: Font Color Palette & Hex Customizer
+     Studio Bento tile with concentric curvature and accessible contrast.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceFontColorTile"
+             xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel Margin="{StaticResource SettingsStackGap8}">
+        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
+            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE792;" VerticalAlignment="Center"/>
+            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.FontColor}"/>
+        </StackPanel>
+        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                   Text="{DynamicResource Settings.OneGlobalTextColourViewAutoFollowsThemeIos}"/>
+
+        <!-- Chips generated from SettingsViewModel.FontColorPalette -->
+        <ItemsControl ItemsSource="{Binding FontColorPalette}" Margin="{StaticResource SettingsStackGap4}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Command="{Binding DataContext.ApplyFontColorCommand,
+                                      RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                            CommandParameter="{Binding Key}"
+                            Style="{StaticResource AccentChipStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
+                                     Stroke="{DynamicResource BorderDefaultBrush}"
+                                     StrokeThickness="1"
+                                     VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
+                            <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Button>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Free-pick font colour -->
+        <Border Margin="{StaticResource SettingsStackGap10}"
+                HorizontalAlignment="Left"
+                Style="{StaticResource SettingsWashTileStyle}">
+            <StackPanel Orientation="Horizontal">
+                <Ellipse Width="14" Height="14"
+                         Fill="{Binding CustomFontColorSwatch}"
+                         Stroke="{DynamicResource BorderDefaultBrush}" StrokeThickness="1"
+                         VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap10R}"/>
+                <TextBox Text="{Binding CustomFontColorHex, UpdateSourceTrigger=PropertyChanged}"
+                         Width="96" Padding="8,5" FontSize="{DynamicResource FontSize.Title}"
+                         FontFamily="{DynamicResource FontFamily.Code}"
+                         VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}"/>
+                <Button Command="{Binding ApplyCustomFontColorCommand}"
+                        Style="{StaticResource AccentChipStyle}" Margin="{StaticResource SettingsInlineGap8}">
+                    <TextBlock Text="{DynamicResource Action.Apply}"/>
+                </Button>
+            </StackPanel>
+        </Border>
+        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                   Text="{Binding CustomFontColorStatus}" Margin="{StaticResource SettingsStackGap6}" TextWrapping="Wrap"/>
+    </StackPanel>
+</UserControl>

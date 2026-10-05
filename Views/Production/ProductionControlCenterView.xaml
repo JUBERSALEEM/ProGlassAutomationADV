@@ -1,0 +1,505 @@
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.Production.ProductionControlCenterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             mc:Ignorable="d"
+             FontFamily="{DynamicResource AppFontFamily}"
+             Background="{DynamicResource WindowBackgroundBrush}"
+             Foreground="{DynamicResource TextPrimaryBrush}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <!-- P3 redesign: one column of flat crystal cards. The old right-hand
+                 scroll stack of six fixed-height grids became a tabbed analytics
+                 card; the shouting titles became plain card names; every binding
+                 and command is preserved (IsActive column removed — the model
+                 has no such member). -->
+            <Style x:Key="PccFieldLabel" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+                <Setter Property="Margin" Value="0,0,0,4"/>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <!-- SCROLL FIX (2026-09-17 owner report: "mouse scrolling not working,
+         not smoothly, full page is not visible"). Two defects, both
+         fixed with the app's own established behaviors:
+         1. this page scroller had NO SmoothScrollBehavior, so the wheel
+            fell back to WPF's logical (item-based) scrolling of the
+            StackPanel — one whole CARD per notch, which reads as a jump
+            and makes the bottom of the page feel unreachable. 54 other
+            scrollers in this app already set it: 120 px per notch,
+            immediate, zero per-frame work.
+         2. the DataGrids below swallowed the wheel — see the
+            SmartScrollBubblingBehavior on each of them. -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False"
+                  PanningMode="VerticalOnly"
+                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+        <StackPanel Margin="24,20,24,16">
+
+            <!-- Header -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource OptHeroCard}" Margin="0,0,12,0">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold"
+                                   Foreground="{StaticResource OptOnIndigo}"/>
+                        <TextBlock Text="{Binding Subtitle}" FontSize="12"
+                                   Foreground="{StaticResource OptOnIndigoMuted}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="Load / Refresh" Command="{Binding LoadCommand}" Style="{StaticResource PrimaryPillButton}" Height="32" Padding="18,0" Margin="0,0,8,0"/>
+                        <Button Content="Cancel" Command="{Binding CancelCommand}" Style="{StaticResource OutlinedPillButton}" Height="32" Padding="14,0"/>
+                    </StackPanel>
+            </Grid>
+
+            <!-- Eight stations. A button writes the stage, so a rejected command cannot leave a radio stuck. -->
+            <ItemsControl ItemsSource="{Binding StageChips}" Margin="0,0,0,14">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="8"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Margin="0,0,6,0" Padding="4,8" Cursor="Hand"
+                                ToolTip="{Binding Tip}"
+                                Command="{Binding DataContext.SelectStageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource OptIndigo}"/>
+                                            <Setter Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
+                                            <Setter Property="Foreground" Value="{StaticResource OptOnIndigo}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Label}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center"
+                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                                <TextBlock Text="{Binding Count}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,2,0,0"
+                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- ══ REAL-TIME AUTO-SUM AGGREGATION METRIC CARDS ══ -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="1.2*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 1. TOTAL SCHEDULED -->
+                <Border Grid.Column="0" Background="{DynamicResource SurfaceSecondaryBrush}"
+                        BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
+                        CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12" Margin="0,0,10,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintBlueBrush}">
+                            <TextBlock Text="&#xE821;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Icon}"
+                                       Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="TOTAL SCHEDULED" Style="{StaticResource OptHeader}"/>
+                            <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding TotalScheduledPcs, StringFormat={}{0:N0} Pcs}" FontSize="{DynamicResource TextTitleLarge}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </Viewbox>
+                            <TextBlock Text="{Binding TotalScheduledSqm, StringFormat={}{0:N1} m²}" FontSize="{DynamicResource FontSize.Label}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 2. COMPLETED / DONE -->
+                <Border Grid.Column="1" Background="{DynamicResource SurfaceSecondaryBrush}"
+                        BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
+                        CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12" Margin="0,0,10,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintGreenBrush}">
+                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Icon}"
+                                       Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="COMPLETED / DONE" Style="{StaticResource OptHeader}"/>
+                            <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding CompletedDonePcs, StringFormat={}{0:N0} Pcs}" FontSize="{DynamicResource TextTitleLarge}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                            </Viewbox>
+                            <TextBlock Text="{Binding CompletedDoneSqm, StringFormat={}{0:N1} m²}" FontSize="{DynamicResource FontSize.Label}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 3. BALANCE PENDING -->
+                <Border Grid.Column="2" Background="{DynamicResource SurfaceSecondaryBrush}"
+                        BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
+                        CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12" Margin="0,0,10,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintAmberBrush}">
+                            <TextBlock Text="&#xE9D9;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Icon}"
+                                       Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="BALANCE PENDING" Style="{StaticResource OptHeader}"/>
+                            <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding BalancePendingPcs, StringFormat={}{0:N0} Pcs}" FontSize="{DynamicResource TextTitleLarge}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                            </Viewbox>
+                            <TextBlock Text="{Binding BalancePendingSqm, StringFormat={}{0:N1} m²}" FontSize="{DynamicResource FontSize.Label}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 4. STAGE COMPLETION RATE -->
+                <Border Grid.Column="3" Background="{DynamicResource SurfaceSecondaryBrush}"
+                        BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
+                        CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="STAGE COMPLETION" Style="{StaticResource OptHeader}"/>
+                            <ProgressBar Height="8" Minimum="0" Maximum="100" Value="{Binding StageCompletionPct, Mode=OneWay}"
+                                         Margin="0,8,0,0" Foreground="{DynamicResource SuccessBrush}"/>
+                        </StackPanel>
+                        <Viewbox MaxHeight="32" Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
+                            <TextBlock Text="{Binding StageCompletionPct, StringFormat={}{0:F1}%}"
+                                       FontSize="{DynamicResource TextHeadline}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                        </Viewbox>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ── Streamlined Stage Filter & Fast Command Toolbar ── -->
+            <Border Padding="16,14" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Margin="0,0,0,14"
+                    Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Filter Row: 4 key inputs instead of 11 confusing boxes -->
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                            <TextBlock Text="SEARCH (Job / PO / Customer)" Style="{StaticResource OptHeader}"/>
+                            <TextBox Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                            <TextBlock Text="READINESS STATUS" Style="{StaticResource OptHeader}"/>
+                            <ComboBox ItemsSource="{Binding ReadinessOptions}" SelectedItem="{Binding ReadinessFilter}" Style="{StaticResource SurfaceComboBox}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Margin="0,0,10,0">
+                            <TextBlock Text="PRIORITY" Style="{StaticResource OptHeader}"/>
+                            <ComboBox ItemsSource="{Binding PriorityOptions}" SelectedItem="{Binding PriorityFilter}" Style="{StaticResource SurfaceComboBox}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="3">
+                            <TextBlock Text="DUE RISK" Style="{StaticResource OptHeader}"/>
+                            <ComboBox ItemsSource="{Binding DueRiskOptions}" SelectedItem="{Binding DueRiskFilter}" Style="{StaticResource SurfaceComboBox}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Action Command Strip: Clear Visual Hierarchy -->
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Primary Stage Work Actions -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="Start Stage" Command="{Binding StartCommand}" Style="{StaticResource PrimaryPillButton}" Padding="16,0" Margin="0,0,8,0"/>
+                            <Button Content="Complete Stage" Command="{Binding CompleteCommand}" Style="{StaticResource PrimaryPillButton}" Padding="16,0" Margin="0,0,8,0"/>
+                            <Button Content="Pause" Command="{Binding PauseCommand}" Style="{StaticResource OutlinedPillButton}" Padding="14,0" Margin="0,0,8,0"/>
+                            <Button Content="Resume" Command="{Binding ResumeCommand}" Style="{StaticResource OutlinedPillButton}" Padding="14,0" Margin="0,0,8,0"/>
+                            <Button Content="Hold" Command="{Binding HoldCommand}" Style="{StaticResource OutlinedPillButton}" Padding="14,0"/>
+                        </StackPanel>
+
+                        <!-- Operational Routing Actions -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="Release Hold" Command="{Binding ReleaseHoldCommand}" Style="{StaticResource OutlinedPillButton}" Padding="12,0" Margin="0,0,8,0"/>
+                            <Button Content="Assign Workstation" Command="{Binding AssignCommand}" Style="{StaticResource OutlinedPillButton}" Padding="14,0" Margin="0,0,8,0"/>
+                            <Button Content="Set Priority" Command="{Binding SetPriorityCommand}" Style="{StaticResource OutlinedPillButton}" Padding="12,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- Production queue: the one master table -->
+            <Border Padding="12" CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,0,12"
+                    Background="{DynamicResource SurfacePrimaryBrush}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="340"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Production Queue" Style="{StaticResource ModulePageTitleStyle}" Margin="0,0,0,8"/>
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding StageQueue}" SelectedItem="{Binding Selected, Mode=TwoWay}"
+                              AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                              CanUserResizeColumns="False" CanUserReorderColumns="False"
+                              Style="{StaticResource SurfaceDataGrid}" VerticalScrollBarVisibility="Auto"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Job Ref" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Spec" Binding="{Binding SpecName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Process" Binding="{Binding StageLabel}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Readiness" Binding="{Binding Readiness}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Priority" Binding="{Binding Priority}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Due Risk" Binding="{Binding DueRisk}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Due" Binding="{Binding DueDate, StringFormat=yyyy-MM-dd}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Qty" Binding="{Binding Qty}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Done" Binding="{Binding QtyDone}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Rem" Binding="{Binding Remaining}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Operator" Binding="{Binding Operator}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="QC" Binding="{Binding QcResult}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <!-- Ready / blocked / QC mini queues, equal thirds -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Padding="12" CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,8,0"
+                        Background="{DynamicResource SurfacePrimaryBrush}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="150"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Ready to run" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,6"/>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding StageExecutableQueue}" AutoGenerateColumns="False"
+                                  CanUserAddRows="False" IsReadOnly="True"
+                                  CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource SurfaceDataGrid}"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Process" Binding="{Binding StageLabel}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Priority" Binding="{Binding Priority}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Due" Binding="{Binding DueDate, StringFormat=MM-dd}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+                <Border Grid.Column="1" Padding="12" CornerRadius="{DynamicResource CardCornerRadius}" Margin="4,0,4,0"
+                        Background="{DynamicResource SurfacePrimaryBrush}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="150"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Blocked" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,6"/>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding BlockedQueue}" AutoGenerateColumns="False"
+                                  CanUserAddRows="False" IsReadOnly="True"
+                                  CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource SurfaceDataGrid}"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Reason" Binding="{Binding BlockReason}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+                <Border Grid.Column="2" Padding="12" CornerRadius="{DynamicResource CardCornerRadius}" Margin="8,0,0,0"
+                        Background="{DynamicResource SurfacePrimaryBrush}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="150"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="QC pending / failed" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,6"/>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding StageQcQueue}" AutoGenerateColumns="False"
+                                  CanUserAddRows="False" IsReadOnly="True"
+                                  CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource SurfaceDataGrid}"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Stage" Binding="{Binding StageLabel}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="QC" Binding="{Binding QcResult}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Selected item detail -->
+            <Border Padding="12" CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,0,12"
+                    Background="{DynamicResource SurfaceSecondaryBrush}" Style="{StaticResource SurfaceSecondaryStyle}">
+                <UniformGrid Columns="2">
+                    <StackPanel Margin="0,0,12,6">
+                        <TextBlock Text="Selected work item" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding DetailLabel}" TextWrapping="Wrap" FontSize="{DynamicResource FontSize.BodySmall}"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,12,6">
+                        <TextBlock Text="Traceability" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding TraceabilityLabel}" TextWrapping="Wrap" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource AccentBrush}"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,12,0">
+                        <TextBlock Text="Material" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding MaterialLabel}" TextWrapping="Wrap" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource WarningBrush}"/>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="QC" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding QcLabel}" TextWrapping="Wrap" FontSize="{DynamicResource FontSize.BodySmall}"/>
+                    </StackPanel>
+                </UniformGrid>
+            </Border>
+
+            <!-- Analytics: one tabbed card instead of six stacked grids -->
+            <Border Padding="12" CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,0,12"
+                    Background="{DynamicResource SurfacePrimaryBrush}">
+                <TabControl Background="Transparent" BorderThickness="0" Padding="0">
+                    <TabItem Header="Job progress">
+                        <DataGrid ItemsSource="{Binding JobProgress}" AutoGenerateColumns="False" CanUserAddRows="False"
+                                  IsReadOnly="True" CanUserResizeColumns="False" CanUserReorderColumns="False"
+                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Job Ref" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Req" Binding="{Binding Required}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Done" Binding="{Binding Completed}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Rem" Binding="{Binding Remaining}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Prog %" Binding="{Binding ProgressPct}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Blocked" Binding="{Binding Blocked}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Header="Process progress">
+                        <DataGrid ItemsSource="{Binding ProcessProgress}" AutoGenerateColumns="False" CanUserAddRows="False"
+                                  IsReadOnly="True" CanUserResizeColumns="False" CanUserReorderColumns="False"
+                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Process" Binding="{Binding SpecName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Req" Binding="{Binding Required}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Done" Binding="{Binding Completed}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Prog %" Binding="{Binding ProgressPct}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Header="Queue pressure">
+                        <DataGrid ItemsSource="{Binding QueuePressure}" AutoGenerateColumns="False" CanUserAddRows="False"
+                                  IsReadOnly="True" CanUserResizeColumns="False" CanUserReorderColumns="False"
+                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Ready" Binding="{Binding ReadyQueue}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Blocked" Binding="{Binding BlockedQueue}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Total" Binding="{Binding Total}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Pressure" Binding="{Binding PressureLabel}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Avg wait h" Binding="{Binding AvgWaitHours}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Header="Workstation load">
+                        <DataGrid ItemsSource="{Binding WorkstationLoad}" AutoGenerateColumns="False" CanUserAddRows="False"
+                                  IsReadOnly="True" CanUserResizeColumns="False" CanUserReorderColumns="False"
+                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Assigned" Binding="{Binding AssignedCount}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Ready" Binding="{Binding ReadyCount}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="In prog" Binding="{Binding InProgressCount}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Header="Workstations">
+                        <DataGrid ItemsSource="{Binding Workstations}" AutoGenerateColumns="False" CanUserAddRows="False"
+                                  IsReadOnly="True" CanUserResizeColumns="False" CanUserReorderColumns="False"
+                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Id" Binding="{Binding WorkstationId}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Header="Rework">
+                        <DataGrid ItemsSource="{Binding StageReworkQueue}" AutoGenerateColumns="False" CanUserAddRows="False"
+                                  IsReadOnly="True" CanUserResizeColumns="False" CanUserReorderColumns="False"
+                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Piece" Binding="{Binding Position}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Stage" Binding="{Binding StageLabel}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Block" Binding="{Binding BlockReason}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                </TabControl>
+            </Border>
+
+            <!-- Progress -->
+            <Border Padding="10" CornerRadius="{DynamicResource CardCornerRadius}"
+                    Background="{DynamicResource SurfaceElevatedBrush}" Style="{StaticResource SurfaceElevatedStyle}"
+                    Visibility="{Binding HasProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="{Binding ProgressLabel}" TextWrapping="Wrap" FontSize="{DynamicResource FontSize.BodySmall}"/>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

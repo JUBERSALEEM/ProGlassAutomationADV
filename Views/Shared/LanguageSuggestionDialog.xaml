@@ -1,0 +1,93 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Shared/LanguageSuggestionDialog.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Shared — first-launch regional language offer
+
+     Deliberately bilingual and NOT localized: the whole point is that the
+     user may not read the current UI language, so the offer shows the
+     target language in its NATIVE script next to English. Binding these
+     to {DynamicResource} would defeat that.
+
+     2026-09 dialog audit: rebuilt on the shared ThemedDialogWindow chrome
+     (previously an OS-framed window with a bespoke card brush). The native
+     script, explanation and buttons are intentionally left un-localized.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.Shared.LanguageSuggestionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+        Title="Language"
+        Width="480"
+        DialogIcon="&#xE774;"
+        ShowCloseButton="False"
+             FontFamily="{DynamicResource AppFontFamily}">
+
+    <StackPanel>
+        <TextBlock Text="Choose your language"
+                   FontSize="{DynamicResource FontSize.H3}"
+                   FontWeight="{DynamicResource Weight.Bold}"
+                   Foreground="{DynamicResource TextPrimaryBrush}"
+                   HorizontalAlignment="Center"
+                   TextWrapping="Wrap"
+                   TextAlignment="Center"/>
+
+        <!-- Native-script line: the reason this dialog is not localized. -->
+        <TextBlock x:Name="NativePromptText"
+                   FontSize="{DynamicResource FontSize.Title}"
+                   FontWeight="{DynamicResource Weight.SemiBold}"
+                   Foreground="{DynamicResource AccentBrush}"
+                   HorizontalAlignment="Center"
+                   TextWrapping="Wrap"
+                   TextAlignment="Center"
+                   Margin="0,6,0,0"/>
+
+        <TextBlock x:Name="ExplainText"
+                   FontSize="{DynamicResource FontSize.Body}"
+                   Foreground="{DynamicResource TextTertiaryBrush}"
+                   HorizontalAlignment="Center"
+                   TextWrapping="Wrap"
+                   TextAlignment="Center"
+                   Margin="0,6,0,0"/>
+
+        <TextBlock Text="You can change this any time in Settings › Appearance."
+                   FontSize="{DynamicResource FontSize.Body}"
+                   Foreground="{DynamicResource TextTertiaryBrush}"
+                   HorizontalAlignment="Center"
+                   TextWrapping="Wrap"
+                   TextAlignment="Center"
+                   Margin="0,8,0,0"/>
+    </StackPanel>
+
+    <dialogs:ThemedDialogWindow.FooterContent>
+        <Grid HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="KeepEnglishButton"
+                    Grid.Column="0"
+                    Content="Keep English"
+                    MinHeight="{DynamicResource DensityInputHeight}"
+                    Cursor="Hand"
+                    IsCancel="True"
+                    Click="KeepEnglish_Click"
+                    Background="{DynamicResource SurfaceElevatedBrush}"
+                    Foreground="{DynamicResource TextPrimaryBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
+                    BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource PrimaryButtonStyle}"/>
+
+            <Button x:Name="SwitchButton"
+                    Grid.Column="2"
+                    MinHeight="{DynamicResource DensityInputHeight}"
+                    Cursor="Hand"
+                    IsDefault="True"
+                    Click="Switch_Click"
+                    Background="{DynamicResource AccentBrush}"
+                    Foreground="{DynamicResource OnAccentForegroundBrush}"
+                    BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}"/>
+        </Grid>
+    </dialogs:ThemedDialogWindow.FooterContent>
+</dialogs:ThemedDialogWindow>

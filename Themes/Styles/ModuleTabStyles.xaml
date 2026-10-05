@@ -1,0 +1,429 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Styles/ModuleTabStyles.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Shared — module tab strip + God View styles
+
+     Styles powering the tab-switch pattern added to the Delivery Note,
+     Job Order and Tax Invoice modules:
+
+        [ Workspace ]   [ God View ]   [ Activity ]
+
+     • ModuleTabStripStyle   — the rounded container behind the tabs
+     • ModuleTabButtonStyle  — pill tab button (activate-state styling
+                               is added per-button via DataTriggers in
+                               each module view, bound to the shell VM's
+                               IsGodView / IsActivityView flags)
+     • GodKpiCardTemplate    — KPI stat tile used in every God View
+     • GodViewGridStyle      — themed DataGrid for the overview tables
+
+     Registered globally from App.xaml — reference via StaticResource.
+═══════════════════════════════════════════════════════════════════════ -->
+
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
+
+    <!-- ══ TAB STRIP CONTAINER — floating transparent glass ══════════ -->
+    <Style x:Key="ModuleTabStripStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Background"
+                Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="CornerRadius"
+                Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Effect" Value="{StaticResource ShadowSoft}"/>
+    </Style>
+
+    <!-- ══ TAB BUTTON — layered glass pill with spring press animation ═══
+         Active state is set per-view via DataTriggers on Background/
+         Foreground/BorderBrush (bound to IsGodView/IsActivityView flags).
+         Inactive = transparent glass pill, Active = accent glass pill. -->
+    <Style x:Key="ModuleTabButtonStyle" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="20,10"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Background"
+                Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource GlassBorderGradientSoft}"/>
+        <Setter Property="Foreground"
+                Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="RootGrid">
+                        <Grid.RenderTransform>
+                            <ScaleTransform ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
+                        </Grid.RenderTransform>
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <Grid>
+                                <!-- Specular highlight (top edge) -->
+                                <Border x:Name="Specular" Height="1"
+                                        VerticalAlignment="Top"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
+                                        Background="{DynamicResource GlassSpecularHighlight}"
+                                        Margin="1,0,1,0" Opacity="0.4"
+                                        IsHitTestVisible="False"/>
+                                <!-- Top glare -->
+                                <Border x:Name="Glare" Height="10"
+                                        CornerRadius="{DynamicResource Radius.Top.Medium}"
+                                        VerticalAlignment="Top"
+                                        Background="{DynamicResource GlassTopReflectionGradient}"
+                                        Opacity="0.3"
+                                        Margin="1,1,1,0"
+                                        IsHitTestVisible="False"/>
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource AccentBrush}"/>
+                            <Setter Property="BorderBrush"
+                                    Value="{DynamicResource GlassBorderGradientCrystal}"/>
+                            <Setter TargetName="Glare" Property="Opacity" Value="0.5"/>
+                            <Setter TargetName="Specular" Property="Opacity" Value="0.6"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ══ GOD VIEW — KPI CARD TEMPLATE ═══════════════════════════════
+         Binds to GodViewKpiViewModel:
+           Icon, Value, Label, TintBrushKey, ValueBrushKey
+         Brush keys resolve through the shared BrushKeyConverter so
+         cards follow the active theme automatically.
+    ═══════════════════════════════════════════════════════════════════ -->
+    <DataTemplate x:Key="GodKpiCardTemplate">
+        <Border Width="190"
+                CornerRadius="{DynamicResource CardCornerRadius}"
+                Padding="16,14"
+                Margin="0,0,12,12"
+                BorderThickness="{DynamicResource CardBorderThickness}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                Background="{Binding TintBrushKey,
+                             Converter={StaticResource BrushKeyConverter}}"
+                SnapsToDevicePixels="True">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Grid.Column="0"
+                        Width="40" Height="40"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Background="{DynamicResource SurfacePrimaryBrush}"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Icon}"
+                               FontSize="{DynamicResource FontSize.H2}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Column="1"
+                            Margin="12,0,0,0"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Value}"
+                               FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
+                               Foreground="{Binding ValueBrushKey,
+                                            Converter={StaticResource BrushKeyConverter}}"
+                               TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Text="{Binding Label}"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               Margin="0,2,0,0"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <!-- ══ GOD VIEW — THEMED DATAGRID ═════════════════════════════════ -->
+    <Style x:Key="GodViewGridStyle" TargetType="DataGrid" BasedOn="{StaticResource ErpDataGridStyle}">
+        <Setter Property="AutoGenerateColumns" Value="False"/>
+        <Setter Property="IsReadOnly" Value="True"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
+        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+        <Setter Property="RowBackground"
+                Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="AlternatingRowBackground"
+                Value="{DynamicResource SurfaceTertiaryBrush}"/>
+        <Setter Property="Foreground"
+                Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="RowHeight" Value="{DynamicResource DensityRowHeight}"/>
+        <Setter Property="SelectionMode" Value="Single"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="CanUserDeleteRows" Value="False"/>
+    </Style>
+
+    <!-- Column header look for the God View grids -->
+    <!-- v2: DataGrid column headers match the Proforma-list reference —
+         solid accent bar with bold on-accent labels. -->
+    <Style x:Key="GodViewHeaderStyle" TargetType="DataGridColumnHeader">
+        <Setter Property="Background"
+                Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground"
+                Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Padding" Value="12,10"/>
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <!-- 2026-09-14: SEMANTIC COLUMN ALIGNMENT — the app-wide standard for
+         themed DataGrids (production stations, God Views). The header
+         alignment ALWAYS matches the cell alignment:
+           money  -> right,  counts/status/priority -> center, text -> left;
+         every cell vertically centered. Header styles override the base
+         GodViewHeaderStyle content alignment; cell styles set the TextBlock. -->
+    <Style x:Key="GodViewCenterHeaderStyle" TargetType="DataGridColumnHeader"
+           BasedOn="{StaticResource GodViewHeaderStyle}">
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="GodViewRightHeaderStyle" TargetType="DataGridColumnHeader"
+           BasedOn="{StaticResource GodViewHeaderStyle}">
+        <Setter Property="HorizontalContentAlignment" Value="Right"/>
+    </Style>
+    <Style x:Key="GodViewLeftCellTextStyle" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="GodViewCenterCellTextStyle" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="GodViewRightCellTextStyle" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- 2026-09-14: WORK CENTER / CONTROL CENTER mini DataGrids use the same
+         semantic standard as the themed grids: counts/percent/flags center,
+         free text left, every cell vertically centered; header alignment
+         always matches the cell alignment. -->
+    <Style x:Key="WorkCenterCenterHeaderStyle" TargetType="DataGridColumnHeader">
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="WorkCenterCenterCellTextStyle" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="WorkCenterLeftCellTextStyle" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         UNIFIED TAB SYSTEM — for use by any module's tab navigation.
+         Active tab: accent glass pill with bright foreground.
+         Inactive tab: transparent glass pill with muted foreground.
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- Active tab — accent glass surface, white text -->
+    <Style x:Key="LiquidGlassTabActive" TargetType="Button" BasedOn="{StaticResource ModuleTabButtonStyle}">
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+    </Style>
+
+    <!-- Inactive tab — transparent glass, secondary text -->
+    <Style x:Key="LiquidGlassTabInactive" TargetType="Button" BasedOn="{StaticResource ModuleTabButtonStyle}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+    </Style>
+
+    <!-- Tab container (glass pill strip) -->
+    <Style x:Key="LiquidGlassTabContainer" TargetType="Border" BasedOn="{StaticResource ModuleTabStripStyle}"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         PILL TAB CONTROL — modern rounded pill tabs for TabControl.
+         Used by JobProfitabilityView and ProfitLossStepView.
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- Individual pill tab item — rounded border, accent when selected -->
+    <Style x:Key="PillTabItemStyle" TargetType="TabItem">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="18,9"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabItem">
+                    <Border x:Name="TabBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
+                            Padding="{TemplateBinding Padding}"
+                            Margin="{TemplateBinding Margin}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter x:Name="ContentSite"
+                                          ContentSource="Header"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          TextBlock.Foreground="{TemplateBinding Foreground}"
+                                          TextBlock.FontSize="{TemplateBinding FontSize}"
+                                          TextBlock.FontWeight="{TemplateBinding FontWeight}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="TabBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsSelected" Value="False"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Pill tab control — horizontal pill bar, no border, animated content -->
+    <Style x:Key="PillTabControlStyle" TargetType="TabControl">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabControl">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <!-- Pill tab bar -->
+                        <StackPanel Grid.Row="0"
+                                    IsItemsHost="True"
+                                    Orientation="Horizontal"
+                                    Margin="0,0,0,14"/>
+                        <!-- Tab content with fade transition -->
+                        <Border Grid.Row="1"
+                                Background="Transparent"
+                                BorderThickness="{DynamicResource Border.NoneThickness}">
+                            <ContentPresenter x:Name="PART_SelectedContentHost"
+                                              ContentSource="SelectedContent">
+                                <ContentPresenter.RenderTransform>
+                                    <TranslateTransform x:Name="ContentTranslate" X="0" Y="0"/>
+                                </ContentPresenter.RenderTransform>
+                            </ContentPresenter>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ═══ KPI TILE HOVER LIFT — subtle scale on mouse-over ═══════ -->
+    <Style x:Key="KpiTileHoverStyle" TargetType="Border" BasedOn="{StaticResource ErpKpiSurfaceStyle}">
+
+        <Setter Property="Padding" Value="18,14"/>
+        <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Trigger.EnterActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                             To="1.02" Duration="0:0:0.15">
+                                <DoubleAnimation.EasingFunction>
+                                    <CubicEase EasingMode="EaseOut"/>
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                             To="1.02" Duration="0:0:0.15">
+                                <DoubleAnimation.EasingFunction>
+                                    <CubicEase EasingMode="EaseOut"/>
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                             To="0.95" Duration="0:0:0.1"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                             To="1" Duration="0:0:0.2">
+                                <DoubleAnimation.EasingFunction>
+                                    <CubicEase EasingMode="EaseOut"/>
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                             To="1" Duration="0:0:0.2">
+                                <DoubleAnimation.EasingFunction>
+                                    <CubicEase EasingMode="EaseOut"/>
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                             To="1" Duration="0:0:0.15"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.ExitActions>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>

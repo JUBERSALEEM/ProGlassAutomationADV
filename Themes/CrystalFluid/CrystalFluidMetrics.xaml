@@ -1,0 +1,114 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- =====================================================
+         CRYSTAL FLUID DESIGN SYSTEM — METRIC TOKENS
+         ===================================================== -->
+
+    <!-- ─── CORNER RADII ─── -->
+
+    <CornerRadius x:Key="CrystalRadiusXLarge">32</CornerRadius>
+    <CornerRadius x:Key="CrystalRadiusLarge">30</CornerRadius>
+    <CornerRadius x:Key="CrystalRadiusMediumLarge">25</CornerRadius>
+    <CornerRadius x:Key="CrystalRadiusMedium">17</CornerRadius>
+    <CornerRadius x:Key="CrystalRadiusSmall">15</CornerRadius>
+    <CornerRadius x:Key="CrystalRadiusXSmall">13</CornerRadius>
+    <CornerRadius x:Key="CrystalRadiusPill">99</CornerRadius>
+
+    <!-- ─── BORDER THICKNESS ─── -->
+
+    <Thickness x:Key="CrystalBorderThickness">1</Thickness>
+
+    <!-- ─── PADDING ─── -->
+
+    <Thickness x:Key="CrystalCardPadding">20</Thickness>
+    <Thickness x:Key="CrystalCardPaddingCompact">15</Thickness>
+    <Thickness x:Key="CrystalKpiPadding">18</Thickness>
+    <Thickness x:Key="CrystalSidebarPadding">18</Thickness>
+    <Thickness x:Key="CrystalTopBarPadding">12,12,18,12</Thickness>
+    <Thickness x:Key="CrystalButtonPadding">10,10,15,10</Thickness>
+    <Thickness x:Key="CrystalButtonPaddingWide">12,10,18,10</Thickness>
+    <Thickness x:Key="CrystalInputPadding">12,10,12,10</Thickness>
+    <Thickness x:Key="CrystalNavItemPadding">12</Thickness>
+    <Thickness x:Key="CrystalPillPadding">4,4,8,4</Thickness>
+    <Thickness x:Key="CrystalListItemPadding">10</Thickness>
+    <Thickness x:Key="CrystalCellPadding">12,12,10,12</Thickness>
+
+    <!-- ─── MARGINS ─── -->
+
+    <Thickness x:Key="CrystalSidebarMargin">16</Thickness>
+    <Thickness x:Key="CrystalCardGap">0,0,0,15</Thickness>
+    <Thickness x:Key="CrystalSectionGap">0,0,0,16</Thickness>
+
+    <!-- ─── SIZING ─── -->
+
+    <sys:Double x:Key="CrystalSidebarWidth">250</sys:Double>
+    <sys:Double x:Key="CrystalSidebarCollapsedWidth">80</sys:Double>
+    <sys:Double x:Key="CrystalKpiHeight">155</sys:Double>
+    <sys:Double x:Key="CrystalTopBarMinHeight">72</sys:Double>
+    <sys:Double x:Key="CrystalIconSize">35</sys:Double>
+    <sys:Double x:Key="CrystalAvatarSize">38</sys:Double>
+    <sys:Double x:Key="CrystalLogoIconSize">45</sys:Double>
+    <sys:Double x:Key="CrystalListItemIconSize">38</sys:Double>
+    <sys:Double x:Key="CrystalProgressHeight">7</sys:Double>
+    <sys:Double x:Key="CrystalBubbleSize">6</sys:Double>
+    <sys:Double x:Key="CrystalStatusDotSize">6</sys:Double>
+
+    <!-- ─── TYPOGRAPHY ─── -->
+
+    <sys:Double x:Key="CrystalFontSizeH1">25</sys:Double>
+    <sys:Double x:Key="CrystalFontSizeH2">18</sys:Double>
+    <sys:Double x:Key="CrystalFontSizeTitle">14</sys:Double>
+    <sys:Double x:Key="CrystalFontSizeLogo">16</sys:Double>
+    <sys:Double x:Key="CrystalFontSizeBody">12</sys:Double>
+    <sys:Double x:Key="CrystalFontSizeSmall">11</sys:Double>
+    <sys:Double x:Key="CrystalFontSizeCaption">10</sys:Double>
+    <sys:Double x:Key="CrystalFontSizeValue">30</sys:Double>
+    <sys:Double x:Key="CrystalFontSizeLabel">10</sys:Double>
+    <sys:Double x:Key="CrystalFontSizeMoney">11</sys:Double>
+    <sys:Double x:Key="CrystalFontSizeIcon">22</sys:Double>
+
+    <!-- ─── ANIMATION DURATIONS ─── -->
+
+    <Duration x:Key="CrystalHoverDuration">0:0:0.20</Duration>
+    <Duration x:Key="CrystalTransitionDuration">0:0:0.30</Duration>
+    <Duration x:Key="CrystalWaterLevelDuration">0:0:1.5</Duration>
+    <Duration x:Key="CrystalWaterWaveDuration">0:0:9</Duration>
+    <Duration x:Key="CrystalCausticDuration">0:0:11</Duration>
+    <Duration x:Key="CrystalBubbleDuration">0:0:8</Duration>
+    <Duration x:Key="CrystalAmbientDuration">0:0:18</Duration>
+
+    <!-- ─── OPACITY ─── -->
+
+    <sys:Double x:Key="CrystalGlassOpacity">1.0</sys:Double>
+    <sys:Double x:Key="CrystalReflectionOpacity">0.95</sys:Double>
+    <sys:Double x:Key="CrystalWaterOpacity">1.0</sys:Double>
+    <sys:Double x:Key="CrystalCausticOpacity">0.70</sys:Double>
+    <sys:Double x:Key="CrystalBubbleMaxOpacity">0.70</sys:Double>
+
+    <!-- ─── SHADOW DEPTHS ─── -->
+
+    <sys:Double x:Key="CrystalShadowBlurRadius">60</sys:Double>
+    <sys:Double x:Key="CrystalShadowDepth">22</sys:Double>
+    <sys:Double x:Key="CrystalShadowSmallBlurRadius">20</sys:Double>
+    <sys:Double x:Key="CrystalShadowSmallDepth">8</sys:Double>
+
+    <!-- ─── DEFAULT WATER LEVELS ─── -->
+
+    <sys:Double x:Key="CrystalDefaultWaterLevel">0.30</sys:Double>
+
+    <!-- ═════════════════════════════════════════════════════════════════
+         INTEGRATION ADDITIONS (Ios-17pm P2) — nouns the shipped
+         templates need that the authored set omits. Additions only;
+         no authored value above is overridden. The battery's
+         key-closure/audit tests cover this file end to end.
+         ═════════════════════════════════════════════════════════════════ -->
+    <sys:Double x:Key="CrystalOpacityDisabled">0.45</sys:Double>
+    <sys:Double x:Key="CrystalGridDataRowHeight">44</sys:Double>
+    <sys:Double x:Key="CrystalGridHeaderHeight">42</sys:Double>
+    <sys:Double x:Key="CrystalScrollBarSize">8</sys:Double>
+    <CornerRadius x:Key="CrystalRadiusScrollBar">4</CornerRadius>
+
+</ResourceDictionary>

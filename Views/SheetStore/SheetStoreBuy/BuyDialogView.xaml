@@ -1,0 +1,173 @@
+<!-- ═══════════════════════════════════════════════════════════════
+     BUY STOCK DIALOG — Indigo Studio Bento Redesign
+     Clean Bento cards, standardized 36px controls, tabular numbers.
+═══════════════════════════════════════════════════════════════ -->
+<dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreBuy.BuyDialogView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+        xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+        Title="{DynamicResource SheetStore.BUYStock}"
+        Width="500"
+        DialogIcon="&#xE7B8;"
+        DialogSubtitle="{DynamicResource SheetStore.AddMoreSheetsInventory}"
+        FontFamily="{DynamicResource AppFontFamily}">
+
+    <StackPanel>
+        <!-- Card 1: Current Sheet Status -->
+        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,12">
+            <StackPanel>
+                <TextBlock Text="{Binding Sheet.Category}"
+                           Style="{StaticResource Ov.CardTitle}"
+                           Foreground="{DynamicResource AccentBrush}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                    <TextBlock Text="{Binding Sheet.ThicknessDisplay}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,10,0"/>
+                    <TextBlock Text="{Binding Sheet.Color}" FontSize="{DynamicResource FontSize.Body}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,10,0"/>
+                    <TextBlock Text="{Binding Sheet.SizeDisplay}" FontSize="{DynamicResource FontSize.Body}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                </StackPanel>
+
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="0,0,4,0">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource SheetStore.TotalStock}" Style="{StaticResource Ov.Meta}"/>
+                            <TextBlock Text="{Binding Sheet.Stock}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Background="{DynamicResource Ov.DangerSoft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="2,0">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource SheetStore.Used}" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource DangerBrush}"/>
+                            <TextBlock Text="{Binding Sheet.Used}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="2" Background="{DynamicResource Ov.SuccessSoft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="4,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource SheetStore.Balance}" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource SuccessBrush}"/>
+                            <TextBlock Text="{Binding Sheet.Balance}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Card 2: Quantity Selector -->
+        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,12">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource SheetStore.QuantitySheets}"
+                           Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}"
+                           Margin="0,0,0,8"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="48"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="48"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
+                            Height="40" Content="−" FontSize="{DynamicResource FontSize.H3}"
+                            ToolTip="{DynamicResource SheetStore.DecreaseQuantity}"
+                            Command="{Binding DecreaseCommand}"/>
+                    <TextBox Grid.Column="1"
+                             Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
+                             behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
+                             behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
+                             FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}" TextAlignment="Center"
+                             VerticalContentAlignment="Center" Height="40"
+                             Background="{DynamicResource Ov.Soft}"
+                             Foreground="{DynamicResource TextPrimaryBrush}"
+                             BorderThickness="0"
+                             Margin="8,0">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasQuantityError}" Value="True">
+                                        <Setter Property="BorderThickness" Value="2"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
+                            Height="40" Content="+" FontSize="{DynamicResource FontSize.H3}"
+                            ToolTip="{DynamicResource SheetStore.IncreaseQuantity}"
+                            Command="{Binding IncreaseCommand}"/>
+                </Grid>
+
+                <TextBlock Text="{Binding QuantityError}"
+                           Foreground="{DynamicResource DangerBrush}"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
+                           TextWrapping="Wrap"
+                           Margin="0,6,0,0"
+                           Visibility="{Binding HasQuantityError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Card 3: Purchase Impact & Cost Preview -->
+        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,6">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource SheetStore.PurchasePreview}"
+                           Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}"
+                           Margin="0,0,0,8"/>
+                <DockPanel Margin="0,0,0,4">
+                    <TextBlock Text="{DynamicResource DeliveryNote.TotalSQM}" Style="{StaticResource Ov.Meta}"/>
+                    <TextBlock Text="{Binding TotalSqm, Converter={StaticResource CurrencyConverter}, ConverterParameter=area}"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Right"/>
+                </DockPanel>
+                <DockPanel Margin="0,0,0,4">
+                    <TextBlock Text="{DynamicResource SheetStore.NewTotalStock}" Style="{StaticResource Ov.Meta}"/>
+                    <TextBlock Text="{Binding NewStockAfterBuy}"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Right"/>
+                </DockPanel>
+                <DockPanel Margin="0,0,0,8">
+                    <TextBlock Text="{DynamicResource SheetStore.NewBalanceAvailable}" Style="{StaticResource Ov.Meta}"/>
+                    <TextBlock Text="{Binding NewBalanceAfterBuy}"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right"/>
+                </DockPanel>
+                <Border Height="1" Background="{DynamicResource Ov.Line}" Margin="0,2,0,8"/>
+                <DockPanel>
+                    <TextBlock Text="{DynamicResource JobProfitability.TotalCOST}"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                    <Viewbox MaxHeight="26" HorizontalAlignment="Right">
+                        <TextBlock Text="{Binding TotalCost, Converter={StaticResource CurrencyConverter}, ConverterParameter=suffix}"
+                                   Style="{StaticResource Ov.Value}" Foreground="{DynamicResource DangerBrush}"/>
+                    </Viewbox>
+                </DockPanel>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+
+    <dialogs:ThemedDialogWindow.FooterContent>
+        <Grid Margin="0,4,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
+                    Height="36"
+                    Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
+                    ToolTip="{DynamicResource SheetStore.CloseWithoutBuying}"
+                    Command="{Binding CancelCommand}"
+                    IsCancel="True"/>
+            <Button Grid.Column="2" Style="{StaticResource SuccessPillButton}"
+                    Height="36"
+                    Tag="&#xE73E;" Content="{DynamicResource SheetStore.ConfirmPurchase}"
+                    ToolTip="{DynamicResource SheetStore.ConfirmAddStock}"
+                    Command="{Binding ConfirmCommand}"
+                    IsDefault="True"/>
+        </Grid>
+    </dialogs:ThemedDialogWindow.FooterContent>
+</dialogs:ThemedDialogWindow>

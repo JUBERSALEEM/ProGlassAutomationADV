@@ -1,0 +1,687 @@
+<!-- ════════════════════════════════════════════════════════════════════
+     FILE: Views/Optimization/Tabs/CutListTabView.xaml
+     MODULE: Optimization — CUT LIST tab (hosted by OptimizationView).
+     DataContext = OptimizationViewModel (inherited from the shell).
+
+     WHY THIS TAB EXISTS
+     Until now the only way to feed the engine was a confirmed Job Order on
+     the JOBS tab. This is the standalone entry point: build a specification,
+     type or paste a cut list, send it to the engine, add racks on STOCKS,
+     run, read the result. No proforma invoice involved — the way a normal
+     cutting-optimization app works.
+
+     AN INNER WORKSPACE, NOT A FOURTH GRID
+     Three panes — SPECIFICATIONS, CUT LIST, RESULT — because those are the
+     three things someone with no job order has to touch. The module's other
+     tabs (STOCKS, SETTINGS, 2D VIEW, REPORT) are offered on the same strip
+     as JUMPS rather than hosted a second time: they belong to the module, not
+     to this list, and a duplicate instance of each would mean two live copies,
+     double Loaded handlers and two sets of bindings over one view model.
+
+     THE GRID IS Step 5's, NOT A COPY
+     The rows are bound to OptimizationViewModel.ManualCutList, which is a
+     ProformaInvoice SpecGroup — the same grid engine Step 5 uses. That is what
+     makes the cell-anchored Excel paste work here: the ListView's DataContext
+     is set to the SpecGroup so DataGridNavigationBehavior can find it as an
+     IExcelPasteable, exactly as it does in Step 5. Paste a single GLASS REF
+     column, a W1/H1 pair, or all six across — click the cell you want to start
+     at, then Ctrl+V.
+
+     COLOUR IS READ, NOT TYPED
+     The two COLOUR columns show the specification's outer and inner colour,
+     reached through the ListView's DataContext. They are the same value down
+     every row on purpose: in this data model colour belongs to the
+     specification, not to the row, and the engine groups pieces by exactly
+     that. Editing them per row would produce a list the engine cannot group.
+
+     COLUMN DEFINITIONS ARE DECLARED IDENTICALLY IN THREE PLACES
+     (header, row template, footer). These tables are hand-built Grids, so the
+     only thing keeping a label over its own column is the two definitions
+     agreeing. Step 6's charges tables drifted apart and the headers sat
+     visibly off their numbers; a test now parses and compares all three.
+
+     INDEX 7, DISPLAYED SECOND
+     The rail shows this tab straight after SIZES, but its SelectedTabIndex is
+     7 — the last value. See the note on TabIndexCutList in
+     OptimizationViewModel.CutList.cs.
+════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Optimization.Tabs.CutListTabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:controls="clr-namespace:ProGlassAutomation.Controls.AutoCompleteTextBox"
+             FontFamily="{DynamicResource AppFontFamily}"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=7}"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+
+        <Border Style="{StaticResource OptPanelCard}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- ── title: what this list is, and what it is made of ──── -->
+                <Grid Grid.Row="0" Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="MANUAL CUT LIST"
+                               Style="{StaticResource OptPanelTitle}" VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                VerticalAlignment="Center" Margin="14,0,0,0">
+                        <TextBlock Text="{Binding PieceSummary}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding CutListCompositionDisplay}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   VerticalAlignment="Center" Margin="14,0,0,0"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="What every piece on this list is cut from — the composition the engine groups by, and the two pane colours. Set both on the SPECIFICATIONS pane."/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ── inner rail: three panes, then jumps to the module ─── -->
+                <Border Grid.Row="1" BorderBrush="{DynamicResource DividerBrush}"
+                        BorderThickness="{DynamicResource Border.TopHairlineThickness}"
+                        Padding="0,8" Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton Content="SPECIFICATIONS" Tag="&#xE70F;"
+                                     IsChecked="{Binding CutListPaneIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
+                                     Style="{StaticResource OptRailTab}" Margin="0,0,8,0"
+                                     ToolTip="Build the specification this list is cut from, and save it to the catalogue."/>
+                        <RadioButton Content="CUT LIST" Tag="&#xE821;"
+                                     IsChecked="{Binding CutListPaneIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
+                                     Style="{StaticResource OptRailTab}" Margin="0,0,8,0"
+                                     ToolTip="The sizes. Type them, or paste a block straight out of Excel."/>
+                        <RadioButton Content="RESULT" Tag="&#xE7B8;"
+                                     IsChecked="{Binding CutListPaneIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
+                                     Style="{StaticResource OptRailTab}" Margin="0,0,14,0"
+                                     ToolTip="What the last run made of this list."/>
+
+                        <Border Width="1" Background="{DynamicResource DividerBrush}"
+                                Margin="0,2,14,2"/>
+
+                        <TextBlock Text="MODULE" Style="{StaticResource OptHeader}"
+                                   VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <Button Content="STOCKS" Command="{Binding JumpToOptimizationTabCommand}" CommandParameter="2"
+                                Style="{StaticResource OptGhostButton}" Margin="0,0,6,0"
+                                ToolTip="Opens the STOCKS tab — the racks this list is cut from. Shared by the whole module, so it is one tab, not a copy of it here."/>
+                        <Button Content="SETTINGS" Command="{Binding JumpToOptimizationTabCommand}" CommandParameter="3"
+                                Style="{StaticResource OptGhostButton}" Margin="0,0,6,0"
+                                ToolTip="Opens the SETTINGS tab — margins, kerf, rotation and effort."/>
+                        <Button Content="2D VIEW" Command="{Binding JumpToOptimizationTabCommand}" CommandParameter="5"
+                                Style="{StaticResource OptGhostButton}" Margin="0,0,6,0"
+                                ToolTip="Opens the 2D VIEW tab — the layouts sheet by sheet."/>
+                        <Button Content="REPORT" Command="{Binding JumpToOptimizationTabCommand}" CommandParameter="6"
+                                Style="{StaticResource OptGhostButton}"
+                                ToolTip="Opens the REPORT tab — export the cutting list and layouts."/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ══ panes ══════════════════════════════════════════════ -->
+                <Grid Grid.Row="2">
+
+                    <!-- ── PANE 0: SPECIFICATIONS ───────────────────────── -->
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CutListPaneIndex}" Value="0">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel Margin="0,2,0,4">
+                                <TextBlock Text="What every piece on this list is cut from. The grid's two COLOUR columns and the composition the engine groups by are both read from here — nothing on this pane has to be repeated per row."
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           TextWrapping="Wrap" Margin="0,0,0,12"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="24"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Dg.GlassType}"
+                                               Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,10,8"/>
+                                    <ComboBox Grid.Row="0" Grid.Column="1" MaxWidth="220" HorizontalAlignment="Left"
+                                              ItemsSource="{Binding CutListGlassTypeOptions}"
+                                              SelectedItem="{Binding ManualCutList.SelectedGlassType}"
+                                              Style="{StaticResource OptComboStyle}" MinWidth="140" Margin="0,0,0,8"
+                                              ToolTip="Build type. Decides the perimeter factor new rows get, and which specifications the catalogue offers below."/>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="3" Text="{DynamicResource Dg.Specification}"
+                                               Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,10,8"/>
+                                    <controls:AutoCompleteTextBox Grid.Row="0" Grid.Column="4" MaxWidth="320"
+                                                                  HorizontalAlignment="Left" Margin="0,0,0,8"
+                                                                  ItemsSource="{Binding ManualCutList.FilteredSpecs}"
+                                                                  Text="{Binding ManualCutList.SpecTypedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                  SelectedItem="{Binding ManualCutList.SelectedSpecItem, Mode=TwoWay}"
+                                                                  IsDropDownOpen="{Binding ManualCutList.IsSpecDropdownOpen, Mode=TwoWay}"
+                                                                  DisplayMemberPath="SpecName"
+                                                                  ToolTip="Pick a saved specification, or just type one. The text left here becomes the cutting group, which is what the engine groups pieces by."/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="SPEC NAME"
+                                               Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,10,8"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" MaxWidth="220" HorizontalAlignment="Left"
+                                             Text="{Binding CutListSpecName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OptIntInput}" MinWidth="140" Margin="0,0,0,8"
+                                             ToolTip="The name this specification is saved under, and the key the catalogue deduplicates on."/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="3" Text="PRICE / M²"
+                                               Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,10,8"/>
+                                    <TextBox Grid.Row="1" Grid.Column="4" MaxWidth="320" HorizontalAlignment="Left"
+                                             Text="{Binding CutListSpecPriceText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OptIntInput}" MinWidth="140" Margin="0,0,0,8"
+                                             ToolTip="Stored with the specification, so a manual job prices the same way next time."/>
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="THICKNESS (MM)"
+                                               Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,10,8"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" MaxWidth="220" HorizontalAlignment="Left"
+                                             Text="{Binding CutListSpecThicknessText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OptIntInput}" MinWidth="140" Margin="0,0,0,8"
+                                             ToolTip="Glass thickness stored with the specification. This is NOT the saw margin — that lives on SETTINGS."/>
+
+                                    <TextBlock Grid.Row="2" Grid.Column="3" Text="OUTER COLOUR"
+                                               Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,10,8"/>
+                                    <TextBox Grid.Row="2" Grid.Column="4" MaxWidth="320" HorizontalAlignment="Left"
+                                             Text="{Binding ManualCutList.OuterGlassColor, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                             Style="{StaticResource OptIntInput}" MinWidth="140" Margin="0,0,0,8"
+                                             ToolTip="Shows in the grid's COLOUR 1 column, beside W1 and H1."/>
+
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="INNER COLOUR"
+                                               Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,10,8"/>
+                                    <TextBox Grid.Row="3" Grid.Column="1" MaxWidth="220" HorizontalAlignment="Left"
+                                             Text="{Binding ManualCutList.InnerGlassColor, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                             Style="{StaticResource OptIntInput}" MinWidth="140" Margin="0,0,0,8"
+                                             ToolTip="Shows in the grid's COLOUR 2 column, beside W2 and H2. Only the inner pane of a DGU or LAM has one."/>
+
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="SPEC SHEET W (MM)"
+                                               Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,10,8"/>
+                                    <TextBox Grid.Row="4" Grid.Column="1" MaxWidth="220" HorizontalAlignment="Left"
+                                             Text="{Binding ManualCutList.OuterSheetWidthMm, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                             Style="{StaticResource OptIntInput}" MinWidth="140" Margin="0,0,0,8"
+                                             ToolTip="The standard sheet size stored with this specification. The sizes THIS run cuts from are the racks on STOCKS — changing this does not change them."/>
+
+                                    <TextBlock Grid.Row="4" Grid.Column="3" Text="SPEC SHEET H (MM)"
+                                               Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,10,8"/>
+                                    <TextBox Grid.Row="4" Grid.Column="4" MaxWidth="320" HorizontalAlignment="Left"
+                                             Text="{Binding ManualCutList.OuterSheetHeightMm, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                             Style="{StaticResource OptIntInput}" MinWidth="140" Margin="0,0,0,8"
+                                             ToolTip="The standard sheet size stored with this specification. The sizes THIS run cuts from are the racks on STOCKS — changing this does not change them."/>
+
+                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="INNER SHEET W (MM)"
+                                               Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBox Grid.Row="5" Grid.Column="1" MaxWidth="220" HorizontalAlignment="Left"
+                                             Text="{Binding ManualCutList.InnerSheetWidthMm, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                             Style="{StaticResource OptIntInput}" MinWidth="140"
+                                             ToolTip="Standard inner-pane sheet size stored with the specification."/>
+
+                                    <TextBlock Grid.Row="5" Grid.Column="3" Text="INNER SHEET H (MM)"
+                                               Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBox Grid.Row="5" Grid.Column="4" MaxWidth="320" HorizontalAlignment="Left"
+                                             Text="{Binding ManualCutList.InnerSheetHeightMm, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                             Style="{StaticResource OptIntInput}" MinWidth="140"
+                                             ToolTip="Standard inner-pane sheet size stored with the specification."/>
+                                </Grid>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                    <Button Command="{Binding SaveCutListSpecCommand}"
+                                            Content="SAVE TO CATALOGUE"
+                                            Style="{StaticResource OptPrimaryButton}"
+                                            IsEnabled="{Binding CanSaveCutListSpec}"
+                                            ToolTip="Writes this specification to the shared catalogue, so it is in the autocomplete in Step 4 and Step 5 too. Needs proforma edit rights — a refusal is reported on the status line below, not swallowed."/>
+                                    <TextBlock Text="Saves glass type, name, price, colour, thickness and sheet size. The cut list reads the specification back immediately."
+                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                               Foreground="{DynamicResource TextTertiaryBrush}"
+                                               VerticalAlignment="Center" Margin="14,0,0,0"
+                                               TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <!-- ── PANE 1: CUT LIST ─────────────────────────────── -->
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CutListPaneIndex}" Value="1">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- toolbar -->
+                        <Grid Grid.Row="0" Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBox Width="64"
+                                         Text="{Binding CutListRowCountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource OptIntInput}"
+                                         VerticalAlignment="Center"
+                                         ToolTip="How many blank rows GENERATE adds"/>
+                                <Button Command="{Binding GenerateCutListRowsCommand}"
+                                        Content="{DynamicResource Dg.Generate}"
+                                        Style="{StaticResource OptOutlinedButton}"
+                                        Height="32" Margin="8,0,0,0"
+                                        VerticalAlignment="Center"
+                                        ToolTip="Add the number of blank rows set in the box on the left. Existing rows are kept."/>
+                                <Button Command="{Binding ManualCutList.AddRowCommand}"
+                                        Content="{DynamicResource Dg.AddRowShort}"
+                                        Style="{StaticResource OptOutlinedButton}"
+                                        Height="32" Margin="8,0,0,0"
+                                        VerticalAlignment="Center"
+                                        ToolTip="Add one blank row to the end of the list."/>
+                                <Button Command="{Binding ClearCutListCommand}"
+                                        Content="CLEAR"
+                                        Style="{StaticResource OptGhostButton}"
+                                        Margin="8,0,0,0"
+                                        VerticalAlignment="Center"
+                                        ToolTip="Empties this list. Leaves the engine's piece list and the racks alone."/>
+                                <TextBlock Text="{DynamicResource Dg.PasteHint}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           Foreground="{DynamicResource TextTertiaryBrush}"
+                                           VerticalAlignment="Center" Margin="14,0,0,0"/>
+                            </StackPanel>
+
+                            <Button Grid.Column="2"
+                                    Command="{Binding SendCutListToEngineCommand}"
+                                    Content="SEND TO ENGINE"
+                                    Style="{StaticResource OptPrimaryButton}"
+                                    Height="34" MinWidth="170"
+                                    VerticalAlignment="Center"
+                                    ToolTip="Rebuilds the engine's piece list from this cut list — W1×H1 as the outer pane, W2×H2 as the inner. Replaces whatever the JOBS import put there, so sending twice cannot double the pieces. Racks on STOCKS are left as you set them."/>
+                        </Grid>
+
+                        <!-- column header -->
+                        <Border Grid.Row="1" Style="{StaticResource PiTableHeaderStyle}" Padding="6,5">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="36"/>
+                                    <ColumnDefinition Width="1.5*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.6*"/>
+                                    <ColumnDefinition Width="0.85*"/>
+                                    <ColumnDefinition Width="0.85*"/>
+                                    <ColumnDefinition Width="0.75*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="30"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{DynamicResource Dg.Hash}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="1" Text="{DynamicResource Dg.GlassRef}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="2" Text="COLOUR 1" Style="{StaticResource LineItemsHeaderTextStyle}"
+                                           ToolTip="Outer pane colour, read from the specification."/>
+                                <TextBlock Grid.Column="3" Text="{DynamicResource Dg.W1}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="4" Text="{DynamicResource Dg.H1}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="5" Text="COLOUR 2" Style="{StaticResource LineItemsHeaderTextStyle}"
+                                           ToolTip="Inner pane colour, read from the specification."/>
+                                <TextBlock Grid.Column="6" Text="{DynamicResource Dg.W2}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="7" Text="{DynamicResource Dg.H2}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="8" Text="{DynamicResource Dg.Qty}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="9" Text="SQM 1" Style="{StaticResource LineItemsHeaderTextStyle}"
+                                           ToolTip="Total area of W1×H1 × QTY — the outer pane."/>
+                                <TextBlock Grid.Column="10" Text="SQM 2" Style="{StaticResource LineItemsHeaderTextStyle}"
+                                           ToolTip="Total area of W2×H2 × QTY — the inner pane."/>
+                                <TextBlock Grid.Column="11" Text="QTY USED" Style="{StaticResource LineItemsHeaderTextStyle}"
+                                           ToolTip="Pieces of this row's sizes the last run actually placed. An em dash means no run yet; zero means the size did not fit."/>
+                                <TextBlock Grid.Column="12" Text="OPT %" Style="{StaticResource LineItemsHeaderTextStyle}"
+                                           ToolTip="Yield for this row from the last run: glass area over stock area across both panes, matched by size — rotated placements included."/>
+                            </Grid>
+                        </Border>
+
+                        <!-- rows -->
+                        <!-- DataContext is the SpecGroup itself: that is how
+                             DataGridNavigationBehavior finds the IExcelPasteable
+                             and gives this grid Step 5's paste, arrow-key
+                             navigation, Ctrl+Delete and fill-down. Every ListView
+                             setting below is the one Step 5 uses — load-bearing
+                             for that behavior, not decoration. -->
+                        <ListView Grid.Row="2"
+                                  DataContext="{Binding ManualCutList}"
+                                  ItemsSource="{Binding ItemRows}"
+                                  Background="Transparent"
+                                  BorderThickness="{DynamicResource Border.NoneThickness}"
+                                  Padding="0"
+                                  Margin="0"
+                                  MinHeight="120"
+                                  AllowDrop="False"
+                                  Focusable="True"
+                                  HorizontalAlignment="Stretch"
+                                  HorizontalContentAlignment="Stretch"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  ScrollViewer.CanContentScroll="False"
+                                  behaviors:DataGridNavigationBehavior.EnableExcelNav="True">
+                            <ListView.Template>
+                                <ControlTemplate TargetType="ListView">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Disabled">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </ControlTemplate>
+                            </ListView.Template>
+                            <ListView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical"/>
+                                </ItemsPanelTemplate>
+                            </ListView.ItemsPanel>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid HorizontalAlignment="Stretch">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="36"/>
+                                            <ColumnDefinition Width="1.5*"/>
+                                            <ColumnDefinition Width="0.7*"/>
+                                            <ColumnDefinition Width="0.7*"/>
+                                            <ColumnDefinition Width="0.7*"/>
+                                            <ColumnDefinition Width="0.7*"/>
+                                            <ColumnDefinition Width="0.7*"/>
+                                            <ColumnDefinition Width="0.7*"/>
+                                            <ColumnDefinition Width="0.6*"/>
+                                            <ColumnDefinition Width="0.85*"/>
+                                            <ColumnDefinition Width="0.85*"/>
+                                            <ColumnDefinition Width="0.75*"/>
+                                            <ColumnDefinition Width="0.7*"/>
+                                            <ColumnDefinition Width="30"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" Style="{StaticResource LineItemsSerialStyle}"/>
+                                        <TextBox Grid.Column="1" Text="{Binding GlassRef, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsTextCellStyle}" Margin="2,0" ToolTip="Glass reference for this row - the code the stock is ordered and costed under."/>
+                                        <TextBlock Grid.Column="2" Text="{Binding DataContext.OuterGlassColor, RelativeSource={RelativeSource AncestorType=ListView}}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                        <TextBox Grid.Column="3" Text="{Binding W1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsIntCellStyle}" Margin="2,0" ToolTip="Outer pane width in millimetres, finished size."/>
+                                        <TextBox Grid.Column="4" Text="{Binding H1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsIntCellStyle}" Margin="2,0" ToolTip="Outer pane height in millimetres, finished size."/>
+                                        <TextBlock Grid.Column="5" Text="{Binding DataContext.InnerGlassColor, RelativeSource={RelativeSource AncestorType=ListView}}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                        <TextBox Grid.Column="6" Text="{Binding W2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsIntCellStyle}" Margin="2,0" ToolTip="Inner pane width in millimetres, finished size. Leave at 0 for a single pane."/>
+                                        <TextBox Grid.Column="7" Text="{Binding H2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsIntCellStyle}" Margin="2,0" ToolTip="Inner pane height in millimetres, finished size. Leave at 0 for a single pane."/>
+                                        <TextBox Grid.Column="8" Text="{Binding Qty, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsIntCellStyle}" Margin="2,0" ToolTip="How many of this line to cut."/>
+                                        <TextBlock Grid.Column="9" Text="{Binding TotalSqm, StringFormat={}{0:0.000}}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                        <TextBlock Grid.Column="10" Text="{Binding TotalSqm2, StringFormat={}{0:0.000}}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                        <!-- Read-back from the last run. "—" and 0
+                                             are different answers and must not look
+                                             the same: no run yet, versus a size the
+                                             engine could not place. -->
+                                        <TextBlock Grid.Column="11">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource LineItemsReadonlyStyle}">
+                                                    <Setter Property="Text" Value="{Binding QtyUsed}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasOptimizationResult}" Value="False">
+                                                            <Setter Property="Text" Value="—"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="12">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource LineItemsReadonlyStyle}">
+                                                    <Setter Property="Text" Value="{Binding OptPercent, StringFormat={}{0:0.##}%}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasOptimizationResult}" Value="False">
+                                                            <Setter Property="Text" Value="—"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <Button Grid.Column="13"
+                                                Command="{Binding DataContext.RemoveRowCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource PiIconButtonStyle}"
+                                                ToolTip="{DynamicResource Dg.DeleteRow}">
+                                            <TextBlock Text="&#xE711;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource DangerBrush}"/>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <!-- autosums: same column definitions again, so each
+                             total lands under its own column -->
+                        <Border Grid.Row="3" BorderBrush="{DynamicResource DividerBrush}"
+                                BorderThickness="{DynamicResource Border.TopHairlineThickness}"
+                                Padding="6,6" Margin="0,6,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="36"/>
+                                    <ColumnDefinition Width="1.5*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="0.6*"/>
+                                    <ColumnDefinition Width="0.85*"/>
+                                    <ColumnDefinition Width="0.85*"/>
+                                    <ColumnDefinition Width="0.75*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="30"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Grid.ColumnSpan="8" Text="TOTAL"
+                                           Style="{StaticResource OptHeader}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="8" Text="{Binding ManualCutList.FooterTotalQty, Mode=OneWay}"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="9" Text="{Binding ManualCutList.FooterTotalSqm, StringFormat={}{0:0.000}, Mode=OneWay}"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="10" Text="{Binding ManualCutList.FooterTotalSqm2, StringFormat={}{0:0.000}, Mode=OneWay}"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- ── PANE 2: RESULT ───────────────────────────────── -->
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CutListPaneIndex}" Value="2">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel Margin="0,2,0,4">
+
+                                <!-- nothing run yet -->
+                                <TextBlock Text="No run yet. Send this list to the engine, add racks on STOCKS, then run QUICK or OPTIMIZE — the result lands here and in the grid's QTY USED and OPT % columns."
+                                           FontSize="{DynamicResource FontSize.Body}"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           TextWrapping="Wrap" Margin="0,4,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasResult}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+
+                                <!-- KPI chips -->
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12"
+                                            Visibility="{Binding HasResult, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+                                            <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </StackPanel.Resources>
+                                    <TextBlock Text="{Binding ResultStage}" Margin="0,0,18,0"/>
+                                    <TextBlock Text="{Binding ResultSheets}" Margin="0,0,18,0"
+                                               ToolTip="Sheets used"/>
+                                    <TextBlock Text="{Binding ResultUtilization}" Margin="0,0,18,0"
+                                               ToolTip="Utilization across the run"/>
+                                    <TextBlock Text="{Binding ResultWaste}" Margin="0,0,18,0"
+                                               ToolTip="Waste area"/>
+                                    <TextBlock Text="{Binding ResultUnplaced}"
+                                               Foreground="{DynamicResource DangerBrush}"
+                                               ToolTip="Pieces the engine could not place"/>
+                                </StackPanel>
+
+                                <!-- per cutting group -->
+                                <Border BorderBrush="{DynamicResource DividerBrush}"
+                                        BorderThickness="{DynamicResource Border.TopHairlineThickness}"
+                                        Padding="0,8,0,0"
+                                        Visibility="{Binding HasResult, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,6">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="1.6*"/>
+                                                <ColumnDefinition Width="0.7*"/>
+                                                <ColumnDefinition Width="0.7*"/>
+                                                <ColumnDefinition Width="0.7*"/>
+                                                <ColumnDefinition Width="0.9*"/>
+                                                <ColumnDefinition Width="0.9*"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="CUTTING GROUP" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Grid.Column="1" Text="THK" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Grid.Column="2" Text="PIECES" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Grid.Column="3" Text="SHEETS" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Grid.Column="4" Text="UTILIZATION" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Grid.Column="5" Text="WASTE" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Grid.Column="6" Text="UNPLACED" Style="{StaticResource OptHeader}"/>
+                                        </Grid>
+                                        <ItemsControl ItemsSource="{Binding GroupResults}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel>
+                                                        <Grid Margin="0,3">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="1.6*"/>
+                                                                <ColumnDefinition Width="0.7*"/>
+                                                                <ColumnDefinition Width="0.7*"/>
+                                                                <ColumnDefinition Width="0.7*"/>
+                                                                <ColumnDefinition Width="0.9*"/>
+                                                                <ColumnDefinition Width="0.9*"/>
+                                                                <ColumnDefinition Width="0.8*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" Text="{Binding Composition}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                            <TextBlock Grid.Column="1" Text="{Binding Thickness}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                            <TextBlock Grid.Column="2" Text="{Binding PieceCount}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                            <TextBlock Grid.Column="3" Text="{Binding Sheets}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                            <TextBlock Grid.Column="4" Text="{Binding Utilization}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                            <TextBlock Grid.Column="5" Text="{Binding Waste}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                            <TextBlock Grid.Column="6" Text="{Binding Unplaced}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                        </Grid>
+                                                        <TextBlock Text="{Binding Note}"
+                                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                                                   TextWrapping="Wrap" Margin="0,0,0,4"
+                                                                   Visibility="{Binding HasNote, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                    <Button Command="{Binding RefreshCutListResultsCommand}"
+                                            Content="RE-READ RUN"
+                                            Style="{StaticResource OptOutlinedButton}"
+                                            Height="32" Margin="0,0,8,0"
+                                            VerticalAlignment="Center"
+                                            ToolTip="Reads the run on screen back into the grid's QTY USED and OPT % columns. Runs do this themselves; this is for after hand-editing sizes."/>
+                                    <Button Command="{Binding JumpToOptimizationTabCommand}" CommandParameter="4"
+                                            Content="OPEN FULL SUMMARY"
+                                            Style="{StaticResource OptPrimaryButton}"
+                                            Height="32"
+                                            VerticalAlignment="Center"
+                                            ToolTip="The module's SUMMARY tab: the same run, with the full costing breakdown."/>
+                                </StackPanel>
+
+                                <TextBlock Text="QTY USED and OPT % are read from the run on screen, matched to each row by pane size — rotated placements included. They describe the last run, so hand-editing a size afterwards leaves the old figure until the next run or RE-READ RUN."
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           Foreground="{DynamicResource TextTertiaryBrush}"
+                                           TextWrapping="Wrap" Margin="0,10,0,0"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Grid>
+
+                <!-- ── status ───────────────────────────────────────────── -->
+                <TextBlock Grid.Row="3" Text="{Binding CutListStatus}"
+                           FontSize="{DynamicResource FontSize.Body}"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
+                           Foreground="{DynamicResource AccentBrush}"
+                           TextWrapping="Wrap" Margin="2,8,2,0"
+                           Visibility="{Binding HasCutListStatus, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

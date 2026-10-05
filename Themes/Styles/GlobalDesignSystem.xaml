@@ -1,0 +1,1361 @@
+<!--
+    FILE: Themes/Styles/GlobalDesignSystem.xaml
+    PROJECT: ProGlassAutomationADV — ONE AUTHORITATIVE DESIGN SYSTEM
+    VERSION: 2026-09-13 — Global UI Architecture
+    PURPOSE: Single source of truth for ALL visual tokens.
+    Replaces 7 competing card systems, 4 radius systems, 5 color systems.
+    ARCHITECTURE: Theme → Design Tokens → Global Styles → Controls → Cards/Surfaces → Every View
+    All tokens are DynamicResource so ThemeManager can publish at runtime.
+    LOAD ORDER: Must be merged LAST in App.xaml (after all other dictionaries) so it wins.
+    No view should define local visual tokens — all consume from here.
+    TOKENS:
+      - FontFamily: App (Segoe UI Variable), Icon (Segoe MDL2 Assets)
+      - FontWeight: Regular, Medium, SemiBold, Bold
+      - FontSize: Display, H1, H2, H3, Title, Subtitle, Body, BodySmall, Label, Caption, Kpi, Button, Navigation, DataGrid, Money, Icon
+      - Radius: Small=6, Medium=10, Large=12, XLarge=16, 2XLarge=20, Full=12, Control=12, Card=12, Dialog=16, Chip=12, Tab=12, Input=12, Panel=14, etc. (standard control surface = 12px; 999 capsules removed 2026-09-14)
+      - Border: Thin=1, Default=1, Strong=1.5
+      - Spacing: Xs=4, Sm=8, Md=12, Lg=16, Xl=24, 2Xl=32, 3Xl=40, Page, Card, Tile, Gutter
+      - Density: Density.* keys + runtime Density* (published by ThemeManager.ApplyDisplayDensity). Dashboard geometry is now the Pg* ladder in Themes/Professional/ProfessionalCore.xaml (MERIDIAN Phase 7).
+      - Shadows: Soft, Medium, Large, XLarge, Card, Popup, Dialog
+      - Surfaces: Primary, Secondary, Detail, Elevated, Kpi, Glass (with BackgroundBrush, BorderBrush, BorderThickness, CornerRadius, Padding, Effect)
+      - Colors: PrimaryForeground, SecondaryForeground, MutedForeground, Accent, Success, Warning, Danger, Tint*, Background, etc.
+      - Special: PaperBrush (#FFFFFF for printable), Splash, Chart, AboutGlow, Wizard
+    STYLES:
+      - SurfacePrimaryStyle, SurfaceSecondaryStyle, SurfaceDetailStyle, SurfaceElevatedStyle, SurfaceKpiStyle, SurfaceGlassStyle
+      - Aliases: ModuleSectionCardStyle, CardStyle, SectionCardStyle, StatCardStyle, etc. all BasedOn Surface* (Db* aliases retired in MERIDIAN Phase 7)
+      - Typography: DisplayStyle, H1Style, H2Style, H3Style, TitleStyle, SubtitleStyle, BodyStyle, BodySmallStyle, LabelStyle, CaptionStyle, KpiStyle, ButtonTextStyle, NavigationStyle, DataGridStyle, etc.
+      - Buttons: PrimaryButtonStyle, SecondaryButtonStyle, ModuleToolbarPrimaryButtonStyle, ModuleToolbarSecondaryButtonStyle, AccentChip, OutlinedPill, Ghost, etc.
+      - Inputs: TextBoxStyle, ComboBoxStyle, IntInputStyle, DecimalInputStyle, etc.
+      - DataGrid, Tabs, Lists, Navigation, Chips/Badges
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         1. FONT FAMILY — ONE CANONICAL
+    ═══════════════════════════════════════════════════════════════ -->
+    <!-- App font: Segoe UI Variable (WPF native, Inter would require embedding; keep Segoe for now but tokenized) -->
+    <FontFamily x:Key="FontFamily.App">Segoe UI Variable, Segoe UI, Inter, sans-serif</FontFamily>
+    <FontFamily x:Key="FontFamily.Icon">Segoe MDL2 Assets</FontFamily>
+    <FontFamily x:Key="FontFamily.Code">Consolas, Cascadia Code, monospace</FontFamily>
+    <!-- Aliases for backward compat.
+         CONCRETE VALUES, not markup-extension aliases: a
+         <DynamicResource x:Key=...> entry stores a ResourceReferenceExpression
+         marker object as the resource VALUE, which crashes property assignment
+         ("ResourceReferenceExpression is not a valid value for property 'FontFamily'").
+         FontService.ApplySavedFont republishes AppFontFamily on Application
+         resources at startup, so live font switching still works. -->
+    <FontFamily x:Key="IconFontFamily">Segoe MDL2 Assets</FontFamily>
+    <FontFamily x:Key="AppFontFamily">Segoe UI Variable, Segoe UI</FontFamily>
+    <FontFamily x:Key="AppFontFamilyVariable">Segoe UI Variable, Segoe UI</FontFamily>
+    <FontFamily x:Key="PrimaryFontFamily">Segoe UI Variable, Segoe UI</FontFamily>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         2. FONT WEIGHT — ONE CANONICAL (replaces 99.7% hardcoded)
+    ═══════════════════════════════════════════════════════════════ -->
+    <FontWeight x:Key="Weight.Regular">Normal</FontWeight>
+    <FontWeight x:Key="Weight.Medium">Medium</FontWeight>
+    <FontWeight x:Key="Weight.SemiBold">SemiBold</FontWeight>
+    <FontWeight x:Key="Weight.Bold">Bold</FontWeight>
+    <FontWeight x:Key="FontWeight.Regular">Normal</FontWeight>
+    <FontWeight x:Key="FontWeight.Medium">Medium</FontWeight>
+    <FontWeight x:Key="FontWeight.SemiBold">SemiBold</FontWeight>
+    <FontWeight x:Key="FontWeight.Bold">Bold</FontWeight>
+    <!-- Aliases for SemanticTypography — concrete weights (markup-extension
+         alias entries store ResourceReferenceExpression markers as the value
+         and crash when assigned to FontWeight). Weights are design constants;
+         they never change at runtime, so no live tracking is needed. -->
+    <FontWeight x:Key="TypographyBodyWeight">Normal</FontWeight>
+    <FontWeight x:Key="TypographyLabelWeight">SemiBold</FontWeight>
+    <FontWeight x:Key="TypographyHeadingWeight">SemiBold</FontWeight>
+    <FontWeight x:Key="TypographyTitleWeight">Bold</FontWeight>
+    <FontWeight x:Key="TypographyDisplayWeight">Bold</FontWeight>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         3. FONT SIZE — ONE CANONICAL TYPOGRAPHY SCALE
+         Replaces 97.9% static + hardcoded. All DynamicResource.
+         Display 32, H1 24, H2 20, H3 16, Title 14, Subtitle 13, Body 13, BodySmall 12, Label 11, Caption 10, KPI 24, Button 13, Navigation 13, DataGrid 12
+    ═══════════════════════════════════════════════════════════════ -->
+    <!-- Base sizes -->
+    <sys:Double x:Key="FontSize.Display">32</sys:Double>
+    <sys:Double x:Key="FontSize.H1">24</sys:Double>
+    <sys:Double x:Key="FontSize.H2">20</sys:Double>
+    <sys:Double x:Key="FontSize.H3">16</sys:Double>
+    <sys:Double x:Key="FontSize.Title">14</sys:Double>
+    <sys:Double x:Key="FontSize.Subtitle">13</sys:Double>
+    <sys:Double x:Key="FontSize.Body">13</sys:Double>
+    <sys:Double x:Key="FontSize.BodySmall">12</sys:Double>
+    <sys:Double x:Key="FontSize.Label">11</sys:Double>
+    <sys:Double x:Key="FontSize.Caption">10</sys:Double>
+    <sys:Double x:Key="FontSize.Kpi">24</sys:Double>
+    <sys:Double x:Key="FontSize.Button">13</sys:Double>
+    <sys:Double x:Key="FontSize.Navigation">13</sys:Double>
+    <sys:Double x:Key="FontSize.DataGrid">12</sys:Double>
+    <sys:Double x:Key="FontSize.Money">24</sys:Double>
+    <sys:Double x:Key="FontSize.Icon">16</sys:Double>
+    <sys:Double x:Key="FontSize.Input">13</sys:Double>
+    <sys:Double x:Key="FontSize.Tab">13</sys:Double>
+    <sys:Double x:Key="FontSize.Chip">11</sys:Double>
+    <sys:Double x:Key="FontSize.Badge">10</sys:Double>
+
+    <!-- Aliases for existing TypeScaleTokens.
+         These MUST stay StaticResource (same-file target): they resolve to a
+         concrete Double at dictionary load. A <DynamicResource x:Key=...>
+         entry would instead store a ResourceReferenceExpression marker as the
+         value and crash any template assigning it to FontSize. -->
+    <StaticResource x:Key="TextXSmall" ResourceKey="FontSize.Caption"/>
+    <StaticResource x:Key="TextCaption" ResourceKey="FontSize.BodySmall"/>
+    <StaticResource x:Key="TextBody" ResourceKey="FontSize.Body"/>
+    <StaticResource x:Key="TextBodyLarge" ResourceKey="FontSize.Title"/>
+    <StaticResource x:Key="TextSection" ResourceKey="FontSize.H3"/>
+    <StaticResource x:Key="TextSubhead" ResourceKey="FontSize.H3"/>
+    <StaticResource x:Key="TextTitle" ResourceKey="FontSize.H2"/>
+    <StaticResource x:Key="TextTitleLarge" ResourceKey="FontSize.H1"/>
+    <StaticResource x:Key="TextHeadline" ResourceKey="FontSize.H1"/>
+    <StaticResource x:Key="TextDisplay" ResourceKey="FontSize.Kpi"/>
+    <StaticResource x:Key="TextDisplayLarge" ResourceKey="FontSize.Display"/>
+
+    <!-- SemanticTypography aliases — StaticResource (concrete doubles at load).
+         ThemeManager.ApplyDisplayDensity republishes TypographyBodySize /
+         TypographyTitleSize / TypographyKpiValueFontSize on Application
+         resources at startup, so density-driven sizes still track live. -->
+    <StaticResource x:Key="TypographyDisplaySize" ResourceKey="FontSize.Display"/>
+    <StaticResource x:Key="TypographyH1Size" ResourceKey="FontSize.H1"/>
+    <StaticResource x:Key="TypographyH2Size" ResourceKey="FontSize.H2"/>
+    <StaticResource x:Key="TypographyTitleSize" ResourceKey="FontSize.H2"/>
+    <StaticResource x:Key="TypographySubtitleSize" ResourceKey="FontSize.Title"/>
+    <StaticResource x:Key="TypographyBodySize" ResourceKey="FontSize.Body"/>
+    <StaticResource x:Key="TypographyBodySmallSize" ResourceKey="FontSize.BodySmall"/>
+    <StaticResource x:Key="TypographyCaptionSize" ResourceKey="FontSize.Caption"/>
+    <StaticResource x:Key="TypographyLabelSize" ResourceKey="FontSize.Label"/>
+    <StaticResource x:Key="TypographyKpiValueSize" ResourceKey="FontSize.Kpi"/>
+    <StaticResource x:Key="TypographyMoneySize" ResourceKey="FontSize.Money"/>
+    <StaticResource x:Key="TypographyIconSize" ResourceKey="FontSize.Icon"/>
+
+    <!-- Type.* aliases — StaticResource (concrete doubles at load) -->
+    <StaticResource x:Key="Type.Caption" ResourceKey="FontSize.Caption"/>
+    <StaticResource x:Key="Type.Small" ResourceKey="FontSize.BodySmall"/>
+    <StaticResource x:Key="Type.Body" ResourceKey="FontSize.Body"/>
+    <StaticResource x:Key="Type.BodyLarge" ResourceKey="FontSize.Title"/>
+    <StaticResource x:Key="Type.Section" ResourceKey="FontSize.H3"/>
+    <StaticResource x:Key="Type.Title" ResourceKey="FontSize.H2"/>
+    <StaticResource x:Key="Type.H2" ResourceKey="FontSize.H2"/>
+    <StaticResource x:Key="Type.H1" ResourceKey="FontSize.H1"/>
+    <StaticResource x:Key="Type.Display" ResourceKey="FontSize.Display"/>
+    <StaticResource x:Key="Type.NumericValue" ResourceKey="FontSize.Kpi"/>
+    <StaticResource x:Key="Type.Money" ResourceKey="FontSize.Money"/>
+
+    <!-- Density aliases (for backward compat) — StaticResource (concrete doubles
+         at load). ThemeManager.ApplyDisplayDensity republishes these three keys
+         on Application resources at startup, so density switching still wins. -->
+    <StaticResource x:Key="DensityBodyFontSize" ResourceKey="FontSize.Body"/>
+    <StaticResource x:Key="DensityTitleFontSize" ResourceKey="FontSize.H2"/>
+    <StaticResource x:Key="DensityKpiValueFontSize" ResourceKey="FontSize.Kpi"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         4. GEOMETRY — ONE CANONICAL RADIUS SCALE
+         Replaces 70 hardcoded CornerRadius. All DynamicResource.
+         Small=6, Medium=10, Large=12, XLarge=16, 2XLarge=20, Full=12
+         Control=8, Card=12, Dialog=16, Chip=12, Tab=8, Input=8, Panel=14
+    ═══════════════════════════════════════════════════════════════ -->
+    <CornerRadius x:Key="Radius.None">0</CornerRadius>
+    <CornerRadius x:Key="Radius.XSmall">3</CornerRadius>
+    <CornerRadius x:Key="Radius.Small">6</CornerRadius>
+    <CornerRadius x:Key="Radius.Medium">10</CornerRadius>
+    <CornerRadius x:Key="Radius.Large">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Top.Large">12,12,0,0</CornerRadius>
+    <CornerRadius x:Key="Radius.XLarge">16</CornerRadius>
+    <CornerRadius x:Key="Radius.2XLarge">20</CornerRadius>
+    <!-- 2026-09-14: 999 capsule removed per the global 12px standard.
+         Kept at 12 for existing consumers; true circles must use an
+         Ellipse or an explicit half-size radius, never this token. -->
+    <CornerRadius x:Key="Radius.Full">12</CornerRadius>
+
+    <!-- Semantic aliases.
+         2026-09-14 visual-polish pass: the STANDARD control surface
+         (buttons, inputs, tabs) is 12px — matching Radius.Large /
+         Radius.Card / CardCornerRadius. Control/Input/Button/Tab were
+         8, which is what produced the "random 8px corners" look across
+         the redesigned UI. The hierarchy is preserved: XSmall 3 (micro
+         chips), Small 6, Medium 10 (detail surfaces), Card 12, Dialog
+         16, Hero 18, Pill/Chip 12 (999 capsules removed 2026-09-14). -->
+    <CornerRadius x:Key="Radius.Control">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Card">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Dialog">16</CornerRadius>
+    <CornerRadius x:Key="Radius.Chip">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Tab">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Input">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Panel">14</CornerRadius>
+    <CornerRadius x:Key="Radius.Button">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Badge">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Pill">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Hero">18</CornerRadius>
+
+    <!-- Asymmetric -->
+    <CornerRadius x:Key="Radius.Top.Medium">10,10,0,0</CornerRadius>
+    <CornerRadius x:Key="Radius.Bottom.Medium">0,0,10,10</CornerRadius>
+    <CornerRadius x:Key="Radius.Left.Medium">10,0,0,10</CornerRadius>
+    <CornerRadius x:Key="Radius.Right.Medium">0,10,10,0</CornerRadius>
+
+    <!-- Aliases for existing keys.
+         CONCRETE VALUES (fallbacks), not markup-extension aliases — a
+         <DynamicResource x:Key=...> entry stores a ResourceReferenceExpression
+         marker as the value and crashes CornerRadius assignment. Live tracking:
+         ThemeManager.ApplyCardCornerRadius republishes CardCornerRadius /
+         ControlCornerRadius / CardCornerRadiusLarge on Application resources at
+         startup, and ApplySemanticSurfaces republishes Surface.*.CornerRadius
+         from the saved appearance. -->
+    <CornerRadius x:Key="CardCornerRadius">12</CornerRadius>
+    <!-- 2026-09-14: 8 → 12. GDS merges LAST in App.xaml, so this value
+         shadowed the theme dictionaries' 12 at every call site (~200),
+         which is why inputs/sidebars/controls rendered at 8px. The
+         canonical control radius is 12 (Radius.Large / CardCornerRadius). -->
+    <CornerRadius x:Key="ControlCornerRadius">12</CornerRadius>
+    <CornerRadius x:Key="CardCornerRadiusLarge">16</CornerRadius>
+    <CornerRadius x:Key="Surface.Primary.CornerRadius">12</CornerRadius>
+    <CornerRadius x:Key="Surface.Secondary.CornerRadius">12</CornerRadius>
+    <CornerRadius x:Key="Surface.Detail.CornerRadius">10</CornerRadius>
+
+    <!-- Legacy aliases -->
+    <CornerRadius x:Key="RadiusSmall">6</CornerRadius>
+    <CornerRadius x:Key="RadiusPanel">14</CornerRadius>
+    <CornerRadius x:Key="RadiusFull">12</CornerRadius>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         5. BORDER THICKNESS — ONE CANONICAL
+    ═══════════════════════════════════════════════════════════════ -->
+    <Thickness x:Key="Border.Thin">1</Thickness>
+    <Thickness x:Key="Border.Default">1</Thickness>
+    <Thickness x:Key="Border.Strong">1.5</Thickness>
+    <Thickness x:Key="Border.None">0</Thickness>
+    <Thickness x:Key="Border.Hairline">1</Thickness>
+    <Thickness x:Key="Border.HairlineThickness">1</Thickness>
+    <Thickness x:Key="Border.StrongThickness">1.5</Thickness>
+    <Thickness x:Key="Border.TopHairline">0,1,0,0</Thickness>
+    <Thickness x:Key="Border.BottomHairline">0,0,0,1</Thickness>
+    <Thickness x:Key="Border.LeftHairline">1,0,0,0</Thickness>
+    <Thickness x:Key="Border.RightHairline">0,0,1,0</Thickness>
+    <Thickness x:Key="Border.VerticalHairline">1,0,1,0</Thickness>
+    <Thickness x:Key="Border.HorizontalHairline">0,1,0,1</Thickness>
+    <Thickness x:Key="Border.BoxNoLeft">0,1,1,1</Thickness>
+    <Thickness x:Key="Border.BoxNoTop">1,0,1,1</Thickness>
+
+    <!-- Aliases — CONCRETE VALUES (fallbacks). ThemeManager republishes
+         CardBorderThickness / CardEdgeThickness and the Border.*Hairline*
+         family on Application resources at startup, so live card-edge
+         changes still win over these merged-dictionary fallbacks. -->
+    <Thickness x:Key="CardBorderThickness">1</Thickness>
+    <Thickness x:Key="CardEdgeThickness">1.5</Thickness>
+    <Thickness x:Key="BorderThin">1</Thickness>
+    <Thickness x:Key="BorderDefault">1</Thickness>
+    <Thickness x:Key="BorderStrong">1.5</Thickness>
+    <Thickness x:Key="Border.TopHairlineThickness">0,1,0,0</Thickness>
+    <Thickness x:Key="Border.BottomHairlineThickness">0,0,0,1</Thickness>
+    <Thickness x:Key="Border.LeftHairlineThickness">1,0,0,0</Thickness>
+    <Thickness x:Key="Border.RightHairlineThickness">0,0,1,0</Thickness>
+    <Thickness x:Key="Border.VerticalHairlineThickness">1,0,1,0</Thickness>
+    <Thickness x:Key="Border.HorizontalHairlineThickness">0,1,0,1</Thickness>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         6. SPACING — ONE CANONICAL
+    ═══════════════════════════════════════════════════════════════ -->
+    <!-- Canonical scale: 2 4 6 8 12 16 20 24 32 40 48. Prefer these over
+         invented page-local Thickness. ThemeManager density does not
+         rewrite this ladder (control density is Density.*). -->
+    <sys:Double x:Key="Space.2">2</sys:Double>
+    <sys:Double x:Key="Space.Xs">4</sys:Double>
+    <sys:Double x:Key="Space.6">6</sys:Double>
+    <sys:Double x:Key="Space.Sm">8</sys:Double>
+    <sys:Double x:Key="Space.Md">12</sys:Double>
+    <sys:Double x:Key="Space.Lg">16</sys:Double>
+    <sys:Double x:Key="Space.20">20</sys:Double>
+    <sys:Double x:Key="Space.Xl">24</sys:Double>
+    <sys:Double x:Key="Space.2Xl">32</sys:Double>
+    <sys:Double x:Key="Space.3Xl">40</sys:Double>
+    <sys:Double x:Key="Space.48">48</sys:Double>
+
+    <Thickness x:Key="Space.Page">12</Thickness>
+    <Thickness x:Key="Space.Card">12,9</Thickness>
+    <Thickness x:Key="Space.Tile">13,11</Thickness>
+    <Thickness x:Key="Space.Gutter">8</Thickness>
+    <Thickness x:Key="Space.GutterHalf">4</Thickness>
+    <Thickness x:Key="Space.Section">12,0,12,12</Thickness>
+    <Thickness x:Key="Space.Control">12,0</Thickness>
+    <Thickness x:Key="Space.Dialog">24</Thickness>
+    <Thickness x:Key="Space.Toolbar">12,8</Thickness>
+
+    <!-- Aliases for SemanticSpacing — CONCRETE VALUES. ThemeManager.
+         ApplyDisplayDensity republishes PagePadding / CardPadding on
+         Application resources at startup (density-dependent); the rest are
+         design constants. -->
+    <sys:Double x:Key="SpacingXS">4</sys:Double>
+    <sys:Double x:Key="SpacingSM">8</sys:Double>
+    <sys:Double x:Key="SpacingMD">12</sys:Double>
+    <sys:Double x:Key="SpacingLG">16</sys:Double>
+    <sys:Double x:Key="SpacingXL">24</sys:Double>
+    <sys:Double x:Key="SpacingXXL">32</sys:Double>
+    <Thickness x:Key="PagePadding">12</Thickness>
+    <Thickness x:Key="SectionSpacing">12,0,12,12</Thickness>
+    <Thickness x:Key="CardPadding">12,9</Thickness>
+    <Thickness x:Key="ControlPadding">12,0</Thickness>
+    <Thickness x:Key="DialogPadding">24</Thickness>
+    <Thickness x:Key="ToolbarPadding">12,8</Thickness>
+
+    <!-- Density (published by ThemeManager.ApplyDisplayDensity) — fallbacks -->
+    <Thickness x:Key="Density.PageMargin">12</Thickness>
+    <Thickness x:Key="Density.CardPadding">12,9</Thickness>
+    <Thickness x:Key="Density.TilePadding">13,11</Thickness>
+    <Thickness x:Key="Density.Gutter">8</Thickness>
+    <Thickness x:Key="Density.GutterHalf">4</Thickness>
+    <sys:Double x:Key="Density.KpiTileMinHeight">86</sys:Double>
+    <sys:Double x:Key="Density.ChartMinHeight">220</sys:Double>
+
+    <!-- MERIDIAN PHASE 7 (2026-09-18): the Db* dashboard grammar retired
+         here. Dashboards now use the Pg* tokens from
+         Themes/Professional/ProfessionalCore.xaml, republished per
+         Density by ThemeManager.ApplyDisplayDensity. -->
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         7. SHADOWS — ONE CANONICAL
+    ═══════════════════════════════════════════════════════════════ -->
+    <DropShadowEffect x:Key="Shadow.None" BlurRadius="0" ShadowDepth="0" Opacity="0" Color="#00000000"/>
+    <DropShadowEffect x:Key="Shadow.Soft" BlurRadius="8" ShadowDepth="0" Opacity="0.08" Color="#FF0F172A"/>
+    <DropShadowEffect x:Key="Shadow.Medium" BlurRadius="16" ShadowDepth="0" Opacity="0.12" Color="#FF0F172A"/>
+    <DropShadowEffect x:Key="Shadow.Large" BlurRadius="28" ShadowDepth="0" Opacity="0.18" Color="#FF0F172A"/>
+    <DropShadowEffect x:Key="Shadow.XLarge" BlurRadius="36" ShadowDepth="0" Opacity="0.22" Color="#FF0F172A"/>
+
+    <DropShadowEffect x:Key="Shadow.Card" BlurRadius="8" ShadowDepth="0" Opacity="0.08" Color="#FF0F172A"/>
+    <DropShadowEffect x:Key="Shadow.Popup" BlurRadius="16" ShadowDepth="0" Opacity="0.12" Color="#FF0F172A"/>
+    <DropShadowEffect x:Key="Shadow.Dialog" BlurRadius="28" ShadowDepth="0" Opacity="0.18" Color="#FF0F172A"/>
+    <DropShadowEffect x:Key="Shadow.Elevated" BlurRadius="16" ShadowDepth="0" Opacity="0.12" Color="#FF0F172A"/>
+
+    <!-- Aliases for SemanticElevation — StaticResource (same-file targets) so
+         each alias resolves to the concrete DropShadowEffect instance at load.
+         Effects are design constants; no runtime republish exists for them. -->
+    <StaticResource x:Key="ElevationNone" ResourceKey="Shadow.None"/>
+    <StaticResource x:Key="ElevationLow" ResourceKey="Shadow.Soft"/>
+    <StaticResource x:Key="ElevationMedium" ResourceKey="Shadow.Medium"/>
+    <StaticResource x:Key="ElevationHigh" ResourceKey="Shadow.Large"/>
+    <StaticResource x:Key="ElevationOverlay" ResourceKey="Shadow.XLarge"/>
+    <StaticResource x:Key="ElevationCard" ResourceKey="Shadow.Card"/>
+    <StaticResource x:Key="ElevationPopup" ResourceKey="Shadow.Popup"/>
+    <StaticResource x:Key="ElevationDialog" ResourceKey="Shadow.Dialog"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         8. COLORS & SURFACES — ONE CANONICAL
+         All brushes already exist in LightTheme/DarkTheme + SemanticColors.
+         Here we define canonical aliases and special-case brushes.
+    ═══════════════════════════════════════════════════════════════ -->
+    <!-- Paper for printable/document views — intentional #FFFFFF, tokenized -->
+    <SolidColorBrush x:Key="PaperBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Paper" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ReportPrimaryBrush" Color="#FFFFFF"/>
+
+    <!-- Splash special — tokenized from hardcoded #228080 etc. -->
+    <SolidColorBrush x:Key="Splash.TealBrush" Color="#FF228080"/>
+    <SolidColorBrush x:Key="Splash.CyanBrush" Color="#FF33FFFF"/>
+    <SolidColorBrush x:Key="Splash.DarkTealBrush" Color="#FF148080"/>
+    <SolidColorBrush x:Key="Splash.DarkBrush" Color="#FF0D0000"/>
+    <SolidColorBrush x:Key="Splash.TealBrush.Semi" Color="#33228080"/>
+
+    <!-- About glow — tokenized from #59FFFF/#00FFFF -->
+    <SolidColorBrush x:Key="About.GlowBrush1" Color="#FF59FFFF"/>
+    <SolidColorBrush x:Key="About.GlowBrush2" Color="#FF00FFFF"/>
+    <SolidColorBrush x:Key="About.GlowBrush1.Soft" Color="#3359FFFF"/>
+    <SolidColorBrush x:Key="About.GlowBrush2.Soft" Color="#3300FFFF"/>
+
+    <!-- Auth surface — tokenized from #2EFFFF -->
+    <SolidColorBrush x:Key="Auth.SurfaceBrush" Color="#FF2EFFFF"/>
+    <SolidColorBrush x:Key="Auth.SurfaceBrush.Soft" Color="#332EFFFF"/>
+
+    <!-- Chart colors — tokenized from #1000FF/#10FF00/#1A22C5 etc. -->
+    <SolidColorBrush x:Key="Chart.BlueBrush" Color="#FF1000FF"/>
+    <SolidColorBrush x:Key="Chart.GreenBrush" Color="#FF10FF00"/>
+    <SolidColorBrush x:Key="Chart.IndigoBrush" Color="#FF1A22C5"/>
+    <SolidColorBrush x:Key="Chart.LimeBrush" Color="#FF1AFF3B"/>
+    <SolidColorBrush x:Key="Chart.MintBrush" Color="#FF1AFFA5"/>
+    <SolidColorBrush x:Key="Chart.NavyBrush" Color="#FF1A3B82"/>
+    <SolidColorBrush x:Key="Chart.IndigoBrush.Alpha1A.5E" Color="#1A1A22C5"/>
+    <SolidColorBrush x:Key="Chart.LimeBrush.Alpha1A.30" Color="#301AFF3B"/>
+    <SolidColorBrush x:Key="Chart.MintBrush.Alpha1A" Color="#1A1AFFA5"/>
+    <SolidColorBrush x:Key="Chart.NavyBrush.Alpha1A.F6" Color="#1A1A3B82"/>
+    <SolidColorBrush x:Key="Chart.BlueBrush.Soft" Color="#221000FF"/>
+    <SolidColorBrush x:Key="Chart.GreenBrush.Soft" Color="#2210FF00"/>
+
+    <!-- Wizard — tokenized from #00FFFF/#000000/#FFF8FA/#FF1118 -->
+    <SolidColorBrush x:Key="Wizard.CyanBrush" Color="#FF00FFFF"/>
+    <SolidColorBrush x:Key="Wizard.BlackBrush" Color="#FF000000"/>
+    <SolidColorBrush x:Key="Wizard.PaperBrush" Color="#FFFFF8FA"/>
+    <SolidColorBrush x:Key="Wizard.RedBrush" Color="#FFFF1118"/>
+    <SolidColorBrush x:Key="Wizard.CyanBrush.Soft" Color="#3300FFFF"/>
+
+    <!-- Surface hierarchy — canonical 6 levels -->
+    <!-- Primary: default card, 12 radius, 12,9 padding, soft shadow -->
+    <SolidColorBrush x:Key="Surface.Primary.Background" Color="#F8FFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Primary.Border" Color="#2EFFFFFF"/>
+    <Thickness x:Key="Surface.Primary.BorderThickness">1.5</Thickness>
+    <CornerRadius x:Key="Surface.Primary.Radius">12</CornerRadius>
+    <Thickness x:Key="Surface.Primary.Padding">12,9</Thickness>
+    <!-- Secondary: muted card -->
+    <SolidColorBrush x:Key="Surface.Secondary.Background" Color="#EFFFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Secondary.Border" Color="#FFCBD5E1"/>
+    <Thickness x:Key="Surface.Secondary.BorderThickness">1</Thickness>
+    <CornerRadius x:Key="Surface.Secondary.Radius">12</CornerRadius>
+    <Thickness x:Key="Surface.Secondary.Padding">14,9</Thickness>
+    <!-- Detail: small inline -->
+    <SolidColorBrush x:Key="Surface.Detail.Background" Color="#00FFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Detail.Border" Color="#FFCBD5E1"/>
+    <Thickness x:Key="Surface.Detail.BorderThickness">1</Thickness>
+    <CornerRadius x:Key="Surface.Detail.Radius">10</CornerRadius>
+    <Thickness x:Key="Surface.Detail.Padding">10,6</Thickness>
+    <!-- Elevated: popup/dialog, stronger shadow -->
+    <SolidColorBrush x:Key="Surface.Elevated.Background" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Elevated.Border" Color="#FFCBD5E1"/>
+    <Thickness x:Key="Surface.Elevated.BorderThickness">1</Thickness>
+    <CornerRadius x:Key="Surface.Elevated.Radius">16</CornerRadius>
+    <Thickness x:Key="Surface.Elevated.Padding">16</Thickness>
+    <!-- Kpi: stat tiles -->
+    <SolidColorBrush x:Key="Surface.Kpi.Background" Color="#F8FFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Kpi.Border" Color="#FFCBD5E1"/>
+    <Thickness x:Key="Surface.Kpi.BorderThickness">1</Thickness>
+    <CornerRadius x:Key="Surface.Kpi.Radius">12</CornerRadius>
+    <Thickness x:Key="Surface.Kpi.Padding">13,11</Thickness>
+    <!-- Glass: translucent -->
+    <SolidColorBrush x:Key="Surface.Glass.Background" Color="#66FFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Glass.Border" Color="#4DFFFFFF"/>
+    <Thickness x:Key="Surface.Glass.BorderThickness">1</Thickness>
+    <CornerRadius x:Key="Surface.Glass.Radius">12</CornerRadius>
+    <Thickness x:Key="Surface.Glass.Padding">12,9</Thickness>
+
+    <!-- Semantic surface brushes.
+         CONCRETE fallback brushes (matching the static Surface.*.Background /
+         Surface.*.Border values above), NOT DynamicResource alias entries —
+         those store ResourceReferenceExpression markers as the value and crash
+         the first Background/BorderBrush assignment after the splash
+         (shell sidebar cards, dashboards, DataGrid chrome).
+         LIVE TRACKING: ThemeManager.ApplySemanticSurfaces (called at startup
+         after ApplyCardCornerRadius, and on every Settings appearance change)
+         republishes these six keys on Application resources from the active
+         family/mode palette, so light/dark and family switches still re-tint
+         every consumer. -->
+    <SolidColorBrush x:Key="Surface.Primary.BackgroundBrush" Color="#F8FFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Secondary.BackgroundBrush" Color="#EFFFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Detail.BackgroundBrush" Color="#00FFFFFF"/>
+    <!-- Visible fills the Appearance surface cards bind. Code replaces
+         these on every slider tick; the fallbacks keep the first frame
+         from being an unresolved DynamicResource. -->
+    <DropShadowEffect x:Key="Surface.Primary.Effect"
+                      BlurRadius="8" ShadowDepth="0" Opacity="0.08"
+                      Color="#FF0F172A" RenderingBias="Performance"/>
+    <SolidColorBrush x:Key="Surface.Primary.LiveFill" Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="Surface.Secondary.LiveFill" Color="#F3F0FA"/>
+    <SolidColorBrush x:Key="Surface.Detail.LiveFill" Color="#FFFFFF"/>
+    <!-- Studio module cards keep this face until a frost plate is chosen.
+         Local dictionaries alias their surface keys at this colour, so a
+         plate writes here and those cards move without a tree walk. -->
+    <Color x:Key="Appearance.StudioFaceColor">#FFFEFC</Color>
+    <Color x:Key="Appearance.StudioEdgeColor">#E2DBEF</Color>
+    <SolidColorBrush x:Key="Appearance.StudioFace" Color="#FFFEFC"/>
+    <SolidColorBrush x:Key="Appearance.StudioEdge" Color="#E2DBEF"/>
+    <SolidColorBrush x:Key="Surface.Primary.BorderBrush" Color="#2EFFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Secondary.BorderBrush" Color="#FFCBD5E1"/>
+    <SolidColorBrush x:Key="Surface.Detail.BorderBrush" Color="#FFCBD5E1"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         9. SURFACE STYLES — ONE CANONICAL CARD SYSTEM (6 levels)
+         Every card in every module must consume these.
+         No module-specific CardStyle.
+    ═══════════════════════════════════════════════════════════════ -->
+    <!-- These styles used to bind SurfacePrimaryBrush / BorderDefaultBrush /
+         Radius.Card / Border.Default. ApplySemanticSurfaces writes a different
+         set of keys, so the Appearance sliders changed resources no card
+         read. The fill stays SurfacePrimaryBrush until the operator leaves
+         factory glass (ThemeManager then republishes that brush). Radius,
+         edge weight, edge colour and elevation read the keys the sliders
+         write, so the change is visible on every module card. -->
+    <Style x:Key="SurfacePrimaryStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Primary.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Primary.BorderThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Card}"/>
+        <Setter Property="Effect" Value="{DynamicResource Surface.Primary.Effect}"/>
+        <Setter Property="SnapsToDevicePixels" Value="False"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+    <Style x:Key="SurfaceSecondaryStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Secondary.CornerRadius}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Card}"/>
+    </Style>
+    <Style x:Key="SurfaceDetailStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Detail.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Detail.BorderThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Detail.CornerRadius}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Tile}"/>
+        <Setter Property="Effect" Value="{x:Null}"/>
+    </Style>
+    <Style x:Key="SurfaceElevatedStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="Background" Value="{DynamicResource PopupSurfaceBrush}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Dialog}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Dialog}"/>
+        <Setter Property="Effect" Value="{StaticResource Shadow.Large}"/>
+    </Style>
+    <Style x:Key="SurfaceKpiStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Tile}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Density.KpiTileMinHeight}"/>
+    </Style>
+    <Style x:Key="SurfaceGlassStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Glass.Border}"/>
+        <Setter Property="Effect" Value="{x:Null}"/>
+    </Style>
+
+    <!-- Aliases — all competing card systems now point to ONE canonical -->
+    <Style x:Key="ModuleSectionCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="PrimarySurfaceCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="SecondarySurfaceCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}"/>
+    <Style x:Key="DetailSurfaceCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
+    <Style x:Key="BaseCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="ElevatedCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceElevatedStyle}"/>
+    <Style x:Key="StatCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceKpiStyle}"/>
+    <Style x:Key="TaskCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}"/>
+    <Style x:Key="ListRowCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
+    <Style x:Key="CardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="SectionCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <!-- MERIDIAN PHASE 7: SoftCardStyle/DashCardStyle/IndustrialDashboard*/
+         Db* surface aliases removed — zero consumers after the dashboard
+         rewrite. (SoftCardStyle still lives in Styles/DashboardStyles.xaml
+         for the three non-dashboard views that consume it.) -->
+    <Style x:Key="ErpKpiSurfaceStyle" TargetType="Border" BasedOn="{StaticResource SurfaceKpiStyle}"/>
+    <Style x:Key="ErpInlineStatusSurfaceStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
+    <Style x:Key="ErpEmptyStateSurfaceStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         10. TYPOGRAPHY STYLES — ONE CANONICAL SCALE (DynamicResource)
+         Every view must use these. No hardcoded FontSize/Weight.
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="Typography.Display" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Display}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+    </Style>
+    <Style x:Key="Typography.H1" TargetType="TextBlock" BasedOn="{StaticResource Typography.Display}">
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.H1}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
+    </Style>
+    <Style x:Key="Typography.H2" TargetType="TextBlock" BasedOn="{StaticResource Typography.Display}">
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.H2}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+    </Style>
+    <Style x:Key="Typography.H3" TargetType="TextBlock" BasedOn="{StaticResource Typography.Display}">
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.H3}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+    </Style>
+    <Style x:Key="Typography.Title" TargetType="TextBlock" BasedOn="{StaticResource Typography.Display}">
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+    </Style>
+    <Style x:Key="Typography.Subtitle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Subtitle}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Regular}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+    </Style>
+    <Style x:Key="Typography.Body" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Regular}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+    </Style>
+    <Style x:Key="Typography.BodySmall" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}">
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+    </Style>
+    <Style x:Key="Typography.Label" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}">
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Label}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+    </Style>
+    <Style x:Key="Typography.Caption" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}">
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+    </Style>
+    <Style x:Key="Typography.Kpi" TargetType="TextBlock" BasedOn="{StaticResource Typography.Display}">
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Kpi}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
+    </Style>
+    <Style x:Key="Typography.Button" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}">
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Button}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+    </Style>
+    <Style x:Key="Typography.Navigation" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}">
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Navigation}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Medium}"/>
+    </Style>
+    <Style x:Key="Typography.DataGrid" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}">
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.DataGrid}"/>
+    </Style>
+    <Style x:Key="Typography.Money" TargetType="TextBlock" BasedOn="{StaticResource Typography.Kpi}">
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Money}"/>
+    </Style>
+    <Style x:Key="Typography.Icon" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Icon}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Icon}"/>
+    </Style>
+
+    <!-- Backward compat aliases for existing TypographyStyles.xaml -->
+    <Style x:Key="PageTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.H1}"/>
+    <Style x:Key="PageSubtitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Subtitle}"/>
+    <Style x:Key="SectionTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.H2}"/>
+    <Style x:Key="SectionSubtitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.BodySmall}"/>
+    <Style x:Key="CardTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
+    <Style x:Key="CardSubtitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.BodySmall}"/>
+    <Style x:Key="RowTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
+    <Style x:Key="RowSubtitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.BodySmall}"/>
+    <Style x:Key="FieldLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="TableHeaderStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="HeroNumberStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Display}"/>
+    <Style x:Key="StatNumberStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Kpi}"/>
+    <Style x:Key="MediumNumberStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.H1}"/>
+    <Style x:Key="MetaTextStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="TrendingTextStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+
+    <!-- Module aliases -->
+    <Style x:Key="ModulePageTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.H1}"/>
+    <Style x:Key="ModulePageSubtitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Subtitle}"/>
+    <Style x:Key="ModuleColumnHeaderStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         11. BUTTONS — ONE CANONICAL SYSTEM
+    ═══════════════════════════════════════════════════════════════ -->
+    <!-- 2026-09-14 visual-polish pass:
+         • The template now Binds BorderBrush/BorderThickness — before,
+           Button.Secondary's 1px border was set but never rendered
+           (the template ignored it), so secondary buttons had no edge.
+         • Primary carries a constant 2px TRANSPARENT border, so the
+           focus ring below changes colour without shifting layout.
+         • Keyboard focus now shows the canonical State.Focus ring
+           (the token existed since the "17. FOCUS" section but was
+           never wired into any button template). -->
+    <Style x:Key="Button.Primary" TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Padding" Value="16,9"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Button}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Density.ControlHeight}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root" Background="{TemplateBinding Background}" CornerRadius="{DynamicResource Radius.Control}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Root" Property="Opacity" Value="0.9"/></Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="Root" Property="Opacity" Value="0.8"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Root" Property="Opacity" Value="0.5"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource State.Focus}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="Button.Secondary" TargetType="Button" BasedOn="{StaticResource Button.Primary}">
+        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
+    </Style>
+    <Style x:Key="Button.Ghost" TargetType="Button" BasedOn="{StaticResource Button.Primary}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+    </Style>
+
+    <!-- Aliases for existing button styles -->
+    <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Primary}"/>
+    <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Secondary}"/>
+    <Style x:Key="ModuleToolbarPrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Primary}"/>
+    <Style x:Key="ModuleToolbarSecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Secondary}"/>
+    <Style x:Key="AccentChip" TargetType="Button" BasedOn="{StaticResource Button.Primary}">
+        <Setter Property="Padding" Value="10,4"/>
+    </Style>
+    <Style x:Key="OutlinedPill" TargetType="Button" BasedOn="{StaticResource Button.Secondary}">
+        <Setter Property="Padding" Value="10,4"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         12. INPUTS — ONE CANONICAL SYSTEM
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="Input.TextBox" TargetType="TextBox">
+        <Setter Property="Background" Value="{DynamicResource SurfaceInputBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource InputBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Control}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Input}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Regular}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Density.ControlHeight}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <!-- 2026-09-16 — EMPTY-DROPDOWN FIX (Settings module report: "all the
+         dropdowns are empty").
+         This style had NO Template and NO Foreground, so every explicitly
+         keyed consumer (ComboBoxStyle / ComboStyle / DetailCombo /
+         JoCompactComboStyle / JpComboStyle / SurfaceComboBox — 20 files,
+         ALL 21 Settings-page ComboBoxes) fell back to WPF's DEFAULT system
+         template. That popup is painted with SystemColors, which the app
+         never remaps on Light/Dark or family switches. Whenever the app
+         theme and the Windows appearance disagree (app Dark + Windows Light
+         or app Light + Windows Dark), the popup background stayed system
+         while the item text follows the app theme (the implicit
+         ComboBoxItem style in InputStyles.xaml — the 2026-08-25 "white on
+         white" fix) — near-white items on a white popup, or near-black on a
+         dark one: the dropdown OPENED WITH NOTHING VISIBLE. The closed box
+         had the same defect through its Foreground (system default, no
+         theme token).
+         FIX: give the canonical input combo the same themed contract the
+         implicit combo boxes already have (InputStyles.xaml ModernComboBox
+         template): a theme-owned popup, the ItemsPresenter it needs, the
+         full-surface open toggle, and a themed Foreground for the selection
+         box.
+         NOTE 2026-09-16, on import from arena/01a0a9b3: that template named
+         SurfaceOverlayBrush as its popup surface. It is a SCRIM, not a
+         surface — SemanticColors.xaml defines it #140F172A (8% opaque) and
+         ThemeCompatibilityHub.SemanticSources re-points it at
+         LiquidOverlayBrush/MenuHoverBrush, so the resolved popup opacity is
+         100% under Industrial (MenuHoverBrush happens to be solid), 62%
+         under Monet, 28% under Crystal Fluid and 8% under iOS 26. The popup
+         therefore now uses PopupSurfaceBrush, the opaque popup token. The box
+         CHROME itself is unchanged — Background/BorderBrush/BorderThickness/
+         Padding/MinHeight keep flowing from this style's own setters via
+         TemplateBinding, so every consumer keeps its current look.
+         Note: this template has no PART_EditableTextBox on purpose — it is
+         for non-editable pickers only (all current consumers). Editable
+         combos must keep using ModernEditableComboBoxStyle. -->
+    <Style x:Key="Input.ComboBox" TargetType="ComboBox">
+        <Setter Property="Background" Value="{DynamicResource SurfaceInputBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource InputBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Control}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Input}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Regular}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Density.ControlHeight}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template" Value="{StaticResource Themed.ComboBoxTemplate}"/>
+        <Style.Triggers>
+            <!-- A custom Template REPLACES WPF's, and WPF's is the one that
+                 carries PART_EditableTextBox. So a style that pins the
+                 non-editable template silently makes IsEditable="True" do
+                 nothing: the box renders, the list still opens, and typing is
+                 dead. That is exactly what happened to the Sheet Store's
+                 category / thickness / colour / size / supplier fields, which
+                 bind Text= and are meant to accept a value the store has never
+                 seen. Swapping the template on the property — the way WPF's own
+                 default style does it — keeps the themed chrome and makes
+                 editing opt-in per control, so every picker that does NOT set
+                 IsEditable is untouched. Inherited by DetailCombo via BasedOn. -->
+            <Trigger Property="IsEditable" Value="True">
+                <Setter Property="Template" Value="{StaticResource Themed.EditableComboBoxTemplate}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="Input.DatePicker" TargetType="DatePicker">
+        <Setter Property="Background" Value="{DynamicResource SurfaceInputBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource InputBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Control}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Input}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Regular}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Density.ControlHeight}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="Input.PasswordBox" TargetType="PasswordBox">
+        <Setter Property="Background" Value="{DynamicResource SurfaceInputBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource InputBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Control}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Input}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Regular}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Density.ControlHeight}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         12b. POLYMORPHIC SURFACE STYLES (post-splash crash fix, 2026-09-14)
+         The canonical Surface* card styles target Border (and the
+         Typography* styles target TextBlock). WPF throws
+         "TargetType does not match type of element" when one of them is
+         applied to a Button / StackPanel / ListBox / RadioButton — and
+         ~150 view sites do exactly that (mostly the Settings pages).
+         These companions provide the same surface vocabulary for the
+         other element families, so views keep their intended look
+         without a TargetType crash.
+    ═══════════════════════════════════════════════════════════════ -->
+    <!-- Panel-family surfaces. NOTE: WPF's Panel family (StackPanel /
+         UniformGrid / Grid) has NO Padding, CornerRadius or Border*
+         properties — those live on Border/Control. The ~136 view sites
+         that asked for a padded, filled panel are written as
+         <Border Surface*PanelTile/Detail/PrimaryStyle><StackPanel/>…</Border>
+         instead (see the 12b migration notes at each call site). -->
+    <Style x:Key="SurfacePanelTileStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Medium}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Card}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+    <!-- Button family — clickable surface rows (Quick Settings panel,
+         report export buttons). Same template shape as Button.Primary. -->
+    <Style x:Key="SurfacePrimaryButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
+        <Setter Property="Padding" Value="16,9"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Button}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root" Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Root" Property="Opacity" Value="0.9"/></Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="Root" Property="Opacity" Value="0.8"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Root" Property="Opacity" Value="0.5"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="SurfaceDetailButtonStyle" TargetType="Button" BasedOn="{StaticResource SurfacePrimaryButtonStyle}">
+        <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Regular}"/>
+        <Setter Property="Padding" Value="12,9"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    </Style>
+    <!-- ListBox family — card-styled list containers. -->
+    <Style x:Key="SurfaceSecondaryListBoxStyle" TargetType="ListBox">
+        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Default}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Card}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+    <!-- ListBoxItem container variants (ItemContainerStyle). A Border-target
+         style (Tab.Inactive / Badge.Primary / SurfaceDetailStyle) throws when
+         WPF applies it to the generated ListBoxItem containers. -->
+    <Style x:Key="Tab.InactiveItem" TargetType="ListBoxItem">
+        <Setter Property="Background" Value="{DynamicResource TabInactiveBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Button}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="Bg" Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource Radius.Tab}"
+                            Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <ContentPresenter/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TabHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TabActiveBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="ChipListItemStyle" TargetType="ListBoxItem">
+        <!-- 2026-09-14: this style backs SELECTABLE tab-like chips (the
+             About scope capsule), which are buttons, not static chips —
+             radius follows the 12px control standard (was Radius.Chip 999). -->
+        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="Bg" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource Radius.Card}"
+                            Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!-- Tab-filter controls (status tabs are Buttons / RadioButtons, not
+         Borders). Pill template on the shared ButtonBase so both element
+         families can legally inherit it; the RadioButton variant adds the
+         checked state (live accent). -->
+    <Style x:Key="Tab.InactiveBase" TargetType="ButtonBase">
+        <Setter Property="Background" Value="{DynamicResource TabInactiveBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Button}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ButtonBase">
+                    <Border x:Name="Bg" Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource Radius.Tab}"
+                            Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TabHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="Tab.InactiveControl" TargetType="Button" BasedOn="{StaticResource Tab.InactiveBase}"/>
+    <Style x:Key="Tab.InactiveRadio" TargetType="RadioButton" BasedOn="{StaticResource Tab.InactiveBase}">
+        <Style.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Background" Value="{DynamicResource TabActiveBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Aliases -->
+    <Style x:Key="TextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="ComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
+    <Style x:Key="IntInputStyle" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="DecimalInputStyle" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="ComboStyle" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         13. DATAGRID — ONE CANONICAL
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="DataGrid.Canonical" TargetType="DataGrid">
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
+        <Setter Property="RowHeight" Value="{DynamicResource Density.RowHeight}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.DataGrid}"/>
+        <Setter Property="GridLinesVisibility" Value="None"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
+    </Style>
+    <Style x:Key="DataGridStyle" TargetType="DataGrid" BasedOn="{StaticResource DataGrid.Canonical}"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         14. TABS — ONE CANONICAL
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="Tab.Active" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource TabActiveBrush}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Tab}"/>
+        <Setter Property="Padding" Value="12,6"/>
+    </Style>
+    <Style x:Key="Tab.Inactive" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource TabInactiveBrush}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Tab}"/>
+        <Setter Property="Padding" Value="12,6"/>
+    </Style>
+    <Style x:Key="TabCardActiveStyle" TargetType="Border" BasedOn="{StaticResource Tab.Active}"/>
+    <Style x:Key="TabCardInactiveStyle" TargetType="Border" BasedOn="{StaticResource Tab.Inactive}"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         15. CHIPS / BADGES / PILLS — ONE CANONICAL
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="Chip.Primary" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Chip}"/>
+        <Setter Property="Padding" Value="8,4"/>
+    </Style>
+
+    <!-- Hairline separator — thin 1px line for dividers -->
+    <Style x:Key="HairlineStyle" TargetType="Rectangle">
+        <Setter Property="Height" Value="1"/>
+        <Setter Property="Fill" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="Opacity" Value="0.6"/>
+    </Style>
+    <Style x:Key="Badge.Primary" TargetType="Border" BasedOn="{StaticResource Chip.Primary}">
+        <Setter Property="Padding" Value="6,2"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Badge}"/>
+    </Style>
+    <Style x:Key="Pill.Primary" TargetType="Border" BasedOn="{StaticResource Chip.Primary}"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         16. NAVIGATION — ONE CANONICAL
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="Navigation.Item" TargetType="Border">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Tab}"/>
+        <Setter Property="Padding" Value="12,8"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         17. FOCUS / HOVER / PRESSED / DISABLED — ONE CANONICAL
+    ═══════════════════════════════════════════════════════════════ -->
+    <SolidColorBrush x:Key="State.Hover" Color="#140369A1"/>
+    <SolidColorBrush x:Key="State.Pressed" Color="#220369A1"/>
+    <SolidColorBrush x:Key="State.Focus" Color="#FF0369A1"/>
+    <SolidColorBrush x:Key="State.Disabled" Color="#6647554E"/>
+    <SolidColorBrush x:Key="State.HoverBrush" Color="#140369A1"/>
+    <SolidColorBrush x:Key="State.PressedBrush" Color="#220369A1"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         (section 18 retired — see note below)
+    ═══════════════════════════════════════════════════════════════ -->
+    <!-- MERIDIAN PHASE 7 (2026-09-18): DbTileStyle, DbSectionHeadStyle,
+         DbKpiLabelStyle, DbKpiValueStyle, DbKpiFootStyle, DbGlyphStyle
+         removed — the dashboard grammar this section aliased was retired
+         with Styles/DashboardKit.xaml; every consumer now uses Pg* keys. -->
+
+
+    <!-- Auto-generated color tokens for remaining hardcoded hex in Views -->
+    <Color x:Key="Splash.DarkTealBrush.Alpha14.80.Color">#14808080</Color>
+    <SolidColorBrush x:Key="Splash.DarkTealBrush.Alpha14.80" Color="#14808080"/>
+    <SolidColorBrush x:Key="Splash.TealBrush.Alpha28.80" Color="#28808080"/>
+    <Color x:Key="White.Alpha33.Color">#33FFFFFF</Color>
+    <Color x:Key="White.Alpha4C.Color">#4CFFFFFF</Color>
+    <Color x:Key="White.Alpha12.Color">#12FFFFFF</Color>
+    <Color x:Key="TransparentWhite.Color">#00FFFFFF</Color>
+    <SolidColorBrush x:Key="White.Alpha33" Color="#33FFFFFF"/>
+    <SolidColorBrush x:Key="White.Alpha4C" Color="#4CFFFFFF"/>
+    <Color x:Key="Black.Alpha0D.Color">#0D000000</Color>
+    <SolidColorBrush x:Key="Black.Alpha0D" Color="#0D000000"/>
+    <Color x:Key="About.GlowBrush1.Alpha59.Color">#59FFFFFF</Color>
+    <SolidColorBrush x:Key="About.GlowBrush1.Alpha59" Color="#59FFFFFF"/>
+    <SolidColorBrush x:Key="White.Alpha12" Color="#12FFFFFF"/>
+    <SolidColorBrush x:Key="Splash.TealBrush.Alpha18.80" Color="#18808080"/>
+    <Color x:Key="Splash.TealBrush.Alpha22.80.Color">#22808080</Color>
+    <SolidColorBrush x:Key="Splash.TealBrush.Alpha22.80" Color="#22808080"/>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         COMPATIBILITY ALIASES — missing resources that cause runtime XamlParseException
+         These are aliases to canonical GDS styles to prevent crash ERR-A45BAD, ERR-9ED67E etc
+         Senior dev audit 2026-09-14 found 95 missing StaticResource keys — all aliased here
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="AboutPanelKickerStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="DetailCombo" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
+    <Style x:Key="DetailDivider" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
+    <Style x:Key="DetailEntry" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="EditableTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="FieldError" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="FieldLabel" TargetType="TextBlock" BasedOn="{StaticResource FieldLabelStyle}"/>
+    <Style x:Key="FullCell" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="FullHeaderCell" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="FullKvLabel" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="FullSectionLabel" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
+    <Style x:Key="InfoGlyphBadgeStyle" TargetType="Border" BasedOn="{StaticResource Chip.Primary}"/>
+    <Style x:Key="InfoGlyphTextStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Icon}"/>
+    <Style x:Key="InqGhostActionStyle" TargetType="Button" BasedOn="{StaticResource Button.Secondary}"/>
+    <Style x:Key="InqHintStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="InventoryKpiCell" TargetType="Border" BasedOn="{StaticResource SurfaceKpiStyle}"/>
+    <Style x:Key="JoCompactComboStyle" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
+    <Style x:Key="JoCompactDateStyle" TargetType="DatePicker" BasedOn="{StaticResource Input.DatePicker}"/>
+    <Style x:Key="JoCompactInputStyle" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="JoCompactLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource FieldLabelStyle}"/>
+    <Style x:Key="JoCompactMultiInputStyle" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="JobListBoxItemStyle" TargetType="ListBoxItem"/>
+    <Style x:Key="JpCellStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="JpChipStyle" TargetType="Border" BasedOn="{StaticResource Chip.Primary}"/>
+    <Style x:Key="JpComboStyle" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
+    <Style x:Key="JpCompactButton" TargetType="Button" BasedOn="{StaticResource Button.Secondary}"/>
+    <Style x:Key="JpInputStyle" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="JpSectionHintStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="JpSectionLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="JpStatusPill" TargetType="Border" BasedOn="{StaticResource Chip.Primary}"/>
+    <Style x:Key="JpTileStyle" TargetType="Border" BasedOn="{StaticResource SurfaceKpiStyle}"/>
+    <Style x:Key="JpTileValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Kpi}"/>
+    <Style x:Key="KpiLabel" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="KpiValue" TargetType="TextBlock" BasedOn="{StaticResource Typography.Kpi}"/>
+    <Style x:Key="LabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="LicenseFieldLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="LicenseFieldValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="MasterHeroDividerStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
+    <Style x:Key="MasterHeroMetaLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="MasterHeroMetaValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="MasterHeroStripStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <!-- Settings toggles are ToggleButtons (not CheckBoxes) — the old
+         CheckBox TargetType made every usage throw at instantiation.
+         Delegates to the designed liquid glass switch (defined in
+         LiquidGlassStyles.xaml, resolved at runtime). -->
+    <Style x:Key="ModernToggleSwitch" TargetType="ToggleButton" BasedOn="{StaticResource LiquidGlassSwitchStyle}"/>
+    <Style x:Key="MovementRowStyle" TargetType="DataGridRow"/>
+    <Style x:Key="OptionalDimStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="PlCellStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="PrintValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+
+    <!-- PRINT TABLE-HEADER LABEL (2026-09-18, owner report: "header font text
+         is small black, should be white — same type as the Specification
+         section band"). The spec table header used Typography.Label, which is
+         FontSize.Label (small) with TextSecondaryBrush (dark ink), painted on
+         Print.TableHeader — a DARK navy/teal band in every PdfTheme
+         (#0B2E59, #0F766E, #1B1B18, #1C2833, #222933). Dark small text on a
+         dark band is unreadable, and it broke preview ≡ PDF parity: the
+         exporter's SpecHeaderCell has always painted HeaderFont + Bold +
+         AccentOn (white). This style is that cell in XAML — one definition,
+         used by every print table header, so the two can never drift again. -->
+    <Style x:Key="PrintTableHeaderTextStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource Typography.Body}">
+        <Setter Property="FontSize" Value="{DynamicResource Print.Font.Header}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Print.AccentOn}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+    <Style x:Key="ProfitableRowStyle" TargetType="DataGridRow"/>
+    <Style x:Key="ProformaStatusValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="RowLine" TargetType="Rectangle" BasedOn="{StaticResource HairlineStyle}"/>
+    <Style x:Key="ScTextBox" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="SectionCard" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="ServiceExportButton" TargetType="Button" BasedOn="{StaticResource Button.Primary}"/>
+    <Style x:Key="SettingsActionRowStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="SpecGroupHeaderStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
+    <Style x:Key="SpecLabel" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="SpecValue" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="StatLabel" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <!-- 2026-09-14: was an EMPTY Ellipse style; three Border-based consumers in
+         InquiryEditorWindow crashed at load ("Can only base on a Style with
+         target type that is base type 'Border'"). Now a real Border dot:
+         26px circle, neutral rest state, active state via DataTriggers.
+         (Border has no Horizontal/VerticalContentAlignment — child centering
+         lives in StepNumberStyle, its only consumers.) -->
+    <Style x:Key="StepDotStyle" TargetType="Border">
+        <Setter Property="Width" Value="26"/>
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="CornerRadius" Value="13"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style x:Key="StepNumberStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="StepTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
+    <Style x:Key="SurfaceComboBox" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
+    <Style x:Key="SurfaceDataGrid" TargetType="DataGrid"/>
+    <Style x:Key="SurfaceTextBox" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="TableCellStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="TableSubTotalStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="TgtCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="TgtExportButton" TargetType="Button" BasedOn="{StaticResource Button.Primary}"/>
+    <Style x:Key="TgtInsetStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}"/>
+    <Style x:Key="TgtKvLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="TgtKvValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="TgtMicroLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="TgtMicroValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="TgtPillBase" TargetType="Border" BasedOn="{StaticResource Chip.Primary}"/>
+    <Style x:Key="TgtSectionLabel" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
+    <Style x:Key="TgtSideHeadingStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
+    <Style x:Key="TgtSideLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="TgtSideValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <DropShadowEffect x:Key="AboutCardEffect" BlurRadius="8" ShadowDepth="0" Opacity="0.08" Color="#FF0F172A"/>
+    <Style x:Key="DataRowStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <ContextMenu x:Key="EditorFieldContextMenu"/>
+    <!-- 2026-09-14: alias targets fixed (were TargetType=Border based on
+         TextBox/TextBlock styles — invalid BasedOn chain, crash on first use).
+         Every consumer bases a TextBox/TextBlock style on these, so the alias
+         must match the base style's target type. -->
+    <Style x:Key="ErrorAwareEntry" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="FullBadgeText" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="FullCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="FullKpiValue" TargetType="TextBlock" BasedOn="{StaticResource Typography.Kpi}"/>
+    <Style x:Key="KpiValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Kpi}"/>
+    <Style x:Key="ModelOptionCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+
+
+    <Style x:Key="Button.Outline" TargetType="Button" BasedOn="{StaticResource Button.Secondary}"/>
+    <Style x:Key="Button.Danger" TargetType="Button" BasedOn="{StaticResource Button.Primary}">
+        <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+    </Style>
+    <Style x:Key="Button.Icon" TargetType="Button" BasedOn="{StaticResource Button.Ghost}">
+        <Setter Property="MinWidth" Value="36"/>
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="Padding" Value="8"/>
+    </Style>
+
+    <!-- 2026-09-20: leftover card kits resolve to the same Surface* language.
+         Pill button KEYS are NOT restyled here — GlassPillButtonTemplate owns
+         Tag-as-icon. That template is industrialized in Styles/ButtonStyles.xaml. -->
+    <Style x:Key="SoftCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <!-- Last-win MUST match 2026-09-12 dusk-navy (31138eb). Do not BasedOn
+         SurfacePrimaryStyle — that flattened Optimization to empty cream cards. -->
+    <Style x:Key="OptPanelCard" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="18,16"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+    <Style x:Key="OptInnerCard" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="Padding" Value="12,10"/>
+    </Style>
+    <Style x:Key="PgCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+
+    <Style x:Key="ModuleTabButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Secondary}">
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="Padding" Value="16,8"/>
+    </Style>
+    <Style x:Key="LiquidGlassTabActive" TargetType="Button" BasedOn="{StaticResource Button.Primary}">
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="Padding" Value="16,8"/>
+    </Style>
+    <Style x:Key="LiquidGlassTabInactive" TargetType="Button" BasedOn="{StaticResource Button.Secondary}">
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="Padding" Value="16,8"/>
+    </Style>
+    <Style x:Key="ModuleTabStripStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="Effect" Value="{x:Null}"/>
+    </Style>
+    <Style x:Key="LiquidGlassTabContainer" TargetType="Border" BasedOn="{StaticResource ModuleTabStripStyle}"/>
+
+    <Style x:Key="Field.Panel" TargetType="StackPanel">
+        <Setter Property="Margin" Value="0,0,0,12"/>
+    </Style>
+    <Style x:Key="Field.Label" TargetType="TextBlock" BasedOn="{StaticResource FieldLabelStyle}">
+        <Setter Property="Margin" Value="0,0,0,6"/>
+    </Style>
+    <Style x:Key="Field.Error" TargetType="TextBlock" BasedOn="{StaticResource FieldError}">
+        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="Margin" Value="0,4,0,0"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="ErpPageRootStyle" TargetType="UserControl">
+        <Setter Property="Background" Value="{DynamicResource SurfaceWorkspaceBrush}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+    <Style x:Key="DocumentHeaderBandStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.BottomHairlineThickness}"/>
+        <Setter Property="Padding" Value="16,8"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+    <Style x:Key="DocumentFooterBandStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.TopHairlineThickness}"/>
+        <Setter Property="Padding" Value="20,8"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+    <Style x:Key="DocumentWorkspaceTabBandStyle" TargetType="Border" BasedOn="{StaticResource DocumentHeaderBandStyle}">
+        <Setter Property="Margin" Value="20,12,20,0"/>
+        <Setter Property="Padding" Value="12,8"/>
+    </Style>
+    <Style x:Key="ModuleWarningBannerStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+        <Setter Property="Padding" Value="14,10"/>
+        <Setter Property="Margin" Value="0,0,0,10"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- Last-win aliases: module kits keep their keys; GDS owns the look. -->
+    <Style x:Key="ModuleFieldLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Field.Label}"/>
+    <Style x:Key="ModuleInlineWarningStyle" TargetType="TextBlock" BasedOn="{StaticResource Field.Error}"/>
+    <Style x:Key="PiFieldLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Field.Label}"/>
+    <Style x:Key="PiDatePickerStyle" TargetType="DatePicker" BasedOn="{StaticResource Input.DatePicker}"/>
+    <Style x:Key="PiComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
+
+    <!-- List/report chrome last-win: density inputs, industrial table headers. -->
+    <Style x:Key="ModuleListFilterInputStyle" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="ModuleListFilterComboStyle" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
+    <Style x:Key="ModuleListFilterDatePickerStyle" TargetType="DatePicker" BasedOn="{StaticResource Input.DatePicker}"/>
+    <Style x:Key="ReportFilterCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="Padding" Value="16,12"/>
+    </Style>
+    <Style x:Key="ReportTableHeaderStyle" TargetType="Border" BasedOn="{StaticResource ModuleListTableHeaderStyle}"/>
+    <Style x:Key="ReportHeaderTextStyle" TargetType="TextBlock" BasedOn="{StaticResource ModuleListHeaderTextStyle}"/>
+    <Style x:Key="ModuleListKpiLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="ModuleListKpiValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Kpi}"/>
+    <Style x:Key="ModuleListKpiHintStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+
+</ResourceDictionary>

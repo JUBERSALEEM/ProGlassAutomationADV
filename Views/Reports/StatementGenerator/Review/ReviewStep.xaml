@@ -1,0 +1,1459 @@
+<!-- ═══════════════════════════════════════════════════════════════
+     FILE: Views/Reports/StatementGenerator/Review/ReviewStep.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Statement Generator — Wizard Step 4: REVIEW (Chat 21 v3)
+
+     PURPOSE:
+       Final step of the wizard. Shows PDF generation result,
+       provides download options, and lets user browse the PDF
+       structure via 3 tabs (Merged / Balance / Alerts).
+
+     WHEN THIS STEP IS SHOWN:
+       CurrentStep = 4 (auto-set when pipeline completes in Step 3)
+
+     WHAT USER SEES:
+       ● Big success/warning banner with outcome + elapsed time
+       ● Prominent PDF file card with metadata
+       ● Download PDF (large green button, primary action)
+       ● Copy Path button (secondary action)
+       ● 3-tab PDF section browser (Merged / Balance / Alerts)
+       ● Statistics footer (total sections, warnings, errors)
+
+     WHEN USER CLICKS FINISH:
+       VM sets CurrentStep back to a reset state.
+       VM.OnStatementSaved fires → SalesReportVM switches to list view.
+       List refreshes to show the newly-generated statement.
+
+     BINDINGS (all from parent StatementGeneratorViewModel):
+       LastWorkflowStatusText, IsLastWorkflowComplete,
+       LastPdfFileName, LastPdfSize, LastPdfPageInfo,
+       LastPdfGenerationDisplay, HasLastPdf,
+       DownloadLastPdfCommand, CopyPdfPathCommand,
+       MergedPdfSections, BalancePdfSections, AlertsPdfSections,
+       MergedSectionCount, BalanceSectionCount, AlertsSectionCount,
+       ActivePdfTab, ShowMergedTab, ShowBalanceTab, ShowAlertsTab,
+       SelectMergedTabCommand, SelectBalanceTabCommand, SelectAlertsTabCommand,
+       WarningCount, ErrorCount, WarningSummaryDisplay
+═══════════════════════════════════════════════════════════════ -->
+<UserControl Style="{StaticResource ErpPageRootStyle}"
+    x:Class="ProGlassAutomation.Views.Reports.StatementGenerator.Review.ReviewStep"
+             TextOptions.TextHintingMode="Fixed"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementGenerator"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance Type=vm:StatementGeneratorViewModel, IsDesignTimeCreatable=False}"
+    FontFamily="{DynamicResource AppFontFamily}"
+    TextOptions.TextFormattingMode="Ideal"
+    TextOptions.TextRenderingMode="ClearType"
+    UseLayoutRounding="True"
+    SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+
+        <Grid Margin="20,12,20,16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Step title -->
+                <RowDefinition Height="Auto"/>
+                <!-- Success banner -->
+                <RowDefinition Height="14"/>
+                <RowDefinition Height="Auto"/>
+                <!-- Financial KPI strip -->
+                <RowDefinition Height="12"/>
+                <RowDefinition Height="Auto"/>
+                <!-- Aging analysis -->
+                <RowDefinition Height="12"/>
+                <RowDefinition Height="Auto"/>
+                <!-- Per-PI reconciliation -->
+                <RowDefinition Height="12"/>
+                <RowDefinition Height="Auto"/>
+                <!-- 2-column: PDF card + Section browser -->
+                <RowDefinition Height="12"/>
+                <RowDefinition Height="Auto"/>
+                <!-- Statistics footer -->
+            </Grid.RowDefinitions>
+
+            <!-- ═══ STEP TITLE ═══ -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                <TextBlock Text="{DynamicResource Reports.StatementGenerator.StatementReady}"
+                          />
+                <TextBlock Text="{DynamicResource Reports.StatementGenerator.MergedPDFReportGeneratedDownloadReview}"
+                          />
+            </StackPanel>
+
+            <!-- ═══ SUCCESS/WARNING BANNER ═══ -->
+            <Border Grid.Row="1"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Padding="20,12"
+                    BorderThickness="{DynamicResource CardBorderThickness}">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <!-- Default = clean success (accent gradient) -->
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                    <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="BorderBrush" Value="Transparent"/>
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect BlurRadius="20" ShadowDepth="4"
+                                                  Opacity="0.15" Color="{DynamicResource AccentColor}"/>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <!-- Warning state: subtle amber tint (not a solid
+                                 amber fill) with a warning border, so text and
+                                 icons stay readable in both themes. -->
+                            <DataTrigger Binding="{Binding HasWarnings}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}"/>
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="20" ShadowDepth="4"
+                                                          Opacity="0.12" Color="{DynamicResource WarningColor}"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Big success/warning icon -->
+                    <Border Grid.Column="0"
+                            Width="64" Height="64"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
+                            VerticalAlignment="Center">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="{DynamicResource SurfaceElevatedBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasWarnings}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="✓"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasWarnings}" Value="True">
+                                            <Setter Property="Text" Value="⚠"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Border>
+
+                    <!-- Status text -->
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding LastWorkflowStatusText}"
+                                   FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasWarnings}" Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Text="{Binding LastPdfGenerationDisplay}"
+                                   FontSize="{DynamicResource FontSize.Title}"
+                                   Margin="0,4,0,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                    <Setter Property="Opacity" Value="0.85"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasWarnings}" Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                            <Setter Property="Opacity" Value="1"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <!-- Warning count badge (only if warnings exist) -->
+                    <Border Grid.Column="3"
+                            Background="{DynamicResource SurfacePrimaryBrush}"
+                            BorderBrush="{DynamicResource WarningBrush}"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Padding="14,8"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding HasWarnings,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Diagnostics.Warnings}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource WarningBrush}"/>
+                            <TextBlock Text="{Binding WarningSummaryDisplay}"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- ═══════════════════════════════════════════════════
+                 FINANCIAL KPI STRIP (real computed figures)
+            ═══════════════════════════════════════════════════ -->
+            <Grid Grid.Row="3"
+                  Visibility="{Binding HasLastSnapshot, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Common.Invoiced}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding LastFinancial.TotalInvoiced, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
+                    <StackPanel>
+                        <TextBlock Text="VAT" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentDarkBrush}"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding LastFinancial.TotalVat, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="4" Background="{DynamicResource TintGreenBrush}" BorderBrush="{DynamicResource SuccessBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
+                    <StackPanel>
+                        <TextBlock Text="PAID" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding LastFinancial.TotalPaid, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="6" Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Common.Outstanding}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding LastFinancial.TotalOutstanding, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="8" Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Common.Overdue}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding LastFinancial.OverdueAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="10" Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.TotalQTYSQM}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}">
+                                <Run Text="{Binding LastFinancial.TotalQty, Mode=OneWay}"/>
+                                <Run Text="{DynamicResource Reports.StatementGenerator.Pcs}"/>
+                                <!-- AREA FIX: an area ran through the CURRENCY converter, so this KPI
+                                     read "AED 45.70 m²". ConverterParameter=area renders the
+                                     number with its unit and no token (the converter header
+                                     documents exactly this trap; JoReport/PiReport/TaxInvoice
+                                     already use it), so the literal " m²" Run goes. -->
+                                <Run Text="{Binding LastFinancial.TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=area}"/>
+                            </TextBlock>
+                        </Viewbox>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ═══════════════════════════════════════════════════
+                 AGING ANALYSIS (real buckets)
+            ═══════════════════════════════════════════════════ -->
+            <Border Grid.Row="5"
+                    Background="{DynamicResource SurfacePrimaryBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Padding="20,16"
+                    Visibility="{Binding HasLastSnapshot, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="14"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="&#xE9D9;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.AgingAnalysis}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Background="{DynamicResource TintGrayBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,8">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.Current}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                <TextBlock Text="{Binding LastAging.Current, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="2" Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,8">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.130DAYS}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
+                                <TextBlock Text="{Binding LastAging.Days0To30, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="4" Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,8">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.3160DAYS}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
+                                <TextBlock Text="{Binding LastAging.Days31To60, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="6" Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,8">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.6190DAYS}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
+                                <TextBlock Text="{Binding LastAging.Days61To90, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="8" Background="{DynamicResource TintRedBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,8">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.90DAYS}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"/>
+                                <TextBlock Text="{Binding LastAging.Days90Plus, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- ═══════════════════════════════════════════════════
+                 ORDER FULFILLMENT RECONCILIATION — TABBED:
+                 · Included in statement (delivered / invoiced)
+                 · Due / balance (not delivered AND not invoiced)
+                 Each tab takes the full width; specification (group name +
+                 glass ref + dimensions) is shown per line. A "Prepare
+                 Delivery Note" / "View Job Order" pair in the Due tab lets
+                 the operator act on the balance directly.
+            ═══════════════════════════════════════════════════ -->
+            <Grid Grid.Row="7"
+                  Visibility="{Binding HasLastSnapshot, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Section heading + action buttons -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE8F1;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.OrderFulfillmentReconciliation}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                Visibility="{Binding HasReconciliationJobOrder, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button Margin="0,0,8,0" Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
+                                Command="{Binding PrepareDeliveryNoteCommand}"
+                                ToolTip="{DynamicResource Reports.StatementGenerator.CreateBalanceDeliveryNoteRelatedJobOrder}" Style="{StaticResource PrimaryButtonStyle}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{DynamicResource AccentBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,6" SnapsToDevicePixels="True">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE7F4;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Reports.StatementGenerator.PrepareDeliveryNote}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource OnAccentForegroundBrush}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Button Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
+                                Command="{Binding OpenJobOrderCommand}"
+                                ToolTip="{DynamicResource Reports.StatementGenerator.OpenRelatedJobOrderFullSpecificationRowData}" Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,6" SnapsToDevicePixels="True">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE8B7;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource AccentBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Reports.StatementGenerator.ViewJobOrder}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <Border Grid.Row="2"
+                        Background="{DynamicResource SurfacePrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Padding="14,12">
+                    <StackPanel>
+                        <!-- Tabs -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <Button Command="{Binding SelectReconciliationTabCommand}" CommandParameter="Included" Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Margin="0,0,6,0" Style="{StaticResource SecondaryButtonStyle}">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,7">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ShowIncludedReconciliation}" Value="True">
+                                                            <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" Margin="0,0,6,0">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding ShowIncludedReconciliation}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.IncludedStatement}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" VerticalAlignment="Center">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding ShowIncludedReconciliation}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding LastIncludedLines.Count, StringFormat=  ({0})}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+
+                            <Button Command="{Binding SelectReconciliationTabCommand}" CommandParameter="Due" Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,7">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ShowDueReconciliation}" Value="True">
+                                                            <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" Margin="0,0,6,0">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding ShowDueReconciliation}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.DueBalance}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" VerticalAlignment="Center">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding ShowDueReconciliation}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding LastDueLines.Count, StringFormat=  ({0})}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </StackPanel>
+
+                        <!-- Included tab content — spec group → rows → summary -->
+                        <StackPanel Visibility="{Binding ShowIncludedReconciliation, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <!-- Column header -->
+                            <Grid Margin="0,0,0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="84"/>
+                                    <ColumnDefinition Width="84"/>
+                                    <ColumnDefinition Width="84"/>
+                                    <ColumnDefinition Width="120"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="REF" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                <TextBlock Grid.Column="1" Text="{DynamicResource Reports.DeliveryReport.PINumber}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                <TextBlock Grid.Column="2" Text="{DynamicResource Reports.StatementGenerator.DimensionsW1H1W2H2}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                <TextBlock Grid.Column="3" Text="{DynamicResource Common.Ordered}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="4" Text="{DynamicResource Common.Delivered}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="5" Text="{DynamicResource Common.Invoiced}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="6" Text="{DynamicResource Common.Status}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                            </Grid>
+
+                            <ItemsControl ItemsSource="{Binding IncludedGroups}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,6">
+                                            <!-- Specification header -->
+                                            <Border Background="{DynamicResource TintIndigoBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,5" Margin="0,0,0,4">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="&#xE9F9;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding SpecGroupName}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding TotalSqm, StringFormat=  ·  {0:N3} m²}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <!-- Row data (single line each) -->
+                                            <ItemsControl ItemsSource="{Binding Rows}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Padding="10,5" Margin="0,0,0,2" BorderThickness="{DynamicResource Border.BottomHairlineThickness}" BorderBrush="{DynamicResource DividerBrush}">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="80"/>
+                                                                    <ColumnDefinition Width="130"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="84"/>
+                                                                    <ColumnDefinition Width="84"/>
+                                                                    <ColumnDefinition Width="84"/>
+                                                                    <ColumnDefinition Width="120"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Grid.Column="0" Text="{Binding GlassRef}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="1" Text="{Binding ProformaId}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="2" Text="{Binding RawDimsDisplay}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="3" Text="{Binding OrderedQty}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="4" Text="{Binding DeliveredQty}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="5" Text="{Binding InvoicedQty}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="6" Text="{Binding StatusLabel}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{Binding StatusColorHex, Converter={StaticResource ColorStringConverter}}" VerticalAlignment="Center"/>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Summary footer -->
+                            <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,8" Margin="0,6,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="TOTAL" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Common.Qty}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding IncludedTotalQty, Mode=OneWay}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="pcs" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource DeliveryNote.SQM}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding IncludedTotalSqm, Mode=OneWay, StringFormat={}{0:N3}}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="m²" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Due tab content — spec group → rows → summary -->
+                        <StackPanel Visibility="{Binding ShowDueReconciliation, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <!-- Column header -->
+                            <Grid Margin="0,0,0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="84"/>
+                                    <ColumnDefinition Width="84"/>
+                                    <ColumnDefinition Width="84"/>
+                                    <ColumnDefinition Width="120"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="REF" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                <TextBlock Grid.Column="1" Text="{DynamicResource Reports.DeliveryReport.PINumber}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                <TextBlock Grid.Column="2" Text="{DynamicResource Reports.StatementGenerator.DimensionsW1H1W2H2}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                <TextBlock Grid.Column="3" Text="{DynamicResource Common.Ordered}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="4" Text="{DynamicResource Common.Delivered}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="5" Text="{DynamicResource Common.Balance}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="6" Text="{DynamicResource Common.Status}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                            </Grid>
+
+                            <ItemsControl ItemsSource="{Binding DueGroups}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,6">
+                                            <!-- Specification header -->
+                                            <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,5" Margin="0,0,0,4">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="&#xE9F9;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource WarningBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding SpecGroupName}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding TotalSqm, StringFormat=  ·  {0:N3} m²}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <!-- Row data (single line each) -->
+                                            <ItemsControl ItemsSource="{Binding Rows}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Padding="10,5" Margin="0,0,0,2" BorderThickness="{DynamicResource Border.BottomHairlineThickness}" BorderBrush="{DynamicResource DividerBrush}">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="80"/>
+                                                                    <ColumnDefinition Width="130"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="84"/>
+                                                                    <ColumnDefinition Width="84"/>
+                                                                    <ColumnDefinition Width="84"/>
+                                                                    <ColumnDefinition Width="120"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Grid.Column="0" Text="{Binding GlassRef}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="1" Text="{Binding ProformaId}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="2" Text="{Binding RawDimsDisplay}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="3" Text="{Binding OrderedQty}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="4" Text="{Binding DeliveredQty}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="5" Text="{Binding BalanceQty}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="6" Text="{Binding StatusLabel}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{Binding StatusColorHex, Converter={StaticResource ColorStringConverter}}" VerticalAlignment="Center"/>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Summary footer -->
+                            <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,8" Margin="0,6,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="TOTAL" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Common.Qty}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding DueTotalQty, Mode=OneWay}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="pcs" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource DeliveryNote.SQM}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding DueTotalSqm, Mode=OneWay, StringFormat={}{0:N3}}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="m²" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ═══ 2-COLUMN: PDF FILE CARD + SECTION BROWSER ═══ -->
+            <Grid Grid.Row="9">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.1*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="1.4*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ═════════════════════════════════════════════════
+                     LEFT: PDF FILE CARD
+                ═════════════════════════════════════════════════ -->
+                <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}" Padding="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header with green gradient -->
+                        <Border Grid.Row="0"
+                                CornerRadius="{DynamicResource Radius.Top.Medium}"
+                                Padding="24,20">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                    <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="40" Height="40"
+                                       
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                        Margin="0,0,16,0">
+                                    <TextBlock Text="&#xE8A5;"
+                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.H1}"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.MergedPDFReport}"
+                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.9"/>
+                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.ReadyDownload}"
+                                               FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Giant PDF icon + filename -->
+                        <StackPanel Grid.Row="1"
+                                    Margin="24,32,24,24"
+                                    HorizontalAlignment="Center">
+                            <Border Width="96" Height="120"
+                                    CornerRadius="{DynamicResource CardCornerRadius}"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,0,0,20">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="{DynamicResource DangerColor}" Offset="0"/>
+                                        <GradientStop Color="{DynamicResource DangerColor}" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="14" ShadowDepth="4"
+                                                      Opacity="0.25" Color="{DynamicResource DangerColor}"/>
+                                </Border.Effect>
+                                <Grid>
+                                    <TextBlock Text="PDF"
+                                               FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Regular}"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                    <Border Width="24" Height="24"
+                                            Background="{DynamicResource SurfacePrimaryBrush}"
+                                            CornerRadius="{DynamicResource Radius.Medium}"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top">
+                                        <TextBlock Text="&#xE723;"
+                                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   Foreground="{DynamicResource DangerBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <TextBlock Text="{Binding LastPdfFileName}"
+                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       HorizontalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"
+                                       MaxWidth="360"/>
+
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,10,0,0">
+                                <Border
+                                        BorderBrush="{DynamicResource TintIndigoBrush}"
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                        Padding="8,4"
+                                        Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <TextBlock Text="{Binding LastPdfPageInfo}"
+                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                </Border>
+                                <Border
+                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                        Padding="8,4" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <TextBlock Text="{Binding LastPdfSize}"
+                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                               Foreground="{DynamicResource AccentDarkBrush}"/>
+                                </Border>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Download button (primary, big) -->
+                        <Button Grid.Row="2"
+                                Command="{Binding DownloadLastPdfCommand}"
+                                Height="52" Margin="24,0,24,12"
+                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" CornerRadius="{DynamicResource CardCornerRadius}">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                                <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="10" ShadowDepth="3"
+                                                              Opacity="0.3" Color="{DynamicResource AccentColor}"/>
+                                        </Border.Effect>
+                                        <StackPanel Orientation="Horizontal"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="&#xE896;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                       Margin="0,0,10,0"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Reports.StatementGenerator.DownloadPDF}"
+                                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Opacity" Value="0.92"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="bd" Property="Opacity" Value="0.8"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <!-- Share button (secondary) -->
+                        <Button Grid.Row="3"
+                                Command="{Binding ShareLastPdfCommand}"
+                                MinHeight="{DynamicResource DensityInputHeight}" Margin="24,0,24,8"
+                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd"
+                                            Background="{DynamicResource SuccessBrush}"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}">
+                                        <StackPanel Orientation="Horizontal"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="&#xE72D;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
+                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                       Margin="0,0,8,0"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Sharing.Share}"
+                                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="bd" Property="Opacity" Value="0.75"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <!-- Copy Path button (secondary) -->
+                        <Button Grid.Row="4"
+                                Command="{Binding CopyPdfPathCommand}"
+                                MinHeight="{DynamicResource DensityInputHeight}" Margin="24,0,24,24"
+                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd"
+                                            Background="{DynamicResource SurfacePrimaryBrush}"
+                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                            BorderThickness="{DynamicResource CardBorderThickness}"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}">
+                                        <StackPanel Orientation="Horizontal"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="&#xE8C8;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Reports.StatementGenerator.CopyFilePath}"
+                                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                            <Setter TargetName="bd" Property="Background"
+                                                    Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- ═════════════════════════════════════════════════
+                     RIGHT: PDF SECTION BROWSER
+                ═════════════════════════════════════════════════ -->
+                <Border Grid.Column="2" Padding="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header -->
+                        <Border Grid.Row="0">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="36" Height="36"
+                                        Background="{DynamicResource SurfacePrimaryBrush}"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
+                                        Margin="0,0,16,0">
+                                    <TextBlock Text="&#xE8F1;"
+                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.H2}"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.PDFSectionBrowser}"
+                                               FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.BrowseWhatSInsideMergedReport}"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.85"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Tabs -->
+                        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
+                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                Padding="16,10">
+                            <StackPanel Orientation="Horizontal">
+
+                                <!-- Merged tab -->
+                                <Button Command="{Binding SelectMergedTabCommand}"
+                                        Height="36" Padding="14,0" Margin="0,0,6,0"
+                                        Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding ShowMergedTab}" Value="True">
+                                                                <Setter Property="Background">
+                                                                    <Setter.Value>
+                                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                                            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                                                            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
+                                                                        </LinearGradientBrush>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                                               VerticalAlignment="Center">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground"
+                                                                        Value="{DynamicResource TextSecondaryBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding ShowMergedTab}" Value="True">
+                                                                        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                        <Run Text="&#xE8A5;" FontFamily="{DynamicResource FontFamily.Icon}"/>
+                                                        <Run Text="{DynamicResource Reports.StatementGenerator.Merged}"/>
+                                                    </TextBlock>
+                                                    <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="6,1"
+                                                            VerticalAlignment="Center">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background"
+                                                                        Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding ShowMergedTab}" Value="True">
+                                                                        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding MergedSectionCount}"
+                                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource TextTertiaryBrush}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding ShowMergedTab}" Value="True">
+                                                                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                </StackPanel>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+
+                                <!-- Balance tab -->
+                                <Button Command="{Binding SelectBalanceTabCommand}"
+                                        Height="36" Padding="14,0" Margin="0,0,6,0"
+                                        Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding ShowBalanceTab}" Value="True">
+                                                                <Setter Property="Background">
+                                                                    <Setter.Value>
+                                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                                            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                                                            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
+                                                                        </LinearGradientBrush>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.Balance}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                                               VerticalAlignment="Center">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground"
+                                                                        Value="{DynamicResource TextSecondaryBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding ShowBalanceTab}" Value="True">
+                                                                        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                    <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="6,1"
+                                                            VerticalAlignment="Center">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background"
+                                                                        Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding ShowBalanceTab}" Value="True">
+                                                                        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding BalanceSectionCount}"
+                                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource TextTertiaryBrush}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding ShowBalanceTab}" Value="True">
+                                                                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                </StackPanel>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+
+                                <!-- Alerts tab -->
+                                <Button Command="{Binding SelectAlertsTabCommand}"
+                                        Height="36" Padding="14,0"
+                                        Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding ShowAlertsTab}" Value="True">
+                                                                <Setter Property="Background">
+                                                                    <Setter.Value>
+                                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                                            <GradientStop Color="{DynamicResource WarningColor}" Offset="0"/>
+                                                                            <GradientStop Color="{DynamicResource WarningColor}" Offset="1"/>
+                                                                        </LinearGradientBrush>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.Alerts}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                                               VerticalAlignment="Center">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground"
+                                                                        Value="{DynamicResource TextSecondaryBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding ShowAlertsTab}" Value="True">
+                                                                        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                    <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="6,1"
+                                                            VerticalAlignment="Center">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background"
+                                                                        Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding ShowAlertsTab}" Value="True">
+                                                                        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding AlertsSectionCount}"
+                                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource TextTertiaryBrush}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding ShowAlertsTab}" Value="True">
+                                                                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                </StackPanel>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Section list (scrollable) -->
+                        <ScrollViewer Grid.Row="2"
+                                      Padding="16,12,16,16"
+                                      MaxHeight="440"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <Grid>
+                                <!-- Merged tab content -->
+                                <ItemsControl ItemsSource="{Binding MergedPdfSections}"
+                                              Visibility="{Binding ShowMergedTab,
+                                                  Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{DynamicResource SurfacePrimaryBrush}"
+                                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                                    BorderThickness="{DynamicResource CardBorderThickness}"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                    Padding="14,12"
+                                                    Margin="0,0,0,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0"
+                                                            Width="34" Height="34"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                            Margin="0,0,14,0"
+                                                            VerticalAlignment="Center"
+                                                            Background="{Binding IconBrushKey,
+                                                                Converter={StaticResource BrushKeyConverter}}">
+                                                        <TextBlock Text="{Binding Icon}"
+                                                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                                                   FontSize="{DynamicResource FontSize.H3}"
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Title}"
+                                                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                        <TextBlock Text="{Binding PageInfo}"
+                                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                                                   Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                    <Border Grid.Column="2"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
+                                                            VerticalAlignment="Center"
+                                                            Visibility="{Binding HasStatus,
+                                                                Converter={StaticResource BoolToVisibilityConverter}}"
+                                                            Background="{Binding StatusBrushKey,
+                                                                Converter={StaticResource BrushKeyConverter}}">
+                                                        <TextBlock Text="{Binding StatusLabel}"
+                                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                                                   Foreground="{Binding StatusForegroundBrushKey,
+                                                                   Converter={StaticResource BrushKeyConverter}}"/>
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <!-- Balance tab content -->
+                                <ItemsControl ItemsSource="{Binding BalancePdfSections}"
+                                              Visibility="{Binding ShowBalanceTab,
+                                                  Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{DynamicResource SurfacePrimaryBrush}"
+                                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                                    BorderThickness="{DynamicResource CardBorderThickness}"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                    Padding="14,12"
+                                                    Margin="0,0,0,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0"
+                                                            Width="34" Height="34"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                            Margin="0,0,14,0"
+                                                            VerticalAlignment="Center"
+                                                            Background="{Binding IconBrushKey,
+                                                                Converter={StaticResource BrushKeyConverter}}">
+                                                        <TextBlock Text="{Binding Icon}"
+                                                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                                                   FontSize="{DynamicResource FontSize.H3}"
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Title}"
+                                                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                        <TextBlock Text="{Binding PageInfo}"
+                                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                                                   Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                    <Border Grid.Column="2"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
+                                                            VerticalAlignment="Center"
+                                                            Visibility="{Binding HasStatus,
+                                                                Converter={StaticResource BoolToVisibilityConverter}}"
+                                                            Background="{Binding StatusBrushKey,
+                                                                Converter={StaticResource BrushKeyConverter}}">
+                                                        <TextBlock Text="{Binding StatusLabel}"
+                                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                                                   Foreground="{Binding StatusForegroundBrushKey,
+                                                                   Converter={StaticResource BrushKeyConverter}}"/>
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <!-- Alerts tab content -->
+                                <ItemsControl ItemsSource="{Binding AlertsPdfSections}"
+                                              Visibility="{Binding ShowAlertsTab,
+                                                  Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{DynamicResource SurfacePrimaryBrush}"
+                                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                                    BorderThickness="{DynamicResource CardBorderThickness}"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                    Padding="14,12"
+                                                    Margin="0,0,0,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0"
+                                                            Width="34" Height="34"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                            Margin="0,0,14,0"
+                                                            VerticalAlignment="Center"
+                                                            Background="{Binding IconBrushKey,
+                                                                Converter={StaticResource BrushKeyConverter}}">
+                                                        <TextBlock Text="{Binding Icon}"
+                                                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                                                   FontSize="{DynamicResource FontSize.H3}"
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Title}"
+                                                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                        <TextBlock Text="{Binding PageInfo}"
+                                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                                                   Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                    <Border Grid.Column="2"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
+                                                            VerticalAlignment="Center"
+                                                            Visibility="{Binding HasStatus,
+                                                                Converter={StaticResource BoolToVisibilityConverter}}"
+                                                            Background="{Binding StatusBrushKey,
+                                                                Converter={StaticResource BrushKeyConverter}}">
+                                                        <TextBlock Text="{Binding StatusLabel}"
+                                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                                                   Foreground="{Binding StatusForegroundBrushKey,
+                                                                   Converter={StaticResource BrushKeyConverter}}"/>
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ═══ STATISTICS FOOTER ═══ -->
+            <Border Grid.Row="11"
+                    Background="{DynamicResource SurfacePrimaryBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Padding="20,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="&#xE9D9;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
+                                   Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   VerticalAlignment="Center">
+                            <Run Text="{DynamicResource Reports.StatementGenerator.ReportIncludes}"/>
+                            <Run Text="{Binding MergedSectionCount, Mode=OneWay}"
+                                 FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <Run Text="{DynamicResource Reports.StatementGenerator.SectionS}"/>
+                            <Run Text="{Binding ErrorCount, Mode=OneWay}"
+                                 FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"/>
+                            <Run Text="{DynamicResource Reports.StatementGenerator.ErrorS}"/>
+                            <Run Text="{Binding WarningCount, Mode=OneWay}"
+                                 FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
+                            <Run Text="{DynamicResource Reports.StatementGenerator.WarningS}"/>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.ProcessingComplete}"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource SuccessBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+        </Grid>
+    </ScrollViewer>
+</UserControl>

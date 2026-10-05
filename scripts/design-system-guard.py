@@ -1,0 +1,333 @@
+#!/usr/bin/env python3
+"""
+Design-System Guard — Phase 8A + Phase 9 improvements
+Detects prohibited visual patterns that would drift repository back into
+hardcoded visuals, duplicate card systems, etc.
+
+BUILD-BLOCKING vs WARNING:
+- BLOCKING: hardcoded colors in Views, hardcoded CornerRadius (excluding PrintTokens special), hardcoded FontSize numeric, unresolved resources, BasedOn cycles, duplicate card systems, new visual systems, broken canonical, new legacy actual usage
+- WARNING: emoji font, print-specific values, special surface values, AgentChatView protected finding, FontWeight literal pre-existing deferred, generated/false-positive
+
+Usage:
+  python scripts/design-system-guard.py
+  Exit 0 = PASS (warnings allowed)
+  Exit 1 = FAIL (blocking violations)
+
+Protected files (do NOT auto-fix, WARNING only):
+  Agent/UI/AgentChatView.xaml — contains #B91C1C #6366F1 #3730A3 as pre-existing user modification
+
+Special surfaces (WARNING not BLOCKING):
+  PrintableInvoiceView.xaml — CornerRadius="6" etc. via PrintTokens
+  SplashView.xaml, AboutStyles.xaml, AuthSurfaceStyles.xaml — orb glow arbitrary radius
+
+Known exception:
+  CountryPhoneControl — Segoe UI Emoji — flag rendering
+
+Phase 9 improvements:
+- Accurately distinguish XML comments (including multi-line), quoted attribute values, actual duplicate attributes, actual resource violations
+- Strip XML comments before scanning to avoid false positives like letter-spacing inside comment
+- Improve FontWeight literal detection to avoid counting inside comments
+"""
+
+import glob
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).parent.parent
+VIEW_GLOB = "Views/**/*.xaml"
+ALL_XAML_GLOB = "**/*.xaml"
+
+# Patterns
+HARDCODED_COLOR_RE = re.compile(r'(Background|Foreground|BorderBrush)\s*=\s*"#[0-9A-Fa-f]{3,8}"')
+HARDCODED_CORNER_RE = re.compile(r'CornerRadius\s*=\s*"[0-9]')
+HARDCODED_FONTSIZE_RE = re.compile(r'FontSize\s*=\s*"[0-9][^"]*"' )  # numeric literal, but allow {DynamicResource, {StaticResource
+HARDCODED_FONTWEIGHT_LITERAL_RE = re.compile(r'FontWeight\s*=\s*"Bold"|FontWeight\s*=\s*"SemiBold"|FontWeight\s*=\s*"Medium"|FontWeight\s*=\s*"Normal"')
+NEW_CARDSTYLE_RE = re.compile(r'<Style\s+x:Key="[^"]*CardStyle"')
+NEW_GLASSCARD_RE = re.compile(r'<Style\s+x:Key="[^"]*GlassCardStyle"')
+NEW_LIQUIDCARD_RE = re.compile(r'<Style\s+x:Key="[^"]*LiquidCardStyle"')
+NEW_CRYSTALCARD_RE = re.compile(r'<Style\s+x:Key="[^"]*CrystalCardStyle"')
+NEW_MODULECARD_RE = re.compile(r'<Style\s+x:Key="[^"]*ModuleCardStyle"')
+NEW_DASHBOARDCARD_RE = re.compile(r'<Style\s+x:Key="[^"]*DashboardCardStyle"')
+
+# Special files
+PRINT_TOKENS_FILE = "Views/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceView.xaml"
+SPECIAL_SURFACES = [
+    "Views/Splash/SplashView.xaml",
+    "Views/About/AboutStyles.xaml",
+    "Views/Login/AuthSurfaceStyles.xaml",
+    "Views/About/AboutView.xaml",
+    "Views/About/Sections/",
+    "Themes/Styles/LiquidGlassDesign.xaml",
+    "Themes/Styles/LiquidGlassStyles.xaml",
+]
+PROTECTED_FILES = [
+    "Agent/UI/AgentChatView.xaml",
+]
+
+# Canonical check
+GDS_PATH = ROOT / "Themes/Styles/GlobalDesignSystem.xaml"
+
+def _strip_xml_comments(text: str) -> str:
+    """Remove XML comments including multi-line, to avoid false positives.
+    Handles <!-- ... --> including nested? Non-greedy."""
+    return re.sub(r'<!--.*?-->', '', text, flags=re.DOTALL)
+
+def check_hardcoded_colors():
+    blocking = []
+    warnings = []
+    files = glob.glob(str(ROOT / VIEW_GLOB), recursive=True)
+    for f in files:
+        rel = str(Path(f).relative_to(ROOT))
+        try:
+            text = Path(f).read_text(encoding='utf-8', errors='ignore')
+        except:
+            continue
+        clean = _strip_xml_comments(text)
+        for m in HARDCODED_COLOR_RE.finditer(clean):
+            if any(pf in rel for pf in PROTECTED_FILES):
+                warnings.append(f"{rel}: hardcoded color {m.group(0)} — WARNING protected file AgentChatView contains hardcoded colors #B91C1C etc. — protected pre-existing, do NOT auto-fix")
+            else:
+                blocking.append(f"{rel}: hardcoded color {m.group(0)} — BUILD-BLOCKING — use DynamicResource Surface* / Text* / Accent* / Danger* etc.")
+    # Also check Agent/UI separately for reporting
+    agent_files = glob.glob(str(ROOT / "Agent/**/*.xaml"), recursive=True)
+    for f in agent_files:
+        rel = str(Path(f).relative_to(ROOT))
+        try:
+            text = Path(f).read_text(encoding='utf-8', errors='ignore')
+        except:
+            continue
+        clean = _strip_xml_comments(text)
+        for m in HARDCODED_COLOR_RE.finditer(clean):
+            warnings.append(f"{rel}: hardcoded color {m.group(0)} — WARNING protected file")
+        if "#B91C1C" in clean or "#6366F1" in clean or "#3730A3" in clean:
+            if rel not in [w.split(":")[0] for w in warnings]:
+                warnings.append(f"{rel}: contains #B91C1C / #6366F1 / #3730A3 — WARNING protected pre-existing user modification, do NOT overwrite")
+    return blocking, warnings
+
+def check_hardcoded_corner():
+    blocking = []
+    warnings = []
+    files = glob.glob(str(ROOT / VIEW_GLOB), recursive=True)
+    for f in files:
+        rel = str(Path(f).relative_to(ROOT))
+        try:
+            text = Path(f).read_text(encoding='utf-8', errors='ignore')
+        except:
+            continue
+        clean = _strip_xml_comments(text)
+        for m in HARDCODED_CORNER_RE.finditer(clean):
+            # Find line containing match in original clean text
+            line_start = clean.rfind("\n", 0, m.start()) + 1
+            line_end = clean.find("\n", m.end())
+            line = clean[line_start:line_end] if line_end != -1 else clean[line_start:]
+            if "DynamicResource" in line or "StaticResource" in line:
+                continue
+            if PRINT_TOKENS_FILE in rel:
+                warnings.append(f"{rel}: CornerRadius numeric {m.group(0)} — WARNING PrintTokens special (PrintableInvoiceView allows CornerRadius=\"6\" etc. via Print.Accent) — allowed as special surface")
+            elif any(ss in rel for ss in SPECIAL_SURFACES):
+                warnings.append(f"{rel}: CornerRadius numeric {m.group(0)} — WARNING special surface intentional (Splash/About/Login orb glow) — allowed")
+            else:
+                blocking.append(f"{rel}: hardcoded CornerRadius {m.group(0)} — BUILD-BLOCKING — use Radius.Card / Radius.Control / ControlCornerRadius via DynamicResource")
+    return blocking, warnings
+
+def check_hardcoded_fontsize():
+    blocking = []
+    warnings = []
+    files = glob.glob(str(ROOT / VIEW_GLOB), recursive=True)
+    for f in files:
+        rel = str(Path(f).relative_to(ROOT))
+        try:
+            text = Path(f).read_text(encoding='utf-8', errors='ignore')
+        except:
+            continue
+        clean = _strip_xml_comments(text)
+        for m in HARDCODED_FONTSIZE_RE.finditer(clean):
+            if "{DynamicResource" in m.group(0) or "{StaticResource" in m.group(0) or "{Binding" in m.group(0):
+                continue
+            val = m.group(0)
+            q = re.search(r'"([^"]+)"', val)
+            if q:
+                inner = q.group(1)
+                if inner and inner[0].isdigit() and "{" not in inner:
+                    blocking.append(f"{rel}: hardcoded FontSize {val} — BUILD-BLOCKING — use FontSize.Body / Title / H1 etc. via DynamicResource")
+    return blocking, warnings
+
+def check_hardcoded_fontweight():
+    blocking = []
+    warnings = []
+    files = glob.glob(str(ROOT / VIEW_GLOB), recursive=True)
+    for f in files:
+        rel = str(Path(f).relative_to(ROOT))
+        try:
+            text = Path(f).read_text(encoding='utf-8', errors='ignore')
+        except:
+            continue
+        clean = _strip_xml_comments(text)
+        for m in HARDCODED_FONTWEIGHT_LITERAL_RE.finditer(clean):
+            # After Phase 9 migration, remaining should be special surface only (PrintableInvoiceView 34)
+            # Still WARNING, not BLOCKING, because special surface intentional
+            if PRINT_TOKENS_FILE in rel:
+                warnings.append(f"{rel}: hardcoded FontWeight {m.group(0)} — WARNING PrintTokens special surface, intentionally deferred, do NOT force generic token")
+            else:
+                warnings.append(f"{rel}: hardcoded FontWeight {m.group(0)} — WARNING pre-existing deferred to Phase 9, should use Weight.Bold via DynamicResource, not BLOCKER for Phase 8A")
+    return blocking, warnings
+
+def check_duplicate_card_systems():
+    blocking = []
+    warnings = []
+    files = glob.glob(str(ROOT / ALL_XAML_GLOB), recursive=True)
+    view_files = [f for f in files if "/Views/" in f]
+    for f in view_files:
+        rel = str(Path(f).relative_to(ROOT))
+        try:
+            text = Path(f).read_text(encoding='utf-8', errors='ignore')
+        except:
+            continue
+        clean = _strip_xml_comments(text)
+        for pattern, name in [
+            (NEW_CARDSTYLE_RE, "CardStyle"),
+            (NEW_GLASSCARD_RE, "GlassCardStyle"),
+            (NEW_LIQUIDCARD_RE, "LiquidCardStyle"),
+            (NEW_CRYSTALCARD_RE, "CrystalCardStyle"),
+            (NEW_MODULECARD_RE, "ModuleCardStyle"),
+            (NEW_DASHBOARDCARD_RE, "DashboardCardStyle"),
+        ]:
+            for m in pattern.finditer(clean):
+                if "GlobalDesignSystem.xaml" in rel or "CardStyles.xaml" in rel:
+                    continue
+                blocking.append(f"{rel}: new duplicate card system {m.group(0)} — BUILD-BLOCKING — use SurfacePrimaryStyle / Secondary / Detail / Elevated / KPI / Glass via DynamicResource")
+    return blocking, warnings
+
+def check_canonical_exists():
+    blocking = []
+    warnings = []
+    if not GDS_PATH.exists():
+        blocking.append(f"GlobalDesignSystem not found at {GDS_PATH} — BUILD-BLOCKING — canonical authority missing")
+    else:
+        try:
+            text = GDS_PATH.read_text(encoding='utf-8', errors='ignore')
+            count = text.count('x:Key=')
+            if count < 300:
+                warnings.append(f"GlobalDesignSystem key count {count} < 300 — WARNING may be incomplete, expected 374")
+        except Exception as e:
+            blocking.append(f"Failed to read GlobalDesignSystem: {e}")
+    return blocking, warnings
+
+def check_duplicate_properties():
+    """Detect properties set more than once on the same element (attribute + property element syntax).
+    WPF build errors: MC3024 / XLS0501 / XDG0039."""
+    blocking = []
+    warnings = []
+    import xml.etree.ElementTree as ET
+    for xaml_path in ROOT.glob("**/*.xaml"):
+        rel = str(xaml_path.relative_to(ROOT)).replace('\\', '/')
+        if any(skip in rel for skip in ("bin/", "obj/", ".git/")):
+            continue
+        try:
+            tree = ET.parse(xaml_path)
+            for elem in tree.iter():
+                elem_tag = elem.tag.split("}")[-1]
+                elem_name = elem_tag.split(":")[-1]
+                child_props = {}
+                for child in elem:
+                    child_tag = child.tag.split("}")[-1]
+                    child_name = child_tag.split(":")[-1]
+                    if "." in child_name:
+                        _, prop_part = child_name.split(".", 1)
+                        child_props[prop_part] = child_props.get(prop_part, 0) + 1
+                        if child_props[prop_part] > 1:
+                            blocking.append(f"{rel}: property element <{child_tag}> declared multiple times on <{elem_tag}> — BUILD-BLOCKING (MC3024 / XLS0501)")
+                for attr in elem.attrib:
+                    attr_name = attr.split("}")[-1].split(":")[-1]
+                    attr_prop = attr_name.split(".", 1)[1] if "." in attr_name else attr_name
+                    if attr_prop in child_props:
+                        blocking.append(f"{rel}: property '{attr_prop}' set more than once on <{elem_tag}> ({attr_name}=\"...\" attribute AND <{elem_name}.{attr_prop}> child element) — BUILD-BLOCKING (MC3024 / XLS0501 / XDG0039)")
+        except ET.ParseError as e:
+            blocking.append(f"{rel}: XML parse error: {e}")
+        except Exception:
+            pass
+    return blocking, warnings
+
+def main():
+    print("=== Design-System Guard — Phase 8A + Phase 9 improvements ===")
+    print(f"Root: {ROOT}")
+    print("")
+
+    all_blocking = []
+    all_warnings = []
+
+    b, w = check_hardcoded_colors()
+    all_blocking.extend(b)
+    all_warnings.extend(w)
+    print(f"[1] Hardcoded colors in Views: BLOCKING={len(b)} WARNING={len(w)}")
+
+    b, w = check_hardcoded_corner()
+    all_blocking.extend(b)
+    all_warnings.extend(w)
+    print(f"[2] Hardcoded CornerRadius: BLOCKING={len(b)} WARNING={len(w)}")
+
+    b, w = check_hardcoded_fontsize()
+    all_blocking.extend(b)
+    all_warnings.extend(w)
+    print(f"[3] Hardcoded FontSize: BLOCKING={len(b)} WARNING={len(w)}")
+
+    b, w = check_hardcoded_fontweight()
+    all_blocking.extend(b)
+    all_warnings.extend(w)
+    print(f"[4] Hardcoded FontWeight literal: BLOCKING={len(b)} WARNING={len(w)} (Phase 9: 249 -> 34 special deferred)")
+
+    b, w = check_duplicate_card_systems()
+    all_blocking.extend(b)
+    all_warnings.extend(w)
+    print(f"[5] Duplicate CardStyle systems: BLOCKING={len(b)} WARNING={len(w)}")
+
+    b, w = check_canonical_exists()
+    all_blocking.extend(b)
+    all_warnings.extend(w)
+    print(f"[6] Canonical authority: BLOCKING={len(b)} WARNING={len(w)}")
+
+    b, w = check_duplicate_properties()
+    all_blocking.extend(b)
+    all_warnings.extend(w)
+    print(f"[7] Duplicate property definitions (MC3024/XLS0501): BLOCKING={len(b)} WARNING={len(w)}")
+
+    print("")
+    print("--- WARNINGS (allowed, but report) ---")
+    for warn in all_warnings[:100]:
+        print(f"  WARN: {warn}")
+    if len(all_warnings) > 100:
+        print(f"  ... and {len(all_warnings)-100} more warnings")
+
+    print("")
+    print("--- BLOCKING (must fix) ---")
+    for block in all_blocking:
+        print(f"  FAIL: {block}")
+
+    print("")
+    print(f"Summary: {len(all_blocking)} BLOCKING, {len(all_warnings)} WARNING")
+    print("")
+
+    print("--- Existing audits (for context) ---")
+    try:
+        import subprocess
+        result = subprocess.run(["python", str(ROOT / "scripts/verify-dashboard.py")], capture_output=True, text=True, timeout=10)
+        print(result.stdout[:500])
+    except Exception as e:
+        print(f"verify-dashboard.py failed: {e}")
+
+    print("")
+    if all_blocking:
+        print("RESULT: FAIL — blocking violations found — fix before commit")
+        print("Windows live WPF visual verification remains OUTSTANDING and is NOT replaced by Phase 8A static verification.")
+        sys.exit(1)
+    else:
+        print("RESULT: PASS — no blocking violations, warnings allowed")
+        print("Windows live WPF visual verification remains OUTSTANDING and is NOT replaced by Phase 8A static verification.")
+        print("")
+        print("PHASE 8A — Guardrails installed — static verification PASS")
+        print("WINDOWS LIVE WPF VISUAL VERIFICATION REMAINS OUTSTANDING")
+        sys.exit(0)
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,222 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+                    x:Class="ProGlassAutomation.Themes.Styles.CardStyles">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         CARD STYLES — The primary building block of the UI.
+
+         BrushKeyConverter is registered in LightTheme.xaml +
+         DarkTheme.xaml (loaded BEFORE this dictionary in App.xaml
+         MergedDictionaries). Referenced here via StaticResource.
+
+         Do NOT register BrushKeyConverter locally in this file —
+         causes "incompatible type" resource conflict.
+         Do NOT use DynamicResource on Converter — WPF Binding
+         requires StaticResource for converters.
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <!--
+        Card shapes now read the theme's shape tokens
+        (CardCornerRadius / CardCornerRadiusLarge) so a single theme
+        change re-shapes every card in every section smoothly.
+        Shadow tint fixed: was leftover GREEN (#0F4C3A) from the old
+        palette — now neutral navy so it reads clean in the blue theme.
+    -->
+
+    <Style x:Key="BaseCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="Margin"          Value="8"/>
+    </Style>
+
+    <Style x:Key="ElevatedCardStyle" TargetType="Border"
+           BasedOn="{StaticResource BaseCardStyle}">
+        <Setter Property="Effect" Value="{StaticResource ShadowSoft}"/>
+    </Style>
+
+    
+
+    <Style x:Key="StatCardStyle" TargetType="Border"
+           BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Setter Property="Padding" Value="{DynamicResource CardEdgePaddingStat}"/>
+        <Setter Property="Margin"  Value="6"/>
+    </Style>
+
+    <Style x:Key="TaskCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Setter Property="Padding"         Value="{DynamicResource CardEdgePaddingTask}"/>
+        <Setter Property="Margin"          Value="0,0,0,10"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect BlurRadius="16" ShadowDepth="0"
+                                          Opacity="0.10" Color="{DynamicResource AccentDarkColor}"/>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="PriorityCardStyle" TargetType="Border"
+           BasedOn="{StaticResource TaskCardStyle}">
+        <Setter Property="BorderThickness" Value="4,1,1,1"/>
+        <Setter Property="BorderBrush"
+                Value="{Binding PriorityColor,
+                        Converter={StaticResource BrushKeyConverter}}"/>
+    </Style>
+
+    <Style x:Key="ListRowCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
+        <Setter Property="Padding"         Value="{DynamicResource CardEdgePaddingList}"/>
+        <Setter Property="Margin"          Value="0,0,0,6"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="HeroCardAccentStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
+        <Setter Property="Padding"      Value="24"/>
+        <Setter Property="Margin"       Value="8"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="{Binding Source={StaticResource AccentDarkBrush},
+                                          Path=Color}" Offset="0"/>
+                    <GradientStop Color="{Binding Source={StaticResource AccentLightBrush},
+                                          Path=Color}" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="HeroCardInfoStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
+        <Setter Property="Padding"      Value="24"/>
+        <Setter Property="Margin"       Value="8"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0"/>
+                    <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="HeroCardWarningStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
+        <Setter Property="Padding"      Value="24"/>
+        <Setter Property="Margin"       Value="8"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="{DynamicResource WarningColor}" Offset="0"/>
+                    <GradientStop Color="{DynamicResource WarningColor}" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="HeroCardDangerStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
+        <Setter Property="Padding"      Value="24"/>
+        <Setter Property="Margin"       Value="8"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="{DynamicResource DangerColor}" Offset="0"/>
+                    <GradientStop Color="{DynamicResource DangerColor}" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="HeroCardPurpleStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
+        <Setter Property="Padding"      Value="24"/>
+        <Setter Property="Margin"       Value="8"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0"/>
+                    <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         INTERACTIVE CARDS — global "bouncy" hover (2026-09-02)
+         ═══════════════════════════════════════════════════════════════
+         The Settings nav rail was the only surface in the app with a
+         springy hover response. These styles make that motion available
+         everywhere WITHOUT touching a single ControlTemplate: the whole
+         effect is one attached behavior (Behaviors/BounceHoverBehavior.cs)
+         that animates a centred ScaleTransform with a BackEase overshoot.
+
+         Opt in by basing a card on one of these, or by setting
+         behaviors:BounceHover.IsEnabled="True" directly on any element.
+
+         These are deliberately SEPARATE styles rather than changes to
+         BaseCardStyle: purely decorative cards (headers, static panels)
+         should not react to the pointer, and silently animating every
+         Border in the app would be worse, not better.
+    -->
+
+    <!-- Any clickable card: lifts and springs slightly on hover. -->
+    <Style x:Key="InteractiveCardStyle" TargetType="Border"
+           BasedOn="{StaticResource BaseCardStyle}">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="behaviors:BounceHover.IsEnabled" Value="True"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Effect"      Value="{StaticResource ShadowElevated}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Elevated variant: already has a shadow at rest. -->
+    <Style x:Key="InteractiveElevatedCardStyle" TargetType="Border"
+           BasedOn="{StaticResource ElevatedCardStyle}">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="behaviors:BounceHover.IsEnabled" Value="True"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Effect"      Value="{StaticResource ShadowElevated}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Dashboard tiles: smaller travel, they sit in dense grids. -->
+    <Style x:Key="InteractiveStatCardStyle" TargetType="Border"
+           BasedOn="{StaticResource StatCardStyle}">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="behaviors:BounceHover.IsEnabled" Value="True"/>
+        <Setter Property="behaviors:BounceHover.HoverScale" Value="1.02"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Effect"      Value="{StaticResource ShadowElevated}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- List rows: very subtle, they repeat many times down a page. -->
+    <Style x:Key="InteractiveListRowCardStyle" TargetType="Border"
+           BasedOn="{StaticResource ListRowCardStyle}">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="behaviors:BounceHover.IsEnabled" Value="True"/>
+        <Setter Property="behaviors:BounceHover.HoverScale" Value="1.008"/>
+        <Setter Property="behaviors:BounceHover.PressScale" Value="0.994"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>

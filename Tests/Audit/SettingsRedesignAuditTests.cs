@@ -1,0 +1,554 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: Tests/Audit/SettingsRedesignAuditTests.cs
+// PROJECT: ProGlassAutomation.Tests
+// MODULE: Settings v3 redesign — regression locks
+//
+// The 2026-09-17 redesign fixed four failure classes that all regress
+// SILENTLY (nothing fails to build when they come back):
+//
+//   • the lazy page host replaced by a stacked-Visibility Grid again
+//     (twelve page trees instantiated at window open);
+//   • the spacing scale replaced by hand-typed Margin literals (the exact
+//     mechanism that made "give the cards air" unfixable for a year);
+//   • colour/radius/type literals creeping back into the sections;
+//   • interactive controls losing their UI Automation names (80 controls
+//     renamed in the A1 sweep; a screen reader must never hear a bare
+//     "toggle button" on this module again).
+//
+// Plus two file-size budgets so the god-file rot cannot return: no
+// SettingsViewModel partial over 350 lines, shell under 420.
+// All checks are source-file scans; no WPF Application is needed.
+// ═══════════════════════════════════════════════════════════════════════
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using Xunit;
+
+namespace ProGlassAutomation.Tests.Audit
+{
+    public sealed class SettingsRedesignAuditTests
+    {
+        private static string Root()
+        {
+            var dir = new DirectoryInfo(AppContext.BaseDirectory);
+            while (dir != null)
+            {
+                if (File.Exists(Path.Combine(dir.FullName, "Views", "Settings", "SettingsView.xaml")))
+                    return dir.FullName;
+                dir = dir.Parent;
+            }
+            throw new DirectoryNotFoundException(
+                "Could not locate the project root above " + AppContext.BaseDirectory);
+        }
+
+        private static IEnumerable<string> Sections() =>
+            Directory.EnumerateFiles(Path.Combine(Root(), "Views", "Settings", "Sections"), "*.xaml");
+
+        // ── 1. LAZY HOST ──────────────────────────────────────────────────
+
+        [Fact]
+        public void Shell_Hosts_One_Page_Via_Template_Selector()
+        {
+            var shell = File.ReadAllText(Path.Combine(Root(), "Views", "Settings", "SettingsView.xaml"));
+            Assert.Contains("ContentTemplateSelector", shell);
+            Assert.DoesNotContain("EqualityToVisibilityConverter", shell);
+            Assert.DoesNotContain("sections:Settings", shell);
+        }
+
+        // ── 2. SPACING SCALE ──────────────────────────────────────────────
+
+        private static readonly Regex LiteralMargin = new(@"Margin=""([^""]+)""");
+
+        [Fact]
+        public void Sections_Carry_No_Rhythmic_Margin_Literals()
+        {
+            foreach (var file in Sections())
+            {
+                foreach (Match m in LiteralMargin.Matches(File.ReadAllText(file)))
+                {
+                    if (m.Groups[1].Value.StartsWith("{")) continue;
+                    var parts = m.Groups[1].Value.Split(',');
+                    var vals = parts.Select(p => int.TryParse(p.Trim(), out var v) ? Math.Abs(v) : 99).ToList();
+                    // 0-4 px optical nudges and Margin="0" resets stay literal;
+                    // anything rhythmic (6 px and up) must be a shared token.
+                    Assert.True(vals.All(v => v <= 4),
+                        $"{Path.GetFileName(file)}: rhythmic literal Margin=\"{m.Groups[1].Value}\" — use a Settings* Thickness token");
+                }
+            }
+        }
+
+        [Fact]
+        public void Spacing_Scale_Defines_The_Module_Gaps()
+        {
+            var dict = File.ReadAllText(Path.Combine(Root(), "Views", "Settings", "SettingsCardStyles.xaml"));
+            foreach (var key in new[]
+                     {
+                         "SettingsCardMargin", "SettingsRowMargin", "SettingsTrailingGap",
+                         "SettingsStackGap8", "SettingsInlineGap8R", "SettingsPagePadding",
+                     })
+                Assert.Contains($"x:Key=\"{key}\"", dict);
+        }
+
+        // ── 3. NO COLOUR / RADIUS / TYPE LITERALS ─────────────────────────
+
+        [Fact]
+        public void Sections_Carry_No_Visual_Literals()
+        {
+            foreach (var file in Sections())
+            {
+                var txt = File.ReadAllText(file);
+                var name = Path.GetFileName(file);
+                Assert.True(!Regex.IsMatch(txt, @"#[0-9A-Fa-f]{6,8}"), name + ": hex colour literal");
+                Assert.True(!Regex.IsMatch(txt, @"CornerRadius=""[0-9]"), name + ": CornerRadius literal");
+                Assert.True(!Regex.IsMatch(txt, @"FontSize=""[0-9]"), name + ": FontSize literal");
+            }
+        }
+
+        // ── 4. ACCESSIBILITY NAMES ────────────────────────────────────────
+
+        [Fact]
+        public void Every_Interactive_Control_Carries_An_Automation_Name()
+        {
+            foreach (var file in Sections())
+            {
+                var lines = File.ReadAllLines(file);
+                for (var i = 0; i < lines.Length; i++)
+                {
+                    if (!Regex.IsMatch(lines[i], @"^\s*<(ToggleButton|Slider|CheckBox|ListBox)\b")) continue;
+                    var window = string.Join("\n", lines.Skip(i).Take(4));
+                    Assert.True(window.Contains("AutomationProperties.Name"),
+                        $"{Path.GetFileName(file)}:{i + 1}: interactive control without AutomationProperties.Name");
+                }
+            }
+        }
+
+        // ── 5. FILE-SIZE BUDGETS ──────────────────────────────────────────
+
+        [Fact]
+        public void Xaml_No_Style_Set_Twice_And_No_PropertyElement_Attributes()
+        {
+            // REGRESSION LOCKS (owner build 2026-09-16):
+            //  MC3024/XLS0501 — a Border with BOTH a Style attribute and a
+            //  <Border.Style> property element; MC3057 — attributes set on
+            //  property elements (e.g. <ListBox.ItemTemplate AutomationProperties...>).
+            var dup = new System.Text.RegularExpressions.Regex(
+                "<Border[^>]*\\sStyle=\"[^>]*>\\s*<Border\\.Style>");
+            var prop = new System.Text.RegularExpressions.Regex(
+                "<(\\w+\\.[A-Z]\\w+)\\s+[A-Za-z][^>]*>");
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "Views"), "*.xaml", SearchOption.AllDirectories))
+            {
+                string x = File.ReadAllText(file);
+                Assert.False(dup.IsMatch(x),
+                    Path.GetFileName(file) + ": Border sets Style twice (attribute + property element)");
+                foreach (System.Text.RegularExpressions.Match m in prop.Matches(x))
+                    Assert.True(m.Groups[1].Value.Contains(":"),
+                        Path.GetFileName(file) + ": property element " +
+                        m.Groups[1].Value + " carries attributes (MC3057)");
+            }
+        }
+
+        // ── 6. BUILD-INTEGRITY LOCKS (owner build 2026-09-16) ────────────
+
+        [Fact]
+        public void No_Two_Xaml_Files_Share_An_XClass()
+        {
+            // CS8646 / CS0121 / CS0102: two .xaml files declaring the SAME
+            // x:Class make the markup compiler emit the generated partial
+            // twice (once per obj sub-folder), so Connect() and
+            // InitializeComponent() exist twice and every x:Name field is
+            // duplicated. A stray copy of two settings sections lived under
+            // Themes/Languages and broke the build.
+            var owners = new Dictionary<string, string>();
+            foreach (var file in Directory.EnumerateFiles(
+                         Root(), "*.xaml", SearchOption.AllDirectories))
+            {
+                var rel = Path.GetRelativePath(Root(), file).Replace('\\', '/');
+                // EnumerateFiles(AllDirectories) reaches into the HIDDEN .git
+                // folder on Windows and can throw — never scan it.
+                if (rel.StartsWith(".git/", StringComparison.OrdinalIgnoreCase) ||
+                    rel.Contains("/.git/", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (rel.StartsWith("obj/", StringComparison.OrdinalIgnoreCase) ||
+                    rel.StartsWith("bin/", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                var q = new string((char)34, 1);
+                var m = Regex.Match(File.ReadAllText(file),
+                    "x:Class=" + q + "([^" + q + "]+)" + q);
+                if (!m.Success) continue;
+                Assert.False(owners.TryGetValue(m.Groups[1].Value, out var other),
+                    m.Groups[1].Value + " is declared by both " + other + " and " + rel);
+                owners[m.Groups[1].Value] = rel;
+            }
+        }
+
+        [Fact]
+        public void Language_Pack_Folder_Holds_Only_Resource_Dictionaries()
+        {
+            // Themes/Languages carries the 15 L1 language dictionaries and
+            // nothing else. A UserControl dropped there is compiled as a
+            // second Page for the same x:Class (the stray-copy bug above).
+            var dir = Path.Combine(Root(), "Themes", "Languages");
+            foreach (var file in Directory.EnumerateFiles(dir, "*.xaml"))
+            {
+                var x = File.ReadAllText(file);
+                Assert.DoesNotContain("x:Class", x);
+                Assert.Contains("<ResourceDictionary", x);
+            }
+        }
+
+        [Fact]
+        public void Settings_Page_ViewModels_Live_In_The_Pages_Namespace()
+        {
+            // CS0234: the shell and the section code-behinds qualify the
+            // promoted page VMs as ViewModels.Settings.Pages.*; the seven
+            // files under Pages/ were still declaring the PARENT namespace,
+            // so the qualified name did not exist. Folder == namespace here.
+            var pages = Path.Combine(Root(), "ViewModels", "Settings", "Pages");
+            foreach (var file in Directory.EnumerateFiles(pages, "*.cs"))
+                Assert.Contains("namespace ProGlassAutomation.ViewModels.Settings.Pages",
+                    File.ReadAllText(file));
+
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "ViewModels", "Settings"), "*.cs"))
+                Assert.Contains("namespace ProGlassAutomation.ViewModels.Settings",
+                    File.ReadAllText(file));
+        }
+
+        [Fact]
+        public void Xaml_Event_Handlers_Exist_In_Their_Own_Code_Behind()
+        {
+            // CS1061 (owner build 2026-09-17): the card split moved controls
+            // into card UserControls while their Click / PasswordChanged
+            // handlers stayed behind in the section code-behind. A XAML event
+            // attribute resolves against the x:Class type, so the markup
+            // compiler could not find them. Handlers live with their controls.
+            var events = new[]
+            {
+                "Click", "PasswordChanged", "Checked", "Unchecked", "Toggled",
+                "SelectionChanged", "SelectedIndexChanged", "TextChanged",
+                "LostFocus", "GotFocus", "KeyDown", "KeyUp", "PreviewKeyDown",
+                "Loaded", "Unloaded", "ValueChanged", "DragOver", "Drop",
+                "MouseLeftButtonDown", "MouseLeftButtonUp", "MouseDoubleClick",
+                "MouseEnter", "MouseLeave", "Expanded", "Collapsed",
+                "Completed", "ScrollChanged", "SizeChanged",
+                "CurrentCellChanged", "BeginningEdit", "CellEditEnding",
+                "RowEditEnding", "AutoGeneratingColumn", "LoadingRow",
+                "PreparingCellForEdit", "RequestNavigate", "ManipulationDelta",
+                "ManipulationCompleted", "PreviewMouseLeftButtonDown"
+            };
+            var q = new string((char)34, 1);
+            var handler = new Regex(
+                "(" + string.Join("|", events) + ")=" + q + "([^" + q + "]+)" + q);
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "Views"), "*.xaml", SearchOption.AllDirectories))
+            {
+                var code = file + ".cs";
+                if (!File.Exists(code)) continue;
+                var body = StripComments(File.ReadAllText(code));
+                foreach (Match m in handler.Matches(File.ReadAllText(file)))
+                {
+                    var name = m.Groups[2].Value;
+                    if (!char.IsLetter(name[0]) || name.StartsWith("{")) continue;
+                    Assert.True(
+                        Regex.IsMatch(body, @"(?:void|Task|async\s+\w+)\s+" + name + @"\s*\("),
+                        Path.GetFileName(file) + " wires " + m.Groups[1].Value + "=" + name +
+                        " but " + Path.GetFileName(code) + " does not define it (CS1061)");
+                }
+            }
+        }
+
+        [Fact]
+        public void Named_Elements_Are_Referenced_Only_By_Their_Own_Code_Behind()
+        {
+            // CS0103 (owner build 2026-09-17): a section code-behind kept
+            // using x:Name fields (AgentKeyBox and the three API-key boxes)
+            // that the card split had moved into a card UserControl. An
+            // x:Name only generates a field in ITS OWN namescope.
+            var q = new string((char)34, 1);
+            var declaredBy = new Dictionary<string, string>();
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "Views"), "*.xaml", SearchOption.AllDirectories))
+                foreach (Match m in Regex.Matches(
+                             File.ReadAllText(file), "x:Name=" + q + @"(\w+)" + q))
+                    declaredBy.TryAdd(m.Groups[1].Value, file);
+
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "Views", "Settings"), "*.xaml.cs",
+                         SearchOption.AllDirectories))
+            {
+                var own = Path.GetFileName(file);
+                own = own.Substring(0, own.Length - 3);           // drop ".cs"
+                var body = StripComments(File.ReadAllText(file));
+                foreach (var pair in declaredBy)
+                {
+                    if (Path.GetFileName(pair.Value) == own) continue;
+                    Assert.False(
+                        Regex.IsMatch(body, @"(?<![\w.$])" + pair.Key + @"\s*\."),
+                        own + " uses " + pair.Key + ", which is declared in " +
+                        Path.GetFileName(pair.Value) + " (CS0103)");
+                }
+            }
+        }
+
+        [Fact]
+        public void Page_ViewModel_References_Are_Fully_Qualified()
+        {
+            // CS0246 (owner build 2026-09-17): the promoted page VMs were
+            // referenced through a namespace-RELATIVE qualifier, which only
+            // resolves while the referring file happens to sit in a namespace
+            // whose chain still contains the folder. Moving the VMs into their
+            // own namespace broke every relative reference, so all of them are
+            // now written out in full.
+            var relative = new Regex(
+                @"(?<![\w.])(?:ViewModels\.Settings\.)?Pages\.\w+");
+            foreach (var file in Directory.EnumerateFiles(Root(), "*.cs", SearchOption.AllDirectories))
+            {
+                var rel = Path.GetRelativePath(Root(), file).Replace('\\', '/');
+                if (rel.StartsWith("obj/") || rel.StartsWith("bin/") ||
+                    rel.StartsWith("Tests/") || rel.StartsWith("Tools/") ||
+                    rel.StartsWith(".git/"))
+                    continue;
+                Assert.False(relative.IsMatch(StripComments(File.ReadAllText(file))),
+                    rel + " references the page VMs through a relative qualifier");
+            }
+        }
+
+        /// <summary>Drops block and line comments so the locks above never
+        /// match prose — the banner comments quote handler names.</summary>
+        private static string StripComments(string s)
+        {
+            s = Regex.Replace(s, @"/\*.*?\*/", string.Empty, RegexOptions.Singleline);
+            return Regex.Replace(s, @"//[^\r\n]*", string.Empty);
+        }
+
+        [Fact]
+        public void Resource_Dictionaries_Are_Never_Mixed_With_Loose_Entries()
+        {
+            // XDG0046 + 21 knock-on XDG-0001 (owner build 2026-09-17):
+            // a keyed entry was placed BESIDE the <ResourceDictionary> inside
+            // <UserControl.Resources>. That turns Resources into an IMPLICIT
+            // dictionary whose children are the entries, so the keyless
+            // ResourceDictionary became "an entry without a key" and its
+            // merged dictionaries were unreachable — every style in the
+            // settings shell stopped resolving. Keyed entries belong INSIDE
+            // the single ResourceDictionary, after its MergedDictionaries
+            // (App.xaml and nine other dictionaries already do it that way).
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "Views"), "*.xaml", SearchOption.AllDirectories))
+            {
+                var doc = new System.Xml.XmlDocument();
+                doc.Load(file);
+                foreach (System.Xml.XmlElement res in doc.GetElementsByTagName("*"))
+                {
+                    if (!res.Name.EndsWith(".Resources", StringComparison.Ordinal)) continue;
+                    bool looseKeyed = false, keylessDictionary = false;
+                    foreach (System.Xml.XmlNode kid in res.ChildNodes)
+                    {
+                        if (kid.NodeType != System.Xml.XmlNodeType.Element) continue;
+                        var el = (System.Xml.XmlElement)kid;
+                        if (el.Name == "ResourceDictionary" &&
+                            string.IsNullOrEmpty(el.GetAttribute("Key", XamlNs)))
+                            keylessDictionary = true;
+                        else if (!string.IsNullOrEmpty(el.GetAttribute("Key", XamlNs)))
+                            looseKeyed = true;
+                    }
+                    Assert.False(looseKeyed && keylessDictionary,
+                        Path.GetFileName(file) + ": <" + res.Name +
+                        "> mixes keyed entries with a keyless ResourceDictionary (XDG0046)");
+                }
+            }
+        }
+
+        private const string XamlNs = "http://schemas.microsoft.com/winfx/2006/xaml";
+
+        // ── 8. REPORTS TABLE-HEADER GRAMMAR (owner build 2026-09-17) ─────
+
+        [Fact]
+        public void Report_Header_Bars_Pair_The_Accent_Background_With_White_Labels()
+        {
+            // The Proforma hub is the reference: an accent header bar
+            // (ReportTableHeaderStyle) whose column labels all carry
+            // ReportHeaderTextStyle (bold white). Half-applied, the header is
+            // unreadable in BOTH directions:
+            //   · white labels with no accent bar → white on the page
+            //     background (Delivery + GlassSpec: "column background color
+            //     is missing and white text is getting hidden")
+            //   · accent bar with unstyled labels → default dark ink on the
+            //     accent fill (Company / Customer / Project / Profitability)
+            var doc = new System.Xml.XmlDocument();
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "Views", "Reports"), "*.xaml",
+                         SearchOption.AllDirectories))
+            {
+                doc.Load(file);
+                foreach (System.Xml.XmlElement border in doc.GetElementsByTagName("Border"))
+                {
+                    // Only a bar whose DIRECT child is the column Grid counts —
+                    // otherwise the page-level Border that wraps the whole hub
+                    // would be judged for a header it merely contains.
+                    System.Xml.XmlElement? grid = null;
+                    foreach (System.Xml.XmlNode kid in border.ChildNodes)
+                        if (kid.NodeType == System.Xml.XmlNodeType.Element &&
+                            kid.Name == "Grid")
+                        {
+                            var g = (System.Xml.XmlElement)kid;
+                            foreach (System.Xml.XmlNode gk in g.ChildNodes)
+                                if (gk.NodeType == System.Xml.XmlNodeType.Element &&
+                                    gk.Name == "Grid.ColumnDefinitions") { grid = g; break; }
+                        }
+                    if (grid == null) continue;
+
+                    var style = border.GetAttribute("Style");
+                    bool bar = style.Contains("ReportTableHeaderStyle");
+                    var labels = new List<System.Xml.XmlElement>();
+                    foreach (System.Xml.XmlElement tb in grid.GetElementsByTagName("TextBlock"))
+                        if (tb.HasAttribute("Grid.Column")) labels.Add(tb);
+                    if (labels.Count < 3) continue;        // not a column header
+
+                    if (bar)
+                    {
+                        // Accent bar: EVERY column label must be white/bold.
+                        foreach (var label in labels)
+                            Assert.Contains("ReportHeaderTextStyle", label.GetAttribute("Style"));
+                    }
+                    else
+                    {
+                        // No accent bar: no label may be white, or it is
+                        // invisible on the page background.
+                        foreach (var label in labels)
+                            Assert.DoesNotContain("ReportHeaderTextStyle", label.GetAttribute("Style"));
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void DataGrid_Column_Properties_Bind_Only_Through_A_Source()
+        {
+            // REPLACES the 2026-09-17 lock
+            // "DataGrid_Column_Headers_Never_Bind_Without_An_Ancestor", which
+            // was WRONG and let the same defect ship twice. It accepted
+            //   Header="{Binding DataContext.InColumnHeader,
+            //           RelativeSource={RelativeSource AncestorType=DataGrid}}"
+            // because the binding "contained RelativeSource". But a
+            // RelativeSource ancestor walk starts at the TARGET object and
+            // climbs its visual/logical parents — and a DataGridColumn lives in
+            // DataGrid.Columns, which is in NEITHER tree. There is no ancestor
+            // to climb, the binding resolved to nothing, the header stayed
+            // EMPTY, and the owner reported the missing Cutting "TOTAL"/qty
+            // column a second time (2026-09-18).
+            //
+            // Only two mechanisms work on a column:
+            //   • HeaderTemplate — instantiated by the DataGridColumnHeader,
+            //     which IS in the visual tree, so RelativeSource resolves there;
+            //   • an explicit Source= (Utilities/BindingProxy, a Freezable that
+            //     inherits the DataGrid's DataContext through WPF's inheritance
+            //     context) for Visibility and friends.
+            // Hence the real invariant: no {Binding …} on a COLUMN-LEVEL
+            // attribute without Source=. Two carve-outs:
+            //   • Binding / DataMemberBinding / ClipboardContentBinding are
+            //     evaluated per CELL, and a cell IS in the visual tree with the
+            //     row item as its DataContext — that is the normal, correct way
+            //     to fill a column (148 sites in this repo);
+            //   • DynamicResource is not tree-bound, so it resolves anywhere
+            //     (that is how the GodViews localise their headers).
+            var column = new Regex("<DataGrid[\\w.]*Column\\b[^>]*>", RegexOptions.Singleline);
+            var attrib = new Regex("(?<name>[\\w.]+)=\"(?<value>[^\"]*)\"", RegexOptions.Singleline);
+            var comment = new Regex("<!--.*?-->", RegexOptions.Singleline);
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "Views"), "*.xaml", SearchOption.AllDirectories))
+            {
+                // Strip comments first: the banner comments that DOCUMENT this
+                // bug quote the broken markup verbatim.
+                var markup = comment.Replace(File.ReadAllText(file), string.Empty);
+                foreach (Match tag in column.Matches(markup))
+                {
+                    foreach (Match a in attrib.Matches(tag.Value))
+                    {
+                        var name = a.Groups["name"].Value;
+                        var value = a.Groups["value"].Value;
+                        if (!value.Contains("{Binding", StringComparison.Ordinal)) continue;
+                        if (name is "Binding" or "DataMemberBinding" or "ClipboardContentBinding")
+                            continue;   // evaluated per cell — cells ARE in the tree
+                        Assert.True(value.Contains("Source=", StringComparison.Ordinal),
+                            Path.GetFileName(file) + ": " + name + " is a column-level " +
+                            "property, and a binding on it resolves against nothing — the " +
+                            "column is in neither the visual nor the logical tree, and a " +
+                            "RelativeSource walk has no ancestor to climb. Use " +
+                            "HeaderTemplate for header content, or " +
+                            "Source={StaticResource proxy} (Utilities/BindingProxy). " +
+                            "Offender: " + Truncate(value));
+                    }
+                }
+            }
+        }
+
+        private static string Truncate(string value) =>
+            value.Length <= 90 ? value : value.Substring(0, 90) + "…";
+
+        [Fact]
+        public void Shell_Helpers_Are_Defined()
+        {
+            // REGRESSION LOCK: the phase-3a split once dropped SaveConfig()'s
+            // definition while 26 call sites survived — the branch could not
+            // compile. Any helper that partials call across file boundaries
+            // must be verifiably defined inside the Settings VM tree.
+            string all = "";
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "ViewModels", "Settings"), "*.cs",
+                         SearchOption.AllDirectories))
+                all += File.ReadAllText(file);
+
+            foreach (var helper in new[] { "SaveConfig", "ScheduleDebouncedSave", "InitializeV2Sections" })
+                Assert.Contains(helper + "(", all.Replace("void " + helper, "void " + helper)); // call sites exist
+            Assert.Contains("void SaveConfig()", all);
+            Assert.Contains("void ScheduleDebouncedSave(", all);
+            Assert.Contains("void InitializeV2Sections()", all);
+        }
+
+        [Fact]
+        public void No_SettingsViewModel_Partial_Exceeds_350_Lines()
+        {
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "ViewModels", "Settings"), "SettingsViewModel*.cs"))
+                Assert.True(File.ReadAllLines(file).Length <= 350,
+                    Path.GetFileName(file) + " exceeds the 350-line budget — split it");
+
+            // Per-page ViewModels promoted out of the god class (v3 pilot:
+            // Sharing) live under Pages/ and obey the same budget.
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "ViewModels", "Settings", "Pages"), "*PageViewModel*.cs"))
+                Assert.True(File.ReadAllLines(file).Length <= 350,
+                    Path.GetFileName(file) + " exceeds the 350-line budget — split it");
+        }
+
+        [Fact]
+        public void Shell_Stays_Under_420_Lines()
+        {
+            var shell = Path.Combine(Root(), "Views", "Settings", "SettingsView.xaml");
+            Assert.True(File.ReadAllLines(shell).Length <= 420, "SettingsView.xaml exceeded 420 lines");
+        }
+
+        [Fact]
+        public void Sections_Stay_Under_400_Lines()
+        {
+            foreach (var file in Sections())
+                Assert.True(File.ReadAllLines(file).Length <= 400,
+                    Path.GetFileName(file) + " exceeded 400 lines — split its cards");
+        }
+
+        [Fact]
+        public void Cards_Stay_Under_520_Lines()
+        {
+            var cards = Path.Combine(Root(), "Views", "Settings", "Sections", "Cards");
+            if (!Directory.Exists(cards)) return;
+            foreach (var file in Directory.EnumerateFiles(cards, "*.xaml"))
+                Assert.True(File.ReadAllLines(file).Length <= 520,
+                    Path.GetFileName(file) + " exceeded 520 lines — split its tiles");
+        }
+    }
+}

@@ -1,0 +1,13 @@
+# Code owners — Phase 1
+* @JUBERSALEEM
+
+# Security-sensitive areas require senior review
+/Services/Security/ @JUBERSALEEM
+/Services/Audit/ @JUBERSALEEM
+/Services/Export/ @JUBERSALEEM
+/Agent/AI/ @JUBERSALEEM
+/.github/workflows/ @JUBERSALEEM
+# Canonical copy of build-test.yml lives under docs/ until the
+# arena-ai-coding-agent App is granted the workflows scope.
+/docs/ci/ @JUBERSALEEM
+/docs/CI.md @JUBERSALEEM

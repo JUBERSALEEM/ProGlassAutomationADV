@@ -1,0 +1,74 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    PHASE P — Agent security test suite.
+
+    Targets net8.0-windows and sets UseWPF because the agent assembly is
+    part of a WPF application project; without it the reference will not
+    resolve.
+
+    IsPackable=false: this project is never shipped.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>ProGlassAutomation.Tests</RootNamespace>
+    <!-- Phase 1: analyzers + coverage for test project -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <IsTestProject>true</IsTestProject>
+    <CollectCoverage>true</CollectCoverage>
+    <CoverletOutputFormat>cobertura</CoverletOutputFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <!--
+      Microsoft.CodeAnalysis.CSharp 4.11.x — used only by
+      Tests/Audit and Tests/Security to run source-level audit
+      tests (silent-catch detection, OperationGuard.Demand
+      coverage). It is the same Roslyn version that ships
+      with Microsoft.NET.Test.Sdk 17.11.1, so the runtime
+      weight is zero. PrivateAssets=all keeps it out of any
+      package the test project could produce.
+
+      IMPORTANT: do NOT add an explicit IncludeAssets here.
+      NuGet's default IncludeAssets for a PackageReference
+      includes the 'compile' asset, which is what feeds
+      Microsoft's.CodeAnalysis.CSharp.dll into the C#
+      compiler's reference list. If you override
+      IncludeAssets without listing 'compile', the
+      Microsoft.CodeAnalysis.CSharp namespace becomes
+      invisible at compile time and every 'using
+      Microsoft.CodeAnalysis.CSharp;' in the test project
+      fails with CS0234. This is the failure mode we hit
+      on the first Windows build.
+    -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProGlassAutomation.csproj" />
+  </ItemGroup>
+
+</Project>

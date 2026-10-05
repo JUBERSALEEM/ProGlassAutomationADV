@@ -1,0 +1,36 @@
+<UserControl x:Class="ProGlassAutomation.Controls.LoadingState.LoadingStateControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Display"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                IsHitTestVisible="False">
+        <!-- Animated spinner: a rotating dashed ring.
+             PERF-12: the RotateTransform is driven from code-behind and
+             runs ONLY while the control is actually visible. The old
+             EventTrigger Loaded storyboard ran forever on every list page
+             even when the spinner was hidden (Visibility collapsed) —
+             ~13 list pages each holding a permanently ticking animation
+             clock and invalidating the visual tree every frame. -->
+        <Grid Width="28" Height="28" HorizontalAlignment="Center">
+            <Ellipse Width="28" Height="28"
+                     Stroke="{DynamicResource AccentBrush}"
+                     StrokeThickness="3"
+                     StrokeDashArray="1,2.4"
+                     StrokeStartLineCap="Round"
+                     StrokeEndLineCap="Round"
+                     RenderTransformOrigin="0.5,0.5">
+                <Ellipse.RenderTransform>
+                    <RotateTransform x:Name="SpinnerRotate" Angle="0"/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+        </Grid>
+        <TextBlock Text="{Binding Message, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                   HorizontalAlignment="Center" Margin="0,8,0,0"
+                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+    </StackPanel>
+</UserControl>

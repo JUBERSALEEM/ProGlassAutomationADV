@@ -1,0 +1,58 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <sys:Double x:Key="TypographyDisplaySize">24</sys:Double>
+    <sys:Double x:Key="TypographyH1Size">22</sys:Double>
+    <sys:Double x:Key="TypographyH2Size">20</sys:Double>
+    <sys:Double x:Key="TypographyTitleSize">18</sys:Double>
+    <sys:Double x:Key="TypographySubtitleSize">16</sys:Double>
+    <sys:Double x:Key="TypographyBodySize">13</sys:Double>
+    <sys:Double x:Key="TypographyBodySmallSize">12</sys:Double>
+    <sys:Double x:Key="TypographyCaptionSize">12</sys:Double>
+    <sys:Double x:Key="TypographyLabelSize">12</sys:Double>
+    <sys:Double x:Key="TypographyKpiValueSize">24</sys:Double>
+    <sys:Double x:Key="TypographyMoneySize">24</sys:Double>
+    <sys:Double x:Key="TypographyIconSize">16</sys:Double>
+
+    <FontWeight x:Key="TypographyDisplayWeight">Bold</FontWeight>
+    <FontWeight x:Key="TypographyHeadingWeight">SemiBold</FontWeight>
+    <FontWeight x:Key="TypographyTitleWeight">Bold</FontWeight>
+    <FontWeight x:Key="TypographyBodyWeight">Normal</FontWeight>
+    <FontWeight x:Key="TypographyLabelWeight">SemiBold</FontWeight>
+
+    <Style x:Key="TypographyPrimary" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="{DynamicResource TypographyBodySize}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource TypographyBodyWeight}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+    </Style>
+    <Style x:Key="TypographySecondary" TargetType="TextBlock" BasedOn="{StaticResource TypographyPrimary}">
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+    </Style>
+    <Style x:Key="TypographyCaption" TargetType="TextBlock" BasedOn="{StaticResource TypographyPrimary}">
+        <Setter Property="FontSize" Value="{DynamicResource TypographyCaptionSize}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+    </Style>
+    <Style x:Key="TypographyPageTitle" TargetType="TextBlock" BasedOn="{StaticResource TypographyPrimary}">
+        <Setter Property="FontSize" Value="{DynamicResource TypographyTitleSize}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource TypographyTitleWeight}"/>
+    </Style>
+    <Style x:Key="TypographySectionTitle" TargetType="TextBlock" BasedOn="{StaticResource TypographyPrimary}">
+        <Setter Property="FontSize" Value="{DynamicResource TypographyH2Size}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource TypographyHeadingWeight}"/>
+    </Style>
+    <Style x:Key="TypographyCardTitle" TargetType="TextBlock" BasedOn="{StaticResource TypographyPrimary}">
+        <Setter Property="FontSize" Value="{DynamicResource TypographySubtitleSize}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource TypographyHeadingWeight}"/>
+    </Style>
+    <Style x:Key="TypographyKpi" TargetType="TextBlock" BasedOn="{StaticResource TypographyPrimary}">
+        <Setter Property="FontSize" Value="{DynamicResource TypographyKpiValueSize}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource TypographyDisplayWeight}"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+    </Style>
+    <Style x:Key="TypographyTable" TargetType="TextBlock" BasedOn="{StaticResource TypographyPrimary}">
+        <Setter Property="FontSize" Value="{DynamicResource TypographyBodySize}"/>
+    </Style>
+
+</ResourceDictionary>

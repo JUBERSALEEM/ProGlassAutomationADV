@@ -1,0 +1,101 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/DeliveryNote/DeliveryNoteList/JobOrderPicker/JobOrderPickerDialog.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Delivery Note — pick the source Job Order
+
+     2026-09 dialog audit: rebuilt on the shared ThemedDialogWindow chrome
+     (accent header band + floating close chip replaced by the shared
+     header/footer; search + list unchanged). Resizable + work-area
+     clamped so the picker fits small laptop screens.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker.JobOrderPickerDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+             Title="{DynamicResource DeliveryNote.SelectJobOrder}"
+             Width="780" Height="620"
+             MinWidth="600" MinHeight="420"
+             ResizeMode="CanResize"
+             DialogIcon="&#xE710;"
+             DialogSubtitle="{DynamicResource DeliveryNote.ChooseJobOrderCreateDeliveryNote}"
+             FontFamily="{DynamicResource AppFontFamily}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── SEARCH BAR ───────────────────────────────────────────── -->
+        <Border Grid.Row="0" Padding="0,0,0,6">
+            <Grid>
+                <TextBox x:Name="SearchBox"
+                         FontSize="{DynamicResource FontSize.Title}"
+                         Padding="8,5"
+                         BorderThickness="{DynamicResource Border.HairlineThickness}"
+                         BorderBrush="{DynamicResource BorderDefaultBrush}"
+                         Background="{DynamicResource SurfaceSecondaryBrush}"
+                         Foreground="{DynamicResource TextPrimaryBrush}"
+                         TextChanged="OnSearchChanged" Style="{StaticResource TextBoxStyle}"/>
+                <TextBlock Text="{DynamicResource DeliveryNote.SearchJobOrderCustomerProjectPIDeliveryNote}"
+                           FontSize="{DynamicResource FontSize.Body}"
+                           Margin="14,0,0,0"
+                           VerticalAlignment="Center"
+                           IsHitTestVisible="False"
+                           Foreground="{DynamicResource TextTertiaryBrush}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </Border>
+
+        <!-- ── JO LIST ──────────────────────────────────────────────── -->
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel x:Name="JobOrderList"/>
+        </ScrollViewer>
+    </Grid>
+
+    <dialogs:ThemedDialogWindow.FooterContent>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0"
+                       x:Name="SelectedLabel"
+                       Text="{DynamicResource DeliveryNote.NoJobOrderSelected}"
+                       FontSize="{DynamicResource FontSize.Body}"
+                       VerticalAlignment="Center"
+                       Margin="0,0,12,0"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+
+            <Button Grid.Column="1" Style="{StaticResource OutlinedPillButton}"
+                    Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
+                    Margin="0,0,10,0"
+                    ToolTip="{DynamicResource DeliveryNote.CloseWithoutCreating}"
+                    IsCancel="True"/>
+
+            <Button Grid.Column="2"
+                    x:Name="ConfirmButton"
+                    Style="{StaticResource SuccessPillButton}"
+                    Tag="&#xE73E;" Content="{DynamicResource DeliveryNote.CreateDeliveryNOTE}"
+                    ToolTip="{DynamicResource DeliveryNote.CreateDeliveryNoteJobOrder}"
+                    Click="OnConfirmClick"
+                    IsEnabled="False"/>
+        </Grid>
+    </dialogs:ThemedDialogWindow.FooterContent>
+</dialogs:ThemedDialogWindow>

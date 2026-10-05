@@ -1,0 +1,100 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/AppearanceSplashCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — Appearance: Splash Screen Stage & Styles
+     Studio Bento card with 10 corporate glass architecture presets.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceSplashCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Border Style="{StaticResource SettingsCompactCardStyle}">
+        <StackPanel>
+            <Grid Margin="{StaticResource SettingsStackBottom8}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F4;" Margin="{StaticResource SettingsInlineGap8R}" Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock Text="{Binding SelectedSplashStyleName}" Style="{StaticResource SettingsCardTitleStyle}"/>
+                    </StackPanel>
+                    <TextBlock Text="Select between 10 corporate glass architectures or automatically cycle on every system boot."
+                               Style="{StaticResource SettingsCardHeaderNoteStyle}" Margin="{StaticResource SettingsStackGap4}"/>
+                </StackPanel>
+                <Border Grid.Column="1" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4" VerticalAlignment="Top">
+                    <TextBlock Text="Splash" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                </Border>
+            </Grid>
+
+            <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+
+            <!-- ── ACTIVE STYLE SELECTION ── -->
+            <Grid Margin="{StaticResource SettingsStackGap10}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="ACTIVE STYLE" Style="{StaticResource SettingsRowTitleStyle}"/>
+                    <ComboBox ItemsSource="{Binding SplashStyleOptions}"
+                              SelectedValuePath="Id"
+                              DisplayMemberPath="Name"
+                              SelectedValue="{Binding SelectedSplashStyle, Mode=TwoWay}"
+                              Width="280" Height="36" Margin="{StaticResource SettingsStackGap6}"
+                              Style="{StaticResource ComboBoxStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SelectedSplashStyleName}" FontSize="{DynamicResource FontSize.Body}"
+                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding SelectedSplashStyleDescription}" FontSize="{DynamicResource FontSize.Caption}"
+                               Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap4}"/>
+                </StackPanel>
+            </Grid>
+
+            <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+
+            <!-- ── REBOOT / RESTART APPLICATION ACTION ── -->
+            <Grid Margin="{StaticResource SettingsStackGap10}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="{StaticResource SettingsTrailingGapWide}">
+                    <TextBlock Text="REBOOT TO PREVIEW ACTIVE SPLASH" Style="{StaticResource SettingsRowTitleStyle}"/>
+                    <TextBlock Text="Relaunches ProGlass immediately to view your active boot splash theme in action and reload all modules."
+                               FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap4}"/>
+                </StackPanel>
+
+                <Button Grid.Column="1" Command="{Binding RestartAppCommand}"
+                        Style="{StaticResource SettingsPrimaryButtonStyle}"
+                        Height="36" Padding="18,0" VerticalAlignment="Center"
+                        ToolTip="Restart ProGlass Automation now">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE777;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+                        <TextBlock Text="Restart Application" FontWeight="{DynamicResource Weight.Bold}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </StackPanel>
+    </Border>
+</UserControl>

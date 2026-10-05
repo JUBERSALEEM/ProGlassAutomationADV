@@ -1,0 +1,112 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Shared/ChangesDialog.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Shared — GitHub-style before/after change viewer
+
+     Shows an audit change set the way code reviews show diffs:
+       🔴 BEFORE  (red tint)   →   🟢 AFTER  (green tint)
+     with Added / Removed / Modified / Unchanged badges.
+
+     2026-09 dialog audit: rebuilt on the shared ThemedDialogWindow chrome
+     and the Before/After rows now STACK full-width (GitHub-diff style)
+     instead of squeezing two 50% columns — long values wrap instead of
+     colliding, at any window width (same rule the AuditReportDialog
+     redesign follows).
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.Shared.ChangesDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+        Title="{DynamicResource Shared.WhatChanged}"
+        Width="640" Height="520"
+        MinWidth="480" MinHeight="320"
+        ResizeMode="CanResize"
+        DialogIcon="&#xE8FD;"
+             FontFamily="{DynamicResource AppFontFamily}">
+
+    <!-- One scroll surface for the whole body; the chrome clamps the
+         window to the work area and this list scrolls inside it. -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <ItemsControl x:Name="ChangesList">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
+                            BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
+                            Padding="2,6" Style="{StaticResource SurfacePrimaryStyle}">
+                        <StackPanel>
+                            <!-- Field + change kind -->
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Field}"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                        Margin="8,0,0,0"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
+                                        Padding="6,1"
+                                        VerticalAlignment="Center"
+                                        Background="{DynamicResource TintBlueBrush}">
+                                    <TextBlock Text="{Binding Kind}"
+                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource InfoBrush}"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- BEFORE — full width, red tint -->
+                            <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                    Margin="0,4,0,0"
+                                    Background="{DynamicResource TintRedBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="8,4">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE7BA;"
+                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               Foreground="{DynamicResource DangerBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,7,0"/>
+                                    <TextBlock Text="{Binding Before}"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               TextWrapping="Wrap"
+                                               Foreground="{DynamicResource DangerBrush}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- AFTER — full width, green tint -->
+                            <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                    Margin="0,3,0,0"
+                                    Background="{DynamicResource TintGreenBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="8,4">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE73E;"
+                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               Foreground="{DynamicResource SuccessBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,7,0"/>
+                                    <TextBlock Text="{Binding After}"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               TextWrapping="Wrap"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
+
+    <dialogs:ThemedDialogWindow.FooterContent>
+        <Button Style="{StaticResource PrimaryPillButton}"
+                Tag="&#xE73E;"
+                Content="{DynamicResource Action.Close}"
+                IsCancel="True"/>
+    </dialogs:ThemedDialogWindow.FooterContent>
+</dialogs:ThemedDialogWindow>

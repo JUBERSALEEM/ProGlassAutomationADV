@@ -1,0 +1,810 @@
+<UserControl
+    x:Class="ProGlassAutomation.Views.Personal.GlassShell"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+    xmlns:globalSearch="clr-namespace:ProGlassAutomation.Controls.GlobalSearch"
+    xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Dashboard"
+    xmlns:vmPi="clr-namespace:ProGlassAutomation.ViewModels.ProformaInvoice"
+    xmlns:vmJo="clr-namespace:ProGlassAutomation.ViewModels.JobOrder"
+    xmlns:vmProd="clr-namespace:ProGlassAutomation.ViewModels.Production"
+    xmlns:vmSheetStore="clr-namespace:ProGlassAutomation.ViewModels.SheetStore"
+    xmlns:vmDelivery="clr-namespace:ProGlassAutomation.ViewModels.DeliveryNote"
+    xmlns:vmReports="clr-namespace:ProGlassAutomation.ViewModels.Reports"
+    xmlns:vmSettings="clr-namespace:ProGlassAutomation.ViewModels.Settings"
+    xmlns:viewsShared="clr-namespace:ProGlassAutomation.Views.Shared"
+    xmlns:agentUi="clr-namespace:ProGlassAutomation.Agent.UI"
+    xmlns:pv="clr-namespace:ProGlassAutomation.Views.Personal"
+             Background="{DynamicResource Ov.Canvas}">
+
+    <!-- ═══ PERSONAL VIEW ROUTING (GB-P4…) ═════════════════════════════
+         The Personal shell hosts the SAME MainViewModel / module VMs as
+         Professional. These DataTemplates — scoped to THIS control's
+         resource scope — remap each module VM to its Personal view ONLY
+         when rendered inside the GlassShell. Professional's implicit
+         templates (app-level) are untouched; Professional chrome still
+         renders the Professional views. One module = one template = the
+         same ViewModel (zero business-logic duplication).
+         Each new Personal screen (GB-P4…P13) adds exactly one template. -->
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        <!-- 2026-09-19 (GB-P10 fix): the routed module VM is
+             DashboardViewModel (it hosts OverviewVM/TaxInvoiceVM/… as
+             tabs). The template previously targeted OverviewDashboardViewModel,
+             which CurrentViewModel never IS — WPF implicit templates match
+             the EXACT type, so the Personal dashboard silently fell back to
+             the Professional DashboardView. Template now targets the routed
+             type; PersonalDashboardView re-points its DataContext to
+             OverviewVM internally (the VM it was designed against). -->
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+            <pv:PersonalDashboardView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmPi:ProformaInvoiceViewModel}">
+            <pv:PersonalProformaInvoiceView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmJo:JobOrderViewModel}">
+            <pv:PersonalJobOrderView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmProd:ProductionControlCenterViewModel}">
+            <pv:PersonalProductionControlCenterView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmSheetStore:SheetStoreViewModel}">
+            <pv:PersonalSheetStoreView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmDelivery:DeliveryNoteViewModel}">
+            <pv:PersonalDeliveryNoteView/>
+        </DataTemplate>
+        <!-- All report keys (SalesReport/PiReport/JoReport/… map to the
+             same SalesReportViewModel with different ActiveKey) -->
+        <DataTemplate DataType="{x:Type vmReports:SalesReportViewModel}">
+            <pv:PersonalSalesReportView/>
+        </DataTemplate>
+        <!-- GB-P12: Settings module (same SettingsViewModel, glass-09
+             composition). PersonalSettingsView hosts the Professional
+             section UserControls for the non-Appearance pages. -->
+        <DataTemplate DataType="{x:Type vmSettings:SettingsViewModel}">
+            <pv:PersonalSettingsView/>
+        </DataTemplate>
+            </ResourceDictionary>
+    </UserControl.Resources>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         GLASS BLUSH — PERSONAL UI SHELL (GB-P2, 2026-09-18)
+
+         The second ProGlass experience. Visual source of truth:
+         glass-01 … glass-10 (1408×768 references).
+
+         CONTRACT:
+           • DataContext = the SAME MainViewModel instance the Professional
+             chrome binds (navigation, search, popups — zero duplication).
+           • Nav commands = MainViewModel.NavigateCommand + CommandParameter
+             (identical module keys → identical business routing).
+           • Active-module detection = StringEqualsMultiConverter
+             (CommandParameter vs CurrentModuleKey) — Professional mechanism.
+           • Accordion group "GlassSidebar" is independent of
+             Professional's "Sidebar" group (window-scoped registry).
+           • Content host = {Binding CurrentViewModel} — the same module
+             views render here; Personal screen compositions arrive in
+             GB-P4…P13 via those views' own chrome.
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <Grid>
+        <!-- ATMOSPHERIC BACKGROUND — 3 cheap layers (measured gradient +
+             top-right azure orb + bottom-left deep orb). No bitmap, no
+             live blur. -->
+        <Rectangle Fill="{DynamicResource GlassBlush.Background}" IsHitTestVisible="False"/>
+        <Rectangle Fill="{DynamicResource GlassBlush.OrbTopRight}" IsHitTestVisible="False"/>
+        <Rectangle Fill="{DynamicResource GlassBlush.OrbBottomLeft}" IsHitTestVisible="False"/>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ── SIDEBAR RAIL (140px ⇄ 56px via hamburger) ──────────── -->
+            <!-- 2026-09-19: the rail had no way to collapse — the 140px
+                 glass column was permanent, eating the centre workspace
+                 ("center window is too small" report). The hamburger
+                 below toggles GlassShell.SidebarCollapsed: rail → 56px
+                 icon-only (labels hidden by the nav style triggers in
+                 GlassShellStyles.xaml), ClipToBounds keeps open accordion
+                 sub-lists inside the rail. -->
+            <Border Grid.Column="0" ClipToBounds="True">
+                <Border.Style>
+                    <Style TargetType="Border" BasedOn="{StaticResource GlassBlush.Sidebar}">
+                        <Style.Triggers>
+                            <DataTrigger Value="True">
+                                <DataTrigger.Binding>
+                                    <Binding Path="SidebarCollapsed"
+                                             RelativeSource="{RelativeSource AncestorType={x:Type pv:GlassShell}}"/>
+                                </DataTrigger.Binding>
+                                <Setter Property="Width" Value="56"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <DockPanel>
+                    <!-- BRAND (click = About, command preserved) -->
+                    <Button DockPanel.Dock="Top"
+                            Style="{StaticResource GlassBlush.TopIconButton}"
+                            Command="{Binding LogoClickCommand}"
+                            ToolTip="ProGlass"
+                            Margin="0,14,0,10">
+                        <Border Width="42" Height="42"
+                                CornerRadius="14"
+                                Background="{DynamicResource GlassBlush.AccentSoft}"
+                                BorderBrush="{DynamicResource GlassBlush.AccentGlow}"
+                                BorderThickness="1"
+                                Effect="{StaticResource GlassBlush.GlowAccent}">
+                            <TextBlock Text="PG"
+                                       FontSize="15" FontWeight="Bold"
+                                       Foreground="{DynamicResource GlassBlush.AccentGlow}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                    </Button>
+
+                    <!-- HAMBURGER — collapse/expand the rail (2026-09-19)
+                         2026-09-19 crash fix (ERR-AF067B): this was a
+                         ToggleButton wearing GlassBlush.TopIconButton,
+                         whose TargetType is Button — sibling types, so
+                         Style.CheckTargetType threw at startup and took
+                         MainWindow down with it. Now a plain Button;
+                         state lives in GlassShell.SidebarCollapsed and
+                         the rail width / label triggers all bind to that
+                         one property (single source of truth). -->
+                    <Button DockPanel.Dock="Top"
+                            Style="{StaticResource GlassBlush.TopIconButton}"
+                            Click="SidebarToggle_Click"
+                            ToolTip="Collapse / expand the sidebar"
+                            AutomationProperties.Name="Toggle sidebar"
+                            AutomationProperties.AutomationId="Shell.PersonalSidebarToggle"
+                            Margin="0,4,0,8">
+                        <TextBlock Text="&#xE700;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="16"
+                                   Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Button>
+
+                    <!-- NAV (same items, keys, commands as Professional.
+                         Settings + user live in the top bar — same as
+                         Professional, so no new i18n keys are introduced) -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  Padding="0,4">
+                        <StackPanel Margin="0,0,0,10">
+
+                            <TextBlock Text="{DynamicResource Nav.GroupMain}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <Button Style="{StaticResource GlassBlush.NavItem}"
+                                    Content="{DynamicResource Nav.Dashboard}"
+                                    Tag="&#xE80F;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="Dashboard"/>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupInventory}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <Button Style="{StaticResource GlassBlush.NavItem}"
+                                    Content="{DynamicResource Nav.SheetStore}"
+                                    Tag="&#xE7B8;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="SheetStore"/>
+                            <Button Style="{StaticResource GlassBlush.NavItem}"
+                                    Content="{DynamicResource Nav.Specifications}"
+                                    Tag="&#xE8F1;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="Specifications"/>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupSales}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <StackPanel>
+                                <ToggleButton x:Name="SalesGroupPersonal"
+                                              Style="{StaticResource GlassBlush.NavGroupToggle}"
+                                              Content="{DynamicResource Nav.SalesOrders}"
+                                              Tag="&#xE8A5;"
+                                              behaviors:AccordionBehavior.Group="GlassSidebar"/>
+                                <Border Style="{StaticResource GlassBlush.SubList}"
+                                        Visibility="{Binding IsChecked, ElementName=SalesGroupPersonal,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Inquiry}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Inquiry"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.ProformaInvoice}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="ProformaInvoice"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.JobOrder}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="JobOrder"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.TaxInvoice}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="TaxInvoice"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupProduction}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <StackPanel>
+                                <ToggleButton x:Name="ProductionGroupPersonal"
+                                              Style="{StaticResource GlassBlush.NavGroupToggle}"
+                                              Content="{DynamicResource Nav.ProductionItems}"
+                                              Tag="&#xE8C6;"
+                                              behaviors:AccordionBehavior.Group="GlassSidebar"/>
+                                <Border Style="{StaticResource GlassBlush.SubList}"
+                                        Visibility="{Binding IsChecked, ElementName=ProductionGroupPersonal,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Optimization}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Optimization"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="Process Work Center"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="ProcessWorkCenter"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="Production Control Center"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="ProductionControlCenter"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Cutting}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Cutting"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.HolesCutouts}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="HolesCutouts"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Polish}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Polish"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.EdgeDeletion}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="EdgeDeletion"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Mitring}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Mitring"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Tempering}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Tempering"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Pairing}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Pairing"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.DoublingLamination}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="DoublingLamination"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupDispatch}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <StackPanel>
+                                <ToggleButton x:Name="DispatchGroupPersonal"
+                                              Style="{StaticResource GlassBlush.NavGroupToggle}"
+                                              Content="{DynamicResource Nav.Dispatch}"
+                                              Tag="&#xE7F4;"
+                                              behaviors:AccordionBehavior.Group="GlassSidebar"/>
+                                <Border Style="{StaticResource GlassBlush.SubList}"
+                                        Visibility="{Binding IsChecked, ElementName=DispatchGroupPersonal,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.DeliveryNote}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="DeliveryNote"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupFinance}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <StackPanel>
+                                <ToggleButton x:Name="FinanceGroupPersonal"
+                                              Style="{StaticResource GlassBlush.NavGroupToggle}"
+                                              Content="{DynamicResource Nav.FinanceAccounting}"
+                                              Tag="&#xE90E;"
+                                              behaviors:AccordionBehavior.Group="GlassSidebar"/>
+                                <Border Style="{StaticResource GlassBlush.SubList}"
+                                        Visibility="{Binding IsChecked, ElementName=FinanceGroupPersonal,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.StatementGenerator}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="StatementGenerator"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="Report Generator"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="OrderReport"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.JobProfitability}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="JobProfitability"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.VatSubmission}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="VatSubmission"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupReports}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <StackPanel>
+                                <ToggleButton x:Name="ReportsGroupPersonal"
+                                              Style="{StaticResource GlassBlush.NavGroupToggle}"
+                                              Content="{DynamicResource Nav.Reports}"
+                                              Tag="&#xE9F9;"
+                                              behaviors:AccordionBehavior.Group="GlassSidebar"/>
+                                <Border Style="{StaticResource GlassBlush.SubList}"
+                                        Visibility="{Binding IsChecked, ElementName=ReportsGroupPersonal,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Overview}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="SalesReport"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.ProformaInvoice}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="PiReport"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.JobOrder}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="JoReport"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Delivery}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="DeliveryReport"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.TaxInvoice}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="TaxInvoiceReport"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Statement}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="StatementReport"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupMasterData}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <StackPanel>
+                                <ToggleButton x:Name="MasterDataGroupPersonal"
+                                              Style="{StaticResource GlassBlush.NavGroupToggle}"
+                                              Content="{DynamicResource Nav.MasterDataItems}"
+                                              Tag="&#xE822;"
+                                              behaviors:AccordionBehavior.Group="GlassSidebar"/>
+                                <Border Style="{StaticResource GlassBlush.SubList}"
+                                        Visibility="{Binding IsChecked, ElementName=MasterDataGroupPersonal,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.CompanyCenter}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="CompanyCenter"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.UserCenter}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="UserCenter"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupSystem}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <StackPanel>
+                                <ToggleButton x:Name="SystemGroupPersonal"
+                                              Style="{StaticResource GlassBlush.NavGroupToggle}"
+                                              Content="{DynamicResource Nav.System}"
+                                              Tag="&#xE713;"
+                                              behaviors:AccordionBehavior.Group="GlassSidebar"/>
+                                <Border Style="{StaticResource GlassBlush.SubList}"
+                                        Visibility="{Binding IsChecked, ElementName=SystemGroupPersonal,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.SystemCenter}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="SystemCenter"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <!-- ── MAIN COLUMN ─────────────────────────────────────────── -->
+            <DockPanel Grid.Column="1">
+                <!-- TOP BAR — SENIOR FIX 2026-09-20: ZIndex 300 > AI 200 so top
+                     bar remains clickable when AI open (AI was Z200 covering
+                     top bar, blocking toggle button — reported as 'top panel
+                     ai button not working'). -->
+                <Border DockPanel.Dock="Top" Style="{StaticResource GlassBlush.TopBar}" Panel.ZIndex="300">
+                    <Grid Margin="24,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding CurrentModuleTitle}"
+                                   Style="{StaticResource GlassBlush.PageTitle}"
+                                   Margin="0,0,24,0"/>
+
+                        <!-- GLOBAL SEARCH (existing control, existing VM).
+                             2026-09-19 overlap fix (same class as the
+                             Professional top bar): min 280 squeezed the
+                             page-title star column to zero on narrow
+                             windows. 120 keeps it usable (icon + trimmed
+                             placeholder); below 950px it collapses. -->
+                        <globalSearch:GlobalSearchBar Grid.Column="1"
+                                                      MinWidth="120"
+                                                      MaxWidth="520"
+                                                      HorizontalAlignment="Stretch"
+                                                      Margin="0,8"
+                                                      VerticalAlignment="Center"
+                                                      DataContext="{Binding GlobalSearchVM}">
+                            <globalSearch:GlobalSearchBar.Style>
+                                <Style TargetType="globalSearch:GlobalSearchBar">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ActualWidth,
+                                                    RelativeSource={RelativeSource AncestorType=Window},
+                                                    Converter={StaticResource DecimalComparisonConverter},
+                                                    ConverterParameter=950}"
+                                                  Value="LessThan">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </globalSearch:GlobalSearchBar.Style>
+                        </globalSearch:GlobalSearchBar>
+
+                        <!-- RIGHT ICON CLUSTER (same commands as
+                             Professional). 2026-09-19 parity fix: the
+                             glass-01 reference had only 6 icons, which
+                             silently DROPPED features the Professional
+                             top bar has — AI chat was mislabeled with a
+                             contact glyph, and Agent / About /
+                             Screenshot / Screen Record had no Personal
+                             affordance at all (the Professional popups
+                             anchor to collapsed Professional buttons, so
+                             they were unreachable here). The missing
+                             affordances are restored below, in the glass
+                             design language, on the SAME commands. -->
+                        <StackPanel Grid.Column="2"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center"
+                                    Margin="16,0,0,0">
+                            <!-- GB-P14: mirror of the Professional switch —
+                                 back to the Professional experience (live,
+                                 persisted, no restart; module state kept). -->
+                            <Button Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xE731;"
+                                    ToolTip="Professional UI"
+                                    AutomationProperties.Name="Switch to Professional UI"
+                                    Command="{Binding ToggleExperienceCommand}"
+                                    AutomationProperties.AutomationId="Shell.ExperienceSwitchPersonal"/>
+                            <!-- AI CHAT — E99A robot glyph (the app-wide
+                                 AI brand; the old E8F2 "contact" glyph
+                                 made the AI button unrecognizable). -->
+                            <Button Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xE99A;"
+                                    ToolTip="AI Assistant"
+                                    AutomationProperties.Name="AI Assistant"
+                                    AutomationProperties.AutomationId="Shell.PersonalAiButton"
+                                    Command="{Binding AiChatVM.ToggleChatCommand}"/>
+                            <!-- AGENT — glass twin of the Professional
+                                 PgAiPillStyle (soft-accent capsule + ok
+                                 dot). Toggles the agent chat card, which
+                                 is experience-hosted (MainWindow shows it
+                                 in Professional, this shell in Personal). -->
+                            <Button x:Name="PersonalAgentButton"
+                                    Height="34"
+                                    Margin="6,0"
+                                    Cursor="Hand"
+                                    FocusVisualStyle="{x:Null}"
+                                    ToolTip="ProGlass Agent"
+                                    AutomationProperties.Name="ProGlass Agent"
+                                    AutomationProperties.AutomationId="Shell.PersonalAgentButton"
+                                    Command="{Binding ToggleAgentChatCommand}">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="Bg"
+                                                Padding="12,0"
+                                                CornerRadius="17"
+                                                Background="{DynamicResource GlassBlush.AccentSoft}"
+                                                BorderBrush="{DynamicResource GlassBlush.AccentGlow}"
+                                                BorderThickness="1"
+                                                SnapsToDevicePixels="True">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Ellipse Width="8" Height="8"
+                                                         Fill="{DynamicResource GlassBlush.AccentGlow}"
+                                                         VerticalAlignment="Center"
+                                                         Margin="0,0,7,0"
+                                                         IsHitTestVisible="False"/>
+                                                <TextBlock Text="AGENT"
+                                                           FontSize="10.5"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource GlassBlush.AccentDeep}"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Bg" Property="Effect"
+                                                        Value="{StaticResource GlassBlush.GlowAccent}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsPressed" Value="True">
+                                                <Setter TargetName="Bg" Property="Opacity" Value="0.8"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                            <!-- ABOUT — dedicated affordance (the brand
+                                 tile also opens About). -->
+                            <Button Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xE949;"
+                                    ToolTip="About ProGlass"
+                                    AutomationProperties.Name="About ProGlass"
+                                    AutomationProperties.AutomationId="Shell.PersonalAboutButton"
+                                    Command="{Binding ShowAboutCommand}"/>
+                            <!-- SCREENSHOT (same command as Professional) -->
+                            <Button x:Name="PersonalScreenshotButton"
+                                    Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xEB9F;"
+                                    ToolTip="Screenshot"
+                                    AutomationProperties.Name="Screenshot"
+                                    AutomationProperties.AutomationId="Shell.PersonalScreenshotButton"
+                                    Command="{Binding TogglePopupCommand}"
+                                    CommandParameter="Screenshot"/>
+                            <!-- SCREEN RECORD (same command as Professional;
+                                 red while recording, like the Professional
+                                 RecordButton trigger). -->
+                            <Button x:Name="PersonalScreenRecordButton"
+                                    Content="&#xE714;"
+                                    ToolTip="Screen recording"
+                                    AutomationProperties.Name="Screen recording"
+                                    AutomationProperties.AutomationId="Shell.PersonalScreenRecordButton"
+                                    Command="{Binding TogglePopupCommand}"
+                                    CommandParameter="ScreenRecord">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource GlassBlush.TopIconButton}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ScreenRecordVM.IsRecording}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Danger}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xE793;"
+                                    ToolTip="Theme"
+                                    AutomationProperties.Name="Toggle light and dark theme"
+                                    Command="{Binding ToggleThemeCommand}"/>
+                            <Button Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xE713;"
+                                    ToolTip="Settings"
+                                    AutomationProperties.Name="Settings"
+                                    Command="{Binding ShowSettingsCommand}"/>
+                            <Button x:Name="PersonalNotificationButton"
+                                    Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xEA8F;"
+                                    ToolTip="Notifications"
+                                    AutomationProperties.Name="Notifications"
+                                    Command="{Binding TogglePopupCommand}"
+                                    CommandParameter="Notifications"
+                                    AutomationProperties.AutomationId="Shell.PersonalNotificationsButton"/>
+                            <Button x:Name="PersonalUserCardButton"
+                                    Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xE77B;"
+                                    ToolTip="Account"
+                                    AutomationProperties.Name="Account"
+                                    Command="{Binding TogglePopupCommand}"
+                                    CommandParameter="UserSwitch"
+                                    AutomationProperties.AutomationId="Shell.PersonalUserCardButton"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- MODULE CONTENT (same views, same routing).
+                     GB-P14: bound to PersonalContent (== CurrentViewModel
+                     while Personal is active; null otherwise → no
+                     Personal view instance exists in Professional mode,
+                     so exactly one module view instance is live).
+                     Templates for forked modules resolve to the Personal
+                     (glass) views in this shell's resources; un-forked
+                     modules fall back to their Professional views. -->
+                <ContentControl x:Name="GlassContentHost"
+                                Content="{Binding PersonalContent}"
+                                Margin="{DynamicResource GlassBlush.PagePadding}"/>
+            </DockPanel>
+        </Grid>
+
+        <!-- AI OVERLAY (glass-10): same AiChatVM as the Professional
+             overlay; the Professional overlay is hidden when the Personal
+             experience is active (GB-P14). -->
+        <!-- GB-B5: 94%-of-window cap via ScaleLengthConverter (bound to the
+             Window's ActualWidth/ActualHeight × 0.94). The original
+             MaxWidth/MaxHeight="0.94*" was a star GridLength on a Length
+             property — invalid WPF; crashed every startup with
+             XamlParseException "'0.94*' cannot be converted to Length". -->
+        <pv:PersonalAiChatView x:Name="PersonalAiChatViewHost" DataContext="{Binding AiChatVM}"
+                               Panel.ZIndex="200"
+                               Width="920"
+                               MaxWidth="{Binding ActualWidth,
+                                         RelativeSource={RelativeSource AncestorType=Window},
+                                         Converter={StaticResource ScaleLengthConverter},
+                                         ConverterParameter=0.94}"
+                               Height="640"
+                               MaxHeight="{Binding ActualHeight,
+                                         RelativeSource={RelativeSource AncestorType=Window},
+                                         Converter={StaticResource ScaleLengthConverter},
+                                         ConverterParameter=0.94}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Visibility="{Binding IsOpen,
+                                         Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+        <!-- ══ AGENT CHAT — PERSONAL-SIDE HOST (2026-09-19) ══════════════
+             The agent card lives in MainWindow and was NOT experience-
+             aware: opened in Professional it kept floating over the
+             Personal shell, and the glass top bar had no agent control
+             to close it — the "agent stays open over everything" report.
+             Now experience-hosted exactly like the AI chat: MainWindow
+             shows it only in Professional mode, this shell only in
+             Personal mode — ONE visible instance, SAME AgentChatVM,
+             state preserved across the switch. The glass top bar's
+             AGENT pill (and the card's own X) toggle it from here. -->
+        <Border Panel.ZIndex="210"
+                Width="560"
+                Height="680"
+                MaxHeight="{Binding ActualHeight,
+                            RelativeSource={RelativeSource AncestorType=Window},
+                            Converter={StaticResource WindowInsetConverter},
+                            ConverterParameter=120}"
+                Margin="0,16,24,24"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                CornerRadius="{DynamicResource GlassBlush.SectionRadius}"
+                ClipToBounds="False"
+                BorderBrush="{DynamicResource GlassBlush.AccentGlow}"
+                BorderThickness="1"
+                Background="{DynamicResource GlassBlush.SurfaceStrong}"
+                Effect="{StaticResource GlassBlush.CardShadowFx}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsAgentChatOpen}" Value="True"/>
+                                <Condition Binding="{Binding IsPersonalExperience}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <Border CornerRadius="{DynamicResource GlassBlush.SectionRadius}"
+                    ClipToBounds="True"
+                    Background="{DynamicResource GlassBlush.SurfaceStrong}">
+                <agentUi:AgentChatView DataContext="{Binding AgentChatVM}"/>
+            </Border>
+        </Border>
+
+        <!-- ══ GB-P15 — PERSONAL-SIDE TOP-BAR POPUPS ═════════════════════
+             The Professional popups (MainWindow) anchor to the
+             Professional top-bar buttons, which are collapsed in Personal
+             mode → un-gated they float at the window origin. These two
+             anchor to the Personal buttons and share the SAME
+             MainViewModel open flags (IsNotificationsOpen /
+             IsUserSwitchOpen) — the ExperienceGatedConverter decides
+             which anchored copy may open (one source of truth, no new
+             state). Click-outside dismissal comes from MainWindow's
+             PreviewMouseLeftButtonDown guard, which recognizes the
+             Personal anchors by AutomationId. -->
+        <Popup x:Name="PersonalNotificationsPopup"
+               PlacementTarget="{Binding ElementName=PersonalNotificationButton}"
+               Placement="Bottom"
+               VerticalOffset="8"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               PopupAnimation="Fade"
+               Opened="PersonalNotificationsPopup_Opened">
+            <Popup.IsOpen>
+                <MultiBinding Converter="{StaticResource ExperienceGatedConverter}"
+                              ConverterParameter="Personal">
+                    <Binding Path="IsNotificationsOpen"/>
+                    <Binding Path="IsPersonalExperience"/>
+                </MultiBinding>
+            </Popup.IsOpen>
+            <viewsShared:ActivityPanel x:Name="PersonalActivityPanelHost"/>
+        </Popup>
+
+        <Popup x:Name="PersonalUserSwitchPopup"
+               PlacementTarget="{Binding ElementName=PersonalUserCardButton}"
+               Placement="Bottom"
+               VerticalOffset="8"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               PopupAnimation="Fade"
+               Opened="PersonalUserSwitchPopup_Opened"
+               Closed="PersonalUserSwitchPopup_Closed">
+            <Popup.IsOpen>
+                <MultiBinding Converter="{StaticResource ExperienceGatedConverter}"
+                              ConverterParameter="Personal">
+                    <Binding Path="IsUserSwitchOpen"/>
+                    <Binding Path="IsPersonalExperience"/>
+                </MultiBinding>
+            </Popup.IsOpen>
+            <viewsShared:UserSwitchPanel x:Name="PersonalUserSwitchPanelHost" Width="360"/>
+        </Popup>
+
+        <!-- ══ GB-B10 — PERSONAL-SIDE SCREENSHOT / SCREEN-RECORD POPUPS ══
+             2026-09-19: the Professional copies are experience-gated
+             (their anchors are collapsed in Personal mode) and these two
+             anchor to the glass top bar buttons on the SAME
+             IsScreenshotOpen / IsScreenRecordOpen flags — one source of
+             truth, the converter picks which anchored copy may open.
+             Click-outside dismissal comes from MainWindow's
+             PreviewMouseLeftButtonDown guard, which recognizes the
+             Personal anchors by AutomationId (MainWindow.xaml.cs). -->
+        <Popup x:Name="PersonalScreenshotPopup"
+               PlacementTarget="{Binding ElementName=PersonalScreenshotButton}"
+               Placement="Bottom"
+               VerticalOffset="0"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               PopupAnimation="Fade">
+            <Popup.IsOpen>
+                <MultiBinding Converter="{StaticResource ExperienceGatedConverter}"
+                              ConverterParameter="Personal">
+                    <Binding Path="IsScreenshotOpen"/>
+                    <Binding Path="IsPersonalExperience"/>
+                </MultiBinding>
+            </Popup.IsOpen>
+            <viewsShared:ScreenshotPanel x:Name="PersonalScreenshotPanelHost"/>
+        </Popup>
+
+        <Popup x:Name="PersonalScreenRecordPopup"
+               PlacementTarget="{Binding ElementName=PersonalScreenRecordButton}"
+               Placement="Bottom"
+               VerticalOffset="8"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               PopupAnimation="Fade">
+            <Popup.IsOpen>
+                <MultiBinding Converter="{StaticResource ExperienceGatedConverter}"
+                              ConverterParameter="Personal">
+                    <Binding Path="IsScreenRecordOpen"/>
+                    <Binding Path="IsPersonalExperience"/>
+                </MultiBinding>
+            </Popup.IsOpen>
+            <viewsShared:ScreenRecordPanel x:Name="PersonalScreenRecordPanelHost"/>
+        </Popup>
+    </Grid>
+</UserControl>

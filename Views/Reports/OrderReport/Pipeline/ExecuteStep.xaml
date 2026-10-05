@@ -1,0 +1,265 @@
+<!-- Report Generator execute step. Staged progress, not a single spinner.
+     Generation still starts from the shell when the user leaves Preview. -->
+<UserControl x:Class="ProGlassAutomation.Views.Reports.OrderReport.Pipeline.ExecuteStep"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:ProGlassAutomation.Converters"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}"
+             Foreground="{DynamicResource Ov.Ink}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Shared/GeneratorStudio.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <conv:DecimalComparisonConverter x:Key="StageCompare"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="18,16" MaxWidth="920" HorizontalAlignment="Stretch">
+            <Border Style="{StaticResource Sl.Hero}" Margin="0,0,0,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Generating report" Style="{StaticResource Sl.Label}" Foreground="{DynamicResource Ov.OnAccent}"/>
+                        <TextBlock Text="{Binding GenerationStage}" Style="{StaticResource Sl.Value}" FontSize="26" Foreground="{DynamicResource Ov.OnAccent}"/>
+                        <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource Sl.Subtitle}" Foreground="{DynamicResource Ov.OnAccentMuted}"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="1" Text="{Binding GenerationProgressDisplay}" Style="{StaticResource Sl.Value}" FontSize="36" Foreground="{DynamicResource Ov.OnAccent}" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource Sl.Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <ProgressBar>
+                        <ProgressBar.Style>
+                            <Style TargetType="ProgressBar" BasedOn="{StaticResource Gen.Track}">
+                                <Setter Property="Value" Value="{Binding GenerationProgress, Mode=OneWay}"/>
+                                <Setter Property="IsIndeterminate" Value="False"/>
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsGenerating}" Value="True"/>
+                                            <Condition Binding="{Binding GenerationProgress}" Value="0"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="IsIndeterminate" Value="True"/>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ProgressBar.Style>
+                    </ProgressBar>
+                    <TextBlock Text="The run reads each selected invoice, builds the order chain, saves the report, then writes the PDF."
+                               Style="{StaticResource Sl.Subtitle}" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Sl.Card}" Padding="0">
+                <StackPanel>
+                    <Border Style="{StaticResource Sl.TableHeader}">
+                        <TextBlock Text="Pipeline" Style="{StaticResource Sl.ColumnLabel}" Margin="16,0"/>
+                    </Border>
+                    <StackPanel Margin="8,8,8,12">
+                        <Border>
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource Sl.Row}">
+                                    <Setter Property="Padding" Value="14,10"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding GenerationStageIndex, Converter={StaticResource StageCompare}, ConverterParameter=1}" Value="EqualTo">
+                                            <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding GenerationStageIndex, Converter={StaticResource StageCompare}, ConverterParameter=1}" Value="GreaterThan">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource Ov.Success}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="36"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="01" FontWeight="Bold" Foreground="{DynamicResource Ov.Accent}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Reading invoices" VerticalAlignment="Center" Foreground="{DynamicResource Ov.Ink}"/>
+                                <TextBlock Grid.Column="2" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Success}"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding GenerationStageIndex, Converter={StaticResource StageCompare}, ConverterParameter=1}" Value="GreaterThan">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding GenerationStageIndex, Converter={StaticResource StageCompare}, ConverterParameter=1}" Value="EqualTo">
+                                                    <Setter Property="Text" Value="Running"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Accent}"/>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+                        <Border Padding="14,10">
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource Sl.Row}">
+                                    <Setter Property="Padding" Value="14,10"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding GenerationStageIndex, Converter={StaticResource StageCompare}, ConverterParameter=2}" Value="EqualTo">
+                                            <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="36"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="02" FontWeight="Bold" Foreground="{DynamicResource Ov.Accent}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Building sections" VerticalAlignment="Center" Foreground="{DynamicResource Ov.Ink}"/>
+                                <TextBlock Grid.Column="2" Foreground="{DynamicResource Ov.Accent}" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding GenerationStageIndex, Converter={StaticResource StageCompare}, ConverterParameter=2}" Value="GreaterThan">
+                                                    <Setter Property="Text" Value="Done"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Success}"/>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding GenerationStageIndex, Converter={StaticResource StageCompare}, ConverterParameter=2}" Value="EqualTo">
+                                                    <Setter Property="Text" Value="Running"/>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+                        <Border Padding="14,10">
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource Sl.Row}">
+                                    <Setter Property="Padding" Value="14,10"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding GenerationStageIndex, Converter={StaticResource StageCompare}, ConverterParameter=3}" Value="EqualTo">
+                                            <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="36"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="03" FontWeight="Bold" Foreground="{DynamicResource Ov.Accent}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Saving report" VerticalAlignment="Center" Foreground="{DynamicResource Ov.Ink}"/>
+                                <TextBlock Grid.Column="2">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding GenerationStageIndex, Converter={StaticResource StageCompare}, ConverterParameter=3}" Value="GreaterThan">
+                                                    <Setter Property="Text" Value="Done"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Success}"/>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding GenerationStageIndex, Converter={StaticResource StageCompare}, ConverterParameter=3}" Value="EqualTo">
+                                                    <Setter Property="Text" Value="Running"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Accent}"/>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+                        <Border Padding="14,10">
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource Sl.Row}">
+                                    <Setter Property="Padding" Value="14,10"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding GenerationStageIndex, Converter={StaticResource StageCompare}, ConverterParameter=4}" Value="EqualTo">
+                                            <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="36"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="04" FontWeight="Bold" Foreground="{DynamicResource Ov.Accent}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Writing PDF" VerticalAlignment="Center" Foreground="{DynamicResource Ov.Ink}"/>
+                                <TextBlock Grid.Column="2">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding GenerationStageIndex, Converter={StaticResource StageCompare}, ConverterParameter=4}" Value="GreaterThan">
+                                                    <Setter Property="Text" Value="Done"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Success}"/>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding GenerationStageIndex, Converter={StaticResource StageCompare}, ConverterParameter=4}" Value="EqualTo">
+                                                    <Setter Property="Text" Value="Running"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Accent}"/>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Margin="0,12,0,0" Padding="16">
+                <Border.Style>
+                    <Style TargetType="Border" BasedOn="{StaticResource Sl.Card}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Setter Property="Padding" Value="16"/>
+                        <Setter Property="Margin" Value="0,12,0,0"/>
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding HasReport}" Value="True"/>
+                                    <Condition Binding="{Binding IsGenerating}" Value="False"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel>
+                    <TextBlock Text="Report ready" Style="{StaticResource Sl.Label}"/>
+                    <TextBlock Style="{StaticResource Sl.Value}" FontSize="22">
+                        <Run Text="{Binding SectionCount, Mode=OneWay}"/>
+                        <Run Text=" order(s) built. Review opens automatically."/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,98 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/SettingsAiSection.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v2 — AI ASSISTANT page (redesigned Aug 2026)
+     REDESIGN
+       Was: 5 giant stacked SectionCardStyle blocks (Master toggle, Data
+       access, Model & tuning, Providers, Security). The Providers card
+       alone contained three vertically-stacked ProviderCardBaseStyle
+       cards taking the full width — on a wide monitor 65% of horizontal
+       space was empty.
+       Now: tile-grid layout — master switches and metric readouts fit
+       into 320-wide tiles, providers become side-by-side wide tiles
+       that self-align in the WrapPanel. API keys stay in a
+       PasswordBox inside AiProvidersCard; the three key boxes and their
+       PasswordChanged wiring live in AiProvidersCard.xaml.cs, beside the
+       controls they act on.
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsAiSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:cards="clr-namespace:ProGlassAutomation.Views.Settings.Sections.Cards"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             RenderOptions.ClearTypeHint="Enabled"
+             RenderOptions.EdgeMode="Aliased">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly"
+                      behaviors:SmoothScrollBehavior.IsEnabled="True"
+                      Focusable="False"
+                      FocusVisualStyle="{x:Null}">
+            <StackPanel Margin="{StaticResource SettingsPagePadding}">
+
+                <!-- ═══ BENTO HERO BANNER — AI MODELS & ORCHESTRATION ═══ -->
+                <Border Style="{StaticResource SettingsHeroCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                            <TextBlock Text="&#xE8F2;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                            <TextBlock Text="AI Models &amp; Intelligent Assistant" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="Multi-provider LLM integration, token budget routing, and DPAPI-encrypted credential vault" Style="{StaticResource SettingsHeroNoteStyle}"/>
+                        </StackPanel>
+
+                        <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                            <TextBlock Text="Encrypted Vault" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- ═══ BENTO ROW — AI ASSISTANT & SECURITY ═══ -->
+                <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- ═══ CARD — SWITCHES & MODEL ═══ -->
+                    <cards:AiAssistantCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" VerticalAlignment="Top"/>
+                    <!-- ═══ CARD — SECURITY ═══ -->
+                    <cards:AiSecurityCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" VerticalAlignment="Top"/>
+                </Grid>
+
+                <!-- ═══ CARD — PROVIDERS ═══ -->
+                <cards:AiProvidersCard/>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

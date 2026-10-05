@@ -1,0 +1,1 @@
+Existing tests cover licensing, VAT, money rounding, optimization, and architecture guards. They must be run with `dotnet test Tests/ProGlassAutomation.Tests.csproj -c Release` on Windows. That command was not run here.

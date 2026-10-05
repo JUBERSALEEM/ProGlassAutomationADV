@@ -1,0 +1,274 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/JobProfitability/PortfolioGlassTypeComparisonView.xaml
+     MODULE: Portfolio Glass Type Comparison (Studio Bento Edition)
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.JobProfitability.PortfolioGlassTypeComparisonView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="1100"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}"
+             Foreground="{DynamicResource Ov.Ink}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Shared/Lists/StudioListResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ═══════ HEADER (reclaimed vertical space; tab context in parent) ═══════ -->
+        <Border Grid.Row="0" Visibility="Collapsed"/>
+
+        <!-- ═══════ SUMMARY KPIs ═══════ -->
+        <Grid Grid.Row="1" Margin="16,8,16,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource Sl.Hero}" Padding="16,12">
+                <StackPanel>
+                    <TextBlock Text="JOBS ANALYZED" Style="{StaticResource Sl.Label}" Foreground="{DynamicResource Ov.OnAccentMuted}"/>
+                    <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="0,4,0,0">
+                        <TextBlock Text="{Binding TotalJobsAnalyzed}"
+                                   FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
+                                   Foreground="{DynamicResource Ov.OnAccent}"
+                                   Typography.NumeralAlignment="Tabular"/>
+                    </Viewbox>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource Sl.Card}" Padding="16,12">
+                <StackPanel>
+                    <TextBlock Text="TOTAL REVENUE" Style="{StaticResource Sl.Label}"/>
+                    <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="0,4,0,0">
+                        <TextBlock Text="{Binding TotalRevenueDisplay}"
+                                   FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
+                                   Foreground="{DynamicResource Ov.Ink}"
+                                   Typography.NumeralAlignment="Tabular"/>
+                    </Viewbox>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="4" Style="{StaticResource Sl.Card}" Padding="16,12">
+                <StackPanel>
+                    <TextBlock Text="TOTAL PROFIT" Style="{StaticResource Sl.Label}"/>
+                    <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="0,4,0,0">
+                        <TextBlock Text="{Binding TotalProfitDisplay}"
+                                   FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
+                                   Foreground="{DynamicResource Ov.Ink}"
+                                   Typography.NumeralAlignment="Tabular"/>
+                    </Viewbox>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="6" Style="{StaticResource Sl.Card}" Padding="16,12">
+                <StackPanel>
+                    <TextBlock Text="OVERALL MARGIN" Style="{StaticResource Sl.Label}"/>
+                    <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="0,4,0,0">
+                        <TextBlock Text="{Binding OverallMarginDisplay}"
+                                   FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
+                                   Foreground="{DynamicResource Ov.Ink}"
+                                   Typography.NumeralAlignment="Tabular"/>
+                    </Viewbox>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="8" Style="{StaticResource Sl.Card}" Padding="16,12">
+                <StackPanel>
+                    <TextBlock Text="BEST PERFORMER" Style="{StaticResource Sl.Label}"/>
+                    <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                        <TextBlock Text="{Binding BestPerformingGlassType}"
+                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="Bold"
+                                   Foreground="{DynamicResource Ov.Success}"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </Viewbox>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ═══════ DETAILED COMPARISON TABLE ═══════ -->
+        <Border Grid.Row="2" Margin="16,12,16,0"
+                Style="{StaticResource Sl.Shell}"
+                CornerRadius="14" Padding="0"
+                ClipToBounds="True">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Table Header -->
+                <Border Grid.Row="0" Style="{StaticResource Sl.TableHeader}" Padding="16,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="GLASS TYPE" Style="{StaticResource Sl.ColumnLabel}"/>
+                        <TextBlock Grid.Column="1" Text="JOBS" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="2" Text="REVENUE" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="COST" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="PROFIT" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="5" Text="MARGIN %" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                    </Grid>
+                </Border>
+
+                <!-- Table Rows -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                              behaviors:SmoothScrollBehavior.IsEnabled="True">
+                    <ItemsControl ItemsSource="{Binding GlassTypeRows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource Sl.Row}" Padding="16,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1.5*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="{Binding GlassType}"
+                                                   FontWeight="SemiBold" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsBestPerformer}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Success}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+
+                                        <TextBlock Grid.Column="1" Text="{Binding JobCount}"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource Ov.Ink}" Typography.NumeralAlignment="Tabular"/>
+
+                                        <TextBlock Grid.Column="2" Text="{Binding TotalRevenueDisplay}"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource Ov.Ink}" Typography.NumeralAlignment="Tabular"/>
+
+                                        <TextBlock Grid.Column="3" Text="{Binding TotalCostDisplay}"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource Ov.Muted}" Typography.NumeralAlignment="Tabular"/>
+
+                                        <TextBlock Grid.Column="4" Text="{Binding TotalProfitDisplay}"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                   FontWeight="Bold" Typography.NumeralAlignment="Tabular">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsProfitable}" Value="False">
+                                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Danger}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+
+                                        <TextBlock Grid.Column="5" Text="{Binding MarginDisplay}"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                   FontWeight="Bold" Typography.NumeralAlignment="Tabular">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsProfitable}" Value="False">
+                                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Danger}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsBestPerformer}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Success}"/>
+                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!-- Empty state -->
+                <Border Grid.Row="1" Padding="24,48"
+                        Visibility="{Binding GlassTypeRows.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE8FD;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Kpi}"
+                                   HorizontalAlignment="Center" Foreground="{DynamicResource Ov.Muted}" Margin="0,0,0,12"/>
+                        <TextBlock Text="{Binding EmptyStateTitle}"
+                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center" Foreground="{DynamicResource Ov.Ink}"/>
+                        <TextBlock Text="{Binding EmptyStateMessage}"
+                                   FontSize="{DynamicResource FontSize.Body}" HorizontalAlignment="Center"
+                                   Margin="0,4,0,0" Foreground="{DynamicResource Ov.Muted}"
+                                   TextAlignment="Center" TextWrapping="Wrap" MaxWidth="560"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ═══════ STATUS LINE ═══════ -->
+        <Border Grid.Row="3" Margin="16,12,16,16" Padding="4,0">
+            <TextBlock Text="{Binding StatusMessage}"
+                       FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
+                       Foreground="{DynamicResource Ov.Muted}"/>
+        </Border>
+
+        <!-- ═══════ LOADING OVERLAY ═══════ -->
+        <Border Grid.RowSpan="4"
+                Background="{DynamicResource SurfaceOverlayBrush}"
+                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border Style="{StaticResource Sl.Card}"
+                        Padding="28,16">
+                    <StackPanel Orientation="Horizontal">
+                        <ProgressBar IsIndeterminate="True" Width="20" Height="20"
+                                     VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <TextBlock Text="Analyzing..."
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Ov.Ink}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

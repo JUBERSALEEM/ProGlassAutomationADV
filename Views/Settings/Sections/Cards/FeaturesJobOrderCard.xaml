@@ -1,0 +1,158 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/FeaturesJobOrderCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — one card of the FeaturesSection page, split out of
+     SettingsFeaturesSection.xaml (2026-09-17) so no section carries six cards in one
+     1,200+ line tree. DataContext inherits SettingsViewModel from the
+     section; styles come from the two merged module dictionaries.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.FeaturesJobOrderCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                    <TextBlock Text="&#xE8B7;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Common.JobOrder}"
+                                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                                    <TextBlock Text="{DynamicResource Settings.TurnOptionalProductionFieldsStatusPriority}"
+                                               Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
+                            <StackPanel Margin="{StaticResource SettingsRowMargin}">
+                                <StackPanel Margin="{StaticResource SettingsStackGap8}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE713;"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
+                                        </StackPanel>
+                                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.FlipJobOrderFieldOnce}"/>
+                                        <!-- Full-width action row: 3 buttons side-by-side -->
+                                        <UniformGrid Columns="3" Margin="{StaticResource SettingsStackGap10}">
+                                            <Button Content="{DynamicResource Settings.Enable}"
+                                            Command="{Binding EnableAllCommand}"
+                                            Style="{StaticResource SettingsActionButtonStyle}"/>
+                                            <Button Content="{DynamicResource Settings.HideOptional}"
+                                            Command="{Binding DisableAllOptionalCommand}"
+                                            Style="{StaticResource SettingsActionButtonStyle}"/>
+                                            <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
+                                            Command="{Binding ResetToDefaultsCommand}"
+                                            Style="{StaticResource SettingsActionButtonStyle}"
+                                            Margin="0"/>
+                                        </UniformGrid>
+                                    </StackPanel>
+                            </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Settings.ProductionPanel}"
+                                   Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                            <UniformGrid Columns="4" Margin="{StaticResource SettingsTileGridBleed}">
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource JobOrder.Assigned}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.OperatorRunningJobShopFloor}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowAssignedTo}"
+                                        AutomationProperties.Name="{DynamicResource JobOrder.Assigned}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.SiteContact}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.SiteEngineerDriverReach}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryContact}"
+                                        AutomationProperties.Name="{DynamicResource Settings.SiteContact}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.SitePhone}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.DirectLineDeliveryCoordination}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryPhone}"
+                                        AutomationProperties.Name="{DynamicResource Settings.SitePhone}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.SiteAddress}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.FullDeliveryLocationDriver}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryAddress}"
+                                        AutomationProperties.Name="{DynamicResource Settings.SiteAddress}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource JobOrder.DrawingReference}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.LinksPhysicalShopDrawingJob}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDrawingReference}"
+                                        AutomationProperties.Name="{DynamicResource JobOrder.DrawingReference}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource JobOrder.CuttingInstructions}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.OperatorCheatSheetCuttingBay}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCuttingInstructions}"
+                                        AutomationProperties.Name="{DynamicResource JobOrder.CuttingInstructions}"
+                                        />
+                                    </Grid>
+
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource JobOrder.InternalNotes}" VerticalAlignment="Center"/>
+</StackPanel>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.FreeformNotesProductionTeam}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInternalNotes}"
+                                        AutomationProperties.Name="{DynamicResource JobOrder.InternalNotes}"
+                                        />
+                                    </Grid>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,325 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/SettingsSharingSection.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings — SHARING page (Stage 2)
+     Edits AppConfig.Sharing through SettingsViewModel.Sharing.cs: enabled
+     providers, defaults, per-document rules, and message template
+     overrides. Every control drives working composer code — nothing here
+     is decorative. Follows the Settings tile vocabulary (group header +
+     full-row tiles).
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsSharingSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             RenderOptions.ClearTypeHint="Enabled"
+             RenderOptions.EdgeMode="Aliased">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      behaviors:SmoothScrollBehavior.IsEnabled="True">
+            <StackPanel Margin="{StaticResource SettingsPagePadding}">
+
+                <!-- ═══ BENTO HERO BANNER — DOCUMENT SHARING & EXPORT ═══ -->
+                <Border Style="{StaticResource SettingsHeroCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                            <TextBlock Text="&#xE72D;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                            <TextBlock Text="Export &amp; Document Sharing Hub" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="WhatsApp Business API, SMTP email delivery, and multi-format document templates" Style="{StaticResource SettingsHeroNoteStyle}"/>
+                        </StackPanel>
+
+                        <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                            <TextBlock Text="Active Hub" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- ═══ BENTO ROW — PROVIDERS & DEFAULTS ═══ -->
+                <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- ═══ CARD — PROVIDERS ═══ -->
+                    <Border Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" Style="{StaticResource SettingsPageCardStyle}" VerticalAlignment="Top">
+                        <StackPanel>
+                            <Grid Margin="{StaticResource SettingsStackBottom8}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                    <TextBlock Text="&#xE72D;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Sharing.Providers}"
+                                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                                    <TextBlock Text="Delivery channels and default dispatch service"
+                                               Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Margin="{StaticResource SettingsStackBottom10}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72D;" VerticalAlignment="Center"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
+                                               Text="{DynamicResource Sharing.Providers}"/>
+                                    </StackPanel>
+                                    <CheckBox Content="{DynamicResource Sharing.ProviderWhatsApp}"
+                                    AutomationProperties.Name="{DynamicResource Sharing.ProviderWhatsApp}"
+                                              IsChecked="{Binding SharingWhatsAppEnabled, Mode=TwoWay}"
+                                              FontWeight="{DynamicResource Weight.SemiBold}"
+                                              Foreground="{DynamicResource TextPrimaryBrush}"
+                                              Margin="{StaticResource SettingsStackGap8}"/>
+                                    <CheckBox Content="{DynamicResource Sharing.ProviderEmail}"
+                                    AutomationProperties.Name="{DynamicResource Sharing.ProviderEmail}"
+                                              IsChecked="{Binding SharingEmailEnabled, Mode=TwoWay}"
+                                              FontWeight="{DynamicResource Weight.SemiBold}"
+                                              Foreground="{DynamicResource TextPrimaryBrush}"
+                                              Margin="{StaticResource SettingsStackGap8}"/>
+                                    <CheckBox Content="{DynamicResource Sharing.ProviderShowFile}"
+                                    AutomationProperties.Name="{DynamicResource Sharing.ProviderShowFile}"
+                                              IsChecked="{Binding SharingSystemFileEnabled, Mode=TwoWay}"
+                                              FontWeight="{DynamicResource Weight.SemiBold}"
+                                              Foreground="{DynamicResource TextPrimaryBrush}"
+                                              Margin="{StaticResource SettingsStackGap8}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="{DynamicResource Sharing.DefaultProvider}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"/>
+                                    <ComboBox ItemsSource="{Binding SharingProviderOptions}"
+                                              SelectedItem="{Binding SharingDefaultProvider, Mode=TwoWay}"
+                                              Padding="10,7"
+                                              FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource ComboBoxStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ═══ CARD — DEFAULTS ═══ -->
+                    <Border Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" Style="{StaticResource SettingsPageCardStyle}" VerticalAlignment="Top">
+                        <StackPanel>
+                            <Grid Margin="{StaticResource SettingsStackBottom8}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                    <TextBlock Text="&#xE713;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Sharing.Defaults}"
+                                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                                    <TextBlock Text="Regional prefix and temporary artifact retention"
+                                               Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                            <UniformGrid Columns="3" Margin="{StaticResource SettingsStackTop8}">
+                                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                                    <TextBlock Text="{DynamicResource Sharing.DefaultCountryCode}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"/>
+                                    <TextBox Text="{Binding SharingDefaultCountryCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Padding="10,7"
+                                             FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
+                                </StackPanel>
+                                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                                    <TextBlock Text="{DynamicResource Sharing.TempRetention}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"/>
+                                    <TextBox Text="{Binding SharingTempRetentionHours, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Padding="10,7"
+                                             FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
+                                </StackPanel>
+                                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                                    <TextBlock Text="{DynamicResource Sharing.EmailLargeMb}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"/>
+                                    <TextBox Text="{Binding SharingEmailLargeMb, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Padding="10,7"
+                                             FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
+                                </StackPanel>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- ═══ CARD — DOCUMENT RULES ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <Grid Margin="{StaticResource SettingsStackBottom8}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                <TextBlock Text="&#xE8A5;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Sharing.DocumentRules}"
+                                           Style="{StaticResource SettingsCardTitleStyle}"/>
+                                <TextBlock Text="Format, provider, and edit permissions per document type"
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel Margin="{StaticResource SettingsStackTop8}">
+                            <Grid Margin="{StaticResource SettingsRowMargin}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="1.3*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="1" Text="{DynamicResource Sharing.RuleFormat}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"/>
+                                <TextBlock Grid.Column="2" Text="{DynamicResource Sharing.RuleProvider}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"/>
+                                <TextBlock Grid.Column="3" Text="{DynamicResource Sharing.RuleRecipient}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"/>
+                                <TextBlock Grid.Column="4" Text="{DynamicResource Sharing.RuleAllowEdit}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           Margin="{StaticResource SettingsInlineGap8}"/>
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding SharingDocumentRules}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="{StaticResource SettingsRowMargin}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="1.3*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding DocumentTypeKey}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
+                                                       FontWeight="{DynamicResource Weight.SemiBold}"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                                       VerticalAlignment="Center"/>
+                                            <ComboBox Grid.Column="1" Margin="{StaticResource SettingsInlineGap8R}"
+                                                      ItemsSource="{Binding DataContext.SharingFormatOptions,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      SelectedItem="{Binding DefaultFormat, Mode=TwoWay}"
+                                                      SelectionChanged="RuleCombo_SelectionChanged" Style="{StaticResource ComboBoxStyle}"/>
+                                            <ComboBox Grid.Column="2" Margin="{StaticResource SettingsInlineGap8R}"
+                                                      ItemsSource="{Binding DataContext.SharingProviderOptions,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      SelectedItem="{Binding DefaultProviderId, Mode=TwoWay}"
+                                                      SelectionChanged="RuleCombo_SelectionChanged" Style="{StaticResource ComboBoxStyle}"/>
+                                            <ComboBox Grid.Column="3" Margin="{StaticResource SettingsInlineGap8R}"
+                                                      ItemsSource="{Binding DataContext.SharingRecipientKindOptions,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      SelectedItem="{Binding DefaultRecipientKind, Mode=TwoWay}"
+                                                      SelectionChanged="RuleCombo_SelectionChanged" Style="{StaticResource ComboBoxStyle}"/>
+                                            <CheckBox Grid.Column="4" Margin="{StaticResource SettingsInlineGap8}"
+                                            AutomationProperties.Name="{DynamicResource Sharing.RuleAllowEdit}"
+                                                      VerticalAlignment="Center"
+                                                      IsChecked="{Binding AllowMessageEdit, Mode=TwoWay}"
+                                                      Checked="RuleCombo_SelectionChanged"
+                                                      Unchecked="RuleCombo_SelectionChanged"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- ═══ CARD — TEMPLATES ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <Grid Margin="{StaticResource SettingsStackBottom8}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                <TextBlock Text="&#xE8BD;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Sharing.Templates}"
+                                           Style="{StaticResource SettingsCardTitleStyle}"/>
+                                <TextBlock Text="Customizable message wording with dynamic tokens"
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel Margin="{StaticResource SettingsStackTop8}">
+                            <TextBlock Text="{DynamicResource Sharing.TemplateKey}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
+                            <ComboBox ItemsSource="{Binding SharingTemplateKeyOptions}"
+                                      SelectedItem="{Binding SharingTemplateKey, Mode=TwoWay}"
+                                      Padding="10,7" Margin="{StaticResource SettingsStackBottom8}"
+                                      FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource ComboBoxStyle}"/>
+                            <TextBlock Text="{DynamicResource Sharing.TemplateText}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
+                            <TextBox Text="{Binding SharingTemplateText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Padding="10,7" MinHeight="150" MaxHeight="260"
+                                     AcceptsReturn="True" TextWrapping="Wrap"
+                                     VerticalScrollBarVisibility="Auto"
+                                     FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
+                            <Grid Margin="{StaticResource SettingsStackGap10}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Style="{StaticResource SuccessPillButton}"
+                                    Height="36" Margin="0"
+                                    Content="{DynamicResource Sharing.SaveTemplate}"
+                                    Command="{Binding SaveSharingTemplateCommand}"
+                                    HorizontalAlignment="Stretch"/>
+                                <Button Grid.Column="2" Style="{StaticResource SettingsActionButtonStyle}"
+                                    Height="36" Margin="0"
+                                    Content="{DynamicResource Sharing.ResetTemplate}"
+                                    Command="{Binding ResetSharingTemplateCommand}"
+                                    HorizontalAlignment="Stretch"/>
+                            </Grid>
+                            <TextBlock Text="{DynamicResource Sharing.Variables}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
+                                       TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap8}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

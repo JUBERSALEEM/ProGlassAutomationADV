@@ -1,0 +1,341 @@
+<!-- Tax Invoice detail — document workspace shell.
+     Ctrl+S / Escape, ActionsMenuButton / ActionsMenuPopup, TiMenuActionItem,
+     family tabs, IsBodyEditable, BodyLockBannerVisibility: unchanged. -->
+<UserControl Style="{StaticResource ErpPageRootStyle}"
+             x:Class="ProGlassAutomation.Views.TaxInvoice.TaxInvoiceDetail.TaxInvoiceDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:sections="clr-namespace:ProGlassAutomation.Views.TaxInvoice.TaxInvoiceDetail.Sections"
+             xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
+             Background="{DynamicResource Ov.Canvas}"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.InputBindings>
+        <KeyBinding Modifiers="Control" Key="S" Command="{Binding SaveCommand}"/>
+        <KeyBinding Key="Escape" Command="{Binding BackCommand}"/>
+    </UserControl.InputBindings>
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Sections/TiSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="TiMenuActionItem" TargetType="Button">
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="12,8"/>
+                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bg" Background="Transparent"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="12,8"
+                                    SnapsToDevicePixels="True">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{TemplateBinding Tag}"
+                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.H3}"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,12,0"/>
+                                    <TextBlock Text="{TemplateBinding Content}"
+                                               FontSize="{DynamicResource FontSize.Title}"
+                                               FontWeight="{DynamicResource Weight.SemiBold}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="Bg" Property="Opacity" Value="0.8"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="Bg" Property="Opacity" Value="0.40"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Style="{StaticResource ModuleDetailActionBarStyle}"
+                Margin="16,8,16,6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        Style="{StaticResource OutlinedPillButton}"
+                        Tag="&#xE72B;"
+                        Content="{DynamicResource Action.Back}"
+                        Command="{Binding BackCommand}"
+                        Margin="0,0,12,0"
+                        ToolTip="{DynamicResource DeliveryNote.BackListEsc}"/>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{Binding PageTitle}"
+                               Style="{StaticResource ModuleDetailTitleStyle}"/>
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Padding="8,4"
+                            Margin="12,0,0,0"
+                            VerticalAlignment="Center"
+                            Background="{DynamicResource TintIndigoBrush}">
+                        <TextBlock Text="{Binding Status}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    </Border>
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Padding="8,4"
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            Background="{DynamicResource TintRedBrush}">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsTrnValid}" Value="False">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="{DynamicResource TaxInvoice.TRNInvalid}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource DangerBrush}"/>
+                    </Border>
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Padding="8,4"
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            Background="{DynamicResource TintAmberBrush}"
+                            Visibility="{Binding IsSaving,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="{DynamicResource TaxInvoice.Saving}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource WarningBrush}"/>
+                    </Border>
+                </StackPanel>
+
+                <ScrollViewer Grid.Column="2"
+                              VerticalScrollBarVisibility="Disabled"
+                              HorizontalScrollBarVisibility="Auto">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource OutlinedPillButton}"
+                                x:Name="ActionsMenuButton"
+                                Tag="&#xE712;"
+                                Content="{DynamicResource Common.Actions}"
+                                ToolTip="{DynamicResource TaxInvoice.SaveIssueMarkPaidExportMore}"
+                                behaviors:DropdownButtonBehavior.Popup="{Binding ElementName=ActionsMenuPopup}"/>
+                        <Popup x:Name="ActionsMenuPopup"
+                               PlacementTarget="{Binding ElementName=ActionsMenuButton}"
+                               Placement="Bottom"
+                               HorizontalAlignment="Right"
+                               VerticalOffset="4"
+                               AllowsTransparency="True"
+                               StaysOpen="True"
+                               PopupAnimation="Fade">
+                            <Border Background="{DynamicResource PopupSurfaceBrush}"
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                    CornerRadius="{DynamicResource CardCornerRadius}"
+                                    Padding="8"
+                                    MinWidth="228"
+                                    SnapsToDevicePixels="True">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="20" ShadowDepth="4"
+                                                      Direction="270" Opacity="0.25"
+                                                      Color="{DynamicResource LiquidShadowColor}"/>
+                                </Border.Effect>
+                                <StackPanel>
+                                    <Button Style="{StaticResource PrimaryPillButton}"
+                                            Tag="&#xE74E;"
+                                            Content="{DynamicResource TaxInvoice.SaveCtrlS}"
+                                            Command="{Binding SaveCommand}"
+                                            behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                    <Button Style="{StaticResource OutlinedPillButton}"
+                                            Tag="&#xE72D;"
+                                            Content="{DynamicResource TaxInvoice.IssueInvoice}"
+                                            Command="{Binding IssueCommand}"
+                                            behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                    <Button Style="{StaticResource OutlinedPillButton}"
+                                            Tag="&#xE8FB;"
+                                            Content="{DynamicResource TaxInvoice.IssueDrafts}"
+                                            Command="{Binding IssueAllCommand}"
+                                            behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"
+                                            Visibility="{Binding CanIssueAllDrafts,
+                                                Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <Button Style="{StaticResource OutlinedPillButton}"
+                                            Tag="&#xE73E;"
+                                            Content="{DynamicResource TaxInvoice.MarkPaid}"
+                                            Command="{Binding MarkPaidCommand}"
+                                            behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                    <Button Style="{StaticResource OutlinedPillButton}"
+                                            Tag="&#xE81C;"
+                                            Content="{DynamicResource Common.VersionHistory}"
+                                            Command="{Binding ShowVersionsCommand}"
+                                            behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                    <Border Height="1" Margin="8,4"
+                                            Background="{DynamicResource BorderDefaultBrush}"/>
+                                    <Button Style="{StaticResource OutlinedPillButton}"
+                                            Tag="&#xE8A5;"
+                                            Content="{DynamicResource DeliveryNote.ExportPDF}"
+                                            Command="{Binding ExportPdfCommand}"
+                                            behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                    <Button Style="{StaticResource OutlinedPillButton}"
+                                            Tag="&#xE72D;"
+                                            Content="{DynamicResource Sharing.Share}"
+                                            Command="{Binding ShareCommand}"
+                                            behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                    <Border Height="1" Margin="8,4"
+                                            Background="{DynamicResource BorderDefaultBrush}"/>
+                                    <Button Style="{StaticResource DangerButton}"
+                                            Tag="&#xE74D;"
+                                            Content="{DynamicResource TaxInvoice.DeleteInvoice}"
+                                            Command="{Binding DeleteCommand}"
+                                            behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="1" Margin="16,0,16,8">
+            <loading:LoadingStateControl
+                    Visibility="{Binding IsLoading,
+                                 Converter={StaticResource BoolToVisibilityConverter}}"
+                    Message="Loading invoice…"/>
+            <Border Visibility="{Binding HasStatusMessage,
+                                 Converter={StaticResource BoolToVisibilityConverter}}"
+                    Background="{DynamicResource TintIndigoBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
+                    BorderThickness="{DynamicResource Border.HairlineThickness}"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                    Padding="12,8">
+                <TextBlock Text="{Binding StatusMessage}"
+                           FontSize="{DynamicResource FontSize.Body}"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+            </Border>
+            <Border Style="{StaticResource ModuleWarningBannerStyle}"
+                    Visibility="{Binding BodyLockBannerVisibility}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE72E;"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource FontSize.Title}"
+                               Foreground="{DynamicResource WarningBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0"/>
+                    <TextBlock Text="{DynamicResource Lock.PostedBodyLocked}"
+                               TextWrapping="Wrap"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="16,0,16,8">
+            <Button Content="{DynamicResource Nav.Overview}"
+                    Tag="&#xE8A5;"
+                    Margin="0,0,8,0"
+                    ToolTip="{DynamicResource TaxInvoice.InvoiceContentFinancials}"
+                    Command="{Binding SwitchDetailTabCommand}"
+                    CommandParameter="Overview">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource Tab.InactiveControl}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsOverviewTab}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <Button Content="{DynamicResource DeliveryNote.Attachments}"
+                    Tag="&#xE723;"
+                    Margin="0,0,8,0"
+                    ToolTip="{DynamicResource TaxInvoice.AttachedImagesPdfs}"
+                    Command="{Binding SwitchDetailTabCommand}"
+                    CommandParameter="Attachments">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource Tab.InactiveControl}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsAttachmentsTab}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <Button Content="{DynamicResource TaxInvoice.Family}"
+                    Tag="&#xE716;"
+                    ToolTip="{DynamicResource TaxInvoice.InvoiceFamilyMembers}"
+                    Command="{Binding SwitchDetailTabCommand}"
+                    CommandParameter="Family">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource Tab.InactiveControl}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsFamilyTab}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+
+        <Grid Grid.Row="3" Margin="16,0,16,16">
+            <sections:TiOverviewSection
+                IsEnabled="{Binding IsBodyEditable}"
+                Visibility="{Binding IsOverviewTab, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <sections:TiAttachmentsSection
+                Visibility="{Binding IsAttachmentsTab, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <sections:TiFamilySection
+                Visibility="{Binding IsFamilyTab, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        </Grid>
+    </Grid>
+</UserControl>

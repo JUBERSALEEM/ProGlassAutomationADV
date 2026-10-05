@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
+  <assemblyIdentity version="1.0.0.0" name="ProGlassAutomation.LicenseGenerator"/>
+  <!--
+    DPI awareness: per-monitor v2 keeps the dialog crisp
+    on 4K / mixed-DPI setups. Without this the window
+    blurs the moment it is dragged onto a different
+    monitor.
+  -->
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+    <windowsSettings>
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
+      <longPathAware xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">true</longPathAware>
+    </windowsSettings>
+  </application>
+  <!--
+    Common controls v6 (ComCtl32 6.0) — required for the
+    modern button / textbox rendering on Windows 10+ when
+    the EXE has no app manifest referencing it.
+  -->
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity
+          type="win32"
+          name="Microsoft.Windows.Common-Controls"
+          version="6.0.0.0"
+          processorArchitecture="*"
+          publicKeyToken="6595b64144ccf1df"
+          language="*" />
+    </dependentAssembly>
+  </dependency>
+</assembly>

@@ -1,0 +1,920 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/AI/AiChatView.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: AI Chat (Chat 25 v4.0 — StatusMessage visibility fix)
+
+     CHANGES vs Chat 25 v3.0:
+       ✓ FIX CRITICAL: StatusMessage Border had default Visibility=Collapsed
+         and the only trigger also set Collapsed on empty string. Nothing
+         could ever make it Visible — user never saw voice status feedback.
+         FIX: Default Visible, collapse ONLY when StatusMessage is null
+         or empty string. Now shows "Listening...", "Processing speech...",
+         "Voice recognized — press Enter" etc.
+       ✓ ALL other XAML preserved exactly.
+═══════════════════════════════════════════════════════════════════════ -->
+
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.AI.AiChatView"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+             FontFamily="{DynamicResource AppFontFamily}"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Focusable="False"
+             Background="{DynamicResource Ov.Canvas}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+        <LinearGradientBrush x:Key="ChatBrand"
+                             StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
+        </LinearGradientBrush>
+
+        <DropShadowEffect x:Key="PanelShadow"
+                          BlurRadius="22" ShadowDepth="4"
+                          Opacity="0.35" Color="{DynamicResource LiquidShadowColor}"
+                         />
+
+        
+
+        <Style x:Key="ChatIconBtn" TargetType="Button">
+            <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Icon}"/>
+            <Setter Property="Width"           Value="32"/>
+            <Setter Property="Height"          Value="32"/>
+            <Setter Property="Background"      Value="Transparent"/>
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.H3}"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd"
+                                        Property="Background"
+                                        Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SendBtn" TargetType="Button">
+            <Setter Property="Width"           Value="42"/>
+            <Setter Property="Height"          Value="42"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Background="{DynamicResource ChatBrand}"
+                                SnapsToDevicePixels="True"
+                                UseLayoutRounding="True">
+                            <TextBlock Text="&#xE724;"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       FontSize="{DynamicResource FontSize.H2}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       IsHitTestVisible="False"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd"
+                                        Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd"
+                                        Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="AiSuggestionChip" TargetType="Button">
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="14"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Migrated UserBubble to global SurfacePrimaryStyle -->
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <!--
+            VOICE-FIX: The panel keeps its 600 px design height, but
+            MaxHeight is clamped to (window height − 130) so on short
+            windows the panel SHRINKS instead of overflowing past the
+            top edge. Previously the header and the voice-assistant
+            input row were clipped off-screen ("voice assistant gets
+            hidden"). The messages row (*) absorbs the shrink; the
+            mic/speaker/status rows always stay visible.
+        -->
+        <!-- Draggable AI service window. Its position is set in code
+             (AiChatView.xaml.cs) so the user can drag it out of the way. -->
+        <Canvas x:Name="ChatCanvas">
+        <Border x:Name="ChatPanel"
+                BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Width="420" Height="600"
+                MaxHeight="{Binding ActualHeight,
+                            RelativeSource={RelativeSource AncestorType=Window},
+                            Converter={StaticResource WindowInsetConverter},
+                            ConverterParameter=130}"
+                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                Background="{DynamicResource SideMenuBackgroundBrush}"
+                Effect="{StaticResource PanelShadow}"
+                SnapsToDevicePixels="True"
+                UseLayoutRounding="True">
+            <Border.Style>
+                <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsOpen}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header — drag handle for the whole AI window -->
+                <Border x:Name="ChatHeader"
+                        Grid.Row="0"
+                        CornerRadius="{DynamicResource Radius.Top.Medium}"
+                        Padding="16,8"
+                        Background="{DynamicResource ChatBrand}"
+                        Cursor="SizeAll"
+                        SnapsToDevicePixels="True"
+                        behaviors:CanvasDragBehavior.Panel="{Binding ElementName=ChatPanel}"
+                        behaviors:CanvasDragBehavior.Canvas="{Binding ElementName=ChatCanvas}"
+                        behaviors:CanvasDragBehavior.ShadowResourceKey="PanelShadow">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0"
+                                Width="38" Height="38"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Background="{DynamicResource SurfaceSecondaryBrush}"
+                                VerticalAlignment="Center"
+                                SnapsToDevicePixels="True">
+                            <TextBlock Text="&#xE99A;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H1}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       IsHitTestVisible="False"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1"
+                                    Margin="12,0,0,0"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource AI.ProglassAI}"
+                                       FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       IsHitTestVisible="False"/>
+                            <TextBlock Text="{DynamicResource Shell.AiAnswersOnly}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       Opacity="0.95"
+                                       TextWrapping="Wrap"
+                                       IsHitTestVisible="False"/>
+                            <TextBlock Text="{Binding ActiveProviderSubtitle}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       Opacity="0.75"
+                                       IsHitTestVisible="False"/>
+                        </StackPanel>
+
+                        <Button Grid.Column="2"
+                                Style="{StaticResource ChatIconBtn}"
+                                Content="&#xE74D;"
+                                ToolTip="{DynamicResource AI.ClearChat}"
+                                Command="{Binding ClearChatCommand}"/>
+
+                        <Button Grid.Column="3"
+                                Style="{StaticResource ChatIconBtn}"
+                                Content="&#xE711;"
+                                ToolTip="{DynamicResource Action.Close}"
+                                Margin="6,0,0,0"
+                                Command="{Binding CloseChatCommand}"/>
+                    </Grid>
+                </Border>
+
+                <!-- Messages area -->
+                <Grid Grid.Row="1">
+
+                    <StackPanel VerticalAlignment="Center"
+                                HorizontalAlignment="Center"
+                                Margin="30">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasMessages}"
+                                                 Value="False">
+                                        <Setter Property="Visibility"
+                                                Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <Border Width="72" Height="72"
+                                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                                HorizontalAlignment="Center"
+                                Background="{DynamicResource ChatBrand}"
+                                SnapsToDevicePixels="True"
+                                UseLayoutRounding="True">
+                            <TextBlock Text="&#xE8BD;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       IsHitTestVisible="False"/>
+                        </Border>
+
+                        <TextBlock Text="{DynamicResource AI.HelloIMProglassAI}"
+                                   FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,16,0,4"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   IsHitTestVisible="False"/>
+
+                        <TextBlock Text="{DynamicResource AI.AskAboutGlassProductionInvoicesJobOrders}"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="300"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   IsHitTestVisible="False"/>
+
+                        <TextBlock Text="{DynamicResource AI.TRYAsking}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,20,0,8"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Opacity="0.7"
+                                   IsHitTestVisible="False"/>
+
+                        <ItemsControl ItemsSource="{Binding Suggestions}" HorizontalAlignment="Center">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource AiSuggestionChip}"
+                                            Command="{Binding DataContext.SuggestionCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}">
+                                        <TextBlock Text="{Binding}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   IsHitTestVisible="False"/>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <ScrollViewer x:Name="MessagesScroll"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  CanContentScroll="False"
+                                  IsDeferredScrollingEnabled="False"
+                                  PanningMode="VerticalOnly"
+                                  Focusable="False"
+                                  behaviors:SmoothScrollBehavior.IsEnabled="True"
+                                  Padding="16,12">
+                        <ScrollViewer.Style>
+                            <Style TargetType="ScrollViewer">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasMessages}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ScrollViewer.Style>
+
+                        <ItemsControl ItemsSource="{Binding Messages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <!-- 2026-09-14: FIXED duplicated welcome
+                                         text. The three state bubbles were
+                                         stacked in ONE grid cell with no
+                                         visibility logic, so EVERY message
+                                         (first of all the "Hello I'm
+                                         ProGlass AI" greeting) rendered
+                                         3 times on top of itself. Each
+                                         border now shows only for its own
+                                         message state:
+                                         user / AI response / error. -->
+                                    <Grid>
+                                        <Border
+                                            Visibility="{Binding IsUser,
+                                                Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Text}"
+                                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                           FontSize="{DynamicResource FontSize.Title}"
+                                                           TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding TimeLabel}"
+                                                           Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}"
+                                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                                           HorizontalAlignment="Right"
+                                                           Margin="0,4,0,0"
+                                                           IsHitTestVisible="False"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border
+                                            Visibility="{Binding IsAiResponse,
+                                                Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Text}"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                                           FontSize="{DynamicResource FontSize.Title}"
+                                                           TextWrapping="Wrap"/>
+                                                <StackPanel Orientation="Horizontal"
+                                                            Margin="0,6,0,0">
+                                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                                               IsHitTestVisible="False">
+                                                        <Run Text="{Binding ProviderIcon, Mode=OneWay}"/>
+                                                        <Run Text="{DynamicResource AI.Via}"/>
+                                                        <Run Text="{Binding ProviderName, Mode=OneWay}"/>
+                                                        <Run Text=" · "/>
+                                                        <Run Text="{Binding TimeLabel, Mode=OneWay}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border
+                                            Visibility="{Binding IsError,
+                                                Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding Text}"
+                                                       Foreground="{DynamicResource DangerBrush}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
+                                                       TextWrapping="Wrap"/>
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <!-- ═══════════════════════════════════════════════
+                         v3 THINKING INDICATOR — ANIMATED
+                         Previous: three static dots — the user could not
+                         tell whether the AI was working at all.
+                         Now: staggered bouncing dots while IsBusy, plus
+                         a ✕ Stop button bound to StopGenerationCommand.
+                         Hidden while streaming (the live bubble below
+                         takes over once tokens arrive).
+                    ════════════════════════════════════════════════ -->
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" HorizontalAlignment="Left"
+                            VerticalAlignment="Bottom"
+                            Background="{DynamicResource SurfaceTertiaryBrush}"
+                            CornerRadius="{DynamicResource Radius.Asymmetric.Brand}"
+                            Padding="14,10"
+                            Margin="16,0,0,8"
+                            SnapsToDevicePixels="True">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsBusy}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Visible"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding HasActiveStream}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <Border.Resources>
+                            <!-- Bounce animation, staggered per dot -->
+                            <!-- MC3072-safe: DoubleAnimation has no Values
+                                 property — keyframes are the proven pattern
+                                 in this file (commit 08e6187). -->
+                            <Storyboard x:Key="DotBounce1"
+                                        RepeatBehavior="Forever">
+                                <DoubleAnimationUsingKeyFrames
+                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                    BeginTime="0:0:0">
+                                    <LinearDoubleKeyFrame Value="0"
+                                                          KeyTime="0:0:0"/>
+                                    <LinearDoubleKeyFrame Value="-4"
+                                                          KeyTime="0:0:0.45"/>
+                                    <LinearDoubleKeyFrame Value="0"
+                                                          KeyTime="0:0:0.9"/>
+                                </DoubleAnimationUsingKeyFrames>
+                            </Storyboard>
+                            <!-- MC3072-safe: DoubleAnimation has no Values
+                                 property — keyframes are the proven pattern
+                                 in this file (commit 08e6187). -->
+                            <Storyboard x:Key="DotBounce2"
+                                        RepeatBehavior="Forever">
+                                <DoubleAnimationUsingKeyFrames
+                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                    BeginTime="0:0:0.15">
+                                    <LinearDoubleKeyFrame Value="0"
+                                                          KeyTime="0:0:0"/>
+                                    <LinearDoubleKeyFrame Value="-4"
+                                                          KeyTime="0:0:0.45"/>
+                                    <LinearDoubleKeyFrame Value="0"
+                                                          KeyTime="0:0:0.9"/>
+                                </DoubleAnimationUsingKeyFrames>
+                            </Storyboard>
+                            <!-- MC3072-safe: DoubleAnimation has no Values
+                                 property — keyframes are the proven pattern
+                                 in this file (commit 08e6187). -->
+                            <Storyboard x:Key="DotBounce3"
+                                        RepeatBehavior="Forever">
+                                <DoubleAnimationUsingKeyFrames
+                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                    BeginTime="0:0:0.3">
+                                    <LinearDoubleKeyFrame Value="0"
+                                                          KeyTime="0:0:0"/>
+                                    <LinearDoubleKeyFrame Value="-4"
+                                                          KeyTime="0:0:0.45"/>
+                                    <LinearDoubleKeyFrame Value="0"
+                                                          KeyTime="0:0:0.9"/>
+                                </DoubleAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </Border.Resources>
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <Ellipse Width="6" Height="6"
+                                     Fill="{DynamicResource TextSecondaryBrush}"
+                                     Margin="2,0"
+                                     RenderTransformOrigin="0.5,0.5">
+                                <Ellipse.RenderTransform>
+                                    <TranslateTransform/>
+                                </Ellipse.RenderTransform>
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsBusy}"
+                                                         Value="True">
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard Storyboard="{StaticResource DotBounce1}"/>
+                                                </DataTrigger.EnterActions>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <Ellipse Width="6" Height="6"
+                                     Fill="{DynamicResource TextSecondaryBrush}"
+                                     Margin="2,0" Opacity="0.75"
+                                     RenderTransformOrigin="0.5,0.5">
+                                <Ellipse.RenderTransform>
+                                    <TranslateTransform/>
+                                </Ellipse.RenderTransform>
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsBusy}"
+                                                         Value="True">
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard Storyboard="{StaticResource DotBounce2}"/>
+                                                </DataTrigger.EnterActions>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <Ellipse Width="6" Height="6"
+                                     Fill="{DynamicResource TextSecondaryBrush}"
+                                     Margin="2,0" Opacity="0.5"
+                                     RenderTransformOrigin="0.5,0.5">
+                                <Ellipse.RenderTransform>
+                                    <TranslateTransform/>
+                                </Ellipse.RenderTransform>
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsBusy}"
+                                                         Value="True">
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard Storyboard="{StaticResource DotBounce3}"/>
+                                                </DataTrigger.EnterActions>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <Button Command="{Binding StopGenerationCommand}"
+                                    Width="18" Height="18"
+                                    Margin="10,0,0,0"
+                                    Content="&#xE711;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Caption}"
+                                    Background="Transparent"
+                                    BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand"
+                                    Foreground="{DynamicResource TextTertiaryBrush}"
+                                    ToolTip="{DynamicResource AI.StopGenerating}"
+                                    VerticalAlignment="Center" Style="{StaticResource SecondaryButtonStyle}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ═══════════════════════════════════════════════
+                         v3 LIVE STREAMING BUBBLE — shows the answer
+                         token-by-token while Gemini streams it.
+                         Bound to ActiveStream (StreamingChatMessage).
+                    ════════════════════════════════════════════════ -->
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" HorizontalAlignment="Left"
+                            VerticalAlignment="Bottom"
+                            Background="{DynamicResource SurfaceTertiaryBrush}"
+                            CornerRadius="{DynamicResource Radius.Asymmetric.Brand}"
+                            Padding="14,10"
+                            Margin="16,0,0,8"
+                            MaxWidth="430"
+                            SnapsToDevicePixels="True">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasActiveStream}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="{Binding ActiveStream.Text}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   FontSize="{DynamicResource FontSize.Title}"
+                                   TextWrapping="Wrap"/>
+                    </Border>
+                </Grid>
+
+                <!--
+                     ═══════════════════════════════════════════════════
+                     STATUS MESSAGE ROW — FIXED VISIBILITY
+                     
+                     Previous: Default Visibility=Collapsed, and only
+                     trigger also set Collapsed on empty. Nothing could
+                     ever make it Visible. User never saw voice feedback.
+                     
+                     Fixed: Default Visible, collapse ONLY when
+                     StatusMessage is null OR empty string.
+                     
+                     Shows messages like:
+                       "🎤 Listening — click again to stop"
+                       "Processing speech..."
+                       "✓ Recognized: what is my balance"
+                       "✓ Voice recognized — press Enter to send"
+                       "Recording too short — speak for at least 1 second"
+                       "⚠ Whisper unavailable: Model file corrupted..."
+                     ═══════════════════════════════════════════════════
+                -->
+                <Border Grid.Row="2" Padding="16,4,16,2">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding StatusMessage}"
+                                             Value="">
+                                    <Setter Property="Visibility"
+                                            Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding StatusMessage}"
+                                             Value="{x:Null}">
+                                    <Setter Property="Visibility"
+                                            Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock Text="{Binding StatusMessage}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource AccentBrush}"
+                               TextWrapping="Wrap"
+                               IsHitTestVisible="False"/>
+                </Border>
+
+                <!-- Input area -->
+                <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="3"
+                        Background="{DynamicResource SideMenuBackgroundBrush}"
+                        CornerRadius="{DynamicResource Radius.Bottom.Medium}"
+                        Padding="12"
+                        SnapsToDevicePixels="True">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Speaker toggle -->
+                        <Button Grid.Column="0"
+                                Command="{Binding ToggleSpeakerCommand}"
+                                ToolTip="{DynamicResource AI.ToggleVoiceResponses}"
+                                Width="36" Height="36"
+                                Cursor="Hand"
+                                BorderThickness="{DynamicResource Border.NoneThickness}"
+                                Margin="0,0,4,0"
+                                SnapsToDevicePixels="True" Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd"
+                                            CornerRadius="{DynamicResource CardCornerRadius}"
+                                            SnapsToDevicePixels="True"
+                                            UseLayoutRounding="True">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background"
+                                                        Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSpeakerOn}"
+                                                                 Value="True">
+                                                        <Setter Property="Background"
+                                                                Value="{StaticResource ChatBrand}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock FontFamily="{DynamicResource FontFamily.Icon}"
+                                                   FontSize="{DynamicResource FontSize.H2}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   IsHitTestVisible="False">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="&#xE74F;"/>
+                                                    <Setter Property="Foreground"
+                                                            Value="{DynamicResource TextSecondaryBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSpeakerOn}"
+                                                                     Value="True">
+                                                            <Setter Property="Text" Value="&#xE767;"/>
+                                                            <Setter Property="Foreground"
+                                                                    Value="White"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd"
+                                                    Property="Opacity" Value="0.85"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <!-- Mic button with audio level pulse -->
+                        <Grid Grid.Column="1" Margin="0,0,6,0">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsVoiceAvailable}"
+                                                     Value="False">
+                                            <Setter Property="Visibility"
+                                                    Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+
+                            <Ellipse Width="44" Height="44"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     Fill="{DynamicResource DangerSurfaceBrush}"
+                                     Opacity="{Binding MicAudioLevel}"
+                                     IsHitTestVisible="False"/>
+
+                            <!-- v2: continuous LISTENING pulse ring.
+                                 Pulses while IsListening=True so the user
+                                 always knows the mic is live, even in
+                                 silence (MicAudioLevel alone stays 0). -->
+                            <Ellipse Width="44" Height="44"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     StrokeThickness="2.5"
+                                     Stroke="{DynamicResource DangerBrush}"
+                                     Fill="Transparent"
+                                     RenderTransformOrigin="0.5,0.5"
+                                     IsHitTestVisible="False">
+                                <Ellipse.RenderTransform>
+                                    <ScaleTransform x:Name="PulseScale"
+                                                    ScaleX="0.8" ScaleY="0.8"/>
+                                </Ellipse.RenderTransform>
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Opacity" Value="0"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsListening}" Value="True">
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard x:Name="ListenPulse">
+                                                        <Storyboard RepeatBehavior="Forever">
+                                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity"
+                                                                                           Duration="0:0:1.2">
+                                                                <LinearDoubleKeyFrame Value="0.85" KeyTime="0:0:0"/>
+                                                                <LinearDoubleKeyFrame Value="0.15" KeyTime="0:0:0.6"/>
+                                                                <LinearDoubleKeyFrame Value="0.85" KeyTime="0:0:1.2"/>
+                                                            </DoubleAnimationUsingKeyFrames>
+                                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Ellipse.RenderTransform).(ScaleTransform.ScaleX)"
+                                                                                           Duration="0:0:1.2">
+                                                                <LinearDoubleKeyFrame Value="0.8" KeyTime="0:0:0"/>
+                                                                <LinearDoubleKeyFrame Value="1.35" KeyTime="0:0:0.6"/>
+                                                                <LinearDoubleKeyFrame Value="0.8" KeyTime="0:0:1.2"/>
+                                                            </DoubleAnimationUsingKeyFrames>
+                                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Ellipse.RenderTransform).(ScaleTransform.ScaleY)"
+                                                                                           Duration="0:0:1.2">
+                                                                <LinearDoubleKeyFrame Value="0.8" KeyTime="0:0:0"/>
+                                                                <LinearDoubleKeyFrame Value="1.35" KeyTime="0:0:0.6"/>
+                                                                <LinearDoubleKeyFrame Value="0.8" KeyTime="0:0:1.2"/>
+                                                            </DoubleAnimationUsingKeyFrames>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </DataTrigger.EnterActions>
+                                                <DataTrigger.ExitActions>
+                                                    <StopStoryboard BeginStoryboardName="ListenPulse"/>
+                                                </DataTrigger.ExitActions>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+
+                            <Button Command="{Binding VoiceInputCommand}"
+                                    ToolTip="{DynamicResource AI.VoiceInputClickSpeakClickAgainStop}"
+                                    Width="36" Height="36"
+                                    Cursor="Hand"
+                                    BorderThickness="{DynamicResource Border.NoneThickness}"
+                                    SnapsToDevicePixels="True" Style="{StaticResource SecondaryButtonStyle}">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd"
+                                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                                SnapsToDevicePixels="True"
+                                                UseLayoutRounding="True">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background"
+                                                            Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsListening}"
+                                                                     Value="True">
+                                                            <Setter Property="Background"
+                                                                    Value="{DynamicResource DangerBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsProcessingVoice}"
+                                                                     Value="True">
+                                                            <Setter Property="Background"
+                                                                    Value="{DynamicResource WarningBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock FontFamily="{DynamicResource FontFamily.Icon}"
+                                                       FontSize="{DynamicResource FontSize.H2}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       IsHitTestVisible="False">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="&#xE720;"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsListening}"
+                                                                         Value="True">
+                                                                <Setter Property="Text" Value="&#xE71A;"/>
+                                                                <Setter Property="Foreground"
+                                                                        Value="White"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsProcessingVoice}"
+                                                                         Value="True">
+                                                                <Setter Property="Text" Value="&#xE895;"/>
+                                                                <Setter Property="Foreground"
+                                                                        Value="White"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd"
+                                                        Property="Opacity" Value="0.85"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </Grid>
+
+                        <!-- Text input -->
+                        <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Grid.Column="2"
+                                Background="{DynamicResource SurfaceTertiaryBrush}"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Padding="14,0"
+                                Height="42"
+                                VerticalAlignment="Center"
+                                Margin="0,0,8,0"
+                                SnapsToDevicePixels="True"
+                                UseLayoutRounding="True">
+                            <TextBox x:Name="InputBox"
+                                     Text="{Binding CurrentInput,
+                                         UpdateSourceTrigger=PropertyChanged}"
+                                     BorderThickness="{DynamicResource Border.NoneThickness}"
+                                     Background="Transparent"
+                                     FontSize="{DynamicResource FontSize.Title}"
+                                     Foreground="{DynamicResource TextPrimaryBrush}"
+                                     VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding SendCommand}"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
+                        </Border>
+
+                        <Button Grid.Column="3"
+                                Style="{StaticResource Button.Primary}"
+                                Command="{Binding SendCommand}"
+                                ToolTip="{DynamicResource AI.SendEnter}"/>
+                    </Grid>
+                </Border>
+
+            </Grid>
+        </Border>
+        </Canvas>
+
+        <!-- 2026-08-25: the bottom-right FloatingBot was REMOVED. Its
+             custom mouse-capture drag code crashed the app for some
+             users and the transform clamp made it look immovable. The
+             AI bot now lives in the top panel (AiBotButton in
+             MainWindow.xaml, before the AI AGENT pill) and toggles the
+             exact same chat via AiChatVM.ToggleChatCommand. -->
+
+    </Grid>
+</UserControl>

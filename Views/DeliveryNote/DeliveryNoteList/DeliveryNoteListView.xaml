@@ -1,0 +1,854 @@
+<!-- Studio Bento list: original collections, workflows and data contexts retained. -->
+<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors" xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState" xmlns:layout="clr-namespace:ProGlassAutomation.Views.Dashboard" xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.DeliveryNoteListView" TextOptions.TextHintingMode="Fixed" FontFamily="{DynamicResource AppFontFamily}" TextOptions.TextFormattingMode="Ideal" TextOptions.TextRenderingMode="ClearType" UseLayoutRounding="True" SnapsToDevicePixels="True" Background="{DynamicResource Ov.Canvas}" Foreground="{DynamicResource Ov.Ink}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Shared/Lists/StudioListResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <DataTemplate x:Key="JoGroupRowTemplate">
+                <Border Cursor="Hand" MinHeight="64" MouseLeftButtonUp="OnGroupRowLeftClick" MouseRightButtonUp="OnGroupRowRightClick">
+                    <Border.Style>
+                        <Style TargetType="Border" BasedOn="{StaticResource Sl.Row}">
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource Ov.Soft}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3" />
+                            <ColumnDefinition Width="1.3*" MinWidth="120" />
+                            <ColumnDefinition Width="1.5*" MinWidth="130" />
+                            <ColumnDefinition Width="1.5*" MinWidth="130" />
+                            <ColumnDefinition Width="1.2*" MinWidth="100" />
+                            <ColumnDefinition Width="0.8*" MinWidth="85" />
+                            <ColumnDefinition Width="0.9*" MinWidth="95" />
+                            <ColumnDefinition Width="185" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding AllDelivered}" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource Ov.Success}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,8,8,8">
+                            <TextBlock
+                                Text="{Binding JobOrderId}"
+                                FontSize="{DynamicResource FontSize.Title}"
+                                FontWeight="{DynamicResource Weight.Bold}"
+                                Foreground="{DynamicResource Ov.Ink}"
+                                Typography.NumeralAlignment="Tabular" />
+                            <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,4,0,0" Foreground="{DynamicResource Ov.Muted}" TextTrimming="CharacterEllipsis" ToolTip="{Binding LatestDnId, Mode=OneWay}">
+                                <Run Text="{DynamicResource DeliveryNote.Latest}" />
+                                <Run Text="{Binding LatestDeliveryDateDisplay, Mode=OneWay}" />
+                                <Run Text="  ·  " />
+                                <Run Text="{Binding LatestDriverName, Mode=OneWay}" />
+                                <Run Text="  ·  " />
+                                <Run Text="{Binding LatestDnId, Mode=OneWay}" />
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="8,8">
+                            <TextBlock
+                                Text="{Binding CustomerName}"
+                                FontSize="{DynamicResource FontSize.Body}"
+                                FontWeight="{DynamicResource Weight.SemiBold}"
+                                Foreground="{DynamicResource Ov.Ink}"
+                                TextTrimming="CharacterEllipsis"
+                                ToolTip="{Binding CustomerName, Mode=OneWay}"
+                                Typography.NumeralAlignment="Tabular" />
+                            <TextBlock
+                                Text="{Binding ProjectName}"
+                                FontSize="{DynamicResource FontSize.Body}"
+                                Margin="0,4,0,0"
+                                Foreground="{DynamicResource Ov.Muted}"
+                                TextTrimming="CharacterEllipsis"
+                                ToolTip="{Binding ProjectName, Mode=OneWay}"
+                                Typography.NumeralAlignment="Tabular" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="8,0">
+                            <TextBlock HorizontalAlignment="Left" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Ink}" Margin="0,0,0,4">
+                                <Run Text="{Binding ProgressPercent, Mode=OneWay, StringFormat={}{0:0.#}}" />
+                                <Run Text="{DynamicResource God.Percent}" />
+                            </TextBlock>
+                            <Border x:Name="ProgressTrack" CornerRadius="{DynamicResource Radius.XSmall}" Height="4" Background="{DynamicResource Ov.Line}">
+                                <Border CornerRadius="{DynamicResource Radius.XSmall}" HorizontalAlignment="Left">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{DynamicResource Ov.Accent}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding AllDelivered}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource Ov.Success}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Border.Width>
+                                        <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
+                                            <Binding Path="ProgressPercent" />
+                                            <Binding Path="ActualWidth" ElementName="ProgressTrack" />
+                                        </MultiBinding>
+                                    </Border.Width>
+                                </Border>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,12,0" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource Ov.Muted}">
+                            <Run Text="{Binding TotalOrdered, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}" />
+                            <Run Text=" / " />
+                            <Run
+                                Text="{Binding TotalDelivered, Mode=OneWay}"
+                                FontWeight="{DynamicResource Weight.SemiBold}"
+                                Foreground="{DynamicResource Ov.Success}" />
+                            <Run Text=" / " />
+                            <Run
+                                Text="{Binding TotalBalance, Mode=OneWay}"
+                                FontWeight="{DynamicResource Weight.SemiBold}"
+                                Foreground="{DynamicResource Ov.Warning}" />
+                        </TextBlock>
+                        <TextBlock Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,12,0" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource Ov.Muted}">
+                            <Run
+                                Text="{Binding TotalOrderedSqm, Mode=OneWay, StringFormat={}{0:0.000}}"
+                                FontWeight="{DynamicResource Weight.SemiBold}" />
+                            <Run Text=" / " />
+                            <Run
+                                Text="{Binding TotalDeliveredSqm, Mode=OneWay, StringFormat={}{0:0.000}}"
+                                FontWeight="{DynamicResource Weight.SemiBold}"
+                                Foreground="{DynamicResource Ov.Success}" />
+                            <Run Text=" / " />
+                            <Run
+                                Text="{Binding TotalBalanceSqm, Mode=OneWay, StringFormat={}{0:0.000}}"
+                                FontWeight="{DynamicResource Weight.SemiBold}"
+                                Foreground="{DynamicResource Ov.Warning}" />
+                        </TextBlock>
+                        <StackPanel Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4,4">
+                            <StackPanel Orientation="Horizontal">
+                                <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,4" Margin="0,0,4,0" Background="{Binding StatusTintKey,                                                  Converter={StaticResource Sl.StatusBrush}, ConverterParameter=soft}">
+                                    <TextBlock
+                                        Text="{Binding StatusLabel}"
+                                        FontSize="{DynamicResource FontSize.BodySmall}"
+                                        FontWeight="{DynamicResource Weight.Bold}"
+                                        Foreground="{Binding StatusForegroundKey, Converter={StaticResource Sl.StatusBrush}, ConverterParameter=ink}"
+                                        Typography.NumeralAlignment="Tabular" />
+                                </Border>
+                                <Border Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,4">
+                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Accent}">
+                                        <Run Text="{Binding DnCount, Mode=OneWay}" />
+                                        <Run Text="{DynamicResource DeliveryNote.Dns}" />
+                                    </TextBlock>
+                                </Border>
+                            </StackPanel>
+                            <WrapPanel Margin="0,4,0,0">
+                                <Border Background="{DynamicResource Ov.WarningSoft}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,4" Margin="0,0,4,4" Visibility="{Binding HasFoc,                                                  Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <TextBlock
+                                        Text="{DynamicResource Dnl.Foc}"
+                                        FontSize="{DynamicResource FontSize.BodySmall}"
+                                        FontWeight="{DynamicResource Weight.Bold}"
+                                        Foreground="{DynamicResource Ov.Warning}" />
+                                </Border>
+                                <Border Background="{DynamicResource Ov.WarningSoft}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,4" Margin="0,0,4,4" Visibility="{Binding HasRework,                                                  Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <TextBlock
+                                        Text="{DynamicResource God.Rework}"
+                                        FontSize="{DynamicResource FontSize.BodySmall}"
+                                        FontWeight="{DynamicResource Weight.Bold}"
+                                        Foreground="{DynamicResource Ov.Warning}" />
+                                </Border>
+                                <Border Background="{DynamicResource Ov.DangerSoft}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,4" Margin="0,0,4,4" Visibility="{Binding HasReturn,                                                  Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <TextBlock
+                                        Text="{DynamicResource Dnl.Return}"
+                                        FontSize="{DynamicResource FontSize.BodySmall}"
+                                        FontWeight="{DynamicResource Weight.Bold}"
+                                        Foreground="{DynamicResource Ov.Danger}" />
+                                </Border>
+                                <Border Background="{DynamicResource Ov.DangerSoft}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,4" Margin="0,0,4,4" Visibility="{Binding IsLatestVoid,                                                  Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <TextBlock
+                                        Text="VOIDED"
+                                        FontSize="{DynamicResource FontSize.BodySmall}"
+                                        FontWeight="{DynamicResource Weight.Bold}"
+                                        Foreground="{DynamicResource Ov.Danger}" />
+                                </Border>
+                            </WrapPanel>
+                        </StackPanel>
+                        <WrapPanel Grid.Column="7" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4,4,8,4" Orientation="Horizontal">
+                            <Button
+                                Style="{StaticResource Sl.Button}"
+                                Content="{DynamicResource Action.Open}"
+                                Command="{Binding DataContext.OpenGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                Margin="0,6,0,0" />
+                            <Button
+                                Style="{StaticResource Sl.PrimaryButton}"
+                                Tag="&#xE710;"
+                                Content="{DynamicResource Dnl.NewDn}"
+                                ToolTip="{DynamicResource Dnl.NewDnHint}"
+                                Command="{Binding DataContext.CreateDnForJobOrderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding JobOrderId}" />
+                            <Button
+                                Style="{StaticResource Sl.SuccessButton}"
+                                Tag="&#xE8A5;"
+                                Content="{DynamicResource Dnl.Invoice}"
+                                Margin="0,8,0,0"
+                                ToolTip="{DynamicResource Dnl.InvoiceHint}"
+                                Command="{Binding DataContext.GenerateMasterInvoiceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}" />
+                            <Button
+                                Style="{StaticResource Sl.Button}"
+                                Content="⋯"
+                                ToolTip="More actions"
+                                Click="OnRowMoreClick"
+                                Width="34"
+                                Padding="2"
+                                Margin="4,4,0,4"
+                                AutomationProperties.Name="More row actions" />
+                        </WrapPanel>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <!-- Reclaimed vertical space: module title/subtitle lives in shell header -->
+        <Grid Grid.Row="0" Visibility="Collapsed"/>
+        <Border Grid.Row="1" Margin="16,0,16,8" Style="{StaticResource Sl.Error}" Visibility="{Binding HasError,                              Converter={StaticResource BoolToVisibilityConverter}}">
+            <TextBlock
+                Text="{Binding ErrorMessage}"
+                Foreground="{DynamicResource Ov.Danger}"
+                FontSize="{DynamicResource FontSize.Body}"
+                TextWrapping="Wrap"
+                Typography.NumeralAlignment="Tabular" />
+        </Border>
+        <Border Grid.Row="2" Style="{StaticResource Sl.Shell}" Margin="16,0,16,16">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Border}, Converter={StaticResource Sl.ToolbarHeight}}" Grid.Row="0" x:Name="ToolbarViewport">
+                    <StackPanel Margin="0,0,0,8">
+                        <layout:IndigoDashboardPanel MaxColumns="3" MinimumColumnWidth="270" Gap="14">
+                            <Border Style="{StaticResource Sl.Hero}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0">
+                                        <StackPanel Margin="0" VerticalAlignment="Center">
+                                            <TextBlock
+                                                Text="{Binding HeroCard1Label}"
+                                                Style="{StaticResource Sl.Label}"
+                                                TextWrapping="Wrap"
+                                                Foreground="{DynamicResource Ov.OnAccent}"
+                                                Typography.NumeralAlignment="Tabular" />
+                                            <TextBlock
+                                                Text="{Binding HeroCard1Value}"
+                                                Style="{StaticResource Sl.Value}"
+                                                TextWrapping="Wrap"
+                                                Foreground="{DynamicResource Ov.OnAccent}"
+                                                FontSize="30"
+                                                Typography.NumeralAlignment="Tabular" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <TextBlock
+                                        Text="Summary follows the selected delivery note; piece and SQM balances remain separate."
+                                        Style="{StaticResource Sl.Subtitle}"
+                                        Foreground="{DynamicResource Ov.OnAccentMuted}"
+                                        Margin="0,12,0,0" />
+                                </StackPanel>
+                            </Border>
+                            <layout:IndigoDashboardPanel MaxColumns="2" MinimumColumnWidth="110" Gap="10">
+                                <Border Style="{StaticResource Sl.Card}" Padding="14,10">
+                                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0">
+                                        <StackPanel Margin="0" VerticalAlignment="Center">
+                                            <TextBlock
+                                                Text="{Binding HeroCard2Label}"
+                                                Style="{StaticResource Sl.Label}"
+                                                TextWrapping="Wrap"
+                                                Typography.NumeralAlignment="Tabular" />
+                                            <TextBlock
+                                                Text="{Binding HeroCard2Value}"
+                                                Style="{StaticResource Sl.Value}"
+                                                TextWrapping="Wrap"
+                                                Typography.NumeralAlignment="Tabular" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Sl.Card}" Padding="14,10">
+                                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0">
+                                        <StackPanel Margin="0" VerticalAlignment="Center">
+                                            <TextBlock
+                                                Text="{Binding HeroCard3Label}"
+                                                Style="{StaticResource Sl.Label}"
+                                                TextWrapping="Wrap"
+                                                Typography.NumeralAlignment="Tabular" />
+                                            <TextBlock
+                                                Text="{Binding HeroCard3Value}"
+                                                Style="{StaticResource Sl.Value}"
+                                                TextWrapping="Wrap"
+                                                Typography.NumeralAlignment="Tabular" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Sl.Card}" Padding="14,10">
+                                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0">
+                                        <StackPanel Margin="0" VerticalAlignment="Center">
+                                            <TextBlock
+                                                Text="{Binding HeroCard4Label}"
+                                                Style="{StaticResource Sl.Label}"
+                                                TextWrapping="Wrap"
+                                                Typography.NumeralAlignment="Tabular" />
+                                            <TextBlock
+                                                Text="{Binding HeroCard4Value}"
+                                                Style="{StaticResource Sl.Value}"
+                                                TextWrapping="Wrap"
+                                                Typography.NumeralAlignment="Tabular" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Sl.Card}" Padding="14,10">
+                                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0">
+                                        <Border Background="Transparent" Padding="0" HorizontalAlignment="Left">
+                                            <TextBlock
+                                                Text="{Binding HeroCard5Icon}"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                TextWrapping="Wrap"
+                                                Typography.NumeralAlignment="Tabular" />
+                                        </Border>
+                                        <StackPanel Margin="0" VerticalAlignment="Center">
+                                            <TextBlock
+                                                Text="{Binding HeroCard5Label}"
+                                                Style="{StaticResource Sl.Label}"
+                                                TextWrapping="Wrap"
+                                                Typography.NumeralAlignment="Tabular" />
+                                            <TextBlock
+                                                Text="{Binding HeroCard5Value}"
+                                                Style="{StaticResource Sl.Value}"
+                                                TextWrapping="Wrap"
+                                                Typography.NumeralAlignment="Tabular" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </layout:IndigoDashboardPanel>
+                            <Border Style="{StaticResource Sl.Card}">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Common.Actions}" Style="{StaticResource Sl.Label}" />
+                                    <Button
+                                        Style="{StaticResource Sl.PrimaryButton}"
+                                        Tag="&#xE7F4;"
+                                        Content="{DynamicResource Dnl.CreateDn}"
+                                        Command="{Binding CreateDnCommand}"
+                                        VerticalAlignment="Center"
+                                        ToolTip="{DynamicResource Dnl.CreateDnHint}"
+                                        Margin="0,8,0,0"
+                                        HorizontalAlignment="Stretch" />
+                                    <Button
+                                        Style="{StaticResource Sl.PrimaryButton}"
+                                        Tag="&#xE72C;"
+                                        Content="{DynamicResource God.Refresh}"
+                                        ToolTip="{DynamicResource Dnl.RefreshList}"
+                                        Command="{Binding RefreshCommand}"
+                                        Margin="0,8,0,0"
+                                        HorizontalAlignment="Stretch" />
+                                </StackPanel>
+                            </Border>
+                        </layout:IndigoDashboardPanel>
+                        <Border Background="{DynamicResource Ov.Soft}" Padding="12,8" Visibility="{Binding HasSelection,                                      Converter={StaticResource BoolToVisibilityConverter}}">
+                            <WrapPanel>
+                                <TextBlock
+                                    Text="{DynamicResource Dnl.Selected}"
+                                    FontSize="{DynamicResource FontSize.Body}"
+                                    FontWeight="{DynamicResource Weight.Bold}"
+                                    VerticalAlignment="Center"
+                                    Margin="0,4,12,4"
+                                    Foreground="{DynamicResource Ov.Ink}"
+                                    TextWrapping="Wrap"
+                                    MaxWidth="600" />
+                                <TextBlock
+                                    Text="{Binding SelectedDnMetaLine}"
+                                    FontSize="{DynamicResource FontSize.Body}"
+                                    FontWeight="{DynamicResource Weight.SemiBold}"
+                                    VerticalAlignment="Center"
+                                    TextTrimming="CharacterEllipsis"
+                                    ToolTip="{Binding SelectedDnMetaLine}"
+                                    Foreground="{DynamicResource Ov.Ink}"
+                                    Margin="0,4,12,4"
+                                    TextWrapping="Wrap"
+                                    MaxWidth="600"
+                                    Typography.NumeralAlignment="Tabular" />
+                                <Button
+                                    Style="{StaticResource Sl.PrimaryButton}"
+                                    Tag="&#xE8A7;"
+                                    Content="Open Details"
+                                    Margin="0,4,12,4"
+                                    Command="{Binding OpenCommand}"
+                                    CommandParameter="{Binding SelectedRow}" />
+                                <Button
+                                    Style="{StaticResource Sl.DangerButton}"
+                                    Tag="&#xE711;"
+                                    Content="Void / Cancel"
+                                    Margin="0,4,12,4"
+                                    ToolTip="Soft-close with mandatory audit reason"
+                                    Command="{Binding DeleteCommand}"
+                                    CommandParameter="{Binding SelectedRow}" />
+                                <Button
+                                    Style="{StaticResource Sl.Button}"
+                                    Tag="&#xE711;"
+                                    Content="{DynamicResource God.Clear}"
+                                    ToolTip="{DynamicResource Dnl.ClearSelection}"
+                                    Command="{Binding ClearSelectionCommand}"
+                                    Margin="0,4,12,4" />
+                            </WrapPanel>
+                        </Border>
+                        <Border>
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource Sl.FilterBar}">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <WrapPanel>
+                                <StackPanel>
+                                    <TextBlock Text="Search" Style="{StaticResource Sl.Label}" Margin="0,0,0,5" />
+                                    <TextBox
+                                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                                        Style="{StaticResource Sl.Input}"
+                                        Margin="0,0,10,8"
+                                        ToolTip="{DynamicResource Dnl.Search}"
+                                        Width="280" />
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock Text="Status" Style="{StaticResource Sl.Label}" Margin="0,0,0,5" />
+                                    <ComboBox
+                                        ItemsSource="{Binding StatusFilterOptions}"
+                                        SelectedItem="{Binding SelectedStatusFilter}"
+                                        Style="{StaticResource Sl.Combo}"
+                                        MinWidth="120"
+                                        Margin="0,0,10,8"
+                                        Width="180" />
+                                </StackPanel>
+                                <CheckBox
+                                    VerticalAlignment="Bottom"
+                                    Margin="0,0,10,8"
+                                    IsChecked="{Binding ShowVoided}"
+                                    Content="{DynamicResource Void.ShowVoided}"
+                                    ToolTip="{DynamicResource Void.ShowVoidedTip}" />
+                                <Button
+                                    Style="{StaticResource Sl.Button}"
+                                    Tag="&#xE711;"
+                                    Content="{DynamicResource God.Clear}"
+                                    Margin="0,0,10,8"
+                                    ToolTip="{DynamicResource Dnl.ClearFilters}"
+                                    Command="{Binding ClearFiltersCommand}"
+                                    VerticalAlignment="Bottom" />
+                            </WrapPanel>
+                        </Border>
+                        <WrapPanel Margin="8,0,8,0">
+                            <RadioButton
+                                GroupName="DnStatusTabs"
+                                Tag="&#xE7B8;"
+                                Content="{DynamicResource Dnl.All}"
+                                CommandParameter="{Binding AllGroupedCount}"
+                                IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
+                                Style="{StaticResource Sl.Tab}"
+                                Margin="0,0,8,8" />
+                            <RadioButton
+                                GroupName="DnStatusTabs"
+                                Tag="&#xE70F;"
+                                Content="{DynamicResource Dnl.Prepared}"
+                                CommandParameter="{Binding PreparedGroupedCount}"
+                                IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
+                                Style="{StaticResource Sl.Tab}"
+                                Margin="0,0,8,8" />
+                            <RadioButton
+                                GroupName="DnStatusTabs"
+                                Tag="&#xE73E;"
+                                Content="{DynamicResource Dnl.Delivered}"
+                                CommandParameter="{Binding DeliveredGroupedCount}"
+                                IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
+                                Style="{StaticResource Sl.Tab}"
+                                Margin="0,0,8,8" />
+                            <RadioButton
+                                GroupName="DnStatusTabs"
+                                Tag="&#xE81C;"
+                                Content="{DynamicResource Dnl.Pending}"
+                                CommandParameter="{Binding PendingItems.Count}"
+                                IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
+                                Style="{StaticResource Sl.Tab}"
+                                Margin="0,0,8,8" />
+                            <RadioButton
+                                GroupName="DnStatusTabs"
+                                Tag="&#xE713;"
+                                Content="{DynamicResource God.Rework}"
+                                CommandParameter="{Binding ReworkGroupedCount}"
+                                IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=4}"
+                                Style="{StaticResource Sl.Tab}"
+                                Margin="0,0,8,8" />
+                            <RadioButton
+                                GroupName="DnStatusTabs"
+                                Tag="&#xE7A7;"
+                                Content="{DynamicResource Dnl.Returned}"
+                                CommandParameter="{Binding ReturnedGroupedCount}"
+                                IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}"
+                                Style="{StaticResource Sl.Tab}"
+                                Margin="0,0,8,8" />
+                        </WrapPanel>
+                    </StackPanel>
+                </ScrollViewer>
+                <Border Style="{StaticResource Sl.Card}" Padding="0" Grid.Row="1">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" CanContentScroll="False" x:Name="RegisterViewport">
+                        <Grid MinWidth="1320" Width="{Binding ViewportWidth, ElementName=RegisterViewport, Converter={StaticResource Sl.Extent}}" Height="{Binding ViewportHeight, ElementName=RegisterViewport, Converter={StaticResource Sl.Extent}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Margin="{Binding Source={x:Static SystemParameters.VerticalScrollBarWidth}, Converter={StaticResource Sl.Gutter}}">
+                                <Border.Style>
+                                    <Style TargetType="Border" BasedOn="{StaticResource Sl.TableHeader}">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="3" />
+                                        <ColumnDefinition Width="1.3*" MinWidth="120" />
+                                        <ColumnDefinition Width="1.5*" MinWidth="130" />
+                                        <ColumnDefinition Width="1.5*" MinWidth="130" />
+                                        <ColumnDefinition Width="1.2*" MinWidth="100" />
+                                        <ColumnDefinition Width="0.8*" MinWidth="85" />
+                                        <ColumnDefinition Width="0.9*" MinWidth="95" />
+                                        <ColumnDefinition Width="185" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Text="{DynamicResource Dnl.JobOrder}"
+                                        Style="{StaticResource Sl.ColumnLabel}"
+                                        Margin="12,0" />
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Text="{DynamicResource Dnl.CustomerProject}"
+                                        Style="{StaticResource Sl.ColumnLabel}"
+                                        Margin="8,0" />
+                                    <TextBlock
+                                        Grid.Column="3"
+                                        Text="{DynamicResource Dnl.Progress}"
+                                        Style="{StaticResource Sl.ColumnLabel}"
+                                        Margin="8,0" />
+                                    <TextBlock
+                                        Grid.Column="4"
+                                        Text="{DynamicResource Dnl.QtyOrdDelBal}"
+                                        Style="{StaticResource Sl.ColumnLabel}"
+                                        HorizontalAlignment="Right"
+                                        Margin="0,0,12,0" />
+                                    <TextBlock
+                                        Grid.Column="5"
+                                        Text="{DynamicResource God.Sqm}"
+                                        Style="{StaticResource Sl.ColumnLabel}"
+                                        HorizontalAlignment="Right"
+                                        Margin="0,0,12,0" />
+                                    <TextBlock
+                                        Grid.Column="6"
+                                        Text="{DynamicResource Dnl.Status}"
+                                        Style="{StaticResource Sl.ColumnLabel}"
+                                        HorizontalAlignment="Center" />
+                                    <TextBlock
+                                        Text="{DynamicResource Common.Actions}"
+                                        Style="{StaticResource Sl.ColumnLabel}"
+                                        Grid.Column="7"
+                                        HorizontalAlignment="Center" />
+                                </Grid>
+                            </Border>
+                            <Grid Grid.Row="1" Style="{StaticResource Sl.DataArea}">
+                                <loading:LoadingStateControl
+                                    Panel.ZIndex="2"
+                                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Message="Loading delivery notes…" />
+                                <Grid Panel.ZIndex="0">
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="0">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                    <ListBox Panel.ZIndex="0" ItemsSource="{Binding AllItemsGrouped}" ItemTemplate="{StaticResource JoGroupRowTemplate}" BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Focusable="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="True" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" VirtualizingStackPanel.ScrollUnit="Pixel" VirtualizingStackPanel.CacheLength="200,400" VirtualizingStackPanel.CacheLengthUnit="Pixel" behaviors:SmoothScrollBehavior.IsEnabled="True" Padding="0" ItemContainerStyle="{StaticResource Sl.ListItem}">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <VirtualizingStackPanel />
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                    </ListBox>
+                                    <Border Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding AllItems.Count}" Value="0" />
+                                                            <Condition Binding="{Binding IsLoading}" Value="False" />
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </MultiDataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <emptyState:EmptyStateControl
+                                            Icon="&#xE7F4;"
+                                            Title="{DynamicResource Dnl.EmptyAll}"
+                                            Message="Delivery notes record what leaves the factory — quantities, driver, vehicle and status. NEW DN opens remaining balance only. Dispatched notes are opened from God View." />
+                                    </Border>
+                                </Grid>
+                                <Grid Panel.ZIndex="0">
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="1">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                    <ListBox Panel.ZIndex="0" ItemsSource="{Binding PreparedItemsGrouped}" ItemTemplate="{StaticResource JoGroupRowTemplate}" BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Focusable="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="True" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" VirtualizingStackPanel.ScrollUnit="Pixel" VirtualizingStackPanel.CacheLength="200,400" VirtualizingStackPanel.CacheLengthUnit="Pixel" behaviors:SmoothScrollBehavior.IsEnabled="True" Padding="0" ItemContainerStyle="{StaticResource Sl.ListItem}">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <VirtualizingStackPanel />
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                    </ListBox>
+                                    <Border Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding PreparedItems.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <emptyState:EmptyStateControl
+                                            Icon="&#xE70F;"
+                                            Title="{DynamicResource Dnl.EmptyPrepared}"
+                                            Message="Notes you prepare (not dispatched yet) wait in this tab until they go out." />
+                                    </Border>
+                                </Grid>
+                                <Grid Panel.ZIndex="0">
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="2">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                    <ListBox Panel.ZIndex="0" ItemsSource="{Binding DeliveredItemsGrouped}" ItemTemplate="{StaticResource JoGroupRowTemplate}" BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Focusable="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="True" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" VirtualizingStackPanel.ScrollUnit="Pixel" VirtualizingStackPanel.CacheLength="200,400" VirtualizingStackPanel.CacheLengthUnit="Pixel" behaviors:SmoothScrollBehavior.IsEnabled="True" Padding="0" ItemContainerStyle="{StaticResource Sl.ListItem}">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <VirtualizingStackPanel />
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                    </ListBox>
+                                    <Border Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DeliveredItems.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <emptyState:EmptyStateControl
+                                            Icon="&#xE73E;"
+                                            Title="{DynamicResource Dnl.EmptyDelivered}"
+                                            Message="Notes move to this tab once their status becomes Delivered / Signed / Received." />
+                                    </Border>
+                                </Grid>
+                                <Grid Panel.ZIndex="0">
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                    <ListBox Panel.ZIndex="0" ItemsSource="{Binding PendingItems}" BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Focusable="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="True" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" VirtualizingStackPanel.ScrollUnit="Pixel" VirtualizingStackPanel.CacheLength="200,400" VirtualizingStackPanel.CacheLengthUnit="Pixel" behaviors:SmoothScrollBehavior.IsEnabled="True" Padding="0" ItemContainerStyle="{StaticResource Sl.ListItem}">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <VirtualizingStackPanel />
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource Sl.Row}" MinHeight="56">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="200" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="12,8,8,8">
+                                                            <TextBlock
+                                                                Text="{Binding JobOrderId}"
+                                                                FontSize="{DynamicResource FontSize.Title}"
+                                                                FontWeight="{DynamicResource Weight.Bold}"
+                                                                Foreground="{DynamicResource Ov.Ink}"
+                                                                Typography.NumeralAlignment="Tabular" />
+                                                            <TextBlock FontSize="{DynamicResource FontSize.Body}" Margin="0,4,0,0" Foreground="{DynamicResource Ov.Muted}">
+                                                                <Run Text="{Binding CustomerName, Mode=OneWay}" />
+                                                                <Run Text="  ·  " />
+                                                                <Run Text="{Binding ProjectName, Mode=OneWay}" />
+                                                            </TextBlock>
+                                                            <TextBlock FontSize="{DynamicResource FontSize.Body}" Margin="0,4,0,0" Foreground="{DynamicResource Ov.Muted}">
+                                                                <Run
+                                                                    Text="{Binding ProgressDisplay, Mode=OneWay}"
+                                                                    FontWeight="{DynamicResource Weight.SemiBold}" />
+                                                                <Run Text="{DynamicResource DeliveryNote.Balance}" />
+                                                                <Run
+                                                                    Text="{Binding TotalBalance, Mode=OneWay}"
+                                                                    FontWeight="{DynamicResource Weight.Bold}" />
+                                                                <Run Text=" pcs" />
+                                                            </TextBlock>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16,0,12,0">
+                                                            <TextBlock HorizontalAlignment="Right" Margin="0,0,0,4" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Ink}">
+                                                                <Run Text="{Binding ProgressPercent, Mode=OneWay, StringFormat={}{0:0.#}}" />
+                                                                <Run Text="{DynamicResource God.Percent}" />
+                                                            </TextBlock>
+                                                            <Border x:Name="PendingTrack" CornerRadius="{DynamicResource Radius.XSmall}" Height="4" Background="{DynamicResource Ov.Line}">
+                                                                <Border CornerRadius="{DynamicResource Radius.XSmall}" HorizontalAlignment="Left" Background="{DynamicResource Ov.Accent}">
+                                                                    <Border.Width>
+                                                                        <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
+                                                                            <Binding Path="ProgressPercent" />
+                                                                            <Binding Path="ActualWidth" ElementName="PendingTrack" />
+                                                                        </MultiBinding>
+                                                                    </Border.Width>
+                                                                </Border>
+                                                            </Border>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                    <Border Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding PendingItems.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <emptyState:EmptyStateControl
+                                            Icon="&#xE81C;"
+                                            Title="{DynamicResource Dnl.NoPending}"
+                                            Message="This tab lists job orders that still have undelivered pieces. When everything is delivered, it stays empty." />
+                                    </Border>
+                                </Grid>
+                                <Grid Panel.ZIndex="0">
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="4">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                    <ListBox Panel.ZIndex="0" ItemsSource="{Binding ReworkItemsGrouped}" ItemTemplate="{StaticResource JoGroupRowTemplate}" BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Focusable="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="True" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" VirtualizingStackPanel.ScrollUnit="Pixel" VirtualizingStackPanel.CacheLength="200,400" VirtualizingStackPanel.CacheLengthUnit="Pixel" behaviors:SmoothScrollBehavior.IsEnabled="True" Padding="0" ItemContainerStyle="{StaticResource Sl.ListItem}">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <VirtualizingStackPanel />
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                    </ListBox>
+                                    <Border Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ReworkItems.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <emptyState:EmptyStateControl
+                                            Icon="&#xE713;"
+                                            Title="{DynamicResource Dnl.NoRework}"
+                                            Message="Delivery notes of type Rework — glass coming back for reprocessing — are listed here." />
+                                    </Border>
+                                </Grid>
+                                <Grid Panel.ZIndex="0">
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="5">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                    <ListBox Panel.ZIndex="0" ItemsSource="{Binding ReturnedItemsGrouped}" ItemTemplate="{StaticResource JoGroupRowTemplate}" BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Focusable="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="True" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" VirtualizingStackPanel.ScrollUnit="Pixel" VirtualizingStackPanel.CacheLength="200,400" VirtualizingStackPanel.CacheLengthUnit="Pixel" behaviors:SmoothScrollBehavior.IsEnabled="True" Padding="0" ItemContainerStyle="{StaticResource Sl.ListItem}">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <VirtualizingStackPanel />
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                    </ListBox>
+                                    <Border Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ReturnedItems.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <emptyState:EmptyStateControl
+                                            Icon="&#xE7A7;"
+                                            Title="{DynamicResource Dnl.NoReturned}"
+                                            Message="Delivery notes of type Return — glass sent back by the customer — are listed here." />
+                                    </Border>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

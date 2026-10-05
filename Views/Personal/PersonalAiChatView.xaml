@@ -1,0 +1,285 @@
+<UserControl x:Class="ProGlassAutomation.Views.Personal.PersonalAiChatView"
+             TextOptions.TextHintingMode="Fixed"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         GB-P13 — GLASS BLUSH AI ASSISTANT (glass-10 reference)
+
+         The chat experience. References the SAME AiChatViewModel (the
+         Professional overlay's VM — DataContext is set by the host):
+         Messages (ChatMessage: Text/IsUser/IsError/ProviderName/
+         ProviderIcon/SenderLabel/TimeLabel), Suggestions, CurrentInput,
+         HasMessages, ActiveProviderSubtitle, Send/Clear/Suggestion/
+         Voice/Toggle commands. Glass bubbles (GlassBlush.ChatBubbleUser /
+         ChatBubbleAssistant) + suggestion chips (GlassBlush.SuggestionChip)
+         + glass input. The error state gets a coral-tinted bubble.
+         Auto-scroll to the latest message is view plumbing (code-behind).
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        <BooleanToVisibilityConverter x:Key="GbBoolToVis"/>
+            </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Border Background="{DynamicResource GlassBlush.SurfaceStrong}"
+            BorderBrush="{DynamicResource GlassBlush.Border}"
+            BorderThickness="1"
+            CornerRadius="{DynamicResource GlassBlush.SectionRadius}"
+            Effect="{StaticResource GlassBlush.CardShadowFx}"
+            SnapsToDevicePixels="True">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ══ CHAT PANEL ═══════════════════════════════════════ -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- header -->
+                <Border Grid.Row="0"
+                        BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                        BorderThickness="0,0,0,1"
+                        Padding="20,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="34" Height="34" CornerRadius="11"
+                                    Background="{DynamicResource GlassBlush.AccentSoft}"
+                                    BorderBrush="{DynamicResource GlassBlush.AccentGlow}"
+                                    BorderThickness="1"
+                                    Effect="{StaticResource GlassBlush.GlowAccent}"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="&#xE99A;" FontFamily="Segoe MDL2 Assets"
+                                           FontSize="16"
+                                           Foreground="{DynamicResource GlassBlush.AccentGlow}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource AI.ProglassAI}"
+                                           Style="{StaticResource GlassBlush.SectionTitle}"
+                                           FontSize="16"/>
+                                <TextBlock Text="{Binding ActiveProviderSubtitle}"
+                                           FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                           Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                           Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="&#xE711;"
+                                    Style="{StaticResource GlassBlush.TopIconButton}"
+                                    ToolTip="Clear chat"
+                                    AutomationProperties.Name="Clear chat"
+                                    Command="{Binding ClearChatCommand}"
+                                    Margin="0,0,4,0"/>
+                            <Button Content="&#xE8BB;"
+                                    Style="{StaticResource GlassBlush.TopIconButton}"
+                                    ToolTip="Close"
+                                    AutomationProperties.Name="Close"
+                                    Command="{Binding ToggleChatCommand}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- messages / empty state -->
+                <Grid Grid.Row="1">
+                    <!-- empty state -->
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                Margin="24"
+                                Visibility="{Binding HasMessages,
+                                          Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                        <Border Width="64" Height="64" CornerRadius="32"
+                                Background="{DynamicResource GlassBlush.AccentSoft}"
+                                BorderBrush="{DynamicResource GlassBlush.AccentGlow}"
+                                BorderThickness="1"
+                                Effect="{StaticResource GlassBlush.GlowAccent}"
+                                HorizontalAlignment="Center">
+                            <TextBlock Text="&#xE99A;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="26"
+                                       Foreground="{DynamicResource GlassBlush.AccentGlow}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="{DynamicResource AI.HelloIMProglassAI}"
+                                   Style="{StaticResource GlassBlush.SectionTitle}"
+                                   FontSize="20"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,16,0,8"/>
+                        <TextBlock Text="{DynamicResource AI.AskAboutGlassProductionInvoicesJobOrders}"
+                                   FontSize="{DynamicResource GlassBlush.FontBody}"
+                                   Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                   TextWrapping="Wrap" TextAlignment="Center"
+                                   MaxWidth="420" HorizontalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- message list (auto-scroll) -->
+                    <ScrollViewer x:Name="MessagesScroll"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  CanContentScroll="False"
+                                  IsDeferredScrollingEnabled="False"
+                                  Focusable="False"
+                                  FocusVisualStyle="{x:Null}"
+                                  Padding="20,16"
+                                  Visibility="{Binding HasMessages,
+                                            Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ItemsControl x:Name="MessagesList" ItemsSource="{Binding Messages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,5">
+                                        <!-- USER bubble (right, accent) -->
+                                        <ContentControl Style="{StaticResource GlassBlush.ChatBubbleUser}"
+                                                        Visibility="{Binding IsUser,
+                                                                  Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Text}"
+                                                           TextWrapping="Wrap"
+                                                           FontSize="{DynamicResource GlassBlush.FontBody}"
+                                                           Foreground="{DynamicResource GlassBlush.Text}"/>
+                                                <TextBlock Text="{Binding TimeLabel}"
+                                                           FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                           Foreground="{DynamicResource GlassBlush.TextFaint}"
+                                                           Typography.NumeralAlignment="Tabular"
+                                                           HorizontalAlignment="Right"
+                                                           Margin="0,6,0,0"/>
+                                            </StackPanel>
+                                        </ContentControl>
+                                        <!-- AI bubble (left, glass) —
+                                                 IsAiResponse = !IsUser && !IsError
+                                                 (the model's own flag) -->
+                                        <ContentControl Style="{StaticResource GlassBlush.ChatBubbleAssistant}"
+                                                        Visibility="{Binding IsAiResponse,
+                                                                  Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Text}"
+                                                           TextWrapping="Wrap"
+                                                           FontSize="{DynamicResource GlassBlush.FontBody}"
+                                                           Foreground="{DynamicResource GlassBlush.Text}"/>
+                                                <TextBlock FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                           Foreground="{DynamicResource GlassBlush.TextFaint}"
+                                                           Typography.NumeralAlignment="Tabular"
+                                                           Margin="0,6,0,0">
+                                                    <Run Text="{Binding ProviderIcon, Mode=OneWay}"/><Run Text="  "/><Run Text="{DynamicResource AI.Via}"/><Run Text="  "/><Run Text="{Binding ProviderName, Mode=OneWay}"/><Run Text="  ·  "/><Run Text="{Binding TimeLabel, Mode=OneWay}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </ContentControl>
+                                        <!-- ERROR bubble (GB-P15):
+                                                 ChatMessage.IsError →
+                                                 glass-10 coral-tinted variant -->
+                                        <ContentControl Style="{StaticResource GlassBlush.ChatBubbleError}"
+                                                        Visibility="{Binding IsError,
+                                                                  Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Text}"
+                                                           TextWrapping="Wrap"
+                                                           FontSize="{DynamicResource GlassBlush.FontBody}"
+                                                           Foreground="{DynamicResource GlassBlush.Danger}"/>
+                                                <TextBlock Text="{Binding TimeLabel}"
+                                                           FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                           Foreground="{DynamicResource GlassBlush.TextFaint}"
+                                                           Margin="0,6,0,0"/>
+                                            </StackPanel>
+                                        </ContentControl>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+
+                <!-- input row -->
+                <Border Grid.Row="2"
+                        BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                        BorderThickness="0,1,0,0"
+                        Padding="16,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding CurrentInput, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource GlassBlush.TextBox}"
+                                 Height="44"/>
+                        <Button Grid.Column="1"
+                                Content="&#xE720;"
+                                Style="{StaticResource GlassBlush.TopIconButton}"
+                                FontSize="18"
+                                ToolTip="Voice input"
+                                AutomationProperties.Name="Voice input"
+                                Command="{Binding VoiceInputCommand}"
+                                Margin="8,0,0,0"
+                                Width="44" Height="44"/>
+                        <Button Grid.Column="2"
+                                Style="{StaticResource GlassBlush.GlassButton}"
+                                Height="44"
+                                Padding="22,0"
+                                Margin="8,0,0,0"
+                                Command="{Binding SendCommand}">
+                            <TextBlock Text="&#xE724;" FontFamily="Segoe MDL2 Assets" FontSize="16"/>
+                        </Button>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ══ SUGGESTION CHIP RAIL (glass-10 right column) ══════ -->
+            <Border Grid.Column="1"
+                    Width="260"
+                    Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                    BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                    BorderThickness="1,0,0,0"
+                    CornerRadius="0,26,26,0">
+                <DockPanel Margin="18,18">
+                    <TextBlock DockPanel.Dock="Top"
+                               Text="{DynamicResource AI.TRYAsking}"
+                               FontSize="{DynamicResource GlassBlush.FontLabel}"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource GlassBlush.TextMuted}"
+                               Margin="0,0,0,12"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl ItemsSource="{Binding Suggestions}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource GlassBlush.SuggestionChip}"
+                                            HorizontalAlignment="Left"
+                                            Margin="0,0,0,8"
+                                            Command="{Binding DataContext.SuggestionCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}">
+                                        <TextBlock Text="{Binding}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   MaxWidth="200"
+                                                   HorizontalAlignment="Left"/>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

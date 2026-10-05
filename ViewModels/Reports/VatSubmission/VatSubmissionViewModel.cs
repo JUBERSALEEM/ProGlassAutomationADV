@@ -1,0 +1,320 @@
+using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Reporting;
+using ProGlassAutomation.ViewModels.Reports.Common;
+using System;
+using ProGlassAutomation.Utilities;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
+
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
+namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
+{
+    /// <summary>
+    /// ViewModel for VAT Submission Report — shows 5% VAT breakdown for UAE FTA compliance.
+    /// Supports 4 view modes: Detail, BySalesman, ByCompany, ByProject.
+    /// </summary>
+    public class VatSubmissionViewModel : ReportBaseViewModel
+    {
+        private readonly IDialogService _dialogs = null!;
+
+        public VatSubmissionViewModel() : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IReportingDataService>(),
+            App.ServiceProvider?.GetService<IDatabaseServices>())
+        {
+        }
+
+        public VatSubmissionViewModel(IDialogService? dialogs, IReportingDataService? service = null, IDatabaseServices? database = null) 
+            : base(service ?? new ReportingDataService(), database)
+        {
+            _dialogs = dialogs!;
+            InitCommands();
+            // Load filter options and data in constructor (same pattern as TaxInvoiceReportViewModel)
+            _ = LoadFilterOptionsAsync();
+            _ = LoadAsync();
+        }
+
+        private VatSubmissionSummary _summary = new();
+        public VatSubmissionSummary Summary 
+        { 
+            get => _summary; 
+            set { _summary = value; OnPropertyChanged(); OnPropertyChanged(nameof(SummaryCards)); } 
+        }
+
+        public ObservableCollection<KpiItem> SummaryCards => new()
+        {
+            new KpiItem("TOTAL VAT COLLECTED", 
+                $"AED {Summary.TotalVatCollected:N2}", 
+                $"{Summary.TotalInvoices} invoices", 
+                "AccentBrush"),
+            new KpiItem("TOTAL REVENUE", 
+                $"AED {Summary.TotalGrandTotal:N2}", 
+                $"AED {Summary.TotalSubtotal:N2} ex-VAT", 
+                "SuccessBrush"),
+            new KpiItem("SALESMEN", 
+                Summary.BySalesman.Count.ToString(), 
+                "Active salesmen", 
+                "InfoBrush"),
+            new KpiItem("COMPANIES", 
+                Summary.ByCompany.Count.ToString(), 
+                "Active companies", 
+                "WarningBrush"),
+        };
+
+        private ObservableCollection<VatSubmissionRow> _rows = new();
+        public ObservableCollection<VatSubmissionRow> Rows 
+        { 
+            get => _rows; 
+            set { _rows = value; OnPropertyChanged(); } 
+        }
+
+        // Grouped Views
+        private ObservableCollection<SalesmanVatSummary> _salesmanSummary = new();
+        public ObservableCollection<SalesmanVatSummary> SalesmanSummary 
+        { 
+            get => _salesmanSummary; 
+            set { _salesmanSummary = value; OnPropertyChanged(); } 
+        }
+
+        private ObservableCollection<CompanyVatSummary> _companySummary = new();
+        public ObservableCollection<CompanyVatSummary> CompanySummary 
+        { 
+            get => _companySummary; 
+            set { _companySummary = value; OnPropertyChanged(); } 
+        }
+
+        private ObservableCollection<ProjectVatSummary> _projectSummary = new();
+        public ObservableCollection<ProjectVatSummary> ProjectSummary 
+        { 
+            get => _projectSummary; 
+            set { _projectSummary = value; OnPropertyChanged(); } 
+        }
+
+        private string _viewMode = "Detail"; // Detail, BySalesman, ByCompany, ByProject
+        public string ViewMode 
+        { 
+            get => _viewMode; 
+            set { _viewMode = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsDetailView)); OnPropertyChanged(nameof(IsSalesmanView)); OnPropertyChanged(nameof(IsCompanyView)); OnPropertyChanged(nameof(IsProjectView)); } 
+        }
+
+        public bool IsDetailView => ViewMode == "Detail";
+        public bool IsSalesmanView => ViewMode == "BySalesman";
+        public bool IsCompanyView => ViewMode == "ByCompany";
+        public bool IsProjectView => ViewMode == "ByProject";
+
+        // Filter Options
+        private string _companyFilter = AllFilter;
+        public string CompanyFilter
+        {
+            get => _companyFilter;
+            set { if (_companyFilter == value) return; _companyFilter = value ?? AllFilter; OnPropertyChanged(); ReloadNow(); }
+        }
+
+        private string _salesmanFilter = AllFilter;
+        public string SalesmanFilter
+        {
+            get => _salesmanFilter;
+            set { if (_salesmanFilter == value) return; _salesmanFilter = value ?? AllFilter; OnPropertyChanged(); ReloadNow(); }
+        }
+
+        private string _projectFilter = AllFilter;
+        public string ProjectFilter
+        {
+            get => _projectFilter;
+            set { if (_projectFilter == value) return; _projectFilter = value ?? AllFilter; OnPropertyChanged(); ReloadNow(); }
+        }
+
+        public const string AllFilter = "All";
+
+        protected override ReportingFilter BuildFilter()
+        {
+            var filter = base.BuildFilter();
+            filter.Company = string.Equals(CompanyFilter, AllFilter, StringComparison.OrdinalIgnoreCase) ? null : CompanyFilter;
+            filter.Salesman = string.Equals(SalesmanFilter, AllFilter, StringComparison.OrdinalIgnoreCase) ? null : SalesmanFilter;
+            filter.Project = string.Equals(ProjectFilter, AllFilter, StringComparison.OrdinalIgnoreCase) ? null : ProjectFilter;
+            return filter;
+        }
+
+        public new async Task LoadFilterOptionsAsync()
+        {
+            try
+            {
+                var companies = await _service.GetCompanyOptionsAsync();
+                CompanyOptions = new List<string> { AllFilter }.Concat(companies).ToList();
+
+                var salesmen = await _service.GetSalesmanOptionsAsync();
+                SalesmanOptions = new List<string> { AllFilter }.Concat(salesmen).ToList();
+
+                var projects = await _service.GetProjectOptionsAsync();
+                ProjectOptions = new List<string> { AllFilter }.Concat(projects).ToList();
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Warning($"VAT filter options warning: {ExceptionMessages.Deep(ex)}");
+                // Set default options on error
+                CompanyOptions = new List<string> { AllFilter };
+                SalesmanOptions = new List<string> { AllFilter };
+                ProjectOptions = new List<string> { AllFilter };
+            }
+        }
+
+        public override async Task LoadAsync()
+        {
+            // Ensure we're on UI thread for ObservableCollection updates
+            if (System.Windows.Application.Current?.Dispatcher?.CheckAccess() == false)
+            {
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => LoadAsync());
+                return;
+            }
+            
+            CancelPrevious();
+            int gen = _loadGen; // generation of THIS load — see ReportBaseViewModel
+            var token = LoadToken;
+            IsLoading = true; 
+            HasError = false;
+            
+            try
+            {
+                var filter = BuildFilter();
+                var summary = await _service.GetVatSubmissionSummaryAsync(filter, token);
+                var paged = await _service.GetVatSubmissionRowsAsync(filter, token);
+                
+                if (token.IsCancellationRequested) return;
+                
+                // These updates are now guaranteed to be on UI thread
+                Summary = summary;
+                Rows = new ObservableCollection<VatSubmissionRow>(paged.Items);
+                SalesmanSummary = new ObservableCollection<SalesmanVatSummary>(summary.BySalesman);
+                CompanySummary = new ObservableCollection<CompanyVatSummary>(summary.ByCompany);
+                ProjectSummary = new ObservableCollection<ProjectVatSummary>(summary.ByProject);
+                
+                TotalCount = paged.TotalCount;
+                TotalPages = paged.TotalPages == 0 ? 1 : paged.TotalPages;
+                IsLoaded = true;
+            }
+            catch (Exception ex) when (!(ex is OperationCanceledException))
+            { 
+                HasError = true; 
+                ErrorMessage = ExceptionMessages.Deep(ex);
+                Services.Logging.AppLogService.Error($"VAT load error: {ExceptionMessages.Deep(ex)}", ex);
+            }
+            finally { if (gen == _loadGen) IsLoading = false; }
+        }
+
+        protected override void InitCommands()
+        {
+            base.InitCommands();
+            ClearFilterCommand = new RelayCommand(_ =>
+            {
+                CompanyFilter = AllFilter;
+                SalesmanFilter = AllFilter;
+                ProjectFilter = AllFilter;
+                ClearFilters();
+            });
+            
+            // Command to change view mode
+            ChangeViewModeCommand = new RelayCommand(mode =>
+            {
+                if (mode is string modeStr && !string.IsNullOrWhiteSpace(modeStr))
+                {
+                    ViewMode = modeStr;
+                }
+            });
+        }
+
+        public ICommand ChangeViewModeCommand { get; private set; } = null!;
+
+        protected override async Task ExportAsync(ExportFormat format)
+        {
+            if (Rows.Count == 0) return;
+            IsExporting = true;
+            
+            try
+            {
+                var req = new ExportRequest 
+                { 
+                    PromptForLocation = true, 
+                    OpenAfterSave = true, 
+                    SuggestedFileName = $"VAT_Submission_{DateTime.Now:dd-MM-yyyy}" 
+                };
+                
+                ExportResult res = await ExportCoreAsync(format, req);
+
+                if (!res.Success && !res.Cancelled)
+                    _dialogs.Show(res.ErrorMessage ?? "Export failed.",
+                        LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            }
+            finally { IsExporting = false; }
+        }
+
+        // ── Sharing Center — the SAME core above, staged to temp ──
+        protected override string ShareReportTitle => "VAT Submission Report";
+
+        protected override IDialogService? ShareDialogs => _dialogs;
+
+        protected override async Task<string?> ExportStagedAsync(ExportFormat format, string folder)
+        {
+            if (Rows.Count == 0) return null;
+            ExportResult res = await ExportCoreAsync(format,
+                StagedRequest(folder, $"VAT_Submission_{DateTime.Now:dd-MM-yyyy}", format));
+            return res.Success ? res.SavedPath : null;
+        }
+
+        private async Task<ExportResult> ExportCoreAsync(ExportFormat format, ExportRequest req)
+        {
+            if (format == ExportFormat.Csv)
+                return await ReportingExportService.ExportCsvAsync(
+                    Rows.ToList(), "VAT Submission Report",
+                    VatHeaders, VatMap, req);
+            else if (format == ExportFormat.Excel)
+                return await ReportingExportService.ExportExcelAsync(
+                    Rows.ToList(), "VAT Submission Report",
+                    VatHeaders, VatMapExcel, req);
+            else
+                return await ReportingExportService.ExportPdfAsync(
+                    Rows.ToList(), "VAT Submission Report",
+                    VatHeaders, VatMap, req);
+        }
+
+        // Export mappings - CSV/PDF (string values)
+        private static readonly string[] VatHeaders = 
+        {
+            "PI Number", "Date / Time", "Company", "Customer", "Project", "Salesman",
+            "Status", "Net Amount (ex-VAT)", "VAT (5%)"
+        };
+
+        private static readonly Func<VatSubmissionRow, string[]> VatMap = row => new string[]
+        {
+            row.ProformaId,
+            row.IssueDate.ToString("dd-MM-yyyy HH:mm"),
+            row.CompanyName,
+            row.CustomerName,
+            row.ProjectName,
+            row.Salesman,
+            row.Status,
+            row.SubtotalBeforeVat.ToString("N2"),
+            row.VatAmount.ToString("N2")
+        };
+
+        // Export mappings - Excel (same structure, native types for better formatting)
+        private static readonly Func<VatSubmissionRow, string[]> VatMapExcel = row => new string[]
+        {
+            row.ProformaId,
+            row.IssueDate.ToString("dd-MM-yyyy HH:mm"),
+            row.CompanyName,
+            row.CustomerName,
+            row.ProjectName,
+            row.Salesman,
+            row.Status,
+            row.SubtotalBeforeVat.ToString("N2"),
+            row.VatAmount.ToString("N2")
+        };
+    }
+}
