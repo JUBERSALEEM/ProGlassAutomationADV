@@ -22,13 +22,13 @@ const entries: NavEntry[] = [
   {
     label: "Product",
     children: [
+      { label: "Job Orders", href: "/job-orders", description: "Release Confirmed PIs and track production progress" },
+      { label: "Proforma Invoices", href: "/reports?status=Confirmed", description: "Confirmed proformas from Excel Sync" },
       { label: "Features", href: "/features", description: "Every module, in the app's own vocabulary" },
       { label: "How It Works", href: "/how-it-works", description: "Inquiry to statement, step by step" },
       { label: "Worked Example", href: "/worked-example", description: "One real job, every figure" },
       { label: "Screenshots", href: "/screenshots", description: "The interface, screen by screen" },
       { label: "Pricing", href: "/pricing", description: "Editions and what each one unlocks" },
-      { label: "Proforma Invoices", href: "/reports?status=Confirmed", description: "Confirmed proformas from Excel Sync" },
-      { label: "Job Orders", href: "/job-orders", description: "Confirmed PI hand-off queue" },
       {
         label: "Delivery Notes",
         href: "/deliveries",
@@ -249,7 +249,7 @@ export function Navbar() {
                    * numbered, titled, described, with the same edge, radius and
                    * accent-on-hover treatment as every other card on the site.
                    */
-                  <div className="absolute left-1/2 top-full w-[22rem] -translate-x-1/2 pt-3">
+                  <div className="absolute left-1/2 top-full max-h-[calc(100vh-var(--nav-height))] w-[22rem] -translate-x-1/2 overflow-y-auto overscroll-contain pt-3">
                     <div className="menu-card animate-scale-in rounded-panel p-2 shadow-raised">
                       <p className="mono-label px-2.5 pb-2 pt-1">{t(entry.label)}</p>
                       <ul className="space-y-1.5">
