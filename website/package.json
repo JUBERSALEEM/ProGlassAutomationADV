@@ -2,7 +2,7 @@
   "name": "proglass-automation-website",
   "version": "2.0.11",
   "private": true,
-  "description": "Official marketing/product website for ProGlass Automation \u2014 the Windows desktop ERP for glass fabrication businesses.",
+  "description": "Official marketing/product website for ProGlass Automation — the Windows desktop ERP for glass fabrication businesses.",
   "scripts": {
     "predev": "node scripts/check-deps.mjs && node scripts/check-build-freshness.mjs check",
     "prebuild": "node scripts/check-deps.mjs",
@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "2.117.2",
+    "@vercel/speed-insights": "^2.0.0",
     "next": "16.3.6",
     "react": "19.2.0",
     "react-dom": "19.2.0"
