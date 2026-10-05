@@ -114,6 +114,73 @@ namespace ProGlassAutomation.Services.Audit
                 $"Session {SessionId} for {CurrentUsername}");
         }
 
+        /// <summary>
+        /// Records a REFUSED authentication attempt in the audit trail —
+        /// a failed sign-in, or a password change whose current-password
+        /// proof did not hold.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The successful halves of both flows have always been audited
+        /// (<see cref="LogSessionBoundary"/> writes "Session started", and
+        /// <c>ChangePasswordAsync</c> writes "Password changed"). The refused
+        /// halves were written nowhere durable: the only record was an
+        /// <c>AppLogService.Warning</c> in <c>LoginPanelViewModel</c> — a text
+        /// file in <c>%AppData%</c> that <c>AppLogService</c> deletes after
+        /// <c>RetentionDays</c> (14), and which is not carried in the backup
+        /// set the way <c>audit.db</c> is.
+        /// </para>
+        /// <para>
+        /// That asymmetry matters more here than in most products because
+        /// sign-in lockout is deliberately DISABLED — see
+        /// <c>LockoutRemainingSeconds</c> for the reasoning and for the
+        /// condition under which that decision must be revisited. Unlimited
+        /// attempts with no durable record means "did anyone try to get in
+        /// while nobody was watching?" cannot be answered from anything that
+        /// survives a fortnight. Refusals are recorded now, so a guessing
+        /// attack leaves a trail even though it is still not blocked; blocking
+        /// it is a separate decision with its own trade-off, and this change
+        /// does not make it.
+        /// </para>
+        /// <para>
+        /// A refused password change is the stronger signal of the two: the
+        /// current-password proof is what stops a walk-up user taking over
+        /// someone else's account, so a failure there means somebody had the
+        /// dialog open and did not know the password.
+        /// </para>
+        /// <para>
+        /// The name that was typed goes in the DETAILS, not the user field:
+        /// <see cref="Log"/> attaches <c>CurrentUsername</c> automatically, and
+        /// on a refused attempt that is either empty or the wrong person — the
+        /// attempted name is the field an investigator actually needs. The
+        /// password is never passed here and never written.
+        /// </para>
+        /// <para>
+        /// Never throws. An audit failure must not turn a refused attempt into
+        /// a crashed one — the same rule <c>OperationGuard</c> applies when it
+        /// records a permission denial.
+        /// </para>
+        /// </remarks>
+        private static void LogAuthRefusal(
+            string action, string attemptedUsername, string reason)
+        {
+            try
+            {
+                Log(
+                    AuditSections.Users,
+                    action,
+                    $"Attempted as '" +
+                    $"{(string.IsNullOrWhiteSpace(attemptedUsername) ? "(blank)" : attemptedUsername)}' " +
+                    $"— {reason}");
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "[AuditService] Audit write for a refused auth attempt failed: "
+                    + ex.Message);
+            }
+        }
+
         // ══════════════════════════════════════════════════════════════
         //  LOGGING (the one-line API used by every module)
         // ══════════════════════════════════════════════════════════════
@@ -597,17 +664,33 @@ namespace ProGlassAutomation.Services.Audit
                     .ConfigureAwait(false);
 
                 if (user == null)
+                {
+                    // The more interesting half of a guessing attack: this is
+                    // how an account name gets enumerated, and it never
+                    // touches a user row, so the FailedAttemptCount counter
+                    // below cannot see it at all.
+                    LogAuthRefusal("Sign-in failed", username, "unknown username");
                     return (false, "Unknown username.");
+                }
 
                 if (!user.IsActive)
+                {
+                    // A deactivated account being tried is worth knowing
+                    // about: it is either a departed employee's login still in
+                    // circulation, or somebody working down a list.
+                    LogAuthRefusal("Sign-in failed", username, "account is deactivated");
                     return (false, "This user is deactivated.");
+                }
 
                 // PHASE 13 — persisted lockout: reject sign-ins while the
                 // account is locked (survives an app restart).
                 int lockoutSeconds = LockoutRemainingSeconds(user);
                 if (lockoutSeconds > 0)
+                {
+                    LogAuthRefusal("Sign-in failed", username, "account is locked out");
                     return (false,
                         $"Account temporarily locked. Try again in {lockoutSeconds}s.");
+                }
 
                 if (!VerifyPassword(user, password, out bool needsUpgrade))
                 {
@@ -623,6 +706,7 @@ namespace ProGlassAutomation.Services.Audit
                         user.FailedAttemptCount = 0;
                     }
                     await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+                    LogAuthRefusal("Sign-in failed", username, "incorrect password");
                     return (false, "Incorrect password.");
                 }
 
@@ -707,15 +791,31 @@ namespace ProGlassAutomation.Services.Audit
                     .ConfigureAwait(false);
 
                 if (user == null)
+                {
+                    LogAuthRefusal("Password change refused", username, "unknown username");
                     return (false, "Unknown username.");
+                }
 
                 if (!user.IsActive)
+                {
+                    LogAuthRefusal("Password change refused", username, "account is deactivated");
                     return (false, "This user is deactivated.");
+                }
 
                 // Proving the current password is what stops a walk-up
                 // user silently taking over someone else's account.
                 if (!VerifyPassword(user, currentPassword ?? ""))
+                {
+                    // The success path writes "Password changed". A failure
+                    // used to write nothing at all, so the one attempt that
+                    // most deserves a record — somebody holding the dialog
+                    // open who does not know the password — was the only one
+                    // that left no trace. The new password is not passed here.
+                    LogAuthRefusal(
+                        "Password change refused", username,
+                        "current password incorrect");
                     return (false, "Current password is incorrect.");
+                }
 
                 user.PasswordHash =
                     Security.PasswordHasher.Hash(newPassword ?? "");

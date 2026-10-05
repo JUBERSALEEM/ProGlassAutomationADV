@@ -182,7 +182,16 @@ namespace ProGlassAutomation.Services.Audit
                     $"({(string.IsNullOrEmpty(role) ? "?" : role)}) " +
                     $"tried {operation} without any of: {required}");
             }
-            catch { /* auditing must never suppress the denial */ }
+            catch (System.Exception ex)
+            {
+                // Auditing must never suppress the denial itself — but a
+                // denial whose audit write failed is a security event with no
+                // record, so at least say so in the log. Demand does the same;
+                // this branch was the only one of the two that swallowed it
+                // silently.
+                ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                    "[OperationGuard] Audit write for permission denial failed: " + ex.Message);
+            }
             throw new PermissionDeniedException(permissions[0], operation, role);
         }
 
