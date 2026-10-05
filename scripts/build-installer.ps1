@@ -15,11 +15,11 @@
 #   4.  Paint the Prism splash and MSI bitmaps, then Velopack-pack
 #       the publish\ tree into a release artefact set:
 #         * Setup.exe                        (full installer)
-#         * ProGlassAutomation-2.0.0-win-x64.nupkg   (delta source)
-#         * ProGlassAutomation-2.0.0-full.nupkg     (full payload)
-#         * ProGlassAutomation-2.0.0-delta.nupkg    (delta against the
+#         * ProGlassAutomation-<version>-win-x64.nupkg   (delta source)
+#         * ProGlassAutomation-<version>-full.nupkg     (full payload)
+#         * ProGlassAutomation-<version>-delta.nupkg    (delta against the
 #                                                     previous release, if any)
-#         * ProGlassAutomation-Portable-2.0.0.zip    (no-installer zip)
+#         * ProGlassAutomation-Portable-<version>.zip    (no-installer zip)
 #       into .\releases\.
 #   5.  Print a summary of what was produced and the SHA-256 of each
 #       artefact, so the operator can sanity-check before attaching
@@ -28,7 +28,8 @@
 # Usage (from the repo root, Windows PowerShell 5.1 OR PowerShell 7+):
 #
 #     powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1
-#     powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -Version 2.0.1
+#                                        (version read from the csproj)
+#     powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -Version 2.0.12   (override)
 #     powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -SkipTests
 #     powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -PackId ProGlassAutomation
 #
@@ -46,7 +47,7 @@
 
 [CmdletBinding()]
 param(
-    [string]$Version = "2.0.0",
+    [string]$Version = "",          # empty = read <Version> from ProGlassAutomation.csproj
     [string]$PackId = "ProGlassAutomation",
     [string]$PackTitle = "ProGlass Automation",
     [string]$PackAuthors = "Juber Saleem",
@@ -59,6 +60,36 @@ $ErrorActionPreference = "Stop"
 
 # -- Paths (resolved relative to the repo root) ---------------------
 $RepoRoot     = Resolve-Path (Join-Path $PSScriptRoot "..")
+
+# -- 0a. Resolve the version from the ONE authoritative source ------
+# <Version> in ProGlassAutomation.csproj is the single version source:
+# the assembly identity, AppInfo.Version, About, the update checker and
+# every log line all read it from there (see the comment block above
+# <Version> in the csproj, and Services/Updates/AppInfo.cs).
+#
+# This script used to default to a hardcoded 2.0.0 while the csproj had
+# moved on, so a default run packed a LOWER version than the binaries
+# inside the package. UpdateService.IsNewer is a strict greater-than
+# compare, which makes such a package unreachable by OTA - no machine
+# would ever be offered it. The version is therefore read, not assumed.
+if ([string]::IsNullOrWhiteSpace($Version)) {
+    $csprojPath = Join-Path $RepoRoot "ProGlassAutomation.csproj"
+    if (-not (Test-Path $csprojPath)) {
+        Write-Error "Cannot resolve the version: $csprojPath not found."
+        exit 1
+    }
+    $versionMatch = [regex]::Match((Get-Content $csprojPath -Raw), '<Version>(?<v>[^<]+)</Version>')
+    if (-not $versionMatch.Success) {
+        Write-Error "Cannot resolve the version: no <Version> element in $csprojPath."
+        exit 1
+    }
+    $Version = $versionMatch.Groups['v'].Value.Trim()
+    Write-Host "> Version read from ProGlassAutomation.csproj: $Version" -ForegroundColor Yellow
+}
+if ($Version -notmatch '^\d+\.\d+\.\d+$') {
+    Write-Error "Version $Version is not MAJOR.MINOR.PATCH. Velopack and the OTA compare both need exactly three numeric parts."
+    exit 1
+}
 $PublishDir   = Join-Path $RepoRoot "publish"
 $ReleasesDir  = Join-Path $RepoRoot "releases"
 # The Velopack manifest. Kept on disk for documentation; the

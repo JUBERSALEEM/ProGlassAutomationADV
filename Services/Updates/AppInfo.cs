@@ -23,9 +23,30 @@ namespace ProGlassAutomation.Services.Updates
         public const string GitHubRepo = "ProGlassAutomationADV";
 
         /// <summary>
-        /// Fallback only — real value comes from the assembly. Kept in step
-        /// with the .csproj &lt;Version&gt; and exposed so the licensing
-        /// wrapper does not carry its own third copy of the number.
+        /// Fallback only — the real value comes from the assembly identity set
+        /// by &lt;Version&gt; in the .csproj. Exposed so the licensing wrapper
+        /// does not carry its own third copy of the number.
+        /// <para>
+        /// THIS IS A FLOOR, NOT A MIRROR. Do not "keep it in step" with the
+        /// csproj by hand: that is a fourth copy of a number that will drift,
+        /// and it drifted (this read 2.0.4 while the csproj said 2.0.11). It is
+        /// used only when <see cref="ResolveVersion"/> cannot read the entry
+        /// assembly, which means a build whose identity is unreadable reports
+        /// an OLDER version than it really is. The consequence is noisy, not
+        /// dangerous: <c>UpdateService.IsNewer</c> is a strict greater-than
+        /// compare, so a too-low fallback can offer an update the machine
+        /// already has — it can never offer a downgrade, and it cannot hide a
+        /// newer release. The installed-build path is unaffected either way:
+        /// <c>VelopackUpdateService</c> compares against the version Velopack
+        /// read from the installed package, not against this constant.
+        /// </para>
+        /// <para>
+        /// Durable fix (Phase 20 of docs/UPGRADE_PHASES_2026-10-05.md): inject
+        /// the csproj value at build time (an <c>AssemblyMetadata</c> attribute
+        /// or a generated constant) so there is exactly one copy to bump.
+        /// Until then, a value below the current release is CORRECT and a
+        /// value above it would be a bug — it would suppress real updates.
+        /// </para>
         /// </summary>
         public const string FallbackVersion = "2.0.4";
 
