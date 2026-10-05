@@ -718,21 +718,38 @@ namespace ProGlassAutomation.Tests.Security
             }
         }
 
-        private static string FindContainingMethod(
+        internal static string FindContainingMethod(
             SyntaxNode root, int spanStart)
         {
-            // Cross-Roslyn-version method-name extraction.
-            // The .NET 10 SDK (Roslyn 4.14) removed
-            // BaseMethodDeclarationSyntax.Identifier; we now
-            // pattern-match on each concrete subtype
-            // (MethodDeclaration, ConstructorDeclaration,
-            // DestructorDeclaration, OperatorDeclaration,
-            // ConversionOperatorDeclaration) and fall back to
-            // "<unknown>" for anything we don't recognise.
-            foreach (var node in root.DescendantNodes())
+            // The INNERMOST enclosing member — not the first member in the file.
+            //
+            // This used to walk root.DescendantNodes() in document order and
+            // return the first method-like node before the catch. That is not
+            // the enclosing member, it is whichever member happens to appear
+            // first in the file. Measured over this tree, 79 of the 101 empty
+            // catches were attributed to the wrong member: the catch inside
+            // RelayCommand.Execute resolved to the ctor declared above it, and
+            // the setters in MainViewModel.Part2.cs all resolved to
+            // TogglePopup. The allow list matches on the resolved name, so
+            // those findings could only be allowed with a file-wide "*" entry —
+            // which then silences any future empty catch in the same file.
+            //
+            // Ancestors() walks outward from the node, so the first member it
+            // meets is the innermost one: a local function now beats the method
+            // that declares it, and accessors resolve at all (there was no
+            // AccessorDeclarationSyntax case, so a catch in a property setter
+            // fell through to "<unknown>").
+            //
+            // Cross-Roslyn-version method-name extraction, unchanged: the .NET
+            // 10 SDK (Roslyn 4.14) removed
+            // BaseMethodDeclarationSyntax.Identifier, so each concrete subtype
+            // is pattern-matched rather than using the shared base.
+            var node = root.FindToken(spanStart).Parent;
+            if (node == null) return "<unknown>";
+
+            foreach (var ancestor in node.Ancestors())
             {
-                if (node.SpanStart > spanStart) break;
-                switch (node)
+                switch (ancestor)
                 {
                     case MethodDeclarationSyntax m:
                         return m.Identifier.Text;
@@ -746,9 +763,31 @@ namespace ProGlassAutomation.Tests.Security
                         return co.ImplicitOrExplicitKeyword.Text + " operator";
                     case LocalFunctionStatementSyntax l:
                         return l.Identifier.Text;
+                    case AccessorDeclarationSyntax a:
+                        // The keyword alone is useless in an allow list — a
+                        // view model can have twenty setters — so name the
+                        // property the accessor belongs to: set_IsBusy.
+                        return a.Keyword.Text + "_" + OwnerName(a);
                 }
+                // A lambda or anonymous method has no name of its own, so no
+                // case matches and the walk continues: the catch is attributed
+                // to the member containing the lambda, not to "<unknown>".
             }
             return "<unknown>";
+        }
+
+        /// <summary>
+        /// Name of the property, indexer or event an accessor belongs to.
+        /// </summary>
+        private static string OwnerName(AccessorDeclarationSyntax accessor)
+        {
+            switch (accessor.Parent)
+            {
+                case PropertyDeclarationSyntax p: return p.Identifier.Text;
+                case EventDeclarationSyntax e: return e.Identifier.Text;
+                case IndexerDeclarationSyntax: return "this[]";
+                default: return "<unknown>";
+            }
         }
 
         private static (bool Allowed, string Reason) Classify(

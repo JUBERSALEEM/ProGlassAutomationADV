@@ -323,6 +323,29 @@ accurate baseline in the phase set.
 
 ### 19c. Fix the auditor's member resolution, then tighten six entries
 
+> **Status 2026-10-05: PART 1 APPLIED, PART 2 DELIBERATELY NOT.**
+> `FindContainingMethod` now returns the innermost enclosing member
+> (`Ancestors()` instead of a document-order walk) and handles
+> `AccessorDeclarationSyntax`, so a setter resolves to `set_IsBusy` instead of
+> `"<unknown>"`. Six regression tests were added in
+> `Tests/Security/SilentCatchMemberResolutionTests.cs`.
+>
+> Measured while doing it: **79 of the 101 findings were attributed to the
+> wrong member**, not the 6 originally counted. The 6 were only the ones whose
+> allow-list entry could not match at all; the other 73 were matched by a
+> file-wide `"*"` entry, which is why nobody noticed.
+>
+> Steps 3–4 (tightening the `"*"` entries back to member-specific) were **not**
+> done, and that is a decision rather than an omission. Every one of the 101
+> findings is currently allowed by a `member="*"` entry, so the resolver change
+> cannot alter the audit's outcome — re-derived after the edit: 101 catches,
+> 0 uncovered, 101/101 allowed by `"*"`. Tightening means replacing 73+
+> wildcards with names derived from a model of the new algorithm that has not
+> been executed against Roslyn. One wrong name turns a green guard rail red,
+> and the failure would look like a new silent catch rather than a typo. The
+> tightening belongs in the same session that can run `dotnet test`: change
+> one file's entry, run the audit, repeat.
+
 **Why it exists.** 19a had to allow six findings with `member="*"` because the
 auditor cannot tell which member a catch sits in. That is a real weakening: a
 `"*"` entry means "any empty catch anywhere in this file is fine forever", so a
