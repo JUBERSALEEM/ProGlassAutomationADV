@@ -1003,6 +1003,76 @@ logging from inside an audit failure cannot re-enter it.
 silent-catch audit is untouched. All 25 XML doc-comment blocks in the file
 parse as well-formed XML.
 
+## Phase 27 — Screen recording at 4K was blurry, and the guard meant to prevent it was measuring the wrong thing
+
+**Severity: P1 · Quality · Applied 2026-10-05**
+
+Reported symptom: 4K 60 fps output is "very blurry, not clear". Traced through
+the whole chain — capture, scale, preset, tune, chroma — and it is four defects
+compounding, not one.
+
+**How the pipeline actually works.** `GdiWindowCapture.Prepare` sizes the
+capture surface from `GetClientRect`, so a frame is the window's client area in
+*physical screen pixels* — roughly 1920×1040 for a maximised window on a 1080p
+display. `FfmpegRawPipe` then scales that to the requested output size, which
+defaults to 3840×2160 (`ScreenRecordSettings.Quality = Uhd4K`).
+
+| # | Defect | Why it produces blur |
+|---|---|---|
+| 1 | The output is a **~2× upscale** of the capture | Lanczos cannot invent detail. Upscaled UI text is soft by construction |
+| 2 | `DefaultPresetForOutput` returned **`ultrafast`** for 4K | ultrafast disables 8x8 DCT, CABAC, deblocking *and* `--aq-mode 0`. Those four are what carry fine detail — small text, 1px grid lines, icon strokes. They go soft and blocky at any CRF |
+| 3 | **`-tune stillimage` was inert** | It sets `psy-rd 2.0:0.7`, which needs `subme ≥ 6`. ultrafast is `subme 0`, superfast `subme 1`. The one knob added specifically to sharpen UI could not run |
+| 4 | The primary path had **no sharpening** | `unsharp=5:5:0.8:5:5:0.0` existed only in the legacy JPEG compose path in `FfmpegMp4Composer`, never in `FfmpegRawPipe` — the path that produces the delivered file |
+
+**And the reason none of the safety nets caught it.** `EncoderProbe` is what
+feeds both of them — `AdjustPreset` (preset demotion) and the FPS guard in
+`UserScreenRecordService` (4K → 2K → 1080p downgrade). Its test encode passed
+`BuildQualityArgs(selection, 18).Args`, which for the software encoders is only
+`"-crf 18"` — **no `-preset`**. So the probe benchmarked libx264 at its default
+`medium` while a real 4K recording ran at `ultrafast`. Every measured fps was a
+large under-estimate, and both guards were therefore biased toward the softest,
+smallest output the machine could be persuaded into. The probe is also
+fire-and-forget and explicitly "keeps the probe fresh for the **next** start"
+(`UserScreenRecordService:497`), so a first recording has no measurement at all
+and simply takes the starting rung.
+
+**Applied.**
+
+- `DefaultPresetForOutput`: 4K `ultrafast` → **`superfast`**, which restores
+  8x8 DCT, CABAC, deblocking and `aq-mode 1`. This is a *starting* rung, not a
+  floor: `AdjustPreset` still steps back to ultrafast on a measurement that
+  cannot hold the rate, and the FPS guard still downgrades the resolution.
+- `EncoderProbe` now appends `-preset {DefaultPresetForOutput(w*h)}` for
+  software encoders, so the measurement describes the configuration that will
+  actually run. The hardware encoders already carried `-preset p5`.
+- `FfmpegRawPipe` gained `unsharp=5:5:0.8:5:5:0.0` — luma only, chroma at 0.0 to
+  avoid colour halos, matching the compose path exactly.
+- `FfmpegMp4Composer`'s four `-tune animation` → **`-tune stillimage`**. That
+  path is offline with unlimited CPU, and `animation` is for flat-colour
+  cartoons; `stillimage` is the tune for static detail.
+
+**Not changed, deliberately.** The upscale itself. Recording at native
+resolution and upscaling offline at save time is the better architecture, but
+the delivered file is the live pipe's output and `ClassifyResolution` requires
+the delivered size to *exactly* equal the request (`WindowScreenRecorder:307`),
+so that is a larger change than is safe to make without a build. Worth doing
+later.
+
+Also worth knowing, and not a bug: a maximised window's client area is usually
+not 16:9 (≈1920×1040), so `force_original_aspect_ratio=decrease` + `pad`
+produces a 4K file with thin black bars top and bottom. That is correct —
+cropping to fill would cut off UI — but it is why a "4K" recording is not edge
+to edge.
+
+**Acceptance.** No .NET SDK here, so nothing was compiled or run, and no encode
+was benchmarked: the preset claim rests on x264's documented preset/tune
+behaviour, not on a measurement from this machine. `CrispDemoPolicyTests`
+pinned the old ladder, so its 4K row was updated to `superfast` and the test
+renamed `DefaultPresetForOutput_MatchesTheLadder`; the `BuildQualityArgs`
+assertions were left alone because that function was not modified — the preset
+is appended at the probe's call site. Balance check across 1,680 `.cs` files
+and both doc verifiers pass.
+
 ---
 
 ## Suggested order

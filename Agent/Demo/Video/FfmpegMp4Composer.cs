@@ -232,10 +232,10 @@ namespace ProGlassAutomation.Agent.Demo.Video
             try { if (File.Exists(packingPath)) File.Delete(packingPath); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[FfmpegMp4Composer] Stale packing-file delete failed: " + ex.Message); }
             string args = wavPath != null && File.Exists(wavPath)
                 ? $"-y -framerate {fps} -i \"{input}\" -i \"{wavPath}\" " +
-                  $"-vf \"{vf}\" -c:v libx264 -preset slow -tune animation -crf {crf} -profile:v high -level:v 5.2 " +
+                  $"-vf \"{vf}\" -c:v libx264 -preset slow -tune stillimage -crf {crf} -profile:v high -level:v 5.2 " +
                   $"-c:a aac -b:a 320k -ar 48000 -shortest -movflags +faststart \"{packingPath}\""
                 : $"-y -framerate {fps} -i \"{input}\" " +
-                  $"-vf \"{vf}\" -c:v libx264 -preset slow -tune animation -crf {crf} -profile:v high -level:v 5.2 " +
+                  $"-vf \"{vf}\" -c:v libx264 -preset slow -tune stillimage -crf {crf} -profile:v high -level:v 5.2 " +
                   $"-movflags +faststart \"{packingPath}\"";
 
             string? packed = await RunComposeAsync(ffmpeg, args, packingPath, ct).ConfigureAwait(false);
@@ -406,10 +406,10 @@ namespace ProGlassAutomation.Agent.Demo.Video
 
                 string args = hasAudio
                     ? $"-y -f concat -safe 0 -i \"{listPath}\" -i \"{wavPath}\" " +
-                      $"-vf \"{vf}\" -c:v libx264 -preset slow -tune animation -crf {crf} -profile:v high -level:v 5.2 " +
+                      $"-vf \"{vf}\" -c:v libx264 -preset slow -tune stillimage -crf {crf} -profile:v high -level:v 5.2 " +
                       $"-c:a aac -b:a 320k -ar 48000 -shortest -movflags +faststart \"{packingPath}\""
                     : $"-y -f concat -safe 0 -i \"{listPath}\" " +
-                      $"-vf \"{vf}\" -c:v libx264 -preset slow -tune animation -crf {crf} -profile:v high -level:v 5.2 " +
+                      $"-vf \"{vf}\" -c:v libx264 -preset slow -tune stillimage -crf {crf} -profile:v high -level:v 5.2 " +
                       $"-movflags +faststart \"{packingPath}\"";
 
                 string? packed = await RunComposeAsync(ffmpeg, args, packingPath, ct)

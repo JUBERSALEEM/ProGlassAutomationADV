@@ -141,6 +141,28 @@ namespace ProGlassAutomation.Agent.Demo.Video
             if (needThroughput)
             {
                 string qArgs = VideoEncoder.BuildQualityArgs(selection, 18).Args;
+
+                // 2026-10-05 QUALITY PASS — the probe was measuring the WRONG
+                // configuration. BuildQualityArgs returns only "-crf 18" for
+                // the software encoders (the hardware ones already carry their
+                // own "-preset p5"), so this test encode ran libx264 at its
+                // DEFAULT preset — medium — while a real 4K recording runs at
+                // the rung from DefaultPresetForOutput. medium is several times
+                // slower, so every measured fps here was a large
+                // UNDER-estimate of what recording actually achieves.
+                //
+                // That pessimism fed straight back into the quality settings:
+                // AdjustPreset demotes the preset whenever the measurement is
+                // below the requested rate, and the FPS guard in
+                // UserScreenRecordService downgrades 4K -> 2K -> 1080p on the
+                // same number. Both were therefore biased toward the softest,
+                // smallest output the machine could be talked into. Measuring
+                // at the rung that will actually be used makes both decisions
+                // describe reality.
+                if (!selection.Hardware)
+                    qArgs += " -preset " + VideoEncoder.DefaultPresetForOutput(
+                        (long)width * height);
+
                 if (TestEncodeWithTiming(selection, width, height, fps, 3, qArgs, out double mFps, out _))
                 {
                     measuredFps = mFps; mw = width; mh = height; me = selection.Name;
