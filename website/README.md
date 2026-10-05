@@ -77,8 +77,39 @@ Deploy → then Settings → Domains → add the domain and its www form
 | `/resources` | Reference guides |
 | `/blog`, `/blog/[slug]` | Short notes, one file each in `src/data/resources.ts` |
 | `/legal/privacy`, `/legal/terms`, `/legal/license` | Website and licence terms |
+| `/reports` | Operations dashboard: every row Excel Sync has written, every status, with server-side aggregation |
+| `/deliveries` | Deliveries tracker: confirmed PIs only, each with its own movement ledger, so a PI delivered in three part loads shows one obligation and three entries |
+| `/reports/login` | Operator sign-in for both dashboards |
 
 `/sitemap.xml` and `/robots.txt` are generated from the same data.
+
+## Operations data (Supabase)
+
+The two operations pages read a Supabase project; every other page is static
+and needs no environment at all. They are connected by design — same workbook
+scoping (`src/lib/source-scope.ts`), same operator session
+(`src/lib/useOperatorSession.ts`), and a tab and deep links between them.
+
+| Variable | Used by | Notes |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | both dashboards | Project address |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | both dashboards | Publishable key; Row Level Security decides what it may read. The service key is refused if pasted here |
+| `PROGLASS_CONFIRMED_STATUSES` | `/deliveries` | Server-side. Which `public.records.status` values count as a delivery obligation. Defaults to `Confirmed`; widen with `"Confirmed,In Production,Ready"` |
+
+Two SQL files are meant to be run once, in the Supabase SQL editor:
+
+```
+supabase-dashboard.sql    public.records: soft-delete flag, source-file scoping,
+                          aggregation RPC, indexes
+supabase-deliveries.sql   public.delivery_entries: the delivery ledger, the
+                          pi_delivery_balance view that owns the balance maths,
+                          indexes, an opt-in over-delivery guard
+```
+
+Without the second file the deliveries tracker still runs: every confirmed PI
+appears as awaiting dispatch and the page says why. The design reasoning — the
+movement rules, the eligibility rule, the edge cases and the rollout — is in
+**[docs/DELIVERY_TRACKING_ANALYSIS.md](docs/DELIVERY_TRACKING_ANALYSIS.md)**.
 
 ## Where the content lives
 

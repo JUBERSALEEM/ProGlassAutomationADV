@@ -3,7 +3,9 @@
 import { memo } from "react";
 import type { RecordRow, RecordSort, RecordSortField } from "@/types/records";
 import { Badge } from "@/components/ui/Badge";
+import { LocaleLink } from "@/components/ui/LocaleLink";
 import { formatDateDDMMYYYY } from "@/lib/date-utils";
+import { deliveriesHrefFromRecordFilters } from "@/lib/delivery-links";
 
 type RecordsTableProps = {
   records: RecordRow[];
@@ -124,8 +126,17 @@ const TableRow = memo(function TableRow({
       <td className={`pl-4 pr-3 ${cellPy} font-mono text-2xs text-text-muted whitespace-nowrap`}>
         {formatDateDDMMYYYY(record.date)}
       </td>
-      <td className={`px-3 ${cellPy} font-mono text-xs font-semibold text-brand-300 group-hover:text-brand-200 whitespace-nowrap`}>
-        {record.pi_number}
+      <td className={`px-3 ${cellPy} font-mono text-xs font-semibold whitespace-nowrap`}>
+        {/* The row itself opens the detail modal; the PI cell goes one hop
+            further, to that PI's dispatch ledger on the deliveries tracker. */}
+        <LocaleLink
+          href={deliveriesHrefFromRecordFilters({}, record.pi_number)}
+          title={`Track deliveries for ${record.pi_number}`}
+          onClick={(event) => event.stopPropagation()}
+          className="text-brand-300 underline-offset-2 transition-colors hover:text-brand-200 hover:underline"
+        >
+          {record.pi_number}
+        </LocaleLink>
       </td>
       <td className={`px-3 ${cellPy} font-mono text-3xs text-text-faint truncate max-w-[120px]`}>
         {record.customer_ref || "—"}

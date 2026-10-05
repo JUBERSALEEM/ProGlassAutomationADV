@@ -28,6 +28,11 @@ const entries: NavEntry[] = [
       { label: "Screenshots", href: "/screenshots", description: "The interface, screen by screen" },
       { label: "Pricing", href: "/pricing", description: "Editions and what each one unlocks" },
       { label: "Reports", href: "/reports", description: "Operations and live sync data" },
+      {
+        label: "Deliveries",
+        href: "/deliveries",
+        description: "Confirmed PIs, part loads and outstanding balance",
+      },
     ],
   },
   { label: "Optimization", href: "/optimization" },
