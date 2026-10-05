@@ -1,58 +1,35 @@
-# ─────────────────────────────────────────────────────────────────────
-# ProGlass Automation — CI template (Phase 10: production hardening)
+# ═══════════════════════════════════════════════════════════════════════════
+# SUPERSEDED — 2026-10-05. This file is no longer a workflow template.
+# ═══════════════════════════════════════════════════════════════════════════
 #
-# ACTIVATION (one-time): copy this file to  .github/workflows/ci.yml
-# (the Arena sandbox cannot push into .github/workflows/ — see OTA.md).
+# The live verification gate is:
 #
-# Runs on a real Windows runner because the project targets
-# net8.0-windows with UseWPF (Linux/macOS runners cannot compile it).
+#     .github/workflows/ci.yml
 #
-# Gates every push + PR on:
-#   1. Release build of the app with TreatWarningsAsErrors=true
-#   2. The full xUnit suite (288 test files, 2,369 [Fact]/[Theory])
+# Kept as a comment-only file rather than deleted because ten documents
+# reference it.
 #
-# Note: the solution file is ProGlassAutomation.slnx (new XML format),
-# which older 8.0.x SDK CLI builds do not resolve — so the two projects
-# are built explicitly here.
-# ─────────────────────────────────────────────────────────────────────
-name: CI (Windows)
-
-on:
-  push:
-    branches: ['**']
-  pull_request:
-  workflow_dispatch:
-
-jobs:
-  build-test:
-    name: Build & Test (net8.0-windows)
-    runs-on: windows-latest
-    timeout-minutes: 45
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup .NET 8 SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-
-      - name: Restore (app)
-        run: dotnet restore ProGlassAutomation.csproj
-
-      - name: Build (Release, warnings-as-errors)
-        run: dotnet build ProGlassAutomation.csproj -c Release --no-restore -v minimal
-
-      - name: Test (full xUnit suite)
-        run: >
-          dotnet test Tests/ProGlassAutomation.Tests.csproj -c Release
-          --logger "trx;LogFileName=results.trx"
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: '**/*.trx'
-          if-no-files-found: ignore
+# This one was not broken — unlike `docs/ci/build-test.yml`, it ran
+# `dotnet test` WITHOUT `--no-build`, so the test project did get compiled and
+# the suite did run. It is superseded for three smaller reasons:
+#
+#   1. IT BUILT THE APP TWICE. `dotnet build ProGlassAutomation.csproj`
+#      followed by `dotnet test Tests/...` (no `--no-build`) compiles the app
+#      once, then compiles it again through the test project's
+#      ProjectReference. The live workflow builds the test project only and
+#      then tests with `--no-build`, which is both faster and the sequence the
+#      installer script already documents as correct.
+#   2. IT NEVER REACHED TWO PROJECTS. `Licensing/ProGlass.Licensing.Tests`
+#      and `Tools/EngineRegression` are in no solution file at all
+#      (`ProGlassAutomation.slnx` omits EngineRegression entirely), so
+#      nothing compiled them. Both are portable net8.0 and both now run on
+#      Ubuntu in the live workflow, minutes before the Windows job finishes.
+#   3. NO NON-COMPILE CHECKS. The repository ships its own Python verifiers —
+#      docs links, docs-index freshness, folder-README navigation and a
+#      string/comment-aware brace scan — and none of them ran anywhere. They
+#      are the checks that catch a stale index or a truncated file, and they
+#      cost seconds.
+#
+# Its "53 test files" claim was also wrong: the suite is 288 files with 2,369
+# `[Fact]`/`[Theory]` members. That was corrected here before the file was
+# retired.

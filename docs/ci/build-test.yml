@@ -1,176 +1,42 @@
-# ═══════════════════════════════════════════════════════════════════════
-# build-test.yml — ProGlass Automation
+# ═══════════════════════════════════════════════════════════════════════════
+# SUPERSEDED — 2026-10-05. This file is no longer a workflow template.
+# ═══════════════════════════════════════════════════════════════════════════
 #
-# ⚠️  WHY THIS FILE LIVES IN docs/ci/ AND NOT .github/workflows/
-# ─────────────────────────────────────────────────────────────────
-# The GitHub App that pushes from this development sandbox
-# (`arena-ai-coding-agent[bot]`) does NOT have the `workflows`
-# permission scope on its repo installation, so any direct push
-# that creates or modifies a file under `.github/workflows/`
-# is rejected with:
-#     "refusing to allow a GitHub App to create or update workflow
-#      `.github/workflows/build-test.yml` without `workflows`
-#      permission"
+# The live workflow is now at:
 #
-# To work around this without disabling safety, the canonical copy
-# of this workflow lives at `docs/ci/build-test.yml`. To activate
-# it on the repo, a maintainer with admin rights copies the file
-# into `.github/workflows/build-test.yml` (one command — see
-# docs/CI.md, "Activating the workflow"). The contents are
-# identical, so the workflow behaves the same.
+#     .github/workflows/ci.yml
 #
-# If/when the App's installation is later granted the `workflows`
-# scope, the canonical location should move back to
-# `.github/workflows/build-test.yml` and this header stripped.
-# ═══════════════════════════════════════════════════════════════════════
-
-# Original header follows.
+# This file used to be the canonical copy that a maintainer was asked to
+# `cp` into `.github/workflows/`. That arrangement existed because the GitHub
+# App pushing from the development sandbox did not have the `workflows`
+# permission scope, and because two copies of a workflow is exactly the
+# "one declaration stated twice" defect class this repository keeps finding in
+# itself. Now that the workflow is activated in place, the copy is gone rather
+# than left here to drift.
 #
-# Purpose
-#   - Build the WPF app + test project on every push and every PR.
-#   - Run the full xUnit test suite.
-#   - Publish a coverage report as a workflow artifact.
+# It is kept as an empty file — rather than deleted — because twelve
+# documents link to it, including the September 2026 audits that describe the
+# state of CI at the time they were written. `scripts/verify-readmes.py`
+# fails the build on a broken relative link, and those links should keep
+# resolving to something that explains itself.
 #
-# Triggers
-#   - push        to any branch
-#   - pull_request targeting any branch
+# What changed between this template and the live workflow
+# ─────────────────────────────────────────────────────────
+#   * This template restored and built `ProGlassAutomation.csproj` and then
+#     ran `dotnet test Tests/... --no-build`. The app csproj carries
+#     <Compile Remove="Tests/**" />, so the test project was never compiled
+#     and the test step could only end in "test source file not found".
+#     Fixed here first, then carried into the live workflow: the live job
+#     builds `Tests/ProGlassAutomation.Tests.csproj`, which compiles the app
+#     through the ProjectReference.
+#   * The live workflow adds the two test projects this template never
+#     reached — `Licensing/ProGlass.Licensing.Tests` and
+#     `Tools/EngineRegression`, neither of which is in
+#     `ProGlassAutomation.slnx`.
+#   * The live workflow adds the SDK-free Python verifiers (docs links,
+#     docs index freshness, brace balance) as a separate Ubuntu job, so a
+#     stale docs index fails a push instead of waiting to be noticed.
 #
-# Runners
-#   - windows-latest  (WPF / net8.0-windows requires Windows)
-#
-# Notes
-#   - TreatWarningsAsErrors=true in ProGlassAutomation.csproj, so
-#     any new warning fails the build. This is intentional.
-#   - We do NOT cache NuGet ~/.nuget/packages across runs because
-#     the project pulls a small set of packages and cold restore is
-#     well under the 6-minute GitHub-hosted runner restore budget.
-#     Add a cache step here if/when the dependency graph grows.
-#   - Coverage is emitted as Cobertura by the test project's csproj
-#     and surfaced as a downloadable artifact.
-# ═══════════════════════════════════════════════════════════════════════
-
-name: build-test
-
-on:
-  push:
-    branches: [ "**" ]
-  pull_request:
-    branches: [ "**" ]
-
-# Cancel any in-flight run for the same ref when a new commit lands.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-jobs:
-  build-and-test:
-    name: build + tests (windows-latest)
-    runs-on: windows-latest
-    timeout-minutes: 30
-
-    env:
-      DOTNET_NOLOGO: "true"
-      DOTNET_CLI_TELEMETRY_OPTOUT: "true"
-      # Suppress the .NET 8 SDK first-time-use "telemetry" banner in CI logs.
-      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
-      # SolutionRoot used by steps below; the workflow file lives one
-      # level down from the .slnx, so we explicitly point at the root.
-      SolutionRoot: "${{ github.workspace }}"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0   # full history for coverage attribution
-
-      - name: Setup .NET 8 SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-
-      - name: Show toolchain info
-        shell: pwsh
-        run: |
-          dotnet --info
-          Write-Host "---"
-          Get-ChildItem -Path $env:SolutionRoot -Filter *.csproj -Recurse |
-              Select-Object FullName
-
-      # ── Restore ──────────────────────────────────────────────────
-      # Use the app project for restore so the SDK picks up the
-      # Velopack / Whisper / EFCore packages referenced by
-      # ProGlassAutomation.csproj. The test project is restored
-      # transitively via ProjectReference.
-      # ── Restore + build the TEST project, not the app project ────
-      # The app csproj carries <Compile Remove="Tests/**" />, so building
-      # ProGlassAutomation.csproj never compiles the test project. A later
-      # `dotnet test --no-build` then fails with "test source file not
-      # found" - the exact bug documented at the top of
-      # scripts/build-installer.ps1. Building the test project instead
-      # compiles the app first through the ProjectReference, so one step
-      # produces both DLLs. (Fixed 2026-10-05; this file previously built
-      # the app project and then ran the tests with --no-build.)
-      - name: Restore packages
-        run: dotnet restore Tests/ProGlassAutomation.Tests.csproj --verbosity minimal
-
-      # ── Build (Release) ─────────────────────────────────────────
-      # TreatWarningsAsErrors is true in the app csproj, so a clean
-      # green box is the only acceptable outcome here. We pass
-      # -p:ContinuousIntegrationBuild=true explicitly so that
-      # deterministic build flags (already on) are kept on even if
-      # a future maintainer disables them locally.
-      - name: Build (Release)
-        run: >
-          dotnet build Tests/ProGlassAutomation.Tests.csproj
-          -c Release
-          --no-restore
-          --verbosity minimal
-          -p:ContinuousIntegrationBuild=true
-          -p:UseSharedCompilation=false
-
-      # ── Build the two satellite projects ─────────────────────────
-      # Neither is reachable from ProGlassAutomation.slnx (EngineRegression
-      # is not in the solution at all), so a solution-level run never
-      # compiles them and they rot unseen. Both are portable net8.0.
-      - name: Build licensing contract + engine regression
-        run: >
-          dotnet build Licensing/ProGlass.Licensing.Tests/ProGlass.Licensing.Tests.csproj
-          -c Release --verbosity minimal &&
-          dotnet build Tools/EngineRegression/EngineRegression.csproj
-          -c Release --verbosity minimal
-
-      # ── Tests ────────────────────────────────────────────────────
-      # --no-build skips a second compile since the previous step
-      # already produced everything. --collect:"XPlat Code Coverage"
-      # emits Cobertura XML which coverlet writes to
-      # TestResults/<guid>/coverage.cobertura.xml.
-      - name: Run tests
-        run: >
-          dotnet test Tests/ProGlassAutomation.Tests.csproj
-          -c Release
-          --no-build
-          --verbosity normal
-          --logger "trx;LogFileName=test-results.trx"
-          --logger "console;verbosity=normal"
-          --collect:"XPlat Code Coverage"
-          --results-directory ./TestResults
-
-      # ── Coverage report upload ───────────────────────────────────
-      # Stays a downloadable artifact for 14 days; does not gate PRs.
-      - name: Upload coverage (Cobertura)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-cobertura
-          path: TestResults/**/coverage.cobertura.xml
-          if-no-files-found: warn
-          retention-days: 14
-
-      - name: Upload trx test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-trx
-          path: TestResults/**/*.trx
-          if-no-files-found: warn
-          retention-days: 14
+# To see the pipeline: `.github/workflows/ci.yml` (verification gate) and
+# `.github/workflows/release.yml` (tag-triggered OTA release). The handbook
+# is `docs/CI.md`.

@@ -461,12 +461,21 @@ not how updates are applied.
 
 ## Phase 21 — Pin the SDK and put CI in front of every push
 
-> **Status 2026-10-05: `global.json` APPLIED** (8.0.100 /
-> `"rollForward": "latestFeature"` / no prerelease). Consequence: while the pin
-> is in place a 9.x SDK is refused, so the `dotnet build *.slnx` escape hatch
-> no longer works — name the project instead. **No workflow was added**:
-> creating `.github/workflows/` is a decision for the maintainer, and the
-> templates still disagree (see Phase 22).
+> **Status 2026-10-05: DONE.** `global.json` pins 8.0.100 with
+> `"rollForward": "latestFeature"` and no prerelease, and CI is live:
+> `.github/workflows/ci.yml` (static checks on Ubuntu, the two portable suites
+> on Ubuntu, the WPF build+test gate on `windows-latest`) and
+> `.github/workflows/release.yml` (tag → `build-installer.ps1` → `vpk upload
+> github --channel stable`). Consequence of the pin, stated rather than
+> hidden: a 9.x SDK is now refused, so the `dotnet build *.slnx` escape hatch
+> no longer works — name the project instead.
+>
+> What was deliberately NOT done: no code signing (the script has no
+> `--signParams` passthrough, so a CI release is unsigned exactly like a local
+> run), no delta packages (the script wipes `releases\` before packing, and
+> deltas are computed from packages already in the output directory), and no
+> coverage (only `coverlet.collector` is referenced). All three are recorded
+> in the limitations table of `docs/CI.md` rather than left to be discovered.
 
 **Severity: P1 · Verification · Est. 3 h · Depends on: Phase 19 (a green suite to gate on)**
 
@@ -544,14 +553,21 @@ the *unpredictability* without removing the gate.
 
 ## Phase 22 — Fix the CI template that ships the known-broken sequence
 
-> **Status 2026-10-05: the broken sequence is FIXED.**
-> `docs/ci/build-test.yml` now restores and builds
+> **Status 2026-10-05: DONE, and the template divergence is gone.** The live
+> `.github/workflows/ci.yml` restores and builds
 > `Tests/ProGlassAutomation.Tests.csproj` (which compiles the app through the
-> `ProjectReference`) instead of the app project, and additionally builds
-> `Licensing/ProGlass.Licensing.Tests` and `Tools/EngineRegression`, which the
-> solution never reaches. `docs/CI/build.yml`'s "53 test files" claim was
-> corrected to 288. **Still open:** the `release.yml` vs `dotnet-desktop.yml`
-> disagreement (channel, signing) and the inert `CollectCoverage=true`.
+> `ProjectReference`) instead of the app project, and additionally runs
+> `Licensing/ProGlass.Licensing.Tests` and `Tools/EngineRegression`, which no
+> solution file reaches. The two release templates disagreed about the publish
+> verb (`vpk publish github`, which the 1.2 CLI does not have, vs
+> `vpk upload github`), about where signing happens, and about the portable
+> zip's name; `release.yml` settles all three by calling
+> `scripts/build-installer.ps1` and adding only the version check and the
+> feed publish. All four templates are now comment-only pointers that explain
+> what was wrong with them — one copy of each pipeline, no drift.
+> `docs/CI/build.yml`'s "53 test files" claim was corrected to 288 before it
+> was retired. **Still open:** `CollectCoverage` is inert (only
+> `coverlet.collector` is referenced) and no signing is wired.
 
 **Severity: P1 · Verification · Est. 20 min · Depends on: none (do it with Phase 21)**
 

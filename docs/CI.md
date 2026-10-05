@@ -1,148 +1,181 @@
 # ProGlass Automation — Continuous Integration
 
-This document is the **operational handbook** for the CI/CD pipeline that builds
-and tests ProGlass Automation on every push and pull request. It exists because
-the canonical workflow file lives at `docs/ci/build-test.yml` (not at
-`.github/workflows/build-test.yml`) and a maintainer has to activate it with a
-single file copy.
+<!-- pg-nav -->
+> **[Repository root](../README.md)** · [All documents](README.md) · [Application workflow](WORKFLOW.md) · [Design system](DESIGN_SYSTEM.md)
+<!-- pg-nav -->
+
+CI is **live**. Two workflows run from `.github/workflows/`:
+
+| File | Runs on | Purpose |
+|---|---|---|
+| [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | every push to every branch, every pull request, manual dispatch | Proves the tree builds, the suites pass and the docs are consistent |
+| [`.github/workflows/release.yml`](../.github/workflows/release.yml) | a `v*.*.*` tag, or manual dispatch | Cuts the installer and publishes the Velopack OTA feed |
+
+A tag push runs `release.yml` only — `ci.yml` filters on `branches`, which
+does not match tags — so no commit is built twice, and a release still cannot
+be cut from a red tree because `release.yml` carries its own copy of the same
+gate.
+
+> **History.** Until 2026-10-05 the workflows lived in `docs/ci/` and
+> `docs/CI/` as templates a maintainer had to copy into place, because the
+> GitHub App pushing from the development sandbox did not hold the
+> `workflows` permission scope. They are activated now. The four templates
+> still exist as comment-only pointer files, because roughly a dozen
+> documents — including the September 2026 audits, which describe the state
+> of CI *at the time they were written* — link to them. Each pointer explains
+> what was wrong with the file it replaced.
 
 ---
 
-## Why is the workflow not in `.github/workflows/`?
+## `ci.yml` — the verification gate
 
-The development sandbox pushes to this repository through the
-`arena-ai-coding-agent[bot]` GitHub App. The App's installation does **not**
-include the `workflows` permission scope, so any push that creates or modifies
-a file under `.github/workflows/` is rejected:
+Three jobs, cheapest first, so a docs typo fails in seconds instead of after a
+Windows restore.
 
-> `refusing to allow a GitHub App to create or update workflow
-> .github/workflows/build-test.yml without workflows permission`
+### 1. `static-checks` — Ubuntu, no SDK
 
-Granting the App that scope is an App-owner decision (lives at
-`https://github.com/settings/apps/arena-ai-coding-agent/permissions`), not a
-repo-owner decision, so it has to wait on the platform team. Until then, the
-canonical copy of the workflow lives next to its documentation, where it is
-still version-controlled and diffable.
+| Step | Command | Fails when |
+|---|---|---|
+| Documentation | `python3 scripts/verify-readmes.py` | a relative link is broken, `docs/README.md` is stale, or a folder README lost its navigation |
+| Index freshness | `python3 scripts/gen-docs-index.py --check` | the indexed document count disagrees with the tree |
+| Brace balance | `git ls-files '*.cs' \| xargs -r python3 scripts/check-csharp-balance.py` | a `.cs` file ends mid-string, mid-comment or with unbalanced braces |
 
-The file content is **identical** to what would live at
-`.github/workflows/build-test.yml`. Copying it into place is a one-line
-operation and is documented below.
+The brace scan is **not** a compile check — it is a string- and comment-aware
+scanner that catches the one class of mistake a scripted find-and-replace
+makes: a truncated or duplicated block. It is the cheapest net in the repo and
+it runs over all 1,678 tracked `.cs` files in about three seconds.
 
----
+### 2. `test-portable` — Ubuntu, .NET 8
 
-## Activating the workflow
+`Licensing/ProGlass.Licensing.Tests` and `Tools/EngineRegression`. Both target
+portable `net8.0`, both are fast, and **neither is in any solution file**
+(`ProGlassAutomation.slnx` omits `Tools/EngineRegression` entirely), so before
+this workflow nothing compiled either of them. They are separated from the
+Windows job so a licensing-contract regression is reported in a minute rather
+than after a WPF build.
 
-A maintainer with admin rights on the repo runs, from the repo root, **on a
-machine that is not the bot** (i.e. a personal workstation, with their own
-credentials):
+### 3. `build-test` — `windows-latest`, .NET 8
 
-```bash
-# 1. Pull the latest from the working branch
-git fetch origin
-git checkout arena/01a02dc2-proglassautomationadv
-git pull
+The real gate, and the only evidence in this repository that the 1,370
+production `.cs` files compile:
 
-# 2. Copy the canonical workflow into the location GitHub Actions expects
-mkdir -p .github/workflows
-cp docs/ci/build-test.yml .github/workflows/build-test.yml
-
-# 3. Commit + push from your own account
-git add .github/workflows/build-test.yml
-git commit -m "ci(github): activate build-test workflow from docs/ci/"
-git push origin arena/01a02dc2-proglassautomationadv
+```
+dotnet restore Tests/ProGlassAutomation.Tests.csproj
+dotnet build   Tests/ProGlassAutomation.Tests.csproj -c Release --no-restore
+dotnet test    Tests/ProGlassAutomation.Tests.csproj -c Release --no-build
 ```
 
-After that push lands, the workflow runs on every subsequent push and pull
-request to any branch.
+**Why the test project and not the app project.** `ProGlassAutomation.csproj`
+carries `<Compile Remove="Tests/**" />`, so building the app never compiles the
+test project, and a later `dotnet test --no-build` fails with *test source file
+not found*. Building the test project compiles the app first through its
+`ProjectReference`, so one step produces both DLLs and `--no-build` is honest.
+This is the same trap documented at the top of `scripts/build-installer.ps1`
+and the exact bug `docs/ci/build-test.yml` used to ship.
 
-> **Tearing it down.** If you want to pause CI without losing the file, move
-> it back: `mv .github/workflows/build-test.yml docs/ci/build-test.yml` and
-> push. The two files are byte-for-byte identical.
+`windows-latest` is not a preference: `net8.0-windows` + `UseWPF`
+(PresentationFramework, WindowsBase) only resolve on a Windows MSBuild. A
+Linux runner fails at restore.
 
----
-
-## What `build-test.yml` actually does
-
-The workflow runs on **`windows-latest`** (WPF / `net8.0-windows` requires
-Windows) and executes, in order:
-
-1. **Checkout** the full git history (so coverage can attribute lines to
-   commits).
-2. **Setup .NET 8 SDK** (`actions/setup-dotnet@v4`, `8.0.x`).
-3. **Restore** NuGet packages for the main project.
-4. **Build** with `dotnet build -c Release --no-restore`. Because the project
-   sets `TreatWarningsAsErrors=true`, any new warning fails the build — this
-   is intentional.
-5. **Test** with `dotnet test` plus two loggers:
-   - `trx` → `test-results.trx` (Visual Studio test result format)
-   - `console;verbosity=normal` → human-readable in the Actions log
-   - `XPlat Code Coverage` → Cobertura XML for coverlet
-6. **Upload artifacts**:
-   - `coverage-cobertura` — Cobertura XML, retained 14 days.
-   - `test-results-trx` — TRX, retained 14 days.
-
-Concurrency is configured so that a new push to the same ref cancels the
-in-flight run for the same ref, which keeps the Actions minutes budget under
-control on a busy branch.
-
-### Why no NuGet cache?
-
-The project pulls a small set of packages and cold restore is well under the
-6-minute GitHub-hosted-runner restore budget. Add a `cache` step here when
-the dependency graph grows.
-
-### Why `windows-latest`?
-
-`net8.0-windows` + WPF (PresentationFramework, WindowsBase, etc.) only
-resolve on a Windows MSBuild. A Linux or macOS runner would fail at restore
-with a clear message about an unsupported `TargetFramework`.
+Because the app sets `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`,
+any new analyzer warning fails this job. That is deliberate; see the
+`global.json` note below.
 
 ---
 
-## Release workflow (`dotnet-desktop.yml`)
+## `release.yml` — the OTA release
 
-The **publish + OTA release** pipeline lives at `docs/ci/dotnet-desktop.yml`
-(same workaround: the canonical copy is in `docs/ci/`, activate with a copy).
-It contains two jobs:
+Two jobs: the same `build-test` gate (a workflow cannot `needs` across files,
+and a release must never be cut from a tree that does not build green), then
+`release`.
 
-- **`build-test`** — the same restore → build → test gate as `build-test.yml`,
-  on `windows-latest`.
-- **`release`** — runs only on a `v*.*.*` tag push or a manual
-  `workflow_dispatch`. It publishes self-contained win-x64, packages with
-  Velopack (`vpk pack`, optionally Authenticode-signed via `--signParams`
-  when `CODESIGN_PFX_BASE64`/`CODESIGN_PFX_PASSWORD` are set), then
-  `vpk upload github --publish` — which is what publishes the `RELEASES`
-  feed the in-app OTA (`VelopackUpdateService`) reads. The feed channel is
-  pinned to `stable` and `vpk` to `1.2.0` to match the app.
+The release job **does not re-implement packaging**. It calls
+`scripts/build-installer.ps1` — the same script a developer runs — so there is
+exactly one declaration of what a release contains: publish through
+`Release.pubxml`, strip `PRODUCTION_READINESS`, bundle FFmpeg, paint the splash
+and MSI art, `vpk pack` (Setup.exe + full nupkg + portable zip), SHA-256
+summary. The workflow adds only what a local box cannot do:
 
-Package contents are governed by `installer/velopack.json`:
-`packagingScope.include` ships `*.exe`/`*.dll`/`*.json` only — **PDBs are
-excluded from the shipped package** (kept in the publish output for the
-vendor's own symbolication). If richer end-user crash stacks are wanted,
-re-add `*.pdb` to `packagingScope.include` and remove `**/*.pdb` from
-`zipExclude`.
+1. **Resolve and check the version.** From the tag, or from
+   `workflow_dispatch`, or from `<Version>` in `ProGlassAutomation.csproj`.
+   The job fails unless it is `MAJOR.MINOR.PATCH` **and** equal to the csproj
+   value. A mislabelled package is either unreachable by OTA —
+   `UpdateService.IsNewer` is a strict greater-than compare — or silently
+   skips a release.
+2. **Publish the feed.** `vpk upload github --channel stable --publish`, which
+   creates the GitHub Release and uploads the `RELEASES` file that
+   `VelopackUpdateService`'s `GithubSource` reads on launch. The `RELEASES`
+   file is also uploaded as a workflow artifact, because it is the first thing
+   to read when an installed app reports "no update available": if the channel
+   or the version line is wrong there, the client cannot see the release.
 
-Activate it the same way as `build-test.yml`:
+The CLI is pinned to `vpk` **1.2.0** to match the Velopack NuGet library the
+app references, and the channel is pinned to **stable** on both sides
+(`installer/velopack.json` declares it, the pack step passes it). A feed
+written to one channel and read from another reports "no update available"
+forever.
+
+### Release runbook
 
 ```bash
-cp docs/ci/dotnet-desktop.yml .github/workflows/dotnet-desktop.yml
+# 1. Bump the ONE version source
+#    ProGlassAutomation.csproj  ->  <Version>2.0.12</Version>
+git add ProGlassAutomation.csproj
+git commit -m "chore(release): 2.0.12"
+git push
+
+# 2. Tag the commit you just pushed. The workflow asserts tag == csproj.
+git tag v2.0.12
+git push origin v2.0.12
 ```
 
-### What happened to `.github/workflows/dotnet.yml`
+Then watch the **Release** workflow. On success the GitHub Release carries the
+`RELEASES` feed and the installed apps pick it up on their next check.
 
-The original `dotnet.yml` targeted `ubuntu-latest`, which cannot build a
-`net8.0-windows` WPF app, so it could never go green. It has been **removed**;
-`dotnet-desktop.yml`'s `build-test` job replaces it. (Deletion was pushable
-from the bot even though creation/update of workflow files is not.)
+### Known limitations — stated, not hidden
+
+| Limitation | Consequence | What it would take |
+|---|---|---|
+| **Packages are unsigned.** Neither the workflow nor the script signs anything, so a CI release is unsigned exactly like a local `build-installer.ps1` run. | Fine for internal testing. Do not ship unsigned builds to customers. | Give `build-installer.ps1` a `--signParams` passthrough and sign **during** pack. A post-pack `signtool` pass misses the `Setup.exe`/`Update.exe` that vpk generates and invalidates the feed checksums. Secrets would be `CODESIGN_PFX_BASE64` + `CODESIGN_PFX_PASSWORD`. |
+| **Full packages only, no deltas.** The script clears `releases\` immediately before packing, and deltas are computed from packages already in the output directory. | Every update downloads the full package. Correct, just not minimal. | A `vpk download github` step that survives into the pack — i.e. pack into a directory the script does not wipe. |
+| **`CollectCoverage` is inert.** Only `coverlet.collector` 6.0.2 is referenced, so no Cobertura file is produced. | No coverage number in CI. | Add `coverlet.msbuild`, or pass `--collect:"XPlat Code Coverage"` and upload the artifact. |
+
+### If `build-test` goes red on tests that pass locally
+
+Suspect a desktop session first. The suite is a WPF project; a runner's
+session is not the one a workstation provides, and any test that touches a
+`Window`, a `Dispatcher` or `Application.Current` behaves differently there.
+Triage the failing test — do not add a filter to the workflow to make the box
+green. A filtered suite is a suite that has stopped testing the thing you
+filtered.
+
+---
+
+## Secrets and permissions
+
+| Secret | Used by | Required? |
+|---|---|---|
+| `GITHUB_TOKEN` | `release.yml` — `vpk upload github` creates the Release | Automatic. `release.yml` declares `permissions: contents: write`; `ci.yml` declares `contents: read` and nothing more. |
+| `CODESIGN_PFX_BASE64`, `CODESIGN_PFX_PASSWORD` | nothing yet | Not wired — see the limitations table. The release job prints a warning either way, so an unsigned release is never a surprise. |
+
+`global.json` pins the SDK to `8.0.100` with `"rollForward": "latestFeature"`,
+so `8.0.x` in `setup-dotnet` resolves to whatever 8.0 patch the runner has,
+and a 9.x SDK is refused. That is deliberate: with
+`<AnalysisLevel>latest</AnalysisLevel>` and `TreatWarningsAsErrors`, a newer
+SDK turns a brand-new analyzer rule into a build error on code nobody touched.
+
+---
+
+## Pausing CI
+
+Comment out the `push:` block in `.github/workflows/ci.yml`, or disable the
+workflow from the repository's **Actions** tab. Do not delete the file: the
+next person to look for CI will conclude there is none, which is the state
+this repository was in for its first two years of audits.
 
 ## Adding more workflows later
 
-When the App's `workflows` scope is granted and `.github/workflows/` becomes
-writable from the bot, the recommended next slices are:
-
 | File | Purpose | Trigger |
 |---|---|---|
-| `.github/workflows/codeql.yml` | GitHub-native security analysis | weekly + push to main |
-
-Until then, the same workaround applies: keep the canonical file under
-`docs/ci/` and document the activation step in this file.
+| `.github/workflows/codeql.yml` | GitHub-native security analysis | weekly + push to the default branch |
+| `.github/workflows/dependabot-review.yml` | Auto-approve Dependabot patch bumps that pass `ci.yml` | `pull_request` from Dependabot |

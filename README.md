@@ -363,8 +363,9 @@ dotnet build Tests/ProGlassAutomation.Tests.csproj -c Release --verbosity minima
 The reverse does **not** work: `dotnet build ProGlassAutomation.csproj`
 never compiles the test project (its csproj excludes `Tests/**`), so a
 following `dotnet test --no-build` fails with *"test source file not found"*.
-This exact mistake is documented in `scripts/build-installer.ps1` and is
-still present in one of the CI templates — see the upgrade plan, Phase 22.
+This exact mistake is documented in `scripts/build-installer.ps1`, and it used
+to live in a CI template as well; `.github/workflows/ci.yml` builds the test
+project for precisely this reason.
 
 ### 5. Tests
 
@@ -686,8 +687,8 @@ likely to fail.
 > **Verification note for this section.** The commands above were written
 > against this tree on 2026-10-05 and cross-checked against
 > `scripts/build-installer.ps1`, `Properties/PublishProfiles/Release.pubxml`,
-> `installer/velopack.json` and the four CI templates in `docs/CI/` and
-> `docs/ci/`. They were **not executed**: the environment had no .NET SDK,
+> `installer/velopack.json` and the workflows in `.github/workflows/`. They
+> were **not executed**: the environment had no .NET SDK,
 > no PowerShell and no network access to NuGet (`curl https://api.nuget.org`
 > → HTTP 000). Every file path, flag and default quoted here was read from
 > the file it came from. The publish matrix in §6c/§7 in particular needs a
@@ -701,9 +702,12 @@ likely to fail.
 > `docs/ERP_UPGRADE_ROADMAP.md` claims **9.7/10** while
 > `docs/CODE_RATING_REPORT.md` (2026-09-02) rates **9.0/10** after an
 > independent audit. Neither was produced by a green `dotnet build` +
-> `dotnet test`, because **this repository has no CI**. Treat both as
-> engineering judgement. The defensible figure remains **9.0/10**, and the
-> missing point is not missing features — it is missing *verification*.
+> `dotnet test`, because when they were written this repository had no CI.
+> CI exists now ([`.github/workflows/ci.yml`](.github/workflows/ci.yml),
+> 2026-10-05), so the next assessment can be a measurement instead of a
+> judgement. Until a run is green, treat both numbers as engineering
+> judgement: the defensible figure remains **9.0/10**, and the missing point
+> is not missing features — it is missing *verification*.
 
 ### What is genuinely strong
 
@@ -726,8 +730,8 @@ acceptance test in **[`docs/UPGRADE_PHASES_2026-10-05.md`](docs/UPGRADE_PHASES_2
 | **18** | **The license-signing private key is in Git, in plaintext.** Anyone with repo or binary access can forge keys the app accepts, and the tool's own README says this is not the case. | `Tools/LicenseGenerator/ProductionSigningKey.cs:52` | **Open — blocked.** Needs the vendor to generate a replacement key on their own machine and to rotate what the app trusts; the swap cannot be done safely from a sandbox, and one test currently asserts the key *is* embedded. |
 | **19** | **Two guard-rail tests were red from baseline drift**, so the suite could not be used as a release gate. 61 findings had no allow-list entry (55 empty catches with no path match, plus 6 whose file matched but whose member could not); the rounding-mode ratchet allowed 2 files and found 9. | `Tests/Security/SilentCatchAuditTests.cs`, `Tests/Architecture/MoneyRoundingRatchetTests.cs` | **Fixed** (allow-lists rebaselined; 101/101 catches covered, both lists re-derived to green). Follow-up 19c: repair the auditor's enclosing-member resolution and tighten six `"*"` entries back to member-specific. |
 | **20** | **Four copies of the version number, three of them stale** (2.0.11 / 2.0.0 / 2.0.0 / 2.0.4). A default installer build packaged a *lower* version than the binaries it contained, so OTA could never offer it. | csproj:41 · build-installer.ps1 · velopack.json:5 · AppInfo.cs | **Fixed** — the script reads the csproj; the pack manifest matches; `FallbackVersion` is documented as a floor. Injecting the value at build time (retiring the constant) is still open. |
-| **21** | **No CI.** Nothing proves the tree builds, and the two remaining release templates disagree about signing and about whether the update channel is declared. | `ls .github/` → 3 files, no `workflows/` | **Partly fixed** — `global.json` now pins 8.0.100/`latestFeature`; `docs/ci/build-test.yml` no longer ships the broken sequence. Activating a workflow is a decision, not an edit. |
-| **22** | **One CI template had the known-broken build/test sequence** the installer script documents as a bug — and it was the one `docs/CI.md` tells maintainers to activate. | `docs/ci/build-test.yml` (build app → `test --no-build`) | **Fixed** — it now builds `Tests/ProGlassAutomation.Tests.csproj`, plus the licensing and engine-regression projects the solution never reaches. `docs/CI/build.yml`'s "53 test files" claim corrected to 288. |
+| **21** | **No CI.** Nothing proved the tree builds, and the four workflow templates disagreed with each other about signing and about whether the update channel is declared. | `ls .github/` → was 3 files, no `workflows/` | **Fixed** — `global.json` pins 8.0.100/`latestFeature`, and `.github/workflows/ci.yml` (static checks + the two portable suites + the Windows WPF gate) and `.github/workflows/release.yml` (tag → installer → OTA feed) are live. Open: no code signing, no delta packages, no coverage — all three stated in `docs/CI.md`. |
+| **22** | **One CI template had the known-broken build/test sequence** the installer script documents as a bug — and it was the one `docs/CI.md` told maintainers to activate. | `docs/ci/build-test.yml` (build app → `test --no-build`) | **Fixed** — the live workflow builds `Tests/ProGlassAutomation.Tests.csproj`, plus the licensing and engine-regression projects no solution reaches. All four templates are retired to comment-only pointers so there is one copy of each pipeline, and `docs/CI.md` is rewritten as a runbook. |
 | **23** | **Stock counter race on consumables.** Read-check-write still loses an update under concurrency. Glass sheets were fixed; this was not. | `Services/SheetStore/InventoryItemRepository.cs:215-236` | **Open** — C# change; cannot be verified without a compiler. |
 | **24** | **Documentation drift that costs readers time**: a broken stylesheet link in this file, a stale docs index, and installer docs pointing at a script path that does not exist. | `scripts/verify-readmes.py`, `docs/INSTALLER.md` | **Mostly fixed** (a–d, g). Still open: `Tools/` vs `tools/` colliding on Windows, and `Release.pubxml` citing a workflow file that does not exist. |
 | **25** | **Whole-table loads**: 104 `GetAllAsync(` call sites remain, of which a minority are genuinely paginatable lists (the rest are lookups, pickers and searches where pagination would be a regression). | `PaginationRatchetTests` allow-list | **Open** — needs per-site judgement plus a running app. |
@@ -771,8 +775,9 @@ are lookups where pagination is a regression, not a fix.
 
 1. **Rotate the signing key and get it out of Git** (Phase 18). A live
    signing secret in a repository caps the score regardless of code quality.
-2. **Green the two red ratchets and turn on CI** (Phases 19–22). Until a
-   machine builds this tree on every push, every claim here is judgement.
+2. ~~Green the two red ratchets and turn on CI~~ (Phases 19–22) — **done**.
+   The next move is to read the first green run and let it replace the
+   judgement in this section with a measurement.
 3. **Close the consumables race and keep the pagination ratchet falling**
    (Phases 23, 25).
 
@@ -788,7 +793,7 @@ are lookups where pagination is a regression, not a fix.
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Layering, boundaries, the data path |
 | [`docs/INSTALL.md`](docs/INSTALL.md) · [`docs/INSTALLER.md`](docs/INSTALLER.md) | End-user install · installer pipeline internals |
 | [`docs/BUILD_VERIFICATION_GUIDE.md`](docs/BUILD_VERIFICATION_GUIDE.md) | First-build checklist, error capture, likely failure points |
-| [`docs/CI.md`](docs/CI.md) · [`docs/OTA.md`](docs/OTA.md) | Activating the workflow · how updates reach a customer |
+| [`docs/CI.md`](docs/CI.md) · [`docs/OTA.md`](docs/OTA.md) | The live pipelines, the release runbook and what they cannot yet do · how updates reach a customer |
 | [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) | Design tokens, brushes, motion, wallpapers |
 | [`docs/MONEY_PATH_ERROR_POLICY.md`](docs/MONEY_PATH_ERROR_POLICY.md) | What may and may not happen on a money path — read before touching pricing |
 | [`docs/MONEY_ROUNDING_POLICY.md`](docs/MONEY_ROUNDING_POLICY.md) | One rounding rule, and the migration ratchet |
