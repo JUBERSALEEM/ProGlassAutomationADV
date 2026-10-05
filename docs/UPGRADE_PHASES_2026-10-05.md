@@ -46,13 +46,28 @@ no network egress** (`curl https://api.nuget.org/v3/index.json` → HTTP
 | `python3 scripts/verify-readmes.py` | **FAILED** (exit 1) — 1 broken relative link (`README.md` → `Styles/DashboardKit.xaml`), `docs/README.md` out of date (243 indexed), 3 folder READMEs missing nav |
 | `python3 scripts/gen-docs-index.py --check` | **FAILED** — "243 docs indexed" |
 | Repository metrics (files, lines, tests, contexts, roles) | Re-measured; see the README "At a glance" table |
-| `SilentCatchAuditTests` scan logic | Re-implemented 1:1 in Python (same audited folders, same `.PartN.cs` family rule, same "zero statements in the catch block" predicate) → **55 findings with no allow-list path match** |
+| `SilentCatchAuditTests` scan logic | Re-implemented 1:1 in Python (same audited folders, same `.PartN.cs` family rule, same "zero statements in the catch block" predicate) → **61 findings would fail**, not the 55 first reported: 55 with no allow-list *path* match, plus **6 whose path matched but whose member never could** — see the correction under 19a |
 | `MoneyRoundingRatchetTests` measurement | Re-implemented 1:1 → allow-list **58 files / 228 calls matches exactly** (3 tests pass); the fourth test's `Assert.Equal` of 2 expected files vs **9 measured** fails |
 | `dotnet build` / `dotnet test` / `dotnet publish` / `vpk pack` | **NOT RUN.** Not possible offline. Everything in Phases 18–25 that claims a build result is a prediction from reading the code, and is marked as such. |
 
 The two re-implementations are static re-derivations of the tests' own
 algorithms, not executions of them. They are accurate enough to know which
 tests cannot pass, and not a substitute for a green `dotnet test`.
+
+> **Correction to an earlier figure in this document.** The first pass reported
+> "55 empty catches with no allow-list path match". That undercounted the red
+> test. The allow-list match is `family.Contains(path) && member == "*" ||
+> member == resolvedMember`, and `FindContainingMethod` does not resolve
+> members reliably: it walks `DescendantNodes` in document order and returns
+> the **first** method-like node before the catch, not the enclosing one, and
+> it has no case for property accessors (which resolve to `"<unknown>"`).
+> Six findings therefore failed on the *member* half —
+> `RelayCommand.cs:126`, `MainViewModel.Part1.cs:226,293`,
+> `MainViewModel.Part2.cs:93,113,240`. The failing set was **61**. Phase 19a
+> was rebaselined against 61, and all 101 catches in the tree are now covered
+> by `member="*"` entries so the result no longer depends on name resolution
+> at all. Phase 19c fixes the resolver so the six can go back to
+> member-specific entries.
 
 ---
 
@@ -156,6 +171,11 @@ additive.
 ---
 
 ## Phase 19 — Green the two red guard-rail tests
+
+> **Status 2026-10-05: 19a and 19b APPLIED (commit `931b4319`).** Both
+> allow-lists rebaselined and re-derived to green (108 tuples covering 101/101
+> catches; 9 files in `StringComparer.Ordinal` order). **19c below is new work
+> opened by that pass** and needs a compiler.
 
 **Severity: P0 · Quality gate · Est. 3–5 h · Depends on: nothing**
 
@@ -301,9 +321,77 @@ The 58-file / 228-call allow-list. It is currently exact, which means the
 migration is being tracked honestly; touching it here would destroy the only
 accurate baseline in the phase set.
 
+### 19c. Fix the auditor's member resolution, then tighten six entries
+
+**Why it exists.** 19a had to allow six findings with `member="*"` because the
+auditor cannot tell which member a catch sits in. That is a real weakening: a
+`"*"` entry means "any empty catch anywhere in this file is fine forever", so a
+new sloppy catch added to `MainViewModel` (3,145 lines across the family) or
+`RelayCommand` would never be caught.
+
+**Evidence.** `Tests/Security/SilentCatchAuditTests.cs:218-245` —
+`FindContainingMethod` does:
+
+```csharp
+foreach (var node in root.DescendantNodes())      // document order, not ancestry
+{
+    if (node.SpanStart >= catchBlock.SpanStart) break;
+    if (node is MethodDeclarationSyntax m) last = m.Identifier.Text;
+    else if (node is ConstructorDeclarationSyntax c) last = c.Identifier.Text;
+    ...
+}
+```
+
+`DescendantNodes` is a flat document-order walk, so `last` ends up as the
+**first** method-like node in the file, not the enclosing one. There is also no
+`AccessorDeclarationSyntax` case, so a catch inside a property setter resolves
+to `"<unknown>"`. Concretely:
+
+| Finding | Real member | Resolver returns | Why |
+|---|---|---|---|
+| `RelayCommand.cs:126` | `Execute` (line 62) | `RelayCommand` (ctor, line 53) | first method-like node wins |
+| `MainViewModel.Part1.cs:226,293` | property setters | `<unknown>` | no accessor case, and the ctors are at 801/806 |
+| `MainViewModel.Part2.cs:93,113,240` | property setters | `TogglePopup` (line 51) | first method wins |
+
+**Steps**
+
+1. Replace the document-order walk with an ancestry walk —
+   `catchBlock.Ancestors().OfType<...>().FirstOrDefault()` over
+   `MethodDeclarationSyntax`, `ConstructorDeclarationSyntax`,
+   `AccessorDeclarationSyntax`, `LocalFunctionStatementSyntax`,
+   `AnonymousFunctionExpressionSyntax` — returning the *innermost* enclosing
+   member, and a stable name for accessors (`set_PropertyName` /
+   `get_PropertyName`) and for lambdas.
+2. Re-derive the audit. Expect the same 101 findings, now with correct members.
+3. Replace the two `"*"` entries added in 19a with member-specific ones:
+   `("RelayCommand.cs","Execute",…)`, and for `MainViewModel` the six setter
+   members by name. The family-wide `("MainViewModel.cs","*",…)` entry must go.
+4. Add a unit test for the resolver itself: a fixture with a catch in a method
+   that is *not* the first member, and one in a property setter, asserting the
+   resolved names. This is the regression test for the bug that hid six
+   findings.
+
+**Acceptance.** `SilentCatchAuditTests` passes with **zero** `"*"` entries for
+`MainViewModel` and `RelayCommand`; the new resolver test fails against the old
+walk and passes against the new one.
+
+**Must not change.** The audited folder list, the `.PartN.cs` family rule, and
+the "zero statements in the catch block" predicate. Only the name resolution
+changes.
+
+**Rollback.** `git revert` of the phase commit restores the document-order
+walk and the two `"*"` entries together, so the test stays green either way.
+
 ---
 
 ## Phase 20 — One version number, everywhere
+
+> **Status 2026-10-05: APPLIED (commit `68512439`).** `build-installer.ps1`
+> reads `<Version>` from the csproj and fails if it is missing or malformed;
+> `installer/velopack.json` is at 2.0.11/2.0.11.0; `AppInfo.FallbackVersion`
+> keeps `2.0.4` deliberately and its comment now states that it is a floor,
+> not a mirror, plus why raising it would be a bug. The build-time injection
+> step below is still open.
 
 **Severity: P0 · Release · Est. 2 h · Depends on: nothing**
 
@@ -372,6 +460,13 @@ not how updates are applied.
 ---
 
 ## Phase 21 — Pin the SDK and put CI in front of every push
+
+> **Status 2026-10-05: `global.json` APPLIED** (8.0.100 /
+> `"rollForward": "latestFeature"` / no prerelease). Consequence: while the pin
+> is in place a 9.x SDK is refused, so the `dotnet build *.slnx` escape hatch
+> no longer works — name the project instead. **No workflow was added**:
+> creating `.github/workflows/` is a decision for the maintainer, and the
+> templates still disagree (see Phase 22).
 
 **Severity: P1 · Verification · Est. 3 h · Depends on: Phase 19 (a green suite to gate on)**
 
@@ -448,6 +543,15 @@ the *unpredictability* without removing the gate.
 ---
 
 ## Phase 22 — Fix the CI template that ships the known-broken sequence
+
+> **Status 2026-10-05: the broken sequence is FIXED.**
+> `docs/ci/build-test.yml` now restores and builds
+> `Tests/ProGlassAutomation.Tests.csproj` (which compiles the app through the
+> `ProjectReference`) instead of the app project, and additionally builds
+> `Licensing/ProGlass.Licensing.Tests` and `Tools/EngineRegression`, which the
+> solution never reaches. `docs/CI/build.yml`'s "53 test files" claim was
+> corrected to 288. **Still open:** the `release.yml` vs `dotnet-desktop.yml`
+> disagreement (channel, signing) and the inert `CollectCoverage=true`.
 
 **Severity: P1 · Verification · Est. 20 min · Depends on: none (do it with Phase 21)**
 

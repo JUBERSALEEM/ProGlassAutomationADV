@@ -9,7 +9,7 @@
 #
 # Gates every push + PR on:
 #   1. Release build of the app with TreatWarningsAsErrors=true
-#   2. The full xUnit suite (Tests/Agent — now 53 test files)
+#   2. The full xUnit suite (288 test files, 2,369 [Fact]/[Theory])
 #
 # Note: the solution file is ProGlassAutomation.slnx (new XML format),
 # which older 8.0.x SDK CLI builds do not resolve — so the two projects
@@ -44,7 +44,7 @@ jobs:
       - name: Build (Release, warnings-as-errors)
         run: dotnet build ProGlassAutomation.csproj -c Release --no-restore -v minimal
 
-      - name: Test (53 test files)
+      - name: Test (full xUnit suite)
         run: >
           dotnet test Tests/ProGlassAutomation.Tests.csproj -c Release
           --logger "trx;LogFileName=results.trx"

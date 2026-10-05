@@ -101,23 +101,43 @@ jobs:
       # Velopack / Whisper / EFCore packages referenced by
       # ProGlassAutomation.csproj. The test project is restored
       # transitively via ProjectReference.
+      # ── Restore + build the TEST project, not the app project ────
+      # The app csproj carries <Compile Remove="Tests/**" />, so building
+      # ProGlassAutomation.csproj never compiles the test project. A later
+      # `dotnet test --no-build` then fails with "test source file not
+      # found" - the exact bug documented at the top of
+      # scripts/build-installer.ps1. Building the test project instead
+      # compiles the app first through the ProjectReference, so one step
+      # produces both DLLs. (Fixed 2026-10-05; this file previously built
+      # the app project and then ran the tests with --no-build.)
       - name: Restore packages
-        run: dotnet restore ProGlassAutomation.csproj --verbosity minimal
+        run: dotnet restore Tests/ProGlassAutomation.Tests.csproj --verbosity minimal
 
       # ── Build (Release) ─────────────────────────────────────────
-      # TreatWarningsAsErrors is true in the csproj, so a clean
+      # TreatWarningsAsErrors is true in the app csproj, so a clean
       # green box is the only acceptable outcome here. We pass
       # -p:ContinuousIntegrationBuild=true explicitly so that
       # deterministic build flags (already on) are kept on even if
       # a future maintainer disables them locally.
       - name: Build (Release)
         run: >
-          dotnet build ProGlassAutomation.csproj
+          dotnet build Tests/ProGlassAutomation.Tests.csproj
           -c Release
           --no-restore
           --verbosity minimal
           -p:ContinuousIntegrationBuild=true
           -p:UseSharedCompilation=false
+
+      # ── Build the two satellite projects ─────────────────────────
+      # Neither is reachable from ProGlassAutomation.slnx (EngineRegression
+      # is not in the solution at all), so a solution-level run never
+      # compiles them and they rot unseen. Both are portable net8.0.
+      - name: Build licensing contract + engine regression
+        run: >
+          dotnet build Licensing/ProGlass.Licensing.Tests/ProGlass.Licensing.Tests.csproj
+          -c Release --verbosity minimal &&
+          dotnet build Tools/EngineRegression/EngineRegression.csproj
+          -c Release --verbosity minimal
 
       # ── Tests ────────────────────────────────────────────────────
       # --no-build skips a second compile since the previous step

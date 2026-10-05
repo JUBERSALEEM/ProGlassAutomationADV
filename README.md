@@ -274,12 +274,18 @@ vpk --version
 references `Velopack 1.2.0` (`ProGlassAutomation.csproj:171`) and a CLI from
 a different major line writes a release feed the client may not read. Pin it.
 
-There is **no `global.json`** in this repository, so `dotnet` uses whichever
-8.x SDK is active — and `<AnalysisLevel>latest</AnalysisLevel>` with
-`<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` means a newer SDK can
-turn a new analyzer warning into a hard build error. If a build fails on a
-`CAxxxx` code you did not write, that is why. Pinning the SDK is Phase 21 of
-the [upgrade plan](docs/UPGRADE_PHASES_2026-10-05.md).
+> **The SDK is pinned.** [`global.json`](global.json) requires `8.0.100` with
+> `"rollForward": "latestFeature"`, so any installed 8.0.x SDK satisfies it but
+> a 9.x/10.x SDK is refused. That is deliberate: with
+> `<AnalysisLevel>latest</AnalysisLevel>` and
+> `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, a newer SDK can turn a
+> brand-new analyzer warning into a hard build error on code nobody touched.
+> If you *want* to build on a newer SDK, relax the pin (`"rollForward":
+> "latestMajor"`) locally and expect analyzer fallout — do not commit it.
+>
+> One consequence: form B below (`dotnet build ProGlassAutomation.slnx` on a
+> 9.x SDK) no longer works while the pin is in place. Use form A — name the
+> project — which is the documented primary path anyway.
 
 ### 2. What is buildable in this repo
 
@@ -498,7 +504,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -Clean -S
 
 | Switch | Effect |
 |---|---|
-| `-Version <x.y.z>` | Package version. **Default is `2.0.0`, which is stale** — the csproj is at `2.0.11`. Always pass it explicitly until Phase 20 lands. |
+| `-Version <x.y.z>` | Package version. **Omit it** — the script now reads `<Version>` from `ProGlassAutomation.csproj`, so the package always matches the assemblies. Pass it only to build a hotfix under a different version than the source says (it also fails the run if the value is not `MAJOR.MINOR.PATCH`). |
 | `-PackId` / `-PackTitle` / `-PackAuthors` | Velopack pack identity. |
 | `-SkipTests` | Skips the test gate. The script itself warns: *do not publish this build to customers.* |
 | `-SkipFfmpeg` | Omits `ffmpeg.exe`/`ffprobe.exe` from the payload; Settings can still download them later. |
@@ -560,15 +566,19 @@ csproj carries this warning in a comment block at line 27; it was learned
 the hard way when `<Version>` sat at `2.0.1` for nine days across several
 behaviour-changing commits.
 
-Today three other places disagree with the csproj, and all three are
-tracked as Phase 20:
+Four copies of this number existed. Phase 20 (committed) removed two of them
+and redefined the third:
 
 | Place | Value | Effect |
 |---|---|---|
 | `ProGlassAutomation.csproj:41` | **2.0.11** | authoritative |
-| `scripts/build-installer.ps1:49` | `2.0.0` (default) | a default run packs a *lower* version than the binaries it ships |
-| `installer/velopack.json:5-6` | `2.0.0` | pack metadata disagrees with the payload |
-| `Services/Updates/AppInfo.cs:31` | `FallbackVersion = "2.0.4"` | only used when the assembly identity cannot be read, and its own comment says it is "kept in step with the csproj" — it is not |
+| `scripts/build-installer.ps1` | *reads the csproj* | **fixed** — `-Version` now defaults to empty and is resolved from `<Version>`; the run fails if the csproj or the element is missing |
+| `installer/velopack.json:5-6` | `2.0.11` / `2.0.11.0` | **fixed** — the pack step overrides both on the command line, so these values are documentation and no longer contradict the payload |
+| `Services/Updates/AppInfo.cs` | `FallbackVersion = "2.0.4"` | **kept on purpose** — it is a *floor*, not a mirror. Used only when the entry-assembly identity cannot be read, which means an unreadable build reports an older version than it is: `UpdateService.IsNewer` is a strict greater-than compare, so that can offer an update the machine already has, but can never offer a downgrade or hide a newer release. The Velopack path never reads it. Its comment now says so and warns that raising it *above* the current release would suppress real updates. |
+
+The durable fix — injecting the csproj value at build time so the constant
+disappears — is still open; see Phase 20 of the
+[upgrade plan](docs/UPGRADE_PHASES_2026-10-05.md).
 
 **Two update paths, one behaviour.** Installed (Velopack) builds use
 `VelopackUpdateService` → `UpdateManager(GithubSource(...))` against
@@ -645,7 +655,8 @@ containing an escaped `\(`.
 | `CS1061 InitializeComponent` | `App.xaml` was reclassified as `Page` | Restore `ApplicationDefinition` |
 | `CS0246` on xUnit types in the app | `Tests/**` or `Licensing/**` crept back into the app's globbing | Check the `<Compile Remove>` block in the csproj |
 | `CS5001` / `CS0234` about `Program` | `Tools/**` was compiled into the app | Same block — the generator is a separate executable |
-| A `CAxxxx` analyzer error you did not write | `<AnalysisLevel>latest</AnalysisLevel>` + `TreatWarningsAsErrors` on a newer SDK | Pin the SDK with a `global.json` (Phase 21), or add the code to `WarningsNotAsErrors` with a reason |
+| A `CAxxxx` analyzer error you did not write | `<AnalysisLevel>latest</AnalysisLevel>` + `TreatWarningsAsErrors` on a newer SDK | `global.json` pins 8.0.x, so this means the pin was relaxed — restore it, or add the code to `WarningsNotAsErrors` with a reason |
+| `A compatible .NET SDK was not found` on startup | `global.json` pins `8.0.100` / `latestFeature` and only a 9.x+ SDK is installed | Install a .NET 8 SDK (recommended), or relax the pin locally without committing it |
 | `DllNotFoundException` for GGML/llama at runtime | Native assets not extracted in a single-file publish | Add `-p:IncludeNativeLibrariesForSelfExtract=true` (§7) |
 | `RG1000 same key already added` | Duplicate `<Resource>` entries for the same file | One entry per file; see the comment block in the csproj |
 | `vpk` not on PATH | Velopack CLI not installed | `dotnet tool install -g vpk --version 1.2.0`, then reopen the shell |
@@ -710,16 +721,22 @@ likely to fail.
 Measured on 2026-10-05, each with a phase, a concrete action and an
 acceptance test in **[`docs/UPGRADE_PHASES_2026-10-05.md`](docs/UPGRADE_PHASES_2026-10-05.md)**.
 
-| # | Issue | Evidence |
-|---|---|---|
-| **18** | **The license-signing private key is in Git, in plaintext.** Anyone with repo or binary access can forge keys the app accepts, and the tool's own README says this is not the case. | `Tools/LicenseGenerator/ProductionSigningKey.cs:52` |
-| **19** | **Two guard-rail tests are red from baseline drift**, so the suite cannot be used as a release gate today. 55 empty catches in 25 files have no allow-list entry; the rounding-mode ratchet allows 2 files and finds 9. Both figures come from re-implementing each test's scan, 1:1, over this tree — the tests were not executed here. | `Tests/Security/SilentCatchAuditTests.cs`, `Tests/Architecture/MoneyRoundingRatchetTests.cs` |
-| **20** | **Four copies of the version number, three of them stale** (2.0.11 / 2.0.0 / 2.0.0 / 2.0.4). A default installer build packages a *lower* version than the binaries it contains, so OTA can never offer it. | csproj:41 · build-installer.ps1:49 · velopack.json:5 · AppInfo.cs:31 |
-| **21** | **No `global.json`, no CI.** `AnalysisLevel=latest` + `TreatWarningsAsErrors` means the build outcome depends on whichever SDK is installed; nothing proves the tree builds. Four workflow templates sit in `docs/CI/` and `docs/ci/` and disagree with each other. | `ls .github/` → 3 files, no `workflows/` |
-| **22** | **One CI template has the known-broken build/test sequence** the installer script explicitly documents as a bug — and it is the one `docs/CI.md` tells maintainers to activate. | `docs/ci/build-test.yml` (build app → `test --no-build`) |
-| **23** | **Stock counter race on consumables.** Read-check-write still loses an update under concurrency. Glass sheets were fixed; this was not. | `Services/SheetStore/InventoryItemRepository.cs:215-236` |
-| **24** | **Documentation drift that costs readers time**: a broken stylesheet link in this file, a stale docs index, and installer docs pointing at a script path that does not exist. | `scripts/verify-readmes.py`, `docs/INSTALLER.md` |
-| **25** | **Whole-table loads**: 104 `GetAllAsync(` call sites remain, of which a minority are genuinely paginatable lists (the rest are lookups, pickers and searches where pagination would be a regression). | `PaginationRatchetTests` allow-list |
+| # | Issue | Evidence | Status |
+|---|---|---|---|
+| **18** | **The license-signing private key is in Git, in plaintext.** Anyone with repo or binary access can forge keys the app accepts, and the tool's own README says this is not the case. | `Tools/LicenseGenerator/ProductionSigningKey.cs:52` | **Open — blocked.** Needs the vendor to generate a replacement key on their own machine and to rotate what the app trusts; the swap cannot be done safely from a sandbox, and one test currently asserts the key *is* embedded. |
+| **19** | **Two guard-rail tests were red from baseline drift**, so the suite could not be used as a release gate. 61 findings had no allow-list entry (55 empty catches with no path match, plus 6 whose file matched but whose member could not); the rounding-mode ratchet allowed 2 files and found 9. | `Tests/Security/SilentCatchAuditTests.cs`, `Tests/Architecture/MoneyRoundingRatchetTests.cs` | **Fixed** (allow-lists rebaselined; 101/101 catches covered, both lists re-derived to green). Follow-up 19c: repair the auditor's enclosing-member resolution and tighten six `"*"` entries back to member-specific. |
+| **20** | **Four copies of the version number, three of them stale** (2.0.11 / 2.0.0 / 2.0.0 / 2.0.4). A default installer build packaged a *lower* version than the binaries it contained, so OTA could never offer it. | csproj:41 · build-installer.ps1 · velopack.json:5 · AppInfo.cs | **Fixed** — the script reads the csproj; the pack manifest matches; `FallbackVersion` is documented as a floor. Injecting the value at build time (retiring the constant) is still open. |
+| **21** | **No CI.** Nothing proves the tree builds, and the two remaining release templates disagree about signing and about whether the update channel is declared. | `ls .github/` → 3 files, no `workflows/` | **Partly fixed** — `global.json` now pins 8.0.100/`latestFeature`; `docs/ci/build-test.yml` no longer ships the broken sequence. Activating a workflow is a decision, not an edit. |
+| **22** | **One CI template had the known-broken build/test sequence** the installer script documents as a bug — and it was the one `docs/CI.md` tells maintainers to activate. | `docs/ci/build-test.yml` (build app → `test --no-build`) | **Fixed** — it now builds `Tests/ProGlassAutomation.Tests.csproj`, plus the licensing and engine-regression projects the solution never reaches. `docs/CI/build.yml`'s "53 test files" claim corrected to 288. |
+| **23** | **Stock counter race on consumables.** Read-check-write still loses an update under concurrency. Glass sheets were fixed; this was not. | `Services/SheetStore/InventoryItemRepository.cs:215-236` | **Open** — C# change; cannot be verified without a compiler. |
+| **24** | **Documentation drift that costs readers time**: a broken stylesheet link in this file, a stale docs index, and installer docs pointing at a script path that does not exist. | `scripts/verify-readmes.py`, `docs/INSTALLER.md` | **Mostly fixed** (a–d, g). Still open: `Tools/` vs `tools/` colliding on Windows, and `Release.pubxml` citing a workflow file that does not exist. |
+| **25** | **Whole-table loads**: 104 `GetAllAsync(` call sites remain, of which a minority are genuinely paginatable lists (the rest are lookups, pickers and searches where pagination would be a regression). | `PaginationRatchetTests` allow-list | **Open** — needs per-site judgement plus a running app. |
+
+Nothing in the Status column was verified by executing the test suite: no .NET
+SDK is available in the environment where this pass was made, so every
+"Fixed" above means *re-derived from each test's own algorithm, 1:1, over this
+tree* — or, for prose and configuration, checked by the SDK-free verifiers in
+§11. `dotnet test` is still the only thing that can confirm it.
 
 ### One defect class worth naming
 
