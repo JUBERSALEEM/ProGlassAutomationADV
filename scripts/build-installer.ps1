@@ -1,5 +1,5 @@
 # =======================================================================
-# FILE: tools/build-installer.ps1
+# FILE: scripts/build-installer.ps1
 # PROJECT: ProGlass Automation
 # MODULE: Installer pipeline - local build (Windows developer box)
 #
@@ -27,10 +27,10 @@
 #
 # Usage (from the repo root, Windows PowerShell 5.1 OR PowerShell 7+):
 #
-#     powershell -ExecutionPolicy Bypass -File .\tools\build-installer.ps1
-#     powershell -ExecutionPolicy Bypass -File .\tools\build-installer.ps1 -Version 2.0.1
-#     powershell -ExecutionPolicy Bypass -File .\tools\build-installer.ps1 -SkipTests
-#     powershell -ExecutionPolicy Bypass -File .\tools\build-installer.ps1 -PackId ProGlassAutomation
+#     powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1
+#     powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -Version 2.0.1
+#     powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -SkipTests
+#     powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -PackId ProGlassAutomation
 #
 # (Use `pwsh` instead of `powershell` if PowerShell 7+ is installed; the
 #  script is compatible with both - the only difference is the

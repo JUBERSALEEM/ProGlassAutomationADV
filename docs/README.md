@@ -158,6 +158,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`LICENSING_AND_LOGIN_UX_2026-08.md`](LICENSING_AND_LOGIN_UX_2026-08.md) | Licensing & Login UX — August 2026 rework |
 | [`LICENSING_HARDENING_2026-08.md`](LICENSING_HARDENING_2026-08.md) | Licensing hardening pass — August 2026 |
 | [`LICENSING_REFACTOR.md`](LICENSING_REFACTOR.md) | Licensing Refactor — Summary |
+| [`LICENSING_SECURITY_AUDIT_2026-09-25.md`](LICENSING_SECURITY_AUDIT_2026-09-25.md) | PGKEY1 licensing security audit |
 | [`LICENSING_SECURITY_CROSS_CHECK_2026-08-29.md`](LICENSING_SECURITY_CROSS_CHECK_2026-08-29.md) | Licensing Security Cross-Check — Findings & Hardening (2026-08-29) |
 | [`LICENSING_WALLPAPER_FULLWIDTH_2026-08.md`](LICENSING_WALLPAPER_FULLWIDTH_2026-08.md) | Licensing + Appearance Wallpaper Full-Width Fix (Aug 2026) |
 | [`LICENSING_WORKFLOW_SIMPLIFICATION_2026-08-29.md`](LICENSING_WORKFLOW_SIMPLIFICATION_2026-08-29.md) | Licensing Workflow Simplification — Design & Implementation Record (2026-08-29) |
@@ -265,6 +266,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 |---|---|
 | [`ABOUT_DYNAMIC_THEME_CONVERSION_2026-09-15.md`](ABOUT_DYNAMIC_THEME_CONVERSION_2026-09-15.md) | About module — making it fully theme-dynamic without moving a single pixel |
 | [`ABOUT_LICENSE_EMPTY_FIX_AND_TYPOGRAPHY_2026-09-15.md`](ABOUT_LICENSE_EMPTY_FIX_AND_TYPOGRAPHY_2026-09-15.md) | About → License: the blank tab (root cause) + the About typography pass — 2026-09-15 |
+| [`BENTO_REDESIGN_MASTER_PLAN.md`](BENTO_REDESIGN_MASTER_PLAN.md) | Indigo Studio Bento Design System: Master Plan & Execution Roadmap (236 Views) |
 | [`BUILD_VERIFICATION_GUIDE.md`](BUILD_VERIFICATION_GUIDE.md) | Build Verification Guide |
 | [`CODE_RATING_REPORT.md`](CODE_RATING_REPORT.md) | ProGlass Automation — Senior Engineering Rating |
 | [`CORRECTED_MARGIN_CALCULATION.md`](CORRECTED_MARGIN_CALCULATION.md) | ✅ Corrected Margin Calculation - Example |
@@ -285,7 +287,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`OPTIMIZATION_CLEAR_16SHEET_ANALYSIS_2026-09-12.md`](OPTIMIZATION_CLEAR_16SHEET_ANALYSIS_2026-09-12.md) | CLEAR Job — Deep 16-Sheet Feasibility Analysis (2026-09-12) |
 | [`OPTIMIZATION_IMPORT_AND_SPEC_COUNT_FIXES_2026-09-12.md`](OPTIMIZATION_IMPORT_AND_SPEC_COUNT_FIXES_2026-09-12.md) | Optimization — Size-Import & Spec-Count Fixes (2026-09-12) |
 | [`OPTIMIZATION_MODULE_DESIGN_2026-09-12.md`](OPTIMIZATION_MODULE_DESIGN_2026-09-12.md) | Glass Cutting Optimization Module — Deep Analysis & Implementation Plan |
-| [`OPTIMIZATION_OPEN_CRASH_ROOT_CAUSE_2026-09-17.md`](OPTIMIZATION_OPEN_CRASH_ROOT_CAUSE_2026-09-17.md) | Optimization — "Crash on Open, No Logs" Root-Cause Analysis & Fix (2026-09-17) |
+| [`OPTIMIZATION_OPEN_CRASH_ROOT_CAUSE_2026-09-17.md`](OPTIMIZATION_OPEN_CRASH_ROOT_CAUSE_2026-09-17.md) | OPTIMIZATION MODULE — "CRASH ON OPEN, NO LOGS" ROOT-CAUSE ANALYSIS & FIX (2026-09-17) |
 | [`OPTIMIZATION_PHASE23_EXPORTS_AND_SOURCE_LOCK_2026-09-12.md`](OPTIMIZATION_PHASE23_EXPORTS_AND_SOURCE_LOCK_2026-09-12.md) | Optimization — Phase 2/3, Exports & Source-Lock Fixes (2026-09-12) |
 | [`OPTIMIZATION_STOCKS_STEP4_FIX_2026-09-12.md`](OPTIMIZATION_STOCKS_STEP4_FIX_2026-09-12.md) | Optimization — "Broken Module" Root-Cause Analysis & Fix (2026-09-12) |
 | [`OPTIMIZATION_UI_UX_REDESIGN_2026-09-12.md`](OPTIMIZATION_UI_UX_REDESIGN_2026-09-12.md) | Optimization Module — UI/UX Audit, Rating & 10/10 Phase Plan (2026-09-12) |
@@ -311,10 +313,13 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`SPEC_CHARGE_EXAMPLES.md`](SPEC_CHARGE_EXAMPLES.md) | Complete Spec-to-Charge Examples (4 Build Types) |
 | [`STEP4_STEP6_SHEET_STORE_LINK_2026-09-10.md`](STEP4_STEP6_SHEET_STORE_LINK_2026-09-10.md) | Step 4/5/6 ↔ Sheet Store linkage (2026-09-10) |
 | [`STEP8_APPROVE_UNIFICATION.md`](STEP8_APPROVE_UNIFICATION.md) | Step 8 Approve — Unifying the Split JPG/PDF Flow (Senior Analysis) |
+| [`UPGRADE_PHASES_2026-10-05.md`](UPGRADE_PHASES_2026-10-05.md) | Upgrade Phases 18–25 — measured findings, 2026-10-05 |
 | [`USER_REPORT_FIXES_2026-09-10_B.md`](USER_REPORT_FIXES_2026-09-10_B.md) | User-Reported Fixes — Round 2 (2026-09-10) |
 | [`VISUAL_THEME_4_FAMILY_CONSOLIDATION_2026-09-12.md`](VISUAL_THEME_4_FAMILY_CONSOLIDATION_2026-09-12.md) | VISUAL THEME — 4-FAMILY CONSOLIDATION (2026-09-12) |
 | [`WASTAGE_COLOUR_SYNC_FIX.md`](WASTAGE_COLOUR_SYNC_FIX.md) | Step 6 Wastage Charges — Colour Import & Spec-Side Sync Fix |
+| [`WORKFLOW-CHAIN.md`](WORKFLOW-CHAIN.md) | Workflow chain |
 | [`WORKFLOW.md`](WORKFLOW.md) | Application Workflow |
+| [`WPF-AUDIT.md`](WPF-AUDIT.md) | ProGlass WPF audit |
 | [`recorder-native-4k-investigation.md`](recorder-native-4k-investigation.md) | Native 4K Rendering — Investigation & Prototype Plan |
 
 ## Sub-folders
@@ -325,8 +330,12 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | `Chat5/` | Working notes and data from an earlier session. (6 files) |
 | `Chat5-9/` | Working notes, prompts and data from an earlier session. (7 files) |
 | `ci/` | Pipeline definitions — duplicate casing of `CI/`; see `CI.md`. (2 files) |
+| `dashboard/` | Supporting artefacts. (1 files) |
+| `lists/` | Supporting artefacts. (2 files) |
+| `optimization/` | Supporting artefacts. (10 files) |
 | `phases/` | Supporting artefacts. (18 files) |
-| `ui-audit/` | Supporting artefacts. (1 files) |
+| `shell-mockups/` | Supporting artefacts. (1 files) |
+| `ui-audit/` | Supporting artefacts. (18 files) |
 | `ui-redesign/` | UI redesign working artefacts. (1 files) |
 | `ui-ux/` | Supporting artefacts. (7 files) |
 
@@ -334,7 +343,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 ## Folder READMEs
 
 Every significant folder in the repository carries its own `README.md`
-describing what lives there. `32` of them:
+describing what lives there. `34` of them:
 
 | Folder | What lives there |
 |---|---|
@@ -356,9 +365,11 @@ describing what lives there. `32` of them:
 | [`Services/SheetStore/SheetStorePdf/`](../Services/SheetStore/SheetStorePdf/README.md) | Sheet Store PDF Report |
 | [`Services/Theme/Engine/`](../Services/Theme/Engine/README.md) | ProGlassThemeEngine |
 | [`Tests/`](../Tests/README.md) | ProGlassAutomation.Tests |
+| [`Themes/Professional/`](../Themes/Professional/README.md) | MERIDIAN — the ProGlass design system (Pg) |
 | [`Themes/Styles/`](../Themes/Styles/README.md) | Themes/Styles/ — Shared Style Library |
 | [`Tools/LicenseGenerator/`](../Tools/LicenseGenerator/README.md) | ProGlassAutomation.LicenseGenerator |
 | [`Views/Dashboard/`](../Views/Dashboard/README.md) | Dashboard Module |
+| [`Views/Dashboard/Overview/`](../Views/Dashboard/Overview/README.md) | Indigo Studio Overview |
 | [`Views/Production/`](../Views/Production/README.md) | Production Modules — Stage Queues |
 | [`Views/ProformaInvoice/`](../Views/ProformaInvoice/README.md) | Proforma Invoice Module |
 | [`Views/ProformaInvoice/SavedInvoicesList/`](../Views/ProformaInvoice/SavedInvoicesList/README.md) | Saved Invoices List — Phase 7.16 |

@@ -3,7 +3,6 @@
 <!-- pg-nav -->
 > **[Repository root](../../README.md)** · [All documents](../../docs/README.md) · [Application workflow](../../docs/WORKFLOW.md) · [Design system](../../docs/DESIGN_SYSTEM.md)
 <!-- pg-nav -->
-
 The eight production modules (Cutting · Holes & Cutouts · Polish ·
 Edge Deletion · Mitring · Tempering · Pairing · Doubling/Lamination)
 are **stage queues** fed by the production distribution engine.

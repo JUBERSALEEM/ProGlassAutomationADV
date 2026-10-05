@@ -33,7 +33,7 @@ mirror) with confidence the bytes match what was tested.
 | `installer/content/` | Welcome, readme, licence, and finish text for the MSI wizard. | `vpk pack` when the installed vpk supports those flags |
 | `scripts/generate-installer-art.ps1` | Paints the Prism splash and the two MSI bitmaps into `installer/generated/`. Those images are not committed. | Local build script |
 | `Properties/PublishProfiles/Release.pubxml` | `dotnet publish` profile: `SelfContained=true`, `win-x64`, `ReadyToRun` on, deterministic build on, PDBs out. No secrets. | Local build script + CI release workflow |
-| `tools/build-installer.ps1` | Local mirror of the CI workflow. Runs on a Windows dev box with no GitHub involvement. | Operator (you) |
+| `scripts/build-installer.ps1` | Local mirror of the CI workflow. Runs on a Windows dev box with no GitHub involvement. | Operator (you) |
 | `.github/workflows/release.yml` | The CI mirror of the local build script. Runs on `windows-latest` on every `v*` tag push. | GitHub Actions |
 
 `docs/ci/build-test.yml` is the **sibling** workflow that runs the
@@ -56,7 +56,7 @@ build-and-test gate on every push and PR; it must be green before
 
 2. **Run the local build to sanity-check the bits on your own box**:
    ```powershell
-   pwsh ./tools/build-installer.ps1 -Version 2.0.1 -Clean
+   pwsh ./scripts/build-installer.ps1 -Version 2.0.1 -Clean
    ```
    Read the SHA-256 summary, then smoke-test `Setup.exe` by double-
    clicking it on a clean Windows VM. The portable zip can be smoke-

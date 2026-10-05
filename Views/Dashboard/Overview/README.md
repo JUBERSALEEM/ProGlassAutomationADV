@@ -1,5 +1,9 @@
 # Indigo Studio Overview
 
+<!-- pg-nav -->
+> **[Repository root](../../../README.md)** · [All documents](../../../docs/README.md) · [Application workflow](../../../docs/WORKFLOW.md) · [Design system](../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
+
 Production WPF implementation of the approved Indigo Studio design, based on the requested reset to `61a9ce1e4e6892ca6f48ac5989831ecfc7ad57b3`. No generated concept images, preview generators, sample records, or new chart dependencies are included.
 
 ## Scope
@@ -85,3 +89,9 @@ Then check the actual app at several view widths and 100%, 125%, 150% and 200% D
 5. Resize through each breakpoint and change global themes; the scoped palette must stay readable without restyling other module bodies.
 
 Source checks are not a WPF compilation, rendering proof or performance benchmark. No native pass or runtime-regression guarantee is claimed. Publishing this change does not satisfy the Windows release gate above.
+
+<!-- pg-nav -->
+---
+
+*This README documents `Views/Dashboard/Overview/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../docs/README.md).*
+<!-- pg-nav -->
