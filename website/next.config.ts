@@ -27,11 +27,11 @@ import { inspectDeps, formatProblems } from "./scripts/dep-check.mjs";
 /**
  * ProGlass Automation — product website configuration.
  *
- * This is a marketing/product site for a Windows desktop application.
- * There is no backend, no database and no session — the only server-side
- * surface is Next.js itself. `output: "export"` is intentionally NOT set so
- * the /api/demo-request route can exist as the single, obvious integration
- * point for a real mail transport.
+ * This is a marketing/product site for a Windows desktop application, with
+ * server-rendered operational dashboards backed by Supabase and Next.js API
+ * routes for records and exports. `output: "export"` is intentionally NOT set:
+ * operator access, no-store exports, and the optional QuestPDF service proxy
+ * all require a server runtime.
  */
 
 /**

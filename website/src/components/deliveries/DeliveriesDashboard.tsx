@@ -22,6 +22,7 @@ import { DeliveriesBreakdowns } from "./DeliveriesBreakdowns";
 import { DeliveriesTable } from "./DeliveriesTable";
 import { DeliveriesDetailModal } from "./DeliveriesDetailModal";
 import { RecordsPagination } from "@/components/records/RecordsPagination";
+import { ExportActions } from "@/components/operations/ExportActions";
 
 const INITIAL_FILTERS: DeliveryFilters = {
   search: "",
@@ -398,6 +399,14 @@ export function DeliveriesDashboard() {
             </span>
           </div>
         )}
+
+        <ExportActions
+          report="deliveries"
+          filters={filters}
+          sort={sort}
+          authToken={authToken}
+          disabled={loading}
+        />
 
         <DeliveriesSummaryCards summary={data?.summary ?? null} loading={loading} />
 

@@ -22,6 +22,7 @@ import { RecordsBreakdowns } from "./RecordsBreakdowns";
 import { RecordsTable } from "./RecordsTable";
 import { RecordsPagination } from "./RecordsPagination";
 import { RecordsRecordDetailModal } from "./RecordsRecordDetailModal";
+import { ExportActions } from "@/components/operations/ExportActions";
 import { compareRecordDates } from "@/lib/date-utils";
 import { useOperatorSession } from "@/lib/useOperatorSession";
 import { jobOrdersHrefFromRecordFilters } from "@/lib/job-order-links";
@@ -626,6 +627,14 @@ export function RecordsDashboard() {
               <span className="font-mono text-3xs text-text-faint">Data isolation: active</span>
             </div>
           )}
+
+        <ExportActions
+          report="proformas"
+          filters={filters}
+          sort={sort}
+          authToken={authToken}
+          disabled={loading}
+        />
 
         {/* Proforma → Job Order is the next hand-off in the document chain.
             The destination API owns the strict Confirmed gate and this link

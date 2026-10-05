@@ -137,7 +137,7 @@ export async function fetchJobOrdersDashboardData({
   authToken?: string | null;
 }): Promise<JobOrdersApiData> {
   const started = Date.now();
-  const clampedPageSize = Math.min(Math.max(Number(pageSize) || 50, 10), 250);
+  const clampedPageSize = Math.min(Math.max(Number(pageSize) || 50, 10), MAX_SOURCE_ROWS);
   const clampedPage = Math.max(Number(page) || 1, 1);
   const { from, to } = resolveDateRange(filters.datePreset, filters.dateFrom, filters.dateTo);
   const isProduction = process.env.NODE_ENV === "production";

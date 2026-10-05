@@ -142,7 +142,7 @@ export async function fetchDeliveriesDashboardData({
   authToken?: string | null;
 }): Promise<DeliveriesApiData> {
   const started = Date.now();
-  const clampedPageSize = Math.min(Math.max(Number(pageSize) || 50, 10), 250);
+  const clampedPageSize = Math.min(Math.max(Number(pageSize) || 50, 10), MAX_RECORD_ROWS);
   const clampedPage = Math.max(Number(page) || 1, 1);
   const statuses = confirmedStatuses();
 

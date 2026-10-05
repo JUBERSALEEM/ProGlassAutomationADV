@@ -10,6 +10,7 @@ import { JobOrderDetailModal } from "@/components/job-orders/JobOrderDetailModal
 import { JobOrdersHeader } from "@/components/job-orders/JobOrdersHeader";
 import { JobOrdersSummaryCards } from "@/components/job-orders/JobOrdersSummaryCards";
 import { JobOrdersTable } from "@/components/job-orders/JobOrdersTable";
+import { ExportActions } from "@/components/operations/ExportActions";
 import type {
   JobOrderFilters,
   JobOrderRow,
@@ -292,6 +293,14 @@ export function JobOrdersDashboard() {
             <span className="font-mono text-3xs text-text-faint">Confirmed-only source</span>
           </div>
         )}
+
+        <ExportActions
+          report="job-orders"
+          filters={filters}
+          sort={sort}
+          authToken={authToken}
+          disabled={loading}
+        />
 
         <JobOrdersSummaryCards summary={data?.summary ?? null} loading={loading} />
 

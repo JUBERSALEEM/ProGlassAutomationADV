@@ -35,9 +35,10 @@ Run `npm run doctor` at any time to see the revision in the tree, whether every
 declared dependency is installed, and whether anything under `src/` imports a
 package `package.json` does not declare.
 
-The site's only runtime dependencies are Next, React and React DOM. Markdown for
-the blog is parsed by `src/lib/markdown.ts`, written for this project, so a build
-depends on nothing that can go missing from a package registry.
+The site's runtime dependencies are Next, React, React DOM and `fflate` (used
+to generate XLSX files server-side). Markdown for the blog is parsed by
+`src/lib/markdown.ts`, written for this project, so blog parsing depends on
+nothing that can go missing from a package registry.
 
 The audit checks every internal link and image, the per-page metadata
 (title, description, canonical, Open Graph, viewport), one-`h1`-per-page,
@@ -56,7 +57,8 @@ The short version, once the repository is on `main`:
 
 ```
 Vercel → Add New → Project → import this repository
-Root Directory: website      Node.js: 22.x      Environment variables: none
+Root Directory: website      Node.js: 22.x
+Configure Supabase for live operations data; QuestPDF service variables enable PDF exports.
 Deploy → then Settings → Domains → add the domain and its www form
 → add the two DNS records Vercel shows at your registrar → done
 ```
@@ -94,11 +96,20 @@ Proforma Invoice → Job Order → Delivery Note → Tax Invoice → Statement. 
 first three have live website views; Tax Invoice and Statement link to their
 product overviews until their live operations views are built.
 
+All three operations pages export the full filtered result set (not only the
+visible page) to CSV and Excel. Delivery Excel includes a PI summary and a
+separate movement ledger. Exports are capped at 10,000 rows and refuse
+truncated data. PDF uses a separate .NET QuestPDF Community service; see
+**[docs/OPERATIONS_EXPORTS_ANALYSIS.md](docs/OPERATIONS_EXPORTS_ANALYSIS.md)** for
+its API contract and the Vercel deployment boundary.
+
 | Variable | Used by | Notes |
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | all three dashboards | Project address |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | all three dashboards | Publishable key; Row Level Security decides what it may read. The service key is refused if pasted here |
 | `PROGLASS_CONFIRMED_STATUSES` | `/deliveries` | Server-side. Which `public.records.status` values count as a delivery obligation. Defaults to `Confirmed`; widen with `"Confirmed,In Production,Ready"`. `/job-orders` intentionally stays strict and accepts only `Confirmed`. |
+| `QUESTPDF_EXPORT_SERVICE_URL` | PDF export API | Base URL for the separately deployed .NET QuestPDF Community service. CSV/XLSX do not need it. |
+| `QUESTPDF_EXPORT_SERVICE_TOKEN` | PDF export API | Server-only bearer token shared with that service. Never expose it as a `NEXT_PUBLIC_` variable. |
 
 Two SQL files are meant to be run once, in the Supabase SQL editor:
 

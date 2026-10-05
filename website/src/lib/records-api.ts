@@ -268,17 +268,25 @@ export async function fetchRecordsDashboardData({
   page = 1,
   pageSize = 50,
   authToken,
+  includeAggregates = true,
+  exportOffset,
 }: {
   filters: RecordFilters;
   sort?: RecordSort;
   page?: number;
   pageSize?: number;
   authToken?: string | null;
+  /** Skip dashboard-only RPCs for server-side exports. */
+  includeAggregates?: boolean;
+  /** Stable batch cursor for exports; never exposed by the public records route. */
+  exportOffset?: number;
 }): Promise<RecordsApiSuccessResponse["data"]> {
   const started = Date.now();
-  const clampedPageSize = Math.min(Math.max(Number(pageSize) || 50, 10), 250);
+  const clampedPageSize = Math.min(Math.max(Number(pageSize) || 50, 10), includeAggregates ? 250 : 1_000);
   const clampedPage = Math.max(Number(page) || 1, 1);
-  const offset = (clampedPage - 1) * clampedPageSize;
+  const offset = Number.isFinite(exportOffset) && exportOffset !== undefined
+    ? Math.max(0, Math.trunc(exportOffset))
+    : (clampedPage - 1) * clampedPageSize;
 
   const { from: resolvedFrom, to: resolvedTo } = resolveDateRange(
     filters.datePreset,
@@ -335,9 +343,13 @@ export async function fetchRecordsDashboardData({
       query = query
         .order("date", { ascending: sort.direction === "asc" })
         .order("updated_at", { ascending: sort.direction === "asc", nullsFirst: false })
-        .order("created_at", { ascending: sort.direction === "asc", nullsFirst: false });
+        .order("created_at", { ascending: sort.direction === "asc", nullsFirst: false })
+        .order("id", { ascending: true });
     } else {
-      query = query.order(sort.field, { ascending: sort.direction === "asc" });
+      query = query
+        .order(sort.field, { ascending: sort.direction === "asc" })
+        .order("date", { ascending: true })
+        .order("id", { ascending: true });
     }
     query = query.range(offset, offset + clampedPageSize - 1);
 
@@ -376,9 +388,13 @@ export async function fetchRecordsDashboardData({
         fallbackQuery = fallbackQuery
           .order("date", { ascending: sort.direction === "asc" })
           .order("updated_at", { ascending: sort.direction === "asc", nullsFirst: false })
-          .order("created_at", { ascending: sort.direction === "asc", nullsFirst: false });
+          .order("created_at", { ascending: sort.direction === "asc", nullsFirst: false })
+          .order("id", { ascending: true });
       } else {
-        fallbackQuery = fallbackQuery.order(sort.field, { ascending: sort.direction === "asc" });
+        fallbackQuery = fallbackQuery
+          .order(sort.field, { ascending: sort.direction === "asc" })
+          .order("date", { ascending: true })
+          .order("id", { ascending: true });
       }
       fallbackQuery = fallbackQuery.range(offset, offset + clampedPageSize - 1);
 
@@ -408,6 +424,57 @@ export async function fetchRecordsDashboardData({
       // In local dev, fall through to mock
     } else {
       const totalEntries = totalCount ?? (recordsData?.length || 0);
+
+      if (!includeAggregates) {
+        const exportRows = ((recordsData as RecordRow[]) || [])
+          .map((r) => {
+            const raw = r as Record<string, unknown>;
+            const resolvedSf =
+              r.source_file ||
+              (typeof raw.file_name === "string" ? raw.file_name : null) ||
+              (typeof raw.filename === "string" ? raw.filename : null) ||
+              (typeof raw.excel_file === "string" ? raw.excel_file : null);
+            return { ...r, date: formatDateDDMMYYYY(r.date), source_file: resolvedSf };
+          });
+
+        return {
+          records: exportRows,
+          summary: {
+            totalEntries,
+            totalQty: 0,
+            totalSqm: 0,
+            averageSqm: 0,
+            activeCompaniesCount: 0,
+            activeSalesmenCount: 0,
+          },
+          breakdowns: { preparedBy: [], salesman: [], company: [], typeOfWork: [] },
+          filterOptions: extractFilterOptionsFromRecords(exportRows),
+          pagination: {
+            page: clampedPage,
+            pageSize: clampedPageSize,
+            totalEntries,
+            totalPages: Math.ceil(totalEntries / clampedPageSize) || 1,
+          },
+          serverTime: new Date().toISOString(),
+          source: "supabase",
+          executionMs: Date.now() - started,
+          currentSourceFile,
+          sourceFiles: availableSourceFiles,
+          isCurrentSourceScoped: Boolean(effectiveSourceFile),
+          warning,
+          diagnostics: {
+            targetHost: getSupabaseHost(),
+            authRole: getAnonRole(),
+            hasServerServiceKey: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY),
+            recordsCount: totalCount,
+            recordsLength: recordsData?.length ?? 0,
+            recordsError: null,
+            rpcStatus: "not_installed",
+            rpcError: null,
+            possibleRlsBlock: totalEntries === 0 && !filters.search && !filters.company && !filters.status,
+          },
+        };
+      }
 
       // 2. Perform server-side database aggregation via PostgreSQL RPC
       // No rows are fetched into JavaScript — PostgreSQL executes COUNT/SUM/GROUP BY
