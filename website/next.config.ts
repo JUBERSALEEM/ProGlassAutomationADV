@@ -30,8 +30,8 @@ import { inspectDeps, formatProblems } from "./scripts/dep-check.mjs";
  * This is a marketing/product site for a Windows desktop application, with
  * server-rendered operational dashboards backed by Supabase and Next.js API
  * routes for records and exports. `output: "export"` is intentionally NOT set:
- * operator access, no-store exports, and the optional QuestPDF service proxy
- * all require a server runtime.
+ * operator access, no-store exports, and server-side PDF rendering all require
+ * a server runtime.
  */
 
 /**

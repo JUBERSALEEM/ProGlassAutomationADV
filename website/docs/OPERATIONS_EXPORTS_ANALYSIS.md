@@ -19,6 +19,12 @@ cells that could be interpreted as formulas. XLSX is generated server-side as
 OOXML, preserves numeric and boolean cells, freezes the heading row, enables
 filters, and records the generation time and active filters in `Export Info`.
 
+PDF is rendered server-side by `@react-pdf/renderer` in the Next.js Node runtime.
+It includes report title, generation time, applied filters, summary figures,
+page numbers, and report-specific tables. Delivery PDFs include both PI
+obligations and movement rows. No browser-only PDF runtime or separate service
+is needed.
+
 Exports are bounded at 10,000 result rows. Oversized or already-truncated source
 reads fail explicitly rather than producing a file that looks complete but is
 not. Proforma reads detect concurrent count changes and duplicate/missing IDs
@@ -52,28 +58,10 @@ and the Supabase service-role key is never sent to the browser.
    ID, report type, format, row count, filter names, duration, and failure code;
    do not write the exported values or bearer token to logs.
 
-## QuestPDF and the website deployment boundary
+## Why the website PDF engine differs from the desktop app
 
-QuestPDF is a .NET library. The repository's existing WPF application already
-references QuestPDF 2025.12.4 and sets `LicenseType.Community`; that code runs in
-the Windows desktop application. The website is a Next.js/Node.js project
-deployed to Vercel, so neither browser JavaScript nor a Vercel Node function can
-load that WPF/.NET implementation directly.
-
-The website route therefore sends the normalized export bundle to a separate
-.NET service at:
-
-```text
-POST {QUESTPDF_EXPORT_SERVICE_URL}/api/v1/operations-reports
-Authorization: Bearer {QUESTPDF_EXPORT_SERVICE_TOKEN}
-Content-Type: application/json
-Accept: application/pdf
-```
-
-The service must authenticate the shared token, validate `schemaVersion: 1`,
-render the supplied rows and summary with QuestPDF Community, and return
-`application/pdf`. Configure the two values as server-only environment
-variables in Vercel. Until that service is deployed and configured, PDF requests
-return an explicit `PDF_SERVICE_NOT_CONFIGURED` response; CSV and Excel exports
-work independently. The remaining deployment decision is where that .NET
-service will run (for example, Azure Container Apps or an existing .NET host).
+The Windows desktop application already uses QuestPDF Community. The website is
+Next.js/Node.js on Vercel, however; it cannot load the WPF application's .NET
+implementation in a browser or Node function. The website export uses
+`@react-pdf/renderer` so PDF files can be generated within the existing Node
+server, without introducing a second service, deployment target, or secret.

@@ -26,6 +26,7 @@
     "i18n:fill": "node scripts/i18n-machine-fill.mjs --all"
   },
   "dependencies": {
+    "@react-pdf/renderer": "^4.9.0",
     "@supabase/supabase-js": "2.117.2",
     "fflate": "^0.8.3",
     "next": "16.3.6",
