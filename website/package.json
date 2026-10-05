@@ -1,0 +1,51 @@
+{
+  "name": "proglass-automation-website",
+  "version": "2.0.11",
+  "private": true,
+  "description": "Official marketing/product website for ProGlass Automation — the Windows desktop ERP for glass fabrication businesses.",
+  "scripts": {
+    "predev": "node scripts/check-deps.mjs && node scripts/check-build-freshness.mjs check",
+    "prebuild": "node scripts/check-deps.mjs",
+    "dev": "next dev -H 0.0.0.0 -p 3000",
+    "build": "next build",
+    "postbuild": "node scripts/check-build-freshness.mjs record",
+    "start": "next start -H 0.0.0.0 -p 3000",
+    "lint": "eslint src scripts",
+    "typecheck": "tsc --noEmit",
+    "doctor": "node scripts/check-deps.mjs --report",
+    "supabase:check": "node --experimental-strip-types scripts/supabase-check.mjs",
+    "fix": "node scripts/fix.mjs",
+    "assets:optimize": "node scripts/optimize-assets.mjs",
+    "i18n:keys": "node scripts/i18n-extract.mjs",
+    "i18n:wire-text": "node scripts/i18n-wire-text.mjs",
+    "i18n:wire-fields": "node scripts/i18n-wire-fields.mjs",
+    "i18n:verify": "node scripts/i18n-verify.mjs",
+    "i18n:audit": "node --experimental-strip-types scripts/i18n-audit.mjs",
+    "i18n:gaps": "node --experimental-strip-types scripts/i18n-audit.mjs --gaps",
+    "i18n:memory": "node scripts/i18n-memory-fill.mjs --all",
+    "i18n:fill": "node scripts/i18n-machine-fill.mjs --all"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.117.2",
+    "@vercel/speed-insights": "^2.0.0",
+    "next": "16.3.6",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@fontsource-variable/ibm-plex-sans": "^5.3.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/source-serif-4": "^5.3.0",
+    "@types/node": "22.10.7",
+    "@types/react": "19.0.7",
+    "@types/react-dom": "19.0.3",
+    "autoprefixer": "10.4.20",
+    "eslint": "9.18.0",
+    "eslint-config-next": "16.3.6",
+    "postcss": "8.5.1",
+    "sharp": "0.33.5",
+    "tailwindcss": "3.4.17",
+    "typescript": "5.7.3"
+  }
+}

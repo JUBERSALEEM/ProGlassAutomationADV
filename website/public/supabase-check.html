@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Supabase connection check — diagnostics</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0f1115;
+        --panel: #171a21;
+        --line: #2a2f3a;
+        --text: #e7e9ee;
+        --muted: #9aa2b1;
+        --ok: #2ea043;
+        --warn: #d29922;
+        --bad: #f85149;
+        --info: #58a6ff;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 2.5rem 1.25rem 4rem;
+        background: var(--bg);
+        color: var(--text);
+        font: 14px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+      main { max-width: 46rem; margin: 0 auto; }
+      h1 { font-size: 1.1rem; margin: 0 0 0.4rem; }
+      p.lede { color: var(--muted); margin: 0 0 1.75rem; }
+      fieldset { border: 1px solid var(--line); border-radius: 8px; padding: 1rem; margin: 0 0 1rem; }
+      legend { color: var(--muted); padding: 0 0.4rem; }
+      label { display: block; margin: 0 0 0.75rem; }
+      label span { display: block; color: var(--muted); margin-bottom: 0.25rem; }
+      input {
+        width: 100%;
+        padding: 0.5rem 0.6rem;
+        background: var(--panel);
+        color: var(--text);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        font: inherit;
+      }
+      .row { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; }
+      button {
+        padding: 0.5rem 0.9rem;
+        background: var(--panel);
+        color: var(--text);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        font: inherit;
+        cursor: pointer;
+      }
+      button:hover { border-color: var(--muted); }
+      button:disabled { opacity: 0.5; cursor: default; }
+      #verdict { border: 1px solid var(--line); border-left-width: 4px; border-radius: 8px; padding: 1rem; margin: 1.5rem 0 0; display: none; }
+      #verdict.show { display: block; }
+      #verdict.ok { border-left-color: var(--ok); }
+      #verdict.warn { border-left-color: var(--warn); }
+      #verdict.bad { border-left-color: var(--bad); }
+      #verdict.idle { border-left-color: var(--info); }
+      #title { font-weight: 600; margin: 0 0 0.4rem; }
+      #detail { color: var(--muted); margin: 0 0 0.75rem; }
+      #facts { border-collapse: collapse; width: 100%; }
+      #facts th { text-align: left; color: var(--muted); font-weight: 400; padding: 0.2rem 1rem 0.2rem 0; white-space: nowrap; vertical-align: top; }
+      #facts td { padding: 0.2rem 0; word-break: break-word; }
+      .note { color: var(--muted); margin-top: 2rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+      .note li { margin-bottom: 0.35rem; }
+      code { color: var(--text); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Supabase connection check</h1>
+      <p class="lede">
+        Diagnoses the website's Supabase connection without reading a single row. Paste the project URL and the
+        <em>anon</em> key; the request is made by this browser, and neither value is stored, logged or sent anywhere
+        except to your own Supabase project.
+      </p>
+
+      <fieldset>
+        <legend>credentials</legend>
+        <label>
+          <span>project URL — NEXT_PUBLIC_SUPABASE_URL</span>
+          <input id="url" type="url" placeholder="https://&lt;project-ref&gt;.supabase.co" autocomplete="off" spellcheck="false" />
+        </label>
+        <label>
+          <span>anon key — NEXT_PUBLIC_SUPABASE_ANON_KEY &nbsp;(never the service_role key)</span>
+          <input id="key" type="password" placeholder="eyJ… or sb_publishable_…" autocomplete="off" spellcheck="false" />
+        </label>
+        <div class="row">
+          <button id="run" type="button">Run check</button>
+          <button id="clear" type="button">Clear</button>
+          <span id="hint" style="color: var(--muted)"></span>
+        </div>
+      </fieldset>
+
+      <section id="verdict" aria-live="polite">
+        <p id="title"></p>
+        <p id="detail"></p>
+        <table id="facts"></table>
+      </section>
+
+      <div class="note">
+        <ul>
+          <li>One request only: <code>HEAD /rest/v1/records?select=*</code> with <code>Prefer: count=exact</code>. A HEAD response has no body, so no record ever travels — only a status and a row <em>count</em>.</li>
+          <li>The anon key is public by design: it already ships in the browser bundle of the deployed site. What a visitor may read is decided by Row Level Security, not by keeping this key secret.</li>
+          <li>A <code>service_role</code> key is refused before any request is sent — it bypasses RLS and must never be handled in a browser.</li>
+          <li>Nothing here is persisted: no cookie, no storage, no server request. Reloading the page forgets both fields.</li>
+          <li>This page is a development diagnostic. The production Content-Security-Policy allows connections to this origin only, so it works in <code>npm run dev</code> and is blocked on the deployed site.</li>
+        </ul>
+      </div>
+    </main>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var VERDICTS = {
+          CONFIG: {
+            tone: "bad",
+            title: "CONFIGURATION FAILED",
+            detail: "The request could not be built. Fill in both fields — the project URL and the anon key.",
+          },
+          UNREACHABLE: {
+            tone: "bad",
+            title: "UNREACHABLE",
+            detail:
+              "The browser could not reach the project: no network path, a DNS or proxy problem, a blocked origin, or a browser extension. Nothing is known about RLS from here.",
+          },
+          AUTH: {
+            tone: "bad",
+            title: "AUTHENTICATION FAILURE",
+            detail:
+              "The project answered and rejected the key. NEXT_PUBLIC_SUPABASE_ANON_KEY is wrong, revoked, or belongs to a different project.",
+          },
+          DENIED: {
+            tone: "ok",
+            title: "CONNECTED — RLS REFUSED THE READ",
+            detail:
+              "The project answered and refused an anonymous read with a permission error. That is Row Level Security doing its job on a table whose policies are for authenticated users.",
+          },
+          CONNECTED_HIDDEN: {
+            tone: "ok",
+            title: "CONNECTED — ANON SEES NO ROWS",
+            detail:
+              "The project answered 200 and the anon role can see no rows. RLS is filtering the table (or it is empty); nothing is exposed to an anonymous visitor.",
+          },
+          CONNECTED_VISIBLE: {
+            tone: "warn",
+            title: "CONNECTED — ANON CAN READ ROWS",
+            detail:
+              "The project answered 200 and the anon role can see rows. Only the count was requested and no row was fetched, but a public marketing website should not be able to read this table anonymously — check the table's policies in Supabase.",
+          },
+          OTHER: {
+            tone: "warn",
+            title: "CONNECTED — UNEXPECTED ANSWER",
+            detail: "The project answered with a shape this check does not recognise; the status and message are below.",
+          },
+        };
+
+        var el = {
+          url: document.getElementById("url"),
+          key: document.getElementById("key"),
+          run: document.getElementById("run"),
+          clear: document.getElementById("clear"),
+          hint: document.getElementById("hint"),
+          box: document.getElementById("verdict"),
+          title: document.getElementById("title"),
+          detail: document.getElementById("detail"),
+          facts: document.getElementById("facts"),
+        };
+
+        /** The `role` a key carries, when the key is a JWT. */
+        function roleOf(key) {
+          var parts = key.split(".");
+          if (parts.length !== 3 || key.slice(0, 3) !== "eyJ") return null;
+          try {
+            var payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+            var padded = payload + "=".repeat((4 - (payload.length % 4)) % 4);
+            var claims = JSON.parse(atob(padded));
+            return typeof claims.role === "string" ? claims.role : null;
+          } catch (error) {
+            return null;
+          }
+        }
+
+        function describeKey(key) {
+          var role = roleOf(key);
+          if (role) return "set (" + key.length + " chars, role=" + role + ")";
+          if (key.indexOf("sb_publishable_") === 0) return "set (" + key.length + " chars, publishable key)";
+          if (key.indexOf("sb_secret_") === 0 || key.indexOf("service_role") !== -1) return "set (" + key.length + " chars, SECRET)";
+          return "set (" + key.length + " chars)";
+        }
+
+        function show(verdict, facts) {
+          var chosen = VERDICTS[verdict];
+          el.box.className = "show " + chosen.tone;
+          el.title.textContent = chosen.title;
+          el.detail.textContent = chosen.detail;
+          el.facts.innerHTML = "";
+          (facts || []).forEach(function (pair) {
+            var tr = document.createElement("tr");
+            var th = document.createElement("th");
+            var td = document.createElement("td");
+            th.textContent = pair[0];
+            td.textContent = pair[1];
+            tr.appendChild(th);
+            tr.appendChild(td);
+            el.facts.appendChild(tr);
+          });
+        }
+
+        /**
+         * One HEAD request with count=exact. The status decides the verdict;
+         * the count sharpens it. No row is ever returned by a HEAD response.
+         */
+        function check(rawUrl, key) {
+          var url = rawUrl.trim().replace(/\/+$/, "");
+          var started = Date.now();
+
+          return fetch(url + "/rest/v1/records?select=*", {
+            method: "HEAD",
+            headers: { apikey: key, Authorization: "Bearer " + key, Prefer: "count=exact" },
+          })
+            .then(function (response) {
+              var range = response.headers.get("content-range") || "";
+              var total = Number(range.split("/")[1]);
+              var count = isFinite(total) ? total : null;
+              var status = "HTTP " + response.status + (response.statusText ? " " + response.statusText : "") + " in " + (Date.now() - started) + " ms";
+
+              if (response.status === 401) return { verdict: "AUTH", status: status, count: count };
+              if (response.status === 403) return { verdict: "DENIED", status: status, count: count };
+              if (!response.ok) return { verdict: "OTHER", status: status, count: count };
+              if (count !== null && count > 0) return { verdict: "CONNECTED_VISIBLE", status: status, count: count };
+              return { verdict: "CONNECTED_HIDDEN", status: status, count: count };
+            })
+            .catch(function (error) {
+              return {
+                verdict: "UNREACHABLE",
+                status: "no answer in " + (Date.now() - started) + " ms",
+                count: null,
+                message: (error && error.message) || String(error),
+              };
+            });
+        }
+
+        function run() {
+          var rawUrl = el.url.value.trim();
+          var key = el.key.value.trim();
+
+          if (!rawUrl || !key) {
+            show("CONFIG", [["url", rawUrl ? "set" : "missing"], ["key", key ? describeKey(key) : "missing"]]);
+            return;
+          }
+          if (!/^https:\/\//i.test(rawUrl)) {
+            show("CONFIG", [["url", "must start with https://"], ["key", describeKey(key)]]);
+            return;
+          }
+          if (roleOf(key) === "service_role" || key.indexOf("sb_secret_") === 0) {
+            show("CONFIG", [
+              ["refused", "that is a service_role / secret key"],
+              ["why", "it bypasses Row Level Security; no request was sent"],
+              ["use instead", "the project's anon (publishable) key"],
+            ]);
+            return;
+          }
+
+          el.run.disabled = true;
+          el.hint.textContent = "asking…";
+          check(rawUrl, key).then(function (result) {
+            el.run.disabled = false;
+            el.hint.textContent = "";
+            show(result.verdict, [
+              ["project", rawUrl],
+              ["key", describeKey(key)],
+              ["request", "HEAD /rest/v1/records?select=* · count=exact"],
+              ["answer", result.status + (result.message ? " — " + result.message : "")],
+              ["rows visible", result.count === null ? "unknown" : String(result.count)],
+            ]);
+          });
+        }
+
+        el.run.addEventListener("click", run);
+        el.clear.addEventListener("click", function () {
+          el.url.value = "";
+          el.key.value = "";
+          el.box.className = "";
+          el.hint.textContent = "";
+          el.url.focus();
+        });
+        el.key.addEventListener("keydown", function (event) {
+          if (event.key === "Enter") run();
+        });
+        el.url.addEventListener("keydown", function (event) {
+          if (event.key === "Enter") el.key.focus();
+        });
+        el.url.focus();
+      })();
+    </script>
+  </body>
+</html>
