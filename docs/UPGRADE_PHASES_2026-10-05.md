@@ -628,6 +628,25 @@ The `TreatWarningsAsErrors` build flags or the coverage collection step in
 
 **Severity: P0 · Data integrity · Est. 3–4 h · Depends on: Phase 21 (a build to prove it)**
 
+> **Status 2026-10-05: APPLIED, NOT COMPILE-VERIFIED.** `ConsumeAsync` and
+> `ReceiveAsync` now run their read-check-write inside one
+> `BeginTransactionAsync(IsolationLevel.Serializable)` transaction — the fix
+> the file's own remarks already prescribed. Eight regression tests were added
+> in `Tests/Database/InventoryStockConcurrencyTests.cs`. Nothing was compiled
+> or executed (no .NET SDK here), so the tests are the proof and they have not
+> run yet.
+>
+> **Step 2 below was wrong and has been corrected.** It said to use a guarded
+> `ExecuteUpdateAsync` "whose WHERE carries the balance predicate". A WHERE
+> clause alone does not fix a lost update: it stops over-issue, but two writers
+> that compute the new value in C# from the same stale read still overwrite
+> each other, because the increment is not in the statement. The sheet-store
+> pattern works there only because `GlassSheet.Stock`/`Used` are `int` and
+> `SET Used = Used + @q` is exact integer arithmetic; on these TEXT-affinity
+> decimal columns the same statement routes both the guard and the increment
+> through SQLite's `REAL`. The transaction is what closes the window. See the
+> corrected acceptance criteria below.
+
 ### Evidence
 
 `Services/SheetStore/InventoryItemRepository.cs:215-236`:
@@ -688,12 +707,30 @@ the sheet path; the consumables path has none.
 
 ### Acceptance criteria
 
-- The two new concurrency tests pass against a real SQLite file.
-- `git grep -n "item.Used += quantity\|item.Stock += quantity" Services` →
-  no hits.
+Corrected when the phase was applied — the original second bullet is not
+achievable together with the third, and the arithmetic has to stay in C#.
+
+- The eight tests in `Tests/Database/InventoryStockConcurrencyTests.cs` pass
+  against a real SQLite file. They fail against the pre-fix code.
+- ~~`git grep -n "item.Used += quantity" Services` → no hits.~~ **Withdrawn.**
+  The increments stay in C# on `decimal` by design (step 3). What must be true
+  instead: every read-check-write on this table happens inside a transaction,
+  i.e. `grep -n "BeginTransactionAsync" Services/SheetStore/InventoryItemRepository.cs`
+  finds one per mutating method.
 - The exception message and `ReadOnlyGate.Demand` call are unchanged, so no
-  caller or translation string moves.
+  caller or translation string moves. Verified by inspection; the message
+  contract is asserted in `Consume_throws_when_short_and_leaves_the_row_untouched`.
 - The existing sheet-store concurrency tests still pass untouched.
+- **One assumption to check when CI first runs this:** that EF Core's SQLite
+  provider maps `IsolationLevel.Serializable` to a non-deferred `BEGIN`
+  (`BEGIN IMMEDIATE`). That is what makes the lock be taken when the
+  transaction opens rather than at the first UPDATE, and it is the assumption
+  `Services/Production` already runs on. If
+  `Concurrent_issues_all_land_and_none_is_lost` still loses an update, that
+  mapping is the first thing to check — the fallback is an explicit
+  `SqliteTransaction` with `deferred: false`. `PRAGMA busy_timeout = 5000` is
+  applied to every connection by `SqliteResilience`'s interceptor, so a
+  contended `BEGIN` waits rather than failing immediately.
 
 ### Must not change
 

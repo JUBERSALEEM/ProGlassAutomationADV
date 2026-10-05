@@ -20,6 +20,7 @@ using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
 using System;
 using System.Collections.Generic;
+using System.Data;                                  // IsolationLevel
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -174,10 +175,31 @@ namespace ProGlassAutomation.Services.SheetStore
         /// hold a value this path would silently corrupt.
         /// </para>
         /// <para>
-        /// The right fix here is a transaction around the read-modify-write with
-        /// a retry on conflict, which keeps the arithmetic in decimal. That needs
-        /// a build and a real database to validate, not a blind edit. Tracked in
-        /// docs/phases/PHASE-01-transactions-and-concurrency.md.
+        /// FIXED 2026-10-05 (Phase 23 of docs/UPGRADE_PHASES_2026-10-05.md) the
+        /// way this note said it should be: the read-modify-write now runs
+        /// inside one serializable transaction, so the value read is the value
+        /// the write is based on. The arithmetic stays in C# on
+        /// <c>decimal</c> for the reason measured above — moving it into SQL
+        /// would move it into a binary float.
+        /// </para>
+        /// <para>
+        /// Why a transaction and not the sheet-store's guarded
+        /// <c>ExecuteUpdateAsync</c>: that pattern is
+        /// <c>SET Used = Used + @q WHERE Stock - Used &gt;= @q</c>, and it is
+        /// correct there only because <c>GlassSheet.Stock</c> and
+        /// <c>GlassSheet.Used</c> are <c>int</c>, so SQLite does exact integer
+        /// arithmetic. Here the columns are <c>decimal</c> with TEXT affinity,
+        /// so the same statement would route both the guard and the increment
+        /// through <c>REAL</c>. A WHERE clause alone does not fix a lost update
+        /// either — it stops over-issue, but two writers computing the new value
+        /// in C# from the same stale read still overwrite each other. The
+        /// transaction is what closes that window; the guard is what the balance
+        /// check inside it is for.
+        /// </para>
+        /// <para>
+        /// Regression net: <c>Tests/Database/InventoryStockConcurrencyTests.cs</c>
+        /// — concurrent receipts and issues against a real SQLite file, asserting
+        /// the exact final counters.
         /// </para>
         /// </remarks>
         public async Task ReceiveAsync(int itemId, decimal quantity, decimal? newUnitPrice = null)
@@ -192,8 +214,25 @@ namespace ProGlassAutomation.Services.SheetStore
                     "Received quantity must be greater than zero.");
 
             using var db = new AppDbContext();
+
+            // Serializable, not the default. On SQLite the isolation level is
+            // what decides whether the write lock is taken when the transaction
+            // OPENS (BEGIN IMMEDIATE) or only when the first UPDATE runs (BEGIN
+            // DEFERRED). Deferred would leave the window open: two receipts both
+            // read the same Stock, both pass, and the second write overwrites
+            // the first. The Production services take the same lock for the same
+            // reason (MaterialAllocationService, CuttingCompletionService,
+            // PairingService and the rest of Services/Production).
+            await db.Database.OpenConnectionAsync().ConfigureAwait(false);
+            using var tx = await db.Database
+                .BeginTransactionAsync(IsolationLevel.Serializable)
+                .ConfigureAwait(false);
+
             var item = await db.InventoryItems
                 .FirstOrDefaultAsync(i => i.Id == itemId).ConfigureAwait(false);
+            // A vanished item is a no-op, unchanged. The transaction is
+            // disposed uncommitted, which rolls back nothing because nothing
+            // was written.
             if (item == null) return;
 
             item.Stock += quantity;
@@ -204,13 +243,22 @@ namespace ProGlassAutomation.Services.SheetStore
             item.LastUpdated = DateTime.Now;
 
             await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            await tx.CommitAsync().ConfigureAwait(false);
         }
 
         /// <remarks>
-        /// Same known race and same reason it is not fixed with a SQL-side
+        /// Same race, same fix and the same reason it is not a SQL-side
         /// increment as <see cref="ReceiveAsync"/> — the quantity columns are
         /// TEXT affinity by design and SQL arithmetic would route them through a
         /// binary float. See that method for the measured evidence.
+        /// <para>
+        /// The balance check here is the part that used to be unsafe: it ran in
+        /// C# between the read and the write, so two operators issuing from the
+        /// same item both saw the same balance, both passed, and one issue was
+        /// lost — silently, with the row looking perfectly consistent
+        /// afterwards. Inside the transaction the check and the write are one
+        /// unit, so the balance it tests is the balance the write applies to.
+        /// </para>
         /// </remarks>
         public async Task ConsumeAsync(int itemId, decimal quantity)
         {
@@ -221,6 +269,13 @@ namespace ProGlassAutomation.Services.SheetStore
                     "Consumed quantity must be greater than zero.");
 
             using var db = new AppDbContext();
+
+            // See ReceiveAsync for why Serializable and not the default.
+            await db.Database.OpenConnectionAsync().ConfigureAwait(false);
+            using var tx = await db.Database
+                .BeginTransactionAsync(IsolationLevel.Serializable)
+                .ConfigureAwait(false);
+
             var item = await db.InventoryItems
                 .FirstOrDefaultAsync(i => i.Id == itemId).ConfigureAwait(false);
             if (item == null) return;
@@ -234,6 +289,7 @@ namespace ProGlassAutomation.Services.SheetStore
             item.LastUpdated = DateTime.Now;
 
             await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            await tx.CommitAsync().ConfigureAwait(false);
         }
 
         public async Task<List<string>> GetSuppliersAsync()
