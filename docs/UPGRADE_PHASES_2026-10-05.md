@@ -866,6 +866,86 @@ feature.
 
 ---
 
+## Phase 26 — Security observability: refused authentication, and bounded logs
+
+**Severity: P1 · Security / operability · Applied 2026-10-05**
+
+Found by a fresh sweep of the security surface rather than by an earlier phase.
+The sweep is worth recording because most of it came back clean, and knowing
+where *not* to look is half the value:
+
+| Area | Result |
+|---|---|
+| Password storage | PBKDF2-HMAC-SHA256, 210,000 iterations, per-user salt; legacy SHA-256 rows re-hash silently on next login |
+| Randomness | `RandomNumberGenerator.Fill` / `GetBytes` only. No `new Random()`, no MD5/SHA1/ECB in `Services`, `Models` or `ViewModels` |
+| SQL | The audit services bind parameters (`$id`, `$ver`, `$snap`); `ExecuteSqlRawAsync` sites run internally-defined statements. One interpolation — `PRAGMA table_info({table})` — on an internal constant |
+| Deserialisation | No `BinaryFormatter`, `NetDataContractSerializer` or `ObjectStateFormatter` |
+| Secrets | None hardcoded outside the Phase 18 signing key |
+| Authorisation | `OperationGuard` is fail-closed at the service layer, audits denials before throwing, and is not reachable from configuration |
+| Process launch | `Services/Security/ProcessStartGuard.cs` sandboxes `Process.Start` |
+
+### 26a. Refused authentication left no durable record ✅ applied (`ff01af5a`)
+
+Every *successful* authentication was audited; every *refused* one was not.
+`SwitchUserAsync` has four refusal returns and `ChangePasswordAsync` three, and
+none of the seven wrote an audit entry. The only trace was
+`AppLogService.Warning` in `LoginPanelViewModel` — a text file in `%AppData%`
+deleted after 14 days and not carried in the backup set the way `audit.db` is.
+
+That asymmetry is worse here than in most products because sign-in lockout is
+deliberately disabled (`LockoutRemainingSeconds` returns 0 unconditionally —
+the reasoning is written out at the method: a persisted window survived
+restarts and locked an operator out of their own ERP with no recovery path).
+Unlimited attempts with no durable record means "did anyone try while nobody
+was watching?" cannot be answered from anything that survives a fortnight.
+
+One writer, `AuditService.LogAuthRefusal(action, attemptedUsername, reason)`,
+now covers all seven returns → `"Sign-in failed"` and `"Password change
+refused"`. The attempted name goes in the *details* because `Log` attaches
+`CurrentUsername` automatically and on a refusal that is empty or the wrong
+person; the password is never passed; the writer never throws.
+
+Reachability was checked, not assumed: `DiagnosticsViewModel` builds an
+"All sections" tab plus a `AuditSections.Users` tab from
+`SectionActivityViewModel`, so the new entries are visible in the product.
+
+Also fixed: `OperationGuard.DemandAny` swallowed a failed audit write with a
+bare `catch { }` while its sibling `Demand` logged one. Silent-catch count
+101 → 100.
+
+### 26b. Log files had no size bound ✅ applied
+
+`AppLogService` pruned by age only, in `Initialize()`, which runs once at
+startup:
+
+- a session left open for a week never pruned anything;
+- nothing capped a single file, so one runaway loop — a retry storm, a binding
+  error raised per frame, an exception inside a timer — wrote until the volume
+  was full.
+
+The second point matters more than "logs got big": the data root can be
+redirected onto a network share (`Services/Database/SharedDataRootService`), so
+filling it is an ERP that cannot write to its own database.
+
+Now bounded in two independent places: an 8 MB per-file cap that rotates
+through `app-yyyyMMdd.{1,2}.log` (worst case 24 MB/day), and a 200 MB folder
+sweep at startup, oldest-first, never touching today's file — deleting the live
+log to save space would destroy the evidence that explains why the disk filled.
+The size check costs no syscall per line: written bytes are counted in memory
+and seeded from the real file length whenever the path changes, because a
+runaway loop is exactly the case this guard exists for and stat-ing on every
+line would make it worse. If the rename fails the counter is deliberately not
+reset, so the next entry retries instead of silently disabling the guard.
+
+**Acceptance.** 1,000,000 log lines (200 MB written) leave 23.83 MB on disk,
+inside the 25 MB bound — modelled, since no runtime exists here. The
+silent-catch audit stays green: the new `catch { }` in `RotateLog` falls under
+the existing `("AppLogService.cs", "*", "Logger must never throw")` entry, and
+`CrashReportServiceTests.BuildReport_includes_recent_log_lines` reads the
+in-memory ring buffer, not the file, so rotation cannot affect it.
+
+---
+
 ## Suggested order
 
 ```

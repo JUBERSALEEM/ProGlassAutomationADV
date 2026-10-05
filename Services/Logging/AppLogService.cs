@@ -35,6 +35,40 @@ namespace ProGlassAutomation.Services.Logging
         private const int MaxBuffered = 500;
         private const int RetentionDays = 14;
 
+        // ── SIZE BOUNDS (2026-10-05) ──────────────────────────────────────
+        // Retention was time-only: files older than RetentionDays are deleted
+        // in Initialize(), which runs ONCE at startup. Two consequences that
+        // only show up in trouble:
+        //
+        //   • A session left open for a week never prunes anything.
+        //   • Nothing caps a single file, so one runaway loop — a retry storm,
+        //     a binding error raised per frame, an exception inside a
+        //     timer — writes without limit until the volume is full.
+        //
+        // That matters more than usual here: the data root can be redirected
+        // onto a network share (see Services/Database/SharedDataRootService),
+        // so filling it is not "logs got big", it is an ERP that cannot write
+        // to its own database.
+        //
+        // These are safety nets, not a working limit. A normal day of use
+        // writes a few hundred kilobytes; 8 MB is roughly twenty times a heavy
+        // day. Worst case is bounded at MaxLogFileBytes x (MaxRotatedParts + 1)
+        // per day, and MaxLogFolderBytes bounds the folder absolutely.
+        private const long MaxLogFileBytes = 8L * 1024 * 1024;
+        private const int MaxRotatedParts = 2;
+        private const long MaxLogFolderBytes = 200L * 1024 * 1024;
+
+        // Written-bytes accounting, so the size check adds no syscall per
+        // line. File.AppendAllText already opens and closes the file for every
+        // entry, and a runaway loop is exactly the case this guard exists for,
+        // so stat-ing the file on every line would make the failure mode
+        // worse. Seeded from the real length whenever the path changes, so a
+        // second session appending to the same file cannot hide its growth.
+        // All three are only ever touched inside _writeLock.
+        private static string? _sizedPath;
+        private static long _sizedBytes;
+        private static int _nextPart = 1;
+
         private static string LogFolder => Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "ProGlassAutomation", "logs");
@@ -53,6 +87,44 @@ namespace ProGlassAutomation.Services.Logging
         /// <summary>Raised on the UI thread after each entry is written.</summary>
         public static event EventHandler<LogEntry>? LogWritten;
 
+        /// <summary>
+        /// Rolls the current day's file over to <c>app-yyyyMMdd.N.log</c> and
+        /// returns the path to keep writing to. The part number cycles through
+        /// 1..<see cref="MaxRotatedParts"/>, deleting the slot it is about to
+        /// reuse, so a loop that logs without end is bounded instead of
+        /// filling the volume. Called under <c>_writeLock</c>.
+        /// </summary>
+        /// <remarks>
+        /// If the rename fails the counter is deliberately NOT reset: the next
+        /// entry tries to rotate again, and if it never succeeds the file
+        /// simply keeps growing — the pre-existing behaviour, and the least
+        /// surprising outcome for a safety net that could not do its job.
+        /// Resetting it would silently disable the guard for the rest of the
+        /// session.
+        /// </remarks>
+        private static string RotateLog(string path)
+        {
+            try
+            {
+                var dir = Path.GetDirectoryName(path);
+                if (string.IsNullOrEmpty(dir)) dir = LogFolder;
+                var stem = Path.GetFileNameWithoutExtension(path);
+                var target = Path.Combine(dir, $"{stem}.{_nextPart}.log");
+
+                if (File.Exists(target)) File.Delete(target);
+                File.Move(path, target);
+
+                _nextPart = _nextPart >= MaxRotatedParts ? 1 : _nextPart + 1;
+                _sizedBytes = 0;
+            }
+            catch
+            {
+                // Logging must never be the reason the app misbehaves. See the
+                // remarks: the counter stays high so the next write retries.
+            }
+            return path;
+        }
+
         /// <summary>Creates the log folder and prunes old files once.</summary>
         public static void Initialize()
         {
@@ -65,6 +137,30 @@ namespace ProGlassAutomation.Services.Logging
                     .GetFiles("app-*.log")
                     .Where(f => f.LastWriteTime < cutoff))
                 {
+                    file.Delete();
+                }
+
+                // Age alone is not a bound: fourteen days of a runaway loop is
+                // fourteen times whatever one day produced. Sweep oldest-first
+                // until the folder is under MaxLogFolderBytes. Today's file is
+                // excluded — it is the one being appended to, and deleting the
+                // live log to save space would destroy exactly the evidence
+                // that explains why the disk filled up.
+                var today = Path.Combine(LogFolder, $"app-{DateTime.Now:yyyyMMdd}.log");
+                var byAge = new DirectoryInfo(LogFolder)
+                    .GetFiles("app-*.log")
+                    .Where(f => !string.Equals(
+                        f.FullName, today, StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(f => f.LastWriteTime)
+                    .ToList();
+
+                long total = byAge.Sum(f => f.Length);
+                if (File.Exists(today)) total += new FileInfo(today).Length;
+
+                foreach (var file in byAge)
+                {
+                    if (total <= MaxLogFolderBytes) break;
+                    total -= file.Length;
                     file.Delete();
                 }
             }
@@ -256,7 +352,28 @@ namespace ProGlassAutomation.Services.Logging
                     .ToString();
 
                 lock (_writeLock)
+                {
+                    if (_sizedPath != path)
+                    {
+                        _sizedPath = path;
+                        _sizedBytes = File.Exists(path)
+                            ? new FileInfo(path).Length
+                            : 0;
+                    }
+
+                    if (_sizedBytes >= MaxLogFileBytes)
+                        path = RotateLog(path);
+
                     File.AppendAllText(path, line);
+
+                    // A character count used as a byte estimate. The log
+                    // format is almost entirely ASCII, so the two agree; where
+                    // they do not, this under-counts, which only means the cap
+                    // trips marginally later. Measuring UTF-8 bytes exactly
+                    // would cost a pass over every line to sharpen a safety
+                    // net that does not need sharpening.
+                    _sizedBytes += line.Length;
+                }
             }
             catch
             {
