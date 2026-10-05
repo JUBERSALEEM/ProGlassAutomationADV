@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { OperationsTabs } from "@/components/operations/OperationsTabs";
 
 type RecordsHeaderProps = {
   source: "supabase" | "mock_preview";
@@ -72,6 +73,9 @@ export function RecordsHeader({
                 </span>
               )}
             </div>
+
+            {/* The two views of the same workbook sit one click apart. */}
+            <OperationsTabs className="mt-3" />
 
             <div className="mt-1 flex flex-wrap items-baseline gap-3">
               <h1 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">

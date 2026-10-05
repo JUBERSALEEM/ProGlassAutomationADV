@@ -15,6 +15,7 @@
  */
 
 import { isSupabaseConfigured, supabaseServer, supabaseServerWithToken } from "@/lib/supabase";
+import { buildSourceFileFilter, resolveSourceScope } from "@/lib/source-scope";
 import {
   formatDateDDMMYYYY,
   getDateEpoch,
@@ -246,6 +247,17 @@ function generateMockRecords(): RecordRow[] {
 
 const GLOBAL_MOCK_RECORDS = generateMockRecords();
 
+/**
+ * The preview dataset, shared with the Deliveries Tracker.
+ *
+ * Both dashboards must show the same fake order book when there is no Supabase
+ * configured — a tracker whose confirmed PIs do not exist on the reports page
+ * would be a preview of a bug rather than a preview of the product.
+ */
+export function previewRecords(): RecordRow[] {
+  return GLOBAL_MOCK_RECORDS;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // SERVER-SIDE DATABASE-DRIVEN QUERY IMPLEMENTATION
 // ─────────────────────────────────────────────────────────────────────────────
@@ -287,211 +299,15 @@ export async function fetchRecordsDashboardData({
     const client = authToken ? supabaseServerWithToken(authToken) : supabaseServer();
     let warning: string | undefined;
 
-    // Determine current attached Excel workbook from Supabase public.records
-    let currentSourceFile: string | null = null;
-    let availableSourceFiles: string[] = [];
-    let detectedLatestHasNoSourceFile = false;
-
-    // Step 1: Collect all distinct attached Excel source files from active records
-    const sfSet = new Set<string>();
-
-    const collectSourceFiles = async (orderCol?: string) => {
-      try {
-        let q = client
-          .from("records")
-          .select("source_file")
-          .neq("is_active", false)
-          .not("source_file", "is", null)
-          .neq("source_file", "");
-        if (orderCol) {
-          q = q.order(orderCol, { ascending: false, nullsFirst: false });
-        }
-        let res = await q.limit(500);
-        if (res.error) {
-          let fallbackQ = client
-            .from("records")
-            .select("source_file")
-            .not("source_file", "is", null)
-            .neq("source_file", "");
-          if (orderCol) {
-            fallbackQ = fallbackQ.order(orderCol, { ascending: false, nullsFirst: false });
-          }
-          res = await fallbackQ.limit(500);
-        }
-        if (res.data) {
-          for (const row of res.data) {
-            if (row.source_file && typeof row.source_file === "string") {
-              const t = row.source_file.trim();
-              if (t) sfSet.add(t);
-            }
-          }
-        }
-      } catch {}
-    };
-
-    await collectSourceFiles("created_at");
-    await collectSourceFiles("date");
-    await collectSourceFiles();
-
-    availableSourceFiles = Array.from(sfSet).sort((a, b) => a.localeCompare(b));
-
-    // Step 2: Multi-file comparative freshness ranking
-    // For each discovered source file, query its latest physical sync timestamps (created_at, updated_at)
-    // and latest business transaction date. The workbook with the newest sync time or order date wins.
-    let winningFile: string | null = null;
-    let winningScore = -1;
-
-    for (const sf of availableSourceFiles) {
-      const cleanName = sf.split(/[\\/]/).pop()?.trim() || sf;
-      const safeClean = cleanName.replace(/["\\]/g, "");
-
-      try {
-        // Query newest row by creation timestamp for this file
-        const { data: initialCreated, error: crError } = await client
-          .from("records")
-          .select("created_at, updated_at, date")
-          .neq("is_active", false)
-          .ilike("source_file", `%${safeClean}%`)
-          .order("created_at", { ascending: false, nullsFirst: false })
-          .limit(1);
-
-        let createdRows = initialCreated;
-        if (crError) {
-          const res = await client
-            .from("records")
-            .select("created_at, updated_at, date")
-            .ilike("source_file", `%${safeClean}%`)
-            .order("created_at", { ascending: false, nullsFirst: false })
-            .limit(1);
-          createdRows = res.data;
-        }
-
-        // Query newest row by transaction date for this file
-        const { data: initialDates, error: dtError } = await client
-          .from("records")
-          .select("created_at, updated_at, date")
-          .neq("is_active", false)
-          .ilike("source_file", `%${safeClean}%`)
-          .order("date", { ascending: false, nullsFirst: false })
-          .limit(1);
-
-        let dateRows = initialDates;
-        if (dtError) {
-          const res = await client
-            .from("records")
-            .select("created_at, updated_at, date")
-            .ilike("source_file", `%${safeClean}%`)
-            .order("date", { ascending: false, nullsFirst: false })
-            .limit(1);
-          dateRows = res.data;
-        }
-
-        const topCreated = createdRows?.[0];
-        const topDate = dateRows?.[0];
-
-        const tCreated = topCreated?.created_at ? new Date(topCreated.created_at).getTime() : 0;
-        const tUpdated = topCreated?.updated_at ? new Date(topCreated.updated_at).getTime() : 0;
-        const dCreated = getDateEpoch(topCreated?.date);
-        const dTop = getDateEpoch(topDate?.date);
-
-        // Primary score: physical insertion / sync epoch timestamp
-        const syncTime = Math.max(tCreated, tUpdated);
-        // Secondary score: business order date epoch timestamp
-        const orderTime = Math.max(dCreated, dTop);
-
-        // The file with the newest sync time wins.
-        // If sync timestamps are unavailable (e.g. null on all rows), the file with the newest order date wins.
-        const score = syncTime > 0 ? syncTime : orderTime;
-
-        if (score > winningScore) {
-          winningScore = score;
-          winningFile = sf;
-        }
-      } catch {}
-    }
-
-    if (winningFile) {
-      currentSourceFile = winningFile;
-    }
-
-    // Step 2B: Check if the newest rows in public.records were inserted without source_file
-    // If newly inserted rows have no source_file and are newer than the winning file,
-    // do NOT force scoping to an ancient historical file.
-    try {
-      const { data: initialUnlabelled, error: unlError } = await client
-        .from("records")
-        .select("created_at, date, id")
-        .neq("is_active", false)
-        .is("source_file", null)
-        .order("created_at", { ascending: false, nullsFirst: false })
-        .limit(1);
-
-      let unlabelledRows = initialUnlabelled;
-      if (unlError) {
-        const res = await client
-          .from("records")
-          .select("created_at, date, id")
-          .is("source_file", null)
-          .order("created_at", { ascending: false, nullsFirst: false })
-          .limit(1);
-        unlabelledRows = res.data;
-      }
-
-      if (unlabelledRows && unlabelledRows.length > 0) {
-        const unlabelledTime = unlabelledRows[0]?.created_at
-          ? new Date(unlabelledRows[0].created_at).getTime()
-          : 0;
-        const unlabelledDate = getDateEpoch(unlabelledRows[0]?.date);
-
-        if (
-          (unlabelledTime > 0 && unlabelledTime > winningScore) ||
-          (winningScore <= 0 && unlabelledDate > 0)
-        ) {
-          detectedLatestHasNoSourceFile = true;
-          currentSourceFile = null;
-        }
-      } else if (availableSourceFiles.length === 0) {
-        detectedLatestHasNoSourceFile = true;
-      }
-    } catch {}
-
-    // Fallback: If no winning file was found yet, attempt query via dedicated RPC if installed
-    if (!currentSourceFile && !detectedLatestHasNoSourceFile) {
-      try {
-        const { data: rpcCurrentSource } = await client.rpc("get_current_excel_source");
-        if (rpcCurrentSource && typeof rpcCurrentSource === "string" && rpcCurrentSource.trim().length > 0) {
-          currentSourceFile = rpcCurrentSource.trim();
-        } else if (Array.isArray(rpcCurrentSource) && rpcCurrentSource.length > 0 && rpcCurrentSource[0]?.source_file) {
-          currentSourceFile = String(rpcCurrentSource[0].source_file).trim();
-        }
-      } catch {}
-    }
-
-    if (currentSourceFile && !sfSet.has(currentSourceFile)) {
-      sfSet.add(currentSourceFile);
-      availableSourceFiles = Array.from(sfSet).sort((a, b) => a.localeCompare(b));
-    }
-
-    // Determine effective source file scoping:
-    // - "all": operator explicitly requests viewing all historical Excel files combined
-    // - specific filename: operator selected a specific attached workbook
-    // - empty or "current" (default): strictly scope to current attached workbook to prevent reading old files
-    // If the latest rows in the database have no source_file assigned, do not force scoping to an ancient file
-    const effectiveSourceFile =
-      filters.sourceFile === "all"
-        ? null
-        : filters.sourceFile && filters.sourceFile !== "current"
-          ? filters.sourceFile
-          : detectedLatestHasNoSourceFile
-            ? null
-            : currentSourceFile;
-
-    // Helper to safely format PostgREST .or() filter with clean filename matching
-    const buildSourceFileFilter = (sourceFile: string) => {
-      const cleanName = sourceFile.split(/[\\/]/).pop()?.trim() || sourceFile;
-      const safeClean = cleanName.replace(/["\\]/g, "");
-      return `source_file.ilike."%${safeClean}%"`;
-    };
+    // Determine current attached Excel workbook from Supabase public.records.
+    // The resolution rules (freshness ranking, unlabelled recent rows, explicit
+    // operator choice) live in `source-scope.ts` so the Deliveries Tracker and
+    // this dashboard can never disagree about which workbook is on screen.
+    const scope = await resolveSourceScope(client, filters.sourceFile);
+    let currentSourceFile: string | null = scope.currentSourceFile;
+    const availableSourceFiles: string[] = scope.availableSourceFiles;
+    const detectedLatestHasNoSourceFile = scope.detectedLatestHasNoSourceFile;
+    const effectiveSourceFile = scope.effectiveSourceFile;
 
     // 1. Fetch paginated records slice (50, 100, or 250 rows only)
     // Filter by is_active is not false and scope to current attached Excel file
