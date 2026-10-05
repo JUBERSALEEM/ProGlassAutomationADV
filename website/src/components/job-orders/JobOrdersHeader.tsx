@@ -93,9 +93,7 @@ export function JobOrdersHeader({
               </span>
             </div>
             <p className="mt-1 max-w-3xl text-xs leading-relaxed text-text-muted sm:text-sm">
-              This read-only queue is built from active <code className="font-mono text-brand-300">public.records</code> rows
-              whose proforma status is exactly <strong className="text-text-secondary">Confirmed</strong>. Multiple source
-              rows for one PI are grouped into one hand-off; drafts and later statuses are excluded.
+              Active <code className="font-mono text-brand-300">public.records</code> rows with exact status <strong className="text-text-secondary">Confirmed</strong> can be reviewed and released as a website Production Job Order. The source PI remains unchanged; each released job snapshots its source lines and tracks planned/completed quantities through its production stages.
             </p>
           </div>
 

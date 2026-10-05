@@ -13,9 +13,10 @@ npm run dev        # http://localhost:3000
 ```
 
 ```bash
-npm run lint       # eslint src scripts
-npm run typecheck  # tsc --noEmit
-npm run build      # production build, all pages prerendered
+npm run lint          # eslint src scripts
+npm run typecheck     # tsc --noEmit
+npm run test:job-orders # release gate and production routing semantics
+npm run build         # production build, all pages prerendered
 npm run start      # serve the production build
 ```
 
@@ -80,7 +81,7 @@ Deploy → then Settings → Domains → add the domain and its www form
 | `/blog`, `/blog/[slug]` | Short notes, one file each in `src/data/resources.ts` |
 | `/legal/privacy`, `/legal/terms`, `/legal/license` | Website and licence terms |
 | `/reports` | Proforma and operations records: every active Excel Sync row and status, with server-side aggregation |
-| `/job-orders` | Read-only production hand-off queue: only active proforma rows with status exactly `Confirmed`; multiple source rows are grouped into one PI. This view does not create a desktop Job Order document. |
+| `/job-orders` | Confirmed-PI production release queue. An authorized operator reviews the route, releases a website Job Order to Supabase, and tracks planned/completed quantities by production stage. The source PI stays unchanged; this does not write to the desktop app's local database. |
 | `/deliveries` | Delivery Note tracker: confirmed PIs only, each with its own movement ledger, so a PI delivered in three part loads shows one obligation and three entries |
 | `/reports/login` | Operator sign-in for the operations dashboards |
 
@@ -109,20 +110,22 @@ the layout, safety limits and follow-up recommendations.
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | all three dashboards | Publishable key; Row Level Security decides what it may read. The service key is refused if pasted here |
 | `PROGLASS_CONFIRMED_STATUSES` | `/deliveries` | Server-side. Which `public.records.status` values count as a delivery obligation. Defaults to `Confirmed`; widen with `"Confirmed,In Production,Ready"`. `/job-orders` intentionally stays strict and accepts only `Confirmed`. |
 
-Two SQL files are meant to be run once, in the Supabase SQL editor:
+Three SQL files are applied manually in the Supabase SQL editor, in this order:
 
 ```
-supabase-dashboard.sql    public.records: soft-delete flag, source-file scoping,
-                          aggregation RPC, indexes
-supabase-deliveries.sql   public.delivery_entries: the delivery ledger, the
-                          pi_delivery_balance view that owns the balance maths,
-                          indexes, an opt-in over-delivery guard
+supabase-dashboard.sql    public.records: active/workbook columns, aggregation
+                          RPCs and indexes (required first)
+supabase-job-orders.sql   website production release snapshots, stage quantities,
+                          progress audit and authenticated RPCs
+supabase-deliveries.sql   public.delivery_entries: delivery ledger, balance view,
+                          indexes and optional over-delivery guard
 ```
 
-Without the second file the deliveries tracker still runs: every confirmed PI
-appears as awaiting dispatch and the page says why. The design reasoning — the
-movement rules, the eligibility rule, the edge cases and the rollout — is in
-**[docs/DELIVERY_TRACKING_ANALYSIS.md](docs/DELIVERY_TRACKING_ANALYSIS.md)**.
+The Job Orders migration creates a separate Supabase production tracker. It does
+not change Excel Sync's `public.records` rows or the Windows desktop database.
+If the delivery migration is not installed, the delivery tracker still shows
+confirmed PIs as awaiting dispatch and explains the missing ledger. The delivery
+rules and rollout are in **[docs/DELIVERY_TRACKING_ANALYSIS.md](docs/DELIVERY_TRACKING_ANALYSIS.md)**; production release design and known source-data limits are in **[docs/JOB_ORDER_PRODUCTION_TRACKING.md](docs/JOB_ORDER_PRODUCTION_TRACKING.md)**.
 
 ## Where the content lives
 

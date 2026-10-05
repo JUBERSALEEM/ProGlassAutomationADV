@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
 
 const PDF_COLUMNS: Record<string, string[]> = {
   proformas: ["date", "pi_number", "customer_ref", "company", "qty", "sqm", "status", "pi_status"],
-  "job-orders": ["order_date", "pi_number", "customer_ref", "company", "type_of_work", "ordered_qty", "ordered_sqm", "record_count", "confirmation_status"],
+  "job-orders": ["order_date", "pi_number", "customer_ref", "company", "type_of_work", "ordered_qty", "ordered_sqm", "record_count", "confirmation_status", "job_order_number", "production_status", "stage_progress", "stage_totals"],
   deliveries: [
     "pi_number", "company", "order_date", "ordered_qty", "delivered_qty", "balance_qty",
     "ordered_sqm", "delivered_sqm", "balance_sqm", "delivery_status", "delivery_count",
@@ -104,7 +104,8 @@ const WIDTHS: Record<string, number> = {
   type_of_work: 8, qty: 6, sqm: 7, status: 9, pi_status: 8, zoho_status: 8,
   ordered_qty: 7, delivered_qty: 7, balance_qty: 7,
   ordered_sqm: 7, delivered_sqm: 7, balance_sqm: 7,
-  record_count: 6, confirmation_status: 9, delivery_status: 10, delivery_count: 7,
+  record_count: 6, confirmation_status: 9, job_order_number: 12, production_status: 9, stage_progress: 10, stage_totals: 28,
+  delivery_status: 10, delivery_count: 7,
   delivery_note_ref: 11, sequence: 5, delivery_date: 8, delivery_time: 7,
   delivery_type: 8, driver_name: 9, vehicle_number: 8, counts_toward_balance: 8, source_file: 11,
 };
@@ -162,7 +163,7 @@ function tableForSheet(bundle: OperationsExportBundle, sheet: ExportSheet) {
 }
 
 function reportGate(report: OperationsExportBundle["report"]): string {
-  if (report === "job-orders") return "Source gate: active Proforma Invoice records marked Confirmed only.";
+  if (report === "job-orders") return "Source gate: active Proforma Invoice records with exact status Confirmed only.";
   if (report === "deliveries") return "Delivery balances are based on the filtered confirmed-PI tracker and its movement ledger.";
   return "Source: filtered active Proforma Invoice records from Excel Sync.";
 }

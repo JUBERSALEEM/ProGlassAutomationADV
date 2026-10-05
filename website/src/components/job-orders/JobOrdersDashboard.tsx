@@ -360,6 +360,7 @@ export function JobOrdersDashboard() {
           sort={sort}
           onSortChange={handleSortChange}
           onSelect={setSelectedRow}
+          productionTrackingAvailable={data?.productionTrackingAvailable ?? false}
           onResetFilters={activeFilters ? handleResetFilters : undefined}
         />
 
@@ -368,7 +369,17 @@ export function JobOrdersDashboard() {
         )}
       </main>
 
-      <JobOrderDetailModal row={selectedRow} onClose={() => setSelectedRow(null)} />
+      <JobOrderDetailModal
+        key={selectedRow?.id ?? "closed"}
+        row={selectedRow}
+        authToken={authToken}
+        productionTrackingAvailable={data?.productionTrackingAvailable ?? false}
+        onClose={() => setSelectedRow(null)}
+        onChanged={() => {
+          setSelectedRow(null);
+          handleRefresh();
+        }}
+      />
     </div>
   );
 }

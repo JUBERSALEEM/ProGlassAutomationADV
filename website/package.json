@@ -12,6 +12,7 @@
     "start": "next start -H 0.0.0.0 -p 3000",
     "lint": "eslint src scripts",
     "typecheck": "tsc --noEmit",
+    "test:job-orders": "node --experimental-strip-types --experimental-default-type=module --test scripts/job-order-production.test.mjs",
     "doctor": "node scripts/check-deps.mjs --report",
     "supabase:check": "node --experimental-strip-types scripts/supabase-check.mjs",
     "fix": "node scripts/fix.mjs",

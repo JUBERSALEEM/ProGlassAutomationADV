@@ -1,14 +1,24 @@
 /**
- * Read-only Job Order queue types.
+ * Confirmed PI queue and website production-release tracking types.
  *
- * A website job-order candidate is a confirmed proforma, grouped once per PI.
- * The website does not create or mutate desktop Job Order documents: the
- * authoritative source remains Excel Sync's public.records table.
+ * Confirmed source lines remain in Excel Sync's public.records table. An
+ * authorized operator can create a separate website production Job Order
+ * snapshot and track its stage quantities without mutating the source PI or
+ * desktop application's local Job Order database.
  */
 import type { DatePreset, PaginationInfo } from "@/types/records";
 
+import type { TrackedProductionJobOrder } from "@/lib/job-order-production";
+
+export type JobOrderSourceLine = {
+  id: string;
+  type_of_work: string;
+  qty: number;
+  sqm: number;
+};
+
 export type JobOrderRow = {
-  /** PI number is the hand-off key until a dedicated job-order store exists. */
+  /** PI number plus workbook is the idempotent hand-off key. */
   id: string;
   pi_number: string;
   company: string;
@@ -24,7 +34,9 @@ export type JobOrderRow = {
   ordered_sqm: number;
   record_count: number;
   record_ids: (string | number)[];
+  source_lines: JobOrderSourceLine[];
   source_file: string | null;
+  production_job_order?: TrackedProductionJobOrder | null;
 };
 
 export type JobOrderFilters = {
@@ -71,6 +83,7 @@ export type JobOrdersApiData = {
   source: "supabase" | "mock_preview";
   currentSourceFile: string | null;
   isCurrentSourceScoped: boolean;
+  productionTrackingAvailable: boolean;
   warning?: string;
 };
 

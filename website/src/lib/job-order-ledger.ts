@@ -3,16 +3,18 @@
  *
  * One PI may arrive as several records (for example, multiple work lines in an
  * imported workbook), so the queue groups source rows by PI before it counts,
- * filters, sorts or paginates. Only a case-insensitive exact `Confirmed`
- * status qualifies; `In Production`, `Ready`, and other later statuses are not
- * pulled into this hand-off queue.
+ * filters, sorts or paginates. Only the exact, case-sensitive `Confirmed`
+ * status qualifies; `confirmed`, padded values, `In Production`, `Ready`, and
+ * other statuses are not pulled into this hand-off queue.
  */
 import { getDateEpoch } from "@/lib/date-utils";
+import { isActiveConfirmedProforma } from "@/lib/job-order-source-gate";
 import type {
   JobOrderFilterOptions,
   JobOrderFilters,
   JobOrderRow,
   JobOrderSort,
+  JobOrderSourceLine,
   JobOrderSummary,
 } from "@/types/job-orders";
 
@@ -46,8 +48,13 @@ const number = (value: unknown): number => {
 
 const round2 = (value: number): number => Math.round((value + Number.EPSILON) * 100) / 100;
 
-function confirmedStatus(value: unknown): boolean {
-  return typeof value === "string" && value.toLocaleLowerCase() === "confirmed";
+function sourceLine(record: JobOrderSourceRecord): JobOrderSourceLine {
+  return {
+    id: record.id === null || record.id === undefined ? "" : String(record.id),
+    type_of_work: text(record.type_of_work),
+    qty: number(record.qty),
+    sqm: number(record.sqm),
+  };
 }
 
 function normalizeSource(value: unknown): string {
@@ -63,7 +70,7 @@ export function groupConfirmedProformas(records: JobOrderSourceRecord[]): JobOrd
   const groups = new Map<string, JobOrderRow & { orderDateEpoch: number }>();
 
   for (const record of records) {
-    if (!confirmedStatus(record.status) || record.is_active === false) continue;
+    if (!isActiveConfirmedProforma(record.status, record.is_active)) continue;
 
     const piNumber = text(record.pi_number);
     if (!piNumber) continue;
@@ -77,6 +84,7 @@ export function groupConfirmedProformas(records: JobOrderSourceRecord[]): JobOrd
       existing.ordered_qty += number(record.qty);
       existing.ordered_sqm = round2(existing.ordered_sqm + number(record.sqm));
       existing.record_count += 1;
+      existing.source_lines.push(sourceLine(record));
       if (record.id !== null && record.id !== undefined) existing.record_ids.push(record.id);
       if (!existing.company) existing.company = text(record.company);
       if (!existing.customer_ref) existing.customer_ref = text(record.customer_ref);
@@ -111,6 +119,7 @@ export function groupConfirmedProformas(records: JobOrderSourceRecord[]): JobOrd
       ordered_sqm: round2(number(record.sqm)),
       record_count: 1,
       record_ids: record.id === null || record.id === undefined ? [] : [record.id],
+      source_lines: [sourceLine(record)],
       source_file: sourceFile,
     });
   }

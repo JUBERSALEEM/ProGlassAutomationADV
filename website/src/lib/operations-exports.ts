@@ -129,6 +129,10 @@ function jobOrderColumns(): ExportColumn[] {
     { key: "ordered_sqm", header: "Confirmed area (m²)" },
     { key: "record_count", header: "Source lines" },
     { key: "confirmation_status", header: "Confirmation gate" },
+    { key: "job_order_number", header: "Production Job Order" },
+    { key: "production_status", header: "Production status" },
+    { key: "stage_progress", header: "Completed production stages" },
+    { key: "stage_totals", header: "Stage planned / complete" },
     { key: "pi_status", header: "PI status" },
     { key: "zoho_status", header: "Zoho status" },
     { key: "source_file", header: "Source workbook" },
@@ -345,7 +349,34 @@ function loadJobOrderSort(params: URLSearchParams): JobOrderSort {
 }
 
 function mapJobOrderRows(rows: JobOrderRow[]): Record<string, unknown>[] {
-  return rows.map((row) => ({ ...row, record_ids: row.record_ids.join(", ") }));
+  return rows.map((row) => {
+    const production = row.production_job_order;
+    const completedStages = production?.stages.filter((stage) => stage.status === "Completed").length ?? 0;
+    const totalStages = production?.stages.length ?? 0;
+    return {
+      order_date: row.order_date,
+      pi_number: row.pi_number,
+      customer_ref: row.customer_ref,
+      company: row.company,
+      salesman: row.salesman,
+      prepared_by: row.prepared_by,
+      type_of_work: row.type_of_work,
+      ordered_qty: row.ordered_qty,
+      ordered_sqm: row.ordered_sqm,
+      record_count: row.record_count,
+      confirmation_status: row.confirmation_status,
+      job_order_number: production?.job_order_number ?? "",
+      production_status: production?.status ?? "Ready to release",
+      stage_progress: production ? `${completedStages} of ${totalStages} stages completed` : "Not released",
+      stage_totals: production?.stages.map((stage) =>
+        `${stage.stage_label}: ${stage.completed_qty}/${stage.planned_qty} ${stage.quantity_unit}`,
+      ).join("; ") ?? "",
+      pi_status: row.pi_status,
+      zoho_status: row.zoho_status,
+      source_file: row.source_file ?? "",
+      record_ids: row.record_ids.join(", "),
+    };
+  });
 }
 
 function parseDeliveryFilters(params: URLSearchParams): DeliveryFilters {

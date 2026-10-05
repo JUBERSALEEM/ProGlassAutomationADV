@@ -12,10 +12,11 @@ type Props = {
   sort: JobOrderSort;
   onSortChange: (field: JobOrderSortField) => void;
   onSelect: (row: JobOrderRow) => void;
+  productionTrackingAvailable: boolean;
   onResetFilters?: () => void;
 };
 
-export function JobOrdersTable({ rows, loading, sort, onSortChange, onSelect, onResetFilters }: Props) {
+export function JobOrdersTable({ rows, loading, sort, onSortChange, onSelect, productionTrackingAvailable, onResetFilters }: Props) {
   if (loading && rows.length === 0) {
     return (
       <div className="overflow-hidden rounded-2xl border border-line-strong/60 bg-ink-900/80 p-4 shadow-panel">
@@ -63,6 +64,7 @@ export function JobOrdersTable({ rows, loading, sort, onSortChange, onSelect, on
               <SortHeader label="Qty" field="ordered_qty" sort={sort} onSortChange={onSortChange} align="right" />
               <SortHeader label="Area" field="ordered_sqm" sort={sort} onSortChange={onSortChange} align="right" />
               <th scope="col" className="px-3 py-3">PI gate</th>
+              <th scope="col" className="px-3 py-3">Production</th>
               <th scope="col" className="px-4 py-3 text-right">Details</th>
             </tr>
           </thead>
@@ -88,6 +90,22 @@ export function JobOrdersTable({ rows, loading, sort, onSortChange, onSelect, on
                 <td className="whitespace-nowrap px-3 py-3.5 text-right font-mono text-xs font-semibold text-text-primary">{row.ordered_qty.toLocaleString()}</td>
                 <td className="whitespace-nowrap px-3 py-3.5 text-right font-mono text-xs font-semibold text-glass-teal">{row.ordered_sqm.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m²</td>
                 <td className="whitespace-nowrap px-3 py-3.5"><Badge tone="success">{row.confirmation_status}</Badge></td>
+                <td className="whitespace-nowrap px-3 py-3.5">
+                  {row.production_job_order ? (
+                    <div className="flex flex-col items-start gap-1">
+                      <Badge tone={row.production_job_order.status === "Completed" ? "success" : row.production_job_order.status === "In Production" ? "warning" : "neutral"}>
+                        {row.production_job_order.status}
+                      </Badge>
+                      <span className="font-mono text-3xs text-text-faint">
+                        {row.production_job_order.stages.filter((stage) => stage.status === "Completed").length}/{row.production_job_order.stages.length} stages · {row.production_job_order.job_order_number}
+                      </span>
+                    </div>
+                  ) : productionTrackingAvailable ? (
+                    <Badge tone="accent">Ready to release</Badge>
+                  ) : (
+                    <Badge tone="warning">Release unavailable</Badge>
+                  )}
+                </td>
                 <td className="whitespace-nowrap px-4 py-3.5 text-right">
                   <button type="button" onClick={() => onSelect(row)} className="rounded-md border border-line-strong px-2.5 py-1 text-3xs font-semibold text-text-faint transition-colors hover:border-brand-400 hover:text-brand-200">
                     Inspect
@@ -99,8 +117,8 @@ export function JobOrdersTable({ rows, loading, sort, onSortChange, onSelect, on
         </table>
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line-strong/50 bg-ink-950/50 px-4 py-2.5 text-3xs text-text-faint">
-        <span>Each PI appears once; source-line quantities and area are summed.</span>
-        <span className="font-mono">Only status = Confirmed</span>
+        <span>Each PI appears once; release snapshots its lines and opens stage-by-stage production tracking.</span>
+        <span className="font-mono">Only active rows with exact status = Confirmed enter; live Supabase is required to release</span>
       </div>
     </div>
   );
