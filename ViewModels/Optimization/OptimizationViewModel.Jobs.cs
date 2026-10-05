@@ -348,7 +348,29 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public ICommand ClearPaneSelectionCommand { get; }
 
 
-        private async void LoadJobsAsync()
+        /// <summary>
+        /// Loads confirmed job orders into the JOBS picker.
+        /// <para>
+        /// Phase 26c: was the last unsanctioned <c>async void</c> in the app. An
+        /// <c>async void</c> that throws re-raises on the captured
+        /// synchronization context rather than on a returned task, so the
+        /// exception escapes the caller entirely — and <see cref="ICommand"/>
+        /// handlers are exactly the case where nothing is awaiting to observe
+        /// it. <c>docs/ARCHITECTURE.md</c> states the single sanctioned
+        /// <c>async void</c> is <see cref="Utilities.AsyncUtility.SafeFireAndForget"/>,
+        /// and the rest of the codebase was converted to that in Phase 3; this
+        /// one had been missed. It now returns <see cref="Task"/> and both call
+        /// sites route through <c>SafeFireAndForget</c>, which adds the central
+        /// logging, correlation id and <c>ReadOnlyModeException</c> dialog that
+        /// every other fire-and-forget call in the app already gets.
+        /// </para>
+        /// <para>
+        /// The existing try/catch inside the body is kept: it sets
+        /// <see cref="JobsStatusText"/> so the operator sees why the picker is
+        /// empty, which is a different job from the central handler's logging.
+        /// </para>
+        /// </summary>
+        private async Task LoadJobsAsync()
         {
             if (IsHeadlessHost || IsDisposed || IsRunning) return;
             JobsStatusText = "Loading confirmed job orders…";
