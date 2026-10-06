@@ -67,7 +67,7 @@ namespace ProGlassAutomation.Services.RecordsSync
         }
 
         private sealed record RemoteRow(
-            string PiNumber, string SourceFile, string SourceWorksheet, string? UpdatedAtRaw);
+            string PiNumber, string? SourceFile, string? SourceWorksheet, string? UpdatedAtRaw);
 
         /// <summary>
         /// One synchronization pass. Returns (written, skipped). Idempotent
@@ -77,11 +77,13 @@ namespace ProGlassAutomation.Services.RecordsSync
         /// </summary>
         public async Task<(int Written, int Skipped)> SyncAsync(
             IReadOnlyList<RecordPayload> rows,
+            IReadOnlyList<string> activePiNumbers,
             string sourceFile,
             string sourceWorksheet,
             CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(rows);
+            ArgumentNullException.ThrowIfNull(activePiNumbers);
 
             var bearer = await ResolveBearerTokenAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -122,7 +124,7 @@ namespace ProGlassAutomation.Services.RecordsSync
                 }
             }
 
-            await ReconcileAsync(rows, sourceFile, sourceWorksheet, bearer, cancellationToken)
+            await ReconcileAsync(activePiNumbers, sourceFile, sourceWorksheet, bearer, cancellationToken)
                 .ConfigureAwait(false);
 
             return (written, skipped);
@@ -204,8 +206,8 @@ namespace ProGlassAutomation.Services.RecordsSync
 
                 result[pi] = new RemoteRow(
                     pi,
-                    GetStringOrEmpty(el, "source_file"),
-                    GetStringOrEmpty(el, "source_worksheet"),
+                    GetNullableString(el, "source_file"),
+                    GetNullableString(el, "source_worksheet"),
                     el.TryGetProperty("updated_at", out var upd) &&
                         upd.ValueKind == JsonValueKind.String
                         ? upd.GetString()
@@ -230,12 +232,12 @@ namespace ProGlassAutomation.Services.RecordsSync
             // Pin the observed ownership; when the remote row predates
             // source labelling (website migration added the columns
             // nullable) treat unlabelled as its own observed state.
-            filters.Add(observed.SourceFile.Length > 0
-                ? "source_file=eq." + Uri.EscapeDataString(observed.SourceFile)
-                : "source_file=is.null");
-            filters.Add(observed.SourceWorksheet.Length > 0
-                ? "source_worksheet=eq." + Uri.EscapeDataString(observed.SourceWorksheet)
-                : "source_worksheet=is.null");
+            filters.Add(observed.SourceFile == null
+                ? "source_file=is.null"
+                : "source_file=eq." + Uri.EscapeDataString(observed.SourceFile));
+            filters.Add(observed.SourceWorksheet == null
+                ? "source_worksheet=is.null"
+                : "source_worksheet=eq." + Uri.EscapeDataString(observed.SourceWorksheet));
 
             // Version fence on the raw observed timestamp — reused verbatim
             // so no reformatting can drift from what PostgREST stored.
@@ -257,9 +259,7 @@ namespace ProGlassAutomation.Services.RecordsSync
 
             var body = await response.Content.ReadAsStringAsync(cancellationToken)
                 .ConfigureAwait(false);
-            using var doc = JsonDocument.Parse(body);
-            return doc.RootElement.ValueKind == JsonValueKind.Array &&
-                   doc.RootElement.GetArrayLength() > 0;
+            return ParseReturnedPiNumbers(body).Contains(row.PiNumber);
         }
 
         /// <summary>Batch insert of rows the snapshot said are missing.
@@ -299,14 +299,32 @@ namespace ProGlassAutomation.Services.RecordsSync
                         using var singleResponse = await _http
                             .SendAsync(single, cancellationToken).ConfigureAwait(false);
 
-                        if (singleResponse.IsSuccessStatusCode) inserted++;
-                        else skipped++; // raced or rejected — next pass fences it
+                        if (singleResponse.StatusCode == HttpStatusCode.Conflict)
+                        {
+                            skipped++; // raced — next pass observes and fences it
+                            continue;
+                        }
+
+                        singleResponse.EnsureSuccessStatusCode();
+                        var singleJson = await singleResponse.Content
+                            .ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+                        if (ParseReturnedPiNumbers(singleJson).Contains(row.PiNumber))
+                            inserted++;
+                        else
+                            skipped++; // no returned key → don't mark locally as synced
                     }
                     continue;
                 }
 
                 response.EnsureSuccessStatusCode();
-                inserted += batch.Count;
+                var responseJson = await response.Content
+                    .ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+                var returned = ParseReturnedPiNumbers(responseJson);
+                foreach (var row in batch)
+                {
+                    if (returned.Contains(row.PiNumber)) inserted++;
+                    else skipped++; // validate the representation before advancing local state
+                }
             }
 
             return (inserted, skipped);
@@ -316,18 +334,18 @@ namespace ProGlassAutomation.Services.RecordsSync
         /// the proven end-of-sync RPC with its server-side empty-array
         /// guard; never physically deletes, exactly like the reference.</summary>
         private async Task ReconcileAsync(
-            IReadOnlyList<RecordPayload> rows,
+            IReadOnlyList<string> activePiNumbers,
             string sourceFile, string sourceWorksheet,
             string bearer, CancellationToken cancellationToken)
         {
-            if (rows.Count == 0)
+            if (activePiNumbers.Count == 0)
                 return; // belt and braces on top of the server-side guard
 
             var body = JsonSerializer.Serialize(new Dictionary<string, object>
             {
                 ["p_source_file"] = sourceFile,
                 ["p_source_worksheet"] = sourceWorksheet,
-                ["p_active_pi_numbers"] = rows.Select(r => r.PiNumber).ToArray(),
+                ["p_active_pi_numbers"] = activePiNumbers.ToArray(),
             });
 
             using var request = new HttpRequestMessage(
@@ -344,10 +362,38 @@ namespace ProGlassAutomation.Services.RecordsSync
         private void AddAuth(HttpRequestMessage request, string bearer) =>
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
 
-        private static string GetStringOrEmpty(JsonElement el, string name) =>
-            el.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String
-                ? v.GetString() ?? ""
-                : "";
+        private static string? GetNullableString(JsonElement el, string name)
+        {
+            if (!el.TryGetProperty(name, out var value) ||
+                value.ValueKind == JsonValueKind.Null ||
+                value.ValueKind == JsonValueKind.Undefined)
+                return null;
+
+            return value.ValueKind == JsonValueKind.String
+                ? value.GetString()
+                : value.ToString();
+        }
+
+        private static HashSet<string> ParseReturnedPiNumbers(string json)
+        {
+            var result = new HashSet<string>(StringComparer.Ordinal);
+            if (string.IsNullOrWhiteSpace(json))
+                return result;
+
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.ValueKind != JsonValueKind.Array)
+                throw new InvalidOperationException(
+                    "Supabase returned a non-array representation for records.");
+
+            foreach (var row in doc.RootElement.EnumerateArray())
+            {
+                if (row.TryGetProperty("pi_number", out var pi) &&
+                    pi.ValueKind == JsonValueKind.String &&
+                    !string.IsNullOrEmpty(pi.GetString()))
+                    result.Add(pi.GetString()!);
+            }
+            return result;
+        }
 
         private static StringContent JsonContent(object value) =>
             new(JsonSerializer.Serialize(value), Encoding.UTF8, "application/json");

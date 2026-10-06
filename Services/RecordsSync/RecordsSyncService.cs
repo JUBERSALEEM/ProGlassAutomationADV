@@ -141,34 +141,45 @@ namespace ProGlassAutomation.Services.RecordsSync
             }
 
             var written = 0;
-            if (changed.Count > 0)
+            var skipped = 0;
+            SecretVault.TryRetrieve(SecretPasswordKey, out var authPassword);
+            using (var client = new SupabaseRecordsClient(
+                       settings.SupabaseUrl, apiKey, settings.AuthEmail, authPassword))
             {
-                SecretVault.TryRetrieve(SecretPasswordKey, out var authPassword);
-                using var client = new SupabaseRecordsClient(
-                    settings.SupabaseUrl, apiKey, settings.AuthEmail, authPassword);
-
-                int skipped;
+                // Upsert only content changes, but reconciliation must always
+                // receive the COMPLETE active local PI set. Passing `changed`
+                // here would deactivate every unchanged PI after any edit.
                 (written, skipped) = await client.SyncAsync(
-                    changed, settings.SourceFile, settings.SourceWorksheet,
+                    changed,
+                    rows.Select(r => r.PiNumber).ToArray(),
+                    settings.SourceFile,
+                    settings.SourceWorksheet,
                     cancellationToken).ConfigureAwait(false);
-
-                if (skipped > 0)
-                    AppLogService.Info(
-                        $"[RecordsSync] {skipped} row(s) skipped by version/ownership fences — will retry next pass.");
-
-                // Refresh hashes only for rows the server accepted in this
-                // pass; untouched rows keep their existing hash.
-                var sentNow = new HashSet<string>(
-                    changed.Select(r => r.PiNumber), StringComparer.Ordinal);
-                var nextHashes = new Dictionary<string, string>(StringComparer.Ordinal);
-                foreach (var row in rows)
-                {
-                    nextHashes[row.PiNumber] = sentNow.Contains(row.PiNumber)
-                        ? Hash(row)
-                        : (state.Hashes.TryGetValue(row.PiNumber, out var keep) ? keep : Hash(row));
-                }
-                state.Hashes = nextHashes; // PIs deleted locally drop out
             }
+
+            if (skipped > 0)
+                AppLogService.Info(
+                    $"[RecordsSync] {skipped} row(s) skipped by version/ownership fences — will retry next pass.");
+
+            // Drop PIs deleted locally. If any changed rows were skipped,
+            // retain their old hashes (or leave new rows unhashed) so the
+            // next pass retries them; we only have an aggregate skip count,
+            // so conservatively retry all changed rows in that case.
+            var changedPiNumbers = new HashSet<string>(
+                changed.Select(r => r.PiNumber), StringComparer.Ordinal);
+            var nextHashes = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var row in rows)
+            {
+                if (skipped > 0 && changedPiNumbers.Contains(row.PiNumber))
+                {
+                    if (state.Hashes.TryGetValue(row.PiNumber, out var previousHash))
+                        nextHashes[row.PiNumber] = previousHash;
+                    continue;
+                }
+
+                nextHashes[row.PiNumber] = Hash(row);
+            }
+            state.Hashes = nextHashes;
 
             state.LastSuccessUtc = DateTime.UtcNow;
             state.LastSentCount = written;
