@@ -71,7 +71,7 @@
         <Setter Property="Padding" Value="18"/>
         <Setter Property="SnapsToDevicePixels" Value="False"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
-        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="True"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="False"/>
     </Style>
     <Style x:Key="Sl.Hero" TargetType="Border" BasedOn="{StaticResource Sl.Card}">
         <Setter Property="Background" Value="{DynamicResource Ov.Accent}"/>

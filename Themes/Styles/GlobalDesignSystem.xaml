@@ -484,7 +484,7 @@
         <Setter Property="Effect" Value="{DynamicResource Surface.Primary.Effect}"/>
         <Setter Property="SnapsToDevicePixels" Value="False"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
-        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="True"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="False"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
     </Style>
     <Style x:Key="SurfaceSecondaryStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">

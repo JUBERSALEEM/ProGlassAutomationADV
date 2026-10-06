@@ -233,7 +233,7 @@
              behavior fills the arc when the stroke is thick enough to gap. -->
         <Setter Property="SnapsToDevicePixels" Value="False"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
-        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="True"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="False"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
         <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
@@ -269,7 +269,7 @@
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
         <Setter Property="SnapsToDevicePixels" Value="False"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
-        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="True"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="False"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
     </Style>
 
@@ -386,7 +386,7 @@
         <Setter Property="Padding" Value="{StaticResource SettingsTilePadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="False"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
-        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="True"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="False"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
     </Style>
 

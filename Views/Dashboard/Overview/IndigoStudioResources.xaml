@@ -75,7 +75,7 @@
         <Setter Property="Padding" Value="24"/>
         <Setter Property="SnapsToDevicePixels" Value="False"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
-        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="True"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="False"/>
     </Style>
     <Style x:Key="Ov.CardCompact" TargetType="Border" BasedOn="{StaticResource Ov.Card}">
         <Setter Property="CornerRadius" Value="14"/>
