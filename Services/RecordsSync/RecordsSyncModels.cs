@@ -11,11 +11,17 @@ namespace ProGlassAutomation.Services.RecordsSync
     /// the shared config class would touch every existing config consumer
     /// for no benefit.
     ///
-    /// SECURITY: this file holds no secrets. The Supabase key is stored via
-    /// Services.Security.SecretVault (DPAPI, CurrentUser scope) under
-    /// <see cref="RecordsSyncService.SecretKey"/> and never touches disk in
-    /// plain text. The URL is public by nature (it ships inside the website
-    /// bundle as NEXT_PUBLIC_SUPABASE_URL).
+    /// SECURITY (aligned with Windowfilehost's proven posture — its README:
+    /// "publishable/anon key plus an authenticated user; no service-role
+    /// credential is accepted"):
+    ///   • This file holds NO secrets — URL, auth e-mail and switches only.
+    ///   • The publishable/anon key and the dedicated auth user's password
+    ///     live in Services.Security.SecretVault (DPAPI, CurrentUser scope)
+    ///     under the RecordsSyncService.Secret* keys.
+    ///   • Writes run as the `authenticated` role (SELECT/INSERT/UPDATE on
+    ///     records, no DELETE, no anon) — never service-role, never RLS
+    ///     bypass. If no auth user is configured the stored key is used
+    ///     directly as Bearer (last-resort compatibility path, logged).
     /// </summary>
     public sealed class RecordsSyncSettings
     {
@@ -26,9 +32,13 @@ namespace ProGlassAutomation.Services.RecordsSync
         /// <summary>Supabase project URL, e.g. https://xxxx.supabase.co</summary>
         public string SupabaseUrl { get; set; } = "";
 
+        /// <summary>Dedicated Supabase Auth user (e-mail) for the sync — the
+        /// Windowfilehost pattern. Password lives in SecretVault.</summary>
+        public string AuthEmail { get; set; } = "";
+
         /// <summary>Source label written to records.source_file. The website
         /// source-scopes by this value; keeping it distinct from any Excel
-        /// workbook name guarantees the two producers never collide.</summary>
+        /// workbook name makes ownership visible and auditable.</summary>
         public string SourceFile { get; set; } = "ProGlassAutomation";
 
         /// <summary>Source label written to records.source_worksheet.</summary>
@@ -39,9 +49,11 @@ namespace ProGlassAutomation.Services.RecordsSync
     }
 
     /// <summary>
-    /// One row of public.records, exactly as the existing website reads it
-    /// (src/types/records.ts RecordRow). snake_case via JsonPropertyName —
-    /// the contract is the website's, not ours to reshape.
+    /// One row of public.records, exactly as the proven Windowfilehost
+    /// payload (Models/SupabaseRecordPayload.cs) and the website's
+    /// RecordRow define it. ALL business fields are strings — qty and sqm
+    /// are text columns in the deployed schema, so sending JSON numbers
+    /// would be a type error at PostgREST.
     /// </summary>
     public sealed class RecordPayload
     {
@@ -50,23 +62,27 @@ namespace ProGlassAutomation.Services.RecordsSync
         /// We always emit DD-MM-YYYY.</summary>
         [JsonPropertyName("date")] public string Date { get; set; } = "";
 
-        [JsonPropertyName("salesman")] public string Salesman { get; set; } = "";
         [JsonPropertyName("company")] public string Company { get; set; } = "";
+        [JsonPropertyName("salesman")] public string Salesman { get; set; } = "";
         [JsonPropertyName("pi_number")] public string PiNumber { get; set; } = "";
-        [JsonPropertyName("type_of_work")] public string TypeOfWork { get; set; } = "";
         [JsonPropertyName("customer_ref")] public string CustomerRef { get; set; } = "";
-        [JsonPropertyName("qty")] public decimal Qty { get; set; }
-        [JsonPropertyName("sqm")] public decimal Sqm { get; set; }
         [JsonPropertyName("prepared_by")] public string PreparedBy { get; set; } = "";
+        [JsonPropertyName("type_of_work")] public string TypeOfWork { get; set; } = "";
         [JsonPropertyName("status")] public string Status { get; set; } = "";
+        [JsonPropertyName("qty")] public string Qty { get; set; } = "";
+        [JsonPropertyName("sqm")] public string Sqm { get; set; } = "";
         [JsonPropertyName("pi_status")] public string PiStatus { get; set; } = "";
 
         /// <summary>ProGlass Automation has no Zoho integration; the column
-        /// is part of the website contract so it is always sent empty rather
-        /// than omitted (omission would leave stale values on updates).</summary>
+        /// is part of the contract so it is always sent empty rather than
+        /// omitted (omission would leave stale values on updates).</summary>
         [JsonPropertyName("zoho_status")] public string ZohoStatus { get; set; } = "";
 
+        /// <summary>Soft-active flag added by the website's dashboard
+        /// migration; always true for rows we send (the reconcile RPC owns
+        /// deactivation).</summary>
         [JsonPropertyName("is_active")] public bool IsActive { get; set; } = true;
+
         [JsonPropertyName("source_file")] public string SourceFile { get; set; } = "";
         [JsonPropertyName("source_worksheet")] public string SourceWorksheet { get; set; } = "";
     }

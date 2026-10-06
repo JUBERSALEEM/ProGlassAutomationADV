@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -5,187 +6,321 @@ using System.Text.Json;
 namespace ProGlassAutomation.Services.RecordsSync
 {
     /// <summary>
-    /// Thin PostgREST transport for public.records — the ONLY network code in
-    /// the sync. No Supabase client library is introduced: the REST surface
-    /// the website itself uses is plain HTTPS + JSON, and taking a dependency
-    /// for it would violate "do not introduce unnecessary dependencies".
+    /// PostgREST transport for public.records — the ONLY network code in the
+    /// sync. No Supabase client library is introduced: the REST surface the
+    /// website and Windowfilehost both use is plain HTTPS + JSON.
     ///
-    /// Write strategy — select-then-upsert, because the table has no unique
-    /// constraint on (source_file, source_worksheet, pi_number) that a
-    /// PostgREST on_conflict merge could target:
-    ///   1. GET the ids of the batch's pi_numbers within our source scope.
-    ///   2. PATCH changed rows by id; POST the ones that do not exist yet.
-    ///   3. RPC reconcile_records_active_state soft-deactivates remote rows
-    ///      whose PI no longer exists locally — the exact proven
-    ///      Windowfilehost reconciliation, server-side guarded against
-    ///      empty-array mass deactivation.
+    /// Contract (verified against the Windowfilehost reference source —
+    /// Services/SupabaseService.cs, supabase/schema.sql, docs/SUPABASE_SETUP.md):
+    ///   • pi_number is the table's PRIMARY KEY — record identity is GLOBAL,
+    ///     not per source scope.
+    ///   • qty/sqm are TEXT columns; every business field ships as a string.
+    ///   • Auth = publishable/anon key + a DEDICATED authenticated user
+    ///     (POST /auth/v1/token?grant_type=password). Writes run as the
+    ///     `authenticated` role with SELECT/INSERT/UPDATE only — no
+    ///     service-role, no RLS bypass, no DELETE.
+    ///   • Writes are fenced: inserts are POST-only for rows the remote
+    ///     snapshot says are missing; updates are per-row PATCHes filtered
+    ///     on pi_number + OBSERVED source_file/source_worksheet + OBSERVED
+    ///     updated_at. A row that changed under us (or is owned by another
+    ///     producer and moved) simply matches zero rows and is retried next
+    ///     pass — accidental overwrites are impossible by construction.
+    ///   • A PI that exists remotely under the Excel workbook's ownership
+    ///     AND exists in the ProGlass database is reassigned to this app's
+    ///     source scope via the same fenced PATCH — the exact "conditional
+    ///     reassignment when present in the local source" semantics the
+    ///     reference implements. Absent locally, remote rows are untouched.
+    ///   • End-of-pass reconciliation uses the existing
+    ///     reconcile_records_active_state RPC (server-side empty-array
+    ///     guard), same as Windowfilehost.
     ///
-    /// Credentials: caller passes the key (from SecretVault). It is used as
-    /// both apikey and Bearer token, matching how every Supabase tool
-    /// authenticates. Nothing is logged; nothing is persisted here.
-    ///
-    /// All methods throw on failure — the CALLER owns retry/backoff policy,
-    /// so transport faults have exactly one handling path.
+    /// All methods throw on hard failure — the CALLER owns retry/backoff.
     /// </summary>
     public sealed class SupabaseRecordsClient : IDisposable
     {
-        private const string RestBase = "/rest/v1/records";
+        private const string RecordsEndpoint = "/rest/v1/records";
         private const string ReconcileRpc = "/rest/v1/rpc/reconcile_records_active_state";
-        private const int BatchChunk = 100; // pi_numbers per GET/POST/PATCH round
+        private const int SelectChunk = 100;   // pi_numbers per snapshot GET
+        private const int InsertChunk = 50;    // rows per POST
 
         private readonly HttpClient _http;
         private readonly string _baseUrl;
         private readonly string _apiKey;
+        private readonly string? _authEmail;
+        private readonly string? _authPassword;
 
-        private static readonly JsonSerializerOptions JsonOptions = new()
-        {
-            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never,
-        };
-
-        public SupabaseRecordsClient(string supabaseUrl, string apiKey)
+        public SupabaseRecordsClient(
+            string supabaseUrl, string apiKey,
+            string? authEmail = null, string? authPassword = null)
         {
             _baseUrl = (supabaseUrl ?? "").TrimEnd('/');
             _apiKey = apiKey ?? "";
+            _authEmail = string.IsNullOrWhiteSpace(authEmail) ? null : authEmail.Trim();
+            _authPassword = string.IsNullOrWhiteSpace(authPassword) ? null : authPassword;
+
             if (_baseUrl.Length == 0 || _apiKey.Length == 0)
                 throw new ArgumentException("Supabase URL and key are both required.");
 
             _http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
             _http.DefaultRequestHeaders.Add("apikey", _apiKey);
-            _http.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _apiKey);
         }
 
+        private sealed record RemoteRow(
+            string PiNumber, string SourceFile, string SourceWorksheet, string? UpdatedAtRaw);
+
         /// <summary>
-        /// Sends one synchronization pass. Returns the number of rows
-        /// actually written (inserted + updated). Idempotent: re-sending the
-        /// same rows PATCHes them to identical values.
+        /// One synchronization pass. Returns (written, skipped). Idempotent
+        /// and version-fenced: re-running sends only what the local ledger
+        /// flags as changed, and every remote mutation is preconditioned on
+        /// the row exactly as observed moments earlier.
         /// </summary>
-        public async Task<int> SyncAsync(
+        public async Task<(int Written, int Skipped)> SyncAsync(
             IReadOnlyList<RecordPayload> rows,
             string sourceFile,
             string sourceWorksheet,
             CancellationToken cancellationToken = default)
         {
-            if (rows == null) throw new ArgumentNullException(nameof(rows));
+            ArgumentNullException.ThrowIfNull(rows);
+
+            var bearer = await ResolveBearerTokenAsync(cancellationToken)
+                .ConfigureAwait(false);
 
             var written = 0;
-            foreach (var chunk in Chunk(rows, BatchChunk))
+            var skipped = 0;
+
+            foreach (var chunk in Chunk(rows, SelectChunk))
             {
-                var existing = await FetchExistingIdsAsync(
-                    chunk, sourceFile, sourceWorksheet, cancellationToken)
+                var remote = await FetchRemoteRowsAsync(chunk, bearer, cancellationToken)
                     .ConfigureAwait(false);
 
                 var toInsert = new List<RecordPayload>();
                 foreach (var row in chunk)
                 {
-                    if (existing.TryGetValue(row.PiNumber, out var id))
-                    {
-                        await PatchAsync(id, row, cancellationToken).ConfigureAwait(false);
-                        written++;
-                    }
-                    else
+                    if (!remote.TryGetValue(row.PiNumber, out var existing))
                     {
                         toInsert.Add(row);
+                        continue;
                     }
+
+                    // Fenced update — filter pins identity + observed owner +
+                    // observed version. Zero rows back means the row moved
+                    // under us: skip this pass, never blind-write.
+                    if (await FencedPatchAsync(row, existing, bearer, cancellationToken)
+                            .ConfigureAwait(false))
+                        written++;
+                    else
+                        skipped++;
                 }
 
                 if (toInsert.Count > 0)
                 {
-                    await PostAsync(toInsert, cancellationToken).ConfigureAwait(false);
-                    written += toInsert.Count;
+                    var (inserted, insertSkipped) = await InsertAsync(
+                        toInsert, bearer, cancellationToken).ConfigureAwait(false);
+                    written += inserted;
+                    skipped += insertSkipped;
                 }
             }
 
-            await ReconcileAsync(rows, sourceFile, sourceWorksheet, cancellationToken)
+            await ReconcileAsync(rows, sourceFile, sourceWorksheet, bearer, cancellationToken)
                 .ConfigureAwait(false);
 
-            return written;
+            return (written, skipped);
         }
 
-        /// <summary>pi_number → record id for the pi_numbers that already
-        /// exist inside our own source scope. Scoped strictly: rows from
-        /// Excel workbooks are never seen, never touched.</summary>
-        private async Task<Dictionary<string, long>> FetchExistingIdsAsync(
-            IReadOnlyList<RecordPayload> chunk,
-            string sourceFile,
-            string sourceWorksheet,
+        /// <summary>Windowfilehost auth pattern: anon key + dedicated user →
+        /// short-lived access token used as Bearer. Without configured
+        /// credentials the stored key itself is the Bearer (compatibility
+        /// path; the caller logs which mode is active).</summary>
+        private async Task<string> ResolveBearerTokenAsync(CancellationToken cancellationToken)
+        {
+            if (_authEmail == null || _authPassword == null)
+                return _apiKey;
+
+            var body = JsonSerializer.Serialize(new Dictionary<string, string>
+            {
+                ["email"] = _authEmail,
+                ["password"] = _authPassword,
+            });
+
+            using var request = new HttpRequestMessage(
+                HttpMethod.Post, _baseUrl + "/auth/v1/token?grant_type=password");
+            request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+
+            using var response = await _http
+                .SendAsync(request, cancellationToken).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync(cancellationToken)
+                .ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(json);
+
+            if (doc.RootElement.TryGetProperty("access_token", out var tokenEl) &&
+                tokenEl.ValueKind == JsonValueKind.String &&
+                !string.IsNullOrEmpty(tokenEl.GetString()))
+            {
+                return tokenEl.GetString()!;
+            }
+
+            throw new InvalidOperationException(
+                "Supabase auth response contained no access_token.");
+        }
+
+        /// <summary>Remote snapshot for the chunk's PI numbers — GLOBAL by
+        /// pi_number (the primary key), deliberately NOT scoped to our
+        /// source_file: ownership of an existing PI must be observed, not
+        /// assumed away.</summary>
+        private async Task<Dictionary<string, RemoteRow>> FetchRemoteRowsAsync(
+            IReadOnlyList<RecordPayload> chunk, string bearer,
             CancellationToken cancellationToken)
         {
             var inList = string.Join(",",
                 chunk.Select(r => "\"" + r.PiNumber.Replace("\"", "") + "\""));
 
-            var url = _baseUrl + RestBase
-                + "?select=id,pi_number"
-                + "&source_file=eq." + Uri.EscapeDataString(sourceFile)
-                + "&source_worksheet=eq." + Uri.EscapeDataString(sourceWorksheet)
+            var url = _baseUrl + RecordsEndpoint
+                + "?select=pi_number,source_file,source_worksheet,updated_at"
                 + "&pi_number=in.(" + Uri.EscapeDataString(inList) + ")";
 
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            AddAuth(request, bearer);
+
             using var response = await _http
-                .GetAsync(url, cancellationToken).ConfigureAwait(false);
+                .SendAsync(request, cancellationToken).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            var result = new Dictionary<string, long>(StringComparer.Ordinal);
+            var result = new Dictionary<string, RemoteRow>(StringComparer.Ordinal);
             using var doc = JsonDocument.Parse(json);
             if (doc.RootElement.ValueKind != JsonValueKind.Array)
                 return result;
 
             foreach (var el in doc.RootElement.EnumerateArray())
             {
-                if (!el.TryGetProperty("pi_number", out var piEl)) continue;
-                var pi = piEl.GetString();
+                var pi = el.TryGetProperty("pi_number", out var piEl)
+                    ? piEl.GetString() : null;
                 if (string.IsNullOrEmpty(pi)) continue;
-                if (el.TryGetProperty("id", out var idEl) &&
-                    idEl.ValueKind == JsonValueKind.Number &&
-                    idEl.TryGetInt64(out var id))
-                {
-                    result[pi] = id; // last wins — duplicate rows (if any
-                                     // pre-existed) converge on one target
-                }
+
+                result[pi] = new RemoteRow(
+                    pi,
+                    GetStringOrEmpty(el, "source_file"),
+                    GetStringOrEmpty(el, "source_worksheet"),
+                    el.TryGetProperty("updated_at", out var upd) &&
+                        upd.ValueKind == JsonValueKind.String
+                        ? upd.GetString()
+                        : null);
             }
             return result;
         }
 
-        private async Task PatchAsync(
-            long id, RecordPayload row, CancellationToken cancellationToken)
+        /// <summary>One fenced PATCH. The body carries our full row (source
+        /// labels included — that is how a locally-present PI is
+        /// conditionally reassigned from another producer's scope to ours).
+        /// Returns false when the preconditions matched zero rows.</summary>
+        private async Task<bool> FencedPatchAsync(
+            RecordPayload row, RemoteRow observed, string bearer,
+            CancellationToken cancellationToken)
         {
+            var filters = new List<string>
+            {
+                "pi_number=eq." + Uri.EscapeDataString(row.PiNumber),
+            };
+
+            // Pin the observed ownership; when the remote row predates
+            // source labelling (website migration added the columns
+            // nullable) treat unlabelled as its own observed state.
+            filters.Add(observed.SourceFile.Length > 0
+                ? "source_file=eq." + Uri.EscapeDataString(observed.SourceFile)
+                : "source_file=is.null");
+            filters.Add(observed.SourceWorksheet.Length > 0
+                ? "source_worksheet=eq." + Uri.EscapeDataString(observed.SourceWorksheet)
+                : "source_worksheet=is.null");
+
+            // Version fence on the raw observed timestamp — reused verbatim
+            // so no reformatting can drift from what PostgREST stored.
+            filters.Add(observed.UpdatedAtRaw != null
+                ? "updated_at=eq." + Uri.EscapeDataString(observed.UpdatedAtRaw)
+                : "updated_at=is.null");
+
             using var request = new HttpRequestMessage(
-                HttpMethod.Patch, _baseUrl + RestBase + "?id=eq." + id);
-            AddWriteHeaders(request);
+                HttpMethod.Patch,
+                _baseUrl + RecordsEndpoint + "?" + string.Join("&", filters) +
+                "&select=pi_number");
+            AddAuth(request, bearer);
+            request.Headers.Add("Prefer", "return=representation");
             request.Content = JsonContent(row);
 
             using var response = await _http
                 .SendAsync(request, cancellationToken).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
+
+            var body = await response.Content.ReadAsStringAsync(cancellationToken)
+                .ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            return doc.RootElement.ValueKind == JsonValueKind.Array &&
+                   doc.RootElement.GetArrayLength() > 0;
         }
 
-        private async Task PostAsync(
-            IReadOnlyList<RecordPayload> rows, CancellationToken cancellationToken)
-        {
-            using var request = new HttpRequestMessage(
-                HttpMethod.Post, _baseUrl + RestBase);
-            AddWriteHeaders(request);
-            request.Content = JsonContent(rows);
-
-            using var response = await _http
-                .SendAsync(request, cancellationToken).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
-        }
-
-        /// <summary>Soft-deactivate remote rows whose PI vanished locally.
-        /// Mirrors Windowfilehost's proven end-of-sync reconciliation and
-        /// relies on the RPC's own empty-array safety guard.</summary>
-        private async Task ReconcileAsync(
-            IReadOnlyList<RecordPayload> rows,
-            string sourceFile,
-            string sourceWorksheet,
+        /// <summary>Batch insert of rows the snapshot said are missing.
+        /// A 409 means a concurrent producer inserted the same PI between
+        /// snapshot and write — those rows are deferred to the next pass
+        /// (where the fenced PATCH path handles them).</summary>
+        private async Task<(int Inserted, int Skipped)> InsertAsync(
+            IReadOnlyList<RecordPayload> rows, string bearer,
             CancellationToken cancellationToken)
         {
+            var inserted = 0;
+            var skipped = 0;
+
+            foreach (var batch in Chunk(rows, InsertChunk))
+            {
+                using var request = new HttpRequestMessage(
+                    HttpMethod.Post, _baseUrl + RecordsEndpoint + "?select=pi_number");
+                AddAuth(request, bearer);
+                request.Headers.Add("Prefer", "return=representation");
+                request.Content = JsonContent(batch);
+
+                using var response = await _http
+                    .SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+                if (response.StatusCode == HttpStatusCode.Conflict)
+                {
+                    // Concurrent insert race — fall back to per-row so one
+                    // colliding PI cannot sink the whole batch.
+                    foreach (var row in batch)
+                    {
+                        using var single = new HttpRequestMessage(
+                            HttpMethod.Post, _baseUrl + RecordsEndpoint + "?select=pi_number");
+                        AddAuth(single, bearer);
+                        single.Headers.Add("Prefer", "return=representation");
+                        single.Content = JsonContent(new[] { row });
+
+                        using var singleResponse = await _http
+                            .SendAsync(single, cancellationToken).ConfigureAwait(false);
+
+                        if (singleResponse.IsSuccessStatusCode) inserted++;
+                        else skipped++; // raced or rejected — next pass fences it
+                    }
+                    continue;
+                }
+
+                response.EnsureSuccessStatusCode();
+                inserted += batch.Count;
+            }
+
+            return (inserted, skipped);
+        }
+
+        /// <summary>Soft-deactivate remote rows whose PI vanished locally —
+        /// the proven end-of-sync RPC with its server-side empty-array
+        /// guard; never physically deletes, exactly like the reference.</summary>
+        private async Task ReconcileAsync(
+            IReadOnlyList<RecordPayload> rows,
+            string sourceFile, string sourceWorksheet,
+            string bearer, CancellationToken cancellationToken)
+        {
             if (rows.Count == 0)
-                return; // never call with an empty set — belt and braces on
-                        // top of the server-side guard
+                return; // belt and braces on top of the server-side guard
 
             var body = JsonSerializer.Serialize(new Dictionary<string, object>
             {
@@ -196,6 +331,7 @@ namespace ProGlassAutomation.Services.RecordsSync
 
             using var request = new HttpRequestMessage(
                 HttpMethod.Post, _baseUrl + ReconcileRpc);
+            AddAuth(request, bearer);
             request.Headers.Add("Prefer", "return=minimal");
             request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 
@@ -204,11 +340,16 @@ namespace ProGlassAutomation.Services.RecordsSync
             response.EnsureSuccessStatusCode();
         }
 
-        private static void AddWriteHeaders(HttpRequestMessage request) =>
-            request.Headers.Add("Prefer", "return=minimal");
+        private void AddAuth(HttpRequestMessage request, string bearer) =>
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
+
+        private static string GetStringOrEmpty(JsonElement el, string name) =>
+            el.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String
+                ? v.GetString() ?? ""
+                : "";
 
         private static StringContent JsonContent(object value) =>
-            new(JsonSerializer.Serialize(value, JsonOptions), Encoding.UTF8, "application/json");
+            new(JsonSerializer.Serialize(value), Encoding.UTF8, "application/json");
 
         private static IEnumerable<IReadOnlyList<T>> Chunk<T>(IReadOnlyList<T> source, int size)
         {

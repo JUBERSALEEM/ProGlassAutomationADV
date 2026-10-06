@@ -31,7 +31,13 @@ namespace ProGlassAutomation.Services.RecordsSync
     /// </summary>
     public sealed class RecordsSyncService : IDisposable
     {
+        /// <summary>SecretVault key for the publishable/anon key.</summary>
         public const string SecretKey = "RecordsSync.SupabaseKey";
+
+        /// <summary>SecretVault key for the dedicated Supabase Auth user's
+        /// password (the Windowfilehost security pattern — authenticated
+        /// role, never service-role).</summary>
+        public const string SecretPasswordKey = "RecordsSync.SupabasePassword";
 
         private static readonly string SettingsPath = Path.Combine(
             AppDataRoot.CurrentFolder, "recordssync.json");
@@ -68,6 +74,19 @@ namespace ProGlassAutomation.Services.RecordsSync
                     AppLogService.Info(
                         "[RecordsSync] enabled but not configured (URL or key missing) — staying dormant.");
                     return;
+                }
+
+                if (!string.IsNullOrWhiteSpace(_settings.AuthEmail) &&
+                    SecretVault.TryRetrieve(SecretPasswordKey, out _))
+                {
+                    AppLogService.Info(
+                        "[RecordsSync] auth mode: dedicated authenticated user (RLS-respecting).");
+                }
+                else
+                {
+                    AppLogService.Info(
+                        "[RecordsSync] auth mode: stored key used directly as Bearer — configure " +
+                        "AuthEmail + '" + SecretPasswordKey + "' for the recommended authenticated-user mode.");
                 }
 
                 var interval = TimeSpan.FromMinutes(
@@ -124,10 +143,18 @@ namespace ProGlassAutomation.Services.RecordsSync
             var written = 0;
             if (changed.Count > 0)
             {
-                using var client = new SupabaseRecordsClient(settings.SupabaseUrl, apiKey);
-                written = await client.SyncAsync(
+                SecretVault.TryRetrieve(SecretPasswordKey, out var authPassword);
+                using var client = new SupabaseRecordsClient(
+                    settings.SupabaseUrl, apiKey, settings.AuthEmail, authPassword);
+
+                int skipped;
+                (written, skipped) = await client.SyncAsync(
                     changed, settings.SourceFile, settings.SourceWorksheet,
                     cancellationToken).ConfigureAwait(false);
+
+                if (skipped > 0)
+                    AppLogService.Info(
+                        $"[RecordsSync] {skipped} row(s) skipped by version/ownership fences — will retry next pass.");
 
                 // Refresh hashes only for rows the server accepted in this
                 // pass; untouched rows keep their existing hash.

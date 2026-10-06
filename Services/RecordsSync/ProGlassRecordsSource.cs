@@ -159,8 +159,11 @@ namespace ProGlassAutomation.Services.RecordsSync
                 // operators actually see per invoice.
                 TypeOfWork = FirstNonEmpty(projectName, snapshot?.Project?.ProjectIdentifierName),
                 CustomerRef = client?.CustomerReferenceCode ?? "",
-                Qty = qty,
-                Sqm = Math.Round(sqm, 2),
+                // qty/sqm are TEXT columns in the deployed schema (the
+                // Windowfilehost payload sends strings) — invariant culture,
+                // qty whole, sqm rounded to 2dp.
+                Qty = qty.ToString(CultureInfo.InvariantCulture),
+                Sqm = Math.Round(sqm, 2).ToString("0.##", CultureInfo.InvariantCulture),
                 PreparedBy = preparedBy,
                 // Single native lifecycle feeds both status columns; the
                 // website treats them as independent strings.
