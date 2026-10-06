@@ -108,6 +108,11 @@ namespace ProGlassAutomation
         public static Services.Workflow.IStatusService Status { get; private set; } = null!;
         public static Services.Dialogs.IDialogService Dialogs { get; private set; } = null!;
 
+        /// <summary>Records → Supabase sync (Services/RecordsSync). Null when
+        /// the DI container fell back to manual construction; the service is
+        /// dormant unless the operator configured it, so null is safe.</summary>
+        public static Services.RecordsSync.RecordsSyncService? RecordsSync { get; private set; }
+
         /// <summary>
         /// DI composition root — built once at startup. New code must
         /// resolve services via constructor injection; legacy App.* statics

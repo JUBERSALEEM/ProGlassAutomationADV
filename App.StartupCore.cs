@@ -418,6 +418,21 @@ namespace ProGlassAutomation
                 Dialogs = new Services.Dialogs.DialogService();
             }
 
+            // ── Records → Supabase sync (integration, dormant by default) ──
+            // StartIfConfigured only reads two small local files and arms a
+            // timer whose FIRST pass is 2 minutes away — no network, no
+            // database, no UI on the startup path. Wrapped in its own
+            // try/catch so a sync fault can never touch app startup.
+            try
+            {
+                RecordsSync = ServiceProvider?.GetService<Services.RecordsSync.RecordsSyncService>();
+                RecordsSync?.StartIfConfigured();
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Error("[RecordsSync] startup hook failed; sync disabled.", ex);
+            }
+
             // Named, and every failure logged rather than only the first.
             //
             // Task.WhenAll surfaces a single exception. With eleven EnsureCreated
