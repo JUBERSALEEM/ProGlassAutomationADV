@@ -244,10 +244,13 @@
              together (IsMenuOpen). The module then fills the window. This
              pill is the reopen control, so the page is not trapped.
              Hidden while the shell is open, and hidden in Glass Blush. -->
+        <!-- Hidden-state indicator: when the top panel + sidebar are hidden this
+             pill sits CENTER-TOP and shows the current module name (per user
+             2026-10-06). It is also the reopen control. Hidden while open. -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                HorizontalAlignment="Left"
+                HorizontalAlignment="Center"
                 VerticalAlignment="Top"
-                Margin="16,12,0,0"
+                Margin="0,12,0,0"
                 Panel.ZIndex="600"
                 Background="{DynamicResource SettingsCardFaceBrush}"
                 BorderBrush="{DynamicResource AccentPrimaryBrush}"
@@ -287,7 +290,7 @@
                                FontSize="15"
                                Foreground="{DynamicResource AccentPrimaryBrush}"
                                VerticalAlignment="Center"/>
-                    <TextBlock Text="ProGlass"
+                    <TextBlock Text="{Binding CurrentModuleTitle, FallbackValue='ProGlass'}"
                                Margin="8,0,0,0"
                                FontSize="12.5"
                                FontWeight="Bold"
