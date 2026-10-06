@@ -37,15 +37,62 @@
     <SolidColorBrush x:Key="PgFocusRimBrush"          Color="#6546B5" po:Freeze="True"/>
     <SolidColorBrush x:Key="PgTextMutedBrush"         Color="#6B6078" po:Freeze="True"/>
     <SolidColorBrush x:Key="PgWhiteBrush"             Color="#FFFFFF" po:Freeze="True"/>
+    <!-- final-05 design system (2026-10-06) -->
+    <SolidColorBrush x:Key="PgAppCreamBrush"   Color="#F2EBDD" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgTopBarFaceBrush" Color="#FBF8F1" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgCardWhiteBrush"  Color="#FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgCardBorderBrush" Color="#E5E7EB" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgKeylineVioletBrush" Color="#6546B5" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgTextInkBrush"    Color="#1A1D27" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgTextMuted2Brush" Color="#6B7280" po:Freeze="True"/>
+    <LinearGradientBrush x:Key="PgRailGradient" StartPoint="0.5,0" EndPoint="0.5,1" po:Freeze="True">
+        <GradientStop Color="#F7F9FD" Offset="0"/><GradientStop Color="#E9EDF6" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="PgSelectedGradient" StartPoint="0,0.5" EndPoint="1,0.5" po:Freeze="True">
+        <GradientStop Color="#6546B5" Offset="0"/><GradientStop Color="#8568CF" Offset="1"/>
+    </LinearGradientBrush>
 
     <!-- ═══════════════════════════════════════════════════════════════
          1 · TOP BAR & HEADER
     ═══════════════════════════════════════════════════════════════ -->
+    <!-- final-05: floating rounded header card + bottom violet keyline -->
     <Style x:Key="PgTopBarStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource SettingsCardFaceBrush}"/>
-        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Background" Value="{StaticResource PgTopBarFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource PgKeylineVioletBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,2"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Margin" Value="12,10,12,0"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- final-05: rounded-square white icon button with soft border -->
+    <Style x:Key="PgErpIconButtonStyle" TargetType="Button">
+        <Setter Property="Width" Value="36"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Background" Value="{StaticResource PgCardWhiteBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource PgCardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="Foreground" Value="{StaticResource PgTextInkBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="B" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="11" SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="B" Property="Background" Value="#F5F3FB"/></Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="B" Property="Background" Value="#ECE8F7"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- Square icon button: thin hamburger, crescent moon, X close -->
@@ -427,7 +474,7 @@
                                     <Binding Path="DataContext.CurrentModuleKey" RelativeSource="{RelativeSource TemplatedParent}"/>
                                 </MultiBinding>
                             </DataTrigger.Binding>
-                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource PgSelectedRowBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource PgSelectedGradient}"/>
                             <Setter TargetName="Icon" Property="Foreground" Value="{StaticResource PgWhiteBrush}"/>
                             <Setter TargetName="Label" Property="Foreground" Value="{StaticResource PgWhiteBrush}"/>
                             <Setter TargetName="Label" Property="FontWeight" Value="SemiBold"/>
@@ -451,9 +498,12 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ToggleButton">
                     <Border x:Name="Bg"
-                            Background="Transparent"
-                            CornerRadius="8"
-                            Padding="10,0"
+                            Background="{StaticResource PgCardWhiteBrush}"
+                            BorderBrush="{StaticResource PgCardBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="12,0"
+                            Margin="2,3"
                             SnapsToDevicePixels="True">
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -467,7 +517,7 @@
                                 <TextBlock x:Name="Label"
                                            Text="{TemplateBinding Content}"
                                            FontSize="12"
-                                           FontWeight="SemiBold"
+                                           FontWeight="Bold"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            VerticalAlignment="Center"
                                            TextTrimming="CharacterEllipsis"/>
@@ -488,7 +538,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="#F5F3FB"/>
                             <Setter TargetName="Icon" Property="Foreground" Value="{StaticResource PgVioletInkBrush}"/>
                             <Setter TargetName="Label" Property="Foreground" Value="{StaticResource PgVioletInkBrush}"/>
                         </Trigger>
@@ -521,10 +571,10 @@
 
     <!-- Sub-menu container -->
     <Style x:Key="PgSidebarSubListStyle" TargetType="Border">
-        <Setter Property="BorderBrush" Value="{StaticResource PgKeylineBrush}"/>
-        <Setter Property="BorderThickness" Value="1,0,0,0"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="4,2,2,2"/>
-        <Setter Property="Margin" Value="24,0,10,4"/>
+        <Setter Property="Margin" Value="6,2,6,6"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -581,7 +631,7 @@
                                     <Binding Path="DataContext.CurrentModuleKey" RelativeSource="{RelativeSource TemplatedParent}"/>
                                 </MultiBinding>
                             </DataTrigger.Binding>
-                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource PgSelectedRowBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource PgSelectedGradient}"/>
                             <Setter TargetName="Dot" Property="Background" Value="{StaticResource PgWhiteBrush}"/>
                             <Setter TargetName="Label" Property="Foreground" Value="{StaticResource PgWhiteBrush}"/>
                             <Setter TargetName="Label" Property="FontWeight" Value="SemiBold"/>
@@ -656,7 +706,7 @@
                             <Setter TargetName="Bg" Property="Background" Value="{StaticResource PgLavenderHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource PgSelectedRowBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource PgSelectedGradient}"/>
                             <Setter Property="Foreground" Value="{StaticResource PgWhiteBrush}"/>
                             <Setter TargetName="Glyph" Property="Foreground" Value="{StaticResource PgWhiteBrush}"/>
                         </Trigger>

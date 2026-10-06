@@ -223,7 +223,7 @@
     <!-- ═══════════════════════════════════════════════════════════════
          ROOT LAYOUT (Row 0: Top Header, Row 1: Sidebar + Module)
     ═══════════════════════════════════════════════════════════════ -->
-    <Grid Background="{DynamicResource BackgroundBrush}">
+    <Grid Background="{StaticResource PgAppCreamBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -314,7 +314,7 @@
                     </Style.Triggers>
                 </Style>
             </Border.Style>
-            <Grid Background="{DynamicResource SettingsCardFaceBrush}">
+            <Grid Background="Transparent">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
@@ -339,14 +339,17 @@
                             Cursor="Hand"
                             behaviors:ClickToCommandBehavior.Command="{Binding LogoClickCommand}"
                             ToolTip="{DynamicResource ToolTip.About}">
-                    <Image Width="28" Height="28" Margin="0,0,8,0"
-                           VerticalAlignment="Center"
-                           Source="pack://application:,,,/Resources/proglass_icon_256.png"
-                           RenderOptions.BitmapScalingMode="HighQuality"
-                           AutomationProperties.Name="ProGlass"/>
-                    <TextBlock Text="ProGlass"
-                               Style="{StaticResource PgBrandTitleStyle}"
-                               FontSize="16"/>
+                    <!-- final-05: isometric stacked-glass emblem SGU/DGU/LAM -->
+                    <Canvas Width="40" Height="30" Margin="0,0,8,0" VerticalAlignment="Center"
+                            AutomationProperties.Name="ProGlass ERP">
+                        <Path Data="M2,8 L12,4 L12,22 L2,26 Z" Fill="#BBDEFB" Stroke="#1565C0" StrokeThickness="1.2"/>
+                        <Path Data="M14,7 L24,3 L24,21 L14,25 Z" Fill="#90CAF9" Stroke="#1565C0" StrokeThickness="1.2"/>
+                        <Path Data="M26,6 L36,2 L36,20 L26,24 Z" Fill="#64B5F6" Stroke="#0D47A1" StrokeThickness="1.2"/>
+                    </Canvas>
+                    <TextBlock Text="ProGlass" Style="{StaticResource PgBrandTitleStyle}" FontSize="17"/>
+                    <TextBlock Text="ERP" FontSize="17" FontWeight="Light"
+                               Foreground="{StaticResource PgTextInkBrush}" VerticalAlignment="Center"
+                               Margin="4,0,0,0"/>
                     <Border Margin="8,0,0,0"
                             Padding="6,1"
                             CornerRadius="4"
@@ -580,9 +583,12 @@
                  "Menu" + one X close icon only (no logo)
                  Nested double keylines along right edge (#D9D5E6)
             ═══════════════════════════════════════════════════════════════ -->
+            <!-- final-05: floating rounded sidebar card on periwinkle gradient rail -->
             <Border Grid.Column="0"
-                    Width="260"
-                    Background="{DynamicResource SettingsCardFaceBrush}"
+                    Width="264"
+                    Background="{StaticResource PgRailGradient}"
+                    CornerRadius="16"
+                    Margin="12,0,10,12"
                     Panel.ZIndex="10"
                     SnapsToDevicePixels="True">
                 <Border.Style>
@@ -595,7 +601,7 @@
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-                <Grid Background="{DynamicResource SettingsCardFaceBrush}">
+                <Grid Background="Transparent">
                     <!-- Right edge nested double keylines -->
                     <Grid Width="3" HorizontalAlignment="Right" Panel.ZIndex="15">
                         <Border Width="1" HorizontalAlignment="Left" Background="{DynamicResource BorderDefaultBrush}" SnapsToDevicePixels="True"/>
