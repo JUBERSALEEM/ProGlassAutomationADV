@@ -287,7 +287,7 @@
                 <StackPanel>
                     <!-- Modal Header Icon Badge -->
                     <Border Width="50" Height="50" CornerRadius="12"
-                            Background="{DynamicResource AccentSoftBrush}"
+                            Background="{DynamicResource TintIndigoBrush}"
                             BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
                             HorizontalAlignment="Center" Margin="0,0,0,14">
                         <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="24"

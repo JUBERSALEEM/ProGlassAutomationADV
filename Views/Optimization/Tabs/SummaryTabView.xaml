@@ -221,7 +221,7 @@
                                             </StackPanel>
                                             <StackPanel Grid.Column="4">
                                                 <TextBlock Text="YIELD" Style="{StaticResource OptHeader}"/>
-                                                <Border Background="{DynamicResource AccentSoftBrush}"
+                                                <Border Background="{DynamicResource TintIndigoBrush}"
                                                         BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
                                                         CornerRadius="4" Padding="6,1" HorizontalAlignment="Left" Margin="0,2,0,0">
                                                     <TextBlock Text="{Binding Utilization}" FontSize="11" FontWeight="Bold"
@@ -286,7 +286,7 @@
                                                             <ColumnDefinition Width="110"/>
                                                             <ColumnDefinition Width="110"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <Border Grid.Column="0" Background="{DynamicResource AccentSoftBrush}"
+                                                        <Border Grid.Column="0" Background="{DynamicResource TintIndigoBrush}"
                                                                 BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
                                                                 CornerRadius="4" Padding="6,2" HorizontalAlignment="Left" VerticalAlignment="Center">
                                                             <TextBlock Text="{Binding SheetNo, StringFormat='Sheet #{0}'}"

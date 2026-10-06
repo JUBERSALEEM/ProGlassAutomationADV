@@ -46,7 +46,7 @@
 
                             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
                                 <Border Width="28" Height="28" CornerRadius="6"
-                                        Background="{DynamicResource AccentSoftBrush}"
+                                        Background="{DynamicResource TintIndigoBrush}"
                                         BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
                                         Margin="0,0,10,0" VerticalAlignment="Center">
                                     <TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="14"
@@ -67,7 +67,7 @@
                                     Height="36" Margin="14,0,0,0" VerticalAlignment="Center"
                                     ToolTip="Type or paste an ad-hoc cut list without a proforma invoice"/>
 
-                            <Border Grid.Column="3" Background="{DynamicResource AccentSoftBrush}"
+                            <Border Grid.Column="3" Background="{DynamicResource TintIndigoBrush}"
                                     BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
                                     CornerRadius="6" Padding="12,5" HorizontalAlignment="Right" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding PieceSummary}" FontSize="12"
@@ -173,7 +173,7 @@
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="160"/>
                                             </Grid.ColumnDefinitions>
-                                            <Border Grid.Column="0" Background="{DynamicResource AccentSoftBrush}"
+                                            <Border Grid.Column="0" Background="{DynamicResource TintIndigoBrush}"
                                                     BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
                                                     CornerRadius="4" Padding="8,2"
                                                     HorizontalAlignment="Left" VerticalAlignment="Center">

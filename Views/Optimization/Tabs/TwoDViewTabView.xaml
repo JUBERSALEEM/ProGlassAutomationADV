@@ -128,7 +128,7 @@
                         <WrapPanel VerticalAlignment="Center"
                                    Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
                             <!-- Sheet Number Pill -->
-                            <Border Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="6" Padding="10,5" Margin="0,0,8,0">
+                            <Border Background="{DynamicResource TintIndigoBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="6" Padding="10,5" Margin="0,0,8,0">
                                 <TextBlock Text="{Binding PreviewSheetCounter}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                             </Border>
 
@@ -534,7 +534,7 @@
                                                         </Grid.ColumnDefinitions>
                                                         <TextBlock Grid.Column="0" Text="{Binding SequenceNumber}" FontWeight="SemiBold"
                                                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                                        <Border Grid.Column="1" Background="{DynamicResource AccentSoftBrush}"
+                                                        <Border Grid.Column="1" Background="{DynamicResource TintIndigoBrush}"
                                                                 BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
                                                                 CornerRadius="4" Padding="6,1"
                                                                 HorizontalAlignment="Left" VerticalAlignment="Center">

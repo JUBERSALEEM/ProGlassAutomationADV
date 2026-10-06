@@ -39,7 +39,7 @@
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
                                                 <Border Grid.Column="0" Grid.ColumnSpan="3"
-                                                        Background="{DynamicResource AccentSoftBrush}"
+                                                        Background="{DynamicResource TintIndigoBrush}"
                                                         BorderBrush="{DynamicResource AccentBrush}"
                                                         BorderThickness="1" CornerRadius="4" Padding="8,3"
                                                         Visibility="{Binding HasColorPair, Converter={StaticResource InverseBoolToVisibilityConverter}}">
@@ -52,7 +52,7 @@
                                                     </TextBlock>
                                                 </Border>
                                                 <Border Grid.Column="0"
-                                                        Background="{DynamicResource AccentSoftBrush}"
+                                                        Background="{DynamicResource TintIndigoBrush}"
                                                         BorderBrush="{DynamicResource AccentBrush}"
                                                         BorderThickness="1" CornerRadius="4" Padding="8,3"
                                                         Visibility="{Binding HasColorPair, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -61,7 +61,7 @@
                                                                TextTrimming="CharacterEllipsis"/>
                                                 </Border>
                                                 <Border Grid.Column="2"
-                                                        Background="{DynamicResource AccentSoftBrush}"
+                                                        Background="{DynamicResource TintIndigoBrush}"
                                                         BorderBrush="{DynamicResource AccentBrush}"
                                                         BorderThickness="1" CornerRadius="4" Padding="8,3"
                                                         Visibility="{Binding HasColorPair, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -189,7 +189,7 @@
                             <StackPanel Grid.Column="0">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <Border Width="28" Height="28" CornerRadius="6"
-                                            Background="{DynamicResource AccentSoftBrush}"
+                                            Background="{DynamicResource TintIndigoBrush}"
                                             BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
                                             Margin="0,0,10,0" VerticalAlignment="Center">
                                         <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets" FontSize="14"
@@ -197,7 +197,7 @@
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <TextBlock Text="PRODUCTION CUTTING REPORT" Style="{StaticResource OptPanelTitle}" VerticalAlignment="Center"/>
-                                    <Border Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBrush}"
+                                    <Border Background="{DynamicResource TintIndigoBrush}" BorderBrush="{DynamicResource AccentBrush}"
                                             BorderThickness="1" CornerRadius="4" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Center">
                                         <TextBlock Text="SHOP FLOOR TICKET" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                     </Border>
@@ -257,7 +257,7 @@
                                     <Button Command="{Binding ExportCncCommand}" CommandParameter="lisec"
                                             Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,8,0" Cursor="Hand"
                                             ToolTip="Lisec .DAT — not implemented. Click for what would finish it.">
-                                        <Border Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="6" Padding="10,4">
+                                        <Border Background="{DynamicResource TintIndigoBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="6" Padding="10,4">
                                             <TextBlock Text="Lisec .DAT" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                         </Border>
                                     </Button>
@@ -425,7 +425,7 @@
                                                     <ColumnDefinition Width="1.15*" MinWidth="80" MaxWidth="150"/>
                                                     <ColumnDefinition Width="1.15*" MinWidth="76" MaxWidth="170"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Border Grid.Column="0" Background="{DynamicResource AccentSoftBrush}"
+                                                <Border Grid.Column="0" Background="{DynamicResource TintIndigoBrush}"
                                                         BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
                                                         CornerRadius="4" Padding="6,2" HorizontalAlignment="Left" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding SheetNo, StringFormat='Sheet #{0}'}"

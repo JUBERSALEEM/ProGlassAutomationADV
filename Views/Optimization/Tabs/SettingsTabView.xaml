@@ -36,7 +36,7 @@
                     <StackPanel Margin="0,0,0,16">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Width="28" Height="28" CornerRadius="6"
-                                    Background="{DynamicResource AccentSoftBrush}"
+                                    Background="{DynamicResource TintIndigoBrush}"
                                     BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
                                     Margin="0,0,10,0" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="14"
@@ -62,7 +62,7 @@
                                 <Grid Margin="0,0,0,14">
                                     <TextBlock Text="PLATE GEOMETRY &amp; TRIM MARGINS" Style="{StaticResource OptHeader}"
                                                FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <Border HorizontalAlignment="Right" Background="{DynamicResource AccentSoftBrush}"
+                                    <Border HorizontalAlignment="Right" Background="{DynamicResource TintIndigoBrush}"
                                             BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
                                             CornerRadius="4" Padding="8,2">
                                         <TextBlock Text="SAFETY EDGES" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
