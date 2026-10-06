@@ -28,9 +28,16 @@
 
     <UserControl.Resources>
 
+        <!-- Brand gradient — identical stops to AiChatView's ChatBrand so
+             the Agent and ProGlass AI read as one family. -->
+        <LinearGradientBrush x:Key="AgentBrand" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
+        </LinearGradientBrush>
+
         <!-- Message bubbles -->
         <Style x:Key="AgentUserBubble" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Background" Value="{StaticResource AgentBrand}"/>
             <Setter Property="CornerRadius" Value="16,16,4,16"/>
             <Setter Property="Padding" Value="14,10"/>
             <Setter Property="Margin" Value="48,4,0,4"/>
@@ -40,8 +47,8 @@
         </Style>
 
         <Style x:Key="AgentReplyBubble" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="16,16,16,4"/>
             <Setter Property="Padding" Value="14,10"/>
@@ -65,13 +72,13 @@
              the 560px overlay with room to spare for the title.
         ══════════════════════════════════════════════════════════ -->
         <Style x:Key="AgentHeaderIconButton" TargetType="Button">
-            <Setter Property="Width" Value="36"/>
-            <Setter Property="Height" Value="36"/>
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
             <Setter Property="Margin" Value="0,0,6,0"/>
             <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
-            <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.H3}"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -88,12 +95,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background"
-                                        Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="bd" Property="Background" Value="#26FFFFFF"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background"
-                                        Value="{DynamicResource TintIndigoBrush}"/>
+                                <Setter TargetName="bd" Property="Background" Value="#1AFFFFFF"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.4"/>
@@ -115,10 +120,9 @@
 
         <!-- ══ HEADER ══════════════════════════════════════════════════ -->
         <Border CornerRadius="{DynamicResource Radius.Top.Medium}" Grid.Row="0"
-                Padding="20,16"
-                Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="{DynamicResource Border.BottomHairlineThickness}">
+                Padding="16,8"
+                Background="{StaticResource AgentBrand}"
+                BorderThickness="0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -129,11 +133,11 @@
                 <Border Grid.Column="0"
                         Width="38" Height="38"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Background="{DynamicResource TintIndigoBrush}"
+                        Background="{DynamicResource SurfaceSecondaryBrush}"
                         VerticalAlignment="Center">
                     <TextBlock Text="&#xE946;"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="{StaticResource TextTitle}"
+                               FontSize="{DynamicResource FontSize.H1}"
                                Foreground="{DynamicResource AccentBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
@@ -143,11 +147,11 @@
                             Margin="14,0,20,0"
                             VerticalAlignment="Center">
                     <TextBlock Text="ProGlass Agent"
-                               FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock FontSize="{StaticResource TextBody}"
+                               FontSize="{DynamicResource FontSize.Title}" FontWeight="Bold"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
                                TextWrapping="Wrap"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}"
                                Text="{DynamicResource Shell.AgentAsksFirst}"/>
                 </StackPanel>
 
@@ -263,9 +267,9 @@
 
         <!-- ══ COMPOSER ════════════════════════════════════════════════ -->
         <Border CornerRadius="{DynamicResource Radius.Bottom.Medium}" Grid.Row="2"
-                Padding="20,16"
-                Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                Padding="16,12"
+                Background="{DynamicResource SurfacePrimaryBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource Border.TopHairlineThickness}">
             <StackPanel>
                 <Grid>
@@ -352,7 +356,7 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd"
-                                        Background="{DynamicResource AccentBrush}"
+                                        Background="{StaticResource AgentBrand}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
                                         SnapsToDevicePixels="True">
                                     <ContentPresenter HorizontalAlignment="Center"
@@ -360,12 +364,10 @@
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="bd" Property="Background"
-                                                Value="#6366F1"/>
+                                        <Setter TargetName="bd" Property="Opacity" Value="0.9"/>
                                     </Trigger>
                                     <Trigger Property="IsPressed" Value="True">
-                                        <Setter TargetName="bd" Property="Background"
-                                                Value="#3730A3"/>
+                                        <Setter TargetName="bd" Property="Opacity" Value="0.72"/>
                                     </Trigger>
                                     <Trigger Property="IsEnabled" Value="False">
                                         <Setter Property="Opacity" Value="0.4"/>
