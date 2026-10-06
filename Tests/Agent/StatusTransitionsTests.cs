@@ -123,6 +123,29 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.True(r.IsValid, r.Reason);
         }
 
+        // ── Status editor choices ────────────────────────────────────────
+
+        [Fact]
+        public void Status_choices_match_the_same_transition_table()
+        {
+            var choices = StatusTransitions.GetAllowedTargets(
+                StatusTransitions.Kind.DeliveryNote, "Draft");
+
+            Assert.Contains("Draft", choices);
+            Assert.Contains("Dispatched", choices);
+            Assert.Contains("Received", choices);
+            Assert.DoesNotContain("Completed", choices);
+        }
+
+        [Fact]
+        public void Unknown_legacy_status_is_preserved_as_the_only_choice()
+        {
+            var choices = StatusTransitions.GetAllowedTargets(
+                StatusTransitions.Kind.JobOrder, "LegacyState");
+
+            Assert.Equal(new[] { "LegacyState" }, choices);
+        }
+
         // ── Idempotency ──────────────────────────────────────────────────
 
         [Fact]

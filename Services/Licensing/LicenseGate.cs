@@ -117,6 +117,7 @@ namespace ProGlassAutomation.Services.Licensing
             ["DeliveryNote"] = Array.Empty<string>(),
             ["DeliveryReport"] = Array.Empty<string>(),
             ["Diagnostics"] = Array.Empty<string>(),
+            ["DocumentRegister"] = Array.Empty<string>(),
             ["Inquiry"] = Array.Empty<string>(),
             ["JoReport"] = Array.Empty<string>(),
             ["JobOrder"] = Array.Empty<string>(),

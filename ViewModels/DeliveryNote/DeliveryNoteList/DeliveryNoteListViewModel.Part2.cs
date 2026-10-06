@@ -315,6 +315,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
         }
 
+        /// <summary>
+        /// Register quick-edit entry point. The existing list method performs
+        /// the authoritative transition check and repository write.
+        /// </summary>
+        public async Task ChangeStatusFromRegisterAsync(int deliveryNoteId, string newStatus)
+        {
+            if (deliveryNoteId <= 0 || string.IsNullOrWhiteSpace(newStatus)) return;
+            await ChangeStatusAsync(
+                new DeliveryNoteRowViewModel(new DeliveryNoteListItem { Id = deliveryNoteId }),
+                newStatus);
+        }
+
         private async Task ChangeStatusAsync(
             DeliveryNoteRowViewModel row, string newStatus)
         {

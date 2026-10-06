@@ -1336,6 +1336,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
         }
 
+        /// <summary>
+        /// Register quick-edit entry point. It delegates to the same list
+        /// workflow as the Proforma Invoice screen (including status guards,
+        /// approval evidence flow, snapshot synchronization and audit), rather
+        /// than writing a register projection directly.
+        /// </summary>
+        public async Task ChangeStatusFromRegisterAsync(int invoiceId, string newStatus)
+        {
+            if (invoiceId <= 0 || string.IsNullOrWhiteSpace(newStatus)) return;
+
+            var item = _allItems.FirstOrDefault(row => row.Id == invoiceId)
+                ?? new SavedInvoiceListItem { Id = invoiceId };
+            await ChangeStatusAsync(item, newStatus);
+        }
+
         private async Task ChangeStatusAsync(
             SavedInvoiceListItem item, string newStatus)
         {

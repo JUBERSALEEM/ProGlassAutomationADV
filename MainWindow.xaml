@@ -86,6 +86,7 @@
         xmlns:viewsSheetStore="clr-namespace:ProGlassAutomation.Views.SheetStore"
         xmlns:viewsSpecifications="clr-namespace:ProGlassAutomation.Views.Specifications"
         xmlns:viewsJobOrder="clr-namespace:ProGlassAutomation.Views.JobOrder"
+        xmlns:viewsRegister="clr-namespace:ProGlassAutomation.Views.DocumentRegister"
         xmlns:viewsOptimization="clr-namespace:ProGlassAutomation.Views.Optimization"
         xmlns:viewsProduction="clr-namespace:ProGlassAutomation.Views.Production"
         xmlns:viewsDelivery="clr-namespace:ProGlassAutomation.Views.DeliveryNote"
@@ -148,6 +149,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmJobOrder:JobOrderViewModel}">
             <viewsJobOrder:JobOrderView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:DocumentRegisterViewModel}">
+            <viewsRegister:DocumentRegisterView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmOptimization:OptimizationViewModel}">
             <viewsOptimization:OptimizationView/>
@@ -698,6 +702,12 @@
                                                     Content="{DynamicResource Nav.JobOrder}"
                                                     Command="{Binding NavigateCommand}"
                                                     CommandParameter="JobOrder"/>
+
+                                            <!-- Joined PI / JO / DN operations register -->
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="Document Register"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="DocumentRegister"/>
 
                                             <!-- Tax Invoice -->
                                             <Button Style="{StaticResource PgSidebarSubItemStyle}"

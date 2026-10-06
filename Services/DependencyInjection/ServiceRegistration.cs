@@ -186,6 +186,10 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddTransient<ViewModels.ProformaInvoice.Step9ProfitLoss.ProfitLossStepViewModel>();
             services.AddTransient<ViewModels.ProformaInvoice.SavedInvoicesList.SavedInvoicesListViewModel>();
 
+            // Cross-document operations register — read model over the three
+            // existing document repositories; no parallel register store.
+            services.AddTransient<ProGlassAutomation.ViewModels.DocumentRegisterViewModel>();
+
             // Job Order
             services.AddTransient<JobOrderViewModel>();
             services.AddTransient<ViewModels.JobOrder.JobOrderDetail.JobOrderDetailViewModel>();
