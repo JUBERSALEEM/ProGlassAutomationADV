@@ -186,13 +186,36 @@ namespace ProGlassAutomation.Services.Workflow
         /// document, given its status and whether it still has LIVE
         /// dependents (the dependency guard already excludes voided children).
         /// </summary>
+        /// <summary>
+        /// True when the status is the terminal soft-closed (void) status for
+        /// the kind (Cancelled / Rejected). A voided document is already
+        /// closed; with no LIVE dependents left it may be physically removed —
+        /// this turns "void then delete" into a simple two-step workflow
+        /// instead of re-voiding an already-voided document.
+        /// </summary>
+        public static bool IsVoidTerminal(StatusTransitions.Kind kind, string? status)
+        {
+            if (string.IsNullOrWhiteSpace(status)) return false;
+            return string.Equals(
+                status.Trim(), VoidTargetStatus(kind),
+                StringComparison.OrdinalIgnoreCase);
+        }
+
         public static DeleteDecision DecideDelete(
             StatusTransitions.Kind kind, string? status, bool hasLiveChildren)
         {
-            if (CanHardDelete(kind, status, hasLiveChildren))
-                return DeleteDecision.HardDelete;
+            // Live children always come first — never orphan them, even when
+            // the parent is already voided.
             if (hasLiveChildren)
                 return DeleteDecision.Blocked;
+            if (CanHardDelete(kind, status, false))
+                return DeleteDecision.HardDelete;
+            // Already soft-closed (voided/cancelled) and childless: the number,
+            // snapshot and audit trail served their purpose; let the user clean
+            // up for real. Repository DeleteAsync runs the full lifecycle sync
+            // (master-DN refresh + PI status recovery) after removal.
+            if (IsVoidTerminal(kind, status))
+                return DeleteDecision.HardDelete;
             return DeleteDecision.Void;
         }
 

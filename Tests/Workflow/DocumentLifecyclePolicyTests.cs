@@ -95,6 +95,29 @@ namespace ProGlassAutomation.Tests.Workflow
                 DocumentLifecyclePolicy.DecideDelete(Kind.ProformaInvoice, "Approved", hasLiveChildren: true));
         }
 
+        // ── Voided documents are safely deletable (2026-10-06) ─────────────
+
+        [Theory]
+        [InlineData(Kind.DeliveryNote, "Cancelled")]
+        [InlineData(Kind.JobOrder, "Rejected")]
+        [InlineData(Kind.ProformaInvoice, "Cancelled")]
+        [InlineData(Kind.TaxInvoice, "Cancelled")]
+        [InlineData(Kind.CreditNote, "cancelled")]
+        public void Voided_terminal_childless_documents_decide_HardDelete(Kind kind, string status)
+        {
+            // A voided document with no live dependents is already soft-closed;
+            // delete must physically remove it, not loop into another void.
+            Assert.Equal(Decision.HardDelete,
+                DocumentLifecyclePolicy.DecideDelete(kind, status, hasLiveChildren: false));
+        }
+
+        [Fact]
+        public void Voided_document_with_live_children_stays_Blocked()
+        {
+            Assert.Equal(Decision.Blocked,
+                DocumentLifecyclePolicy.DecideDelete(Kind.DeliveryNote, "Cancelled", hasLiveChildren: true));
+        }
+
         // ── Body-edit lock ─────────────────────────────────────────────────
 
         [Theory]

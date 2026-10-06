@@ -1254,10 +1254,15 @@
          Pill button KEYS are NOT restyled here — GlassPillButtonTemplate owns
          Tag-as-icon. That template is industrialized in Styles/ButtonStyles.xaml. -->
     <Style x:Key="SoftCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
-    <!-- Last-win MUST match 2026-09-12 dusk-navy (31138eb). Do not BasedOn
-         SurfacePrimaryStyle — that flattened Optimization to empty cream cards. -->
+    <!-- Readability ratchet (2026-10-06): card surfaces must come from the
+         theme-paired Surface* family so the background always contrasts the
+         Text*/PrimaryForeground ink these cards' typography styles paint.
+         WindowBackground/ElevatedSurface resolve to dark dusk-glass in the
+         glass families while the text stayed light-mode ink — black-on-black
+         on Sizes/Stocks/Settings/Summary/Reports. The 2D view's dark hero
+         cards keep their explicit white-on-dark text and are unaffected. -->
     <Style x:Key="OptPanelCard" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="12"/>
@@ -1265,7 +1270,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
     <Style x:Key="OptInnerCard" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="10"/>
