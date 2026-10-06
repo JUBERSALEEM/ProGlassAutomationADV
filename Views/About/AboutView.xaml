@@ -38,7 +38,9 @@
 
     <Grid>
         <!-- ═══ AMBIENT BACKGROUND LAYER (GPU Cached for zero jitter) ═══ -->
-        <Grid IsHitTestVisible="False">
+        <!-- Deep-debug 2026-10-06: clip the decorative orb layer so the large
+             negative-margin orbs can never bleed over the view's edge cards. -->
+        <Grid IsHitTestVisible="False" ClipToBounds="True">
             <Grid.CacheMode>
                 <BitmapCache EnableClearType="False" RenderAtScale="1"/>
             </Grid.CacheMode>
