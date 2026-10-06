@@ -41,6 +41,44 @@ namespace ProGlassAutomation
 {
     public partial class App : Application
     {
+        // ══════════════════════════════════════════════════════════════
+        // CRASH LATCH (2026-10-06, ERR-7F77C4)
+        //
+        // A crash report recovered from the field showed ~90 "Unhandled UI
+        // exception" entries in 4.3 seconds, each followed by "Forcing exit",
+        // and the process still had not died. The cause is an amplification
+        // loop, not 90 separate faults:
+        //
+        //   render pass throws → DispatcherUnhandledException → log Critical
+        //   + build a full crash report + write it to disk + fire an HTTP
+        //   POST + construct and ShowDialog a CrashReportDialog (a Window,
+        //   which needs to render) + arm another watchdog thread
+        //   → args.Handled = true keeps the dispatcher pumping
+        //   → the next render pass throws → repeat
+        //
+        // When the original exception is OutOfMemoryException this is
+        // actively destructive: every iteration allocates to log, to build
+        // the report and to build a dialog, so the handler itself consumes
+        // the memory whose absence caused the crash. The fault that should
+        // have produced one report and a fast exit instead produced ~90 of
+        // each and a four-second death spiral.
+        //
+        // The latch makes the FIRST crash do the full treatment and every
+        // later one return immediately, so the process can actually exit.
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>0 until the first crash has been taken; 1 afterwards.</summary>
+        private static int _crashTaken;
+
+        /// <summary>Crashes swallowed after the first. Counted, not logged.</summary>
+        private static int _suppressedCrashes;
+
+        /// <summary>Ensures the "suppressing further" line is written once.</summary>
+        private static int _suppressionNoted;
+
+        /// <summary>Ensures only one watchdog thread is ever started.</summary>
+        private static int _watchdogArmed;
+
         private static string CrashReportPath =>
             ProGlassAutomation.Services.Logging.CrashReportService
                 .CrashReportLatestPath;
@@ -99,6 +137,11 @@ namespace ProGlassAutomation
                 // Shutdown may itself fail on a wedged dispatcher — the
                 // watchdog below is the hard guarantee.
             }
+
+            // One watchdog, ever. This method is reachable from four crash
+            // entry points and was previously called once per unhandled
+            // exception, so a crash storm spawned a thread per exception.
+            if (Interlocked.Exchange(ref _watchdogArmed, 1) != 0) return;
 
             try
             {

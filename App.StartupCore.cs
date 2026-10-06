@@ -104,6 +104,31 @@ namespace ProGlassAutomation
                     return;
                 }
 
+                // ── CRASH LATCH (2026-10-06, ERR-7F77C4) ─────────────
+                // Only the FIRST unhandled UI exception gets the full
+                // treatment. Later ones are counted and dropped, because
+                // args.Handled = true keeps the dispatcher pumping and a
+                // fault that repeats per render pass would otherwise run
+                // this whole path — log, crash report, HTTP post, dialog,
+                // watchdog — once per failure. See App.CrashHelpers.cs.
+                if (Interlocked.Exchange(ref _crashTaken, 1) != 0)
+                {
+                    int n = Interlocked.Increment(ref _suppressedCrashes);
+                    if (n == 1 &&
+                        Interlocked.Exchange(ref _suppressionNoted, 1) == 0)
+                    {
+                        // One line, written once, so the report says the
+                        // storm was recognised rather than looking like 90
+                        // independent faults. Never repeated.
+                        AppLogService.Info(
+                            "Further unhandled UI exceptions are being " +
+                            "suppressed while the first crash report completes.",
+                            new LogContext { Operation = "UnhandledException" });
+                    }
+                    args.Handled = true;
+                    return;
+                }
+
                 string errorId = AppLogService.Critical(
                     "Unhandled UI exception", args.Exception,
                     new LogContext { Operation = "UnhandledException" });
@@ -114,19 +139,39 @@ namespace ProGlassAutomation
                 // a plain MessageBox. The dialog has
                 // buttons for Restart, Copy Error ID,
                 // Open Crash Folder, and Close.
-                try
+                // OutOfMemoryException gets no dialog. CrashReportDialog is a
+                // Window, so showing it means laying out and rendering — the
+                // exact operation that just failed, in the ERR-7F77C4 stack
+                // (MediaContext.CompleteRender → HwndTarget.OnResize). Trying
+                // it allocates more of the memory whose absence caused the
+                // crash, and the report showed it throwing
+                // "Cannot set Visibility ... while a Window is closing" once
+                // the shutdown was already under way. The ErrorId is already
+                // in the log and in the crash report file, so nothing
+                // diagnostic is lost by going straight to exit.
+                if (args.Exception is OutOfMemoryException)
                 {
-                    var dialog = new ProGlassAutomation.Views
-                        .CrashReports.CrashReportDialog(
-                            errorId,
-                            crashPath,
-                            args.Exception.GetType().Name,
-                            args.Exception.Message ?? "");
-                    dialog.ShowDialog();
+                    AppLogService.Info(
+                        "Skipping the crash dialog for OutOfMemoryException; " +
+                        "error " + errorId + " is in the crash report.",
+                        new LogContext { Operation = "UnhandledException" });
                 }
-                catch
+                else
                 {
-                    // Dialog itself must never crash.
+                    try
+                    {
+                        var dialog = new ProGlassAutomation.Views
+                            .CrashReports.CrashReportDialog(
+                                errorId,
+                                crashPath,
+                                args.Exception.GetType().Name,
+                                args.Exception.Message ?? "");
+                        dialog.ShowDialog();
+                    }
+                    catch
+                    {
+                        // Dialog itself must never crash.
+                    }
                 }
                 args.Handled = true;
 
