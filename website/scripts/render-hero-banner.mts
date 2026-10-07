@@ -8,20 +8,31 @@
  * not use. This script redraws it as the product's own interface, in the site's
  * own tokens.
  *
+ * The screen it draws is the **2D View** tab of the Optimization module, and
+ * that is the point of the plate: what the product does for a glass shop is
+ * nest a cutting list across stock sheets and show the operator where every
+ * piece comes from. The window's main area is therefore the light studio
+ * drawing — the stone bed, the near-white pieces, the teal trim boundary and
+ * the indigo cut order — and beside it the run's own cut schedule and figures.
+ *
  * Three rules keep it honest:
  *
  *   1. No headless browser is involved. The composition is SVG built here and
  *      rasterised with sharp, so the output is reproducible from the repository
  *      alone — `npm run assets:banner`.
- *   2. Every figure on it is read from `src/data`. The plate plan is the plan
- *      the homepage draws, which comes out of `packGuillotine`; the cutting
- *      list is the same list; the module count, the rail grouping and the chain
- *      verbs are the data modules. Nothing here is typed in by hand, so the
- *      banner cannot drift away from the product and start advertising
- *      something that does not exist.
+ *   2. Every figure on it is read from `src/data`. The plate is packed here, at
+ *      render time, by the same `packGuillotine` the site's own preview uses,
+ *      over the same twenty-two-size cutting list the Optimization module
+ *      publishes; the sheet, the trims and the kerf are the house Thin profile;
+ *      the schedule rows, the utilisation and the wastage are read back out of
+ *      that result. The module count, the rail grouping and the chain verbs are
+ *      the data modules. Nothing here is typed in by hand, so the banner cannot
+ *      drift away from the product and start advertising something that does
+ *      not exist.
  *   3. The colours are the theme tokens themselves (`src/app/globals.css`,
- *      midnight), copied once into `palette` below. If a token moves, this file
- *      moves with it.
+ *      midnight) and the studio tokens the 2D view is painted from, read live
+ *      by `scripts/lib/theme-tokens.mts` — this file owns no colour of its own.
+ *      If a token moves, this file moves with it.
  *
  * Usage, from `website/`:
  *
@@ -51,13 +62,24 @@ import path from "node:path";
 import { mkdir } from "node:fs/promises";
 import sharp from "sharp";
 
-import { demoFor } from "@/data/liveDemos";
+import { demoFor, optimizerLimits, sheetSizes } from "@/data/liveDemos";
 import { navIcons } from "@/data/navIcons";
 import { chainVerbs } from "@/data/workflows";
 import { modules } from "@/data/modules";
 import { quotationTotals } from "@/data/workedExample";
+import { packGuillotine, plateViews, type PackMargins, type PlateView } from "@/lib/guillotinePack";
+import {
+  breakoutZone,
+  dimensionsText,
+  labelsFor,
+  marginZoneText,
+  pieceRef,
+  reusableOffcut,
+  shortDimensionsText,
+  usableZone,
+} from "@/components/optimization/cad";
 import { site } from "@/lib/site";
-import { palette } from "./lib/theme-tokens.mts";
+import { palette, studio } from "./lib/theme-tokens.mts";
 
 /* ══════════════════════════════════════════════════════════════════════════
  * The canvas
@@ -230,40 +252,94 @@ function pill(
  * ════════════════════════════════════════════════════════════════════════ */
 
 /*
- * The screen the home page puts in its hero.
+ * The run the banner draws.
  *
- * `demoFor` is the same accessor the live preview on `/` uses, so the banner
- * draws the Overview dashboard with the application's own tiles — open
- * inquiries, proformas raised, jobs in production, ready to dispatch — and the
- * proforma's nine steps, counted from the demo's own step list.
+ * The cutting list, the sheet and the margins are the Optimization module's
+ * own: `demoFor("Optimization")` is the same accessor the module's live preview
+ * on `/optimization` reads, so its twenty-two sizes are the twenty-two sizes
+ * the preview runs on, and the margins are the house Thin profile out of
+ * `src/data/liveDemos.ts` (15 mm on all four edges, 3 mm blade gap for 6 mm
+ * glass, from `Services/Optimization/OptimizationModels.cs`).
+ *
+ * The packing is then run here, at render time, by the same `packGuillotine`
+ * the preview and the homepage use. Every number the banner prints about the
+ * run — the plate it is showing, the schedule rows on it, the sheets used, the
+ * utilisation, the wastage — is read back out of that result, which is why the
+ * banner cannot carry a yield figure the product does not actually produce.
  */
-const dashboard = demoFor("Dashboard", "Overview dashboard", ["KPI cards", "Order-to-cash pipeline", "Activity feed"]);
-const kpis = (dashboard.views[0]?.summary ?? []).slice(0, 4);
-const proformaSteps = demoFor("ProformaInvoice", "Proforma Invoice", []).steps ?? [];
+const optimization = demoFor("Optimization", "Optimization report", ["Sheets used", "Utilization", "Wastage"]);
+const cutList = optimization.views[0]?.rows ?? [];
 
-/**
- * Seven bars, the same series the live dashboard draws at its default range
- * (see `DashboardEngine` in src/components/product/LiveSurface.tsx). Kept as a
- * literal because it is a shape, not a figure: the tiles above carry the
- * numbers.
+/** The sheet the preview opens on, and the profile it cuts to. */
+const runSheet = sheetSizes[1] ?? sheetSizes[0]!;
+const runMargins: PackMargins = {
+  left: optimizerLimits.marginLeft,
+  right: optimizerLimits.marginRight,
+  top: optimizerLimits.marginTop,
+  bottom: optimizerLimits.marginBottom,
+  kerf: optimizerLimits.kerf,
+};
+
+/** Every row of the cutting list, expanded to its pieces, as the preview does. */
+const runParts = cutList.flatMap((row) => {
+  const width = Number(row.w ?? 0);
+  const height = Number(row.h ?? 0);
+  const quantity = Math.max(1, Number(row.qty ?? 1));
+  return Array.from({ length: Math.min(quantity, 12) }, (_, index) => ({
+    id: `${row.piece ?? "P"}-${index + 1}`,
+    width,
+    height,
+  }));
+});
+
+const run = packGuillotine(runParts, { width: runSheet.w, height: runSheet.h }, runMargins);
+const runPlates: PlateView[] = plateViews(run, {
+  width: runSheet.w,
+  height: runSheet.h,
+  label: `${runSheet.w} × ${runSheet.h}`,
+});
+
+/*
+ * The plate the banner shows.
+ *
+ * The third one, not the first: the application opens the 2D view on plate 1
+ * and plate 1 of this job carries two large panes, which is honest but reads as
+ * an empty sheet at banner size. Plate 3 is the plate that shows what the
+ * nesting actually does — six pieces, one of them turned through 90°, a
+ * removable strip left beside them — and it is the same drawing either way,
+ * every number on it derived from the same result. Falls back to whatever
+ * exists, so a change to the cutting list cannot leave the banner blank.
  */
-const dashboardBars = [0.42, 0.66, 0.38, 0.82, 0.55, 0.94, 0.7];
+const bannerPlate = runPlates[2] ?? runPlates[0]!;
+const schedule = [...bannerPlate.pieces].sort((a, b) => a.sequence - b.sequence);
+const wastageSqm = run.stockAreaSqm - run.partAreaSqm;
+const runPlatesUsed = run.plates;
 
 /** Money, the way the application and the site both print it. */
 function money(value: number): string {
   return value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-/** The rail: seven real modules, grouped the way `GlassShell.xaml` groups them. */
 /*
- * Three groups, not nine.
+ * The rail: the groups the drawn screen sits in, the way `GlassShell.xaml`
+ * groups them.
  *
- * The drawn rail is as tall as the window it is inside, and the profit card
- * overlaps its lower corner the way it does on `/`. Main, Inventory and Sales
- * fill the rail above that card; Production and below would be painted under
- * it and read as a truncated menu, which is worse than showing fewer groups.
+ * Optimization is a Production module, so the rail is drawn from the top down
+ * to it — Main, Inventory, Sales, Production — and the active entry is the
+ * module the workspace beside it is showing. That is the whole reason the list
+ * is not simply the first five modules: a rail that lit Dashboard while the
+ * workspace drew the 2D view would be a picture of nothing.
  */
-const RAIL_KEYS = ["Dashboard", "SheetStore", "Inquiry", "ProformaInvoice", "JobOrder"];
+const RAIL_KEYS = [
+  "Dashboard",
+  "SheetStore",
+  "Specifications",
+  "Inquiry",
+  "ProformaInvoice",
+  "JobOrder",
+  "Optimization",
+];
+const ACTIVE_RAIL_KEY = "Optimization";
 const railEntries = RAIL_KEYS.map((key) => modules.find((entry) => entry.moduleKey === key)).filter(
   (entry): entry is (typeof modules)[number] => Boolean(entry),
 );
@@ -313,7 +389,7 @@ const main = { x: win.x + 252, y: win.y + 64, width: win.width - 272 };
 
 layers.push(
   // Shadow, then a violet bloom, then the frame.
-  rect(win.x + 6, win.y + 18, win.width, win.height, { fill: "#05030F", radius: 22, opacity: 0.6 }),
+  rect(win.x + 6, win.y + 18, win.width, win.height, { fill: palette.brand700, radius: 22, opacity: 0.5 }),
   rect(win.x - 4, win.y - 4, win.width + 8, win.height + 8, {
     fill: "none",
     stroke: rgba(palette.brand500, 0.18),
@@ -335,8 +411,13 @@ for (const [index, colour] of [palette.rose, "#FBBF24", palette.green].entries()
   layers.push(`<circle cx="${win.x + 26 + index * 16}" cy="${win.y + 26}" r="5" fill="${rgba(colour, 0.55)}" />`);
 }
 layers.push(
-  text(win.x + 84, win.y + 31, `${site.name} · Dashboard`, { size: 15, fill: palette.text1, weight: 600 }),
-  text(win.x + 372, win.y + 31, `v${site.version}`, { size: 15.5, fill: rgba(palette.text3, 0.85), family: MONO }),
+  text(win.x + 84, win.y + 31, `${site.name} · Optimization`, { size: 15, fill: palette.text1, weight: 600 }),
+  text(win.x + win.width - 252, win.y + 31, `v${site.version}`, {
+    size: 15.5,
+    fill: rgba(palette.text3, 0.85),
+    family: MONO,
+    anchor: "end",
+  }),
 );
 /* The window's own top-right controls, as the frame on `/` draws them. */
 layers.push(
@@ -362,7 +443,15 @@ layers.push(
   adminChip.svg,
 );
 
-/* Rail. */
+/*
+ * Rail.
+ *
+ * Seven entries in four groups, drawn at a 30 px pitch rather than the 32 the
+ * application uses, because the window is 448 px tall and the point of the
+ * drawing is that the rail reaches the entry the workspace is showing rather
+ * than stopping above it. The active row is the application's own: a violet
+ * wash, a 3 px bar on the leading edge, and the label in the brighter ink.
+ */
 layers.push(
   rect(rail.x, rail.y, rail.width, rail.height, {
     fill: rgba(palette.ink850, 0.85),
@@ -371,7 +460,8 @@ layers.push(
     radius: 14,
   }),
 );
-let railCursor = rail.y + 34;
+const RAIL_PITCH = 30;
+let railCursor = rail.y + 32;
 for (const group of railGroups) {
   layers.push(
     text(rail.x + 20, railCursor, group.group.toUpperCase(), {
@@ -384,172 +474,454 @@ for (const group of railGroups) {
   );
   railCursor += 14;
   for (const item of group.items) {
-    const active = item.moduleKey === "Dashboard";
+    const active = item.moduleKey === ACTIVE_RAIL_KEY;
     if (active) {
       layers.push(
-        rect(rail.x + 10, railCursor, rail.width - 20, 28, { fill: rgba(palette.brand500, 0.16), radius: 9 }),
-        rect(rail.x + 10, railCursor + 5, 3, 18, { fill: palette.brand400, radius: 2 }),
+        rect(rail.x + 10, railCursor, rail.width - 20, 26, { fill: rgba(palette.brand500, 0.16), radius: 9 }),
+        rect(rail.x + 10, railCursor + 4, 3, 18, { fill: palette.brand400, radius: 2 }),
       );
     }
     layers.push(
-      text(rail.x + 26, railCursor + 19, item.railLabel, {
+      text(rail.x + 26, railCursor + 18, item.railLabel, {
         size: 15,
         fill: active ? palette.brand200 : rgba(palette.text3, 0.86),
         weight: active ? 600 : 450,
       }),
     );
-    railCursor += 32;
+    railCursor += RAIL_PITCH;
   }
-  railCursor += 12;
+  railCursor += 10;
 }
 
-/*
- * The rail ends with System, anchored to the bottom of the navigation.
+/* ── The workspace: the 2D View tab of the Optimization module ───────────
  *
- * Five entries and a long empty column would read as a menu that failed to
- * load. `System Center` and `Diagnostics` are the two System entries the
- * application's rail actually carries, and they sit where they sit in the
- * product: at the foot of the rail.
+ * This is the screen the product is bought for. The module nests a cutting
+ * list across stock sheets and reports where every piece comes from; its 2D
+ * View tab is the light studio drawing — a stone bed, near-white panes outlined
+ * in the saw-channel ink, a trimmed boundary, and the cut order — with the
+ * plate's own cut schedule beside it.
+ *
+ * The drawing is deliberately light inside a dark window. That is not a
+ * mismatch: a plate is a sheet of drawing paper lying on the application's
+ * surface, and the brushes are the ones the application itself paints its cut
+ * bed with (`Views/Optimization/Tabs/TwoDViewTabView.xaml` → `OptCutBed`,
+ * `OptPieceFill`, `OptCutInk`, `OptTrimInk`). The site's own live preview draws
+ * the same screen the same way.
+ *
+ * Three cards, all of them from the same packing result: the sheet, the cut
+ * schedule for it, and the run's figures. Nothing on them is typed in.
  */
 layers.push(
-  text(rail.x + 20, rail.y + rail.height - 84, "SYSTEM", {
-    size: 14,
-    fill: rgba(palette.text3, 0.7),
+  text(main.x, main.y + 24, "Optimization · 2D View", {
+    size: 23,
+    fill: palette.text1,
+    weight: 700,
+    tracking: -0.01,
+  }),
+  text(main.x, main.y + 42, `${runSheet.w} × ${runSheet.h} mm · house Thin profile`, {
+    size: 15.5,
+    fill: rgba(palette.text3, 0.85),
+    family: MONO,
+  }),
+);
+
+const contentTop = main.y + 52;
+const contentHeight = win.y + win.height - 20 - contentTop;
+const sheetPanel = { x: main.x, y: contentTop, width: 508, height: contentHeight };
+const sideWidth = main.x + main.width - (sheetPanel.x + sheetPanel.width + 14);
+const sidePanel = { x: sheetPanel.x + sheetPanel.width + 14, y: contentTop, width: sideWidth, height: contentHeight };
+const schedulePanel = { x: sidePanel.x, y: sidePanel.y, width: sidePanel.width, height: 222 };
+const figuresPanel = {
+  x: sidePanel.x,
+  y: schedulePanel.y + schedulePanel.height + 12,
+  width: sidePanel.width,
+  height: sidePanel.height - schedulePanel.height - 12,
+};
+
+/**
+ * One plate, drawn the way the application's 2D view draws it.
+ *
+ * The same drawing the site renders in `src/components/optimization/PlateCad`,
+ * built here as SVG text rather than as React: the stone bed, the pieces at
+ * their placed coordinates (a piece turned through 90° in the light-sky tint
+ * and the accent outline), the teal trim boundary, the amber breakout band, the
+ * reusable remnant, and the cut order as an accent chip on the pieces with room
+ * for one.
+ *
+ * Geometry is in millimetres and the whole drawing hangs off one `scale`
+ * transform, so the stroke widths and the type sizes scale with it — which is
+ * what makes this the same drawing at any size. Which labels a piece may carry
+ * is decided by `labelsFor` from `src/components/optimization/cad.ts`, the same
+ * thresholds the React drawing uses, so a piece too small for its label goes
+ * without one here too instead of carrying a smudge.
+ */
+function plateDrawing(
+  plate: PlateView,
+  margins: PackMargins,
+  box: { x: number; y: number; width: number; height: number },
+): string {
+  const scale = Math.min(box.width / plate.widthMm, box.height / plate.heightMm);
+  const originX = box.x + (box.width - plate.widthMm * scale) / 2;
+  const originY = box.y + (box.height - plate.heightMm * scale) / 2;
+
+  /** A hairline, expressed in millimetres so it stays a hairline at any scale. */
+  const hair = (pixels: number) => pixels / scale;
+
+  const parts: string[] = [];
+
+  const usable = usableZone(plate, margins);
+  const breakout = breakoutZone(usable, optimizerLimits.minBreakout);
+  const offcut = reusableOffcut(plate, margins);
+
+  // The stock, on a violet rim rather than a black one.
+  parts.push(
+    rect(0, 0, plate.widthMm, plate.heightMm, {
+      fill: studio.bed,
+      stroke: rgba(studio.accent, 0.55),
+      strokeWidth: hair(1),
+      radius: plate.widthMm * 0.004,
+    }),
+    // The trim boundary, dashed teal, then the breakout band inside it.
+    rect(usable.x, usable.y, usable.width, usable.height, {
+      fill: "none",
+      stroke: studio.trim,
+      strokeWidth: hair(1),
+      dash: `${n(hair(7))} ${n(hair(3.5))}`,
+    }),
+    rect(breakout.x, breakout.y, breakout.width, breakout.height, {
+      fill: "none",
+      stroke: studio.breakout,
+      strokeWidth: hair(0.8),
+      opacity: 0.5,
+      dash: `${n(hair(3))} ${n(hair(3))}`,
+    }),
+  );
+
+  const ordered = [...plate.pieces].sort((a, b) => a.sequence - b.sequence);
+
+  ordered.forEach((piece, index) => {
+    const labels = labelsFor(piece, "inspect");
+    const reference = plate.widthMm / 52;
+    const dimensions = plate.widthMm / 48;
+    const centreX = piece.x + piece.width / 2;
+    const centreY = piece.y + piece.height / 2;
+
+    parts.push(
+      rect(piece.x, piece.y, piece.width, piece.height, {
+        fill: piece.rotated ? studio.pieceRotated : studio.piece,
+        stroke: piece.rotated ? studio.accent : studio.ink,
+        strokeWidth: hair(1.2),
+        radius: plate.widthMm * 0.0015,
+      }),
+    );
+
+    // The rotated mark: a triangle in the piece's top-right corner, as the app
+    // marks one, so the tint is not the only thing saying a piece was turned.
+    if (piece.rotated) {
+      const mark = plate.widthMm * 0.035;
+      parts.push(
+        `<polygon points="${n(piece.x + piece.width - mark)},${n(piece.y)} ${n(piece.x + piece.width)},${n(piece.y)} ${n(piece.x + piece.width)},${n(piece.y + mark)}" fill="${studio.accent}" fill-opacity="0.5" />`,
+      );
+    }
+
+    if (labels.dimensions) {
+      parts.push(
+        text(centreX, centreY - reference * 0.35, pieceRef(piece.id), {
+          size: reference,
+          fill: studio.ink,
+          weight: 600,
+          anchor: "middle",
+        }),
+        text(centreX, centreY + dimensions * 0.85, dimensionsText(piece), {
+          size: dimensions,
+          fill: studio.ink,
+          weight: 700,
+          anchor: "middle",
+        }),
+      );
+    } else {
+      parts.push(
+        text(centreX, centreY + reference * 0.35, shortDimensionsText(piece), {
+          size: plate.widthMm / 74,
+          fill: studio.ink,
+          weight: 700,
+          anchor: "middle",
+        }),
+      );
+    }
+
+    // The cut order, on a piece with room for a chip: the number, in the
+    // application's accent, on the panel it prints it on.
+    if (labels.cutTag) {
+      const chip = plate.widthMm / 74;
+      parts.push(
+        rect(piece.x + plate.widthMm * 0.006, piece.y + plate.widthMm * 0.006, chip * 2.6, chip * 1.9, {
+          fill: studio.accent,
+          radius: chip * 0.4,
+        }),
+        text(piece.x + plate.widthMm * 0.006 + chip * 1.3, piece.y + plate.widthMm * 0.006 + chip * 0.98, String(index + 1), {
+          size: chip * 1.1,
+          fill: "#FFFFFF",
+          family: MONO,
+          weight: 700,
+          anchor: "middle",
+        }),
+      );
+    }
+  });
+
+  // The reusable remnant, when there is one worth going back on the rack.
+  if (offcut) {
+    parts.push(
+      rect(offcut.x, offcut.y, offcut.width, offcut.height, {
+        fill: studio.offcutBg,
+        stroke: studio.offcutLine,
+        strokeWidth: hair(1),
+        dash: `${n(hair(5))} ${n(hair(3.5))}`,
+        radius: plate.widthMm * 0.002,
+      }),
+    );
+    if (offcut.width > plate.widthMm * 0.18 && offcut.height > plate.widthMm * 0.08) {
+      parts.push(
+        text(offcut.x + offcut.width / 2, offcut.y + offcut.height / 2 + plate.widthMm / 90, `${Math.round(offcut.width)} × ${Math.round(offcut.height)}`, {
+          size: plate.widthMm / 74,
+          fill: studio.accentDeep,
+          weight: 600,
+          anchor: "middle",
+        }),
+      );
+    }
+  }
+
+  return `<g transform="translate(${n(originX)} ${n(originY)}) scale(${n(scale)})">${parts.join("")}</g>`;
+}
+
+/* The sheet, with the plate on it. */
+layers.push(
+  rect(sheetPanel.x + 4, sheetPanel.y + 9, sheetPanel.width, sheetPanel.height, {
+    fill: rgba(palette.brand700, 0.45),
+    radius: 14,
+  }),
+  rect(sheetPanel.x, sheetPanel.y, sheetPanel.width, sheetPanel.height, {
+    fill: studio.surface,
+    stroke: studio.line,
+    strokeWidth: 1.5,
+    radius: 14,
+  }),
+  text(sheetPanel.x + 18, sheetPanel.y + 25, `Plate ${bannerPlate.plate} of ${runPlatesUsed}`, {
+    size: 16.5,
+    fill: studio.text,
+    weight: 600,
+  }),
+  text(sheetPanel.x + sheetPanel.width - 18, sheetPanel.y + 25, `${runSheet.w} × ${runSheet.h} mm`, {
+    size: 14.5,
+    fill: studio.muted,
+    family: MONO,
+    anchor: "end",
+  }),
+  line(sheetPanel.x + 18, sheetPanel.y + 37, sheetPanel.x + sheetPanel.width - 18, sheetPanel.y + 37, studio.keyline, 1.5),
+);
+layers.push(
+  plateDrawing(bannerPlate, runMargins, {
+    x: sheetPanel.x + 18,
+    y: sheetPanel.y + 46,
+    width: sheetPanel.width - 36,
+    height: sheetPanel.height - 76,
+  }),
+);
+/*
+ * The sheet's own settings, printed under it in the application's wording:
+ * `margins LM 15 · RM 15 · TM 15 · BM 15 · kerf 3 mm`. The chip is explained
+ * beside them rather than left to be guessed at.
+ */
+layers.push(
+  text(
+    sheetPanel.x + 18,
+    sheetPanel.y + sheetPanel.height - 22,
+    `${run.placedPieces} of ${run.totalPieces} pieces placed · ${runPlatesUsed} sheets`,
+    { size: 13.5, fill: studio.muted, family: MONO },
+  ),
+  text(sheetPanel.x + sheetPanel.width - 18, sheetPanel.y + sheetPanel.height - 22, "chip = cut order", {
+    size: 13.5,
+    fill: studio.subtle,
+    family: MONO,
+    anchor: "end",
+  }),
+  text(sheetPanel.x + 18, sheetPanel.y + sheetPanel.height - 8, marginZoneText(runMargins), {
+    size: 13.5,
+    fill: studio.subtle,
+    family: MONO,
+  }),
+);
+
+/*
+ * The cut schedule for the plate beside it — the application's own list, in
+ * placement order: the strip the operator works through, one row per piece,
+ * with the turn flagged where a piece was rotated to fit.
+ *
+ * The card is drawn for six rows because that is what the window has room for.
+ * The header states the plate's full piece count regardless, so a change to the
+ * cutting list can shorten this list but cannot make it lie about the plate.
+ */
+const SCHEDULE_ROWS = 6;
+const scheduleRows = schedule.slice(0, SCHEDULE_ROWS);
+layers.push(
+  rect(schedulePanel.x + 4, schedulePanel.y + 9, schedulePanel.width, schedulePanel.height, {
+    fill: rgba(palette.brand700, 0.45),
+    radius: 14,
+  }),
+  rect(schedulePanel.x, schedulePanel.y, schedulePanel.width, schedulePanel.height, {
+    fill: studio.surface,
+    stroke: studio.line,
+    strokeWidth: 1.5,
+    radius: 14,
+  }),
+  text(schedulePanel.x + 18, schedulePanel.y + 25, "Cut schedule", {
+    size: 16.5,
+    fill: studio.text,
+    weight: 600,
+  }),
+  text(schedulePanel.x + schedulePanel.width - 18, schedulePanel.y + 25, `${bannerPlate.pieceCount} cuts`, {
+    size: 14.5,
+    fill: studio.muted,
+    family: MONO,
+    anchor: "end",
+  }),
+  line(schedulePanel.x + 18, schedulePanel.y + 37, schedulePanel.x + schedulePanel.width - 18, schedulePanel.y + 37, studio.keyline, 1.5),
+);
+
+const scheduleColumns = {
+  seq: schedulePanel.x + 18,
+  reference: schedulePanel.x + 84,
+  size: schedulePanel.x + schedulePanel.width - 96,
+  rotated: schedulePanel.x + schedulePanel.width - 18,
+};
+layers.push(
+  text(scheduleColumns.seq, schedulePanel.y + 58, "SEQ", {
+    size: 12.5,
+    fill: studio.subtle,
     family: MONO,
     weight: 600,
-    tracking: 0.2,
+    tracking: 0.14,
   }),
-  text(rail.x + 26, rail.y + rail.height - 60, "System Center", { size: 15, fill: rgba(palette.text3, 0.86), weight: 450 }),
-  text(rail.x + 26, rail.y + rail.height - 32, "Diagnostics", { size: 15, fill: rgba(palette.text3, 0.86), weight: 450 }),
+  text(scheduleColumns.reference, schedulePanel.y + 58, "REF", {
+    size: 12.5,
+    fill: studio.subtle,
+    family: MONO,
+    weight: 600,
+    tracking: 0.14,
+  }),
+  text(scheduleColumns.size, schedulePanel.y + 58, "CUT SIZE", {
+    size: 12.5,
+    fill: studio.subtle,
+    family: MONO,
+    weight: 600,
+    tracking: 0.14,
+    anchor: "end",
+  }),
+  text(scheduleColumns.rotated, schedulePanel.y + 58, "ROT", {
+    size: 12.5,
+    fill: studio.subtle,
+    family: MONO,
+    weight: 600,
+    tracking: 0.14,
+    anchor: "end",
+  }),
 );
 
-/* ── The workspace: the Overview dashboard ───────────────────────────────
- * The home page's hero shows this screen, so this is the screen the banner
- * shows: the module's title, its range chips, the four position tiles the
- * application reports, and the volume chart under them. The tile labels and
- * values are read from the demo's own summary — nothing here is typed in. */
-layers.push(
-  text(main.x, main.y + 24, "Overview dashboard", { size: 23, fill: palette.text1, weight: 700, tracking: -0.01 }),
-  text(main.x, main.y + 42, dashboard.blurb, { size: 15.5, fill: rgba(palette.text3, 0.85) }),
-);
-
-/* The sample-data tag, and the range chips the preview offers. */
-const tag = pill(main.x + 322, main.y + 4, "SAMPLE DATA · LIVE", {
-  fill: rgba(palette.ink800, 0.75),
-  stroke: palette.lineStrong,
-  color: rgba(palette.text3, 0.9),
-  height: 26,
-  size: 14.5,
-  padX: 24,
-});
-layers.push(
-  `<circle cx="${main.x + 334}" cy="${main.y + 16}" r="3" fill="${palette.brand400}" />`,
-  tag.svg,
-);
-
-const rangeChips = ["Today", "This week", "This month"].map((label) => ({
-  label,
-  width: Math.round(label.length * 12 * 0.55 + 24),
-}));
-let chipX = main.x + main.width;
-for (const chip of [...rangeChips].reverse()) {
-  chipX -= chip.width;
-  const active = chip.label === "This week";
+const SCHEDULE_PITCH = 24;
+scheduleRows.forEach((piece, index) => {
+  const y = schedulePanel.y + 84 + index * SCHEDULE_PITCH;
   layers.push(
-    rect(chipX, main.y + 5, chip.width, 24, {
-      fill: active ? rgba(palette.brand400, 0.18) : rgba(palette.ink800, 0.6),
-      stroke: active ? rgba(palette.brand400, 0.45) : palette.line,
-      strokeWidth: 1,
-      radius: 12,
-    }),
-    text(chipX + chip.width / 2, main.y + 21, chip.label, {
+    line(schedulePanel.x + 18, y - 17, schedulePanel.x + schedulePanel.width - 18, y - 17, studio.keyline, 1),
+    text(scheduleColumns.seq, y, String(index + 1), {
       size: 14.5,
-      fill: active ? palette.brand200 : rgba(palette.text3, 0.88),
-      weight: active ? 600 : 500,
-      anchor: "middle",
-    }),
-  );
-  chipX -= 8;
-}
-
-/* The four position tiles. */
-const tileGap = 12;
-const tileWidth = (main.width - tileGap * 3) / 4;
-const tileTop = main.y + 56;
-const tileHeight = 96;
-kpis.forEach((item, index) => {
-  const x = main.x + index * (tileWidth + tileGap);
-  layers.push(
-    rect(x, tileTop, tileWidth, tileHeight, {
-      fill: rgba(palette.ink800, 0.72),
-      stroke: palette.line,
-      strokeWidth: 1,
-      radius: 12,
-    }),
-    text(x + 14, tileTop + 30, item.label.toUpperCase(), {
-      size: 14,
-      fill: rgba(palette.text3, 0.72),
+      fill: studio.muted,
       family: MONO,
+    }),
+    text(scheduleColumns.reference, y, pieceRef(piece.id), {
+      size: 15,
+      fill: studio.text,
       weight: 600,
-      tracking: 0.14,
     }),
-    text(x + 14, tileTop + 70, item.value, {
-      size: 30,
-      fill: palette.text1,
-      weight: 700,
+    text(scheduleColumns.size, y, `${Math.round(piece.width)} × ${Math.round(piece.height)}`, {
+      size: 14.5,
+      fill: studio.ink,
       family: MONO,
-      tracking: -0.02,
+      anchor: "end",
     }),
-    text(x + 14, tileTop + 86, index === 0 ? "across the period" : "across the range", {
-      size: 13.5,
-      fill: rgba(palette.text3, 0.78),
+    text(scheduleColumns.rotated, y, piece.rotated ? "90°" : "—", {
+      size: 14.5,
+      fill: piece.rotated ? studio.accentDeep : studio.subtle,
       family: MONO,
+      anchor: "end",
     }),
   );
 });
 
-/* The volume chart, drawn from the same seven-bar series as the live tile. */
-const chartTop = tileTop + tileHeight + 14;
-const chartHeight = 168;
+/*
+ * The run's figures — the three an office reads off the report, read back out
+ * of the same result the plate was packed from. Utilisation is the run's own
+ * ratio of part area to stock area, printed with the application's yield badge
+ * around it rather than as a headline of its own.
+ */
+const figureRows: { label: string; value: string; badge?: boolean }[] = [
+  { label: "Sheets used", value: String(runPlatesUsed) },
+  { label: "Utilization", value: `${run.utilizationPct.toFixed(2)} %`, badge: true },
+  { label: "Wastage", value: `${wastageSqm.toFixed(2)} m²` },
+];
 layers.push(
-  rect(main.x, chartTop, main.width, chartHeight, {
-    fill: rgba(palette.ink950, 0.5),
-    stroke: palette.line,
-    strokeWidth: 1,
-    radius: 12,
+  rect(figuresPanel.x + 4, figuresPanel.y + 9, figuresPanel.width, figuresPanel.height, {
+    fill: rgba(palette.brand700, 0.45),
+    radius: 14,
+  }),
+  rect(figuresPanel.x, figuresPanel.y, figuresPanel.width, figuresPanel.height, {
+    fill: studio.surface,
+    stroke: studio.line,
+    strokeWidth: 1.5,
+    radius: 14,
   }),
 );
-const barPad = 18;
-const barGap = 12;
-const barWidth = (main.width - barPad * 2 - barGap * (dashboardBars.length - 1)) / dashboardBars.length;
-dashboardBars.forEach((value, index) => {
-  const height = (chartHeight - barPad * 2) * value;
+figureRows.forEach((row, index) => {
+  const y = figuresPanel.y + 26 + index * 22;
+  if (index > 0) {
+    layers.push(line(figuresPanel.x + 18, y - 16, figuresPanel.x + figuresPanel.width - 18, y - 16, studio.keyline, 1));
+  }
   layers.push(
-    rect(main.x + barPad + index * (barWidth + barGap), chartTop + chartHeight - barPad - height, barWidth, height, {
-      fill: "url(#barGrad)",
-      radius: 3,
+    text(figuresPanel.x + 18, y, row.label, {
+      size: 14.5,
+      fill: studio.muted,
     }),
   );
+  if (row.badge) {
+    const width = Math.round(measure(row.value, 14.5, MONO) + 26);
+    layers.push(
+      rect(figuresPanel.x + figuresPanel.width - 18 - width, y - 15, width, 21, {
+        fill: studio.successBg,
+        stroke: studio.successLine,
+        strokeWidth: 1,
+        radius: 10.5,
+      }),
+      text(figuresPanel.x + figuresPanel.width - 18 - width / 2, y, row.value, {
+        size: 14.5,
+        fill: studio.successInk,
+        family: MONO,
+        weight: 700,
+        anchor: "middle",
+      }),
+    );
+  } else {
+    layers.push(
+      text(figuresPanel.x + figuresPanel.width - 18, y, row.value, {
+        size: 15,
+        fill: studio.text,
+        family: MONO,
+        weight: 600,
+        anchor: "end",
+      }),
+    );
+  }
 });
-
-/* The chart's own axis labels, so the shape means something. */
-const chartFloor = chartTop + chartHeight - barPad + 14;
-["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].forEach((day, index) => {
-  layers.push(
-    text(main.x + barPad + index * (barWidth + barGap) + barWidth / 2, chartFloor, day, {
-      size: 13.5,
-      fill: rgba(palette.text3, 0.72),
-      family: MONO,
-      anchor: "middle",
-    }),
-  );
-});
-
-if (dashboard.footnote) {
-  layers.push(
-    text(main.x, chartFloor + 22, dashboard.footnote, { size: 14.5, fill: rgba(palette.text3, 0.78) }),
-  );
-}
 
 /* ── The two floating cards the home page hangs off this window ───────────
  * In the hero, a profit snapshot card overlaps the frame's lower-left corner
@@ -563,7 +935,7 @@ if (dashboard.footnote) {
  */
 const card = { x: win.x - 110, y: win.y + win.height - 34, width: 320, height: 124 };
 layers.push(
-  rect(card.x + 5, card.y + 12, card.width, card.height, { fill: "#05030F", radius: 16, opacity: 0.55 }),
+  rect(card.x + 5, card.y + 12, card.width, card.height, { fill: palette.brand700, radius: 16, opacity: 0.5 }),
   rect(card.x, card.y, card.width, card.height, {
     fill: rgba(palette.ink900, 0.97),
     stroke: palette.lineStrong,
@@ -698,6 +1070,9 @@ layers.push(
     fill: rgba(palette.text3, 0.92),
   }),
 );
+
+/* The proforma's nine steps, counted from the demo's own step list. */
+const proformaSteps = demoFor("ProformaInvoice", "Proforma Invoice", []).steps ?? [];
 
 /* Three derived figures. */
 const figures = [
@@ -879,10 +1254,6 @@ const defs = `<defs>
     <stop offset="0%" stop-color="${palette.brand500}" />
     <stop offset="100%" stop-color="${palette.brand700}" />
   </linearGradient>
-  <linearGradient id="barGrad" x1="0" y1="1" x2="0" y2="0">
-    <stop offset="0%" stop-color="${rgba(palette.brand600, 0.7)}" />
-    <stop offset="100%" stop-color="${rgba(palette.cyan, 0.7)}" />
-  </linearGradient>
   <linearGradient id="markGlint" x1="0" y1="0" x2="1" y2="1">
     <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.5" />
     <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0" />
@@ -937,7 +1308,8 @@ const { size: siteSize } = await source
 console.log(`wrote  ${path.relative(process.cwd(), readmeTarget)}`);
 console.log(
   `       ${WIDTH} × ${HEIGHT} (drawn at ${SUPERSAMPLE}×) · ${(size / 1024).toFixed(0)} KB · ` +
-    `${kpis.length} dashboard tiles · net AED ${money(quotationTotals.subtotal)} · total AED ${money(quotationTotals.grandTotal)}`,
+    `plate ${bannerPlate.plate} of ${runPlatesUsed} · ${bannerPlate.pieceCount} cuts · ${run.utilizationPct.toFixed(2)}% utilisation · ` +
+    `net AED ${money(quotationTotals.subtotal)} · total AED ${money(quotationTotals.grandTotal)}`,
 );
 console.log(`wrote  ${path.relative(process.cwd(), siteTarget)}`);
 console.log(

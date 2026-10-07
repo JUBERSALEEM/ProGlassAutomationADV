@@ -68,7 +68,7 @@ export function SheetGallery({
 
   if (plates.length === 0) {
     return (
-      <p className="surface p-5 text-sm leading-relaxed text-text-muted">
+      <p className="studio-sheet p-5 text-sm leading-relaxed" style={{ color: "var(--cad-muted)" }}>
         {t("No plates to show — nothing was placed.")}
       </p>
     );
@@ -94,7 +94,7 @@ export function SheetGallery({
       </div>
 
       {!paginate && plates.length > shown.length ? (
-        <p className="mt-3 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+        <p className="studio-label mt-3">
           {t("{v1} of {v2} sheets · the rest page through on", { v1: shown.length, v2: plates.length })}{" "}
           <Link href="/optimization" className="link-underline">
             {t("the engine page")}
@@ -104,7 +104,7 @@ export function SheetGallery({
 
       {paginate && pageCount > 1 ? (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <p className="font-mono text-2xs uppercase tracking-[0.14em] text-text-muted">
+          <p className="studio-label">
             {t("Sheets {from}–{to} of {total}", {
               from: safePage * pageSize + 1,
               to: safePage * pageSize + shown.length,
@@ -116,18 +116,18 @@ export function SheetGallery({
               type="button"
               onClick={() => setPage(Math.max(0, safePage - 1))}
               disabled={safePage === 0}
-              className="rounded-full border-2 border-line-strong/80 px-3 py-1 text-xs font-semibold text-text-secondary transition-colors hover:border-brand-400/60 hover:text-text-primary disabled:opacity-40 disabled:hover:border-line-strong/80 disabled:hover:text-text-secondary"
+              className="studio-button"
             >
               {t("Previous")}
             </button>
-            <span className="font-mono text-xs tabular-nums text-text-faint">
+            <span className="font-mono text-xs tabular-nums" style={{ color: "var(--cad-muted)" }}>
               {safePage + 1} / {pageCount}
             </span>
             <button
               type="button"
               onClick={() => setPage(Math.min(pageCount - 1, safePage + 1))}
               disabled={safePage >= pageCount - 1}
-              className="rounded-full border-2 border-line-strong/80 px-3 py-1 text-xs font-semibold text-text-secondary transition-colors hover:border-brand-400/60 hover:text-text-primary disabled:opacity-40 disabled:hover:border-line-strong/80 disabled:hover:text-text-secondary"
+              className="studio-button"
             >
               {t("Next")}
             </button>

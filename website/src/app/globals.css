@@ -155,7 +155,7 @@
        page and a floor glow under it. Transparent in the opaque families, so
        their wallpaper is unchanged. */
     --wall-lamp: rgb(255 255 255 / 0);
-    --wall-floor: rgb(0 0 0 / 0);
+    --wall-floor: transparent;
 
     /* Card tinting: the violet wash that keeps cards off plain grey. */
     --card-tint: rgb(101 70 181 / 0.22);
@@ -216,13 +216,13 @@
        card classes read these tokens, so one family block recolours and
        re-lights every card on every page. */
     --glass-hi: rgb(255 255 255 / 0);      /* top specular, catching the light */
-    --glass-lo: rgb(0 0 0 / 0);            /* bottom refraction, into the shade */
+    --glass-lo: transparent;            /* bottom refraction, into the shade */
     --glass-sheen: rgb(255 255 255 / 0);   /* diagonal sweep across the face */
     --glass-edge-light: rgb(255 255 255 / 0.07); /* inner 1px at the top */
-    --glass-edge-dark: rgb(0 0 0 / 0);     /* inner 1px at the bottom */
+    --glass-edge-dark: transparent;     /* inner 1px at the bottom */
     --glass-ring: rgb(255 255 255 / 0);    /* outer luminous hairline */
     --glass-line: rgb(var(--line-strong) / 0.6); /* hairlines inside a card */
-    --glass-scrim: rgb(0 0 0 / 0);         /* legibility wash under text */
+    --glass-scrim: transparent;         /* legibility wash under text */
 
     /* The primary card — the one card per section that carries the section's
        subject. Its own two dials: how much accent sits in its fill, and how
@@ -307,7 +307,7 @@
       radial-gradient(92% 72% at 88% 8%, var(--aurora-2) 0%, transparent 58%),
       radial-gradient(122% 104% at 50% 108%, var(--aurora-3) 0%, transparent 62%);
     --wall-lamp: rgb(255 255 255 / 0);
-    --wall-floor: rgb(0 0 0 / 0);
+    --wall-floor: transparent;
 
     /* Surfaces: warm paper with a violet cast, not flat grey. */
     --ink-950: 248 245 238;  /* page      #F8F5EE — the app's warm ivory, not a cold white */
@@ -397,10 +397,10 @@
     /* Glass depth, on paper: the specular is light, not white haze, and the
        scrim is the paper showing through rather than a shadow. */
     --glass-hi: rgb(255 255 255 / 0);
-    --glass-lo: rgb(0 0 0 / 0);
+    --glass-lo: transparent;
     --glass-sheen: rgb(255 255 255 / 0);
     --glass-edge-light: rgb(255 255 255 / 0.96);
-    --glass-edge-dark: rgb(0 0 0 / 0);
+    --glass-edge-dark: transparent;
     --glass-ring: rgb(255 255 255 / 0);
     --glass-line: rgb(var(--line-strong) / 0.66);
     --glass-scrim: rgb(255 255 255 / 0);
@@ -950,8 +950,8 @@
     background-size:
       var(--wall-grid-size), var(--wall-grid-size),
       var(--wall-grid-major-size), var(--wall-grid-major-size);
-    -webkit-mask-image: radial-gradient(130% 78% at 50% -6%, #000 0%, rgb(0 0 0 / 0.4) 52%, transparent 82%);
-    mask-image: radial-gradient(130% 78% at 50% -6%, #000 0%, rgb(0 0 0 / 0.4) 52%, transparent 82%);
+    -webkit-mask-image: radial-gradient(130% 78% at 50% -6%, rgb(var(--ink-950)) 0%, rgb(var(--ink-950) / 0.4) 52%, transparent 82%);
+    mask-image: radial-gradient(130% 78% at 50% -6%, rgb(var(--ink-950)) 0%, rgb(var(--ink-950) / 0.4) 52%, transparent 82%);
   }
 
   /* The wallpaper is decoration; printing it would only waste toner. */
@@ -1077,13 +1077,13 @@
   .nav-glass {
     border-bottom: 1px solid rgb(var(--line-strong) / 0.5);
     background-color: rgb(var(--ink-950) / 0.95);
-    box-shadow: 0 18px 40px -32px rgb(0 0 0 / 0.9);
+    box-shadow: 0 18px 40px -32px rgb(var(--brand-700) / 0.62);
   }
 
   [data-appearance="crystal"] .nav-glass {
     border-bottom: 1px solid var(--glass-ring);
     background-color: rgb(var(--ink-950) / 0.55);
-    box-shadow: 0 18px 40px -32px rgb(0 0 0 / 0.9), inset 0 1px 0 0 var(--glass-edge-light);
+    box-shadow: 0 18px 40px -32px rgb(var(--brand-700) / 0.62), inset 0 1px 0 0 var(--glass-edge-light);
     backdrop-filter: blur(20px) saturate(175%);
     -webkit-backdrop-filter: blur(20px) saturate(175%);
   }
@@ -1875,7 +1875,7 @@
     border-radius: 999px;
     background: rgb(var(--text-1));
     border: 3px solid rgb(var(--brand-500));
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.45);
+    box-shadow: 0 2px 8px rgb(var(--brand-700) / 0.5);
   }
 
   input[type="range"]::-moz-range-track {
@@ -2110,16 +2110,16 @@
      * box with a shaded top, on paper, in black and white.
      */
     --glass-hi: rgb(255 255 255 / 0);
-    --glass-lo: rgb(0 0 0 / 0);
+    --glass-lo: transparent;
     --glass-sheen: rgb(255 255 255 / 0);
     --glass-edge-light: rgb(255 255 255 / 0);
-    --glass-edge-dark: rgb(0 0 0 / 0);
-    --glass-ring: rgb(0 0 0 / 0);
+    --glass-edge-dark: transparent;
+    --glass-ring: transparent;
     --glass-line: rgb(210 210 218 / 0.9);
     --glass-scrim: rgb(255 255 255 / 0);
-    --glass-primary-glow: rgb(0 0 0 / 0);
+    --glass-primary-glow: transparent;
     --wall-lamp: rgb(255 255 255 / 0);
-    --wall-floor: rgb(0 0 0 / 0);
+    --wall-floor: transparent;
     color-scheme: light;
   }
 
@@ -2577,7 +2577,7 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
   .band-deep {
     position: relative;
     background-color: rgb(var(--ink-950));
-    background-image: linear-gradient(180deg, rgb(0 0 0 / 0.28) 0%, transparent 34%);
+    background-image: linear-gradient(180deg, rgb(var(--ink-900) / 0.62) 0%, transparent 34%);
     border-top: 1px solid rgb(var(--line-strong) / 0.45);
     border-bottom: 1px solid rgb(var(--line-strong) / 0.45);
   }
@@ -2891,4 +2891,250 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
     will-change: auto;
     transform: none;
   }
+
+  /* ══════════════════════════════════════════════════════════════════════════
+   * The studio sheet — the optimization screens, in the application's light
+   * ════════════════════════════════════════════════════════════════════════
+   *
+   * Every other surface on this site follows the visitor's theme. These do not,
+   * and that is deliberate: the 2D view, the cut schedule and the gallery are
+   * drawings *of the application's own screen*, and the application draws them
+   * on a light studio canvas — `Themes/LightTheme.xaml` in the WPF tree puts
+   * the shell on `#F3F0FA` and the panels on `#FFFEFC`, and
+   * `Themes/Styles/OptimizationStyles.xaml` paints the sheet bed `#D6D3D1`, the
+   * pieces `#F8FAFC`, the trim boundary teal `#0F766E` and the breakout band
+   * amber `#B45309`.
+   *
+   * So a plate is not a dark card with light rectangles in it. It is a sheet of
+   * drawing paper lying on the page, with the same colours the operator sees on
+   * the table's screen — in both readings of the site, because the drawing is
+   * not themed, it is reported.
+   *
+   * Every value below is transcribed from those two files. None of them is a
+   * chosen number.
+   */
+  :root {
+    --cad-canvas: #f3f0fa;      /* LightTheme  BackgroundBrush             */
+    --cad-surface: #fffefc;     /* Ov.Surface / OptBentoSurface            */
+    --cad-keyline: #eee8f8;     /* OptBentoKeyline                         */
+    --cad-line: #e2dbef;        /* OptBentoBorder                          */
+    --cad-bed: #d6d3d1;         /* TwoDViewTabView  OptCutBed              */
+    --cad-piece: #f8fafc;       /* OptPieceFill                            */
+    --cad-piece-rotated: #f0f9ff; /* the rotated-piece fill                */
+    --cad-ink: #1f2937;         /* OptCutInk — the saw channel and outlines */
+    --cad-text: #2c2440;        /* OptBentoInk                             */
+    --cad-muted: #6b6078;       /* OptBentoMuted                           */
+    --cad-subtle: #8a7e9c;      /* OptBentoSubtleText                      */
+    --cad-trim: #0f766e;        /* OptTrimInk — the trim boundary          */
+    --cad-breakout: #b45309;    /* OptBreakoutInk — the breakout band      */
+    --cad-accent: #6546b5;      /* OptIndigo — the cut tag, the rim        */
+    --cad-accent-deep: #493080; /* OptIndigoDeep                           */
+    --cad-accent-soft: #eee8f8; /* OptIndigoSoft                           */
+    --cad-accent-line: #c9b8e8; /* OptInfoBorder / OptAccentBorder         */
+    --cad-offcut-bg: #f3f0fa;   /* OptOffcutBg                             */
+    --cad-offcut-line: #c9b8e8; /* OptOffcutBorder                         */
+    --cad-success-bg: #ecfdf5;  /* OptSuccessBg — the yield badge          */
+    --cad-success-line: #a7f3d0;/* OptSuccessBorder                        */
+    --cad-success-ink: #065f46; /* OptSuccessInk                           */
+    --cad-warning-bg: #fffbeb;  /* OptWarningBg                            */
+    --cad-warning-line: #fde68a;/* OptWarningBorder                        */
+    --cad-warning-ink: #92400e; /* OptWarningInk                           */
+    /* The panel's own shadow, violet rather than black. */
+    --cad-shadow: 0 10px 30px -22px rgb(73 48 128 / 0.55);
+  }
+
+  /* The light panel a drawing sits on: the application's OptPanelCard. */
+  .studio-sheet {
+    position: relative;
+    border-radius: 0.75rem;
+    border: 1px solid var(--cad-line);
+    background-color: var(--cad-surface);
+    color: var(--cad-text);
+    box-shadow: var(--cad-shadow);
+  }
+
+  /* A panel inside it — the application's OptInnerCard. */
+  .studio-inset {
+    border-radius: 0.625rem;
+    border: 1px solid var(--cad-keyline);
+    background-color: var(--cad-canvas);
+    color: var(--cad-text);
+  }
+
+  /* The sheet stage: the plate is drawn on this, as the app draws it. */
+  .studio-stage {
+    border-radius: 0.5rem;
+    border: 1.5px solid var(--cad-accent);
+    background-color: var(--cad-bed);
+  }
+
+  .studio-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--cad-muted);
+    font-weight: 500;
+  }
+
+  .studio-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--cad-accent-line);
+    background-color: var(--cad-accent-soft);
+    padding: 0.25rem 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--cad-accent-deep);
+  }
+
+  /* The application's yield badge, in its own success triad. */
+  .studio-chip-yield {
+    border-radius: 0.375rem;
+    border: 1px solid var(--cad-success-line);
+    background-color: var(--cad-success-bg);
+    padding: 0.25rem 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--cad-success-ink);
+  }
+
+  .studio-chip-warning {
+    border-radius: 0.375rem;
+    border: 1px solid var(--cad-warning-line);
+    background-color: var(--cad-warning-bg);
+    padding: 0.25rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--cad-warning-ink);
+  }
+
+  /* The panel's own buttons — the application's outlined and filled pairs. */
+  .studio-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--cad-accent-line);
+    background-color: var(--cad-surface);
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--cad-accent-deep);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .studio-button:hover {
+    background-color: var(--cad-accent-soft);
+    border-color: var(--cad-accent);
+  }
+
+  .studio-button:disabled {
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  .studio-button-primary {
+    border-color: var(--cad-accent);
+    background-color: var(--cad-accent);
+    color: #ffffff;
+  }
+
+  .studio-button-primary:hover {
+    background-color: var(--cad-accent-deep);
+    border-color: var(--cad-accent-deep);
+  }
+
+  /* A progress track, in the panel's own keyline. */
+  .studio-track {
+    height: 0.375rem;
+    border-radius: 999px;
+    background-color: var(--cad-keyline);
+    overflow: hidden;
+  }
+
+  .studio-track > span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background-color: var(--cad-accent);
+  }
+
+  /*
+   * The schedule table. Hairlines in the panel's own keyline rather than the
+   * site's, because this table belongs to the light drawing, not to the page.
+   */
+  .studio-table th {
+    border-bottom: 1px solid var(--cad-line);
+    color: var(--cad-muted);
+  }
+
+  .studio-table td {
+    border-bottom: 1px solid var(--cad-keyline);
+    color: var(--cad-text);
+  }
+
+  .studio-table tbody tr:hover {
+    background-color: var(--cad-canvas);
+  }
+
+  /*
+   * The drawing itself. These are the application's own brushes, so the plate on
+   * this site is the plate on the operator's screen: a stone bed, near-white
+   * pieces outlined in the saw-channel ink, a teal trim boundary, an amber
+   * breakout band and a violet-tinted remnant.
+   */
+  .cad-bed {
+    fill: var(--cad-bed);
+    stroke: var(--cad-accent);
+  }
+
+  .cad-piece {
+    fill: var(--cad-piece);
+    stroke: var(--cad-ink);
+  }
+
+  .cad-piece-rotated {
+    fill: var(--cad-piece-rotated);
+    stroke: var(--cad-accent);
+  }
+
+  .cad-trim {
+    stroke: var(--cad-trim);
+  }
+
+  .cad-breakout {
+    stroke: var(--cad-breakout);
+  }
+
+  .cad-offcut {
+    fill: var(--cad-offcut-bg);
+    stroke: var(--cad-offcut-line);
+  }
+
+  .cad-ink {
+    fill: var(--cad-ink);
+  }
+
+  .cad-muted {
+    fill: var(--cad-muted);
+  }
+
+  .cad-accent {
+    fill: var(--cad-accent);
+  }
+
+  /* The `Cut N` tag: the application's accent chip with white type on it. */
+  .cad-tag {
+    fill: var(--cad-accent);
+  }
+
+  .cad-tag-text {
+    fill: #ffffff;
+  }
+
 }

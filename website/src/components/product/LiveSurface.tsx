@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   demoFor,
   optimizerLimits,
@@ -21,6 +21,7 @@ import { stageChain, type StageChainId } from "@/data/stageQueue";
 import { SheetGallery } from "@/components/optimization/SheetGallery";
 import { PlateCad } from "@/components/optimization/PlateCad";
 import { OptimizerSettingsSurface } from "@/components/optimization/OptimizerSettingsSurface";
+import { enginePipeline } from "@/data/optimization";
 import { packGuillotine, plateViews } from "@/lib/guillotinePack";
 import { useT } from "@/i18n/provider";
 import { NoTranslate } from "@/components/i18n/NoTranslate";
@@ -361,34 +362,6 @@ const SAMPLE_MARGINS = {
   kerf: optimizerLimits.kerf,
 };
 
-/**
- * The plate set for the sample cut list.
- *
- * The packing itself lives in `src/lib/guillotinePack.ts`, shared with the
- * homepage and the optimization page so every plate drawing on this site comes
- * out of one implementation and they cannot disagree with each other.
- *
- * It is a two-way split — each leftover L-shape divided by one straight cut, so
- * every boundary stays a cut a guillotine table can make — used to illustrate
- * how a run spreads across plates. The engine is not that: it searches five
- * families and six plate patterns. Everything printed here is arithmetic over
- * the pieces actually placed, and a piece that no plate can hold is reported
- * rather than dropped.
- */
-function usePackedSample(parts: { piece: string; w: number; h: number }[], sheet: { label: string; w: number; h: number }) {
-  return useMemo(() => {
-    const result = packGuillotine(
-      parts.map((part) => ({ id: part.piece, width: part.w, height: part.h })),
-      { width: sheet.w, height: sheet.h },
-      SAMPLE_MARGINS,
-    );
-    return {
-      result,
-      plates: plateViews(result, { width: sheet.w, height: sheet.h, label: `${sheet.w} × ${sheet.h}` }),
-    };
-  }, [parts, sheet]);
-}
-
 function OptimizerEngine({
   demo,
   compact,
@@ -401,8 +374,17 @@ function OptimizerEngine({
 }) {
   const t = useT();
   const [sheetIndex, setSheetIndex] = useState(1);
-  const [run, setRun] = useState(0);
   const [piecesPerPart, setPiecesPerPart] = useState(1);
+  /**
+   * A run has three states, and the preview starts in the first one: a cutting
+   * list with nothing computed from it. The application behaves the same way —
+   * the optimization tabs are empty until a run has been asked for, and they say
+   * so ("Run optimization to generate 2D sheet layouts").
+   */
+  const [phase, setPhase] = useState<"idle" | "running" | "done">("idle");
+  /** How far through the engine's own pipeline the run is. */
+  const [stage, setStage] = useState(0);
+  const [run, setRun] = useState(0);
   /** Which plate the canvas is showing. The gallery sets it. */
   const [focused, setFocused] = useState(1);
 
@@ -413,8 +395,13 @@ function OptimizerEngine({
     return base.flatMap((row) => {
       const w = Number(row.w ?? 0);
       const h = Number(row.h ?? 0);
+      /*
+       * The list's own quantity, times the slider. The cap is the largest
+       * quantity in the list (10) times the slider's own maximum (4), so the
+       * control can never quietly drop a piece the visitor asked for.
+       */
       const qty = Math.max(1, Number(row.qty ?? 1) * piecesPerPart);
-      return Array.from({ length: Math.min(qty, 12) }, (_, i) => ({
+      return Array.from({ length: Math.min(qty, 40) }, (_, i) => ({
         piece: `${row.piece ?? "P"}-${i + 1}`,
         w,
         h,
@@ -422,17 +409,78 @@ function OptimizerEngine({
     });
   }, [demo.views, piecesPerPart]);
 
-  const { result, plates } = usePackedSample(parts, sheet);
+  const sizes = demo.views[0]?.rows.length ?? 0;
 
-  /* The focused sheet, clamped — a smaller cut list has fewer plates. */
+  /*
+   * Nothing is packed until a run has been asked for. That is not a loading
+   * trick: it is the difference between showing a visitor a result they did not
+   * ask for and letting them produce one. Everything below this line is
+   * therefore `null` in the idle state, and the page carries no plate drawing,
+   * no yield figure and no schedule until the run completes.
+   *
+   * The packing itself lives in `src/lib/guillotinePack.ts`, shared with the
+   * homepage and the optimization page so every plate drawing on this site comes
+   * out of one implementation and they cannot disagree with each other. It is a
+   * two-way split — each leftover L-shape divided by one straight cut, so every
+   * boundary stays a cut a guillotine table can make — used to illustrate how a
+   * run spreads across plates. The engine is not that: it searches five families
+   * and six plate patterns. Everything printed here is arithmetic over the
+   * pieces actually placed, and a piece that no plate can hold is reported
+   * rather than dropped.
+   */
+  const { result, plates } = useMemo(() => {
+    if (phase === "idle") return { result: null, plates: [] as ReturnType<typeof plateViews> };
+    const packed = packGuillotine(
+      parts.map((part) => ({ id: part.piece, width: part.w, height: part.h })),
+      { width: sheet.w, height: sheet.h },
+      SAMPLE_MARGINS,
+    );
+    return {
+      result: packed,
+      plates: plateViews(packed, { width: sheet.w, height: sheet.h, label: `${sheet.w} × ${sheet.h}` }),
+    };
+  }, [phase, parts, sheet]);
+
+  /*
+   * The run walks the engine's own stage list, then reports. Every state change
+   * happens inside the timer — a stage tick, then the hand-off to the result —
+   * so the effect itself never renders synchronously.
+   */
+  useEffect(() => {
+    if (phase !== "running") return;
+    const finished = stage >= enginePipeline.length;
+    const timer = setTimeout(
+      () => {
+        if (finished) setPhase("done");
+        else setStage((value) => value + 1);
+      },
+      finished ? 420 : stage === 0 ? 220 : 260,
+    );
+    return () => clearTimeout(timer);
+  }, [phase, stage]);
+
+  const beginRun = () => {
+    setRun((value) => value + 1);
+    setStage(0);
+    setFocused(1);
+    setPhase("running");
+  };
+
+  /* Changing an input invalidates the result, so the run has to be made again. */
+  const changeInput = (change: () => void) => {
+    change();
+    setPhase("idle");
+    setStage(0);
+  };
+
   const activePlate = plates.find((entry) => entry.plate === focused) ?? plates[0];
-
   const partArea = parts.reduce((total, part) => total + (part.w * part.h) / 1_000_000, 0);
-  const stockArea = result.stockAreaSqm;
-  const usedArea = result.partAreaSqm;
-  const utilization = result.utilizationPct;
+  const stockArea = result?.stockAreaSqm ?? 0;
+  const usedArea = result?.partAreaSqm ?? 0;
+  const utilization = result?.utilizationPct ?? 0;
   const wastage = stockArea - usedArea;
   const scrap = stockArea - partArea;
+  const progress = Math.min(1, stage / (enginePipeline.length + 1));
 
   return (
     <div className="flex h-full flex-col gap-3">
@@ -440,21 +488,31 @@ function OptimizerEngine({
         <SampleTag />
         <button
           type="button"
-          onClick={() => setRun((value) => value + 1)}
-          className="inline-flex items-center gap-1.5 rounded-full border border-brand-400/45 bg-brand-500/14 px-3 py-1 text-[0.75rem] font-semibold text-brand-100 transition-colors hover:border-brand-300/70"
+          onClick={beginRun}
+          disabled={phase === "running"}
+          className="studio-button studio-button-primary"
         >
-          <span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full bg-brand-300", run > 0 && "animate-pulse-soft")} />
-          {run === 0 ? t("Run optimizer") : t("Re-run · pass {pass}", { pass: run + 1 })}
+          <span
+            aria-hidden="true"
+            className="h-1.5 w-1.5 rounded-full bg-white"
+            style={{ opacity: phase === "running" ? 1 : 0.6 }}
+          />
+          {phase === "idle"
+            ? t("Run optimizer")
+            : phase === "running"
+              ? t("Optimizing…")
+              : t("Re-run · pass {pass}", { pass: run + 1 })}
         </button>
       </div>
 
-      <div className="flex flex-wrap items-end gap-4">
+      {/* ── The inputs, in the application's own controls ─────────────── */}
+      <div className="studio-sheet flex flex-wrap items-end gap-4 px-3 py-3">
         <label className="flex flex-col gap-1">
-          <span className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-text-faint font-medium">{t("Sheet")}</span>
+          <span className="studio-label">{t("Sheet")}</span>
           <select
             value={sheetIndex}
-            onChange={(event) => setSheetIndex(Number(event.target.value))}
-            className="rounded-lg border border-line-strong/60 bg-ink-900/80 px-2 py-1 text-[0.75rem] text-text-primary outline-none"
+            onChange={(event) => changeInput(() => setSheetIndex(Number(event.target.value)))}
+            className="studio-inset px-2 py-1 text-[0.75rem]"
           >
             {sheetSizes.map((entry, index) => (
               <option key={`${t(entry.label)}-${index}`} value={index}>
@@ -465,7 +523,7 @@ function OptimizerEngine({
         </label>
 
         <label className="flex min-w-[9rem] flex-1 flex-col gap-1">
-          <span className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-text-faint font-medium">
+          <span className="studio-label">
             {t("Pieces per size · {piecesPerPart}", { piecesPerPart: piecesPerPart })}
           </span>
           <input
@@ -474,43 +532,42 @@ function OptimizerEngine({
             max={4}
             step={1}
             value={piecesPerPart}
-            onChange={(event) => setPiecesPerPart(Number(event.target.value))}
+            onChange={(event) => changeInput(() => setPiecesPerPart(Number(event.target.value)))}
             className="accent-brand-400"
           />
         </label>
+
+        <span className="studio-chip">
+          {t("{v1} sizes · {v2} pieces", { v1: sizes, v2: parts.length })}
+        </span>
+        <span className="studio-chip">
+          {t("trim {v1} · kerf {v2} mm", { v1: SAMPLE_MARGINS.left, v2: SAMPLE_MARGINS.kerf })}
+        </span>
       </div>
 
-      {view === "report" ? (
-        /*
-         * The industrial report the run produces: the nested sheets summary,
-          * which is the section an office reads — one row per plate, its stock,
-         * what went on it and what it yielded — over the run's own totals.
-         */
-        <div className="rounded-card border border-line/70 bg-ink-900/60 p-2">
-          <div className="flex flex-wrap items-center justify-between gap-2 px-1 pb-2">
-            <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-muted font-semibold">
-              {t("Nested sheets summary")}
+      {/* ── Before a run: the cutting list, and nothing else ──────────── */}
+      {phase === "idle" ? (
+        <div className="studio-sheet flex min-h-0 flex-1 flex-col p-3">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] font-semibold" style={{ color: "var(--cad-muted)" }}>
+              {t("Cutting list · the sample job")}
             </p>
-            <span className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-text-faint font-medium">
-              {t("{v1} mm · trim {v2} mm · kerf {v3} mm", {
-                v1: 6,
-                v2: SAMPLE_MARGINS.left,
-                v3: SAMPLE_MARGINS.kerf,
-              })}
-            </span>
+            <p className="studio-label">
+              {t("{v1} sizes · {v2} pieces on the table", { v1: sizes, v2: parts.length })}
+            </p>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[24rem] border-separate border-spacing-0 text-[0.75rem]">
-              <caption className="sr-only">
-                {t("Every plate of the sample run, with what it carries and what it yielded")}
-              </caption>
+
+          <div className="studio-inset mt-2 min-h-0 flex-1 overflow-auto p-1">
+            <table className="studio-table w-full min-w-[22rem] border-separate border-spacing-0 text-[0.75rem]">
+              <caption className="sr-only">{t("The twenty-two sizes this sample job is cut from")}</caption>
               <thead>
                 <tr className="text-left">
-                  {["Sheet", "Stock", "Pieces", "Used", "Yield"].map((heading) => (
+                  {["Piece", "Room", "W", "H", "Qty"].map((heading) => (
                     <th
                       key={heading}
                       scope="col"
-                      className="border-b border-line-strong/70 px-2 py-1.5 font-mono text-3xs uppercase tracking-[0.1em] text-text-faint font-medium"
+                      className="sticky top-0 px-2 py-1.5 font-mono text-3xs uppercase tracking-[0.1em] font-medium"
+                      style={{ backgroundColor: "var(--cad-canvas)" }}
                     >
                       {t(heading)}
                     </th>
@@ -518,146 +575,222 @@ function OptimizerEngine({
                 </tr>
               </thead>
               <tbody>
-                {plates.map((entry) => (
-                  <tr key={entry.plate}>
-                    <td className="border-b border-line/50 px-2 py-1.5 font-semibold text-text-primary">
-                      {entry.plate}
+                {(demo.views[0]?.rows ?? []).map((row) => (
+                  <tr key={String(row.piece)}>
+                    <td className="px-2 py-1 font-semibold">{row.piece}</td>
+                    <td className="px-2 py-1" style={{ color: "var(--cad-muted)" }}>
+                      {row.room}
                     </td>
-                    <td className="border-b border-line/50 px-2 py-1.5 font-mono text-text-muted">
-                      {entry.stockLabel}
-                    </td>
-                    <td className="border-b border-line/50 px-2 py-1.5 font-mono tabular-nums text-text-secondary">
-                      {entry.pieceCount}
-                    </td>
-                    <td className="border-b border-line/50 px-2 py-1.5 font-mono tabular-nums text-text-secondary">
-                      {`${entry.usedSqm} m²`}
-                    </td>
-                    <td className="border-b border-line/50 px-2 py-1.5 font-mono tabular-nums font-semibold text-brand-200">
-                      {`${entry.utilizationPct.toFixed(1)}%`}
-                    </td>
+                    <td className="px-2 py-1 text-right font-mono tabular-nums">{row.w}</td>
+                    <td className="px-2 py-1 text-right font-mono tabular-nums">{row.h}</td>
+                    <td className="px-2 py-1 text-right font-mono tabular-nums">{row.qty}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p className="px-1 pt-2 text-[0.6875rem] leading-relaxed text-text-faint font-medium">
-            {t("The report prints four sections: the industrial cut schedule in execution order, this nested sheets summary, the merged specifications the batch was built from, and the stock plates the run consumed.")}
+
+          <p className="mt-3 text-[0.75rem] leading-relaxed font-medium" style={{ color: "var(--cad-subtle)" }}>
+            {t("Nothing has been computed yet — the application opens the same way, with the optimization tabs empty until a run is asked for. Press Run optimizer and the plan, the yield and the cut schedule appear together when the run completes.")}
           </p>
         </div>
-      ) : (
-        <>
-      {/*
-        The plate itself, drawn the way the 2D View tab draws it: to scale, with
-        the edge trims, the breakout band, the pieces labelled with their
-        references, cut sizes and areas, their cut-sequence tags, and the
-        remnant that goes back on the rack.
+      ) : null}
 
-        This is what the preview was missing. It used to show the run only as a
-        row of thumbnails — small enough that a trim, a piece and an offcut were
-        the same three shades of violet, so the one screen the module exists for
-        was the one screen the preview could not actually show.
-      */}
-      {activePlate ? (
-        <div className="rounded-card border border-line/70 bg-ink-950/60 p-2">
-          <div className="-mx-1 overflow-x-auto px-1">
-            <PlateCad
-              t={t}
-              plate={activePlate}
-              margins={SAMPLE_MARGINS}
-              minBreakoutMm={optimizerLimits.minBreakout}
-              density="inspect"
-              className="min-w-[24rem]"
-            />
+      {/* ── During a run: the engine's own stages ─────────────────────── */}
+      {phase === "running" ? (
+        <div className="studio-sheet flex flex-1 flex-col justify-center gap-4 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="font-mono text-sm font-semibold" style={{ color: "var(--cad-text)" }}>
+              {t("Optimization running…")}
+            </p>
+            <span className="studio-chip">{Math.round(progress * 100)}%</span>
           </div>
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-line/50 pt-2">
-            <span className="rounded-md border border-brand-400/40 bg-brand-500/12 px-2 py-0.5 font-mono text-[0.625rem] font-bold text-brand-200">
-              {t("Sheet {v1} of {v2}", { v1: activePlate.plate, v2: plates.length })}
-            </span>
-            <span className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-text-faint font-medium">
-              {t("Yield {v1} · {v2} pieces", {
-                v1: `${activePlate.utilizationPct.toFixed(1)}%`,
-                v2: activePlate.pieceCount,
-              })}
-            </span>
+          <div className="studio-track" role="progressbar" aria-label={t("Optimization progress")} aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
+            <span style={{ width: `${Math.round(progress * 100)}%`, transition: "width 260ms linear" }} />
           </div>
+          <ol className="space-y-2">
+            {enginePipeline.map((entry, index) => (
+              <li key={`${entry.step}-${index}`} className="flex items-start gap-3">
+                <span
+                  aria-hidden="true"
+                  className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+                  style={{
+                    backgroundColor: index <= stage ? "var(--cad-accent)" : "var(--cad-line)",
+                  }}
+                />
+                <span
+                  className="text-[0.75rem] leading-relaxed"
+                  style={{ color: index <= stage ? "var(--cad-text)" : "var(--cad-subtle)" }}
+                >
+                  <span className="font-semibold">{t(entry.step)}</span>
+                  {" — "}
+                  {t(entry.detail)}
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p className="text-[0.6875rem] leading-relaxed font-medium" style={{ color: "var(--cad-subtle)" }}>
+            {t("These are the stages the application reports its search through. This preview computes the plan in the browser the moment it starts, so what you are watching is the sequence, not a long calculation.")}
+          </p>
         </div>
       ) : null}
 
-      {/*
-        Every plate of the run, as thumbnails, and each one focuses its sheet on
-        the canvas above — the application's gallery, where a card opens its own
-        layout.
-
-        This replaced a vertical stack of full-width plates. A plate is wider
-        than it is tall, so one drawn across the frame is already ~70% of its
-        width in height — and the sample job needs more than a dozen of them.
-        The old version therefore put a column of near-empty boxes down the
-        page, the last few almost blank, and pushed everything below it out of
-        sight.
-
-        Thumbnails wrapped across the frame keep the whole run visible at the
-        size a glance actually needs. It is the same treatment the application
-        gives it in the 2D View tab, where the Multi-Sheet Gallery exists for
-        precisely this reason.
-      */}
-      <SheetGallery
-        plates={plates}
-        margins={SAMPLE_MARGINS}
-        minBreakoutMm={optimizerLimits.minBreakout}
-        selectedPlate={activePlate?.plate}
-        onSelectPlate={setFocused}
-        /* The sample job is four plates; a card shows all four as 2 × 2. */
-        pageSize={compact ? 4 : 6}
-        paginate={!compact}
-        columns={compact ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3"}
-      />
-        </>
-      )}
-
-      {result.unplaced.length > 0 ? (
-        <p className="rounded-card border border-state-warning/40 bg-state-warning/10 px-3 py-2 text-[0.75rem] leading-relaxed text-text-secondary">
-          <strong className="font-semibold text-text-primary">
-            {result.unplaced.length} {result.unplaced.length === 1 ? "piece" : "pieces"} could not be placed
-          </strong>{" "}
-          on a {sheet.w} × {sheet.h} plate — too large for the usable area in either orientation. Choose a larger sheet,
-          or cut {result.unplaced.length === 1 ? "it" : "them"} from stock that can hold {result.unplaced.length === 1 ? "it" : "them"}.
-        </p>
-      ) : null}
-
-      {/*
-        The six figures the application's Summary tab reports for a run, in its
-        order. Sheets used and utilization first, because those are the two a
-        shop owner looks for; wastage, stock, part area and scrap after them.
-        All six are computed from the pieces actually placed.
-      */}
-      {!compact ? (
-        <dl className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-          {[
-            { label: t("Sheets used"), value: String(result.plates) },
-            { label: t("Utilization"), value: `${utilization.toFixed(1)}%`, good: true },
-            { label: t("Wastage"), value: `${wastage.toFixed(2)} m²`, bad: true },
-            { label: t("Stock area"), value: `${stockArea.toFixed(2)} m²` },
-            { label: t("Part area"), value: `${partArea.toFixed(2)} m²` },
-            { label: t("Scrap"), value: `${scrap.toFixed(2)} m²`, bad: true },
-          ].map((item) => (
-            <div key={t(item.label)} className="stat-tile px-2.5 py-2">
-              <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t(item.label)}</dt>
-              <dd
-                className={cn(
-                  "mt-0.5 font-mono text-sm font-semibold tabular-nums",
-                  item.good && "text-money-positive",
-                  item.bad && "text-money-negative",
-                  !item.good && !item.bad && "text-text-primary",
-                )}
-              >
-                {t(item.value)}
-              </dd>
+      {/* ── After a run: the result ───────────────────────────────────── */}
+      {phase === "done" && result ? (
+        <>
+          {view === "report" ? (
+            /*
+             * The industrial report the run produces: the nested sheets summary,
+             * which is the section an office reads — one row per plate, its
+             * stock, what went on it and what it yielded — over the run's own
+             * totals.
+             */
+            <div className="studio-sheet p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 px-1 pb-2">
+                <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] font-semibold" style={{ color: "var(--cad-muted)" }}>
+                  {t("Nested sheets summary")}
+                </p>
+                <span className="studio-label">
+                  {t("trim {v1} · kerf {v2} mm", { v1: SAMPLE_MARGINS.left, v2: SAMPLE_MARGINS.kerf })}
+                </span>
+              </div>
+              <div className="studio-inset max-h-[24rem] overflow-auto p-1">
+                <table className="studio-table w-full min-w-[24rem] border-separate border-spacing-0 text-[0.75rem]">
+                  <caption className="sr-only">
+                    {t("Every plate of the sample run, with what it carries and what it yielded")}
+                  </caption>
+                  <thead>
+                    <tr className="text-left">
+                      {["Sheet", "Stock", "Pieces", "Used", "Yield"].map((heading) => (
+                        <th
+                          key={heading}
+                          scope="col"
+                          className="sticky top-0 px-2 py-1.5 font-mono text-3xs uppercase tracking-[0.1em] font-medium"
+                          style={{ backgroundColor: "var(--cad-canvas)" }}
+                        >
+                          {t(heading)}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {plates.map((entry) => (
+                      <tr key={entry.plate}>
+                        <td className="px-2 py-1.5 font-semibold">{entry.plate}</td>
+                        <td className="px-2 py-1.5 font-mono" style={{ color: "var(--cad-muted)" }}>
+                          {entry.stockLabel}
+                        </td>
+                        <td className="px-2 py-1.5 text-right font-mono tabular-nums">{entry.pieceCount}</td>
+                        <td className="px-2 py-1.5 text-right font-mono tabular-nums">{`${entry.usedSqm} m²`}</td>
+                        <td className="px-2 py-1.5 text-right font-mono font-semibold tabular-nums" style={{ color: "var(--cad-accent-deep)" }}>
+                          {`${entry.utilizationPct.toFixed(1)}%`}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="px-1 pt-2 text-[0.6875rem] leading-relaxed font-medium" style={{ color: "var(--cad-subtle)" }}>
+                {t("The report prints four sections: the industrial cut schedule in execution order, this nested sheets summary, the merged specifications the batch was built from, and the stock plates the run consumed.")}
+              </p>
             </div>
-          ))}
-        </dl>
-      ) : null}
+          ) : (
+            <>
+              {/*
+                The plate itself, drawn the way the 2D View tab draws it: on the
+                application's light studio panel, to scale, with the edge trims,
+                the breakout band, the pieces labelled with their references, cut
+                sizes and areas, their cut-sequence tags, and the remnant that
+                goes back on the rack.
+              */}
+              {activePlate ? (
+                <div className="studio-sheet p-2">
+                  <div className="-mx-1 overflow-x-auto px-1">
+                    <div className="studio-stage p-1">
+                      <PlateCad
+                        t={t}
+                        plate={activePlate}
+                        margins={SAMPLE_MARGINS}
+                        minBreakoutMm={optimizerLimits.minBreakout}
+                        density="inspect"
+                        className="block min-w-[24rem] rounded-[0.35rem]"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2 px-1 pt-2" style={{ borderTop: "1px solid var(--cad-keyline)" }}>
+                    <span className="studio-chip">
+                      {t("Sheet {v1} of {v2}", { v1: activePlate.plate, v2: plates.length })}
+                    </span>
+                    <span className="studio-chip-yield">{t("Yield: {v1}", { v1: `${activePlate.utilizationPct.toFixed(1)}%` })}</span>
+                    <span className="studio-label">
+                      {t("{v1} pieces on this sheet", { v1: activePlate.pieceCount })}
+                    </span>
+                  </div>
+                </div>
+              ) : null}
 
-      <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{t("{v1} Arranged here with a two-way guillotine split over the sample cut list, so the figures are genuinely calculated — change the sheet or the quantity and read them again.", { v1: t(demo.blurb) })}</p>
+              {/*
+                Every plate of the run, as thumbnails, and each one focuses its
+                sheet on the canvas above — the application's gallery, where a
+                card opens its own layout.
+              */}
+              <SheetGallery
+                plates={plates}
+                margins={SAMPLE_MARGINS}
+                minBreakoutMm={optimizerLimits.minBreakout}
+                selectedPlate={activePlate?.plate}
+                onSelectPlate={setFocused}
+                pageSize={compact ? 4 : 6}
+                paginate={!compact}
+                columns={compact ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3"}
+              />
+            </>
+          )}
+
+          {result.unplaced.length > 0 ? (
+            <p className="studio-chip-warning">
+              {t("{v1} pieces could not be placed on a {v2} × {v3} plate — too large for the usable area in either orientation. Choose a larger sheet, or cut them from stock that can hold them.", {
+                v1: result.unplaced.length,
+                v2: sheet.w,
+                v3: sheet.h,
+              })}
+            </p>
+          ) : null}
+
+          {/*
+            The six figures the application's Summary tab reports for a run, in
+            its order. Sheets used and utilization first, because those are the
+            two a shop owner looks for; wastage, stock, part area and scrap after
+            them. All six are computed from the pieces actually placed.
+          */}
+          {!compact ? (
+            <dl className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+              {[
+                { label: t("Sheets used"), value: String(result.plates) },
+                { label: t("Utilization"), value: `${utilization.toFixed(1)}%`, tone: "accent" },
+                { label: t("Wastage"), value: `${wastage.toFixed(2)} m²` },
+                { label: t("Stock area"), value: `${stockArea.toFixed(2)} m²` },
+                { label: t("Part area"), value: `${partArea.toFixed(2)} m²` },
+                { label: t("Scrap"), value: `${scrap.toFixed(2)} m²` },
+              ].map((item) => (
+                <div key={item.label} className="studio-sheet px-2.5 py-2">
+                  <dt className="studio-label text-[0.625rem]">{item.label}</dt>
+                  <dd
+                    className="mt-0.5 font-mono text-sm font-semibold tabular-nums"
+                    style={{ color: item.tone === "accent" ? "var(--cad-accent-deep)" : "var(--cad-text)" }}
+                  >
+                    {item.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+
+          <p className="text-[0.75rem] leading-relaxed font-medium" style={{ color: "var(--cad-subtle)" }}>
+            {t("{v1} Arranged here with a two-way guillotine split over the sample cutting list, so the figures are genuinely calculated — change the sheet or the quantity and the result clears until you run it again.", { v1: t(demo.blurb) })}
+          </p>
+        </>
+      ) : null}
     </div>
   );
 }

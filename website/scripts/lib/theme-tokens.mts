@@ -116,6 +116,81 @@ export function themePalette(theme: ThemeName): Palette {
 /** The plates are drawn in the dark palette: `[data-theme="midnight"]`. */
 export const palette: Palette = themePalette("midnight");
 
+/**
+ * The studio sheet's own tokens, which are not themed.
+ *
+ * Two of the plates carry the application's 2D view drawn the way the operator
+ * sees it, and that drawing is deliberately the same in both of the site's
+ * modes — a plate is a sheet of drawing paper on the page, not a dark card with
+ * pale rectangles in it. Its colours therefore live in a plain `:root` block in
+ * `globals.css` rather than under a `[data-theme]` selector, and they are read
+ * from there the same way the themed tokens are: the renderer owns no colours
+ * of its own, so a token that moves takes the plates with it.
+ */
+const STUDIO_TOKENS = {
+  canvas: "--cad-canvas",
+  surface: "--cad-surface",
+  keyline: "--cad-keyline",
+  line: "--cad-line",
+  bed: "--cad-bed",
+  piece: "--cad-piece",
+  pieceRotated: "--cad-piece-rotated",
+  ink: "--cad-ink",
+  text: "--cad-text",
+  muted: "--cad-muted",
+  subtle: "--cad-subtle",
+  trim: "--cad-trim",
+  breakout: "--cad-breakout",
+  accent: "--cad-accent",
+  accentDeep: "--cad-accent-deep",
+  accentSoft: "--cad-accent-soft",
+  accentLine: "--cad-accent-line",
+  offcutBg: "--cad-offcut-bg",
+  offcutLine: "--cad-offcut-line",
+  successBg: "--cad-success-bg",
+  successLine: "--cad-success-line",
+  successInk: "--cad-success-ink",
+  warningBg: "--cad-warning-bg",
+  warningLine: "--cad-warning-line",
+  warningInk: "--cad-warning-ink",
+} as const;
+
+export type StudioTokenName = keyof typeof STUDIO_TOKENS;
+export type StudioPalette = Record<StudioTokenName, string>;
+
+/**
+ * Every `--cad-*: #hex;` declared anywhere in the stylesheet.
+ *
+ * Matched over the whole file rather than inside one block, because the studio
+ * tokens are declared in a `:root` of their own and there are several `:root`
+ * blocks in this stylesheet.
+ */
+export function studioPalette(): StudioPalette {
+  const declared = new Map<string, string>();
+  const pattern = /--(cad-[a-z-]+)\s*:\s*#([0-9a-fA-F]{6})\s*;/g;
+
+  for (const match of stripComments(readFileSync(STYLESHEET, "utf8")).matchAll(pattern)) {
+    declared.set(`--${match[1]}`, `#${match[2].toUpperCase()}`);
+  }
+
+  const missing: string[] = [];
+  const studio = {} as StudioPalette;
+
+  for (const [key, property] of Object.entries(STUDIO_TOKENS) as [StudioTokenName, string][]) {
+    const value = declared.get(property);
+    if (value === undefined) missing.push(property);
+    else studio[key] = value;
+  }
+
+  if (missing.length > 0) {
+    throw new Error(`theme-tokens: the stylesheet declares no ${missing.join(", ")}`);
+  }
+  return studio;
+}
+
+/** The colours of the 2D view, as the stylesheet declares them. */
+export const studio: StudioPalette = studioPalette();
+
 /** `#6546B5`, 0.18 → `rgba(101, 70, 181, 0.18)`. */
 export function rgba(hexColour: string, alpha: number): string {
   const value = hexColour.replace("#", "");

@@ -109,7 +109,7 @@ export const capabilityGroups: CapabilityGroup[] = [
     id: "optimization",
     label: "Optimization",
     shortLabel: "Optimization",
-    tagline: "Industrial 2D guillotine nesting engine achieving 92%+ cutting yields",
+    tagline: "Industrial 2D guillotine nesting engine with edge trims, kerf and rotation control",
     description:
       "Automate rectangular sheet cutting patterns with kerf control, edge trims, grain rotation constraints, and direct DXF cutting table export to eliminate glass scrap.",
     icon: "scissors",

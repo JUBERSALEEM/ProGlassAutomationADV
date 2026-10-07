@@ -20,10 +20,28 @@ import {
   SURCHARGE_THRESHOLD_SQM,
 } from "@/data/pricingRules";
 import { packGuillotine, plateViews } from "@/lib/guillotinePack";
+import { PlateCad } from "@/components/optimization/PlateCad";
 import { optimizerLimits } from "@/data/liveDemos";
 import { cn } from "@/lib/cn";
 import { useT } from "@/i18n/provider";
 import { NoTranslate } from "@/components/i18n/NoTranslate";
+
+/**
+ * The margins and kerf this specification's own run respects.
+ *
+ * The application's house Thin profile, out of `src/data/liveDemos.ts`: 6 mm
+ * glass is trimmed 15 mm on all four edges and cut with a 3 mm blade gap
+ * (`Services/Optimization/OptimizationModels.cs` → `MarginProfile.DefaultFor`).
+ * One constant, so the packer and the plate drawings beside it cannot disagree
+ * about the trims the plan was cut to.
+ */
+const RUN_MARGINS = {
+  left: optimizerLimits.marginLeft,
+  right: optimizerLimits.marginRight,
+  top: optimizerLimits.marginTop,
+  bottom: optimizerLimits.marginBottom,
+  kerf: optimizerLimits.kerf,
+};
 
 /**
  * Step 5 — the specification, working.
@@ -821,13 +839,7 @@ export function SpecificationSurface({
         height: row.h1,
       })),
     );
-    const result = packGuillotine(parts, { width: spec.sheet.w, height: spec.sheet.h }, {
-      left: optimizerLimits.marginLeft,
-      right: optimizerLimits.marginRight,
-      top: optimizerLimits.marginTop,
-      bottom: optimizerLimits.marginBottom,
-      kerf: optimizerLimits.kerf,
-    });
+    const result = packGuillotine(parts, { width: spec.sheet.w, height: spec.sheet.h }, RUN_MARGINS);
     return plateViews(result, { width: spec.sheet.w, height: spec.sheet.h, label: spec.sheet.label });
   }, [run, showResult, priced, spec.sheet]);
 
@@ -1490,9 +1502,23 @@ export function SpecificationSurface({
           {plates.length > 0 ? (
             <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               {plates.slice(0, 4).map((plate) => (
-                <figure key={plate.plate} className="rounded-lg border border-line/50 bg-ink-950/60 p-2">
-                  <PlateDrawing plate={plate} />
-                  <figcaption className="mt-1.5 font-mono text-[0.6875rem] text-text-faint">
+                /* A sheet of drawing paper on the panel, not a dark card: the
+                   same light studio drawing every other plate on this site
+                   uses, at the gallery's density — the cut number, and nothing
+                   else, on a piece with room for it. */
+                <figure key={plate.plate} className="studio-sheet p-2">
+                  <PlateCad
+                    t={t}
+                    plate={plate}
+                    margins={RUN_MARGINS}
+                    minBreakoutMm={optimizerLimits.minBreakout}
+                    density="card"
+                    title={t.template`Plate ${plate.plate} with ${plate.pieceCount} pieces placed`}
+                  />
+                  <figcaption
+                    className="mt-1.5 font-mono text-[0.6875rem] font-medium"
+                    style={{ color: "var(--cad-muted)" }}
+                  >
                     Plate {plate.plate} · {plate.pieceCount} pieces · {plate.utilizationPct.toFixed(1)}%
                   </figcaption>
                 </figure>
@@ -1653,39 +1679,6 @@ function ReadOutMini({ label, value, note }: { label: string; value: string; not
       <p className="mt-0.5 text-[0.875rem] font-semibold tabular-nums text-text-primary">{value}</p>
       <p className="text-[0.625rem] leading-snug text-text-muted font-medium">{note}</p>
     </div>
-  );
-}
-
-/**
- * A plate, drawn from the run.
- *
- * Placed pieces are drawn where the packer put them, in millimetres scaled to
- * the plate, so the drawing is the run rather than a picture of one.
- */
-function PlateDrawing({ plate }: { plate: ReturnType<typeof plateViews>[number] }) {
-  const t = useT();
-  const viewBox = `0 0 ${plate.widthMm} ${plate.heightMm}`;
-  return (
-    <svg
-      viewBox={viewBox}
-      role="img"
-      aria-label={t.template`Plate ${plate.plate} with ${plate.pieceCount} pieces placed`}
-      className="h-auto w-full rounded border border-line/50 bg-ink-950"
-    >
-      <rect x="0" y="0" width={plate.widthMm} height={plate.heightMm} fill="rgba(34,211,238,0.04)" />
-      {plate.pieces.map((piece) => (
-        <rect
-          key={`${piece.id}-${piece.sequence}`}
-          x={piece.x}
-          y={piece.y}
-          width={piece.width}
-          height={piece.height}
-          fill="rgba(139,92,246,0.22)"
-          stroke="rgba(196,181,253,0.75)"
-          strokeWidth={Math.max(2, plate.widthMm / 400)}
-        />
-      ))}
-    </svg>
   );
 }
 

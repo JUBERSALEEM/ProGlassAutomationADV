@@ -17,8 +17,16 @@ import type { Translator } from "@/i18n/core";
  * One plate, drawn the way the application's 2D view draws it.
  *
  * This is the site's transcription of the Single Sheet CAD canvas
- * (`Views/Optimization/Tabs/TwoDViewTabView.xaml`), which carries six things
- * that a plain "rectangles in a box" drawing does not:
+ * (`Views/Optimization/Tabs/TwoDViewTabView.xaml`), and it is a **light**
+ * drawing in both readings of the site. A plate is a sheet of drawing paper
+ * lying on the page — not a dark card with pale rectangles in it — because the
+ * screen it reports is the application's light studio screen. The brushes are
+ * the application's own, transcribed in `globals.css` under the studio-sheet
+ * section: the stone bed `#D6D3D1`, near-white pieces outlined in the
+ * saw-channel ink `#1F2937`, the trim boundary teal `#0F766E`, the breakout
+ * band amber `#B45309`, a violet-tinted remnant and an indigo `Cut N` chip.
+ *
+ * What it carries, all of it from the application's canvas:
  *
  *   · the **usable rectangle**, dashed, inside the edge trims
  *   · the **breakout band**, dashed again and inset, which is the offcut inside
@@ -53,6 +61,8 @@ export function PlateCad({
   reveal,
   /** Milliseconds between pieces while a sequence is being revealed. */
   revealStepMs = 0,
+  /** Milliseconds to fade a piece in — 0 when the reveal is instantaneous. */
+  revealDurationMs = 500,
   className,
   title,
 }: {
@@ -65,6 +75,7 @@ export function PlateCad({
   showCallouts?: boolean;
   reveal?: number;
   revealStepMs?: number;
+  revealDurationMs?: number;
   className?: string;
   title?: string;
 }) {
@@ -82,7 +93,7 @@ export function PlateCad({
     sequence: width / 30,
   };
   const stroke = {
-    plate: width / 450,
+    plate: width / 300,
     piece: width / 450,
     trim: width / 600,
     breakout: width / 700,
@@ -115,14 +126,14 @@ export function PlateCad({
         t.template`Sheet ${plate.plate} of the sample job: ${plate.pieceCount} pieces nested on a ${plate.stockLabel} millimetre plate, ${plate.utilizationPct} percent used, ${plate.offcutSqm} square metres of it left over.`
       }
     >
-      {/* ── The stock ───────────────────────────────────────────────────── */}
+      {/* ── The stock: a stone bed, the way the table's screen shows it ──── */}
       <rect
         x={0}
         y={0}
         width={width}
         height={height}
-        rx={width * 0.005}
-        className="fill-viz-plate stroke-line-strong"
+        rx={width * 0.004}
+        className="cad-bed"
         strokeWidth={stroke.plate}
       />
 
@@ -133,7 +144,7 @@ export function PlateCad({
         width={usable.width}
         height={usable.height}
         fill="none"
-        className="stroke-glass-teal"
+        className="cad-trim"
         strokeWidth={stroke.trim}
         strokeDasharray={`${font.callout * 0.72} ${font.callout * 0.34}`}
       />
@@ -145,8 +156,8 @@ export function PlateCad({
         width={breakout.width}
         height={breakout.height}
         fill="none"
-        className="stroke-state-warning"
-        strokeOpacity={0.62}
+        className="cad-breakout"
+        strokeOpacity={0.65}
         strokeWidth={stroke.breakout}
         strokeDasharray={`${font.callout * 0.2} ${font.callout * 0.2}`}
       />
@@ -161,15 +172,15 @@ export function PlateCad({
         return (
           <g
             key={piece.id}
-            className={cn(
-              "transition-opacity duration-500 ease-reveal",
-              fading ? "opacity-0" : "opacity-100",
-            )}
-            style={
-              reveal !== undefined && revealStepMs > 0
-                ? { transitionDelay: `${(sequence - 1) * revealStepMs}ms` }
-                : undefined
-            }
+            className="transition-opacity ease-reveal"
+            style={{
+              opacity: fading ? 0 : 1,
+              transitionDuration: `${revealDurationMs}ms`,
+              transitionDelay:
+                reveal !== undefined && !fading && revealStepMs > 0
+                  ? `${(sequence - 1) * revealStepMs}ms`
+                  : undefined,
+            }}
           >
             <rect
               x={piece.x}
@@ -178,17 +189,12 @@ export function PlateCad({
               height={piece.height}
               rx={width * 0.0015}
               /*
-                A rotated piece is filled in the family's second part tone and
-                outlined in cyan, which is how the application marks one: the
-                fit explains itself without a caption.
+                A rotated piece is filled in the light-sky tint and outlined in
+                the accent, which is how the application marks one: the fit
+                explains itself without a caption.
               */
-              className={
-                piece.rotated
-                  ? "fill-viz-part-2 stroke-glass-cyan"
-                  : "fill-viz-part stroke-brand-200"
-              }
-              strokeWidth={stroke.piece}
-              strokeOpacity={0.7}
+              className={piece.rotated ? "cad-piece-rotated" : "cad-piece"}
+              strokeWidth={piece.rotated ? stroke.piece * 0.7 : stroke.piece}
             />
 
             {compact ? (
@@ -198,8 +204,8 @@ export function PlateCad({
                   y={piece.y + piece.height / 2}
                   textAnchor="middle"
                   dominantBaseline="central"
-                  className="fill-text-primary font-semibold"
-                  style={{ fontSize: font.sequence }}
+                  className="cad-ink"
+                  style={{ fontSize: font.sequence, fontWeight: 600 }}
                 >
                   {sequence}
                 </text>
@@ -210,8 +216,8 @@ export function PlateCad({
                 {piece.rotated ? (
                   <polygon
                     points={`${piece.x + piece.width - width * 0.035},${piece.y} ${piece.x + piece.width},${piece.y} ${piece.x + piece.width},${piece.y + width * 0.035}`}
-                    className="fill-glass-cyan"
-                    fillOpacity={0.55}
+                    className="cad-accent"
+                    fillOpacity={0.5}
                   />
                 ) : null}
 
@@ -221,8 +227,8 @@ export function PlateCad({
                       x={piece.x + piece.width / 2}
                       y={piece.y + piece.height / 2 - font.reference * 0.62}
                       textAnchor="middle"
-                      className="fill-text-primary font-semibold"
-                      style={{ fontSize: font.reference }}
+                      className="cad-ink"
+                      style={{ fontSize: font.reference, fontWeight: 600 }}
                     >
                       {pieceRef(piece.id)}
                     </text>
@@ -230,8 +236,8 @@ export function PlateCad({
                       x={piece.x + piece.width / 2}
                       y={piece.y + piece.height / 2 + font.dimensions * 0.28}
                       textAnchor="middle"
-                      className="fill-text-primary font-bold"
-                      style={{ fontSize: font.dimensions }}
+                      className="cad-ink"
+                      style={{ fontSize: font.dimensions, fontWeight: 700 }}
                     >
                       {dimensionsText(piece)}
                     </text>
@@ -240,7 +246,7 @@ export function PlateCad({
                         x={piece.x + piece.width / 2}
                         y={piece.y + piece.height / 2 + font.dimensions * 0.9}
                         textAnchor="middle"
-                        className="fill-text-muted"
+                        className="cad-muted"
                         style={{ fontSize: font.area }}
                       >
                         {areaText(piece)}
@@ -253,8 +259,8 @@ export function PlateCad({
                     y={piece.y + piece.height / 2}
                     textAnchor="middle"
                     dominantBaseline="central"
-                    className="fill-text-primary font-bold"
-                    style={{ fontSize: font.tag }}
+                    className="cad-ink"
+                    style={{ fontSize: font.tag, fontWeight: 700 }}
                   >
                     {shortDimensionsText(piece)}
                   </text>
@@ -269,17 +275,17 @@ export function PlateCad({
                       width={font.tag * 3.15}
                       height={font.tag * 1.6}
                       rx={font.tag * 0.3}
-                      className="fill-brand-600"
+                      className="cad-tag"
                     />
                     <text
                       x={piece.x + width * 0.006 + font.tag * 1.575}
                       y={piece.y + width * 0.006 + font.tag * 0.82}
                       textAnchor="middle"
                       dominantBaseline="central"
-                      className="fill-white font-bold"
-                      style={{ fontSize: font.tag * 0.92 }}
+                      className="cad-tag-text"
+                      style={{ fontSize: font.tag * 0.92, fontWeight: 700 }}
                     >
-                      {`Cut ${sequence}`}
+                      {t.template`Cut ${sequence}`}
                     </text>
                   </g>
                 ) : null}
@@ -297,7 +303,7 @@ export function PlateCad({
             y={offcut.y}
             width={offcut.width}
             height={offcut.height}
-            className="fill-brand-400/12 stroke-brand-300"
+            className="cad-offcut"
             strokeWidth={stroke.trim}
             strokeDasharray={`${font.offcut * 0.5} ${font.offcut * 0.34}`}
           />
@@ -307,8 +313,8 @@ export function PlateCad({
                 x={offcut.x + offcut.width / 2}
                 y={offcut.y + offcut.height / 2 - font.offcut * 0.35}
                 textAnchor="middle"
-                className="fill-brand-200 font-semibold"
-                style={{ fontSize: font.offcut }}
+                className="cad-accent"
+                style={{ fontSize: font.offcut, fontWeight: 600 }}
               >
                 {t(offcut.label)}
               </text>
@@ -316,8 +322,8 @@ export function PlateCad({
                 x={offcut.x + offcut.width / 2}
                 y={offcut.y + offcut.height / 2 + font.offcut * 0.75}
                 textAnchor="middle"
-                className="fill-brand-200 font-bold"
-                style={{ fontSize: font.offcut }}
+                className="cad-accent"
+                style={{ fontSize: font.offcut, fontWeight: 700 }}
               >
                 {`${Math.round(offcut.width)} × ${Math.round(offcut.height)} mm`}
               </text>
@@ -328,7 +334,7 @@ export function PlateCad({
 
       {/* ── Plate callouts: width above, height down the left ───────────── */}
       {showCallouts ? (
-        <g className="stroke-line-strong fill-text-faint">
+        <g className="cad-ink" strokeLinecap="square">
           <line x1={0} y1={-gutter * 0.42} x2={width} y2={-gutter * 0.42} strokeWidth={stroke.callout} />
           <line x1={0} y1={-gutter * 0.52} x2={0} y2={-gutter * 0.32} strokeWidth={stroke.callout} />
           <line
@@ -342,8 +348,8 @@ export function PlateCad({
             x={width / 2}
             y={-gutter * 0.62}
             textAnchor="middle"
-            className="fill-text-secondary font-semibold"
-            style={{ fontSize: font.callout }}
+            className="cad-ink"
+            style={{ fontSize: font.callout, fontWeight: 600 }}
           >
             {t("Plate width {v1} mm", { v1: width })}
           </text>
@@ -362,8 +368,8 @@ export function PlateCad({
             y={height / 2}
             textAnchor="middle"
             transform={`rotate(-90 ${-gutter * 0.62} ${height / 2})`}
-            className="fill-text-secondary font-semibold"
-            style={{ fontSize: font.callout }}
+            className="cad-ink"
+            style={{ fontSize: font.callout, fontWeight: 600 }}
           >
             {t("{v1} mm", { v1: height })}
           </text>
