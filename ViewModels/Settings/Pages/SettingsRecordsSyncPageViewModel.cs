@@ -241,6 +241,12 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
         private async Task TestConnectionAsync()
         {
             IsBusy = true;
+            var apiKeySource = string.IsNullOrWhiteSpace(ApiKeyInput)
+                ? "this app’s saved vault"
+                : "entered for this test";
+            var passwordSource = string.IsNullOrEmpty(PasswordInput)
+                ? "this app’s saved vault"
+                : "entered for this test";
             try
             {
                 var url = RecordsSyncService.NormalizeProjectUrl(SupabaseUrl);
@@ -262,7 +268,8 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
             }
             catch (Exception ex)
             {
-                ConnectionMessage = "Connection test failed: " + ex.Message;
+                ConnectionMessage = "Connection test failed: " + ex.Message +
+                    $" Credential source (values hidden): key={apiKeySource}; password={passwordSource}.";
             }
             finally
             {
