@@ -154,11 +154,19 @@ squeezing:
 | `2xl` | 1536 | nav, palette word, primary CTA, stamp | 1338 / 1393 |
 | `xl` | 1280 | nav without glyph icons, settings, stamp | 1105 / 1169 |
 | `lg` | 1024 | Menu button, settings, CTA, stamp | 882 / 929 |
+| `sm` | 640 | wordmark, language, reading switch, palette, menu button | 431 / 569 |
+| phone | 360 | mark alone, palette, menu button | 182 / 305 |
 
 The nav pill now starts at `xl` rather than `lg`, and between 1024 and 1279 it
 opens from a Menu button in the settings cluster — the same sheet the phone menu
 uses, already built and already translated. The nav's glyph icons and the
-palette's word return at 1920, where everything fits at once.
+palette's word return at 1920, where everything fits at once, and two visible
+choices fall out of the bottom of the ladder: the lockup drops to the mark alone
+below `lg`, and the language button waits for `sm`. The full lockup is in the
+footer on every screen and all fifteen languages are in the sheet, one tap away.
+
+Run `python3 scripts/measure-panel.py` after touching the panel; it exits 1 when
+any tier is over.
 
 ## The check that closes the loop
 
