@@ -133,6 +133,33 @@ that remain for the account holder, in order of value:
    change `site.url` in `src/lib/site.ts` — so the canonical URLs stop pointing
    at a name that does not resolve.
 
+## The panel the stamp went into was over budget, and that is what "cut off" was
+
+Adding a fact to a header assumes the header has room. It did not, and had not
+since the row grew its settings controls: measured from the site's own font
+files, the row wanted **1474px** of content at a 1280px window and **1318px** at
+1024 — roughly 300px and 390px more than either width has. A `nowrap` flex row
+does not overflow politely: its children shrink and their labels wrap mid-phrase
+("Request a / Demo") inside a bar whose height is fixed, which is what a squeezed
+panel looks like.
+
+`scripts/measure-panel.py` now does that arithmetic from the real advance widths
+of Inter and JetBrains Mono, with every constant carrying the Tailwind class it
+was read from, and `Navbar.tsx` sheds items in a fixed order instead of
+squeezing:
+
+| Tier | From | Shows | Needs / has |
+|---|---|---|---|
+| `wide` (new screen, 1920) | 1920 | everything: nav with glyph icons, palette word, both CTAs, stamp | 1616 / 1777 |
+| `2xl` | 1536 | nav, palette word, primary CTA, stamp | 1338 / 1393 |
+| `xl` | 1280 | nav without glyph icons, settings, stamp | 1105 / 1169 |
+| `lg` | 1024 | Menu button, settings, CTA, stamp | 882 / 929 |
+
+The nav pill now starts at `xl` rather than `lg`, and between 1024 and 1279 it
+opens from a Menu button in the settings cluster — the same sheet the phone menu
+uses, already built and already translated. The nav's glyph icons and the
+palette's word return at 1920, where everything fits at once.
+
 ## The check that closes the loop
 
 `npm run check:live` (`scripts/check-live.mjs`) asks every origin the site is

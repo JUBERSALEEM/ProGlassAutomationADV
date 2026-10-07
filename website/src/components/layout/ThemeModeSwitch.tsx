@@ -62,7 +62,7 @@ export function ThemeModeSwitch({ className }: { className?: string }) {
             onClick={() => setThemeMode(entry.id)}
             title={t(entry.hint)}
             className={cn(
-              "relative z-10 flex h-full w-10 items-center justify-center gap-1.5 rounded-[0.5rem] text-[0.75rem] font-medium transition-colors duration-200 lg:w-8 xl:w-9",
+              "relative z-10 flex h-full w-10 items-center justify-center gap-1.5 rounded-[0.5rem] text-[0.75rem] font-medium transition-colors duration-200 lg:w-8 2xl:w-9",
               active ? "text-text-primary" : "text-text-faint hover:text-text-secondary",
             )}
           >

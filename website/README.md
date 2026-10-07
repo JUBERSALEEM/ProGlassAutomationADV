@@ -188,6 +188,46 @@ being months behind. The values are inlined at build time by the `env`
 block in `next.config.ts` (see `scripts/build-stamp.mjs`), so a page prerendered
 during the build and a route handler starting cold later report the same instant.
 
+### The top panel's budget
+
+The header is the one part of the site whose width can be worked out exactly:
+a fixed-height row of fixed-size things, and the only unknown in the arithmetic
+is how wide a word is — which is not unknown, because the font files are in
+`src/fonts` and `scripts/measure-panel.py` reads the advance widths straight out
+of them at the right weight.
+
+That matters because the panel must not squeeze. Everything in it is a flex item
+in a `nowrap` row, so a row that is over budget does not overflow politely: the
+flexible children shrink and their labels wrap mid-phrase inside a bar whose
+height is fixed — "Request a / Demo" — which reads as a broken header. Run the
+script after touching the panel:
+
+```bash
+python3 scripts/measure-panel.py          # the ladder, with verdicts
+python3 scripts/measure-panel.py --json   # the same numbers, machine-readable
+```
+
+Measured, the full row needs ~1616px of content width, and the panel sheds its
+least important items in a fixed order on the way down so nothing is ever
+squeezed. Every constant in the script carries the Tailwind class it was read
+from:
+
+| Tier | From | What the panel shows | Needs / has |
+|---|---|---|---|
+| `wide` | 1920 | everything: nav with glyph icons, palette word, both CTAs, stamp | 1616 / 1777 |
+| `2xl` | 1536 | nav, palette word, primary CTA, stamp — no ghost shortcut | 1338 / 1393 |
+| `xl` | 1280 | nav without glyph icons, settings, stamp — no CTA, no palette word | 1105 / 1169 |
+| `lg` | 1024 | Menu button, settings, primary CTA, stamp — no nav pill | 882 / 929 |
+| `<lg` | — | the phone row: settings and the menu button; stamp in the sheet | — |
+
+The one that surprises people is `lg`: 1024 is not wide enough for the six nav
+cards *and* the settings *and* the stamp, so between 1024 and 1279 the primary
+nav opens from a Menu button in the settings cluster — the same sheet the phone
+menu uses — and the nav pill returns at `xl`. The order is deliberate: identity,
+menu access, settings and the build stamp are kept longest; the ghost shortcut
+to the screenshots is shed first, because its destination is the first child of
+the Product menu.
+
 ### The plates
 
 The hero backdrop and the brand banner are drawn from the site's own tokens by

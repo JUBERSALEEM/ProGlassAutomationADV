@@ -72,9 +72,9 @@ const entries: NavEntry[] = [
  * transparent edge that only resolves on hover. The entry you are on, or have
  * open, keeps its edge and its wash, so the panel always says where you are.
  */
-const NAV_BAR = "nav-pill hidden items-center gap-0.5 rounded-panel p-1 lg:flex";
+const NAV_BAR = "nav-pill hidden items-center gap-0.5 rounded-panel p-1 xl:flex";
 const NAV_CARD =
-  "relative flex items-center gap-1.5 rounded-card border-2 px-3 py-1.5 text-sm font-semibold transition-all duration-200";
+  "relative flex items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold transition-all duration-200 wide:px-3";
 const NAV_CARD_OFF =
   "border-transparent text-text-muted hover:border-line-strong/80 hover:bg-ink-800/70 hover:text-text-primary";
 /*
@@ -95,7 +95,7 @@ function NavGlyph({ path }: { path?: string }) {
     <svg
       aria-hidden="true"
       viewBox="0 0 16 16"
-      className="h-3.5 w-3.5 shrink-0 opacity-80"
+      className="hidden h-3.5 w-3.5 shrink-0 opacity-80 wide:block"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.6"
@@ -310,22 +310,54 @@ export function Navbar() {
             The language menu sits with them: all three are settings about how
             the site presents itself, not navigation through it.
           */}
+          {/*
+            The primary nav arrives at `xl` and the settings cluster arrives at
+            `lg`, which leaves one tier — 1024 to 1279 — where the settings are
+            on screen and the nav is not. This is that tier's way in: the same
+            sheet the phone menu opens, from a button in the same cluster.
+            Measured, the full row needs about 1630px of content; the ladder is
+            in `scripts/measure-panel.py` and the numbers are in the README.
+          */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen((value) => !value)}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
+            className={cn(
+              "hidden items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold transition-all duration-200 lg:flex xl:hidden",
+              mobileOpen
+                ? "border-brand-500/60 bg-brand-600/30 text-text-primary"
+                : "border-line-strong/60 text-text-muted hover:border-line-strong/80 hover:bg-ink-800/70 hover:text-text-primary",
+            )}
+          >
+            <svg
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+              className="h-4 w-4 shrink-0 opacity-80"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+            >
+              <path d="M3 6h14M3 10h14M3 14h14" />
+            </svg>
+            {t("Menu")}
+          </button>
           <LanguageMenu />
           <ThemeModeSwitch />
           <ThemeToggle />
           {/*
-            The ghost shortcut to the screenshots now waits for a wide screen.
-            The panel carries three settings controls and a build stamp, and
-            below 1536px the row is full without it — the shortcut is the one
-            item here that is genuinely optional, because the same page is the
-            first child of the Product menu, one hover away. Everything else in
-            this row is either a setting or a fact.
+            The ghost shortcut to the screenshots waits for `wide`, and it is
+            the last thing to be shed rather than the first: the same page is
+            the first child of the Product menu, one hover away, while
+            everything else in this row is either a setting or a fact. It
+            returns at 1920px, where the row has room for everything it owns.
           */}
           <ButtonLink
             href="/screenshots"
             variant="ghost"
             size="sm"
-            className="hidden 2xl:inline-flex"
+            className="hidden wide:inline-flex"
           >
             {t("See the app")}
           </ButtonLink>
@@ -344,7 +376,7 @@ export function Navbar() {
             divider is what tells the eye this is a fact about the build rather
             than one more thing to click.
           */}
-          <span aria-hidden="true" className="mx-1 hidden h-6 w-px bg-line/70 xl:block" />
+          <span aria-hidden="true" className="mx-1 hidden h-6 w-px bg-line/70 2xl:block" />
           <BuildStampPill t={t} className="hidden xl:block" />
         </div>
 
@@ -373,7 +405,7 @@ export function Navbar() {
         id="mobile-menu"
         hidden={!mobileOpen}
         className={cn(
-          "lg:hidden",
+          "xl:hidden",
           mobileOpen && "nav-sheet animate-fade-in",
         )}
       >

@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 4249 keys.
+ * 4250 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -2011,6 +2011,7 @@ export const KEYS: string[] = [
   "Medium",
   "Meet the developer",
   "Mention your glass types, how many people would use it, and whether cutting optimization matters to you.",
+  "Menu",
   "Merged glass specification groups with thickness and gross area",
   "Minimise stock changes",
   "Minimum area",
