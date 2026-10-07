@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using SupabaseJsonContent = System.Net.Http.Json.JsonContent;
 
 namespace ProGlassAutomation.Services.RecordsSync
 {
@@ -39,6 +40,9 @@ namespace ProGlassAutomation.Services.RecordsSync
     /// </summary>
     public sealed class SupabaseRecordsClient : IDisposable
     {
+        private static readonly JsonSerializerOptions JsonOptions =
+            new(JsonSerializerDefaults.Web);
+
         private const string RecordsEndpoint = "/rest/v1/records";
         private const string ReconcileRpc = "/rest/v1/rpc/reconcile_records_active_state";
         private const int SelectChunk = 100;   // pi_numbers per snapshot GET
@@ -68,11 +72,12 @@ namespace ProGlassAutomation.Services.RecordsSync
 
             if (_baseUrl.Length == 0 || _apiKey.Length == 0)
                 throw new ArgumentException("Supabase URL and key are both required.");
-            _http = new HttpClient(handler ?? new HttpClientHandler(), disposeHandler: true)
+            _http = new HttpClient(
+                handler ?? new HttpClientHandler { AllowAutoRedirect = false },
+                disposeHandler: true)
             {
                 Timeout = TimeSpan.FromSeconds(30),
             };
-            _http.DefaultRequestHeaders.Add("apikey", _apiKey);
         }
 
         /// <summary>Explicit read-only Settings check. It authenticates the
@@ -177,20 +182,17 @@ namespace ProGlassAutomation.Services.RecordsSync
             if (_authEmail == null || _authPassword == null)
                 return _apiKey;
 
-            var body = JsonSerializer.Serialize(new Dictionary<string, string>
-            {
-                ["email"] = _authEmail,
-                ["password"] = _authPassword,
-            });
-
             using var request = new HttpRequestMessage(
                 HttpMethod.Post, _baseUrl + "/auth/v1/token?grant_type=password");
-            request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+            var apiKeyHeaderAdded = request.Headers.TryAddWithoutValidation("apikey", _apiKey);
+            request.Content = SupabaseJsonContent.Create(
+                new { email = _authEmail, password = _authPassword }, options: JsonOptions);
+            var requestDiagnostic = BuildAuthRequestDiagnostic(request, apiKeyHeaderAdded);
 
             using var response = await _http
                 .SendAsync(request, cancellationToken).ConfigureAwait(false);
             await EnsureSuccessAsync(
-                    response, "Supabase Auth password sign-in", cancellationToken)
+                    response, "Supabase Auth password sign-in", cancellationToken, requestDiagnostic)
                 .ConfigureAwait(false);
 
             var json = await response.Content.ReadAsStringAsync(cancellationToken)
@@ -409,8 +411,60 @@ namespace ProGlassAutomation.Services.RecordsSync
                 .ConfigureAwait(false);
         }
 
+        private string BuildAuthRequestDiagnostic(
+            HttpRequestMessage request, bool apiKeyHeaderAdded)
+        {
+            var uri = request.RequestUri;
+            var endpoint = uri == null ? "unavailable" : uri.AbsolutePath + uri.Query;
+            return $"Host: {uri?.Host ?? "unavailable"}; endpoint: {endpoint}; "
+                + $"HTTP method: {request.Method.Method}; apikey header added: {BoolText(apiKeyHeaderAdded)}; "
+                + $"Authorization header present: {BoolText(request.Headers.Authorization is not null)}; "
+                + $"Content-Type: {request.Content?.Headers.ContentType?.MediaType ?? "absent"}; "
+                + $"API key present: {BoolText(!string.IsNullOrWhiteSpace(_apiKey))}; "
+                + $"API key type: {ClassifyApiKey(_apiKey)}; "
+                + $"JSON fields present: email={BoolText(!string.IsNullOrWhiteSpace(_authEmail))}, "
+                + $"password={BoolText(!string.IsNullOrEmpty(_authPassword))}";
+        }
+
+        private static string ClassifyApiKey(string apiKey)
+        {
+            var trimmed = apiKey.Trim();
+            if (trimmed.StartsWith("sb_publishable_", StringComparison.OrdinalIgnoreCase))
+                return "publishable";
+            if (trimmed.StartsWith("sb_secret_", StringComparison.OrdinalIgnoreCase))
+                return "secret (not publishable)";
+
+            var segments = trimmed.Split('.');
+            if (segments.Length >= 2)
+            {
+                try
+                {
+                    var payload = segments[1].Replace('-', '+').Replace('_', '/');
+                    payload = payload.PadRight(payload.Length + ((4 - payload.Length % 4) % 4), '=');
+                    using var document = JsonDocument.Parse(Convert.FromBase64String(payload));
+                    if (document.RootElement.TryGetProperty("role", out var role) &&
+                        role.ValueKind == JsonValueKind.String)
+                    {
+                        if (string.Equals(role.GetString(), "anon", StringComparison.OrdinalIgnoreCase))
+                            return "legacy anon";
+                        if (string.Equals(role.GetString(), "service_role", StringComparison.OrdinalIgnoreCase))
+                            return "service role (privileged)";
+                    }
+                }
+                catch (Exception exception) when (exception is FormatException or JsonException)
+                {
+                    // Classification is best-effort; never include the key itself.
+                }
+            }
+
+            return "unknown";
+        }
+
+        private static string BoolText(bool value) => value ? "true" : "false";
+
         private async Task EnsureSuccessAsync(
-            HttpResponseMessage response, string operation, CancellationToken cancellationToken)
+            HttpResponseMessage response, string operation, CancellationToken cancellationToken,
+            string? requestDiagnostic = null)
         {
             if (response.IsSuccessStatusCode) return;
 
@@ -421,6 +475,8 @@ namespace ProGlassAutomation.Services.RecordsSync
             var message = $"{operation} failed ({status})";
             if (detail.Length > 0)
                 message += ": " + detail;
+            if (!string.IsNullOrWhiteSpace(requestDiagnostic))
+                message += "; Request diagnostics (secrets omitted): " + requestDiagnostic;
 
             if (operation == "Supabase Auth password sign-in")
                 message += " This is the Auth token step; the records REST check was not reached. Verify the project URL and publishable/anon key match, then check the dedicated account credentials, email confirmation, and that the Email provider is enabled.";
@@ -507,8 +563,13 @@ namespace ProGlassAutomation.Services.RecordsSync
             return cleaned.Length <= 320 ? cleaned : cleaned[..320] + "…";
         }
 
-        private void AddAuth(HttpRequestMessage request, string bearer) =>
+        private void AddAuth(HttpRequestMessage request, string bearer)
+        {
+            if (!request.Headers.TryAddWithoutValidation("apikey", _apiKey))
+                throw new InvalidOperationException("Supabase API key could not be attached to the request.");
+
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
+        }
 
         private static string? GetNullableString(JsonElement el, string name)
         {

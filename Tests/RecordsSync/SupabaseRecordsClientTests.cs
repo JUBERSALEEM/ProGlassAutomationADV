@@ -67,6 +67,10 @@ public sealed class SupabaseRecordsClientTests
         Assert.Contains("Invalid login credentials", exception.Message);
         Assert.Contains("invalid_credentials", exception.Message);
         Assert.Contains("Email provider", exception.Message);
+        Assert.Contains("apikey header added: true", exception.Message);
+        Assert.Contains("Authorization header present: false", exception.Message);
+        Assert.Contains("API key type: publishable", exception.Message);
+        Assert.Contains("Content-Type: application/json", exception.Message);
         Assert.Contains("[redacted]", exception.Message);
         Assert.DoesNotContain(ApiKey, exception.Message);
         Assert.DoesNotContain(AuthPassword, exception.Message);
