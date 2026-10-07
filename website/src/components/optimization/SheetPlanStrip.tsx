@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
+import { OptimizationRunGate } from "@/components/optimization/OptimizationRunGate";
 import { PlateInspector } from "@/components/optimization/PlateInspector";
 import {
   cutList,
@@ -33,6 +34,11 @@ import { useT } from "@/i18n/provider";
  * Everything drawn is computed in `sheetPlan.ts` from the cutting list in
  * `src/data`, and the full animated sequence runs on /optimization, where there
  * is room to watch it.
+ *
+ * It stands behind the same gate the module preview does: the twenty-two-size
+ * cutting list first, and the plates, the gallery and the totals when the
+ * visitor has run the job. A reader who has not asked for a result yet is not
+ * shown one.
  */
 export function SheetPlanStrip() {
   const t = useT();
@@ -55,36 +61,50 @@ export function SheetPlanStrip() {
         </p>
       </div>
 
-      {/* ── The plate, its schedule, and the rest of the run ─────────── */}
-      <PlateInspector
-        plates={plates}
-        margins={planMargins}
-        minBreakoutMm={planBreakoutMm}
-        thicknessMm={planThicknessMm}
-        composition={t("{v1} mm plate · sample job", { v1: planThicknessMm })}
-        showLegend
+      {/*
+        ── The plate, its schedule, and the rest of the run ──────────────
+        All of it behind the gate: the section shows the cutting list until the
+        visitor runs it, then the plates, the gallery, the totals and the note
+        below appear together. The plan is built either way — this is when a
+        reader meets it, not what it is.
+      */}
+      <OptimizationRunGate
+        rows={cutList}
         className="mt-5"
-      />
-
-      {/* ── What the run adds up to, and what it is not ───────────────── */}
-      {/* A rule rather than a box: this is the caption of the plan above it,
-          and a third nested card inside the primary card was exactly the
-          box-in-box repetition the redesign removes. */}
-      <div className="mt-8 flex flex-col gap-4 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm leading-relaxed text-text-secondary">
-            {t.template`${planTotals.pieces} pieces need ${planTotals.plates} plates at this size — ${planTotals.usedSqm} m² of the ${planTotals.stockSqm} m² the job draws from stock, the rest returning to the racks as offcut.`}
-          </p>
-          <p className="mt-2 text-xs font-medium leading-relaxed text-text-faint">
-            {t("Plates arranged by a two-way guillotine split — every leftover rectangle divided by one straight cut, so every boundary is a cut the table can make. It illustrates how a job spreads across stock; it is not a result from the engine, which searches five families and six plate patterns, and the site quotes no yield figure for it because the repository contains none.")}
-          </p>
+        note={t("{v1} · trim {v2} mm · kerf {v3} mm", {
+          v1: t(planSheet.label),
+          v2: planMargins.left,
+          v3: planMargins.kerf,
+        })}
+      >
+        <PlateInspector
+          plates={plates}
+          margins={planMargins}
+          minBreakoutMm={planBreakoutMm}
+          thicknessMm={planThicknessMm}
+          composition={t("{v1} mm plate · sample job", { v1: planThicknessMm })}
+          showLegend
+        />
+        {/* ── What the run adds up to, and what it is not ───────────────
+            A rule rather than a box: this is the caption of the plan above it,
+            and a third nested card inside the primary card was exactly the
+            box-in-box repetition the redesign removes. */}
+        <div className="mt-8 flex flex-col gap-4 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm leading-relaxed text-text-secondary">
+              {t.template`${planTotals.pieces} pieces need ${planTotals.plates} plates at this size — ${planTotals.usedSqm} m² of the ${planTotals.stockSqm} m² the job draws from stock, the rest returning to the racks as offcut.`}
+            </p>
+            <p className="mt-2 text-xs font-medium leading-relaxed text-text-faint">
+              {t("Plates arranged by a two-way guillotine split — every leftover rectangle divided by one straight cut, so every boundary is a cut the table can make. It illustrates how a job spreads across stock; it is not a result from the engine, which searches five families and six plate patterns, and the site quotes no yield figure for it because the repository contains none.")}
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-3">
+            <ButtonLink href="/optimization" variant="secondary" size="md" trailing={<ArrowRight />}>
+              {t("See the engine")}
+            </ButtonLink>
+          </div>
         </div>
-        <div className="flex shrink-0 flex-wrap gap-3">
-          <ButtonLink href="/optimization" variant="secondary" size="md" trailing={<ArrowRight />}>
-            {t("See the engine")}
-          </ButtonLink>
-        </div>
-      </div>
+      </OptimizationRunGate>
     </div>
   );
 }

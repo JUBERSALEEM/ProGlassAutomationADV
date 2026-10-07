@@ -8,6 +8,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
 import { AppFrame } from "@/components/product/AppFrame";
 import { LiveSurface } from "@/components/product/LiveSurface";
+import { OptimizationRunGate } from "@/components/optimization/OptimizationRunGate";
 import { PlateInspector } from "@/components/optimization/PlateInspector";
 import { StrategyPicker } from "@/components/optimization/StrategyPicker";
 import {
@@ -159,7 +160,22 @@ export default async function OptimizationPage({ params }: PageProps) {
               },
             )}
           />
-          <div className="mt-10">
+          {/*
+            Behind the gate: the plan, the schedule and the gallery appear when
+            the visitor runs the job, and the cutting list stands alone until
+            then — the way the application's own tabs stand empty until a run
+            has been asked for. Nothing about the plan changes; only when it is
+            put on screen.
+          */}
+          <OptimizationRunGate
+            rows={cutList}
+            className="mt-10"
+            note={t("{v1} · trim {v2} mm · kerf {v3} mm", {
+              v1: t(planSheet.label),
+              v2: planMargins.left,
+              v3: planMargins.kerf,
+            })}
+          >
             <PlateInspector
               plates={plates}
               margins={planMargins}
@@ -170,7 +186,7 @@ export default async function OptimizationPage({ params }: PageProps) {
               showLegend
               playable
             />
-          </div>
+          </OptimizationRunGate>
         </Container>
       </Section>
 

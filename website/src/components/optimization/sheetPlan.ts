@@ -1,5 +1,5 @@
 /**
- * The homepage's illustrated cutting job.
+ * The sample job the module pages and the homepage both illustrate.
  *
  * A cutting list and the stock it is cut from — sizes and quantities only, no
  * rates, no customer, no job number. The packing itself is not done here: it
@@ -22,6 +22,7 @@
  */
 
 import { packGuillotine, plateViews, type PackMargins, type PackResult, type PlateView } from "@/lib/guillotinePack";
+import { demoFor } from "@/data/liveDemos";
 import { houseMarginProfiles } from "@/data/optimization";
 
 export type SheetSize = { label: string; width: number; height: number };
@@ -66,24 +67,25 @@ export const planThicknessMm = houseMarginProfiles.thin.thicknessMm;
 export type CutItem = { ref: string; width: number; height: number; qty: number };
 
 /**
- * The sizes are a mixed shopfront job: two large panes, three medium, and a
- * long tail of small ones, which is what a real cutting list looks like — a
- * handful of big pieces and a great many little ones.
+ * The sizes are the module's own sample job: twenty-two references and
+ * ninety-one pieces, from a 2480 × 1980 lobby pane down to a 620 × 320 shelf,
+ * read out of `src/data/liveDemos.ts` — the same list the Optimization module's
+ * live preview runs on, so the page that teaches a reader what a 2D view is
+ * shows them the cutting list the product would show them.
  *
- * The quantities are chosen so the job needs four plates and every one of them
- * is well filled. That is not cosmetic: the previous quantities left a fourth
- * plate carrying 16% of its area, which draws as a mostly-empty box and reads
- * as a packing fault rather than as leftover glass. A cutting list that spreads
- * evenly is also the more honest illustration, because it is what a shop sees
- * when the sizes have been chosen sensibly.
+ * It used to be a five-line list written for this page. Five lines draw four
+ * plates, which answers the question "what does nesting look like" but not
+ * "what does a cutting list look like" — a shop's list is long, mixed, and
+ * carries a great many small pieces beside a handful of large ones.
  */
-export const cutList: CutItem[] = [
-  { ref: "G-101", width: 1600, height: 1100, qty: 5 },
-  { ref: "G-102", width: 1577, height: 700, qty: 3 },
-  { ref: "G-103", width: 1180, height: 900, qty: 3 },
-  { ref: "G-104", width: 980, height: 620, qty: 9 },
-  { ref: "G-105", width: 760, height: 520, qty: 10 },
-];
+const sampleList = demoFor("Optimization", "Optimization report", []).views[0]?.rows ?? [];
+
+export const cutList: CutItem[] = sampleList.map((row) => ({
+  ref: String(row.piece ?? "P"),
+  width: Number(row.w ?? 0),
+  height: Number(row.h ?? 0),
+  qty: Math.max(1, Number(row.qty ?? 1)),
+}));
 
 export const planSheet: SheetSize = plateSizes[0]!;
 

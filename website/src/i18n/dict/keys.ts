@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 4233 keys.
+ * 4239 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -2177,6 +2177,7 @@ export const KEYS: string[] = [
   "Notes on the build and the industry",
   "Nothing claimed that cannot be demonstrated",
   "Nothing could be checked later",
+  "Nothing has been computed yet — the application opens its optimization tabs the same way, empty until a run is asked for. Press Run optimization and the plan, the schedule and the yield appear together.",
   "Nothing has been computed yet — the application opens the same way, with the optimization tabs empty until a run is asked for. Press Run optimizer and the plan, the yield and the cut schedule appear together when the run completes.",
   "Nothing here describes how a licence is produced, how it is signed, or what the internal validation performs. That information is deliberately not published. If you need a licence reissued or a device slot freed, contact your vendor.",
   "Nothing in the application assumes the person using it has read a manual about ERP. Screens are named after the work — Sheet Store, Delivery Note, VAT Submission — not after a data model, because the author had to be able to use it himself.",
@@ -2327,6 +2328,7 @@ export const KEYS: string[] = [
   "Optimization page: nesting yield, sheet consumption and the pieces the engine could not place",
   "Optimization Pipeline",
   "Optimization progress",
+  "Optimization report",
   "Optimization result · summary",
   "Optimization running…",
   "Optimize",
@@ -2951,6 +2953,7 @@ export const KEYS: string[] = [
   "Rows carry job, spec, piece, process, previous stage, current status, qty and progress",
   "Royal Blue",
   "Rules",
+  "Run optimization",
   "Run optimization to generate 2D sheet layouts",
   "Run optimizer",
   "Run the nesting against a real sheet size and watch the metrics move.",
@@ -2981,6 +2984,7 @@ export const KEYS: string[] = [
   "Sample data · the charges are the estimator's own rows and the arithmetic is the application's, but this is a reconstruction of the screen, not a capture of it.",
   "Sample data loaded",
   "Sample job · {v1} references · {v2} pieces",
+  "Sample job · the cutting list",
   "Sample rates — not a market price",
   "SampleData · BuildComprehensivePi",
   "SampleData · SeedSampleDataAsync",
@@ -3736,6 +3740,7 @@ export const KEYS: string[] = [
   "The single most important property of an ERP is that a number, once stored, stays what it was. ProGlass writes the calculation context next to the figure and reads it back.",
   "the site's own spacing",
   "The sixteen accents the application ships. Tap one and the whole site takes it.",
+  "The sizes this sample job is cut from",
   "The software began as a way to stop retyping. It was not planned as a product, and there was no intention to sell it. It was one estimator removing the parts of his own day he kept getting wrong — and then discovering that the same day is happening in glass shops everywhere.",
   "The software is one person.",
   "The source is named wherever the number appears — yours, as published.",
@@ -3796,6 +3801,7 @@ export const KEYS: string[] = [
   "These are not aspirations written on a wall. Each is enforced somewhere in the build, which is why they have survived at this size — and why a solo author can still answer for the result.",
   "These are the application's four families. Pressing one re-themes this page, which is exactly what it does to the application.",
   "These are the defaults the engineering assumes before an operator changes anything. Every value is editable per run, and 'Load house defaults' puts them back.",
+  "These are the stages the application reports its search through. The plan itself is computed the moment the run starts, so what you are watching is the sequence, not a long calculation.",
   "These are the stages the application reports its search through. This preview computes the plan in the browser the moment it starts, so what you are watching is the sequence, not a long calculation.",
   "These modules are explicitly listed as ungated, so a missing entry can never be mistaken for a deliberate free one. A test fails the build if a new module ships without somebody deciding either way.",
   "These names are not partners.",
