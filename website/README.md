@@ -143,8 +143,29 @@ Check it after a design change, from `website/`:
 ```bash
 npx tsc --noEmit && npm run lint && npm run build
 python3 scripts/audit-site.py http://127.0.0.1:3000
+python3 scripts/audit-site.py --fresh                        # also: is the server the build it claims?
 grep -rn "mix-blend-mode\|blur-\[" src/ --include=*.tsx    # expect no hits
 ```
+
+### Which build is this?
+
+The top panel prints a build stamp — the date, the time in UTC and the branch —
+and `/api/health` serves the same facts as JSON:
+
+```bash
+curl -s http://127.0.0.1:3000/api/health
+curl -s https://proglassautomationadv-website-tkim.vercel.app/api/health
+```
+
+The site is deployed from one repository to more than one host, and each host
+builds the branch at its own moment, so two deploys of the same commit can be
+hours apart while looking identical. The stamp is how that stops being
+invisible. `scripts/audit-site.py --fresh` reads the endpoint, reads the stamp
+the page itself prints, and fails if the origin is serving a different revision
+from the one the tree is on — point it at a preview URL or the live site and the
+answer is the desync, named. The values are inlined at build time by the `env`
+block in `next.config.ts` (see `scripts/build-stamp.mjs`), so a page prerendered
+during the build and a route handler starting cold later report the same instant.
 
 ### The plates
 

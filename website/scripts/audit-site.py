@@ -19,6 +19,7 @@ moves the number, and say why.
 import gzip
 import html as html_module
 from collections import Counter
+import json
 import os
 import re
 import subprocess
@@ -28,11 +29,16 @@ import urllib.parse
 
 BASE = "http://127.0.0.1:3000"
 BUDGET_MODE = False
+FRESH_MODE = False
 for argument in sys.argv[1:]:
     if argument == "--budget":
         BUDGET_MODE = True
+    elif argument == "--fresh":
+        FRESH_MODE = True
     elif argument.startswith("-"):
-        raise SystemExit(f"unknown option: {argument}\nusage: audit-site.py [base-url] [--budget]")
+        raise SystemExit(
+            f"unknown option: {argument}\nusage: audit-site.py [base-url] [--budget] [--fresh]"
+        )
     else:
         BASE = argument
 
@@ -151,6 +157,106 @@ def budget_section(weights: list) -> list:
                 f"{page}: {nodes} DOM nodes are over the {ceiling['nodes']} budget"
             )
     return problems
+
+
+def check_build_stamp(failures: list) -> None:
+    """Hold the stamp a page renders against the one its endpoint serves.
+
+    The site is deployed from one repository to more than one host, and each
+    host builds the branch at its own moment — which is how a preview and the
+    live site came to differ while looking identical. The build stamp exists to
+    end that, and this is what keeps the stamp honest: `/api/health` is the
+    endpoint's answer, the `title` of the stamp in the top panel is the page's
+    answer, and a page that disagreed with its own endpoint would be a worse
+    failure than having no stamp at all.
+
+    Two answers are required to agree, and the revision must be stated — a
+    stamp that cannot name a revision is not a stamp, it is a date.
+
+    `--fresh` adds the comparison that matters when the question is "is this
+    deployment current?": the revision the audited origin reports against the
+    revision this working tree is on. Run it against the live URL and a
+    mismatch is the desync, named, instead of something noticed by eye:
+
+        python3 scripts/audit-site.py https://… --fresh
+    """
+    code, body = fetch("/api/health")
+    if code != "200":
+        failures.append(f"/api/health answered {code} — the build stamp is not being served")
+        return
+
+    try:
+        health = json.loads(body)
+    except json.JSONDecodeError:
+        failures.append("/api/health did not answer with JSON")
+        return
+
+    built_at = health.get("builtAt") or ""
+    revision = health.get("revision") or ""
+    environment = health.get("environment") or "unknown"
+    branch = health.get("branch") or "detached"
+
+    print("\nbuild stamp:")
+    print(f"   built      {built_at or 'not stated'}")
+    print(f"   revision   {revision or 'not stated'}")
+    print(f"   branch     {branch}")
+    print(f"   running    {environment}")
+
+    if health.get("status") != "ok":
+        failures.append(f"/api/health reported status {health.get('status')!r}")
+    if not built_at or not revision:
+        failures.append(
+            "/api/health states no build time or revision — is the env block in next.config.ts intact?"
+        )
+
+    # The same facts, as the page prints them.
+    code, page = fetch("/")
+    if code != "200":
+        failures.append(f"/ returned {code} — the stamp cannot be read from a page that is not there")
+        return
+    stamp = re.search(r'title="Updated ([^"]+)"', page)
+    if not stamp:
+        failures.append("/ prints no build stamp — the top panel lost BuildStampPill")
+        return
+
+    page_stamp = html_module.unescape(stamp.group(1))
+    # The page prints `2026-10-07 11:33 UTC`; the endpoint states the whole
+    # instant. Date and minute are what both can be held to — and both are UTC
+    # by construction, which is why they are comparable at all.
+    page_date, page_time = built_at[:10], built_at[11:16]
+    if built_at and (page_date not in page_stamp or page_time not in page_stamp):
+        failures.append(f"/ prints {page_stamp!r}, which is not the instant /api/health reports ({built_at})")
+    if revision and revision not in page_stamp:
+        failures.append(f"/ prints {page_stamp!r}, which does not name revision {revision}")
+    print(f"   on the page  {page_stamp}")
+
+    # This tree's own revision, for the comparison that needs both.
+    try:
+        head = subprocess.run(
+            # Seven characters, the length the stamp itself prints — git's own
+            # default short length grows with the repository, and two answers of
+            # different length cannot be compared.
+            ["git", "rev-parse", "--short=7", "HEAD"],
+            capture_output=True, text=True, cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        ).stdout.strip()
+    except OSError:
+        head = ""
+
+    if not head or not revision:
+        return
+
+    if head[:7] == revision[:7]:
+        print(f"   the tree is on the same revision ({head})")
+        return
+
+    message = (
+        f"{BASE} is serving build {revision} while this tree is on {head} — "
+        f"deploy the tree or rebuild and restart the server"
+    )
+    if FRESH_MODE:
+        failures.append(message)
+    else:
+        print(f"   note: {message}")
 
 
 def fetch(path):
@@ -288,6 +394,8 @@ def main() -> int:
     for page, length in sorted(descriptions, key=lambda row: -row[1])[:6]:
         flag = "!" if length > 160 else " "
         print(f" {flag} {length:3d}  {page}")
+
+    check_build_stamp(failures)
 
     if BUDGET_MODE:
         budget_failures = budget_section(weights)

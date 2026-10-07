@@ -3,6 +3,7 @@ import { nav, site } from "@/lib/site";
 import { Logo } from "@/components/brand/Logo";
 import { GlassCubeEmblem } from "@/components/brand/GlassCubeEmblem";
 import type { Translator } from "@/i18n/core";
+import { BuildStampRow } from "@/components/layout/BuildStamp";
 
 function Column({
   title,
@@ -116,6 +117,14 @@ export function Footer({ t }: { t: Translator }) {
               "ProGlass Automation is desktop software. There is no cloud account, no subscription dashboard and nothing to sign in to on this website.",
             )}
           </p>
+          {/*
+            The build stamp, on every page including the ones that are only ever
+            reached by a search engine. The top panel carries the same fact for
+            anyone who is looking at the interface; this is the copy a visitor
+            finds when they have scrolled to the bottom asking "and how current
+            is this?".
+          */}
+          <BuildStampRow t={t} className="sm:text-right" />
         </div>
       </div>
     </footer>

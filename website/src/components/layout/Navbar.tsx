@@ -10,6 +10,7 @@ import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { ThemeModeSwitch } from "@/components/layout/ThemeModeSwitch";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { LanguageMenu, LanguageMenuBlock } from "@/components/layout/LanguageMenu";
+import { BuildStampPill, BuildStampRow } from "@/components/layout/BuildStamp";
 import { Logo } from "@/components/brand/Logo";
 import { useT } from "@/i18n/provider";
 
@@ -313,24 +314,38 @@ export function Navbar() {
           <ThemeModeSwitch />
           <ThemeToggle />
           {/*
-            The ghost shortcut to the screenshots steps aside between `lg` and
-            `xl`. The panel now carries three settings controls, and at 1024px
-            the row is full once the language menu, the reading switch and the
-            palette are in it. Nothing is lost by hiding the shortcut: the same
-            page is the first child of the Product menu, one hover away, and
-            the shortcut returns as soon as the row has room again.
+            The ghost shortcut to the screenshots now waits for a wide screen.
+            The panel carries three settings controls and a build stamp, and
+            below 1536px the row is full without it — the shortcut is the one
+            item here that is genuinely optional, because the same page is the
+            first child of the Product menu, one hover away. Everything else in
+            this row is either a setting or a fact.
           */}
           <ButtonLink
             href="/screenshots"
             variant="ghost"
             size="sm"
-            className="max-xl:hidden"
+            className="hidden 2xl:inline-flex"
           >
             {t("See the app")}
           </ButtonLink>
           <ButtonLink href="/contact" size="sm" trailing={<ArrowRight />}>
             {t("Request a Demo")}
           </ButtonLink>
+
+          {/*
+            The build stamp, at the end of the panel where chrome belongs.
+
+            It appears at `xl` and not before: below that the row has no slack,
+            and a stamp that forced the settings controls to wrap would be a
+            worse answer to "which build is this" than no stamp at all. Below
+            `xl` it is still on every page — in the mobile panel and in the
+            footer — where there is room to print the revision as well. The
+            divider is what tells the eye this is a fact about the build rather
+            than one more thing to click.
+          */}
+          <span aria-hidden="true" className="mx-1 hidden h-6 w-px bg-line/70 xl:block" />
+          <BuildStampPill t={t} className="hidden xl:block" />
         </div>
 
         {/* ── Mobile trigger ─────────────────────────────────────── */}
@@ -428,6 +443,9 @@ export function Navbar() {
           <p className="mt-6 font-mono text-2xs uppercase tracking-[0.18em] text-text-faint font-medium">
             {t("Desktop software · v{version} · No account required", { version: site.version })}
           </p>
+
+          {/* The same stamp as the desktop panel, with room for the revision. */}
+          <BuildStampRow t={t} className="mt-3" />
         </div>
       </div>
     </header>

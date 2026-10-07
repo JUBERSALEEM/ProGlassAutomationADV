@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 import { inspectDeps, formatProblems } from "./scripts/dep-check.mjs";
+import { buildStamp } from "./scripts/build-stamp.mjs";
 
 /**
  * Fail at configuration time, before anything is compiled.
@@ -94,7 +95,33 @@ const csp = [
   "upgrade-insecure-requests",
 ].join("; ");
 
+/**
+ * The build stamp, computed once per build.
+ *
+ * `env` is the one setting in this file that changes the *compiled output*
+ * rather than the server that serves it: every `process.env.PROGLASS_BUILD_*`
+ * reference below is replaced by its value as a string literal while Next
+ * builds. A literal cannot drift, which is the whole point — a page prerendered
+ * during the build and a route handler starting cold an hour later must report
+ * the same time and the same revision, and only a value baked into the bundle
+ * can promise that.
+ *
+ * These are public values on purpose: a revision hash and a build time are what
+ * a visitor is told when they hover the stamp in the top panel, and the same
+ * two facts are served as JSON by `/api/health` so the live site can be checked
+ * against the build it claims to be.
+ */
+const stamp = buildStamp();
+
 const nextConfig: NextConfig = {
+  env: {
+    PROGLASS_BUILD_TIME: stamp.builtAt,
+    PROGLASS_BUILD_REVISION: stamp.revisionShort ?? "",
+    PROGLASS_BUILD_REF: stamp.ref ?? "",
+    PROGLASS_BUILD_ENV: stamp.environment,
+    PROGLASS_BUILD_VERSION: stamp.version,
+  },
+
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,

@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 4242 keys.
+ * 4249 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -1045,6 +1045,7 @@ export const KEYS: string[] = [
   "Deterministic precision",
   "Deutsch",
   "Developer",
+  "Development build",
   "Device activations",
   "Devices",
   "Dg.Base",
@@ -1933,6 +1934,7 @@ export const KEYS: string[] = [
   "Live operational reports dashboard for ProGlass Automation, consuming Supabase public.records.",
   "Live plate count by thickness (4, 5, 6, 8, 10, 12, 15, 19 mm) and tint",
   "Live screens",
+  "Live site",
   "LM / RM / BM 50 mm · TM 0 mm (asymmetric — thick glass takes no trim on the top edge)",
   "Load",
   "Loaded",
@@ -1940,6 +1942,7 @@ export const KEYS: string[] = [
   "Loading the page…",
   "Loading, error, empty and data states on every page",
   "Lobby",
+  "Local build",
   "Local data, offline licence activation, no account. That is a property of the product, not a limitation to be fixed later.",
   "Local development preview (Supabase environment variables not set).",
   "Local development preview (Supabase environment variables not set). Movements are generated to demonstrate part-delivery arithmetic.",
@@ -2553,6 +2556,7 @@ export const KEYS: string[] = [
   "Press 05 or 09 in the rail for the specification grid and the profit-and-loss analysis — those two screens are the live ones.",
   "Prev Month",
   "Preview",
+  "Preview build",
   "Previous",
   "Previous screen (Left Arrow)",
   "Previous screenshot",
@@ -2928,6 +2932,7 @@ export const KEYS: string[] = [
   "Review confirmed & release",
   "Review of the machine-filled strings against the product's own vocabulary.",
   "Review the last proforma",
+  "revision {v0}",
   "Right margin RM (mm)",
   "RLS Protected",
   "Role",
@@ -3959,6 +3964,8 @@ export const KEYS: string[] = [
   "Up to 5 users, full ERP without production optimization.",
   "Up to 6 mm",
   "Up to five users",
+  "Updated",
+  "Updated {v0}",
   "Updates",
   "Updating a figure is a data edit, not a release.",
   "Uplift applied to the cost basis.",

@@ -385,11 +385,41 @@ almost every embarrassing launch.
 
 ```bash
 cd website
-python3 scripts/audit-site.py https://proglassautomation.com --budget
+python3 scripts/audit-site.py https://proglassautomation.com --budget --fresh
 ```
 
 The audit accepts any origin — run it against production, not just localhost.
 Expect `FAILURES: 0` and `WARNINGS: 0`.
+
+`--fresh` is the one to add when the question is "is the live site actually the
+build I just pushed?", and it is worth understanding why it exists. Vercel
+builds whatever branch the project is *told* is production:
+
+- a push to the **production branch** → a deployment on the domain;
+- a push to **any other branch** → a *preview* deployment with its own URL and
+  its own build time, and the domain does not move.
+
+So a repository whose work happens on a branch that is not the project's
+production branch has a live site that is perfectly healthy, perfectly styled
+and **months out of date**, while every build reports success. The desync is
+invisible from the outside, which is exactly what the build stamp is for: it is
+printed in the top panel of every page, served by `/api/health`, and `--fresh`
+compares the audited origin's revision against this tree's. A mismatch means the
+origin is not running this code:
+
+```bash
+# what each origin says it is
+curl -s https://proglassautomationadv-website-tkim.vercel.app/api/health   # the domain
+curl -s https://proglassautomationadv-website-git-are-13087e-proglassautomation.vercel.app/api/health
+
+# and the same two facts, as a page prints them
+curl -s https://proglassautomationadv-website-tkim.vercel.app/ | grep -o 'title="Updated [^"]*"'
+```
+
+If the two disagree, the fix is one setting, not one deploy: **Vercel → the
+project → Settings → Git → Production Branch**, set to the branch the work
+actually lands on. Check that before re-reading a build log, because the build
+log will say `Ready` either way.
 
 ```bash
 # every page answers 200
