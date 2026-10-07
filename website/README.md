@@ -78,6 +78,68 @@ Deploy → then Settings → Domains → add the domain and its www form
 | `/developer` | The person who writes it, the stack and the engineering principles |
 | `/contact` | Demo-request form and the direct address |
 | `/resources` | Reference guides |
+
+## The design system, and what it is anchored to
+
+The site is not styled from a mood board. Its palette is the application's own,
+read out of the WPF tree and transcribed:
+
+| Site token | Value | Where it comes from |
+|---|---|---|
+| `--brand-600` | `#6546B5` | `Sp.Accent` — `Views/Splash/SplashView.xaml`, the "Studio Ivory & Glass" splash |
+| `--brand-700` | `#493080` | `Sp.AccentDeep` — the same file |
+| `--brand-100/200/300/400` | the rest of the ramp | `Sp.PaneLight`, `Sp.Pane`, `Sp.FaceTop/Left/Right` — the floating panes and the isometric emblem |
+| `--ink-950` (daylight) | `#F8F5EE` | `Sp.Canvas` — the warm ivory studio ground, not a cold white |
+| `--line` (daylight) | `#D6CDE9` | `Sp.Keyline` — the divider rule under the wordmark |
+| `--text-1` (daylight) | `#241B3A` | `Sp.Ink` |
+| `--text-4` (daylight) | `#6B6078` | `Sp.Muted` |
+| `--ink-950` (midnight) | `#080516` | the deep end of the same violet, extended |
+| `--state-danger` | `#F43F5E`-family | `DarkTheme.xaml` · `DangerColor` |
+
+`src/components/brand/GlassCubeEmblem.tsx` carries the application's emblem — the
+three face paths are transcribed coordinate-for-coordinate from the splash's
+`Viewbox`/`Grid Width="160" Height="170"`, so the mark on the site is the same
+drawing as the mark the product opens with, at any size.
+
+Five cosmetic layers sit on top of the tokens, all in the `@layer components`
+block at the foot of `src/app/globals.css`:
+
+| Class | What it is |
+|---|---|
+| `.aurora-field` | three saturated washes crossing a band, drifting on a 26 s cycle |
+| `.grain-layer` | one fixed layer of inline-SVG noise, `overlay` in the dark reading and `multiply` on ivory |
+| `.edge-conic` | a hairline of accent light that travels once around a card on hover |
+| `.spot` | a light that follows the pointer across a card's face — driven by `src/lib/useSpotlight.ts` |
+| `.bento`, `.spine`, `.marquee`, `.panel-feature`, `.figure` | the layout patterns the redesigned pages are built from |
+
+Every one of them reads `--brand-*`, `--glass-*` or `--wall-*`, so switching
+mode or palette family repaints all of them with no markup change, and every one
+degrades to nothing: with `prefers-reduced-motion`, with scripting off, or on a
+touch device the content is still complete and still readable.
+
+### Typography
+
+Inter, IBM Plex Sans, Source Serif 4 and JetBrains Mono are self-hosted from
+`src/fonts`, and the appearance studio can set the whole site in any of twelve
+more families the visitor's own machine already has. The display scale
+(`.display-hero`, `.display-1/2/3`) uses fluid `clamp()` sizes with tracking that
+tightens as the size grows, and `.figure` / `.figure-lg` / `.figure-md` set every
+number in tabular mono so a column of them lines up.
+
+## What the site says about the product
+
+`src/data/modules.ts` is the registry of the application's navigation targets.
+It is read against the application's **development branch**, so a module lands
+here when the source carries it rather than when it ships in a tag. Two entries
+are in that position as of October 2026 and both name their evidence:
+
+- **Document Register** — `Views/DocumentRegister/`,
+  `ViewModels/DocumentRegisterViewModel.cs`, `docs/document-register-architecture.md`
+- **Records Sync** — `Services/RecordsSync/`, `docs/proglass-sync-implementation-design.md`
+
+Neither has a `screenshotId`, because there is no published capture of either
+yet, and their cards say so rather than showing a placeholder.
+
 | `/blog`, `/blog/[slug]` | Short notes, one file each in `src/data/resources.ts` |
 | `/legal/privacy`, `/legal/terms`, `/legal/license` | Website and licence terms |
 | `/reports` | Proforma and operations records: every active Excel Sync row and status, with server-side aggregation |

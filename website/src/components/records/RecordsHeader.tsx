@@ -78,9 +78,9 @@ export function RecordsHeader({
             <OperationsTabs className="mt-3" />
 
             <div className="mt-1 flex flex-wrap items-baseline gap-3">
-              <h1 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
+              <h2 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
                 Records & Operations Dashboard
-              </h1>
+              </h2>
               <span className="text-xs font-mono text-text-faint">
                 {totalEntries.toLocaleString()} indexed {totalEntries === 1 ? "entry" : "entries"}
               </span>

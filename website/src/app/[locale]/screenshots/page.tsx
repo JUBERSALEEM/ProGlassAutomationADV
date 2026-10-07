@@ -18,9 +18,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const t = await translatorFor(params);
   return pageMetadata({
     locale: t.locale,
-    title: t("Inside ProGlass Automation — Interactive Product Showcase"),
+    /*
+     * 39 characters, because `metadata.title.template` appends
+     * " · ProGlass Automation" and a title that overruns 62 characters is one
+     * a search result truncates. The old one ran to 56 on its own and 79 with
+     * the suffix, which the site's own audit reported as the longest title on
+     * the site — for the page whose subject is the interface.
+     */
+    title: t("The interface, screen by screen"),
     description: t(
-      "Explore the complete ProGlass Automation ERP interface: commercial estimation, 3D glass calculators, 2D guillotine cutting optimization, 8-stage production tracking, and financial analytics.",
+      "Walk every ProGlass Automation screen: estimation, the 3D glass calculators, 2D cutting optimization, the eight production stages and the reports.",
     ),
     path: "/screenshots",
     keywords: [
@@ -46,7 +53,7 @@ export default async function ScreenshotsPage({ params }: PageProps) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         locale={locale as any}
         path="/screenshots"
-        title={t("Inside ProGlass Automation — Interactive Product Showcase")}
+        title={t("The interface, screen by screen")}
         description={t(
           "Explore the complete ProGlass Automation ERP interface: commercial estimation, 3D glass calculators, 2D guillotine cutting optimization, 8-stage production tracking, and financial analytics.",
         )}

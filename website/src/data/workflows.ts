@@ -47,7 +47,7 @@ export const businessChain: ChainStage[] = [
     guarantee:
       "Pane-by-pane build-ups price actual glass thicknesses, interlayers, and processes accurately.",
     evidence: "Services/Glass/GlassBuildUpCalculator.cs",
-    href: "/features#calculators",
+    href: "/features#specifications",
   },
   {
     id: "proforma",

@@ -99,16 +99,16 @@ export function NestingDemo() {
           >
             <defs>
               <linearGradient id="glass-a" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.36" />
+                <stop offset="0%" stopColor="#6546B5" stopOpacity="0.46" />
                 <stop offset="100%" stopColor="#2DD4BF" stopOpacity="0.2" />
               </linearGradient>
               <linearGradient id="glass-b" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stopColor="#2DD4BF" stopOpacity="0.32" />
-                <stop offset="100%" stopColor="#A78BFA" stopOpacity="0.18" />
+                <stop offset="100%" stopColor="#9E79E5" stopOpacity="0.24" />
               </linearGradient>
               <linearGradient id="glass-c" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#7C3AED" stopOpacity="0.16" />
+                <stop offset="100%" stopColor="#6546B5" stopOpacity="0.22" />
               </linearGradient>
             </defs>
 

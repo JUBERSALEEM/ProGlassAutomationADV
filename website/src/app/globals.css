@@ -28,31 +28,32 @@
     --nav-height: 4.25rem;
 
     /* ── Surfaces: violet, never neutral black ─────────────────────────── */
-    --ink-950: 11 8 32;      /* page background            #0B0820 */
-    --ink-900: 18 13 46;     /* card surface               #120D2E */
-    --ink-850: 23 17 56;     /* raised surface             #171138 */
-    --ink-800: 29 22 70;     /* elevated / inset           #1D1646 */
-    --ink-700: 37 27 87;     /* highest tier               #251B57 */
+    --ink-950: 8 5 22;      /* page background            #080516 */
+    --ink-900: 17 11 42;     /* card surface               #110B2A */
+    --ink-850: 24 16 56;     /* raised surface             #181038 */
+    --ink-800: 32 22 72;     /* elevated / inset           #201648 */
+    --ink-700: 43 30 94;     /* highest tier               #2B1E5E */
 
     /* ── Borders ──────────────────────────────────────────────────────── */
-    --line: 42 33 89;        /* #2A2159 */
-    --line-soft: 34 26 74;   /* #221A4A */
-    --line-strong: 59 47 122;/* #3B2F7A */
+    --line: 54 40 116;        /* #362874 */
+    --line-soft: 41 30 90;   /* #291E5A */
+    --line-strong: 78 58 158;/* #4E3A9E */
 
     /* ── Brand: violet ───────────────────────────────────────────────── */
-    --brand-50: 245 243 255;
-    --brand-200: 221 214 254;
-    --brand-300: 196 181 253; /* text accent on dark   #C4B5FD */
-    --brand-400: 167 139 250; /* buttons / accents     #A78BFA */
-    --brand-500: 139 92 246;  /* #8B5CF6 */
-    --brand-600: 124 58 237;  /* #7C3AED */
-    --brand-700: 109 40 217;  /* #6D28D9 */
+    --brand-50: 240 235 252;
+    --brand-100: 226 216 248; /* lightest accent step, for figure text on a tinted chip */
+    --brand-200: 214 199 246;
+    --brand-300: 190 165 240; /* text accent on dark   #BEA5F0 */
+    --brand-400: 158 121 229; /* accents, text on dark #9E79E5 */
+    --brand-500: 126 87 206;  /* #7E57CE */
+    --brand-600: 101 70 181;  /* #6546B5 — the app's own Sp.Accent */
+    --brand-700: 73 48 128;  /* #493080 — the app's own Sp.AccentDeep */
 
     /* ── Secondary "glass" accents, used sparingly for glass content ──── */
-    --glass-teal: 45 212 191;
-    --glass-cyan: 34 211 238;
-    --glass-green: 74 222 128;
-    --glass-rose: 244 114 182;
+    --glass-teal: 34 205 189;
+    --glass-cyan: 26 197 226;
+    --glass-green: 58 210 116;
+    --glass-rose: 242 96 164;
 
     /*
      * ── Text ─────────────────────────────────────────────────────────
@@ -74,38 +75,38 @@
      * body to label) while every one of those labels stays legible.
      */
     --text-1: 255 255 255;   /* headings        #FFFFFF */
-    --text-2: 236 233 250;   /* body            #ECE9FA */
-    --text-3: 214 209 238;   /* muted           #D6D1EE */
-    --text-4: 198 192 226;   /* faint / labels  #C6C0E2 */
+    --text-2: 238 234 252;   /* body            #EEEAFC */
+    --text-3: 215 208 241;   /* muted           #D7D0F1 */
+    --text-4: 194 185 226;   /* faint / labels  #C2B9E2 */
 
     /* ── State ───────────────────────────────────────────────────────── */
-    --state-success: 52 211 153;
-    --state-warning: 251 191 36;
-    --state-danger: 251 113 133;
-    --state-info: 167 139 250;
+    --state-success: 45 212 168;
+    --state-warning: 248 176 42;
+    --state-danger: 251 106 130;
+    --state-info: 158 121 229;
 
     /* Text placed on a filled brand surface. */
-    --on-accent: 12 7 32;
+    --on-accent: 255 255 255;
 
     /* ── Elevation ───────────────────────────────────────────────────── */
     --shadow-panel:
-      0 1px 0 0 rgb(255 255 255 / 0.05) inset,
-      0 24px 48px -26px rgb(6 2 24 / 0.9);
-    --shadow-raised:
       0 1px 0 0 rgb(255 255 255 / 0.07) inset,
-      0 34px 80px -34px rgb(6 2 24 / 0.95),
-      0 0 0 1px rgb(139 92 246 / 0.1);
+      0 26px 54px -28px rgb(2 1 10 / 0.96);
+    --shadow-raised:
+      0 1px 0 0 rgb(255 255 255 / 0.1) inset,
+      0 40px 92px -38px rgb(2 1 10 / 1),
+      0 0 0 1px rgb(126 87 206 / 0.18);
     --shadow-glow:
-      0 0 0 1px rgb(167 139 250 / 0.2),
-      0 26px 64px -28px rgb(139 92 246 / 0.42);
+      0 0 0 1px rgb(158 121 229 / 0.3),
+      0 30px 72px -28px rgb(126 87 206 / 0.6);
     --shadow-glow-strong:
-      0 0 0 1px rgb(167 139 250 / 0.34),
-      0 34px 84px -26px rgb(139 92 246 / 0.55);
+      0 0 0 1px rgb(158 121 229 / 0.48),
+      0 40px 98px -26px rgb(126 87 206 / 0.75);
 
     /* Ambient light pools behind the page. */
-    --pool-1: rgb(139 92 246 / 0.16);
-    --pool-2: rgb(34 211 238 / 0.07);
-    --pool-3: rgb(244 114 182 / 0.06);
+    --pool-1: rgb(126 87 206 / 0.32);
+    --pool-2: rgb(26 197 226 / 0.13);
+    --pool-3: rgb(242 96 164 / 0.11);
 
     /*
      * The wallpaper. Four layers over the page colour, in this order from the
@@ -122,16 +123,16 @@
        now that the grid is painted at device resolution rather than scaled from
        a cached tile, slightly more definition costs nothing and the surface
        reads as etched metal instead of as a faint wash. */
-    --wall-grid: rgb(167 139 250 / 0.09);
-    --wall-grid-major: rgb(167 139 250 / 0.135);
+    --wall-grid: rgb(158 121 229 / 0.13);
+    --wall-grid-major: rgb(158 121 229 / 0.20);
     --wall-grid-size: 56px 56px;
     --wall-grid-major-size: 280px 280px;
-    --wall-wash-1: rgb(139 92 246 / 0.22);
-    --wall-wash-2: rgb(34 211 238 / 0.09);
+    --wall-wash-1: rgb(101 70 181 / 0.46);
+    --wall-wash-2: rgb(26 197 226 / 0.15);
     /* Halved from 0.045: on a dark page a white wash is the difference
        between a surface with light on it and a surface behind fog. */
-    --wall-sheen: rgb(255 255 255 / 0.022);
-    --wall-vignette: rgb(4 2 14 / 0.55);
+    --wall-sheen: rgb(255 255 255 / 0.035);
+    --wall-vignette: rgb(2 1 8 / 0.80);
     /* Two extra light sources the glass families turn on: a lamp above the
        page and a floor glow under it. Transparent in the opaque families, so
        their wallpaper is unchanged. */
@@ -139,8 +140,8 @@
     --wall-floor: rgb(0 0 0 / 0);
 
     /* Card tinting: the violet wash that keeps cards off plain grey. */
-    --card-tint: rgb(139 92 246 / 0.1);
-    --card-highlight: rgb(255 255 255 / 0.06);
+    --card-tint: rgb(101 70 181 / 0.22);
+    --card-highlight: rgb(255 255 255 / 0.08);
     /*
      * How much accent sits in a card fill.
      *
@@ -152,20 +153,20 @@
      * fallback for the moment before the studio runs, and for a visitor with
      * scripting off.
      */
-    --tint-base: 0.10;
-    --tint-mix: 0.10;
+    --tint-base: 0.18;
+    --tint-mix: 0.18;
 
-    --scroll-track: 11 8 32;
-    --scroll-thumb: 42 33 89;
+    --scroll-track: 8 5 22;
+    --scroll-thumb: 54 40 116;
 
-    --selection: rgb(167 139 250 / 0.3);
+    --selection: rgb(158 121 229 / 0.40);
 
     /* ── Money ─────────────────────────────────────────────────────────
        Every figure a shop owner reads as profit, cost or loss uses these.
        The appearance studio can re-point them live. */
-    --money-positive: 52 211 153;
-    --money-negative: 251 113 133;
-    --money-neutral: 199 195 224;
+    --money-positive: 45 212 168;
+    --money-negative: 251 106 130;
+    --money-neutral: 194 185 226;
 
     /* ── Surface character ─────────────────────────────────────────────
        One set of dials shared by every card class, so a family can change
@@ -199,20 +200,20 @@
     --glass-hi: rgb(255 255 255 / 0);      /* top specular, catching the light */
     --glass-lo: rgb(0 0 0 / 0);            /* bottom refraction, into the shade */
     --glass-sheen: rgb(255 255 255 / 0);   /* diagonal sweep across the face */
-    --glass-edge-light: rgb(255 255 255 / 0.05); /* inner 1px at the top */
+    --glass-edge-light: rgb(255 255 255 / 0.07); /* inner 1px at the top */
     --glass-edge-dark: rgb(0 0 0 / 0);     /* inner 1px at the bottom */
     --glass-ring: rgb(255 255 255 / 0);    /* outer luminous hairline */
-    --glass-line: rgb(var(--line-strong) / 0.55); /* hairlines inside a card */
+    --glass-line: rgb(var(--line-strong) / 0.6); /* hairlines inside a card */
     --glass-scrim: rgb(0 0 0 / 0);         /* legibility wash under text */
 
     /* The primary card — the one card per section that carries the section's
        subject. Its own two dials: how much accent sits in its fill, and how
        far the light behind it spills. */
-    --glass-primary-tint: 0.1;
+    --glass-primary-tint: 0.19;
     /* The primary card lights its surroundings in every family, not only in
        Crystal — that spill is what makes it read as the section's subject
        rather than as one more panel. */
-    --glass-primary-glow: rgb(139 92 246 / 0.28);
+    --glass-primary-glow: rgb(126 87 206 / 0.46);
     /* ── Card geometry — the app's own tokens ──────────────────────────
        Values are read from the desktop application, not invented:
 
@@ -231,27 +232,27 @@
     --card-edge-width: 2px;
 
     /* The edge colour: subtle by default, accent on interaction. */
-    --card-edge: rgb(42 33 89 / 0.9);
-    --card-edge-hover: rgb(var(--brand-400) / 0.75);
+    --card-edge: rgb(54 40 116 / 0.95);
+    --card-edge-hover: rgb(158 121 229 / 0.85);
     /* Padding grows with the edge weight so a thicker stroke never crowds
        the content — ThemeManager.ApplyCardEdgePaddingResources. */
     --card-pad-base: 1.5rem;
     --card-pad-sm-base: 1rem;
     --card-pad: calc(var(--card-pad-scale, 1) * (var(--card-pad-base) + max(0px, var(--card-edge-width) - 2px)));
     --card-pad-sm: calc(var(--card-pad-scale, 1) * (var(--card-pad-sm-base) + max(0px, var(--card-edge-width) - 2px)));
-    --tint-alpha: 0.11;         /* violet wash strength         */
-    --tint-alpha-2: 0.05;       /* second wash, opposite corner */
-    --card-tint-2: rgb(34 211 238 / 0.05);
+    --tint-alpha: 0.19;         /* violet wash strength         */
+    --tint-alpha-2: 0.10;       /* second wash, opposite corner */
+    --card-tint-2: rgb(26 197 226 / 0.10);
 
 
 
     /* ── Live preview surfaces ─────────────────────────────────────────
        The interactive module previews inside the application frame. */
-    --viz-grid: rgb(42 33 89 / 0.6);
-    --viz-part: rgb(167 139 250 / 0.85);
-    --viz-part-2: rgb(34 211 238 / 0.8);
-    --viz-scrap: rgb(244 114 182 / 0.55);
-    --viz-plate: rgb(29 22 70 / 0.9);
+    --viz-grid: rgb(54 40 116 / 0.75);
+    --viz-part: rgb(158 121 229 / 0.92);
+    --viz-part-2: rgb(26 197 226 / 0.86);
+    --viz-scrap: rgb(242 96 164 / 0.62);
+    --viz-plate: rgb(32 22 72 / 0.95);
 
     /* Corner rounding, scaled live by the appearance studio. */
     --radius-scale: 1;
@@ -262,40 +263,41 @@
 
     /* The same wallpaper, read on paper: the grid becomes ink, the wash
        becomes a tint, and the vignette turns into a gentle edge shade. */
-    --wall-grid: rgb(76 29 149 / 0.055);
-    --wall-grid-major: rgb(76 29 149 / 0.08);
+    --wall-grid: rgb(73 48 128 / 0.09);
+    --wall-grid-major: rgb(73 48 128 / 0.13);
     --wall-grid-size: 56px 56px;
     --wall-grid-major-size: 280px 280px;
-    --wall-wash-1: rgb(139 92 246 / 0.16);
-    --wall-wash-2: rgb(14 116 144 / 0.07);
-    --wall-sheen: rgb(255 255 255 / 0.6);
-    --wall-vignette: rgb(76 29 149 / 0.1);
+    --wall-wash-1: rgb(181 161 225 / 0.46);
+    --wall-wash-2: rgb(205 188 240 / 0.34);
+    --wall-sheen: rgb(255 255 255 / 0.72);
+    --wall-vignette: rgb(107 96 120 / 0.18);
     --wall-lamp: rgb(255 255 255 / 0);
     --wall-floor: rgb(0 0 0 / 0);
 
     /* Surfaces: warm paper with a violet cast, not flat grey. */
-    --ink-950: 246 245 252;  /* page      #F6F5FC */
-    --ink-900: 255 255 255;  /* card      #FFFFFF */
-    --ink-850: 252 251 255;  /* raised    #FCFBFF */
-    --ink-800: 244 242 253;  /* inset     #F4F2FD */
-    --ink-700: 236 233 250;  /* highest   #ECE9FA */
+    --ink-950: 248 245 238;  /* page      #F8F5EE — the app's warm ivory, not a cold white */
+    --ink-900: 253 251 247;  /* card      #FDFBF7 */
+    --ink-850: 251 248 242;  /* raised    #FBF8F2 */
+    --ink-800: 243 238 229;  /* inset     #F3EEE5 */
+    --ink-700: 235 228 244;  /* highest   #EBE4F4 */
 
-    --line: 226 222 243;     /* #E2DEF3 */
-    --line-soft: 237 234 249;/* #EDEAF9 */
-    --line-strong: 209 202 235;/* #D1CAEB */
+    --line: 214 205 233;     /* #D6CDE9 */
+    --line-soft: 232 226 242;/* #E8E2F2 */
+    --line-strong: 188 174 216;/* #BCAED8 */
 
     /* Same hue, re-weighted for contrast against light surfaces. */
-    --brand-50: 237 233 254;
-    --brand-200: 196 181 253;
-    --brand-300: 109 40 217;  /* text accent on light  #6D28D9 */
-    --brand-400: 124 58 237;  /* buttons               #7C3AED */
-    --brand-500: 109 40 217;  /* #6D28D9 */
-    --brand-600: 91 33 182;   /* #5B21B6 */
-    --brand-700: 76 29 149;   /* #4C1D95 */
+    --brand-50: 238 232 249;
+    --brand-100: 73 48 128; /* the light reading inverts this step: figure text needs ink, not light */
+    --brand-200: 205 188 240;
+    --brand-300: 101 70 181;  /* text accent on light  #6546B5 — the app's Sp.Accent */
+    --brand-400: 92 62 170;  /* buttons               #5C3EAA */
+    --brand-500: 82 55 152;  /* #6D28D9 */
+    --brand-600: 73 48 128;   /* #5B21B6 */
+    --brand-700: 56 36 100;   /* #4C1D95 */
 
     --glass-teal: 13 148 136;
     --glass-cyan: 14 116 144;
-    --glass-green: 22 163 74;
+    --glass-green: 21 128 61;
     --glass-rose: 190 24 93;
 
     /*
@@ -305,54 +307,54 @@
      * and the opacity modifiers are gone from the components for the same
      * reason.
      */
-    --text-1: 10 7 22;       /* #0A0716 — near black */
-    --text-2: 26 20 48;      /* #1A1430 */
-    --text-3: 43 35 72;      /* #2B2348 */
-    --text-4: 62 53 92;      /* #3E355C — still readable, never grey */
+    --text-1: 36 27 58;       /* #241B3A — the app's own Sp.Ink */
+    --text-2: 50 39 78;      /* #32274E */
+    --text-3: 79 67 112;      /* #4F4370 */
+    --text-4: 107 96 120;      /* #6B6078 — the app's own Sp.Muted, 5.4:1 on ivory */
 
-    --state-success: 5 150 105;
-    --state-warning: 180 83 9;
-    --state-danger: 225 29 72;
-    --state-info: 109 40 217;
+    --state-success: 4 120 87;
+    --state-warning: 161 74 8;
+    --state-danger: 190 18 60;
+    --state-info: 101 70 181;
 
     --on-accent: 255 255 255;
 
     --shadow-panel:
-      0 1px 0 0 rgb(255 255 255 / 0.9) inset,
-      0 18px 40px -28px rgb(76 29 149 / 0.28);
+      0 1px 0 0 rgb(255 255 255 / 0.96) inset,
+      0 18px 42px -26px rgb(56 36 100 / 0.34);
     --shadow-raised:
-      0 1px 0 0 rgb(255 255 255 / 0.95) inset,
-      0 26px 60px -30px rgb(76 29 149 / 0.32),
-      0 0 0 1px rgb(124 58 237 / 0.08);
+      0 1px 0 0 rgb(255 255 255 / 1) inset,
+      0 30px 68px -30px rgb(56 36 100 / 0.4),
+      0 0 0 1px rgb(101 70 181 / 0.14);
     --shadow-glow:
-      0 0 0 1px rgb(124 58 237 / 0.22),
-      0 22px 54px -26px rgb(124 58 237 / 0.42);
+      0 0 0 1px rgb(101 70 181 / 0.3),
+      0 24px 58px -26px rgb(101 70 181 / 0.46);
     --shadow-glow-strong:
-      0 0 0 1px rgb(124 58 237 / 0.34),
-      0 28px 70px -24px rgb(124 58 237 / 0.5);
+      0 0 0 1px rgb(101 70 181 / 0.44),
+      0 32px 78px -24px rgb(101 70 181 / 0.56);
 
-    --pool-1: rgb(139 92 246 / 0.16);
-    --pool-2: rgb(56 189 248 / 0.1);
-    --pool-3: rgb(244 114 182 / 0.07);
+    --pool-1: rgb(101 70 181 / 0.22);
+    --pool-2: rgb(8 145 178 / 0.13);
+    --pool-3: rgb(214 78 140 / 0.11);
 
     /* Day lighter than dark: paper needs less ink to read as tinted. */
-    --tint-base: 0.07;
-    --card-tint: rgb(139 92 246 / 0.07);
-    --card-highlight: rgb(255 255 255 / 0.9);
-    --tint-mix: 0.07;
+    --tint-base: 0.12;
+    --card-tint: rgb(101 70 181 / 0.11);
+    --card-highlight: rgb(255 255 255 / 0.96);
+    --tint-mix: 0.12;
 
-    --scroll-track: 240 238 250;
-    --scroll-thumb: 209 202 235;
+    --scroll-track: 242 238 231;
+    --scroll-thumb: 188 174 216;
 
-    --selection: rgb(124 58 237 / 0.22);
+    --selection: rgb(101 70 181 / 0.28);
 
-    --money-positive: 5 150 105;
-    --money-negative: 225 29 72;
-    --money-neutral: 63 56 96;
+    --money-positive: 4 120 87;
+    --money-negative: 190 18 60;
+    --money-neutral: 79 67 112;
 
-    --surface-alpha: 0.99;
-    --surface-alpha-2: 0.97;
-    --surface-alpha-3: 0.995;
+    --surface-alpha: 0.995;
+    --surface-alpha-2: 0.985;
+    --surface-alpha-3: 1;
     --surface-blur: 4px;
     --surface-sat: 130%;
     --surface-specular: 0;
@@ -362,25 +364,26 @@
     --glass-hi: rgb(255 255 255 / 0);
     --glass-lo: rgb(0 0 0 / 0);
     --glass-sheen: rgb(255 255 255 / 0);
-    --glass-edge-light: rgb(255 255 255 / 0.9);
+    --glass-edge-light: rgb(255 255 255 / 0.96);
     --glass-edge-dark: rgb(0 0 0 / 0);
     --glass-ring: rgb(255 255 255 / 0);
-    --glass-line: rgb(var(--line-strong) / 0.6);
+    --glass-line: rgb(var(--line-strong) / 0.66);
     --glass-scrim: rgb(255 255 255 / 0);
-    --glass-primary-tint: 0.07;
-    --glass-primary-glow: rgb(124 58 237 / 0.22);
-    --card-edge: rgb(226 222 243 / 0.95);
-    --tint-alpha: 0.08;
-    --tint-alpha-2: 0.04;
-    --card-tint-2: rgb(14 116 144 / 0.05);
+    --glass-primary-tint: 0.12;
+    --glass-primary-glow: rgb(101 70 181 / 0.30);
+    --card-edge: rgb(214 205 233 / 1);
+    --card-edge-hover: rgb(101 70 181 / 0.6);
+    --tint-alpha: 0.13;
+    --tint-alpha-2: 0.07;
+    --card-tint-2: rgb(8 145 178 / 0.08);
 
 
 
-    --viz-grid: rgb(226 222 243 / 0.9);
-    --viz-part: rgb(124 58 237 / 0.8);
-    --viz-part-2: rgb(14 116 144 / 0.75);
-    --viz-scrap: rgb(190 24 93 / 0.5);
-    --viz-plate: rgb(244 242 253 / 0.95);
+    --viz-grid: rgb(214 205 233 / 0.95);
+    --viz-part: rgb(101 70 181 / 0.84);
+    --viz-part-2: rgb(8 145 178 / 0.78);
+    --viz-scrap: rgb(190 24 93 / 0.55);
+    --viz-plate: rgb(251 248 242 / 0.98);
   }
 
   /*
@@ -393,52 +396,92 @@
    * `src/data/themes.ts` for the file each one comes from.
    */
 
-  /* Studio — this website's palette: the application's Violet accent, deep. */
+  /*
+   * Studio — the application's own violet, taken deep.
+   *
+   * Every value here is transcribed from the product rather than chosen for
+   * the site: `Sp.Accent #6546B5`, `Sp.AccentDeep #493080`, `Sp.Pane
+   * #B4A1E1 → #8568CF` and `Sp.Keyline #D9D0EC` are the brushes the
+   * application's own splash and design-system tokens paint with
+   * (Views/Splash/SplashView.xaml · Themes/ProGlassDesignSystem/Tokens/
+   * SemanticColors.xaml). The ramp below is those five colours extended to a
+   * full seven steps, so the site and the product are literally the same
+   * violet at every tone.
+   */
   [data-appearance="studio"] {
-    --brand-50: 245 243 255;
-    --brand-200: 221 214 254;
-    --brand-300: 196 181 253;
-    --brand-400: 167 139 250;
-    --brand-500: 139 92 246;
-    --brand-600: 124 58 237;
-    --brand-700: 109 40 217;
-    --pool-1: rgb(139 92 246 / 0.16);
-    --pool-2: rgb(34 211 238 / 0.07);
-    --pool-3: rgb(244 114 182 / 0.06);
-    --card-tint: rgb(139 92 246 / 0.12);
-    --card-tint-2: rgb(34 211 238 / 0.05);
+    --brand-50: 240 235 252;
+    --brand-100: 226 216 248;
+    --brand-200: 214 199 246;
+    --brand-300: 190 165 240;
+    --brand-400: 158 121 229;
+    --brand-500: 126 87 206;
+    --brand-600: 101 70 181;
+    --brand-700: 73 48 128;
+    --pool-1: rgb(126 87 206 / 0.32);
+    --pool-2: rgb(26 197 226 / 0.13);
+    --pool-3: rgb(242 96 164 / 0.11);
+    --card-tint: rgb(101 70 181 / 0.22);
+    --card-tint-2: rgb(26 197 226 / 0.1);
   }
 
   /* Monet — the application's Material-You family: a warm accent dusk. */
   [data-appearance="monet"] {
-    --brand-50: 253 242 248;
-    --brand-200: 251 207 232;
-    --brand-300: 244 164 199;
-    --brand-400: 232 121 166;
-    --brand-500: 214 78 140;
-    --brand-600: 190 24 93;
-    --brand-700: 158 21 78;
-    --pool-1: rgb(244 114 182 / 0.17);
-    --pool-2: rgb(251 146 60 / 0.09);
-    --pool-3: rgb(167 139 250 / 0.08);
-    --card-tint: rgb(244 114 182 / 0.13);
-    --card-tint-2: rgb(251 146 60 / 0.06);
+    --brand-50: 253 238 246;
+    --brand-100: 251 219 237;
+    --brand-200: 250 198 227;
+    --brand-300: 242 152 194;
+    --brand-400: 228 105 160;
+    --brand-500: 205 62 126;
+    --brand-600: 174 24 88;
+    --brand-700: 140 20 72;
+    --pool-1: rgb(228 105 160 / 0.3);
+    --pool-2: rgb(245 133 52 / 0.16);
+    --pool-3: rgb(158 121 229 / 0.14);
+    --card-tint: rgb(205 62 126 / 0.24);
+    --card-tint-2: rgb(245 133 52 / 0.11);
   }
 
   /* Industrial — the application's strict default: sky over slate. */
   [data-appearance="industrial"] {
-    --brand-50: 240 249 255;
-    --brand-200: 186 230 253;
-    --brand-300: 125 211 252;
-    --brand-400: 56 189 248;
-    --brand-500: 14 165 233;
-    --brand-600: 2 132 199;
-    --brand-700: 3 105 161;
-    --pool-1: rgb(56 189 248 / 0.12);
-    --pool-2: rgb(45 212 191 / 0.07);
-    --pool-3: rgb(99 102 241 / 0.05);
-    --card-tint: rgb(56 189 248 / 0.1);
-    --card-tint-2: rgb(45 212 191 / 0.05);
+    --brand-50: 235 247 255;
+    --brand-100: 205 237 254;
+    --brand-200: 174 226 252;
+    --brand-300: 112 203 248;
+    --brand-400: 45 176 240;
+    --brand-500: 12 148 214;
+    --brand-600: 3 113 176;
+    --brand-700: 6 88 138;
+    --pool-1: rgb(45 176 240 / 0.26);
+    --pool-2: rgb(34 205 189 / 0.15);
+    --pool-3: rgb(99 102 241 / 0.11);
+    --card-tint: rgb(12 148 214 / 0.2);
+    --card-tint-2: rgb(34 205 189 / 0.1);
+  }
+
+  /*
+   * Light-mode re-weighting of every family.
+   *
+   * A family block sits after both mode blocks in this file, so on its own it
+   * would win the cascade in the light reading too — and a ramp built to glow
+   * on near-black is a ramp that disappears on ivory. Each family therefore
+   * carries its own daylight steps here, at a two-attribute selector so it
+   * outranks the one-attribute family block above. Same hue, deep end of the
+   * ramp, measured against the ivory surface rather than against the dark one.
+   */
+  [data-theme="daylight"][data-appearance="studio"] {
+    --brand-50: 238 232 249;
+    --brand-100: 73 48 128;
+    --brand-200: 205 188 240;
+    --brand-300: 101 70 181;   /* #6546B5 — 6.1:1 on the ivory page */
+    --brand-400: 92 62 170;
+    --brand-500: 82 55 152;
+    --brand-600: 73 48 128;
+    --brand-700: 56 36 100;
+    --pool-1: rgb(101 70 181 / 0.22);
+    --pool-2: rgb(8 145 178 / 0.13);
+    --pool-3: rgb(214 78 140 / 0.11);
+    --card-tint: rgb(101 70 181 / 0.11);
+    --card-tint-2: rgb(8 145 178 / 0.08);
   }
 
   /*
@@ -454,16 +497,17 @@
    * already exists, so switching to Crystal re-glasses the entire site.
    */
   [data-appearance="crystal"] {
-    --brand-50: 236 254 255;
-    --brand-200: 165 243 252;
-    --brand-300: 103 232 249;
-    --brand-400: 34 211 238;
+    --brand-50: 232 253 255;
+    --brand-100: 195 246 253;
+    --brand-200: 157 240 251;
+    --brand-300: 94 226 246;
+    --brand-400: 24 197 226;
     --brand-500: 8 145 178;
-    --brand-600: 14 116 144;
-    --brand-700: 21 94 117;
-    --pool-1: rgb(34 211 238 / 0.22);
-    --pool-2: rgb(129 140 248 / 0.16);
-    --pool-3: rgb(45 212 191 / 0.14);
+    --brand-600: 12 110 138;
+    --brand-700: 18 88 110;
+    --pool-1: rgb(24 197 226 / 0.34);
+    --pool-2: rgb(124 134 246 / 0.26);
+    --pool-3: rgb(34 205 189 / 0.22);
 
     /*
      * Translucency, tiered.
@@ -530,16 +574,16 @@
 
     /* The primary card: a little more accent in the fill, and light spilling
        out from beneath it onto the page. */
-    --glass-primary-tint: 0.16;
-    --glass-primary-glow: rgb(34 211 238 / 0.22);
+    --glass-primary-tint: 0.24;
+    --glass-primary-glow: rgb(24 197 226 / 0.34);
 
-    --card-tint: rgb(34 211 238 / 0.16);
+    --card-tint: rgb(24 197 226 / 0.24);
     /* Crystal is a saturated family by design, so its base sits higher. */
-    --tint-base: 0.14;
-    --tint-mix: 0.14;
-    --card-tint-2: rgb(129 140 248 / 0.09);
-    --card-highlight: rgb(255 255 255 / 0.16);
-    --selection: rgb(103 232 249 / 0.3);
+    --tint-base: 0.22;
+    --tint-mix: 0.22;
+    --card-tint-2: rgb(124 134 246 / 0.15);
+    --card-highlight: rgb(255 255 255 / 0.2);
+    --selection: rgb(94 226 246 / 0.36);
     --viz-grid: rgb(255 255 255 / 0.14);
     --viz-part: rgb(103 232 249 / 0.9);
     --viz-part-2: rgb(255 255 255 / 0.75);
@@ -555,8 +599,8 @@
      * what stops a stack of glass cards from reading as a flat wall of boxes.
      * Both are radial and both are very low opacity; neither moves.
      */
-    --wall-lamp: rgb(148 226 255 / 0.16);
-    --wall-floor: rgb(34 211 238 / 0.13);
+    --wall-lamp: rgb(148 226 255 / 0.24);
+    --wall-floor: rgb(24 197 226 / 0.2);
   }
 
   /*
@@ -582,11 +626,11 @@
     --glass-ring: rgb(255 255 255 / 0.6);
     --glass-line: rgb(12 74 110 / 0.16);
     --glass-scrim: rgb(255 255 255 / 0.42);
-    --glass-primary-glow: rgb(8 145 178 / 0.16);
-    --viz-grid: rgb(8 145 178 / 0.22);
-    --viz-part: rgb(8 145 178 / 0.85);
-    --viz-part-2: rgb(129 140 248 / 0.8);
-    --viz-plate: rgb(255 255 255 / 0.75);
+    --glass-primary-glow: rgb(8 145 178 / 0.26);
+    --viz-grid: rgb(8 145 178 / 0.28);
+    --viz-part: rgb(8 145 178 / 0.88);
+    --viz-part-2: rgb(124 134 246 / 0.84);
+    --viz-plate: rgb(255 255 255 / 0.82);
   }
 
   /*
@@ -618,21 +662,29 @@
 
   /* Daylight needs its own re-weighting of the ramps so contrast holds. */
   [data-theme="daylight"][data-appearance="monet"] {
-    --brand-300: 190 24 93;
-    --brand-400: 190 24 93;
-    --brand-500: 158 21 78;
-    --brand-600: 131 24 67;
-    --brand-700: 112 26 60;
-    --card-tint: rgb(232 121 166 / 0.12);
+    --brand-50: 253 235 244;
+    --brand-100: 140 20 72;
+    --brand-200: 248 194 222;
+    --brand-300: 174 24 88;    /* 6.4:1 on ivory */
+    --brand-400: 160 22 80;
+    --brand-500: 140 20 72;
+    --brand-600: 118 18 62;
+    --brand-700: 98 16 52;
+    --card-tint: rgb(205 62 126 / 0.12);
+    --card-tint-2: rgb(245 133 52 / 0.09);
   }
 
   [data-theme="daylight"][data-appearance="industrial"] {
-    --brand-300: 3 105 161;
-    --brand-400: 2 132 199;
-    --brand-500: 3 105 161;
-    --brand-600: 7 89 133;
-    --brand-700: 12 74 110;
-    --card-tint: rgb(56 189 248 / 0.1);
+    --brand-50: 232 245 253;
+    --brand-100: 6 88 138;
+    --brand-200: 178 222 246;
+    --brand-300: 6 88 138;     /* 6.6:1 on ivory */
+    --brand-400: 3 102 158;
+    --brand-500: 6 88 138;
+    --brand-600: 8 72 116;
+    --brand-700: 10 58 94;
+    --card-tint: rgb(12 148 214 / 0.11);
+    --card-tint-2: rgb(13 148 136 / 0.08);
   }
 
   [data-theme="daylight"][data-appearance="crystal"] {
@@ -647,12 +699,15 @@
      * tint, so it can keep the brighter cyan that makes the glass read as glass
      * without meeting any text on it.
      */
-    --brand-300: 14 116 144;
-    --brand-400: 14 116 144;
-    --brand-500: 8 145 178;
-    --brand-600: 21 94 117;
-    --brand-700: 22 78 99;
-    --card-tint: rgb(34 211 238 / 0.1);
+    --brand-50: 230 250 253;
+    --brand-100: 12 110 138;
+    --brand-200: 168 228 240;
+    --brand-300: 12 110 138;   /* 6.0:1 on ivory */
+    --brand-400: 12 110 138;
+    --brand-500: 8 128 158;
+    --brand-600: 18 88 110;
+    --brand-700: 20 72 92;
+    --card-tint: rgb(24 197 226 / 0.14);
   }
 
   /*
@@ -678,14 +733,31 @@
    */
   [data-theme="daylight"] {
     /* Deep ends of the same hues, as triplets, so `rgb(var(--…))` works. */
-    --accent-soft: 91 33 182;    /* violet-800  — 8.4:1 on paper */
+    --accent-soft: 73 48 128;    /* #493080 — the app's AccentDeep, 9.6:1 on ivory */
     --accent-warn: 146 64 14;    /* amber-800   — 7.3:1 */
-    --accent-good: 6 95 70;      /* emerald-800 — 8.6:1 */
+    --accent-good: 6 78 59;      /* emerald-900 — 9.1:1 */
     --accent-bad: 159 18 57;     /* rose-800    — 8.0:1 */
   }
 
   [data-theme="daylight"] :is(.text-brand-100, .text-brand-200, .text-brand-300) {
     color: rgb(var(--brand-700));
+  }
+
+  /*
+   * Gradient text is a background, so the colour rules above cannot reach it —
+   * `color: transparent` is the whole point of the technique. The light reading
+   * therefore needs its own stops: the dark-mode gradient begins at
+   * `--brand-200`, which is a pale lilac on a dark page and a *deep* violet on
+   * paper, so without this rule the words would run deep → deep → deep and read
+   * as one flat colour.
+   */
+  [data-theme="daylight"] :is(.text-gradient, .text-gradient-rich) {
+    background-image: linear-gradient(
+      100deg,
+      rgb(var(--brand-600)) 0%,
+      rgb(var(--brand-400)) 44%,
+      rgb(var(--glass-cyan)) 100%
+    );
   }
 
   [data-theme="daylight"] :is(.text-amber-300, .text-state-warning) {
@@ -1031,13 +1103,36 @@
     @apply border-t border-line/60;
   }
 
-  /* Eyebrow label — small, spaced, technical. */
+  /*
+   * Eyebrow label — small, spaced, technical.
+   *
+   * It now sits on a tinted pill by default in its `.eyebrow-chip` form, and
+   * the plain form keeps the rule that leads into it. Both are the same size
+   * and tracking; the difference is whether the label is announcing a section
+   * (rule) or labelling a card (chip).
+   */
   .eyebrow {
     @apply text-2xs font-bold uppercase tracking-[0.22em] text-brand-300;
   }
 
+  .eyebrow-chip {
+    @apply inline-flex items-center gap-2 rounded-full border border-brand-500/40 bg-brand-600/20 px-3 py-1.5 text-2xs font-bold uppercase tracking-[0.18em] text-brand-200;
+  }
+
   .lede {
     @apply text-base font-medium leading-[1.75] text-text-secondary sm:text-lg sm:leading-[1.78];
+  }
+
+  /*
+   * The opening paragraph of a page.
+   *
+   * One step above `.lede` and set a touch looser, because it is the only
+   * paragraph on the page a reader is guaranteed to meet first and the only one
+   * that has to carry the whole argument on its own.
+   */
+  .lede-lg {
+    @apply text-lg font-medium leading-[1.7] text-text-secondary sm:text-xl sm:leading-[1.72];
+    letter-spacing: -0.011em;
   }
 
   /*
@@ -1363,29 +1458,56 @@
    * metadata. Sizes step down with the viewport rather than being fixed, so a
    * 375 px phone never has a heading that eats the screen.
    */
+  /*
+   * The display scale, retuned.
+   *
+   * Two changes, both deliberate. The steps are wider apart — a hero headline
+   * that is only 1.4× the size of a section headline does not read as a
+   * hierarchy, it reads as one size used twice — and the tracking tightens as
+   * the size grows, which is what a real display cut does and what a scaled-up
+   * body face cannot fake. `font-optical-sizing` is on so a variable face with
+   * an optical axis uses its display master at these sizes rather than its
+   * text master enlarged.
+   *
+   * Weight is 650 rather than 600 on the two largest steps. On the deep violet
+   * surfaces the extra 50 units is what separates a headline from the body copy
+   * beneath it without resorting to a lighter text tone, and it stays inside
+   * the variable range every shipped face carries.
+   */
+  .display-hero {
+    font-size: clamp(2.4rem, 7.4vw, 4.75rem);
+    line-height: 0.98;
+    letter-spacing: -0.038em;
+    font-weight: 680;
+    font-optical-sizing: auto;
+    color: rgb(var(--text-1));
+    text-wrap: balance;
+  }
+
   .display-1 {
-    font-size: clamp(1.75rem, 5.2vw, 3.15rem);
-    line-height: 1.06;
-    letter-spacing: -0.02em;
-    font-weight: 600;
+    font-size: clamp(2rem, 5.8vw, 3.6rem);
+    line-height: 1.03;
+    letter-spacing: -0.03em;
+    font-weight: 650;
+    font-optical-sizing: auto;
     color: rgb(var(--text-1));
     text-wrap: balance;
   }
 
   .display-2 {
-    font-size: clamp(1.5rem, 3.4vw, 2.35rem);
-    line-height: 1.12;
-    letter-spacing: -0.015em;
-    font-weight: 600;
+    font-size: clamp(1.6rem, 3.7vw, 2.6rem);
+    line-height: 1.1;
+    letter-spacing: -0.022em;
+    font-weight: 640;
     color: rgb(var(--text-1));
     text-wrap: balance;
   }
 
   .display-3 {
-    font-size: clamp(1.2rem, 2.2vw, 1.55rem);
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    font-weight: 600;
+    font-size: clamp(1.22rem, 2.3vw, 1.65rem);
+    line-height: 1.22;
+    letter-spacing: -0.014em;
+    font-weight: 620;
     color: rgb(var(--text-1));
   }
 
@@ -1833,12 +1955,23 @@
     text-wrap: balance;
   }
 
-  /* Violet gradient text for the words that carry a headline. */
+  /*
+   * Gradient text for the words that carry a headline.
+   *
+   * It used to start at `--text-1` — pure white in the dark reading — which
+   * meant the first third of a headline was ordinary white and the colour
+   * arrived late, at the last two words. It now starts on the ramp itself and
+   * only lightens toward the middle, so the coloured words are coloured all the
+   * way through. The light reading gets its own stops (see the daylight rule in
+   * the contrast guard) because the same two tokens are deep tones there and
+   * the dark-mode gradient would run white → deep → deep.
+   */
   .text-gradient {
     background-image: linear-gradient(
       100deg,
-      rgb(var(--text-1)) 0%,
-      rgb(var(--brand-300)) 52%,
+      rgb(var(--brand-200)) 0%,
+      rgb(var(--brand-300)) 38%,
+      rgb(var(--brand-400)) 66%,
       rgb(var(--glass-cyan)) 100%
     );
     -webkit-background-clip: text;
@@ -2149,4 +2282,544 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+ * RICH SURFACE LAYER — 2026-10 redesign
+ * ══════════════════════════════════════════════════════════════════════════
+ *
+ * The palette above was made deep; this is the layer that makes the page feel
+ * deep too. Everything here is a token-driven component class in the same
+ * `@layer components` block as the card system, so it repaints with the mode
+ * and the appearance family exactly as a card does and adds no branching to a
+ * single component.
+ *
+ * Four ideas, each one a real material rather than a decoration:
+ *
+ *   1. AURORA   three saturated washes crossing a band, drifting very slowly
+ *   2. GRAIN    one fixed layer of fine noise, so a flat fill stops looking
+ *               like a flat fill — the reason a deep colour reads as *rich*
+ *               rather than as empty is that a real surface is never uniform
+ *   3. EDGE     a conic hairline that travels once around a card on hover
+ *   4. SPOT     a light that follows the pointer across a card's face
+ *
+ * All four are cheap: gradients and one data-URI image, no filter on anything
+ * that moves, and every animation is a transform or an opacity so the
+ * compositor can carry it without repainting the page.
+ * ══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /*
+   * ── 1 · Aurora field ───────────────────────────────────────────────────
+   *
+   * Sits behind a band, never in front of text. The three washes come from the
+   * family's own pools, so switching family re-hues it with no markup change.
+   * `isolate` keeps the blend inside the band: `screen` over the page behind it
+   * would lighten the whole document rather than the field alone.
+   */
+  .aurora-field {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    isolation: isolate;
+    overflow: hidden;
+    background-image: theme("backgroundImage.aurora");
+    mix-blend-mode: screen;
+    opacity: 0.9;
+  }
+
+  [data-theme="daylight"] .aurora-field {
+    /* `screen` on paper washes the page out; multiply carries the same colour
+       into a light surface instead, and lower opacity keeps the ivory ivory. */
+    mix-blend-mode: multiply;
+    opacity: 0.55;
+  }
+
+  .aurora-drift {
+    animation: aurora-drift 26s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    will-change: transform;
+  }
+
+  @keyframes aurora-drift {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    33% {
+      transform: translate3d(2.5%, -2%, 0) scale(1.06);
+    }
+    66% {
+      transform: translate3d(-2%, 1.5%, 0) scale(1.03);
+    }
+  }
+
+  /* ── 2 · Grain ─────────────────────────────────────────────────────────
+   *
+   * A 140 px tile of monochrome noise at 3% over the whole document, fixed,
+   * on its own layer above the wallpaper and below the content. It is the one
+   * thing that stops a large area of deep colour from reading as a gradient
+   * poster, and it costs nothing: one inline SVG, no request, no repaint on
+   * scroll because it is fixed.
+   *
+   * The opacity is per-mode rather than shared. On a near-black page 3.5% is
+   * visible and quiet; on ivory the same figure is almost gone, so the light
+   * reading carries a little more.
+   */
+  .grain-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    mix-blend-mode: overlay;
+  }
+
+  [data-theme="daylight"] .grain-layer {
+    opacity: 0.05;
+    mix-blend-mode: multiply;
+  }
+
+  /* ── 3 · Conic edge ────────────────────────────────────────────────────
+   *
+   * A hairline of accent light that travels once around the card when the
+   * pointer arrives. It is drawn as a conic gradient on a pseudo-element one
+   * pixel larger than the card on every side, masked down to a ring, and the
+   * travel is a `@property`-free rotation of the gradient's own angle via
+   * `background-position` — no registered custom property, so it works in
+   * every engine this site supports rather than only in the ones that have
+   * `@property`.
+   *
+   * The card keeps its own solid border underneath: if the animation is
+   * interrupted or unsupported the card is still a card.
+   */
+  .edge-conic {
+    position: relative;
+  }
+
+  .edge-conic::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from var(--edge-angle, 0deg),
+      transparent 0deg,
+      rgb(var(--brand-400) / 0.85) 42deg,
+      rgb(var(--glass-cyan) / 0.7) 78deg,
+      transparent 128deg,
+      transparent 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .edge-conic:hover::after,
+  .edge-conic:focus-within::after {
+    opacity: 1;
+    animation: edge-spin 3.6s linear infinite;
+  }
+
+  @keyframes edge-spin {
+    to {
+      --edge-angle: 360deg;
+      transform: rotate(360deg);
+    }
+  }
+
+  /* ── 4 · Pointer spotlight ─────────────────────────────────────────────
+   *
+   * A soft light on the card's face that follows the cursor. `--mx` and `--my`
+   * are written by `useSpotlight` (see lib/useSpotlight.ts) as percentages of
+   * the card's own box, so the gradient is resolution-independent and no
+   * layout is read after the fact.
+   *
+   * Without the hook — scripting off, or a touch device, which never moves a
+   * pointer — both variables stay at 50% and the light simply sits in the
+   * middle at rest. The card is never broken by the effect being absent.
+   */
+  .spot {
+    position: relative;
+  }
+
+  .spot::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      22rem 22rem at var(--mx, 50%) var(--my, 0%),
+      rgb(var(--brand-400) / 0.16),
+      transparent 62%
+    );
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .spot:hover::before,
+  .spot:focus-within::before {
+    opacity: 1;
+  }
+
+  .spot > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Rich bands ────────────────────────────────────────────────────────
+   *
+   * The site's section bands were two tones of the same surface. Three now,
+   * each one carrying its own light, so a long page has somewhere to go:
+   *
+   *   .band-deep   a step *below* the page colour — a well the content sits in
+   *   .band-rich   the page colour with the family's accent washed through it
+   *   .band-veil   a gradient from the page colour to nothing, for a band that
+   *                has to hand over to the next one without a hard line
+   */
+  .band-deep {
+    position: relative;
+    background-color: rgb(var(--ink-950));
+    background-image: linear-gradient(180deg, rgb(0 0 0 / 0.28) 0%, transparent 34%);
+    border-top: 1px solid rgb(var(--line-strong) / 0.45);
+    border-bottom: 1px solid rgb(var(--line-strong) / 0.45);
+  }
+
+  [data-theme="daylight"] .band-deep {
+    background-image: linear-gradient(
+      180deg,
+      rgb(var(--brand-700) / 0.07) 0%,
+      transparent 38%
+    );
+  }
+
+  .band-rich {
+    position: relative;
+    background-color: rgb(var(--ink-900));
+    background-image:
+      radial-gradient(120% 140% at 0% 0%, rgb(var(--brand-600) / 0.34) 0%, transparent 52%),
+      radial-gradient(90% 110% at 100% 100%, rgb(var(--glass-cyan) / 0.16) 0%, transparent 55%);
+    border-top: 1px solid rgb(var(--line-strong) / 0.5);
+    border-bottom: 1px solid rgb(var(--line-strong) / 0.5);
+  }
+
+  [data-theme="daylight"] .band-rich {
+    background-image:
+      radial-gradient(120% 140% at 0% 0%, rgb(var(--brand-500) / 0.14) 0%, transparent 52%),
+      radial-gradient(90% 110% at 100% 100%, rgb(var(--glass-cyan) / 0.1) 0%, transparent 55%);
+  }
+
+  .band-veil {
+    position: relative;
+    background-image: linear-gradient(
+      180deg,
+      rgb(var(--ink-950)) 0%,
+      rgb(var(--ink-950) / 0) 100%
+    );
+  }
+
+  /* ── Marquee ───────────────────────────────────────────────────────────
+   *
+   * The trust strip under the hero: one row of facts moving slowly enough to
+   * be read while it moves. Two copies of the same list, each half the track,
+   * translated by exactly -50% — which is what makes the loop seamless rather
+   * than jumping. `prefers-reduced-motion` stops it dead and leaves the first
+   * copy on screen, so the facts are still there and still readable.
+   */
+  .marquee {
+    position: relative;
+    overflow: hidden;
+    /* The row fades at both ends instead of being cut by the container. */
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee-run var(--marquee-duration, 46s) linear infinite;
+    will-change: transform;
+  }
+
+  .marquee:hover .marquee-track,
+  .marquee:focus-within .marquee-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee-run {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+      transform: none;
+    }
+    /* Only the first copy is readable when the track stops; the second is
+       duplicate content off to the right and must not be announced twice. */
+    .marquee-track > [aria-hidden="true"] {
+      display: none;
+    }
+  }
+
+  /* ── Bento ─────────────────────────────────────────────────────────────
+   *
+   * The grid the modern product page is built on: one large cell carrying the
+   * subject and smaller ones around it. Written as named areas rather than as
+   * column spans so a page can rearrange at `lg` without rewriting every child,
+   * and so the single-cell fallback below `lg` is a stack in reading order
+   * rather than a stack in source order.
+   */
+  .bento {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 64rem) {
+    .bento {
+      gap: 1.25rem;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-auto-rows: minmax(9rem, auto);
+    }
+
+    .bento-hero {
+      grid-column: span 4;
+      grid-row: span 2;
+    }
+    .bento-tall {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+    .bento-wide {
+      grid-column: span 4;
+    }
+    .bento-half {
+      grid-column: span 3;
+    }
+    .bento-third {
+      grid-column: span 2;
+    }
+    .bento-cell {
+      grid-column: span 2;
+    }
+  }
+
+  @media (min-width: 40rem) and (max-width: 63.99rem) {
+    .bento-hero,
+    .bento-wide {
+      grid-column: span 2;
+    }
+  }
+
+  /* ── The signature rule ────────────────────────────────────────────────
+   *
+   * A section divider that is a gradient rather than a border: it fades in
+   * from nothing, carries the family's accent through the middle and fades out
+   * again, so a long page can be divided without being chopped. One pixel, no
+   * image, and it repaints with the family because it reads the tokens.
+   */
+  .rule-rich {
+    height: 1px;
+    border: 0;
+    background-image: theme("backgroundImage.rule-fade");
+  }
+
+  /* ── Figure treatment ──────────────────────────────────────────────────
+   *
+   * Every number on this site is a figure a shop owner reads: a square-metre
+   * total, a yield, a balance. Tabular figures make a column of them line up;
+   * the weight and the negative tracking make one of them read as a figure
+   * rather than as a word. Used by the stat tiles and the metric rows.
+   */
+  .figure {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "zero" 1;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+    color: rgb(var(--text-1));
+  }
+
+  .figure-lg {
+    font-size: clamp(1.9rem, 4.6vw, 2.9rem);
+    line-height: 1;
+  }
+
+  .figure-md {
+    font-size: clamp(1.35rem, 3vw, 1.75rem);
+    line-height: 1.05;
+  }
+
+  /* ── Tinted panel ──────────────────────────────────────────────────────
+   *
+   * The card that carries a section's subject, one step richer than
+   * `.glass-primary` and used where a page needs a single focal surface: a
+   * deeper accent in the fill, a lit top edge, and the family's glow spilling
+   * out from underneath it onto the page.
+   */
+  .panel-feature {
+    position: relative;
+    border: var(--card-edge-width) solid rgb(var(--brand-500) / 0.42);
+    border-radius: var(--card-radius-large);
+    background-color: rgb(var(--ink-850) / var(--surface-alpha-2));
+    background-image:
+      linear-gradient(180deg, rgb(255 255 255 / 0.07) 0%, transparent 30%),
+      linear-gradient(
+        140deg,
+        rgb(var(--brand-600) / calc(var(--glass-primary-tint) * 2)) 0%,
+        rgb(var(--brand-500) / calc(var(--glass-primary-tint) * 0.9)) 46%,
+        rgb(var(--glass-cyan) / calc(var(--glass-primary-tint) * 0.6)) 100%
+      );
+    box-shadow:
+      var(--shadow-raised),
+      0 44px 110px -52px var(--glass-primary-glow);
+  }
+
+  [data-theme="daylight"] .panel-feature {
+    background-image:
+      linear-gradient(180deg, rgb(255 255 255 / 0.9) 0%, transparent 34%),
+      linear-gradient(
+        140deg,
+        rgb(var(--brand-500) / calc(var(--glass-primary-tint) * 1.6)) 0%,
+        rgb(var(--brand-400) / calc(var(--glass-primary-tint) * 0.8)) 48%,
+        rgb(var(--glass-cyan) / calc(var(--glass-primary-tint) * 0.5)) 100%
+      );
+  }
+
+  /* ── Vertical timeline ─────────────────────────────────────────────────
+   *
+   * The developer's history and the workflow both need a spine with markers on
+   * it. The spine is a gradient rather than a rule so it fades out at the foot
+   * of the list instead of stopping mid-air, and the marker is a ring with a
+   * filled centre — the app's own stage indicator, drawn in CSS.
+   */
+  .spine {
+    position: relative;
+    padding-inline-start: 2.25rem;
+  }
+
+  .spine::before {
+    content: "";
+    position: absolute;
+    inset-block: 0.5rem;
+    inset-inline-start: 0.55rem;
+    width: 2px;
+    border-radius: 2px;
+    background-image: linear-gradient(
+      180deg,
+      rgb(var(--brand-400) / 0.9) 0%,
+      rgb(var(--brand-600) / 0.55) 55%,
+      transparent 100%
+    );
+  }
+
+  .spine-node {
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0.15rem;
+    display: grid;
+    place-items: center;
+    height: 1.25rem;
+    width: 1.25rem;
+    border-radius: 999px;
+    border: 2px solid rgb(var(--brand-400) / 0.85);
+    background-color: rgb(var(--ink-950));
+    box-shadow: 0 0 0 4px rgb(var(--brand-600) / 0.18);
+  }
+
+  .spine-node::after {
+    content: "";
+    height: 0.4rem;
+    width: 0.4rem;
+    border-radius: 999px;
+    background-color: rgb(var(--brand-300));
+  }
+
+  [dir="rtl"] .spine {
+    padding-inline-start: 2.25rem;
+  }
+}
+
+@layer utilities {
+  /* Text that carries the family's own two-tone gradient. Deeper than the old
+     `.text-gradient`: it starts at the accent rather than at white, so the
+     words read as coloured rather than as white with a smudge on the end. */
+  .text-gradient-rich {
+    background-image: linear-gradient(
+      104deg,
+      rgb(var(--brand-200)) 0%,
+      rgb(var(--brand-400)) 44%,
+      rgb(var(--glass-cyan)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  [data-theme="daylight"] .text-gradient-rich {
+    background-image: linear-gradient(
+      104deg,
+      rgb(var(--brand-600)) 0%,
+      rgb(var(--brand-400)) 46%,
+      rgb(var(--glass-cyan)) 100%
+    );
+  }
+
+  /* A quiet underline that grows from the leading edge on hover. */
+  .link-grow {
+    background-image: linear-gradient(rgb(var(--brand-400)), rgb(var(--brand-400)));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition: background-size 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  [dir="rtl"] .link-grow {
+    background-position: 100% 100%;
+  }
+
+  .link-grow:hover,
+  .link-grow:focus-visible {
+    background-size: 100% 1px;
+  }
+
+  /* Keeps a composited layer off text that does not need one. */
+  .no-promote {
+    will-change: auto;
+    transform: none;
+  }
+}
+
+
+/*
+ * `--edge-angle` is registered at the top level rather than inside the
+ * component layer above: `@property` is a descriptor rule, not a style rule,
+ * and a cascade layer has no meaning for it — an engine that found it nested
+ * would be free to ignore the registration, and the conic edge would then lose
+ * its sweep. Here it is unconditional, and the engines that do not support
+ * `@property` at all fall back to the rotation in `edge-spin`, which reads the
+ * same at the speed the ring turns.
+ */
+@property --edge-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
 }

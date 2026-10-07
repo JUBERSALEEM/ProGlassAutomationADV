@@ -42,7 +42,7 @@ export async function GET(request: Request) {
 
   const title = clean(searchParams.get("title"), MAX_TITLE) || site.name;
   const eyebrow = clean(searchParams.get("eyebrow"), MAX_EYEBROW) || "Glass fabrication software";
-  const accent = colour(searchParams.get("accent"), "#8B5CF6");
+  const accent = colour(searchParams.get("accent"), "#7E57CE");
   const accentSoft = colour(searchParams.get("accentSoft"), "#C4B5FD");
 
   // A longer title steps down a size rather than overflowing the card.
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#0B0820",
+          background: "#080516",
           padding: "64px 72px",
           position: "relative",
           fontFamily: "sans-serif",

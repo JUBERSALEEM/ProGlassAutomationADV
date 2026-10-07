@@ -454,7 +454,7 @@ const bespoke: Record<string, Demo> = {
      * items and one invoice — so nothing here is a fabricated trade volume.
      */
     kind: "dashboard",
-    blurb: "Seven dashboard pages on one design grammar — Overview, Sheet Store, Proforma Invoice, Job Orders, Deliveries, Tax Invoices, Statements.",
+    blurb: "Nine dashboard pages on one design grammar — Overview, Sheet Store, Proforma Invoice, Job Orders, Deliveries, Tax Invoices, Statements, Optimization, Production.",
     views: [
       {
         label: "Overview",

@@ -14,6 +14,14 @@
  * `evidence` field names where to look. Where the application has a screen but
  * no published capture, the module still appears here and its card says so
  * rather than being left off the site.
+ *
+ * The registry is read against the application's development branch, not
+ * against the last tagged build, so a module lands here when the source carries
+ * it. Two entries are in that position as of October 2026 and both say so in
+ * their own `evidence` line: `document-register`
+ * (Views/DocumentRegister/) and `records-sync` (Services/RecordsSync/).
+ * Neither has a `screenshotId`, because there is no published capture of either
+ * yet — which is exactly the case the paragraph above describes.
  */
 
 export type ModuleGroup =
@@ -85,9 +93,10 @@ export const modules: ProductModule[] = [
     railLabel: "Dashboard",
     moduleKey: "Dashboard",
     railGroup: "Main",
-    summary: "Seven dashboard pages on one design grammar — the Overview, then a tab per module.",
+    summary:
+      "Nine dashboard pages on one design grammar — the Overview, a tab per document module, then Optimization and Production.",
     detail:
-      "The rail item opens the Overview, and the tab strip switches the whole panel to another page — Sheet Store, Proforma Invoice, Job Orders, Deliveries, Tax Invoices and Statements, the seven `DashboardViewModel.Pages` in the application's own order, each with its `TabTitle` and `TabSubtitle`. What a shop actually reads on them are the pulses — the quote pulse with its pipeline volume and confirmation, the production pulse with work in progress and the priority mix, the dispatch pulse with the delivery balance, the stock pulse with available square metres by glass category, and the collections pulse with customer balances and collection risk. Each panel is titled and subtitled in the language file, and every page renders all four states — loading, error, empty and data — so a quiet week never looks like a broken screen.",
+      "The rail item opens the Overview, and the tab strip switches the whole panel to another page — Sheet Store, Proforma Invoice, Job Orders, Deliveries, Tax Invoices, Statements, Optimization and Production, the nine `DashboardViewModel.Pages` in the application's own order, each with its `TabTitle` and `TabSubtitle`. What a shop actually reads on them are the pulses — the quote pulse with its pipeline volume and confirmation, the production pulse with work in progress and the priority mix, the dispatch pulse with the delivery balance, the stock pulse with available square metres by glass category, and the collections pulse with customer balances and collection risk. The last two pages are the factory's own rather than a document's: the Optimization page carries nesting yield, sheet consumption and the pieces the engine could not place, and the Production page carries floor load, queue pressure per process, the QC backlog and due-date risk. Each panel is titled and subtitled in the language file, and every page renders all four states — loading, error, empty and data — so a quiet week never looks like a broken screen.",
     capabilities: [
       "Overview dashboard with a tab per module, each switching the panels beneath it",
       "Quote pulse: count of quotes · pipeline volume and confirmation · status distribution",
@@ -96,11 +105,14 @@ export const modules: ProductModule[] = [
       "Stock pulse: available SQM by glass category · category mix · dummy / split / master",
       "Collections pulse: customer balances, outstanding value and collection risk · ageing brackets",
       "Statement pulse: statements, with the empty state that says so",
+      "Optimization page: nesting yield, sheet consumption and the pieces the engine could not place",
+      "Production page: floor load, queue pressure per process, QC backlog and due-date risk",
       "Order-to-cash pipeline rail: Quote → Production → Delivery → Invoice → Payment",
       "Per-module KPI cards, trend and bar chart controls",
       "Loading, error, empty and data states on every page",
     ],
-    evidence: "Views/Dashboard/, ViewModels/Dashboard/, Styles/DashboardKit.xaml",
+    evidence:
+      "Views/Dashboard/ (Overview, SheetStore, ProformaInvoice, JobOrder, DeliveryNote, TaxInvoice, Statement, Optimization, Production), ViewModels/Dashboard/DashboardViewModel.cs · Pages, Styles/DashboardKit.xaml",
     screenshotId: "overview-dashboard",
     href: "/features#dashboard",
     tags: ["KPI", "Overview"],
@@ -222,8 +234,34 @@ export const modules: ProductModule[] = [
     tags: ["Work order", "Handoff"],
   },
   {
-    id: "tax-invoice",
+    id: "document-register",
     number: "07",
+    name: "Document Register",
+    railLabel: "Document Register",
+    moduleKey: "DocumentRegister",
+    railGroup: "Sales",
+    summary:
+      "One linked view of every proforma, job order and delivery note — the chain, read sideways.",
+    detail:
+      "The register is a read model over the three document repositories, joined by the identifiers they already persist: a proforma's own number, a job order's `SourceProformaId`, a delivery note's `JobOrderId`. It writes nothing of its own, which is the whole point — a spreadsheet-shaped mirror table would have to be kept in agreement with the documents it copies, and the moment it disagreed nobody would know which was true. Three tabs share one search, one refresh and one filter set: proforma invoices with their downstream job orders and delivery-note counts, job orders with the proforma each one came from, and delivery notes with the job order and the tax invoice behind them. Voided documents are kept by the source repositories for audit, so the register hides them by default and offers a 'Show voided' switch rather than pretending they were never raised. Two fields are editable in the cell — a document's status and a job order's priority — and both go through the same transition validation the native editor uses, so a quick update on the register cannot put a document into a state its own workflow would have refused.",
+    capabilities: [
+      "Three tabs over one read model: Proforma Invoices, Job Orders, Delivery Notes",
+      "Joined by persisted identifiers — PI number, SourceProformaId, JobOrderId — never by a copied snapshot",
+      "Counts along the chain on every row: job orders raised from a PI, delivery notes against a job order",
+      "Shared search, refresh and last-refreshed stamp across all three tabs",
+      "Voided documents hidden by default, with a 'Show voided' filter that keeps the audit history reachable",
+      "In-cell status and job-order priority edits, routed through the source workflow's own transition rules",
+      "Open / Edit and New buttons that hand over to the native editor — the register never becomes the writer",
+      "Master and dummy delivery notes stay excluded, exactly as the delivery-note list excludes them",
+    ],
+    evidence:
+      "Views/DocumentRegister/DocumentRegisterView.xaml, ViewModels/DocumentRegisterViewModel.cs, docs/document-register-architecture.md",
+    href: "/features#document-register",
+    tags: ["Documents", "Traceability", "Chain"],
+  },
+  {
+    id: "tax-invoice",
+    number: "08",
     name: "Tax Invoice",
     railLabel: "Tax Invoice",
     moduleKey: "TaxInvoice",
@@ -246,7 +284,7 @@ export const modules: ProductModule[] = [
   /* ══════════════════════════ PRODUCTION ════════════════════════════════ */
   {
     id: "optimization",
-    number: "08",
+    number: "09",
     name: "Optimization",
     railLabel: "Optimization",
     moduleKey: "Optimization",
@@ -267,7 +305,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "process-work-center",
-    number: "09",
+    number: "10",
     name: "Process Work Center",
     railLabel: "Process Work Center",
     moduleKey: "ProcessWorkCenter",
@@ -288,7 +326,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "production-control-center",
-    number: "10",
+    number: "11",
     name: "Production Control Center",
     railLabel: "Production Control Center",
     moduleKey: "ProductionControlCenter",
@@ -310,7 +348,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "production-pipeline",
-    number: "11",
+    number: "12",
     name: "Production Floor — the shared chrome",
     railLabel: "Production",
     moduleKey: "ProductionControlCenter",
@@ -336,7 +374,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "production-to-delivery",
-    number: "12",
+    number: "13",
     name: "Production → Delivery Notes",
     railLabel: "Delivery Note",
     moduleKey: "DeliveryNote",
@@ -359,7 +397,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "stage-cutting",
-    number: "13",
+    number: "14",
     name: "Cutting",
     railLabel: "Cutting",
     moduleKey: "Cutting",
@@ -382,7 +420,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "stage-holes-cutouts",
-    number: "14",
+    number: "15",
     name: "Holes & Cutouts",
     railLabel: "Holes & Cutouts",
     moduleKey: "HolesCutouts",
@@ -404,7 +442,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "stage-polish",
-    number: "15",
+    number: "16",
     name: "Polish",
     railLabel: "Polish",
     moduleKey: "Polish",
@@ -426,7 +464,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "stage-edge-deletion",
-    number: "16",
+    number: "17",
     name: "Edge Deletion",
     railLabel: "Edge Deletion",
     moduleKey: "EdgeDeletion",
@@ -448,7 +486,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "stage-mitring",
-    number: "17",
+    number: "18",
     name: "Mitring",
     railLabel: "Mitring",
     moduleKey: "Mitring",
@@ -470,7 +508,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "stage-tempering",
-    number: "18",
+    number: "19",
     name: "Tempering",
     railLabel: "Tempering",
     moduleKey: "Tempering",
@@ -492,7 +530,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "stage-pairing",
-    number: "19",
+    number: "20",
     name: "Pairing",
     railLabel: "Pairing",
     moduleKey: "Pairing",
@@ -514,7 +552,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "stage-doubling-lamination",
-    number: "20",
+    number: "21",
     name: "Doubling / Lamination",
     railLabel: "Doubling / Lamination",
     moduleKey: "DoublingLamination",
@@ -539,7 +577,7 @@ export const modules: ProductModule[] = [
   /* ══════════════════════════ DISPATCH ══════════════════════════════════ */
   {
     id: "delivery-note",
-    number: "21",
+    number: "22",
     name: "Delivery Note",
     railLabel: "Delivery Note",
     moduleKey: "DeliveryNote",
@@ -560,7 +598,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-generator",
-    number: "22",
+    number: "23",
     name: "Report Generator",
     railLabel: "Order Report",
     moduleKey: "OrderReport",
@@ -583,7 +621,7 @@ export const modules: ProductModule[] = [
   /* ══════════════════════════ FINANCE ═══════════════════════════════════ */
   {
     id: "statement-generator",
-    number: "23",
+    number: "24",
     name: "Statement Generator",
     railLabel: "Statement Generator",
     moduleKey: "StatementGenerator",
@@ -604,7 +642,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "job-profitability",
-    number: "24",
+    number: "25",
     name: "Job Profitability",
     railLabel: "Job Profitability",
     moduleKey: "JobProfitability",
@@ -625,7 +663,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "vat-submission",
-    number: "25",
+    number: "26",
     name: "VAT Submission",
     railLabel: "VAT Submission",
     moduleKey: "VatSubmission",
@@ -648,7 +686,7 @@ export const modules: ProductModule[] = [
   /* ══════════════════════════ REPORTS ═══════════════════════════════════ */
   {
     id: "reports-hub",
-    number: "26",
+    number: "27",
     name: "Reports Hub",
     railLabel: "Overview",
     moduleKey: "SalesReport",
@@ -669,7 +707,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-executive",
-    number: "27",
+    number: "28",
     name: "Executive Summary",
     railLabel: "Reports · Executive",
     moduleKey: "SalesReport#Executive",
@@ -689,7 +727,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-customer",
-    number: "28",
+    number: "29",
     name: "Customer Directory & Receivables",
     railLabel: "Reports · Customers",
     moduleKey: "SalesReport#Customer",
@@ -709,7 +747,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-salesman",
-    number: "29",
+    number: "30",
     name: "Salesman Performance",
     railLabel: "Reports · Salesmen",
     moduleKey: "SalesReport#Salesman",
@@ -729,7 +767,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-company",
-    number: "30",
+    number: "31",
     name: "Company Book & Receivables",
     railLabel: "Reports · Companies",
     moduleKey: "SalesReport#Company",
@@ -749,7 +787,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-project",
-    number: "31",
+    number: "32",
     name: "Project Register & Progress",
     railLabel: "Reports · Projects",
     moduleKey: "SalesReport#Project",
@@ -769,7 +807,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-pi",
-    number: "32",
+    number: "33",
     name: "Proforma Invoice Report",
     railLabel: "Reports · Proforma Invoice",
     moduleKey: "SalesReport#Pi",
@@ -789,7 +827,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-jo",
-    number: "33",
+    number: "34",
     name: "Job Order Report",
     railLabel: "Reports · Job Order",
     moduleKey: "SalesReport#Jo",
@@ -809,7 +847,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-delivery",
-    number: "34",
+    number: "35",
     name: "Delivery Note Report",
     railLabel: "Reports · Delivery",
     moduleKey: "SalesReport#Delivery",
@@ -829,7 +867,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-tax-invoice",
-    number: "35",
+    number: "36",
     name: "Tax Invoice Report",
     railLabel: "Reports · Tax Invoice",
     moduleKey: "SalesReport#TaxInvoice",
@@ -849,7 +887,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-glass-spec",
-    number: "36",
+    number: "37",
     name: "Glass Specifications & Traceability",
     railLabel: "Reports · Glass Specs",
     moduleKey: "SalesReport#GlassSpec",
@@ -871,7 +909,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-profitability",
-    number: "37",
+    number: "38",
     name: "Profitability & P&L",
     railLabel: "Reports · Profitability",
     moduleKey: "SalesReport#Profit",
@@ -892,7 +930,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-statement",
-    number: "38",
+    number: "39",
     name: "Statement Report",
     railLabel: "Reports · Statement",
     moduleKey: "SalesReport#Statement",
@@ -912,7 +950,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-vat",
-    number: "39",
+    number: "40",
     name: "VAT Submission Report",
     railLabel: "Reports · VAT Submission",
     moduleKey: "SalesReport#VatSubmission",
@@ -934,7 +972,7 @@ export const modules: ProductModule[] = [
   /* ══════════════════════════ MASTER DATA ═══════════════════════════════ */
   {
     id: "company-center",
-    number: "40",
+    number: "41",
     name: "Company Center",
     railLabel: "Company Center",
     moduleKey: "CompanyCenter",
@@ -955,7 +993,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "user-center",
-    number: "41",
+    number: "42",
     name: "User Center",
     railLabel: "User Center",
     moduleKey: "UserCenter",
@@ -978,7 +1016,7 @@ export const modules: ProductModule[] = [
   /* ══════════════════════════ SYSTEM ════════════════════════════════════ */
   {
     id: "system-center",
-    number: "42",
+    number: "43",
     name: "System Center",
     railLabel: "System Center",
     moduleKey: "SystemCenter",
@@ -999,7 +1037,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "logs-activity",
-    number: "43",
+    number: "44",
     name: "Logs & Activity",
     railLabel: "Logs & Activity",
     moduleKey: "Diagnostics",
@@ -1025,7 +1063,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "settings",
-    number: "44",
+    number: "45",
     name: "Settings",
     railLabel: "Settings",
     moduleKey: "Settings",
@@ -1043,6 +1081,31 @@ export const modules: ProductModule[] = [
     screenshotId: "settings-appearance",
     href: "/features#settings",
     tags: ["Appearance", "Preferences"],
+  },
+  {
+    id: "records-sync",
+    number: "46",
+    name: "Records Sync",
+    railLabel: "Records Sync",
+    moduleKey: "RecordsSync",
+    railGroup: "System",
+    summary:
+      "The opt-in bridge that publishes confirmed proformas to this website — offline first, by design.",
+    detail:
+      "Settings → Records Sync is one section with one job: put the documents a shop has already finished onto the page its customers and office read from, without ever making the desktop application depend on a network. ProGlass stays the source of truth. The local proforma, job-order and delivery-note workflows keep working with the cable unplugged, because the sync is a background coordinator that runs after the save rather than inside it: `DocumentLifecycle.Changed` schedules a capture, a bounded retry cadence picks up anything a missed signal left behind, and a startup scan reconciles the gap a crash could open between a local write and its capture. What is published is a proforma-shaped payload into the same table this website's Records page reads, with the source file, worksheet and ownership preconditions carried on it so a row can always be answered for. Credentials never enter the queue — they stay in the DPAPI-protected vault the rest of the application uses.",
+    capabilities: [
+      "Opt-in and dormant by default: nothing leaves the machine until a shop switches it on",
+      "ProGlass remains the source of truth; the website only ever shows what was published successfully",
+      "Local workflows are unaffected offline — the sync is a background pass, never part of a save",
+      "Change-signal capture, bounded retry, and a periodic plus startup reconciliation for the crash gap",
+      "Proforma-shaped payloads into the table the website's Records, Job Order and Deliveries pages read",
+      "Source file, worksheet and ownership preconditions carried on every published row",
+      "Secrets stay in the DPAPI vault — no credential is ever written into the outbox",
+    ],
+    evidence:
+      "Services/RecordsSync/ (RecordsSyncService.cs, ProGlassRecordsSource.cs, SupabaseRecordsClient.cs, RecordsSyncModels.cs), Views/Settings → Settings.SecRecordsSync, docs/proglass-sync-implementation-design.md",
+    href: "/features#records-sync",
+    tags: ["Sync", "Online", "Supabase"],
   },
 ];
 

@@ -109,8 +109,14 @@ export const featureGroups: FeatureGroup[] = [
         detail: "Family + sequence numbering supports full, partial and incremental invoices, with version history on every document.",
       },
       { title: "Preserve-blank write-back", detail: "An invoice can enrich the company master but a missed field can never erase it." },
+      {
+        title: "Document Register",
+        detail:
+          "One linked view of every proforma, job order and delivery note, joined by the identifiers the documents already carry. Voided records stay reachable behind a filter, and the two fields editable in the cell — status and job-order priority — go through the native workflow's own transition rules.",
+      },
     ],
-    evidence: "Services/ProformaInvoice/, Services/JobOrder/Mapper/, Services/DeliveryNote/",
+    evidence:
+      "Services/ProformaInvoice/, Services/JobOrder/Mapper/, Services/DeliveryNote/, Views/DocumentRegister/",
   },
   {
     id: "inventory",
@@ -154,7 +160,13 @@ export const featureGroups: FeatureGroup[] = [
       { title: "Audit trail", detail: "Before/after diffs with session, actor and module on every meaningful write." },
       { title: "Themes", detail: "Light and dark themes with an appearance section and per-module wallpapers." },
       { title: "15 languages", detail: "Locales are pure resource dictionaries — adding one needs no code change." },
+      {
+        title: "Records Sync",
+        detail:
+          "An opt-in background pass that publishes finished proformas to this website's Records, Job Order and Deliveries pages. ProGlass stays the source of truth, the local workflows keep working offline, and no credential is ever written into the queue.",
+      },
     ],
-    evidence: "Services/Database/, Services/Audit/, Themes/, Themes/Languages/",
+    evidence:
+      "Services/Database/, Services/Audit/, Themes/, Themes/Languages/, Services/RecordsSync/",
   },
 ];

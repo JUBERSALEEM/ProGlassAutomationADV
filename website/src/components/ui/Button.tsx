@@ -9,8 +9,20 @@ const base =
   "group relative inline-flex select-none items-center justify-center gap-2 rounded-xl font-semibold tracking-tight transition-all duration-200 ease-industrial disabled:cursor-not-allowed disabled:opacity-55";
 
 const variants: Record<Variant, string> = {
+  /*
+   * The filled button takes `brand-600`, not `brand-400`.
+   *
+   * `brand-400` is the accent *tone* — the step built to be read as text on a
+   * near-black surface, where it measures 6.1:1. As a fill behind white it
+   * measures 3.3:1, under the 4.5:1 floor for a 14 px semibold label, and it
+   * fails in every one of the four appearance families at once. `brand-600` is
+   * the deep end of the same ramp — the application's own `Sp.AccentDeep`
+   * (#493080) in Studio — and white on it measures 5.3:1 at its worst family
+   * and 9.6:1 at its best. Hover steps one tone lighter, which reads as the
+   * button coming toward the pointer rather than changing colour.
+   */
   primary:
-    "btn-primary bg-brand-400 text-accent-ink shadow-accent hover:bg-brand-300 hover:shadow-accent-strong hover:-translate-y-px active:translate-y-0",
+    "btn-primary bg-brand-600 text-accent-ink shadow-accent hover:bg-brand-500 hover:shadow-accent-strong hover:-translate-y-px active:translate-y-0",
   secondary:
     "border border-line-strong/80 bg-ink-850/80 text-text-primary hover:border-brand-400/60 hover:bg-ink-800 hover:-translate-y-px active:translate-y-0",
   ghost: "border border-line/70 text-text-secondary hover:border-brand-400/45 hover:text-text-primary hover:bg-ink-900/70",

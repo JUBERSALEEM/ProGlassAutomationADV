@@ -36,6 +36,17 @@ const config: Config = {
         },
         brand: {
           50: "rgb(var(--brand-50) / <alpha-value>)",
+          /*
+           * 100 exists because the site was already writing `text-brand-100`
+           * in six places — a monogram, a pricing chip, a metric figure and a
+           * code span — and Tailwind, finding no `brand.100` in this scale,
+           * silently emitted nothing. The class was in the markup and had no
+           * effect: those figures were inheriting their colour from whatever
+           * surrounded them. It is defined here rather than renamed in the six
+           * call sites because the intent of the call site was right — the
+           * lightest accent step, for figure text on a tinted chip.
+           */
+          100: "rgb(var(--brand-100) / <alpha-value>)",
           200: "rgb(var(--brand-200) / <alpha-value>)",
           300: "rgb(var(--brand-300) / <alpha-value>)",
           400: "rgb(var(--brand-400) / <alpha-value>)",
@@ -125,18 +136,28 @@ const config: Config = {
         glow: "var(--shadow-glow)",
         "glow-strong": "var(--shadow-glow-strong)",
         /* Static violet glows for elements that must not follow the theme. */
-        accent: "0 10px 30px -12px rgb(139 92 246 / 0.65)",
-        "accent-strong": "0 16px 38px -12px rgb(139 92 246 / 0.8)",
+        accent: "0 12px 34px -12px rgb(var(--brand-600) / 0.75)",
+        "accent-strong": "0 18px 44px -12px rgb(var(--brand-500) / 0.9)",
       },
       backgroundImage: {
         "grid-fine":
           "linear-gradient(to right, rgb(var(--line) / 0.55) 1px, transparent 1px), linear-gradient(to bottom, rgb(var(--line) / 0.55) 1px, transparent 1px)",
         "sheen-violet":
-          "linear-gradient(135deg, rgb(var(--brand-400) / 0.16) 0%, rgb(var(--brand-400) / 0) 55%)",
+          "linear-gradient(135deg, rgb(var(--brand-500) / 0.3) 0%, rgb(var(--brand-400) / 0) 58%)",
         "sheen-glass":
-          "linear-gradient(135deg, rgb(var(--glass-teal) / 0.16) 0%, rgb(var(--brand-500) / 0) 60%)",
+          "linear-gradient(135deg, rgb(var(--glass-teal) / 0.28) 0%, rgb(var(--brand-500) / 0) 62%)",
         "plate-top":
-          "linear-gradient(180deg, rgb(var(--text-1) / 0.06) 0%, rgb(var(--text-1) / 0) 42%)",
+          "linear-gradient(180deg, rgb(var(--text-1) / 0.08) 0%, rgb(var(--text-1) / 0) 42%)",
+        /**
+         * The aurora: three wide, deeply saturated washes crossing the page.
+         * Used behind the hero and the section that carries the developer's
+         * story, where a flat page colour would read as thin next to the type.
+         */
+        aurora:
+          "radial-gradient(120% 90% at 12% 0%, rgb(var(--brand-600) / 0.55) 0%, transparent 55%), radial-gradient(90% 70% at 88% 8%, rgb(var(--glass-cyan) / 0.24) 0%, transparent 58%), radial-gradient(120% 100% at 50% 108%, rgb(var(--glass-rose) / 0.2) 0%, transparent 62%)",
+        /** A hairline that fades at both ends — the site's own section rule. */
+        "rule-fade":
+          "linear-gradient(90deg, transparent, rgb(var(--brand-400) / 0.55) 22%, rgb(var(--glass-cyan) / 0.4) 50%, rgb(var(--brand-400) / 0.55) 78%, transparent)",
       },
       backgroundSize: {
         "grid-fine": "56px 56px",

@@ -32,8 +32,15 @@ export function SectionHeading({
   return (
     <div className={cn("max-w-3xl", align === "center" && "mx-auto text-center", className)}>
       {eyebrow ? (
-        <p className={cn("eyebrow mb-3 flex items-center gap-3", align === "center" && "justify-center")}>
-          {align === "center" ? null : <span aria-hidden="true" className="h-px w-8 bg-brand-400/60" />}
+        /*
+         * The eyebrow carries the same rule it always did when it opens a
+         * left-aligned section, and drops it when it is the label on a card or
+         * a centred heading — a rule that leads into nothing is a line drawn
+         * for its own sake. Either way it is the site's own label treatment:
+         * 12 px, wide tracking, the accent ramp.
+         */
+        <p className={cn("eyebrow mb-3.5 flex items-center gap-3", align === "center" && "justify-center")}>
+          {align === "left" ? <span aria-hidden="true" className="h-px w-9 bg-gradient-to-r from-brand-400/80 to-transparent" /> : null}
           {eyebrow}
         </p>
       ) : null}
@@ -48,12 +55,12 @@ export function SectionHeading({
            * it is still visible without scrolling.
            */
           "display-2",
-          gradient && "text-gradient",
+          gradient && "text-gradient-rich",
         )}
       >
         {title}
       </Tag>
-      {lead ? <p className="lede mt-5">{lead}</p> : null}
+      {lead ? <p className="lede mt-5 max-w-measure">{lead}</p> : null}
       {children}
     </div>
   );

@@ -72,10 +72,20 @@ const entries: NavEntry[] = [
  */
 const NAV_BAR = "nav-pill hidden items-center gap-0.5 rounded-panel p-1 lg:flex";
 const NAV_CARD =
-  "relative flex items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold transition-colors duration-200";
+  "relative flex items-center gap-1.5 rounded-card border-2 px-3 py-1.5 text-sm font-semibold transition-all duration-200";
 const NAV_CARD_OFF =
   "border-transparent text-text-muted hover:border-line-strong/80 hover:bg-ink-800/70 hover:text-text-primary";
-const NAV_CARD_ON = "border-brand-400/60 bg-brand-500/14 text-text-primary";
+/*
+ * The active card.
+ *
+ * It keeps its edge and takes a real fill rather than a 14%-alpha wash: the
+ * navigation is the one element a visitor reads on every page, and "where am I"
+ * has to survive being glanced at while scrolling. The accent bar on the
+ * leading edge is the only ornament, and it is the same mark the application
+ * puts on a selected rail row.
+ */
+const NAV_CARD_ON =
+  "border-brand-500/60 bg-brand-600/30 text-text-primary shadow-[inset_0_1px_0_0_rgb(255_255_255/0.07)] before:absolute before:inset-y-1.5 before:start-0 before:w-[3px] before:rounded-full before:bg-brand-300";
 
 function NavGlyph({ path }: { path?: string }) {
   if (!path) return null;
@@ -177,7 +187,7 @@ export function Navbar() {
     >
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-brand-400 focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-accent-ink"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-brand-600 focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-accent-ink"
       >
         {t("Skip to content")}
       </a>

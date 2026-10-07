@@ -177,8 +177,8 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
 export const viewport: Viewport = {
   /* The address bar follows the active theme. */
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0B0820" },
-    { media: "(prefers-color-scheme: light)", color: "#F6F5FC" },
+    { media: "(prefers-color-scheme: dark)", color: "#080516" },
+    { media: "(prefers-color-scheme: light)", color: "#F8F5EE" },
   ],
   colorScheme: "dark light",
   width: "device-width",
@@ -231,6 +231,18 @@ export default async function LocaleLayout({
           `display:none` sheet would stop resolving in some engines.
         */}
         <SvgDefs />
+        {/*
+          One layer of fine grain over the whole document, above the wallpaper
+          and below the content.
+
+          It is the reason a deep colour reads as a *surface* rather than as a
+          gradient poster: a real material is never perfectly uniform, and a
+          large field of near-black violet with nothing in it reads as thin no
+          matter how deep the value is. 3.5% in the dark reading and 5% on
+          ivory, one 140 px inline tile, fixed, no request and no repaint on
+          scroll. See `.grain-layer` in globals.css.
+        */}
+        <div aria-hidden="true" className="grain-layer" />
         <script
           type="application/ld+json"
           // Static, developer-authored structured data. No user input reaches this string.

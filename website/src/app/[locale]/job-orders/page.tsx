@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { JobOrdersDashboard } from "@/components/job-orders/JobOrdersDashboard";
+import { OperatorOpener } from "@/components/operations/OperatorOpener";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
@@ -11,9 +12,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const t = await translatorFor(params);
   return pageMetadata({
     locale: t.locale,
-    title: t("Job Orders from Confirmed Proformas"),
+    title: t("Job orders release queue"),
     description: t(
-      "Read-only Job Order queue grouped from active proforma records marked Confirmed, with order quantities and customer details from Excel Sync.",
+      "Confirmed proformas waiting to be released into job orders, with order quantities and customer details published from Excel Sync.",
     ),
     path: "/job-orders",
     ogEyebrow: t("Operations & ERP"),
@@ -59,6 +60,17 @@ export default async function JobOrdersPage({ params }: PageProps) {
         description={t(
           "Confirmed proformas enter the Job Order hand-off queue; unconfirmed proformas and later statuses are excluded.",
         )}
+      />
+      <OperatorOpener
+        t={t}
+        eyebrow="Production · release queue"
+        title="Job Orders"
+        lead="Confirmed proformas waiting to be released, and the job orders already running. Releasing a proforma is the one write this surface performs, and it goes through the same window the desktop application uses."
+        meta={[
+          { label: "Admitted", value: "Proformas marked Confirmed" },
+          { label: "Excluded", value: "Every later status" },
+          { label: "Writes", value: "Release only" },
+        ]}
       />
       <Suspense fallback={<JobOrdersPageSkeleton />}>
         <JobOrdersDashboard />

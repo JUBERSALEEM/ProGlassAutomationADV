@@ -59,7 +59,7 @@ export const appearanceFamilies: AppearanceFamilyEntry[] = [
     id: "studio",
     label: "Studio",
     origin: "The website's own palette — the application's Violet accent, taken deep.",
-    swatch: "#8B5CF6",
+    swatch: "#7E57CE",
   },
   {
     id: "monet",

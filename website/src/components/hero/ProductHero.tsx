@@ -3,6 +3,10 @@ import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { AppFrame } from "@/components/product/AppFrame";
 import { LiveSurface } from "@/components/product/LiveSurface";
 import { Reveal } from "@/components/ui/Reveal";
+import { Spotlight } from "@/components/ui/Spotlight";
+import { Marquee, MarqueeItem } from "@/components/ui/Marquee";
+import { GlassCubeEmblem, BrandKeyline } from "@/components/brand/GlassCubeEmblem";
+import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { chainVerbs } from "@/data/workflows";
 import { site } from "@/lib/site";
 import type { Translator } from "@/i18n/core";
@@ -14,6 +18,16 @@ import type { Translator } from "@/i18n/core";
  * "industrial glass-fabrication ERP", which is accurate but is jargon to the
  * person who actually runs a glass shop. The first line therefore says what it
  * is for, and the second line names the chain the application implements.
+ *
+ * Three things this opening carries that a hero normally leaves to a later
+ * section, and each is here because it answers a question the visitor has
+ * before they have finished reading the headline:
+ *
+ *   the byline     who is accountable for this — one named person, linked to
+ *                  the developer story that opens immediately below
+ *   the keyline    what the product calls itself, in the application's own
+ *                  words, from the splash screen it opens with
+ *   the fact row   what kind of software it is, moving slowly enough to read
  */
 export function ProductHero({ t }: { t: Translator }) {
   return (
@@ -43,45 +57,92 @@ export function ProductHero({ t }: { t: Translator }) {
           quality={92}
           className="object-cover object-right"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink-950/80 via-ink-950/35 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-transparent to-ink-950/45" />
+        {/* Two veils rather than one. The horizontal veil keeps the headline
+            column quiet over the artwork; the vertical one drops the page
+            colour back in at the foot so the hero hands over to the band below
+            it without a hard line across the picture. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-ink-950/92 via-ink-950/55 to-ink-950/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/25 to-ink-950/60" />
       </div>
 
-      {/* Ambient light. Four very wide pools, drifting slowly. */}
+      {/* The aurora: three saturated washes crossing the opening screen,
+          drifting on a 26 s cycle. It is what makes the top of the page read as
+          a lit room rather than as a flat field, and it is drawn from the
+          family's own pools so switching palette re-hues it. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="animate-drift-slow absolute -top-40 left-[8%] h-[34rem] w-[34rem] rounded-full bg-brand-500/16 blur-[120px]" />
-        <div className="absolute -top-24 right-[4%] h-[26rem] w-[26rem] rounded-full bg-glass-cyan/10 blur-[110px]" />
-        <div className="absolute bottom-0 left-[38%] h-[20rem] w-[20rem] rounded-full bg-glass-rose/8 blur-[120px]" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-400/40 to-transparent" />
+        <div className="aurora-field aurora-drift" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-400/60 to-transparent" />
       </div>
 
       <div className="shell relative">
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.06fr)] lg:gap-14">
           <div>
+            {/* ── The header block ──────────────────────────────────────
+                Product mark, name, version, and the byline. A hero that opens
+                with a bare eyebrow label says nothing about who is behind the
+                claim; this one names the author in the first line a visitor
+                reads, and links to the story that follows it. */}
             <Reveal>
-              <p className="eyebrow mb-5 flex flex-wrap items-center gap-x-3 gap-y-2">
-                <span aria-hidden="true" className="h-px w-8 bg-brand-400/60" />
-                {t("ProGlass Automation")}
-                <span className="font-mono text-text-faint">v{site.version}</span>
+              <div className="mb-7 flex flex-wrap items-center gap-x-4 gap-y-3">
+                <span className="flex items-center gap-2.5">
+                  <GlassCubeEmblem size={26} className="h-6 w-6" />
+                  <span className="text-sm font-semibold tracking-tight text-text-primary">
+                    Pro<span className="text-brand-300">Glass</span>{" "}
+                    <span className="font-mono text-2xs font-semibold uppercase tracking-[0.22em] text-text-faint">
+                      Automation
+                    </span>
+                  </span>
+                </span>
+                <span aria-hidden="true" className="hidden h-4 w-px bg-line-strong sm:block" />
+                <span className="font-mono text-2xs font-semibold uppercase tracking-[0.18em] text-text-faint">
+                  v{site.version}
+                </span>
+              </div>
+            </Reveal>
+
+            <Reveal delay={60}>
+              <p className="mb-5 flex flex-wrap items-center gap-x-2.5 gap-y-2 text-xs leading-relaxed text-text-muted">
+                <span aria-hidden="true" className="h-1.5 w-1.5 rotate-45 bg-brand-400" />
+                <span>
+                  {t("Written and maintained by")}{" "}
+                  <strong className="font-semibold text-text-primary">{site.developerName}</strong>
+                  {t(", a glass estimator —")}
+                </span>
+                <Link
+                  href="#developer-story"
+                  className="link-grow font-semibold text-brand-300 hover:text-brand-200"
+                >
+                  {t("the developer story")}
+                </Link>
+                <ArrowRight className="h-3 w-3 text-brand-400" />
               </p>
             </Reveal>
 
-            <Reveal delay={70}>
-              <h1 className="display-1">
+            <Reveal delay={110}>
+              <h1 className="display-hero">
                 {t("Glass business management,")}
-                <span className="text-gradient block">{t("built around your workflow.")}</span>
+                <span className="text-gradient-rich block">{t("built around your workflow.")}</span>
               </h1>
             </Reveal>
 
-            <Reveal delay={140}>
-              <p className="lede mt-6 max-w-xl">
-                {t("A Windows desktop application for glass fabrication: price the job, cut the stock, track what left the")}
+            {/* The application's own descriptor, from the keyline it prints
+                under its wordmark on the splash screen. */}
+            <Reveal delay={160}>
+              <BrandKeyline
+                label={t("Glass cutting automation suite")}
+                className="mt-7 justify-start"
+              />
+            </Reveal>
+
+            <Reveal delay={200}>
+              <p className="lede-lg mt-7 max-w-xl">
+                {t("A Windows desktop application for glass fabrication: price the job, cut the stock, track what left the")}{" "}
                 {t("yard, and invoice it — without re-keying the same glass twice.")}
               </p>
             </Reveal>
 
-            <Reveal delay={200}>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Reveal delay={250}>
+              <div className="mt-9 flex flex-wrap items-center gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
                   {t("Request a Demo")}
                 </ButtonLink>
@@ -90,32 +151,16 @@ export function ProductHero({ t }: { t: Translator }) {
                 </ButtonLink>
               </div>
             </Reveal>
-
-            <Reveal delay={260}>
-              <ul className="mt-9 flex flex-wrap items-center gap-x-5 gap-y-2.5">
-                {[
-                  "Windows desktop",
-                  "Local SQLite data",
-                  "No account to create",
-                  `${site.locales} languages`,
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-xs text-text-muted">
-                    <span aria-hidden="true" className="h-1 w-1 rounded-full bg-brand-400/70" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
           </div>
 
           {/* ── Layered product presentation ───────────────────────── */}
           <Reveal delay={120} variant="scale" className="relative">
             <div aria-hidden="true" className="pointer-events-none absolute -inset-8 -z-10">
-              <div className="absolute left-1/2 top-1/2 h-[26rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-500/12 blur-[100px]" />
+              <div className="absolute left-1/2 top-1/2 h-[26rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-600/35 blur-[110px]" />
             </div>
 
             <AppFrame
-      t={t}
+              t={t}
               title={t("Dashboard — Overview")}
               railActive="Dashboard"
               className="lg:translate-x-2"
@@ -145,7 +190,7 @@ export function ProductHero({ t }: { t: Translator }) {
                 inside it end up sitting on a busy background. Same card, same
                 fields — it just stops overlapping where there is no room to
                 overlap. */}
-            <div className="float-card relative mt-4 w-full rounded-panel p-4 shadow-raised sm:absolute sm:-bottom-6 sm:-left-8 sm:mt-0 sm:w-64">
+            <Spotlight className="float-card edge-conic relative mt-4 w-full rounded-panel p-4 shadow-raised sm:absolute sm:-bottom-6 sm:-left-8 sm:mt-0 sm:w-64">
               <p className="font-mono text-2xs uppercase tracking-[0.16em] text-text-faint font-medium">{t("Proforma · Step 9")}</p>
               <p className="mt-2 text-sm font-semibold text-text-primary">Profit &amp; loss snapshot</p>
               <dl className="mt-3 space-y-1.5 text-xs">
@@ -160,7 +205,7 @@ export function ProductHero({ t }: { t: Translator }) {
                   </div>
                 ))}
               </dl>
-            </div>
+            </Spotlight>
 
             {/* Floating chain chip. */}
             <div className="float-card absolute -right-2 -top-5 hidden rounded-full px-3.5 py-2 shadow-raised sm:block">
@@ -171,6 +216,31 @@ export function ProductHero({ t }: { t: Translator }) {
           </Reveal>
         </div>
 
+        {/* ── The fact row ───────────────────────────────────────────────
+            Four facts about what kind of software this is, moving slowly
+            enough to be read while they move. They are the same four the strip
+            under the hero states in full; the row is the version a visitor
+            catches without stopping, and the strip is the version they read
+            once they have. */}
+        <Reveal delay={200} className="mt-14 sm:mt-16">
+          <Marquee duration={52} className="border-y border-line/50 py-3.5">
+            {[
+              t("Windows desktop software — installed, not a browser tab"),
+              t("Local SQLite: your data stays on your machine"),
+              t("No account to create and nothing to log into"),
+              `${site.locales} ${t("languages, translated rather than labelled")}`,
+              t("2D nesting, sheet yield and row-level traceability"),
+              `${site.testCount.toLocaleString("en-US")} ${t("tests in the build")}`,
+            ].map((item) => (
+              <MarqueeItem
+                key={item}
+                className="font-mono text-2xs font-semibold uppercase tracking-[0.16em] text-text-muted"
+              >
+                {item}
+              </MarqueeItem>
+            ))}
+          </Marquee>
+        </Reveal>
       </div>
 
       {/* ══ Brand banner ══════════════════════════════════════════════════

@@ -10,6 +10,9 @@ import { StatBadge, StatCounter } from "@/components/ui/Stat";
 import { Accordion } from "@/components/ui/Accordion";
 import { GlassCard, GlassDivider, GlassMetric, GlassMetricRow } from "@/components/ui/Glass";
 import { ProductHero } from "@/components/hero/ProductHero";
+import { DeveloperStory } from "@/components/hero/DeveloperStory";
+import { Spotlight } from "@/components/ui/Spotlight";
+import { GlassCubeEmblem } from "@/components/brand/GlassCubeEmblem";
 import { WorkflowRail } from "@/components/product/WorkflowRail";
 import { AppearancePreview } from "@/components/layout/AppearancePreview";
 import { ModuleShowcase } from "@/components/product/ModuleShowcase";
@@ -71,9 +74,15 @@ export default async function HomePage({ params }: PageProps) {
       <ProductHero
       t={t} />
 
-      {/* ═══ 01b · The facts strip ═══════════════════════════════════ */}
-      <div className="band-solid">
-        <Container>
+      {/* ═══ 01b · The facts strip ═══════════════════════════════════
+          Four facts about what kind of software this is. It is a band of its
+          own rather than a row inside the hero because it is the first thing a
+          visitor reads after the claim, and a claim followed immediately by
+          four constraints reads as honest in a way a claim followed by four
+          more claims does not. */}
+      <div className="band-solid relative overflow-hidden">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-sheen-violet" />
+        <Container className="relative">
           <ul className="grid divide-line/50 sm:grid-cols-2 sm:divide-x lg:grid-cols-4">
             {[
               { value: t("Windows desktop"), label: t("Installed software, not a browser tab") },
@@ -84,17 +93,25 @@ export default async function HomePage({ params }: PageProps) {
               <li
                 key={t(fact.value)}
                 className={cn(
-                  "flex flex-col gap-1 py-5 sm:px-6 lg:px-8",
+                  "flex flex-col gap-1 py-6 sm:px-6 lg:px-8",
                   index === 0 && "sm:pl-0",
                 )}
               >
-                <span className="text-base font-bold text-text-primary">{t(fact.value)}</span>
-                <span className="text-xs font-medium leading-relaxed text-text-muted">{t(fact.label)}</span>
+                <span className="figure text-lg">{t(fact.value)}</span>
+                <span className="mt-1 text-xs font-medium leading-relaxed text-text-muted">{t(fact.label)}</span>
               </li>
             ))}
           </ul>
         </Container>
       </div>
+
+      {/* ═══ 01c · The developer story ═════════════════════════════════
+          The opening of the page ends here, and it ends on the person rather
+          than on the product: the claim, the constraints, and then who is
+          accountable for both. Everything on it is drawn from the dated
+          working documents at the root of the repository — see the note in
+          `src/data/developerHistory.ts`. */}
+      <DeveloperStory t={t} />
 
       {/* ═══ 02 · What ProGlass is ═══════════════════════════════════ */}
       <Section tone="raised" id="what" aria-labelledby="what-heading">
@@ -737,19 +754,26 @@ export default async function HomePage({ params }: PageProps) {
       <Section aria-labelledby="cta-heading">
         <Container>
           <Reveal>
-            <div className="plate relative overflow-hidden p-8 sm:p-12">
-              <div aria-hidden="true" className="glow-layer pointer-events-none absolute inset-0">
-                <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-500/14 blur-[90px]" />
-                <div className="absolute -bottom-32 left-10 h-72 w-72 rounded-full bg-glass-teal/8 blur-[100px]" />
+            <div className="panel-feature edge-conic relative overflow-hidden p-8 sm:p-12">
+              <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+                <div className="aurora-field aurora-drift" />
+              </div>
+              {/* The emblem, at the size a closing panel can carry it, behind
+                  the buttons and out of the way of the text. */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -bottom-14 -end-8 hidden opacity-[0.09] sm:block"
+              >
+                <GlassCubeEmblem size={280} label={null} />
               </div>
 
               <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-center">
                 <div>
-                  <p className="eyebrow mb-4">{t("Next step")}</p>
+                  <p className="eyebrow-chip mb-5">{t("Next step")}</p>
                   <h2 id="cta-heading" className="display-2">
           {t("See it against your own cutting list.")}
         </h2>
-                  <p className="lede mt-4 max-w-xl">
+                  <p className="lede-lg mt-5 max-w-xl">
           {t("Tell us the glass types you run and how the work reaches your floor. A demonstration works best when it uses a job you recognise rather than a sample project.")}
         </p>
                   <div className="mt-7 flex flex-wrap gap-3">
@@ -762,6 +786,9 @@ export default async function HomePage({ params }: PageProps) {
                   </div>
                 </div>
 
+                {/* The four facts a visitor checks before asking for a demo.
+                    Each one is a small lit card rather than a bordered box, so
+                    the panel's own glow reads through between them. */}
                 <dl className="grid grid-cols-2 gap-4">
                   {[
                     ["Platform", "Windows (WPF)"],
@@ -769,10 +796,10 @@ export default async function HomePage({ params }: PageProps) {
                     ["Trial", "30 days, all features"],
                     ["Activation", "Offline licence file"],
                   ].map(([term, detail]) => (
-                    <div key={term} className="rounded-card border border-line/60 bg-ink-950/50 p-4">
+                    <Spotlight key={term} className="surface p-4">
                       <dt className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">{term}</dt>
-                      <dd className="mt-1.5 text-sm font-medium text-text-secondary">{detail}</dd>
-                    </div>
+                      <dd className="mt-1.5 text-sm font-semibold text-text-primary">{detail}</dd>
+                    </Spotlight>
                   ))}
                 </dl>
               </div>

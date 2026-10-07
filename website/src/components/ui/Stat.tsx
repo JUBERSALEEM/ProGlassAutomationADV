@@ -34,9 +34,9 @@ export function StatCounter({
         and the tile grew taller than the thing it was describing. 24px keeps the
         figure dominant and the tile square, and the label comes down to match.
       */}
-      <p className="flex items-baseline gap-1 font-mono text-2xl font-semibold tabular-nums text-text-primary">
+      <p className="figure figure-md flex items-baseline gap-1">
         <span ref={ref}>{shown.toLocaleString("en-US")}</span>
-        {suffix ? <span className="text-base text-brand-300">{suffix}</span> : null}
+        {suffix ? <span className="text-base font-semibold text-brand-300">{suffix}</span> : null}
       </p>
       <p className="mt-1.5 text-xs font-medium text-text-secondary">{label}</p>
       {hint ? <p className="mt-1 text-3xs leading-relaxed text-text-faint font-medium">{hint}</p> : null}

@@ -87,7 +87,7 @@ export function JobOrdersHeader({
             <OperationsTabs className="mt-3" />
 
             <div className="mt-1 flex flex-wrap items-baseline gap-3">
-              <h1 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">Job Orders</h1>
+              <h2 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">Job Orders</h2>
               <span className="font-mono text-xs text-text-faint">
                 {totalJobOrders.toLocaleString()} confirmed {totalJobOrders === 1 ? "PI" : "PIs"} ready for hand-off
               </span>

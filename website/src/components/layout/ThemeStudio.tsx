@@ -46,7 +46,7 @@ function tintReadout(value: number): string {
 export function ThemeStudio() {
   const t = useT();
   const [open, setOpen] = useState(false);
-  const [customHex, setCustomHex] = useState("#7C3AED");
+  const [customHex, setCustomHex] = useState("#6546B5");
   const panel = useRef<HTMLDivElement | null>(null);
   const trigger = useRef<HTMLButtonElement | null>(null);
 
@@ -98,7 +98,7 @@ export function ThemeStudio() {
       >
         <span aria-hidden="true" className="flex items-center gap-1">
           <span className="h-4 w-4 rounded-full ring-2 ring-white/25" style={{ background: activeFamily.swatch }} />
-          <span className="h-4 w-4 -ml-2 rounded-full ring-2 ring-white/25" style={{ background: studio.accent ?? "#8B5CF6" }} />
+          <span className="h-4 w-4 -ml-2 rounded-full ring-2 ring-white/25" style={{ background: studio.accent ?? "#7E57CE" }} />
         </span>
         <span>Theme &amp; colour</span>
         <span className="sr-only">{t("— open the theme studio. Current: {v1} mode, {v2} palette.", { v1: t(activeMode.label), v2: t(activeFamily.label) })}</span>
@@ -575,7 +575,7 @@ function PlateButton({
         "flex h-14 flex-col items-center justify-end gap-1 rounded-card border-2 p-1.5 text-[0.6875rem] font-bold uppercase tracking-wider transition-transform hover:-translate-y-0.5",
         active ? "border-text-primary" : "border-line-strong/60",
       )}
-      style={{ background: colour, color: onDark ? "#FFFFFF" : "#0B0820" }}
+      style={{ background: colour, color: onDark ? "#FFFFFF" : "#080516" }}
     >
       <span className="max-w-full truncate drop-shadow-sm">{label}</span>
     </button>
