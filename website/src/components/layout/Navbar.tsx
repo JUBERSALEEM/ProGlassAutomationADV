@@ -312,7 +312,20 @@ export function Navbar() {
           <LanguageMenu />
           <ThemeModeSwitch />
           <ThemeToggle />
-          <ButtonLink href="/screenshots" variant="ghost" size="sm">
+          {/*
+            The ghost shortcut to the screenshots steps aside between `lg` and
+            `xl`. The panel now carries three settings controls, and at 1024px
+            the row is full once the language menu, the reading switch and the
+            palette are in it. Nothing is lost by hiding the shortcut: the same
+            page is the first child of the Product menu, one hover away, and
+            the shortcut returns as soon as the row has room again.
+          */}
+          <ButtonLink
+            href="/screenshots"
+            variant="ghost"
+            size="sm"
+            className="max-xl:hidden"
+          >
             {t("See the app")}
           </ButtonLink>
           <ButtonLink href="/contact" size="sm" trailing={<ArrowRight />}>
