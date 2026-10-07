@@ -421,6 +421,27 @@ project → Settings → Git → Production Branch**, set to the branch the work
 actually lands on. Check that before re-reading a build log, because the build
 log will say `Ready` either way.
 
+**One repository should have one project.** This one has had two, both building
+`website/`, and the difference between them is not cosmetic:
+
+| Project | Canonical domain | What a visitor sees |
+|---|---|---|
+| `proglassautomationadv-website` | `proglassautomationadv-website.vercel.app` | 404 — no production deployment was ever made, and its previews sit behind Vercel Authentication |
+| `proglassautomationadv-website-tkim` | `proglassautomationadv-website-tkim.vercel.app` | the site, publicly |
+
+A second project is not a spare tyre. It builds the same branch again on every
+push, gives two answers to "what is live", and if its production branch is a
+name that does not exist in the repository it will *never* deploy to production
+while still reporting successful builds. Delete the one you are not using
+(Project → Settings → General → Delete Project), or point its production branch
+at a branch that exists.
+
+Preview deployments are protected by Vercel Authentication by default, which is
+worth knowing before sending a preview link to anyone: an unauthenticated
+visitor gets a login wall, not the build. The production domain is public — that
+is the URL to share, and the one the audit `--fresh` check is worth running
+against.
+
 ```bash
 # every page answers 200
 curl -s https://proglassautomation.com/sitemap.xml | grep -o '<loc>[^<]*' | sed 's/<loc>//' \
