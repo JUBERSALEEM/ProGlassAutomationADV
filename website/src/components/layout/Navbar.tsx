@@ -196,7 +196,7 @@ export function Navbar() {
 
       <div className="shell flex h-[var(--nav-height)] items-center justify-between gap-4">
         <Link href="/" className="group flex items-center gap-3" aria-label={`${site.name} — home`}>
-          <Logo size={34} />
+          <Logo size={34} wordmarkClassName="hidden lg:flex" />
         </Link>
 
         {/* ── Desktop navigation ─────────────────────────────────── */}
@@ -382,7 +382,19 @@ export function Navbar() {
 
         {/* ── Mobile trigger ─────────────────────────────────────── */}
         <div className="flex items-center gap-2 lg:hidden">
-          <LanguageMenu compact />
+          {/*
+            The language button waits for `sm`. At 360px the row measures 297px
+            in the 305px a phone leaves it once the shell's own padding is
+            counted — which fits, and fits by 8px, on the one width where a
+            device is smallest and a scrollbar is not the only thing that can
+            change. The language list is one tap away in the sheet below, where
+            all fifteen languages are spelled out in their own names, so nothing
+            is lost by waiting. The palette stays: the sheet has no other way to
+            reach the palette families.
+          */}
+          <span className="hidden sm:flex">
+            <LanguageMenu compact />
+          </span>
           <ThemeModeSwitch className="hidden sm:flex" />
           <ThemeToggle />
           <button

@@ -164,6 +164,16 @@ def cta(label="Request a Demo", ghost=False):
     return P["3.5"] * 2 + inter(label, 13) + P["2"] + 14 + (2 if ghost else 0)
 
 
+def compact_language_menu():
+    """`LanguageMenu compact` on the phone row — same box, `max-w-[5.5rem]` label."""
+    return P["2"] * 2 + 2 * 2 + 16 + P["1.5"] + min(inter("English", 14), 88) + P["1.5"] + 10
+
+
+def menu_icon_button():
+    """The phone menu button: `h-11 w-11`."""
+    return 44
+
+
 def menu_button():
     """The lg-tier Menu button: a card at `px-2.5` with a 16px glyph."""
     return P["2.5"] * 2 + 2 * 2 + 16 + P["1.5"] + inter("Menu", 14)
@@ -188,6 +198,8 @@ def cluster(items):
 # the scrollbar and a budget that forgets it is a budget that fails in a browser.
 TIERS = [
     # name, narrowest width of the tier, shell padding, nav, cluster
+    ("phone", 360, 40, [], 0),
+    ("sm", 640, 56, [], 0),
     ("lg", 1024, 80, [menu_button()], 0),
     ("xl", 1280, 96, 0, 0),
     ("2xl", 1536, 128, 0, 0),
@@ -202,7 +214,27 @@ def tier_rows():
     """Every tier, its pieces and its verdict."""
     rows = []
     for name, viewport, padding, nav_extra, _ in TIERS:
-        if name == "lg":
+        if name == "phone":
+            # `px-5`: the mark alone (the wordmark is `hidden lg:flex`), the
+            # compact language button, the palette, and the 44px menu button.
+            nav = []
+            cluster_items = [
+                # No language button below `sm` — see the note in Navbar.tsx.
+                palette(),
+                menu_icon_button(),
+            ]
+            wordmark = False
+        elif name == "sm":
+            # `px-7`, and the reading switch joins the row at `sm`.
+            nav = []
+            cluster_items = [
+                compact_language_menu(),
+                reading_switch(40),  # w-10 below lg
+                palette(),
+                menu_icon_button(),
+            ]
+            wordmark = False
+        elif name == "lg":
             nav = nav_extra  # the Menu button lives in the cluster
             cluster_items = [
                 menu_button(),

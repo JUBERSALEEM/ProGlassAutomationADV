@@ -218,7 +218,21 @@ from:
 | `2xl` | 1536 | nav, palette word, primary CTA, stamp — no ghost shortcut | 1338 / 1393 |
 | `xl` | 1280 | nav without glyph icons, settings, stamp — no CTA, no palette word | 1105 / 1169 |
 | `lg` | 1024 | Menu button, settings, primary CTA, stamp — no nav pill | 882 / 929 |
-| `<lg` | — | the phone row: settings and the menu button; stamp in the sheet | — |
+| `sm` | 640 | wordmark, language, reading switch, palette, menu button | 431 / 569 |
+| phone | 360 | mark alone, palette, menu button — no wordmark, no language button | 182 / 305 |
+
+Two of those entries are worth their own sentence, because both are visible
+choices rather than accidents:
+
+- between 1024 and 1279 the primary nav opens from a **Menu button** in the
+  settings cluster instead of sitting in the row — the same sheet the phone menu
+  uses, and the same markup;
+- on phones the lockup drops to the **mark alone** and the language button
+  waits for `sm`. The row is then 182px in the 305px a 360px screen leaves it,
+  which is the difference between a header that fits every phone and one that
+  fits the ones we happened to measure. The full lockup is in the footer on
+  every screen, and all fifteen languages are spelled out in the sheet, one tap
+  away.
 
 The one that surprises people is `lg`: 1024 is not wide enough for the six nav
 cards *and* the settings *and* the stamp, so between 1024 and 1279 the primary
