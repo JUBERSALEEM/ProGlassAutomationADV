@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit",
     "test:job-orders": "node --experimental-strip-types --experimental-default-type=module --test scripts/job-order-production.test.mjs",
     "doctor": "node scripts/check-deps.mjs --report",
+    "check:live": "node scripts/check-live.mjs",
     "supabase:check": "node --experimental-strip-types scripts/supabase-check.mjs",
     "fix": "node scripts/fix.mjs",
     "assets:backdrop": "tsx scripts/render-hero-backdrop.mts",

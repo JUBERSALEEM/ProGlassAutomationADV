@@ -416,6 +416,15 @@ curl -s https://proglassautomationadv-website-git-are-13087e-proglassautomation.
 curl -s https://proglassautomationadv-website-tkim.vercel.app/ | grep -o 'title="Updated [^"]*"'
 ```
 
+`npm run check:live` does the same thing across every origin the site is
+meant to be reachable at, and exits non-zero when one of them is behind:
+
+```bash
+cd website
+npm run check:live                                      # the origins listed in the script
+npm run check:live https://a-preview.vercel.app         # or add one to the list
+```
+
 If the two disagree, the fix is one setting, not one deploy: **Vercel → the
 project → Settings → Git → Production Branch**, set to the branch the work
 actually lands on. Check that before re-reading a build log, because the build

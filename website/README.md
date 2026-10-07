@@ -163,7 +163,28 @@ hours apart while looking identical. The stamp is how that stops being
 invisible. `scripts/audit-site.py --fresh` reads the endpoint, reads the stamp
 the page itself prints, and fails if the origin is serving a different revision
 from the one the tree is on — point it at a preview URL or the live site and the
-answer is the desync, named. The values are inlined at build time by the `env`
+answer is the desync, named.
+
+`npm run check:live` asks the same question of every origin the site is meant to
+be reachable at, in one line each, and exits non-zero if any of them is behind:
+
+```bash
+npm run check:live
+npm run check:live https://a-preview-url.vercel.app
+```
+
+```
+live            https://proglassautomationadv-website-tkim.vercel.app
+                422172c · 2026-10-07T11:50:56.640Z · production
+                CURRENT — it is running the revision the branch is on
+```
+
+The three answers it can give are worth knowing apart: **current**, **behind**
+(the deployment exists; production has not been pointed at it — the fix is the
+project's Production Branch setting), and **no stamp** (the origin answers with
+the site's own 404 for `/api/health`, so the build predates the stamp at all).
+The third is the dangerous one, because the site looks perfectly healthy while
+being months behind. The values are inlined at build time by the `env`
 block in `next.config.ts` (see `scripts/build-stamp.mjs`), so a page prerendered
 during the build and a route handler starting cold later report the same instant.
 

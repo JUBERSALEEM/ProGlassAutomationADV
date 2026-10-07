@@ -133,6 +133,39 @@ that remain for the account holder, in order of value:
    change `site.url` in `src/lib/site.ts` — so the canonical URLs stop pointing
    at a name that does not resolve.
 
+## The check that closes the loop
+
+`npm run check:live` (`scripts/check-live.mjs`) asks every origin the site is
+meant to be reachable at for its `/api/health` and holds the answer against the
+revision this tree is on:
+
+```
+the tree:      422172c on arena/ff328a9c-proglassautomationadv
+the branch:    422172c
+
+live            https://proglassautomationadv-website-tkim.vercel.app
+                no stamp — this build predates /api/health
+                NO ANSWER — see the line above
+
+second project  https://proglassautomationadv-website.vercel.app
+                unreachable — fetch failed
+                NO ANSWER — see the line above
+```
+
+Three answers, deliberately distinguished: **current**, **behind** (with the
+number of missing commits when the revisions are on the same line) and **no
+stamp** — an origin that answers with the site's own 404 for `/api/health`,
+which is the state the live domain is in as this is written, and the most
+dangerous one because the site looks perfectly healthy while being behind. Exit
+code 1 when any origin is not current, so it can gate as well as report.
+
+Note on running it from a sandbox: `vercel.app` is not reachable from every
+environment (it was not, from the one this was written in), and the check
+reports that per origin rather than failing the whole run. The state of the live
+domain recorded above was read through a fetch tool instead, which is why the
+evidence in the previous section is timestamps and status codes rather than the
+output of this command.
+
 ## Verification
 
 ```
