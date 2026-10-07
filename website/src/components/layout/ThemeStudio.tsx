@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { appearanceFamilies, themeModes, type AppearanceFamilyEntry, type ThemeModeEntry } from "@/data/themes";
-import { setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
+import { setThemeMode, useAppearance, useResolvedTheme, useThemeMode } from "@/lib/useTheme";
 import {
   bundledTypefaceKeys,
   installedTypefaceKeys,
@@ -52,6 +52,8 @@ export function ThemeStudio() {
 
   const mode = useThemeMode();
   const family = useAppearance();
+  /* What `System` currently resolves to — see the note under the mode plates. */
+  const resolved = useResolvedTheme();
   const studio = useStudio();
 
   // The header dropdown can open the studio, so there is one obvious way in
@@ -146,23 +148,51 @@ export function ThemeStudio() {
                         : "border-line-strong/70 text-text-secondary hover:border-brand-400/60 hover:text-text-primary",
                     )}
                   >
-                    {/* A miniature of the mode, so the plate reads at a glance. */}
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        "flex h-6 w-full items-center justify-center rounded-[0.3rem] border text-[0.625rem] font-bold uppercase tracking-wider",
-                        entry.id === "dark" && "border-white/20 bg-[#120D2E] text-white",
-                        entry.id === "light" && "border-black/15 bg-white text-black",
-                        entry.id === "system" && "border-line-strong bg-gradient-to-r from-white to-[#120D2E] text-black",
-                      )}
-                    >
-                      {t(entry.label)}
-                    </span>
+                    {/*
+                      A miniature of the mode, so the plate reads at a glance.
+                      The two colours are the site's own two page colours — the
+                      midnight page and the ivory one — rather than white and
+                      black: these are the actual surfaces the choice paints,
+                      and black is not one of them.
+                    */}
+                    {entry.id === "system" ? (
+                      <span
+                        aria-hidden="true"
+                        className="flex h-6 w-full overflow-hidden rounded-[0.3rem] border border-line-strong"
+                      >
+                        <span className="h-full w-1/2 bg-[rgb(248_245_238)]" />
+                        <span className="h-full w-1/2 bg-[rgb(8_5_22)]" />
+                      </span>
+                    ) : (
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "flex h-6 w-full items-center justify-center rounded-[0.3rem] border text-[0.625rem] font-bold uppercase tracking-wider",
+                          entry.id === "dark" && "border-white/20 bg-[rgb(8_5_22)] text-[rgb(248_245_238)]",
+                          entry.id === "light" && "border-[rgb(8_5_22)]/25 bg-[rgb(248_245_238)] text-[rgb(8_5_22)]",
+                        )}
+                      >
+                        {t(entry.label)}
+                      </span>
+                    )}
                     {t(entry.label)}
                   </button>
                 );
               })}
             </div>
+            {/*
+              The engine's third value, printed where it is decided.
+
+              `System` is not a shade — it is a deferral, so the plates above
+              cannot show what it currently means. This line does: it says what
+              the page is wearing right now, which is the answer a visitor who
+              clicked System is looking for.
+            */}
+            <p className="mt-2 font-mono text-[0.6875rem] font-medium text-text-faint">
+              {mode === "system"
+                ? t.template`Following the system — this page is ${t(resolved === "daylight" ? "light" : "dark")} right now.`
+                : t.template`Set to ${t(mode === "light" ? "Light" : "Dark")} — this page does not follow the system while an explicit reading is chosen.`}
+            </p>
           </fieldset>
 
           {/* ── Palette family ────────────────────────────────────────── */}

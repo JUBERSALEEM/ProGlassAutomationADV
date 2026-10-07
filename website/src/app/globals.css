@@ -150,7 +150,62 @@
     --aurora-image:
       radial-gradient(118% 92% at 12% 0%, var(--aurora-1) 0%, transparent 56%),
       radial-gradient(92% 72% at 88% 8%, var(--aurora-2) 0%, transparent 58%),
-      radial-gradient(122% 104% at 50% 108%, var(--aurora-3) 0%, transparent 62%);
+      radial-gradient(122% 104% at 50% 108%, var(--aurora-3) 0%, transparent 62%),
+      linear-gradient(90deg, var(--sweep-1) 0%, var(--sweep-2) 22%, transparent 78%);
+
+    /*
+     * ── The sweep ──────────────────────────────────────────────────────
+     *
+     * One left-to-right ramp, and the thing that gives every ambient surface
+     * on this site a direction. The room used to be lit from the corners —
+     * five radial pools, symmetric enough that the page read as a field
+     * rather than as a space with a window in it. The sweep is that window:
+     * warm accent at the left, the family's own room colour through the
+     * middle, and a step of accent back in at the right so the far edge
+     * never falls off the page.
+     *
+     * Five stops, not two, and they are the family's own tokens rather than
+     * fixed hues — so Crystal sweeps cyan, Monet sweeps rose and Industrial
+     * sweeps sky, and every one of them re-hues when the visitor turns the
+     * brightness and vividness dials. A two-stop gradient between one colour
+     * and transparent reads as a fade; five stops across the accent, the
+     * glass cyan and the rose read as light with a spectrum in it.
+     *
+     * Three worked images are built from the stops, because the three places
+     * it lands need three strengths: the page's own ambient field, a hairline
+     * or rule, and a panel fill.
+     */
+    --sweep-1: rgb(var(--brand-700) / 0.62);
+    --sweep-2: rgb(var(--brand-500) / 0.34);
+    --sweep-3: rgb(var(--glass-cyan) / 0.16);
+    --sweep-4: rgb(var(--glass-rose) / 0.12);
+    --sweep-5: rgb(var(--brand-600) / 0.42);
+    --sweep-image: linear-gradient(
+      90deg,
+      var(--sweep-1) 0%,
+      var(--sweep-2) 17%,
+      var(--sweep-3) 45%,
+      var(--sweep-4) 69%,
+      var(--sweep-5) 100%
+    );
+    --sweep-edge: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--sweep-2) 10%,
+      var(--sweep-3) 46%,
+      var(--sweep-4) 72%,
+      var(--sweep-5) 92%,
+      transparent 100%
+    );
+    --sweep-panel: linear-gradient(
+      90deg,
+      rgb(var(--brand-700) / 0.22) 0%,
+      rgb(var(--brand-600) / 0.12) 28%,
+      rgb(var(--glass-cyan) / 0.07) 58%,
+      rgb(var(--glass-rose) / 0.06) 82%,
+      rgb(var(--brand-600) / 0.16) 100%
+    );
+
     /* Two extra light sources the glass families turn on: a lamp above the
        page and a floor glow under it. Transparent in the opaque families, so
        their wallpaper is unchanged. */
@@ -205,7 +260,15 @@
     --surface-alpha-3: 0.99;    /* tier 3 · reading fill        */
     --surface-blur: 3px;        /* backdrop blur behind a card  */
     --surface-sat: 130%;        /* backdrop saturation          */
-    --surface-specular: 0;      /* diagonal light streak        */
+    --surface-specular: 0;      /* corner catch-light strength  */
+    /*
+     * The corner catch-light itself: the two washes a sheet of glass throws
+     * where its rounded corners meet the light. `none` in every family but
+     * Crystal, so the two extra background layers are not even parsed in the
+     * three opaque palettes — this is a material, not a border, and a family
+     * that is not made of glass should not pay for it.
+     */
+    --glass-frost: none;
 
     /* ── Glass depth ───────────────────────────────────────────────────
        The spatial-UI vocabulary: what light does at the edge and across the
@@ -305,7 +368,18 @@
     --aurora-image:
       radial-gradient(118% 92% at 12% 0%, var(--aurora-1) 0%, transparent 56%),
       radial-gradient(92% 72% at 88% 8%, var(--aurora-2) 0%, transparent 58%),
-      radial-gradient(122% 104% at 50% 108%, var(--aurora-3) 0%, transparent 62%);
+      radial-gradient(122% 104% at 50% 108%, var(--aurora-3) 0%, transparent 62%),
+      linear-gradient(90deg, var(--sweep-1) 0%, var(--sweep-2) 22%, transparent 78%);
+
+    /* The same ramp on paper. Lower alphas throughout, because a wash over a
+       light surface is read at its full strength — the surface absorbs none
+       of it — and the rose step in particular has to stay a tint rather than
+       become a stain. */
+    --sweep-1: rgb(var(--brand-500) / 0.3);
+    --sweep-2: rgb(var(--brand-400) / 0.2);
+    --sweep-3: rgb(var(--glass-cyan) / 0.13);
+    --sweep-4: rgb(var(--glass-rose) / 0.1);
+    --sweep-5: rgb(var(--brand-500) / 0.24);
     --wall-lamp: rgb(255 255 255 / 0);
     --wall-floor: transparent;
 
@@ -566,15 +640,52 @@
      * on a phone — where every card is a composited layer — that is felt as
      * scroll weight rather than seen as depth.
      */
-    --surface-alpha: 0.42;
-    --surface-alpha-2: 0.52;
-    --surface-alpha-3: 0.86;
-    --surface-blur: 18px;
-    --surface-sat: 175%;
-    --surface-specular: 0.2;
-    --card-edge: rgb(255 255 255 / 0.26);
+    --surface-alpha: 0.34;
+    --surface-alpha-2: 0.46;
+    --surface-alpha-3: 0.84;
+    --surface-blur: 26px;
+    --surface-sat: 200%;
+    --surface-specular: 0.34;
+    --card-edge: rgb(255 255 255 / 0.3);
     --tint-alpha: 0.16;
     --tint-alpha-2: 0.08;
+
+    /*
+     * ── The corner catch-light ─────────────────────────────────────────
+     *
+     * Two washes, one per corner on the diagonal the light comes from: the
+     * top-left takes the room's white, the bottom-right takes the cool end of
+     * the family's own cyan. They are what a sheet of glass does at a rounded
+     * edge — the thickness of the material piles up there and the light it has
+     * collected comes back out — and they are the reason a transparent card
+     * still reads as an object with a physical edge rather than as a hole cut
+     * in the page.
+     *
+     * Radius and strength are two different dials and both matter. The
+     * ellipse is deliberately smaller than the card (72% and 84%, not 130%):
+     * a wash that spans the whole surface is a tint, and it lifts the middle
+     * of the card — which is exactly where the running text sits, and exactly
+     * where this file's contrast floor is measured. Confining it to the
+     * corners keeps the catch-light bright where the eye looks for the
+     * material's edge and out of the way where a paragraph is being read.
+     *
+     * The strength is `--surface-specular`, so the family has one dial for how
+     * much light its material catches, and the daylight reading turns the same
+     * dial up: a sheet on a white desk reads almost entirely by its corners.
+     */
+    --glass-frost:
+      radial-gradient(
+        72% 72% at 0% 0%,
+        rgb(255 255 255 / calc(var(--surface-specular) * 0.5)) 0%,
+        rgb(255 255 255 / calc(var(--surface-specular) * 0.12)) 42%,
+        transparent 74%
+      ),
+      radial-gradient(
+        84% 84% at 100% 100%,
+        rgb(var(--glass-cyan) / calc(var(--surface-specular) * 0.42)) 0%,
+        rgb(var(--brand-600) / calc(var(--surface-specular) * 0.16)) 46%,
+        transparent 78%
+      );
 
     /*
      * ── The light ──────────────────────────────────────────────────────
@@ -598,14 +709,26 @@
        4.5:1 at the lightest point of the lightest card, over the brightest
        point of the wallpaper. At 0.14/0.09 it measured 4.12:1 — legible in a
        screenshot, not legible on a phone in daylight. */
-    --glass-hi: rgb(255 255 255 / 0.1);
-    --glass-lo: rgb(4 22 32 / 0.24);
-    --glass-sheen: rgb(255 255 255 / 0.06);
-    --glass-edge-light: rgb(255 255 255 / 0.42);
-    --glass-edge-dark: rgb(6 30 42 / 0.34);
-    --glass-ring: rgb(255 255 255 / 0.1);
-    --glass-line: rgb(255 255 255 / 0.22);
-    --glass-scrim: rgb(6 26 38 / 0.26);
+    --glass-hi: rgb(255 255 255 / 0.13);
+    --glass-lo: rgb(4 22 32 / 0.28);
+    --glass-sheen: rgb(255 255 255 / 0.09);
+    --glass-edge-light: rgb(255 255 255 / 0.52);
+    --glass-edge-dark: rgb(6 30 42 / 0.42);
+    --glass-ring: rgb(255 255 255 / 0.16);
+    --glass-line: rgb(255 255 255 / 0.24);
+    /*
+     * The scrim carries more than it did, because the fill above it carries
+     * less.
+     *
+     * Contrast on a transparent card is the product of every layer between
+     * the text and whatever is behind it. The fill came down from 0.42 to
+     * 0.34 and the scrim went up from 0.26 to 0.34 — which is 0.57 of
+     * effective darkening either way, so the legibility floor this file
+     * documents (4.5:1 for the faintest text tier over the brightest point of
+     * the wallpaper) is unchanged, while what the visitor sees through the
+     * card is a real page rather than a dim one.
+     */
+    --glass-scrim: rgb(6 26 38 / 0.34);
 
     /* The primary card: a little more accent in the fill, and light spilling
        out from beneath it onto the page. */
@@ -613,6 +736,17 @@
     --glass-primary-glow: rgb(24 197 226 / 0.34);
 
     --card-tint: rgb(24 197 226 / 0.24);
+    /*
+     * The sweep, in this family's own room: the accent's deep end on the
+     * left, the bright cyan through the middle where the glass is thinnest,
+     * the family's indigo second pool at the far end — which is the same
+     * pairing the pools above it use, read left to right.
+     */
+    --sweep-1: rgb(var(--brand-500) / 0.55);
+    --sweep-2: rgb(var(--brand-400) / 0.4);
+    --sweep-3: rgb(103 232 249 / 0.26);
+    --sweep-4: rgb(124 134 246 / 0.2);
+    --sweep-5: rgb(var(--brand-400) / 0.34);
     /* Crystal is a saturated family by design, so its base sits higher. */
     --tint-base: 0.22;
     --tint-mix: 0.22;
@@ -647,20 +781,38 @@
    * of glass on a white desk reads almost entirely by its edges.
    */
   [data-theme="daylight"][data-appearance="crystal"] {
-    --surface-alpha: 0.6;
-    --surface-alpha-2: 0.7;
-    --surface-alpha-3: 0.94;
-    --surface-blur: 22px;
-    --surface-sat: 165%;
-    --card-edge: rgb(255 255 255 / 0.9);
-    --glass-hi: rgb(255 255 255 / 0.55);
-    --glass-lo: rgb(8 74 96 / 0.1);
-    --glass-sheen: rgb(255 255 255 / 0.4);
+    --surface-alpha: 0.46;
+    --surface-alpha-2: 0.6;
+    --surface-alpha-3: 0.92;
+    --surface-blur: 28px;
+    --surface-sat: 185%;
+    /* A sheet on a white desk reads almost entirely by its corners: the
+       catch-light is the strongest dial in this reading, and the fill is the
+       weakest. The scrim is what holds the text up — on paper the legibility
+       wash runs light, and it is the only layer here that is not glass. */
+    --surface-specular: 0.5;
+    --card-edge: rgb(255 255 255 / 0.92);
+    --glass-hi: rgb(255 255 255 / 0.5);
+    --glass-lo: rgb(8 74 96 / 0.12);
+    --glass-sheen: rgb(255 255 255 / 0.44);
     --glass-edge-light: rgb(255 255 255 / 0.95);
-    --glass-edge-dark: rgb(12 74 110 / 0.12);
-    --glass-ring: rgb(255 255 255 / 0.6);
+    --glass-edge-dark: rgb(12 74 110 / 0.14);
+    --glass-ring: rgb(255 255 255 / 0.7);
     --glass-line: rgb(12 74 110 / 0.16);
-    --glass-scrim: rgb(255 255 255 / 0.42);
+    --glass-scrim: rgb(255 255 255 / 0.5);
+    --glass-frost:
+      radial-gradient(
+        88% 88% at 0% 0%,
+        rgb(255 255 255 / calc(var(--surface-specular) * 1.05)) 0%,
+        rgb(255 255 255 / calc(var(--surface-specular) * 0.24)) 44%,
+        transparent 76%
+      ),
+      radial-gradient(
+        96% 96% at 100% 100%,
+        rgb(var(--brand-300) / calc(var(--surface-specular) * 0.45)) 0%,
+        rgb(var(--brand-500) / calc(var(--surface-specular) * 0.16)) 46%,
+        transparent 80%
+      );
     --glass-primary-glow: rgb(8 145 178 / 0.26);
     --viz-grid: rgb(8 145 178 / 0.28);
     --viz-part: rgb(8 145 178 / 0.88);
@@ -860,8 +1012,9 @@
    *        touching the shared pools below it
    *   3–4  the two quieter pools, which come from the family's `--pool-*` values
    *        like every other ambient light on the site
-   *   5    the sheen, raked off the top-left corner
-   *   6    the vignette, darkening all four edges
+   *   5    the sweep, left to right
+   *   6    the sheen, raked off the top-left corner
+   *   7    the vignette, darkening all four edges
    *
    * Why this is a fixed element and not `background-attachment: fixed` on
    * `body`, which is what it used to be: Chromium paints a fixed-attachment
@@ -897,7 +1050,17 @@
       radial-gradient(940px 560px at 94% 2%, var(--wall-wash-2), transparent 58%),
       radial-gradient(820px 500px at 70% 98%, var(--pool-3), transparent 62%),
       radial-gradient(700px 440px at 26% 74%, var(--pool-2), transparent 66%),
-      /* 5 · sheen */
+      /*
+       * 5 · the sweep, left to right.
+       *
+       * The one layer on this list with a direction, and the reason the page
+       * no longer reads as evenly-lit fog: the pools above are radial and
+       * centred, this one runs the full width, so the surface has a near side
+       * and a far side. It sits above the pools and under the sheen because
+       * that is where a window is relative to a room.
+       */
+      var(--sweep-image),
+      /* 6 · sheen */
       linear-gradient(
         152deg,
         var(--wall-sheen) 0%,
@@ -905,10 +1068,10 @@
         transparent 74%,
         var(--wall-sheen) 100%
       ),
-      /* 6 · vignette */
+      /* 7 · vignette */
       radial-gradient(150% 120% at 50% 0%, transparent 34%, var(--wall-vignette) 100%),
       /*
-       * 7 · grain — the last layer of the same paint, and the last thing the
+       * 8 · grain — the last layer of the same paint, and the last thing the
        * eye needs to believe the surface is a material rather than a fill.
        * One inline SVG tile, repeated; `background-repeat` is reset for it
        * below, because every layer above it is `no-repeat` and the shorthand
@@ -925,7 +1088,7 @@
        */
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
     background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
-      no-repeat, repeat;
+      no-repeat, no-repeat, repeat;
     contain: paint;
   }
 
@@ -1077,15 +1240,39 @@
   .nav-glass {
     border-bottom: 1px solid rgb(var(--line-strong) / 0.5);
     background-color: rgb(var(--ink-950) / 0.95);
+    /* The panel's fill carries the same left-to-right ramp the page does, at
+       a third of the strength: enough that the bar reads as part of the room
+       rather than as a strip of ink laid over it. */
+    background-image: var(--glass-frost), var(--sweep-panel);
     box-shadow: 0 18px 40px -32px rgb(var(--brand-700) / 0.62);
+  }
+
+  /*
+   * The bar's own edge, drawn rather than bordered.
+   *
+   * `border-image` on a one-sided border is what this would be if the top
+   * panel were always one line tall — it is not: on a phone the same element
+   * grows to hold the open navigation sheet. So the lit hairline is anchored
+   * to the top bar's own height and draws under it in both states, one pixel
+   * of the sweep's spectrum where the bar meets the page.
+   */
+  .nav-glass::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: calc(var(--nav-height) - 1px);
+    height: 1px;
+    background-image: var(--sweep-edge);
+    opacity: 0.85;
+    pointer-events: none;
   }
 
   [data-appearance="crystal"] .nav-glass {
     border-bottom: 1px solid var(--glass-ring);
     background-color: rgb(var(--ink-950) / 0.55);
     box-shadow: 0 18px 40px -32px rgb(var(--brand-700) / 0.62), inset 0 1px 0 0 var(--glass-edge-light);
-    backdrop-filter: blur(20px) saturate(175%);
-    -webkit-backdrop-filter: blur(20px) saturate(175%);
+    backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-sat));
+    -webkit-backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-sat));
   }
 
   [data-theme="daylight"][data-appearance="crystal"] .nav-glass {
@@ -1111,6 +1298,7 @@
   .nav-pill {
     border: 2px solid rgb(var(--line-strong) / 0.5);
     background-color: rgb(var(--ink-900) / 0.55);
+    background-image: var(--glass-frost), var(--sweep-panel);
     box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
   }
 
@@ -1119,8 +1307,8 @@
     background-color: rgb(var(--ink-900) / 0.42);
     box-shadow: inset 0 1px 0 0 var(--glass-edge-light),
       inset 0 -1px 0 0 var(--glass-edge-dark);
-    backdrop-filter: blur(18px) saturate(170%);
-    -webkit-backdrop-filter: blur(18px) saturate(170%);
+    backdrop-filter: blur(22px) saturate(190%);
+    -webkit-backdrop-filter: blur(22px) saturate(190%);
   }
 
   @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
@@ -1271,6 +1459,7 @@
   .stat-tile {
     background-color: rgb(var(--ink-900) / var(--surface-alpha));
     background-image:
+      var(--glass-frost),
       linear-gradient(180deg, var(--glass-hi) 0%, transparent 34%),
       linear-gradient(135deg, var(--glass-sheen) 0%, transparent 46%),
       linear-gradient(0deg, var(--glass-lo) 0%, transparent 30%),
@@ -1298,6 +1487,7 @@
     border-radius: theme("borderRadius.panel");
     background-color: rgb(var(--ink-850) / var(--surface-alpha-2));
     background-image:
+      var(--glass-frost),
       linear-gradient(180deg, var(--glass-hi) 0%, transparent 34%),
       linear-gradient(135deg, var(--glass-sheen) 0%, transparent 46%),
       linear-gradient(0deg, var(--glass-lo) 0%, transparent 30%),
@@ -1336,6 +1526,70 @@
   }
 
   /*
+   * ── Changing the reading ───────────────────────────────────────────────
+   *
+   * `data-theme-switch="on"` is written by the appearance engine for the
+   * length of one palette change, and the elements below — the page, the
+   * cards, the panels, the chrome — cross-fade instead of snapping.
+   *
+   * Two decisions worth keeping. It is scoped to these classes rather than to
+   * `*`: a universal transition rule for 300 ms would re-declare a transition
+   * on every element in the document, which is a style recalculation across
+   * the whole tree for what is, on screen, a change of a dozen surfaces. And
+   * it is a class list rather than a `transition` on the base rules because
+   * these transitions are only wanted *during* a change — a card that always
+   * carried a 260 ms background transition would smear every hover state on
+   * the site into it.
+   *
+   * The engine does not write the attribute at all when the visitor has asked
+   * their system for reduced motion, and the media query below is the belt to
+   * that pair of braces.
+   */
+  html[data-theme-switch="on"] body,
+  html[data-theme-switch="on"] .surface,
+  html[data-theme-switch="on"] .surface-raised,
+  html[data-theme-switch="on"] .stat-tile,
+  html[data-theme-switch="on"] .plate,
+  html[data-theme-switch="on"] .card-live,
+  html[data-theme-switch="on"] .card-accent,
+  html[data-theme-switch="on"] .glass-primary,
+  html[data-theme-switch="on"] .float-card,
+  html[data-theme-switch="on"] .menu-card,
+  html[data-theme-switch="on"] .nav-glass,
+  html[data-theme-switch="on"] .nav-pill,
+  html[data-theme-switch="on"] .nav-sheet,
+  html[data-theme-switch="on"] .chip,
+  html[data-theme-switch="on"] .btn-primary,
+  html[data-theme-switch="on"] .btn-secondary {
+    transition:
+      background-color 260ms ease,
+      border-color 260ms ease,
+      color 260ms ease,
+      box-shadow 260ms ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html[data-theme-switch="on"] body,
+    html[data-theme-switch="on"] .surface,
+    html[data-theme-switch="on"] .surface-raised,
+    html[data-theme-switch="on"] .stat-tile,
+    html[data-theme-switch="on"] .plate,
+    html[data-theme-switch="on"] .card-live,
+    html[data-theme-switch="on"] .card-accent,
+    html[data-theme-switch="on"] .glass-primary,
+    html[data-theme-switch="on"] .float-card,
+    html[data-theme-switch="on"] .menu-card,
+    html[data-theme-switch="on"] .nav-glass,
+    html[data-theme-switch="on"] .nav-pill,
+    html[data-theme-switch="on"] .nav-sheet,
+    html[data-theme-switch="on"] .chip,
+    html[data-theme-switch="on"] .btn-primary,
+    html[data-theme-switch="on"] .btn-secondary {
+      transition: none;
+    }
+  }
+
+  /*
    * Backdrop blur is scoped to the one family whose design language is glass.
    *
    * It used to be applied to every card in every family, at 4px over a 99%
@@ -1369,12 +1623,27 @@
   [data-appearance="crystal"] .stat-tile,
   [data-appearance="crystal"] .plate,
   [data-appearance="crystal"] .glass-primary {
+    /*
+     * The rim and the bevel, and they are two different things.
+     *
+     * The ring is outside the card — the luminous hairline where the edge of
+     * the material meets the room. The bevel is inside it, and it is
+     * asymmetric on purpose: a bright 1 px inside the top and left edges,
+     * where the sheet is catching the light, and a soft dark inset inside the
+     * bottom and right, where its own thickness shades the surface under it.
+     * A symmetric 1 px highlight top and bottom is a border; this is the
+     * cross-section of a piece of glass.
+     */
     box-shadow: var(--shadow-panel), 0 0 0 1px var(--glass-ring),
+      inset 1px 1px 1px rgb(255 255 255 / 0.3),
+      inset -1px -1px 2px rgb(6 30 42 / 0.34),
       inset 0 1px 0 0 var(--glass-edge-light), inset 0 -1px 0 0 var(--glass-edge-dark);
   }
 
   [data-appearance="crystal"] .surface-raised {
     box-shadow: var(--shadow-raised), 0 0 0 1px var(--glass-ring),
+      inset 1px 1px 1px rgb(255 255 255 / 0.32),
+      inset -1px -1px 2px rgb(6 30 42 / 0.36),
       inset 0 1px 0 0 var(--glass-edge-light), inset 0 -1px 0 0 var(--glass-edge-dark);
   }
 
@@ -1437,15 +1706,27 @@
     border-radius: var(--card-radius-large);
     background-color: rgb(var(--ink-850) / var(--surface-alpha-2));
     background-image:
+      var(--glass-frost),
       linear-gradient(180deg, var(--glass-hi) 0%, transparent 38%),
       linear-gradient(135deg, var(--glass-sheen) 0%, transparent 48%),
       linear-gradient(0deg, var(--glass-lo) 0%, transparent 30%),
       linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%),
+      /*
+       * The tint, left to right.
+       *
+       * It used to be a 135° wash that was symmetrical — the accent came in
+       * from the top-left corner, dimmed, and came back at the bottom-right,
+       * which is a vignette rather than a light. Reading it left to right,
+       * with a step of the family's cyan at the far end, is what makes the
+       * card the section's subject rather than its centre: the eye enters on
+       * the accent side, where the title is, and leaves on the cool side,
+       * where the figures are.
+       */
       linear-gradient(
-        135deg,
-        rgb(var(--brand-500) / calc(var(--glass-primary-tint) * var(--surface-alpha-2))) 0%,
-        rgb(var(--brand-500) / calc(var(--glass-primary-tint) * var(--surface-alpha-2) * 0.5)) 55%,
-        rgb(var(--brand-500) / calc(var(--glass-primary-tint) * var(--surface-alpha-2))) 100%
+        90deg,
+        rgb(var(--brand-500) / calc(var(--glass-primary-tint) * var(--surface-alpha-2) * 1.3)) 0%,
+        rgb(var(--brand-500) / calc(var(--glass-primary-tint) * var(--surface-alpha-2))) 44%,
+        rgb(var(--glass-cyan) / calc(var(--glass-primary-tint) * var(--surface-alpha-2) * 0.7)) 100%
       );
     box-shadow: var(--shadow-raised), 0 34px 90px -48px var(--glass-primary-glow),
       inset 0 1px 0 0 var(--glass-edge-light), inset 0 -1px 0 0 var(--glass-edge-dark);
@@ -1495,13 +1776,22 @@
   .glass-divider {
     height: 1px;
     border: 0;
+    /*
+     * A rule with a spectrum in it, left to right: the family's accent, a
+     * hairline of the card's own line colour, the glass cyan, the line again,
+     * and the rose on the way out. The two hairlines are there so the rule
+     * still reads as a rule at a glance; the three colours are there so it
+     * reads as this site's rule.
+     */
     background: linear-gradient(
       90deg,
-      transparent,
-      var(--glass-line) 18%,
-      rgb(var(--brand-400) / 0.45) 50%,
-      var(--glass-line) 82%,
-      transparent
+      transparent 0%,
+      var(--sweep-2) 12%,
+      var(--glass-line) 34%,
+      var(--sweep-3) 52%,
+      var(--glass-line) 68%,
+      var(--sweep-4) 86%,
+      transparent 100%
     );
   }
 
@@ -1678,6 +1968,7 @@
   [data-appearance="crystal"] .float-card {
     background-color: rgb(var(--ink-900) / var(--surface-alpha-2));
     background-image:
+      var(--glass-frost),
       linear-gradient(180deg, var(--glass-hi) 0%, transparent 40%),
       linear-gradient(135deg, var(--glass-sheen) 0%, transparent 50%),
       linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%);
@@ -1752,7 +2043,8 @@
    * underneath, and 0.92 is opaque enough to guarantee that.
    */
   [data-appearance="crystal"] .menu-card {
-    background-color: rgb(var(--ink-900) / 0.92);
+    background-color: rgb(var(--ink-900) / 0.9);
+    background-image: var(--glass-frost);
     -webkit-backdrop-filter: blur(22px) saturate(160%);
     backdrop-filter: blur(22px) saturate(160%);
   }
@@ -1778,6 +2070,7 @@
     border-radius: theme("borderRadius.panel");
     background-color: rgb(var(--ink-850) / var(--surface-alpha-2));
     background-image:
+      var(--glass-frost),
       linear-gradient(168deg, var(--glass-hi) 0%, transparent 42%),
       linear-gradient(135deg, var(--glass-sheen) 0%, transparent 50%),
       linear-gradient(0deg, var(--glass-lo) 0%, transparent 28%),
@@ -1794,6 +2087,8 @@
      plate's own shadow that gets the ring and not the other way round. */
   [data-appearance="crystal"] .plate {
     box-shadow: var(--shadow-raised), 0 0 0 1px var(--glass-ring),
+      inset 1px 1px 1px rgb(255 255 255 / 0.3),
+      inset -1px -1px 2px rgb(6 30 42 / 0.34),
       inset 0 1px 0 0 var(--glass-edge-light), inset 0 -1px 0 0 var(--glass-edge-dark);
   }
 
@@ -1924,13 +2219,9 @@
   /* Section rule with a violet core, used between major page bands. */
   .rule-violet {
     height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgb(var(--brand-400) / 0.45) 30%,
-      rgb(var(--brand-400) / 0.45) 70%,
-      transparent
-    );
+    /* The same sweep the top panel's edge uses, so a section rule and the
+       navigation cannot disagree about which way the light comes from. */
+    background: var(--sweep-edge);
   }
 }
 
@@ -2590,10 +2881,19 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
     );
   }
 
+  /*
+   * A raised band, lit across.
+   *
+   * The two corner pools were doing the same job as the page's own ambient —
+   * enough to lift the band off the page, not enough to tell a visitor which
+   * way it runs. The sweep goes on top of them, left to right, so a band that
+   * carries a section's subject reads as lit rather than as tinted.
+   */
   .band-rich {
     position: relative;
     background-color: rgb(var(--ink-900));
     background-image:
+      var(--sweep-image),
       radial-gradient(120% 140% at 0% 0%, rgb(var(--brand-600) / 0.34) 0%, transparent 52%),
       radial-gradient(90% 110% at 100% 100%, rgb(var(--glass-cyan) / 0.16) 0%, transparent 55%);
     border-top: 1px solid rgb(var(--line-strong) / 0.5);
@@ -2602,6 +2902,7 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
 
   [data-theme="daylight"] .band-rich {
     background-image:
+      var(--sweep-image),
       radial-gradient(120% 140% at 0% 0%, rgb(var(--brand-500) / 0.14) 0%, transparent 52%),
       radial-gradient(90% 110% at 100% 100%, rgb(var(--glass-cyan) / 0.1) 0%, transparent 55%);
   }

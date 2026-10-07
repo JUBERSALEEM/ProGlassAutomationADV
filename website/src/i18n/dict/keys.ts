@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 4239 keys.
+ * 4242 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -64,6 +64,7 @@ export const KEYS: string[] = [
   "{part} — {name}, {specification}: {available} {uom} available against a reorder level of {reorder}. The store reports it without anyone having to go and count.",
   "{shown} of {total} rows",
   "{stage} stage queue — {rows} work items for the seeded job, with the pieces that arrived, the pieces recorded done and the balance.",
+  "{v0} — following the system, now {v1}",
   "{v0} — larger view",
   "{v0} — the module's own panels and figures.",
   "{v0} — views and view-models split one folder per business area",
@@ -85,7 +86,6 @@ export const KEYS: string[] = [
   "{v0} m² per sheet",
   "{v0} margin against base price",
   "{v0} margin against target",
-  "{v0} mode — click for {v1}",
   "{v0} of {v1} pieces placed",
   "{v0} of {v1} rows match “{v2}” in GLASS REF.",
   "{v0} of net revenue",
@@ -468,9 +468,7 @@ export const KEYS: string[] = [
   "App.StartupCore · ApplySavedFont",
   "App.StartupCore · InitializeLog",
   "Appearance",
-  "Appearance settings — {v0} mode, {v1} palette",
   "Appearance, language, data and the switches the business actually owns.",
-  "Appearance: {v0} mode. Click to switch to {v1}.",
   "Application",
   "Application · Dashboard · Reports · AI Assistant",
   "Application configuration: theme (Light, Dark, Glass, Industrial), locale (15 languages), station roles and peripherals.",
@@ -1372,6 +1370,7 @@ export const KEYS: string[] = [
   "Floor",
   "Floor Supervisor",
   "Flow columns: IN · DONE · BALANCE, with the balance clamped to what arrived upstream",
+  "Following the system — this page is {v0} right now.",
   "follows one seeded job through all five documents — 22 quotation lines, a partial delivery and the invoice raised from it.",
   "Follows your operating system setting.",
   "Font weight",
@@ -2402,6 +2401,8 @@ export const KEYS: string[] = [
   "Pairing — a stage page with the shared production chrome.",
   "Pakistan",
   "Palette",
+  "Palette — {v0}",
+  "Palette — {v0}. Open the palette picker.",
   "Palette family",
   "Pane 1 thickness + pane 2 thickness + interlayer calibre (0.38, 0.76, 1.52, 2.28 mm)",
   "Pane occurrences per unit: outer and inner / laminate",
@@ -2810,6 +2811,7 @@ export const KEYS: string[] = [
   "Read-heavy by design",
   "Read-only · every specification · no charges, discount or VAT",
   "Read-only, for the grace days in the signed offline policy",
+  "Reading",
   "Reading about it is not the same as seeing it.",
   "Reading the specification",
   "Reads",
@@ -3075,6 +3077,7 @@ export const KEYS: string[] = [
   "Service files",
   "Service profitability analysis",
   "Session audit trail: tracks user logins, changes and approvals",
+  "Set to {v0} — this page does not follow the system while an explicit reading is chosen.",
   "Settings",
   "Settings · margins and cut rules",
   "Settled",
@@ -3394,7 +3397,6 @@ export const KEYS: string[] = [
   "Surcharged rows",
   "Surface",
   "Surfaced at 14 days remaining",
-  "Switch appearance mode",
   "Switch the signed-in user without closing the app.",
   "Sync",
   "System",
@@ -3482,7 +3484,7 @@ export const KEYS: string[] = [
   "The application log, newest first: time, level, module or function, and the entry itself.",
   "The application seeds this job itself.",
   "The application ships four visual families and sixteen accent presets, all chosen from Settings. The card edge, the corner it turns on and the tint of the fill are set beside them. The same controls drive this website: press a plate below, or move the edge, and the page you are reading re-themes itself.",
-  "The application ships the same idea in Settings → Appearance. For the full set — sixteen colour plates,",
+  "The application ships the same four in Settings → Appearance. For the full set — sixteen colour plates, corner radius, money colours — open the",
   "The application stores documents, not summaries. A quotation becomes a job order becomes a delivery becomes an invoice — and each step keeps the audit record of the one before it.",
   "The application stores your business data locally and provides backup and restore tooling. Keeping a copy of that data is your responsibility, as it is with any desktop system. The application writes backup sets to a local folder and takes a pre-restore snapshot, but nothing is uploaded on your behalf.",
   "The application's Crystal Fluid family: see-through surfaces over a luminous environment.",
@@ -3780,6 +3782,7 @@ export const KEYS: string[] = [
   "Theme and colour",
   "Theme customization with Mica/Acrylic glass-morphic styling",
   "Theme family, accents, mode, wallpaper, motion, per-module backgrounds",
+  "theme studio",
   "Themes",
   "Then the terms, in writing",
   "There are 2,369 xUnit test methods across 288 files, and the workflow invariants — piece flow clamping, VAT tolerance, price-basis stamping — are the ones that must never regress.",

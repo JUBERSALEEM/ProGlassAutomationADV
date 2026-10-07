@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import { navIcons } from "@/data/navIcons";
 import { site } from "@/lib/site";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
+import { ThemeModeSwitch } from "@/components/layout/ThemeModeSwitch";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { LanguageMenu, LanguageMenuBlock } from "@/components/layout/LanguageMenu";
 import { Logo } from "@/components/brand/Logo";
@@ -299,9 +300,17 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          {/* The language menu sits with the theme control: both are settings
-              about how the site presents itself, not navigation through it. */}
+          {/*
+            The panel's own settings, in two controls rather than one: the
+            reading (Light · System · Dark) and the palette. They answer
+            different questions, so they are different controls — see
+            `ThemeModeSwitch` and `ThemeToggle`.
+
+            The language menu sits with them: all three are settings about how
+            the site presents itself, not navigation through it.
+          */}
           <LanguageMenu />
+          <ThemeModeSwitch />
           <ThemeToggle />
           <ButtonLink href="/screenshots" variant="ghost" size="sm">
             {t("See the app")}
@@ -314,6 +323,7 @@ export function Navbar() {
         {/* ── Mobile trigger ─────────────────────────────────────── */}
         <div className="flex items-center gap-2 lg:hidden">
           <LanguageMenu compact />
+          <ThemeModeSwitch className="hidden sm:flex" />
           <ThemeToggle />
           <button
             type="button"
