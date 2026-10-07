@@ -124,11 +124,9 @@ export function DeveloperStory({ t }: { t: Translator }) {
                   prints under its own wordmark on the splash screen. */}
               <div className="flex items-center gap-5">
                 <div className="relative grid place-items-center">
-                  {/* The splash's own fluid glow behind the cube. */}
-                  <span
-                    aria-hidden="true"
-                    className="absolute h-24 w-24 rounded-full bg-brand-500/35 blur-2xl"
-                  />
+                  {/* The splash&apos;s own fluid glow, as a gradient rather than
+                      a blurred disc — same light, no filter kernel. */}
+                  <span aria-hidden="true" className="orb orb-wide left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2" />
                   <GlassCubeEmblem size={72} className="relative" />
                 </div>
                 <div className="min-w-0">

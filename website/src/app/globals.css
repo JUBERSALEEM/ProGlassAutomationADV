@@ -133,6 +133,24 @@
        between a surface with light on it and a surface behind fog. */
     --wall-sheen: rgb(255 255 255 / 0.035);
     --wall-vignette: rgb(2 1 8 / 0.80);
+
+    /*
+     * The aurora, as three alpha values rather than a blend mode.
+     *
+     * The three stops read `--brand-600`, `--glass-cyan` and `--glass-rose`,
+     * so every appearance family re-hues the field the moment it is picked. The
+     * alphas are tuned against the surface the field lands on — which is the
+     * whole reason the layer does not blend: a blend would have to be tuned
+     * against whatever happens to be behind it, and that changes from band to
+     * band. The light reading re-declares these three below, in its own terms.
+     */
+    --aurora-1: rgb(var(--brand-600) / 0.5);
+    --aurora-2: rgb(var(--glass-cyan) / 0.18);
+    --aurora-3: rgb(var(--glass-rose) / 0.14);
+    --aurora-image:
+      radial-gradient(118% 92% at 12% 0%, var(--aurora-1) 0%, transparent 56%),
+      radial-gradient(92% 72% at 88% 8%, var(--aurora-2) 0%, transparent 58%),
+      radial-gradient(122% 104% at 50% 108%, var(--aurora-3) 0%, transparent 62%);
     /* Two extra light sources the glass families turn on: a lamp above the
        page and a floor glow under it. Transparent in the opaque families, so
        their wallpaper is unchanged. */
@@ -271,6 +289,23 @@
     --wall-wash-2: rgb(205 188 240 / 0.34);
     --wall-sheen: rgb(255 255 255 / 0.72);
     --wall-vignette: rgb(107 96 120 / 0.18);
+
+    /*
+     * The same three washes on paper.
+     *
+     * `multiply` was the old answer and it is not needed: a deep tone at low
+     * alpha over ivory *is* what multiply was doing, and unlike multiply it can
+     * be composited. The alphas are lower than the dark reading's because a
+     * wash over a light surface is read at its full strength — the surface no
+     * longer absorbs any of it.
+     */
+    --aurora-1: rgb(var(--brand-500) / 0.22);
+    --aurora-2: rgb(var(--glass-cyan) / 0.14);
+    --aurora-3: rgb(var(--glass-rose) / 0.1);
+    --aurora-image:
+      radial-gradient(118% 92% at 12% 0%, var(--aurora-1) 0%, transparent 56%),
+      radial-gradient(92% 72% at 88% 8%, var(--aurora-2) 0%, transparent 58%),
+      radial-gradient(122% 104% at 50% 108%, var(--aurora-3) 0%, transparent 62%);
     --wall-lamp: rgb(255 255 255 / 0);
     --wall-floor: rgb(0 0 0 / 0);
 
@@ -291,9 +326,9 @@
     --brand-200: 205 188 240;
     --brand-300: 101 70 181;  /* text accent on light  #6546B5 — the app's Sp.Accent */
     --brand-400: 92 62 170;  /* buttons               #5C3EAA */
-    --brand-500: 82 55 152;  /* #6D28D9 */
-    --brand-600: 73 48 128;   /* #5B21B6 */
-    --brand-700: 56 36 100;   /* #4C1D95 */
+    --brand-500: 82 55 152;  /* #523798 — one step down from Sp.Accent */
+    --brand-600: 73 48 128;  /* #493080 — the app's own Sp.AccentDeep */
+    --brand-700: 56 36 100;  /* #382464 */
 
     --glass-teal: 13 148 136;
     --glass-cyan: 14 116 144;
@@ -871,8 +906,27 @@
         var(--wall-sheen) 100%
       ),
       /* 6 · vignette */
-      radial-gradient(150% 120% at 50% 0%, transparent 34%, var(--wall-vignette) 100%);
-    background-repeat: no-repeat;
+      radial-gradient(150% 120% at 50% 0%, transparent 34%, var(--wall-vignette) 100%),
+      /*
+       * 7 · grain — the last layer of the same paint, and the last thing the
+       * eye needs to believe the surface is a material rather than a fill.
+       * One inline SVG tile, repeated; `background-repeat` is reset for it
+       * below, because every layer above it is `no-repeat` and the shorthand
+       * list applies per layer.
+       *
+       * The strength is baked into the tile (`opacity='0.06'`) rather than
+       * taken from the layer, because a layer inside a `background-image` stack
+       * has no opacity of its own — and it is one value for both readings
+       * rather than the per-mode pair the old blended layer carried. Composited
+       * against the two page colours it contributes a mean lift of about five
+       * levels on the midnight page and a mean darkening of about two on ivory:
+       * enough tooth to read as material, quiet enough that the ivory keeps its
+       * warmth and the dark page keeps its depth.
+       */
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+      no-repeat, repeat;
+    contain: paint;
   }
 
   /*
@@ -2310,34 +2364,35 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
 
 @layer components {
   /*
-   * ── 1 · Aurora field ───────────────────────────────────────────────────
+   * ── 1 · Aurora field
+   * ─────────────────────────────────────────────────────────────────────
    *
-   * Sits behind a band, never in front of text. The three washes come from the
-   * family's own pools, so switching family re-hues it with no markup change.
-   * `isolate` keeps the blend inside the band: `screen` over the page behind it
-   * would lighten the whole document rather than the field alone.
+   * Three washes crossing a band, drawn from the family's own accent and glass
+   * colours so switching palette re-hues it with no markup change.
+   *
+   * It is painted *over* the band and under the content, with plain alpha. The
+   * first version used `mix-blend-mode: screen` — and that was the single most
+   * expensive thing on this site: a full-width blended layer cannot be
+   * composited, has to be re-blended whenever anything beneath it changes, and
+   * took the whole page off the GPU path. Screen over near-black is very nearly
+   * `add`, and multiply on paper is very nearly plain alpha, so the blend bought
+   * nothing that a set of alpha values does not buy — and the alpha values live
+   * in the token block, per mode, where they can be tuned against the surface
+   * they land on rather than against whatever happens to be behind the layer.
    */
   .aurora-field {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    isolation: isolate;
     overflow: hidden;
-    background-image: theme("backgroundImage.aurora");
-    mix-blend-mode: screen;
-    opacity: 0.9;
-  }
-
-  [data-theme="daylight"] .aurora-field {
-    /* `screen` on paper washes the page out; multiply carries the same colour
-       into a light surface instead, and lower opacity keeps the ivory ivory. */
-    mix-blend-mode: multiply;
-    opacity: 0.55;
+    contain: paint;
+    background-image: var(--aurora-image);
   }
 
   .aurora-drift {
-    animation: aurora-drift 26s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation: aurora-drift 34s cubic-bezier(0.45, 0, 0.55, 1) infinite;
     will-change: transform;
+    transform: translate3d(0, 0, 0);
   }
 
   @keyframes aurora-drift {
@@ -2353,46 +2408,44 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
     }
   }
 
-  /* ── 2 · Grain ─────────────────────────────────────────────────────────
+  /*
+   * ── 2 · Grain
+   * ─────────────────────────────────────────────────────────────────────
    *
-   * A 140 px tile of monochrome noise at 3% over the whole document, fixed,
-   * on its own layer above the wallpaper and below the content. It is the one
-   * thing that stops a large area of deep colour from reading as a gradient
-   * poster, and it costs nothing: one inline SVG, no request, no repaint on
-   * scroll because it is fixed.
+   * The noise tile is no longer a layer of its own. It is painted as one more
+   * background layer on `body::after` — the wallpaper element that already
+   * exists, already fixed, already behind everything — see the token block for
+   * the tile and the two modes' strengths.
    *
-   * The opacity is per-mode rather than shared. On a near-black page 3.5% is
-   * visible and quiet; on ivory the same figure is almost gone, so the light
-   * reading carries a little more.
+   * That is two full-viewport composited layers deleted: the element the first
+   * version added, and the blend mode it carried. A fixed, full-viewport
+   * `mix-blend-mode: overlay` layer is re-blended across the entire document on
+   * every frame the page scrolls, and Chromium takes a blended layer that size
+   * off the GPU path altogether — which is most of why the site felt frozen.
+   * Plain alpha inside an existing layer reads the same at 4%, because 4% of
+   * grey over near-black violet *is* what `overlay` was approximating.
+   *
+   * Painting it on the wallpaper rather than over the content also means it
+   * never touches a glyph: the texture is on the deep surfaces, where it is
+   * wanted, and every piece of text stays on a clean plate.
    */
-  .grain-layer {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0.035;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-    mix-blend-mode: overlay;
-  }
-
-  [data-theme="daylight"] .grain-layer {
-    opacity: 0.05;
-    mix-blend-mode: multiply;
-  }
 
   /* ── 3 · Conic edge ────────────────────────────────────────────────────
    *
-   * A hairline of accent light that travels once around the card when the
-   * pointer arrives. It is drawn as a conic gradient on a pseudo-element one
-   * pixel larger than the card on every side, masked down to a ring, and the
-   * travel is a `@property`-free rotation of the gradient's own angle via
-   * `background-position` — no registered custom property, so it works in
-   * every engine this site supports rather than only in the ones that have
-   * `@property`.
+   * A hairline of accent light around the card when the pointer arrives: a
+   * conic gradient on a pseudo-element one pixel larger than the card on every
+   * side, masked down to a ring.
    *
-   * The card keeps its own solid border underneath: if the animation is
-   * interrupted or unsupported the card is still a card.
+   * It does not rotate, and that is a fix rather than a simplification. The
+   * first version animated a registered custom property (`--edge-angle`) that
+   * the gradient was built from, which means the gradient itself changed every
+   * frame — a full repaint of that element, sixty times a second, on every card
+   * the pointer crossed. There is no way to composite that: a gradient is paint,
+   * not a transform.
+   *
+   * A static ring revealed by an opacity transition does composite, and reads
+   * the same at the speed a pointer moves. The card keeps its own solid border
+   * underneath, so an engine that drops the pseudo-element still draws a card.
    */
   .edge-conic {
     position: relative;
@@ -2405,7 +2458,7 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
     border-radius: inherit;
     padding: 1px;
     background: conic-gradient(
-      from var(--edge-angle, 0deg),
+      from 0deg,
       transparent 0deg,
       rgb(var(--brand-400) / 0.85) 42deg,
       rgb(var(--glass-cyan) / 0.7) 78deg,
@@ -2421,21 +2474,13 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
       linear-gradient(#000 0 0);
     mask-composite: exclude;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.28s ease;
     pointer-events: none;
   }
 
   .edge-conic:hover::after,
   .edge-conic:focus-within::after {
     opacity: 1;
-    animation: edge-spin 3.6s linear infinite;
-  }
-
-  @keyframes edge-spin {
-    to {
-      --edge-angle: 360deg;
-      transform: rotate(360deg);
-    }
   }
 
   /* ── 4 · Pointer spotlight ─────────────────────────────────────────────
@@ -2477,6 +2522,46 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
   .spot > * {
     position: relative;
     z-index: 1;
+  }
+
+  /*
+   * ── The soft light ─────────────────────────────────────────────────────
+   *
+   * Every "glow" on this site used to be a solid circle with a very large
+   * `filter: blur()` on it — `blur-[110px]` over a 34 rem element. A blur that
+   * wide is a multi-pass kernel over half a million pixels, it is re-run
+   * whenever anything near it invalidates, and it was the second-largest cost
+   * on the page after the blend layers.
+   *
+   * A radial gradient from the same colour to fully transparent is the same
+   * picture from one rasterisation, and after that it is a texture the
+   * compositor can move for free. It is also more controllable: the falloff is
+   * a curve you choose rather than whatever Gaussian the engine uses, and the
+   * colour never has to be pulled back to stop the centre clipping.
+   *
+   * Set `--orb` to the colour and the element's own size does the rest, so a
+   * caller writes `<span class="orb" style={{ "--orb": "..." }} />` and nothing
+   * has to know how big a glow is meant to be.
+   */
+  .orb {
+    position: absolute;
+    pointer-events: none;
+    border-radius: 999px;
+    background-image: radial-gradient(
+      closest-side,
+      var(--orb, rgb(var(--brand-500) / 0.35)),
+      transparent 100%
+    );
+  }
+
+  /* A softer, wider reading of the same light, for the ground under a band. */
+  .orb-wide {
+    border-radius: 999px;
+    background-image: radial-gradient(
+      closest-side,
+      var(--orb, rgb(var(--brand-500) / 0.3)),
+      transparent 82%
+    );
   }
 
   /* ── Rich bands ────────────────────────────────────────────────────────
@@ -2806,20 +2891,4 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
     will-change: auto;
     transform: none;
   }
-}
-
-
-/*
- * `--edge-angle` is registered at the top level rather than inside the
- * component layer above: `@property` is a descriptor rule, not a style rule,
- * and a cascade layer has no meaning for it — an engine that found it nested
- * would be free to ignore the registration, and the conic edge would then lose
- * its sweep. Here it is unconditional, and the engines that do not support
- * `@property` at all fall back to the rotation in `edge-spin`, which reads the
- * same at the speed the ring turns.
- */
-@property --edge-angle {
-  syntax: "<angle>";
-  inherits: false;
-  initial-value: 0deg;
 }

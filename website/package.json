@@ -16,6 +16,9 @@
     "doctor": "node scripts/check-deps.mjs --report",
     "supabase:check": "node --experimental-strip-types scripts/supabase-check.mjs",
     "fix": "node scripts/fix.mjs",
+    "assets:backdrop": "tsx scripts/render-hero-backdrop.mts",
+    "assets:banner": "tsx scripts/render-hero-banner.mts",
+    "assets:plates": "npm run assets:backdrop && npm run assets:banner && npm run assets:optimize",
     "assets:optimize": "node scripts/optimize-assets.mjs",
     "i18n:keys": "node scripts/i18n-extract.mjs",
     "i18n:wire-text": "node scripts/i18n-wire-text.mjs",
@@ -48,6 +51,7 @@
     "postcss": "8.5.1",
     "sharp": "0.33.5",
     "tailwindcss": "3.4.17",
+    "tsx": "^4.23.15",
     "typescript": "5.7.3"
   }
 }

@@ -47,12 +47,40 @@ export const glass3d = {
  * itself renders the WebP.
  */
 export const brandBanner = {
+  /**
+   * The 3840 px master, for the one full-bleed showcase that asks for it. The
+   * homepage was reaching past this manifest for the PNG of the same drawing;
+   * naming it here means the plate has one address, as the rest of the assets
+   * do.
+   */
+  source: "/images/brand/proglass-hero-banner-3840.webp",
   webp: "/images/brand/proglass-hero-banner-1920.webp",
   /** Used by Open Graph / Twitter metadata. */
   png: "/images/brand/proglass-hero-banner-1920.png",
   width: 1920,
   height: 640,
   alt: "ProGlass Automation brand banner showing the application's Overview dashboard with open inquiries, proformas raised, jobs in production and pieces ready to dispatch",
+} as const;
+
+/**
+ * Hero backdrop — the plate behind the homepage opening.
+ *
+ * Drawn from the site's own tokens at true 2× (3840 × 1920) by
+ * `scripts/render-hero-backdrop.mts`, then re-encoded by
+ * `scripts/optimize-assets.mjs`. Re-run `npm run assets:plates` after a palette
+ * change; the renderer reads `globals.css` directly, so it cannot come out of
+ * last month's colours.
+ *
+ * The source named here is the WebP rather than the PNG it is rendered to. Both
+ * hold the same pixels, but the PNG weighs 771 KB and the WebP 45 KB, and this
+ * is the file Next re-encodes on the first request for each width it serves —
+ * so the smaller master is the difference between a cold first paint and a warm
+ * one. Nothing about the page changes; only what it costs to produce.
+ */
+export const heroBackdrop = {
+  src: "/images/brand/hero-backdrop-3840.webp",
+  width: 3840,
+  height: 1920,
 } as const;
 
 export const brandIcon = {

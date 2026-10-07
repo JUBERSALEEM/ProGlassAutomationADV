@@ -39,17 +39,21 @@ export function PageHero({
       {/*
         The opener's light.
 
-        Three blurred pools were the whole of it, and on a deep page they read as
-        three smudges rather than as a lit room. The aurora field is the same
-        idea done properly: three saturated washes crossing the band from the
-        family's own pools, drifting on a long cycle, over a vignette that pulls
-        the edges down so the title always sits on the quietest part.
+        One aurora field carrying the family's own two accent washes across the
+        band, plus a single wide orb low on the page for the ground under the
+        title. Three separate `filter: blur(110px)` circles used to do this, and
+        a blur that wide on a 20 rem element is a multi-pass kernel re-run
+        whenever anything near it changes — which, on a page whose whole top
+        third is this, is every frame. `.orb` draws the same falloff from one
+        gradient: same picture, one rasterisation, then free.
+
+        The field drifts on a transform only, so it composites; it is
+        `contain: paint`, so a pixel invalidated inside it cannot make the
+        browser re-examine the page around it.
       */}
       <div aria-hidden="true" className="glow-layer pointer-events-none absolute inset-0 overflow-hidden">
+        <span className="orb aurora-drift -bottom-24 left-[30%] h-[30rem] w-[46rem]" />
         <div className="aurora-field aurora-drift" />
-        <div className="animate-drift-slow absolute -top-32 left-[10%] h-80 w-80 rounded-full bg-brand-600/40 blur-[110px]" />
-        <div className="absolute -top-20 right-[6%] h-64 w-64 rounded-full bg-glass-cyan/22 blur-[100px]" />
-        <div className="absolute bottom-0 left-[46%] h-52 w-52 rounded-full bg-glass-rose/18 blur-[110px]" />
       </div>
       {/* One hairline of accent along the top edge, so a page opener is a
           threshold rather than a place the content happens to start. */}

@@ -66,19 +66,19 @@ export const appearanceFamilies: AppearanceFamilyEntry[] = [
     label: "Monet",
     origin:
       "The application's Material-You family: surfaces derived from the accent's own dusk (its Golden Hour wallpaper).",
-    swatch: "#E879A6",
+    swatch: "#E469A0",
   },
   {
     id: "industrial",
     label: "Industrial",
     origin: "The application's strict default family — crisp sky over slate, minimal tinting.",
-    swatch: "#38BDF8",
+    swatch: "#2DB0F0",
   },
   {
     id: "crystal",
     label: "Crystal",
     origin: "The application's Crystal Fluid family: see-through surfaces over a luminous environment.",
-    swatch: "#22D3EE",
+    swatch: "#1AC5E2",
   },
 ];
 

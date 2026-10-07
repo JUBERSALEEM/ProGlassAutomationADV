@@ -43,7 +43,7 @@ export async function GET(request: Request) {
   const title = clean(searchParams.get("title"), MAX_TITLE) || site.name;
   const eyebrow = clean(searchParams.get("eyebrow"), MAX_EYEBROW) || "Glass fabrication software";
   const accent = colour(searchParams.get("accent"), "#7E57CE");
-  const accentSoft = colour(searchParams.get("accentSoft"), "#C4B5FD");
+  const accentSoft = colour(searchParams.get("accentSoft"), "#BEA5F0");
 
   // A longer title steps down a size rather than overflowing the card.
   const titleSize = title.length > 78 ? 54 : title.length > 52 ? 62 : 70;
@@ -83,15 +83,15 @@ export async function GET(request: Request) {
             width: 560,
             height: 560,
             borderRadius: 999,
-            background: "radial-gradient(circle, #22D3EE33, transparent 68%)",
+            background: "radial-gradient(circle, #1AC5E233, transparent 68%)",
           }}
         />
 
         {/* Header row: mark and lockup. */}
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <svg width="52" height="52" viewBox="0 0 32 32">
-            <path d="M8.5 3.5h20l-4 4h-16z" fill="#22D3EE" fillOpacity="0.85" />
-            <path d="M4.5 12.5h20l-4 4h-16z" fill="#22D3EE" fillOpacity="0.6" />
+            <path d="M8.5 3.5h20l-4 4h-16z" fill="#1AC5E2" fillOpacity="0.85" />
+            <path d="M4.5 12.5h20l-4 4h-16z" fill="#1AC5E2" fillOpacity="0.6" />
             <path
               d="M3.5 3.5h17.5l7.5 7.5v17.5H3.5z"
               fill={accent}
@@ -170,7 +170,7 @@ export async function GET(request: Request) {
             right: 0,
             bottom: 0,
             height: 6,
-            background: `linear-gradient(90deg, ${accent}, #22D3EE)`,
+            background: `linear-gradient(90deg, ${accent}, #1AC5E2)`,
           }}
         />
       </div>

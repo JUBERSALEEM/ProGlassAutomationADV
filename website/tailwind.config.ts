@@ -148,13 +148,6 @@ const config: Config = {
           "linear-gradient(135deg, rgb(var(--glass-teal) / 0.28) 0%, rgb(var(--brand-500) / 0) 62%)",
         "plate-top":
           "linear-gradient(180deg, rgb(var(--text-1) / 0.08) 0%, rgb(var(--text-1) / 0) 42%)",
-        /**
-         * The aurora: three wide, deeply saturated washes crossing the page.
-         * Used behind the hero and the section that carries the developer's
-         * story, where a flat page colour would read as thin next to the type.
-         */
-        aurora:
-          "radial-gradient(120% 90% at 12% 0%, rgb(var(--brand-600) / 0.55) 0%, transparent 55%), radial-gradient(90% 70% at 88% 8%, rgb(var(--glass-cyan) / 0.24) 0%, transparent 58%), radial-gradient(120% 100% at 50% 108%, rgb(var(--glass-rose) / 0.2) 0%, transparent 62%)",
         /** A hairline that fades at both ends — the site's own section rule. */
         "rule-fade":
           "linear-gradient(90deg, transparent, rgb(var(--brand-400) / 0.55) 22%, rgb(var(--glass-cyan) / 0.4) 50%, rgb(var(--brand-400) / 0.55) 78%, transparent)",

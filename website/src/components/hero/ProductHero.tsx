@@ -6,6 +6,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Spotlight } from "@/components/ui/Spotlight";
 import { Marquee, MarqueeItem } from "@/components/ui/Marquee";
 import { GlassCubeEmblem, BrandKeyline } from "@/components/brand/GlassCubeEmblem";
+import { brandBanner, heroBackdrop } from "@/data/assets";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { chainVerbs } from "@/data/workflows";
 import { site } from "@/lib/site";
@@ -49,7 +50,7 @@ export function ProductHero({ t }: { t: Translator }) {
           assistive technology and carries no caption. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <Image
-          src="/images/brand/hero-backdrop-3840.png"
+          src={heroBackdrop.src}
           alt=""
           fill
           priority
@@ -156,7 +157,10 @@ export function ProductHero({ t }: { t: Translator }) {
           {/* ── Layered product presentation ───────────────────────── */}
           <Reveal delay={120} variant="scale" className="relative">
             <div aria-hidden="true" className="pointer-events-none absolute -inset-8 -z-10">
-              <div className="absolute left-1/2 top-1/2 h-[26rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-600/35 blur-[110px]" />
+              <span
+                className="orb orb-wide left-1/2 top-1/2 h-[26rem] w-[34rem] -translate-x-1/2 -translate-y-1/2"
+                style={{ "--orb": "rgb(var(--brand-600) / 0.32)" } as React.CSSProperties}
+              />
             </div>
 
             <AppFrame
@@ -266,7 +270,7 @@ export function ProductHero({ t }: { t: Translator }) {
           <div className="mx-auto w-full max-w-[1920px]">
             <div className="relative aspect-[3/1] w-full">
               <Image
-                src="/images/brand/proglass-hero-banner-3840.png"
+                src={brandBanner.source}
                 alt={t("ProGlass Automation brand banner: the application's Overview dashboard showing open inquiries, proformas raised, jobs in production and pieces ready to dispatch, beside the product mark, the proforma's profit and loss snapshot and the line 'Glass business management, built around your workflow.'")}
                 fill
                 sizes="(max-width: 1920px) 100vw, 1920px"

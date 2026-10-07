@@ -2332,7 +2332,7 @@ const dict: Overlay = {
   "Rack B2": "رفّ B2",
   "Rack C1": "رفّ C1",
   "Rack rows with size, thickness, colour and an optional balance cap": "صفوف الأرفف بالمقاس والسُمك واللون وسقف رصيد اختياري",
-  "radial-gradient(circle, #22D3EE33, transparent 68%)": "التدرج الشعاعي (دائرة، #22D3EE33، شفاف 68%)",
+  "radial-gradient(circle, #1AC5E233, transparent 68%)": "التدرج الشعاعي (دائرة، #22D3EE33، شفاف 68%)",
   "Rail with Overview plus the Relationships, Documents and Financial groups": "شريط بالنظرة العامة ومجموعات العلاقات والمستندات والمالية",
   "Raised": "مرفوع",
   "Raised from the delivered lines only — the ten Clear Tempered lines, billed and VAT-applied. Payment terms run 30 days from issue.": "مرفوعة من الأسطر المسلَّمة فقط — أسطر «شفاف مقسّى» العشرة، مفوترة وبضريبة مطبَّقة. وشروط السداد 30 يومًا من الإصدار.",

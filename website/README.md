@@ -106,9 +106,9 @@ block at the foot of `src/app/globals.css`:
 
 | Class | What it is |
 |---|---|
-| `.aurora-field` | three saturated washes crossing a band, drifting on a 26 s cycle |
-| `.grain-layer` | one fixed layer of inline-SVG noise, `overlay` in the dark reading and `multiply` on ivory |
-| `.edge-conic` | a hairline of accent light that travels once around a card on hover |
+| `.aurora-field` | three saturated washes crossing a band, drifting on a 34 s cycle — one paint, from `--aurora-image` |
+| `.orb` / `.orb-wide` | a pool of light drawn as a radial gradient; the caller sets `--orb` to its colour and gives the element its size |
+| `.edge-conic` | a hairline of accent light around a card, revealed on hover by an opacity transition |
 | `.spot` | a light that follows the pointer across a card's face — driven by `src/lib/useSpotlight.ts` |
 | `.bento`, `.spine`, `.marquee`, `.panel-feature`, `.figure` | the layout patterns the redesigned pages are built from |
 
@@ -116,6 +116,57 @@ Every one of them reads `--brand-*`, `--glass-*` or `--wall-*`, so switching
 mode or palette family repaints all of them with no markup change, and every one
 degrades to nothing: with `prefers-reduced-motion`, with scripting off, or on a
 touch device the content is still complete and still readable.
+
+The page's own surface — the wallpaper's nine gradient layers and the noise tile
+that finishes them — is the `body::after` background stack rather than a class.
+It is one paint, and nothing in it is composited against the content above it.
+
+### The performance contract
+
+Three things nearly cost this site its responsiveness, and all three were
+decoration. They are banned, and the bans are the point of this section:
+
+| Never | Why | Instead |
+|---|---|---|
+| `mix-blend-mode` on a full-viewport layer | the browser re-blends the whole document on every scroll frame, and the page drops off Chromium's GPU fast paths | an alpha token — `--aurora-1/2/3` — or a heavier colour in the gradient itself |
+| `@property` plus a keyframed gradient angle | a conic-gradient repaint per frame, per element, on every unhovered card on the page | a static ring, revealed by an `opacity` transition |
+| `filter: blur()` more than a few pixels wide | a multi-pass kernel over a 20 rem element, re-run whenever it changes | `.orb` — the same light as a radial gradient, one paint |
+
+The rule underneath all three: **a decorative layer may animate `transform` or
+`opacity`, or nothing at all.** The aurora drifts with `translate3d`, the edge
+ring fades in, the spot follows the pointer. None of them repaints, and the
+texture survives every one of them — the aurora still crosses the opening
+screen, the grain still finishes the surface, the cards still catch the light.
+
+Check it after a design change, from `website/`:
+
+```bash
+npx tsc --noEmit && npm run lint && npm run build
+python3 scripts/audit-site.py http://127.0.0.1:3000
+grep -rn "mix-blend-mode\|blur-\[" src/ --include=*.tsx    # expect no hits
+```
+
+### The plates
+
+The hero backdrop and the brand banner are drawn from the site's own tokens by
+`scripts/render-hero-backdrop.mts` and `scripts/render-hero-banner.mts`, through
+`sharp` — no headless browser is involved, so the artwork is reproducible from
+the repository alone. Both read `[data-theme="midnight"]` straight out of
+`src/app/globals.css` through `scripts/lib/theme-tokens.mts`: the private colour
+copies they used to carry went stale the moment the palette was deepened, and a
+plate that is drawn in last month's violet is worse than no plate at all. A
+token that is renamed now stops the render rather than silently falling back.
+
+```bash
+npm run assets:plates     # re-render both masters, then re-encode the derivatives
+```
+
+Masters land in `public/images/brand/` at 3840 px wide (plus `README_ASSETS/hero.png`
+for the repository's front page), and `npm run assets:optimize` writes the
+AVIF / WebP / PNG derivatives at 1280–3840 into `public/images/brand` and
+`public/images/glass3d`. Pages reach them through `src/data/assets.ts` — the
+metadata icons included, which is why nothing in `src/` hard-codes a path into
+`public/`.
 
 ### Typography
 
@@ -321,8 +372,13 @@ The route stores nothing: no database, no server-side log of personal data.
 
 - Fonts are self-hosted from `src/fonts` through `next/font/local`, so no page
   makes a request to a third-party font host.
-- The only product imagery that ships is the real artwork from the WPF
-  repository (`Resources/Glass3D/*`, the application icon and the brand
-  banner), re-encoded to WebP at the widths the layout requests.
+- Two kinds of image ship, and both are files this repository can produce from
+  scratch: the real artwork from the WPF repository (`Resources/Glass3D/*` and
+  the application icon), re-encoded at the widths the layout requests, and the
+  two plates drawn from the site's own tokens by the renderers above. No stock
+  photograph and no invented screenshot is served anywhere.
+- Every decorative layer animates `transform` or `opacity` only, and the surface
+  layers are single paintings rather than blends — see *The performance
+  contract*.
 - `prefers-reduced-motion: reduce` is honoured globally, and every animation
   collapses while its content stays visible.

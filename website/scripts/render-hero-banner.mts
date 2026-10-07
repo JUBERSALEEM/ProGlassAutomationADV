@@ -12,7 +12,7 @@
  *
  *   1. No headless browser is involved. The composition is SVG built here and
  *      rasterised with sharp, so the output is reproducible from the repository
- *      alone — `npx tsx scripts/render-hero-banner.mts`.
+ *      alone — `npm run assets:banner`.
  *   2. Every figure on it is read from `src/data`. The plate plan is the plan
  *      the homepage draws, which comes out of `packGuillotine`; the cutting
  *      list is the same list; the module count, the rail grouping and the chain
@@ -25,7 +25,8 @@
  *
  * Usage, from `website/`:
  *
- *   npx tsx scripts/render-hero-banner.mts      # writes both outputs below
+ *   npm run assets:banner       # writes both outputs below
+ *   npm run assets:plates       # both plates, then the web derivatives
  *   npm run assets:optimize                     # re-encodes the web derivatives
  *
  * Two outputs, because they are used at different sizes:
@@ -56,6 +57,7 @@ import { chainVerbs } from "@/data/workflows";
 import { modules } from "@/data/modules";
 import { quotationTotals } from "@/data/workedExample";
 import { site } from "@/lib/site";
+import { palette } from "./lib/theme-tokens.mts";
 
 /* ══════════════════════════════════════════════════════════════════════════
  * The canvas
@@ -74,32 +76,13 @@ const SUPERSAMPLE = 2;
 
 /* ══════════════════════════════════════════════════════════════════════════
  * Tokens
+ *
+ * `palette` is read live from `[data-theme="midnight"]` in
+ * `src/app/globals.css` by `scripts/lib/theme-tokens.mts` — this file owns no
+ * colours of its own, so re-rendering after a theme change is enough to bring
+ * the plate with it.
  * ════════════════════════════════════════════════════════════════════════ */
 
-/** `src/app/globals.css` → `[data-theme="midnight"]`. */
-const palette = {
-  ink950: "#0B0820",
-  ink900: "#120D2E",
-  ink850: "#171138",
-  ink800: "#1D1646",
-  ink700: "#251B57",
-  line: "#2A2159",
-  lineSoft: "#221A4A",
-  lineStrong: "#3B2F7A",
-  brand200: "#DDD6FE",
-  brand300: "#C4B5FD",
-  brand400: "#A78BFA",
-  brand500: "#8B5CF6",
-  brand600: "#7C3AED",
-  brand700: "#6D28D9",
-  teal: "#2DD4BF",
-  cyan: "#22D3EE",
-  green: "#4ADE80",
-  rose: "#F472B6",
-  text1: "#FFFFFF",
-  text2: "#E9E6F8",
-  text3: "#D0CBE8",
-} as const;
 
 /**
  * The two families the site self-hosts (`src/fonts`). The fallbacks are the

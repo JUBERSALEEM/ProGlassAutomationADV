@@ -7,6 +7,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { globalGraph } from "@/lib/schema";
 import { Footer } from "@/components/layout/Footer";
 import { ThemeStudio } from "@/components/layout/ThemeStudio";
+import { brandIcon } from "@/data/assets";
 import { site } from "@/lib/site";
 import { themeBootScript } from "@/data/themes";
 import { I18nProvider } from "@/i18n/provider";
@@ -168,8 +169,10 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
       images: [share.toString()],
     },
     icons: {
-      icon: [{ url: "/favicon.ico" }, { url: "/images/brand/proglass-icon-256-192.png", type: "image/png", sizes: "192x192" }],
-      apple: [{ url: "/images/brand/proglass-icon-256-256.png", sizes: "256x256" }],
+      // The application's own icon, through the manifest, so the file that is
+      // advertised here and the file that is optimised below it cannot drift.
+      icon: [{ url: "/favicon.ico" }, { url: brandIcon.small, type: "image/png", sizes: "192x192" }],
+      apple: [{ url: brandIcon.large, sizes: "256x256" }],
     },
   };
 }
@@ -231,18 +234,6 @@ export default async function LocaleLayout({
           `display:none` sheet would stop resolving in some engines.
         */}
         <SvgDefs />
-        {/*
-          One layer of fine grain over the whole document, above the wallpaper
-          and below the content.
-
-          It is the reason a deep colour reads as a *surface* rather than as a
-          gradient poster: a real material is never perfectly uniform, and a
-          large field of near-black violet with nothing in it reads as thin no
-          matter how deep the value is. 3.5% in the dark reading and 5% on
-          ivory, one 140 px inline tile, fixed, no request and no repaint on
-          scroll. See `.grain-layer` in globals.css.
-        */}
-        <div aria-hidden="true" className="grain-layer" />
         <script
           type="application/ld+json"
           // Static, developer-authored structured data. No user input reaches this string.
