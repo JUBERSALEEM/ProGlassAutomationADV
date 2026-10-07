@@ -113,6 +113,22 @@ export const seedRunLines = [
 /** How many panes the run holds, over how many lines. */
 export const seedRunPieces = drawn.panes.length;
 
+/**
+ * The cutting list the run is cut from, in serial order — the drawn group's own
+ * lines, not the whole quotation.
+ *
+ * The drawn group is the largest run of one glass in the seeded job, so its
+ * lines are a subset of the twenty-two: the panes of a 6 mm clear sheet are not
+ * cut from a 10 mm tinted one. The gate on the worked example shows this list
+ * while the drawing is still behind the Run button, and the totals it reports
+ * are `seedRunPieces` — the same list, counted.
+ */
+export const seedRunCutList: { ref: string; width: number; height: number; qty: number }[] = [
+  ...new Map(drawn.panes.map((pane) => [pane.line.ref, pane.line])).values(),
+]
+  .sort((a, b) => a.serial - b.serial)
+  .map((line) => ({ ref: line.ref, width: line.widthMm, height: line.heightMm, qty: line.qty }));
+
 const inputs: PackInput[] = drawn.panes.map((pane) => ({
   id: `${pane.line.ref}-${pane.index}`,
   width: pane.line.widthMm,

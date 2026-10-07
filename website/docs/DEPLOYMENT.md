@@ -234,15 +234,24 @@ want the contact form to deliver mail (see [step 7](#7--the-contact-form-needs-a
 | `DEMO_REQUEST_PROVIDER` | e.g. `resend` | optional — enables real delivery once a transport is wired |
 
 Press **Deploy**. The first build takes about a minute. When it finishes you get
-a URL like `proglass-automation.vercel.app` — **open it and check the site
-works** before going anywhere near DNS. This URL keeps working forever, and it is
-what you fall back to if a domain record is wrong.
+a URL like `<project-name>.vercel.app` — **open it and check the site works**
+before going anywhere near DNS. The exact host is on the project's own Domains
+tab; `npm run check:live` knows the two this repository currently deploys to.
+This URL keeps working forever, and it is what you fall back to if a domain
+record is wrong.
 
 ### 3.3 What happens on every deploy afterwards
 
-- a push to `main` → production deployment, on the domain;
+- a push to the project's **Production Branch** → production deployment, on the
+  domain. Read the setting rather than assuming it: the default is `main`, and
+  this repository has no `main` — the value it actually uses is in §5, together
+  with the second project that shares the repository;
 - a push to any other branch → a *preview* deployment with its own URL, listed on
-  the project's **Deployments** tab and commented onto the pull request;
+  the project's **Deployments** tab and commented onto the pull request. Previews
+  sit behind a login wall by default, and they build the branch at their own
+  moment, so a preview and the live site can look identical while being different
+  builds. The stamp in the top panel is what tells them apart, and
+  `npm run check:live` is what says which one is behind;
 - **Instant Rollback** on the Deployments tab puts the previous build back in
   seconds if something ships broken.
 

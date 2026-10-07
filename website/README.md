@@ -54,7 +54,11 @@ DNS records for the domain, the certificate, the launch checklist, and the
 `Module not found` build error that appears when dependencies have not been
 installed.
 
-The short version, once the repository is on `main`:
+The short version. Note the second word of the sentence people usually write
+here: there is no `main` in this repository. Production follows the Vercel
+project's **Production Branch** setting, which is a setting and not a branch
+name — §5 of the deployment guide carries the value this site uses, the second
+project that shares the repository, and the one-project rule:
 
 ```
 Vercel → Add New → Project → import this repository
@@ -169,15 +173,22 @@ answer is the desync, named.
 be reachable at, in one line each, and exits non-zero if any of them is behind:
 
 ```bash
-npm run check:live
+npm run check:live                              # the two hosts, plus this machine
 npm run check:live https://a-preview-url.vercel.app
 ```
 
+The shape of a line — the origin, then what it is serving, then the verdict:
+
 ```
-live            https://proglassautomationadv-website-tkim.vercel.app
-                422172c · 2026-10-07T11:50:56.640Z · production
+local           http://127.0.0.1:3000
+                <rev> · <builtAt> · local
                 CURRENT — it is running the revision the branch is on
 ```
+
+At the time of writing the two Vercel origins both answer **no stamp**, which is
+the desync this repository was carrying and the reason the table in the
+deployment guide exists. Setting the project's Production Branch moves them off
+it; nothing on this side of the wire can.
 
 The three answers it can give are worth knowing apart: **current**, **behind**
 (the deployment exists; production has not been pointed at it — the fix is the
@@ -187,6 +198,12 @@ The third is the dangerous one, because the site looks perfectly healthy while
 being months behind. The values are inlined at build time by the `env`
 block in `next.config.ts` (see `scripts/build-stamp.mjs`), so a page prerendered
 during the build and a route handler starting cold later report the same instant.
+
+Every string in the stamp is an English sentence in the catalogue and falls back
+to it in the other fourteen locales — deliberately, because the stamp is a fact
+two builds are compared by, and the same characters everywhere is what makes the
+comparison cheap. The keys are in `src/i18n/dict/keys.ts` like any other if a
+locale ever wants its own words.
 
 ### The top panel's budget
 

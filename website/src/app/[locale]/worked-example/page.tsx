@@ -8,9 +8,11 @@ import { Badge } from "@/components/ui/Badge";
 import { cn as cnCell } from "@/lib/cn";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { OptimizationRunGate } from "@/components/optimization/OptimizationRunGate";
 import { PlateInspector } from "@/components/optimization/PlateInspector";
 import {
   seedRunBreakoutMm,
+  seedRunCutList,
   seedRunGeometry,
   seedRunMargins,
   seedRunPieces,
@@ -691,7 +693,22 @@ export default async function WorkedExamplePage({ params }: PageProps) {
             )}
           />
 
-          <div className="mt-10">
+          {/*
+            Behind the same gate as the module. The drawing is the seeded job's
+            own glass and it is still one press away — Run optimization — but it
+            is not on screen before a run is asked for, because the application
+            does not show a plan it has not been asked for either, and the
+            worked example is where a reader learns what the module does.
+          */}
+          <OptimizationRunGate
+            rows={seedRunCutList}
+            className="mt-10"
+            note={t("{v1} · trim {v2} mm · kerf {v3} mm", {
+              v1: seedRunSheet.label,
+              v2: seedRunMargins.left,
+              v3: seedRunMargins.kerf,
+            })}
+          >
             <PlateInspector
               plates={seedRunPlates}
               margins={seedRunMargins}
@@ -705,9 +722,10 @@ export default async function WorkedExamplePage({ params }: PageProps) {
               showSchedule
               galleryColumns="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
             />
-          </div>
 
-          <div className="mt-6 grid max-w-4xl gap-4 sm:grid-cols-2">
+            {/* The two notes below explain the drawing above them, so they
+                appear with it rather than before it. */}
+            <div className="mt-6 grid max-w-4xl gap-4 sm:grid-cols-2">
             <p className="text-xs font-medium leading-relaxed text-text-faint">
               {t(
                 "The panes are grouped by the sheet they are bought on — one glass to a run, the way a shop actually cuts it — and this is the largest of those runs, so the drawing above is the seeded quotation's own glass and not a cut list written for the occasion. The store holds {available} sheets of this glass, {used} spoken for; the run takes {plates}.",
@@ -730,6 +748,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
               )}
             </p>
           </div>
+          </OptimizationRunGate>
         </Container>
       </Section>
 
