@@ -1,0 +1,214 @@
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsRecordsSyncSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             RenderOptions.ClearTypeHint="Enabled"
+             RenderOptions.EdgeMode="Aliased">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly">
+            <StackPanel Margin="{StaticResource SettingsPagePadding}">
+                <Border Style="{StaticResource SettingsHeroCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                            <TextBlock Text="&#xE895;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
+                        </Border>
+                        <StackPanel Grid.Column="1"
+                                    Margin="{StaticResource SettingsIconTextMargin}"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="Supabase Records Sync"
+                                       Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="Configure the existing Proforma Invoice connection and check credentials safely."
+                                       Style="{StaticResource SettingsHeroNoteStyle}"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                            <TextBlock Text="PI only" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Margin="{StaticResource SettingsBentoColLeft}"
+                            Style="{StaticResource SettingsPageCardStyle}"
+                            VerticalAlignment="Top">
+                        <StackPanel>
+                            <Grid Margin="{StaticResource SettingsStackBottom8}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                    <TextBlock Text="&#xE774;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <StackPanel Grid.Column="1"
+                                            Margin="{StaticResource SettingsIconTextMargin}"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="Connection details"
+                                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                                    <TextBlock Text="Secrets use the existing Windows-protected credential vault."
+                                               Style="{StaticResource SettingsCardHeaderNoteStyle}"
+                                               TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Margin="{StaticResource SettingsStackGap12}">
+                                <TextBlock Text="Supabase project URL"
+                                           Style="{StaticResource SettingsRowTitleStyle}"/>
+                                <TextBox Text="{Binding SupabaseUrl, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource TextBoxStyle}"
+                                         ToolTip="Use the HTTPS URL from the Supabase project settings."/>
+
+                                <TextBlock Text="Publishable / anon key"
+                                           Style="{StaticResource SettingsRowTitleStyle}"
+                                           Margin="0,10,0,0"/>
+                                <TextBox Text="{Binding ApiKeyInput, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource TextBoxStyle}"
+                                         ToolTip="Use a publishable/anon key only. Never enter a service_role or secret key."/>
+
+                                <TextBlock Text="Dedicated Records Sync account email"
+                                           Style="{StaticResource SettingsRowTitleStyle}"
+                                           Margin="0,10,0,0"/>
+                                <TextBox Text="{Binding AuthEmail, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource TextBoxStyle}"/>
+
+                                <TextBlock Text="Dedicated account password"
+                                           Style="{StaticResource SettingsRowTitleStyle}"
+                                           Margin="0,10,0,0"/>
+                                <PasswordBox x:Name="PasswordInputBox"
+                                             Style="{StaticResource RoundedPasswordBoxStyle}"
+                                             PasswordChanged="PasswordInputBox_OnPasswordChanged"/>
+
+                                <TextBlock Text="{Binding SavedCredentialSummary}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,8,0,0"/>
+
+                                <UniformGrid Columns="2" Margin="0,14,0,0">
+                                    <Button Content="Save connection"
+                                            Command="{Binding SaveConfigurationCommand}"
+                                            IsEnabled="{Binding CanSaveConfiguration}"
+                                            Style="{StaticResource SettingsPrimaryButtonStyle}"
+                                            Margin="0,0,6,0"/>
+                                    <Button Content="Test connection"
+                                            Command="{Binding TestConnectionCommand}"
+                                            IsEnabled="{Binding CanTestConnection}"
+                                            Style="{StaticResource SettingsSecondaryButtonStyle}"
+                                            Margin="6,0,0,0"/>
+                                </UniformGrid>
+
+                                <TextBlock Text="{Binding ConnectionMessage}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,12,0,0"
+                                           AutomationProperties.LiveSetting="Polite"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Margin="{StaticResource SettingsBentoColRight}"
+                            Style="{StaticResource SettingsPageCardStyle}"
+                            VerticalAlignment="Top">
+                        <StackPanel>
+                            <Grid Margin="{StaticResource SettingsStackBottom8}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                    <TextBlock Text="&#xE9D9;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <StackPanel Grid.Column="1"
+                                            Margin="{StaticResource SettingsIconTextMargin}"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="Publication status"
+                                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                                    <TextBlock Text="A credential check is separate from publishing PI data."
+                                               Style="{StaticResource SettingsCardHeaderNoteStyle}"
+                                               TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Margin="{StaticResource SettingsStackGap12}">
+                                <TextBlock Text="{Binding ScopeSummary}"
+                                           Style="{StaticResource SettingsRowTitleStyle}"
+                                           TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding BackgroundScanStatus}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,4,0,0"/>
+                                <TextBlock Text="{Binding PendingStatus}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           Margin="0,4,0,0"/>
+                                <TextBlock Text="{Binding LastSuccessfulSyncStatus}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,4,0,0"/>
+
+                                <Border Margin="0,14,0,14"
+                                        Padding="12"
+                                        BorderBrush="{DynamicResource WarningBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="{DynamicResource Radius.Small}">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding AtomicPublisherStatus}"
+                                                   Style="{StaticResource SettingsRowTitleStyle}"
+                                                   Foreground="{DynamicResource WarningBrush}"
+                                                   TextWrapping="Wrap"/>
+                                        <TextBlock Text="A successful read-only test does not publish anything. Atomic publication is unavailable; saving these credentials or testing connectivity does not enable or trigger publication."
+                                                   Style="{StaticResource SettingsRowMetaStyle}"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,6,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Style="{StaticResource SettingsRowSeparatorStyle}"
+                                        Margin="0,14,0,4"/>
+                                <TextBlock Text="The current integration is Proforma Invoice only. Job Orders and Delivery Notes are not published."
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           TextWrapping="Wrap"/>
+                                <TextBlock Text="Test connection authenticates the configured account, then performs a zero-row read check. It never reads PI rows or modifies PI records."
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

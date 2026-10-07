@@ -2155,6 +2155,7 @@
     <sys:String x:Key="Settings.SecAi">ИИ-помощник</sys:String>
     <sys:String x:Key="Settings.SecAppearance">Оформление</sys:String>
     <sys:String x:Key="Settings.SecData">Данные и резервные копии</sys:String>
+    <sys:String x:Key="Settings.SecRecordsSync">Синхронизация записей</sys:String>
     <sys:String x:Key="Settings.SecDemo">Демо-центр</sys:String>
     <sys:String x:Key="Settings.SecFeatures">Возможности</sys:String>
     <sys:String x:Key="Settings.SecLicense">Лицензия</sys:String>

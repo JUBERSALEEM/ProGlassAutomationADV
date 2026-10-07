@@ -2155,6 +2155,7 @@
     <sys:String x:Key="Settings.SecAi">AI सहायक</sys:String>
     <sys:String x:Key="Settings.SecAppearance">दिखावट</sys:String>
     <sys:String x:Key="Settings.SecData">डेटा और बैकअप</sys:String>
+    <sys:String x:Key="Settings.SecRecordsSync">रिकॉर्ड सिंक</sys:String>
     <sys:String x:Key="Settings.SecDemo">डेमो केंद्र</sys:String>
     <sys:String x:Key="Settings.SecFeatures">सुविधाएँ</sys:String>
     <sys:String x:Key="Settings.SecLicense">लाइसेंस</sys:String>

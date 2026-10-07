@@ -66,8 +66,8 @@ namespace ProGlassAutomation.ViewModels.Settings
             /// <summary>Localization key of the GROUP this page belongs to,
             /// empty for none. The rail ignores it (the rail is a flat
             /// list on purpose); the top-panel quick-settings list groups
-            /// by <see cref="GroupLabel"/> so it can present twelve pages
-            /// without ever hand-copying one.</summary>
+            /// by <see cref="GroupLabel"/> so it can present every
+            /// registered page without ever hand-copying one.</summary>
             public string GroupKey { get; }
 
             public string Label => Services.Localization
@@ -131,6 +131,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 new("Voice",      "\uE720", "Settings.SecVoice",      "Settings.GrpIntelligence"),
                 new("Updates",    "\uE72C", "Settings.SecUpdates",    "Nav.GroupSystem"),
                 new("Data",       "\uE74E", "Settings.SecData",       "Nav.GroupSystem"),
+                new("RecordsSync", "\uE895", "Settings.SecRecordsSync", "Nav.GroupSystem"),
                 new("Demo",       "\uE714", "Settings.SecDemo",       "Nav.GroupSystem"),
                 new("License",    "\uE762", "Settings.SecLicense",    "Nav.GroupSystem"),
                 // 2026-09-14: glyph was \uE192 — a Segoe UI Symbol (MDL1)

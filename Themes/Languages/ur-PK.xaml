@@ -2155,6 +2155,7 @@
     <sys:String x:Key="Settings.SecAi">AI معاون</sys:String>
     <sys:String x:Key="Settings.SecAppearance">ظاہری شکل</sys:String>
     <sys:String x:Key="Settings.SecData">ڈیٹا اور بیک اپ</sys:String>
+    <sys:String x:Key="Settings.SecRecordsSync">ریکارڈز کی ہم وقت سازی</sys:String>
     <sys:String x:Key="Settings.SecDemo">ڈیمو سینٹر</sys:String>
     <sys:String x:Key="Settings.SecFeatures">خصوصیات</sys:String>
     <sys:String x:Key="Settings.SecLicense">لائسنس</sys:String>

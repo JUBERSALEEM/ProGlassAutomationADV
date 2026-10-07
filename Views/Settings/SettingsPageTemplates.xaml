@@ -12,8 +12,9 @@
      DATACONTEXT RESOLUTION:
      ─────────────────────────────────────────────────────────────────
      Every root below pulls the shell VM back explicitly through the
-     page-host ContentControl. The four page-scoped sections reach through it
-     for their own sub-VM (AiPage / VoicePage / UpdatesPage / SharingPage),
+     page-host ContentControl. The five page-scoped sections reach through it
+     for their own sub-VM (AiPage / VoicePage / UpdatesPage / SharingPage /
+     RecordsSyncPage),
      preserving the v3 intent. RelativeSource is used rather than a
      BindingProxy because these templates live in their own dictionary, where
      a StaticResource to a proxy declared in SettingsView would not resolve at
@@ -59,6 +60,11 @@
     <DataTemplate x:Key="SettingsPage.Data">
         <sections:SettingsDataSection
                     DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ContentControl}}"/>
+    </DataTemplate>
+
+    <DataTemplate x:Key="SettingsPage.RecordsSync">
+        <sections:SettingsRecordsSyncSection
+                    DataContext="{Binding DataContext.RecordsSyncPage, RelativeSource={RelativeSource AncestorType=ContentControl}}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.Demo">

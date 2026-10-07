@@ -44,6 +44,7 @@ namespace ProGlassAutomation.Tests.Settings
             "Views/Settings/Sections/SettingsDemoSection.xaml",
             "Views/Settings/Sections/SettingsFeaturesSection.xaml",
             "Views/Settings/Sections/SettingsLicenseSection.xaml",
+            "Views/Settings/Sections/SettingsRecordsSyncSection.xaml",
             "Views/Settings/Sections/SettingsSharingSection.xaml",
             "Views/Settings/Sections/SettingsThemesSection.xaml",
             "Views/Settings/Sections/SettingsUpdatesSection.xaml",
@@ -306,6 +307,7 @@ namespace ProGlassAutomation.Tests.Settings
         [InlineData("SettingsAboutSection.xaml")]
         [InlineData("SettingsThemesSection.xaml")]
         [InlineData("SettingsSharingSection.xaml")]
+        [InlineData("SettingsRecordsSyncSection.xaml")]
         [InlineData("SettingsVoiceSection.xaml")]
         public void Rewritten_section_uses_the_card_grammar(string sectionFile)
         {
@@ -877,6 +879,7 @@ namespace ProGlassAutomation.Tests.Settings
         [InlineData("SettingsDemoSection.xaml", 0)]
         [InlineData("SettingsFeaturesSection.xaml", 8)]
         [InlineData("SettingsLicenseSection.xaml", 0)]
+        [InlineData("SettingsRecordsSyncSection.xaml", 0)]
         [InlineData("SettingsSharingSection.xaml", 0)]
         [InlineData("SettingsThemesSection.xaml", 0)]
         [InlineData("SettingsUpdatesSection.xaml", 0)]
@@ -913,6 +916,7 @@ namespace ProGlassAutomation.Tests.Settings
         [InlineData("Sections/SettingsDemoSection.xaml", false)]
         [InlineData("Sections/SettingsFeaturesSection.xaml", false)]
         [InlineData("Sections/SettingsLicenseSection.xaml", false)]
+        [InlineData("Sections/SettingsRecordsSyncSection.xaml", false)]
         [InlineData("Sections/SettingsSharingSection.xaml", false)]
         [InlineData("Sections/SettingsThemesSection.xaml", false)]
         [InlineData("Sections/SettingsUpdatesSection.xaml", false)]

@@ -46,6 +46,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             try { ThemeManager.ThemeChanged -= _themeChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: ThemeChanged detach failed: " + ExceptionMessages.Deep(ex)); }
             try { ThemeManager.UiScaleChanged -= _uiScaleChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: UiScaleChanged detach failed: " + ExceptionMessages.Deep(ex)); }
             try { UpdatesPage?.Detach(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: UpdateService detach failed: " + ExceptionMessages.Deep(ex)); }
+            try { RecordsSyncPage?.Detach(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: Records Sync status detach failed: " + ExceptionMessages.Deep(ex)); }
             try { TeardownAppearanceSection(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: appearance-section detach failed: " + ExceptionMessages.Deep(ex)); }
             try { FlushDebouncedSave(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: debounced save flush failed: " + ExceptionMessages.Deep(ex)); }
             GC.SuppressFinalize(this);

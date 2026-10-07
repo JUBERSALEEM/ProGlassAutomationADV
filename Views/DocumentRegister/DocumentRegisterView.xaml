@@ -16,6 +16,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../Shared/Lists/StudioListResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <!-- Register grids set row and column metrics directly on each
+                 DataGrid, so they override the shared compact density default. -->
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -107,35 +109,40 @@
                     <DataGrid Grid.Row="1"
                               ItemsSource="{Binding ProformaRows}"
                               Style="{StaticResource Sl.DataGrid}"
-                              ColumnHeaderStyle="{StaticResource Sl.DataGridHeader}"
+                              RowHeight="56"
+                              MinRowHeight="56"
+                              ColumnWidth="*"
+                              ColumnHeaderStyle="{StaticResource Sl.DataGridHeaderCenter}"
                               IsReadOnly="True"
                               CanUserSortColumns="True"
                               SelectionUnit="FullRow">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="PI #" Binding="{Binding ProformaId}" Width="125" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Issue date" Binding="{Binding IssueDate, StringFormat='{}{0:dd MMM yyyy}'}" Width="112" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Company" Binding="{Binding CompanyName}" Width="175" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="160" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" Width="180" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTemplateColumn Header="Status · edit" Width="150" IsReadOnly="True">
+                            <DataGridTextColumn Header="PI #" Binding="{Binding ProformaId}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Issue date" Binding="{Binding IssueDate, StringFormat='{}{0:dd MMM yyyy}'}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Company" Binding="{Binding CompanyName}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTemplateColumn Header="Status · edit" IsReadOnly="True">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <ComboBox ItemsSource="{Binding StatusOptions}"
                                                   SelectedItem="{Binding SelectedStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                   IsEnabled="{Binding CanChangeStatus}"
                                                   Style="{StaticResource Sl.Combo}"
+                                                  VerticalAlignment="Center"
                                                   ToolTip="Select a permitted status. Approval follows the existing evidence workflow." />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Value (AED)" Binding="{Binding GrandTotalVatInclusive, StringFormat='{}{0:N2}'}" Width="118" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Job Order(s)" Binding="{Binding JobOrderIds}" Width="155" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="DNs" Binding="{Binding DeliveryNoteCount}" Width="55" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTemplateColumn Header="" Width="105" IsReadOnly="True">
+                            <DataGridTextColumn Header="Value (AED)" Binding="{Binding GrandTotalVatInclusive, StringFormat='{}{0:N2}'}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Job Order(s)" Binding="{Binding JobOrderIds}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="DNs" Binding="{Binding DeliveryNoteCount}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTemplateColumn Header="" IsReadOnly="True">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button Style="{StaticResource Sl.Button}"
                                                 Content="Open / Edit"
+                                                VerticalAlignment="Center"
                                                 Tag="&#xE8A7;"
                                                 Command="{Binding DataContext.OpenProformaCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                 CommandParameter="{Binding}" />
@@ -167,43 +174,49 @@
                     <DataGrid Grid.Row="1"
                               ItemsSource="{Binding JobOrderRows}"
                               Style="{StaticResource Sl.DataGrid}"
-                              ColumnHeaderStyle="{StaticResource Sl.DataGridHeader}"
+                              RowHeight="56"
+                              MinRowHeight="56"
+                              ColumnWidth="*"
+                              ColumnHeaderStyle="{StaticResource Sl.DataGridHeaderCenter}"
                               IsReadOnly="True"
                               CanUserSortColumns="True"
                               SelectionUnit="FullRow">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="JO #" Binding="{Binding JobOrderId}" Width="125" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Source PI" Binding="{Binding SourceProformaId}" Width="125" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="155" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" Width="165" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTemplateColumn Header="Status · edit" Width="150" IsReadOnly="True">
+                            <DataGridTextColumn Header="JO #" Binding="{Binding JobOrderId}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Source PI" Binding="{Binding SourceProformaId}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTemplateColumn Header="Status · edit" IsReadOnly="True">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <ComboBox ItemsSource="{Binding StatusOptions}"
                                                   SelectedItem="{Binding SelectedStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                   IsEnabled="{Binding CanChangeStatus}"
-                                                  Style="{StaticResource Sl.Combo}" />
+                                                  Style="{StaticResource Sl.Combo}"
+                                                  VerticalAlignment="Center" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Priority · edit" Width="112" IsReadOnly="True">
+                            <DataGridTemplateColumn Header="Priority · edit" IsReadOnly="True">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <ComboBox ItemsSource="{Binding PriorityOptions}"
                                                   SelectedItem="{Binding SelectedPriority, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                   IsEnabled="{Binding CanChangePriority}"
-                                                  Style="{StaticResource Sl.Combo}" />
+                                                  Style="{StaticResource Sl.Combo}"
+                                                  VerticalAlignment="Center" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Target delivery" Binding="{Binding DeliveryDate, StringFormat='{}{0:dd MMM yyyy}'}" Width="124" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Value (AED)" Binding="{Binding GrandTotalVatInclusive, StringFormat='{}{0:N2}'}" Width="118" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="DN(s)" Binding="{Binding DeliveryNoteIds}" Width="155" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTemplateColumn Header="" Width="105" IsReadOnly="True">
+                            <DataGridTextColumn Header="Target delivery" Binding="{Binding DeliveryDate, StringFormat='{}{0:dd MMM yyyy}'}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Value (AED)" Binding="{Binding GrandTotalVatInclusive, StringFormat='{}{0:N2}'}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="DN(s)" Binding="{Binding DeliveryNoteIds}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTemplateColumn Header="" IsReadOnly="True">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button Style="{StaticResource Sl.Button}"
                                                 Content="Open / Edit"
+                                                VerticalAlignment="Center"
                                                 Tag="&#xE8A7;"
                                                 Command="{Binding DataContext.OpenJobOrderCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                 CommandParameter="{Binding}" />
@@ -235,36 +248,41 @@
                     <DataGrid Grid.Row="1"
                               ItemsSource="{Binding DeliveryNoteRows}"
                               Style="{StaticResource Sl.DataGrid}"
-                              ColumnHeaderStyle="{StaticResource Sl.DataGridHeader}"
+                              RowHeight="56"
+                              MinRowHeight="56"
+                              ColumnWidth="*"
+                              ColumnHeaderStyle="{StaticResource Sl.DataGridHeaderCenter}"
                               IsReadOnly="True"
                               CanUserSortColumns="True"
                               SelectionUnit="FullRow">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="DN #" Binding="{Binding DeliveryNoteId}" Width="125" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Job Order" Binding="{Binding JobOrderId}" Width="125" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Proforma" Binding="{Binding ProformaId}" Width="125" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="155" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" Width="160" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTemplateColumn Header="Status · edit" Width="150" IsReadOnly="True">
+                            <DataGridTextColumn Header="DN #" Binding="{Binding DeliveryNoteId}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Job Order" Binding="{Binding JobOrderId}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Proforma" Binding="{Binding ProformaId}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTemplateColumn Header="Status · edit" IsReadOnly="True">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <ComboBox ItemsSource="{Binding StatusOptions}"
                                                   SelectedItem="{Binding SelectedStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                   IsEnabled="{Binding CanChangeStatus}"
                                                   Style="{StaticResource Sl.Combo}"
+                                                  VerticalAlignment="Center"
                                                   ToolTip="Select a permitted status; source workflow validation still applies." />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Delivery date" Binding="{Binding DeliveryDate, StringFormat='{}{0:dd MMM yyyy}'}" Width="118" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Delivered pcs" Binding="{Binding TotalDeliveredQty}" Width="92" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Balance pcs" Binding="{Binding TotalBalanceQty}" Width="90" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Tax invoice" Binding="{Binding TaxInvoiceId}" Width="118" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
-                            <DataGridTemplateColumn Header="" Width="105" IsReadOnly="True">
+                            <DataGridTextColumn Header="Delivery date" Binding="{Binding DeliveryDate, StringFormat='{}{0:dd MMM yyyy}'}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Delivered pcs" Binding="{Binding TotalDeliveredQty}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Balance pcs" Binding="{Binding TotalBalanceQty}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Tax invoice" Binding="{Binding TaxInvoiceId}" ElementStyle="{StaticResource Sl.CellText}" IsReadOnly="True" />
+                            <DataGridTemplateColumn Header="" IsReadOnly="True">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button Style="{StaticResource Sl.Button}"
                                                 Content="Open / Edit"
+                                                VerticalAlignment="Center"
                                                 Tag="&#xE8A7;"
                                                 Command="{Binding DataContext.OpenDeliveryNoteCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                 CommandParameter="{Binding}" />

@@ -102,4 +102,13 @@ namespace ProGlassAutomation.Services.RecordsSync
         /// <summary>pi_number → SHA-256 hex of the serialized payload.</summary>
         public Dictionary<string, string> Hashes { get; set; } = new();
     }
+
+    /// <summary>Read-only status shown on the Records Sync settings page.</summary>
+    public sealed record RecordsSyncStatusSnapshot
+    {
+        public bool Enabled { get; init; }
+        public bool AtomicBackendAvailable { get; init; }
+        public int PendingCount { get; init; }
+        public DateTimeOffset? LastSuccessfulSyncUtc { get; init; }
+    }
 }

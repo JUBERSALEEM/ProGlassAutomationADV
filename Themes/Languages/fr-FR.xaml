@@ -2155,6 +2155,7 @@
     <sys:String x:Key="Settings.SecAi">Assistant IA</sys:String>
     <sys:String x:Key="Settings.SecAppearance">Apparence</sys:String>
     <sys:String x:Key="Settings.SecData">Données et sauvegardes</sys:String>
+    <sys:String x:Key="Settings.SecRecordsSync">Synchronisation des enregistrements</sys:String>
     <sys:String x:Key="Settings.SecDemo">Centre de démo</sys:String>
     <sys:String x:Key="Settings.SecFeatures">Fonctions</sys:String>
     <sys:String x:Key="Settings.SecLicense">Licence</sys:String>

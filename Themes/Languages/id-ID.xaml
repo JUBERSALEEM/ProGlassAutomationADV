@@ -2155,6 +2155,7 @@
     <sys:String x:Key="Settings.SecAi">Asisten AI</sys:String>
     <sys:String x:Key="Settings.SecAppearance">Tampilan</sys:String>
     <sys:String x:Key="Settings.SecData">Data &amp; cadangan</sys:String>
+    <sys:String x:Key="Settings.SecRecordsSync">Sinkronisasi Data</sys:String>
     <sys:String x:Key="Settings.SecDemo">Pusat demo</sys:String>
     <sys:String x:Key="Settings.SecFeatures">Fitur</sys:String>
     <sys:String x:Key="Settings.SecLicense">Lisensi</sys:String>

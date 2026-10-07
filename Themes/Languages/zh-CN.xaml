@@ -2155,6 +2155,7 @@
     <sys:String x:Key="Settings.SecAi">AI 助手</sys:String>
     <sys:String x:Key="Settings.SecAppearance">外观</sys:String>
     <sys:String x:Key="Settings.SecData">数据与备份</sys:String>
+    <sys:String x:Key="Settings.SecRecordsSync">记录同步</sys:String>
     <sys:String x:Key="Settings.SecDemo">演示中心</sys:String>
     <sys:String x:Key="Settings.SecFeatures">功能</sys:String>
     <sys:String x:Key="Settings.SecLicense">许可证</sys:String>

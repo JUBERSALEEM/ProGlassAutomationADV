@@ -57,6 +57,209 @@ namespace ProGlassAutomation.Services.RecordsSync
         private int _backoffMinutes;
         private bool _disposed;
 
+        /// <summary>Read-only status for the Settings surface. This PI sync
+        /// service has no atomic publication backend, so availability remains false.</summary>
+        public RecordsSyncStatusSnapshot Status => BuildStatusSnapshot();
+
+        /// <summary>Raised after local configuration or a sync pass changes
+        /// the observable status. UI listeners should marshal to their dispatcher.</summary>
+        public event Action<RecordsSyncStatusSnapshot>? StatusChanged;
+
+        /// <summary>Returns a detached copy of current PI sync settings.
+        /// Credential material is intentionally excluded.</summary>
+        public RecordsSyncSettings GetSettingsSnapshot() => new()
+        {
+            Enabled = _settings.Enabled,
+            SupabaseUrl = _settings.SupabaseUrl,
+            AuthEmail = _settings.AuthEmail,
+            SourceFile = _settings.SourceFile,
+            SourceWorksheet = _settings.SourceWorksheet,
+            IntervalMinutes = _settings.IntervalMinutes,
+        };
+
+        /// <summary>Validates a Supabase project root URL. Production endpoints
+        /// must use HTTPS; plain HTTP is accepted only for loopback development.</summary>
+        public static string NormalizeProjectUrl(string? value)
+        {
+            var candidate = (value ?? string.Empty).Trim();
+            if (!Uri.TryCreate(candidate, UriKind.Absolute, out var uri) ||
+                (!string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) &&
+                 !(string.Equals(uri.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) && uri.IsLoopback)) ||
+                !string.IsNullOrEmpty(uri.UserInfo) ||
+                (uri.AbsolutePath != "/" && !string.IsNullOrEmpty(uri.AbsolutePath)) ||
+                !string.IsNullOrEmpty(uri.Query) ||
+                !string.IsNullOrEmpty(uri.Fragment))
+            {
+                throw new ArgumentException(
+                    "Enter the root HTTPS Supabase project URL without a path (HTTP is allowed only for a loopback development server).",
+                    nameof(value));
+            }
+
+            return uri.GetLeftPart(UriPartial.Authority) + uri.AbsolutePath.TrimEnd('/');
+        }
+
+        /// <summary>Stores connection metadata locally and credentials in the
+        /// existing SecretVault. Existing Enabled/source/interval settings are
+        /// preserved. This is local-only: it never tests the network, starts a
+        /// timer, or sends PI rows.</summary>
+        public async Task SaveConfigurationAsync(
+            RecordsSyncSettings settings,
+            string apiKey,
+            string password,
+            CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(settings);
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(RecordsSyncService));
+
+            var apiKeyValue = (apiKey ?? string.Empty).Trim();
+            var passwordValue = password ?? string.Empty;
+            if (apiKeyValue.Length == 0)
+                throw new ArgumentException("A Supabase publishable/anon key is required.", nameof(apiKey));
+            if (passwordValue.Length == 0)
+                throw new ArgumentException("A dedicated Records Sync account password is required.", nameof(password));
+
+            var normalized = new RecordsSyncSettings
+            {
+                // This page never enables/disables the existing worker or changes
+                // its PI-only source scope and cadence.
+                Enabled = _settings.Enabled,
+                SupabaseUrl = NormalizeProjectUrl(settings.SupabaseUrl),
+                AuthEmail = (settings.AuthEmail ?? string.Empty).Trim(),
+                SourceFile = _settings.SourceFile,
+                SourceWorksheet = _settings.SourceWorksheet,
+                IntervalMinutes = _settings.IntervalMinutes,
+            };
+            if (normalized.AuthEmail.Length == 0)
+                throw new ArgumentException("A dedicated Records Sync account email is required.", nameof(settings));
+
+            await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                if (_disposed)
+                    throw new ObjectDisposedException(nameof(RecordsSyncService));
+
+                var hadOldKey = SecretVault.TryRetrieve(SecretKey, out var oldKey);
+                var hadOldPassword = SecretVault.TryRetrieve(SecretPasswordKey, out var oldPassword);
+                var keyMayHaveChanged = false;
+                var passwordMayHaveChanged = false;
+                try
+                {
+                    keyMayHaveChanged = true;
+                    StoreAndVerifySecret(SecretKey, apiKeyValue);
+                    passwordMayHaveChanged = true;
+                    StoreAndVerifySecret(SecretPasswordKey, passwordValue);
+                    PersistSettings(normalized);
+                }
+                catch
+                {
+                    if (passwordMayHaveChanged)
+                        RestoreSecret(SecretPasswordKey, hadOldPassword, oldPassword);
+                    if (keyMayHaveChanged)
+                        RestoreSecret(SecretKey, hadOldKey, oldKey);
+                    throw;
+                }
+
+                // No call to StartIfConfigured or timer re-arm here.
+                _settings = normalized;
+            }
+            finally
+            {
+                _gate.Release();
+            }
+
+            RaiseStatusChanged();
+        }
+
+        private RecordsSyncStatusSnapshot BuildStatusSnapshot()
+        {
+            var state = LoadState();
+            DateTimeOffset? lastSuccess = state.LastSuccessUtc == default
+                ? null
+                : new DateTimeOffset(DateTime.SpecifyKind(state.LastSuccessUtc, DateTimeKind.Utc));
+            return new RecordsSyncStatusSnapshot
+            {
+                Enabled = _settings.Enabled,
+                AtomicBackendAvailable = false,
+                PendingCount = 0,
+                LastSuccessfulSyncUtc = lastSuccess,
+            };
+        }
+
+        private void RaiseStatusChanged()
+        {
+            var handlers = StatusChanged;
+            if (handlers == null) return;
+
+            var snapshot = BuildStatusSnapshot();
+            foreach (Action<RecordsSyncStatusSnapshot> handler in handlers.GetInvocationList())
+            {
+                try { handler(snapshot); }
+                catch (Exception ex)
+                {
+                    AppLogService.Debug("[RecordsSync] status listener failed: " + ex.Message);
+                }
+            }
+        }
+
+        private static void PersistSettings(RecordsSyncSettings settings)
+        {
+            var folder = Path.GetDirectoryName(SettingsPath);
+            if (string.IsNullOrWhiteSpace(folder))
+                throw new InvalidOperationException("Records Sync settings folder is unavailable.");
+
+            Directory.CreateDirectory(folder);
+            var temporaryPath = SettingsPath + ".tmp-" + Guid.NewGuid().ToString("N");
+            try
+            {
+                File.WriteAllText(temporaryPath, JsonSerializer.Serialize(settings, JsonOptions));
+                File.Move(temporaryPath, SettingsPath, overwrite: true);
+            }
+            finally
+            {
+                try
+                {
+                    if (File.Exists(temporaryPath)) File.Delete(temporaryPath);
+                }
+                catch (Exception ex)
+                {
+                    AppLogService.Warning("[RecordsSync] temporary settings file cleanup failed: " + ex.GetType().Name);
+                }
+            }
+        }
+
+        private static void StoreAndVerifySecret(string key, string value)
+        {
+            SecretVault.Store(key, value);
+            if (!SecretVault.TryRetrieve(key, out var roundTrip) ||
+                !string.Equals(value, roundTrip, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException(
+                    "Credential storage could not be verified in the Windows credential vault.");
+            }
+        }
+
+        private static void RestoreSecret(string key, bool hadPreviousValue, string previousValue)
+        {
+            try
+            {
+                if (hadPreviousValue)
+                {
+                    StoreAndVerifySecret(key, previousValue);
+                }
+                else
+                {
+                    SecretVault.Remove(key);
+                    if (SecretVault.TryRetrieve(key, out _))
+                        throw new InvalidOperationException("The previous credential could not be removed during rollback.");
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Error("[RecordsSync] credential rollback failed for " + key + ".", ex);
+            }
+        }
+
         /// <summary>Reads configuration and arms the timer IF the operator
         /// enabled and configured the integration. Never throws; a broken
         /// config file simply leaves the sync dormant (logged once).</summary>
@@ -65,6 +268,7 @@ namespace ProGlassAutomation.Services.RecordsSync
             try
             {
                 _settings = LoadSettings();
+                RaiseStatusChanged();
                 if (!_settings.Enabled)
                     return;
 
@@ -184,6 +388,7 @@ namespace ProGlassAutomation.Services.RecordsSync
             state.LastSuccessUtc = DateTime.UtcNow;
             state.LastSentCount = written;
             SaveState(state);
+            RaiseStatusChanged();
             return written;
         }
 
@@ -297,6 +502,7 @@ namespace ProGlassAutomation.Services.RecordsSync
             if (_disposed) return;
             _disposed = true;
             _timer?.Dispose();
+            StatusChanged = null;
             _gate.Dispose();
         }
     }

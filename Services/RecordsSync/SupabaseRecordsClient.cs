@@ -66,6 +66,40 @@ namespace ProGlassAutomation.Services.RecordsSync
             _http.DefaultRequestHeaders.Add("apikey", _apiKey);
         }
 
+        /// <summary>Explicit read-only Settings check. It authenticates the
+        /// dedicated account and requests zero PI rows; no business record is
+        /// read and no write endpoint is called.</summary>
+        public async Task TestReadConnectionAsync(CancellationToken cancellationToken = default)
+        {
+            if (_authEmail == null || _authPassword == null)
+                throw new InvalidOperationException(
+                    "A dedicated Records Sync account email and password are required for this test.");
+
+            var bearer = await ResolveBearerTokenAsync(cancellationToken)
+                .ConfigureAwait(false);
+            using var request = new HttpRequestMessage(
+                HttpMethod.Get, _baseUrl + RecordsEndpoint + "?select=pi_number&limit=0");
+            AddAuth(request, bearer);
+
+            using var response = await _http
+                .SendAsync(request, cancellationToken).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException(
+                    "Supabase read-only check failed with HTTP " +
+                    (int)response.StatusCode + " " + response.ReasonPhrase + ".",
+                    null,
+                    response.StatusCode);
+            }
+
+            var body = await response.Content.ReadAsStringAsync(cancellationToken)
+                .ConfigureAwait(false);
+            using var document = JsonDocument.Parse(body);
+            if (document.RootElement.ValueKind != JsonValueKind.Array)
+                throw new InvalidOperationException(
+                    "Supabase returned an unexpected response for the read-only PI check.");
+        }
+
         private sealed record RemoteRow(
             string PiNumber, string? SourceFile, string? SourceWorksheet, string? UpdatedAtRaw);
 
