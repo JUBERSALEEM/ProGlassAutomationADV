@@ -124,6 +124,8 @@ export function ScreenshotFrame({
         moduleKey={shot.moduleKey}
         name={t(shot.title)}
         capabilities={owner?.capabilities ?? shot.highlights}
+        /* Which screen of the module this slot is, when it has more than one. */
+        variant={shot.previewVariant}
         /* A slide: the run is shown as a strip of plates, not paged. */
         compact
       />

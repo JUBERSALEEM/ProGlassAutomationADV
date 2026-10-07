@@ -115,6 +115,32 @@ export const optimizerTabs: OptimizerTab[] = [
   },
 ];
 
+/**
+ * The same house defaults, as numbers, for the parts of the site that draw.
+ *
+ * `thicknessProfiles` above is the table a visitor reads; this is the one the
+ * components compute with, and the two are the same values stated twice on
+ * purpose — a table cell is a sentence a translator may reword, and a margin
+ * that has been reworded is not a margin.
+ *
+ * Source: `Services/Optimization/OptimizationModels.cs` → `MarginProfile.DefaultFor`,
+ * which resolves a profile from the glass thickness:
+ *
+ *   Thin    ≤ 6 mm    LM/RM/TM/BM 15 · kerf 3 · breakout 15
+ *   Medium  7–8 mm    LM/RM/TM/BM 30 · kerf 3 · breakout 30
+ *   Thick   ≥ 9 mm    LM/RM/BM 50, TM 0 · kerf 4 · breakout 50, or 40 on the
+ *                     alternate setting the SETTINGS tab offers for 9 mm and up
+ *
+ * The kerf is not a chosen number either: it is 4 mm from 10 mm glass upward and
+ * 3 mm below it, so a 6 mm plate is cut with a 3 mm blade gap and the sample
+ * jobs on this site say so.
+ */
+export const houseMarginProfiles = {
+  thin: { thicknessMm: 6, left: 15, right: 15, top: 15, bottom: 15, kerf: 3, breakout: 15 },
+  medium: { thicknessMm: 8, left: 30, right: 30, top: 30, bottom: 30, kerf: 3, breakout: 30 },
+  thick: { thicknessMm: 10, left: 50, right: 50, top: 0, bottom: 50, kerf: 4, breakout: 50 },
+} as const;
+
 export type ThicknessProfile = {
   bucket: string;
   range: string;

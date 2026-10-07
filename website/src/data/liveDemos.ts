@@ -21,6 +21,7 @@
  */
 
 import { lineArea, lineValue, pieceArea, seedSpecGroups } from "@/data/workedExample";
+import { houseMarginProfiles } from "@/data/optimization";
 import { STANDARD_SURCHARGE_PERCENT } from "@/data/pricingRules";
 import type { SpecSurfaceInput } from "@/components/product/SpecificationSurface";
 import type { PnLInput } from "@/components/product/ProfitLossSurface";
@@ -154,8 +155,24 @@ export const sheetSizes = [
   { label: "Oversize 6000 × 3210", w: 6000, h: 3210 },
 ];
 
-/** Margins and kerf the nesting respect. Millimetres. */
-export const optimizerLimits = { kerf: 4, marginLeft: 15, marginRight: 15, marginTop: 3, marginBottom: 3 };
+/**
+ * Margins and kerf the sample run respects, in the shape the preview reads.
+ *
+ * Millimetres, and they are the application's house Thin profile rather than
+ * numbers chosen here: 6 mm glass is trimmed 15 mm on all four edges and cut
+ * with a 3 mm blade gap (`Services/Optimization/OptimizationModels.cs` →
+ * `MarginProfile.DefaultFor`). The earlier draft of this preview carried
+ * 15/15/3/3 with a 4 mm kerf, which is not the default for any thickness bucket
+ * — a plate drawn with trims the application would not use.
+ */
+export const optimizerLimits = {
+  kerf: houseMarginProfiles.thin.kerf,
+  marginLeft: houseMarginProfiles.thin.left,
+  marginRight: houseMarginProfiles.thin.right,
+  marginTop: houseMarginProfiles.thin.top,
+  marginBottom: houseMarginProfiles.thin.bottom,
+  minBreakout: houseMarginProfiles.thin.breakout,
+};
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Sample data

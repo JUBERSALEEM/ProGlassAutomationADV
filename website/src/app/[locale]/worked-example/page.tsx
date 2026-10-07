@@ -8,6 +8,16 @@ import { Badge } from "@/components/ui/Badge";
 import { cn as cnCell } from "@/lib/cn";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { PlateInspector } from "@/components/optimization/PlateInspector";
+import {
+  seedRunBreakoutMm,
+  seedRunGeometry,
+  seedRunMargins,
+  seedRunPieces,
+  seedRunPlates,
+  seedRunSheet,
+  seedRunTotals,
+} from "@/components/optimization/seedRun";
 import { StatBadge } from "@/components/ui/Stat";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
@@ -657,6 +667,68 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                 </div>
               </div>
             </Reveal>
+          </div>
+        </Container>
+      </Section>
+
+      {/* ── The 2D view of the seeded job ────────────────────────── */}
+      <Section aria-labelledby="nested-heading">
+        <Container>
+          <SectionHeading
+            id="nested-heading"
+            eyebrow={t("The 2D view")}
+            title={t("Where those sheets go.")}
+            lead={t(
+              "A sheet store is only half the picture; the other half is what comes off the sheets. Below is the seeded job's own glass, nested on the seeded stock — {v1} panes of {v2} mm {v3} from {v4}, cut with the application's house profile for that thickness: a {v5} mm trim on all four edges and a {v6} mm blade gap.",
+              {
+                v1: seedRunPieces,
+                v2: seedRunSheet.thicknessMm,
+                v3: t(seedRunSheet.category),
+                v4: seedRunSheet.supplier,
+                v5: seedRunMargins.left,
+                v6: seedRunMargins.kerf,
+              },
+            )}
+          />
+
+          <div className="mt-10">
+            <PlateInspector
+              plates={seedRunPlates}
+              margins={seedRunMargins}
+              minBreakoutMm={seedRunBreakoutMm}
+              thicknessMm={seedRunSheet.thicknessMm}
+              composition={t("{v1} mm {v2} · {v3}", {
+                v1: seedRunSheet.thicknessMm,
+                v2: t(seedRunSheet.category),
+                v3: seedRunSheet.colour,
+              })}
+              showSchedule
+              galleryColumns="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
+            />
+          </div>
+
+          <div className="mt-6 grid max-w-4xl gap-4 sm:grid-cols-2">
+            <p className="text-xs font-medium leading-relaxed text-text-faint">
+              {t(
+                "The panes are grouped by the sheet they are bought on — one glass to a run, the way a shop actually cuts it — and this is the largest of those runs, so the drawing above is the seeded quotation's own glass and not a cut list written for the occasion. The store holds {available} sheets of this glass, {used} spoken for; the run takes {plates}.",
+                {
+                  available: seedRunTotals.sheetsAvailable,
+                  used: seedRunSheet.used,
+                  plates: seedRunTotals.plates,
+                },
+              )}
+            </p>
+            <p className="text-xs font-medium leading-relaxed text-text-faint">
+              {t(
+                "Why some plates carry only two panes: the run's tallest pane is {tallest} mm, and under it the trims and the blade gap leave {below} mm — short of the run's next size down at {smallest} mm. Beside it there is {beside} mm against a smallest width of {smallest} mm. That is the sheet size, not the packing: it is why a rack holds more than one, and why the engine searches other sizes as well as other patterns.",
+                {
+                  tallest: seedRunGeometry.tallest,
+                  below: seedRunGeometry.belowTallest,
+                  beside: seedRunGeometry.besideTallest,
+                  smallest: seedRunGeometry.smallest,
+                },
+              )}
+            </p>
           </div>
         </Container>
       </Section>

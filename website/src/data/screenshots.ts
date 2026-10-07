@@ -51,6 +51,13 @@ export type Screenshot = {
   assetNote?: string;
   /** Operational highlights shown beside the preview. */
   highlights: string[];
+  /**
+   * Which screen of the module the interactive preview should draw, when the
+   * module has more than one. Optimization is the case that needed it: the site
+   * lists three of its tabs, and without this the same panel was rendered three
+   * times under three captions.
+   */
+  previewVariant?: "settings" | "2d" | "report";
   tags: string[];
 };
 
@@ -308,9 +315,10 @@ export const screenshots: Screenshot[] = [
     height: 1000,
     source: "pending",
     evidence: "Guillotine Cutting Configuration & Margin Parameters",
+    previewVariant: "settings",
     highlights: [
       "Kerf width in millimetres (blade loss per cut line)",
-      "Sheet trim margins: left 15 mm, right 15 mm, top 3 mm, bottom 3 mm",
+      "House trim margins resolve from the glass thickness — 15 mm on all four edges at 6 mm, 30 mm at 8 mm, and 50/50/0/50 at 10 mm and above",
       "Grain direction enforcement for patterned and Low-E coated glass",
     ],
     tags: ["Optimization", "Kerf", "Settings", "CNC"],
@@ -327,6 +335,7 @@ export const screenshots: Screenshot[] = [
     height: 1000,
     source: "pending",
     evidence: "Interactive 2D Sheet Layout & Nesting Pattern",
+    previewVariant: "2d",
     highlights: [
       "True guillotine cuts — edge-to-edge passes executable on industrial tables",
       "Color-coded panels with piece labels, dimensions and job order references",
@@ -346,6 +355,7 @@ export const screenshots: Screenshot[] = [
     height: 1000,
     source: "pending",
     evidence: "Industrial Cutting Schedule & Yield Diagnostics",
+    previewVariant: "report",
     highlights: [
       "Pattern-by-pattern breakdown: sheets required, pieces cut, square metres used",
       "Overall yield percentage vs scrap percentage with cost impact",

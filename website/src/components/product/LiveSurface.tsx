@@ -19,6 +19,8 @@ import { LogSurface } from "@/components/product/LogSurface";
 import { StageQueueSurface } from "@/components/product/StageQueueSurface";
 import { stageChain, type StageChainId } from "@/data/stageQueue";
 import { SheetGallery } from "@/components/optimization/SheetGallery";
+import { PlateCad } from "@/components/optimization/PlateCad";
+import { OptimizerSettingsSurface } from "@/components/optimization/OptimizerSettingsSurface";
 import { packGuillotine, plateViews } from "@/lib/guillotinePack";
 import { useT } from "@/i18n/provider";
 import { NoTranslate } from "@/components/i18n/NoTranslate";
@@ -41,12 +43,22 @@ export function LiveSurface({
   capabilities = [],
   className,
   compact = false,
+  /**
+   * Which screen of the module to draw, when the caller knows.
+   *
+   * Optimization has three tabs on the site and three screens in the
+   * application, and they are not the same screen: the engine configuration,
+   * the 2D view, and the report. Without this the slides were one preview shown
+   * three times under three different captions.
+   */
+  variant,
 }: {
   moduleKey: string;
   name: string;
   capabilities?: string[];
   className?: string;
   compact?: boolean;
+  variant?: string;
 }) {
   const t = useT();
   const demo = useMemo(() => demoFor(moduleKey, name, capabilities), [moduleKey, name, capabilities]);
@@ -89,7 +101,15 @@ export function LiveSurface({
           {demo.kind === "log" ? (
             <LogSurface compact={compact} />
           ) : demo.kind === "optimizer" ? (
-            <OptimizerEngine demo={demo} compact={compact} />
+            variant === "settings" ? (
+              <OptimizerSettingsSurface />
+            ) : (
+              <OptimizerEngine
+                demo={demo}
+                compact={compact}
+                view={variant === "report" ? "report" : "engine"}
+              />
+            )
           ) : demo.kind === "stage" ? (
             <StageQueueSurface stage={stageFromKey(moduleKey)} compact={compact} />
           ) : demo.kind === "queue" ? (
@@ -321,8 +341,25 @@ function TableEngine({
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
- * Optimizer engine — a real shelf packer over the cut list
+ * Optimizer engine — the real packer over the sample cut list
  * ════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * The margins the sample run is cut to.
+ *
+ * Mapped once, here, from the shape the data file uses into the shape the
+ * packer takes — and it is the application's house Thin profile: 15 mm on all
+ * four edges and a 3 mm blade gap for 6 mm glass. The preview used to be drawn
+ * 15/15/3/3 with a 4 mm kerf, which is not a profile the application has for
+ * any thickness, so the plate on screen showed trims the table would not make.
+ */
+const SAMPLE_MARGINS = {
+  left: optimizerLimits.marginLeft,
+  right: optimizerLimits.marginRight,
+  top: optimizerLimits.marginTop,
+  bottom: optimizerLimits.marginBottom,
+  kerf: optimizerLimits.kerf,
+};
 
 /**
  * The plate set for the sample cut list.
@@ -331,29 +368,19 @@ function TableEngine({
  * homepage and the optimization page so every plate drawing on this site comes
  * out of one implementation and they cannot disagree with each other.
  *
- * It is a shelf rule — the simplest guillotine-cuttable strategy — used to
- * illustrate how a run spreads across plates. The engine is not that: it
- * searches five families and six plate patterns. Everything printed here is
- * arithmetic over the pieces actually placed, and a piece that no plate can
- * hold is reported rather than dropped.
+ * It is a two-way split — each leftover L-shape divided by one straight cut, so
+ * every boundary stays a cut a guillotine table can make — used to illustrate
+ * how a run spreads across plates. The engine is not that: it searches five
+ * families and six plate patterns. Everything printed here is arithmetic over
+ * the pieces actually placed, and a piece that no plate can hold is reported
+ * rather than dropped.
  */
 function usePackedSample(parts: { piece: string; w: number; h: number }[], sheet: { label: string; w: number; h: number }) {
   return useMemo(() => {
     const result = packGuillotine(
       parts.map((part) => ({ id: part.piece, width: part.w, height: part.h })),
       { width: sheet.w, height: sheet.h },
-      /*
-       * `optimizerLimits` names its margins left/right/top/bottom for the
-       * display; the packer takes them as four edges and a kerf. Mapped here,
-       * once, rather than keeping two shapes of the same fact.
-       */
-      {
-        left: optimizerLimits.marginLeft,
-        right: optimizerLimits.marginRight,
-        top: optimizerLimits.marginTop,
-        bottom: optimizerLimits.marginBottom,
-        kerf: optimizerLimits.kerf,
-      },
+      SAMPLE_MARGINS,
     );
     return {
       result,
@@ -362,11 +389,22 @@ function usePackedSample(parts: { piece: string; w: number; h: number }[], sheet
   }, [parts, sheet]);
 }
 
-function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
+function OptimizerEngine({
+  demo,
+  compact,
+  view = "engine",
+}: {
+  demo: Demo;
+  compact?: boolean;
+  /** `engine` is the 2D view; `report` is the industrial report the run prints. */
+  view?: "engine" | "report";
+}) {
   const t = useT();
   const [sheetIndex, setSheetIndex] = useState(1);
   const [run, setRun] = useState(0);
   const [piecesPerPart, setPiecesPerPart] = useState(1);
+  /** Which plate the canvas is showing. The gallery sets it. */
+  const [focused, setFocused] = useState(1);
 
   const sheet = sheetSizes[sheetIndex] ?? sheetSizes[1]!;
 
@@ -385,6 +423,9 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
   }, [demo.views, piecesPerPart]);
 
   const { result, plates } = usePackedSample(parts, sheet);
+
+  /* The focused sheet, clamped — a smaller cut list has fewer plates. */
+  const activePlate = plates.find((entry) => entry.plate === focused) ?? plates[0];
 
   const partArea = parts.reduce((total, part) => total + (part.w * part.h) / 1_000_000, 0);
   const stockArea = result.stockAreaSqm;
@@ -439,8 +480,113 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
         </label>
       </div>
 
+      {view === "report" ? (
+        /*
+         * The industrial report the run produces: the nested sheets summary,
+          * which is the section an office reads — one row per plate, its stock,
+         * what went on it and what it yielded — over the run's own totals.
+         */
+        <div className="rounded-card border border-line/70 bg-ink-900/60 p-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 px-1 pb-2">
+            <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-muted font-semibold">
+              {t("Nested sheets summary")}
+            </p>
+            <span className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-text-faint font-medium">
+              {t("{v1} mm · trim {v2} mm · kerf {v3} mm", {
+                v1: 6,
+                v2: SAMPLE_MARGINS.left,
+                v3: SAMPLE_MARGINS.kerf,
+              })}
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[24rem] border-separate border-spacing-0 text-[0.75rem]">
+              <caption className="sr-only">
+                {t("Every plate of the sample run, with what it carries and what it yielded")}
+              </caption>
+              <thead>
+                <tr className="text-left">
+                  {["Sheet", "Stock", "Pieces", "Used", "Yield"].map((heading) => (
+                    <th
+                      key={heading}
+                      scope="col"
+                      className="border-b border-line-strong/70 px-2 py-1.5 font-mono text-3xs uppercase tracking-[0.1em] text-text-faint font-medium"
+                    >
+                      {t(heading)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {plates.map((entry) => (
+                  <tr key={entry.plate}>
+                    <td className="border-b border-line/50 px-2 py-1.5 font-semibold text-text-primary">
+                      {entry.plate}
+                    </td>
+                    <td className="border-b border-line/50 px-2 py-1.5 font-mono text-text-muted">
+                      {entry.stockLabel}
+                    </td>
+                    <td className="border-b border-line/50 px-2 py-1.5 font-mono tabular-nums text-text-secondary">
+                      {entry.pieceCount}
+                    </td>
+                    <td className="border-b border-line/50 px-2 py-1.5 font-mono tabular-nums text-text-secondary">
+                      {`${entry.usedSqm} m²`}
+                    </td>
+                    <td className="border-b border-line/50 px-2 py-1.5 font-mono tabular-nums font-semibold text-brand-200">
+                      {`${entry.utilizationPct.toFixed(1)}%`}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="px-1 pt-2 text-[0.6875rem] leading-relaxed text-text-faint font-medium">
+            {t("The report prints four sections: the industrial cut schedule in execution order, this nested sheets summary, the merged specifications the batch was built from, and the stock plates the run consumed.")}
+          </p>
+        </div>
+      ) : (
+        <>
       {/*
-        Every plate of the run, as thumbnails.
+        The plate itself, drawn the way the 2D View tab draws it: to scale, with
+        the edge trims, the breakout band, the pieces labelled with their
+        references, cut sizes and areas, their cut-sequence tags, and the
+        remnant that goes back on the rack.
+
+        This is what the preview was missing. It used to show the run only as a
+        row of thumbnails — small enough that a trim, a piece and an offcut were
+        the same three shades of violet, so the one screen the module exists for
+        was the one screen the preview could not actually show.
+      */}
+      {activePlate ? (
+        <div className="rounded-card border border-line/70 bg-ink-950/60 p-2">
+          <div className="-mx-1 overflow-x-auto px-1">
+            <PlateCad
+              t={t}
+              plate={activePlate}
+              margins={SAMPLE_MARGINS}
+              minBreakoutMm={optimizerLimits.minBreakout}
+              density="inspect"
+              className="min-w-[24rem]"
+            />
+          </div>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-line/50 pt-2">
+            <span className="rounded-md border border-brand-400/40 bg-brand-500/12 px-2 py-0.5 font-mono text-[0.625rem] font-bold text-brand-200">
+              {t("Sheet {v1} of {v2}", { v1: activePlate.plate, v2: plates.length })}
+            </span>
+            <span className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-text-faint font-medium">
+              {t("Yield {v1} · {v2} pieces", {
+                v1: `${activePlate.utilizationPct.toFixed(1)}%`,
+                v2: activePlate.pieceCount,
+              })}
+            </span>
+          </div>
+        </div>
+      ) : null}
+
+      {/*
+        Every plate of the run, as thumbnails, and each one focuses its sheet on
+        the canvas above — the application's gallery, where a card opens its own
+        layout.
 
         This replaced a vertical stack of full-width plates. A plate is wider
         than it is tall, so one drawn across the frame is already ~70% of its
@@ -456,11 +602,17 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
       */}
       <SheetGallery
         plates={plates}
+        margins={SAMPLE_MARGINS}
+        minBreakoutMm={optimizerLimits.minBreakout}
+        selectedPlate={activePlate?.plate}
+        onSelectPlate={setFocused}
         /* The sample job is four plates; a card shows all four as 2 × 2. */
         pageSize={compact ? 4 : 6}
         paginate={!compact}
         columns={compact ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3"}
       />
+        </>
+      )}
 
       {result.unplaced.length > 0 ? (
         <p className="rounded-card border border-state-warning/40 bg-state-warning/10 px-3 py-2 text-[0.75rem] leading-relaxed text-text-secondary">
@@ -505,7 +657,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
         </dl>
       ) : null}
 
-      <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{t("{v1} Arranged here with a shelf packer over the sample cut list, so the figures are genuinely calculated — change the sheet or the quantity and read them again.", { v1: t(demo.blurb) })}</p>
+      <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{t("{v1} Arranged here with a two-way guillotine split over the sample cut list, so the figures are genuinely calculated — change the sheet or the quantity and read them again.", { v1: t(demo.blurb) })}</p>
     </div>
   );
 }

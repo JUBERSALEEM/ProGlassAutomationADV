@@ -258,6 +258,32 @@ src/data/resources.ts           guides and blog posts
 src/data/assets.ts              image paths for the real product assets
 ```
 
+Every drawing of a plate on this site is generated, not stored, and they all come
+out of one packer:
+
+```
+src/lib/guillotinePack.ts       the packer — best-area-fit with a two-way split,
+                                so every boundary is a straight cut
+src/components/optimization/
+  sheetPlan.ts                  the homepage's sample job and its margins
+  seedRun.ts                    the seeded job's own run, off the seeded stock
+  cad.ts                        the arithmetic a 2D view draws: usable rectangle,
+                                breakout band, reusable remnant, schedule, and
+                                how big a piece must be to carry a label
+  PlateCad.tsx                  the plate, drawn to scale in millimetres
+  PlateSchedule.tsx             the piece cutting schedule for one sheet
+  CadLegend.tsx                 the key, transcribed from the application's
+  PlateInspector.tsx            canvas + schedule + gallery, wired together
+  SheetCard.tsx / SheetGallery.tsx   the multi-sheet gallery
+```
+
+The plate geometry — the usable rectangle, the breakout band and the 200 mm
+reusable-remnant rule — is the application's, transcribed from
+`ViewModels/Optimization/OptimizationViewModel.Preview.cs`; the label thresholds
+are its `ShowDimensions` / `ShowSequence` / `ShowFullDetails` pixel rules
+converted to millimetres, so a responsive drawing drops a label that would not
+fit rather than smudging one on.
+
 ## Languages
 
 The site ships the application's own fifteen languages: English (the bare
@@ -349,6 +375,11 @@ name the evidence, and state the limit of what is being claimed.
 
 Until a real capture exists, leave the entry as `pending`. The placeholder
 exists so that no page has to show something the product did not render.
+
+A pending Optimization entry may also set `previewVariant` to `settings`, `2d`
+or `report`, which picks which screen of the module the interactive preview
+draws. It exists because the site lists three of the module's tabs and one
+preview was, for a while, shown under all three captions.
 
 ## Wiring the demo-request form
 

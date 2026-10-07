@@ -8,8 +8,17 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
 import { AppFrame } from "@/components/product/AppFrame";
 import { LiveSurface } from "@/components/product/LiveSurface";
-import { NestingDemo } from "@/components/optimization/NestingDemo";
+import { PlateInspector } from "@/components/optimization/PlateInspector";
 import { StrategyPicker } from "@/components/optimization/StrategyPicker";
+import {
+  cutList,
+  planBreakoutMm,
+  planMargins,
+  planSheet,
+  planThicknessMm,
+  planTotals,
+  plates,
+} from "@/components/optimization/sheetPlan";
 import { ProductSlider } from "@/components/product/ProductSlider";
 import { ScreenshotFrame } from "@/components/gallery/ScreenshotFrame";
 import { screenshotById } from "@/data/screenshots";
@@ -130,17 +139,37 @@ export default async function OptimizationPage({ params }: PageProps) {
         </Container>
       </Section>
 
-      {/* ── Demonstration ────────────────────────────────────────── */}
+      {/* ── The 2D view ──────────────────────────────────────────── */}
       <Section tone="raised" aria-labelledby="demo-heading">
         <Container>
           <SectionHeading
             id="demo-heading"
-            eyebrow={t("Nesting, step by step")}
-            title={t("Watch the plate get split, not just filled.")}
-            lead={t("The animation below follows one worked example: a 3210 × 2250 plate of 6 mm glass, a 15 mm trim on all four edges, a 3 mm blade gap, and five pieces to come out of it.")}
+            eyebrow={t("The 2D view")}
+            title={t("Every plate, drawn the way the operator sees it.")}
+            lead={t(
+              "One worked example, all the way through: {v1} references and {v2} pieces across {v3} plates of {v4} mm {v5} glass, a {v6} mm trim on all four edges and a {v7} mm blade gap. The plate is drawn to scale with its trims, its pieces and the remnant each one leaves — and the schedule beside it is the same result, one row per cut.",
+              {
+                v1: cutList.length,
+                v2: planTotals.pieces,
+                v3: planTotals.plates,
+                v4: planThicknessMm,
+                v5: t(planSheet.label),
+                v6: planMargins.left,
+                v7: planMargins.kerf,
+              },
+            )}
           />
           <div className="mt-10">
-            <NestingDemo />
+            <PlateInspector
+              plates={plates}
+              margins={planMargins}
+              minBreakoutMm={planBreakoutMm}
+              thicknessMm={planThicknessMm}
+              composition={t("{v1} mm plate · sample job", { v1: planThicknessMm })}
+              showSchedule
+              showLegend
+              playable
+            />
           </div>
         </Container>
       </Section>
@@ -395,6 +424,8 @@ export default async function OptimizationPage({ params }: PageProps) {
                   moduleKey="Optimization"
                   name="Optimization report"
                   capabilities={["Sheets used", "Utilization", "Wastage"]}
+                  /* The report's own screen: the nested-sheets summary, not the canvas. */
+                  variant="report"
                 />
               </AppFrame>
             </Reveal>

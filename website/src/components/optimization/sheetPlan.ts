@@ -22,6 +22,7 @@
  */
 
 import { packGuillotine, plateViews, type PackMargins, type PackResult, type PlateView } from "@/lib/guillotinePack";
+import { houseMarginProfiles } from "@/data/optimization";
 
 export type SheetSize = { label: string; width: number; height: number };
 
@@ -37,11 +38,29 @@ export const plateSizes: SheetSize[] = [
 
 /**
  * House margin profile for the Thin bucket (up to 6 mm) — 15 mm on every edge,
- * kerf 3 mm. Source: the house margin table in
- * OPTIMIZATION_ENGINE_REMEDIATION_PLAN_2026-09-20.md, pinned in the application
- * by Tests/Agent/OptimizationMarginHouseTableTests.cs.
+ * kerf 3 mm, breakout 15 mm. Transcribed once in `src/data/optimization.ts` and
+ * read from there, so the drawing, the schedule and the table on the
+ * optimization page cannot end up quoting different trims for the same glass.
  */
-export const planMargins: PackMargins = { left: 15, right: 15, top: 15, bottom: 15, kerf: 3 };
+export const planMargins: PackMargins = {
+  left: houseMarginProfiles.thin.left,
+  right: houseMarginProfiles.thin.right,
+  top: houseMarginProfiles.thin.top,
+  bottom: houseMarginProfiles.thin.bottom,
+  kerf: houseMarginProfiles.thin.kerf,
+};
+
+/** The breakout allowance the Thin profile carries, for the CAD drawing. */
+export const planBreakoutMm = houseMarginProfiles.thin.breakout;
+
+/**
+ * The glass the sample job is cut from, in millimetres.
+ *
+ * Read from the same profile the margins come from rather than typed in beside
+ * them: "the Thin profile" and "6 mm glass" are one fact, and a plate drawn
+ * 15 mm all round while the page says 8 mm would be two.
+ */
+export const planThicknessMm = houseMarginProfiles.thin.thicknessMm;
 
 /** The cutting list worked through on the homepage. */
 export type CutItem = { ref: string; width: number; height: number; qty: number };
