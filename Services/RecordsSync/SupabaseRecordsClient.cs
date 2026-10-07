@@ -53,6 +53,13 @@ namespace ProGlassAutomation.Services.RecordsSync
         public SupabaseRecordsClient(
             string supabaseUrl, string apiKey,
             string? authEmail = null, string? authPassword = null)
+            : this(supabaseUrl, apiKey, authEmail, authPassword, null)
+        {
+        }
+
+        internal SupabaseRecordsClient(
+            string supabaseUrl, string apiKey, string? authEmail, string? authPassword,
+            HttpMessageHandler? handler)
         {
             _baseUrl = (supabaseUrl ?? "").TrimEnd('/');
             _apiKey = apiKey ?? "";
@@ -61,8 +68,10 @@ namespace ProGlassAutomation.Services.RecordsSync
 
             if (_baseUrl.Length == 0 || _apiKey.Length == 0)
                 throw new ArgumentException("Supabase URL and key are both required.");
-
-            _http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+            _http = new HttpClient(handler ?? new HttpClientHandler(), disposeHandler: true)
+            {
+                Timeout = TimeSpan.FromSeconds(30),
+            };
             _http.DefaultRequestHeaders.Add("apikey", _apiKey);
         }
 
@@ -83,14 +92,9 @@ namespace ProGlassAutomation.Services.RecordsSync
 
             using var response = await _http
                 .SendAsync(request, cancellationToken).ConfigureAwait(false);
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new HttpRequestException(
-                    "Supabase read-only check failed with HTTP " +
-                    (int)response.StatusCode + " " + response.ReasonPhrase + ".",
-                    null,
-                    response.StatusCode);
-            }
+            await EnsureSuccessAsync(
+                    response, "Supabase PI read-only check", cancellationToken)
+                .ConfigureAwait(false);
 
             var body = await response.Content.ReadAsStringAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -185,7 +189,9 @@ namespace ProGlassAutomation.Services.RecordsSync
 
             using var response = await _http
                 .SendAsync(request, cancellationToken).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
+            await EnsureSuccessAsync(
+                    response, "Supabase Auth password sign-in", cancellationToken)
+                .ConfigureAwait(false);
 
             var json = await response.Content.ReadAsStringAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -222,7 +228,9 @@ namespace ProGlassAutomation.Services.RecordsSync
 
             using var response = await _http
                 .SendAsync(request, cancellationToken).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
+            await EnsureSuccessAsync(
+                    response, "Supabase PI snapshot read", cancellationToken)
+                .ConfigureAwait(false);
 
             var json = await response.Content.ReadAsStringAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -289,7 +297,9 @@ namespace ProGlassAutomation.Services.RecordsSync
 
             using var response = await _http
                 .SendAsync(request, cancellationToken).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
+            await EnsureSuccessAsync(
+                    response, "Supabase PI fenced update", cancellationToken)
+                .ConfigureAwait(false);
 
             var body = await response.Content.ReadAsStringAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -339,7 +349,9 @@ namespace ProGlassAutomation.Services.RecordsSync
                             continue;
                         }
 
-                        singleResponse.EnsureSuccessStatusCode();
+                        await EnsureSuccessAsync(
+                                singleResponse, "Supabase PI insert", cancellationToken)
+                            .ConfigureAwait(false);
                         var singleJson = await singleResponse.Content
                             .ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
                         if (ParseReturnedPiNumbers(singleJson).Contains(row.PiNumber))
@@ -350,7 +362,9 @@ namespace ProGlassAutomation.Services.RecordsSync
                     continue;
                 }
 
-                response.EnsureSuccessStatusCode();
+                await EnsureSuccessAsync(
+                        response, "Supabase PI batch insert", cancellationToken)
+                    .ConfigureAwait(false);
                 var responseJson = await response.Content
                     .ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
                 var returned = ParseReturnedPiNumbers(responseJson);
@@ -390,7 +404,107 @@ namespace ProGlassAutomation.Services.RecordsSync
 
             using var response = await _http
                 .SendAsync(request, cancellationToken).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
+            await EnsureSuccessAsync(
+                    response, "Supabase PI active-state reconciliation", cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        private async Task EnsureSuccessAsync(
+            HttpResponseMessage response, string operation, CancellationToken cancellationToken)
+        {
+            if (response.IsSuccessStatusCode) return;
+
+            var body = await response.Content.ReadAsStringAsync(cancellationToken)
+                .ConfigureAwait(false);
+            var detail = RedactCredentials(ExtractErrorDetails(body));
+            var status = $"HTTP {(int)response.StatusCode} {response.ReasonPhrase}";
+            var message = $"{operation} failed ({status})";
+            if (detail.Length > 0)
+                message += ": " + detail;
+
+            if (operation == "Supabase Auth password sign-in")
+                message += " This is the Auth token step; the records REST check was not reached. Verify the project URL and publishable/anon key match, then check the dedicated account credentials, email confirmation, and that the Email provider is enabled.";
+            else if (operation.Contains("read", StringComparison.OrdinalIgnoreCase))
+                message += " Check that public.records is exposed, pi_number exists, and the authenticated role has SELECT access under its RLS policy.";
+
+            throw new HttpRequestException(message, null, response.StatusCode);
+        }
+
+        internal static string ExtractErrorDetails(string body)
+        {
+            if (string.IsNullOrWhiteSpace(body))
+                return string.Empty;
+
+            try
+            {
+                using var document = JsonDocument.Parse(body);
+                if (document.RootElement.ValueKind == JsonValueKind.Object)
+                {
+                    var root = document.RootElement;
+                    var error = ReadJsonString(root, "error");
+                    var message = ReadJsonString(root, "msg")
+                        ?? ReadJsonString(root, "message")
+                        ?? ReadJsonString(root, "error_description")
+                        ?? error;
+                    var errorCode = ReadJsonString(root, "error_code");
+                    var code = ReadJsonString(root, "code");
+                    var details = ReadJsonString(root, "details");
+                    var hint = ReadJsonString(root, "hint");
+
+                    var parts = new List<string>();
+                    if (!string.IsNullOrWhiteSpace(message)) parts.Add(message);
+                    if (!string.IsNullOrWhiteSpace(error) &&
+                        !string.Equals(message, error, StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(errorCode, error, StringComparison.OrdinalIgnoreCase))
+                        parts.Add("error: " + error);
+                    if (!string.IsNullOrWhiteSpace(errorCode) &&
+                        !string.Equals(message, errorCode, StringComparison.OrdinalIgnoreCase))
+                        parts.Add("error code: " + errorCode);
+                    if (!string.IsNullOrWhiteSpace(code) &&
+                        !string.Equals(code, errorCode, StringComparison.OrdinalIgnoreCase))
+                        parts.Add("code: " + code);
+                    if (!string.IsNullOrWhiteSpace(details)) parts.Add("details: " + details);
+                    if (!string.IsNullOrWhiteSpace(hint)) parts.Add("hint: " + hint);
+
+                    return TruncateSafe(string.Join("; ", parts));
+                }
+            }
+            catch (JsonException)
+            {
+                // Do not surface arbitrary gateway HTML/text; it may contain reflected request data.
+            }
+
+            return "Supabase returned a non-JSON error response.";
+        }
+
+        private string RedactCredentials(string detail)
+        {
+            foreach (var secret in new[] { _apiKey, _authEmail, _authPassword })
+            {
+                if (!string.IsNullOrEmpty(secret))
+                    detail = detail.Replace(secret, "[redacted]", StringComparison.Ordinal);
+            }
+
+            return detail;
+        }
+
+        private static string? ReadJsonString(JsonElement element, string propertyName)
+        {
+            if (!element.TryGetProperty(propertyName, out var value) ||
+                value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+                return null;
+
+            var text = value.ValueKind == JsonValueKind.String ? value.GetString() : value.ToString();
+            return string.IsNullOrWhiteSpace(text) ? null : text.Trim();
+        }
+
+        private static string TruncateSafe(string value)
+        {
+            var cleaned = new string(value.Where(c => !char.IsControl(c) || c == '\t').ToArray())
+                .Replace('\r', ' ')
+                .Replace('\n', ' ')
+                .Trim();
+            return cleaned.Length <= 320 ? cleaned : cleaned[..320] + "…";
         }
 
         private void AddAuth(HttpRequestMessage request, string bearer) =>
