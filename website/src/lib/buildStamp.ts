@@ -16,6 +16,11 @@
  * server than in the browser wherever the time zone or the locale data differs,
  * which React reports as a hydration mismatch. A stamp whose whole purpose is
  * to be trustworthy cannot be the thing that breaks the page.
+ *
+ * The instant is published twice: once as UTC, which is what two hosts are
+ * compared by, and once in Gulf Standard Time, which is the clock the people
+ * reading the panel are on. The conversion is four hours of arithmetic and no
+ * time-zone database — see below — so it is as deterministic as the UTC form.
  */
 
 export type BuildEnvironment = "production" | "preview" | "development" | "local";
@@ -61,6 +66,36 @@ const rawVersion = (process.env.PROGLASS_BUILD_VERSION ?? "").trim();
  */
 const builtAt = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(rawBuiltAt) ? rawBuiltAt : "";
 
+/**
+ * Gulf Standard Time — the same instant, in the zone the workshop reads.
+ *
+ * The panel is read in Abu Dhabi and the stamp was printed in UTC, so "is this
+ * the build from after my change?" took mental arithmetic; four hours of it,
+ * every time. The offset is a constant rather than a time-zone lookup on
+ * purpose: the United Arab Emirates is UTC+4 all year with no daylight saving,
+ * and `Intl` with a zone name would give the browser and the server whatever
+ * their own zone data says — the hydration mismatch this module is written to
+ * avoid. `Date.UTC`/`toISOString` go through no local zone at all, so every
+ * machine that renders this stamp computes the same two strings.
+ */
+const UAE_OFFSET_MINUTES = 4 * 60;
+
+/** Shift an ISO instant by whole minutes, in UTC, without touching the local zone. */
+function shiftIsoUtc(iso: string, minutes: number): string {
+  return new Date(
+    Date.UTC(
+      Number(iso.slice(0, 4)),
+      Number(iso.slice(5, 7)) - 1,
+      Number(iso.slice(8, 10)),
+      Number(iso.slice(11, 13)),
+      Number(iso.slice(14, 16)),
+    ) +
+      minutes * 60_000,
+  ).toISOString();
+}
+
+const builtAtUae = builtAt ? shiftIsoUtc(builtAt, UAE_OFFSET_MINUTES) : "";
+
 export const buildStamp = {
   /** ISO 8601 instant, UTC. Empty when the build could not state one. */
   builtAt,
@@ -68,8 +103,18 @@ export const buildStamp = {
   date: builtAt ? builtAt.slice(0, 10) : "—",
   /** `11:41 UTC` — the zone is always stated, because two hosts are compared. */
   time: builtAt ? `${builtAt.slice(11, 16)} UTC` : "—",
-  /** `2026-10-07 11:41 UTC` — the one-line form. */
+  /** `2026-10-07 11:41 UTC` — the one-line UTC form, for tools and tooltips. */
   line: builtAt ? `${builtAt.slice(0, 10)} ${builtAt.slice(11, 16)} UTC` : "unknown",
+  /** `2026-10-07T11:41Z` — the UTC instant, the form two builds are compared by. */
+  utcInstant: builtAt ? `${builtAt.slice(0, 16)}Z` : "",
+  /** `2026-10-07T15:41+04:00` — ISO 8601 in the UAE's own offset. */
+  builtAtUae: builtAtUae ? `${builtAtUae.slice(0, 16)}+04:00` : "",
+  /** `2026-10-07` in the UAE — a late UTC build is already tomorrow here. */
+  dateUae: builtAtUae ? builtAtUae.slice(0, 10) : "—",
+  /** `15:41 GST` — the zone is stated here too, for the same reason as UTC's. */
+  timeUae: builtAtUae ? `${builtAtUae.slice(11, 16)} GST` : "—",
+  /** `2026-10-07 15:41 GST` — what the panel and the footer print. */
+  lineUae: builtAtUae ? `${builtAtUae.slice(0, 10)} ${builtAtUae.slice(11, 16)} GST` : "unknown",
   /** The short revision, or null when git could not answer. */
   revision: rawRevision || null,
   /** The branch the build came from, or null on a detached checkout. */
@@ -91,11 +136,14 @@ export const buildStamp = {
 export const buildEnvironmentKey = ENVIRONMENT_KEY[buildStamp.environment];
 
 /**
- * `2026-10-07 11:41 UTC · c70e7d0` — the long form, used where there is room.
+ * `2026-10-07 15:41 GST · c70e7d0` — the long form, used where there is room.
  *
- * The revision is what makes the line worth printing: two builds can be
- * minutes apart, and a time alone cannot say whether they are the same code.
+ * Gulf Standard Time first because that is the clock the reader is on; the
+ * revision because two builds can be minutes apart and a time alone cannot say
+ * whether they are the same code. The UTC form is not lost: it is in the
+ * tooltip, and `buildStamp.line` is still the UTC line for anything comparing
+ * builds by the instant they were made.
  */
 export const buildStampLine = buildStamp.revision
-  ? `${buildStamp.line} · ${buildStamp.revision}`
-  : buildStamp.line;
+  ? `${buildStamp.lineUae} · ${buildStamp.revision}`
+  : buildStamp.lineUae;

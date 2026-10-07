@@ -23,27 +23,41 @@ fonttools brotli`). Exit code 1 if any tier is over its budget.
 
 ## What it mirrors
 
-It reads the real components rather than a copy of them: the strings come from
-`src/components/layout/Navbar.tsx`, `LanguageMenu.tsx`, `ThemeToggle.tsx`,
-`ThemeModeSwitch.tsx`, `BuildStamp.tsx` and `src/lib/site.ts` where they can,
-and the box model of each — padding, borders, gaps, icon sizes — is transcribed
-beside the class string it comes from. When the panel changes, the numbers here
-change only if the transcription does, which is why every constant below carries
-the Tailwind class it was read from.
+It reads the real components rather than a copy of them: the nav entries are
+parsed out of `src/components/layout/Navbar.tsx`'s `entries` array, the strings
+come from the same file and from `LanguageMenu.tsx`, `ThemeToggle.tsx`,
+`ThemeModeSwitch.tsx`, `BuildStamp.tsx` and `src/lib/site.ts`, and the box model
+of each — padding, borders, gaps, icon sizes — is transcribed beside the class
+string it comes from.
+
+Transcription is where a tool like this rots, so the transcription is checked:
+`check_markup()` reads the components and fails the run when the classes the
+model assumes are not the classes in the markup. It exists because they once
+were not — the nav grew a seventh entry, and the model went on measuring six
+while reporting slack that the browser did not have.
 
 ## The ladder
 
 The panel sheds its least important items as the window narrows, in a fixed
-order, so that nothing is ever squeezed:
+order, so that nothing is ever squeezed. Each tier is what it is because the
+arithmetic says the tier below cannot hold it, not because it seemed tidy:
 
-    wide  1920+   everything — nav with glyph icons, palette word, both CTAs, stamp
-    2xl   1536    nav, palette word, primary CTA, stamp        (no ghost shortcut)
-    xl    1280    nav (no glyph icons), settings, stamp        (no CTA, no word)
-    lg    1024    Menu button, settings, primary CTA, stamp    (no nav pill)
-    <lg           the phone row: settings + menu button, stamp in the sheet
+    wide  1920+   all seven nav cards with glyph icons, palette word, divider,
+                  primary CTA, stamp
+    2xl   1536    five nav cards + Menu for the other two, no palette word,
+                  primary CTA, divider, stamp
+    xl    1280    three nav cards + Menu for the other four, no palette word,
+                  no divider, primary CTA, stamp
+    lg    1024    no nav cards: Menu holds all seven, primary CTA, stamp
+    <lg           the phone row: settings and the menu button, stamp in the sheet
+
+The stamp itself carries the site's name, the date and the time in Gulf Standard
+Time, which is what makes it 126px wide rather than 75 — and what the two widest
+tiers pay for by showing fewer nav cards.
 """
 import json
 import pathlib
+import re
 import sys
 
 try:
@@ -104,14 +118,66 @@ def mono(text, size, weight=600, tracking=0.0):
 # Tailwind's spacing scale, in px. `2` = 0.5rem = 8px, and so on.
 P = {"0.5": 2, "1": 4, "1.5": 6, "2": 8, "2.5": 10, "3": 12, "3.5": 14, "4": 16}
 
-NAV_ENTRIES = [  # `entries` in Navbar.tsx: label, opens a menu
-    ("Home", False),
-    ("Product", True),
-    ("Optimization", False),
-    ("Resources", True),
-    ("About", False),
-    ("Developer", False),
-]
+NAVBAR = ROOT / "src" / "components" / "layout" / "Navbar.tsx"
+THEME_TOGGLE = ROOT / "src" / "components" / "layout" / "ThemeToggle.tsx"
+
+# How many nav cards each tier shows, in the order the markup lists them. The
+# rest are in the Menu button's sheet, so nothing is unreachable at any width.
+CARDS_AT_XL = 3
+CARDS_AT_2XL = 5
+
+
+def read_nav_entries():
+    """The `entries` array in `Navbar.tsx`: (label, opens a menu), in order.
+
+    Parsed rather than copied, because the copy is what went stale: the markup
+    grew a seventh entry and this tool went on measuring six. Braces are counted
+    so a nested `children` array cannot be mistaken for the next entry, and an
+    empty result is an error rather than a zero-width nav — a parser that
+    silently measures nothing is worse than the stale list it replaced.
+    """
+    source = NAVBAR.read_text(encoding="utf8")
+    marker = "const entries: NavEntry[] = ["
+    if marker not in source:
+        raise SystemExit(
+            f"measure-panel.py: cannot find `{marker}` in {NAVBAR.name} — "
+            "the nav parser needs updating before this measurement means anything"
+        )
+    depth = 1  # the array's own bracket is already open
+    entries: list = []
+    current = ""
+    in_entry = False
+    for char in source[source.index(marker) + len(marker):]:
+        if char == "[":
+            depth += 1
+        elif char == "]":
+            depth -= 1
+            if depth == 0:
+                break
+        elif char == "{":
+            if depth == 1:
+                current = ""
+                in_entry = True
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 1 and in_entry:
+                label = re.search(r'label:\s*"([^"]+)"', current)
+                if label:
+                    entries.append((label.group(1), "children:" in current))
+                current = ""
+                in_entry = False
+        elif in_entry:
+            current += char
+    if not entries:
+        raise SystemExit(
+            f"measure-panel.py: read no nav entries out of {NAVBAR.name}, which "
+            "cannot be right — the panel has a nav"
+        )
+    return entries
+
+
+NAV_ENTRIES = read_nav_entries()
 WORDMARK = "ProGlass"
 WORDMARK_SUB = "AUTOMATION"
 
@@ -127,10 +193,15 @@ def brand(wordmark=True):
     return width
 
 
-def nav_pill(glyphs=True, wide=False):
-    """`NAV_BAR` + `NAV_CARD` — six cards, one pill."""
+def nav_pill(labels=None, glyphs=False, wide=False):
+    """`NAV_BAR` + `NAV_CARD` — the cards a tier shows, inside one pill.
+
+    `labels` is the subset of `NAV_ENTRIES` that tier displays; the default is
+    all of them, which is the widest tier's answer.
+    """
     cards = 0
-    for label, has_menu in NAV_ENTRIES:
+    entries = NAV_ENTRIES if labels is None else labels
+    for label, has_menu in entries:
         card = (
             (P["3"] * 2 if wide else P["2.5"] * 2)  # px-3 / px-2.5
             + 2 * 2  # border-2
@@ -140,7 +211,7 @@ def nav_pill(glyphs=True, wide=False):
             + ((P["1.5"] + 10) if has_menu else 0)  # chevron h-2.5
         )
         cards += card
-    return cards + (len(NAV_ENTRIES) - 1) * P["0.5"] + P["1"] * 2 + 2 * 2
+    return cards + (len(entries) - 1) * P["0.5"] + P["1"] * 2 + 2 * 2
 
 
 def language_menu():
@@ -180,8 +251,16 @@ def menu_button():
 
 
 def stamp_pill():
-    """`BuildStampPill`: two mono lines at 9.5px, `px-2`, one border."""
-    return P["2"] * 2 + 2 + max(mono("2026-10-07", 9.5), mono("11:54 UTC", 9.5))
+    """`BuildStampPill`: three mono lines at 9.5px, `px-2`, one border.
+
+    The lines are the site's name, the date and the time in Gulf Standard Time,
+    so the widest is whichever of the three is longest — measured, not assumed.
+    """
+    return P["2"] * 2 + 2 + max(
+        mono("ProGlass Automation", 9.5),
+        mono("2026-10-07", 9.5),
+        mono("16:08 GST", 9.5),
+    )
 
 
 DIVIDER = P["1"] * 2 + 1  # `mx-1` around a hairline
@@ -235,7 +314,10 @@ def tier_rows():
             ]
             wordmark = False
         elif name == "lg":
-            nav = nav_extra  # the Menu button lives in the cluster
+            # The Menu button is *in the cluster* (before the language button),
+            # not in the nav — counting it in both places was how this tool once
+            # reported 84px of slack that did not exist.
+            nav = []
             cluster_items = [
                 menu_button(),
                 language_menu(),
@@ -248,33 +330,42 @@ def tier_rows():
             ]
             wordmark = True
         elif name == "xl":
-            nav = [nav_pill(glyphs=False)]
+            # Three cards and the Menu button: measured, the seven cards plus
+            # the settings, the CTA and the stamp need about 1450px here.
+            nav = [nav_pill(NAV_ENTRIES[:CARDS_AT_XL])]
             cluster_items = [
+                menu_button(),
                 language_menu(),
                 reading_switch(32),  # lg:w-8 (xl keeps it until 2xl)
                 palette(),
+                cta(),
                 stamp_pill(),
             ]
             wordmark = True
         elif name == "2xl":
-            nav = [nav_pill(glyphs=False)]
+            # Five cards and the Menu button for the other two. The palette
+            # word is what the stamp's own width costs here.
+            nav = [nav_pill(NAV_ENTRIES[:CARDS_AT_2XL])]
             cluster_items = [
+                menu_button(),
                 language_menu(),
                 reading_switch(36),  # 2xl:w-9
-                palette(word=True),
+                palette(),
                 cta(),
                 DIVIDER,
                 stamp_pill(),
             ]
             wordmark = True
         else:  # wide
+            # Everything the panel owns, and the only tier that shows the nav's
+            # glyph icons and the palette's word. No Menu button: all seven
+            # cards are on screen, so there is nothing left for it to hold.
             nav = [nav_pill(glyphs=True, wide=True)]
             cluster_items = [
                 language_menu(),
                 reading_switch(36),
                 palette(word=True),
                 cta(),
-                cta("See the app", ghost=True),
                 DIVIDER,
                 stamp_pill(),
             ]
@@ -300,9 +391,103 @@ def tier_rows():
     return rows
 
 
+# ── the check that keeps the transcription honest ────────────────────────────
+# Every entry is (what it proves, file, regex, must be there). A model that has
+# drifted from the markup is worse than no model: it reports slack the browser
+# does not have. This is where the drift is caught.
+MARKUP_CHECKS = [
+    (
+        "the nav container holds cards from xl",
+        NAVBAR,
+        r'NAV_BAR = "[^"]*xl:flex',
+        True,
+    ),
+    (
+        "the first three cards arrive at xl",
+        NAVBAR,
+        r'"hidden xl:flex"',
+        True,
+    ),
+    (
+        "the remaining cards arrive at 2xl",
+        NAVBAR,
+        r'"hidden 2xl:flex"',
+        True,
+    ),
+    (
+        "the card split matches CARDS_AT_XL",
+        NAVBAR,
+        rf"NAV_CARD_FIRST_TIER = {CARDS_AT_XL}\b",
+        True,
+    ),
+    (
+        "the Menu button serves lg and xl",
+        NAVBAR,
+        r"lg:flex 2xl:hidden",
+        True,
+    ),
+    (
+        "the build stamp is in the panel from lg",
+        NAVBAR,
+        r'BuildStampPill t=\{t\} className="hidden lg:block"',
+        True,
+    ),
+    (
+        "the divider belongs to 2xl and up",
+        NAVBAR,
+        r"hidden h-6 w-px bg-line/70 2xl:block",
+        True,
+    ),
+    (
+        "the primary CTA is in the row at every tier",
+        NAVBAR,
+        r'<ButtonLink href="/contact" size="sm"',
+        True,
+    ),
+    (
+        # The label goes through the translator, so the check looks for that
+        # rather than the bare words — which a comment above the CTA quotes, on
+        # purpose, to say where the button went.
+        "the ghost shortcut is gone, not merely hidden",
+        NAVBAR,
+        r't\("See the app"\)',
+        False,
+    ),
+    (
+        "the palette word waits for wide",
+        THEME_TOGGLE,
+        r"wide:inline",
+        True,
+    ),
+]
+
+
+def check_markup() -> list:
+    """Read the components and hold the model against the classes in them."""
+    problems = []
+    for what, path, pattern, present in MARKUP_CHECKS:
+        found = re.search(pattern, path.read_text(encoding="utf8")) is not None
+        if found != present:
+            problems.append(f"{what}: {path.name} {'lacks' if present else 'still has'} /{pattern}/")
+    return problems
+
+
 def main() -> int:
+    problems = check_markup()
     rows = tier_rows()
     machine = "--json" in sys.argv
+
+    if problems:
+        print("\nthe model and the markup disagree — fix one of them:\n")
+        for problem in problems:
+            print(f"  - {problem}")
+        print()
+        return 1
+    if not machine:
+        print(
+            f"\n  {len(MARKUP_CHECKS)} markup checks pass: the classes this model "
+            f"measures are the classes in the components.\n"
+        )
 
     if machine:
         print(json.dumps(rows, indent=2))

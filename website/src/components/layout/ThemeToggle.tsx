@@ -75,7 +75,7 @@ export function ThemeToggle({ className }: { className?: string }) {
           className="h-3.5 w-3.5 rounded-full ring-1 ring-inset ring-white/25"
           style={{ background: activeFamily.swatch }}
         />
-        <span className="hidden font-mono text-2xs font-semibold uppercase tracking-[0.12em] 2xl:inline">
+        <span className="hidden font-mono text-2xs font-semibold uppercase tracking-[0.12em] wide:inline">
           {t(activeFamily.label)}
         </span>
         <svg

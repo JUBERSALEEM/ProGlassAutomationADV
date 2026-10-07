@@ -150,10 +150,10 @@ squeezing:
 
 | Tier | From | Shows | Needs / has |
 |---|---|---|---|
-| `wide` (new screen, 1920) | 1920 | everything: nav with glyph icons, palette word, both CTAs, stamp | 1616 / 1777 |
-| `2xl` | 1536 | nav, palette word, primary CTA, stamp | 1338 / 1393 |
-| `xl` | 1280 | nav without glyph icons, settings, stamp | 1105 / 1169 |
-| `lg` | 1024 | Menu button, settings, CTA, stamp | 882 / 929 |
+| `wide` (new screen, 1920) | 1920 | all seven cards with glyph icons, palette word, divider, CTA, stamp | 1661 / 1777 |
+| `2xl` | 1536 | five cards + Menu, divider, CTA, stamp | 1342 / 1393 |
+| `xl` | 1280 | three cards + Menu, settings, CTA, stamp | 1133 / 1169 |
+| `lg` | 1024 | Menu holding all seven, settings, CTA, stamp | 849 / 929 |
 | `sm` | 640 | wordmark, language, reading switch, palette, menu button | 431 / 569 |
 | phone | 360 | mark alone, palette, menu button | 182 / 305 |
 
@@ -166,7 +166,32 @@ below `lg`, and the language button waits for `sm`. The full lockup is in the
 footer on every screen and all fifteen languages are in the sheet, one tap away.
 
 Run `python3 scripts/measure-panel.py` after touching the panel; it exits 1 when
-any tier is over.
+any tier is over. It also parses the nav out of `Navbar.tsx` and holds ten
+assertions against the classes in the components, because the first version of
+this arithmetic was measured against a six-card nav while the markup had seven:
+the panel was declared fine at every tier while wanting about 1450px at 1280. A
+measurement that cannot tell when it has stopped describing the thing it measures
+is not a measurement.
+
+## The panel prints Gulf Standard Time
+
+The stamp was printed in UTC and read in Abu Dhabi, which meant four hours of
+mental arithmetic every time the question was "is this the build from after my
+change?". The card now prints the site's name, the date, and the time in Gulf
+Standard Time — UTC+4, all year, no daylight saving — and keeps UTC in its hover
+text and in `/api/health`, where the two hosts are compared and where
+`audit-site.py` reads it. The conversion is four hours added to a UTC instant
+through `Date.UTC`, not a time-zone lookup: `Intl` with a zone name would give
+the server and the browser whatever their own zone data says, which is the
+hydration mismatch the stamp module exists to avoid.
+
+The card is wider than the bare timestamp it replaced — about 126px against 75 —
+and that width had to come from somewhere, so the ladder was rebalanced against
+the real row rather than the model of it: the seven nav cards now arrive in two
+steps (three at `xl`, all seven at `2xl`) with the Menu button holding the rest,
+the palette's word waits for `wide`, and the ghost shortcut to the screenshots is
+gone — the page it pointed at is the first child of the Product menu. Every tier
+still fits, with the numbers in the table above.
 
 ## The check that closes the loop
 

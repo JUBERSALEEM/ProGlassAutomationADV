@@ -150,7 +150,14 @@ for (const { label, origin } of origins) {
       if (status === 0) return `unreachable — ${error ?? "no answer"}`;
       return `answered ${status} — no build stamp there`;
     }
-    return `${health.revision ?? "no revision"} · ${health.builtAt ?? "no time"} · ${health.environment ?? "?"}`;
+    /*
+     * Both clocks, because the panel prints the UAE one and the deploy log will
+     * be read in UTC: `2026-10-07T12:08:56Z (16:08 GST)` is the same instant
+     * twice, and nobody has to convert anything to compare the line with a
+     * screenshot of the panel.
+     */
+    const uae = health.builtAtUae ? ` (${String(health.builtAtUae).slice(11, 16)} GST)` : "";
+    return `${health.revision ?? "no revision"} · ${health.builtAt ?? "no time"}${uae} · ${health.environment ?? "?"}`;
   })();
 
   const where = (() => {

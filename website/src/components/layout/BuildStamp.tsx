@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { site } from "@/lib/site";
 import type { Translator } from "@/i18n/core";
 import { buildEnvironmentKey, buildStamp, buildStampLine } from "@/lib/buildStamp";
 
@@ -14,20 +15,36 @@ import { buildEnvironmentKey, buildStamp, buildStampLine } from "@/lib/buildStam
  *
  * Two shapes, because the two places have different amounts of room:
  *
- *   `BuildStampPill`  a two-line block for the top panel, narrow enough to sit
- *                     beside the settings controls without crowding them;
+ *   `BuildStampPill`  a three-line card for the top panel — the site's name, the
+ *                     date and the time — narrow enough to sit beside the
+ *                     settings controls without crowding them. The name is
+ *                     inside the card because that is what the card answers:
+ *                     *which* build, of *which* site, as at *when*;
  *   `BuildStampRow`   a labelled line for the mobile panel and the footer,
- *                     where the revision can be shown in full.
+ *                     where the revision and both zones can be shown in full.
+ *
+ * The time is Gulf Standard Time, the clock the panel is read on, and the
+ * tooltip carries UTC beside it, because comparing two hosts is done in UTC and
+ * reading a badge should not need the reader to do the arithmetic.
  *
  * Both are pure functions of props: the values are constants baked into the
  * bundle at build time (see `lib/buildStamp.ts`), so the server and the browser
  * render exactly the same text and there is nothing to hydrate differently.
  */
 
-/** The hover text: the instant, the revision, the branch and where it ran. */
+/**
+ * The hover text: the instant in both zones, the revision, the branch, where it
+ * ran.
+ *
+ * The UTC instant is spelled out here rather than left implied, because this
+ * string is what `scripts/audit-site.py` reads to hold a page against its own
+ * `/api/health` — and a page and its endpoint are compared in UTC, whatever the
+ * panel prints.
+ */
 function stampTitle(t: Translator): string {
   return [
-    t.template`Updated ${buildStamp.line}`,
+    t.template`Updated ${buildStamp.lineUae}`,
+    buildStamp.utcInstant ? t.template`UTC ${buildStamp.utcInstant}` : null,
     buildStamp.revision ? t.template`revision ${buildStamp.revision}` : null,
     buildStamp.ref,
     t(buildEnvironmentKey),
@@ -56,8 +73,9 @@ export function BuildStampPill({
         className,
       )}
     >
-      <span className="block whitespace-nowrap">{buildStamp.date}</span>
-      <span className="block whitespace-nowrap text-text-faint">{buildStamp.time}</span>
+      <span className="block whitespace-nowrap text-text-faint">{site.name}</span>
+      <span className="block whitespace-nowrap">{buildStamp.dateUae}</span>
+      <span className="block whitespace-nowrap text-text-faint">{buildStamp.timeUae}</span>
     </span>
   );
 }
@@ -80,6 +98,9 @@ export function BuildStampRow({
     >
       <span className="mono-label">{t("Updated")}</span>
       <span className="font-mono font-semibold text-text-muted">{buildStampLine}</span>
+      {/* The UTC clock, faint, for the one reader who compares this line with a
+          deploy log — the panel itself is read in Gulf Standard Time. */}
+      <span className="font-mono text-text-faint">{buildStamp.time}</span>
       <span className="text-text-faint">{t(buildEnvironmentKey)}</span>
     </p>
   );

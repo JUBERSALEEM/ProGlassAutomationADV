@@ -54,9 +54,11 @@ const entries: NavEntry[] = [
   /*
    * Collaboration takes the top-level slot, and Sponsors keeps the one it
    * already had inside this same nav's Resources menu (and in the footer, and
-   * on the collaboration page itself). Adding an eighth top-level item instead
-   * would push the pill past what `lg` has room for, and a navigation that
-   * wraps is worse than one page reached by two routes.
+   * on the collaboration page itself). An eighth top-level item would push the
+   * last card from `2xl` to `wide` in the ladder below, which is the honest
+   * price of one — but a page reached by two routes is still better than a
+   * navigation that wraps, and this one is reachable from the footer, the
+   * Resources menu and its own page.
    */
   { label: "Collaborate", href: "/collaborate" },
 ];
@@ -73,6 +75,23 @@ const entries: NavEntry[] = [
  * open, keeps its edge and its wash, so the panel always says where you are.
  */
 const NAV_BAR = "nav-pill hidden items-center gap-0.5 rounded-panel p-1 xl:flex";
+/*
+ * The card ladder.
+ *
+ * Seven cards, the settings, the call to action and a stamp that carries the
+ * site's name, the date and the time in Gulf Standard Time do not fit in
+ * 1280px — measured, they need about 1450. So the cards arrive in two steps:
+ * the first three at `xl` and the rest at `2xl`, with the Menu button holding
+ * the ones that are not on screen yet. Below `xl` the pill is not rendered at
+ * all and the Menu button holds all seven.
+ *
+ * `scripts/measure-panel.py` measures each tier and checks these two lines
+ * against its own model, so the tool cannot go on reporting room that the
+ * markup does not have — which is exactly what it did when the seventh entry
+ * was added and it was still counting six.
+ */
+const NAV_CARD_FIRST_TIER = 3;
+const NAV_CARD_TIERS = ["hidden xl:flex", "hidden 2xl:flex"] as const;
 const NAV_CARD =
   "relative flex items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold transition-all duration-200 wide:px-3";
 const NAV_CARD_OFF =
@@ -201,15 +220,16 @@ export function Navbar() {
 
         {/* ── Desktop navigation ─────────────────────────────────── */}
         <nav aria-label={t("Primary")} className={NAV_BAR}>
-          {entries.map((entry) => {
+          {entries.map((entry, index) => {
             const active = isActive(entry);
+            const tier = index < NAV_CARD_FIRST_TIER ? NAV_CARD_TIERS[0] : NAV_CARD_TIERS[1];
             if (!entry.children) {
               return (
                 <Link
                   key={t(entry.label)}
                   href={entry.href ?? "#"}
                   aria-current={active ? "page" : undefined}
-                  className={cn(NAV_CARD, active ? NAV_CARD_ON : NAV_CARD_OFF)}
+                  className={cn(NAV_CARD, tier, active ? NAV_CARD_ON : NAV_CARD_OFF)}
                 >
                   <NavGlyph path={navIcons[entry.label]} />
                   {t(entry.label)}
@@ -221,7 +241,7 @@ export function Navbar() {
             return (
               <div
                 key={t(entry.label)}
-                className="relative"
+                className={cn(tier, "relative")}
                 onMouseEnter={() => {
                   cancelClose();
                   setOpenMenu(entry.label);
@@ -311,11 +331,16 @@ export function Navbar() {
             the site presents itself, not navigation through it.
           */}
           {/*
-            The primary nav arrives at `xl` and the settings cluster arrives at
-            `lg`, which leaves one tier — 1024 to 1279 — where the settings are
-            on screen and the nav is not. This is that tier's way in: the same
-            sheet the phone menu opens, from a button in the same cluster.
-            Measured, the full row needs about 1630px of content; the ladder is
+            The way to the pages that are not cards yet.
+
+            The settings cluster arrives at `lg` and the nav cards arrive in two
+            steps — three at `xl`, all seven at `2xl` — so the Menu button holds
+            whatever is missing above 1024: all seven at `lg`, the last four at
+            `xl`, the last two at `2xl`. It is the same sheet the phone menu
+            opens, from the same component, so nothing is ever unreachable. It
+            goes at `2xl` because by then all seven cards are on screen.
+
+            Measured, the full row needs about 1830px of content; the ladder is
             in `scripts/measure-panel.py` and the numbers are in the README.
           */}
           <button
@@ -324,7 +349,7 @@ export function Navbar() {
             aria-expanded={mobileOpen}
             aria-controls="mobile-menu"
             className={cn(
-              "hidden items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold transition-all duration-200 lg:flex xl:hidden",
+              "hidden items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold transition-all duration-200 lg:flex 2xl:hidden",
               mobileOpen
                 ? "border-brand-500/60 bg-brand-600/30 text-text-primary"
                 : "border-line-strong/60 text-text-muted hover:border-line-strong/80 hover:bg-ink-800/70 hover:text-text-primary",
@@ -347,20 +372,15 @@ export function Navbar() {
           <ThemeModeSwitch />
           <ThemeToggle />
           {/*
-            The ghost shortcut to the screenshots waits for `wide`, and it is
-            the last thing to be shed rather than the first: the same page is
-            the first child of the Product menu, one hover away, while
-            everything else in this row is either a setting or a fact. It
-            returns at 1920px, where the row has room for everything it owns.
+            There used to be a ghost "See the app" button here, shown from
+            1920px. It is gone, and the page it pointed at is not: Screenshots
+            is the first child of the Product menu, one hover away, and at 1920
+            the row has better uses for 126px — the stamp card now carries the
+            site's name, the date and the time in Gulf Standard Time, and it is
+            the sight of that card that answers "which build am I looking at".
+            A shortcut to a page that is also a menu child is the cheapest thing
+            in this row to lose; the primary call to action is not.
           */}
-          <ButtonLink
-            href="/screenshots"
-            variant="ghost"
-            size="sm"
-            className="hidden wide:inline-flex"
-          >
-            {t("See the app")}
-          </ButtonLink>
           <ButtonLink href="/contact" size="sm" trailing={<ArrowRight />}>
             {t("Request a Demo")}
           </ButtonLink>
@@ -368,16 +388,19 @@ export function Navbar() {
           {/*
             The build stamp, at the end of the panel where chrome belongs.
 
-            It appears at `xl` and not before: below that the row has no slack,
-            and a stamp that forced the settings controls to wrap would be a
-            worse answer to "which build is this" than no stamp at all. Below
-            `xl` it is still on every page — in the mobile panel and in the
-            footer — where there is room to print the revision as well. The
-            divider is what tells the eye this is a fact about the build rather
+            It appears at `lg` and not before: the stamp carries the site's own
+            name, the date and the time in Gulf Standard Time, so a reader on a
+            1024px window gets the answer to "which build is this, and when was
+            it made" without opening anything. It is measured rather than
+            guessed — `scripts/measure-panel.py` holds the arithmetic and says
+            the row still fits with slack at every tier — and below `lg` it is
+            still on every page, in the mobile panel and in the footer, where
+            there is room to print the revision and both clocks. The divider at
+            `2xl` is what tells the eye this is a fact about the build rather
             than one more thing to click.
           */}
           <span aria-hidden="true" className="mx-1 hidden h-6 w-px bg-line/70 2xl:block" />
-          <BuildStampPill t={t} className="hidden xl:block" />
+          <BuildStampPill t={t} className="hidden lg:block" />
         </div>
 
         {/* ── Mobile trigger ─────────────────────────────────────── */}

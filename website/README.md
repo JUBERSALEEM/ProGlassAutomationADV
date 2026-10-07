@@ -153,8 +153,9 @@ grep -rn "mix-blend-mode\|blur-\[" src/ --include=*.tsx    # expect no hits
 
 ### Which build is this?
 
-The top panel prints a build stamp — the date, the time in UTC and the branch —
-and `/api/health` serves the same facts as JSON:
+The top panel prints a build stamp — the site's name, the date and the time in
+**Gulf Standard Time**, with UTC, the revision and the branch in its hover text
+and all of it in `/api/health` as JSON:
 
 ```bash
 curl -s http://127.0.0.1:3000/api/health
@@ -184,6 +185,15 @@ local           http://127.0.0.1:3000
                 <rev> · <builtAt> · local
                 CURRENT — it is running the revision the branch is on
 ```
+
+The two clocks are deliberate. The panel is read in the UAE, so the card prints
+the clock in the room it is read in — Gulf Standard Time, UTC+4 all year, no
+daylight saving, so the conversion is four hours of arithmetic rather than a
+time-zone lookup that could differ between the server and the browser. UTC stays
+beside it because two hosts are compared in UTC, and the hover text spells that
+instant out rather than leaving it to be worked out. That is also what
+`audit-site.py` reads: a page and its own endpoint are held against each other in
+UTC, whatever the card prints.
 
 At the time of writing the two Vercel origins both answer **no stamp**, which is
 the desync this repository was carrying and the reason the table in the
@@ -224,40 +234,41 @@ python3 scripts/measure-panel.py          # the ladder, with verdicts
 python3 scripts/measure-panel.py --json   # the same numbers, machine-readable
 ```
 
-Measured, the full row needs ~1616px of content width, and the panel sheds its
-least important items in a fixed order on the way down so nothing is ever
-squeezed. Every constant in the script carries the Tailwind class it was read
-from:
+It also checks itself. The nav entries are parsed out of `Navbar.tsx` rather
+than copied into the script, and ten assertions hold the model against the
+classes in the components; a run that has drifted from the markup fails instead
+of reporting room that is not there. That is not hypothetical — the nav grew a
+seventh entry, the script went on measuring six, and the panel was called fine
+while wanting about 1450px at 1280. The numbers now are the browser's:
 
 | Tier | From | What the panel shows | Needs / has |
 |---|---|---|---|
-| `wide` | 1920 | everything: nav with glyph icons, palette word, both CTAs, stamp | 1616 / 1777 |
-| `2xl` | 1536 | nav, palette word, primary CTA, stamp — no ghost shortcut | 1338 / 1393 |
-| `xl` | 1280 | nav without glyph icons, settings, stamp — no CTA, no palette word | 1105 / 1169 |
-| `lg` | 1024 | Menu button, settings, primary CTA, stamp — no nav pill | 882 / 929 |
+| `wide` | 1920 | all seven cards with glyph icons, palette word, divider, primary CTA, stamp | 1661 / 1777 |
+| `2xl` | 1536 | five cards + Menu for the other two, divider, primary CTA, stamp — no palette word | 1342 / 1393 |
+| `xl` | 1280 | three cards + Menu for the other four, settings, primary CTA, stamp | 1133 / 1169 |
+| `lg` | 1024 | Menu button holding all seven, settings, primary CTA, stamp | 849 / 929 |
 | `sm` | 640 | wordmark, language, reading switch, palette, menu button | 431 / 569 |
 | phone | 360 | mark alone, palette, menu button — no wordmark, no language button | 182 / 305 |
 
-Two of those entries are worth their own sentence, because both are visible
-choices rather than accidents:
+Three of those are visible choices rather than accidents:
 
-- between 1024 and 1279 the primary nav opens from a **Menu button** in the
-  settings cluster instead of sitting in the row — the same sheet the phone menu
-  uses, and the same markup;
-- on phones the lockup drops to the **mark alone** and the language button
-  waits for `sm`. The row is then 182px in the 305px a 360px screen leaves it,
-  which is the difference between a header that fits every phone and one that
-  fits the ones we happened to measure. The full lockup is in the footer on
-  every screen, and all fifteen languages are spelled out in the sheet, one tap
-  away.
-
-The one that surprises people is `lg`: 1024 is not wide enough for the six nav
-cards *and* the settings *and* the stamp, so between 1024 and 1279 the primary
-nav opens from a Menu button in the settings cluster — the same sheet the phone
-menu uses — and the nav pill returns at `xl`. The order is deliberate: identity,
-menu access, settings and the build stamp are kept longest; the ghost shortcut
-to the screenshots is shed first, because its destination is the first child of
-the Product menu.
+- **the cards arrive in two steps.** Seven cards, the settings, the call to
+  action and the stamp need about 1450px at 1280, so the first three cards
+  arrive at `xl` and the rest at `2xl`, with the **Menu button** holding
+  whatever is not on screen yet — all seven at 1024–1279, the last four at
+  1280–1535, the last two at 1536–1919. It is the same sheet the phone menu
+  opens, so no page is ever unreachable from the header;
+- **the stamp is a card, not a timestamp**: the site's name, the date, and the
+  time in Gulf Standard Time, which is what makes it ~126px wide instead of ~75.
+  It outranks the ghost shortcut that used to sit at 1920 — Screenshots is the
+  first child of the Product menu, and a duplicate route is the cheapest thing
+  in this row to lose — and the palette's own word waits for `wide` for the same
+  reason;
+- **on phones the lockup drops to the mark alone** and the language button waits
+  for `sm` — 182px in the 305px a 360px screen leaves it, which is the
+  difference between a header that fits every phone and one that fits the phones
+  that happened to be measured. The full lockup is in the footer on every
+  screen, and all fifteen languages are spelled out in the sheet, one tap away.
 
 ### The plates
 

@@ -20,6 +20,11 @@ import { buildStamp } from "@/lib/buildStamp";
  * counters, nothing that changes between two requests to the same deployment.
  * A health check that differs every time cannot be compared with anything.
  *
+ * Both zones are reported because the panel prints one of them: the stamp reads
+ * Gulf Standard Time, its tooltip and this endpoint carry UTC, and the pair is
+ * what lets a person reading the site and a script reading the endpoint agree
+ * without converting anything by hand.
+ *
  * `force-static` is exact here rather than a cache hint. The values are
  * constants inlined at build time, so the answer is a property of the
  * deployment: prerendered once at build, served from the edge, identical for
@@ -36,6 +41,11 @@ export function GET() {
     revision: buildStamp.revision,
     branch: buildStamp.ref,
     environment: buildStamp.environment,
+    /* The instant, twice: UTC because that is what two builds are compared by,
+       and the same moment in the UAE's own offset because that is the clock the
+       panel prints — so a curl and a screenshot can be read against each other
+       without anyone doing arithmetic. */
     builtAt: buildStamp.builtAt,
+    builtAtUae: buildStamp.builtAtUae,
   });
 }
