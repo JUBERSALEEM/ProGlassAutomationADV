@@ -26,11 +26,15 @@ namespace ProGlassAutomation.Services.RecordsSync
     ///     network must be invisible to the operator except in the log.
     ///
     /// Credentials: Supabase key lives in SecretVault (DPAPI CurrentUser +
-    /// app entropy) under "RecordsSync.SupabaseKey". URL and switches live
-    /// in recordssync.json. Both absent → the service stays dormant.
+    /// app entropy) under the RecordsSync-prefixed vault entries. URL, Auth
+    /// email, and credential-scope metadata live in recordssync.json. Missing,
+    /// unbound, or mismatched configuration → the service stays dormant.
     /// </summary>
     public sealed class RecordsSyncService : IDisposable
     {
+        /// <summary>The production Supabase project used by this Records Sync integration.</summary>
+        public const string ExpectedProjectUrl = "https://afpbdyamedpanwijxghk.supabase.co";
+
         /// <summary>SecretVault key for the publishable/anon key.</summary>
         public const string SecretKey = "RecordsSync.SupabaseKey";
 
@@ -72,6 +76,8 @@ namespace ProGlassAutomation.Services.RecordsSync
             Enabled = _settings.Enabled,
             SupabaseUrl = _settings.SupabaseUrl,
             AuthEmail = _settings.AuthEmail,
+            CredentialBindingProjectUrl = _settings.CredentialBindingProjectUrl,
+            CredentialBindingAuthEmail = _settings.CredentialBindingAuthEmail,
             SourceFile = _settings.SourceFile,
             SourceWorksheet = _settings.SourceWorksheet,
             IntervalMinutes = _settings.IntervalMinutes,
@@ -98,6 +104,49 @@ namespace ProGlassAutomation.Services.RecordsSync
             return uri.GetLeftPart(UriPartial.Authority) + uri.AbsolutePath.TrimEnd('/');
         }
 
+        /// <summary>Verifies that the configured URL is the expected production
+        /// project endpoint after normalizing a trailing slash/whitespace.</summary>
+        public static bool IsExpectedProjectUrl(string? projectUrl)
+        {
+            try
+            {
+                return string.Equals(
+                    NormalizeProjectUrl(projectUrl), ExpectedProjectUrl,
+                    StringComparison.OrdinalIgnoreCase);
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>Returns true only when the saved SecretVault credentials
+        /// have explicit non-secret project/email association metadata matching
+        /// the active settings. Legacy or mismatched credentials are unbound.</summary>
+        public static bool CredentialBindingMatches(
+            RecordsSyncSettings settings,
+            string? projectUrl,
+            string? authEmail)
+        {
+            ArgumentNullException.ThrowIfNull(settings);
+            var activeEmail = (authEmail ?? string.Empty).Trim();
+            var boundEmail = (settings.CredentialBindingAuthEmail ?? string.Empty).Trim();
+            if (activeEmail.Length == 0 || boundEmail.Length == 0)
+                return false;
+
+            try
+            {
+                var activeUrl = NormalizeProjectUrl(projectUrl);
+                var boundUrl = NormalizeProjectUrl(settings.CredentialBindingProjectUrl);
+                return string.Equals(activeUrl, boundUrl, StringComparison.OrdinalIgnoreCase) &&
+                       string.Equals(activeEmail, boundEmail, StringComparison.OrdinalIgnoreCase);
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
+        }
+
         /// <summary>Stores connection metadata locally and credentials in the
         /// existing SecretVault. Existing Enabled/source/interval settings are
         /// preserved. This is local-only: it never tests the network, starts a
@@ -116,22 +165,38 @@ namespace ProGlassAutomation.Services.RecordsSync
             var passwordValue = password ?? string.Empty;
             if (apiKeyValue.Length == 0)
                 throw new ArgumentException("A Supabase publishable/anon key is required.", nameof(apiKey));
+            if (!SupabaseRecordsClient.IsPublishableOrAnonApiKey(apiKeyValue))
+                throw new ArgumentException(
+                    "Only a Supabase publishable or legacy anon key can be saved; secret and service-role keys are rejected.",
+                    nameof(apiKey));
             if (passwordValue.Length == 0)
                 throw new ArgumentException("A dedicated Records Sync account password is required.", nameof(password));
+
+            var projectUrl = NormalizeProjectUrl(settings.SupabaseUrl);
+            if (!IsExpectedProjectUrl(projectUrl))
+                throw new ArgumentException(
+                    "ProGlass Records Sync must use the configured production project URL: " + ExpectedProjectUrl,
+                    nameof(settings));
 
             var normalized = new RecordsSyncSettings
             {
                 // This page never enables/disables the existing worker or changes
                 // its PI-only source scope and cadence.
                 Enabled = _settings.Enabled,
-                SupabaseUrl = NormalizeProjectUrl(settings.SupabaseUrl),
+                SupabaseUrl = projectUrl,
                 AuthEmail = (settings.AuthEmail ?? string.Empty).Trim(),
+                CredentialBindingProjectUrl = projectUrl,
+                CredentialBindingAuthEmail = (settings.AuthEmail ?? string.Empty).Trim(),
                 SourceFile = _settings.SourceFile,
                 SourceWorksheet = _settings.SourceWorksheet,
                 IntervalMinutes = _settings.IntervalMinutes,
             };
             if (normalized.AuthEmail.Length == 0)
                 throw new ArgumentException("A dedicated Records Sync account email is required.", nameof(settings));
+            if (!SupabaseRecordsClient.KeyHasNoProjectMismatch(apiKeyValue, normalized.SupabaseUrl))
+                throw new ArgumentException(
+                    "The legacy anon key project reference does not match the configured Supabase URL.",
+                    nameof(apiKey));
 
             await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
             try
@@ -272,26 +337,42 @@ namespace ProGlassAutomation.Services.RecordsSync
                 if (!_settings.Enabled)
                     return;
 
-                if (string.IsNullOrWhiteSpace(_settings.SupabaseUrl) ||
-                    !SecretVault.TryRetrieve(SecretKey, out _))
+                if (!IsExpectedProjectUrl(_settings.SupabaseUrl))
                 {
-                    AppLogService.Info(
-                        "[RecordsSync] enabled but not configured (URL or key missing) — staying dormant.");
+                    AppLogService.Warning(
+                        "[RecordsSync] configured project URL does not match this app’s production Records Sync project — staying dormant.");
                     return;
                 }
 
-                if (!string.IsNullOrWhiteSpace(_settings.AuthEmail) &&
-                    SecretVault.TryRetrieve(SecretPasswordKey, out _))
+                if (!CredentialBindingMatches(_settings, _settings.SupabaseUrl, _settings.AuthEmail))
+                {
+                    AppLogService.Warning(
+                        "[RecordsSync] saved credentials are not bound to the active project and Auth email — staying dormant until credentials are re-entered and saved in Settings.");
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(_settings.SupabaseUrl) ||
+                    !SecretVault.TryRetrieve(SecretKey, out var savedApiKey) ||
+                    string.IsNullOrWhiteSpace(savedApiKey) ||
+                    string.IsNullOrWhiteSpace(_settings.AuthEmail) ||
+                    !SecretVault.TryRetrieve(SecretPasswordKey, out var savedPassword) ||
+                    string.IsNullOrEmpty(savedPassword))
                 {
                     AppLogService.Info(
-                        "[RecordsSync] auth mode: dedicated authenticated user (RLS-respecting).");
+                        "[RecordsSync] enabled but missing the project URL, publishable/anon key, or dedicated Auth credentials — staying dormant.");
+                    return;
                 }
-                else
+
+                if (!SupabaseRecordsClient.IsPublishableOrAnonApiKey(savedApiKey) ||
+                    !SupabaseRecordsClient.KeyHasNoProjectMismatch(savedApiKey, _settings.SupabaseUrl))
                 {
-                    AppLogService.Info(
-                        "[RecordsSync] auth mode: stored key used directly as Bearer — configure " +
-                        "AuthEmail + '" + SecretPasswordKey + "' for the recommended authenticated-user mode.");
+                    AppLogService.Warning(
+                        "[RecordsSync] saved key is not an allowed publishable/anon key for the configured project — staying dormant.");
+                    return;
                 }
+
+                AppLogService.Info(
+                    "[RecordsSync] auth mode: dedicated authenticated user (RLS-respecting).");
 
                 var interval = TimeSpan.FromMinutes(
                     Math.Clamp(_settings.IntervalMinutes, 5, 1440));
@@ -320,11 +401,35 @@ namespace ProGlassAutomation.Services.RecordsSync
         public async Task<int> RunOnceAsync(CancellationToken cancellationToken = default)
         {
             var settings = _settings;
-            if (!SecretVault.TryRetrieve(SecretKey, out var apiKey) ||
-                string.IsNullOrWhiteSpace(settings.SupabaseUrl))
+            if (!IsExpectedProjectUrl(settings.SupabaseUrl))
             {
                 throw new InvalidOperationException(
-                    "Records sync is not configured (missing URL or key).");
+                    "Configured project URL does not match this app’s production Records Sync project.");
+            }
+
+            if (!CredentialBindingMatches(settings, settings.SupabaseUrl, settings.AuthEmail))
+            {
+                throw new InvalidOperationException(
+                    "Saved Records Sync credentials are not bound to the active Supabase project and Auth email. Re-enter and save both credentials in Settings before syncing.");
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.SupabaseUrl) ||
+                string.IsNullOrWhiteSpace(settings.AuthEmail))
+            {
+                throw new InvalidOperationException(
+                    "Records sync is not configured (missing project URL or dedicated Auth email).");
+            }
+            if (!SecretVault.TryRetrieve(SecretKey, out var apiKey) ||
+                string.IsNullOrWhiteSpace(apiKey))
+            {
+                throw new InvalidOperationException(
+                    "Records sync is not configured (missing publishable/anon key).");
+            }
+            if (!SecretVault.TryRetrieve(SecretPasswordKey, out var authPassword) ||
+                string.IsNullOrEmpty(authPassword))
+            {
+                throw new InvalidOperationException(
+                    "Records sync is not configured (missing dedicated Auth password).");
             }
 
             var rows = _source.Extract(settings.SourceFile, settings.SourceWorksheet);
@@ -346,7 +451,6 @@ namespace ProGlassAutomation.Services.RecordsSync
 
             var written = 0;
             var skipped = 0;
-            SecretVault.TryRetrieve(SecretPasswordKey, out var authPassword);
             using (var client = new SupabaseRecordsClient(
                        settings.SupabaseUrl, apiKey, settings.AuthEmail, authPassword))
             {

@@ -45,6 +45,50 @@ public sealed class SupabaseRecordsClientTests
     }
 
     [Fact]
+    public void ClientRequiresDedicatedAuthCredentialsAndDoesNotAllowAnonBearerFallback()
+    {
+        Assert.Throws<ArgumentException>(() => new SupabaseRecordsClient(ProjectUrl, ApiKey));
+        Assert.Throws<ArgumentException>(() => new SupabaseRecordsClient(
+            ProjectUrl, ApiKey, AuthEmail, string.Empty));
+    }
+
+    [Fact]
+    public void ApiKeyValidation_allowsPublishableAndLegacyAnon_butRejectsPrivilegedKeys()
+    {
+        Assert.True(SupabaseRecordsClient.IsPublishableOrAnonApiKey(ApiKey));
+        Assert.True(SupabaseRecordsClient.IsPublishableOrAnonApiKey(
+            LegacyAnonKey("example-project")));
+        Assert.False(SupabaseRecordsClient.IsPublishableOrAnonApiKey("sb_secret_unit_test_key"));
+        Assert.False(SupabaseRecordsClient.IsPublishableOrAnonApiKey(
+            LegacyKey("service_role", "example-project")));
+    }
+
+    [Fact]
+    public void LegacyAnonKey_validationDetectsProjectReferenceMismatch()
+    {
+        Assert.True(SupabaseRecordsClient.KeyHasNoProjectMismatch(
+            LegacyAnonKey("example-project"), ProjectUrl));
+        Assert.False(SupabaseRecordsClient.KeyHasNoProjectMismatch(
+            LegacyAnonKey("another-project"), ProjectUrl));
+        Assert.True(SupabaseRecordsClient.KeyHasNoProjectMismatch(ApiKey, ProjectUrl));
+        Assert.True(SupabaseRecordsClient.KeyHasNoProjectMismatch(
+            LegacyAnonKey("afpbdyamedpanwijxghk"), RecordsSyncService.ExpectedProjectUrl));
+    }
+
+    [Fact]
+    public void ClientRejectsSecretServiceRoleAndMismatchedLegacyKeysBeforeSending()
+    {
+        Assert.Throws<ArgumentException>(() => new SupabaseRecordsClient(
+            ProjectUrl, "sb_secret_unit_test_key", AuthEmail, AuthPassword, new ScriptedHandler()));
+        Assert.Throws<ArgumentException>(() => new SupabaseRecordsClient(
+            ProjectUrl, LegacyKey("service_role", "example-project"), AuthEmail, AuthPassword,
+            new ScriptedHandler()));
+        Assert.Throws<ArgumentException>(() => new SupabaseRecordsClient(
+            ProjectUrl, LegacyAnonKey("another-project"), AuthEmail, AuthPassword,
+            new ScriptedHandler()));
+    }
+
+    [Fact]
     public async Task TestReadConnection_ReportsSafeAuthErrorAndStopsBeforeRestRead()
     {
         var handler = new ScriptedHandler(JsonResponse(
@@ -67,9 +111,13 @@ public sealed class SupabaseRecordsClientTests
         Assert.Contains("Invalid login credentials", exception.Message);
         Assert.Contains("invalid_credentials", exception.Message);
         Assert.Contains("Email provider", exception.Message);
+        Assert.Contains("Host: example-project.supabase.co", exception.Message);
+        Assert.Contains("endpoint: /auth/v1/token?grant_type=password", exception.Message);
+        Assert.Contains("HTTP method: POST", exception.Message);
         Assert.Contains("apikey header added: true", exception.Message);
         Assert.Contains("Authorization header present: false", exception.Message);
         Assert.Contains("API key type: publishable", exception.Message);
+        Assert.Contains("API key project reference: opaque publishable key", exception.Message);
         Assert.Contains("Content-Type: application/json", exception.Message);
         Assert.Contains("[redacted]", exception.Message);
         Assert.DoesNotContain(ApiKey, exception.Message);
@@ -115,6 +163,18 @@ public sealed class SupabaseRecordsClientTests
             "{\"message\":\"" + new string('x', 500) + "\"}");
         Assert.Equal(321, longDetails.Length);
         Assert.EndsWith("…", longDetails);
+    }
+
+    private static string LegacyAnonKey(string projectRef) => LegacyKey("anon", projectRef);
+
+    private static string LegacyKey(string role, string projectRef)
+    {
+        var payload = Convert.ToBase64String(Encoding.UTF8.GetBytes(
+                "{\"role\":\"" + role + "\",\"ref\":\"" + projectRef + "\"}"))
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
+        return "header." + payload + ".signature";
     }
 
     private static HttpResponseMessage JsonResponse(HttpStatusCode status, string body) =>

@@ -23,7 +23,7 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
         private string _apiKeyInput = string.Empty;
         private string _passwordInput = string.Empty;
         private string _connectionMessage =
-            "Saved credentials are never displayed. Leave secret fields blank to keep their saved values.";
+            "Saved credentials are never displayed. Blank fields reuse saved values only for their bound project/account; if that binding is missing or changed, enter both secrets again.";
         private bool _isBusy;
         private bool _hasSavedApiKey;
         private bool _hasSavedPassword;
@@ -33,7 +33,9 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
             _service = service;
             _settings = service?.GetSettingsSnapshot() ?? new RecordsSyncSettings();
             _syncStatus = service?.Status ?? new RecordsSyncStatusSnapshot();
-            _supabaseUrl = _settings.SupabaseUrl ?? string.Empty;
+            _supabaseUrl = string.IsNullOrWhiteSpace(_settings.SupabaseUrl)
+                ? RecordsSyncService.ExpectedProjectUrl
+                : _settings.SupabaseUrl;
             _authEmail = _settings.AuthEmail ?? string.Empty;
 
             SaveConfigurationCommand = new RelayCommand(
@@ -54,6 +56,7 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
                 if (_supabaseUrl == value) return;
                 _supabaseUrl = value ?? string.Empty;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(SavedCredentialSummary));
             }
         }
 
@@ -65,6 +68,7 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
                 if (_authEmail == value) return;
                 _authEmail = value ?? string.Empty;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(SavedCredentialSummary));
             }
         }
 
@@ -122,8 +126,14 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
         {
             get
             {
+                var matchesCurrentScope = _service != null &&
+                    RecordsSyncService.CredentialBindingMatches(
+                        _service.GetSettingsSnapshot(), SupabaseUrl, AuthEmail);
+
+                if ((HasSavedApiKey || HasSavedPassword) && !matchesCurrentScope)
+                    return "Saved credential(s) have no matching project/account binding. Re-enter both here before testing or saving; values from another app are separate.";
                 if (HasSavedApiKey && HasSavedPassword)
-                    return "Publishable key and account password are saved in the Windows-protected credential vault.";
+                    return "Publishable key and account password are saved in this app’s protected vault and associated with the displayed project/account.";
                 if (HasSavedApiKey)
                     return "Publishable key is saved. Enter the dedicated account password to finish setup.";
                 if (HasSavedPassword)
@@ -165,9 +175,16 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
         public string ScopeSummary =>
             $"PI only · {_settings.SourceFile} / {_settings.SourceWorksheet}";
 
-        public string BackgroundScanStatus => _settings.Enabled
-            ? "Enabled under the existing PI-only setting. Saving or testing here does not change or start the worker."
-            : "Paused — this page does not enable the existing background scan.";
+        public string BackgroundScanStatus => !_settings.Enabled
+            ? "Paused — this page does not enable the existing background scan."
+            : !RecordsSyncService.IsExpectedProjectUrl(_settings.SupabaseUrl)
+                ? "Paused — ProGlass Records Sync must use " + RecordsSyncService.ExpectedProjectUrl + "."
+                : !RecordsSyncService.CredentialBindingMatches(
+                    _settings, _settings.SupabaseUrl, _settings.AuthEmail)
+                    ? "Paused — saved credentials are not bound to the current project/account. Re-enter and save both credentials before background sync can start."
+                    : !HasSavedApiKey || !HasSavedPassword
+                        ? "Paused — the dedicated publishable/anon key and Auth password must both be saved before background sync can start."
+                        : "Enabled under the existing PI-only setting. Saving or testing here does not change or start the worker.";
 
         public string AtomicPublisherStatus => _service == null
             ? "Records Sync service is unavailable."
@@ -195,9 +212,23 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
             try
             {
                 var url = RecordsSyncService.NormalizeProjectUrl(SupabaseUrl);
+                if (!RecordsSyncService.IsExpectedProjectUrl(url))
+                    throw new InvalidOperationException(
+                        "Use the ProGlass Records Sync project URL: " + RecordsSyncService.ExpectedProjectUrl);
+
                 var email = (AuthEmail ?? string.Empty).Trim();
                 if (email.Length == 0)
                     throw new ArgumentException("Enter the dedicated Records Sync account email.");
+
+                var existing = _service.GetSettingsSnapshot();
+                var bindingMatches = RecordsSyncService.CredentialBindingMatches(existing, url, email);
+                var keyEntered = !string.IsNullOrWhiteSpace(ApiKeyInput);
+                var passwordEntered = !string.IsNullOrEmpty(PasswordInput);
+                if (!bindingMatches && (!keyEntered || !passwordEntered))
+                {
+                    throw new InvalidOperationException(
+                        "Saved credentials are not bound to this project URL and Auth email. Re-enter both the publishable/anon key and account password in ProGlass before saving; stale vault values will not be reused.");
+                }
 
                 var apiKey = ResolveApiKey(ApiKeyInput);
                 var password = ResolvePassword(PasswordInput);
@@ -206,7 +237,6 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
                 if (string.IsNullOrEmpty(password))
                     throw new ArgumentException("Enter the dedicated Records Sync account password.");
 
-                var existing = _service.GetSettingsSnapshot();
                 var updated = new RecordsSyncSettings
                 {
                     Enabled = existing.Enabled,
@@ -218,9 +248,9 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
                 };
 
                 await _service.SaveConfigurationAsync(updated, apiKey, password);
-                _settings = updated;
-                SupabaseUrl = updated.SupabaseUrl;
-                AuthEmail = updated.AuthEmail;
+                _settings = _service.GetSettingsSnapshot();
+                SupabaseUrl = _settings.SupabaseUrl;
+                AuthEmail = _settings.AuthEmail;
                 ApiKeyInput = string.Empty;
                 PasswordInput = string.Empty;
                 RefreshSavedCredentialState();
@@ -250,9 +280,24 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
             try
             {
                 var url = RecordsSyncService.NormalizeProjectUrl(SupabaseUrl);
+                if (!RecordsSyncService.IsExpectedProjectUrl(url))
+                    throw new InvalidOperationException(
+                        "Use the ProGlass Records Sync project URL: " + RecordsSyncService.ExpectedProjectUrl);
+
                 var email = (AuthEmail ?? string.Empty).Trim();
                 if (email.Length == 0)
                     throw new ArgumentException("Enter the dedicated Records Sync account email.");
+
+                var savedSettings = _service?.GetSettingsSnapshot();
+                var bindingMatches = savedSettings != null &&
+                    RecordsSyncService.CredentialBindingMatches(savedSettings, url, email);
+                var keyEntered = !string.IsNullOrWhiteSpace(ApiKeyInput);
+                var passwordEntered = !string.IsNullOrEmpty(PasswordInput);
+                if (!bindingMatches && (!keyEntered || !passwordEntered))
+                {
+                    throw new InvalidOperationException(
+                        "Saved credentials are not bound to this project URL and Auth email. Enter both the publishable/anon key and account password in ProGlass before testing; saved values will not be reused across project/account changes.");
+                }
 
                 var apiKey = ResolveApiKey(ApiKeyInput);
                 var password = ResolvePassword(PasswordInput);

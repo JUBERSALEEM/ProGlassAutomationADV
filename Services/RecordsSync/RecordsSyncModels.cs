@@ -18,10 +18,9 @@ namespace ProGlassAutomation.Services.RecordsSync
     ///   • The publishable/anon key and the dedicated auth user's password
     ///     live in Services.Security.SecretVault (DPAPI, CurrentUser scope)
     ///     under the RecordsSyncService.Secret* keys.
-    ///   • Writes run as the `authenticated` role (SELECT/INSERT/UPDATE on
-    ///     records, no DELETE, no anon) — never service-role, never RLS
-    ///     bypass. If no auth user is configured the stored key is used
-    ///     directly as Bearer (last-resort compatibility path, logged).
+    ///   • Writes require the dedicated `authenticated` user (SELECT/INSERT/
+    ///     UPDATE on records, no DELETE) — never service-role, no anon Bearer
+    ///     fallback, and no RLS bypass.
     /// </summary>
     public sealed class RecordsSyncSettings
     {
@@ -35,6 +34,14 @@ namespace ProGlassAutomation.Services.RecordsSync
         /// <summary>Dedicated Supabase Auth user (e-mail) for the sync — the
         /// Windowfilehost pattern. Password lives in SecretVault.</summary>
         public string AuthEmail { get; set; } = "";
+
+        /// <summary>Non-secret identity metadata for the project/user that the
+        /// saved SecretVault key and password were last stored against. Older
+        /// settings have no binding and require explicit credential re-entry.</summary>
+        public string CredentialBindingProjectUrl { get; set; } = "";
+
+        /// <summary>Non-secret Auth email associated with the saved key/password.</summary>
+        public string CredentialBindingAuthEmail { get; set; } = "";
 
         /// <summary>Source label written to records.source_file. The website
         /// source-scopes by this value; keeping it distinct from any Excel

@@ -78,7 +78,7 @@
                                             VerticalAlignment="Center">
                                     <TextBlock Text="Connection details"
                                                Style="{StaticResource SettingsCardTitleStyle}"/>
-                                    <TextBlock Text="Blank key/password fields use this app’s saved Windows-protected values; other apps’ saved settings are not shared."
+                                    <TextBlock Text="Blank secret fields reuse this app’s saved values only when they are bound to the same project URL and Auth account. Project/account changes require both secrets again; other apps’ saved settings are separate."
                                                Style="{StaticResource SettingsCardHeaderNoteStyle}"
                                                TextWrapping="Wrap"/>
                                 </StackPanel>
@@ -89,14 +89,14 @@
                                            Style="{StaticResource SettingsRowTitleStyle}"/>
                                 <TextBox Text="{Binding SupabaseUrl, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource TextBoxStyle}"
-                                         ToolTip="Use the HTTPS URL from the Supabase project settings."/>
+                                         ToolTip="For this integration, use the production project URL https://afpbdyamedpanwijxghk.supabase.co."/>
 
                                 <TextBlock Text="Publishable / anon key"
                                            Style="{StaticResource SettingsRowTitleStyle}"
                                            Margin="0,10,0,0"/>
                                 <TextBox Text="{Binding ApiKeyInput, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource TextBoxStyle}"
-                                         ToolTip="Leave blank to use this app’s saved key, or enter a key for this test. Use a publishable/anon key only; never enter a service_role or secret key."/>
+                                         ToolTip="Leave blank only to reuse a key saved for this same project URL and Auth email. If either changed or has no saved binding, re-enter both secrets. Use a publishable/anon key only; never enter a service_role or secret key."/>
 
                                 <TextBlock Text="Dedicated Records Sync account email"
                                            Style="{StaticResource SettingsRowTitleStyle}"
@@ -109,7 +109,7 @@
                                            Margin="0,10,0,0"/>
                                 <PasswordBox x:Name="PasswordInputBox"
                                              Style="{StaticResource RoundedPasswordBoxStyle}"
-                                             ToolTip="Leave blank to use this app’s saved password, or enter the password for this test. Values saved by other apps are not reused."
+                                             ToolTip="Leave blank only to reuse a password saved for this same project URL and Auth email. If either changed or has no saved binding, re-enter both secrets. Values saved by other apps are not reused."
                                              PasswordChanged="PasswordInputBox_OnPasswordChanged"/>
 
                                 <TextBlock Text="{Binding SavedCredentialSummary}"

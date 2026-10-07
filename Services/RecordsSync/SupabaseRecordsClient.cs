@@ -17,8 +17,9 @@ namespace ProGlassAutomation.Services.RecordsSync
     ///   • pi_number is the table's PRIMARY KEY — record identity is GLOBAL,
     ///     not per source scope.
     ///   • qty/sqm are TEXT columns; every business field ships as a string.
-    ///   • Auth = publishable/anon key + a DEDICATED authenticated user
-    ///     (POST /auth/v1/token?grant_type=password). Writes run as the
+    ///   • Auth = publishable/anon key + a required DEDICATED authenticated
+    ///     user (POST /auth/v1/token?grant_type=password). Requests never fall
+    ///     back to using the anon key as a Bearer token. Writes run as the
     ///     `authenticated` role with SELECT/INSERT/UPDATE only — no
     ///     service-role, no RLS bypass, no DELETE.
     ///   • Writes are fenced: inserts are POST-only for rows the remote
@@ -72,6 +73,17 @@ namespace ProGlassAutomation.Services.RecordsSync
 
             if (_baseUrl.Length == 0 || _apiKey.Length == 0)
                 throw new ArgumentException("Supabase URL and key are both required.");
+            if (!IsPublishableOrAnonApiKey(_apiKey))
+                throw new ArgumentException(
+                    "Only a Supabase publishable or legacy anon key is allowed; secret and service-role keys are rejected.",
+                    nameof(apiKey));
+            if (!KeyHasNoProjectMismatch(_apiKey, _baseUrl))
+                throw new ArgumentException(
+                    "The legacy anon key project reference does not match the configured Supabase URL.",
+                    nameof(apiKey));
+            if (_authEmail == null || _authPassword == null)
+                throw new ArgumentException(
+                    "A dedicated Records Sync Auth email and password are required; anon-key Bearer fallback is disabled.");
             _http = new HttpClient(
                 handler ?? new HttpClientHandler { AllowAutoRedirect = false },
                 disposeHandler: true)
@@ -174,13 +186,13 @@ namespace ProGlassAutomation.Services.RecordsSync
         }
 
         /// <summary>Windowfilehost auth pattern: anon key + dedicated user →
-        /// short-lived access token used as Bearer. Without configured
-        /// credentials the stored key itself is the Bearer (compatibility
-        /// path; the caller logs which mode is active).</summary>
+        /// short-lived access token used as Bearer. Dedicated credentials are
+        /// required; the anon key is never used as a Bearer fallback.</summary>
         private async Task<string> ResolveBearerTokenAsync(CancellationToken cancellationToken)
         {
             if (_authEmail == null || _authPassword == null)
-                return _apiKey;
+                throw new InvalidOperationException(
+                    "A dedicated Records Sync Auth email and password are required.");
 
             using var request = new HttpRequestMessage(
                 HttpMethod.Post, _baseUrl + "/auth/v1/token?grant_type=password");
@@ -422,8 +434,75 @@ namespace ProGlassAutomation.Services.RecordsSync
                 + $"Content-Type: {request.Content?.Headers.ContentType?.MediaType ?? "absent"}; "
                 + $"API key present: {BoolText(!string.IsNullOrWhiteSpace(_apiKey))}; "
                 + $"API key type: {ClassifyApiKey(_apiKey)}; "
+                + $"API key project reference: {GetApiKeyProjectMatch(_apiKey, uri?.Host)}; "
                 + $"JSON fields present: email={BoolText(!string.IsNullOrWhiteSpace(_authEmail))}, "
                 + $"password={BoolText(!string.IsNullOrEmpty(_authPassword))}";
+        }
+
+        internal static bool IsPublishableOrAnonApiKey(string? apiKey)
+        {
+            if (string.IsNullOrWhiteSpace(apiKey))
+                return false;
+
+            var type = ClassifyApiKey(apiKey);
+            return string.Equals(type, "publishable", StringComparison.Ordinal) ||
+                   string.Equals(type, "legacy anon", StringComparison.Ordinal);
+        }
+
+        internal static bool KeyHasNoProjectMismatch(string? apiKey, string? projectUrl)
+        {
+            if (string.IsNullOrWhiteSpace(apiKey) ||
+                !Uri.TryCreate(projectUrl, UriKind.Absolute, out var projectUri))
+                return false;
+
+            return !string.Equals(
+                GetApiKeyProjectMatch(apiKey, projectUri.Host),
+                "mismatch",
+                StringComparison.Ordinal);
+        }
+
+        private static string GetApiKeyProjectMatch(string apiKey, string? projectHost)
+        {
+            if (string.Equals(ClassifyApiKey(apiKey), "publishable", StringComparison.Ordinal))
+                return "opaque publishable key (project is not encoded)";
+
+            const string SupabaseHostSuffix = ".supabase.co";
+            if (string.IsNullOrWhiteSpace(projectHost) ||
+                !projectHost.EndsWith(SupabaseHostSuffix, StringComparison.OrdinalIgnoreCase))
+                return "unverifiable for this host";
+
+            var hostProjectRef = projectHost[..^SupabaseHostSuffix.Length];
+            var segments = apiKey.Trim().Split('.');
+            if (segments.Length < 2)
+                return "unverifiable";
+
+            try
+            {
+                var payload = segments[1].Replace('-', '+').Replace('_', '/');
+                payload = payload.PadRight(payload.Length + ((4 - payload.Length % 4) % 4), '=');
+                using var document = JsonDocument.Parse(Convert.FromBase64String(payload));
+                var tokenProjectRef = ReadJsonString(document.RootElement, "ref");
+                if (string.IsNullOrWhiteSpace(tokenProjectRef))
+                {
+                    var issuer = ReadJsonString(document.RootElement, "iss");
+                    if (Uri.TryCreate(issuer, UriKind.Absolute, out var issuerUri) &&
+                        issuerUri.Host.EndsWith(SupabaseHostSuffix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        tokenProjectRef = issuerUri.Host[..^SupabaseHostSuffix.Length];
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(tokenProjectRef))
+                    return "unverifiable";
+
+                return string.Equals(tokenProjectRef, hostProjectRef, StringComparison.OrdinalIgnoreCase)
+                    ? "match"
+                    : "mismatch";
+            }
+            catch (Exception exception) when (exception is FormatException or JsonException)
+            {
+                return "unverifiable";
+            }
         }
 
         private static string ClassifyApiKey(string apiKey)
