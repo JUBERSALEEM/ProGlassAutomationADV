@@ -20,7 +20,7 @@ import { ProductSlider } from "@/components/product/ProductSlider";
 import { SheetPlanStrip } from "@/components/optimization/SheetPlanStrip";
 import { ScreenshotFrame } from "@/components/gallery/ScreenshotFrame";
 import { cn } from "@/lib/cn";
-import { modules } from "@/data/modules";
+import { groupNotes, moduleGroups, modules, modulesByGroup } from "@/data/modules";
 import { glass3d } from "@/data/assets";
 import { featureGroups } from "@/data/features";
 import { faq } from "@/data/faq";
@@ -548,6 +548,59 @@ export default async function HomePage({ params }: PageProps) {
               See all {modules.length} modules
             </ButtonLink>
           </Reveal>
+        </Container>
+      </Section>
+
+      {/* ── The nine rail groups, as a tour ────────────────────────
+         *
+         * Home is a guided tour of the application as it actually is: the
+         * sidebar's nine groups hold every module the catalogue lists. Each
+         * card links into the catalogue at that group's own anchor, so the
+         * walk home → catalogue never restarts at the top of a long page.
+         */}
+      <Section id="rail-tour" aria-labelledby="rail-tour-heading">
+        <Container>
+          <SectionHeading
+            id="rail-tour-heading"
+            eyebrow={t("Take the tour")}
+            title={t.template`Nine rail groups, ${modules.length} rooms of the same building.`}
+            lead={t("The application is organized exactly as its sidebar is: nine groups, from Main to System, hold every module the catalogue lists. Walk them here, then open one in the catalogue itself — every card there keeps the app's own navigation label and the file that backs the claim.")}
+          />
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {moduleGroups.map((group, index) => {
+              const list = modulesByGroup(group);
+              return (
+                <Reveal key={group} delay={Math.min(index, 6) * 45} className="h-full">
+                  <Link
+                    href={`/features#group-${group.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                    className="surface card-interactive group flex h-full flex-col p-5"
+                  >
+                    <div className="flex items-baseline justify-between gap-3">
+                      <h3 className="font-mono text-sm font-semibold uppercase tracking-[0.18em] text-brand-300">
+                        {t(group)}
+                      </h3>
+                      <span className="font-mono text-2xs tabular-nums text-text-faint font-medium">
+                        {t.template`${list.length} modules`}
+                      </span>
+                    </div>
+                    <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(groupNotes[group])}</p>
+                    <ul className="mt-4 space-y-1.5 border-t border-line/60 pt-4">
+                      {list.slice(0, 3).map((item) => (
+                        <li key={item.id} className="flex gap-2.5 text-xs leading-relaxed text-text-muted">
+                          <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
+                          {t(item.name)}
+                        </li>
+                      ))}
+                    </ul>
+                    <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-brand-300 transition-colors duration-200 group-hover:text-brand-200">
+                      {t("Open this group in the catalogue")}
+                      <ArrowRight />
+                    </span>
+                  </Link>
+                </Reveal>
+              );
+            })}
+          </div>
         </Container>
       </Section>
 

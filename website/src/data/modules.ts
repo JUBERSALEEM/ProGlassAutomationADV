@@ -53,6 +53,11 @@ export type ProductModule = {
   evidence: string;
   /** Screenshot registry id, when a real asset exists. */
   screenshotId?: string;
+  /**
+   * Honesty chip, printed on the catalogue card when set — a real status
+   * (lives on the development line, no published capture), never marketing.
+   */
+  statusNote?: string;
   /** Illustration asset for the module card, when one exists. */
   illustration?: { src: string; alt: string };
   href: string;
@@ -257,6 +262,7 @@ export const modules: ProductModule[] = [
     ],
     evidence:
       "Views/DocumentRegister/DocumentRegisterView.xaml, ViewModels/DocumentRegisterViewModel.cs, docs/document-register-architecture.md",
+    statusNote: "Lives on the development line — no published capture yet.",
     href: "/features#document-register",
     tags: ["Documents", "Traceability", "Chain"],
   },
@@ -1107,6 +1113,7 @@ export const modules: ProductModule[] = [
     ],
     evidence:
       "Services/RecordsSync/ (RecordsSyncService.cs, ProGlassRecordsSource.cs, SupabaseRecordsClient.cs, RecordsSyncModels.cs), Views/Settings/Sections/SettingsRecordsSyncSection.xaml, ViewModels/Settings/Pages/SettingsRecordsSyncPageViewModel.cs, Tests/RecordsSync/, docs/proglass-sync-architecture-audit.md and docs/proglass-sync-implementation-design.md (development line)",
+    statusNote: "Lives on the development line — no published capture yet.",
     href: "/features#records-sync",
     tags: ["Sync", "Online", "Supabase"],
   },
@@ -1131,6 +1138,7 @@ export const modules: ProductModule[] = [
     ],
     evidence:
       "Views/AI/AiChatView.xaml, ViewModels/AI/AiChatViewModel*.cs, Services/AI/ (README.md, AIService/, AIVoice/, AIConnectivity/), Views/Personal/GlassShell.xaml (AiChatVM toggle overlay), Views/Settings/Sections/SettingsAiSection.xaml (Settings.SecAi)",
+    statusNote: "No published capture yet — this card quotes the interface strings.",
     href: "/features#ai-assistant",
     tags: ["AI", "Voice", "Assistant"],
   },
@@ -1155,6 +1163,7 @@ export const modules: ProductModule[] = [
     ],
     evidence:
       "Views/Sharing/ShareComposerWindow.xaml (Sharing.Title: \"Share Document\"), Services/Sharing/ (DocumentSharingService.cs, Providers/, Contacts/), ViewModels/Settings/Pages/SettingsSharingPageViewModel.cs (+ .Templates.cs), Views/Settings/Sections/SettingsSharingSection.xaml (Settings.SecSharing), Themes/Languages/en-US.xaml (Sharing.*)",
+    statusNote: "No published capture yet — this card quotes the interface strings.",
     href: "/features#sharing-composer",
     tags: ["WhatsApp", "Email", "Templates"],
   },

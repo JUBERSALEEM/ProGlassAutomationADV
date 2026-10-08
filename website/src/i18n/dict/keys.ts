@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 4295 keys.
+ * 4302 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -86,6 +86,7 @@ export const KEYS: string[] = [
   "{v0} m² per sheet",
   "{v0} margin against base price",
   "{v0} margin against target",
+  "{v0} modules",
   "{v0} of {v1} pieces placed",
   "{v0} of {v1} rows match “{v2}” in GLASS REF.",
   "{v0} of net revenue",
@@ -1953,6 +1954,7 @@ export const KEYS: string[] = [
   "Live plate count by thickness (4, 5, 6, 8, 10, 12, 15, 19 mm) and tint",
   "Live screens",
   "Live site",
+  "Lives on the development line — no published capture yet.",
   "LM / RM / BM 50 mm · TM 0 mm (asymmetric — thick glass takes no trim on the top edge)",
   "Load",
   "Loaded",
@@ -2120,6 +2122,7 @@ export const KEYS: string[] = [
   "Next steps",
   "Nine dashboard pages on one design grammar — Overview, Sheet Store, Proforma Invoice, Job Orders, Deliveries, Tax Invoices, Statements, Optimization, Production.",
   "Nine dashboard pages on one design grammar — the Overview, a tab per document module, then Optimization and Production.",
+  "Nine rail groups, {v0} rooms of the same building.",
   "Nine steps from a company card to a stored profit.",
   "No account",
   "No account manager, no support tier, no queue. Questions reach the person who can change the software, which is also the only reason a product this specific can keep improving.",
@@ -2140,6 +2143,7 @@ export const KEYS: string[] = [
   "No movement in two weeks",
   "no plate could hold these",
   "No plates to show — nothing was placed.",
+  "No published capture yet — this card quotes the interface strings.",
   "No row here is under the floor: the smallest panel on this specification is {v0} m². Type a width or height down and the SQM column stops at {v1} while the rate holds.",
   "No row in that paste had a reference, a width and a height. The application imports REF / W1 / H1 / W2 / H2 / QTY in that order.",
   "No rows match “{query}”.",
@@ -2314,6 +2318,7 @@ export const KEYS: string[] = [
   "Open the full studio",
   "Open the gallery",
   "Open the tax invoices list",
+  "Open this group in the catalogue",
   "Open to help",
   "Opening balance",
   "Openings",
@@ -3440,6 +3445,7 @@ export const KEYS: string[] = [
   "System UI",
   "Tabular by design — the face every figure on this site is already set in.",
   "Tahoma",
+  "Take the tour",
   "takes one seeded job across the modules above and shows every figure it produces.",
   "Talk to the developer",
   "Target",
@@ -3507,6 +3513,7 @@ export const KEYS: string[] = [
   "The application is a single WPF solution: views and view-models split one folder per business area, one database context per bounded context, and a design system the entire interface is drawn from. Localisation is resource dictionaries, so a new language does not need a code change.",
   "The application is a single WPF solution: views and view-models split one folder per business area, one database context per bounded context, and a design system the whole interface is built from. The same discipline shows in the numbers on this page — no debt markers in shipped code, policed by a test rather than by good intentions.",
   "The application is one WPF solution: 42 navigation targets across 26 view-model areas, and a cutting-optimization engine of 29 files. The commercial chain is complete; the production stages are the current wave of work.",
+  "The application is organized exactly as its sidebar is: nine groups, from Main to System, hold every module the catalogue lists. Walk them here, then open one in the catalogue itself — every card there keeps the app's own navigation label and the file that backs the claim.",
   "The application is proprietary software. It is licensed, not sold, and the licence grants the rights written on it — the edition, the number of devices, and the feature set.",
   "The application is the argument. A demonstration will take you through the chain on a job you recognise.",
   "The application issues an automatic 30-day evaluation trial the first time it runs on a machine. The trial is machine-scoped and recorded in a tamper-evident ledger, so it cannot be renewed by deleting files, and a real licence always takes precedence over the trial state.",

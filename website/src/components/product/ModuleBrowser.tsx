@@ -104,14 +104,16 @@ export function ModuleBrowser() {
 
       {/* ── Groups ───────────────────────────────────────────────── */}
       <div className="mt-10 space-y-14">
-        {grouped.map(([groupName, list]) => (
+        {grouped.map(([groupName, list]) => {
+          const note = counts.find((entry) => entry.group === groupName)?.note;
+          return (
           <div key={groupName} id={`group-${slug(groupName)}`} className="scroll-mt-28">
             <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-line/60 pb-3">
               <h3 className="font-mono text-sm font-semibold uppercase tracking-[0.18em] text-brand-300">
-                {groupName}
+                {t(groupName)}
               </h3>
               <p className="text-xs text-text-faint font-medium">
-                {counts.find((entry) => entry.group === groupName)?.note}
+                {note ? t(note) : null}
               </p>
             </div>
 
@@ -129,7 +131,8 @@ export function ModuleBrowser() {
               ))}
             </ul>
           </div>
-        ))}
+          );
+        })}
 
         {visible.length === 0 ? (
           <div className="surface p-8 text-center">
@@ -163,6 +166,11 @@ function ModuleCard({ module }: { module: ProductModule }) {
       </ul>
 
       <div className="mt-auto pt-5">
+        {module.statusNote ? (
+          <p className="mb-3 rounded-card border border-line/60 bg-ink-800/60 px-2.5 py-1.5 text-2xs leading-relaxed text-text-faint font-medium">
+            {t(module.statusNote)}
+          </p>
+        ) : null}
         <p className="mono-label border-t border-line/60 pt-3">
           <span className="sr-only">{t("Navigation label:")}</span>
           {t(module.railLabel)}
