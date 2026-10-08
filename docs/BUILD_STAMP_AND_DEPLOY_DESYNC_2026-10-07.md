@@ -187,11 +187,11 @@ hydration mismatch the stamp module exists to avoid.
 
 The card is wider than the bare timestamp it replaced — about 126px against 75 —
 and that width had to come from somewhere, so the ladder was rebalanced against
-the real row rather than the model of it: the seven nav cards now arrive in two
-steps (three at `xl`, all seven at `2xl`) with the Menu button holding the rest,
-the palette's word waits for `wide`, and the ghost shortcut to the screenshots is
-gone — the page it pointed at is the first child of the Product menu. Every tier
-still fits, with the numbers in the table above.
+the real row rather than the model of it: the seven nav cards now arrive in
+three steps (three at `xl`, five at `2xl`, all seven at `wide`) with the Menu
+button holding the rest, the palette's word waits for `wide`, and the ghost
+shortcut to the screenshots is gone — the page it pointed at is the first child
+of the Product menu. Every tier still fits, with the numbers in the table above.
 
 ## The check that closes the loop
 

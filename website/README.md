@@ -252,12 +252,13 @@ while wanting about 1450px at 1280. The numbers now are the browser's:
 
 Three of those are visible choices rather than accidents:
 
-- **the cards arrive in two steps.** Seven cards, the settings, the call to
+- **the cards arrive in three steps.** Seven cards, the settings, the call to
   action and the stamp need about 1450px at 1280, so the first three cards
-  arrive at `xl` and the rest at `2xl`, with the **Menu button** holding
-  whatever is not on screen yet — all seven at 1024–1279, the last four at
-  1280–1535, the last two at 1536–1919. It is the same sheet the phone menu
-  opens, so no page is ever unreachable from the header;
+  arrive at `xl`, the next two at `2xl` and the last two at `wide`, with the
+  **Menu button** holding whatever is not on screen yet — all seven at
+  1024–1279, the last four at 1280–1535, the last two at 1536–1919. It is the
+  same sheet the phone menu opens, so no page is ever unreachable from the
+  header;
 - **the stamp is a card, not a timestamp**: the site's name, the date, and the
   time in Gulf Standard Time, which is what makes it ~126px wide instead of ~75.
   It outranks the ghost shortcut that used to sit at 1920 — Screenshots is the

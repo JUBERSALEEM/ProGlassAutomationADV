@@ -13,6 +13,7 @@ import { themeBootScript } from "@/data/themes";
 import { I18nProvider } from "@/i18n/provider";
 import { LOCALE_CODES, dirOf, isLocale, localeInfo, type Locale } from "@/i18n/locales";
 import { ogLocale } from "@/i18n/core";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { overlayWithApp, translatorForLocale } from "@/i18n/server";
 
 /**
@@ -254,6 +255,7 @@ export default async function LocaleLayout({
           <Footer t={t} />
           <ThemeStudio />
         </I18nProvider>
+        <SpeedInsights />
       </body>
     </html>
   );

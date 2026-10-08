@@ -409,21 +409,33 @@ MARKUP_CHECKS = [
         True,
     ),
     (
-        "the remaining cards arrive at 2xl",
+        "cards four and five arrive at 2xl",
         NAVBAR,
         r'"hidden 2xl:flex"',
         True,
     ),
     (
-        "the card split matches CARDS_AT_XL",
+        "the last two cards wait for wide",
+        NAVBAR,
+        r'"hidden wide:flex"',
+        True,
+    ),
+    (
+        "the first split matches CARDS_AT_XL",
         NAVBAR,
         rf"NAV_CARD_FIRST_TIER = {CARDS_AT_XL}\b",
         True,
     ),
     (
-        "the Menu button serves lg and xl",
+        "the second split matches CARDS_AT_2XL",
         NAVBAR,
-        r"lg:flex 2xl:hidden",
+        rf"NAV_CARD_SECOND_TIER = {CARDS_AT_2XL}\b",
+        True,
+    ),
+    (
+        "the Menu button serves lg through 2xl",
+        NAVBAR,
+        r"lg:flex wide:hidden",
         True,
     ),
     (

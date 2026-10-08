@@ -25,10 +25,10 @@ const config: Config = {
        *
        * The header is the one part of this site whose width budget can be
        * worked out exactly: it is a fixed-height row of fixed-size things — a
-       * lockup, six nav cards, three settings controls, a call to action and
+       * lockup, seven nav cards, three settings controls, a call to action and
        * the build stamp — and every one of them is measured from the real font
        * files by `scripts/measure-panel.py`. Measured, the full row needs about
-       * 1630 px of content width. No default breakpoint describes where that
+       * 1660 px of content width. No default breakpoint describes where that
        * becomes true: `2xl` is 1536, and the next stop is the whole of a 1920
        * monitor. `wide` is where everything the panel owns fits at once, which
        * is why the nav's glyph icons and the palette's word appear there and

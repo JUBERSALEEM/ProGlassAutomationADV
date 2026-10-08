@@ -80,18 +80,27 @@ const NAV_BAR = "nav-pill hidden items-center gap-0.5 rounded-panel p-1 xl:flex"
  *
  * Seven cards, the settings, the call to action and a stamp that carries the
  * site's name, the date and the time in Gulf Standard Time do not fit in
- * 1280px — measured, they need about 1450. So the cards arrive in two steps:
- * the first three at `xl` and the rest at `2xl`, with the Menu button holding
- * the ones that are not on screen yet. Below `xl` the pill is not rendered at
- * all and the Menu button holds all seven.
+ * 1280px — measured, they need about 1450. So the cards arrive in three
+ * steps, widest last: the first three at `xl`, the next two at `2xl`, and the
+ * last two at `wide`, the one tier where the panel fits everything it owns.
+ * The Menu button holds the cards that are not on screen yet, and steps aside
+ * at `wide`. Below `xl` the pill is not rendered at all and the Menu button
+ * holds all seven.
  *
- * `scripts/measure-panel.py` measures each tier and checks these two lines
+ * `scripts/measure-panel.py` measures each tier and checks these lines
  * against its own model, so the tool cannot go on reporting room that the
  * markup does not have — which is exactly what it did when the seventh entry
- * was added and it was still counting six.
+ * was added and it was still counting six; and for one pass the roles
+ * flipped, with the markup showing all seven at `2xl` while the model counted
+ * five — the two now agree on this ladder, checked at edit time.
  */
 const NAV_CARD_FIRST_TIER = 3;
-const NAV_CARD_TIERS = ["hidden xl:flex", "hidden 2xl:flex"] as const;
+const NAV_CARD_SECOND_TIER = 5;
+const NAV_CARD_TIERS = [
+  "hidden xl:flex",
+  "hidden 2xl:flex",
+  "hidden wide:flex",
+] as const;
 const NAV_CARD =
   "relative flex items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold transition-all duration-200 wide:px-3";
 const NAV_CARD_OFF =
@@ -222,7 +231,12 @@ export function Navbar() {
         <nav aria-label={t("Primary")} className={NAV_BAR}>
           {entries.map((entry, index) => {
             const active = isActive(entry);
-            const tier = index < NAV_CARD_FIRST_TIER ? NAV_CARD_TIERS[0] : NAV_CARD_TIERS[1];
+            const tier =
+              index < NAV_CARD_FIRST_TIER
+                ? NAV_CARD_TIERS[0]
+                : index < NAV_CARD_SECOND_TIER
+                  ? NAV_CARD_TIERS[1]
+                  : NAV_CARD_TIERS[2];
             if (!entry.children) {
               return (
                 <Link
@@ -333,14 +347,15 @@ export function Navbar() {
           {/*
             The way to the pages that are not cards yet.
 
-            The settings cluster arrives at `lg` and the nav cards arrive in two
-            steps — three at `xl`, all seven at `2xl` — so the Menu button holds
-            whatever is missing above 1024: all seven at `lg`, the last four at
-            `xl`, the last two at `2xl`. It is the same sheet the phone menu
-            opens, from the same component, so nothing is ever unreachable. It
-            goes at `2xl` because by then all seven cards are on screen.
+            The settings cluster arrives at `lg` and the nav cards arrive in
+            three steps — three at `xl`, five at `2xl`, all seven at `wide` —
+            so the Menu button holds whatever is missing above 1024: all seven
+            at `lg`, the last four at `xl`, the last two at `2xl`. It is the
+            same sheet the phone menu opens, from the same component, so
+            nothing is ever unreachable. It goes at `wide`, the one tier where
+            all seven cards are on screen.
 
-            Measured, the full row needs about 1830px of content; the ladder is
+            Measured, the full row needs about 1660px of content; the ladder is
             in `scripts/measure-panel.py` and the numbers are in the README.
           */}
           <button
@@ -349,7 +364,7 @@ export function Navbar() {
             aria-expanded={mobileOpen}
             aria-controls="mobile-menu"
             className={cn(
-              "hidden items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold transition-all duration-200 lg:flex 2xl:hidden",
+              "hidden items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold transition-all duration-200 lg:flex wide:hidden",
               mobileOpen
                 ? "border-brand-500/60 bg-brand-600/30 text-text-primary"
                 : "border-line-strong/60 text-text-muted hover:border-line-strong/80 hover:bg-ink-800/70 hover:text-text-primary",
