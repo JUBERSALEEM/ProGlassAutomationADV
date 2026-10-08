@@ -29,7 +29,9 @@ export type HistoryEntry = {
   source: string;
 };
 
-/** The six working documents the timeline is built from. */
+/** The working documents the timeline is built from. The sync designs live on
+ * the development line whose work they record; everything else is at the root
+ * of this repository, and the entries they feed say so where it matters. */
 export const workingDocuments = [
   "AUDIT_REPORT_Optimization_Step5.md",
   "FORENSIC_AUDIT_RC009_JOBS_TO_SIZES_2026-09-20.md",
@@ -37,6 +39,9 @@ export const workingDocuments = [
   "OPTIMIZATION_ENGINE_REMEDIATION_PLAN_2026-09-20.md",
   "ENGINE_STRATEGY_ANALYSIS_2026-09-26.md",
   "OPTIMIZATION_SETTINGS_CUT_PATTERN_ANALYSIS_2026-09-26.md",
+  "website/docs/DELIVERY_TRACKING_ANALYSIS.md",
+  "docs/proglass-sync-architecture-audit.md · development line",
+  "docs/proglass-sync-implementation-design.md · development line",
 ] as const;
 
 export const history: HistoryEntry[] = [
@@ -90,11 +95,53 @@ export const history: HistoryEntry[] = [
     source: "OPTIMIZATION_SETTINGS_CUT_PATTERN_ANALYSIS_2026-09-26.md",
   },
   {
+    date: "2 October 2026",
+    tag: "The calendar",
+    title: "One date format, everywhere the site shows it",
+    body: "The records pages on this website read dates from files written by different machines, and the first answer — one more parser at each table — was refused. A single date module now normalizes what arrives to DD-MM-YYYY, sorts ascending by the real date rather than by text, and serializes back the same way on update, so the timeline a customer reads cannot depend on which workstation saved the file.",
+    source: "website/src/lib/date-utils.ts · website/src/lib/records-api.ts",
+  },
+  {
+    date: "3 October 2026",
+    tag: "The fallback",
+    title: "Do not trust the fast path",
+    body: "The dashboard's aggregation had one lookup, and a day was spent making its failure boring: freshness is compared across candidate files rather than trusting the newest name, candidates are ranked across several columns, the RPC aggregate carries a direct-table fallback with a cache reload behind it, and a known-missing answer is memoized briefly so an error never becomes a request storm. Six commits in one day, each removing a different way the same query could have lied.",
+    source: "website/src/lib/records-api.ts · website/src/components/records/RecordsDashboard.tsx",
+  },
+  {
+    date: "5 October 2026",
+    tag: "The ledger",
+    title: "Deliveries became a tracker, not a page",
+    body: "The confirmed proformas a shop still owes glass against became their own surface: a dashboard that tracks the remaining obligation per invoice and keeps a movement ledger behind every row, so 'partially delivered' is a state with paperwork rather than a remark. The analysis that drove it is dated and in the repository, and the summary cards, filters and ledger are the website's own components.",
+    source: "website/docs/DELIVERY_TRACKING_ANALYSIS.md · website/src/components/deliveries/",
+  },
+  {
+    date: "6 October 2026",
+    tag: "The audit",
+    title: "The sync was designed before it was built",
+    body: "Before any synchronization code changed, the application's side of it was audited and then written up as a design that asked for approval: ProGlass remains the source of truth, every local workflow keeps working with the cable unplugged, each document type gets its own destination contract, and the website only ever displays what was published successfully. Both documents state their own verification boundary — no live Supabase schema or deployment was inspected — which is exactly the sort of sentence this page exists to quote.",
+    source: "docs/proglass-sync-architecture-audit.md · docs/proglass-sync-implementation-design.md (development line)",
+  },
+  {
+    date: "6 October 2026",
+    tag: "The register",
+    title: "One view for the whole chain",
+    body: "The document register landed as a module in its own right: proforma invoices with their issue date, company, customer, project, value in AED and status, every row carrying the job orders raised from it and the delivery notes written against those. The inquiry-to-delivery chain, read sideways, from one screen.",
+    source: "Views/DocumentRegister/ (development line)",
+  },
+  {
+    date: "7 October 2026",
+    tag: "The binding",
+    title: "Credentials that know which project they belong to",
+    body: "Records Sync grew its settings page — URL, auth email, API key and password, with Save and Test commands — and the discipline that makes a background service safe to ship: credentials bind to the pinned production project at save time rather than being trusted whenever a sync runs, and credential binding, URL validation and client behaviour are held in place by their own test suites. The application moved to 2.0.13 and then 2.0.15 in the same two days.",
+    source: "Services/RecordsSync/ · Tests/RecordsSync/ · ProGlassAutomation.csproj (development line)",
+  },
+  {
     date: "Today",
     tag: "The state",
-    title: "2.0.11, with the open work named",
-    body: "The application is at version 2.0.11. The remediation plan's own status column still shows one phase in progress and the rest not yet started, and its carried-forward table lists eleven findings with the reason each is still open — including two that need a decision from the shop owner rather than a patch from a developer. A plan that still shows its own unfinished work two weeks later is the most useful document in the repository, and it is why this page can be specific.",
-    source: "OPTIMIZATION_ENGINE_REMEDIATION_PLAN_2026-09-20.md · status",
+    title: "2.0.11 shipped, 2.0.15 in the workshop",
+    body: "The release line this website ships beside is version 2.0.11 — the number in the project's own file. The development line is at 2.0.15, carried there by the sync work above. And the remediation plan's status column still shows one phase in progress with eleven findings open and the reason each is open — including two that need a decision from the shop owner rather than a patch from a developer. That is the honest state of the project, and it is why this page can be specific.",
+    source: "OPTIMIZATION_ENGINE_REMEDIATION_PLAN_2026-09-20.md · ProGlassAutomation.csproj",
   },
 ];
 

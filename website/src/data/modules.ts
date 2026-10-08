@@ -17,11 +17,12 @@
  *
  * The registry is read against the application's development branch, not
  * against the last tagged build, so a module lands here when the source carries
- * it. Two entries are in that position as of October 2026 and both say so in
- * their own `evidence` line: `document-register`
- * (Views/DocumentRegister/) and `records-sync` (Services/RecordsSync/).
- * Neither has a `screenshotId`, because there is no published capture of either
- * yet — which is exactly the case the paragraph above describes.
+ * it. Four entries cite that line or are listed without a published capture as
+ * of October 2026: `document-register` (Views/DocumentRegister/),
+ * `records-sync` (Services/RecordsSync/), `ai-assistant` (Views/AI/) and
+ * `sharing-composer` (Views/Sharing/). None of the four has a `screenshotId`,
+ * because there is no published capture yet — which is exactly the case the
+ * paragraph above describes.
  */
 
 export type ModuleGroup =
@@ -1092,20 +1093,70 @@ export const modules: ProductModule[] = [
     summary:
       "The opt-in bridge that publishes confirmed proformas to this website — offline first, by design.",
     detail:
-      "Settings → Records Sync is one section with one job: put the documents a shop has already finished onto the page its customers and office read from, without ever making the desktop application depend on a network. ProGlass stays the source of truth. The local proforma, job-order and delivery-note workflows keep working with the cable unplugged, because the sync is a background coordinator that runs after the save rather than inside it: `DocumentLifecycle.Changed` schedules a capture, a bounded retry cadence picks up anything a missed signal left behind, and a startup scan reconciles the gap a crash could open between a local write and its capture. What is published is a proforma-shaped payload into the same table this website's Records page reads, with the source file, worksheet and ownership preconditions carried on it so a row can always be answered for. Credentials never enter the queue — they stay in the DPAPI-protected vault the rest of the application uses.",
+      "The section in Settings has four fields and two buttons — the project URL, the auth email, the API key and its password, Save and Test — and one job: put the documents a shop has already finished onto the page its customers and office read from, without ever making the desktop application depend on a network. ProGlass stays the source of truth, and the local proforma, job-order and delivery-note workflows keep working with the cable unplugged, because the sync is a background coordinator that runs after the save rather than inside it: `DocumentLifecycle.Changed` schedules a capture, retries back off exponentially and stop at an hour rather than hammering a dead network, and a startup scan reconciles the gap a crash could open between a local write and its capture. What is published is a proforma-shaped payload into the same table this website's Records page reads, with the source file, worksheet and ownership preconditions carried on it so a row can always be answered for. Credentials bind to the pinned production project at save time — not whenever a sync happens to run — and the key itself never leaves the DPAPI-protected vault. Unconfigured, unbound or mismatched, the service stays dormant; that is the whole point of an opt-in bridge.",
     capabilities: [
       "Opt-in and dormant by default: nothing leaves the machine until a shop switches it on",
       "ProGlass remains the source of truth; the website only ever shows what was published successfully",
       "Local workflows are unaffected offline — the sync is a background pass, never part of a save",
-      "Change-signal capture, bounded retry, and a periodic plus startup reconciliation for the crash gap",
+      "Change-signal capture, exponential backoff capped at an hour, and a startup reconciliation for the crash gap",
       "Proforma-shaped payloads into the table the website's Records, Job Order and Deliveries pages read",
       "Source file, worksheet and ownership preconditions carried on every published row",
+      "Settings section with Save and Test — credentials bind to the pinned production project at save time",
+      "Behaviour held in place by its own suites: credential binding, URL validation, client contract",
       "Secrets stay in the DPAPI vault — no credential is ever written into the outbox",
     ],
     evidence:
-      "Services/RecordsSync/ (RecordsSyncService.cs, ProGlassRecordsSource.cs, SupabaseRecordsClient.cs, RecordsSyncModels.cs), Views/Settings → Settings.SecRecordsSync, docs/proglass-sync-implementation-design.md",
+      "Services/RecordsSync/ (RecordsSyncService.cs, ProGlassRecordsSource.cs, SupabaseRecordsClient.cs, RecordsSyncModels.cs), Views/Settings/Sections/SettingsRecordsSyncSection.xaml, ViewModels/Settings/Pages/SettingsRecordsSyncPageViewModel.cs, Tests/RecordsSync/, docs/proglass-sync-architecture-audit.md and docs/proglass-sync-implementation-design.md (development line)",
     href: "/features#records-sync",
     tags: ["Sync", "Online", "Supabase"],
+  },
+  {
+    id: "ai-assistant",
+    number: "47",
+    name: "AI Assistant",
+    railLabel: "AI Assistant",
+    moduleKey: "AiChat",
+    railGroup: "System",
+    summary:
+      "An assistant inside the shell that answers questions about glass production, invoices, job orders and your business data — typed, or spoken.",
+    detail:
+      "ProGlass AI is an overlay the top bar toggles rather than a rail destination: a chat with suggested prompts for the questions an estimator actually asks, streaming answers you can stop mid-generation, and a clear button when the topic changes. Voice is first-class — the input listens through a local Whisper model, and if that model fails to load the panel falls back to the classic speech service instead of going silently deaf; spoken replies are a toggle, off by default. The provider is the shop's own account — Gemini, Groq or Cohere chosen in Settings → AI Assistant, with a Test command per key and keys kept only if you tick the box that keeps them. It is honest about connectivity too: the machine's online state is detected and reported, so a dead network is stated rather than worn as a mysterious failure.",
+    capabilities: [
+      "Chat overlay in the shell: suggested prompts, streaming answers, stop and clear controls",
+      "Answers grounded in the shop's own data — production, invoices, job orders",
+      "Voice input through a local Whisper model, with automatic fallback to the classic speech service",
+      "Spoken replies as an opt-in toggle",
+      "The shop's own provider account — Gemini, Groq or Cohere — with a connection test per key",
+      "Keys stay on the machine and are kept only when you choose; connectivity is detected and reported, never assumed",
+    ],
+    evidence:
+      "Views/AI/AiChatView.xaml, ViewModels/AI/AiChatViewModel*.cs, Services/AI/ (README.md, AIService/, AIVoice/, AIConnectivity/), Views/Personal/GlassShell.xaml (AiChatVM toggle overlay), Views/Settings/Sections/SettingsAiSection.xaml (Settings.SecAi)",
+    href: "/features#ai-assistant",
+    tags: ["AI", "Voice", "Assistant"],
+  },
+  {
+    id: "sharing-composer",
+    number: "48",
+    name: "Share Composer",
+    railLabel: "Sharing",
+    moduleKey: "ShareComposer",
+    railGroup: "System",
+    summary:
+      "Puts the document, the message and the attachments into the customer's own app — WhatsApp or email — without ever sending anything itself.",
+    detail:
+      "The Share Document window is a form, not a pipeline. FROM carries the user's name and role, with a mobile number shown only if User Center has one; TO is a manual contact — name, WhatsApp phone or email; the message is editable text; the attachments are listed before anything leaves the machine. Choosing a provider opens that external application with the message prefilled, and the sending account is whatever is signed in on the device. The window says so in plain words — nothing is sent until you press Share — because an automation that messages customers on its own is a risk the trade cannot afford. Settings carry the shop's defaults: provider, country code for local numbers starting with 0, an email large-attachment warning in MB, per-document rules and a library of message templates.",
+    capabilities: [
+      "The provider opens the customer's own app with the message prefilled — WhatsApp or email",
+      "The window states it in writing: nothing is sent until you press Share",
+      "Manual contacts only — name, WhatsApp phone, email; no address book is read",
+      "Attachments listed before sending, with a large-attachment warning threshold in MB",
+      "Default country code for local numbers starting with 0",
+      "Per-document rules and a message-template library in Settings → Sharing",
+    ],
+    evidence:
+      "Views/Sharing/ShareComposerWindow.xaml (Sharing.Title: \"Share Document\"), Services/Sharing/ (DocumentSharingService.cs, Providers/, Contacts/), ViewModels/Settings/Pages/SettingsSharingPageViewModel.cs (+ .Templates.cs), Views/Settings/Sections/SettingsSharingSection.xaml (Settings.SecSharing), Themes/Languages/en-US.xaml (Sharing.*)",
+    href: "/features#sharing-composer",
+    tags: ["WhatsApp", "Email", "Templates"],
   },
 ];
 

@@ -12,8 +12,14 @@ export const site = {
   name: "ProGlass Automation",
   legalName: "ProGlass Automation",
   tagline: "Glass business software, built around your workflow.",
-  /** `<Version>` in ProGlassAutomation.csproj — the single version source. */
+  /** `<Version>` in ProGlassAutomation.csproj — the single version source.
+   *  This is the release line the website ships beside. The development
+   *  line reads 2.0.15 (Records Sync and Document Register work, October
+   *  2026); it is shown on the developer page, never swapped into product
+   *  claims, so a reader always knows which is which. */
   version: "2.0.11",
+  /** The development line's `<Version>` — same file, on that branch. */
+  developmentVersion: "2.0.15",
   copyrightOwner: "Juber Saleem",
   developerName: "Juber Saleem",
   developerEmail: "proglassautomation@gmail.com",

@@ -774,6 +774,7 @@ const faq = [
                 <Badge tone="neutral">{t("Self-taught")}</Badge>
                 <Badge tone="neutral">{t("Desktop only")}</Badge>
                 <Badge tone="neutral">Version {site.version}</Badge>
+                <Badge tone="neutral">{t.template`Development line ${site.developmentVersion}`}</Badge>
               </div>
               <p className="text-xs leading-relaxed text-text-faint font-medium">
 {t("Every claim about the software on this site names the file it comes from. If something here cannot be checked, it should not be here — say so and it will be corrected.")}.{" "}
