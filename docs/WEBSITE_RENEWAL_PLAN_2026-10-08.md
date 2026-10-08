@@ -289,3 +289,60 @@ About, Shared).
 Related: `docs/BUILD_STAMP_AND_DEPLOY_DESYNC_2026-10-07.md` (the live-site
 desync and its three account-holder actions), `website/README.md` §"The top
 panel's budget" and §"Which build is this?", `website/docs/DEPLOYMENT.md`.
+
+---
+
+## Addendum — the balance pass (same day, evening)
+
+Status of the open items after Phases 0–5 landed, measured on the pushed
+builds of 2026-10-08:
+
+- **O1 (first-load JS) — closed.** The 5.47 MB root chunk was 4.69 MB of i18n
+  registry — all fifteen dictionaries downloaded so the language menu could
+  show fifteen percentages (`LanguageMenu → coverageOf → OVERLAYS +
+  APP_STRINGS + KEYS`). Fixed the way the translator itself is designed to
+  work: coverage became a build-time table
+  (`website/scripts/build-coverage-table.mjs`, chained into
+  `npm run i18n:keys`, committed as `src/i18n/coverage-table.json`); the menu
+  imports the table; dictionaries stay server-side. Measured on `/`:
+  6,342 KB → 937 KB raw, **2,022 KB → 282 KB gzipped (−86%)**; heaviest page
+  304 KB gz. Attribution done with env-gated source maps
+  (`ANALYZE=true npm run build`), never shipped to production.
+- **The guardrails now exist to keep it closed.** `audit-site.py --budget`
+  gained a per-page first-load-JS section (ceiling 360 KB gz), and the
+  per-page HTML/DOM budgets moved only with measured comments for content
+  Phases 2–4 deliberately added. Build-wide asset ceilings re-based to the
+  post-diet build (494K/540K js gz).
+- **O2 (HTML diet) — measured, deliberately deferred.** `/` en-US is
+  746 KB raw / 99 KB gz = ~434 KB visible document + ~311 KB flight data.
+  The resolved-locale overlay rides in that flight data, which makes the
+  problem worse exactly for priority audiences: `/` ar-AE is
+  **1,384 KB raw / 309 KB gz**. The two cures are real work, not balance:
+  a home-page content restructure, or a cached-locale overlay with hydration
+  surgery on the provider. Both are sized and waiting behind a decision,
+  not forgotten.
+- **O7 (locale completion) — the honest slice done.** `i18n-memory-fill.mjs
+  --all` + apply: only sentences the application itself already says in that
+  language — exact, normalised and composed matches against
+  `Themes/Languages/*.xaml`, nothing invented. 25 fills per main locale,
+  **153 per in-progress locale** (1,217 insertions across 14 dicts; the key
+  ring is untouched at 4,341). Coverage after: eight locales 78%; the six
+  in-progress from 7–8% to **10–11%**. The remaining distance is human
+  translation (Collaborate page), or an approved machine pass reviewed string
+  by string.
+- **RTL/CJK faces** — Arabic gets a Naskh chain, Urdu Nastaliq-first, CJK
+  their system families (system fonts only; see the end of
+  `website/src/app/globals.css`).
+- **Phase-3 pipe visual — already existed.** The eight-stage floor is drawn
+  by `StageQueueSurface` over `stageChain` (stageQueue.ts) and shown at full
+  size in the features page's "production floor" showcase
+  (`/features#showcase-production-floor`); nothing was duplicated.
+- **Gates snapshot on this pass:** tsc/lint 0 · `i18n:keys` 4,341 + coverage
+  table regenerated · measure-panel 12/12 · build 399/399 · `audit-site.py`
+  and `--budget` both 0 failures / 0 warnings · first-load JS ≤ 304 KB gz
+  everywhere.
+
+Open, awaiting the account holder or real assets rather than code: the
+Vercel Production Branch + one Promote (live still serves `72c2cc5b`), the
+domain decision, the duplicate project, byte-matched machine-file samples
+(from a real table), server-side mail transport for the demo form.
