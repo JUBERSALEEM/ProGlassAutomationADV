@@ -3439,3 +3439,29 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
   }
 
 }
+
+/*
+ * Script-appropriate fallback faces.
+ *
+ * Inter ships no Arabic or CJK glyphs, so untagged text in those locales was
+ * styled by whichever face the OS reached for first — readable, but a
+ * different family on every platform. The named fallbacks are system fonts,
+ * not downloads: Windows, macOS/iOS and most Linux desktops ship one of each
+ * list, and a machine without any of them falls back to exactly the default
+ * it used before.
+ */
+html[lang^="ar"] body {
+  font-family: var(--font-sans, var(--font-inter)), "Noto Naskh Arabic", "Geeza Pro", "Segoe UI", "Traditional Arabic", system-ui, sans-serif;
+}
+html[lang^="ur"] body {
+  font-family: var(--font-sans, var(--font-inter)), "Noto Nastaliq Urdu", "Noto Naskh Arabic", "Segoe UI", "Jameel Noori Nastaleeq", system-ui, sans-serif;
+}
+html[lang="ja"] body {
+  font-family: var(--font-sans, var(--font-inter)), "Hiragino Sans", "Yu Gothic", "Noto Sans JP", "Segoe UI", system-ui, sans-serif;
+}
+html[lang="ko"] body {
+  font-family: var(--font-sans, var(--font-inter)), "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Segoe UI", system-ui, sans-serif;
+}
+html[lang^="zh"] body {
+  font-family: var(--font-sans, var(--font-inter)), "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Segoe UI", system-ui, sans-serif;
+}

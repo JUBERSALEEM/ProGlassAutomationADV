@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 import { LOCALES, type Locale } from "@/i18n/locales";
 import { LOCALE_COOKIE, pathWithoutLocale } from "@/i18n/core";
 import { useI18n } from "@/i18n/provider";
-import { coverageOf } from "@/i18n/coverage";
+import coverageTable from "@/i18n/coverage-table.json";
 
 /**
  * The language menu.
@@ -194,6 +194,15 @@ export function LanguageMenu({ compact = false }: { compact?: boolean }) {
           </p>
           {LOCALES.map((entry) => {
             const active = entry.code === locale;
+            /*
+             * The percentage ships as a build-time table
+             * (`scripts/build-coverage-table.mjs`) — fifteen integers rather
+             * than fifteen dictionaries: computing it in the browser once
+             * cost every visitor every language.
+             */
+            const coverage = (coverageTable as Record<string, { percent: number; complete: boolean }>)[
+              entry.code
+            ];
             return (
               <button
                 key={entry.code}
@@ -217,12 +226,12 @@ export function LanguageMenu({ compact = false }: { compact?: boolean }) {
                   dir="ltr"
                   className={cn(
                     "ms-auto shrink-0 rounded-full border px-1.5 py-0.5 font-mono text-3xs tabular-nums",
-                    entry.code === "en-US" || coverageOf(entry.code).complete
+                    entry.code === "en-US" || coverage?.complete
                       ? "border-money-positive/35 text-money-positive"
                       : "border-line-strong/60 text-text-faint",
                   )}
                 >
-                  {entry.code === "en-US" ? "source" : `${coverageOf(entry.code).percent}%`}
+                  {entry.code === "en-US" ? "source" : `${coverage?.percent ?? 0}%`}
                 </span>
                 {active ? (
                   <svg

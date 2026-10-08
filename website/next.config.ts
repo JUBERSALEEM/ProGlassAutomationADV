@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import bundleAnalyzer from "@next/bundle-analyzer";
 
 import { inspectDeps, formatProblems } from "./scripts/dep-check.mjs";
 import { buildStamp } from "./scripts/build-stamp.mjs";
@@ -114,6 +115,12 @@ const csp = [
 const stamp = buildStamp();
 
 const nextConfig: NextConfig = {
+  /**
+   * Browser source maps exist ONLY for measurement runs (`ANALYZE=true npm
+   * run build`). They are how the bundle diet is attributed — each chunk's
+   * map names its sources — and are never part of a deployable build.
+   */
+  productionBrowserSourceMaps: process.env.ANALYZE === "true",
   env: {
     PROGLASS_BUILD_TIME: stamp.builtAt,
     PROGLASS_BUILD_REVISION: stamp.revisionShort ?? "",
@@ -194,4 +201,13 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default bundleAnalyzer({
+  // Off unless asked for with `ANALYZE=true npm run build`: the analyzer is a
+  // measurement instrument (Phase 5's bundle diet), and a production build
+  // should pay no toll for it, not even a branch of configuration. On
+  // Turbopack the useful artifact is the browser source map the flag below
+  // also gates — maps name every source inside every chunk, and a deployed
+  // build must never ship them.
+  enabled: process.env.ANALYZE === "true",
+  openAnalyzer: false,
+})(nextConfig);
