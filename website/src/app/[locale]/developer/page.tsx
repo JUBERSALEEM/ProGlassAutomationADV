@@ -128,7 +128,7 @@ const principles = [
 const gaps = [
   { title: t("A second pair of hands"), body: t("Someone who writes WPF and wants to work on a real product with real users.") },
   { title: t("A machine to develop on"), body: t("Work is done on borrowed and shared computers. A dedicated one changes how much gets finished in a week.") },
-  { title: t("A cutting table to test against"), body: t("The optimiser writes Bottero .OPT, Intermac .ISO and Lisec .DAT. Those files deserve to be proved on a machine.") },
+  { title: t("A cutting table to test against"), body: t("The optimiser writes generic DXF and a cut-list CSV today; Bottero .OPT, Intermac .ISO and Lisec .DAT are declared but not yet written — each waits on one sample file from that table. A cutting table is what finishes them.") },
   { title: t("Translators who know glass"), body: t("Fifteen locales are already in the application; the trade vocabulary in each one can be better.") },
 ];
 const faq = [

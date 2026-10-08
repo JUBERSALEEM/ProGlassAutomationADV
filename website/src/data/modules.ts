@@ -296,7 +296,7 @@ export const modules: ProductModule[] = [
     railLabel: "Optimization",
     moduleKey: "Optimization",
     railGroup: "Production",
-    summary: "The guillotine nesting engine: eight tabs, two oracles, five machine export formats.",
+    summary: "The guillotine nesting engine: eight tabs, two oracles, and machine exports it stands behind — plus three formats it names honestly instead of writing from guesswork.",
     detail:
       "Stock plates and a cutting list in, a cuttable plan out — with per-thickness safety edges, blade kerf and minimum breakout honoured, the guillotine cut sequence recorded as it is produced, and every result checked by a geometry oracle and a conservation oracle before it can leave the module.",
     capabilities: [

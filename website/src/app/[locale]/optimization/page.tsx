@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
@@ -86,7 +87,7 @@ export default async function OptimizationPage({ params }: PageProps) {
           { label: t("Algorithm"), value: t("Guillotine nesting") },
           { label: t("Workspace"), value: "8 tabs" },
           { label: t("Search families"), value: t("5 + Auto") },
-          { label: t("Exports"), value: t("DXF · .OPT · .ISO · .DAT") },
+          { label: t("Exports"), value: t("DXF · CSV · Excel") },
         ]}
         actions={
           <>
@@ -191,6 +192,89 @@ export default async function OptimizationPage({ params }: PageProps) {
       </Section>
 
       {/* ── Thickness profiles ───────────────────────────────────── */}
+      {/* ── Machine files, said honestly ───────────────────────────
+         *
+         * This showcase mirrors the application's own contract in
+         * Services/Reporting/CncExport/CncExportFormats.cs: formats it can
+         * prove are written; formats it cannot are declared, named, and say
+         * exactly what finishes them — one sample file from the machine
+         * that will read them. Repeating the app's rule here, instead of
+         * selling over it, is the difference between a showcase and a
+         * claim.
+         */}
+      <Section tone="sunken" aria-labelledby="machine-formats-heading">
+        <Container>
+          <SectionHeading
+            id="machine-formats-heading"
+            eyebrow={t("Machine files")}
+            title={t("Two formats the engine writes today — and three it names honestly.")}
+            lead={t("The rule is in the application's own export code: formats that are documented are implemented; formats that are not are declared, shown, and say exactly what finishes them — one sample file from the machine that will read them. Nothing writes a file it cannot stand behind.")}
+          />
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {[
+              {
+                key: "dxf",
+                name: "Generic DXF",
+                ext: ".dxf",
+                note: "DXF R12 (AC1009): the sheet outline, every piece, and the cut sequence as lines in execution order. Documented, so CAM suites and the drawing packages the floor already has can read it.",
+                ready: true,
+              },
+              {
+                key: "cutlist",
+                name: "Cut list CSV",
+                ext: ".csv",
+                note: "One row per cut in execution order — sheet, sequence, axis, position, the rectangle the cut crosses, the stage, the trim flag. Opens in Excel and feeds any CAM that accepts a table.",
+                ready: true,
+              },
+              {
+                key: "lisec",
+                name: "Lisec .DAT",
+                ext: ".dat",
+                note: "Declared, not written. Lisec does not publish this format; vendor format lists name its output OPT101.CNC. One sample file from your Lisec table is what finishes it — the app says so itself, on the same tab.",
+                ready: false,
+              },
+              {
+                key: "bottero",
+                name: "Bottero .OPT",
+                ext: ".opt",
+                note: "Declared, not written. Bottero does not publish this format; vendor format lists name its output *.CUT. One sample file from your Bottero table finishes it.",
+                ready: false,
+              },
+              {
+                key: "intermac",
+                name: "Intermac .ISO",
+                ext: ".iso",
+                note: "Declared, not written. Intermac (Biesse) does not publish this format. One sample file from your Intermac table finishes it.",
+                ready: false,
+              },
+            ].map((item, index) => (
+              <Reveal key={item.key} delay={Math.min(index, 6) * 45} className="h-full">
+                <article className="surface flex h-full flex-col p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="font-mono text-sm font-semibold tracking-wide text-text-primary">
+                      {t(item.name)}
+                      <span className="text-text-faint"> {item.ext}</span>
+                    </h3>
+                    <Badge tone={item.ready ? "success" : "warning"}>
+                      {item.ready ? t("Written today") : t("Awaiting your sample")}
+                    </Badge>
+                  </div>
+                  <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(item.note)}</p>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+          <Reveal className="mt-8">
+            <p className="max-w-3xl text-xs leading-relaxed text-text-faint font-medium">
+              {t("Run a Bottero, Intermac or Lisec table? One exported sample file is the whole ask — see what a machine day is worth:")}{" "}
+              <Link href="/sponsors" className="link-underline font-semibold">
+                {t("Sponsors")}
+              </Link>
+            </p>
+          </Reveal>
+        </Container>
+      </Section>
+
       <Section aria-labelledby="profiles-heading">
         <Container>
           <SectionHeading
@@ -408,18 +492,33 @@ export default async function OptimizationPage({ params }: PageProps) {
                 ))}
               </div>
 
-              <div className="mt-8">
-                <p className="eyebrow mb-3">{t("Machine-readable exports")}</p>
-                <ul className="flex flex-wrap gap-2">
-                  {["Generic DXF", "Bottero .OPT", "Intermac .ISO", "Lisec .DAT", "Cut-list CSV", "Excel (.xlsx)"].map((item) => (
-                    <li
-                      key={item}
-                      className="rounded-lg border border-line-strong/70 bg-ink-900/60 px-3 py-1.5 font-mono text-xs text-text-secondary"
-                    >
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+              <div className="mt-8 space-y-4">
+                <div>
+                  <p className="eyebrow mb-3">{t("Machine files written today")}</p>
+                  <ul className="flex flex-wrap gap-2">
+                    {["Generic DXF", "Cut-list CSV"].map((item) => (
+                      <li
+                        key={item}
+                        className="rounded-lg border border-line-strong/70 bg-ink-900/60 px-3 py-1.5 font-mono text-xs text-text-secondary"
+                      >
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <p className="eyebrow mb-3">{t("Declared in the app — each finished by one sample file from your table")}</p>
+                  <ul className="flex flex-wrap gap-2">
+                    {["Bottero .OPT", "Intermac .ISO", "Lisec .DAT"].map((item) => (
+                      <li
+                        key={item}
+                        className="rounded-lg border border-line/60 bg-ink-900/40 px-3 py-1.5 font-mono text-xs text-text-faint"
+                      >
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
 

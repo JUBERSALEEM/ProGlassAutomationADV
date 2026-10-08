@@ -61,8 +61,8 @@ export const sponsorNeeds: SponsorNeed[] = [
     id: "factory-testing",
     title: "A real cutting table to test against",
     status:
-      "The engine exports generic DXF, Bottero .OPT, Intermac .ISO and Lisec .DAT. The formats are written to the published structures, but they have not been proven on every controller family.",
-    ask: "A fabricator willing to run a test cutting list on a Bottero, Intermac or Lisec table and tell us what the controller objected to. A machine day is worth more than any specification document.",
+      "The engine writes generic DXF and a cut-list CSV today. Bottero .OPT, Intermac .ISO and Lisec .DAT are declared in the report tab: those formats are not published — vendor lists call the same outputs OPT101.CNC and *.CUT — so each will be written against one real sample file from that table.",
+    ask: "A fabricator willing to send one sample file exported by their Bottero, Intermac or Lisec table — and, if willing, to test-cut the generic DXF and say what the controller objected to. A machine day is worth more than any specification document.",
     evidence: "Services/Optimization/ (exporters) · Views/Optimization/Tabs/ReportTabView.xaml",
     shape: "Hardware",
     icon: "hardware",

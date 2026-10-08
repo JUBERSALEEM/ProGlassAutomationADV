@@ -98,7 +98,7 @@ export const optimizerTabs: OptimizerTab[] = [
       "2 · Nested sheets summary",
       "3 · Merged specifications summary",
       "4 · Stock plates allocation",
-      "Export: CSV, Excel, generic DXF, Bottero .OPT, Intermac .ISO, Lisec .DAT",
+      "Export: CSV, Excel, generic DXF and a cut-list CSV — with Bottero .OPT, Intermac .ISO and Lisec .DAT declared and finished against a sample file from your table",
     ],
     evidence: "Views/Optimization/Tabs/ReportTabView.xaml · ViewModels/Optimization/OptimizationViewModel.CncExport.cs",
   },

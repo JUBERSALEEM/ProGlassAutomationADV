@@ -192,7 +192,7 @@ export const beforeAfter: BeforeAfterRow[] = [
     before:
       "The cutting plan is drawn by hand, or a guillotine is set by feel. Whether the plan is any good is only visible once the sheets are on the table.",
     after:
-      "The optimizer runs Auto or one of five stages, tries six plate patterns and six cut complexities, and two independent oracles check the plan before it is used. The result exports to CSV, Excel, DXF, Bottero .OPT, Intermac .ISO or Lisec .DAT.",
+      "The optimizer runs Auto or one of five stages, tries six plate patterns and six cut complexities, and two independent oracles check the plan before it is used. The result exports to CSV, Excel, generic DXF and a cut list for the table; the proprietary Bottero .OPT, Intermac .ISO and Lisec .DAT formats are declared and finished against your machine's sample file.",
     anchor: "Optimization",
     href: "/optimization",
   },

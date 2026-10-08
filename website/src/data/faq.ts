@@ -31,7 +31,7 @@ export const faq: FaqItem[] = [
     group: "Product",
     question: "What does the optimization engine export?",
     answer:
-      "Four printable report sections — industrial cut schedule, nested sheets summary, merged specifications summary and stock plates allocation — plus CSV and Excel, and machine-ready files: generic DXF, Bottero .OPT, Intermac .ISO and Lisec .DAT.",
+      "Four printable report sections — industrial cut schedule, nested sheets summary, merged specifications summary and stock plates allocation — plus CSV and Excel. The machine files the engine writes today are generic DXF and a cut-list CSV; Bottero .OPT, Intermac .ISO and Lisec .DAT are declared in the report tab, and each one is written against a sample file from the corresponding table rather than from guesswork.",
   },
   {
     group: "Product",

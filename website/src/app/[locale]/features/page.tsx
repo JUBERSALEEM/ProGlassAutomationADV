@@ -437,7 +437,7 @@ export default async function FeaturesPage({ params }: PageProps) {
                   "It is not a cloud service. There is no web dashboard, no tenant and no online account.",
                   "It is not a CRM. Inquiries and customers are recorded so quotations can be built from them, not for pipeline or campaign management.",
                   "It does not file tax returns. The VAT Submission report prepares the figures for a period; filing is done by a person.",
-                  "It does not drive your cutting machine directly. The optimizer exports machine-readable files — Bottero .OPT, Intermac .ISO, Lisec .DAT and generic DXF — for the equipment's own software to run.",
+                  "It does not drive your cutting machine directly. The optimizer writes generic DXF and a cut-list CSV for the equipment's own software; the proprietary machine formats — Bottero .OPT, Intermac .ISO, Lisec .DAT — are declared in the app and finished one sample file per table.",
                   "There is no mobile application and no mobile interface.",
                   "The AI assistant is read-heavy by design: it can look things up across the business, but it has exactly one permission-gated write.",
                 ].map((item) => (
