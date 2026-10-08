@@ -259,6 +259,36 @@ def check_build_stamp(failures: list) -> None:
         print(f"   note: {message}")
 
 
+def check_demo_request(failures: list) -> None:
+    """The one write endpoint must answer GET with its own contract.
+
+    The demo form's transport is configured per deployment — intentionally so,
+    because the alternative is a form that reports success for messages nobody
+    receives. What never changes is the contract the page relies on: the
+    endpoint answers, says whether it is configured, and names the fallback
+    inbox. A deployment whose endpoint cannot say those things is selling a
+    contact form that cannot be reached, which is worse than no form.
+    """
+    code, body = fetch("/api/demo-request")
+    if code != "200":
+        failures.append(f"/api/demo-request answered {code} — the demo-request contract is down")
+        return
+
+    try:
+        contract = json.loads(body)
+    except json.JSONDecodeError:
+        failures.append("/api/demo-request did not answer with JSON")
+        return
+
+    for key in ("endpoint", "configured", "inbox"):
+        if key not in contract:
+            failures.append(f"/api/demo-request contract is missing `{key}` — the fallback the form sends people to cannot be found")
+
+    print("\ndemo request:")
+    print(f"   configured {contract.get('configured')!r} (transport is per-deployment by design)")
+    print(f"   inbox      {contract.get('inbox')}")
+
+
 def fetch(path):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as handle:
         tmp = handle.name
@@ -396,6 +426,7 @@ def main() -> int:
         print(f" {flag} {length:3d}  {page}")
 
     check_build_stamp(failures)
+    check_demo_request(failures)
 
     if BUDGET_MODE:
         budget_failures = budget_section(weights)

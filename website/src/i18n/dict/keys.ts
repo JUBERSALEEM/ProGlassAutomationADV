@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 4338 keys.
+ * 4341 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -1216,6 +1216,7 @@ export const KEYS: string[] = [
   "Encrypted Session",
   "End-to-end 8-stage shop floor tracking and machine work centers",
   "End-to-end traceability: installed panel back to raw glass float pack",
+  "Enforced in code:",
   "Engine",
   "Engine verification verdict and run notes",
   "Engineered for complete factory operations.",
@@ -2340,6 +2341,7 @@ export const KEYS: string[] = [
   "Open the gallery",
   "Open the tax invoices list",
   "Open this group in the catalogue",
+  "Open this request as an email, already written",
   "Open to help",
   "Opening balance",
   "Openings",
@@ -4343,6 +4345,7 @@ export const KEYS: string[] = [
   "Your performance data, inside the quotation.",
   "Your published figures for the build-ups you already sell.",
   "Your rights over your own data",
+  "Your words are still on this page — nothing was sent, and nothing pretends otherwise. Send them yourself in one click:",
   "Z and W trims are never cut into laminated stock. The plies are not hand-broken at the table, so a trim cut would leave an unseparated edge. Refusing is the safe direction: a refused trim costs a little yield, a trim cut into laminate costs the sheet.",
   "Zoho status",
   "Zoom levels from fit-the-sheet to 100%",

@@ -95,6 +95,18 @@ export default async function PricingPage({ params }: PageProps) {
               </ul>
             </div>
           </Reveal>
+          {/*
+            The same facts, with the code that enforces them — the licence
+            facts above are claims until a reader can open the file that makes
+            them true. Paths are printed, not translated, like every other
+            evidence line on the site.
+          */}
+          <p className="mono-label mt-5">
+            {t("Enforced in code:")} Licensing/Contracts/LicenseService.cs ·
+            Licensing/Contracts/OfflineActivationService.cs ·
+            Licensing/Contracts/LicenseKeyArmor.cs ·
+            Licensing/ProGlass.Licensing.Tests/
+          </p>
         </Container>
       </Section>
 
