@@ -346,3 +346,39 @@ Open, awaiting the account holder or real assets rather than code: the
 Vercel Production Branch + one Promote (live still serves `72c2cc5b`), the
 domain decision, the duplicate project, byte-matched machine-file samples
 (from a real table), server-side mail transport for the demo form.
+
+---
+
+## Addendum 2 — Claymorphism as a proper pattern (2026-10-09)
+
+The first Clay family shipped as tinting (porcelain/plum ramps, tinted
+shadows). The pattern itself then landed in three cross-checked phases,
+after research across five sources (HYPE4/Malewicz's coining article via
+NameThatUI, superdesign.dev's clay sheet, setproduct's guide,
+albertwalicki's CSS recipe, openclaw's style DNA):
+
+- **Phase 2 — the material** (`8fb54c4`): solid own-colour card fills
+  (utility ink washes overridden under the family, clearly lifted from the
+  tinted page), no gradients on surfaces (volume by shadows only), and the
+  canonical three-shadow stack as tokens — `--shadow-panel` / `-raised`
+  tinted to `--brand-700`, inset light band `--clay-hi` at the top, inset
+  shade band `--clay-lo` at the bottom. Radius via the studio's
+  `--radius-scale: 1.75` (28px cards / 35px panels, inside the recipe's
+  24–32 band). Hover lifts 2px and restates the stack; press squashes with
+  the top light inverted.
+- **Phase 3 — the behaviour** (`2e20c35`): primary buttons take the
+  recipe's tighter stack (12/24px out, 4/8px in) plus transform squash on
+  press; text fields become pressed wells (`inset 0 3px 10px`); Clay keeps
+  an explicit 3px focus ring because soft shadows never replace focus.
+- **Phase 4 — the cross-check**: per-route surface coverage 17/17 (same
+  crawl as the theme pass); WCAG computed from the site's own tokens —
+  15.2:1 AAA / 12.8:1 AAA body text on porcelain cards, 4.9:1 AA muted on
+  the porcelain page, 15.8:1 AAA on midnight plum, accent 6.4:1 AA;
+  CSS budget 22.8K/24K; plain and budget audits 0/0; 399/399; keys 4,343.
+
+Standing differences from stock claymorphism, deliberate and commented in
+`globals.css`: the typography stays Inter (product brand, not a rounded
+display face), and midnight Clay keeps plum cards (several guides warn
+dark clay reads as stone — the family answers with a lighter card above a
+deeper page and AAA-measured text). The palette dial's Clay is the default
+face; Studio/Monet/Industrial/Crystal remain one click away.
