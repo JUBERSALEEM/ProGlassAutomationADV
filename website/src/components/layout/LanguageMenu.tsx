@@ -228,7 +228,7 @@ export function LanguageMenu({ compact = false }: { compact?: boolean }) {
                     "ms-auto shrink-0 rounded-full border px-1.5 py-0.5 font-mono text-3xs tabular-nums",
                     entry.code === "en-US" || coverage?.complete
                       ? "border-money-positive/35 text-money-positive"
-                      : "border-line-strong/60 text-text-faint",
+                      : "border-brand-400/40 bg-brand-400/10 text-brand-300",
                   )}
                 >
                   {entry.code === "en-US" ? "source" : `${coverage?.percent ?? 0}%`}

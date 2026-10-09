@@ -1,105 +1,105 @@
 {
   "en-US": {
-    "sentences": 4343,
-    "total": 4343,
+    "sentences": 4349,
+    "total": 4349,
     "percent": 100,
     "complete": true,
     "appVocabulary": 386
   },
   "ar-AE": {
     "sentences": 3400,
-    "total": 4343,
+    "total": 4349,
     "percent": 78,
     "complete": false,
     "appVocabulary": 386
   },
   "bn-BD": {
     "sentences": 3400,
-    "total": 4343,
+    "total": 4349,
     "percent": 78,
     "complete": false,
     "appVocabulary": 386
   },
   "de-DE": {
     "sentences": 3400,
-    "total": 4343,
+    "total": 4349,
     "percent": 78,
     "complete": false,
     "appVocabulary": 386
   },
   "es-ES": {
     "sentences": 3400,
-    "total": 4343,
+    "total": 4349,
     "percent": 78,
     "complete": false,
     "appVocabulary": 386
   },
   "fr-FR": {
     "sentences": 3400,
-    "total": 4343,
+    "total": 4349,
     "percent": 78,
     "complete": false,
     "appVocabulary": 386
   },
   "hi-IN": {
     "sentences": 3400,
-    "total": 4343,
+    "total": 4349,
     "percent": 78,
     "complete": false,
     "appVocabulary": 386
   },
   "id-ID": {
     "sentences": 3400,
-    "total": 4343,
+    "total": 4349,
     "percent": 78,
     "complete": false,
     "appVocabulary": 386
   },
   "ja-JP": {
     "sentences": 444,
-    "total": 4343,
+    "total": 4349,
     "percent": 10,
     "complete": false,
     "appVocabulary": 386
   },
   "ko-KR": {
     "sentences": 444,
-    "total": 4343,
+    "total": 4349,
     "percent": 10,
     "complete": false,
     "appVocabulary": 386
   },
   "pt-BR": {
     "sentences": 3400,
-    "total": 4343,
+    "total": 4349,
     "percent": 78,
     "complete": false,
     "appVocabulary": 386
   },
   "ru-RU": {
     "sentences": 492,
-    "total": 4343,
+    "total": 4349,
     "percent": 11,
     "complete": false,
     "appVocabulary": 386
   },
   "tr-TR": {
     "sentences": 444,
-    "total": 4343,
+    "total": 4349,
     "percent": 10,
     "complete": false,
     "appVocabulary": 386
   },
   "ur-PK": {
     "sentences": 491,
-    "total": 4343,
+    "total": 4349,
     "percent": 11,
     "complete": false,
     "appVocabulary": 386
   },
   "zh-CN": {
     "sentences": 444,
-    "total": 4343,
+    "total": 4349,
     "percent": 10,
     "complete": false,
     "appVocabulary": 386

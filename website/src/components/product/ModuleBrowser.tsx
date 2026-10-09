@@ -5,6 +5,8 @@ import { cn } from "@/lib/cn";
 import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { moduleCounts, modules, type ModuleGroup, type ProductModule } from "@/data/modules";
+import { groupIcons } from "@/data/groupIcons";
+import { Icon } from "@/components/ui/Icon";
 import { useT } from "@/i18n/provider";
 
 /**
@@ -109,7 +111,10 @@ export function ModuleBrowser() {
           return (
           <div key={groupName} id={`group-${slug(groupName)}`} className="scroll-mt-28">
             <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-line/60 pb-3">
-              <h3 className="font-mono text-sm font-semibold uppercase tracking-[0.18em] text-brand-300">
+              <h3 className="flex items-center gap-2.5 font-mono text-sm font-semibold uppercase tracking-[0.18em] text-brand-300">
+                <span className="grid h-7 w-7 place-items-center rounded-lg border border-line/60 bg-ink-900/50">
+                  <Icon path={groupIcons[groupName]} className="h-3.5 w-3.5" />
+                </span>
                 {t(groupName)}
               </h3>
               <p className="text-xs text-text-faint font-medium">

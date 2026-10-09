@@ -110,6 +110,18 @@ export const accentPresets: { key: string; name: string; hex: string | null }[] 
   { key: "Fuchsia", name: "Fuchsia", hex: "#C026D3" },
   { key: "Violet", name: "Violet", hex: "#7C3AED" },
   { key: "Indigo", name: "Indigo", hex: "#4F46E5" },
+  /*
+   * The website's own vivid plates — beyond the application's sixteen,
+   * added for the readers who asked for more colour at full strength. Same
+   * mechanics as the rest of the grid: one tap recolours the whole site,
+   * tinted shadows and all.
+   */
+  { key: "Brick", name: "Brick", hex: "#DC2626" },
+  { key: "Canary", name: "Canary", hex: "#EAB308" },
+  { key: "Azure", name: "Azure", hex: "#0BA5F4" },
+  { key: "Leaf", name: "Leaf", hex: "#22C55E" },
+  { key: "Magenta", name: "Magenta", hex: "#EC4899" },
+  { key: "Tangerine", name: "Tangerine", hex: "#FB923C" },
   { key: "Slate", name: "Slate", hex: "#475569" },
   { key: "Black", name: "Black", hex: "#111827" },
   { key: "Custom", name: "Custom", hex: null },

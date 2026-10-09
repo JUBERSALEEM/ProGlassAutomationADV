@@ -99,7 +99,7 @@ export const defaultStudio: Studio = {
   tint: 1,
   radius: 1,
   edge: 2,
-  typeface: "inter",
+  typeface: "segoe",
   weight: "regular",
   italic: false,
   underline: false,

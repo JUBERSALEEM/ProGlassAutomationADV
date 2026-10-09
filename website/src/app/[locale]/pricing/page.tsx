@@ -8,6 +8,8 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
 import { editions, licenceFacts, licenceGates, openModules } from "@/data/editions";
+import { editionIcon } from "@/data/groupIcons";
+import { Icon } from "@/components/ui/Icon";
 import { faq } from "@/data/faq";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
@@ -138,7 +140,12 @@ export default async function PricingPage({ params }: PageProps) {
                 ) : null}
 
                 <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="text-lg font-semibold text-text-primary">{t(edition.name)}</h3>
+                  <h3 className="flex items-center gap-2.5 text-lg font-semibold text-text-primary">
+                    <span className="grid h-8 w-8 place-items-center rounded-card border border-line/60 bg-ink-900/50 text-brand-300">
+                      <Icon path={editionIcon(edition.id)} className="h-4 w-4" />
+                    </span>
+                    {t(edition.name)}
+                  </h3>
                   <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                     Tier {edition.order}
                   </span>

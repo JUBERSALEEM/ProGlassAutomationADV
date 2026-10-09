@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 4343 keys.
+ * 4349 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -573,6 +573,7 @@ export const KEYS: string[] = [
   "Average turnaround time per customer from quote to delivery",
   "Awaiting dispatch",
   "Awaiting your sample",
+  "Azure",
   "Back the build, or join it",
   "Back the build, or join it.",
   "Back to the homepage",
@@ -672,6 +673,7 @@ export const KEYS: string[] = [
   "Breadcrumb",
   "Breakout",
   "Breakout sequence guide matching the optimization cut order",
+  "Brick",
   "Brightness",
   "Bronze",
   "Browse features",
@@ -719,6 +721,7 @@ export const KEYS: string[] = [
   "Can I try it before buying?",
   "Can read",
   "Can several people work in the same data at once?",
+  "Canary",
   "Cancelled",
   "Cancelled before loading — vehicle allocation changed.",
   "Cannot",
@@ -1918,6 +1921,7 @@ export const KEYS: string[] = [
   "Last updated",
   "Latest",
   "Latest source date",
+  "Leaf",
   "Learning to trust the record, not the memory",
   "Leaves reusable offcuts, not slivers",
   "Ledger",
@@ -2016,6 +2020,7 @@ export const KEYS: string[] = [
   "Machine and software names that appear in exports — for example cutting-machine formats — are the trademarks of their respective owners and are used only to identify the file formats the application can write.",
   "Machine files",
   "Machine files written today",
+  "Magenta",
   "Main",
   "Main decision — target, expected margin, result",
   "Main facade — 45 pieces",
@@ -3481,6 +3486,7 @@ export const KEYS: string[] = [
   "Take the tour",
   "takes one seeded job across the modules above and shows every figure it produces.",
   "Talk to the developer",
+  "Tangerine",
   "Target",
   "Target balance",
   "Target balance value",

@@ -21,6 +21,8 @@ import { SheetPlanStrip } from "@/components/optimization/SheetPlanStrip";
 import { ScreenshotFrame } from "@/components/gallery/ScreenshotFrame";
 import { cn } from "@/lib/cn";
 import { groupNotes, moduleGroups, modules, modulesByGroup } from "@/data/modules";
+import { groupIcons } from "@/data/groupIcons";
+import { Icon } from "@/components/ui/Icon";
 import { glass3d } from "@/data/assets";
 import { featureGroups } from "@/data/features";
 import { faq } from "@/data/faq";
@@ -575,14 +577,17 @@ export default async function HomePage({ params }: PageProps) {
                     href={`/features#group-${group.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                     className="surface card-interactive group flex h-full flex-col p-5"
                   >
-                    <div className="flex items-baseline justify-between gap-3">
-                      <h3 className="font-mono text-sm font-semibold uppercase tracking-[0.18em] text-brand-300">
-                        {t(group)}
-                      </h3>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="grid h-9 w-9 place-items-center rounded-card border border-line/60 bg-ink-900/50 text-brand-300">
+                        <Icon path={groupIcons[group]} className="h-4 w-4" />
+                      </span>
                       <span className="font-mono text-2xs tabular-nums text-text-faint font-medium">
                         {t.template`${list.length} modules`}
                       </span>
                     </div>
+                    <h3 className="mt-3 flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.18em] text-brand-300">
+                      {t(group)}
+                    </h3>
                     <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(groupNotes[group])}</p>
                     <ul className="mt-4 space-y-1.5 border-t border-line/60 pt-4">
                       {list.slice(0, 3).map((item) => (
