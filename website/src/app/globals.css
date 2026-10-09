@@ -3657,3 +3657,45 @@ html[lang^="zh"] body {
   box-shadow: var(--shadow-panel), inset 0 3px 4px -1px var(--glass-edge-light),
     inset 0 -6px 12px -4px var(--glass-edge-dark);
 }
+
+/*
+ * Clay, as behaviour (Phase 3) — the interactive grammar of the pattern.
+ *
+ * Primary buttons take the recipe's *tighter* stack — 12/24px tinted drop,
+ * 4/8px inset bands — so they read as the same material one size down
+ * rather than as brighter cards. The hover keeps its one-pixel lift; a
+ * press squashes the blob instead of flattening it — transform only, never
+ * an animated shadow.
+ */
+[data-appearance="clay"] .btn-primary {
+  box-shadow: 0 12px 24px -8px rgb(var(--brand-700) / 0.4),
+    inset 0 4px 8px -3px var(--clay-hi),
+    inset 0 -4px 8px -3px var(--clay-lo);
+}
+[data-appearance="clay"] .btn-primary:active {
+  box-shadow: 0 6px 14px -6px rgb(var(--brand-700) / 0.35),
+    inset 0 3px 8px -3px var(--clay-lo),
+    inset 0 -4px 8px -3px var(--clay-hi);
+  transform: translateY(2px) scale(0.98);
+}
+
+/*
+ * Fields press the other way. Where the cards puff out of the page, the
+ * places you type dent in — a shallow well in the moulding, so the form
+ * reads as pressed into the clay rather than hovering over it.
+ */
+[data-appearance="clay"] input,
+[data-appearance="clay"] textarea,
+[data-appearance="clay"] select {
+  box-shadow: inset 0 3px 10px -4px var(--clay-lo);
+}
+
+/* And the rings stay: soft shadows never replace a visible focus outline. */
+[data-appearance="clay"] a:focus-visible,
+[data-appearance="clay"] button:focus-visible,
+[data-appearance="clay"] input:focus-visible,
+[data-appearance="clay"] textarea:focus-visible,
+[data-appearance="clay"] select:focus-visible {
+  outline: 3px solid rgb(var(--brand-500) / 0.8);
+  outline-offset: 3px;
+}
