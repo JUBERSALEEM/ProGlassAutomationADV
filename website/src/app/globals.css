@@ -918,19 +918,21 @@
     --ink-850: 44 30 45;
     --ink-800: 54 38 55;
     --ink-700: 68 50 69;
-    --radius-scale: 1.6;
+    --radius-scale: 1.75;
+    /* The recipe's three channels, as tokens: card fill, top light, underside. */
+    --clay-card: var(--ink-850);
+    --clay-hi: rgb(255 255 255 / 0.12);
+    --clay-lo: rgb(18 10 20 / 0.5);
     --surface-alpha: 1;
     --surface-alpha-2: 1;
     --surface-alpha-3: 1;
     --surface-blur: 0px;
     --surface-sat: 100%;
     --surface-specular: 0;
-    --shadow-panel: 0 26px 48px -20px rgb(var(--brand-700) / 0.55),
-      0 8px 16px -8px rgb(var(--brand-700) / 0.4);
-    --shadow-raised: 0 34px 60px -22px rgb(var(--brand-700) / 0.6),
-      0 10px 22px -10px rgb(var(--brand-700) / 0.45);
-    --glass-edge-light: rgb(255 255 255 / 0.18);
-    --glass-edge-dark: rgb(var(--brand-700) / 0.5);
+    --shadow-panel: 0 35px 68px -12px rgb(var(--brand-700) / 0.45),
+      0 14px 28px -14px rgb(var(--brand-700) / 0.35);
+    --shadow-raised: 0 42px 76px -14px rgb(var(--brand-700) / 0.5),
+      0 16px 32px -16px rgb(var(--brand-700) / 0.38);
   }
 
   /* Clay at daylight: porcelain grounds, the proven deep rose on top. */
@@ -950,12 +952,14 @@
     --ink-850: 252 246 249;
     --ink-800: 245 235 240;
     --ink-700: 237 224 231;
-    --shadow-panel: 0 24px 44px -16px rgb(var(--brand-700) / 0.26),
-      0 8px 16px -8px rgb(var(--brand-700) / 0.16);
-    --shadow-raised: 0 30px 56px -18px rgb(var(--brand-700) / 0.28),
-      0 10px 22px -10px rgb(var(--brand-700) / 0.18);
-    --glass-edge-light: rgb(255 255 255 / 0.9);
-    --glass-edge-dark: rgb(var(--brand-700) / 0.14);
+    /* Porcelain cards on a tinted page — card lighter than ground, so it floats. */
+    --clay-card: var(--ink-850);
+    --clay-hi: rgb(255 255 255 / 0.7);
+    --clay-lo: rgb(var(--brand-700) / 0.22);
+    --shadow-panel: 0 35px 68px -16px rgb(var(--brand-700) / 0.28),
+      0 14px 28px -14px rgb(var(--brand-700) / 0.18);
+    --shadow-raised: 0 42px 76px -18px rgb(var(--brand-700) / 0.32),
+      0 16px 32px -16px rgb(var(--brand-700) / 0.2);
   }
 
   [data-theme="daylight"][data-appearance="crystal"] {
@@ -3551,22 +3555,82 @@ html[lang^="zh"] body {
 }
 
 /*
- * Clay's puffed edge.
+ * Clay, as a material (the pattern, not the tint).
  *
- * Base `.surface` shadows with a hairline of light; claymorphism reads as
- * moulded when the highlight and the shade are bands, not lines — so the
- * family swaps the same two inset channels for a broader pair. No new paint:
- * the shadows are still `var(--shadow-panel)` and the two edge variables, just
- * stretched. The radius comes from `--radius-scale` via the studio's own
- * `card`/`panel` tokens, so nothing here hard-codes a corner.
+ * The recipe read on 2026-10-09 from the name-givers and the field guides —
+ * Malewicz's HYPE4 original (via NameThatUI), superdesign.dev's style sheet,
+ * setproduct's guide, albertwalicki — converges on three signals, and each
+ * one is enforced here on the cards that wear it:
+ *
+ *   1. **Solid own-colour fill.** The component's translucent `bg-ink-*` wash
+ *      would make it a pane; a clay card is its own solid colour, clearly
+ *      lifted from the tinted page behind it. The attribute selector
+ *      overrides the utility fill for this family alone.
+ *   2. **No gradients on the surface** — the volume is sculpted by the
+ *      shadows, not painted on. `background-image: none` retires the glass
+ *      stack the raised tier inherits.
+ *   3. **Three shadows, in this order.** The tinted drop that floats the
+ *      card (`--shadow-panel` / `--shadow-raised`), a light band inset at
+ *      the top where the light lands (`--clay-hi`), a darker band inset at
+ *      the bottom for the underside curve (`--clay-lo`). Skip any one and
+ *      the card reads printed, not moulded.
+ *
+ *   Radius comes from `--radius-scale: 1.75` (28px cards, 35px panels —
+ *   inside the canonical 24–32 band), so cards, panels and pills inflate
+ *   from one number.
+ *
+ * Neutral containers follow the same stack; the brand-coloured primary
+ * envelope keeps its colour (clay objects are their own colour — but the
+ * call to action is meant to shout either way).
  */
-[data-appearance="clay"] .surface {
-  box-shadow: var(--shadow-panel), inset 0 3px 4px -1px var(--glass-edge-light),
-    inset 0 -5px 10px -3px var(--glass-edge-dark);
+[data-appearance="clay"] .surface,
+[data-appearance="clay"] .stat-tile {
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  box-shadow: var(--shadow-panel),
+    inset 0 8px 16px -6px var(--clay-hi),
+    inset 0 -8px 16px -6px var(--clay-lo);
 }
 [data-appearance="clay"] .surface-raised {
-  box-shadow: var(--shadow-panel), inset 0 3px 4px -1px var(--glass-edge-light),
-    inset 0 -6px 12px -4px var(--glass-edge-dark);
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  box-shadow: var(--shadow-raised),
+    inset 0 8px 16px -6px var(--clay-hi),
+    inset 0 -8px 16px -6px var(--clay-lo);
+}
+[data-appearance="clay"] .glass-primary {
+  box-shadow: var(--shadow-raised),
+    inset 0 8px 16px -6px var(--clay-hi),
+    inset 0 -8px 16px -6px var(--clay-lo);
+}
+
+/*
+ * Clay answers the finger. Rest states are inflated; a hover takes two
+ * pixels of height (and restates the stack, since the shared hover rule
+ * would otherwise replace it with a flat glow), and a press squashes — the
+ * light moves *inside*, the top highlight inverting into shade, exactly as
+ * the field guides say a pressed blob behaves. Transform is transitioned,
+ * never the shadow property alone.
+ */
+[data-appearance="clay"] .card-interactive {
+  transition:
+    border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.14s ease;
+}
+[data-appearance="clay"] .card-interactive:hover,
+[data-appearance="clay"] .card-interactive:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--card-edge-hover);
+  box-shadow: 0 42px 76px -14px rgb(var(--brand-700) / 0.5),
+    inset 0 8px 16px -6px var(--clay-hi),
+    inset 0 -8px 16px -6px var(--clay-lo);
+}
+[data-appearance="clay"] .card-interactive:active {
+  transform: translateY(1px) scale(0.99);
+  box-shadow: var(--shadow-panel),
+    inset 0 6px 12px -6px var(--clay-lo),
+    inset 0 -8px 16px -6px var(--clay-hi);
 }
 
 /*
