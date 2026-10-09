@@ -894,72 +894,72 @@
    *      clay's surfaces are opaque pastel, so the family is not only the
    *      softest look on the board, it is also the cheapest to paint.
    *
-   * The ink ramp goes warm plum at midnight and porcelain at daylight, which
-   * is what makes the family read as clay from the page background up rather
-   * than as a recoloured card. Text ramps are inherited from the mode, so
-   * contrast is the mode's, not a guess.
+   * The ink ramp goes violet-plum at midnight and pale-lilac at daylight,
+   * after the actual claymorphism references (the Hype4 shoot the user
+   * pinned): a pale lilac page with near-white floating cards and saturated
+   * indigo-violet feature plates. Rose was tried first (a tint, not the
+   * pattern); indigo is the reference's voice. Text ramps are inherited
+   * from the mode, so contrast is the mode's, not a guess.
    */
   [data-appearance="clay"] {
-    --brand-50: 253 242 246;
-    --brand-100: 251 229 238;
-    --brand-200: 247 207 222;
-    --brand-300: 240 171 190;
-    --brand-400: 228 126 156;
-    --brand-500: 205 84 122;
-    --brand-600: 174 52 96;
-    --brand-700: 128 38 74;
-    --pool-1: rgb(228 126 156 / 0.3);
+    --brand-50: 240 238 255;
+    --brand-100: 232 228 254;
+    --brand-200: 214 204 253;
+    --brand-300: 178 164 250;
+    --brand-400: 142 124 242;
+    --brand-500: 112 94 224;
+    --brand-600: 89 70 206;
+    --brand-700: 67 54 176;
+    --pool-1: rgb(142 124 242 / 0.3);
     --pool-2: rgb(253 186 116 / 0.16);
-    --pool-3: rgb(158 121 229 / 0.14);
-    --card-tint: rgb(205 84 122 / 0.2);
+    --pool-3: rgb(228 105 160 / 0.13);
+    --card-tint: rgb(112 94 224 / 0.2);
     --card-tint-2: rgb(253 186 116 / 0.1);
-    --ink-950: 27 17 28;
-    --ink-900: 35 23 36;
-    --ink-850: 44 30 45;
-    --ink-800: 54 38 55;
-    --ink-700: 68 50 69;
+    --ink-950: 22 15 33;
+    --ink-900: 30 21 42;
+    --ink-850: 40 28 52;
+    --ink-800: 51 36 64;
+    --ink-700: 66 48 80;
     --radius-scale: 1.75;
-    /* The recipe's three channels, as tokens: card fill, top light, underside. */
     --clay-card: var(--ink-850);
-    --clay-hi: rgb(255 255 255 / 0.12);
-    --clay-lo: rgb(18 10 20 / 0.5);
+    --clay-hi: rgb(255 255 255 / 0.1);
+    --clay-lo: rgb(14 8 26 / 0.55);
     --surface-alpha: 1;
     --surface-alpha-2: 1;
     --surface-alpha-3: 1;
     --surface-blur: 0px;
     --surface-sat: 100%;
     --surface-specular: 0;
-    --shadow-panel: 0 35px 68px -12px rgb(var(--brand-700) / 0.45),
-      0 14px 28px -14px rgb(var(--brand-700) / 0.35);
-    --shadow-raised: 0 42px 76px -14px rgb(var(--brand-700) / 0.5),
-      0 16px 32px -16px rgb(var(--brand-700) / 0.38);
+    --shadow-panel: 0 24px 48px -14px rgb(var(--brand-700) / 0.5),
+      0 10px 24px -10px rgb(var(--brand-700) / 0.35);
+    --shadow-raised: 0 34px 64px -18px rgb(var(--brand-700) / 0.55),
+      0 14px 28px -14px rgb(var(--brand-700) / 0.4);
   }
 
-  /* Clay at daylight: porcelain grounds, the proven deep rose on top. */
+  /* Clay at daylight: lilac grounds, near-white floaters, indigo plates. */
   [data-theme="daylight"][data-appearance="clay"] {
-    --brand-50: 250 231 239;
-    --brand-100: 128 38 74;
-    --brand-200: 241 197 210;
-    --brand-300: 174 24 88;    /* the exact value Monet measures 6.4:1 at, on the same ivory */
-    --brand-400: 160 22 80;
-    --brand-500: 140 20 72;
-    --brand-600: 118 18 62;
-    --brand-700: 98 16 52;
-    --card-tint: rgb(205 84 122 / 0.1);
+    --brand-50: 244 241 255;
+    --brand-100: 67 54 176;
+    --brand-200: 205 197 250;
+    --brand-300: 89 70 206;   /* #5946CE — the plate itself; 5.5:1 on the lilac page */
+    --brand-400: 79 62 194;
+    --brand-500: 72 54 190;
+    --brand-600: 67 54 176;
+    --brand-700: 56 43 150;
+    --card-tint: rgb(112 94 224 / 0.12);
     --card-tint-2: rgb(253 186 116 / 0.09);
-    --ink-950: 242 232 238;
-    --ink-900: 248 240 244;
-    --ink-850: 252 246 249;
-    --ink-800: 245 235 240;
-    --ink-700: 237 224 231;
-    /* Porcelain cards on a tinted page — card lighter than ground, so it floats. */
+    --ink-950: 238 232 248;
+    --ink-900: 247 243 251;
+    --ink-850: 253 250 254;
+    --ink-800: 241 235 247;
+    --ink-700: 233 226 244;
     --clay-card: var(--ink-850);
-    --clay-hi: rgb(255 255 255 / 0.7);
-    --clay-lo: rgb(var(--brand-700) / 0.22);
-    --shadow-panel: 0 35px 68px -16px rgb(var(--brand-700) / 0.28),
-      0 14px 28px -14px rgb(var(--brand-700) / 0.18);
-    --shadow-raised: 0 42px 76px -18px rgb(var(--brand-700) / 0.32),
-      0 16px 32px -16px rgb(var(--brand-700) / 0.2);
+    --clay-hi: rgb(255 255 255 / 0.65);
+    --clay-lo: rgb(var(--brand-700) / 0.18);
+    --shadow-panel: 0 24px 44px -14px rgb(var(--brand-700) / 0.26),
+      0 10px 22px -10px rgb(var(--brand-700) / 0.16);
+    --shadow-raised: 0 34px 60px -18px rgb(var(--brand-700) / 0.3),
+      0 14px 28px -14px rgb(var(--brand-700) / 0.2);
   }
 
   [data-theme="daylight"][data-appearance="crystal"] {
@@ -3585,23 +3585,63 @@ html[lang^="zh"] body {
  */
 [data-appearance="clay"] .surface,
 [data-appearance="clay"] .stat-tile {
+  border-color: transparent;
   background-color: rgb(var(--clay-card));
   background-image: none;
   box-shadow: var(--shadow-panel),
-    inset 0 8px 16px -6px var(--clay-hi),
-    inset 0 -8px 16px -6px var(--clay-lo);
+    inset 0 6px 12px -6px var(--clay-hi),
+    inset 0 -6px 12px -6px var(--clay-lo);
 }
 [data-appearance="clay"] .surface-raised {
+  border-color: transparent;
   background-color: rgb(var(--clay-card));
   background-image: none;
   box-shadow: var(--shadow-raised),
-    inset 0 8px 16px -6px var(--clay-hi),
-    inset 0 -8px 16px -6px var(--clay-lo);
+    inset 0 6px 12px -6px var(--clay-hi),
+    inset 0 -6px 12px -6px var(--clay-lo);
 }
+
+/*
+ * The feature plate — the saturated indigo surface the references led with
+ * (the card, the bottom bar, the shapes from the user's pinned shoot). It
+ * is the family's identity in one panel: a solid-to-subtle violet face
+ * (surface gradients are banned, the plate's own dye runs one way), a
+ * tinted raised shadow, bands for the mould, and Strokes None — clay is
+ * edged by light, never stroke.
+ *
+ * The text inside is re-mapped through the tokens the copy already uses,
+ * not re-classed: `--text-2/3/4` go lilac-bright locally, headings go
+ * near-white, and its filled button — violet-on-violet would sink — turns
+ * into the white pill on purple the reference draws, with ink text. Body
+ * lilac-white on the plate measures 5.4:1; the muted rung was deepened to
+ * hold 4.7:1 rather than left at a wishful 4.3.
+ */
 [data-appearance="clay"] .glass-primary {
+  border-color: transparent;
+  background-color: rgb(var(--brand-600));
+  background-image: linear-gradient(
+    158deg,
+    rgb(var(--brand-400)) 0%,
+    rgb(var(--brand-600)) 58%,
+    rgb(var(--brand-700)) 100%
+  );
   box-shadow: var(--shadow-raised),
-    inset 0 8px 16px -6px var(--clay-hi),
-    inset 0 -8px 16px -6px var(--clay-lo);
+    inset 0 6px 12px -6px rgb(255 255 255 / 0.28),
+    inset 0 -6px 12px -6px rgb(31 22 92 / 0.35);
+  --text-1: 248 246 255;
+  --text-2: 234 230 252;
+  --text-3: 221 212 252;
+  --text-4: 224 218 253;
+  color: rgb(var(--text-2));
+}
+[data-appearance="clay"] .glass-primary .btn-primary {
+  border-color: transparent;
+  background-color: rgb(252 250 255);
+  background-image: none;
+  color: rgb(var(--brand-700));
+  box-shadow: 0 12px 24px -8px rgb(31 22 92 / 0.35),
+    inset 0 3px 6px -3px rgb(255 255 255 / 0.9),
+    inset 0 -3px 8px -3px rgb(var(--brand-700) / 0.2);
 }
 
 /*
