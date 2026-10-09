@@ -80,6 +80,44 @@ export function BuildStampPill({
   );
 }
 
+export function BuildStampChip({
+  t,
+  className,
+}: {
+  t: Translator;
+  className?: string;
+}) {
+  return (
+    <span
+      title={stampTitle(t)}
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full border border-line/60 bg-ink-900/60 px-2.5 py-1 font-mono text-[0.6rem] leading-none text-text-faint",
+        className,
+      )}
+    >
+      {/*
+       * The sync mark: two arrows chasing. It is the one fact a phone reader
+       * asked the bar for — when did this build ship — reduced to a glyph so
+       * the number beside it reads as a build time, not a clock.
+       */}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 16 16"
+        className="h-3 w-3 shrink-0 text-brand-400"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M12.5 6.5A5 5 0 0 0 4.9 4.3M3.5 9.5a5 5 0 0 0 7.6 2.2" />
+        <path d="M4.6 1.8v3h3M11.4 14.2v-3h-3" />
+      </svg>
+      <span className="whitespace-nowrap">{buildStamp.timeUae}</span>
+    </span>
+  );
+}
+
 export function BuildStampRow({
   t,
   className,

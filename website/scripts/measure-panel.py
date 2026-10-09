@@ -49,7 +49,7 @@ arithmetic says the tier below cannot hold it, not because it seemed tidy:
     xl    1280    three nav cards + Menu for the other four, no palette word,
                   no divider, primary CTA, stamp
     lg    1024    no nav cards: Menu holds all seven, primary CTA, stamp
-    <lg           the phone row: settings and the menu button, stamp in the sheet
+    <lg           the phone row: sync chip after the logo, settings, menu button
 
 The stamp itself carries the site's name, the date and the time in Gulf Standard
 Time, which is what makes it 126px wide rather than 75 — and what the two widest
@@ -263,6 +263,17 @@ def stamp_pill():
     )
 
 
+def stamp_chip():
+    """`BuildStampChip`: sync glyph 12px + the build's sync time at mono 9.6px.
+
+    The after-logo chip shown below `lg` (BuildStamp.tsx, Navbar.tsx) — the
+    build's sync time in Gulf Standard Time, measured like everything else in
+    the row: `px-2.5` both sides, the one border, the icon, the gap, and the
+    widest text the chip can print.
+    """
+    return P["2.5"] * 2 + 2 + 12 + P["1.5"] + mono("16:08 GST", 9.6)
+
+
 DIVIDER = P["1"] * 2 + 1  # `mx-1` around a hairline
 
 
@@ -293,9 +304,11 @@ def tier_rows():
     """Every tier, its pieces and its verdict."""
     rows = []
     for name, viewport, padding, nav_extra, _ in TIERS:
+        left_extra = 0
         if name == "phone":
             # `px-5`: the mark alone (the wordmark is `hidden lg:flex`), the
-            # compact language button, the palette, and the 44px menu button.
+            # sync chip riding after it, then the palette and the 44px menu.
+            left_extra = stamp_chip()
             nav = []
             cluster_items = [
                 # No language button below `sm` — see the note in Navbar.tsx.
@@ -304,7 +317,9 @@ def tier_rows():
             ]
             wordmark = False
         elif name == "sm":
-            # `px-7`, and the reading switch joins the row at `sm`.
+            # `px-7`, the chip still rides after the logo, and the reading
+            # switch joins the row at `sm`.
+            left_extra = stamp_chip()
             nav = []
             cluster_items = [
                 compact_language_menu(),
@@ -373,7 +388,17 @@ def tier_rows():
 
         middle = sum(nav)
         settings = cluster(cluster_items)
-        content = brand(wordmark) + GAP + middle + GAP + settings
+        # `left_extra` is the after-logo sync chip on the tiers that show it
+        # (phone and sm): brand → gap → chip, then the row the model already
+        # had. Tiers without it pay nothing.
+        content = (
+            brand(wordmark)
+            + (GAP + left_extra if left_extra else 0)
+            + GAP
+            + middle
+            + GAP
+            + settings
+        )
         available = viewport - padding - SCROLLBAR
         rows.append(
             {
@@ -442,6 +467,12 @@ MARKUP_CHECKS = [
         "the build stamp is in the panel from lg",
         NAVBAR,
         r'BuildStampPill t=\{t\} className="hidden lg:block"',
+        True,
+    ),
+    (
+        "the sync chip rides after the logo below lg",
+        NAVBAR,
+        r'BuildStampChip t=\{t\} className="lg:hidden"',
         True,
     ),
     (

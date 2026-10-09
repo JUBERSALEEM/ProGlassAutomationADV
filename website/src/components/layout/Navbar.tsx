@@ -10,7 +10,7 @@ import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { ThemeModeSwitch } from "@/components/layout/ThemeModeSwitch";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { LanguageMenu, LanguageMenuBlock } from "@/components/layout/LanguageMenu";
-import { BuildStampPill, BuildStampRow } from "@/components/layout/BuildStamp";
+import { BuildStampChip, BuildStampPill, BuildStampRow } from "@/components/layout/BuildStamp";
 import { Logo } from "@/components/brand/Logo";
 import { useT } from "@/i18n/provider";
 
@@ -226,6 +226,22 @@ export function Navbar() {
         <Link href="/" className="group flex items-center gap-3" aria-label={`${site.name} — home`}>
           <Logo size={34} wordmarkClassName="hidden lg:flex" />
         </Link>
+
+        {/*
+         * The build's sync time, after the logo, on the widths the pill
+         * cannot afford.
+         *
+         * Below `lg` the three-line pill has no room — it waits on the right
+         * for 1024 and up — and the only stamp a phone reader got was the
+         * footer, two scrolls away from the question "which build is this".
+         * The chip prints the one fact in the one place that is always on
+         * screen: the time the build shipped, in Gulf Standard Time, with
+         * the full two-zone tooltip the pill carries. It steps aside at `lg`
+         * precisely when the pill takes over, so the bar never pays for both
+         * at once — the same shed-ladder rule as the rest of this row, and
+         * measured into the phone and sm tiers like everything else in it.
+         */}
+        <BuildStampChip t={t} className="lg:hidden" />
 
         {/* ── Desktop navigation ─────────────────────────────────── */}
         <nav aria-label={t("Primary")} className={NAV_BAR}>

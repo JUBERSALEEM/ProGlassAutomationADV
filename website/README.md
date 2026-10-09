@@ -247,8 +247,8 @@ while wanting about 1450px at 1280. The numbers now are the browser's:
 | `2xl` | 1536 | five cards + Menu for the other two, divider, primary CTA, stamp — no palette word | 1342 / 1393 |
 | `xl` | 1280 | three cards + Menu for the other four, settings, primary CTA, stamp | 1133 / 1169 |
 | `lg` | 1024 | Menu button holding all seven, settings, primary CTA, stamp | 849 / 929 |
-| `sm` | 640 | wordmark, language, reading switch, palette, menu button | 431 / 569 |
-| phone | 360 | mark alone, palette, menu button — no wordmark, no language button | 182 / 305 |
+| `sm` | 640 | mark, build-sync chip, language, reading switch, palette, menu button | 539 / 569 |
+| phone | 360 | mark alone, build-sync chip, palette, menu button — no wordmark, no language button | 290 / 305 |
 
 Three of those are visible choices rather than accidents:
 
@@ -266,10 +266,15 @@ Three of those are visible choices rather than accidents:
   in this row to lose — and the palette's own word waits for `wide` for the same
   reason;
 - **on phones the lockup drops to the mark alone** and the language button waits
-  for `sm` — 182px in the 305px a 360px screen leaves it, which is the
+  for `sm` — 290px in the 305px a 360px screen leaves it, which is the
   difference between a header that fits every phone and one that fits the phones
-  that happened to be measured. The full lockup is in the footer on every
-  screen, and all fifteen languages are spelled out in the sheet, one tap away.
+  that happened to be measured. The **build-sync chip** — the time this build
+  shipped, in Gulf Standard Time — rides right after the mark there and at
+  `sm`, because the answer to "which build is this" belongs at the top of the
+  screen, not beneath the footer; it steps aside at `lg` exactly when the
+  three-line stamp card takes over, so the row never pays for both. The full
+  lockup is in the footer on every screen, and all fifteen languages are
+  spelled out in the sheet, one tap away.
 
 ### The plates
 
