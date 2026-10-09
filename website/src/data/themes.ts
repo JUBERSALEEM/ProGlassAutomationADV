@@ -30,7 +30,7 @@ export type ThemeMode = "light" | "dark" | "system";
 export type ResolvedTheme = "midnight" | "daylight";
 
 /** The `data-appearance` value written to <html>. */
-export type AppearanceFamily = "studio" | "monet" | "industrial" | "crystal";
+export type AppearanceFamily = "studio" | "monet" | "industrial" | "crystal" | "clay";
 
 export type ThemeModeEntry = {
   id: ThemeMode;
@@ -80,6 +80,13 @@ export const appearanceFamilies: AppearanceFamilyEntry[] = [
     origin: "The application's Crystal Fluid family: see-through surfaces over a luminous environment.",
     swatch: "#1AC5E2",
   },
+  {
+    id: "clay",
+    label: "Clay",
+    origin:
+      "Claymorphism — solid pastel surfaces with puffed corners and a soft tinted pillow-shadow, moulded rather than assembled. Rounded higher, and with no backdrop blur at all, it is also the cheapest family to paint.",
+    swatch: "#E4829C",
+  },
 ];
 
 /**
@@ -120,7 +127,7 @@ export function isThemeMode(value: unknown): value is ThemeMode {
 }
 
 export function isAppearanceFamily(value: unknown): value is AppearanceFamily {
-  return value === "studio" || value === "monet" || value === "industrial" || value === "crystal";
+  return value === "studio" || value === "monet" || value === "industrial" || value === "crystal" || value === "clay";
 }
 
 /** Mode → the `data-theme` value to write on <html>. */
@@ -144,7 +151,7 @@ var mk=${JSON.stringify(THEME_STORAGE_KEY)},ak=${JSON.stringify(APPEARANCE_STORA
 var m=localStorage.getItem(mk);
 if(m!=="light"&&m!=="dark"&&m!=="system")m="system";
 var a=localStorage.getItem(ak);
-if(a!=="studio"&&a!=="monet"&&a!=="industrial"&&a!=="crystal")a="studio";
+if(a!=="studio"&&a!=="monet"&&a!=="industrial"&&a!=="crystal"&&a!=="clay")a="studio";
 var d=window.matchMedia("(prefers-color-scheme: dark)").matches;
 var t=m==="light"?"daylight":m==="dark"?"midnight":(d?"midnight":"daylight");
 var e=document.documentElement;

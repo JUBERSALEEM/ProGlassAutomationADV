@@ -874,6 +874,86 @@
     --card-tint-2: rgb(13 148 136 / 0.08);
   }
 
+  /*
+   * Clay — claymorphism: surfaces read as moulded, not assembled.
+   *
+   * The style is three decisions and no more, all through the tokens the card
+   * classes already consume, so choosing Clay re-faces every page at once:
+   *
+   *   1. **Corner the site higher.** `--radius-scale` is the studio's own
+   *      control — one value re-corners every card, panel and button. At 1.6
+   *      a 1rem card lands at 26px and the row stops reading as rectangles.
+   *   2. **A pillow, not a drop shadow.** Clay does not cast the thin
+   *      contact-shadow of flat UI, it floats a broad, soft, *tinted* one:
+   *      `var(--brand-700)` inside a long blur, so the shadow takes the
+   *      accent's hue (and follows it if the reader moves the accent dial).
+   *      The moulding itself is the inset pair: a stronger light band at the
+   *      top, a stronger shade at the bottom — see the `.surface` override at
+   *      the end of this file, which reuses the same two channels.
+   *   3. **Solid and cheap.** No translucency and *no backdrop blur at all*:
+   *      clay's surfaces are opaque pastel, so the family is not only the
+   *      softest look on the board, it is also the cheapest to paint.
+   *
+   * The ink ramp goes warm plum at midnight and porcelain at daylight, which
+   * is what makes the family read as clay from the page background up rather
+   * than as a recoloured card. Text ramps are inherited from the mode, so
+   * contrast is the mode's, not a guess.
+   */
+  [data-appearance="clay"] {
+    --brand-50: 253 242 246;
+    --brand-100: 251 229 238;
+    --brand-200: 247 207 222;
+    --brand-300: 240 171 190;
+    --brand-400: 228 126 156;
+    --brand-500: 205 84 122;
+    --brand-600: 174 52 96;
+    --brand-700: 128 38 74;
+    --pool-1: rgb(228 126 156 / 0.3);
+    --pool-2: rgb(253 186 116 / 0.16);
+    --pool-3: rgb(158 121 229 / 0.14);
+    --card-tint: rgb(205 84 122 / 0.2);
+    --card-tint-2: rgb(253 186 116 / 0.1);
+    --ink-950: 27 17 28;
+    --ink-900: 35 23 36;
+    --ink-850: 44 30 45;
+    --ink-800: 54 38 55;
+    --ink-700: 68 50 69;
+    --radius-scale: 1.6;
+    --surface-alpha: 1;
+    --surface-alpha-2: 1;
+    --surface-alpha-3: 1;
+    --surface-blur: 0px;
+    --surface-sat: 100%;
+    --surface-specular: 0;
+    --shadow-panel: 0 26px 48px -20px rgb(var(--brand-700) / 0.55),
+      0 8px 16px -8px rgb(var(--brand-700) / 0.4);
+    --glass-edge-light: rgb(255 255 255 / 0.18);
+    --glass-edge-dark: rgb(var(--brand-700) / 0.5);
+  }
+
+  /* Clay at daylight: porcelain grounds, the proven deep rose on top. */
+  [data-theme="daylight"][data-appearance="clay"] {
+    --brand-50: 250 231 239;
+    --brand-100: 128 38 74;
+    --brand-200: 241 197 210;
+    --brand-300: 174 24 88;    /* the exact value Monet measures 6.4:1 at, on the same ivory */
+    --brand-400: 160 22 80;
+    --brand-500: 140 20 72;
+    --brand-600: 118 18 62;
+    --brand-700: 98 16 52;
+    --card-tint: rgb(205 84 122 / 0.1);
+    --card-tint-2: rgb(253 186 116 / 0.09);
+    --ink-950: 242 232 238;
+    --ink-900: 248 240 244;
+    --ink-850: 252 246 249;
+    --ink-800: 245 235 240;
+    --ink-700: 237 224 231;
+    --shadow-panel: 0 24px 44px -16px rgb(var(--brand-700) / 0.26),
+      0 8px 16px -8px rgb(var(--brand-700) / 0.16);
+    --glass-edge-light: rgb(255 255 255 / 0.9);
+    --glass-edge-dark: rgb(var(--brand-700) / 0.14);
+  }
+
   [data-theme="daylight"][data-appearance="crystal"] {
     /*
      * The filled button is the one place the two directions conflict: white on
@@ -3464,4 +3544,23 @@ html[lang="ko"] body {
 }
 html[lang^="zh"] body {
   font-family: var(--font-sans, var(--font-inter)), "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Segoe UI", system-ui, sans-serif;
+}
+
+/*
+ * Clay's puffed edge.
+ *
+ * Base `.surface` shadows with a hairline of light; claymorphism reads as
+ * moulded when the highlight and the shade are bands, not lines — so the
+ * family swaps the same two inset channels for a broader pair. No new paint:
+ * the shadows are still `var(--shadow-panel)` and the two edge variables, just
+ * stretched. The radius comes from `--radius-scale` via the studio's own
+ * `card`/`panel` tokens, so nothing here hard-codes a corner.
+ */
+[data-appearance="clay"] .surface {
+  box-shadow: var(--shadow-panel), inset 0 3px 4px -1px var(--glass-edge-light),
+    inset 0 -5px 10px -3px var(--glass-edge-dark);
+}
+[data-appearance="clay"] .surface-raised {
+  box-shadow: var(--shadow-panel), inset 0 3px 4px -1px var(--glass-edge-light),
+    inset 0 -6px 12px -4px var(--glass-edge-dark);
 }

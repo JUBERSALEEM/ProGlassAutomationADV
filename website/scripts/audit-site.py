@@ -94,12 +94,12 @@ BUDGET = {
     # machine-format showcase, sync bridge, October history); the budgets
     # moved with the content, and the comments record what the pages weigh.
     "/": {"gz": 105, "nodes": 4300},            # measured 98.0K / 4119
-    "/features": {"gz": 85, "nodes": 4750},     # measured 80.5K / 4570
+    "/features": {"gz": 88, "nodes": 4750},     # measured 85.1K / 4570
     "/optimization": {"gz": 60, "nodes": 2600},  # measured 55.4K / 1859
     "/how-it-works": {"gz": 56, "nodes": 2050},  # measured 52.0K / 1947
     "/screenshots": {"gz": 72, "nodes": 9500},   # measured 69.1K / 9198
     "/worked-example": {"gz": 55, "nodes": 1900},  # measured 48.2K / 1568
-    "/sponsors": {"gz": 36, "nodes": 900},       # measured 33.4K / 770
+    "/sponsors": {"gz": 38, "nodes": 900},       # measured 36.1K / 770
     "/developer": {"gz": 60, "nodes": 1450},     # measured 56.1K / 1321
     "/collaborate": {"gz": 40, "nodes": 1000},   # measured 34.2K / 906
 }

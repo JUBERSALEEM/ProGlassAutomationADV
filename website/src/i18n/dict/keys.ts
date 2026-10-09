@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 4341 keys.
+ * 4343 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -761,6 +761,8 @@ export const KEYS: string[] = [
   "Choosing a family sets the palette to that family's own accent. A colour plate below overrides it again — the last one you touch wins.",
   "Choosing the best plan",
   "Chrome",
+  "Clay",
+  "Claymorphism — solid pastel surfaces with puffed corners and a soft tinted pillow-shadow, moulded rather than assembled. Rounded higher, and with no backdrop blur at all, it is also the cheapest family to paint.",
   "Cleanroom",
   "Cleanroom climate log: temperature and relative humidity tracking",
   "Clear",
