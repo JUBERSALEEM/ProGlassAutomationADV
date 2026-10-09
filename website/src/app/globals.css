@@ -927,6 +927,8 @@
     --surface-specular: 0;
     --shadow-panel: 0 26px 48px -20px rgb(var(--brand-700) / 0.55),
       0 8px 16px -8px rgb(var(--brand-700) / 0.4);
+    --shadow-raised: 0 34px 60px -22px rgb(var(--brand-700) / 0.6),
+      0 10px 22px -10px rgb(var(--brand-700) / 0.45);
     --glass-edge-light: rgb(255 255 255 / 0.18);
     --glass-edge-dark: rgb(var(--brand-700) / 0.5);
   }
@@ -950,6 +952,8 @@
     --ink-700: 237 224 231;
     --shadow-panel: 0 24px 44px -16px rgb(var(--brand-700) / 0.26),
       0 8px 16px -8px rgb(var(--brand-700) / 0.16);
+    --shadow-raised: 0 30px 56px -18px rgb(var(--brand-700) / 0.28),
+      0 10px 22px -10px rgb(var(--brand-700) / 0.18);
     --glass-edge-light: rgb(255 255 255 / 0.9);
     --glass-edge-dark: rgb(var(--brand-700) / 0.14);
   }
@@ -3561,6 +3565,31 @@ html[lang^="zh"] body {
     inset 0 -5px 10px -3px var(--glass-edge-dark);
 }
 [data-appearance="clay"] .surface-raised {
+  box-shadow: var(--shadow-panel), inset 0 3px 4px -1px var(--glass-edge-light),
+    inset 0 -6px 12px -4px var(--glass-edge-dark);
+}
+
+/*
+ * Clay's corners reach the utilities the token system cannot.
+ *
+ * `rounded-card/panel/hero` honour `--radius-scale`, but a hundred-odd files
+ * write `rounded-lg/xl/2xl/md` straight — those utilities compile to literal
+ * lengths, so the dial could never reach them and Clay quietly "skipped"
+ * whole components. Under Clay the same utilities compute against the scale
+ * instead: nothing is `!important`, the attribute selector simply outranks
+ * the utility, and the numbers stay proportional to the base they replace.
+ * Directional and arbitrary corners are deliberately left alone — a 2px
+ * notch should stay a 2px notch.
+ *
+ * `.glass-primary` also joins the moulded edge, for the same reason
+ * `.surface` and `.surface-raised` got it: the envelope of a style lives on
+ * the raised tier as much as on the floor.
+ */
+[data-appearance="clay"] .rounded-lg { border-radius: calc(0.5rem * var(--radius-scale)); }
+[data-appearance="clay"] .rounded-xl { border-radius: calc(0.75rem * var(--radius-scale)); }
+[data-appearance="clay"] .rounded-2xl { border-radius: calc(1rem * var(--radius-scale)); }
+[data-appearance="clay"] .rounded-md { border-radius: calc(0.375rem * var(--radius-scale)); }
+[data-appearance="clay"] .glass-primary {
   box-shadow: var(--shadow-panel), inset 0 3px 4px -1px var(--glass-edge-light),
     inset 0 -6px 12px -4px var(--glass-edge-dark);
 }

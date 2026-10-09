@@ -120,7 +120,7 @@ export const THEME_STORAGE_KEY = "proglass-theme-mode";
 export const APPEARANCE_STORAGE_KEY = "proglass-appearance";
 
 export const DEFAULT_THEME_MODE: ThemeMode = "system";
-export const DEFAULT_APPEARANCE: AppearanceFamily = "studio";
+export const DEFAULT_APPEARANCE: AppearanceFamily = "clay";
 
 export function isThemeMode(value: unknown): value is ThemeMode {
   return value === "light" || value === "dark" || value === "system";
@@ -151,7 +151,7 @@ var mk=${JSON.stringify(THEME_STORAGE_KEY)},ak=${JSON.stringify(APPEARANCE_STORA
 var m=localStorage.getItem(mk);
 if(m!=="light"&&m!=="dark"&&m!=="system")m="system";
 var a=localStorage.getItem(ak);
-if(a!=="studio"&&a!=="monet"&&a!=="industrial"&&a!=="crystal"&&a!=="clay")a="studio";
+if(a!=="studio"&&a!=="monet"&&a!=="industrial"&&a!=="crystal"&&a!=="clay")a="clay";
 var d=window.matchMedia("(prefers-color-scheme: dark)").matches;
 var t=m==="light"?"daylight":m==="dark"?"midnight":(d?"midnight":"daylight");
 var e=document.documentElement;
