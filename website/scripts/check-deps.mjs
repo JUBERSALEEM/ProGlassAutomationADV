@@ -10,7 +10,7 @@
  *                         with a non-zero exit when it is not
  */
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { inspectDeps, formatProblems } from "./dep-check.mjs";
 
@@ -22,6 +22,24 @@ const unhappy = problems.missing.length > 0 || problems.undeclared.length > 0;
 
 if (unhappy) {
   process.stderr.write(formatProblems(problems, ROOT));
+  process.exit(1);
+}
+
+// Generated files the build imports. `src/i18n/coverage-table.json` feeds the
+// language menu and is written by `npm run i18n:keys`; a stock `.gitignore`
+// code-coverage rule (`coverage*.json`) once swallowed it so a clean checkout
+// built fine locally and failed on Vercel with a module-not-found two pages
+// deep into Turbopack's resolver. Naming the missing file here is the message
+// that failure should have been.
+const absentGenerated = ["src/i18n/coverage-table.json"].filter(
+  (file) => !existsSync(path.join(ROOT, file)),
+);
+if (absentGenerated.length > 0) {
+  process.stderr.write(
+    `\n  Generated files are missing from the checkout:\n\n${absentGenerated
+      .map((file) => `    ✗ ${file}`)
+      .join("\n")}\n\n  They are produced by the i18n pipeline and committed to the repository —\n  regenerate them with:\n\n    npm run i18n:keys\n\n`,
+  );
   process.exit(1);
 }
 
