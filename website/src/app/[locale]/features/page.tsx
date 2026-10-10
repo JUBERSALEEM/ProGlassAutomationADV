@@ -17,6 +17,7 @@ import { logFacts } from "@/data/activityLog";
 import { stageRoutes, stageRouting } from "@/data/stageQueue";
 import { pricingRules } from "@/data/pricingRules";
 import { RouteSchema } from "@/components/seo/RouteSchema";
+import { FeaturesShowcaseServer } from "@/components/home/FeaturesShowcaseServer";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
 import { PageOverlay } from "@/i18n/PageOverlay";
@@ -459,6 +460,15 @@ export default async function FeaturesPage({ params }: PageProps) {
       </Section>
 
       {/* ── CTA ──────────────────────────────────────────────────── */}
+      {/* ── Closing exhibit ───────────────────────────────────────────
+          The same layered exhibit as the homepage, repeated here as the
+          page's terminus: the visitor who just read the feature groups
+          sees the product surfaces one last time, interactive, before the
+          FAQ answers their remaining doubts. */}
+      <Section aria-label={t("Closing exhibit")}>
+        <FeaturesShowcaseServer t={t} />
+      </Section>
+
       <Section aria-label={t("Next steps")}>
         <Container>
           <Reveal>

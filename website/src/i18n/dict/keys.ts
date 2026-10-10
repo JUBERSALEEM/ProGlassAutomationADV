@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 4390 keys.
+ * 4391 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -788,6 +788,7 @@ export const KEYS: string[] = [
   "Close chat support",
   "Close support panel",
   "Closing",
+  "Closing exhibit",
   "CNC Cutting Station & Breakout Tracking",
   "CNC Drilling & Edge Cutout Work Center",
   "CNC glass cutting export",

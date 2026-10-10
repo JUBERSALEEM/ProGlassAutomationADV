@@ -3690,6 +3690,7 @@ const dict: Overlay = {
   "Plain-text offers, one click away": "Klartext-Angebote, einen Klick entfernt",
   "Barcode to job order in one scan": "Vom Barcode zum Auftrag in einem Scan",
   "Four modules lead the workflow — the same interfaces the gallery preserves in full. Walk them with the dots; the exhibit never moves without you.": "Vier Module führen den Arbeitsablauf — dieselben Oberflächen, die die Galerie vollständig zeigt. Gehen Sie sie mit den Punkten durch; die Vitrine bewegt sich nie ohne Sie.",
+  "Closing exhibit": "Abschlussvitrine",
 };
 
 export default dict;
