@@ -57,6 +57,8 @@ export function ThemeStudioLazy() {
     <button
       type="button"
       aria-label={t("Theme and colour")}
+      aria-expanded={false}
+      aria-controls="theme-studio"
       onClick={() => setSummoned(true)}
       className="no-print menu-card group fixed bottom-5 right-5 z-40 flex items-center gap-2.5 rounded-full px-4 py-3 text-xs font-bold text-text-primary shadow-raised transition-transform hover:-translate-y-0.5"
     >

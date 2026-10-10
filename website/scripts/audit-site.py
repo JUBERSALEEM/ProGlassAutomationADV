@@ -80,31 +80,30 @@ BANNED = [
 # default applies to every page not named. `gz` is what a visitor actually
 # downloads, `nodes` is what the browser has to lay out — a page can gzip
 # beautifully and still be a slow render, which is why both are gated.
-# Re-measured on the production build (`npm run build`, then `next start`) while
-# adding the collaboration route. Four of these pages were already over their
-# old figures before that work — the ceilings were written when those pages were
-# smaller, and they measure content: the words on /features and the gallery on
-# /screenshots are the product, and deleting them to fit a number written for an
-# earlier draft is not a trade this site makes. Each figure below is the
-# measured value plus the small headroom the rest of the table uses, so the gate
-# still fails on a real regression rather than on a page that is large by
-# design. The measured values are in the comments.
+# Re-measured on the production build after the launch-timing rounds of
+# 2026-10-10: the mobile sheet stopped mounting its full menu into every
+# document, and the translation overlay became per-route
+# (scripts/build-route-overlays.mjs), so most pages are smaller than the
+# figures these budgets originally recorded. The ceilings below are again
+# measured-plus-headroom: /screenshots moved the most (69.1K → 33.9K
+# compressed and 9198 → 1189 DOM nodes), because its page weight had been
+# mostly dictionary, not gallery. The numbers still measure content — the
+# words on /features and the gallery on /screenshots are the product — and
+# the gate fails on a real regression, now with much less room for weight to
+# sneak back in.
 BUDGET = {
-    # Phase 2–4 moved real content onto these pages (rail tour, 48 modules,
-    # machine-format showcase, sync bridge, October history); the budgets
-    # moved with the content, and the comments record what the pages weigh.
-    "/": {"gz": 105, "nodes": 4300},            # measured 98.0K / 4119
-    "/features": {"gz": 88, "nodes": 4750},     # measured 85.1K / 4570
-    "/optimization": {"gz": 60, "nodes": 2600},  # measured 55.4K / 1859
-    "/how-it-works": {"gz": 56, "nodes": 2050},  # measured 52.0K / 1947
-    "/screenshots": {"gz": 72, "nodes": 9500},   # measured 69.1K / 9198
-    "/worked-example": {"gz": 55, "nodes": 1900},  # measured 48.2K / 1568
-    "/sponsors": {"gz": 40, "nodes": 950},       # measured 37.0K / 929 (card footer everywhere)
-    "/pricing": {"gz": 42, "nodes": 1000},     # measured 36.3K / 901 (support bubble mounted on every page)
-    "/developer": {"gz": 60, "nodes": 1450},     # measured 56.1K / 1321
-    "/collaborate": {"gz": 42, "nodes": 1000},   # measured 34.2K / 906
+    "/": {"gz": 104, "nodes": 4200},            # measured 99.8K / 4097 — sheet content gated
+    "/features": {"gz": 88, "nodes": 4750},     # measured 85.5K / 4535 (kept: tightest row)
+    "/optimization": {"gz": 57, "nodes": 2350},  # measured 55.1K / 2186
+    "/how-it-works": {"gz": 54, "nodes": 2000},  # measured 51.8K / 1884
+    "/screenshots": {"gz": 38, "nodes": 1350},   # measured 33.9K / 1189 (was 69.1K / 9198)
+    "/worked-example": {"gz": 55, "nodes": 1750},  # measured 52.7K / 1638
+    "/sponsors": {"gz": 38, "nodes": 850},       # measured 35.8K / 797 (card footer everywhere)
+    "/pricing": {"gz": 37, "nodes": 900},     # measured 33.9K / 826 (support bubble mounted on every page)
+    "/developer": {"gz": 59, "nodes": 1350},     # measured 56.0K / 1258
+    "/collaborate": {"gz": 39, "nodes": 900},   # measured 36.4K / 843
 }
-BUDGET_DEFAULT = {"gz": 36, "nodes": 900}
+BUDGET_DEFAULT = {"gz": 34, "nodes": 800}      # covers /resources 33.2K/671, /about 31.3K/679, /blog 26.3K/555, /legal/* ≤28.3K/564, /records+/deliveries ≈27K/∼475
 
 # Built assets, measured from `.next` when a build is present. The JS figure is
 # every chunk the build emits, gzipped; the browser never downloads all of them,
