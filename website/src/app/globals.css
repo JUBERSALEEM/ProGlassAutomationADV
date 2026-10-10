@@ -1435,11 +1435,10 @@
   }
 
   @keyframes nav-pill-photon {
-    0% { background-position: 200% 0; opacity: 0; }
-    4% { opacity: 1; }
-    46% { background-position: -120% 0; opacity: 1; }
-    47% { opacity: 0; }
-    100% { background-position: -120% 0; opacity: 0; }
+    0%,100% { background-position: 200% 0; opacity: 0; }
+    4%,46% { opacity: 1; }
+    46% { background-position: -120% 0; }
+    47% { background-position: -120% 0; opacity: 0; }
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -703,7 +703,7 @@ export default async function HomePage({ params }: PageProps) {
             {featureGroups
               .filter((group) => ["platform", "money", "documents"].includes(group.id))
               .map((group, index) => (
-                <Reveal key={group.id} delay={index * 70} className="surface-raised flex flex-col p-6">
+                <Reveal key={group.id} delay={index * 70} className="surface-raised card-interactive flex flex-col p-6">
                   <h3 className="text-lg font-semibold text-text-primary">{t(group.title)}</h3>
                   <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(group.lead)}</p>
                   <ul className="mt-5 space-y-3 border-t border-line/60 pt-5">
