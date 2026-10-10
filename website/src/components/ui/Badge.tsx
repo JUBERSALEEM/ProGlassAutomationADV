@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Icon } from "./Icon";
 import { cn } from "@/lib/cn";
 
 export function Badge({
@@ -62,6 +63,28 @@ export function IndexChip({ children, className }: { children: ReactNode; classN
       )}
     >
       {children}
+    </span>
+  );
+}
+
+/** Small square glyph tile — the icon twin of `IndexChip`. */
+export function IconChip({ path, className }: { path: string; className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        /*
+         * The icon that names a card or a stage, drawn in `IndexChip`'s own
+         * tile: same accent wash, same lit top edge, same corner radius — so a
+         * numbered step and a pictured step read as one family of marks. The
+         * glyph inside follows the site-wide 16-unit grid, slightly smaller
+         * than the tile's own numeral so dense paths (trucks, keys) stay airy.
+         */
+        "grid h-9 w-9 shrink-0 place-items-center rounded-[0.6rem] border border-brand-500/45 bg-brand-600/25 text-brand-200 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.08)]",
+        className,
+      )}
+    >
+      <Icon path={path} className="h-4 w-4" />
     </span>
   );
 }
