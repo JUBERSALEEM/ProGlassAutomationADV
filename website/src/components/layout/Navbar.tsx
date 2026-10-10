@@ -469,10 +469,12 @@ export function Navbar() {
       {/* ── Mobile sheet ─────────────────────────────────────────── */}
       <div
         id="mobile-menu"
-        hidden={!mobileOpen}
+        aria-hidden={!mobileOpen}
         className={cn(
-          "xl:hidden",
-          mobileOpen && "nav-sheet animate-fade-in",
+          "nav-sheet transition-[opacity,transform,visibility] duration-300 ease-industrial xl:hidden",
+          mobileOpen
+            ? "pointer-events-auto visible translate-y-0 opacity-100 will-change-transform"
+            : "pointer-events-none invisible -translate-y-2 opacity-0",
         )}
       >
         <div className="shell max-h-[calc(100vh-var(--nav-height))] overflow-y-auto py-5">

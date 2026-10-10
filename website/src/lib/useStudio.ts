@@ -59,7 +59,8 @@ export type Studio = {
   /**
    * Card edge weight in pixels — the application's "Define Card Edges" setting.
    * 1.5 is the subtle hairline the app uses, 2 is the defined card edge it
-   * ships as the default (AppConfig.CardBorderThickness / CardEdgeThickness).
+   * ships as the default (AppConfig.CardBorderThickness / CardEdgeThickness),
+   * and the site stretches the dial to 10 for real plate-work.
    */
   edge: number;
   /**
@@ -442,7 +443,7 @@ export function applyStudioVars(studio: Studio) {
    * content inside it. Writing the padding here as well would be a second copy
    * of one rule, and the two would drift.
    */
-  const edge = Number.isFinite(studio.edge) ? Math.min(4, Math.max(1, studio.edge)) : defaultStudio.edge;
+  const edge = Number.isFinite(studio.edge) ? Math.min(10, Math.max(1, studio.edge)) : defaultStudio.edge;
   vars["--card-edge-width"] = `${edge}px`;
   // Colour sits beside it: a plate picked in the studio overrides the family's
   // edge colour, "" leaves the family in charge of it.

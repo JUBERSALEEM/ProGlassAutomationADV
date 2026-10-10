@@ -47,7 +47,7 @@ function validSortField(value: string | null): JobOrderSortField {
 function AccessGate({ pathname }: { pathname: string }) {
   return (
     <div className="min-h-screen bg-ink-950 px-4 py-20 text-text-primary">
-      <div className="mx-auto w-full max-w-md rounded-panel border border-line-strong/80 bg-ink-900/80 p-8 text-center shadow-raised backdrop-blur-xl">
+      <div className="mx-auto w-full max-w-md rounded-panel border border-line-strong/80 bg-ink-900 p-8 text-center shadow-raised">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-400/40 bg-brand-500/10 text-brand-300">
           <svg aria-hidden="true" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6zm10-10V7a4 4 0 00-8 0v4h8z" />

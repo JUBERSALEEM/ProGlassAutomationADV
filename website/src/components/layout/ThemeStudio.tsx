@@ -480,11 +480,11 @@ export function ThemeStudio() {
                   label={t("Border line")}
                   value={studio.edge}
                   min={1}
-                  max={4}
+                  max={10}
                   step={0.25}
                   display={edgeReadout(studio.edge)}
                   onChange={(value) => setStudio({ edge: value })}
-                  hint={t("1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with.")}
+                  hint={t("1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with; the dial runs to 10 px for plate-strength borders.")}
                 />
                 <Slider
                   label={t("Corner radius")}

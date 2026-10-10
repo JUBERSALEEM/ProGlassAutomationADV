@@ -924,6 +924,7 @@
     --clay-card: var(--ink-850);
     --clay-hi: rgb(255 255 255 / 0.1);
     --clay-lo: rgb(14 8 26 / 0.55);
+    --clay-sheet: rgb(30 21 42);
     --surface-alpha: 1;
     --surface-alpha-2: 1;
     --surface-alpha-3: 1;
@@ -1413,9 +1414,7 @@
 
   [data-appearance="crystal"] .nav-sheet {
     border-top: 1px solid var(--glass-ring);
-    background-color: rgb(var(--ink-950) / 0.72);
-    backdrop-filter: blur(24px) saturate(175%);
-    -webkit-backdrop-filter: blur(24px) saturate(175%);
+    background-color: rgb(var(--ink-950) / 0.94);
   }
 
   [data-theme="daylight"][data-appearance="crystal"] .nav-sheet {
@@ -3628,10 +3627,10 @@ html[lang^="zh"] body {
   box-shadow: var(--shadow-raised),
     inset 0 6px 12px -6px rgb(255 255 255 / 0.28),
     inset 0 -6px 12px -6px rgb(31 22 92 / 0.35);
-  --text-1: 248 246 255;
-  --text-2: 234 230 252;
-  --text-3: 221 212 252;
-  --text-4: 224 218 253;
+  --text-1: 255 255 255;
+  --text-2: 250 249 255;
+  --text-3: 232 226 255;
+  --text-4: 214 204 248;
   color: rgb(var(--text-2));
 }
 [data-appearance="clay"] .glass-primary .btn-primary {
@@ -3779,6 +3778,7 @@ html[lang^="zh"] body {
   --clay-card: 245 238 253;
   --clay-hi: rgb(255 255 255 / 0.72);
   --clay-lo: rgb(var(--brand-700) / 0.24);
+  --clay-sheet: rgb(230 219 246);
   --shadow-panel: 0 30px 56px -14px rgb(var(--brand-700) / 0.3),
     0 12px 26px -10px rgb(var(--brand-700) / 0.2);
   --shadow-raised: 0 40px 68px -18px rgb(var(--brand-700) / 0.34),
@@ -3800,10 +3800,10 @@ html[lang^="zh"] body {
   background-color: rgb(var(--brand-700) / 0.94);
   background-image: none;
   border-color: rgb(255 255 255 / 0.14);
-  --text-1: 240 236 254;
-  --text-2: 224 217 249;
-  --text-3: 199 188 240;
-  --text-4: 212 204 250;
+  --text-1: 255 255 255;
+  --text-2: 248 247 255;
+  --text-3: 236 232 254;
+  --text-4: 214 204 248;
   color: rgb(var(--text-2));
 }
 [data-appearance="clay"] .nav-glass .btn-primary {
@@ -3817,9 +3817,50 @@ html[lang^="zh"] body {
 }
 [data-appearance="clay"] .band-deep {
   background-color: rgb(var(--brand-700) / 0.94);
-  --text-1: 240 236 254;
-  --text-2: 224 217 249;
-  --text-3: 199 188 240;
-  --text-4: 212 204 250;
+  --text-1: 255 255 255;
+  --text-2: 248 247 255;
+  --text-3: 236 232 254;
+  --text-4: 214 204 248;
   color: rgb(var(--text-2));
+}
+
+/*
+ * Stable scrollbar: opening the phone menu locks body overflow, and a gutter
+ * that appears mid-gesture is a full-page relayout your finger can feel as a
+ * jank. Reserving the gutter always makes the lock free — and it matches the
+ * 15px the panel budget already assumes (scripts/measure-panel.py).
+ */
+html {
+  scrollbar-gutter: stable;
+}
+
+/*
+ * Clay's plates — a second sheet under every card.
+ *
+ * Stacked clay is how the pinned shots sell their depth through geometry,
+ * not shadow budgets: every card slides one plate down-right in a fill one
+ * step deeper, reading as the sheet beneath rather than as a bigger shadow.
+ * One pseudo-element, no animation, no blur, no extra paint pass — the
+ * cheapest visible stack there is. The offset is capped at 9px on purpose:
+ * it never reaches past the shell padding into the scrollbar lane.
+ */
+[data-appearance="clay"] .surface,
+[data-appearance="clay"] .surface-raised {
+  position: relative;
+}
+[data-appearance="clay"] .surface::after,
+[data-appearance="clay"] .surface-raised::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  transform: translate(7px, 9px);
+  border-radius: inherit;
+  background: var(--clay-sheet);
+  box-shadow: 0 14px 24px -10px rgb(var(--brand-700) / 0.22);
+}
+
+/* The offset plate and the wide edge dial throw nothing horizontal off page. */
+body {
+  overflow-x: clip;
 }

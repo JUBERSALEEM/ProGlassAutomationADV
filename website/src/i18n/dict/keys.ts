@@ -137,7 +137,7 @@ export const KEYS: string[] = [
   "1 piece",
   "1 quote · INQ-2026-001 · confirmed",
   "1 to 5, or Auto",
-  "1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with.",
+  "1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with; the dial runs to 10 px for plate-strength borders.",
   "1.5 px is the hairline the app uses for inputs; 2 px is the defined card edge it ships with.",
   "1.52mm Clear PVB",
   "1.52mm Grey PVB",

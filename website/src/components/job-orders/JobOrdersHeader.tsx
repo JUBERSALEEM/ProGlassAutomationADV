@@ -46,7 +46,7 @@ export function JobOrdersHeader({
     : null;
 
   return (
-    <header className="relative border-b border-line-strong/60 bg-ink-950/80 backdrop-blur-md">
+    <header className="relative border-b border-line-strong/60 bg-ink-950/90">
       <div className="shell py-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
