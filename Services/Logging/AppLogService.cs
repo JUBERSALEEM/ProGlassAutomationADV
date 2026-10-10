@@ -76,10 +76,10 @@ namespace ProGlassAutomation.Services.Logging
         /// <summary>
         /// "Session is open" marker. Written when logging initialises,
         /// removed by <see cref="MarkCleanShutdown"/>. If it still exists
-        /// at the next startup, the previous session ended without a clean
-        /// shutdown — the signature of an uncatchable crash (a
-        /// StackOverflowException, native fault or kill) that could not run
-        /// any exception handler and therefore wrote no crash report.
+        /// at the next startup, the previous process did not complete marker
+        /// cleanup. This can follow a crash, forced termination, OS shutdown,
+        /// or a failure during shutdown; the marker alone does not identify
+        /// the cause or prove that an exception was unhandled.
         /// </summary>
         private static string SessionMarkerPath =>
             Path.Combine(LogFolder, "session-open.marker");
@@ -167,16 +167,13 @@ namespace ProGlassAutomation.Services.Logging
             catch { /* never fail startup because of logging */ }
 
             // ── Unclean-shutdown detection (2026-09-17) ─────────────────
-            // A StackOverflowException (or any native / process-level fault)
-            // terminates a .NET process immediately: DispatcherUnhandledException,
-            // AppDomain.UnhandledException and UnobservedTaskException NEVER
-            // run for it, so no log entry and no crash-*.txt can be written
-            // at the moment of death. The marker below is the evidence that
-            // survives: it is only removed on a clean exit, so its presence
-            // at startup proves the previous run died hard. The app-*.log
-            // lines around the recorded end time then show the last thing
-            // the app was doing (module navigation breadcrumbs are written
-            // synchronously to disk for exactly this reason).
+            // A process crash can prevent OnExit from removing the marker,
+            // but so can a forced termination, OS interruption, or failure
+            // while writing/deleting the marker. Its presence is only evidence
+            // that clean-shutdown bookkeeping did not complete; it cannot
+            // identify a StackOverflowException or prove that no crash report
+            // was written. Use the marker and surrounding log lines as clues,
+            // then consult Windows Event Viewer when the exit was unexpected.
             try
             {
                 bool unclean = File.Exists(SessionMarkerPath);
@@ -192,18 +189,17 @@ namespace ProGlassAutomation.Services.Logging
                 if (unclean)
                 {
                     Warning(
-                        "Previous session ended WITHOUT a clean shutdown " +
-                        "(no OnExit). This is the signature of an uncatchable " +
-                        "crash such as a StackOverflowException — those bypass " +
-                        "every .NET exception handler, which is why no crash " +
-                        "report was written at the time. Previous session: " +
+                        "Previous session's clean-shutdown marker remained. " +
+                        "This can follow a forced exit, OS interruption, process " +
+                        "crash, or shutdown/marker-cleanup failure; the marker " +
+                        "alone does not identify the cause or prove an unhandled " +
+                        "exception. Previous session: " +
                         (string.IsNullOrWhiteSpace(previousMarker)
                             ? "(marker unreadable)"
                             : previousMarker.Trim()) +
-                        ". Check the log lines immediately before this entry " +
-                        "and the Windows Event Viewer (Application log, " +
-                        ".NET Runtime / Application Error) for the faulting " +
-                        "module.",
+                        ". Review the surrounding log lines and, if the exit " +
+                        "was unexpected, the Windows Event Viewer (Application " +
+                        "log, .NET Runtime / Application Error).",
                         new LogContext { Operation = "Startup" });
                 }
             }
@@ -217,11 +213,10 @@ namespace ProGlassAutomation.Services.Logging
         }
 
         /// <summary>
-        /// Removes the "session is open" marker. Called from App.OnExit so
-        /// only a clean shutdown clears it. A crash-triggered Shutdown still
-        /// runs OnExit — that is fine, because a catchable crash has already
-        /// written its crash report; this marker exists for the uncatchable
-        /// ones that write nothing.
+        /// Removes the "session is open" marker at the end of App.OnExit,
+        /// after shutdown work completes. If the marker remains, cleanup did
+        /// not complete, but that alone does not identify whether the cause
+        /// was an abrupt process exit, an OS interruption, or shutdown I/O.
         /// </summary>
         public static void MarkCleanShutdown()
         {
