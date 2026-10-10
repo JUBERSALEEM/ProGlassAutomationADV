@@ -3624,7 +3624,8 @@ html[lang^="zh"] body {
     rgb(var(--brand-600)) 58%,
     rgb(var(--brand-700)) 100%
   );
-  box-shadow: var(--shadow-raised),
+  box-shadow: 0 40px 68px -18px rgb(var(--brand-700) / 0.34),
+    0 16px 30px -14px rgb(var(--brand-700) / 0.22),
     inset 0 6px 12px -6px rgb(255 255 255 / 0.28),
     inset 0 -6px 12px -6px rgb(31 22 92 / 0.35);
   --text-1: 255 255 255;
@@ -3661,7 +3662,8 @@ html[lang^="zh"] body {
 [data-appearance="clay"] .card-interactive:focus-visible {
   transform: translateY(-2px);
   border-color: var(--card-edge-hover);
-  box-shadow: 0 42px 76px -14px rgb(var(--brand-700) / 0.5),
+  box-shadow: 7px 9px 0 0 var(--clay-sheet),
+    0 42px 76px -14px rgb(var(--brand-700) / 0.5),
     inset 0 8px 16px -6px var(--clay-hi),
     inset 0 -8px 16px -6px var(--clay-lo);
 }
@@ -3767,9 +3769,11 @@ html[lang^="zh"] body {
  */
 [data-appearance="clay"] {
   --radius-scale: 2;
-  --shadow-panel: 0 30px 60px -12px rgb(var(--brand-700) / 0.5),
+  --shadow-panel: 7px 9px 0 0 var(--clay-sheet),
+    0 30px 60px -12px rgb(var(--brand-700) / 0.5),
     0 12px 26px -10px rgb(var(--brand-700) / 0.4);
-  --shadow-raised: 0 40px 72px -16px rgb(var(--brand-700) / 0.55),
+  --shadow-raised: 8px 10px 0 0 var(--clay-sheet),
+    0 40px 72px -16px rgb(var(--brand-700) / 0.55),
     0 16px 30px -14px rgb(var(--brand-700) / 0.42);
   --card-edge: rgb(255 255 255 / 0.18);
   --card-edge-hover: rgb(var(--brand-400) / 0.7);
@@ -3779,9 +3783,11 @@ html[lang^="zh"] body {
   --clay-hi: rgb(255 255 255 / 0.72);
   --clay-lo: rgb(var(--brand-700) / 0.24);
   --clay-sheet: rgb(230 219 246);
-  --shadow-panel: 0 30px 56px -14px rgb(var(--brand-700) / 0.3),
+  --shadow-panel: 7px 9px 0 0 var(--clay-sheet),
+    0 30px 56px -14px rgb(var(--brand-700) / 0.3),
     0 12px 26px -10px rgb(var(--brand-700) / 0.2);
-  --shadow-raised: 0 40px 68px -18px rgb(var(--brand-700) / 0.34),
+  --shadow-raised: 8px 10px 0 0 var(--clay-sheet),
+    0 40px 68px -18px rgb(var(--brand-700) / 0.34),
     0 16px 30px -14px rgb(var(--brand-700) / 0.22);
   --card-edge: rgb(var(--brand-300) / 0.45);
   --card-edge-hover: rgb(var(--brand-400) / 0.7);
@@ -3832,32 +3838,6 @@ html[lang^="zh"] body {
  */
 html {
   scrollbar-gutter: stable;
-}
-
-/*
- * Clay's plates — a second sheet under every card.
- *
- * Stacked clay is how the pinned shots sell their depth through geometry,
- * not shadow budgets: every card slides one plate down-right in a fill one
- * step deeper, reading as the sheet beneath rather than as a bigger shadow.
- * One pseudo-element, no animation, no blur, no extra paint pass — the
- * cheapest visible stack there is. The offset is capped at 9px on purpose:
- * it never reaches past the shell padding into the scrollbar lane.
- */
-[data-appearance="clay"] .surface,
-[data-appearance="clay"] .surface-raised {
-  position: relative;
-}
-[data-appearance="clay"] .surface::after,
-[data-appearance="clay"] .surface-raised::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  transform: translate(7px, 9px);
-  border-radius: inherit;
-  background: var(--clay-sheet);
-  box-shadow: 0 14px 24px -10px rgb(var(--brand-700) / 0.22);
 }
 
 /* The offset plate and the wide edge dial throw nothing horizontal off page. */
