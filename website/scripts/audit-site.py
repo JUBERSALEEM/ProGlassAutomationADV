@@ -97,13 +97,13 @@ BUDGET = {
     "/optimization": {"gz": 57, "nodes": 2350},  # measured 55.1K / 2186
     "/how-it-works": {"gz": 54, "nodes": 2000},  # measured 51.8K / 1884
     "/screenshots": {"gz": 38, "nodes": 1350},   # measured 33.9K / 1189 (was 69.1K / 9198)
-    "/worked-example": {"gz": 55, "nodes": 1750},  # measured 52.7K / 1638
+    "/worked-example": {"gz": 59, "nodes": 1800},  # measured 55.8K / ~1640 (footer icon tiles)
     "/sponsors": {"gz": 38, "nodes": 850},       # measured 35.8K / 797 (card footer everywhere)
     "/pricing": {"gz": 37, "nodes": 900},     # measured 33.9K / 826 (support bubble mounted on every page)
     "/developer": {"gz": 59, "nodes": 1350},     # measured 56.0K / 1258
     "/collaborate": {"gz": 39, "nodes": 900},   # measured 36.4K / 843
 }
-BUDGET_DEFAULT = {"gz": 34, "nodes": 800}      # covers /resources 33.2K/671, /about 31.3K/679, /blog 26.3K/555, /legal/* ≤28.3K/564, /records+/deliveries ≈27K/∼475
+BUDGET_DEFAULT = {"gz": 37, "nodes": 800}      # post footer-icon round: /resources 36.1K/671, /about ~34K/679, /blog ~29K/555, /legal/* ≤31K/564
 
 # Built assets, measured from `.next` when a build is present. The JS figure is
 # every chunk the build emits, gzipped; the browser never downloads all of them,

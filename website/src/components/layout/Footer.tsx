@@ -2,6 +2,8 @@ import Link from "next/link";
 import { nav, site } from "@/lib/site";
 import { Logo } from "@/components/brand/Logo";
 import { GlassCubeEmblem } from "@/components/brand/GlassCubeEmblem";
+import { Icon } from "@/components/ui/Icon";
+import { channelIcons, footerIconFor } from "@/data/footerIcons";
 import type { Translator } from "@/i18n/core";
 import { BuildStampRow } from "@/components/layout/BuildStamp";
 
@@ -19,24 +21,28 @@ function Column({
     <div>
       <h2 className="eyebrow mb-4">{title}</h2>
       {/*
-        Card-shaped links, the mobile sheet's own treatment, moved up to the
-        footer: bare text lists read as filler; a card carries its own edge,
-        holds its hover, and tells a thumb exactly where to press. Same
-        labels, same routes — only the shape of the door changed, so nothing
-        here invents a page.
+        Card-shaped links — a card carries its own edge, holds its hover and
+        tells a thumb exactly where to press. Each card centres its label over
+        a destination glyph: the same mark the top panel or the rail already
+        uses for that page (see data/footerIcons.ts), so the door reads the
+        same at the bottom of the site as it did at the top. The chevron stays
+        for hover, pinned at the edge so it never disturbs the centred row.
       */}
       <ul className="space-y-2">
         {links.map((link) => (
           <li key={link.href}>
             <Link
               href={link.href}
-              className="card-interactive group flex items-center justify-between gap-2 rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2 text-sm font-medium text-text-secondary transition-colors duration-200 hover:border-brand-400/60 hover:text-text-primary"
+              className="card-interactive group relative flex items-center justify-center gap-2.5 rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors duration-200 hover:border-brand-400/60 hover:text-text-primary"
             >
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg border border-brand-400/30 bg-brand-500/12 text-brand-300 transition-colors duration-200 group-hover:border-brand-400/60 group-hover:text-brand-200">
+                <Icon path={footerIconFor(link.href)} className="h-3.5 w-3.5" />
+              </span>
               <span>{t(link.label)}</span>
               <svg
                 aria-hidden="true"
                 viewBox="0 0 16 16"
-                className="-me-1 h-3.5 w-3.5 shrink-0 opacity-0 transition-all duration-200 group-hover:me-0 group-hover:translate-x-0.5 group-hover:opacity-100"
+                className="absolute end-2.5 h-3.5 w-3.5 shrink-0 opacity-0 transition-all duration-200 group-hover:end-2 group-hover:opacity-100 rtl:-scale-x-100"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.75"
@@ -50,6 +56,38 @@ function Column({
         ))}
       </ul>
     </div>
+  );
+}
+
+/**
+ * One of the three contact doors on the brand column — WhatsApp, email and
+ * the public repository. A full card would outrank the navigation columns
+ * here, so these stay chips: a strong icon badge, a firm label, and a hover
+ * that edges the tile the way the cards above do.
+ */
+function ChannelChip({
+  href,
+  label,
+  path,
+  external,
+}: {
+  href: string;
+  label: string;
+  path: string;
+  external?: boolean;
+}) {
+  return (
+    <a
+      href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer noopener" : undefined}
+      className="card-interactive group flex items-center gap-2 rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-2.5 py-1.5 text-xs font-semibold text-text-secondary transition-colors duration-200 hover:border-brand-400/60 hover:text-text-primary"
+    >
+      <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg border border-brand-400/30 bg-brand-500/12 text-brand-300 group-hover:text-brand-200">
+        <Icon path={path} className="h-3.5 w-3.5" />
+      </span>
+      <span>{label}</span>
+    </a>
   );
 }
 
@@ -104,6 +142,23 @@ export function Footer({ t }: { t: Translator }) {
               </Link>
               .
             </p>
+
+            {/* The three doors a visitor acts on — chat, mail, and the source
+                itself. Icons from channelIcons in data/footerIcons.ts. */}
+            <div className="mt-6 flex flex-wrap gap-2">
+              <ChannelChip
+                href={`https://wa.me/${site.whatsappNumber}`}
+                label={t("WhatsApp")}
+                path={channelIcons.whatsapp}
+                external
+              />
+              <ChannelChip
+                href={`mailto:${site.developerEmail}`}
+                label={t("Email the developer")}
+                path={channelIcons.email}
+              />
+              <ChannelChip href={site.repositoryUrl} label="GitHub" path={channelIcons.github} external />
+            </div>
 
             <dl className="mt-7 space-y-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
               <div className="flex gap-2">

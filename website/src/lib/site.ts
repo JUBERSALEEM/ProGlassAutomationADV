@@ -23,6 +23,8 @@ export const site = {
   copyrightOwner: "Juber Saleem",
   developerName: "Juber Saleem",
   developerEmail: "proglassautomation@gmail.com",
+  /** The public repository — linked by the footer's GitHub channel chip. */
+  repositoryUrl: "https://github.com/JUBERSALEEM/ProGlassAutomationADV",
   /**
    * WhatsApp support line — international format for `wa.me` links (digits
    * only, country code first: e.g. 9715XXXXXXXX for UAE). Set in one of two
