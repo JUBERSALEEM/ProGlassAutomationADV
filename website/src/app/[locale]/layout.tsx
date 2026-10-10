@@ -6,7 +6,7 @@ import { SvgDefs } from "@/components/brand/SvgDefs";
 import { Navbar } from "@/components/layout/Navbar";
 import { globalGraph } from "@/lib/schema";
 import { Footer } from "@/components/layout/Footer";
-import { ThemeStudio } from "@/components/layout/ThemeStudio";
+import { ThemeStudioLazy } from "@/components/layout/ThemeStudioLazy";
 import { brandIcon } from "@/data/assets";
 import { site } from "@/lib/site";
 import { themeBootScript } from "@/data/themes";
@@ -26,6 +26,15 @@ import { overlayWithApp, translatorForLocale } from "@/i18n/server";
  * The woff2 files come from the upstream font packages under the SIL Open
  * Font License.
  *
+ * Neither carries `preload: true` — and that is measured, not an oversight.
+ * The studio's default typeface is Segoe UI, a pure system-font stack with
+ * zero downloads, so a launch that preloads every shipped face would spend
+ * 280 KB of bandwidth before a visitor has read a word: on faces only the
+ * four people who open the appearance studio ever see. Without a preload the
+ * browser fetches a face the moment a stylesheet actually names it — for the
+ * studio dials that instant is the dial itself, and `display: swap` keeps the
+ * page entirely readable while the woff2 arrives.
+ *
  * The path is `../../fonts/` rather than `../fonts/` because this layout moved
  * one segment deeper when the site gained languages: it now lives at
  * `src/app/[locale]/layout.tsx`, and every relative path in it had to move with
@@ -38,6 +47,7 @@ const inter = localFont({
   weight: "100 900",
   variable: "--font-inter",
   fallback: ["Segoe UI", "system-ui", "sans-serif"],
+  preload: false,
 });
 
 const mono = localFont({
@@ -46,6 +56,7 @@ const mono = localFont({
   weight: "100 800",
   variable: "--font-mono",
   fallback: ["Consolas", "ui-monospace", "monospace"],
+  preload: false,
 });
 
 /*
@@ -57,6 +68,9 @@ const mono = localFont({
  * a CDN would make that sentence false. Each carries the upright and the italic
  * of its variable weight axis, so bold, bold italic and underline all have a
  * real face to draw with instead of a synthesised slant.
+ *
+ * `preload: false` for the same measured reason as Inter and JetBrains Mono —
+ * see the comment block above them.
  */
 const serif = localFont({
   src: [
@@ -67,6 +81,7 @@ const serif = localFont({
   weight: "200 900",
   variable: "--font-serif",
   fallback: ["Georgia", "Times New Roman", "serif"],
+  preload: false,
 });
 
 const plex = localFont({
@@ -78,6 +93,7 @@ const plex = localFont({
   weight: "100 700",
   variable: "--font-plex",
   fallback: ["Segoe UI", "system-ui", "sans-serif"],
+  preload: false,
 });
 
 /**
@@ -254,9 +270,12 @@ export default async function LocaleLayout({
             {children}
           </main>
           <Footer t={t} />
-          <ThemeStudio />
+          <ThemeStudioLazy />
+          {/* Inside the provider, not beside it: outside the context the
+              support bubble's labels and links silently resolved through the
+              English fallback on every non-English page. */}
+          <SupportBubble />
         </I18nProvider>
-        <SupportBubble />
         <SpeedInsights />
       </body>
     </html>

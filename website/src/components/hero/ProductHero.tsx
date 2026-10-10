@@ -2,6 +2,13 @@ import Image from "next/image";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { AppFrame } from "@/components/product/AppFrame";
 import { LiveSurface } from "@/components/product/LiveSurface";
+
+/* Measurement note: `next/dynamic` was tried here to move the demo's script
+   off the first-load batch. It does not apply to an SSR-rendered dynamic
+   component — Next preloads its chunk with the page regardless, because the
+   markup it hydrates is part of the first paint's content. Verified on the
+   built assets: identical first-load weight either way. A direct import is
+   the same outcome with less machinery, so the split was reverted. */
 import { Reveal } from "@/components/ui/Reveal";
 import { Spotlight } from "@/components/ui/Spotlight";
 import { Marquee, MarqueeItem } from "@/components/ui/Marquee";

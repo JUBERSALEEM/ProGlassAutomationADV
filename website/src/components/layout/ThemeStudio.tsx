@@ -43,9 +43,12 @@ function tintReadout(value: number): string {
   return `${value.toFixed(2)}×`;
 }
 
-export function ThemeStudio() {
+export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
   const t = useT();
-  const [open, setOpen] = useState(false);
+  /* The lazy host (ThemeStudioLazy) summons the drawer chunk already-asked-for:
+     when it mounts this component the open state is owed at once, so the
+     visitor clicks the trigger once and the panel is simply there. */
+  const [open, setOpen] = useState(autoOpen);
   const [customHex, setCustomHex] = useState("#6546B5");
   const panel = useRef<HTMLDivElement | null>(null);
   const trigger = useRef<HTMLButtonElement | null>(null);
