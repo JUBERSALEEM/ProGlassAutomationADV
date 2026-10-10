@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return pageMetadata({
   locale: t.locale,
   title: t("Contact — request a demo"),
-  description: t("Request a demonstration of ProGlass Automation: tell us your glass types, team size and whether cutting optimization matters, and you will get a reply."),
+  description: t("Request a demo of ProGlass Automation: your glass types, team size, and whether cutting optimization matters — one reply per request."),
   path: "/contact",
   keywords: ["request glass software demo", t("contact ProGlass Automation"), t("glass ERP demo")],
   ogEyebrow: t("Request a demo"),
@@ -34,7 +34,7 @@ export default async function ContactPage({ params }: PageProps) {
       locale={locale}
       path="/contact"
       title={t("Contact — request a demo")}
-      description={t("Request a demonstration of ProGlass Automation: tell us your glass types, team size and whether cutting optimization matters, and you will get a reply.")}
+      description={t("Request a demo of ProGlass Automation: your glass types, team size, and whether cutting optimization matters — one reply per request.")}
     />
       <PageHero
       t={t}
@@ -124,6 +124,35 @@ export default async function ContactPage({ params }: PageProps) {
                 <p className="text-sm leading-relaxed text-text-muted">{t("This website is not an application. There is no account to create, no online trial to start and no dashboard to log in to. ProGlass Automation is Windows software that you install and activate offline — the trial starts on your machine, not in a browser.")}</p>
               </div>
             </Reveal>
+          </div>
+
+          <div className="mt-16 border-t border-line/60 pt-14">
+            <SectionHeading
+              eyebrow={t("The walkthrough")}
+              title={t("What a demonstration runs through.")}
+              lead={t("A demonstration runs on the current release build of ProGlass Automation, shown on a screen share. It is the software working, not a slide deck about software.")}
+            />
+            <div className="mt-10 grid gap-5 lg:grid-cols-3">
+              {[
+                {
+                  title: t("From quotation to cutting list"),
+                  detail: t("The session opens with a quotation written the way your office would write one — a customer, the sections they asked for, the glass build-up and the hardware. You watch that quotation become a cutting list with the dimensions carried across, and a quotation total that shows the margin line by line."),
+                },
+                {
+                  title: t("Into the workshop"),
+                  detail: t("The job then becomes workshop work. The cutting engine runs your real cutting list against stock or standard sheet sizes, the constraints for laminated and coated glass are respected, and the machine export is written in the formats the optimization page lists for your cutting table. A confirmed order leaves with its delivery note and route slip printed from the same record."),
+                },
+                {
+                  title: t("What you will not see"),
+                  detail: t("No online demo account and no sales presentation: the person answering is the person who wrote the application. If a particular part of the system matters to your business — records synchronization between a head office and a branch, or one of the reports — name it in the request, and that is where the demonstration starts."),
+                },
+              ].map((item) => (
+                <div key={item.title} className="surface-raised p-6">
+                  <p className="text-sm font-semibold text-text-primary">{item.title}</p>
+                  <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{item.detail}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </Container>
       </Section>

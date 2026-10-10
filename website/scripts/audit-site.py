@@ -475,6 +475,15 @@ def main() -> int:
     for page, length in sorted(descriptions, key=lambda row: -row[1])[:6]:
         flag = "!" if length > 160 else " "
         print(f" {flag} {length:3d}  {page}")
+    # Search snippets truncate much past 160 characters, so a longer meta
+    # description renders as an ellipsis in results — worth a warning, though
+    # not something that breaks the page.
+    for page, length in descriptions:
+        if length > 160:
+            warnings.append(f"{page}: meta description is {length} characters (target <= 160)")
+    for page, length, text in titles:
+        if length > 62:
+            warnings.append(f"{page}: title is {length} characters (target <= 62)")
 
     check_build_stamp(failures)
     check_demo_request(failures)

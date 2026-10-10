@@ -34,7 +34,17 @@ export const site = {
   developerLocation: "India",
   /** From Themes/Languages/en-US.xaml → About.Copyright */
   copyrightLine: "© 2026 Juber Saleem. Made in India. All rights reserved.",
-  url: "https://proglassautomation.com",
+  /**
+   * Public origin used in canonical URLs, sitemap, robots and OG links.
+   *
+   * This was a registered-name placeholder — and it returned NXDOMAIN for a
+   * week, so crawlers and auditors read "no canonical tag" because the
+   * canonical pointed at a domain name nobody was serving. Default is now
+   * the deployment that serves traffic today. The day a real domain is
+   * attached, set NEXT_PUBLIC_SITE_URL in Vercel and this flips with no code
+   * change — which is why the variable is public.
+   */
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://proglassautomationadv-website-tkim.vercel.app",
   platform: "Windows desktop (WPF)",
   framework: ".NET 8 · WPF",
   database: "SQLite · EF Core 8",

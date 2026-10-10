@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return pageMetadata({
   locale: t.locale,
   title: t("Worked example — one glass job"),
-  description: t("One job through ProGlass Automation: 22 quotation lines, 83 pieces and AED 34,762.19 across three specification groups, a partial delivery and its tax invoice."),
+  description: t("One complete job: 22 quotation lines, 83 pieces, AED 34,762.19 — from inquiry to tax invoice, numbers from the seed."),
   path: "/worked-example",
   keywords: [t("glass fabrication ERP example"), "glass quotation calculation", "glass delivery balance", t("VAT invoice glass"), "cutting optimization example"],
   ogEyebrow: t("Worked example"),
@@ -98,7 +98,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
       locale={locale}
         path="/worked-example"
         title={t("Worked example — one glass job")}
-        description={t("One job through ProGlass Automation: 22 quotation lines, 83 pieces and AED 34,762.19 across three specification groups, a partial delivery and its tax invoice.")}
+        description={t("One complete job: 22 quotation lines, 83 pieces, AED 34,762.19 — from inquiry to tax invoice, numbers from the seed.")}
       />
 
       <PageHero

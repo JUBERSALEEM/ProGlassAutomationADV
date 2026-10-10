@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return pageMetadata({
   locale: t.locale,
   title: t("Glass cutting optimization and nesting"),
-  description: t("How ProGlass nests glass parts on stock plates: safety edges, kerf, the guillotine cut sequence, verification and export to Bottero, Intermac, Lisec and DXF."),
+  description: t("Guillotine nesting for glass: safety edges, kerf, cut-sequence verification, machine-ready exports."),
   path: "/optimization",
   keywords: ["glass cutting optimization software", "guillotine nesting", "glass optimization software", t("CNC glass cutting export"), t("Bottero OPT export"), t("Lisec DAT export"), "glass cutting layout software"],
   ogEyebrow: t("Cutting plans"),
@@ -66,7 +66,7 @@ export default async function OptimizationPage({ params }: PageProps) {
       locale={locale}
       path="/optimization"
       title={t("Glass cutting optimization and nesting")}
-      description={t("How ProGlass nests glass parts on stock plates: safety edges, kerf, the guillotine cut sequence, verification and export to Bottero, Intermac, Lisec and DXF.")}
+      description={t("Guillotine nesting for glass: safety edges, kerf, cut-sequence verification, machine-ready exports.")}
     />
       <PageHero
       t={t}

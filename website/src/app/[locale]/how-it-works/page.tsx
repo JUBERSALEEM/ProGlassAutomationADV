@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return pageMetadata({
   locale: t.locale,
   title: t("How it works: inquiry to statement"),
-  description: t("The ProGlass workflow stage by stage: inquiry, the 9-step proforma wizard, job order, production stages, multi-movement delivery, VAT invoices and statements."),
+  description: t("One job, inquiry to statement, without re-keying — the ProGlass workflow, stage by stage."),
   path: "/how-it-works",
   keywords: ["glass business workflow software", "quotation to invoice software", "glass production workflow", "delivery note software", t("glass ERP workflow")],
   ogEyebrow: t("Working day"),
@@ -47,7 +47,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
       locale={locale}
       path="/how-it-works"
       title={t("How it works: inquiry to statement")}
-      description={t("The ProGlass workflow stage by stage: inquiry, the 9-step proforma wizard, job order, production stages, multi-movement delivery, VAT invoices and statements.")}
+      description={t("One job, inquiry to statement, without re-keying — the ProGlass workflow, stage by stage.")}
     />
       <PageHero
       t={t}

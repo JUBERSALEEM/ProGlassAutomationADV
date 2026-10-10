@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return pageMetadata({
   locale: t.locale,
   title: t("Sponsorship and collaboration"),
-  description: t("ProGlass Automation is built by one developer. What sponsorship funds, which work is open to collaborators, and how to get involved without buying influence."),
+  description: t("Built by one developer. What sponsorship unblocks, what collaborators can take, and how to help without buying influence."),
   path: "/sponsors",
   keywords: ["sponsor glass software", t("open collaboration WPF project"), "glass software developer sponsorship", t("ProGlass Automation contributors")],
   ogEyebrow: t("Sponsorship"),
@@ -45,7 +45,7 @@ export default async function SponsorsPage({ params }: PageProps) {
       locale={locale}
       path="/sponsors"
       title={t("Sponsorship and collaboration")}
-      description={t("ProGlass Automation is built by one developer. What sponsorship funds, which work is open to collaborators, and how to get involved without buying influence.")}
+      description={t("Built by one developer. What sponsorship unblocks, what collaborators can take, and how to help without buying influence.")}
     />
       <PageHero
       t={t}

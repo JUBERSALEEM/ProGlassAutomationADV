@@ -3630,7 +3630,7 @@ const dict: Overlay = {
   "Workflows": "Arbeitsabläufe",
   "working alone, writing his own tools.": "allein arbeitend, seine eigenen Werkzeuge schreibend.",
   "Working day": "Arbeitstag",
-  "Working from {v0} · version {v1}": "Arbeiten mit {v0} · Version {v1}",
+  "Working from {v0} · version {v1}": "Arbeiten mit {v0} · Version {v1",
   "Working the grid like a spreadsheet": "Das Raster wie eine Tabellenkalkulation bearbeiten",
   "Workload and priority mix": "Arbeitsbelastung und Prioritätenmix",
   "Workspace": "Arbeitsbereich",
@@ -3667,6 +3667,16 @@ const dict: Overlay = {
   "Your rights over your own data": "Ihre Rechte an Ihren eigenen Daten",
   "Z and W trims are never cut into laminated stock. The plies are not hand-broken at the table, so a trim cut would leave an unseparated edge. Refusing is the safe direction: a refused trim costs a little yield, a trim cut into laminate costs the sheet.": "Z- und W-Beschnitte werden niemals in laminiertes Material geschnitten. Die Lagen werden am Tisch nicht von Hand gebrochen, daher würde ein Besäumschnitt eine ungetrennte Kante hinterlassen. Verweigern ist der sichere Weg: Ein verweigerter Zuschnitt kostet ein wenig Ertrag, ein in Laminat geschnittener Zuschnitt kostet das Blatt.",
   "Zoom levels from fit-the-sheet to 100%": "Zoomstufen von passgenau bis 100%",
+  "Request a demo of ProGlass Automation: your glass types, team size, and whether cutting optimization matters — one reply per request.": "Kontakt und Demo anfordern: Glastypen, Teamgröße und Schneidoptimierung — eine Antwort pro Anfrage.",
+  "The walkthrough": "Der Ablauf",
+  "What a demonstration runs through.": "Was eine Demonstration durchläuft.",
+  "A demonstration runs on the current release build of ProGlass Automation, shown on a screen share. It is the software working, not a slide deck about software.": "Eine Demonstration läuft auf dem aktuellen Release-Build von ProGlass Automation, gezeigt in einer Bildschirmfreigabe. Es ist die Software bei der Arbeit, keine Folien über Software.",
+  "From quotation to cutting list": "Vom Angebot zur Zuschnittliste",
+  "The session opens with a quotation written the way your office would write one — a customer, the sections they asked for, the glass build-up and the hardware. You watch that quotation become a cutting list with the dimensions carried across, and a quotation total that shows the margin line by line.": "Die Sitzung beginnt mit einem Angebot, so wie Ihr Büro es schreiben würde — einem Kunden, den angefragten Elementen, dem Glasaufbau und dem Beschlag. Sie sehen, wie aus diesem Angebot eine Zuschnittliste mit übernommenen Maßen wird und wie die Angebotssumme die Marge Zeile für Zeile zeigt.",
+  "Into the workshop": "In die Werkstatt",
+  "The job then becomes workshop work. The cutting engine runs your real cutting list against stock or standard sheet sizes, the constraints for laminated and coated glass are respected, and the machine export is written in the formats the optimization page lists for your cutting table. A confirmed order leaves with its delivery note and route slip printed from the same record.": "Der Auftrag wird dann Werkstattarbeit. Die Schneidoptimierung rechnet Ihre echte Zuschnittliste gegen Lagerbestand oder Standardformate, die Beschränkungen für laminiertes und beschichtetes Glas werden eingehalten, und der Maschinenexport wird in den Formaten geschrieben, die die Optimierungsseite für Ihren Schneidtisch nennt. Ein bestätigter Auftrag geht mit Lieferschein und Tourzettel aus demselben Datensatz gedruckt hinaus.",
+  "What you will not see": "Was Sie nicht sehen werden",
+  "No online demo account and no sales presentation: the person answering is the person who wrote the application. If a particular part of the system matters to your business — records synchronization between a head office and a branch, or one of the reports — name it in the request, and that is where the demonstration starts.": "Kein Online-Demokonto und keine Verkaufspräsentation: Die Person, die antwortet, ist die Person, die die Anwendung geschrieben hat. Wenn Ihnen ein bestimmter Teil des Systems wichtig ist — die Datensynchronisation zwischen Zentrale und Filiale oder einer der Berichte — nennen Sie ihn in der Anfrage, und genau dort beginnt die Demonstration.",
 };
 
 export default dict;
