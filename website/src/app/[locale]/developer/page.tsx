@@ -3,7 +3,7 @@ import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
-import { Badge, IndexChip } from "@/components/ui/Badge";
+import { Badge, IconChip, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
@@ -25,6 +25,25 @@ import { translatorFor } from "@/i18n/server";
 import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
+
+
+/*
+ * The dream's four cards, pictured. Drawn here rather than in the data file
+ * because the data file is the author's own ledger in his own words — the
+ * marks are the page's furniture: collaborators for the team card, the
+ * licence key for the product card, the reports bars for shops-count growth,
+ * and an hourglass for the years already in it.
+ */
+const dreamCardIcons = [
+  /* two figures and a joined hand — the Collaborate nav glyph */
+  "M6 7.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM12.5 7a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2zM2.5 13c0-1.9 1.6-3.2 3.5-3.2S9.5 11.1 9.5 13M10.5 10.2c1.6.2 3 1.4 3 2.8",
+  /* key — the licence card, shared with the legal footer */
+  "M9 7.5a3 3 0 1 0-3 3.8L7.5 10v2l1.5 1.5v-1h1.5v-2zM9.9 6h.4",
+  /* bars going up — the reports glyph */
+  "M2.5 13.5h11M4 13.5V9M7 13.5V5.5M10 13.5V8M13 13.5V3.5",
+  /* hourglass */
+  "M4 2.5h8M4 13.5h8M5.5 2.5v3l2.5 3 2.5-3v-3M5.5 13.5v-3l2.5-3 2.5 3v3",
+];
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const t = await translatorFor(params);
@@ -385,8 +404,9 @@ const faq = [
             <p className="max-w-3xl pt-6 text-sm leading-relaxed text-text-secondary">{t(dream.lead)}</p>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {dream.intentions.map((item) => (
+              {dream.intentions.map((item, index) => (
                 <div key={t(item.title)} className="surface-raised p-5">
+                  <IconChip path={dreamCardIcons[index % dreamCardIcons.length]!} className="mb-4" />
                   <h3 className="card-title">{t(item.title)}</h3>
                   <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
                 </div>

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
-import { Badge, IndexChip } from "@/components/ui/Badge";
+import { Badge, IconChip, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { StatBadge, StatCounter } from "@/components/ui/Stat";
@@ -21,7 +21,8 @@ import { SheetPlanStrip } from "@/components/optimization/SheetPlanStrip";
 import { ScreenshotFrame } from "@/components/gallery/ScreenshotFrame";
 import { cn } from "@/lib/cn";
 import { groupNotes, moduleGroups, modules, modulesByGroup } from "@/data/modules";
-import { groupIcons } from "@/data/groupIcons";
+import { editionIcons, groupIcons } from "@/data/groupIcons";
+import { footerLinkIcons } from "@/data/footerIcons";
 import { Icon } from "@/components/ui/Icon";
 import { glass3d } from "@/data/assets";
 import { featureGroups } from "@/data/features";
@@ -140,25 +141,31 @@ export default async function HomePage({ params }: PageProps) {
 
             <Reveal delay={80} className="grid gap-6 sm:grid-cols-2">
               {[
+                /* One role, one mark — the same glyph the rail already uses for
+                   the module that role lives in. */
                 {
+                  icon: groupIcons.Sales,
                   title: t("For the estimator"),
                   body: t("Price SGU, DGU, laminated and combined build-ups against real sheet costs, then turn the quotation into a job order without retyping it."),
                 },
                 {
+                  icon: editionIcons.factory!,
                   title: t("For the factory"),
                   body: t("Cut from optimized plans with safety edges and kerf honoured, work the eight production stages, and know what is still owed on every job."),
                 },
                 {
+                  icon: footerLinkIcons["/worked-example"]!,
                   title: t("For the office"),
                   body: t("Ship in as many movements as the customer needs, invoice against the delivery, and read a statement that adds up the same way twice."),
                 },
                 {
+                  icon: groupIcons.Reports,
                   title: t("For the owner"),
                   body: t("Margins that do not move after the fact: the profit snapshot is written once and reported forever, and a stale price basis is flagged."),
                 },
               ].map((card, index) => (
                 <div key={`${t(card.title)}-${index}`} className="surface p-5">
-                  <p className="eyebrow mb-2">{String(index + 1).padStart(2, "0")}</p>
+                  <IconChip path={card.icon} className="mb-4" />
                   <h3 className="text-base font-semibold text-text-primary">{t(card.title)}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(card.body)}</p>
                 </div>

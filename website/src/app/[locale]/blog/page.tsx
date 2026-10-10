@@ -3,7 +3,8 @@ import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+import { Badge, IconChip } from "@/components/ui/Badge";
+import { footerLinkIcons } from "@/data/footerIcons";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { allPosts } from "@/lib/posts";
@@ -124,6 +125,7 @@ export default async function BlogPage({ params }: PageProps) {
                   className="surface group flex h-full flex-col p-6 transition-colors duration-300 hover:border-brand-400/40"
                 >
                   <div className="flex flex-wrap items-center gap-3">
+                    <IconChip path={footerLinkIcons["/blog"]!} className="h-7 w-7" />
                     <Badge>{t(post.category)}</Badge>
                     <time dateTime={post.date} className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                       {new Date(post.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}

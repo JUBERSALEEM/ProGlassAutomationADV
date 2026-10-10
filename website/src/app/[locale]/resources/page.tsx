@@ -3,7 +3,9 @@ import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+import { Badge, IconChip } from "@/components/ui/Badge";
+import { groupIcons } from "@/data/groupIcons";
+import { navIcons } from "@/data/navIcons";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { guides, resourceCategories } from "@/data/resources";
@@ -103,7 +105,23 @@ export default async function ResourcesPage({ params }: PageProps) {
 
           <div className="mt-12 space-y-8">
             {guides.map((guide, index) => (
+              /* The glyph names the guide's subject in the same hand the rail
+                 names its modules: vocabulary is a book, the cutting guide is
+                 optimization's arrow, quoting is the sales document, and stock
+                 is the inventory stack. */
               <Reveal key={guide.id} id={guide.id} delay={index * 60} as="article" className="surface-raised p-6 sm:p-8">
+                <IconChip
+                  path={
+                    guide.id === "cutting-optimization-basics"
+                      ? navIcons.Optimization!
+                      : guide.id === "quote-versus-order"
+                        ? groupIcons.Sales!
+                        : guide.id === "stock-accuracy"
+                          ? groupIcons.Inventory!
+                          : navIcons.Resources!
+                  }
+                  className="mb-5"
+                />
                 <header className="flex flex-wrap items-start justify-between gap-4">
                   <div className="max-w-3xl">
                     <div className="flex flex-wrap items-center gap-3">
