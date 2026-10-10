@@ -3894,3 +3894,41 @@ html[data-theme="midnight"] [data-appearance="clay"] .nav-glass [class*="bg-ink"
 [data-theme="daylight"][data-appearance="clay"] {
   --card-edge: rgb(var(--brand-300) / 0.65);
 }
+
+/*
+ * On violet, the gradient headline and the accent buttons repose white.
+ *
+ * Three ways a line of text used to die on the tinted band, and the band
+ * asked for them by name in the 11:29 screenshot:
+ *
+ *   1. `.text-gradient-rich` is built for neutral ground — a brand-ink to
+ *      brand-sky sweep that turns into pale-violet-noise the moment the
+ *      ground itself is violet. On chrome it reposes as real white.
+ *      (Clip-text needs both lines: an unchanged gradient would keep the
+ *      words clipped regardless of the colour.)
+ *   2. A filled button is brand-600-on-brand-700 — the same violet, mute.
+ *      On the band it becomes the white pill on purple the pinned reference
+ *      draws, with ink text, the same treatment the feature plate got.
+ *   3. A ghost secondary border fades out entirely on loud ground; it gets
+ *      a line + text that hold.
+ */
+[data-appearance="clay"] :is(.band-deep, .glass-primary) :where(.text-gradient-rich, .text-gradient) {
+  background-image: none !important;
+  color: rgb(255 255 255);
+  -webkit-text-fill-color: rgb(255 255 255);
+}
+[data-appearance="clay"] .band-deep .btn-primary {
+  border-color: transparent;
+  background-color: rgb(252 250 255);
+  background-image: none;
+  color: rgb(var(--brand-700));
+  box-shadow: 0 12px 24px -8px rgb(31 22 92 / 0.35),
+    inset 0 3px 6px -3px rgb(255 255 255 / 0.9),
+    inset 0 -3px 8px -3px rgb(var(--brand-700) / 0.2);
+}
+[data-appearance="clay"] .band-deep .btn-secondary {
+  border-color: rgb(255 255 255 / 0.45);
+  background-color: rgb(var(--brand-600) / 0.35);
+  background-image: none;
+  color: rgb(248 247 255);
+}
