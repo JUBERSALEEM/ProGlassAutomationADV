@@ -3856,3 +3856,41 @@ html {
 body {
   overflow-x: clip;
 }
+
+/*
+ * Chrome keeps its white; cards keep their ink.
+ *
+ * THE LEAK, named: `--text-*` white ramps on the tinted chrome (nav-glass,
+ * band-deep, glass-primary) fix text for the chrome itself — bar, band,
+ * plate. But custom properties inherit to every descendant: the mobile
+ * menu's own cards and the stat tiles living in a sunken developer section
+ * captured the chrome's whites and printed them on pale porcelain —
+ * screenshots 11:10am. The mobile menu holds no card whose text may go
+ * lilac, and a pale panel needs its own ink. Rule: chrome colours are
+ * chrome-colour (set at the chrome, not inherited into descendants' classes),
+ * and anything painting its own surface re-locks the reading's tokens.
+ * Edge: the tint doubled from .45/.18 to a proper .65/.5 — edges read.
+ */
+[data-appearance="clay"] :is(.nav-glass, .band-deep) :is(.surface, .surface-raised, .stat-tile, .nav-sheet, [class*="bg-ink-"]),
+[data-appearance="clay"] .nav-glass [class*="rounded-panel"],
+[data-appearance="clay"] .nav-glass [class*="bg-ink"] {
+  --text-1: 36 27 58;
+  --text-2: 50 39 78;
+  --text-3: 79 67 112;
+  --text-4: 107 96 120;
+  --card-edge: rgb(var(--brand-300) / 0.65);
+}
+html[data-theme="midnight"] [data-appearance="clay"] :is(.nav-glass, .band-deep) :is(.surface, .surface-raised, .stat-tile, .nav-sheet, [class*="bg-ink-"]),
+html[data-theme="midnight"] [data-appearance="clay"] .nav-glass [class*="bg-ink"] {
+  --text-1: 255 255 255;
+  --text-2: 238 234 252;
+  --text-3: 215 208 241;
+  --text-4: 194 185 226;
+  --card-edge: rgb(255 255 255 / 0.3);
+}
+[data-appearance="clay"] {
+  --card-edge: rgb(var(--brand-400) / 0.5);
+}
+[data-theme="daylight"][data-appearance="clay"] {
+  --card-edge: rgb(var(--brand-300) / 0.65);
+}
