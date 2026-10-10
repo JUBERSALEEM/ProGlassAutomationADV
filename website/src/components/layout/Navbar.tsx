@@ -466,17 +466,27 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* ── Mobile sheet ─────────────────────────────────────────── */}
-      <div
-        id="mobile-menu"
-        aria-hidden={!mobileOpen}
-        className={cn(
-          "nav-sheet transition-[opacity,transform,visibility] duration-300 ease-industrial xl:hidden",
-          mobileOpen
-            ? "pointer-events-auto visible translate-y-0 opacity-100 will-change-transform"
-            : "pointer-events-none invisible -translate-y-2 opacity-0",
-        )}
-      >
+      {/* ── Mobile sheet ───────────────────────────────────────────
+         * Absolutely anchored under the bar, never part of the flow.
+         *
+         * THE GHOST, recorded so it never returns: a sheet that is only made
+         * invisible but left IN the layout still takes its full viewport of
+         * space inside this fixed header. On scroll, the header's own glass
+         * background then paints through that invisible hundred-viewport-high
+         * sheet — a full-page panel that had no business existing, on top of
+         * content that was fine. Anchored absolutely, closed or open, the
+         * sheet participates in nothing that isn't its own box.
+         */}
+        <div
+          id="mobile-menu"
+          aria-hidden={!mobileOpen}
+          className={cn(
+            "nav-sheet absolute inset-x-0 top-full transition-[opacity,transform,visibility] duration-300 ease-industrial xl:hidden",
+            mobileOpen
+              ? "pointer-events-auto visible translate-y-0 opacity-100 will-change-transform"
+              : "pointer-events-none invisible -translate-y-2 opacity-0",
+          )}
+        >
         <div className="shell max-h-[calc(100vh-var(--nav-height))] overflow-y-auto py-5">
           <nav aria-label={t("Mobile")} className="space-y-6">
             {entries.map((entry) => (
