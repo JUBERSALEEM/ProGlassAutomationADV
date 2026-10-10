@@ -23,6 +23,15 @@ export const site = {
   copyrightOwner: "Juber Saleem",
   developerName: "Juber Saleem",
   developerEmail: "proglassautomation@gmail.com",
+  /**
+   * WhatsApp support line — international format for `wa.me` links (digits
+   * only, country code first: e.g. 9715XXXXXXXX for UAE). Set in one of two
+   * places: the NEXT_PUBLIC_WHATSAPP_NUMBER environment variable (Vercel
+   * dashboard, never committed), or it falls back to the constant below so a
+   * first-time editor can enable it in one commit. Empty disables the
+   * WhatsApp channel everywhere without touching a component.
+   */
+  whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "",
   developerLocation: "India",
   /** From Themes/Languages/en-US.xaml → About.Copyright */
   copyrightLine: "© 2026 Juber Saleem. Made in India. All rights reserved.",

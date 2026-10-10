@@ -100,8 +100,9 @@ BUDGET = {
     "/screenshots": {"gz": 72, "nodes": 9500},   # measured 69.1K / 9198
     "/worked-example": {"gz": 55, "nodes": 1900},  # measured 48.2K / 1568
     "/sponsors": {"gz": 38, "nodes": 900},       # measured 36.1K / 770
+    "/pricing": {"gz": 42, "nodes": 1000},     # measured 36.3K / 901 (support bubble mounted on every page)
     "/developer": {"gz": 60, "nodes": 1450},     # measured 56.1K / 1321
-    "/collaborate": {"gz": 40, "nodes": 1000},   # measured 34.2K / 906
+    "/collaborate": {"gz": 42, "nodes": 1000},   # measured 34.2K / 906
 }
 BUDGET_DEFAULT = {"gz": 36, "nodes": 900}
 
