@@ -178,7 +178,11 @@ e.setAttribute("data-theme-mode",m);
 e.setAttribute("data-appearance",a);
 e.style.colorScheme=t==="daylight"?"light":"dark";
 var v=localStorage.getItem(vk);
-if(v){var o=JSON.parse(v);for(var k in o){if(Object.prototype.hasOwnProperty.call(o,k))e.style.setProperty(k,o[k]);}}
+if(v){var o=JSON.parse(v);for(var k in o){if(Object.prototype.hasOwnProperty.call(o,k)){
+var w=o[k];
+if(k==="--ui-scale"){var n2=parseFloat(w);if(!isFinite(n2)||n2<0.9||n2>1.15)continue;}
+if(typeof w!=="string"||w.length>96||k.slice(0,2)!=="--")continue;
+e.style.setProperty(k,w);}}}
 var vk2="proglass-studio-attrs";
 var v2=localStorage.getItem(vk2);
 if(v2){var o2=JSON.parse(v2);for(var k2 in o2){if(Object.prototype.hasOwnProperty.call(o2,k2))e.setAttribute(k2,o2[k2]);}}

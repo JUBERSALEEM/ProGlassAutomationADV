@@ -484,7 +484,20 @@ export function applyStudioVars(studio: Studio) {
    */
   const weight = studio.weight === "bold" ? 700 : 400;
   vars["--ui-weight"] = String(weight);
-  vars["--ui-scale"] = String(Math.min(1.15, Math.max(0.9, studio.uiScale)));
+  /*
+   * UiScale is the one dial that resizes the entire page: html's font-size is
+   * `calc(100% * var(--ui-scale))`, and every Tailwind length on the site is
+   * rem-based, so a value of 0.9 shrinks the whole layout (padding, columns,
+   * cards) while the frame itself stays full width — content reads small and
+   * pinned to the left. It therefore must never quote anything but a real,
+   * in-range number; a stale studio object from before the dial existed
+   * would otherwise persist "NaN" forever. The edge write above is the
+   * template.
+   */
+  const uiScale = Number.isFinite(studio.uiScale)
+    ? Math.min(1.15, Math.max(0.9, studio.uiScale))
+    : defaultStudio.uiScale;
+  vars["--ui-scale"] = String(uiScale);
   vars["--card-pad-scale"] = studio.density === "compact" ? "0.88" : "1";
 
   const attributes: Record<string, string> = {
