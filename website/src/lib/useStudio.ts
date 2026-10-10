@@ -429,9 +429,19 @@ export function applyStudioVars(studio: Studio) {
    * exactly its surface colour (0) to a card that is plainly carrying the
    * accent (3×).
    */
-  vars["--tint-mix"] = `calc(var(--tint-base, 0.1) * ${studio.tint.toFixed(2)})`;
+  /*
+   * Understood now the way the ramp block above already is: anything written
+   * inline on <html> outranks a family block, so a *default* written inline is
+   * a family replacement. The dial writes only what the visitor moved —
+   * defaults stay with the stylesheet, where each family's own geometry lives.
+   * (This is why a family can claim 32px corners in CSS and still draw 12px
+   * in a browser: its tokens were being overwritten on every boot.)
+   */
+  if (studio.tint !== defaultStudio.tint) {
+    vars["--tint-mix"] = `calc(var(--tint-base, 0.1) * ${studio.tint.toFixed(2)})`;
+  }
 
-  vars["--radius-scale"] = String(studio.radius);
+  if (studio.radius !== defaultStudio.radius) vars["--radius-scale"] = String(studio.radius);
 
   /*
    * The card edge — the application's "Define Card Edges" setting.
@@ -444,7 +454,7 @@ export function applyStudioVars(studio: Studio) {
    * of one rule, and the two would drift.
    */
   const edge = Number.isFinite(studio.edge) ? Math.min(10, Math.max(1, studio.edge)) : defaultStudio.edge;
-  vars["--card-edge-width"] = `${edge}px`;
+  if (edge !== defaultStudio.edge) vars["--card-edge-width"] = `${edge}px`;
   // Colour sits beside it: a plate picked in the studio overrides the family's
   // edge colour, "" leaves the family in charge of it.
   if (studio.edgeColor.trim() !== "") vars["--card-edge"] = studio.edgeColor.trim();

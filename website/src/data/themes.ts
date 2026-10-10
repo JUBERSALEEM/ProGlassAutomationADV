@@ -85,7 +85,7 @@ export const appearanceFamilies: AppearanceFamilyEntry[] = [
     label: "Clay",
     origin:
       "Claymorphism — solid pastel surfaces with puffed corners and a soft tinted pillow-shadow, moulded rather than assembled. Rounded higher, and with no backdrop blur at all, it is also the cheapest family to paint.",
-    swatch: "#E4829C",
+    swatch: "#705EE0",
   },
 ];
 
