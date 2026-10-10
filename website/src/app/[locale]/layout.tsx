@@ -241,7 +241,7 @@ export default async function LocaleLayout({
       data-locale={locale}
       data-theme="midnight"
       data-theme-mode="system"
-      data-appearance="studio"
+      data-appearance="crystal"
       /* The boot script sets these before paint; the server renders the default. */
       suppressHydrationWarning
       className={`${inter.variable} ${mono.variable} ${serif.variable} ${plex.variable}`}

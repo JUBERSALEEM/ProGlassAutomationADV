@@ -107,3 +107,28 @@ python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<concern>" --stack wpf
 
 and treat results as recommendations to verify against this codebase,
 not instructions that override its established patterns.
+
+---
+
+## Website pass — what the skill changed (2026-10-10)
+
+The audit above covered the WPF application; the marketing site had not
+been run through the skill until this pass. Queries and the changes they
+drove:
+
+| Query | Top result | Applied |
+|---|---|---|
+| `SaaS manufacturing premium marketing dark immersive --design-system` | Pattern: Scroll-Triggered Storytelling · Style: Liquid Glass | Crystal (the site's liquid-glass family, parity with the app's Crystal Fluid) became the first-run default family — previously the default was Clay. Stored visitor choices still win. |
+| `glassmorphism dark premium --domain style` | Glassmorphism: blur 10–20px, translucent 10–30%, 1px light border, z-depth | Crystal token strength raised (specular .26→.32, edge alpha .30→.34, tint .16→.19); the tiered translucency/blur/saturation system itself already predates the pass. |
+| `premium entrance reveal stagger --domain gsap` | Scroll Reveal: 300–400ms, y 12, expo/power out, start "top 90%" | `.reveal` retuned 700ms/18px → 380ms/12px; the 90% trigger (rootMargin `-10%`) was already in place. |
+| `midnight violet ice cyan dark premium --domain color` | Violet #7C3AED + cyan #0891B2 on #0F172A | No change warranted — the site's violet+cyan ramps already sit in this family. |
+
+Not applied (with reasons): the design-system light palette (site is a
+dark-first twin of a dark-first app; Daylight mode keeps its own
+engineered tokens), the Calistoga display pairing (adding a third family
+of webfonts to replace Inter/Source Serif 4 would be a font swap for
+novelty, and Inter is the application's own face — see `fontFamily` in
+`[locale]/layout.tsx`; the skill's own pairing table lists Inter for this
+product class), split-text headline animation (one DOM node per
+character in 16 locales, measured gain over the existing gradient sweep:
+none).

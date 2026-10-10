@@ -645,9 +645,9 @@
     --surface-alpha-3: 0.92;
     --surface-blur: 26px;
     --surface-sat: 200%;
-    --surface-specular: 0.26;
-    --card-edge: rgb(255 255 255 / 0.3);
-    --tint-alpha: 0.16;
+    --surface-specular: 0.32;
+    --card-edge: rgb(255 255 255 / 0.34);
+    --tint-alpha: 0.19;
     --tint-alpha-2: 0.08;
 
     /*
@@ -2407,12 +2407,18 @@
    * for the same reason — a zero translate is still a translate, and still
    * promotes the layer.
    */
+  /*
+   * Profile per the ui-ux-pro-max scroll-reveal preset: 300-400 ms, a 12 px
+   * rise, an exponential out-curve, entering at "top 90%" (rootMargin keeps
+   * the last tenth). It was 700 ms over 18 px — twice the preset ceiling,
+   * and the drag was the same on a 200-page scroll as on the first fold.
+   */
   .reveal {
     opacity: 0;
-    transform: translate3d(0, 18px, 0);
+    transform: translate3d(0, 12px, 0);
     transition:
-      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
     will-change: opacity, transform;
   }
 
@@ -2426,8 +2432,8 @@
     opacity: 0;
     transform: scale(0.975);
     transition:
-      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity 0.34s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
     will-change: opacity, transform;
   }
 
