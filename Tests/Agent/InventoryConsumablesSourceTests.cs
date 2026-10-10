@@ -171,15 +171,17 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("already recorded as used", repo);
         }
 
-        // ── 9. Writes are gated and resilient, like the glass repo ─────
+        // ── 9. Mutations are gated and stock/history are transactional ──
         [Fact]
-        public void Mutations_are_readonly_gated_and_retry_on_sqlite_contention()
+        public void Mutations_are_readonly_gated_and_movements_are_atomic()
         {
             var repo = Read("Services", "SheetStore", "InventoryItemRepository.cs");
 
             Assert.Contains("ReadOnlyGate.Demand(\"add an inventory item\")", repo);
             Assert.Contains("ReadOnlyGate.Demand(\"receive inventory stock\")", repo);
             Assert.Contains("ReadOnlyGate.Demand(\"consume inventory stock\")", repo);
+            Assert.Contains("BeginTransactionAsync(IsolationLevel.Serializable)", repo);
+            Assert.Contains("db.InventoryItemMovements.Add(CreateMovement(", repo);
             Assert.Contains("SqliteResilience.SaveWithRetryAsync", repo);
         }
 

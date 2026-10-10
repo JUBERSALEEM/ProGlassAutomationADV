@@ -51,6 +51,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         {
             modelBuilder.Entity<SavedProformaInvoice>(entity =>
             {
+                entity.Property(e => e.RowVersion)
+                    .IsConcurrencyToken()
+                    .ValueGeneratedNever();
+
                 // Enforce ProformaId uniqueness (Phase 7.15 Q3 = Option A + C hybrid)
                 entity.HasIndex(e => e.ProformaId).IsUnique();
 

@@ -5,10 +5,10 @@
 //
 // WHY THIS EXISTS
 // ───────────────
-// GlassSheet's counters were converted to a single guarded conditional UPDATE
-// and got a regression net (StockConcurrencyTests). The consumables table —
-// spacer bar in linear metres, desiccant in kilograms — has DECIMAL counters
-// and never got one. Its movements were still a read-modify-write in C#:
+// GlassSheet and consumable stock changes now take a serializable write
+// transaction and commit movement history with the counters. The consumables
+// table — spacer bar in linear metres, desiccant in kilograms — has DECIMAL
+// counters, so exact decimal arithmetic must remain in C#:
 //
 //     var item = await db.InventoryItems.FirstOrDefaultAsync(...);   // read
 //     if (item.Balance < quantity) throw ...;                        // check
@@ -17,10 +17,12 @@
 // Two operators issuing from the same item both read the same balance, both
 // pass the check, and the second save overwrites the first. One issue is
 // lost — no exception, no log line, and a row that looks perfectly consistent
-// afterwards. The only way to see it is that the count is wrong later.
+// afterwards. The only way to see it is that the count is wrong later. Phase 2
+// also asserts one immutable movement row per admitted stock change and no
+// orphan rows when a write is refused.
 //
-// These tests fail against that code. They are the net for the fix, which
-// wraps the read-check-write in a serializable transaction rather than moving
+// These tests pin the serializable transaction and movement-ledger contract,
+// rather than moving
 // the arithmetic into SQL: Stock and Used are declared with TEXT affinity so
 // that 45.55 LM stays an exact .NET decimal, and SQL arithmetic would route
 // both the increment and the guard through SQLite's REAL type. See the
@@ -48,6 +50,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Licensing;
 using ProGlassAutomation.Services.SheetStore;
 using Xunit;
@@ -64,6 +67,7 @@ namespace ProGlassAutomation.Tests.Database
         private readonly string _tempFolder;
         private readonly string? _savedFolderOverride;
         private readonly bool? _savedReadOnlyOverride;
+        private readonly bool _savedOperationGuard;
 
         public InventoryStockConcurrencyTests()
         {
@@ -80,12 +84,15 @@ namespace ProGlassAutomation.Tests.Database
             // rather than the licence.
             _savedReadOnlyOverride = ReadOnlyGate.OverrideReadOnlyForTests;
             ReadOnlyGate.OverrideReadOnlyForTests = false;
+            _savedOperationGuard = OperationGuard.Enabled;
+            OperationGuard.Enabled = false;
         }
 
         public void Dispose()
         {
             AppDataRoot.TestFolderOverride = _savedFolderOverride;
             ReadOnlyGate.OverrideReadOnlyForTests = _savedReadOnlyOverride;
+            OperationGuard.Enabled = _savedOperationGuard;
             SqliteConnection.ClearAllPools();
             try { Directory.Delete(_tempFolder, recursive: true); }
             catch { /* best effort — a lingering temp folder fails nothing */ }
@@ -111,6 +118,7 @@ namespace ProGlassAutomation.Tests.Database
             var (stock, used) = await ReadCountersAsync(id);
             Assert.Equal(100m, stock);
             Assert.Equal(40m, used);          // a lost update would leave < 40
+            Assert.Equal(40, await CountMovementsAsync(id, "Consumed"));
         }
 
         [Fact]
@@ -133,6 +141,7 @@ namespace ProGlassAutomation.Tests.Database
             var (stock, used) = await ReadCountersAsync(id);
             Assert.Equal(10m, stock);
             Assert.Equal(10m, used);          // exactly drained, never overspent
+            Assert.Equal(10, await CountMovementsAsync(id, "Consumed"));
         }
 
         [Fact]
@@ -155,6 +164,7 @@ namespace ProGlassAutomation.Tests.Database
             var (stock, used) = await ReadCountersAsync(id);
             Assert.Equal(4m, stock);
             Assert.Equal(0m, used);           // a refused write wrote nothing
+            Assert.Equal(0, await CountMovementsAsync(id, "Consumed"));
         }
 
         [Fact]
@@ -186,6 +196,7 @@ namespace ProGlassAutomation.Tests.Database
             var (stock, used) = await ReadCountersAsync(id);
             Assert.Equal(100m, stock);        // 20 × 5, none overwritten
             Assert.Equal(0m, used);
+            Assert.Equal(20, await CountMovementsAsync(id, "Received"));
         }
 
         [Fact]
@@ -204,6 +215,8 @@ namespace ProGlassAutomation.Tests.Database
 
             var (stock, _) = await ReadCountersAsync(id);
             Assert.Equal(10m, stock);         // 200 × 0.05, to the last digit
+            Assert.Equal(200, await CountMovementsAsync(id, "Received"));
+            Assert.Equal(10m, await SumMovementQuantityAsync(id, "Received"));
         }
 
         [Fact]
@@ -221,6 +234,47 @@ namespace ProGlassAutomation.Tests.Database
             // Zero and null both mean "leave the price alone".
             await repo.ReceiveAsync(id, 5m, newUnitPrice: 0m);
             Assert.Equal(31m, await ReadPurchasePriceAsync(id));
+            Assert.Equal(3, await CountMovementsAsync(id, "Received"));
+        }
+
+        [Fact]
+        public async Task Stale_item_edit_cannot_overwrite_a_receipt()
+        {
+            var repo = new InventoryItemRepository();
+            int id = await SeedItemAsync(stock: 4m);
+            var stale = await repo.GetByIdAsync(id);
+            Assert.NotNull(stale);
+
+            await repo.ReceiveAsync(id, 1m);
+            stale!.SellPricePerUnit = 90m;
+
+            await Assert.ThrowsAsync<ConcurrencyConflictException>(
+                () => repo.UpdateAsync(stale, stale.RowVersion));
+
+            var (stock, used) = await ReadCountersAsync(id);
+            Assert.Equal(5m, stock);
+            Assert.Equal(0m, used);
+            Assert.Equal(1, await CountMovementsAsync(id, "Received"));
+        }
+
+        [Fact]
+        public async Task Stale_delete_cannot_remove_an_item_after_a_receipt()
+        {
+            var repo = new InventoryItemRepository();
+            int id = await SeedItemAsync(stock: 4m);
+            var stale = await repo.GetByIdAsync(id);
+            Assert.NotNull(stale);
+
+            await repo.ReceiveAsync(id, 1m);
+
+            await Assert.ThrowsAsync<ConcurrencyConflictException>(
+                () => repo.DeleteAsync(id, stale!.RowVersion));
+
+            var (stock, used) = await ReadCountersAsync(id);
+            Assert.Equal(5m, stock);
+            Assert.Equal(0m, used);
+            Assert.Equal(1, await CountMovementsAsync(id, "Received"));
+            Assert.Equal(0, await CountMovementsAsync(id, "Deleted"));
         }
 
         [Fact]
@@ -240,6 +294,8 @@ namespace ProGlassAutomation.Tests.Database
             var (stock, used) = await ReadCountersAsync(id);
             Assert.Equal(110m, stock);        // 50 + (30 × 2)
             Assert.Equal(30m, used);          // 30 × 1
+            Assert.Equal(30, await CountMovementsAsync(id, "Received"));
+            Assert.Equal(30, await CountMovementsAsync(id, "Consumed"));
         }
 
         // ───────────────────────────────────────────────────────────────
@@ -302,6 +358,23 @@ namespace ProGlassAutomation.Tests.Database
             using var db = new AppDbContext();
             var item = await db.InventoryItems.AsNoTracking().SingleAsync(i => i.Id == id);
             return (item.Stock, item.Used);
+        }
+
+        private static async Task<int> CountMovementsAsync(int id, string action)
+        {
+            using var db = new AppDbContext();
+            return await db.InventoryItemMovements.AsNoTracking()
+                .CountAsync(m => m.InventoryItemId == id && m.Action == action);
+        }
+
+        private static async Task<decimal> SumMovementQuantityAsync(int id, string action)
+        {
+            using var db = new AppDbContext();
+            var quantities = await db.InventoryItemMovements.AsNoTracking()
+                .Where(m => m.InventoryItemId == id && m.Action == action)
+                .Select(m => m.QuantityChanged)
+                .ToListAsync();
+            return quantities.Sum();
         }
 
         private static async Task<decimal> ReadPurchasePriceAsync(int id)

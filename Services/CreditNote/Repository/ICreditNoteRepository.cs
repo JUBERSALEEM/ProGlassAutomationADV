@@ -37,14 +37,8 @@ namespace ProGlassAutomation.Services.CreditNote.Repository
 
         // ── CRUD ─────────────────────────────────────────────────────────
         Task<SavedCreditNote> InsertAsync(SavedCreditNote entity);
-        Task UpdateAsync(SavedCreditNote entity);
-
-        /// <summary>
-        /// Update with optimistic-concurrency check (Phase 5). Pass the loaded
-        /// RowVersion; throws ConcurrencyConflictException if it moved on. Pass
-        /// null for legacy behaviour.
-        /// </summary>
-        Task UpdateAsync(SavedCreditNote entity, int? expectedRowVersion);
+        /// <summary>Update using the required RowVersion captured by the caller.</summary>
+        Task UpdateAsync(SavedCreditNote entity, int expectedRowVersion);
 
         /// <summary>Physically delete — only ever a childless Draft.</summary>
         Task DeleteAsync(int id);

@@ -7,6 +7,7 @@ using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.Audit;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
@@ -14,6 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Licensing;
 
 namespace ProGlassAutomation.Services.Audit
 {
@@ -25,6 +27,9 @@ namespace ProGlassAutomation.Services.Audit
 
         /// <summary>Active user for this session. Null until sign-in succeeds.</summary>
         public static AppUser? CurrentUser => _currentUser;
+
+        /// <summary>False when audit/user schema migrations failed; writes and sign-in fail closed.</summary>
+        public static bool IsDatabaseReady => AuditDbMigrations.IsReady;
 
         /// <summary>Username attached to new audit entries.</summary>
         public static string CurrentUsername =>
@@ -75,9 +80,15 @@ namespace ProGlassAutomation.Services.Audit
                 using var db = new AuditDbContext();
                 await db.Database.EnsureCreatedAsync();
 
-                // v2 additive schema upgrades (SessionId, ChangesJson,
-                // RecordMetadata, RecordVersions) — safe on existing DBs.
-                AuditDbMigrations.Apply();
+                // Additive schema upgrades are a prerequisite for account
+                // identity and audit writes. A collision or failed migration
+                // leaves sign-in and bootstrap disabled until repaired.
+                if (!AuditDbMigrations.Apply())
+                {
+                    lock (_initLock) _initialized = false;
+                    _currentUser = null;
+                    return;
+                }
 
                 lock (_initLock)
                 {
@@ -479,50 +490,38 @@ namespace ProGlassAutomation.Services.Audit
         }
 
         /// <summary>
-        /// True when at least one user row exists in the
-        /// audit database. Used by the first-run
-        /// detection in the splash: an empty Users
-        /// table is the "fresh install" signal that
-        /// triggers the interactive setup wizard
-        /// (Commit 5 of the licensing refactor).
-        ///
-        /// Returns false on any error. Refusing to
-        /// answer the question (vs. crashing) is the
-        /// safe side: the wizard will still show and
-        /// CreateUserAsync will surface the real reason
-        /// the DB is unreachable.
+        /// True when at least one user exists. On any schema or query error,
+        /// returns true so startup shows login instead of first-run setup.
+        /// The bootstrap operation independently uses a conditional INSERT
+        /// and never treats an error as an empty table.
         /// </summary>
         public static async Task<bool> HasAnyUsersAsync()
         {
             try
             {
+                if (!AuditDbMigrations.IsReady)
+                    await InitializeAsync().ConfigureAwait(false);
+
+                // Fail closed: on a schema/read failure, choose the login
+                // surface, never the first-user bootstrap surface.
+                if (!AuditDbMigrations.IsReady) return true;
+
                 using var db = new AuditDbContext();
                 return await db.Users.AnyAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                // Phase 26d: this catch is load-bearing and it was completely
-                // invisible. Returning false here is deliberately kept — see
-                // the summary above — but false means "fresh install", so a
-                // TRANSIENT read error sends an established operator to the
-                // first-run wizard instead of the login form, where the
-                // recovery action offered is "create the first administrator".
-                // Keeping the fail-safe direction is right (crashing is worse),
-                // but it must not be silent: an Error entry is now the only
-                // way to tell afterwards that a machine was offered the setup
-                // wizard by mistake rather than because it genuinely was new.
                 AppLogService.Error(
-                    "[Audit] Could not determine whether any user exists. "
-                    + "Treating it as a first run and showing the setup wizard.",
-                    ex);
-                return false;
+                    "[Audit] Could not determine whether a user exists. " +
+                    "Failing closed: first-user setup will not be offered.", ex);
+                return true;
             }
         }
 
         /// <summary>
-        /// Creates a new user. Returns (success, error).
-        /// Validates username uniqueness and minimum password length.
-        /// Mobile/email are optional Sharing Center contact fields.
+        /// Creates a normal account. This path is available only to a signed-in
+        /// Administrator and refuses to create the first account; first-user
+        /// bootstrap has a separate atomic, empty-table-only operation.
         /// </summary>
         public static async Task<(bool Success, string Error)>
             CreateUserAsync(
@@ -536,56 +535,135 @@ namespace ProGlassAutomation.Services.Audit
         {
             try
             {
-                username = (username ?? "").Trim();
-                displayName = (displayName ?? "").Trim();
-                role = string.IsNullOrWhiteSpace(role) ? "Operator" : role.Trim();
+                DemandAdministratorUserManagement("create a user");
+                if (!AuditDbMigrations.IsReady)
+                    return (false, "User database is not ready; account creation is disabled.");
 
-                if (username.Length < 3)
-                    return (false,
-                        "Username must be at least 3 characters.");
+                username = (username ?? string.Empty).Trim();
+                displayName = (displayName ?? string.Empty).Trim();
+                string normalizedUsername = UsernameNormalizer.Normalize(username);
+                role = string.IsNullOrWhiteSpace(role)
+                    ? AppRoles.Operator
+                    : AppRoles.Normalize(role);
 
+                if (username.Length < 3 || normalizedUsername.Length == 0)
+                    return (false, "Username must be at least 3 characters.");
+                if (username.Length > 60 || normalizedUsername.Length > 120)
+                    return (false, "Username is too long.");
                 if (string.IsNullOrWhiteSpace(displayName))
                     return (false, "Display name is required.");
+                if (!AppRoles.All.Contains(role, StringComparer.Ordinal)
+                    && !string.Equals(role, AppRoles.Operator, StringComparison.Ordinal))
+                    return (false, "Select a recognized user role.");
 
-                // Single enforcement home: PasswordPolicy is what the UI
-                // pre-checks mirror, so the rule and the message shown can
-                // never disagree. Length floor is 6 with no maximum; the
-                // blocklist / identity / sequence rejections apply here.
                 var policy = ProGlassAutomation.Services.Security.PasswordPolicy
                     .ValidateNewPassword(password, username, displayName);
                 if (!policy.Accepted)
                     return (false, policy.Error);
 
                 using var db = new AuditDbContext();
-
-                bool exists = await db.Users
-                    .AnyAsync(u => u.Username == username).ConfigureAwait(false);
-
-                if (exists)
+                if (!await db.Users.AnyAsync().ConfigureAwait(false))
                     return (false,
-                        $"Username '{username}' already exists.");
+                        "No account exists yet. Use the protected first-run administrator setup.");
+
+                if (await db.Users.AnyAsync(u =>
+                        u.UsernameNormalized == normalizedUsername).ConfigureAwait(false))
+                    return (false, $"Username '{username}' already exists (usernames ignore case).");
 
                 var user = BuildUser(username, displayName, role, password);
+                user.UsernameNormalized = normalizedUsername;
                 user.CreatedAtUtc = DateTime.UtcNow;
-                // Sharing Center FROM contact (optional; composer shows
-                // name + role when blank). Trimmed + capped, never validated
-                // beyond that — the composer validates at share time.
                 user.Mobile = TruncateContact(mobile, 40);
                 user.Email = TruncateContact(email, 200);
-
                 db.Users.Add(user);
                 await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 Log(AuditSections.Users, "User created",
                     $"{displayName} ({username}) — role {role}",
                     "USER", username, reason);
-
-                return (true, "");
+                return (true, string.Empty);
             }
             catch (Exception ex)
             {
                 return (false, $"Could not create user: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Creates the first account as canonical Administrator. The INSERT is
+        /// conditional on NOT EXISTS in the same SQLite statement, so two
+        /// concurrent first-run windows cannot both bootstrap different users.
+        /// A failed read/write/schema check never falls through as "empty".
+        /// </summary>
+        public static async Task<(bool Success, string Error)>
+            BootstrapFirstAdministratorAsync(
+                string username,
+                string displayName,
+                string password,
+                string reason = "First-run setup.")
+        {
+            try
+            {
+                ReadOnlyGate.Demand("bootstrap the first Administrator");
+                if (!AuditDbMigrations.IsReady)
+                    return (false, "User database is not ready; first-run setup is disabled.");
+
+                username = (username ?? string.Empty).Trim();
+                displayName = (displayName ?? string.Empty).Trim();
+                string normalizedUsername = UsernameNormalizer.Normalize(username);
+                if (username.Length < 3 || normalizedUsername.Length == 0)
+                    return (false, "Username must be at least 3 characters.");
+                if (username.Length > 60 || normalizedUsername.Length > 120)
+                    return (false, "Username is too long.");
+                if (string.IsNullOrWhiteSpace(displayName))
+                    return (false, "Display name is required.");
+
+                var policy = ProGlassAutomation.Services.Security.PasswordPolicy
+                    .ValidateNewPassword(password, username, displayName);
+                if (!policy.Accepted)
+                    return (false, policy.Error);
+
+                var user = BuildUser(
+                    username, displayName, AppRoles.Administrator, password);
+                user.UsernameNormalized = normalizedUsername;
+                user.CreatedAtUtc = DateTime.UtcNow;
+
+                using var db = new AuditDbContext();
+                int inserted = await db.Database.ExecuteSqlInterpolatedAsync($@"
+                    INSERT INTO AppUsers
+                        (Username, UsernameNormalized, DisplayName, Role, Mobile,
+                         Email, PasswordHash, PasswordSalt, IsActive, CreatedAtUtc,
+                         LastActiveAtUtc, FailedAttemptCount, LockedUntilUtc)
+                    SELECT {user.Username}, {user.UsernameNormalized},
+                           {user.DisplayName}, {user.Role}, {user.Mobile},
+                           {user.Email}, {user.PasswordHash}, {user.PasswordSalt},
+                           {user.IsActive}, {user.CreatedAtUtc},
+                           {user.LastActiveAtUtc}, {user.FailedAttemptCount},
+                           {user.LockedUntilUtc}
+                    WHERE NOT EXISTS (SELECT 1 FROM AppUsers);")
+                    .ConfigureAwait(false);
+
+                if (inserted != 1)
+                    return (false,
+                        "First-run setup is closed because an account already exists. Sign in as an Administrator.");
+
+                Log(AuditSections.Users, "First Administrator created",
+                    $"{displayName} ({username}) — role {AppRoles.Administrator}",
+                    "USER", username, reason);
+                return (true, string.Empty);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Error(
+                    "Protected first-Administrator bootstrap failed; no success was reported.", ex);
+                return (false, $"Could not create the first Administrator: {ex.Message}");
+            }
+        }
+
+        private static void DemandAdministratorUserManagement(string operation)
+        {
+            OperationGuard.Demand(AppPermissions.SettingsManage, operation);
+            ReadOnlyGate.Demand(operation);
         }
 
         /// <summary>
@@ -598,14 +676,18 @@ namespace ProGlassAutomation.Services.Audit
         {
             try
             {
+                DemandAdministratorUserManagement("update user contact details");
+                if (!AuditDbMigrations.IsReady)
+                    return (false, "User database is not ready; contact changes are disabled.");
+
                 username = (username ?? "").Trim();
                 if (username.Length == 0)
                     return (false, "Select a user first.");
 
                 using var db = new AuditDbContext();
-                string lookup = username.ToLowerInvariant();
+                string lookup = UsernameNormalizer.Normalize(username);
                 var user = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username.ToLower() == lookup)
+                    .FirstOrDefaultAsync(u => u.UsernameNormalized == lookup)
                     .ConfigureAwait(false);
                 if (user == null)
                     return (false, $"User '{username}' not found.");
@@ -641,45 +723,146 @@ namespace ProGlassAutomation.Services.Audit
             return value.Length <= maxLen ? value : value.Substring(0, maxLen);
         }
 
-        /// <summary>Activate / deactivate a user (never deletes them).</summary>
-        public static async Task<bool> SetUserActiveAsync(
+        /// <summary>
+        /// Activate / deactivate a user. The target change is serialized with
+        /// a SQLite write transaction so two administrators cannot both remove
+        /// the last active Administrator based on the same stale count.
+        /// </summary>
+        public static async Task<(bool Success, string Error)> SetUserActiveAsync(
             int userId, bool isActive)
         {
             try
             {
-                using var db = new AuditDbContext();
-                var user = await db.Users.FindAsync(userId).ConfigureAwait(false);
-                if (user == null) return false;
+                DemandAdministratorUserManagement("change a user's active state");
+                if (!AuditDbMigrations.IsReady)
+                    return (false, "User database is not ready; account changes are disabled.");
 
-                // Guard: never allow deactivating the last active admin.
-                if (!isActive && user.Role == "Admin")
-                {
-                    int activeAdmins = await db.Users
-                        .CountAsync(u => u.IsActive && u.Role == "Admin").ConfigureAwait(false);
-                    if (activeAdmins <= 1) return false;
-                }
+                using var db = new AuditDbContext();
+                await db.Database.OpenConnectionAsync().ConfigureAwait(false);
+                await using var tx = await db.Database
+                    .BeginTransactionAsync(IsolationLevel.Serializable)
+                    .ConfigureAwait(false);
+
+                var users = await db.Users.ToListAsync().ConfigureAwait(false);
+                var user = users.FirstOrDefault(candidate => candidate.Id == userId);
+                if (user == null) return (false, "User not found.");
+
+                if (!UserAdministrationPolicy.HasActiveAdministratorAfterChange(
+                        users, userId, isActive: isActive))
+                    return (false,
+                        "This change would leave the system without an active Administrator.");
 
                 user.IsActive = isActive;
                 await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+                await tx.CommitAsync().ConfigureAwait(false);
+
+                if (_currentUser?.Id == user.Id)
+                {
+                    _currentUser.IsActive = user.IsActive;
+                    RaiseOnUi(() => CurrentUserChanged?.Invoke(null, EventArgs.Empty));
+                }
 
                 Log(AuditSections.Users,
                     isActive ? "User activated" : "User deactivated",
                     user.Username, "USER", user.Username);
-
-                return true;
+                return (true, string.Empty);
             }
             catch (Exception ex)
             {
-                // Phase 26d: a bare `false` with nothing recorded. The caller
-                // can only say "that didn't work", and an administrator trying
-                // to disable an account has no way to know whether the write
-                // failed or was refused — which matters, because a failed
-                // deactivation leaves an account active that was believed to
-                // be switched off.
                 AppLogService.Error(
-                    "[Audit] Could not change a user's active state. The account "
-                    + "is unchanged and may still be active.", ex);
-                return false;
+                    "Could not change a user's active state; the account was not reported as changed.", ex);
+                return (false, $"Could not change account state: {ex.Message}");
+            }
+        }
+
+        /// <summary>Changes a user's role; the canonical legacy alias is normalized.</summary>
+        public static async Task<(bool Success, string Error)> UpdateUserRoleAsync(
+            int userId, string role, string reason = "")
+        {
+            try
+            {
+                DemandAdministratorUserManagement("change a user's role");
+                if (!AuditDbMigrations.IsReady)
+                    return (false, "User database is not ready; role changes are disabled.");
+
+                string normalizedRole = AppRoles.Normalize(role);
+                if (!AppRoles.All.Contains(normalizedRole, StringComparer.Ordinal)
+                    && !string.Equals(normalizedRole, AppRoles.Operator, StringComparison.Ordinal))
+                    return (false, "Select a recognized user role.");
+
+                using var db = new AuditDbContext();
+                await db.Database.OpenConnectionAsync().ConfigureAwait(false);
+                await using var tx = await db.Database
+                    .BeginTransactionAsync(IsolationLevel.Serializable)
+                    .ConfigureAwait(false);
+
+                var users = await db.Users.ToListAsync().ConfigureAwait(false);
+                var user = users.FirstOrDefault(candidate => candidate.Id == userId);
+                if (user == null) return (false, "User not found.");
+
+                if (!UserAdministrationPolicy.HasActiveAdministratorAfterChange(
+                        users, userId, role: normalizedRole))
+                    return (false,
+                        "This role change would leave the system without an active Administrator.");
+
+                string previousRole = AppRoles.Normalize(user.Role);
+                user.Role = normalizedRole;
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+                await tx.CommitAsync().ConfigureAwait(false);
+
+                if (_currentUser?.Id == user.Id)
+                {
+                    _currentUser.Role = normalizedRole;
+                    RaiseOnUi(() => CurrentUserChanged?.Invoke(null, EventArgs.Empty));
+                }
+
+                Log(AuditSections.Users, "User role changed",
+                    $"{user.Username}: {previousRole} → {normalizedRole}",
+                    "USER", user.Username, reason);
+                return (true, string.Empty);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Error("Could not change a user's role.", ex);
+                return (false, $"Could not change user role: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Account rows are retained because audit events are keyed by user
+        /// identity. The operation exists as an explicit service boundary for
+        /// callers: it refuses deletion (and specifically protects the last
+        /// active Administrator); use deactivation instead.
+        /// </summary>
+        public static async Task<(bool Success, string Error)> DeleteUserAsync(
+            int userId, string reason = "")
+        {
+            try
+            {
+                DemandAdministratorUserManagement("delete a user");
+                if (!AuditDbMigrations.IsReady)
+                    return (false, "User database is not ready; account changes are disabled.");
+
+                using var db = new AuditDbContext();
+                var users = await db.Users.ToListAsync().ConfigureAwait(false);
+                var user = users.FirstOrDefault(candidate => candidate.Id == userId);
+                if (user == null) return (false, "User not found.");
+
+                if (AppRoles.IsAdministrator(user.Role) && user.IsActive
+                    && UserAdministrationPolicy.CountActiveAdministrators(users) <= 1)
+                    return (false,
+                        "The last active Administrator cannot be deleted or removed. Activate another Administrator first.");
+
+                Log(AuditSections.Users, "User deletion refused",
+                    $"Deletion of {user.Username} was refused; accounts are retained for audit history.",
+                    "USER", user.Username, reason);
+                return (false,
+                    "User accounts are retained for audit history. Deactivate the account instead.");
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Error("Could not evaluate user deletion request.", ex);
+                return (false, $"Could not delete user: {ex.Message}");
             }
         }
 
@@ -692,6 +875,11 @@ namespace ProGlassAutomation.Services.Audit
         {
             try
             {
+                if (!AuditDbMigrations.IsReady)
+                    await InitializeAsync().ConfigureAwait(false);
+                if (!AuditDbMigrations.IsReady)
+                    return (false, "User database is not ready; sign-in is disabled.");
+
                 using var db = new AuditDbContext();
                 // USERNAME MATCHING IS CASE-INSENSITIVE.
                 // AppUser.Username carries no COLLATE NOCASE -
@@ -704,9 +892,9 @@ namespace ProGlassAutomation.Services.Audit
                 // change-password now fold case, so the account an operator
                 // created is reachable whatever capitalisation they type -
                 // and the two paths cannot disagree about who they are.
-                string lookupName = username.ToLowerInvariant();
+                string lookupName = UsernameNormalizer.Normalize(username);
                 var user = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username.ToLower() == lookupName)
+                    .FirstOrDefaultAsync(u => u.UsernameNormalized == lookupName)
                     .ConfigureAwait(false);
 
                 if (user == null)
@@ -806,6 +994,11 @@ namespace ProGlassAutomation.Services.Audit
         {
             try
             {
+                if (!AuditDbMigrations.IsReady)
+                    await InitializeAsync().ConfigureAwait(false);
+                if (!AuditDbMigrations.IsReady)
+                    return (false, "User database is not ready; password changes are disabled.");
+
                 username = (username ?? "").Trim();
 
                 // Same single home as creation: the only additional rule is
@@ -831,9 +1024,9 @@ namespace ProGlassAutomation.Services.Audit
                 // change-password now fold case, so the account an operator
                 // created is reachable whatever capitalisation they type -
                 // and the two paths cannot disagree about who they are.
-                string lookupName = username.ToLowerInvariant();
+                string lookupName = UsernameNormalizer.Normalize(username);
                 var user = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username.ToLower() == lookupName)
+                    .FirstOrDefaultAsync(u => u.UsernameNormalized == lookupName)
                     .ConfigureAwait(false);
 
                 if (user == null)
@@ -907,6 +1100,11 @@ namespace ProGlassAutomation.Services.Audit
         {
             try
             {
+                if (!AuditDbMigrations.IsReady)
+                    await InitializeAsync().ConfigureAwait(false);
+                if (!AuditDbMigrations.IsReady)
+                    return (false, "User database is not ready; password resets are disabled.");
+
                 adminUsername = (adminUsername ?? "").Trim();
                 targetUsername = (targetUsername ?? "").Trim();
 
@@ -922,24 +1120,23 @@ namespace ProGlassAutomation.Services.Audit
                 // two lookups used straight equality, so resetting the
                 // password of "Admin" while typing "admin" failed with
                 // "not found" on an account that provably exists.
-                string adminLookup = adminUsername.ToLowerInvariant();
+                string adminLookup = UsernameNormalizer.Normalize(adminUsername);
                 var admin = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username.ToLower() == adminLookup).ConfigureAwait(false);
+                    .FirstOrDefaultAsync(u => u.UsernameNormalized == adminLookup).ConfigureAwait(false);
                 if (admin == null || !admin.IsActive)
                     return (false, "Administrator account not found or inactive.");
 
                 // Accept both role spellings ("Administrator" seeded default
                 // and "Admin" used by the user-management UI).
-                if (admin.Role != AppRoles.Administrator &&
-                    admin.Role != "Admin")
+                if (!AppRoles.IsAdministrator(admin.Role))
                     return (false, "Only an Administrator can reset a password.");
 
                 if (!VerifyPassword(admin, adminPassword ?? ""))
                     return (false, "Administrator password is incorrect.");
 
-                string targetLookup = targetUsername.ToLowerInvariant();
+                string targetLookup = UsernameNormalizer.Normalize(targetUsername);
                 var target = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username.ToLower() == targetLookup).ConfigureAwait(false);
+                    .FirstOrDefaultAsync(u => u.UsernameNormalized == targetLookup).ConfigureAwait(false);
                 if (target == null)
                     return (false, $"User '{targetUsername}' not found.");
                 if (!target.IsActive)
@@ -982,14 +1179,18 @@ namespace ProGlassAutomation.Services.Audit
         {
             try
             {
+                if (!AuditDbMigrations.IsReady)
+                    await InitializeAsync().ConfigureAwait(false);
+                if (!AuditDbMigrations.IsReady) return false;
+
                 using var db = new AuditDbContext();
                 // Case-insensitive like every other username lookup: the
                 // default-credential warning must fire for "Admin" as well
                 // as "admin", or the banner silently misses the account it
                 // exists to warn about.
-                string lookup = (username ?? "").ToLowerInvariant();
+                string lookup = UsernameNormalizer.Normalize(username);
                 var user = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username.ToLower() == lookup).ConfigureAwait(false);
+                    .FirstOrDefaultAsync(u => u.UsernameNormalized == lookup).ConfigureAwait(false);
 
                 if (user == null || !user.IsActive) return false;
 

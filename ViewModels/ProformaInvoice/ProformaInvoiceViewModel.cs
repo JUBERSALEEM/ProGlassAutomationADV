@@ -961,6 +961,9 @@ public ProformaInvoiceViewModel() : this(
 
         private async Task StartNewInvoiceAsync()
         {
+            _loadedInvoiceId = null;
+            Step7VM.PrintableInvoice.LoadedRowVersion = null;
+            Step7VM.PrintableInvoice.LoadedProformaId = null;
             Step1VM.InquiryId = null;
             Step1VM.CompanyName = "";
             Step1VM.CompanyTrn = "";
@@ -1031,6 +1034,8 @@ public ProformaInvoiceViewModel() : this(
                 return;
             }
             var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+            Step7VM.PrintableInvoice.LoadedRowVersion = entity.RowVersion;
+            Step7VM.PrintableInvoice.LoadedProformaId = entity.ProformaId;
             Step7VM.InvoiceMainSummary.BeginBatchUpdate();
             try
             {

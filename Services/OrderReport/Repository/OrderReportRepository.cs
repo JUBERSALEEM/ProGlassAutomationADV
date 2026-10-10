@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.OrderReport;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Database.SchemaMigrations;
 using ProGlassAutomation.Services.OrderReport.Database;
 using System;
 using System.Collections.Generic;
@@ -28,6 +29,14 @@ namespace ProGlassAutomation.Services.OrderReport.Repository
         {
             await using var ctx = new OrderReportDbContext();
             await ctx.Database.EnsureCreatedAsync();
+            bool upgraded = SchemaMigrationRunner.Upgrade(
+                OrderReportDbContext.DatabaseFilePath,
+                AppSchemaMigrations.OrderReports,
+                "Order Report");
+            if (!upgraded)
+                throw new InvalidOperationException(
+                    "The Order Report database could not be upgraded safely. " +
+                    "Review the migration log and the pre-migration backup before retrying.");
         }
 
         public async Task<SavedOrderReport?> GetByIdAsync(int id)
@@ -48,6 +57,7 @@ namespace ProGlassAutomation.Services.OrderReport.Repository
                 .Select(r => new OrderReportListItem
                 {
                     Id = r.Id,
+                    RowVersion = r.RowVersion,
                     ReportNumber = r.ReportNumber,
                     Title = r.Title,
                     FilterCompany = r.FilterCompany,
@@ -98,6 +108,7 @@ namespace ProGlassAutomation.Services.OrderReport.Repository
 
             await using var ctx = new OrderReportDbContext();
 
+            entity.RowVersion = 0;
             entity.CreatedAt = DateTime.UtcNow;
             entity.UpdatedAt = DateTime.UtcNow;
 
@@ -106,18 +117,49 @@ namespace ProGlassAutomation.Services.OrderReport.Repository
             return entity;
         }
 
-        public async Task UpdateAsync(SavedOrderReport entity)
+        public async Task UpdateAsync(
+            SavedOrderReport entity, int expectedRowVersion)
         {
             OperationGuard.Demand(
                 AppPermissions.StatementGenerate, "update an order report");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
 
             await using var ctx = new OrderReportDbContext();
+            var stored = await ctx.OrderReports
+                .FirstOrDefaultAsync(r => r.Id == entity.Id).ConfigureAwait(false);
+            if (stored == null)
+                throw new ConcurrencyConflictException(
+                    "Order Report", entity.ReportNumber,
+                    expectedRowVersion, actualRowVersion: -1);
+            if (stored.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Order Report", stored.ReportNumber,
+                    expectedRowVersion, stored.RowVersion);
+
+            entity.Id = stored.Id;
+            entity.RowVersion = expectedRowVersion + 1;
             entity.UpdatedAt = DateTime.UtcNow;
-            ctx.OrderReports.Update(entity);
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            ctx.Entry(stored).CurrentValues.SetValues(entity);
+            stored.RowVersion = expectedRowVersion + 1;
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync())
+                    .ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(ctx, stored.Id)
+                    .ConfigureAwait(false);
+                throw new ConcurrencyConflictException(
+                    "Order Report", stored.ReportNumber,
+                    expectedRowVersion, actual);
+            }
+
+            entity.RowVersion = stored.RowVersion;
+            entity.UpdatedAt = stored.UpdatedAt;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, int expectedRowVersion)
         {
             OperationGuard.Demand(
                 AppPermissions.StatementGenerate, "delete an order report");
@@ -125,21 +167,73 @@ namespace ProGlassAutomation.Services.OrderReport.Repository
             await using var ctx = new OrderReportDbContext();
             var entity = await ctx.OrderReports
                 .FirstOrDefaultAsync(r => r.Id == id).ConfigureAwait(false);
-            if (entity == null) return;
+            if (entity == null)
+                throw new ConcurrencyConflictException(
+                    "Order Report", id.ToString(),
+                    expectedRowVersion, actualRowVersion: -1);
+            if (entity.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Order Report", entity.ReportNumber,
+                    expectedRowVersion, entity.RowVersion);
 
             ctx.OrderReports.Remove(entity);
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync())
+                    .ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(ctx, id)
+                    .ConfigureAwait(false);
+                throw new ConcurrencyConflictException(
+                    "Order Report", entity.ReportNumber,
+                    expectedRowVersion, actual);
+            }
         }
 
-        public async Task UpdatePdfPathAsync(int reportId, string pdfPath)
+        public async Task<int> UpdatePdfPathAsync(
+            int reportId, string pdfPath, int expectedRowVersion)
         {
             await using var ctx = new OrderReportDbContext();
-            var entity = await ctx.OrderReports.FindAsync(reportId).ConfigureAwait(false);
-            if (entity == null) return;
+            var entity = await ctx.OrderReports
+                .FirstOrDefaultAsync(r => r.Id == reportId).ConfigureAwait(false);
+            if (entity == null)
+                throw new ConcurrencyConflictException(
+                    "Order Report", reportId.ToString(),
+                    expectedRowVersion, actualRowVersion: -1);
+            if (entity.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Order Report", entity.ReportNumber,
+                    expectedRowVersion, entity.RowVersion);
 
             entity.PdfPath = pdfPath;
             entity.UpdatedAt = DateTime.UtcNow;
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            entity.RowVersion++;
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync())
+                    .ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(ctx, reportId)
+                    .ConfigureAwait(false);
+                throw new ConcurrencyConflictException(
+                    "Order Report", entity.ReportNumber,
+                    expectedRowVersion, actual);
+            }
+
+            return entity.RowVersion;
+        }
+
+        private static async Task<int> GetCurrentRowVersionAsync(
+            OrderReportDbContext context, int id)
+        {
+            return await context.OrderReports.AsNoTracking()
+                .Where(r => r.Id == id)
+                .Select(r => (int?)r.RowVersion)
+                .FirstOrDefaultAsync().ConfigureAwait(false) ?? -1;
         }
     }
 }

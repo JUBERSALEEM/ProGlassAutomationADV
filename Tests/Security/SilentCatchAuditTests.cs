@@ -348,10 +348,10 @@ namespace ProGlassAutomation.Tests.Security
             // the containing method too.
             ("JobOrderRepository.cs",               "InitializeAsync",     "Master-DN quiet-cleanup is best-effort by name"),
 
-            // Schema migrations — the unique-index creation
-            // is best-effort; the repository already retries
-            // on unique collisions.
-            ("AppSchemaMigrations.cs",              "*",                   "Index creation is best-effort"),
+            // Inquiry migration schema snapshots are diagnostic only; their
+            // failures do not suppress the actual preservation checks, column
+            // drops, index creation, or post-migration verification.
+            ("AppSchemaMigrations.cs",              "DropLegacyInquiriesColumns", "Diagnostic schema snapshot logging is best-effort"),
 
             // JobOrderRepository — "DeleteMasterDnQuietlyAsync"
             // by name; a leftover Master DN is hidden from

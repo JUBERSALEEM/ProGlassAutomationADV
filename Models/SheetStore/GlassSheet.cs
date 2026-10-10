@@ -50,6 +50,13 @@ namespace ProGlassAutomation.Models.SheetStore
         public int Stock { get; set; }
         public int Used { get; set; }
 
+        /// <summary>
+        /// Application-managed optimistic-concurrency token. Every edit or
+        /// stock movement increments this value so stale editors cannot
+        /// overwrite a newer stock or price change.
+        /// </summary>
+        public int RowVersion { get; set; }
+
         // ============ TIMESTAMPS ============
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime LastUpdated { get; set; } = DateTime.Now;

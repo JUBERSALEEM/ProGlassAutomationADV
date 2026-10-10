@@ -29,6 +29,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
     public sealed class ProformaListRow
     {
         public int Id { get; set; }
+        public int RowVersion { get; set; }
         public string ProformaId { get; set; } = "";
         public string CompanyName { get; set; } = "";
         public string CustomerName { get; set; } = "";

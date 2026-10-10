@@ -76,8 +76,10 @@ namespace ProGlassAutomation.Tests.Production
         public void UseStock_cas_and_qty_guard_unchanged()
         {
             string use = Read("Services/SheetStore/SheetStoreRepository.cs");
-            Assert.Contains("g.Id == sheetId && g.Stock - g.Used >= quantity", use);
-            Assert.Contains("if (quantity <= 0) return;", use);
+            Assert.Contains("BeginTransactionAsync(IsolationLevel.Serializable)", use);
+            Assert.Contains("int balance = sheet.Stock - sheet.Used;", use);
+            Assert.Contains("if (quantity <= 0) return null;", use);
+            Assert.Contains("db.SheetHistories.Add(CreateHistory(", use);
         }
 
         [Fact]

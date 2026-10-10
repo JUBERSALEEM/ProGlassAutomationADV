@@ -51,7 +51,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             if (AppDataRoot.IsSharedDataRootEnabled)
                 NetworkDataRootStatus = "✓ Shared company database is active: " + AppDataRoot.SharedDataRoot;
             else if (AppDataRoot.SharedRootFallbackActive)
-                NetworkDataRootStatus = "⚠ This workstation is on LOCAL data — the shared folder was unreachable at startup.";
+                NetworkDataRootStatus = AppDataRoot.SharedRootFallbackReason;
             else
                 NetworkDataRootStatus = "Local database mode. Press Create Folder to make C:\\ProGlassData and publish the Windows share, or type an existing share path.";
 

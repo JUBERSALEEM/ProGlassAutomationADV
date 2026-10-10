@@ -109,128 +109,102 @@ namespace ProGlassAutomation.Services.Workflow
 
             if (tiResult.IsFailure)
             {
+                bool invoiceWasCommitted =
+                    tiResult.Exception is TaxInvoiceLinkSynchronizationException;
+                string failure = invoiceWasCommitted
+                    ? $"TI {invoice?.InvoiceNumber} was committed, but DN-link synchronization failed: {tiResult.Error}"
+                    : $"TI insert failed before a committed invoice was returned: {tiResult.Error}";
                 AppLogService.Warning(
-                    $"TI save aborted at step 1 (TI insert): {tiResult.Error}",
+                    failure,
                     new LogContext
                     {
                         Module = "TaxInvoice",
-                        Operation = "SaveWithDnLink",
+                        Operation = invoiceWasCommitted
+                            ? "SynchronizeDeliveryNoteLinks"
+                            : "Insert",
                         DocumentId = invoice?.InvoiceNumber ?? "",
                         DocumentType = "TaxInvoice",
                         CorrelationId = corrId,
-                        Extra = $"ErrorId={tiResult.ErrorId}"
+                        Extra = $"ErrorId={tiResult.ErrorId}; Persisted={invoiceWasCommitted}"
                     });
-                DocumentPipelineTracer.MarkFailure(activity, tiResult.Error);
+                DocumentPipelineTracer.MarkFailure(activity, failure);
                 return tiResult;
             }
 
-            // Step 2: Mark DNs as invoiced
-            var dnIds = TaxInvoiceDnReconciler.ParseDnRefs(invoice!.DeliveryNoteReference);
-            if (dnIds.Count == 0)
+            // The concrete repository owns the TI commit plus the complete,
+            // verified TI↔DN replacement transaction. Do not repeat the link
+            // write here. This fallback is only for alternate repository
+            // implementations that do not implement that invariant.
+            if (repo is TaxInvoiceRepository)
             {
-                AppLogService.Info(
-                    $"TI {invoice.InvoiceNumber} has no DN refs — no DN marking needed",
-                    new LogContext
-                    {
-                        Module = "TaxInvoice",
-                        Operation = "SaveWithDnLink",
-                        DocumentId = invoice.InvoiceNumber,
-                        DocumentType = "TaxInvoice",
-                        CorrelationId = corrId
-                    });
                 DocumentPipelineTracer.MarkSuccess(activity);
                 return tiResult;
             }
 
+            var dnIds = TaxInvoiceDnReconciler.ParseDnRefs(invoice!.DeliveryNoteReference);
             try
             {
                 if (App.DeliveryNotes == null)
-                    throw new InvalidOperationException("DeliveryNotes repository not initialized");
+                    throw new InvalidOperationException("Delivery Notes repository not initialized.");
 
-                await App.DeliveryNotes.MarkMultipleAsInvoicedAsync(dnIds, invoice.InvoiceNumber);
+                await App.DeliveryNotes.SynchronizeTaxInvoiceLinksAsync(
+                    invoice.InvoiceNumber, dnIds);
 
-                // Verify
                 int verified = 0;
                 foreach (var dnId in dnIds)
                 {
-                    try
-                    {
-                        var dn = await App.DeliveryNotes.GetByDeliveryNoteIdAsync(dnId);
-                        if (dn != null && dn.HasTaxInvoice &&
-                            string.Equals(dn.TaxInvoiceId, invoice.InvoiceNumber, StringComparison.OrdinalIgnoreCase))
-                            verified++;
-                    }
-                    catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DocumentOperationCoordinator] DN verification probe failed: " + ex.Message); }
+                    var dn = await App.DeliveryNotes.GetByDeliveryNoteIdAsync(dnId);
+                    if (dn != null && dn.HasTaxInvoice
+                        && string.Equals(dn.TaxInvoiceId, invoice.InvoiceNumber,
+                            StringComparison.OrdinalIgnoreCase))
+                        verified++;
                 }
-
-                AppLogService.Info(
-                    $"TI {invoice.InvoiceNumber} DN link: {verified}/{dnIds.Count} DNs marked invoiced",
-                    new LogContext
-                    {
-                        Module = "TaxInvoice",
-                        Operation = "SaveWithDnLink",
-                        DocumentId = invoice.InvoiceNumber,
-                        DocumentType = "TaxInvoice",
-                        CorrelationId = corrId,
-                        Extra = $"Verified={verified}/{dnIds.Count}, DNs={string.Join(",", dnIds)}"
-                    });
-
-                if (verified < dnIds.Count)
-                {
-                    AppLogService.Warning(
-                        $"TI {invoice.InvoiceNumber} DN link incomplete: {verified}/{dnIds.Count} — reconciliation will heal on next startup",
-                        new LogContext
-                        {
-                            Module = "TaxInvoice",
-                            Operation = "SaveWithDnLink",
-                            DocumentId = invoice.InvoiceNumber,
-                            DocumentType = "TaxInvoice",
-                            CorrelationId = corrId
-                        });
-                }
+                if (verified != dnIds.Count)
+                    throw new InvalidOperationException(
+                        $"Only {verified} of {dnIds.Count} Delivery Note link(s) verified for Tax Invoice {invoice.InvoiceNumber}.");
 
                 DocumentPipelineTracer.MarkSuccess(activity);
                 return tiResult;
             }
             catch (Exception ex)
             {
-                // Step 2 failed — TI exists but DNs not marked. This is the D-4 inconsistency.
-                // We do NOT delete TI (would lose user work). Instead log critical and rely on
-                // TaxInvoiceDnReconciler at next startup to heal.
+                // The TI commit already succeeded. Never report an ordinary
+                // insert failure or pretend the cross-database write rolled back.
                 var errorId = AppLogService.Critical(
-                    $"CRITICAL D-4: TI {invoice.InvoiceNumber} saved but DN marking failed — {verifiedMsg(dnIds)} will be healed by reconciler. Error: {ex.Message}",
+                    $"TI {invoice.InvoiceNumber} was saved, but its DN-link transaction failed: {ex.Message}",
                     ex,
                     new LogContext
                     {
                         Module = "TaxInvoice",
-                        Operation = "SaveWithDnLink",
+                        Operation = "SynchronizeDeliveryNoteLinks",
                         DocumentId = invoice.InvoiceNumber,
                         DocumentType = "TaxInvoice",
                         CorrelationId = corrId,
                         Extra = $"DNs={string.Join(",", dnIds)}, TI={invoice.InvoiceNumber}"
                     });
 
-                // Return success for TI but with warning in Extra — UI can show "Saved, but DN link pending"
-                // For now return Ok with warning logged; caller can check logs via correlation
-                DocumentPipelineTracer.MarkFailure(activity, "DN marking failed — reconciliation will heal on next startup");
-                return Result<SavedTaxInvoice>.Ok(tiResult.Value!, corrId, errorId);
+                DocumentPipelineTracer.MarkFailure(activity, "TI persisted, but DN links are inconsistent");
+                return Result<SavedTaxInvoice>.Fail(
+                    $"Tax Invoice {invoice.InvoiceNumber} was saved, but its Delivery Note links were not fully synchronized: {ex.Message}",
+                    ex, corrId, errorId);
             }
 
-            string verifiedMsg(IReadOnlyList<string> ids) => $"{ids.Count} DN(s)";
         }
 
         /// <summary>
-        /// Deletes a Tax Invoice and clears its DN invoiced flags — with Result and correlation.
+        /// Requests lifecycle-safe removal/voiding of a Tax Invoice and synchronizes its DN links — with Result and correlation.
         /// </summary>
-        public static async Task<Result> DeleteTaxInvoiceWithDnUnlinkAsync(int id, string invoiceNumber, string? correlationId = null)
+        public static async Task<Result> DeleteTaxInvoiceWithDnUnlinkAsync(
+            int id, int expectedRowVersion, string invoiceNumber,
+            string? correlationId = null)
         {
             var corrId = correlationId ?? CorrelationContext.NewIdFor("TaxInvoice", invoiceNumber);
             using var scope = CorrelationContext.BeginDocumentScope("TaxInvoice", invoiceNumber, corrId);
             using var activity = DocumentPipelineTracer.StartDocumentOperation(
-                "DeleteWithDnUnlink", "TaxInvoice", invoiceNumber, corrId);
+                "DeleteOrVoidWithDnUnlink", "TaxInvoice", invoiceNumber, corrId);
 
             AppLogService.Info(
-                $"Starting TI delete with DN unlink: TI={invoiceNumber} Id={id}",
+                $"Starting TI lifecycle delete/void request with DN-link handling: TI={invoiceNumber} Id={id}",
                 new LogContext
                 {
                     Module = "TaxInvoice",
@@ -251,7 +225,8 @@ namespace ProGlassAutomation.Services.Workflow
             {
                 if (repo is TaxInvoiceRepository concrete)
                 {
-                    var delResult = await concrete.DeleteWithResultAsync(id, invoiceNumber, corrId);
+                    var delResult = await concrete.DeleteWithResultAsync(
+                        id, expectedRowVersion, invoiceNumber, corrId);
                     if (delResult.IsFailure)
                     {
                         DocumentPipelineTracer.MarkFailure(activity, delResult.Error);
@@ -260,47 +235,30 @@ namespace ProGlassAutomation.Services.Workflow
                 }
                 else
                 {
-                    await repo.DeleteAsync(id);
+                    await repo.DeleteAsync(id, expectedRowVersion);
                 }
 
-                // Clear DN flags — best effort, but log
-                try
-                {
-                    if (App.DeliveryNotes != null)
-                        await App.DeliveryNotes.ClearInvoicedByTaxInvoiceAsync(invoiceNumber);
-                }
-                catch (Exception ex)
-                {
-                    AppLogService.Warning(
-                        $"TI {invoiceNumber} deleted but DN unlink failed: {ex.Message} — will be healed by reconciler",
-                        new LogContext
-                        {
-                            Module = "TaxInvoice",
-                            Operation = "DeleteWithDnUnlink",
-                            DocumentId = invoiceNumber,
-                            DocumentType = "TaxInvoice",
-                            CorrelationId = corrId
-                        });
-                }
-
+                // Repository lifecycle rules only physically delete an
+                // unlinked Draft. A void operation explicitly synchronizes
+                // its own DN unlink and surfaces any cross-database failure.
                 DocumentPipelineTracer.MarkSuccess(activity);
                 return Result.Ok(corrId);
             }
             catch (Exception ex)
             {
                 var errorId = AppLogService.Error(
-                    $"Failed to delete TI {invoiceNumber}: {ex.Message}",
+                    $"Tax Invoice lifecycle delete/void request failed for {invoiceNumber}: {ex.Message}",
                     ex,
                     new LogContext
                     {
                         Module = "TaxInvoice",
-                        Operation = "DeleteWithDnUnlink",
+                        Operation = "DeleteOrVoidWithDnUnlink",
                         DocumentId = invoiceNumber,
                         DocumentType = "TaxInvoice",
                         CorrelationId = corrId
                     });
                 DocumentPipelineTracer.MarkFailure(activity, ex.Message);
-                return Result.Fail($"Could not delete tax invoice {invoiceNumber}: {ex.Message}", ex, corrId, errorId);
+                return Result.Fail($"Could not complete the Tax Invoice delete/void request for {invoiceNumber}: {ex.Message}", ex, corrId, errorId);
             }
         }
 

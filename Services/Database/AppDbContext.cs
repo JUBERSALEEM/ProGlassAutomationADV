@@ -23,6 +23,7 @@ namespace ProGlassAutomation.Services.Database
         /// table rather than on GlassSheets.
         /// </summary>
         public DbSet<InventoryItem> InventoryItems { get; set; }
+        public DbSet<InventoryItemMovement> InventoryItemMovements { get; set; }
 
         // Future modules add DbSets here:
         // public DbSet<ProformaInvoice> ProformaInvoices { get; set; }
@@ -51,6 +52,16 @@ namespace ProGlassAutomation.Services.Database
                 .IsUnique()
                 .HasDatabaseName("IX_GlassSheet_Unique");
 
+            modelBuilder.Entity<GlassSheet>()
+                .Property(g => g.RowVersion)
+                .IsConcurrencyToken()
+                .ValueGeneratedNever();
+
+            modelBuilder.Entity<InventoryItem>()
+                .Property(i => i.RowVersion)
+                .IsConcurrencyToken()
+                .ValueGeneratedNever();
+
             // D-6: money columns must use TEXT affinity (exact decimal
             // storage), matching the rest of the codebase. HasPrecision(18,2)
             // on SQLite yields NUMERIC affinity -> REAL (binary float)
@@ -73,6 +84,22 @@ namespace ProGlassAutomation.Services.Database
             modelBuilder.Entity<SheetHistory>()
                 .HasIndex(h => h.Timestamp)
                 .HasDatabaseName("IX_SheetHistory_Timestamp");
+
+            modelBuilder.Entity<InventoryItemMovement>()
+                .HasIndex(m => m.InventoryItemId)
+                .HasDatabaseName("IX_InventoryItemMovements_ItemId");
+
+            modelBuilder.Entity<InventoryItemMovement>()
+                .HasIndex(m => m.Timestamp)
+                .HasDatabaseName("IX_InventoryItemMovements_Timestamp");
+
+            modelBuilder.Entity<InventoryItemMovement>()
+                .Property(m => m.QuantityChanged)
+                .HasColumnType("TEXT");
+
+            modelBuilder.Entity<InventoryItemMovement>()
+                .Property(m => m.ValueChanged)
+                .HasColumnType("TEXT");
 
             // D-6: TEXT affinity for exact decimal storage (see GlassSheet above).
             modelBuilder.Entity<SheetHistory>()

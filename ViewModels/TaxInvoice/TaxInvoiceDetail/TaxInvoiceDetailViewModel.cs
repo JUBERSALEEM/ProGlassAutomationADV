@@ -95,7 +95,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         /// ERP hardening (Phase 5): the RowVersion captured when this invoice
         /// was loaded for edit. Passed back on save so the repository can
         /// detect that another user saved first (optimistic concurrency).
-        /// Null means "no captured version" → legacy last-writer-wins.
+        /// Null means this editor cannot safely write the loaded document.
         /// </summary>
         private int? _loadedRowVersion;
 
@@ -217,10 +217,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 try
                 {
-                    await _taxInvoices!.DeleteAsync(_editingId);
-                    AuditService.Log(
-                        AuditSections.TaxInvoice, "Tax invoice deleted",
-                        _editingInvoiceNumber, "TI", _editingInvoiceNumber);
+                    if (!_loadedRowVersion.HasValue)
+                        throw new InvalidOperationException(
+                            "The Tax Invoice version was not loaded. Reload it before deleting.");
+                    await _taxInvoices!.DeleteAsync(_editingId, _loadedRowVersion.Value);
                     OnRequestBackToList?.Invoke();
                 }
                 catch (Exception ex)

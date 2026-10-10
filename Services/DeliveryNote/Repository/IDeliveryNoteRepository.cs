@@ -100,11 +100,10 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         Task MarkAsInvoicedAsync(string deliveryNoteId, string taxInvoiceId);
 
         /// <summary>
-        /// Marks multiple DNs as invoiced in one operation.
-        /// Used when a Master Invoice covers multiple sibling DNs.
-        /// All DNs in the list get the same taxInvoiceId.
-        /// deliveryNoteIds parsed from DeliveryNoteReference field (comma-separated).
-        /// Idempotent. Safe with empty list — no-ops gracefully.
+        /// Marks multiple DNs as invoiced in one operation. All referenced
+        /// rows must exist, be confirmed, be non-void/non-master, and either
+        /// be unlinked or already linked to this same invoice. Any mismatch
+        /// fails the complete write before mutation.
         /// </summary>
         Task MarkMultipleAsInvoicedAsync(
             IEnumerable<string> deliveryNoteIds,
@@ -112,11 +111,24 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         /// <summary>
         /// Clears HasTaxInvoice / TaxInvoiceId on every DN marked with this
-        /// tax invoice. Called when the Tax Invoice is deleted so the DN
-        /// list no longer shows an invoiced badge for a missing invoice.
-        /// Idempotent. Safe with a blank id — no-ops.
+        /// tax invoice. Used only by an explicit Tax Invoice lifecycle/unlink
+        /// operation; permission, read-only state, save, and verification are
+        /// enforced by the repository.
         /// </summary>
         Task ClearInvoicedByTaxInvoiceAsync(string taxInvoiceId);
+
+        /// <summary>
+        /// Atomically reconciles the target TI↔DN link set inside deliverynotes.db:
+        /// clears only stale links owned by this invoice and validates all target
+        /// DNs before assigning them. Cross-database TI commit remains a separate
+        /// operation and failures are surfaced to the caller.
+        /// </summary>
+        Task SynchronizeTaxInvoiceLinksAsync(
+            string taxInvoiceId,
+            IEnumerable<string> deliveryNoteIds);
+
+        /// <summary>All DNs carrying this invoice ID; includes voided records.</summary>
+        Task<List<DeliveryNoteListItem>> GetByTaxInvoiceIdAsync(string taxInvoiceId);
 
         // ── List retrieval ───────────────────────────────────────────────
 
@@ -216,14 +228,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         // ── CRUD ─────────────────────────────────────────────────────────
 
         Task<SavedDeliveryNote> InsertAsync(SavedDeliveryNote entity);
-        Task UpdateAsync(SavedDeliveryNote entity);
+        Task UpdateAsync(SavedDeliveryNote entity, int expectedRowVersion);
 
-        /// <summary>
-        /// Update with optimistic-concurrency check (Phase 5). Pass the loaded
-        /// RowVersion; throws ConcurrencyConflictException if it moved on. Pass
-        /// null for legacy behaviour.
-        /// </summary>
-        Task UpdateAsync(SavedDeliveryNote entity, int? expectedRowVersion);
+        /// <summary>Validated status-only transition using the caller's loaded version.</summary>
+        Task<SavedDeliveryNote?> UpdateStatusAsync(
+            int id, string newStatus, int expectedRowVersion);
         Task DeleteAsync(int id);
 
         /// <summary>

@@ -46,10 +46,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 // Visible feedback so the click never feels dead.
                 BackupStatus = "Refreshing backup list…";
-                RefreshBackupSets();
-                BackupStatus = BackupSets.Count > 0
-                    ? $"✓ {BackupSets.Count} backup set(s) listed."
-                    : "No backup sets found yet.";
+                BackupStatus = RefreshBackupSets();
             });
 
             CreateBackupNowCommand = new RelayCommand(_ =>
@@ -75,14 +72,11 @@ namespace ProGlassAutomation.ViewModels.Settings
                         return;
                 }
 
-                var set = Services.Database.DatabaseBackup.BackupService
-                    .CreateFullBackupSet("manual (Settings)");
-
-                BackupStatus = set.Length > 0
-                    ? $"✓ Backup created: {System.IO.Path.GetFileName(set)}"
-                    : "✗ Backup failed — see Logs & Activity for details.";
+                var result = Services.Database.DatabaseBackup.BackupService
+                    .CreateFullBackupSetDetailed("manual (Settings)");
 
                 RefreshBackupSets();
+                BackupStatus = (result.Success ? "✓ " : "✗ ") + result.Message;
             });
 
             RestoreSelectedBackupCommand = new RelayCommand(_ =>
@@ -109,8 +103,29 @@ namespace ProGlassAutomation.ViewModels.Settings
                     return;
                 }
 
+                if (!selected.IsRestorable)
+                {
+                    BackupStatus = "✗ Selected set cannot be restored: " +
+                        selected.RestoreValidationMessage + ". No files were changed.";
+                    return;
+                }
+
+                // This in-app action overlays files included in the backup
+                // set; it does NOT replace the complete data-root directory.
+                // Keep the scope explicit here so the confirmation cannot
+                // imply that stray/unlisted files will be removed.
+                string restoreWarning =
+                    $"Restore backup set from {selected.CreatedAt:G}?\n\n" +
+                    "This copies the database, configuration, and attachment files present " +
+                    "in the selected set over matching files in the active data root. Files " +
+                    "that are not in the set are left in place. A safety snapshot is taken " +
+                    "first. For a clean full-root restore, close ProGlass on every workstation " +
+                    "and replace the complete data-root folder using the Windows backup/restore procedure.";
+                if (!selected.HasInventoryManifest)
+                    restoreWarning += "\n\n" + selected.RestoreValidationMessage +
+                        " Only proceed if you trust the contents of this older backup set.";
                 var confirm = _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.RestoreBackupFromXThis"), selected.CreatedAt),
+                    restoreWarning,
                     LocalizationService.Instance.T("Msg.CapRestoreBackup"),
                     System.Windows.MessageBoxButton.YesNo,
                     System.Windows.MessageBoxImage.Warning);
@@ -143,12 +158,16 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 try
                 {
+                    AppDataRoot.EnsureCurrentFolder();
                     var folder = Services.Database.DatabaseBackup.BackupService.GetBackupsFolder();
-
                     System.IO.Directory.CreateDirectory(folder);
-                                ProcessStartGuard.TryOpenFolder(folder, CorrelationContext.NewId());
+                    ProcessStartGuard.TryOpenFolder(folder, CorrelationContext.NewId());
                 }
-                catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
+                catch (Exception ex)
+                {
+                    BackupStatus = "✗ Could not open backup folder: " + ExceptionMessages.Deep(ex);
+                    AppLogService.Warning($"Could not open backup folder: {ExceptionMessages.Deep(ex)}");
+                }
             });
 
         }
@@ -171,7 +190,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 async _ => await RebuildAllDatabasesAsync(),
                 _ => !IsDiagnosing && !IsRebuilding);
 
-            RefreshBackupSets();
+            BackupStatus = RefreshBackupSets();
         }
 
         private async Task RunDatabaseDiagnosticsAsync()
@@ -326,14 +345,22 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
         }
 
-        private void RefreshBackupSets()
+        private string RefreshBackupSets()
         {
             BackupSets.Clear();
-            foreach (var set in Services.Database.DatabaseBackup
-                .BackupService.GetBackupSets())
-            {
+            bool available = Services.Database.DatabaseBackup.BackupService
+                .TryGetBackupSets(out var sets, out string message);
+            foreach (var set in sets)
                 BackupSets.Add(set);
-            }
+
+            if (!available)
+                return "✗ " + message;
+
+            int restorable = BackupSets.Count(set => set.IsRestorable);
+            int invalid = BackupSets.Count - restorable;
+            return BackupSets.Count == 0
+                ? message
+                : $"✓ Listed {BackupSets.Count} set(s): {restorable} restorable, {invalid} not restorable. {message}";
         }
 
         // Phase 4: Event lifetime — detach static events

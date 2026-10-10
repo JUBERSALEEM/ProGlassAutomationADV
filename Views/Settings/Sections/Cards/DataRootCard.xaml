@@ -103,7 +103,7 @@
                                  Style="{StaticResource TextBoxStyle}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="Current live root"
+                        <TextBlock Text="Configured / current data root"
                                    Style="{StaticResource SettingsRowMetaStyle}"/>
                         <TextBlock Text="{Binding CurrentDataRootDisplay}"
                                    FontSize="{DynamicResource FontSize.BodySmall}"

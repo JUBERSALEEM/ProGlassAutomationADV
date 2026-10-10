@@ -160,7 +160,8 @@ namespace ProGlassAutomation.Tests.Production
         public void UseStock_cas_and_consumed_are_separate_databases()
         {
             string use = Read("Services/SheetStore/SheetStoreRepository.cs");
-            Assert.Contains("g.Id == sheetId && g.Stock - g.Used >= quantity", use);
+            Assert.Contains("int balance = sheet.Stock - sheet.Used;", use);
+            Assert.Contains("db.SheetHistories.Add(CreateHistory(", use);
 
             string release = Read("Services/Production/ProductionReleaseService.cs");
             Assert.Contains("ProductionSnapshotKind.Corrupt", release);

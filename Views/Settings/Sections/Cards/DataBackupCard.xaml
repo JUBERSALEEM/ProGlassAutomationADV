@@ -82,6 +82,9 @@
                     </StackPanel>
                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                Text="{DynamicResource Settings.RestoreAlwaysSnapshotsCurrentDataFirstBad}"/>
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                               Text="In-app restore overlays matching files only; files absent from the set remain. It is not a clean data-root replacement."
+                               TextWrapping="Wrap"/>
                     <Button Style="{StaticResource SuccessPillButton}"
                             Height="36"
                             Tag="&#xE895;" Content="{DynamicResource Settings.RestoreSelectedBackup}"
@@ -129,6 +132,8 @@
                                     <Run Text="{Binding FileCount, Mode=OneWay}"/>
                                     <Run Text="{DynamicResource Settings.Files}"/>
                                     <Run Text="{Binding SizeDisplay, Mode=OneWay}"/>
+                                    <Run Text="  •  "/>
+                                    <Run Text="{Binding RestoreStatusDisplay, Mode=OneWay}"/>
                                 </TextBlock>
                             </StackPanel>
                         </DataTemplate>

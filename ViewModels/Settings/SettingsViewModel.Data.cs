@@ -175,27 +175,38 @@ namespace ProGlassAutomation.ViewModels.Settings
             private set { _networkDataRootStatus = value; OnPropertyChanged(); }
         }
 
-        public string DataRootModeDisplay => UseSharedDataRoot
-            ? "Shared LAN/Wi-Fi database mode"
-            : "Local workstation database mode";
+        public string DataRootModeDisplay => Services.Database.AppDataRoot.SharedRootFallbackActive
+            ? "Shared root unavailable — database access blocked"
+            : UseSharedDataRoot
+                ? "Shared LAN/Wi-Fi database mode"
+                : "Local workstation database mode";
 
         public string CurrentDataRootDisplay
         {
             get
             {
-                var root = Services.Database.AppDataRoot.CurrentFolder;
-                // Make a startup fallback impossible to miss next to the path.
-                return Services.Database.AppDataRoot.SharedRootFallbackActive
-                    ? root + "   ⚠ LOCAL fallback — shared folder was unreachable at startup"
-                    : root;
+                var appDataRoot = Services.Database.AppDataRoot;
+                if (appDataRoot.SharedRootFallbackActive)
+                {
+                    var configured = string.IsNullOrWhiteSpace(appDataRoot.ConfiguredSharedDataRoot)
+                        ? "(empty or invalid saved path)"
+                        : appDataRoot.ConfiguredSharedDataRoot;
+                    return "UNAVAILABLE — configured shared root: " + configured +
+                        "   |   database access blocked; local AppData is not in use";
+                }
+
+                var root = appDataRoot.CurrentFolder;
+                return root + (appDataRoot.IsSharedDataRootEnabled
+                    ? "   |   shared root active"
+                    : "   |   local root active");
             }
         }
 
         /// <summary>
-        /// Red split-brain banner text for the Data card. Non-empty only
-        /// when the settings want a shared root but this workstation is
-        /// actually running on local data (see AppDataRoot state). The
-        /// XAML collapses the tile via StringToVisibilityConverter.
+        /// Red unavailable-root banner for the Data card. Non-empty only
+        /// when a shared root is configured but invalid or unreachable; the
+        /// application blocks database access instead of opening local data.
+        /// The XAML collapses the tile via StringToVisibilityConverter.
         /// </summary>
         private string _sharedRootWarning = "";
         public string SharedRootWarning
@@ -215,8 +226,8 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 SharedRootWarning = string.IsNullOrEmpty(
                     Services.Database.AppDataRoot.SharedRootFallbackReason)
-                    ? "This workstation is on LOCAL data but a shared company database is " +
-                      "configured. Check the shared folder path and restart ProGlass."
+                    ? "A shared company database is configured but unavailable. Database access is blocked; " +
+                      "local AppData will not be opened. Check the shared folder and restart ProGlass."
                     : Services.Database.AppDataRoot.SharedRootFallbackReason;
             }
             else

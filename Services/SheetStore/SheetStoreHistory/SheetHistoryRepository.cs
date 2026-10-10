@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -36,6 +38,8 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStoreHistory
                                     string? salesman = null,
                                     string? panePosition = null)
         {
+            ReadOnlyGate.Demand("write sheet-stock history");
+            OperationGuard.Demand(AppPermissions.SheetStoreEdit, "write sheet-stock history");
             using var db = new AppDbContext();
             var entry = new SheetHistory
             {
@@ -114,8 +118,12 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStoreHistory
         public async Task<SheetHistory?> ReverseMovementAsync(int historyId, string reason)
         {
             ReadOnlyGate.Demand("undo a sheet movement");
+            OperationGuard.Demand(AppPermissions.SheetStoreEdit, "undo a sheet movement");
 
             using var db = new AppDbContext();
+            await db.Database.OpenConnectionAsync().ConfigureAwait(false);
+            await using var tx = await db.Database
+                .BeginTransactionAsync(IsolationLevel.Serializable).ConfigureAwait(false);
 
             var original = await db.SheetHistories
                 .FirstOrDefaultAsync(h => h.Id == historyId).ConfigureAwait(false);
@@ -157,6 +165,7 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStoreHistory
             }
 
             sheet.LastUpdated = DateTime.Now;
+            sheet.RowVersion++;
 
             // Flag the original — badge in the grid, and the CanReverse
             // guard now refuses a second undo.
@@ -200,9 +209,11 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStoreHistory
 
             db.SheetHistories.Add(compensating);
 
-            // ONE save: counter restore + original flag + compensating row
-            // commit together or not at all.
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            // One transaction: counter restore + original flag + compensating
+            // row commit together or not at all. BEGIN IMMEDIATE/serializable
+            // also prevents two workstations from reversing the same movement.
+            await db.SaveChangesAsync().ConfigureAwait(false);
+            await tx.CommitAsync().ConfigureAwait(false);
 
             return compensating;
         }

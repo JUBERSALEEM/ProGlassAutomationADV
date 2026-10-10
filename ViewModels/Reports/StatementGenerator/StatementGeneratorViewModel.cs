@@ -125,6 +125,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
         // ── Edit mode ────────────────────────────────────────────────────
         private int _editId = 0;
+        private int _editRowVersion;
         private string _editNumber = "";
         public bool IsEditMode => _editId > 0;
         public string PageTitle => IsEditMode

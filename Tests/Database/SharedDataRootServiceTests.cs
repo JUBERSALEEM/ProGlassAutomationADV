@@ -28,6 +28,7 @@ using Xunit;
 
 namespace ProGlassAutomation.Tests.Database
 {
+    [Collection("HermeticDb")]
     public sealed class SharedDataRootServiceTests : IDisposable
     {
         private readonly string _tempRoot;
@@ -88,6 +89,15 @@ namespace ProGlassAutomation.Tests.Database
 
             Assert.True(AppDataRoot.TryNormalizeSharedRoot(folder, out var normalized));
             Assert.False(normalized.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal));
+        }
+
+        [Fact]
+        public void Normalize_preserves_a_volume_root_separator()
+        {
+            if (!OperatingSystem.IsWindows()) return;
+
+            Assert.True(AppDataRoot.TryNormalizeSharedRoot(@"Z:\", out var normalized));
+            Assert.Equal(@"Z:\", normalized);
         }
 
         // ── LooksNetworkBased ────────────────────────────────────────
@@ -200,6 +210,31 @@ namespace ProGlassAutomation.Tests.Database
             Assert.True(off.Ok);
             Assert.False(config.DataConnectivity!.UseSharedDataRoot);
             Assert.Equal("", config.DataConnectivity.SharedDataRootPath);
+        }
+
+        // ── Startup remains fail-closed ──────────────────────────────
+
+        [Fact]
+        public void Enabled_shared_mode_with_invalid_path_never_selects_local_AppData()
+        {
+            try
+            {
+                var config = new AppConfig();
+                config.DataConnectivity!.UseSharedDataRoot = true;
+                config.DataConnectivity.SharedDataRootPath = "";
+                AppDataRoot.ConfigureFrom(config);
+
+                Assert.True(AppDataRoot.SharedRootFallbackActive);
+                Assert.NotEqual(AppDataRoot.ProductionFolder, AppDataRoot.CurrentFolder);
+                Assert.Contains("will not open local AppData", AppDataRoot.SharedRootFallbackReason,
+                    StringComparison.OrdinalIgnoreCase);
+                Assert.Throws<SharedDataRootUnavailableException>(
+                    AppDataRoot.EnsureCurrentFolder);
+            }
+            finally
+            {
+                AppDataRoot.ConfigureFrom(new AppConfig());
+            }
         }
 
         // ── SharedDataRootUnavailableException ───────────────────────

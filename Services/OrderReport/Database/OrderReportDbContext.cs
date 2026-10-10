@@ -47,6 +47,9 @@ namespace ProGlassAutomation.Services.OrderReport.Database
                 entity.HasIndex(e => e.FilterSalesman);
                 entity.HasIndex(e => e.CreatedAt);
 
+                entity.Property(e => e.RowVersion)
+                    .IsConcurrencyToken()
+                    .ValueGeneratedNever();
                 entity.Property(e => e.TotalInvoicedValue).HasColumnType("TEXT");
                 entity.Property(e => e.FullSnapshotJson).HasColumnType("TEXT");
                 entity.Property(e => e.FilterJson).HasColumnType("TEXT");

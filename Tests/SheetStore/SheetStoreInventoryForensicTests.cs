@@ -34,24 +34,28 @@ namespace ProGlassAutomation.Tests.SheetStore
         }
 
         [Fact]
-        public void Use_stock_guards_balance_in_the_update_where()
+        public void Use_stock_and_history_share_a_serializable_transaction()
         {
             string src = File.ReadAllText(Path.Combine(LocateProjectRoot(),
                 "Services", "SheetStore", "SheetStoreRepository.cs"));
 
-            Assert.Contains(
-                "g.Id == sheetId && g.Stock - g.Used >= quantity", src);
-            Assert.Contains("g.Used + quantity", src);
-            Assert.DoesNotContain("g.Used = quantity", src);
+            Assert.Contains("BeginTransactionAsync(IsolationLevel.Serializable)", src);
+            Assert.Contains("int balance = sheet.Stock - sheet.Used;", src);
+            Assert.Contains("if (balance < quantity)", src);
+            Assert.Contains("db.SheetHistories.Add(CreateHistory(", src);
+            Assert.Contains("await db.SaveChangesAsync().ConfigureAwait(false);", src);
+            Assert.DoesNotContain("ExecuteUpdateAsync", src);
         }
 
         [Fact]
-        public void Buy_stock_increments_in_sql()
+        public void Buy_stock_and_purchase_history_share_a_serializable_transaction()
         {
             string src = File.ReadAllText(Path.Combine(LocateProjectRoot(),
                 "Services", "SheetStore", "SheetStoreRepository.cs"));
 
-            Assert.Contains("g.Stock + quantity", src);
+            Assert.Contains("sheet.Stock += quantity;", src);
+            Assert.Contains("db.SheetHistories.Add(CreateHistory(", src);
+            Assert.Contains("await tx.CommitAsync().ConfigureAwait(false);", src);
         }
 
         [Fact]

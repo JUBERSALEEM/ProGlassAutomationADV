@@ -58,23 +58,11 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 {
                     var desc = DescribeSheet(sheet);
                     var stockLost = sheet.Stock;
-                    var valueLost = sheet.TotalPurchaseValue;
 
-                    // Primary DB write — this is the source of truth.
-                    await _repo.DeleteAsync(sheet.Id);
+                    // Stock snapshot, deleted row, and movement history are
+                    // committed by one repository transaction.
+                    await _repo.DeleteAsync(sheet.Id, sheet.RowVersion);
 
-                    // Secondary logging must never block the reload: if it
-                    // throws, the row is still gone from the DB and the list
-                    // must still refresh so the deleted row disappears.
-                    try
-                    {
-                        await _historyRepo.LogAsync(sheet.Id, desc, "Deleted",
-                            $"Removed from inventory. Lost {stockLost} sheets worth {valueLost:N2} AED.",
-                            stockLost, valueLost);
-                    }
-                    catch {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
-            }
                     try
                     {
                         AuditService.Log(AuditSections.SheetStore, "Sheet deleted",
@@ -116,20 +104,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             {
                 try
                 {
-                    var oldStock = sheet.Stock;
-                    await _repo.BuyStockAsync(sheet.Id, vm.Quantity);
-                    var value = vm.Quantity * sheet.SqmPerSheet * sheet.PurchasePricePerSqm;
+                    await _repo.BuyStockAsync(
+                        sheet.Id, vm.Quantity, source: "Sheet Store purchase");
 
-                    try
-                    {
-                        await _historyRepo.LogAsync(
-                            sheet.Id, DescribeSheet(sheet), "Bought",
-                            $"Purchased {vm.Quantity} sheets. Stock: {oldStock} → {oldStock + vm.Quantity}. Value: {value:N2} AED.",
-                            vm.Quantity, value);
-                    }
-                    catch {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
-            }
                     try
                     {
                         AuditService.Log(AuditSections.SheetStore, "Stock purchased",

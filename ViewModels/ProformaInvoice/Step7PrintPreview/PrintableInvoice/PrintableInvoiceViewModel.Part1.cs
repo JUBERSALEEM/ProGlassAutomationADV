@@ -204,6 +204,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         public int FurthestStepReached { get; set; }
 
         /// <summary>
+        /// RowVersion captured when the current PI was loaded/successfully
+        /// saved. Null denotes a new wizard draft; silent autosave must not
+        /// overwrite an existing row without an established loaded version.
+        /// </summary>
+        public int? LoadedRowVersion { get; set; }
+        public string? LoadedProformaId { get; set; }
+
+        /// <summary>
         /// CHAT 15: Parameter order corrected.
         /// Was: (company, ProjectSpecsViewModel project, ClientProfileViewModel client, ...)
         /// Now: (company, ClientProfileViewModel client, ProjectSpecsViewModel project, ...)
@@ -356,15 +364,31 @@ public PrintableInvoiceViewModel(
                     return false;
                 }
 
+                // Silent autosave is never permission to take over an invoice
+                // that this wizard did not load, or to recreate one deleted by
+                // another operator while the wizard was open.
+                bool hasVersionForCurrentInvoice = LoadedRowVersion.HasValue
+                    && string.Equals(LoadedProformaId, entity.ProformaId,
+                        StringComparison.OrdinalIgnoreCase);
+                if (existing != null && !hasVersionForCurrentInvoice) return false;
+                if (existing == null && hasVersionForCurrentInvoice) return false;
+
                 entity.Status = NormalizeSaveOnlyStatus(existing?.Status);
                 Company.ProformaStatus = entity.Status;
                 OnPropertyChanged(nameof(PreparedByStatus));
 
                 if (existing != null)
-                    await _invoices.UpdateAsync(entity);
+                {
+                    entity.RowVersion = LoadedRowVersion!.Value;
+                    await _invoices.UpdateAsync(entity, LoadedRowVersion.Value);
+                }
                 else
+                {
                     await _invoices.InsertAsync(entity);
+                }
 
+                LoadedRowVersion = entity.RowVersion;
+                LoadedProformaId = entity.ProformaId;
                 AdoptAllocatedProformaId(entity);
                 return true;
             }
@@ -644,6 +668,14 @@ public PrintableInvoiceViewModel(
                 MainSummary, Terms, this);
 
             var existing = await _invoices.GetByProformaIdAsync(entity.ProformaId);
+            bool hasVersionForCurrentInvoice = LoadedRowVersion.HasValue
+                && string.Equals(LoadedProformaId, entity.ProformaId,
+                    StringComparison.OrdinalIgnoreCase);
+            if (existing == null && hasVersionForCurrentInvoice)
+                throw new ProGlassAutomation.Services.Database.ConcurrencyConflictException(
+                    "Proforma Invoice", entity.ProformaId,
+                    LoadedRowVersion!.Value, actualRowVersion: -1);
+
             entity.Status = NormalizeSaveOnlyStatus(existing?.Status);
             Company.ProformaStatus = entity.Status;
             OnPropertyChanged(nameof(PreparedByStatus));
@@ -670,7 +702,13 @@ public PrintableInvoiceViewModel(
                         "update an existing invoice"))
                         return false;
 
-                    await _invoices.UpdateAsync(entity);
+                    int expectedVersion = hasVersionForCurrentInvoice
+                        ? LoadedRowVersion!.Value
+                        : existing!.RowVersion;
+                    entity.RowVersion = expectedVersion;
+                    await _invoices.UpdateAsync(entity, expectedVersion);
+                    LoadedRowVersion = entity.RowVersion;
+                    LoadedProformaId = entity.ProformaId;
                     AdoptAllocatedProformaId(entity);
                     await StampSaveArtifactsAsync(entity, isUpdate: true);
                     ShowSaveSuccess(entity.ProformaId, isUpdate: true);
@@ -682,14 +720,20 @@ public PrintableInvoiceViewModel(
                 Company.ProformaId = suggestedId;
                 Company.ProformaStatus = entity.Status;
                 OnPropertyChanged(nameof(PreparedByStatus));
+                entity.RowVersion = 0;
                 await _invoices.InsertAsync(entity);
+                LoadedRowVersion = entity.RowVersion;
+                LoadedProformaId = entity.ProformaId;
                 AdoptAllocatedProformaId(entity);
                 await StampSaveArtifactsAsync(entity, isUpdate: false);
                 ShowSaveSuccess(entity.ProformaId, isUpdate: false);
                 return true;
             }
 
+            entity.RowVersion = 0;
             await _invoices.InsertAsync(entity);
+            LoadedRowVersion = entity.RowVersion;
+            LoadedProformaId = entity.ProformaId;
             AdoptAllocatedProformaId(entity);
             await StampSaveArtifactsAsync(entity, isUpdate: false);
             ShowSaveSuccess(entity.ProformaId, isUpdate: false);
@@ -836,6 +880,8 @@ public PrintableInvoiceViewModel(
             }
 
             var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+            LoadedRowVersion = entity.RowVersion;
+            LoadedProformaId = entity.ProformaId;
 
             MainSummary.BeginBatchUpdate();
             try

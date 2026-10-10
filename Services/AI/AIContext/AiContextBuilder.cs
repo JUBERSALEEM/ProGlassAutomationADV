@@ -29,7 +29,7 @@
 //   ✓ NEW: Statement summary — outstanding and overdue per customer.
 //
 // QUERY STRATEGY:
-//   Tier 1 (always-on, fast):
+//   Tier 1 (opt-in, fast):
 //     Uses indexed columns only. No JSON deserialization.
 //     Target: < 150ms on typical dataset (100-500 records).
 //   Tier 2 (on-demand, per entity):
@@ -65,10 +65,11 @@
 //   SemaphoreSlim(1,1) ensures one build at a time.
 //   Cache reused for 30 seconds. InvalidateCache() clears on data change.
 //
-// REGRESSION RISK: ZERO — same public API surface.
-//   BuildContextAsync() signature unchanged.
-//   InvalidateCache() signature unchanged.
-//   New BuildEntityContextAsync() is additive.
+// PRIVACY GATE:
+//   BuildContextAsync(bool allowRealBusinessData) returns before cache or
+//   database access when consent is off. It contains no AI memory or audit
+//   context; those require a separately approved consent design.
+//   InvalidateCache() remains unchanged.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -116,17 +117,21 @@ namespace ProGlassAutomation.Services.AI.AIContext
             new SemaphoreSlim(1, 1);
 
         // ══════════════════════════════════════════════════════════════════
-        //  TIER 1 — ALWAYS-ON SUMMARY CONTEXT
+        //  TIER 1 — OPT-IN SUMMARY CONTEXT
         // ══════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Builds a concise real-time summary of business data for injection
-        /// into the AI system prompt. Results cached 30 seconds.
-        /// Returns empty string if UseRealData is disabled or all queries fail.
+        /// Builds a concise real-time business-data summary for an AI prompt.
+        /// Returns immediately without cache or database access when sharing
+        /// has not been explicitly enabled. AI memory and audit events are not
+        /// included in this context.
         /// </summary>
-        public static async Task<string> BuildContextAsync()
+        public static async Task<string> BuildContextAsync(bool allowRealBusinessData)
         {
-            // Check cache first (outside lock for performance)
+            if (!allowRealBusinessData)
+                return string.Empty;
+
+            // Check cache only after the egress-consent gate.
             if (DateTime.UtcNow < _cacheExpiry &&
                 !string.IsNullOrEmpty(_cachedContext))
                 return _cachedContext;
@@ -445,63 +450,11 @@ namespace ProGlassAutomation.Services.AI.AIContext
             }
             catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
-            // ── v2 LEARNING CONTEXT ─────────────────────────────────────
-            // Assistant memory + the user's recent activity let the AI
-            // understand daily work patterns, not just static data.
-            string learning = await BuildLearningContextAsync();
-            if (learning.Length > 0)
-                sb.Append(learning);
-
             sb.AppendLine("─────────────────────────────────────────────────────");
 
-            return (hasData || learning.Length > 0)
+            return hasData
                 ? sb.ToString()
                 : string.Empty;
-        }
-
-        /// <summary>
-        /// Combines AI memory (previous conversations) with the latest
-        /// audit activity so the assistant has session continuity.
-        /// v3: public — memory must be recalled even when the user has
-        /// switched real-data (RAG) off, otherwise the assistant appears
-        /// to forget everything between sessions.
-        /// </summary>
-        public static async Task<string> BuildLearningContextAsync()
-        {
-            try
-            {
-                var sb = new StringBuilder();
-
-                string memory = await AIMemory.AiMemoryService
-                    .BuildMemoryContextAsync();
-                if (memory.Length > 0)
-                    sb.AppendLine(memory);
-
-                var recent = await Audit.AuditService.GetRecentAsync(12);
-                if (recent.Count > 0)
-                {
-                    sb.AppendLine("─── RECENT USER ACTIVITY (audit trail) ─────────────");
-                    foreach (var entry in recent)
-                    {
-                        sb.Append("• [")
-                          .Append(entry.TimestampUtc.ToLocalTime()
-                              .ToString("dd MMM HH:mm"))
-                          .Append("] ").Append(entry.Section)
-                          .Append(" — ").Append(entry.Action);
-
-                        if (!string.IsNullOrWhiteSpace(entry.Details))
-                            sb.Append(": ").Append(entry.Details);
-
-                        sb.AppendLine();
-                    }
-                }
-
-                return sb.ToString();
-            }
-            catch
-            {
-                return "";
-            }
         }
 
         // ══════════════════════════════════════════════════════════════════

@@ -509,44 +509,9 @@ namespace ProGlassAutomation
                 }
             }
 
-            // 9c-2) Cross-database integrity sweep (Phase 2 — Result + Correlation):
-            //       reconcile Tax Invoice → Delivery Note invoiced links on
-            //       startup, so any link left broken by a crash / failed write
-            //       is automatically healed. Runs in the background and never
-            //       blocks startup; failures are logged with CorrelationId, never fatal.
-            //       Now uses Result pattern: returns Result<int> with repaired count.
-            ProGlassAutomation.Utilities.AsyncUtility.SafeFireAndForget(
-                async () =>
-                {
-                    var corrId = ProGlassAutomation.Services.Common.CorrelationContext.NewIdFor("Reconciler", "Startup");
-                    using var scope = ProGlassAutomation.Services.Common.CorrelationContext.BeginScope(corrId, null, "Reconciler");
-                    var result = await ProGlassAutomation.Services.TaxInvoice.Repository
-                        .TaxInvoiceDnReconciler.ReconcileWithResultAsync(corrId);
-                    if (result.IsFailure)
-                    {
-                        AppLogService.Warning(
-                            $"Reconciliation sweep failed [{corrId}]: {result.Error} (ErrorId={result.ErrorId})",
-                            new LogContext
-                            {
-                                Module = "TaxInvoice",
-                                Operation = "StartupReconcile",
-                                CorrelationId = corrId
-                            });
-                    }
-                    else if (result.Value > 0)
-                    {
-                        AppLogService.Info(
-                            $"Reconciliation sweep healed {result.Value} DN link(s) [{corrId}]",
-                            new LogContext
-                            {
-                                Module = "TaxInvoice",
-                                Operation = "StartupReconcile",
-                                CorrelationId = corrId,
-                                Extra = $"Repaired={result.Value}"
-                            });
-                    }
-                },
-                "Tax-invoice → delivery-note reconciliation sweep failed");
+            // The TI↔DN reconciliation sweep is scheduled after successful
+            // sign-in in OnCurrentUserChanged. It must not run here before an
+            // authenticated identity exists: link repairs are permission-gated.
 
             // 9c-2) Same-network user presence (Users page).
             // Start the service now, but do NOT broadcast an identity until
@@ -557,8 +522,6 @@ namespace ProGlassAutomation
             {
                 Presence = new UserPresenceService();
                 Presence.Start("", "");
-
-                AuditService.CurrentUserChanged += OnCurrentUserChanged;
             }
             catch (Exception ex)
             {
@@ -567,12 +530,19 @@ namespace ProGlassAutomation
                     new LogContext { Module = "Network", Operation = "Startup" });
             }
 
+            // Authentication lifecycle work must not depend on optional
+            // presence/network startup succeeding. Keep the named handler
+            // attached independently so post-login finance reconciliation
+            // still runs when Presence is unavailable.
+            AuditService.CurrentUserChanged -= OnCurrentUserChanged;
+            AuditService.CurrentUserChanged += OnCurrentUserChanged;
+
             // 9c-0) Specification ledger ground truth. Subscribes to invoice
             // writes and runs the initial heal on a background thread: spec
             // counts/history are derived from SAVED invoices only, purging
             // phantom Step-4-APPLY rows and deleted-PI references. Start()
-            // never throws and never blocks startup (same contract as the
-            // TI→DN sweep above).
+            //       never throws and never blocks startup (background repair
+            //       with explicit logging).
             try
             {
                 ProGlassAutomation.Services.Specifications

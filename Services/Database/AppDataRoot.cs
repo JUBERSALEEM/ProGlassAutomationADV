@@ -21,13 +21,11 @@ namespace ProGlassAutomation.Services.Database
     /// unreachable (file server off, WiFi not up yet, SMB name down)
     /// opened its LOCAL AppData database while the rest of the company
     /// kept writing to the share — two diverging data sets, no warning
-    /// anywhere. A downed share must not brick the app, so the fallback
-    /// to local stays; but it is now EXPLICIT STATE: SharedRootConfigured
-    /// + SharedRootFallbackReason + SharedRootFallbackActive, surfaced as
-    /// a red banner in Settings → Data, and every database folder access
-    /// goes through EnsureCurrentFolder(), which turns a missing share
-    /// into an operator-readable SharedDataRootUnavailableException
-    /// instead of a raw IOException deep inside a module.
+    /// anywhere. A configured but unavailable share now fails closed:
+    /// database access is blocked rather than redirected to local AppData.
+    /// The configured root and reason are surfaced as a red Settings banner;
+    /// every database folder access goes through EnsureCurrentFolder(),
+    /// which throws an operator-readable SharedDataRootUnavailableException.
     /// </summary>
     public static class AppDataRoot
     {
@@ -35,6 +33,7 @@ namespace ProGlassAutomation.Services.Database
         public const string DemoName = "ProGlassAutomation.Demo";
 
         private static string _sharedDataRoot = "";
+        private static string _configuredSharedDataRoot = "";
         private static bool _sharedFolderVerified = false;
 
         public static bool IsDemo { get; private set; }
@@ -45,6 +44,9 @@ namespace ProGlassAutomation.Services.Database
 
         public static string SharedDataRoot => _sharedDataRoot;
 
+        /// <summary>Saved shared root, normalized when possible, even when unavailable.</summary>
+        public static string ConfiguredSharedDataRoot => _configuredSharedDataRoot;
+
         /// <summary>
         /// The persisted settings asked for a shared root, whether or not
         /// it was reachable at startup. Lets the UI distinguish "shared is
@@ -54,11 +56,10 @@ namespace ProGlassAutomation.Services.Database
         public static bool SharedRootConfigured { get; private set; }
 
         /// <summary>
-        /// Human-readable reason this workstation is on LOCAL data even
-        /// though the company is on a shared root. Empty when there is no
-        /// problem. Written once at startup by ConfigureFrom; never blanked
-        /// again in the same process (the state can only be fixed by a
-        /// restart with the share reachable).
+        /// Human-readable reason database access is blocked because the
+        /// configured shared root is unavailable or invalid. Empty when
+        /// there is no problem. Written once at startup by ConfigureFrom;
+        /// restart after repairing the share to reselect it.
         /// </summary>
         public static string SharedRootFallbackReason { get; private set; } = "";
 
@@ -79,6 +80,12 @@ namespace ProGlassAutomation.Services.Database
                 if (IsDemo)
                     return DemoFolder;
 
+                // A configured but unavailable share remains the selected
+                // root. EnsureCurrentFolder will fail closed before any DB
+                // connection is opened; never route this state to local AppData.
+                if (SharedRootFallbackActive)
+                    return _configuredSharedDataRoot;
+
                 if (!string.IsNullOrWhiteSpace(_sharedDataRoot))
                     return _sharedDataRoot;
 
@@ -98,6 +105,7 @@ namespace ProGlassAutomation.Services.Database
         {
             // Reset every shared-root state, then re-derive it from config.
             _sharedDataRoot = "";
+            _configuredSharedDataRoot = "";
             _sharedFolderVerified = false;
             SharedRootConfigured = false;
             SharedRootFallbackReason = "";
@@ -106,22 +114,26 @@ namespace ProGlassAutomation.Services.Database
             if (data?.UseSharedDataRoot != true) return;
 
             SharedRootConfigured = true;
+            _configuredSharedDataRoot = data.SharedDataRootPath?.Trim() ?? "";
 
             if (!TryNormalizeSharedRoot(data.SharedDataRootPath, out var normalized))
             {
                 // Enabled in config but the path is empty/invalid — usually
-                // a half-saved state from an older build. Loud, not silent.
+                // a half-saved state from an older build. Fail closed before
+                // any DbContext can open a local database.
                 SharedRootFallbackReason =
-                    "Shared company database mode is enabled but the saved folder path is " +
-                    "empty or invalid, so this workstation is running on LOCAL data. Open " +
-                    "Settings → Data, enter the shared folder, test it, and save again.";
+                    "Shared company database mode is enabled, but the saved folder path is empty or invalid. " +
+                    "Database access is blocked; this workstation will not open local AppData. Open " +
+                    "Settings → Data, enter the shared folder, test it, save, and restart ProGlass.";
                 AppLogService.Error(
                     "Shared data root enabled in config but path is empty or invalid — " +
-                    "this workstation runs on local AppData (SPLIT-BRAIN RISK).",
+                    "database access is blocked; local AppData will not be opened.",
                     null,
                     new LogContext { Module = "Database", Operation = "ConfigureSharedRoot" });
                 return;
             }
+
+            _configuredSharedDataRoot = normalized;
 
             if (TryEnsureSharedFolder(normalized, out var failure))
             {
@@ -133,21 +145,18 @@ namespace ProGlassAutomation.Services.Database
             }
             else
             {
-                // The fallback to local stays (a downed share must not brick
-                // the app), but it is now explicit state with a reason the
-                // Settings page shows as a red banner — the operator can no
-                // longer be silently writing to a different database than
-                // the rest of the company.
+                // Never open a second, local database while the company root
+                // is configured. Keep the chosen share visible, block all DB
+                // access, and require a restart after the share is restored.
                 SharedRootFallbackReason =
-                    "The shared company data folder " + normalized + " was unreachable at " +
-                    "startup, so this workstation started on its LOCAL AppData database " +
-                    "while the rest of the company is on the shared folder. Make sure the " +
+                    "The configured shared company data folder " + normalized + " is unavailable. " +
+                    "Database access is blocked; this workstation will not open local AppData. Make sure the " +
                     "host computer is on, the folder is still shared on the WiFi/LAN, and " +
-                    "this workstation is on the same network — then restart ProGlass. (" +
+                    "this workstation is on the same network, then restart ProGlass. (" +
                     failure + ")";
                 AppLogService.Error(
-                    "Shared company database root unreachable at startup — fell back to " +
-                    $"local AppData (SPLIT-BRAIN RISK). Path: {normalized}. {failure}",
+                    "Configured shared company database root is unreachable — database access is blocked; " +
+                    $"local AppData will not be opened. Path: {normalized}. {failure}",
                     null,
                     new LogContext { Module = "Database", Operation = "ConfigureSharedRoot" });
             }
@@ -164,6 +173,20 @@ namespace ProGlassAutomation.Services.Database
         /// </summary>
         public static void EnsureCurrentFolder()
         {
+            bool usingTestOverride = !string.IsNullOrWhiteSpace(TestFolderOverride);
+            if (!usingTestOverride && SharedRootFallbackActive)
+            {
+                string configured = string.IsNullOrWhiteSpace(_configuredSharedDataRoot)
+                    ? "(empty or invalid path)"
+                    : _configuredSharedDataRoot;
+                var inner = new IOException(
+                    string.IsNullOrWhiteSpace(SharedRootFallbackReason)
+                        ? "The configured shared data root is unavailable."
+                        : SharedRootFallbackReason);
+                throw new SharedDataRootUnavailableException(configured, inner,
+                    SharedRootFallbackReason);
+            }
+
             string folder = CurrentFolder;
 
             if (IsSharedDataRootEnabled)
@@ -320,7 +343,14 @@ namespace ProGlassAutomation.Services.Database
                     || full.Equals(demo, StringComparison.OrdinalIgnoreCase))
                     return false;
 
-                normalized = full.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                // Preserve a volume root (for example a mapped share entered
+                // as Z:\). Trimming its final separator would turn it into
+                // drive-relative "Z:", which resolves against the process's
+                // current directory on that drive.
+                string volumeRoot = Path.GetPathRoot(full) ?? "";
+                normalized = string.Equals(full, volumeRoot, StringComparison.OrdinalIgnoreCase)
+                    ? full
+                    : full.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
                 return true;
             }
             catch
@@ -353,12 +383,17 @@ namespace ProGlassAutomation.Services.Database
     {
         public string SharedFolder { get; }
 
-        public SharedDataRootUnavailableException(string folder, Exception inner)
+        public SharedDataRootUnavailableException(
+            string folder,
+            Exception inner,
+            string? configuredReason = null)
             : base(
-                "Cannot reach the shared company data folder: " + folder + "\r\n\r\n" +
+                "The configured shared company data folder is unavailable: " + folder + "\r\n\r\n" +
+                "Database access is blocked. This workstation will not open local AppData. " +
                 "Check that (1) the computer hosting the share is on, (2) the folder is " +
                 "still shared on the WiFi/LAN, and (3) this workstation is connected to " +
-                "the same network.\r\n\r\n" +
+                "the same network. Restore access and restart ProGlass.\r\n\r\n" +
+                (string.IsNullOrWhiteSpace(configuredReason) ? "" : configuredReason + "\r\n\r\n") +
                 "Technical detail: " + inner.Message,
                 inner)
         {

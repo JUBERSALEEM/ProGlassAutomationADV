@@ -501,6 +501,7 @@ namespace ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice
         public decimal TotalSqm { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public int RowVersion { get; set; }
 
         /// <summary>ERP lifecycle hardening (Phase 1): true when this invoice
         /// has been voided (soft-closed). Kept on the list projection so the

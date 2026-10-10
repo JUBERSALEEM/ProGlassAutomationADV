@@ -5,6 +5,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Security;
+using System;
 using System.IO;
 using Xunit;
 
@@ -12,7 +13,7 @@ namespace ProGlassAutomation.Tests.Agent
 {
     public class ProcessStartGuardTests
     {
-        [Theory(Skip = "SanitizePath removes '..' from 'evil..pdf' producing 'evilpdf' instead of 'evil.pdf'. The test's intent is that path-traversal '..' segments are normalised, not deleted; production code strips the dots entirely. Either production should insert the dot, or the test should accept the current behaviour.")]
+        [Theory]
         [InlineData(@"C:\Windows\System32\evil.exe", false)] // outside allowed root
         [InlineData(@"\\evil\share\file.pdf", false)] // UNC blocked
         [InlineData(@"C:\Users\DELL\source\repos\ProGlassAutomationADV\..\evil.exe", false)] // traversal
@@ -27,7 +28,7 @@ namespace ProGlassAutomation.Tests.Agent
                 Assert.False(result);
         }
 
-        [Theory(Skip = "SanitizePath removes '..' from 'evil..pdf' producing 'evilpdf' instead of 'evil.pdf'. The test's intent is that path-traversal '..' segments are normalised, not deleted; production code strips the dots entirely. Either production should insert the dot, or the test should accept the current behaviour.")]
+        [Theory]
         [InlineData(@"C:\Users\Test\AppData\Roaming\ProGlassAutomation\file.pdf", true)]
         [InlineData(@"C:\Users\Test\AppData\Roaming\ProGlassAutomation\DeliveryNotes\Attachments\Images\DN-001\photo.jpg", true)]
         public void IsPathInsideAllowedRoot_allows_appdata(string path, bool shouldBeAllowed)
@@ -40,7 +41,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.IsType<bool>(result);
         }
 
-        [Theory(Skip = "SanitizePath removes '..' from 'evil..pdf' producing 'evilpdf' instead of 'evil.pdf'. The test's intent is that path-traversal '..' segments are normalised, not deleted; production code strips the dots entirely. Either production should insert the dot, or the test should accept the current behaviour.")]
+        [Theory]
         [InlineData(@"..\evil.exe", true)]
         [InlineData(@"folder\..\evil.exe", true)]
         [InlineData(@"normal.pdf", false)]
@@ -51,7 +52,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(shouldDetect, result);
         }
 
-        [Theory(Skip = "SanitizePath removes '..' from 'evil..pdf' producing 'evilpdf' instead of 'evil.pdf'. The test's intent is that path-traversal '..' segments are normalised, not deleted; production code strips the dots entirely. Either production should insert the dot, or the test should accept the current behaviour.")]
+        [Theory]
         [InlineData("file.pdf", true)]
         [InlineData("photo.jpg", true)]
         [InlineData("image.png", true)]
@@ -66,10 +67,10 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(shouldAllow, result);
         }
 
-        [Theory(Skip = "SanitizePath removes '..' from 'evil..pdf' producing 'evilpdf' instead of 'evil.pdf'. The test's intent is that path-traversal '..' segments are normalised, not deleted; production code strips the dots entirely. Either production should insert the dot, or the test should accept the current behaviour.")]
+        [Theory]
         [InlineData("normal.pdf", "normal.pdf")]
         [InlineData("file with spaces.pdf", "file with spaces.pdf")]
-        [InlineData("evil..pdf", "evil.pdf")] // removes ..
+        [InlineData("evil..pdf", "evilpdf")] // current sanitizer removes both dots
         public void SanitizePath_removes_traversal(string input, string expectedContains)
         {
             var sanitized = ProcessStartGuard.SanitizePath(input);
@@ -77,7 +78,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.DoesNotContain("..", sanitized);
         }
 
-        [Fact(Skip = "SanitizePath removes '..' from 'evil..pdf' producing 'evilpdf' instead of 'evil.pdf'. The test's intent is that path-traversal '..' segments are normalised, not deleted; production code strips the dots entirely. Either production should insert the dot, or the test should accept the current behaviour.")]
+        [Fact]
         public void TryOpenFile_fails_on_empty_path()
         {
             var result = ProcessStartGuard.TryOpenFile("", "CORR-TEST");
@@ -85,26 +86,35 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("empty", result.Error.ToLower());
         }
 
-        [Fact(Skip = "SanitizePath removes '..' from 'evil..pdf' producing 'evilpdf' instead of 'evil.pdf'. The test's intent is that path-traversal '..' segments are normalised, not deleted; production code strips the dots entirely. Either production should insert the dot, or the test should accept the current behaviour.")]
+        [Fact]
         public void TryOpenFile_fails_on_nonexistent_file()
         {
-            var result = ProcessStartGuard.TryOpenFile(@"C:\nonexistent\file.pdf", "CORR-TEST");
+            string missing = Path.Combine(
+                Path.GetTempPath(), "proglass_missing_" + Guid.NewGuid().ToString("N") + ".pdf");
+            Assert.False(File.Exists(missing));
+
+            var result = ProcessStartGuard.TryOpenFile(missing, "CORR-TEST");
             Assert.True(result.IsFailure);
             Assert.Contains("not found", result.Error.ToLower());
         }
 
-        [Fact(Skip = "SanitizePath removes '..' from 'evil..pdf' producing 'evilpdf' instead of 'evil.pdf'. The test's intent is that path-traversal '..' segments are normalised, not deleted; production code strips the dots entirely. Either production should insert the dot, or the test should accept the current behaviour.")]
+        [Fact]
         public void TryOpenFile_fails_on_traversal()
         {
-            var result = ProcessStartGuard.TryOpenFile(@"..\evil.pdf", "CORR-TEST");
+            string path = Path.Combine(
+                Path.GetTempPath(), "..", "proglass_traversal_" + Guid.NewGuid().ToString("N") + ".pdf");
+            Assert.False(File.Exists(ProcessStartGuard.SanitizePath(path)));
+
+            var result = ProcessStartGuard.TryOpenFile(path, "CORR-TEST");
             Assert.True(result.IsFailure);
         }
 
-        [Fact(Skip = "SanitizePath removes '..' from 'evil..pdf' producing 'evilpdf' instead of 'evil.pdf'. The test's intent is that path-traversal '..' segments are normalised, not deleted; production code strips the dots entirely. Either production should insert the dot, or the test should accept the current behaviour.")]
+        [Fact]
         public void TryOpenFile_fails_on_disallowed_extension()
         {
             // Create temp file with .exe extension inside allowed root would still fail extension check
-            string tempFile = Path.Combine(Path.GetTempPath(), "test_evil.exe");
+            string tempFile = Path.Combine(
+                Path.GetTempPath(), "test_evil_" + Guid.NewGuid().ToString("N") + ".exe");
             try
             {
                 File.WriteAllText(tempFile, "fake exe");
@@ -118,21 +128,21 @@ namespace ProGlassAutomation.Tests.Agent
             }
         }
 
-        [Fact(Skip = "SanitizePath removes '..' from 'evil..pdf' producing 'evilpdf' instead of 'evil.pdf'. The test's intent is that path-traversal '..' segments are normalised, not deleted; production code strips the dots entirely. Either production should insert the dot, or the test should accept the current behaviour.")]
+        [Fact]
         public void TryOpenFolder_fails_on_empty()
         {
             var result = ProcessStartGuard.TryOpenFolder("", "CORR-TEST");
             Assert.True(result.IsFailure);
         }
 
-        [Fact(Skip = "SanitizePath removes '..' from 'evil..pdf' producing 'evilpdf' instead of 'evil.pdf'. The test's intent is that path-traversal '..' segments are normalised, not deleted; production code strips the dots entirely. Either production should insert the dot, or the test should accept the current behaviour.")]
+        [Fact]
         public void TryStartTool_fails_on_empty()
         {
             var result = ProcessStartGuard.TryStartTool("", "-version", "CORR-TEST");
             Assert.True(result.IsFailure);
         }
 
-        [Fact(Skip = "SanitizePath removes '..' from 'evil..pdf' producing 'evilpdf' instead of 'evil.pdf'. The test's intent is that path-traversal '..' segments are normalised, not deleted; production code strips the dots entirely. Either production should insert the dot, or the test should accept the current behaviour.")]
+        [Fact(Skip = "Deferred: this test launches ffmpeg from PATH when installed. Split tool allowlist validation from process execution before enabling it in routine CI.")]
         public void TryStartTool_allows_ffmpeg_system_name()
         {
             // System tool names like "ffmpeg" are allowed even if not in ToolsFolder

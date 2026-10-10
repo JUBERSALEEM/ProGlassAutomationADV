@@ -32,6 +32,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         public DateTime? DeliveryDate { get; }
         public DateTime CreatedAt { get; }
         public DateTime UpdatedAt { get; }
+        public int RowVersion { get; }
 
         /// <summary>
         /// ERP lifecycle hardening (Phase 1): true when this job order has been
@@ -98,6 +99,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             DeliveryDate = row.DeliveryDate;
             CreatedAt = row.CreatedAt;
             UpdatedAt = row.UpdatedAt;
+            RowVersion = row.RowVersion;
             IsVoid = row.IsVoid;
 
             ResolveDisplays();
@@ -122,6 +124,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             DeliveryDate = entity.DeliveryDate;
             CreatedAt = entity.CreatedAt;
             UpdatedAt = entity.UpdatedAt;
+            RowVersion = entity.RowVersion;
             IsVoid = entity.IsVoid;
 
             ResolveDisplays();

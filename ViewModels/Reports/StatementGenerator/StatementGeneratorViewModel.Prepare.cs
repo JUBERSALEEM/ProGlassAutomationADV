@@ -51,6 +51,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         public void PrepareNew()
         {
             _editId = 0;
+            _editRowVersion = 0;
             _editNumber = "";
             _pendingListRefresh = false;
             CurrentStep = 1;
@@ -69,6 +70,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         public void PrepareEdit(StatementListItem item)
         {
             _editId = item.Id;
+            _editRowVersion = item.RowVersion;
             _editNumber = item.StatementNumber;
             _pendingListRefresh = false;
             CurrentStep = 1;

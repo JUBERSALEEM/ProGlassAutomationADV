@@ -4,10 +4,9 @@
 // ADDED: 2026-09-06
 //
 // Mirrors SheetStoreRepository's conventions deliberately: ReadOnlyGate on
-// every mutation, SqliteResilience.SaveWithRetryAsync on every save, one
-// short-lived AppDbContext per call. Consistency matters more than
-// cleverness here — the next person to read these two files should not
-// have to learn two idioms.
+// every mutation and one short-lived AppDbContext per call. Multi-row stock
+// mutations use a serializable transaction so the quantity and movement row
+// commit together; simpler metadata/delete saves use the shared retry helper.
 //
 // The one real difference: quantities are DECIMAL, because spacer bar is
 // received in linear metres (45.55 LM) and desiccant in kilograms. That
@@ -17,6 +16,7 @@
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
 using System;
 using System.Collections.Generic;
@@ -31,9 +31,10 @@ namespace ProGlassAutomation.Services.SheetStore
         Task<List<InventoryItem>> GetAllAsync();
         Task<InventoryItem?> GetByIdAsync(int id);
         Task<List<InventoryItem>> GetLowStockAsync();
+        Task<List<InventoryItemMovement>> GetMovementsAsync(int itemId);
         Task<InventoryItem> AddAsync(InventoryItem item);
-        Task UpdateAsync(InventoryItem item);
-        Task DeleteAsync(int id);
+        Task UpdateAsync(InventoryItem item, int expectedRowVersion);
+        Task DeleteAsync(int id, int expectedRowVersion);
 
         /// <summary>Receives stock. Quantity must be &gt; 0.</summary>
         Task ReceiveAsync(int itemId, decimal quantity, decimal? newUnitPrice = null);
@@ -65,6 +66,16 @@ namespace ProGlassAutomation.Services.SheetStore
                 .FirstOrDefaultAsync(i => i.Id == id).ConfigureAwait(false);
         }
 
+        public async Task<List<InventoryItemMovement>> GetMovementsAsync(int itemId)
+        {
+            using var db = new AppDbContext();
+            return await db.InventoryItemMovements.AsNoTracking()
+                .Where(m => m.InventoryItemId == itemId)
+                .OrderByDescending(m => m.Timestamp)
+                .ThenByDescending(m => m.Id)
+                .ToListAsync().ConfigureAwait(false);
+        }
+
         /// <summary>
         /// Items at or below their reorder level.
         ///
@@ -89,25 +100,57 @@ namespace ProGlassAutomation.Services.SheetStore
         public async Task<InventoryItem> AddAsync(InventoryItem item)
         {
             ReadOnlyGate.Demand("add an inventory item");
+            OperationGuard.Demand(AppPermissions.SheetStoreCreate, "add an inventory item");
+            if (item == null) throw new ArgumentNullException(nameof(item));
+            if (item.Stock < 0 || item.Used < 0 || item.Stock < item.Used)
+                throw new InvalidOperationException("Opening stock must be non-negative and cannot be below used stock.");
 
             using var db = new AppDbContext();
+            await db.Database.OpenConnectionAsync().ConfigureAwait(false);
+            await using var tx = await db.Database
+                .BeginTransactionAsync(IsolationLevel.Serializable).ConfigureAwait(false);
+
             item.CreatedAt = DateTime.Now;
             item.LastUpdated = DateTime.Now;
+            item.RowVersion = 0;
 
             db.InventoryItems.Add(item);
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            await db.SaveChangesAsync().ConfigureAwait(false);
+            if (item.Stock > 0)
+            {
+                db.InventoryItemMovements.Add(CreateMovement(
+                    item, "Added", item.Stock, item.TotalPurchaseValue,
+                    $"Opening stock: {item.Stock:N2} {item.UomDisplay}."));
+                await db.SaveChangesAsync().ConfigureAwait(false);
+            }
+
+            await tx.CommitAsync().ConfigureAwait(false);
             return item;
         }
 
-        public async Task UpdateAsync(InventoryItem item)
+        public async Task UpdateAsync(InventoryItem item, int expectedRowVersion)
         {
             ReadOnlyGate.Demand("update an inventory item");
+            OperationGuard.Demand(AppPermissions.SheetStoreEdit, "update an inventory item");
+            if (item == null) throw new ArgumentNullException(nameof(item));
 
             using var db = new AppDbContext();
+            await db.Database.OpenConnectionAsync().ConfigureAwait(false);
+            await using var tx = await db.Database
+                .BeginTransactionAsync(IsolationLevel.Serializable).ConfigureAwait(false);
+
             var existing = await db.InventoryItems
                 .FirstOrDefaultAsync(i => i.Id == item.Id).ConfigureAwait(false);
-            if (existing == null) return;
+            if (existing == null)
+                throw new ConcurrencyConflictException(
+                    "Inventory item", item.FullDescription,
+                    expectedRowVersion, actualRowVersion: -1);
+            if (existing.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Inventory item", existing.FullDescription,
+                    expectedRowVersion, existing.RowVersion);
 
+            decimal oldStock = existing.Stock;
             existing.Name = item.Name;
             existing.Category = item.Category;
             existing.PartNumber = item.PartNumber;
@@ -118,151 +161,155 @@ namespace ProGlassAutomation.Services.SheetStore
             existing.PurchasePricePerUnit = item.PurchasePricePerUnit;
             existing.SellPricePerUnit = item.SellPricePerUnit;
 
-            // Stock is NOT copied wholesale. It moves only through
-            // ReceiveAsync/ConsumeAsync so every change has a reason —
-            // except a deliberate correction, which must still respect
-            // what has already been consumed.
-            if (item.Stock != existing.Stock)
+            // A deliberate opening-stock correction is allowed only when it
+            // does not erase recorded consumption; its adjustment row is
+            // written in this same transaction.
+            if (item.Stock != oldStock)
             {
                 if (item.Stock < existing.Used)
                     throw new InvalidOperationException(
                         $"Stock cannot be set below {existing.Used:N2} {existing.UomDisplay} — " +
                         "that much is already recorded as used.");
+                if (item.Stock < 0)
+                    throw new InvalidOperationException("Stock cannot be negative.");
+
                 existing.Stock = item.Stock;
+                decimal delta = item.Stock - oldStock;
+                db.InventoryItemMovements.Add(CreateMovement(
+                    existing, "Adjusted", delta,
+                    delta * existing.PurchasePricePerUnit,
+                    $"Stock manually adjusted: {oldStock:N2} → {item.Stock:N2} {existing.UomDisplay}."));
             }
 
-            existing.LastUpdated = DateTime.Now;
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            DateTime now = DateTime.Now;
+            existing.LastUpdated = now;
+            existing.RowVersion = expectedRowVersion + 1;
+            try
+            {
+                await db.SaveChangesAsync().ConfigureAwait(false);
+                await tx.CommitAsync().ConfigureAwait(false);
+                item.RowVersion = existing.RowVersion;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                await tx.RollbackAsync().ConfigureAwait(false);
+                int actual = await db.InventoryItems.AsNoTracking()
+                    .Where(i => i.Id == item.Id)
+                    .Select(i => (int?)i.RowVersion)
+                    .FirstOrDefaultAsync().ConfigureAwait(false) ?? -1;
+                throw new ConcurrencyConflictException(
+                    "Inventory item", item.FullDescription,
+                    expectedRowVersion, actual);
+            }
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, int expectedRowVersion)
         {
             ReadOnlyGate.Demand("delete an inventory item");
+            OperationGuard.Demand(AppPermissions.SheetStoreDelete, "delete an inventory item");
 
             using var db = new AppDbContext();
+            await db.Database.OpenConnectionAsync().ConfigureAwait(false);
+            await using var tx = await db.Database
+                .BeginTransactionAsync(IsolationLevel.Serializable).ConfigureAwait(false);
+
             var item = await db.InventoryItems
                 .FirstOrDefaultAsync(i => i.Id == id).ConfigureAwait(false);
-            if (item == null) return;
+            if (item == null)
+                throw new ConcurrencyConflictException(
+                    "Inventory item", id.ToString(),
+                    expectedRowVersion, actualRowVersion: -1);
+            if (item.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Inventory item", item.FullDescription,
+                    expectedRowVersion, item.RowVersion);
 
+            // Keep the final total/used/available quantities in the immutable
+            // snapshot. Use the remaining balance as the removed stock quantity
+            // rather than implying that all received stock was still on hand.
+            db.InventoryItemMovements.Add(CreateMovement(
+                item, "Deleted", item.Balance,
+                item.Balance * item.PurchasePricePerUnit,
+                $"Inventory item deleted. Total stock: {item.Stock:N2}; " +
+                $"used: {item.Used:N2}; available: {item.Balance:N2} {item.UomDisplay}."));
             db.InventoryItems.Remove(item);
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+
+            try
+            {
+                await db.SaveChangesAsync().ConfigureAwait(false);
+                await tx.CommitAsync().ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                await tx.RollbackAsync().ConfigureAwait(false);
+                int actual = await db.InventoryItems.AsNoTracking()
+                    .Where(i => i.Id == id)
+                    .Select(i => (int?)i.RowVersion)
+                    .FirstOrDefaultAsync().ConfigureAwait(false) ?? -1;
+                throw new ConcurrencyConflictException(
+                    "Inventory item", item.FullDescription,
+                    expectedRowVersion, actual);
+            }
         }
 
-        /// <remarks>
-        /// <para>
-        /// KNOWN RACE, DELIBERATELY NOT FIXED THE OBVIOUS WAY.
-        /// </para>
-        /// <para>
-        /// This is a read-modify-write, so two operators receiving into the same
-        /// item at the same instant can lose one of the receipts.
-        /// <c>SheetStoreRepository.BuyStockAsync</c> had the identical shape and
-        /// was fixed by moving the increment into SQL
-        /// (<c>SET Stock = Stock + @q</c>). Doing that here would be a mistake,
-        /// and the reason is worth writing down so the next reader does not
-        /// "obviously" apply the same fix.
-        /// </para>
-        /// <para>
-        /// <c>InventoryItem.Stock</c> and <c>Used</c> are declared with TEXT
-        /// affinity (see <c>AppDbContext.OnModelCreating</c>, the D-6 block) so
-        /// that quantities like 45.55 linear metres are stored and read as exact
-        /// .NET decimals. Arithmetic in C# never touches a binary float. Moving
-        /// the addition into SQL moves it into SQLite's REAL type, and the result
-        /// is converted back to TEXT with 15 significant digits. Measured on
-        /// SQLite 3.40.1: exact for every realistic stock figure, but
-        /// <c>12345678901234.56</c> comes back as <c>12345678901234.6</c> and
-        /// <c>9999999999999999.99</c> comes back as <c>1.0e+16</c>. The schema
-        /// allows 18,2 — sixteen significant digits — so the column can legally
-        /// hold a value this path would silently corrupt.
-        /// </para>
-        /// <para>
-        /// FIXED 2026-10-05 (Phase 23 of docs/UPGRADE_PHASES_2026-10-05.md) the
-        /// way this note said it should be: the read-modify-write now runs
-        /// inside one serializable transaction, so the value read is the value
-        /// the write is based on. The arithmetic stays in C# on
-        /// <c>decimal</c> for the reason measured above — moving it into SQL
-        /// would move it into a binary float.
-        /// </para>
-        /// <para>
-        /// Why a transaction and not the sheet-store's guarded
-        /// <c>ExecuteUpdateAsync</c>: that pattern is
-        /// <c>SET Used = Used + @q WHERE Stock - Used &gt;= @q</c>, and it is
-        /// correct there only because <c>GlassSheet.Stock</c> and
-        /// <c>GlassSheet.Used</c> are <c>int</c>, so SQLite does exact integer
-        /// arithmetic. Here the columns are <c>decimal</c> with TEXT affinity,
-        /// so the same statement would route both the guard and the increment
-        /// through <c>REAL</c>. A WHERE clause alone does not fix a lost update
-        /// either — it stops over-issue, but two writers computing the new value
-        /// in C# from the same stale read still overwrite each other. The
-        /// transaction is what closes that window; the guard is what the balance
-        /// check inside it is for.
-        /// </para>
-        /// <para>
-        /// Regression net: <c>Tests/Database/InventoryStockConcurrencyTests.cs</c>
-        /// — concurrent receipts and issues against a real SQLite file, asserting
-        /// the exact final counters.
-        /// </para>
-        /// </remarks>
-        public async Task ReceiveAsync(int itemId, decimal quantity, decimal? newUnitPrice = null)
+        /// <summary>
+        /// Receives a stock quantity and records the counter change, optional
+        /// price change, row-version bump, and immutable movement entry in one
+        /// serializable transaction. The addition is deliberately decimal
+        /// arithmetic in C#: these columns use SQLite TEXT affinity to preserve
+        /// fractional units exactly, so SQL-side numeric addition is unsafe.
+        /// </summary>
+        public async Task ReceiveAsync(
+            int itemId, decimal quantity, decimal? newUnitPrice = null)
         {
             ReadOnlyGate.Demand("receive inventory stock");
+            OperationGuard.Demand(AppPermissions.SheetStoreEdit, "receive inventory stock");
 
-            // Refuse rather than no-op. A zero receipt is a mistake, and
-            // silently doing nothing is how the operator ends up believing
-            // stock was booked in when it was not.
             if (quantity <= 0)
                 throw new InvalidOperationException(
                     "Received quantity must be greater than zero.");
 
             using var db = new AppDbContext();
-
-            // Serializable, not the default. On SQLite the isolation level is
-            // what decides whether the write lock is taken when the transaction
-            // OPENS (BEGIN IMMEDIATE) or only when the first UPDATE runs (BEGIN
-            // DEFERRED). Deferred would leave the window open: two receipts both
-            // read the same Stock, both pass, and the second write overwrites
-            // the first. The Production services take the same lock for the same
-            // reason (MaterialAllocationService, CuttingCompletionService,
-            // PairingService and the rest of Services/Production).
             await db.Database.OpenConnectionAsync().ConfigureAwait(false);
-            using var tx = await db.Database
+            await using var tx = await db.Database
                 .BeginTransactionAsync(IsolationLevel.Serializable)
                 .ConfigureAwait(false);
 
             var item = await db.InventoryItems
                 .FirstOrDefaultAsync(i => i.Id == itemId).ConfigureAwait(false);
-            // A vanished item is a no-op, unchanged. The transaction is
-            // disposed uncommitted, which rolls back nothing because nothing
-            // was written.
+            // Preserve existing command semantics: a row deleted after the
+            // receipt dialog opened is a no-op, not a phantom stock movement.
             if (item == null) return;
 
-            item.Stock += quantity;
+            decimal oldStock = item.Stock;
             if (newUnitPrice.HasValue && newUnitPrice.Value > 0)
                 item.PurchasePricePerUnit = newUnitPrice.Value;
 
+            item.Stock += quantity;
             item.LastPurchaseDate = DateTime.Now;
             item.LastUpdated = DateTime.Now;
+            item.RowVersion++;
 
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            db.InventoryItemMovements.Add(CreateMovement(
+                item, "Received", quantity,
+                quantity * item.PurchasePricePerUnit,
+                $"Received {quantity:N2} {item.UomDisplay}. " +
+                $"Stock: {oldStock:N2} → {item.Stock:N2}."));
+
+            await db.SaveChangesAsync().ConfigureAwait(false);
             await tx.CommitAsync().ConfigureAwait(false);
         }
 
         /// <remarks>
-        /// Same race, same fix and the same reason it is not a SQL-side
-        /// increment as <see cref="ReceiveAsync"/> — the quantity columns are
-        /// TEXT affinity by design and SQL arithmetic would route them through a
-        /// binary float. See that method for the measured evidence.
-        /// <para>
-        /// The balance check here is the part that used to be unsafe: it ran in
-        /// C# between the read and the write, so two operators issuing from the
-        /// same item both saw the same balance, both passed, and one issue was
-        /// lost — silently, with the row looking perfectly consistent
-        /// afterwards. Inside the transaction the check and the write are one
-        /// unit, so the balance it tests is the balance the write applies to.
-        /// </para>
+        /// The balance check, Used update, RowVersion bump, and Consumed ledger
+        /// row share one serializable transaction. Decimal arithmetic remains
+        /// in C# to preserve exact fractional quantities stored with SQLite
+        /// TEXT affinity; see ReceiveAsync for the precision rationale.
         /// </remarks>
         public async Task ConsumeAsync(int itemId, decimal quantity)
         {
             ReadOnlyGate.Demand("consume inventory stock");
+            OperationGuard.Demand(AppPermissions.SheetStoreEdit, "consume inventory stock");
 
             if (quantity <= 0)
                 throw new InvalidOperationException(
@@ -285,11 +332,38 @@ namespace ProGlassAutomation.Services.SheetStore
                     $"Not enough stock. Available: {item.Balance:N2} {item.UomDisplay}, " +
                     $"requested: {quantity:N2} {item.UomDisplay}.");
 
+            decimal oldUsed = item.Used;
             item.Used += quantity;
             item.LastUpdated = DateTime.Now;
+            item.RowVersion++;
 
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            db.InventoryItemMovements.Add(CreateMovement(
+                item, "Consumed", quantity,
+                quantity * item.PurchasePricePerUnit,
+                $"Consumed {quantity:N2} {item.UomDisplay}. Used: {oldUsed:N2} → {item.Used:N2}."));
+
+            await db.SaveChangesAsync().ConfigureAwait(false);
             await tx.CommitAsync().ConfigureAwait(false);
+        }
+
+        private static InventoryItemMovement CreateMovement(
+            InventoryItem item, string action, decimal quantity,
+            decimal? value, string details) => new()
+        {
+            InventoryItemId = item.Id,
+            ItemDescription = Limit(item.FullDescription, 300),
+            Action = Limit(action, 20),
+            Details = Limit(details, 500),
+            QuantityChanged = quantity,
+            ValueChanged = value,
+            UserName = Limit(Environment.UserName, 100),
+            Timestamp = DateTime.Now
+        };
+
+        private static string Limit(string? value, int maxLength)
+        {
+            value ??= string.Empty;
+            return value.Length <= maxLength ? value : value[..maxLength];
         }
 
         public async Task<List<string>> GetSuppliersAsync()

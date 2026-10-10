@@ -27,10 +27,11 @@ namespace ProGlassAutomation.Services.OrderReport.Repository
         Task<string> GetNextReportNumberAsync();
 
         Task<SavedOrderReport> InsertAsync(SavedOrderReport entity);
-        Task UpdateAsync(SavedOrderReport entity);
-        Task DeleteAsync(int id);
+        Task UpdateAsync(SavedOrderReport entity, int expectedRowVersion);
+        Task DeleteAsync(int id, int expectedRowVersion);
 
-        /// <summary>Updates only PdfPath after PDF generation.</summary>
-        Task UpdatePdfPathAsync(int reportId, string pdfPath);
+        /// <summary>Updates only PdfPath after PDF generation using the captured version.</summary>
+        Task<int> UpdatePdfPathAsync(
+            int reportId, string pdfPath, int expectedRowVersion);
     }
 }

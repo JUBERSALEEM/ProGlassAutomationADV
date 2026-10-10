@@ -45,11 +45,22 @@ namespace ProGlassAutomation.Tests.CreditNote
         }
 
         [Fact]
-        public void Issued_credit_note_deletes_as_a_void()
+        public void A_draft_credit_note_linked_to_its_source_invoice_is_not_hard_deletable()
         {
-            // Posted + childless → soft-close (void), never a hard delete.
+            // A source TI reference is mandatory for every valid CN, so the
+            // repository's dependency check blocks physical deletion even in Draft.
             var decision = DocumentLifecyclePolicy.DecideDelete(
-                StatusTransitions.Kind.CreditNote, "Issued", hasLiveChildren: false);
+                StatusTransitions.Kind.CreditNote, "Draft", hasLinkedRecords: true);
+            Assert.Equal(DocumentLifecyclePolicy.DeleteDecision.Blocked, decision);
+        }
+
+        [Fact]
+        public void Childless_issued_credit_note_is_policy_eligible_for_void()
+        {
+            // The shared status policy selects void; the repository separately
+            // blocks DeleteAsync while the mandatory source-TI link remains.
+            var decision = DocumentLifecyclePolicy.DecideDelete(
+                StatusTransitions.Kind.CreditNote, "Issued", hasLinkedRecords: false);
             Assert.Equal(DocumentLifecyclePolicy.DeleteDecision.Void, decision);
         }
 

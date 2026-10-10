@@ -79,16 +79,14 @@ namespace ProGlassAutomation.Services.Statement.Repository
         Task<SavedStatement> InsertAsync(SavedStatement entity);
 
         /// <summary>
-        /// Updates an existing statement (header + line items).
-        /// Replaces all existing line items (delete-then-reinsert).
-        /// Sets UpdatedAt to UtcNow.
+        /// Updates an existing statement (header + line items) using the
+        /// RowVersion captured when the statement was loaded. Replaces all
+        /// existing line items (delete-then-reinsert).
         /// </summary>
-        Task UpdateAsync(SavedStatement entity);
+        Task UpdateAsync(SavedStatement entity, int expectedRowVersion);
 
-        /// <summary>
-        /// Deletes statement + all line items (cascade).
-        /// </summary>
-        Task DeleteAsync(int id);
+        /// <summary>Deletes a statement only if the loaded version is current.</summary>
+        Task DeleteAsync(int id, int expectedRowVersion);
 
         // ── Existence checks ──────────────────────────────────────────────
 
@@ -104,7 +102,8 @@ namespace ProGlassAutomation.Services.Statement.Repository
         Task UpdatePdfPathAsync(
             int statementId,
             string pdfPath,
-            bool hasAttachments);
+            bool hasAttachments,
+            int expectedRowVersion);
 
         /// <summary>
         /// Lightweight analytics projection: TotalInvoiced, TotalOutstanding,
@@ -147,6 +146,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
         public string PdfPath { get; set; } = "";
         public bool HasAttachments { get; set; }
         public DateTime CreatedAt { get; set; }
+        public int RowVersion { get; set; }
 
         // ── Display helpers ───────────────────────────────────────────────
 

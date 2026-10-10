@@ -602,14 +602,16 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             {
                 await _jobs.DeleteAsync(row.Id);
 
-                // Honor the user's choice only AFTER the job order is gone,
-                // so a failed delete never destroys attachments.
-                if (deleteAttachments && proformaId != null)
+                // Recheck the retained row: a lifecycle state may have changed
+                // after the list preflight and the repository may have voided
+                // rather than physically deleted the Job Order. Preserve its
+                // source attachments unless the row is actually gone.
+                var retained = await _jobs.GetByIdAsync(row.Id);
+                if (retained == null && deleteAttachments && proformaId != null)
                     await ClearProformaAttachmentsAsync(proformaId);
-
-                AuditService.Log(
-                    AuditSections.JobOrder, "Job order deleted",
-                    row.JobOrderId, "JO", row.JobOrderId);
+                else if (retained != null && deleteAttachments)
+                    AppLogService.Warning(
+                        $"Job Order {row.JobOrderId} was retained; source attachments were not deleted.");
 
                 await LoadJobOrdersAsync();
             }
@@ -648,10 +650,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             try
             {
                 await _jobs.VoidAsync(row.Id, reason);
-
-                AuditService.Log(
-                    AuditSections.JobOrder, "Job order voided",
-                    row.JobOrderId, "JO", row.JobOrderId, reason);
 
                 _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Void.MsgVoidedX"), row.JobOrderId),
@@ -876,29 +874,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     return;
                 }
 
-                entity.Status = newStatus;
-                entity.UpdatedAt = DateTime.Now;
-
-                // Keep the embedded snapshot's Production.Status in sync.
-                // The detail view, its save path and the PDF/Excel production
-                // sheet all read the status from the snapshot, so a list-side
-                // change must be reflected there too — otherwise reopening
-                // (and saving) the order would silently revert this change.
-                var snapshot = JobOrderMapper.DeserializeSnapshot(entity);
-                if (snapshot?.Production != null)
-                {
-                    snapshot.Production.Status = newStatus;
-                    snapshot.Production.LastEditedAt = DateTime.Now;
-                    snapshot.Production.LastEditedBy = Environment.UserName;
-                    entity.FullSnapshotJson = JobOrderMapper.SerializeSnapshot(snapshot);
-                }
-
-                await _jobs.UpdateAsync(entity);
-
-                AuditService.Log(
-                    AuditSections.JobOrder, "Job order status changed",
-                    $"{entity.JobOrderId} → {newStatus}", "JO", entity.JobOrderId);
-
+                await _jobs.UpdateStatusAsync(entity.Id, newStatus, row.RowVersion);
                 await LoadJobOrdersAsync();
             }
             catch (Exception ex)

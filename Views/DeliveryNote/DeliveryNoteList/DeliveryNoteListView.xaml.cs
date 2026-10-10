@@ -175,9 +175,8 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                             return;
                         }
 
-                        latestDn.Status = s;
-                        latestDn.UpdatedAt = DateTime.Now;
-                        await App.DeliveryNotes.UpdateAsync(latestDn);
+                        await App.DeliveryNotes.UpdateStatusAsync(
+                            latestDn.Id, s, latestDn.RowVersion);
                         await vm.LoadAsync();
                     }
                     catch (Exception ex)

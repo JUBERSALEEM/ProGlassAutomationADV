@@ -655,17 +655,30 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (_entity == null || _deliveryNotes == null) return;
             if (_entity.IsMasterDn) return;
 
-            // ERP guard: run the centralized validation (delivered ≤ remaining,
-            // non-negative) before touching the DB. This service was registered
-            // and unit-tested but never actually invoked on the Save path.
-            var saveCheck = DeliveryNoteValidationService.ValidateSave(_entity, ItemRows);
-            if (saveCheck.IsFailure)
+            // A posted DN body stays frozen even when the status selector is
+            // used for a valid status-only transition. Validate body data only
+            // while the stored source status is editable.
+            bool bodyEditableAtStoredStatus =
+                ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.CanEditBody(
+                    ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.DeliveryNote,
+                    _entity.Status);
+            if (bodyEditableAtStoredStatus)
             {
-                _dialogs.Show(
-                    string.IsNullOrWhiteSpace(saveCheck.Error) ? "Delivery note failed validation." : saveCheck.Error,
-                    LocalizationService.Instance.T("Msg.CapSaveFailed"),
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                var saveCheck = DeliveryNoteValidationService.ValidateSave(_entity, ItemRows);
+                if (saveCheck.IsFailure)
+                {
+                    _dialogs.Show(
+                        string.IsNullOrWhiteSpace(saveCheck.Error) ? "Delivery note failed validation." : saveCheck.Error,
+                        LocalizationService.Instance.T("Msg.CapSaveFailed"),
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+            }
+            else if (string.Equals(Status, _entity.Status, StringComparison.OrdinalIgnoreCase))
+            {
+                // No body save is permitted and there is no status transition.
+                HasUnsavedChanges = false;
                 return;
             }
 
@@ -673,19 +686,29 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             {
                 IsSaving = true;
 
-                _entity.Status = Status;
-                _entity.IsFoc = IsFoc;
-                _entity.DriverName = DriverName;
-                _entity.VehicleNumber = VehicleNumber;
-                _entity.ReceiverName = ReceiverName;
-                _entity.Notes = Notes;
+                if (bodyEditableAtStoredStatus)
+                {
+                    _entity.Status = Status;
+                    _entity.IsFoc = IsFoc;
+                    _entity.DriverName = DriverName;
+                    _entity.VehicleNumber = VehicleNumber;
+                    _entity.ReceiverName = ReceiverName;
+                    _entity.Notes = Notes;
 
-                SyncRowsToEntity();
+                    SyncRowsToEntity();
 
-                var joRef = _snapshot?.JobOrderRef;
-                DeliveryNoteMapper.RefreshSnapshot(_entity, joRef);
-
-                await _deliveryNotes.UpdateAsync(_entity);
+                    var joRef = _snapshot?.JobOrderRef;
+                    DeliveryNoteMapper.RefreshSnapshot(_entity, joRef);
+                    await _deliveryNotes.UpdateAsync(_entity, _entity.RowVersion);
+                }
+                else
+                {
+                    var updated = await _deliveryNotes.UpdateStatusAsync(
+                        _entity.Id, Status, _entity.RowVersion);
+                    if (updated == null)
+                        throw new InvalidOperationException("The Delivery Note no longer exists.");
+                    _entity = updated;
+                }
 
                 try
                 {
@@ -712,10 +735,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 await LoadAsync(_entity.Id);
 
-                AuditService.Log(
-                    AuditSections.DeliveryNote, "Delivery note saved",
-                    $"{DeliveryNoteId} — status {Status}",
-                    "DN", DeliveryNoteId);
+                if (bodyEditableAtStoredStatus)
+                {
+                    AuditService.Log(
+                        AuditSections.DeliveryNote, "Delivery note saved",
+                        $"{DeliveryNoteId} — status {Status}",
+                        "DN", DeliveryNoteId);
+                }
 
             }
             catch (Exception ex)
@@ -926,7 +952,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 var joRef = _snapshot?.JobOrderRef;
                 DeliveryNoteMapper.RefreshSnapshot(_entity, joRef);
-                await _deliveryNotes.UpdateAsync(_entity);
+                await _deliveryNotes.UpdateAsync(_entity, _entity.RowVersion);
 
                 // CHAT 19: update Master DN — no new Dummy DN
                 await _deliveryNotes.UpdateMasterDnAsync(

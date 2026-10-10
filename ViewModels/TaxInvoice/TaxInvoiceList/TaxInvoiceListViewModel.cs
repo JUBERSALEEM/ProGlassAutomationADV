@@ -476,12 +476,12 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                                 m.Status, hasChildren: false);
                         if (canHardDelete)
                         {
-                            await _taxInvoices.DeleteAsync(m.Id);
+                            await _taxInvoices.DeleteAsync(m.Id, m.RowVersion);
                             deleted++;
                         }
                         else
                         {
-                            await _taxInvoices.VoidAsync(m.Id, voidReason);
+                            await _taxInvoices.VoidAsync(m.Id, m.RowVersion, voidReason);
                             voided++;
                         }
                     }

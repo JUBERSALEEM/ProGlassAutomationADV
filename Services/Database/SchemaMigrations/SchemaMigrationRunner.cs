@@ -17,9 +17,11 @@
 //   7. On any failure: roll back, log the exact failure + backup location,
 //      and leave user_version unchanged so the run is retryable.
 //
-// The runner is intentionally additive and non-destructive. It never drops
-// tables, columns, or rows. All 10 databases share this one implementation,
-// so there is no per-database migration approach to drift apart.
+// Migrations are additive by default. A legacy column may be renamed or
+// dropped only after its values are copied and verified, or after the
+// migration proves the column is empty. Required data/index callbacks and
+// quick_check run before the schema version commits. Raw connections use the
+// same path-aware journal policy as runtime DbContexts.
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.Data.Sqlite;
@@ -115,8 +117,20 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                     try
                     {
                         foreach (var migration in pending)
+                        {
                             migration.Apply(connection);
+                            migration.Verify?.Invoke(connection);
+                        }
 
+                        // Re-run explicit verification callbacks after the
+                        // entire pending set has applied. This catches a later
+                        // migration accidentally invalidating an earlier
+                        // required index/column/data invariant before the
+                        // version marker commits.
+                        foreach (var migration in pending)
+                            migration.Verify?.Invoke(connection);
+
+                        VerifyDatabaseIntegrity(connection);
                         SetVersion(connection, target);
                         tx.Commit();
                     }
@@ -168,6 +182,29 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
         // ── Version read/write (PRAGMA user_version) ─────────────────────
 
+        private static void VerifyDatabaseIntegrity(SqliteConnection connection)
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = "PRAGMA quick_check;";
+            using var reader = command.ExecuteReader();
+            var problems = new List<string>();
+            bool receivedResult = false;
+            while (reader.Read())
+            {
+                receivedResult = true;
+                string result = reader.IsDBNull(0) ? "" : reader.GetString(0);
+                if (!string.Equals(result, "ok", StringComparison.OrdinalIgnoreCase))
+                    problems.Add(result);
+            }
+
+            if (!receivedResult)
+                throw new InvalidOperationException(
+                    "Post-migration SQLite quick_check returned no result.");
+            if (problems.Count > 0)
+                throw new InvalidOperationException(
+                    "Post-migration SQLite quick_check failed: " + string.Join("; ", problems));
+        }
+
         private static int ReadVersion(string dbPath)
         {
             using var connection = Open(dbPath);
@@ -188,30 +225,22 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
         private static SqliteConnection Open(string dbPath)
         {
-            // Senior audit (Aug 2026): route through SqliteResilience.
-            // BuildConnectionString so schema migrations run with the same
-            // Mode=ReadWriteCreate + Cache=Shared + pool settings the EF
-            // path uses. Then apply the pragma script manually — a raw
-            // SqliteConnection does not invoke the EF interceptor, and
-            // migrations that run without busy_timeout will fail with
-            // SQLITE_BUSY if another process holds the file briefly.
+            // Raw migration connections do not invoke EF interceptors, so
+            // apply the same path-aware policy explicitly. Shared roots use
+            // DELETE journal mode; local roots retain WAL.
             var connection = new SqliteConnection(
                 SqliteResilience.BuildConnectionString(dbPath));
-            connection.Open();
             try
             {
-                using var cmd = connection.CreateCommand();
-                cmd.CommandText = SqliteResilience.PragmaScript;
-                cmd.ExecuteNonQuery();
+                connection.Open();
+                SqliteResilience.ApplyConnectionPolicy(connection);
+                return connection;
             }
-            catch (System.Exception ex)
+            catch
             {
-                // Non-fatal — migrations still run without WAL, they
-                // just risk a BUSY on very heavy contention. See
-                // SqliteResilience.PragmaScript for detail.
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("[SchemaMigrationRunner] WAL pragma skipped: " + ex.Message);
+                connection.Dispose();
+                throw;
             }
-            return connection;
         }
 
         /// <summary>
@@ -221,10 +250,16 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
         /// </summary>
         private static string? BackupBeforeMigrate(string dbPath, int targetVersion)
         {
+            string? backupPath = null;
             try
             {
-                // Release pooled EF connections so the file is not locked.
-                try { SqliteConnection.ClearAllPools(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+                // Drop idle pooled handles, then use SQLite's online backup
+                // API rather than File.Copy. In local WAL mode, committed
+                // pages may still live in *.db-wal; a main-file copy alone
+                // could therefore produce a pre-migration backup that omits
+                // committed data. SQLite's backup API snapshots the database
+                // including its WAL state consistently.
+                SqliteConnection.ClearAllPools();
 
                 var dir = Path.GetDirectoryName(dbPath);
                 if (string.IsNullOrEmpty(dir)) return null;
@@ -234,15 +269,57 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
                 string fileName = Path.GetFileName(dbPath);
                 string baseName = Path.GetFileNameWithoutExtension(fileName);
-                string stamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                string backupPath = Path.Combine(
+                string stamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff") +
+                    "_" + Guid.NewGuid().ToString("N")[..6];
+                backupPath = Path.Combine(
                     backupDir, $"{baseName}_pre_v{targetVersion}_{stamp}.db");
 
-                File.Copy(dbPath, backupPath, overwrite: false);
+                using var source = Open(dbPath);
+                var destinationBuilder = new SqliteConnectionStringBuilder(
+                    SqliteResilience.BuildConnectionString(backupPath))
+                {
+                    Pooling = false
+                };
+                using var destination = new SqliteConnection(destinationBuilder.ToString());
+                destination.Open();
+                SqliteResilience.ApplyConnectionPolicy(destination);
+                source.BackupDatabase(destination);
+
+                using var check = destination.CreateCommand();
+                check.CommandText = "PRAGMA quick_check;";
+                var integrity = Convert.ToString(
+                    check.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture);
+                if (!string.Equals(integrity, "ok", StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException(
+                        "The pre-migration backup failed SQLite quick_check: " +
+                        (integrity ?? "no result"));
+
                 return backupPath;
             }
             catch (Exception ex)
             {
+                if (!string.IsNullOrWhiteSpace(backupPath))
+                {
+                    foreach (string candidate in new[]
+                    {
+                        backupPath, backupPath + "-wal", backupPath + "-shm"
+                    })
+                    {
+                        try { if (File.Exists(candidate)) File.Delete(candidate); }
+                        catch (Exception cleanupEx)
+                        {
+                            AppLogService.Warning(
+                                $"Could not remove incomplete migration backup '{candidate}': {cleanupEx.Message}",
+                                new LogContext
+                                {
+                                    Module = "Database",
+                                    Class = nameof(SchemaMigrationRunner),
+                                    Operation = "CleanupFailedMigrationBackup"
+                                });
+                        }
+                    }
+                }
+
                 AppLogService.Error(
                     $"Pre-migration backup failed for {Path.GetFileName(dbPath)}.",
                     ex,

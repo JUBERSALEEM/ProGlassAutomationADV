@@ -13,11 +13,9 @@ namespace ProGlassAutomation.Services.RecordsSync
     /// proforma database — the "ProGlassDatabaseSource" leg of the pipeline.
     ///
     /// Design decisions (see the integration report):
-    ///   • Opens proformainvoices.db with Mode=ReadOnly + busy_timeout. The
-    ///     database runs in WAL mode (SqliteResilience), so a read-only
-    ///     connection coexists with the running application's writes; a
-    ///     transient lock surfaces as SqliteException and is handled by the
-    ///     caller — never fatal, never blocking.
+    ///   • Opens proformainvoices.db read-only through SqliteResilience's
+    ///     path-aware builder/policy. Local databases verify WAL; shared-root
+    ///     databases verify DELETE. Transient locks surface to the caller.
     ///   • Raw Microsoft.Data.Sqlite instead of ProformaInvoicesDbContext:
     ///     the sync must not participate in EF change tracking, migrations
     ///     or context pooling. It reads columns and deserializes the same
@@ -61,14 +59,11 @@ namespace ProGlassAutomation.Services.RecordsSync
             // Read-only + busy_timeout: coexists with the app's WAL writer;
             // a genuinely stuck lock fails fast into the caller's handler.
             using var connection = new SqliteConnection(
-                $"Data Source={dbPath};Mode=ReadOnly");
+                ProGlassAutomation.Services.Database.SqliteResilience
+                    .BuildReadOnlyConnectionString(dbPath));
             connection.Open();
-
-            using (var pragma = connection.CreateCommand())
-            {
-                pragma.CommandText = "PRAGMA busy_timeout=5000;";
-                pragma.ExecuteNonQuery();
-            }
+            ProGlassAutomation.Services.Database.SqliteResilience
+                .ApplyReadOnlyConnectionPolicy(connection);
 
             using var command = connection.CreateCommand();
             command.CommandText =

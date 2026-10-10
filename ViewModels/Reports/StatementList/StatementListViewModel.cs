@@ -428,8 +428,8 @@ public StatementListViewModel(IDialogService? dialogs,
 
             try
             {
+                await Task.Run(() => _repo.DeleteAsync(row.Id, row.Source.RowVersion));
                 StatementPdfExporter.DeletePdfs(row.StatementNumber);
-                await Task.Run(() => _repo.DeleteAsync(row.Id));
 
                 _allRows.Remove(row);
                 ApplySearch();           // re-filters + notifies IsEmpty/IsListVisible

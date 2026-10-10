@@ -59,7 +59,8 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     SetStatus($"An inquiry cannot move from {row.Status} to {next}.");
                     return;
                 }
-                bool changed = await _workflow.ChangeStatusAsync(row.Id, row.Status, next);
+                bool changed = await _workflow.ChangeStatusAsync(
+                    row.Id, row.Status, next, row.RowVersion);
                 if (changed)
                 {
                     SetStatus($"Inquiry {row.InquiryNumber} is now {InquiryStatuses.Normalize(next)}.");

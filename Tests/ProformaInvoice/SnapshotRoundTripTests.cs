@@ -41,6 +41,63 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
         }
 
         [Fact]
+        public void Snapshot_header_sync_uses_persisted_row_identity_status_and_dates()
+        {
+            var snapshot = new ProformaInvoiceSnapshot
+            {
+                Company = new CompanySnapshot
+                {
+                    ProformaId = "PI-detached",
+                    InquiryId = 1,
+                    ProformaStatus = "Draft",
+                    IssueDate = new DateTime(2026, 1, 2),
+                    ValidUntil = new DateTime(2026, 1, 9)
+                },
+                Client = new ClientSnapshot { CustomerName = "Snapshot customer" }
+            };
+            var entity = new SavedProformaInvoice
+            {
+                ProformaId = "PI-canonical",
+                InquiryId = 42,
+                Status = "Approved",
+                IssueDate = new DateTime(2026, 2, 3),
+                ValidUntil = new DateTime(2026, 3, 3),
+                FullSnapshotJson = ProformaInvoiceMapper.SerializeSnapshot(snapshot)
+            };
+
+            Assert.True(ProformaInvoiceMapper.SynchronizeSnapshotHeader(entity));
+
+            var canonical = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+            Assert.Equal("PI-canonical", canonical.Company.ProformaId);
+            Assert.Equal(42, canonical.Company.InquiryId);
+            Assert.Equal("Approved", canonical.Company.ProformaStatus);
+            Assert.Equal(entity.IssueDate, canonical.Company.IssueDate);
+            Assert.Equal(entity.ValidUntil, canonical.Company.ValidUntil);
+            Assert.Equal("Snapshot customer", canonical.Client.CustomerName);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("{}")]
+        [InlineData("{ } ")]
+        [InlineData("{\"Company\":{}}")]
+        [InlineData("{ this is not valid json")]
+        [InlineData("{\"Company\":null}")]
+        public void Snapshot_header_sync_refuses_unreadable_or_blank_snapshot_without_replacing_it(
+            string json)
+        {
+            var entity = new SavedProformaInvoice
+            {
+                ProformaId = "PI-2026-0042",
+                Status = "Draft",
+                FullSnapshotJson = json
+            };
+
+            Assert.False(ProformaInvoiceMapper.SynchronizeSnapshotHeader(entity));
+            Assert.Equal(json, entity.FullSnapshotJson);
+        }
+
+        [Fact]
         public void All_step1_company_fields_roundtrip()
         {
             var snap = new ProformaInvoiceSnapshot

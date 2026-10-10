@@ -14,17 +14,22 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.Data.Sqlite;
+using ProGlassAutomation.Services.Database.SchemaMigrations;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ProGlassAutomation.Services.Audit
 {
     /// <summary>Idempotent schema upgrades for audit.db.</summary>
     public static class AuditDbMigrations
     {
-        /// <summary>Applies all pending migrations. Never throws.</summary>
-        public static void Apply()
+        public static bool IsReady { get; private set; }
+
+        /// <summary>Applies all pending migrations. Errors fail closed and are returned.</summary>
+        public static bool Apply()
         {
+            IsReady = false;
             try
             {
                 using var connection = Open();
@@ -79,6 +84,26 @@ namespace ProGlassAutomation.Services.Audit
                 AddColumnIfMissing(connection,
                     "AppUsers", "Email", "TEXT NOT NULL DEFAULT ''");
 
+                // AUTH-001 — materialized canonical username key. Backfill in
+                // .NET so normalization has exactly the same Unicode and case
+                // semantics as login. A collision aborts readiness rather than
+                // choosing an account or allowing ambiguous sign-in.
+                AddColumnIfMissing(connection,
+                    "AppUsers", "UsernameNormalized", "TEXT NOT NULL DEFAULT ''");
+                BackfillNormalizedUsernames(connection);
+                SchemaMigrationSql.RequireNoDuplicateKeyValues(
+                    connection, "AppUsers", "UsernameNormalized");
+                Execute(connection, @"
+                    CREATE UNIQUE INDEX IF NOT EXISTS IX_AppUsers_UsernameNormalized
+                    ON AppUsers (UsernameNormalized);");
+
+                // Promote the legacy spelling in stored rows. RolePermissions
+                // still accepts "Admin" during recovery from older backups.
+                Execute(connection, @"
+                    UPDATE AppUsers
+                    SET Role = 'Administrator'
+                    WHERE lower(trim(Role)) = 'admin';");
+
                 Execute(connection, @"
                     CREATE TABLE IF NOT EXISTS RecordMetadata (
                         EntityType     TEXT NOT NULL,
@@ -109,6 +134,10 @@ namespace ProGlassAutomation.Services.Audit
                 Execute(connection, @"
                     CREATE INDEX IF NOT EXISTS IX_RecordVersions_Lookup
                     ON RecordVersions (EntityType, EntityId, VersionNo);");
+
+                VerifyRequiredSchema(connection);
+                IsReady = true;
+                return true;
             }
             catch (Exception ex)
             {
@@ -129,6 +158,101 @@ namespace ProGlassAutomation.Services.Audit
                         Class = nameof(AuditDbMigrations),
                         Operation = "Apply"
                     });
+                return false;
+            }
+        }
+
+        private static void VerifyRequiredSchema(SqliteConnection connection)
+        {
+            foreach (string column in new[]
+            {
+                "SessionId", "ChangesJson", "Reason", "UserDisplayName", "UserRole",
+                "MachineName", "AppVersion", "LocalTimeZone", "OperationId"
+            })
+                SchemaMigrationSql.RequireColumn(connection, "ActivityLog", column);
+
+            foreach (string column in new[]
+            {
+                "Username", "UsernameNormalized", "Role", "IsActive",
+                "FailedAttemptCount", "LockedUntilUtc", "Mobile", "Email"
+            })
+                SchemaMigrationSql.RequireColumn(connection, "AppUsers", column);
+
+            foreach (string column in new[]
+            {
+                "EntityType", "EntityId", "VersionNo", "TimestampUtc",
+                "Username", "SessionId", "Summary", "SnapshotJson"
+            })
+                SchemaMigrationSql.RequireColumn(connection, "RecordVersions", column);
+
+            foreach (string column in new[]
+            {
+                "EntityType", "EntityId", "CreatedAtUtc", "CreatedByUser",
+                "CreatedSession", "UpdatedAtUtc", "UpdatedByUser",
+                "UpdatedSession", "UpdateCount"
+            })
+                SchemaMigrationSql.RequireColumn(connection, "RecordMetadata", column);
+
+            SchemaMigrationSql.RequireIndex(connection, "IX_ActivityLog_Entity",
+                "ActivityLog", unique: false,
+                expectedColumns: new[] { "EntityType", "EntityId" });
+            SchemaMigrationSql.RequireIndex(connection, "IX_ActivityLog_OperationId",
+                "ActivityLog", unique: false,
+                expectedColumns: new[] { "OperationId" });
+            SchemaMigrationSql.RequireIndex(connection, "IX_AppUsers_UsernameNormalized",
+                "AppUsers", unique: true,
+                expectedColumns: new[] { "UsernameNormalized" });
+            SchemaMigrationSql.RequireIndex(connection, "IX_RecordVersions_Lookup",
+                "RecordVersions", unique: false,
+                expectedColumns: new[] { "EntityType", "EntityId", "VersionNo" });
+
+            SchemaMigrationSql.RequireNoNullValues(
+                connection, "AppUsers", "UsernameNormalized");
+            SchemaMigrationSql.RequireNoEmptyValues(
+                connection, "AppUsers", "UsernameNormalized");
+            SchemaMigrationSql.RequireNoDuplicateKeyValues(
+                connection, "AppUsers", "UsernameNormalized");
+            SchemaMigrationSql.RequireNoNullValues(
+                connection, "AppUsers", "FailedAttemptCount");
+            SchemaMigrationSql.RequireNoNullValues(
+                connection, "RecordVersions", "VersionNo");
+        }
+
+        private static void BackfillNormalizedUsernames(SqliteConnection connection)
+        {
+            var rows = new List<(int Id, string Username, string Normalized)>();
+            using (var select = connection.CreateCommand())
+            {
+                select.CommandText = "SELECT Id, Username FROM AppUsers ORDER BY Id;";
+                using var reader = select.ExecuteReader();
+                while (reader.Read())
+                {
+                    string username = reader.IsDBNull(1) ? string.Empty : reader.GetString(1);
+                    rows.Add((reader.GetInt32(0), username,
+                        UsernameNormalizer.Normalize(username)));
+                }
+            }
+
+            var duplicate = rows
+                .GroupBy(row => row.Normalized, StringComparer.Ordinal)
+                .FirstOrDefault(group => group.Count() > 1);
+            if (duplicate != null)
+            {
+                string conflicting = string.Join(", ", duplicate.Select(row =>
+                    $"'{row.Username}' (user #{row.Id})"));
+                throw new InvalidOperationException(
+                    "Username normalization found a collision: " + conflicting +
+                    ". Resolve the duplicate accounts before sign-in; no account was selected.");
+            }
+
+            foreach (var row in rows)
+            {
+                using var update = connection.CreateCommand();
+                update.CommandText =
+                    "UPDATE AppUsers SET UsernameNormalized = $normalized WHERE Id = $id;";
+                update.Parameters.AddWithValue("$normalized", row.Normalized);
+                update.Parameters.AddWithValue("$id", row.Id);
+                update.ExecuteNonQuery();
             }
         }
 
@@ -136,39 +260,21 @@ namespace ProGlassAutomation.Services.Audit
 
         internal static SqliteConnection Open()
         {
-            // Senior audit (Aug 2026): route this direct-ADO connection
-            // through SqliteResilience.BuildConnectionString so the
-            // audit database's migration path gets the same
-            // ReadWriteCreate + Shared-cache + pool settings as the
-            // EF path. PRAGMAs (WAL, busy_timeout, FK=ON) are then
-            // applied manually since raw SqliteConnection doesn't run
-            // the EF DbConnectionInterceptor. Losing an audit write to
-            // a transient lock during migration is a compliance risk,
-            // so this must match the DbContext hardening exactly.
             var connection = new SqliteConnection(
                 ProGlassAutomation.Services.Database.SqliteResilience
                     .BuildConnectionString(AuditDbContext.DatabaseFilePath));
-            connection.Open();
-
-            // Manually apply the same pragma batch the EF interceptor
-            // would. On a shared-cache pooled connection the pragmas
-            // are per-connection, so this must run every time.
             try
             {
-                using var cmd = connection.CreateCommand();
-                cmd.CommandText = ProGlassAutomation.Services.Database
-                    .SqliteResilience.PragmaScriptFor(AuditDbContext.DatabaseFilePath);
-                cmd.ExecuteNonQuery();
+                connection.Open();
+                ProGlassAutomation.Services.Database.SqliteResilience
+                    .ApplyConnectionPolicy(connection);
+                return connection;
             }
-            catch (System.Exception ex)
+            catch
             {
-                // Best-effort: read-only media or a stale schema may
-                // reject one pragma. The connection is still usable
-                // with reduced guarantees; the migration path already
-                // handles ordinary errors defensively.
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("[AuditDbMigrations] Pragma tune skipped: " + ex.Message);
+                connection.Dispose();
+                throw;
             }
-            return connection;
         }
 
         private static void AddColumnIfMissing(

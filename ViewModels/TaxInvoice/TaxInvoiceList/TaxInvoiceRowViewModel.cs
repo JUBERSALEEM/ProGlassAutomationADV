@@ -42,6 +42,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
         public int TotalQty { get; }
         public decimal TotalSqm { get; }
         public DateTime CreatedAt { get; }
+        public int RowVersion { get; }
 
         // ── Computed display ──────────────────────────────────────────────
 
@@ -150,6 +151,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
             TotalQty = e.TotalQty;
             TotalSqm = e.TotalSqm;
             CreatedAt = e.CreatedAt;
+            RowVersion = e.RowVersion;
 
             (StatusLabel, StatusIcon, StatusBrushKey) = ResolveStatus(Status);
 

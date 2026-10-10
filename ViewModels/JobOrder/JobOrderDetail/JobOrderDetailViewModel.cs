@@ -576,7 +576,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                 return;
             }
 
-            var previousStatus = _snapshot?.Production?.Status ?? "";
+            var previousStatus = _entity.Status ?? _snapshot?.Production?.Status ?? "";
 
             try
             {
@@ -596,25 +596,54 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                     }
                 }
 
-                // Update production fields on the snapshot
-                _snapshot.Production ??= new ProductionDetails();
-                _snapshot.Production.Status = SelectedStatus;
-                _snapshot.Production.Priority = SelectedPriority;
-                _snapshot.Production.DeliveryDate = DeliveryDate;
-                _snapshot.Production.SiteDeliveryContact = SiteDeliveryContact;
-                _snapshot.Production.SiteDeliveryPhone = SiteDeliveryPhone;
-                _snapshot.Production.SiteDeliveryAddress = SiteDeliveryAddress;
-                _snapshot.Production.AssignedTo = AssignedTo;
-                _snapshot.Production.CuttingInstructions = CuttingInstructions;
-                _snapshot.Production.DrawingReference = DrawingReference;
-                _snapshot.Production.InternalNotes = InternalNotes;
-                _snapshot.Production.LastEditedAt = DateTime.Now;
-                _snapshot.Production.LastEditedBy = Environment.UserName;
+                bool statusChanged = !string.Equals(
+                    previousStatus, SelectedStatus, StringComparison.OrdinalIgnoreCase);
+                bool bodyEditable = !_entity.IsVoid
+                    && ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.CanEditBody(
+                        StatusTransitions.Kind.JobOrder, previousStatus);
 
-                // Push snapshot back into entity (updates indexed columns + JSON blob)
-                JobOrderMapper.UpdateEntityFromSnapshot(_entity, _snapshot);
+                if (bodyEditable)
+                {
+                    // Body save is deliberately status-neutral. Status writes
+                    // use the dedicated repository transition below so a
+                    // locked record can still take a legal status-only edge.
+                    _snapshot.Production ??= new ProductionDetails();
+                    _snapshot.Production.Status = previousStatus;
+                    _snapshot.Production.Priority = SelectedPriority;
+                    _snapshot.Production.DeliveryDate = DeliveryDate;
+                    _snapshot.Production.SiteDeliveryContact = SiteDeliveryContact;
+                    _snapshot.Production.SiteDeliveryPhone = SiteDeliveryPhone;
+                    _snapshot.Production.SiteDeliveryAddress = SiteDeliveryAddress;
+                    _snapshot.Production.AssignedTo = AssignedTo;
+                    _snapshot.Production.CuttingInstructions = CuttingInstructions;
+                    _snapshot.Production.DrawingReference = DrawingReference;
+                    _snapshot.Production.InternalNotes = InternalNotes;
+                    _snapshot.Production.LastEditedAt = DateTime.Now;
+                    _snapshot.Production.LastEditedBy = AuditService.CurrentUsername;
 
-                await _jobs.UpdateAsync(_entity);
+                    JobOrderMapper.UpdateEntityFromSnapshot(_entity, _snapshot);
+                    await _jobs.UpdateAsync(_entity, _entity.RowVersion);
+                }
+
+                if (statusChanged)
+                {
+                    var updated = await _jobs.UpdateStatusAsync(
+                        _entity.Id, SelectedStatus, _entity.RowVersion);
+                    if (updated == null)
+                        throw new InvalidOperationException("Job Order no longer exists.");
+                    _entity = updated;
+                    _snapshot.Production ??= new ProductionDetails();
+                    _snapshot.Production.Status = updated.Status;
+                    _snapshot.Production.LastEditedAt = updated.UpdatedAt;
+                    _snapshot.Production.LastEditedBy = AuditService.CurrentUsername;
+                }
+                else if (!bodyEditable)
+                {
+                    // No legal status transition and the body is locked: do not
+                    // serialize stale detached fields back over the retained row.
+                    HasUnsavedChanges = false;
+                    return;
+                }
 
                 HasUnsavedChanges = false;
 
@@ -630,10 +659,13 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                     diff.Add(AuditChangeSerializer.Modified(
                         "Status", previousStatus, SelectedStatus));
 
-                AuditService.LogWithChanges(
-                    AuditSections.JobOrder, "Job order saved",
-                    $"{_snapshot.JobOrderId} — status {SelectedStatus}",
-                    "JO", _snapshot.JobOrderId, diff);
+                if (!statusChanged)
+                {
+                    AuditService.LogWithChanges(
+                        AuditSections.JobOrder, "Job order saved",
+                        $"{_snapshot.JobOrderId} — status {SelectedStatus}",
+                        "JO", _snapshot.JobOrderId, diff);
+                }
 
                 await RecordMetadataService.StampUpdatedAsync(
                     "JO", _snapshot.JobOrderId);

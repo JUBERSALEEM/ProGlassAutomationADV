@@ -30,6 +30,9 @@ namespace ProGlassAutomation.Services.Inquiry
         {
             model.Entity<InquiryRecord>(e =>
             {
+                e.Property(x => x.RowVersion)
+                    .IsConcurrencyToken()
+                    .ValueGeneratedNever();
                 e.HasIndex(x => x.InquiryNumber).IsUnique();
                 e.HasIndex(x => x.ReceivedAt); e.HasIndex(x => x.UpdatedAt);
                 e.HasIndex(x => x.Status); e.HasIndex(x => x.CustomerId);

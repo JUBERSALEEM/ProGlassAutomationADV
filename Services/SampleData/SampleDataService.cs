@@ -267,7 +267,7 @@ namespace ProGlassAutomation.Services.SampleData
                 {
                     foreach (var x in await App.TaxInvoices.GetAllAsync())
                     {
-                        await App.TaxInvoices.DeleteAsync(x.Id);
+                        await App.TaxInvoices.DeleteAsync(x.Id, x.RowVersion);
                         ti++;
                     }
                 }
@@ -302,7 +302,7 @@ namespace ProGlassAutomation.Services.SampleData
                 {
                     foreach (var x in await App.Invoices.GetAllAsync())
                     {
-                        await App.Invoices.DeleteAsync(x.Id);
+                        await App.Invoices.DeleteAsync(x.Id, x.RowVersion);
                         pi++;
                     }
                 }
@@ -336,7 +336,7 @@ namespace ProGlassAutomation.Services.SampleData
                 var itemRepo = new InventoryItemRepository();
                 foreach (var x in await itemRepo.GetAllAsync())
                 {
-                    await itemRepo.DeleteAsync(x.Id);
+                    await itemRepo.DeleteAsync(x.Id, x.RowVersion);
                     ci++;
                 }
             }

@@ -297,7 +297,8 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     if (_editId > 0)
                     {
                         entity.Id = _editId;
-                        await Task.Run(() => _repo.UpdateAsync(entity));
+                        await Task.Run(() => _repo.UpdateAsync(entity, _editRowVersion));
+                        _editRowVersion = entity.RowVersion;
                         dbSaveSucceeded = true;
                         LiveAddLogEntry(LogSeverity.Success, "› ✓ Updated in database");
                     }

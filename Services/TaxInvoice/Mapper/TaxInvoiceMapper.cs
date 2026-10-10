@@ -204,6 +204,34 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
             entity.FullSnapshotJson = JsonSerializer.Serialize(snapshot, _jsonOptions);
         }
 
+        /// <summary>
+        /// Makes the persisted snapshot header agree with the canonical row
+        /// identity and reference fields. The row is authoritative; detached
+        /// snapshot JSON must not rename an invoice or make its family/status
+        /// disagree with indexed columns.
+        /// </summary>
+        public static bool SynchronizeSnapshotHeader(SavedTaxInvoice entity)
+        {
+            if (entity == null) return false;
+            var snapshot = DeserializeSnapshot(entity);
+            if (snapshot?.Header == null) return false;
+
+            snapshot.Header.InvoiceNumber = entity.InvoiceNumber;
+            snapshot.Header.ProformaId = entity.ProformaId;
+            snapshot.Header.DeliveryNoteReference = entity.DeliveryNoteReference;
+            snapshot.Header.JobOrderId = entity.JobOrderId;
+            snapshot.Header.PurchaseOrderNumber = entity.PurchaseOrderNumber;
+            snapshot.Header.InvoiceType = entity.InvoiceType;
+            snapshot.Header.SequenceLetter = entity.SequenceLetter;
+            snapshot.Header.SequenceNumber = entity.SequenceNumber;
+            snapshot.Header.Status = entity.Status;
+            snapshot.Header.IssueDate = entity.IssueDate;
+            snapshot.Header.DueDate = entity.DueDate;
+
+            entity.FullSnapshotJson = JsonSerializer.Serialize(snapshot, _jsonOptions);
+            return true;
+        }
+
         public static void RefreshSnapshot(
             SavedTaxInvoice entity, InvWizardState state)
         {

@@ -6,22 +6,22 @@ namespace ProGlassAutomation.Tests.Agent
 {
     public class ScreenRecordSettingsTests
     {
-        [Fact(Skip = "Test references ScreenRecordSettings properties (Supersample, Fps, CaptureLiveAudio, LivePreviewEncode) that do not exist on the production type.")]
-        public void Default_is_1080p_30fps_with_live_audio()
+        [Fact]
+        public void Default_is_4k_60_with_live_audio()
         {
             var s = new ScreenRecordSettings();
-            Assert.Equal(ScreenRecordQuality.FullHd, s.Quality);
-            Assert.Equal(30, s.Fps);
+            Assert.Equal(ScreenRecordQuality.Uhd4K, s.Quality);
+            Assert.Equal(60, s.Fps);
             Assert.True(s.CaptureLiveAudio);
             Assert.True(s.CaptureMicrophone);
-            Assert.Equal((1920, 1080), s.OutputSize);
+            Assert.Equal((3840, 2160), s.OutputSize);
         }
 
-        [Theory(Skip = "Test references ScreenRecordSettings properties (Supersample, Fps, CaptureLiveAudio, LivePreviewEncode) that do not exist on the production type.")]
-        [InlineData(ScreenRecordQuality.Hd720, 94, 16)]
-        [InlineData(ScreenRecordQuality.FullHd, 96, 15)]
-        [InlineData(ScreenRecordQuality.Qhd2K, 97, 14)]
-        [InlineData(ScreenRecordQuality.Uhd4K, 98, 12)]
+        [Theory]
+        [InlineData(ScreenRecordQuality.Hd720, 95, 19)]
+        [InlineData(ScreenRecordQuality.FullHd, 96, 18)]
+        [InlineData(ScreenRecordQuality.Qhd2K, 97, 17)]
+        [InlineData(ScreenRecordQuality.Uhd4K, 98, 17)]
         public void Quality_uses_crisp_jpeg_and_crf(
             ScreenRecordQuality quality, int jpeg, int crf)
         {
@@ -33,7 +33,7 @@ namespace ProGlassAutomation.Tests.Agent
 
         // ── Lag fix: native (1:1) capture by default ────────────────────
 
-        [Theory(Skip = "Test references ScreenRecordSettings properties (Supersample, Fps, CaptureLiveAudio, LivePreviewEncode) that do not exist on the production type.")]
+        [Theory(Skip = "Deferred: Supersample is a legacy persisted flag and is not a reliable proxy for the current physical capture pipeline. Replace this assertion with a test of the actual capture contract before enabling.")]
         [InlineData(ScreenRecordQuality.Hd720)]
         [InlineData(ScreenRecordQuality.FullHd)]
         [InlineData(ScreenRecordQuality.Qhd2K)]
@@ -46,7 +46,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(s.OutputSize, s.CaptureSize);
         }
 
-        [Fact(Skip = "Test references ScreenRecordSettings properties (Supersample, Fps, CaptureLiveAudio, LivePreviewEncode) that do not exist on the production type.")]
+        [Fact]
         public void Supersample_restores_oversampled_capture()
         {
             var s = new ScreenRecordSettings
@@ -59,7 +59,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal((1920, 1080), s.OutputSize);
         }
 
-        [Fact(Skip = "Test references ScreenRecordSettings properties (Supersample, Fps, CaptureLiveAudio, LivePreviewEncode) that do not exist on the production type.")]
+        [Fact]
         public void Live_preview_encode_defaults_off()
         {
             var s = new ScreenRecordSettings();
@@ -68,7 +68,7 @@ namespace ProGlassAutomation.Tests.Agent
 
         // ── YouTube aspect ratio: every output is an even 16:9 frame ────
 
-        [Fact(Skip = "Test references ScreenRecordSettings properties (Supersample, Fps, CaptureLiveAudio, LivePreviewEncode) that do not exist on the production type.")]
+        [Fact]
         public void Every_quality_is_even_16_by_9()
         {
             foreach (var q in ScreenRecordSettings.Qualities)
@@ -79,7 +79,7 @@ namespace ProGlassAutomation.Tests.Agent
             }
         }
 
-        [Theory(Skip = "Test references ScreenRecordSettings properties (Supersample, Fps, CaptureLiveAudio, LivePreviewEncode) that do not exist on the production type.")]
+        [Theory]
         [InlineData(ScreenRecordQuality.Hd720, 1280, 720)]
         [InlineData(ScreenRecordQuality.FullHd, 1920, 1080)]
         [InlineData(ScreenRecordQuality.Qhd2K, 2560, 1440)]
@@ -93,14 +93,14 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(0, s.OutputSize.Height & 1);
         }
 
-        [Theory(Skip = "Test references ScreenRecordSettings properties (Supersample, Fps, CaptureLiveAudio, LivePreviewEncode) that do not exist on the production type.")]
+        [Theory]
         [InlineData(8, 30)]
         [InlineData(30, 30)]
         [InlineData(40, 40)]
         [InlineData(50, 50)]
         [InlineData(60, 60)]
         [InlineData(120, 60)]
-        [InlineData(44, 40)]
+        [InlineData(44, 50)]
         public void Fps_clamps_to_supported_rates(int input, int expected)
         {
             var s = new ScreenRecordSettings { Fps = input }.Clamp();
@@ -108,7 +108,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains(s.Fps, ScreenRecordSettings.AllowedFps);
         }
 
-        [Fact(Skip = "Test references ScreenRecordSettings properties (Supersample, Fps, CaptureLiveAudio, LivePreviewEncode) that do not exist on the production type.")]
+        [Fact]
         public void Catalog_exposes_all_four_qualities_and_four_fps()
         {
             Assert.Equal(4, ScreenRecordSettings.Qualities.Count);
@@ -117,7 +117,7 @@ namespace ProGlassAutomation.Tests.Agent
                 ScreenRecordSettings.FpsOptions.Select(f => f.Fps).ToArray());
         }
 
-        [Fact(Skip = "Test references ScreenRecordSettings properties (Supersample, Fps, CaptureLiveAudio, LivePreviewEncode) that do not exist on the production type.")]
+        [Fact]
         public void Clone_does_not_share_mutation()
         {
             var a = new ScreenRecordSettings

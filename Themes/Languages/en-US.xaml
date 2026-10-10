@@ -1048,7 +1048,7 @@
     <sys:String x:Key="Msg.RestartCouldNotFindThe">Restart could not find the application executable.&#x0a;Save your work and start the app manually.</sys:String>
     <sys:String x:Key="Msg.RestartFailedToStartA">Restart failed to start a new instance.&#x0a;Save your work and start the app manually.</sys:String>
     <sys:String x:Key="Msg.RestartWasBlockedByThe">Restart was blocked by the security guard.&#x0a;Save your work and start the app manually.</sys:String>
-    <sys:String x:Key="Msg.RestoreBackupFromXThis">Restore backup from {0}?&#x0a;&#x0a;This OVERWRITES all current data with the backup.&#x0a;A safety snapshot of the current data is taken first.</sys:String>
+    <sys:String x:Key="Msg.RestoreBackupFromXThis">Restore backup set from {0}?&#x0a;&#x0a;This copies files present in the selected set over matching files in the active data root. Files not present in that set are left in place. A safety snapshot is attempted first. For a clean full-root restore, close ProGlass on every workstation and replace the complete data-root folder.</sys:String>
     <sys:String x:Key="Msg.SaveTheDeliveryNoteFirst">Save the delivery note first to build its history.</sys:String>
     <sys:String x:Key="Msg.SelectedInvoiceCouldNotBe">Selected invoice could not be found.</sys:String>
     <sys:String x:Key="Msg.SetAProformaIDIn">Set a Proforma ID in Step 1 before adding attachments.</sys:String>
@@ -1846,7 +1846,7 @@
     <sys:String x:Key="Settings.AutoUpdatesLicenseserviceStatuschanged">Auto-updates on LicenseService.StatusChanged.</sys:String>
     <sys:String x:Key="Settings.BackupActions">Backup Actions</sys:String>
     <sys:String x:Key="Settings.BackupRestore">BACKUP &amp; RESTORE</sys:String>
-    <sys:String x:Key="Settings.BackupSetCopiesDatabaseSettingsOne">A backup set copies every database + settings into one timestamped folder. Automatic sets are created when the app closes; restore always takes a safety snapshot first.</sys:String>
+    <sys:String x:Key="Settings.BackupSetCopiesDatabaseSettingsOne">App backup sets copy top-level databases and sidecars, config.json when present, and managed Inquiry/Proforma/Delivery attachments. Sets stay under the active data root; keep a separate whole-root copy. In-app restore overlays files in the set and does not remove files absent from it.</sys:String>
     <sys:String x:Key="Settings.BackupSets">Backup Sets</sys:String>
     <sys:String x:Key="Settings.BankAccountNumberSettlement">Bank account number for settlement.</sys:String>
     <sys:String x:Key="Settings.BankRoutingCodeInternationalTransfers">Bank routing code for international transfers.</sys:String>
@@ -2132,7 +2132,7 @@
     <sys:String x:Key="Settings.ResettingAppearance">Resetting Appearance</sys:String>
     <sys:String x:Key="Settings.Resolution">Resolution</sys:String>
     <sys:String x:Key="Settings.ResponseLengthCeilingCallAdjustConfigJsonNow">Response length ceiling per call. Adjust in config.json for now.</sys:String>
-    <sys:String x:Key="Settings.RestoreAlwaysSnapshotsCurrentDataFirstBad">Restore always snapshots current data first, so a bad restore is never fatal.</sys:String>
+    <sys:String x:Key="Settings.RestoreAlwaysSnapshotsCurrentDataFirstBad">The app tries to create a safety set first. If any restore copy fails, keep ProGlass closed and recover from that safety set; the live root may be partly overwritten. Files absent from the selected set are not removed.</sys:String>
     <sys:String x:Key="Settings.RestoreBoxLayoutFieldVisible">Restore the out-of-the-box layout (every field visible).</sys:String>
     <sys:String x:Key="Settings.RestoreSelectedBackup">RESTORE SELECTED BACKUP</sys:String>
     <sys:String x:Key="Settings.RestoreThemeAccentCardShapeDensityZoomFont">Restore theme, accent, card shape, density, zoom, font and wallpapers to factory defaults</sys:String>

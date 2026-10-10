@@ -62,7 +62,13 @@ namespace ProGlassAutomation.Services.DeliveryNote.Database
             // ── DeliveryNotes table ──────────────────────────────────────
             modelBuilder.Entity<SavedDeliveryNote>(e =>
             {
+                e.Property(x => x.RowVersion)
+                    .IsConcurrencyToken()
+                    .ValueGeneratedNever();
                 e.HasIndex(x => x.DeliveryNoteId).IsUnique();
+                e.HasIndex(x => new { x.JobOrderId, x.SequenceNumber })
+                    .IsUnique()
+                    .HasDatabaseName("IX_DeliveryNotes_JobOrderId_SequenceNumber_Unique");
                 e.HasIndex(x => x.JobOrderId);
                 e.HasIndex(x => x.ProformaId);
                 e.HasIndex(x => x.CustomerName);

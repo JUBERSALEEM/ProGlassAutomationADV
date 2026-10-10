@@ -10,10 +10,9 @@
 //      matching the Sheet Store the way Step 4 quotes it:
 //      normalised colour + exact W×H, thickness as a tie-breaker.
 //
-//   2. CONSUME  — record stock usage (repo.UseStockAsync + history log +
-//      audit) exactly like the Sheet Store Use dialog does. The Store's
-//      CommitUseAsync now routes through the same method, so the wizard's
-//      automatic consumption and the manual dialog can never drift.
+//   2. CONSUME  — record stock usage, the movement-history row, and trace
+//      metadata in one repository transaction, then write the best-effort
+//      audit event. The Store's CommitUseAsync routes through this same path.
 //
 // CONTEXT (2026-09-10 request): Step 4 reads colour/price/W/H from the
 // store; Step 6 wastage rows carry Sheet QTY. Entering a QTY in Step 6
@@ -26,7 +25,6 @@ using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.SheetStore;
-using ProGlassAutomation.Services.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Linq;
@@ -47,7 +45,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice
     public static class SheetStockLinkService
     {
         private static readonly SheetStoreRepository _repo = new();
-        private static readonly SheetHistoryRepository _historyRepo = new();
 
         // ═══════════════════════════════════════════════════════════════
         //  RESOLVE
@@ -163,33 +160,25 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                         $"Insufficient stock — {Describe(current)} has a balance " +
                         $"of {current.Balance} sheet(s), {quantity} requested.");
 
-                sheet = current;
+                var committed = await _repo.UseStockAsync(
+                    current.Id, quantity,
+                    origin: origin,
+                    documentReference: jobReference,
+                    customerName: customerName,
+                    projectName: projectName,
+                    salesman: salesman,
+                    panePosition: "").ConfigureAwait(false);
+                if (committed == null)
+                    return Fail("The sheet was removed before the stock movement could be committed.");
 
-                int oldUsed = sheet.Used;
-                await _repo.UseStockAsync(sheet.Id, quantity).ConfigureAwait(false);
-
+                // UseStockAsync returns the row committed under the same
+                // serializable transaction, so the result reflects the
+                // accepted balance and value rather than a stale pre-check.
+                sheet = committed;
                 decimal value = quantity * sheet.SqmPerSheet * sheet.SellPricePerSqm;
                 string jobTag = string.IsNullOrWhiteSpace(jobReference)
                     ? ""
                     : $" [Job: {jobReference.Trim()}]";
-
-                try
-                {
-                    await _historyRepo.LogAsync(
-                        sheet.Id, Describe(sheet), "Used",
-                        $"Consumed {quantity} sheet(s) via {origin}. " +
-                        $"{jobTag} Used: {oldUsed} → {oldUsed + quantity}. " +
-                        $"Value: {value:N2} AED.",
-                        quantity, value,
-                        documentReference: jobReference,
-                        customerName: customerName,
-                        projectName: projectName,
-                        salesman: salesman,
-                        panePosition: "").ConfigureAwait(false);
-                }
-                catch {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("CommitConsumptionAsync suppressed");
-            }
 
                 try
                 {
@@ -212,7 +201,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     Message = $"Used {quantity} sheet(s) from inventory — " +
                               $"{Describe(sheet)} (via {origin}).",
                     ConsumedQuantity = quantity,
-                    RemainingBalance = sheet.Balance - quantity,
+                    RemainingBalance = sheet.Balance,
                     ValueAed = value,
                     SheetDescription = Describe(sheet)
                 };

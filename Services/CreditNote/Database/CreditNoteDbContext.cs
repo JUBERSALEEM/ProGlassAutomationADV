@@ -48,6 +48,9 @@ namespace ProGlassAutomation.Services.CreditNote.Database
         {
             modelBuilder.Entity<SavedCreditNote>(e =>
             {
+                e.Property(x => x.RowVersion)
+                    .IsConcurrencyToken()
+                    .ValueGeneratedNever();
                 e.HasIndex(x => x.CreditNoteNumber).IsUnique();
 
                 e.HasIndex(x => x.TaxInvoiceReference)

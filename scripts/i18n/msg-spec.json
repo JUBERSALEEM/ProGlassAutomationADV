@@ -2137,7 +2137,7 @@
    ]
   },
   "Msg.RestoreBackupFromXThis": {
-   "en": "Restore backup from {0}?\n\nThis OVERWRITES all current data with the backup.\nA safety snapshot of the current data is taken first.",
+   "en": "Restore backup set from {0}?\n\nThis copies files present in the selected set over matching files in the active data root. Files not present in that set are left in place. A safety snapshot is attempted first. For a clean full-root restore, close ProGlass on every workstation and replace the complete data-root folder.",
    "nargs": 1,
    "sites": [
     [

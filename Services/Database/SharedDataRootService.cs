@@ -343,8 +343,10 @@ namespace ProGlassAutomation.Services.Database
             {
                 try
                 {
-                    using var conn = new SqliteConnection("Data Source=" + db);
+                    using var conn = new SqliteConnection(
+                        SqliteResilience.BuildConnectionString(db));
                     conn.Open();
+                    SqliteResilience.ApplyConnectionPolicy(conn);
                     for (int attempt = 0; attempt < 5; attempt++)
                     {
                         using var cmd = conn.CreateCommand();
@@ -383,25 +385,26 @@ namespace ProGlassAutomation.Services.Database
             {
                 try
                 {
-                    using var conn = new SqliteConnection("Data Source=" + db);
+                    using var conn = new SqliteConnection(
+                        SqliteResilience.BuildSharedRootConnectionString(db));
                     conn.Open();
-                    using var cmd = conn.CreateCommand();
-                    cmd.CommandText = "PRAGMA journal_mode = DELETE;";
-                    using var reader = cmd.ExecuteReader();
-                    if (reader.Read()
-                        && string.Equals(reader.GetString(0), "delete", StringComparison.OrdinalIgnoreCase))
+                    string mode = SqliteResilience.ApplyConnectionPolicy(
+                        conn, sharedRootOverride: true);
+                    if (string.Equals(mode, "delete", StringComparison.OrdinalIgnoreCase))
                         converted++;
                 }
                 catch (Exception ex)
                 {
-                    // A conversion that needs exclusive access can lose to
-                    // a workstation that is currently running. Logged here;
-                    // SqliteResilience's journal-mode verification will fail
-                    // any affected connection loudly instead of running WAL
-                    // over the share.
-                    AppLogService.Warning(
-                        $"Could not set rollback journal on shared {Path.GetFileName(db)}: {ex.Message}",
+                    // Do not report the root prepared when even one database
+                    // remains in WAL mode. Applying shared settings is gated
+                    // on every file passing the central mode verification.
+                    AppLogService.Error(
+                        $"Could not set rollback journal on shared {Path.GetFileName(db)}.",
+                        ex,
                         new LogContext { Module = "Database", Operation = "ConvertSharedDatabases" });
+                    throw new InvalidOperationException(
+                        $"Could not convert {Path.GetFileName(db)} to the required DELETE journal mode. " +
+                        "Close all ProGlass workstations and retry shared-folder preparation.", ex);
                 }
             }
             return converted;

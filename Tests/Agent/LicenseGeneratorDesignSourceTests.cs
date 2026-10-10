@@ -1,11 +1,10 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Tests/Agent/LicenseGeneratorDesignSourceTests.cs
 // PROJECT: ProGlassAutomation.Tests
-// MODULE: Source-level invariants for the License Generator (2026
-//         single-click plan flow). These tests pin the DESIGN of the
-//         vendor tool: one embedded production key, plan-based signing,
-//         armored keys, and the guarantee that the app trusts EXACTLY
-//         the public half the generator signs with.
+// MODULE: Source-level invariants for the License Generator during
+//         production-key rotation. These tests pin the fail-closed state:
+//         no embedded private key, no DPAPI-cache fallback, and the old
+//         public key retained only for a deliberate customer migration.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -31,59 +30,66 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Generator_core_signs_plan_based_armored_keys_and_never_raw_blobs()
+        public void Generator_core_fails_closed_until_a_replacement_signer_is_approved()
         {
             string root = LocateProjectRoot();
             string core = File.ReadAllText(Path.Combine(root,
                 "Tools", "LicenseGenerator", "LicenseGeneratorCore.cs"));
+            string protection = File.ReadAllText(Path.Combine(root,
+                "Tools", "LicenseGenerator", "KeyProtection.cs"));
+            string signingKey = File.ReadAllText(Path.Combine(root,
+                "Tools", "LicenseGenerator", "ProductionSigningKey.cs"));
 
-            Assert.Contains("GenerateLicenseKey", core);
-            Assert.Contains("LicenseKeyArmor.Encode", core);
-            Assert.Contains("LicenseService.Create", core);
-            Assert.Contains("LicenseService.VerifyAndValidate", core);
-            Assert.Contains("ProductionSigningKey", core);
-            Assert.Contains("LicensePlanCatalog", core);
+            Assert.Contains("KeyProtection.GetPrivateKey()", core);
+            Assert.Contains("throw new InvalidOperationException", protection);
+            Assert.Contains("License issuance is disabled", protection);
+            Assert.DoesNotContain("ProtectedData.Unprotect", protection);
+            Assert.DoesNotContain("ProductionSigningKey.PrivateKeyXml", protection);
+            Assert.DoesNotContain("PrivateKeyXml", signingKey, StringComparison.Ordinal);
+            foreach (string privateRsaElement in new[]
+                     { "<D>", "<P>", "<Q>", "<DP>", "<DQ>", "<InverseQ>" })
+            {
+                Assert.DoesNotContain(privateRsaElement, signingKey, StringComparison.Ordinal);
+            }
 
-            // The plan set itself lives in the global catalog shared
-            // with the customer app (single source of truth).
+            // The plan catalog remains shared with the customer app, but
+            // catalog compatibility does not enable signing.
             string catalog = File.ReadAllText(Path.Combine(root,
                 "Licensing", "Contracts", "LicensePlanCatalog.cs"));
+            Assert.Contains("LicensePlanCatalog", core);
             Assert.Contains("\"7 Days\"", catalog);
             Assert.Contains("\"2 Years\"", catalog);
-
-            // The activation request/response signing path is gone.
-            Assert.DoesNotContain("OfflineActivationService.SignResponseJson", core);
-            Assert.DoesNotContain("GenerateActivationResponse", core);
-            Assert.DoesNotContain("Convert.ToBase64String", core);
         }
 
         [Fact]
-        public void App_trust_ring_accepts_exactly_the_generator_s_embedded_public_key()
+        public void Generator_public_key_matches_app_compatibility_key_during_rotation()
         {
             string root = LocateProjectRoot();
             string src = File.ReadAllText(Path.Combine(root,
                 "Tools", "LicenseGenerator", "ProductionSigningKey.cs"));
 
-            // The first <RSAKeyValue>…</RSAKeyValue> literal in the file
-            // is the PublicKeyXml constant; it must be byte-identical to
-            // the public half embedded in the customer app. That is what
-            // makes "generate → paste → instant active" airtight: the app
-            // can never accept a key this generator did not sign.
+            // Retain only the public half while existing licenses are
+            // migrated deliberately; no private half may remain in source.
             var match = Regex.Match(src, "<RSAKeyValue>.*?</RSAKeyValue>", RegexOptions.Singleline);
-            Assert.True(match.Success, "ProductionSigningKey must embed a public RSAKeyValue literal.");
-
+            Assert.True(match.Success, "The compatibility file must retain its public RSAKeyValue.");
             Assert.Equal(LicensePublicKey.GeneratorCompatiblePublicKeyXml, match.Value);
-            Assert.Contains("PrivateKeyXml", src);
+            Assert.DoesNotContain("PrivateKeyXml", src, StringComparison.Ordinal);
+            foreach (string privateRsaElement in new[]
+                     { "<D>", "<P>", "<Q>", "<DP>", "<DQ>", "<InverseQ>" })
+            {
+                Assert.DoesNotContain(privateRsaElement, src, StringComparison.Ordinal);
+            }
         }
 
         [Fact]
-        public void Generator_ui_is_worded_as_the_single_click_plan_flow()
+        public void Generator_ui_discloses_the_pause_and_disables_issuance()
         {
             string root = LocateProjectRoot();
             string xaml = File.ReadAllText(Path.Combine(root,
                 "Tools", "LicenseGenerator", "MainWindow.xaml"));
 
-            Assert.Contains("GENERATE LICENSE KEY", xaml);
+            Assert.Contains("ISSUANCE PAUSED", xaml);
+            Assert.Contains("IsEnabled=\"False\"", xaml);
             Assert.Contains("COPY KEY", xaml);
             Assert.Contains("7 DAYS", xaml);
             Assert.Contains("30 DAYS", xaml);

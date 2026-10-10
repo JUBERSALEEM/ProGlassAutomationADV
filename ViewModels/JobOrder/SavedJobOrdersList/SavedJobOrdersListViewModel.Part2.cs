@@ -79,7 +79,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     entity.FullSnapshotJson = JobOrderMapper.SerializeSnapshot(snapshot);
                 }
 
-                await _jobs.UpdateAsync(entity);
+                await _jobs.UpdateAsync(entity, row.RowVersion);
 
                 AuditService.Log(
                     AuditSections.JobOrder, "Job order priority changed",

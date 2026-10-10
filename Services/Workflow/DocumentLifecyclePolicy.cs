@@ -16,7 +16,8 @@
 //
 //     • CanHardDelete(kind, status, hasChildren)
 //         → true  = a childless pre-posting DRAFT: safe to physically delete
-//         → false = posted / has children: must be VOIDED, never deleted
+//         → false = never physically delete; VOID only if the status table
+//                     permits the configured void edge, otherwise retain
 //
 //     • CanEditBody(kind, status)
 //         → true  = still a working draft: line items / totals editable
@@ -51,9 +52,9 @@ namespace ProGlassAutomation.Services.Workflow
     public static class DocumentLifecyclePolicy
     {
         // ── Pre-posting statuses that MAY be physically deleted ────────────
-        // Anything not in these sets is soft-closed (voided) instead. These
-        // are the states a document can be in BEFORE it becomes a committed
-        // order / fiscal document.
+        // Anything not in these sets is never physically deleted. It is
+        // soft-closed only when the status transition table permits the void
+        // edge; terminal/unknown states are retained unchanged.
         private static readonly Dictionary<StatusTransitions.Kind, HashSet<string>> HardDeletable =
             new()
             {
@@ -80,8 +81,8 @@ namespace ProGlassAutomation.Services.Workflow
                     "Draft"),
 
                 // A Credit Note is itself a fiscal correction document: once
-                // Issued it must be retained (voided, never deleted). Only a
-                // Draft may be physically deleted.
+                // Issued it must be retained (voided when its transition table
+                // permits, never deleted). Only a Draft may be deleted.
                 [StatusTransitions.Kind.CreditNote] = CaseInsensitive(
                     "Draft"),
             };
@@ -129,8 +130,9 @@ namespace ProGlassAutomation.Services.Workflow
         /// <summary>
         /// True only when the document is a childless, pre-posting draft that
         /// is safe to PHYSICALLY delete. Any posted state, or any document
-        /// that still has dependents, returns false — the caller must VOID it
-        /// instead. Unknown/blank status is treated as not-deletable (safe).
+        /// that still has dependents, returns false — the caller may VOID it
+        /// only when the status transition table permits; otherwise it retains
+        /// the row unchanged. Unknown/blank status is not deletable (safe).
         /// </summary>
         public static bool CanHardDelete(StatusTransitions.Kind kind, string? status, bool hasChildren)
         {
@@ -162,6 +164,49 @@ namespace ProGlassAutomation.Services.Workflow
             => VoidStatus.TryGetValue(kind, out var s) ? s : "Cancelled";
 
         /// <summary>
+        /// True when the document's current status may legally take the
+        /// configured void edge in <see cref="StatusTransitions"/>. Unknown,
+        /// blank, already-void, and terminal source states fail closed.
+        /// Keeping this check in the shared policy prevents an explicit
+        /// VoidAsync call from bypassing the ordinary status transition table.
+        /// </summary>
+        public static bool CanVoid(StatusTransitions.Kind kind, string? status)
+        {
+            if (string.IsNullOrWhiteSpace(status) || IsVoidTerminal(kind, status))
+                return false;
+
+            return StatusTransitions.Validate(
+                kind, status, VoidTargetStatus(kind)).IsValid;
+        }
+
+        /// <summary>
+        /// True when an entity carries any operator-void audit metadata. New
+        /// records must not arrive pre-voided or with caller-forged audit data;
+        /// repositories own that transition and its durable audit entry.
+        /// </summary>
+        public static bool HasVoidMetadata(
+            DateTime? voidedAtUtc, string? voidedBy, string? voidReason)
+            => voidedAtUtc.HasValue
+                || !string.IsNullOrEmpty(voidedBy)
+                || !string.IsNullOrEmpty(voidReason);
+
+        /// <summary>
+        /// Voids must carry an operator-supplied reason. Normalize whitespace
+        /// once at the service boundary and reject values that cannot fit the
+        /// persisted audit field instead of silently truncating legal context.
+        /// </summary>
+        public static string NormalizeVoidReason(string? reason)
+        {
+            string normalized = (reason ?? string.Empty).Trim();
+            if (normalized.Length == 0)
+                throw new ArgumentException("A void reason is required.", nameof(reason));
+            if (normalized.Length > 500)
+                throw new ArgumentException(
+                    "A void reason cannot exceed 500 characters.", nameof(reason));
+            return normalized;
+        }
+
+        /// <summary>
         /// The three-way decision a "delete" action must take, per the §3
         /// matrix. This is the single place the rule lives so every module
         /// behaves identically.
@@ -171,27 +216,23 @@ namespace ProGlassAutomation.Services.Workflow
             /// <summary>Childless pre-posting draft — physically delete it.</summary>
             HardDelete,
 
-            /// <summary>Has LIVE dependents — block; the children must be
-            /// handled first (voided/deleted). Never orphan or void a parent
-            /// out from under live children.</summary>
+            /// <summary>Has dependents — block; the children must be handled
+            /// first. Never orphan or void a parent out from under linked rows.</summary>
             Blocked,
 
-            /// <summary>Posted but childless — soft-close (void) so the
-            /// number, snapshot and audit trail survive.</summary>
+            /// <summary>Already voided, terminal, unknown, or otherwise not
+            /// safely deletable/voidable; retain without changing its state.</summary>
+            Retained,
+
+            /// <summary>Childless and the status table permits the void edge;
+            /// soft-close so the number, snapshot and audit trail survive.</summary>
             Void,
         }
 
         /// <summary>
-        /// Decides what a user-initiated "delete" should actually do for a
-        /// document, given its status and whether it still has LIVE
-        /// dependents (the dependency guard already excludes voided children).
-        /// </summary>
-        /// <summary>
         /// True when the status is the terminal soft-closed (void) status for
-        /// the kind (Cancelled / Rejected). A voided document is already
-        /// closed; with no LIVE dependents left it may be physically removed —
-        /// this turns "void then delete" into a simple two-step workflow
-        /// instead of re-voiding an already-voided document.
+        /// the kind (Cancelled / Rejected). Terminal records are retained and
+        /// are never eligible for physical deletion.
         /// </summary>
         public static bool IsVoidTerminal(StatusTransitions.Kind kind, string? status)
         {
@@ -202,21 +243,19 @@ namespace ProGlassAutomation.Services.Workflow
         }
 
         public static DeleteDecision DecideDelete(
-            StatusTransitions.Kind kind, string? status, bool hasLiveChildren)
+            StatusTransitions.Kind kind, string? status, bool hasLinkedRecords)
         {
-            // Live children always come first — never orphan them, even when
-            // the parent is already voided.
-            if (hasLiveChildren)
+            // A retained link is a hard-delete blocker regardless of whether
+            // the linked document is live or voided.
+            if (hasLinkedRecords)
                 return DeleteDecision.Blocked;
-            if (CanHardDelete(kind, status, false))
-                return DeleteDecision.HardDelete;
-            // Already soft-closed (voided/cancelled) and childless: the number,
-            // snapshot and audit trail served their purpose; let the user clean
-            // up for real. Repository DeleteAsync runs the full lifecycle sync
-            // (master-DN refresh + PI status recovery) after removal.
             if (IsVoidTerminal(kind, status))
+                return DeleteDecision.Retained;
+            if (CanHardDelete(kind, status, hasChildren: false))
                 return DeleteDecision.HardDelete;
-            return DeleteDecision.Void;
+            return CanVoid(kind, status)
+                ? DeleteDecision.Void
+                : DeleteDecision.Retained;
         }
 
         private static HashSet<string> CaseInsensitive(params string[] values)

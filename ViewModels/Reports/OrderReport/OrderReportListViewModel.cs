@@ -257,13 +257,26 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
 
             try
             {
-                OrderReportPdfExporter.DeletePdfs(row.ReportNumber, row.PdfPath);
-                await Task.Run(() => _repo.DeleteAsync(row.Id));
+                // Delete in the database first. A stale-version conflict or
+                // database failure must never remove the PDF belonging to a
+                // report that another workstation has just changed.
+                await Task.Run(() => _repo.DeleteAsync(row.Id, row.RowVersion));
 
                 _allRows.Remove(row);
                 ApplySearch();
                 UpdateKpis(_allRows);
-                StatusMessage = $"Report {row.ReportNumber} deleted.";
+                try
+                {
+                    OrderReportPdfExporter.DeletePdfs(row.ReportNumber, row.PdfPath);
+                    StatusMessage = $"Report {row.ReportNumber} deleted.";
+                }
+                catch (Exception fileEx)
+                {
+                    // The database row was deleted successfully; distinguish
+                    // orphan-file cleanup failure from a failed/stale delete.
+                    StatusMessage = $"Report {row.ReportNumber} was deleted, but its PDF cleanup failed: " +
+                        ExceptionMessages.Deep(fileEx);
+                }
             }
             catch (Exception ex)
             {

@@ -3,15 +3,13 @@
 // PROJECT: ProGlassAutomation.LicenseGenerator
 // MODULE: Single-click plan-based license-key signing core (2026)
 //
-// ONE JOB
-// ───────
-// Pick a plan, press GENERATE, get ONE copy-paste text block:
-//
-//     PGKEY1.<base64url(signed .proglasslicense JSON)>
-//
-// The customer pastes that block into the app (Settings → License) and
-// the app verifies the vendor signature against its embedded public-key
-// ring and activates instantly. No key files, no requests, no responses.
+// CURRENT STATUS — ISSUANCE PAUSED
+// ─────────────────────────────────
+// The prior production private key was exposed in tracked source. The
+// generator refuses to read the old source value or any DPAPI cache, and
+// the UI is disabled. Do not issue licenses from old generator binaries.
+// A replacement key, app trust-ring release, and existing-license migration
+// must be approved before issuance can resume.
 //
 // PLANS
 // ─────
@@ -19,20 +17,17 @@
 // Every generated key grants the full feature scope ("*") as a
 // Subscription license that expires at issuedAt + plan days.
 //
-// SECURITY MODEL
-// ──────────────
-//   • Signing = RSA-2048-PSS over the canonical document bytes
-//     (LicenseCanonical). Verification = embedded public keys only.
-//   • The keyId is embedded in the signature envelope; the app maps it
-//     to the trusted public key. An unknown keyId → rejected.
-//   • The embedded production pair lives in ProductionSigningKey.cs;
-//     its public half is ALSO embedded in the customer app, so a key
-//     signed here is guaranteed to verify there.
-//   • Every key is self-verified before it is shown: the contract
-//     Create() re-reads and VerifyAndValidate-s the exact JSON it
-//     signed, so a tampered or mismatched key can never be emitted.
-//   • The plan set is the global LicensePlanCatalog — the customer app
-//     uses the same catalog for its plan-mismatch paste warnings.
+// SECURITY STATUS
+// ───────────────
+//   • The former production private key was exposed in tracked source
+//     and is treated as compromised.
+//   • KeyProtection.GetPrivateKey() fails closed; both the embedded
+//     fallback and old DPAPI cache are ignored. This tool cannot issue
+//     licenses until an owner-approved replacement signer is provisioned.
+//   • The public key remains only for compatibility review. The customer
+//     app still trusts the old key until a replacement and customer
+//     migration plan are approved and released.
+//   • The plan set remains the global LicensePlanCatalog.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -43,10 +38,9 @@ using ProGlass.Licensing;
 namespace ProGlassAutomation.Tools.LicenseGenerator;
 
 /// <summary>
-/// Stateless signing core for the single-click plan-based flow.
-/// The plan definitions come from the global
-/// <see cref="LicensePlanCatalog"/> — the SAME catalog the customer
-/// app uses for its plan cards and plan-mismatch warnings.
+/// License-generation core. Issuance currently fails closed in
+/// <see cref="KeyProtection.GetPrivateKey"/> until the production key
+/// rotation is completed and approved.
 /// </summary>
 public static class LicenseGeneratorCore
 {
@@ -74,11 +68,9 @@ public static class LicenseGeneratorCore
     }
 
     /// <summary>
-    /// Sign a full-feature license key for the selected plan with the
-    /// embedded production key and armor it into the single-line PGKEY1
-    /// block. The contract library signs, re-reads and self-verifies the
-    /// exact JSON, so the returned key is guaranteed to verify against
-    /// the public half the customer app embeds.
+    /// License issuance is temporarily disabled because the former
+    /// production signing key was exposed. The fail-closed key provider
+    /// returns a clear failure until a replacement signer is approved.
     /// </summary>
     public static LicenseKeyIssueResult GenerateLicenseKey(LicensePlanCatalog.Plan plan)
     {
@@ -97,7 +89,8 @@ public static class LicenseGeneratorCore
                 };
             }
 
-            // SECURITY: Use DPAPI-protected key instead of plain-text const
+            // Fail closed: KeyProtection refuses both the old embedded key
+            // and any cached DPAPI copy until a replacement signer is approved.
             string privateKey = KeyProtection.GetPrivateKey();
 
             var gen = LicenseService.Create(

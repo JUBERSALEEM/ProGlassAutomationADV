@@ -1,10 +1,10 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Tools/LicenseGenerator/MainWindow.xaml.cs
 // PROJECT: ProGlassAutomation.LicenseGenerator
-// MODULE: License Key Generator — window logic (2026 single-click flow)
+// MODULE: License Generator UI during production-key rotation
 //
-// ONE JOB: pick a plan (7 days → 2 years), press GENERATE, copy the
-// single PGKEY1 block. No key files, no requests, no responses.
+// The UI remains for reference, but issuance is disabled until the
+// compromised production key is replaced and a customer migration is approved.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -34,8 +34,8 @@ public partial class MainWindow : Window
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         SetStatus(
-            "Ready — pick a plan and press GENERATE. The customer pastes the key in the app and it activates instantly.",
-            StatusKind.Info);
+            "Issuance paused — the exposed production signing key must be rotated before new licenses can be issued.",
+            StatusKind.Warning);
     }
 
     // ────────────────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ public partial class MainWindow : Window
 
         LicenseKeyOutputBox.Text = result.ArmoredKey;
         _lastLicenseKey = result.ArmoredKey;
-        KeyStatusText.Text = plan.Name + " key generated — verified against the app's embedded trust key.";
+        KeyStatusText.Text = plan.Name + " key generated — verified against the approved app trust ring.";
         SetStatus(result.Message, StatusKind.Success);
     }
 

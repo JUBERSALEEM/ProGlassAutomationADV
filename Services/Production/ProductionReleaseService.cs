@@ -184,6 +184,7 @@ namespace ProGlassAutomation.Services.Production
 
             try
             {
+                ProductionWriteGuard.Demand("release a job to production");
                 var json = await LoadJobOrderJsonAsync(source).ConfigureAwait(false);
                 var kind = ProductionSnapshotIntegrity.ReadJobOrderJson(
                     json, out var snapshot, out string snapMsg);

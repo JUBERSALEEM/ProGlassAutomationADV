@@ -12,6 +12,13 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
     {
         public int Id { get; set; }
 
+        private int _rowVersion;
+        public int RowVersion
+        {
+            get => _rowVersion;
+            set { if (_rowVersion == value) return; _rowVersion = value; OnPropertyChanged(); }
+        }
+
         private string _proformaId = "";
         public string ProformaId
         {
