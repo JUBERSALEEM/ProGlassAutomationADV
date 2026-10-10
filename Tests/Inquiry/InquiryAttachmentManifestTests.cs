@@ -35,9 +35,12 @@ namespace ProGlassAutomation.Tests.Inquiry
             public Task<InquiryRecord?> GetDetailAsync(int id, CancellationToken ct = default) => Task.FromResult<InquiryRecord?>(null);
             public Task<InquiryRecord> CreateAsync(InquiryRecord inquiry, CancellationToken ct = default)
                 => throw new NotSupportedException();
-            public Task<InquiryRecord> UpdateAsync(InquiryRecord inquiry, CancellationToken ct = default)
+            public Task<InquiryRecord> UpdateAsync(
+                InquiryRecord inquiry, int expectedRowVersion, CancellationToken ct = default)
                 => throw new NotSupportedException();
-            public Task<bool> ChangeStatusAsync(int id, string status, string actor, CancellationToken ct = default)
+            public Task<bool> ChangeStatusAsync(
+                int id, string status, string actor, int expectedRowVersion,
+                CancellationToken ct = default)
                 => throw new NotSupportedException();
             public Task<IReadOnlyList<InquiryAttachment>> GetAttachmentsAsync(int inquiryId, CancellationToken ct = default)
                 => GetAttachmentsThrows
@@ -58,9 +61,10 @@ namespace ProGlassAutomation.Tests.Inquiry
             public Task<InquiryRecord> DuplicateAsync(int sourceId, CancellationToken ct = default)
                 => throw new NotSupportedException();
             // PHASE 2: BOQ persistence — the manifest tests don't exercise it.
-            public Task SaveLineItemsAsync(int inquiryId,
-                IReadOnlyList<InquiryLineItem> items, string updatedBy,
-                CancellationToken ct = default) => Task.CompletedTask;
+            public Task<int> SaveLineItemsAsync(int inquiryId,
+                IReadOnlyList<InquiryLineItem> items, int expectedRowVersion,
+                string updatedBy, CancellationToken ct = default)
+                => throw new NotSupportedException();
             public Task<bool> SetProformaLinkAsync(int inquiryId, int? proformaInvoiceId, string proformaNumber, CancellationToken ct = default)
                 => throw new NotSupportedException();
             public void InvalidateLifecycle(int inquiryId) { /* no-op */ }

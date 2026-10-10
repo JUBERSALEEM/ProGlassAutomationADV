@@ -185,18 +185,18 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             get
             {
-                var appDataRoot = Services.Database.AppDataRoot;
-                if (appDataRoot.SharedRootFallbackActive)
+                if (Services.Database.AppDataRoot.SharedRootFallbackActive)
                 {
-                    var configured = string.IsNullOrWhiteSpace(appDataRoot.ConfiguredSharedDataRoot)
+                    var configured = string.IsNullOrWhiteSpace(
+                        Services.Database.AppDataRoot.ConfiguredSharedDataRoot)
                         ? "(empty or invalid saved path)"
-                        : appDataRoot.ConfiguredSharedDataRoot;
+                        : Services.Database.AppDataRoot.ConfiguredSharedDataRoot;
                     return "UNAVAILABLE — configured shared root: " + configured +
                         "   |   database access blocked; local AppData is not in use";
                 }
 
-                var root = appDataRoot.CurrentFolder;
-                return root + (appDataRoot.IsSharedDataRootEnabled
+                var root = Services.Database.AppDataRoot.CurrentFolder;
+                return root + (Services.Database.AppDataRoot.IsSharedDataRootEnabled
                     ? "   |   shared root active"
                     : "   |   local root active");
             }

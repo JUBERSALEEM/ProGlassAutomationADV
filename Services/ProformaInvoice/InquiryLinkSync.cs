@@ -151,7 +151,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                 await App.Inquiries.ChangeStatusAsync(
                     invoice.InquiryId.Value,
                     target,
-                    AuditService.CurrentUsername)
+                    AuditService.CurrentUsername,
+                    detail.RowVersion)
                     .ConfigureAwait(false);
 
                 AuditService.Log(

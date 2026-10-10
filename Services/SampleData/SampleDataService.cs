@@ -329,7 +329,7 @@ namespace ProGlassAutomation.Services.SampleData
                 var sheetRepo = new SheetStoreRepository();
                 foreach (var x in await sheetRepo.GetAllAsync())
                 {
-                    await sheetRepo.DeleteAsync(x.Id);
+                    await sheetRepo.DeleteAsync(x.Id, x.RowVersion);
                     sh++;
                 }
 
