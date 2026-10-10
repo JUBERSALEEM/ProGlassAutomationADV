@@ -319,6 +319,15 @@ namespace ProGlassAutomation
             // business DbContext now resolves through AppDataRoot.CurrentFolder.
             AppDataRoot.ConfigureFrom(Config);
 
+            // A configured share that failed the four-second startup probe
+            // must stop startup here. Otherwise every repository repeats the
+            // same blocked DbContext initialization, and the expected network
+            // outage is misreported as a cascade of fatal database failures.
+            // EnsureCurrentFolder throws the operator-facing exception while
+            // preserving the fail-closed rule (never open local AppData).
+            if (AppDataRoot.SharedRootFallbackActive)
+                AppDataRoot.EnsureCurrentFolder();
+
             // 1b) GLOBAL LOCALE — language, currency, country.
             //     • GeoService: cached country first, IP refresh after.
             //     • CurrencyService: cached FX rates, live internet

@@ -170,12 +170,11 @@ namespace ProGlassAutomation
         //  remotely.
         //
         //  THE FIX
-        //  The entire original body moved unchanged into
-        //  StartupCoreAsync(). This wrapper awaits it inside a try/catch
-        //  so any startup fault is logged, written to the crash report,
-        //  and shown to the user in the same professional format used by
-        //  the dispatcher handler. Startup logic itself is untouched —
-        //  this only adds the safety net around it.
+        //  The original body moved into StartupCoreAsync(). This wrapper
+        //  awaits it inside a try/catch so unexpected startup faults are
+        //  logged, written to the crash report, and shown to the user.
+        //  The expected "configured shared root is offline" condition has
+        //  a separate fail-closed warning path, not a crash report.
         // ══════════════════════════════════════════════════════════════
         private async void Application_Startup(
             object sender, StartupEventArgs e)
@@ -186,10 +185,48 @@ namespace ProGlassAutomation
                 Velopack.VelopackApp.Build().Run();
                 await StartupCoreAsync(sender, e);
             }
+            catch (SharedDataRootUnavailableException ex)
+            {
+                HandleSharedDataRootUnavailable(ex);
+            }
             catch (Exception ex)
             {
                 HandleFatalStartupFailure(ex);
             }
+        }
+
+        /// <summary>
+        /// A configured LAN share that is offline is an expected
+        /// availability condition, not an application crash. Keep the
+        /// fail-closed policy, but explain the recovery steps without
+        /// generating a crash report or misleading generic database advice.
+        /// </summary>
+        private void HandleSharedDataRootUnavailable(
+            SharedDataRootUnavailableException ex)
+        {
+            AppLogService.Warning(
+                "Startup stopped because the configured shared data root is unavailable. " +
+                ex.Message,
+                new LogContext
+                {
+                    Module = "Database",
+                    Operation = "StartupBlockedBySharedDataRoot"
+                });
+
+            try
+            {
+                Prompts.Show(
+                    ex.Message,
+                    "Company data unavailable",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+            catch
+            {
+                // No UI available — nothing further we can do.
+            }
+
+            Shutdown(1);
         }
 
         /// <summary>
