@@ -18,14 +18,33 @@ function Column({
   return (
     <div>
       <h2 className="eyebrow mb-4">{title}</h2>
-      <ul className="space-y-2.5">
+      {/*
+        Card-shaped links, the mobile sheet's own treatment, moved up to the
+        footer: bare text lists read as filler; a card carries its own edge,
+        holds its hover, and tells a thumb exactly where to press. Same
+        labels, same routes — only the shape of the door changed, so nothing
+        here invents a page.
+      */}
+      <ul className="space-y-2">
         {links.map((link) => (
           <li key={link.href}>
             <Link
               href={link.href}
-              className="link-grow text-sm text-text-muted transition-colors duration-200 hover:text-brand-200"
+              className="card-interactive group flex items-center justify-between gap-2 rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2 text-sm font-medium text-text-secondary transition-colors duration-200 hover:border-brand-400/60 hover:text-text-primary"
             >
-              {t(link.label)}
+              <span>{t(link.label)}</span>
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 16 16"
+                className="-me-1 h-3.5 w-3.5 shrink-0 opacity-0 transition-all duration-200 group-hover:me-0 group-hover:translate-x-0.5 group-hover:opacity-100"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M2.5 8h11M9.5 4l4 4-4 4" />
+              </svg>
             </Link>
           </li>
         ))}
