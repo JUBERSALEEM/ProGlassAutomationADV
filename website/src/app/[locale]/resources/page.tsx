@@ -11,6 +11,7 @@ import { allPosts } from "@/lib/posts";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -31,6 +32,7 @@ export default async function ResourcesPage({ params }: PageProps) {
   const locale = t.locale;
   const posts = allPosts();
   return (
+    <PageOverlay locale={t.locale} route="resources">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
@@ -204,5 +206,6 @@ export default async function ResourcesPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

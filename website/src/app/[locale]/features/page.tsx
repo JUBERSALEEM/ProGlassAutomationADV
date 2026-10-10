@@ -18,6 +18,7 @@ import { pricingRules } from "@/data/pricingRules";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -44,6 +45,7 @@ export default async function FeaturesPage({ params }: PageProps) {
   );
 
   return (
+    <PageOverlay locale={t.locale} route="features">
 
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
@@ -499,5 +501,6 @@ export default async function FeaturesPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

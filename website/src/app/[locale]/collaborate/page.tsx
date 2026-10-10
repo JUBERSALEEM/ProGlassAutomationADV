@@ -20,6 +20,7 @@ import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
 import { site } from "@/lib/site";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -63,6 +64,7 @@ export default async function CollaboratePage({ params }: PageProps) {
   const locale = t.locale;
 
   return (
+    <PageOverlay locale={t.locale} route="collaborate">
     <>
       {/* Structured data for this route — see lib/schema.ts. */}
       <RouteSchema
@@ -453,5 +455,6 @@ export default async function CollaboratePage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

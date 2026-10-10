@@ -22,6 +22,7 @@ import { site } from "@/lib/site";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -156,6 +157,7 @@ const faq = [
 ];
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="developer">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
@@ -791,5 +793,6 @@ const faq = [
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

@@ -6,6 +6,7 @@ import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -23,6 +24,7 @@ export default async function LicensePage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="legal/license">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
@@ -112,5 +114,6 @@ export default async function LicensePage({ params }: PageProps) {
         }
       />
   </>
+    </PageOverlay>
   );
 }

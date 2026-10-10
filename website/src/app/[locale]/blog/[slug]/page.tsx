@@ -11,6 +11,7 @@ import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 /**
  * One page per Markdown file in `posts/`. Drafts are not in this list, so a
@@ -79,6 +80,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   const tokens = postTokens(post.markdown);
 
   return (
+    <PageOverlay locale={t.locale} route="blog/[slug]">
     <>
       {/*
         One graph for the article, its WebPage and its breadcrumb trail, all
@@ -214,5 +216,6 @@ export default async function BlogPostPage({ params }: PageProps) {
         </Section>
       ) : null}
     </>
+    </PageOverlay>
   );
 }

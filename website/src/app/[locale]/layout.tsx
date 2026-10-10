@@ -15,7 +15,8 @@ import { LOCALE_CODES, dirOf, isLocale, localeInfo, type Locale } from "@/i18n/l
 import { ogLocale } from "@/i18n/core";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SupportBubble } from "@/components/support/SupportBubble";
-import { overlayWithApp, translatorForLocale } from "@/i18n/server";
+import { chromeOverlayFor, translatorForLocale } from "@/i18n/server";
+import { APP_STRINGS } from "@/i18n/app-strings";
 
 /**
  * Inter for the interface, JetBrains Mono for the technical labels.
@@ -225,7 +226,10 @@ export default async function LocaleLayout({
   const { locale: tag } = await params;
   if (!isLocale(tag)) notFound();
   const locale: Locale = tag;
-  const overlay = overlayWithApp(locale);
+  /* The layout's provider ships the chrome overlay only — see server.ts. The
+     page's own sentences arrive at a deeper provider: PageOverlay, wrapped
+     by each page around its own content. */
+  const overlay = { ...APP_STRINGS[locale], ...chromeOverlayFor(locale) };
   /* The footer renders on the server and takes its translator as a prop, so
      the layout builds one for the chrome around the page body. */
   const t = translatorForLocale(locale);

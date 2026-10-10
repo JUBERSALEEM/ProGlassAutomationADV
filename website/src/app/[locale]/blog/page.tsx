@@ -11,6 +11,7 @@ import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -33,6 +34,7 @@ export default async function BlogPage({ params }: PageProps) {
   const [lead, ...rest] = posts;
 
   return (
+    <PageOverlay locale={t.locale} route="blog">
 
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
@@ -176,5 +178,6 @@ export default async function BlogPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

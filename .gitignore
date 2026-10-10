@@ -152,6 +152,7 @@ coverage*.info
 # and committed deliberately — a clean checkout must ship it (a build once
 # failed on Vercel for the want of this exception).
 !website/src/i18n/coverage-table.json
+!website/src/i18n/route-overlays.json
 
 # Visual Studio code coverage results
 *.coverage

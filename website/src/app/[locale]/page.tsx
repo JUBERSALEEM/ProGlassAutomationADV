@@ -33,6 +33,7 @@ import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 import type { Translator } from "@/i18n/core";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -63,6 +64,7 @@ export default async function HomePage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
@@ -866,6 +868,7 @@ export default async function HomePage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }
 

@@ -11,6 +11,7 @@ import { capabilityGroups } from "@/data/screenshots";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -47,6 +48,7 @@ export default async function ScreenshotsPage({ params }: PageProps) {
   const totalCurated = capabilityGroups.reduce((acc, g) => acc + g.screenshotIds.length, 0);
 
   return (
+    <PageOverlay locale={t.locale} route="screenshots">
     <>
       {/* Structured data for this route */}
       <RouteSchema
@@ -188,5 +190,6 @@ export default async function ScreenshotsPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

@@ -5,6 +5,7 @@ import { OperatorOpener } from "@/components/operations/OperatorOpener";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -56,6 +57,7 @@ export default async function ReportsPage({ params }: PageProps) {
   const t = await translatorFor(params);
 
   return (
+    <PageOverlay locale={t.locale} route="reports">
     <>
       <RouteSchema
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -81,5 +83,6 @@ export default async function ReportsPage({ params }: PageProps) {
         <RecordsDashboard />
       </Suspense>
     </>
+    </PageOverlay>
   );
 }

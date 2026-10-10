@@ -24,6 +24,7 @@ import { StatBadge } from "@/components/ui/Stat";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 import {
   ROUNDING_SOURCE,
   SEED_SOURCE,
@@ -93,6 +94,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="worked-example">
     <>
       <RouteSchema
       locale={locale}
@@ -1131,5 +1133,6 @@ export default async function WorkedExamplePage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

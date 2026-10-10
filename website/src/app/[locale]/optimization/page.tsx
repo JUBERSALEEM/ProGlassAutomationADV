@@ -37,6 +37,7 @@ import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
 import type { Translator } from "@/i18n/core";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -60,6 +61,7 @@ export default async function OptimizationPage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="optimization">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
@@ -611,6 +613,7 @@ export default async function OptimizationPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }
 

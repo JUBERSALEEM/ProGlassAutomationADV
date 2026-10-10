@@ -26,12 +26,13 @@ if (unhappy) {
 }
 
 // Generated files the build imports. `src/i18n/coverage-table.json` feeds the
-// language menu and is written by `npm run i18n:keys`; a stock `.gitignore`
+// language menu, and `src/i18n/route-overlays.json` feeds the per-route
+// translation overlays — both are written by `npm run i18n:keys`; a stock `.gitignore`
 // code-coverage rule (`coverage*.json`) once swallowed it so a clean checkout
 // built fine locally and failed on Vercel with a module-not-found two pages
 // deep into Turbopack's resolver. Naming the missing file here is the message
 // that failure should have been.
-const absentGenerated = ["src/i18n/coverage-table.json"].filter(
+const absentGenerated = ["src/i18n/coverage-table.json", "src/i18n/route-overlays.json"].filter(
   (file) => !existsSync(path.join(ROOT, file)),
 );
 if (absentGenerated.length > 0) {

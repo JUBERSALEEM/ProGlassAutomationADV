@@ -13,6 +13,7 @@ import { beforeAfter, businessChain } from "@/data/workflows";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -41,6 +42,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="how-it-works">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
@@ -470,5 +472,6 @@ export default async function HowItWorksPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }
