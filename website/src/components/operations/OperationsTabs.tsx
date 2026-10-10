@@ -13,13 +13,22 @@ import { usePathname } from "next/navigation";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { pathWithoutLocale } from "@/i18n/core";
 import { cn } from "@/lib/cn";
+import { Icon } from "@/components/ui/Icon";
+import { footerLinkIcons } from "@/data/footerIcons";
+import { groupIcons } from "@/data/groupIcons";
 
+/*
+ * The document chain gets its marks here rather than in a data module: the
+ * proforma's sales document, the job order's clipboard, the delivery truck,
+ * the invoice's banknote and the statement's bars are the same glyphs the
+ * footer and the rail hand out for those subjects — one chain, one hand.
+ */
 const STEPS = [
-  { href: "/reports?status=Confirmed", match: "/reports", label: "Proforma Invoice", hint: "Confirmed" },
-  { href: "/job-orders", match: "/job-orders", label: "Job Order", hint: "Hand-off" },
-  { href: "/deliveries", match: "/deliveries", label: "Delivery Note", hint: "Dispatch" },
-  { href: "/features#group-sales", match: null, label: "Tax Invoice", hint: "Overview" },
-  { href: "/features#group-reports", match: null, label: "Statement", hint: "Overview" },
+  { href: "/reports?status=Confirmed", match: "/reports", label: "Proforma Invoice", hint: "Confirmed", icon: groupIcons.Sales },
+  { href: "/job-orders", match: "/job-orders", label: "Job Order", hint: "Hand-off", icon: footerLinkIcons["/job-orders"]! },
+  { href: "/deliveries", match: "/deliveries", label: "Delivery Note", hint: "Dispatch", icon: footerLinkIcons["/deliveries"]! },
+  { href: "/features#group-sales", match: null, label: "Tax Invoice", hint: "Overview", icon: groupIcons.Finance },
+  { href: "/features#group-reports", match: null, label: "Statement", hint: "Overview", icon: groupIcons.Reports },
 ] as const;
 
 export function OperationsTabs({ className }: { className?: string }) {
@@ -50,6 +59,7 @@ export function OperationsTabs({ className }: { className?: string }) {
               )}
               title={step.match ? step.label : `${step.label} product overview`}
             >
+              <Icon path={step.icon} className={cn("h-3.5 w-3.5", isActive ? "text-brand-300" : "text-text-faint group-hover:text-brand-300")} />
               <span>{step.label}</span>
               <span
                 className={cn(

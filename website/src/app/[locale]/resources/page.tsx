@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge, IconChip } from "@/components/ui/Badge";
 import { groupIcons } from "@/data/groupIcons";
@@ -45,6 +46,7 @@ export default async function ResourcesPage({ params }: PageProps) {
     />
       <PageHero
       t={t}
+        glyph={footerIconFor("/resources")!}
         eyebrow={t("Resources")}
         title={t("Reference material for glass workflows.")}
         lead={t("Written for the person who has to make the quotation add up: how the vocabulary works, why a cutting plan has to be cuttable, what a job order should inherit, and how stock stays auditable. No product pitch in the body text — these are explanations first.")}

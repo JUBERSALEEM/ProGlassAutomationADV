@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/layout/LegalPage";
+import { footerIconFor } from "@/data/footerIcons";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
@@ -33,6 +34,7 @@ export default async function PrivacyPage({ params }: PageProps) {
     />
     <LegalPage
       t={t}
+      glyph={footerIconFor("/legal/privacy")!}
         eyebrow={t("Privacy")}
         title={t("Privacy")}
         lead={t("Two different things are covered here, and they behave very differently. This website is a set of static pages. The application is desktop software that keeps your business data on your own machine.")}

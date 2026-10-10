@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -43,6 +44,7 @@ export default async function AboutPage({ params }: PageProps) {
     />
       <PageHero
       t={t}
+        glyph={footerIconFor("/about")!}
         eyebrow={t("About")}
         title={t("A glass business is not a general business.")}
         lead={t("Generic ERP software assumes widgets: identical units, a bill of materials, a production order. Glass is not that. It is sold by area, priced on a build-up, cut from sheets, delivered in part-loads and invoiced against whatever actually left the yard. ProGlass Automation exists because that mismatch is where the money quietly goes missing.")}

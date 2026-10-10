@@ -1,6 +1,7 @@
 "use client";
 
-import { Badge } from "@/components/ui/Badge";
+import { Badge, IconChip } from "@/components/ui/Badge";
+import { footerLinkIcons } from "@/data/footerIcons";
 import { Button } from "@/components/ui/Button";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { OperationsTabs } from "@/components/operations/OperationsTabs";
@@ -87,7 +88,10 @@ export function JobOrdersHeader({
             <OperationsTabs className="mt-3" />
 
             <div className="mt-1 flex flex-wrap items-baseline gap-3">
-              <h2 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">Job Orders</h2>
+              <span className="flex items-center gap-3">
+                <IconChip path={footerLinkIcons["/job-orders"]!} />
+                <h2 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">Job Orders</h2>
+              </span>
               <span className="font-mono text-xs text-text-faint">
                 {totalJobOrders.toLocaleString()} confirmed {totalJobOrders === 1 ? "PI" : "PIs"} ready for hand-off
               </span>

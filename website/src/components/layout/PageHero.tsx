@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Container } from "@/components/ui/Container";
+import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
 import { Spotlight } from "@/components/ui/Spotlight";
 import { PageBanner, type BannerArt } from "@/components/layout/PageBanner";
@@ -20,6 +21,7 @@ export function PageHero({
   meta,
   breadcrumb,
   banner,
+  glyph,
   children,
 }: {
   /** The page's translator — this component renders on the server. */
@@ -32,6 +34,12 @@ export function PageHero({
   breadcrumb?: { label: string; href: string }[];
   /** Which banner drawing opens this page. */
   banner?: BannerArt;
+  /**
+   * The page's mark, drawn inside the eyebrow chip: the same glyph the
+   * destination carries in the footer, so the doorway's picture is the
+   * same at the bottom of the site as at the top of the page.
+   */
+  glyph?: string;
   children?: ReactNode;
 }) {
   return (
@@ -80,7 +88,10 @@ export function PageHero({
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-end lg:gap-14">
           <div>
             <Reveal>
-              <p className="eyebrow-chip mb-5">{eyebrow}</p>
+              <p className="eyebrow-chip mb-5 inline-flex items-center gap-2">
+                {glyph ? <Icon path={glyph} className="!h-3.5 !w-3.5" /> : null}
+                {eyebrow}
+              </p>
             </Reveal>
             <Reveal delay={60}>
               <h1 className="display-1">{title}</h1>

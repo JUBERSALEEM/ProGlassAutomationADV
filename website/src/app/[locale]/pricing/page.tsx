@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
@@ -45,6 +46,7 @@ export default async function PricingPage({ params }: PageProps) {
     />
       <PageHero
       t={t}
+        glyph={footerIconFor("/pricing")!}
         eyebrow={t("Pricing")}
         title={t("Editions, not subscriptions.")}
         lead={t("ProGlass Automation is licensed per business with a signed licence file activated offline. The editions below are the ones the application itself defines, and the feature gating is the same map the navigation rail uses — so what this page says and what the application does cannot drift apart.")}

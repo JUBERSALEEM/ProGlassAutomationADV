@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Badge } from "@/components/ui/Badge";
+import { Badge, IconChip } from "@/components/ui/Badge";
+import { groupIcons } from "@/data/groupIcons";
 import { Button } from "@/components/ui/Button";
 import { OperationsTabs } from "@/components/operations/OperationsTabs";
 
@@ -77,7 +78,8 @@ export function RecordsHeader({
             {/* The two views of the same workbook sit one click apart. */}
             <OperationsTabs className="mt-3" />
 
-            <div className="mt-1 flex flex-wrap items-baseline gap-3">
+            <div className="mt-1 flex flex-wrap items-center gap-3">
+              <IconChip path={groupIcons["Master Data"]!} />
               <h2 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
                 Records & Operations Dashboard
               </h2>

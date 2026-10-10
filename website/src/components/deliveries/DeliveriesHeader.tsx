@@ -1,6 +1,7 @@
 "use client";
 
-import { Badge } from "@/components/ui/Badge";
+import { Badge, IconChip } from "@/components/ui/Badge";
+import { footerLinkIcons } from "@/data/footerIcons";
 import { Button } from "@/components/ui/Button";
 import { OperationsTabs } from "@/components/operations/OperationsTabs";
 import { LocaleLink } from "@/components/ui/LocaleLink";
@@ -92,7 +93,8 @@ export function DeliveriesHeader({
 
             <OperationsTabs className="mt-3" />
 
-            <div className="mt-1 flex flex-wrap items-baseline gap-3">
+            <div className="mt-1 flex flex-wrap items-center gap-3">
+              <IconChip path={footerLinkIcons["/deliveries"]!} />
               <h2 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
                 Deliveries Tracker
               </h2>

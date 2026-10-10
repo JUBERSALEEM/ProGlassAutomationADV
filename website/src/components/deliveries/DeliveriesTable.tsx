@@ -2,6 +2,8 @@
 
 import { Fragment, memo, useState } from "react";
 import { LocaleLink } from "@/components/ui/LocaleLink";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { footerLinkIcons } from "@/data/footerIcons";
 import type { DeliveryRow, DeliverySort, DeliverySortField } from "@/types/deliveries";
 import { DeliveryProgress, DeliveryStatusBadge } from "./DeliveryAtoms";
 import { MovementLedger } from "./DeliveryMovementLedger";
@@ -65,25 +67,11 @@ export function DeliveriesTable({
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-2xl border border-line-strong/60 bg-ink-900/80 p-12 text-center shadow-panel">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-line-strong bg-ink-850 text-text-faint">
-          <svg aria-hidden="true" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M9 17a2 2 0 11-4 0 2 2 0 014 0zm10 0a2 2 0 11-4 0 2 2 0 014 0zM13 17V6a1 1 0 011-1h4l3 5v7M3 6h10v11H3z"
-            />
-          </svg>
-        </div>
-        <h3 className="mt-4 text-base font-bold text-text-primary">No deliveries to track</h3>
-        <p className="mx-auto mt-1.5 max-w-md text-xs text-text-muted">
-          Nothing matches the current filters. The tracker only lists PIs whose status is Confirmed —
-          or PIs that already carry a delivery movement — so a draft proforma will not appear here
-          however it is filtered.
-        </p>
-        {onResetFilters && (
-          <div className="mt-5">
+      <EmptyState
+        glyph={footerLinkIcons["/deliveries"]!}
+        title="No deliveries to track"
+        body="Nothing matches the current filters. The tracker only lists PIs whose status is Confirmed — or PIs that already carry a delivery movement — so a draft proforma will not appear here however it is filtered."
+        action={onResetFilters ? (
             <button
               type="button"
               onClick={onResetFilters}
@@ -91,9 +79,8 @@ export function DeliveriesTable({
             >
               Reset All Filters
             </button>
-          </div>
-        )}
-      </div>
+          ) : undefined}
+      />
     );
   }
 

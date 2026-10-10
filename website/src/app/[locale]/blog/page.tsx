@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge, IconChip } from "@/components/ui/Badge";
 import { footerLinkIcons } from "@/data/footerIcons";
@@ -49,6 +50,7 @@ export default async function BlogPage({ params }: PageProps) {
     />
       <PageHero
       t={t}
+        glyph={footerIconFor("/blog")!}
         eyebrow={t("Blog")}
         title={t("Notes on glass software and the work behind it.")}
         lead={t("Short pieces about the decisions inside a glass-business application: what to store, what to recompute, and which constraints are real. Written to be useful whether or not you use ProGlass.")}

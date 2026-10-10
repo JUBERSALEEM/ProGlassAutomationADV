@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/layout/LegalPage";
+import { footerIconFor } from "@/data/footerIcons";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
@@ -33,6 +34,7 @@ export default async function TermsPage({ params }: PageProps) {
     />
     <LegalPage
       t={t}
+      glyph={footerIconFor("/legal/terms")!}
         eyebrow={t("Terms")}
         title={t("Terms of use")}
         lead={t("Short, and written to be read. These terms cover this website and set the expectations that apply to the desktop application.")}

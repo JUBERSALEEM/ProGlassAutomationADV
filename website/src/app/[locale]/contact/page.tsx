@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -40,6 +41,7 @@ export default async function ContactPage({ params }: PageProps) {
     />
       <PageHero
       t={t}
+        glyph={footerIconFor("/contact")!}
         eyebrow={t("Contact")}
         title={t("Request a demo.")}
         lead={t("A demonstration is a walkthrough of the application on a job you recognise — a multi-section quotation, its cutting list, and the delivery behind it. Tell us a little about your business and we will arrange a time.")}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge, IconChip, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
@@ -187,6 +188,7 @@ const faq = [
     />
       <PageHero
       t={t}
+        glyph={footerIconFor("/developer")!}
         eyebrow={t("The developer")}
         banner="people"
         title={

@@ -17,6 +17,7 @@ export function LegalPage({
   sections,
   footer,
   banner,
+  glyph,
 }: {
   /** The page's translator — this component renders on the server. */
   t: Translator;
@@ -27,12 +28,15 @@ export function LegalPage({
   sections: LegalSection[];
   footer?: ReactNode;
   banner?: BannerArt;
+  /** The document's mark in the eyebrow chip — shield, terms doc, key. */
+  glyph?: string;
 }) {
   return (
     <>
       <PageHero
       t={t}
         eyebrow={eyebrow}
+        glyph={glyph}
         title={title}
         banner={banner}
         lead={lead}

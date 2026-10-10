@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -57,6 +58,7 @@ export default async function FeaturesPage({ params }: PageProps) {
     />
       <PageHero
       t={t}
+        glyph={footerIconFor("/features")!}
         eyebrow={t("Features")}
         title={t("Every module, named the way the application names it.")}
         lead={t("ProGlass Automation is built as one document chain carried by twenty-five view areas. This page walks the modules that make up the working day: what each one does, which screens it opens, and where in the product it sits.")}

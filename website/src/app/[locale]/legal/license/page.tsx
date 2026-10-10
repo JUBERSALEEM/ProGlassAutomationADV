@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/layout/LegalPage";
+import { footerIconFor } from "@/data/footerIcons";
 import { ButtonLink } from "@/components/ui/Button";
 import { ArrowRight } from "@/components/ui/Button";
 import { RouteSchema } from "@/components/seo/RouteSchema";
@@ -35,6 +36,7 @@ export default async function LicensePage({ params }: PageProps) {
     />
     <LegalPage
       t={t}
+      glyph={footerIconFor("/legal/license")!}
         eyebrow={t("License")}
         title={t("How licensing works")}
         lead={t("ProGlass Automation is licensed with a signed licence file that is activated offline. There is no licence server that has to be reachable, and no account to create. This page describes what a customer needs to know.")}

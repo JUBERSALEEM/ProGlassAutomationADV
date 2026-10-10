@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
@@ -53,6 +54,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
     />
       <PageHero
       t={t}
+        glyph={footerIconFor("/how-it-works")!}
         eyebrow={t("How it works")}
         title={t("One job, nine stages, and nothing typed twice.")}
         lead={t("This is the complete business journey in sequence. Each stage below shows what it captures, what it carries into the next stage, and the operational guarantees that keep the process reliable.")}

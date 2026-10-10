@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
@@ -51,6 +52,7 @@ export default async function SponsorsPage({ params }: PageProps) {
     />
       <PageHero
       t={t}
+        glyph={footerIconFor("/sponsors")!}
         eyebrow={t("Support the build")}
         title={t("One developer, one desktop product, and room for help.")}
         lead={t("ProGlass Automation is a complete commercial chain with a cutting-optimization engine behind it, written and maintained by a single person. It is not short of ideas. It is short of hours, hardware to test against, and reviewed translations.")}
