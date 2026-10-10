@@ -114,7 +114,11 @@ BUDGET_DEFAULT = {"gz": 37, "nodes": 800}      # post footer-icon round: /resour
 # number below records what it actually weighs rather than what it weighed then.
 # If the intention is to force a real reduction, that is a task with its own
 # measurements — this gate exists to catch a chunk that doubles, and it still does.
-ASSET_BUDGET = {"js_gz": 540, "css_gz": 24}
+# CSS ceiling moved 24 → 26 with the Features-stack design system: the
+# layered exhibit (depth panes, index dots, compact rail) is new paint every
+# page pays for in the shared chunk. Measured at introduction: 25.3K gz.
+# Headroom after the move: ~2.7%.
+ASSET_BUDGET = {"js_gz": 540, "css_gz": 26}
 
 # First-load JavaScript, per page this time: the chunks that page's own
 # document pulls in, compressed. The build-wide figure above can hide a

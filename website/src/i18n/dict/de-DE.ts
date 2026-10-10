@@ -3677,6 +3677,19 @@ const dict: Overlay = {
   "The job then becomes workshop work. The cutting engine runs your real cutting list against stock or standard sheet sizes, the constraints for laminated and coated glass are respected, and the machine export is written in the formats the optimization page lists for your cutting table. A confirmed order leaves with its delivery note and route slip printed from the same record.": "Der Auftrag wird dann Werkstattarbeit. Die Schneidoptimierung rechnet Ihre echte Zuschnittliste gegen Lagerbestand oder Standardformate, die Beschränkungen für laminiertes und beschichtetes Glas werden eingehalten, und der Maschinenexport wird in den Formaten geschrieben, die die Optimierungsseite für Ihren Schneidtisch nennt. Ein bestätigter Auftrag geht mit Lieferschein und Tourzettel aus demselben Datensatz gedruckt hinaus.",
   "What you will not see": "Was Sie nicht sehen werden",
   "No online demo account and no sales presentation: the person answering is the person who wrote the application. If a particular part of the system matters to your business — records synchronization between a head office and a branch, or one of the reports — name it in the request, and that is where the demonstration starts.": "Kein Online-Demokonto und keine Verkaufspräsentation: Die Person, die antwortet, ist die Person, die die Anwendung geschrieben hat. Wenn Ihnen ein bestimmter Teil des Systems wichtig ist — die Datensynchronisation zwischen Zentrale und Filiale oder einer der Berichte — nennen Sie ihn in der Anfrage, und genau dort beginnt die Demonstration.",
+  "The interface, in evidence": "Die Oberfläche als Beleg",
+  "Four modules, one workflow": "Vier Module, ein Arbeitsablauf",
+  "Features index": "Funktionsindex",
+  "Compact rail": "Kompakte Leiste",
+  "Read the module": "Das Modul lesen",
+  "Sheet yield in labour time, not marketing percentages": "Tafelausnutzung in Schnittzeit, nicht in Marketing-Prozenten",
+  "Every line priced from a real sheet cost": "Jede Zeile aus einem realen Tafelpreis kalkuliert",
+  "Racks, remnants and grades, drift-audited": "Regale, Reste und Sorten — driftgeprüft",
+  "What left the yard, and what still owes": "Was den Hof verließ — und was noch schuldig ist",
+  "Once written, forever reconciled": "Einmal geschrieben, für immer abgestimmt",
+  "Plain-text offers, one click away": "Klartext-Angebote, einen Klick entfernt",
+  "Barcode to job order in one scan": "Vom Barcode zum Auftrag in einem Scan",
+  "Four modules lead the workflow — the same interfaces the gallery preserves in full. Walk them with the dots; the exhibit never moves without you.": "Vier Module führen den Arbeitsablauf — dieselben Oberflächen, die die Galerie vollständig zeigt. Gehen Sie sie mit den Punkten durch; die Vitrine bewegt sich nie ohne Sie.",
 };
 
 export default dict;

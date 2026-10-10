@@ -19,6 +19,7 @@ import { ModuleShowcase } from "@/components/product/ModuleShowcase";
 import { ProductSlider } from "@/components/product/ProductSlider";
 import { SheetPlanStrip } from "@/components/optimization/SheetPlanStrip";
 import { ScreenshotFrame } from "@/components/gallery/ScreenshotFrame";
+import { FeaturesShowcaseServer } from "@/components/home/FeaturesShowcaseServer";
 import { cn } from "@/lib/cn";
 import { groupNotes, moduleGroups, modules, modulesByGroup } from "@/data/modules";
 import { editionIcons, groupIcons } from "@/data/groupIcons";
@@ -28,7 +29,7 @@ import { glass3d } from "@/data/assets";
 import { featureGroups } from "@/data/features";
 import { faq } from "@/data/faq";
 import { quotationTotals, seedParties, seededDocuments } from "@/data/workedExample";
-import { screenshots, screenshotById } from "@/data/screenshots";
+import { screenshotById } from "@/data/screenshots";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
@@ -731,23 +732,16 @@ export default async function HomePage({ params }: PageProps) {
               id="screens-heading"
               eyebrow={t("The interface")}
               title={t("What you would be looking at all day.")}
-              lead={t("A working application is judged by its list screens and its data grids, so those are what this gallery shows first. Every frame here is interactive: sort the grids, widen the search, run the optimizer, and read the figures it calculates.")}
+              lead={t("Four modules lead the workflow — the same interfaces the gallery preserves in full. Walk them with the dots; the exhibit never moves without you.")}
             />
             <ButtonLink href="/screenshots" variant="secondary" size="lg" trailing={<ArrowRight />} className="shrink-0">
           {t("Open the gallery")}
         </ButtonLink>
           </div>
 
-          <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {screenshots
-              .filter((s) => ["optimization-2d", "sheet-store-overview", "overview-dashboard"].includes(s.id))
-              .map((shot, index) => (
-                <Reveal key={shot.id} as="li" delay={index * 70}>
-                  <ScreenshotFrame
-      t={t} shot={shot} />
-                </Reveal>
-              ))}
-          </ul>
+          <Reveal delay={120} className="mt-10 block">
+            <FeaturesShowcaseServer t={t} />
+          </Reveal>
         </Container>
       </Section>
 

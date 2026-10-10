@@ -3932,3 +3932,288 @@ html[data-theme="midnight"] [data-appearance="clay"] .nav-glass [class*="bg-ink"
   background-image: none;
   color: rgb(248 247 255);
 }
+
+/* ========================================================================
+   The Features stack — the homepage's layered exhibit.
+   One composition: .mat-exhibit holds three material panes arranged in
+   depth and a lead interface pane; .mat-index walks the seven modules;
+   .mat-rail previews the three off-stage modules. Crossfades and the
+   perspective stacks honor the reduced-motion ward at the end of this
+   block the same way the other effects do.
+   ======================================================================== */
+
+.mat-stage {
+  position: relative;
+  border-radius: 28px;
+  border: 1px solid rgb(var(--brand-500) / 0.28);
+  background:
+    linear-gradient(160deg, rgb(var(--brand-600) / 0.14), rgb(var(--brand-400) / 0.05) 42%, transparent 68%),
+    rgb(var(--ink-900) / 0.6);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    0 18px 48px -20px rgb(var(--ink-900) / 0.75);
+  overflow: hidden;
+}
+
+.mat-stage__plates .mono-label { color: rgb(var(--brand-300)); }
+
+.mat-ring {
+  color: rgb(var(--brand-400));
+  animation: mat-ring-turn 26s linear infinite;
+  transform-origin: 50% 50%;
+}
+@keyframes mat-ring-turn {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* The exhibit: planes in a preserve-3d scene leaning under .tilt-stage. */
+.mat-exhibit {
+  perspective: 980px;
+  transform-style: preserve-3d;
+}
+
+.mat-exhibit__aura {
+  position: absolute;
+  inset: 14% 6%;
+  border-radius: 22px;
+  background:
+    radial-gradient(72% 66% at 66% 30%, rgb(var(--brand-500) / 0.42), transparent 72%),
+    radial-gradient(58% 58% at 22% 74%, rgb(var(--brand-600) / 0.32), transparent 70%);
+  filter: blur(40px);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.tilt-stage {
+  transform-style: preserve-3d;
+}
+
+.tilt-stage.is-tilting {
+  transform: perspective(980px) rotateX(var(--tx, 0deg)) rotateY(var(--ty, 0deg));
+}
+
+.tilt-stage,
+.tilt-stage * {
+  transition-property: transform, opacity, filter;
+  transition-duration: 0.55s;
+  transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.tilt-stage.is-tilting { transition-duration: 0.16s; }
+.tilt-stage.is-tilting .mpane { transition-duration: 0.22s; }
+
+/* The panes: the stack is dimensional only when tilted; at rest the planes
+   nest almost-flush so the composition reads as one exhibit, not a fan of
+   four cards. */
+.mpane {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  transform-style: preserve-3d;
+}
+
+.mpane__glass {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  background: rgb(var(--ink-800) / 0.55);
+  backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    inset 0 -10px 24px rgb(0 0 0 / 0.18),
+    0 22px 44px -18px rgb(0 0 0 / 0.66);
+}
+
+/* Specular seam: the bright index at the top and the refractive tint
+   underneath are what keeps the panes reading as glass rather than as
+   translucent cards. */
+.mpane__glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.16), transparent 18%),
+    linear-gradient(120deg, rgb(var(--brand-300) / 0.10), transparent 46%);
+  pointer-events: none;
+}
+
+.mpane--3 { transform: translate3d(-4%, -5%, -46px) rotate(-1.1deg) scale(0.965); opacity: 0.62; }
+.mpane--2 { transform: translate3d(3.5%, 4%, -24px) rotate(0.9deg) scale(0.98); opacity: 0.82; }
+.mpane--1 { transform: translate3d(-2%, 6.5%, -12px) scale(0.99); opacity: 0.94; }
+.mpane--lead { transform: translateZ(22px); box-shadow: 0 26px 54px -20px rgb(0 0 0 / 0.72); border-radius: 18px; }
+
+.tilt-stage.is-tilting .mpane--3 { transform: translate3d(-7%, -9%, -78px) rotate(-1.7deg) scale(0.95); opacity: 0.7; }
+.tilt-stage.is-tilting .mpane--2 { transform: translate3d(6%, 7%, -40px) rotate(1.4deg) scale(0.962); opacity: 0.88; }
+.tilt-stage.is-tilting .mpane--1 { transform: translate3d(-3%, 9%, -14px) scale(0.99); }
+
+.mpane__glass--material {
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(150deg, rgb(var(--brand-600) / 0.22), rgb(var(--ink-900) / 0.5)),
+    rgb(var(--ink-850) / 0.6);
+}
+
+.mpane__material {
+  width: 68%;
+  height: auto;
+  border-radius: 10px;
+  filter: drop-shadow(0 18px 26px rgb(0 0 0 / 0.5)) saturate(1.08);
+  opacity: 0.92;
+}
+
+.mpane__glass--lead {
+  background: rgb(var(--ink-850) / 0.92);
+}
+
+.mpane__app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mpane__badge {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: rgb(var(--brand-200));
+  background: rgb(var(--ink-900) / 0.72);
+  border: 1px solid rgb(var(--brand-500) / 0.32);
+}
+
+.mpane__stage-caption {
+  position: absolute;
+  left: 14px;
+  bottom: 10px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 72%;
+  padding: 0.45rem 0.75rem;
+  border-radius: 12px;
+  background: rgb(var(--ink-900) / 0.72);
+  border: 1px solid rgb(255 255 255 / 0.10);
+  backdrop-filter: blur(10px);
+}
+
+/* Crossfade: the stage remounts per module, flagged so the animation runs
+   once per .mat-stage root, not on SSR/hydration replays. */
+.mat-exhibit .mpane-enter, .mat-railview { animation: mat-settle 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.mat-stage-root .mat-exhibit { animation: mat-settle 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@keyframes mat-settle {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* The index dots: 30 × 30px hit areas around a 7px pip, plus a hairline
+   progress meter for the position within the seven. */
+.mat-index { min-height: 36px; }
+
+.mat-dot {
+  position: relative;
+  height: 30px;
+  width: 30px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+}
+
+.mat-dot__pip {
+  height: 7px;
+  width: 7px;
+  border-radius: 999px;
+  background: rgb(var(--brand-400) / 0.55);
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1), background 0.35s, box-shadow 0.35s;
+}
+
+.mat-dot--active .mat-dot__pip {
+  transform: scale(1.9);
+  background: rgb(var(--brand-300));
+  box-shadow: 0 0 0 4px rgb(var(--brand-400) / 0.16), 0 0 18px rgb(var(--brand-400) / 0.55);
+}
+
+.mat-dot:hover .mat-dot__pip { background: rgb(var(--brand-300) / 0.85); }
+
+.mat-dot:focus-visible {
+  outline: 2px solid rgb(var(--brand-300));
+  outline-offset: 2px;
+}
+
+.mat-index__progress {
+  position: relative;
+  height: 2px;
+  width: 72px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.10);
+}
+
+.mat-index__progress > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgb(var(--brand-500)), rgb(var(--brand-300)));
+  transition: width 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* The compact rail: preview chips, clearly subtabs of the exhibit. */
+.mat-rail { scrollbar-width: thin; }
+.mat-rail__chip {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.95rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(var(--brand-200) / 0.82);
+  background: rgb(var(--ink-850) / 0.66);
+  border: 1px solid rgb(255 255 255 / 0.10);
+  backdrop-filter: blur(8px);
+  transition: color 0.3s, border-color 0.3s, background 0.3s, transform 0.3s;
+}
+.mat-rail__chip:hover { color: rgb(var(--brand-100)); transform: translateY(-1px); border-color: rgb(var(--brand-400) / 0.45); }
+.mat-rail__chip--active {
+  color: rgb(var(--brand-100));
+  background: rgb(var(--brand-600) / 0.28);
+  border-color: rgb(var(--brand-400) / 0.55);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 8px 22px -12px rgb(var(--brand-500) / 0.6);
+}
+.mat-rail__chip:focus-visible { outline: 2px solid rgb(var(--brand-300)); outline-offset: 2px; }
+
+.mat-railview__inner {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background:
+    linear-gradient(150deg, rgb(var(--brand-600) / 0.18), rgb(var(--ink-900) / 0.55)),
+    rgb(var(--ink-850) / 0.8);
+  backdrop-filter: blur(10px);
+  padding: 1.5rem;
+}
+
+@media (max-width: 639px) {
+  .mat-stage { border-radius: 22px; }
+  .mat-rail .mat-rail__chip { text-transform: none; letter-spacing: 0.04em; }
+  .mpane__stage-caption { max-width: 88%; }
+}
+
+/* The ward: no stack choreography and no ring drift under reduced motion;
+   the exhibit is a static composition that still opens every module. */
+@media (prefers-reduced-motion: reduce) {
+  .mat-ring { animation: none; }
+  .mat-stage-root .mat-exhibit, .mat-exhibit .mpane-enter, .mat-railview { animation-duration: 0.01ms; }
+  .tilt-stage.is-tilting { transform: none; }
+  .tilt-stage, .tilt-stage * { transition-duration: 0.01ms; }
+  .mat-dot__pip, .mat-rail__chip, .mat-index__progress > span { transition-duration: 0.01ms; }
+}
