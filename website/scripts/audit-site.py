@@ -92,16 +92,16 @@ BANNED = [
 # the gate fails on a real regression, now with much less room for weight to
 # sneak back in.
 BUDGET = {
-    "/": {"gz": 104, "nodes": 4200},            # measured 99.8K / 4097 — sheet content gated
-    "/features": {"gz": 88, "nodes": 4750},     # measured 85.5K / 4535 (kept: tightest row)
-    "/optimization": {"gz": 57, "nodes": 2350},  # measured 55.1K / 2186
-    "/how-it-works": {"gz": 54, "nodes": 2000},  # measured 51.8K / 1884
+    "/": {"gz": 107, "nodes": 4400},            # measured 103.2K / 4170 (+73 nodes: footer icon tiles)
+    "/features": {"gz": 92, "nodes": 4900},     # measured 88.7K / 4608 (+73 nodes: footer icons)
+    "/optimization": {"gz": 61, "nodes": 2400},  # measured 58.4K / 2259 (+73 nodes: footer icons)
+    "/how-it-works": {"gz": 57, "nodes": 2100},  # measured 54.9K / 1957 (+72 nodes: footer icons)
     "/screenshots": {"gz": 38, "nodes": 1350},   # measured 33.9K / 1189 (was 69.1K / 9198)
-    "/worked-example": {"gz": 59, "nodes": 1800},  # measured 55.8K / ~1640 (footer icon tiles)
-    "/sponsors": {"gz": 38, "nodes": 850},       # measured 35.8K / 797 (card footer everywhere)
-    "/pricing": {"gz": 37, "nodes": 900},     # measured 33.9K / 826 (support bubble mounted on every page)
-    "/developer": {"gz": 59, "nodes": 1350},     # measured 56.0K / 1258
-    "/collaborate": {"gz": 39, "nodes": 900},   # measured 36.4K / 843
+    "/worked-example": {"gz": 59, "nodes": 1800},  # measured 55.8K / 1711 (+73 nodes: footer icons)
+    "/sponsors": {"gz": 41, "nodes": 950},       # measured 38.8K / 870 (+73 nodes: footer icons)
+    "/pricing": {"gz": 40, "nodes": 980},     # measured 36.8K / 901 (+75 nodes: footer icons)
+    "/developer": {"gz": 62, "nodes": 1450},     # measured 59.2K / 1331 (+73 nodes: footer icons)
+    "/collaborate": {"gz": 42, "nodes": 980},   # measured 39.6K / 918 (+75 nodes: footer icons)
 }
 BUDGET_DEFAULT = {"gz": 37, "nodes": 800}      # post footer-icon round: /resources 36.1K/671, /about ~34K/679, /blog ~29K/555, /legal/* ≤31K/564
 
