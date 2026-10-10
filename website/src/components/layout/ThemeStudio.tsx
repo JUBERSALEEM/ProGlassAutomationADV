@@ -498,6 +498,52 @@ export function ThemeStudio() {
                 />
               </div>
 
+              <div className="mt-3.5">
+                <p className="mono-label mb-2">{t("Edge colour")}</p>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {[
+                    { key: "", name: "Family colour", hex: null as string | null },
+                    { key: "#FFFFFF", name: "White", hex: "#FFFFFF" },
+                    { key: "#161226", name: "Ink", hex: "#161226" },
+                    { key: "#8B7CF0", name: "Violet", hex: "#8B7CF0" },
+                    { key: "#F27EA2", name: "Rose", hex: "#F27EA2" },
+                    { key: "#38BDF8", name: "Sky", hex: "#38BDF8" },
+                    { key: "#4ADE80", name: "Leaf", hex: "#4ADE80" },
+                    { key: "#FBBF24", name: "Gold", hex: "#FBBF24" },
+                  ].map((plate) => (
+                    <button
+                      key={plate.name}
+                      type="button"
+                      aria-pressed={studio.edgeColor === (plate.hex ?? "")}
+                      aria-label={t(plate.name)}
+                      title={t(plate.name)}
+                      onClick={() => setStudio({ edgeColor: plate.hex ?? "" })}
+                      className={cn(
+                        "grid h-7 w-7 place-items-center rounded-full border-2 transition-transform duration-150 hover:scale-110",
+                        studio.edgeColor === (plate.hex ?? "")
+                          ? "border-text-primary"
+                          : "border-line-strong/60",
+                      )}
+                      style={{
+                        background: plate.hex ?? "linear-gradient(135deg, rgb(var(--brand-500)), rgb(var(--brand-300)))",
+                      }}
+                    >
+                      <span className="sr-only">{t(plate.name)}</span>
+                    </button>
+                  ))}
+                  <input
+                    type="color"
+                    value={studio.edgeColor || "#8B7CF0"}
+                    aria-label={t("Pick a custom edge colour")}
+                    onChange={(event) => setStudio({ edgeColor: event.target.value })}
+                    className="h-7 w-9 shrink-0"
+                  />
+                </div>
+                <p className="mt-1.5 text-[0.6875rem] leading-relaxed text-text-faint">
+                  {t("Follows the family until you plate it yourself — every card edge on the site takes the same colour.")}
+                </p>
+              </div>
+
               <div className="mt-3 flex items-center gap-3 rounded-card border-2 border-line-strong/70 bg-ink-950/60 p-2.5">
                 <span
                   aria-hidden="true"

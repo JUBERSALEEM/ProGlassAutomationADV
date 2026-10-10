@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 4349 keys.
+ * 4355 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -1184,6 +1184,7 @@ export const KEYS: string[] = [
   "Each Step 5 specification: its area, what it is given at, what the target requires and the difference.",
   "Each with its own views and view-models.",
   "Edge",
+  "Edge colour",
   "Edge deletion",
   "Edge Deletion",
   "Edge deletion is called out in the build-up and priced there, so the station is working to the specification rather than to a verbal instruction. The stage behaves like the rest of the chain: arrived, done, balance.",
@@ -1347,6 +1348,7 @@ export const KEYS: string[] = [
   "Factory overall equipment effectiveness (OEE) and scrap percentage",
   "Family",
   "Family + sequence numbering supports full, partial and incremental invoices, with version history on every document.",
+  "Family colour",
   "Fan holes, holes, cutouts and countersunk holes — the work Step 6 of the quotation priced.",
   "Fast quotes, multi-tier glass specifications, and instant margin protection",
   "Feature detail",
@@ -1408,6 +1410,7 @@ export const KEYS: string[] = [
   "Flow columns: IN · DONE · BALANCE, with the balance clamped to what arrived upstream",
   "Following the system — this page is {v0} right now.",
   "follows one seeded job through all five documents — 22 quotation lines, a partial delivery and the invoice raised from it.",
+  "Follows the family until you plate it yourself — every card edge on the site takes the same colour.",
   "Follows your operating system setting.",
   "Font weight",
   "FontFamily.Code — the application sets its own code and figures in it.",
@@ -1736,6 +1739,7 @@ export const KEYS: string[] = [
   "Industry partnership",
   "Industry Standards",
   "Informational message.",
+  "Ink",
   "Inner",
   "Inner colour",
   "Inner height for {v0}",
@@ -2543,6 +2547,7 @@ export const KEYS: string[] = [
   "PI-2026-001 — 22 glass items, 3 specification groups",
   "PI-2026-001 approved · 22 items · 160.79 m²",
   "Pick a custom accent colour",
+  "Pick a custom edge colour",
   "Picks stage 3, 4 or 5 from the piece count, stock mix and rack cap. It calls an existing stage — it does not change the plate pattern.",
   "Pickup",
   "Piece",
@@ -4246,6 +4251,7 @@ export const KEYS: string[] = [
   "Which rack rows were consumed, and what is left.",
   "Which rule decided this row",
   "While you wait for a reply.",
+  "White",
   "Who builds it, the technology it is built with, and how the work is organised.",
   "Who built it",
   "Who do I speak to if something is wrong?",

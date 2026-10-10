@@ -62,6 +62,12 @@ export type Studio = {
    * ships as the default (AppConfig.CardBorderThickness / CardEdgeThickness).
    */
   edge: number;
+  /**
+   * Card edge colour — "" follows the family, a hex overrides it. Not a WPF
+   * setting; the site's own reach, asked for beside the thickness dial, so an
+   * edge can carry its own plate colour.
+   */
+  edgeColor: string;
   /** Which of the shipped typefaces the site is set in. */
   typeface: TypefaceKey;
   /**
@@ -99,6 +105,7 @@ export const defaultStudio: Studio = {
   tint: 1,
   radius: 1,
   edge: 2,
+  edgeColor: "",
   typeface: "segoe",
   weight: "regular",
   italic: false,
@@ -139,6 +146,7 @@ function readStored(): Studio {
     // Same reasoning for the numeric dials: a stored value that is not a finite
     // number would turn a `calc()` into `NaN` and take the card frame with it.
     if (!Number.isFinite(merged.edge)) merged.edge = defaultStudio.edge;
+    if (typeof merged.edgeColor !== "string") merged.edgeColor = defaultStudio.edgeColor;
     if (merged.weight !== "regular" && merged.weight !== "bold") merged.weight = defaultStudio.weight;
     if (merged.density !== "compact" && merged.density !== "comfortable") merged.density = defaultStudio.density;
     if (!Number.isFinite(merged.uiScale)) merged.uiScale = defaultStudio.uiScale;
@@ -436,6 +444,9 @@ export function applyStudioVars(studio: Studio) {
    */
   const edge = Number.isFinite(studio.edge) ? Math.min(4, Math.max(1, studio.edge)) : defaultStudio.edge;
   vars["--card-edge-width"] = `${edge}px`;
+  // Colour sits beside it: a plate picked in the studio overrides the family's
+  // edge colour, "" leaves the family in charge of it.
+  if (studio.edgeColor.trim() !== "") vars["--card-edge"] = studio.edgeColor.trim();
   vars["--font-sans"] = typefaces[studio.typeface]?.stack ?? typefaces.inter.stack;
 
   /*

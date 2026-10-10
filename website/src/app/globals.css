@@ -3585,7 +3585,7 @@ html[lang^="zh"] body {
  */
 [data-appearance="clay"] .surface,
 [data-appearance="clay"] .stat-tile {
-  border-color: transparent;
+
   background-color: rgb(var(--clay-card));
   background-image: none;
   box-shadow: var(--shadow-panel),
@@ -3593,7 +3593,7 @@ html[lang^="zh"] body {
     inset 0 -6px 12px -6px var(--clay-lo);
 }
 [data-appearance="clay"] .surface-raised {
-  border-color: transparent;
+
   background-color: rgb(var(--clay-card));
   background-image: none;
   box-shadow: var(--shadow-raised),
@@ -3617,7 +3617,7 @@ html[lang^="zh"] body {
  * hold 4.7:1 rather than left at a wishful 4.3.
  */
 [data-appearance="clay"] .glass-primary {
-  border-color: transparent;
+
   background-color: rgb(var(--brand-600));
   background-image: linear-gradient(
     158deg,
@@ -3635,7 +3635,7 @@ html[lang^="zh"] body {
   color: rgb(var(--text-2));
 }
 [data-appearance="clay"] .glass-primary .btn-primary {
-  border-color: transparent;
+
   background-color: rgb(252 250 255);
   background-image: none;
   color: rgb(var(--brand-700));
@@ -3738,4 +3738,88 @@ html[lang^="zh"] body {
 [data-appearance="clay"] select:focus-visible {
   outline: 3px solid rgb(var(--brand-500) / 0.8);
   outline-offset: 3px;
+}
+
+/*
+ * The edge belongs to every card, not one.
+ *
+ * The studio's edge dial writes `--card-edge-width` and the colour plate
+ * writes `--card-edge`; until now only the primary card consumed them, so a
+ * bolder dial visibly thickened one panel per page and looked broken under
+ * every other card. The attribute selector is load-bearing, not decorative:
+ * plain `.surface` would tie with the utilities that carry `border-line`,
+ * and whichever came later would win; `[data-theme]` makes the system
+ * tokens the louder voice for every family.
+ */
+[data-theme] .surface,
+[data-theme] .stat-tile,
+[data-theme] .surface-raised {
+  border: var(--card-edge-width) solid var(--card-edge);
+}
+
+/*
+ * Clay, fully inflated — the 100% pass. Cards stop pretending to be paper:
+ * the fill is the recipe's *saturated pastel* (a lilac card on a light lilac
+ * page is what makes the white highlight band and the violet underside read),
+ * the corner scale tops out at the guides' generous end, the tinted drop
+ * grows to the Hype4 demo altitude, and the 1-pixel strokes go away — the
+ * edge colour surfaces only when someone deliberately dials an edge, which
+ * is the studio's old rule, not clay's.
+ */
+[data-appearance="clay"] {
+  --radius-scale: 2;
+  --shadow-panel: 0 30px 60px -12px rgb(var(--brand-700) / 0.5),
+    0 12px 26px -10px rgb(var(--brand-700) / 0.4);
+  --shadow-raised: 0 40px 72px -16px rgb(var(--brand-700) / 0.55),
+    0 16px 30px -14px rgb(var(--brand-700) / 0.42);
+  --card-edge: rgb(255 255 255 / 0.18);
+  --card-edge-hover: rgb(var(--brand-400) / 0.7);
+}
+[data-theme="daylight"][data-appearance="clay"] {
+  --clay-card: 245 238 253;
+  --clay-hi: rgb(255 255 255 / 0.72);
+  --clay-lo: rgb(var(--brand-700) / 0.24);
+  --shadow-panel: 0 30px 56px -14px rgb(var(--brand-700) / 0.3),
+    0 12px 26px -10px rgb(var(--brand-700) / 0.2);
+  --shadow-raised: 0 40px 68px -18px rgb(var(--brand-700) / 0.34),
+    0 16px 30px -14px rgb(var(--brand-700) / 0.22);
+  --card-edge: rgb(var(--brand-300) / 0.45);
+  --card-edge-hover: rgb(var(--brand-400) / 0.7);
+}
+
+/*
+ * And the chrome joins the surface. The pinned shoot reads as clay because
+ * its *frame* is violet, not only its middle: the header and the footer are
+ * tinted the same indigo the feature plates are, with the text tokens
+ * remapped locally to stay legible, and with the filled button at the top
+ * turning into the same white pill on purple the reference draws. The aurora
+ * fields behind the footer keep playing — they were drawn in brand tones to
+ * begin with.
+ */
+[data-appearance="clay"] .nav-glass {
+  background-color: rgb(var(--brand-700) / 0.94);
+  background-image: none;
+  border-color: rgb(255 255 255 / 0.14);
+  --text-1: 240 236 254;
+  --text-2: 224 217 249;
+  --text-3: 199 188 240;
+  --text-4: 212 204 250;
+  color: rgb(var(--text-2));
+}
+[data-appearance="clay"] .nav-glass .btn-primary {
+
+  background-color: rgb(252 250 255);
+  background-image: none;
+  color: rgb(var(--brand-700));
+  box-shadow: 0 12px 24px -8px rgb(31 22 92 / 0.35),
+    inset 0 3px 6px -3px rgb(255 255 255 / 0.9),
+    inset 0 -3px 8px -3px rgb(var(--brand-700) / 0.2);
+}
+[data-appearance="clay"] .band-deep {
+  background-color: rgb(var(--brand-700) / 0.94);
+  --text-1: 240 236 254;
+  --text-2: 224 217 249;
+  --text-3: 199 188 240;
+  --text-4: 212 204 250;
+  color: rgb(var(--text-2));
 }
