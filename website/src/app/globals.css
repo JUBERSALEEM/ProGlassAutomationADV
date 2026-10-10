@@ -4217,3 +4217,109 @@ html[data-theme="midnight"] [data-appearance="clay"] .nav-glass [class*="bg-ink"
   .tilt-stage, .tilt-stage * { transition-duration: 0.01ms; }
   .mat-dot__pip, .mat-rail__chip, .mat-index__progress > span { transition-duration: 0.01ms; }
 }
+
+/* ========================================================================
+   The specular system — moving light, earned by interaction.
+   One shear shared by every button and by the stack's glass; the rest of
+   the site already has hover colour, this is the physical part: light
+   sliding across the surface once, starting immediately, never bouncing.
+   ======================================================================== */
+
+/* Buttons — every variant, one motion. The gradient slope crosses the
+   whole face; on the active state it resets without reversing. */
+.btn-primary, .btn { isolation: isolate; }
+.btn-primary::before, .btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(58deg,
+    transparent 40%,
+    rgb(140 225 255 / 0.28) 47%,
+    rgb(255 255 255 / 0.75) 50%,
+    rgb(120 210 255 / 0.28) 53%,
+    transparent 60%);
+  transform: translateX(-160%);
+  transition: transform 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.btn-primary:hover::before, .btn-primary:focus-visible::before,
+.btn:hover::before, .btn:focus-visible::before {
+  transform: translateX(160%);
+}
+.btn:active { transform: scale(0.985); }
+.btn span, .btn svg { position: relative; z-index: 1; }
+
+/* The stack's platees at rest: a full diagonal flow travels the featured
+   sections so the exhibit reads as lit material before any interaction —
+   one slow pass, 42s, near-transparent except on the violet plate. */
+.mat-hero-shell::before, .mat-railview__inner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(119deg,
+    transparent 30%,
+    rgb(176 222 255 / 0.12) 44%,
+    rgb(33 82 130 / 0.20) 50.5%,
+    rgb(176 222 255 / 0.12) 57%,
+    transparent 70%);
+  background-size: 300% 300%;
+  background-position: 240% 0;
+  animation: mat-flow 42s linear infinite;
+  pointer-events: none;
+}
+@keyframes mat-flow {
+  0% { background-position: 240% 0; opacity: 0; }
+  8% { opacity: 1; }
+  78% { background-position: -140% 0; opacity: 1; }
+  80% { background-position: -140% 0; opacity: 0; }
+  100% { background-position: -140% 0; opacity: 0; }
+}
+
+/* Pane faces: permanent refraction rows inside the glass, and a specular
+   answer deeper than the rest on hover — the visitor's hers is the
+   pointer, and the lead pane + chips lean toward it together. */
+.mpane__glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(103deg,
+    transparent 64.5%,
+    rgb(232 246 255 / 0.20) 67%,
+    rgb(232 246 255 / 0.08) 69%,
+    transparent 72%);
+  transform: translateX(-30%);
+  transition: transform 0.9s cubic-bezier(0.19, 1, 0.22, 1);
+  pointer-events: none;
+}
+.mpane:hover .mpane__glass::after { transform: translateX(56%); }
+
+/* The stage's own translation — how the exhibit breathes between modules:
+   the stack settles first, then the rail deck, then the captions; floor
+   labels arrive with the plates they describe. */
+.mat-exhibit .mat-mod-deck { animation: mat-settle 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.18s both; }
+.mat-stage__plates > *:nth-child(2) { animation: mat-settle 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) 0.05s both; }
+.mat-stage__flow { animation: mat-settle 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) 0.22s both; }
+.mat-gion > *:last-child { animation: mat-settle 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.12s both; }
+
+/* Press behaviour across the exhibit: chips and dots yield to the press
+   the same way the buttons do — smaller, not blacker. */
+.mat-rail__chip:active, .mat-dot:active { transform: scale(0.94); }
+.mat-floor-emb { transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.35s; }
+.mat-floor-emb:hover { transform: translateY(-2px); }
+
+/* Reduced motion: light does not travel. Surfaces keep their composition
+   and the buttons keep their colour change — the entire press answer and
+   every sweep below is what gets surrendered, nothing else. */
+@media (prefers-reduced-motion: reduce) {
+  .mat-hero-shell::before, .mat-railview__inner::before { animation: none; opacity: 0; }
+  .btn::before, .btn-primary::before { transition: none; opacity: 0; }
+  .mpane__glass::after { transition: none; transform: none; }
+  .mat-exhibit .mat-mod-deck, .mat-stage__plates > *:nth-child(2),
+  .mat-stage__flow, .mat-gion > *:last-child { animation-duration: 0.01ms; }
+  .btn:active, .mat-rail__chip:active, .mat-dot:active { transform: none; }
+}

@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/cn";
-import { focusModules, railModules, type FocusModule } from "@/lib/featuresModules";
+import { focusModules, railModules, FEATURES_CAPTIONS, type FocusModule } from "@/lib/featuresModules";
 import { Tilt } from "@/lib/useTilt";
 import { glass3d } from "@/data/assets";
 import { modules } from "@/data/modules";
@@ -37,15 +37,6 @@ import { LocaleLink as Link } from "@/components/ui/LocaleLink";
  * the CSS does).
  */
 
-export const FEATURES_CAPTIONS: Record<string, string> = {
-  optimization: "Sheet yield in labour time, not marketing percentages",
-  proforma: "Every line priced from a real sheet cost",
-  "sheet-store": "Racks, remnants and grades, drift-audited",
-  "delivery-note": "What left the yard, and what still owes",
-  statement: "Once written, forever reconciled",
-  whatsapp: "Plain-text offers, one click away",
-  labels: "Barcode to job order in one scan",
-};
 
 /** Build-up identity and its render, in the exhibit's stacking order. */
 const MATERIALS = [

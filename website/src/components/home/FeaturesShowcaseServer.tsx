@@ -1,5 +1,5 @@
-import { FeaturesShowcase, FEATURES_CAPTIONS } from "./FeaturesShowcase";
-import { focusModules, railModules } from "@/lib/featuresModules";
+import { FeaturesShowcase } from "./FeaturesShowcase";
+import { focusModules, railModules, FEATURES_CAPTIONS } from "@/lib/featuresModules";
 import type { Translator } from "@/i18n/core";
 
 /**

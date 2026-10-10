@@ -32,3 +32,22 @@ export const railModules: FocusModule[] = [
   { id: "whatsapp", short: "WhatsApp", pageHref: "/features#whatsapp" },
   { id: "labels", short: "Labels", pageHref: "/features#labels" },
 ];
+
+/**
+ * The one-line captions the stack prints under each module name. They live
+ * here — in the plain data module — rather than in the component file
+ * because both halves need them: the server wrapper translates them into
+ * the visitor's language, and the client exhibit places the translation it
+ * is given. A table exported from a "use client" module reaches the
+ * server as a reference proxy, and proxies enumerate to nothing: that is
+ * the one-line story of every "the caption was empty" report.
+ */
+export const FEATURES_CAPTIONS: Record<string, string> = {
+  optimization: "Sheet yield in labour time, not marketing percentages",
+  proforma: "Every line priced from a real sheet cost",
+  "sheet-store": "Racks, remnants and grades, drift-audited",
+  "delivery-note": "What left the yard, and what still owes",
+  statement: "Once written, forever reconciled",
+  whatsapp: "Plain-text offers, one click away",
+  labels: "Barcode to job order in one scan",
+};
