@@ -1403,6 +1403,49 @@
     box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
   }
 
+  /*
+   * The one travelling light in the chrome. The pill is the single fixed
+   * place where the site lets light move on its own: a 46 s pass of the
+   * specular seam across the navigation's own glass, quiet enough that the
+   * links never lose their footing — position static, gradient transparent
+   * at both ends, and wholly absent under reduced motion. Everywhere else
+   * in the header, light answers the visitor (hover, focus) instead.
+   */
+  .nav-pill {
+    position: relative;
+    overflow: hidden;
+    perspective: 550px;
+  }
+
+  .nav-pill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(104deg,
+      transparent 62%,
+      rgb(186 226 255 / 0.10) 68.5%,
+      rgb(232 244 255 / 0.22) 71%,
+      rgb(186 226 255 / 0.10) 74%,
+      transparent 80%);
+    background-size: 260% 100%;
+    background-position: 200% 0;
+    animation: nav-pill-photon 46s cubic-bezier(0.37, 0, 0.2, 1) infinite;
+    pointer-events: none;
+  }
+
+  @keyframes nav-pill-photon {
+    0% { background-position: 200% 0; opacity: 0; }
+    4% { opacity: 1; }
+    46% { background-position: -120% 0; opacity: 1; }
+    47% { opacity: 0; }
+    100% { background-position: -120% 0; opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-pill::after { animation: none; opacity: 0; }
+  }
+
   [data-appearance="crystal"] .nav-pill {
     border-color: var(--glass-ring);
     background-color: rgb(var(--ink-900) / 0.42);

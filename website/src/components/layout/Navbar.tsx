@@ -359,7 +359,7 @@ export function Navbar() {
                               <span className="min-w-0 flex-1">
                                 <span className="flex items-center gap-1.5 text-sm font-semibold text-text-primary">
                                   {t(child.label)}
-                                  <ArrowRight className="opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+                                  <ArrowRight className="-translate-x-1 opacity-0 transition-all duration-300 ease-industrial group-hover:translate-x-0 group-hover:opacity-100" />
                                 </span>
                                 {child.description ? (
                                   <span className="mt-0.5 block text-xs font-medium leading-relaxed text-text-muted">
