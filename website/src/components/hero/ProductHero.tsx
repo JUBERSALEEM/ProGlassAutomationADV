@@ -10,6 +10,7 @@ import { LiveSurface } from "@/components/product/LiveSurface";
    built assets: identical first-load weight either way. A direct import is
    the same outcome with less machinery, so the split was reverted. */
 import { Reveal } from "@/components/ui/Reveal";
+import { HeroField } from "@/components/hero/HeroField";
 import { Spotlight } from "@/components/ui/Spotlight";
 import { Marquee, MarqueeItem } from "@/components/ui/Marquee";
 import { GlassCubeEmblem, BrandKeyline } from "@/components/brand/GlassCubeEmblem";
@@ -39,7 +40,7 @@ import type { Translator } from "@/i18n/core";
  */
 export function ProductHero({ t }: { t: Translator }) {
   return (
-    <section className="relative overflow-hidden pb-12 pt-14 sm:pb-16 sm:pt-20 lg:pb-24 lg:pt-24">
+    <HeroField className="relative overflow-hidden pb-12 pt-14 sm:pb-16 sm:pt-20 lg:pb-24 lg:pt-24">
       {/* ── Banner backdrop ──────────────────────────────────────────────
           A stack of glass sheets, drawn in the site's own geometry and tokens
           by `scripts/render-hero-backdrop.mts` and rendered at true 2×.
@@ -55,7 +56,7 @@ export function ProductHero({ t }: { t: Translator }) {
           it: its left third is drawn deliberately quiet, which is where the
           headline and the buttons sit. Decorative, so it is hidden from
           assistive technology and carries no caption. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div aria-hidden="true" className="hero-backdrop-parallax pointer-events-none absolute inset-0 overflow-hidden">
         <Image
           src={heroBackdrop.src}
           alt=""
@@ -77,10 +78,46 @@ export function ProductHero({ t }: { t: Translator }) {
           drifting on a 26 s cycle. It is what makes the top of the page read as
           a lit room rather than as a flat field, and it is drawn from the
           family's own pools so switching palette re-hues it. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div aria-hidden="true" className="hero-backdrop-parallax pointer-events-none absolute inset-0 overflow-hidden">
         <div className="aurora-field aurora-drift" />
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-400/60 to-transparent" />
       </div>
+
+      {/* ── The materials cloud ───────────────────────────────────────────
+          The four build-ups the application prices — SGU, DGU, lam and the
+          combined DGU+LAM — as free-floating renders at four depths of one
+          scene: a sheet's `--d` is both its distance from the visitor and
+          how pointer it rides, so the glass stack reads as real depth rather
+          than as decoration glued to the text. Under reduced motion, on a
+          coarse pointer, or before the field is live, they hold a fixed
+          composition — the hero works from first paint either way.
+
+          Decorative: every build-up is already named and priced where the
+          visitor can read it, further down and on /screenshots. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden lg:block">
+        <div className="hero-shard hero-shard-1" style={{ "--d": 1.9 } as React.CSSProperties}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/glass3d/dgu-3d-640.webp" alt="" width={118} height={118} loading="eager" />
+        </div>
+        <div className="hero-shard hero-shard-2" style={{ "--d": 1.1 } as React.CSSProperties}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/glass3d/sgu-3d-640.webp" alt="" width={88} height={88} loading="lazy" />
+        </div>
+        <div className="hero-shard hero-shard-3" style={{ "--d": 2.6 } as React.CSSProperties}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/glass3d/dgulam-3d-640.webp" alt="" width={104} height={104} loading="eager" />
+        </div>
+        <div className="hero-shard hero-shard-4" style={{ "--d": 0.7 } as React.CSSProperties}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/glass3d/lam-3d-640.webp" alt="" width={64} height={64} loading="lazy" />
+        </div>
+      </div>
+
+      {/* Aurora v2 — a second bank of light counter-drifting the page's own
+          field: the violet pool at the upper right of the first screen, an
+          ice pool low on the left, both drawn from the family's pools and
+          breathing on a 32 s cycle so the ceiling of the page reads lit. */}
+      <div aria-hidden="true" className="hero-aurora-strong pointer-events-none absolute inset-0" />
 
       <div className="shell relative">
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.06fr)] lg:gap-14">
@@ -274,7 +311,7 @@ export function ProductHero({ t }: { t: Translator }) {
           for — it used to claim 1200 px, so it picked a smaller one and
           stretched it, which is where "the banner looks blurred" came from. */}
       <Reveal delay={120} className="mt-16 sm:mt-20">
-        <figure>
+        <figure className="hero-banner-parallax">
           <div className="mx-auto w-full max-w-[1920px]">
             <div className="relative aspect-[3/1] w-full">
               <Image
@@ -301,6 +338,6 @@ export function ProductHero({ t }: { t: Translator }) {
           </div>
         </figure>
       </Reveal>
-    </section>
+    </HeroField>
   );
 }

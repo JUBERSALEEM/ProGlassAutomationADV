@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/cn";
-import { focusModules, railModules, FEATURES_CAPTIONS, type FocusModule } from "@/lib/featuresModules";
+import { focusModules, railModules, type FocusModule } from "@/lib/featuresModules";
 import { Tilt } from "@/lib/useTilt";
 import { glass3d } from "@/data/assets";
 import { modules } from "@/data/modules";
@@ -45,10 +45,6 @@ const MATERIALS = [
   { key: "DGU", render: glass3d.dgu },
   { key: "DGU + LAM", render: glass3d.dguLam },
 ] as const;
-
-function moduleById(id: string) {
-  return modules.find((m) => m.id === id) ?? null;
-}
 
 function useActiveIndex(count: number) {
   const [active, setActive] = useState(0);

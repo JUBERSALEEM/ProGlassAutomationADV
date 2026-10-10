@@ -80,6 +80,8 @@ export default async function HomePage({ params }: PageProps) {
       <ProductHero
       t={t} />
 
+      <div aria-hidden="true" className="ribbon-photon" />
+
       {/* ═══ 01b · The facts strip ═══════════════════════════════════
           Four facts about what kind of software this is. It is a band of its
           own rather than a row inside the hero because it is the first thing a
@@ -166,7 +168,7 @@ export default async function HomePage({ params }: PageProps) {
                 },
               ].map((card, index) => (
                 <div key={`${t(card.title)}-${index}`} className="surface p-5">
-                  <IconChip path={card.icon} className="mb-4" />
+                  <IconChip path={card.icon} className="icon-chip-strong mb-4" />
                   <h3 className="text-base font-semibold text-text-primary">{t(card.title)}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(card.body)}</p>
                 </div>
@@ -723,6 +725,8 @@ export default async function HomePage({ params }: PageProps) {
           </div>
         </Container>
       </Section>
+
+      <div aria-hidden="true" className="ribbon-photon" />
 
       {/* ═══ 10 · Screenshots ═══════════════════════════════════════ */}
       <Section tone="sunken" aria-labelledby="screens-heading">

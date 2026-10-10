@@ -117,8 +117,11 @@ BUDGET_DEFAULT = {"gz": 37, "nodes": 800}      # post footer-icon round: /resour
 # CSS ceiling moved 24 → 26 with the Features-stack design system: the
 # layered exhibit (depth panes, index dots, compact rail) is new paint every
 # page pays for in the shared chunk. Measured at introduction: 25.3K gz.
-# Headroom after the move: ~2.7%.
-ASSET_BUDGET = {"js_gz": 540, "css_gz": 26}
+# Ceiling moved 26 → 28 with the hero-field pass: positional glass shards
+# with pointer parallax, the stronger aurora, photon ribbons, strong icon
+# chips and the one-shot headline sweep all live in the shared chunk too.
+# Measured at introduction: 26.8K gz. Headroom after the move: ~4%.
+ASSET_BUDGET = {"js_gz": 540, "css_gz": 28}
 
 # First-load JavaScript, per page this time: the chunks that page's own
 # document pulls in, compressed. The build-wide figure above can hide a
