@@ -141,7 +141,36 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  /*
+   * Whether the sheet's CONTENT exists at all — three lives it leads:
+   *
+   *   1. Server render and first client render: empty. The sheet used to be
+   *      a full menu painted `invisible` beneath the bar, and that hidden
+   *      full menu cost a real launch debt: Next's prefetch watcher
+   *      (use-intersection.js) reads geometry through an
+   *      IntersectionObserver, and `visibility: hidden` is not geometry —
+   *      every card link in the sheet intersected the viewport as far as the
+   *      watcher could tell, so the phone that had just opened a page quietly
+   *      prefetched the RSC payloads of a dozen more. Mounting the content
+   *      only on demand removes the observers, which removes the traffic.
+   *
+   *   2. Open and closing: mounted. Unmounting the instant the visitor asks
+   *      to close would cut the 300 ms fade to a hard cut, so the content
+   *      outlives the open state by exactly one transition.
+   *
+   *   3. Hydration safety: the gate below is a state change inside an effect,
+   *      so the server's output and the first client render agree on the
+   *      empty sheet — no mismatch, no recover-and-redraw.
+   */
+  const [sheetMounted, setSheetMounted] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (mobileOpen) return; /* Mounting happens in the toggle handler itself. */
+    /* One transition length past the 300 ms ease — see the comment above. */
+    const done = setTimeout(() => setSheetMounted(false), 320);
+    return () => clearTimeout(done);
+  }, [mobileOpen]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -453,7 +482,16 @@ export function Navbar() {
           <ThemeToggle />
           <button
             type="button"
-            onClick={() => setMobileOpen((v) => !v)}
+            onClick={() => {
+              const opening = !mobileOpen;
+              if (opening) {
+                /* The sheet's content mounts with the click, inside the same
+                   fade-in, so the first frame never shows an empty panel — and
+                   no observer for its links has existed before this moment. */
+                setSheetMounted(true);
+              }
+              setMobileOpen(opening);
+            }}
             aria-expanded={mobileOpen}
             aria-controls="mobile-menu"
             className="flex h-11 w-11 items-center justify-center rounded-xl border border-line-strong/70 bg-ink-900/70 text-text-primary transition-colors duration-200 hover:border-brand-400/50"
@@ -487,6 +525,7 @@ export function Navbar() {
               : "pointer-events-none invisible -translate-y-2 opacity-0",
           )}
         >
+        {sheetMounted ? (
         <div className="shell max-h-[calc(100vh-var(--nav-height))] overflow-y-auto py-5">
           <nav aria-label={t("Mobile")} className="space-y-6">
             {entries.map((entry) => (
@@ -557,6 +596,7 @@ export function Navbar() {
           {/* The same stamp as the desktop panel, with room for the revision. */}
           <BuildStampRow t={t} className="mt-3" />
         </div>
+        ) : null}
       </div>
     </header>
   );
