@@ -11,7 +11,10 @@ export function SectionHeading({
   eyebrow,
   title,
   lead,
-  align = "left",
+  /* The site reads centred: a heading is a stage mark, and one ragged left
+     column per section was the residue of a draft. Pages that genuinely want
+     a left column (long prose) say so with align="left". */
+  align = "center",
   as: Tag = "h2",
   id,
   className,
@@ -30,7 +33,15 @@ export function SectionHeading({
   children?: ReactNode;
 }) {
   return (
-    <div className={cn("max-w-3xl", align === "center" && "mx-auto text-center", className)}>
+    /* flex-col + items-center so any block child under the heading (a row of
+       buttons, e.g.) lands on the same centre axis as the text itself. */
+    <div
+      className={cn(
+        "max-w-3xl",
+        align === "center" && "mx-auto flex flex-col items-center text-center",
+        className,
+      )}
+    >
       {eyebrow ? (
         /*
          * The eyebrow carries the same rule it always did when it opens a

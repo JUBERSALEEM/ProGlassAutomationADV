@@ -2026,7 +2026,16 @@
   .card-interactive {
     transition:
       border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* The lift is a pointer cue, not content: it waits for a motion-safe world. */
+  @media (prefers-reduced-motion: no-preference) {
+    .card-interactive:hover,
+    .card-interactive:focus-visible {
+      transform: translateY(-3px);
+    }
   }
 
   .card-interactive:hover,
@@ -4490,7 +4499,10 @@ html[data-theme="midnight"] [data-appearance="clay"] .nav-glass [class*="bg-ink"
 
 /* Full-strength colour plates: the role-mark tiles graduate from the quiet
    accent wash to the family's violet-to-ice gradient. */
-.icon-chip-strong {
+/* Every icon tile on the site wears the strong plate: the muted wash read as
+   a ghost next to the glass material around it. `.icon-chip` is the base
+   hook; `.icon-chip-strong` stays as the legacy alias. */
+.icon-chip, .icon-chip-strong {
   background-color: rgb(var(--brand-600)) !important;
   background-image: linear-gradient(140deg, rgb(var(--brand-500) / 0.95), rgb(96 170 255 / 0.85)) !important;
   border-color: rgb(var(--brand-400) / 0.75) !important;
@@ -4500,7 +4512,7 @@ html[data-theme="midnight"] [data-appearance="clay"] .nav-glass [class*="bg-ink"
     inset 0 1px 0 rgb(255 255 255 / 0.38) !important;
   transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-.surface:hover .icon-chip-strong, .surface-raised:hover .icon-chip-strong {
+.surface:hover .icon-chip, .surface:hover .icon-chip-strong, .surface-raised:hover .icon-chip, .surface-raised:hover .icon-chip-strong {
   transform: translateY(-2px) scale(1.06);
 }
 
@@ -4513,4 +4525,5 @@ html[data-theme="midnight"] [data-appearance="clay"] .nav-glass [class*="bg-ink"
   .hero-field[data-live] .hero-banner-parallax { transform: none; }
   .hero-field[data-live] .hero-shard img, .hero-aurora-strong, .ribbon-photon::after { animation: none; }
   .ribbon-photon::after { opacity: 0; }
+  .card-interactive { transition-property: border-color, box-shadow; }
 }

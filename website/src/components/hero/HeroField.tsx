@@ -31,6 +31,9 @@ export function HeroField({ children, className }: { children: ReactNode; classN
   const rafId = useRef(0);
 
   useEffect(() => {
+    /* Captured once for the cleanup: `ref.current` is not stable across the
+       effect's life, and the linter is right to make that explicit. */
+    const gate = ref.current;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const pointer = window.matchMedia("(pointer: fine)");
     if (mq.matches || !pointer.matches) return;
@@ -59,14 +62,14 @@ export function HeroField({ children, className }: { children: ReactNode; classN
     /* The gate the CSS keys on, set imperative: setting it through state
        would trade one attribute for a whole second render pass on every
        page load. */
-    ref.current?.setAttribute("data-live", "");
+    gate?.setAttribute("data-live", "");
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
       mq.removeEventListener("change", mqHandler);
       cancelAnimationFrame(rafId.current);
-      ref.current?.removeAttribute("data-live");
+      gate?.removeAttribute("data-live");
     };
   }, []);
 

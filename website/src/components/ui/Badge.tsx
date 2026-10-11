@@ -80,7 +80,7 @@ export function IconChip({ path, className }: { path: string; className?: string
          * glyph inside follows the site-wide 16-unit grid, slightly smaller
          * than the tile's own numeral so dense paths (trucks, keys) stay airy.
          */
-        "grid h-9 w-9 shrink-0 place-items-center rounded-[0.6rem] border border-brand-500/45 bg-brand-600/25 text-brand-200 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.08)]",
+        "icon-chip grid h-9 w-9 shrink-0 place-items-center rounded-[0.6rem] border border-brand-500/45 bg-brand-600/25 text-brand-200 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.08)]",
         className,
       )}
     >
