@@ -3691,6 +3691,11 @@ const dict: Overlay = {
   "Barcode to job order in one scan": "Vom Barcode zum Auftrag in einem Scan",
   "Four modules lead the workflow — the same interfaces the gallery preserves in full. Walk them with the dots; the exhibit never moves without you.": "Vier Module führen den Arbeitsablauf — dieselben Oberflächen, die die Galerie vollständig zeigt. Gehen Sie sie mit den Punkten durch; die Vitrine bewegt sich nie ohne Sie.",
   "Closing exhibit": "Abschlussvitrine",
+  "The state machine, verbatim": "Die Zustandsmaschine, wortgetreu",
+  "Draft is the state a Job Order holds between conversion from a Proforma Invoice and release to the floor.": "Draft ist der Zustand, den ein Fertigungsauftrag zwischen der Umwandlung aus einer Proforma-Rechnung und der Freigabe an die Fertigung hält.",
+  "Draft stays in the database as a legacy alias of Dispatching — the code says so in the same file.": "Draft verbleibt in der Datenbank als Legacy-Alias für Dispatching — genau das sagt dieselbe Datei.",
+  "The application stores these members, colours them, and refuses every transition they do not name. Nothing on this page paraphrases them.": "Die Anwendung speichert genau diese Member, färbt sie ein und verweigert jeden Übergang, den sie nicht benennen. Diese Seite umschreibt nichts davon.",
+  "The paper trail, dated": "Die Aktenlage, datiert",
 };
 
 export default dict;

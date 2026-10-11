@@ -10,6 +10,7 @@ import { StatBadge, StatCounter } from "@/components/ui/Stat";
 import { Accordion } from "@/components/ui/Accordion";
 import { GlassCard, GlassDivider, GlassMetric, GlassMetricRow } from "@/components/ui/Glass";
 import { ProductHero } from "@/components/hero/ProductHero";
+import { StatusFlows } from "@/components/home/StatusFlows";
 import { DeveloperStory } from "@/components/hero/DeveloperStory";
 import { Spotlight } from "@/components/ui/Spotlight";
 import { GlassCubeEmblem } from "@/components/brand/GlassCubeEmblem";
@@ -193,6 +194,8 @@ export default async function HomePage({ params }: PageProps) {
             <div className="lg:sticky lg:top-28 lg:self-start">
               <ChainDiagram t={t} />
               <p className="mt-6 text-xs leading-relaxed text-text-faint font-medium">{t("Status vocabularies and handoff guarantees are taken from the application's own workflow documentation and the transition code that enforces them.")}</p>
+
+              <StatusFlows t={t} className="mt-6" />
             </div>
             <WorkflowRail
       t={t} />

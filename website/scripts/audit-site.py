@@ -93,7 +93,7 @@ BANNED = [
 # sneak back in.
 BUDGET = {
     "/": {"gz": 107, "nodes": 4400},            # measured 103.2K / 4170 (+73 nodes: footer icon tiles)
-    "/features": {"gz": 92, "nodes": 4900},     # measured 88.7K / 4608 (+73 nodes: footer icons)
+    "/features": {"gz": 95, "nodes": 4900},     # re-measured 92.2K / 4828 after the global centring passes (256cfd4 onward); baseline 88.7K / 4608 (+73 nodes: footer icons) predates them
     "/optimization": {"gz": 61, "nodes": 2400},  # measured 58.4K / 2259 (+73 nodes: footer icons)
     "/how-it-works": {"gz": 57, "nodes": 2100},  # measured 54.9K / 1957 (+72 nodes: footer icons)
     "/screenshots": {"gz": 38, "nodes": 1350},   # measured 33.9K / 1189 (was 69.1K / 9198)

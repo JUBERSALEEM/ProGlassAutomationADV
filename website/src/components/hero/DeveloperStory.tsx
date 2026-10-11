@@ -3,7 +3,7 @@ import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { Spotlight } from "@/components/ui/Spotlight";
 import { GlassCubeEmblem, BrandKeyline } from "@/components/brand/GlassCubeEmblem";
-import { journey, dream } from "@/data/developerHistory";
+import { journey, dream, history } from "@/data/developerHistory";
 import { site } from "@/lib/site";
 import type { Translator } from "@/i18n/core";
 
@@ -161,6 +161,24 @@ export function DeveloperStory({ t }: { t: Translator }) {
                   </div>
                 ))}
               </dl>
+
+              {/* The paper trail behind the numbers, dated. Each plate names
+                  the working document it comes from; each of those files sits
+                  at the root of the repository, so the claim is one open away. */}
+              <p className="mono-label mt-7">{t("The paper trail, dated")}</p>
+              <ul className="mt-3 space-y-2.5">
+                {history.slice(0, 3).map((entry) => (
+                  <li key={entry.source} className="flex items-baseline gap-3">
+                    <span className="shrink-0 font-mono text-2xs font-semibold uppercase tracking-[0.14em] text-brand-300">
+                      {t(entry.tag)}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-mono text-2xs text-text-secondary">{entry.source}</span>
+                      <span className="block font-mono text-2xs text-text-faint">{entry.date}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
 
               <hr className="glass-divider my-7" />
 
