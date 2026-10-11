@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 4391 keys.
+ * 4397 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -1170,6 +1170,8 @@ export const KEYS: string[] = [
   "DoublingLamination — a stage page with the shared production chrome.",
   "Draft",
   "Draft → Issued → Approved → Converted to job order",
+  "Draft is the state a Job Order holds between conversion from a Proforma Invoice and release to the floor.",
+  "Draft stays in the database as a legacy alias of Dispatching — the code says so in the same file.",
   "Drawn to scale from this job's own plate, margins and packing result — every rectangle is a piece the table can cut, and the figures on them are computed, not placed by hand. It is a plan from one heuristic, not a result from the engine, which searches five families and six plate patterns.",
   "Drill-down to individual tax invoices and credit notes",
   "Drilling",
@@ -1607,6 +1609,7 @@ export const KEYS: string[] = [
   "Granular role-based permissions (34 distinct permission flags)",
   "Grey",
   "Grid commands: find and replace, paste from Excel or a BOQ, generate rows, per-row delete",
+  "grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-end lg:gap-14",
   "Grid virtualized and paginated, 100 rows at a time, with scroll feed and footer progress",
   "Group {v1}, {v2}: every quotation line with its size, area, rate and value.",
   "Grouped by",
@@ -3597,6 +3600,7 @@ export const KEYS: string[] = [
   "The application ships four visual families and sixteen accent presets, all chosen from Settings. The card edge, the corner it turns on and the tint of the fill are set beside them. The same controls drive this website: press a plate below, or move the edge, and the page you are reading re-themes itself.",
   "The application ships the same four in Settings → Appearance. For the full set — sixteen colour plates, corner radius, money colours — open the",
   "The application stores documents, not summaries. A quotation becomes a job order becomes a delivery becomes an invoice — and each step keeps the audit record of the one before it.",
+  "The application stores these members, colours them, and refuses every transition they do not name. Nothing on this page paraphrases them.",
   "The application stores your business data locally and provides backup and restore tooling. Keeping a copy of that data is your responsibility, as it is with any desktop system. The application writes backup sets to a local folder and takes a pre-restore snapshot, but nothing is uploaded on your behalf.",
   "The application's Crystal Fluid family: see-through surfaces over a luminous environment.",
   "the application's default",
@@ -3783,6 +3787,7 @@ export const KEYS: string[] = [
   "The owner who prices the awkward jobs",
   "The pane and sheet source, then the charges the estimator adds: glass rate, tempering, holes, cut-outs, argon gas, silicon bed and wastage. Its figures stamp onto the specification in step 5, and the difference between the two is what the review step exists to show.",
   "The panes are grouped by the sheet they are bought on — one glass to a run, the way a shop actually cuts it — and this is the largest of those runs, so the drawing above is the seeded quotation's own glass and not a cut list written for the occasion. The store holds {available} sheets of this glass, {used} spoken for; the run takes {plates}.",
+  "The paper trail, dated",
   "The partial delivery",
   "The parts of the job this application holds.",
   "The per-proforma profit and loss the engine already computed, over a period.",
@@ -3878,6 +3883,7 @@ export const KEYS: string[] = [
   "The specification grid on step 5: # · glass ref · W1 H1 W2 H2 · qty · SQM · total SQM · rate · value, on a block carrying glass type, specification, base rate and SURCHARGE %",
   "The specification grid the quotation is priced from, and the profit-and-loss step that asks whether the price is good enough. Everything below is live: the grid prices as you type, and the profit-and-loss screen reads those same rows.",
   "The state",
+  "The state machine, verbatim",
   "The state of the build as it is — the open findings included — and a direct line to the person writing it.",
   "the Step 5 billable area costed at purchase — {v0}% of the sheet spend",
   "The stock behind it",
