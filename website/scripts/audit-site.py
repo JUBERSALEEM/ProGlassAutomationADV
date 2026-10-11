@@ -121,7 +121,10 @@ BUDGET_DEFAULT = {"gz": 37, "nodes": 800}      # post footer-icon round: /resour
 # with pointer parallax, the stronger aurora, photon ribbons, strong icon
 # chips and the one-shot headline sweep all live in the shared chunk too.
 # Measured at introduction: 26.8K gz. Headroom after the move: ~4%.
-ASSET_BUDGET = {"js_gz": 540, "css_gz": 28}
+# css was 28; the clay engine + primitives added a full utility-floor layer:
+# measured 27.0 → 27.9 (engine, 3f61ffe) → 28.2 (primitives). Ceilings move
+# only with their measurement trail, never silently.
+ASSET_BUDGET = {"js_gz": 540, "css_gz": 31}
 
 # First-load JavaScript, per page this time: the chunks that page's own
 # document pulls in, compressed. The build-wide figure above can hide a
