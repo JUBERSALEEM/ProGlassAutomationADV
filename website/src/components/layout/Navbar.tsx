@@ -5,8 +5,10 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { navIcons } from "@/data/navIcons";
+import { footerIconFor } from "@/data/footerIcons";
 import { site } from "@/lib/site";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 import { ThemeModeSwitch } from "@/components/layout/ThemeModeSwitch";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { LanguageMenu, LanguageMenuBlock } from "@/components/layout/LanguageMenu";
@@ -337,14 +339,15 @@ export function Navbar() {
                    * the card edge, but nothing inside it did, so it read as a
                    * dropdown bolted onto a product whose whole interface is
                    * cards. Each destination is now a card in its own right:
-                   * numbered, titled, described, with the same edge, radius and
-                   * accent-on-hover treatment as every other card on the site.
+                   * glyph, titled, described, with the same edge, radius and
+                   * accent-on-hover treatment as every other card on the site —
+                   * the mark is the one the footer and the banner already use.
                    */
                   <div className="absolute left-1/2 top-full max-h-[calc(100vh-var(--nav-height))] w-[22rem] -translate-x-1/2 overflow-y-auto overscroll-contain pt-3">
                     <div className="menu-card animate-scale-in rounded-panel p-2 shadow-raised">
                       <p className="mono-label px-2.5 pb-2 pt-1">{t(entry.label)}</p>
                       <ul className="space-y-1.5">
-                        {entry.children.map((child, index) => (
+                        {entry.children.map((child) => (
                           <li key={child.href}>
                             <Link
                               href={child.href}
@@ -352,9 +355,9 @@ export function Navbar() {
                             >
                               <span
                                 aria-hidden="true"
-                                className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-[0.4rem] border border-brand-400/35 bg-brand-500/12 font-mono text-[0.625rem] font-bold text-brand-200"
+                                className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-[0.4rem] border border-brand-400/35 bg-brand-500/12 text-brand-200"
                               >
-                                {String(index + 1).padStart(2, "0")}
+                                <Icon path={footerIconFor(child.href)} className="h-3.5 w-3.5" />
                               </span>
                               <span className="min-w-0 flex-1">
                                 <span className="flex items-center gap-1.5 text-sm font-semibold text-text-primary">
@@ -542,9 +545,9 @@ export function Navbar() {
                   <>
                     <p className="eyebrow mb-2">{t(entry.label)}</p>
                     {/* The same card treatment as the desktop menu: a sheet
-                        of cards, numbered, each with its own edge. */}
+                        of cards, each carrying the destination's own mark. */}
                     <ul className="space-y-1.5">
-                      {entry.children?.map((child, index) => (
+                      {entry.children?.map((child) => (
                         <li key={child.href}>
                           <Link
                             href={child.href}
@@ -552,9 +555,9 @@ export function Navbar() {
                           >
                             <span
                               aria-hidden="true"
-                              className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-[0.4rem] border border-brand-400/35 bg-brand-500/12 font-mono text-[0.625rem] font-bold text-brand-200"
+                              className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-[0.4rem] border border-brand-400/35 bg-brand-500/12 text-brand-200"
                             >
-                              {String(index + 1).padStart(2, "0")}
+                              <Icon path={footerIconFor(child.href)} className="h-3.5 w-3.5" />
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className="text-sm font-semibold text-text-primary">{t(child.label)}</span>

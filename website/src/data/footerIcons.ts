@@ -34,6 +34,11 @@ export const footerLinkIcons: Record<string, string> = {
   "/legal/privacy": "M8 2.5l4.5 2v3.2c0 3-1.9 4.9-4.5 5.8-2.6-.9-4.5-2.8-4.5-5.8V4.5z",
   "/legal/terms": groupIcons.Sales!,
   "/legal/license": "M9 7.5a3 3 0 1 0-3 3.8L7.5 10v2l1.5 1.5v-1h1.5v-2zM9.9 6h.4",
+  /* The remaining routes, so no destination anywhere falls back to a generic mark. */
+  "/": navIcons.Home!,
+  "/records": "M4.5 3.5h7l2 2v8h-9zM11.5 3.5v2h2M6.5 8.5h4M6.5 11h4",
+  "/records/login": "M3 3.5h10v9H3zM8 6.8a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6zM8 9.6v1.9",
+  "/reports/login": "M3 3.5h10v9H3zM8 6.8a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6zM8 9.6v1.9",
 };
 
 /**
