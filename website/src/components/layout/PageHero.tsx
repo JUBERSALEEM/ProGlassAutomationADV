@@ -23,6 +23,7 @@ export function PageHero({
   banner,
   glyph,
   children,
+  align = "left",
 }: {
   /** The page's translator — this component renders on the server. */
   t: Translator;
@@ -41,7 +42,11 @@ export function PageHero({
    */
   glyph?: string;
   children?: ReactNode;
+  /** Left is the editorial composition (title left, facts right). Centre is
+     the document page: everything on the middle axis of the shell. */
+  align?: "left" | "center";
 }) {
+  const centred = align === "center";
   return (
     <section className="relative overflow-hidden border-b border-line/60 pb-14 pt-12 sm:pb-16 sm:pt-16 lg:pb-20 lg:pt-20">
       {/*
@@ -72,7 +77,7 @@ export function PageHero({
       <Container className="relative">
         {breadcrumb ? (
           <nav aria-label={t("Breadcrumb")} className="mb-6">
-            <ol className="flex flex-wrap items-center gap-2 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
+            <ol className={`flex flex-wrap items-center gap-2 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium${centred ? " justify-center" : ""}`}>
               {breadcrumb.map((crumb, index) => (
                 <li key={crumb.href} className="flex items-center gap-2">
                   {index > 0 ? <span aria-hidden="true">/</span> : null}
@@ -85,8 +90,14 @@ export function PageHero({
           </nav>
         ) : null}
 
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-end lg:gap-14">
-          <div>
+        <div
+          className={
+            centred
+              ? "grid gap-10"
+              : "grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-end lg:gap-14"
+          }
+        >
+          <div className={centred ? "mx-auto max-w-3xl text-center" : undefined}>
             <Reveal>
               <p className="eyebrow-chip mb-5 inline-flex items-center gap-2">
                 {glyph ? <Icon path={glyph} className="!h-3.5 !w-3.5" /> : null}
@@ -100,7 +111,7 @@ export function PageHero({
               <p className="lede-lg mt-5 max-w-2xl">{lead}</p>
             </Reveal>
             {actions ? (
-              <Reveal delay={180} className="mt-8 flex flex-wrap items-center gap-3">
+              <Reveal delay={180} className={`mt-8 flex flex-wrap items-center gap-3${centred ? " justify-center" : ""}`}>
                 {actions}
               </Reveal>
             ) : null}
@@ -108,7 +119,7 @@ export function PageHero({
 
           {meta ? (
             <Reveal delay={140}>
-              <dl className="grid grid-cols-2 gap-4">
+              <dl className={`grid gap-4${centred ? " mx-auto max-w-2xl grid-cols-2" : " grid-cols-2"}`}>
                 {meta.map((item) => (
                   /* The page's own facts, in the site's surface system: on
                      Crystal these are small panes of glass beside the title,

@@ -35,6 +35,7 @@ export function LegalPage({
     <>
       <PageHero
       t={t}
+        align="center"
         eyebrow={eyebrow}
         glyph={glyph}
         title={title}

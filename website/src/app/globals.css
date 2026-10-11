@@ -1305,7 +1305,9 @@
 
   /* Body copy is capped so a line stays readable; the band around it is not. */
   .measure {
-    @apply max-w-measure;
+    /* A capped reading column still belongs on the page's middle axis —
+       `max-w` alone leaves it pinned to the shell's left edge. */
+    @apply max-w-measure mx-auto;
   }
 
   .lede-measure {
