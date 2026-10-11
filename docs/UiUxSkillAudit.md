@@ -132,3 +132,28 @@ novelty, and Inter is the application's own face — see `fontFamily` in
 product class), split-text headline animation (one DOM node per
 character in 16 locales, measured gain over the existing gradient sweep:
 none).
+
+---
+
+## Complete route read — the professionalism sweep (2026-10-11)
+
+Machine-read of every EN route against the site's own rulebook plus the
+skill's priority table (DOM-level traversal, not class-name grep):
+
+- **Alignment:** all h1/h2 across 22 routes resolve to a centred context
+  (wrapper inheritance counted). The explicit `align="left"` headings in
+  two-column compositions are intentional, documented in code.
+- **Hero on stacked widths:** on phones the hero column read as a ragged
+  left edge (screenshot-verified complaint); the text column now centres
+  under `lg` (mark row, byline, headline, keyline, lede, CTAs). Desktop
+  keeps the two-column composition.
+- **Skill-labelled results:** `/job-orders`, `/deliveries`, `/reports`,
+  `/records` stay left/data-dense — the skill's own "Data-Dense Dashboard"
+  profile (see first section) prescribes exactly that for app pages.
+- **Sweep findings, honestly resolved:** `TODO` on /about = the status
+  vocabulary of the application, not an editorial accident; "empty buttons"
+  = nav triggers carrying accessible names (`Menu`, aria-labels on
+  language/theme controls); unprefixed internal hrefs = LocaleLink
+  hydrates the prefix (cannot SSR without turning every link server-side);
+  English canonical fallback is the audit-checked design.
+- **399-page crawler:** `scripts/audit-site.py` — 0 failures, 0 warnings.
