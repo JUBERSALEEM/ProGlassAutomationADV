@@ -170,16 +170,16 @@ export default async function ScreenshotsPage({ params }: PageProps) {
       <Section aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="glass-primary flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("The best screenshot is your own data.")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
+                <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
                   {t(
                     "A customized demonstration walks through your factory's exact screens with your glass specifications, standard sheet stock, and pricing formulas.",
                   )}
                 </p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
                   {t("Request a Demo")}
                 </ButtonLink>

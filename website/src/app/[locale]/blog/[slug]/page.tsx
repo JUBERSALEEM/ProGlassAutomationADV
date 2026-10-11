@@ -128,8 +128,8 @@ export default async function BlogPostPage({ params }: PageProps) {
               </ol>
             </nav>
 
-            <div className="max-w-3xl">
-              <div className="flex flex-wrap items-center gap-3">
+            <div className="mx-auto max-w-3xl text-center">
+              <div className="flex flex-wrap items-center justify-center gap-3">
                 <Badge tone="accent">{t(post.category)}</Badge>
                 <time dateTime={post.date} className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                   {new Date(post.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}

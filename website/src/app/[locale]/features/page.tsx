@@ -100,7 +100,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             <ModuleBrowser />
           </div>
 
-          <div className="surface mt-8 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="surface mt-8 flex flex-col items-center gap-4 p-6 text-center">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
 {t("A feature list only means something once a job runs through it. The")}{" "}
               <Link href="/worked-example" className="link-underline text-brand-200">
@@ -472,12 +472,12 @@ export default async function FeaturesPage({ params }: PageProps) {
       <Section aria-label={t("Next steps")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="glass-primary flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("Want the same walkthrough on your own data?")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration uses a real job: a multi-section quotation, its cutting list and the delivery behind it.")}</p>
+                <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration uses a real job: a multi-section quotation, its cutting list and the delivery behind it.")}</p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
           {t("Request a Demo")}
         </ButtonLink>

@@ -238,7 +238,7 @@ export default async function HomePage({ params }: PageProps) {
             />
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-line-strong/60 bg-ink-900/50 p-4">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 rounded-xl border border-line-strong/60 bg-ink-900/50 p-4 text-center">
             <span className="text-xs text-text-muted">
               {t("Looking for technical codebase metrics, SQLite architecture, and test statistics?")}
             </span>
@@ -834,15 +834,15 @@ export default async function HomePage({ params }: PageProps) {
               </div>
 
               <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-center">
-                <div>
+                <div className="max-lg:text-center">
                   <p className="eyebrow-chip mb-5">{t("Next step")}</p>
-                  <h2 id="cta-heading" className="display-2">
+                  <h2 id="cta-heading" className="display-2 max-lg:mx-auto">
           {t("See it against your own cutting list.")}
         </h2>
-                  <p className="lede-lg mt-5 max-w-xl">
+                  <p className="lede-lg mx-auto mt-5 max-w-xl lg:mx-0">
           {t("Tell us the glass types you run and how the work reaches your floor. A demonstration works best when it uses a job you recognise rather than a sample project.")}
         </p>
-                  <div className="mt-7 flex flex-wrap gap-3">
+                  <div className="mt-7 flex flex-wrap justify-center gap-3 lg:justify-start">
                     <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
           {t("Request a Demo")}
         </ButtonLink>

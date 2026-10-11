@@ -626,7 +626,7 @@ const faq = [
 
           {/* ── Engineering Scale & Codebase Metrics ──────────────────────── */}
           <div className="mt-14 pt-12 border-t border-line/50">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="flex flex-col items-center gap-6 text-center">
               <div>
                 <p className="eyebrow mb-2 text-brand-300">{t("Engineering Metrics")}</p>
                 <h3 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
@@ -636,7 +636,7 @@ const faq = [
                   {t("Every number below is counted directly from the source tree: bounded contexts, test suites, and localization dictionaries.")}
                 </p>
               </div>
-              <p className="max-w-xs text-xs leading-relaxed text-text-faint font-medium">
+              <p className="mx-auto max-w-xs text-xs leading-relaxed text-text-faint font-medium">
                 {t("Measured on {v1}: {v2}, {v3}, {v4}. obj/, bin/ and .git/ excluded.", {
                   v1: site.statsMeasuredOn,
                   v2: site.framework,

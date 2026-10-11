@@ -277,7 +277,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
 
           <p className="mt-6 max-w-4xl text-xs leading-relaxed text-text-faint font-medium">{t("The left-hand descriptions are general practice, not a claim about any particular business, and no figures are quoted for it. The right-hand column is limited to behaviour that exists in the application.")}</p>
 
-          <div className="surface mt-6 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="surface mt-6 flex flex-col items-center gap-4 p-6 text-center">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
 {t("For the numbers rather than the description, the")}{" "}
               <Link href="/worked-example" className="link-underline text-brand-200">
@@ -456,12 +456,12 @@ export default async function HowItWorksPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="glass-primary flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("Walk the chain on your own job.")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("We will take one real quotation from inquiry through to statement, including the cutting plan and the margin it produced.")}</p>
+                <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("We will take one real quotation from inquiry through to statement, including the cutting plan and the margin it produced.")}</p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
           {t("Request a Demo")}
         </ButtonLink>

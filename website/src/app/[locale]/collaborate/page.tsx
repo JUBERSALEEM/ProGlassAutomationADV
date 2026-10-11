@@ -447,18 +447,18 @@ export default async function CollaboratePage({ params }: PageProps) {
       {/* ── Closing ──────────────────────────────────────────────────── */}
       <Section aria-labelledby="collab-cta-heading">
         <Container>
-          <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+          <div className="glass-primary flex flex-col items-center gap-6 p-8 text-center sm:p-10">
             <div>
               <h2 id="collab-cta-heading" className="display-2">
                 {t("One conversation is the whole ask.")}
               </h2>
-              <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
+              <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
                 {t(
                   "A machine, a data set, a funded day a week or an hour of an operator's time — any one of them moves this further than another year of evenings. Write in plain words and the answer will be plain words back.",
                 )}
               </p>
             </div>
-            <div className="flex shrink-0 flex-wrap gap-3">
+            <div className="flex flex-wrap justify-center gap-3">
               <ButtonLink
                 href={`mailto:${site.developerEmail}?subject=ProGlass%20Automation%20—%20collaboration`}
                 size="lg"

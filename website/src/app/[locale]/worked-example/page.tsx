@@ -1114,7 +1114,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Next steps")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="glass-primary flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <p className="eyebrow">{t("See it on your own numbers")}</p>
                 <h2 className="mt-3 text-2xl leading-tight sm:text-3xl">
@@ -1122,7 +1122,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
         </h2>
                 <p className="lede mt-3 max-w-2xl">{t("Ask for a demo and the same walkthrough is run against your specification groups, your thicknesses and your supplier pricing. There is no price list to publish and nothing to sign up for — just an email back.")}</p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
           {t("Request a demo")}
         </ButtonLink>
