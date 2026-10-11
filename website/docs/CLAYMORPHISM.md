@@ -117,6 +117,15 @@ text-heavy or high-density.
 
 ## Site implementation notes
 
+- The engine is `src/app/clay-engine.css`, imported **after** `globals.css`
+  in `src/app/[locale]/layout.tsx`. Everything it rules is scoped to
+  `[data-appearance="clay"]`; globals.css holds zero clay rules — the other
+  appearance families cannot see this layer. Its five layers: §0 channels,
+  §1 utility floor (bg-*/border-*/shadow-* interception), §2 named surfaces,
+  §3 interactive grammar, §4 semantic chip tints, §5 midnight deltas.
+- Daylight component classes do not change; the floor re-voices the utility
+  inventory itself (~350 bg-ink-* fills, ~500 border-line* hairlines).
+
 - Midnight keeps the same recipe on dark plum grounds (drop hue deepens to
   `18 10 38`); daylight is the spec's composition verbatim.
 - `--font-nunito` self-hosted woff2 (SIL OFL, via @fontsource-variable/nunito);

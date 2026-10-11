@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { notFound } from "next/navigation";
 import "../globals.css";
+import "../clay-engine.css";
 import { SvgDefs } from "@/components/brand/SvgDefs";
 import { Navbar } from "@/components/layout/Navbar";
 import { globalGraph } from "@/lib/schema";

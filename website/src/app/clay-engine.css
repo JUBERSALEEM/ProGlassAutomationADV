@@ -1,0 +1,500 @@
+/* ==========================================================================
+   THE CLAY ENGINE — an independent theme engine for appearance="clay"
+   ==========================================================================
+
+   This file is not a reskin of the other families. It is the complete theme
+   layer for Clay, imported AFTER globals.css so every rule here ranks as the
+   final word, and everything it says applies only inside
+   `[data-appearance="clay"]` — the five other appearance families do not see
+   a single line of it. The spec it implements is docs/CLAYMORPHISM.md, and
+   its channels are used verbatim.
+
+   How the engine reads a page it never saw — five layers, in source order:
+
+     §0 CHANNELS    the spec's named colors, both modes, shadow recipe.
+     §1 FLOOR       lowest rank. Every imperative utility a component writes
+                    (bg-ink-*, bg-white/*, bg-line-strong/*, border-line*,
+                    shadow-*, backdrop-blur-*) is intercepted and re-voiced:
+                    gray fills become lavender foils, gray hairlines become
+                    violet light, translucency and blur are retired, scrims
+                    dim in the family hue instead of going black.
+     §2 SURFACES    the material's named surfaces (.surface, .stat-tile,
+                    .surface-raised, .glass-primary, .nav-glass, .nav-sheet,
+                    .band-deep) take the full sculpting recipe — §4 of the
+                    spec: SE hue-keyed drop, NW light lift, inset top-left
+                    sheen, inset bottom-right depth. Ranked after §1 so the
+                    floor never over-paints a real surface.
+     §3 GRAMMAR     the pieces a user touches: coral .btn-primary (the one
+                    verb per screen), white .btn-secondary, pressed-in input
+                    wells, 16px-radius floor, visible focus rings.
+     §4 SEMANTICS   state chips re-tint to the spec's status pastels.
+     §5 MIDNIGHT    the same recipe on dark plum grounds. The spec is a
+                    light-mode language; at midnight the shadow hue deepens
+                    toward violet-black instead of going gray, and the only
+                    text flips are the ones contrast actually needs.
+
+   Old code that is deliberately NOT here: the 7px 9px solid offset plate
+   (neo-brutalist vocabulary; it once sat behind every card and fought the
+   soft blur), the violet gradient feature plate (volume is sculpted by the
+   shadows, never painted), the 0.94 near-black-violet chrome slabs, and the
+   near-white-to-near-white card grounds (~1.03:1 — invisible boundaries).
+   ========================================================================== */
+
+
+/* ═══ §0 · CHANNELS — the spec's named colors, verbatim ═══ */
+
+[data-appearance="clay"] {
+  color-scheme: light dark;
+
+  /* Text channels — plum inks, never pure #000. */
+  --clay-ink: 46 42 63;          /* #2E2A3F text-strong */
+  --clay-muted: 107 101 128;     /* #6B6580 text-muted  */
+
+  /* Grounds. */
+  --clay-page: 247 245 251;      /* #F7F5FB tinted near-white */
+  --clay-raised: 255 255 255;    /* floating sheets over it   */
+
+  /* The pastel surfaces — the clay itself. */
+  --clay-lavender: 184 166 255;  /* #B8A6FF primary plates    */
+  --clay-sky: 158 201 240;       /* #9EC9F0 info              */
+  --clay-mint: 125 212 168;      /* #7DD4A8 success / active  */
+  --clay-peach: 255 181 158;     /* #FFB59E warm              */
+  --clay-lemon: 245 215 122;     /* #F5D77A pending           */
+  --clay-archived: 201 181 255;  /* #C9B5FF archived          */
+
+  /* The one verb. */
+  --clay-coral: 255 122 107;     /* #FF7A6B the action        */
+  --clay-coral-h: 255 90 75;     /* its shadow hue, ~15% down */
+
+  /* Shadow hues. H is the surface's own family ~15% darkened, never gray. */
+  --clay-drop-h: 140 108 255;    /* lavender shadow           */
+
+  /* The family ramp the surrounding chrome, pools and diagrams reuse. */
+  --brand-50: 240 238 255;
+  --brand-100: 232 228 254;
+  --brand-200: 214 204 253;
+  --brand-300: 178 164 250;
+  --brand-400: 142 124 242;
+  --brand-500: 112 94 224;
+  --brand-600: 89 70 206;
+  --brand-700: 67 54 176;
+  --pool-1: rgb(142 124 242 / 0.3);
+  --pool-2: rgb(253 186 116 / 0.16);
+  --pool-3: rgb(228 105 160 / 0.13);
+  --card-tint: rgb(112 94 224 / 0.2);
+  --card-tint-2: rgb(253 186 116 / 0.1);
+
+  /* Midnight grounds: the same family, drawn dark plum. */
+  --ink-950: 22 15 33;
+  --ink-900: 30 21 42;
+  --ink-850: 40 28 52;
+  --ink-800: 51 36 64;
+  --ink-700: 66 48 80;
+
+  /* Cards sit at 24px, panels 32px — inside the spec's 24–32 band. */
+  --radius-scale: 2;
+
+  /* Named surfaces + moulding channels (Midnight values; Daylight below). */
+  --clay-card: var(--ink-850);
+  --clay-hi: rgb(255 255 255 / 0.08);
+  --clay-lo: rgb(18 10 38 / 0.55);
+  --clay-foil: rgb(46 34 62);
+  --clay-lift: 0.045;
+  --clay-scrim: rgb(18 10 38 / 0.62);
+  --clay-edge: rgb(var(--clay-drop-h) / 0.28);
+  --clay-edge-hover: rgb(var(--clay-drop-h) / 0.5);
+
+  /* §4 recipe — L1 resting card; L2 lifts offset 12 / blur 32. On dark
+     grounds H deepens into the plum family (18 10 38) rather than going
+     neutral black, and the light lift is faint moonlight. */
+  --shadow-panel: 8px 8px 24px rgb(18 10 38 / 0.55),
+    -8px -8px 20px rgb(255 255 255 / 0.045);
+  --shadow-raised: 12px 12px 32px rgb(18 10 38 / 0.62),
+    -12px -12px 26px rgb(255 255 255 / 0.05);
+
+  /* Clay is solid and cheap: no translucency tier, no backdrop blur. */
+  --surface-alpha: 1;
+  --surface-alpha-2: 1;
+  --surface-alpha-3: 1;
+  --surface-blur: 0px;
+  --surface-sat: 100%;
+  --surface-specular: 0;
+
+  /* §6: chunky radii pair with chunky round type (Nunito, self-hosted). */
+  --font-sans: var(--font-nunito);
+}
+
+/* Daylight: the reference composition — #F7F5FB page, white floaters,
+   saturated pastel plates, plum ink. */
+[data-theme="daylight"][data-appearance="clay"] {
+  color-scheme: light;
+  --brand-50: 244 241 255;
+  --brand-100: 67 54 176;
+  --brand-200: 205 197 250;
+  --brand-300: 89 70 206;
+  --brand-400: 79 62 194;
+  --brand-500: 72 54 190;
+  --brand-600: 67 54 176;
+  --brand-700: 56 43 150;
+  --card-tint: rgb(112 94 224 / 0.12);
+  --card-tint-2: rgb(253 186 116 / 0.09);
+  --ink-950: 238 232 248;
+  --ink-900: var(--clay-page);
+  --ink-850: var(--clay-raised);
+  --ink-800: 250 248 253;
+  --ink-700: 243 239 251;
+  --clay-card: var(--clay-raised);
+  --clay-hi: rgb(255 255 255 / 0.9);
+  --clay-lo: rgb(var(--clay-drop-h) / 0.3);
+  --clay-foil: rgb(239 234 252);
+  --clay-lift: 0.9;
+  --clay-scrim: rgb(140 108 255 / 0.3);
+  --clay-edge: rgb(var(--clay-drop-h) / 0.2);
+  --clay-edge-hover: rgb(var(--clay-drop-h) / 0.45);
+  --shadow-panel: 8px 8px 24px rgb(var(--clay-drop-h) / 0.28),
+    -8px -8px 22px rgb(255 255 255 / 0.9);
+  --shadow-raised: 12px 12px 32px rgb(var(--clay-drop-h) / 0.32),
+    -12px -12px 28px rgb(255 255 255 / 0.95);
+}
+
+/* The studio's hairline tokens follow the family color, both modes. */
+[data-appearance="clay"] {
+  --card-edge: rgb(var(--clay-drop-h) / 0.16);
+  --card-edge-hover: rgb(var(--clay-drop-h) / 0.4);
+}
+[data-theme="daylight"][data-appearance="clay"] {
+  --card-edge: rgb(var(--clay-drop-h) / 0.2);
+  --card-edge-hover: rgb(var(--clay-drop-h) / 0.45);
+}
+
+
+/* ═══ §1 · THE FLOOR — what every imperative utility becomes in clay ═══
+   Lowest rank in this file: named surfaces in §2 are authored after this
+   block on purpose, so a .surface with a stray bg-ink utility still reads
+   as the recipe, not the foil. */
+
+/* No backdrop blur anywhere in the family. Solid is the look; cheaper too. */
+[data-appearance="clay"] [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Veils dim in the family hue — a lilac scrim, never a black one. */
+[data-appearance="clay"] [class*="fixed"][class*="inset-0"][class*="bg-ink-950"] {
+  background-color: var(--clay-scrim) !important;
+}
+
+/* Every ink wash and white wash is a clay foil: solid, family-tinted, and
+   not its own shadow — foils never float, or the page turns to mush. The
+   old neutral-gray bg-line-strong fills were the single most un-clay class
+   in the inventory ("gray shadows kill the moulded feel"); here they are
+   lavender at last. */
+[data-appearance="clay"] [class*="bg-ink-"],
+[data-appearance="clay"] [class*="bg-white"],
+[data-appearance="clay"] [class*="bg-line"],
+[data-appearance="clay"] [class*="bg-glass"] {
+  background-color: var(--clay-foil);
+  background-image: none;
+}
+
+/* Hairlines: the pipes between surfaces glow violet, never gray. */
+[data-appearance="clay"] [class*="border-line"],
+[data-appearance="clay"] [class*="border-ink"] {
+  border-color: var(--clay-edge);
+}
+
+/* Glass's colour-washed divider becomes one honest hairline. */
+[data-appearance="clay"] .glass-divider {
+  border-color: var(--clay-edge);
+  background-image: none;
+}
+
+/* Shadow utilities a component writes directly — keyed to the family hue. */
+[data-appearance="clay"] [class*="shadow-accent"],
+[data-appearance="clay"] .shadow-raised,
+[data-appearance="clay"] [class*="shadow-raised"] {
+  box-shadow: 10px 10px 28px rgb(var(--clay-drop-h) / 0.3),
+    -8px -8px 20px rgb(255 255 255 / var(--clay-lift));
+}
+[data-appearance="clay"] .shadow-panel,
+[data-appearance="clay"] [class*="shadow-panel"],
+[data-appearance="clay"] [class*="shadow-lg"],
+[data-appearance="clay"] [class*="shadow-xl"],
+[data-appearance="clay"] [class*="shadow-2xl"],
+[data-appearance="clay"] [class*="shadow-md"] {
+  box-shadow: 8px 8px 22px rgb(var(--clay-drop-h) / 0.26),
+    -6px -6px 16px rgb(255 255 255 / var(--clay-lift));
+}
+[data-appearance="clay"] [class*="shadow-sm"],
+[data-appearance="clay"] [class*="shadow-card"] {
+  box-shadow: 4px 4px 12px rgb(var(--clay-drop-h) / 0.2);
+}
+
+
+/* ═══ §2 · SURFACES — the named material, sculpted by the recipe ═══ */
+
+[data-appearance="clay"] .surface,
+[data-appearance="clay"] .stat-tile {
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  box-shadow: var(--shadow-panel),
+    inset 4px 4px 8px var(--clay-hi),
+    inset -6px -6px 12px var(--clay-lo);
+}
+[data-appearance="clay"] .surface-raised {
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  box-shadow: var(--shadow-raised),
+    inset 4px 4px 8px var(--clay-hi),
+    inset -6px -6px 12px var(--clay-lo);
+}
+
+/* Clay answers the finger (§5 of the spec): hover lifts two pixels, a press
+   squishes to 0.97 with the offsets halving and the sheen inverting into
+   shade — the blob sinks into the page, not just shrinks. */
+[data-appearance="clay"] .card-interactive {
+  transition:
+    border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.14s ease,
+    transform 0.14s ease;
+}
+[data-appearance="clay"] .card-interactive:hover,
+[data-appearance="clay"] .card-interactive:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--clay-edge-hover);
+  box-shadow: var(--shadow-raised),
+    inset 4px 4px 8px var(--clay-hi),
+    inset -6px -6px 12px var(--clay-lo);
+}
+[data-appearance="clay"] .card-interactive:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 4px 4px 12px rgb(var(--clay-drop-h) / 0.3),
+    inset -3px -3px 10px var(--clay-lo),
+    inset 3px 3px 10px var(--clay-hi);
+}
+
+/* The feature plate — one solid saturated pastel face, plum ink, the
+   family's identity in a single panel. #2E2A3F on #B8A6FF holds 5.9:1
+   body, ~4.7:1 muted; the pastel stays because it IS the family. Its
+   button is the white pill the references draw on lavender. */
+[data-appearance="clay"] .glass-primary {
+  background-color: rgb(var(--clay-lavender));
+  background-image: none;
+  box-shadow: 12px 12px 32px rgb(var(--clay-drop-h) / 0.4),
+    -10px -10px 26px rgb(255 255 255 / 0.55),
+    inset 5px 5px 10px rgb(255 255 255 / 0.5),
+    inset -7px -7px 14px rgb(92 60 220 / 0.28);
+  --text-1: var(--clay-ink);
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+}
+[data-appearance="clay"] .glass-primary .btn-primary {
+  background-color: rgb(252 250 255);
+  background-image: none;
+  color: rgb(var(--brand-700));
+  box-shadow: 8px 8px 18px rgb(92 60 220 / 0.3),
+    inset 3px 3px 6px rgb(255 255 255 / 0.9),
+    inset -4px -4px 8px rgb(var(--brand-700) / 0.2);
+}
+
+/* The chrome is a clay sheet too — a white floating bar at daylight, a dark
+   plum plate at midnight — with the nav's own text only flipped where the
+   ground actually went dark. */
+[data-appearance="clay"] .nav-glass {
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  border-color: transparent;
+  box-shadow: var(--shadow-panel);
+}
+[data-appearance="clay"] .nav-sheet {
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  border-color: var(--clay-edge);
+  box-shadow: var(--shadow-raised),
+    inset 4px 4px 8px var(--clay-hi),
+    inset -6px -6px 12px var(--clay-lo);
+}
+
+/* The closing band echoes the feature plate at page scale: solid lavender,
+   plum ink, white pills. Midnight keeps the dark plum plate instead. */
+[data-appearance="clay"] .band-deep {
+  background-color: rgb(var(--clay-lavender));
+  background-image: none;
+  --text-1: var(--clay-ink);
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+}
+[data-appearance="clay"] .band-deep .btn-primary {
+  border-color: transparent;
+  background-color: rgb(252 250 255);
+  background-image: none;
+  color: rgb(var(--brand-700));
+  box-shadow: 8px 8px 18px rgb(92 60 220 / 0.3),
+    inset 3px 3px 6px rgb(255 255 255 / 0.9),
+    inset -4px -4px 8px rgb(var(--brand-700) / 0.2);
+}
+[data-appearance="clay"] .band-deep .btn-secondary {
+  border-color: transparent;
+  background-color: rgb(var(--clay-raised));
+  background-image: none;
+  color: rgb(var(--brand-700));
+  box-shadow: 6px 6px 14px rgb(92 60 220 / 0.22),
+    inset 3px 3px 6px rgb(255 255 255 / 0.8),
+    inset -4px -4px 8px rgb(92 60 220 / 0.18);
+}
+
+/* Clip-text gradients die on saturated ground; on clay they re-read in the
+   surface's own ink channel (which each plate above sets correctly). */
+[data-appearance="clay"] :is(.band-deep, .glass-primary) :where(.text-gradient-rich, .text-gradient) {
+  background-image: none !important;
+  color: rgb(var(--text-1));
+  -webkit-text-fill-color: rgb(var(--text-1));
+}
+
+
+/* ═══ §3 · GRAMMAR — the pieces a user touches ═══ */
+
+/* Radius: cards 24 / panels 32 come from the scale; buttons are a fixed
+   18px chunk (§2), inputs a fixed 16px, and these four utilities that 100+
+   files write raw now compute against the family's corners. Nothing with a
+   radius under 16px carries a shadow — below that line, soft reads flat. */
+[data-appearance="clay"] .rounded-lg { border-radius: calc(0.5rem * var(--radius-scale)); }
+[data-appearance="clay"] .rounded-xl { border-radius: calc(0.75rem * var(--radius-scale)); }
+[data-appearance="clay"] .rounded-2xl { border-radius: calc(1rem * var(--radius-scale)); }
+[data-appearance="clay"] .rounded-md { border-radius: calc(0.5rem * var(--radius-scale)); }
+[data-appearance="clay"] .btn,
+[data-appearance="clay"] .btn-primary,
+[data-appearance="clay"] .btn-secondary,
+[data-appearance="clay"] [class*="btn-"] {
+  border-radius: 18px;
+}
+
+/* The verb. Coral fill, white bold label, coral-keyed shadows, and the
+   spec's sink on press: scale(.97), offsets halve, sheen inverts. */
+[data-appearance="clay"] .btn-primary,
+[data-appearance="clay"] .btn-primary:hover {
+  background-color: rgb(var(--clay-coral));
+  background-image: none;
+  border-color: transparent;
+  color: rgb(255 255 255);
+  box-shadow: 8px 8px 20px rgb(var(--clay-coral-h) / 0.4),
+    inset 4px 4px 8px rgb(255 255 255 / 0.45),
+    inset -4px -4px 10px rgb(219 74 61 / 0.4);
+  transition: box-shadow 0.14s ease, transform 0.14s ease;
+}
+[data-appearance="clay"] .btn-primary:active {
+  transform: scale(0.97);
+  box-shadow: 4px 4px 10px rgb(var(--clay-coral-h) / 0.35),
+    inset -3px -3px 9px rgb(219 74 61 / 0.35),
+    inset 3px 3px 9px rgb(255 255 255 / 0.35);
+}
+
+/* The quiet option: a white sheet at quarter shadow strength. */
+[data-appearance="clay"] .btn-secondary,
+[data-appearance="clay"] .btn-secondary:hover {
+  background-color: rgb(var(--clay-raised));
+  background-image: none;
+  color: rgb(var(--text-2));
+  border-color: transparent;
+  box-shadow: 8px 8px 18px rgb(var(--clay-drop-h) / 0.22),
+    inset 3px 3px 6px rgb(255 255 255 / 0.8),
+    inset -4px -4px 8px rgb(var(--clay-drop-h) / 0.18);
+}
+
+/* Fields press the other way: a well, inset shadows only, 16px. */
+[data-appearance="clay"] input,
+[data-appearance="clay"] textarea,
+[data-appearance="clay"] select {
+  border-radius: 16px;
+  box-shadow: inset 3px 3px 8px rgb(var(--clay-drop-h) / 0.2),
+    inset -3px -3px 8px rgb(255 255 255 / 0.9);
+}
+
+/* Soft shadows never replace a visible focus outline. */
+[data-appearance="clay"] a:focus-visible,
+[data-appearance="clay"] button:focus-visible,
+[data-appearance="clay"] input:focus-visible,
+[data-appearance="clay"] textarea:focus-visible,
+[data-appearance="clay"] select:focus-visible {
+  outline: 3px solid rgb(var(--brand-500) / 0.8);
+  outline-offset: 3px;
+}
+
+
+/* ═══ §4 · SEMANTICS — states speak in the spec's status pastels ═══
+   Solid semantic fills become tinted chips carrying strong plum ink; their
+   borders keep the saturated edge of the same hue. */
+
+[data-appearance="clay"] [class*="bg-state-success"],
+[data-appearance="clay"] [class*="bg-money-positive"],
+[data-appearance="clay"] [class*="bg-state-positive"] {
+  background-color: rgb(var(--clay-mint) / 0.32);
+  background-image: none;
+}
+[data-appearance="clay"] [class*="border-state-success"],
+[data-appearance="clay"] [class*="border-money-positive"] {
+  border-color: rgb(var(--clay-mint) / 0.8);
+}
+[data-appearance="clay"] [class*="bg-state-warning"] {
+  background-color: rgb(var(--clay-lemon) / 0.38);
+  background-image: none;
+}
+[data-appearance="clay"] [class*="border-state-warning"] {
+  border-color: rgb(214 164 32 / 0.7);
+}
+[data-appearance="clay"] [class*="bg-state-danger"] {
+  background-color: rgb(var(--clay-coral) / 0.22);
+  background-image: none;
+}
+[data-appearance="clay"] [class*="border-state-danger"] {
+  border-color: rgb(var(--clay-coral) / 0.6);
+}
+
+
+/* ═══ §5 · MIDNIGHT — the same language on dark plum ═══ */
+
+/* Chrome text flips only where the ground is dark; daylight's ink returns
+   by default because these rules are midnight-scoped. */
+html[data-theme="midnight"] [data-appearance="clay"] .nav-glass {
+  --text-1: 255 255 255;
+  --text-2: 248 247 255;
+  --text-3: 236 232 254;
+  --text-4: 214 204 248;
+  color: rgb(var(--text-2));
+}
+html[data-theme="midnight"] [data-appearance="clay"] .band-deep {
+  background-color: rgb(var(--brand-700) / 0.94);
+  --brand-50: 240 238 255;
+  --brand-100: 232 228 254;
+  --brand-200: 214 204 253;
+  --brand-300: 178 164 250;
+  --brand-400: 142 124 242;
+  --text-1: 255 255 255;
+  --text-2: 248 247 255;
+  --text-3: 236 232 254;
+  --text-4: 214 204 248;
+  color: rgb(var(--text-2));
+}
+
+/* The leak guard, kept as the engine's own load-bearing wall: chrome
+   colours are chrome-colour, and anything painting its own surface re-locks
+   its reading tokens — the pale panels inside the menu and the sunken
+   developer section may never drink the chrome's whites. */
+[data-appearance="clay"] :is(.nav-glass, .band-deep) :is(.surface, .surface-raised, .stat-tile, .nav-sheet, [class*="bg-ink-"]),
+[data-appearance="clay"] .nav-glass [class*="rounded-panel"] {
+  --text-1: 36 27 58;
+  --text-2: 50 39 78;
+  --text-3: 79 67 112;
+  --text-4: 107 96 120;
+}
+html[data-theme="midnight"] [data-appearance="clay"] :is(.nav-glass, .band-deep) :is(.surface, .surface-raised, .stat-tile, .nav-sheet, [class*="bg-ink-"]),
+html[data-theme="midnight"] [data-appearance="clay"] .nav-glass [class*="bg-ink"] {
+  --text-1: 255 255 255;
+  --text-2: 238 234 252;
+  --text-3: 215 208 241;
+  --text-4: 194 185 226;
+}
