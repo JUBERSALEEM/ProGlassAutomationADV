@@ -98,6 +98,24 @@ const plex = localFont({
 });
 
 /**
+ * Nunito — the round voice the Clay appearance asks for. Claymorphism pairs
+ * its chunky radii with chunky round type (the spec's own shortlist:
+ * Quicksand, Nunito, Outfit, Fredoka); Inter's grotesk terminals fight that
+ * mood, so the family re-roots `--font-sans` to this file and everything
+ * inherits. Self-hosted like the rest (SIL OFL via @fontsource-variable/
+ * nunito), latin + latin-ext subsets, no preload — the face downloads at the
+ * moment of choosing Clay and not before.
+ */
+const nunito = localFont({
+  src: "../../fonts/Nunito-Variable-latin.woff2",
+  display: "swap",
+  weight: "200 1000",
+  variable: "--font-nunito",
+  fallback: ["Segoe UI", "system-ui", "sans-serif"],
+  preload: false,
+});
+
+/**
  * Every language, prerendered.
  *
  * `dynamicParams = false` is the other half of that: a language tag the site
@@ -244,7 +262,7 @@ export default async function LocaleLayout({
       data-appearance="crystal"
       /* The boot script sets these before paint; the server renders the default. */
       suppressHydrationWarning
-      className={`${inter.variable} ${mono.variable} ${serif.variable} ${plex.variable}`}
+      className={`${inter.variable} ${mono.variable} ${serif.variable} ${plex.variable} ${nunito.variable}`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
