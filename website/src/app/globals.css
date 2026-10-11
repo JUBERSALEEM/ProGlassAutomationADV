@@ -1080,6 +1080,18 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  @supports (overflow: clip) {
+    html,
+    body {
+      overflow-x: clip;
+    }
+  }
+
   body {
     /*
      * No `antialiased` here, deliberately. That utility forces grayscale
@@ -1099,8 +1111,12 @@
      */
     font-weight: var(--ui-weight, 400);
     background-color: rgb(var(--ink-950));
+    /* Belt and braces against any decorative layer ever widening the
+       document: `clip` never creates a scroll container (so sticky/fixed
+       behave), `hidden` is the fallback for engines without it. This is the
+       guarantee that no widget past the hero can make the phone pannable
+       sideways mid-scroll. */
     overflow-x: hidden;
-    transition: background-color 240ms ease, color 240ms ease;
 
   }
 
@@ -4486,7 +4502,10 @@ html[data-theme="midnight"] [data-appearance="clay"] .nav-glass [class*="bg-ink"
 .ribbon-photon {
   position: relative;
   height: 1px;
-  overflow: visible;
+  /* The sweep travels past the seam's ends by design; the page must never
+     grow for it. Vertical glow stays, lateral paint is cut at the seam. */
+  overflow-x: clip;
+  overflow-y: visible;
   background: linear-gradient(90deg, transparent, rgb(var(--brand-500) / 0.5), transparent);
   border: 0;
 }

@@ -177,6 +177,8 @@ e.setAttribute("data-theme",t);
 e.setAttribute("data-theme-mode",m);
 e.setAttribute("data-appearance",a);
 e.style.colorScheme=t==="daylight"?"light":"dark";
+var hv="proglass-hygiene-v1";
+if(localStorage.getItem(hv)!=="1"){localStorage.removeItem(vk);localStorage.removeItem(vk2);localStorage.setItem(hv,"1");}
 var v=localStorage.getItem(vk);
 if(v){var o=JSON.parse(v);for(var k in o){if(Object.prototype.hasOwnProperty.call(o,k)){
 var w=o[k];
