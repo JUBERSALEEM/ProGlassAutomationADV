@@ -61,11 +61,11 @@ export function DeveloperStory({ t }: { t: Translator }) {
       </div>
 
       <div className="shell relative py-16 sm:py-20 lg:py-24">
-        <div className="grid items-start gap-12 lg:grid-cols-[minmax(0,1.06fr)_minmax(0,1fr)] lg:gap-16">
+        <div className="grid items-start gap-12 text-center lg:grid-cols-[minmax(0,1.06fr)_minmax(0,1fr)] lg:gap-16 lg:text-left">
           {/* ── The story ─────────────────────────────────────────────── */}
           <div>
             <Reveal>
-              <p className="eyebrow-chip mb-6">
+              <p className="eyebrow-chip mb-6 inline-flex">
                 <GlassCubeEmblem size={14} label={null} className="h-3.5 w-3.5" />
                 {t("About the developer")}
               </p>
@@ -79,7 +79,7 @@ export function DeveloperStory({ t }: { t: Translator }) {
             </Reveal>
 
             <Reveal delay={130}>
-              <p className="lede-lg mt-6 max-w-lede">
+              <p className="lede-lg mt-6 max-w-lede max-lg:mx-auto">
                 {t("ProGlass Automation is the work of")}{" "}
                 <strong className="font-semibold text-text-primary">{site.developerName}</strong>
                 {t(", who prices glass for a living. He wrote the first version to stop retyping the same")
@@ -95,7 +95,7 @@ export function DeveloperStory({ t }: { t: Translator }) {
                 visitor has to choose: this is a person speaking, and a
                 quotation set in the interface face reads as marketing copy. */}
             <Reveal delay={190}>
-              <figure className="mt-9 border-s-2 border-brand-500/60 ps-6">
+              <figure className="mt-9 max-w-2xl border-s-2 border-brand-500/60 ps-6 max-lg:mx-auto max-lg:border-s-0 max-lg:border-t-2 max-lg:pt-6 max-lg:ps-0">
                 <blockquote className="font-[var(--font-serif)] text-lg leading-[1.68] text-text-secondary sm:text-xl">
                   <span aria-hidden="true" className="me-1 text-brand-400">&ldquo;</span>
                   {t(dream.quote)}
@@ -106,7 +106,7 @@ export function DeveloperStory({ t }: { t: Translator }) {
             </Reveal>
 
             <Reveal delay={240}>
-              <div className="mt-9 flex flex-wrap items-center gap-3">
+              <div className="mt-9 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
                 <ButtonLink href="/developer" size="md" trailing={<ArrowRight />}>
                   {t("Read the developer story")}
                 </ButtonLink>

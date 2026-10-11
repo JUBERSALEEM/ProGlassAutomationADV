@@ -128,6 +128,7 @@ export default async function HomePage({ params }: PageProps) {
             <div>
               <SectionHeading
                 id="what-heading"
+                align="left"
                 eyebrow={t("Built for glass operations")}
                 title={t("From the first inquiry to the final statement, without re-keying the job.")}
                 lead={t("ProGlass Automation is a Windows desktop application for glass fabrication. It holds the parts of the business that normally live in separate spreadsheets — the quotation, the glass build-up, the cutting plan, the stock, the deliveries and the invoices — and makes each one carry the last one forward.")}
@@ -202,14 +203,14 @@ export default async function HomePage({ params }: PageProps) {
       {/* ═══ 04 · Operational Scale ═════════════════════════════════ */}
       <Section tone="sunken" aria-labelledby="scale-heading">
         <Container>
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col items-center gap-8 text-center">
             <SectionHeading
               id="scale-heading"
               eyebrow={t("Operational Scale")}
               title={t("Engineered for complete factory operations.")}
               lead={t("ProGlass Automation connects every department into one integrated workflow — from estimating multi-layer architectural glass to floor-level production queues, cutting optimization, and multi-drop delivery.")}
             />
-            <p className="max-w-sm text-xs leading-relaxed text-text-faint font-medium">
+            <p className="mx-auto max-w-md text-xs leading-relaxed text-text-faint font-medium">
               {t("Unified Windows desktop software covering nine integrated modules and 15 business languages.")}
             </p>
           </div>
@@ -658,10 +659,10 @@ export default async function HomePage({ params }: PageProps) {
             <div className="card-accent p-8 sm:p-10">
               <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-center lg:gap-12">
                 <div>
-                  <p className="eyebrow">{t("Open to help")}</p>
-                  <h2 id="sponsors-heading" className="display-2 mt-3">{t("One developer, and room for a few more hands.")}</h2>
-                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-secondary">{t("ProGlass Automation is written and maintained by one person. Sponsorship funds work — a cutting table to test export formats against, reviewed translations, test engineering — and never buys a roadmap position. The page below states the gaps as they actually are.")}</p>
-                  <div className="mt-6 flex flex-wrap gap-3">
+                  <p className="eyebrow max-lg:text-center">{t("Open to help")}</p>
+                  <h2 id="sponsors-heading" className="display-2 mt-3 max-lg:text-center">{t("One developer, and room for a few more hands.")}</h2>
+                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-secondary max-lg:mx-auto max-lg:text-center">{t("ProGlass Automation is written and maintained by one person. Sponsorship funds work — a cutting table to test export formats against, reviewed translations, test engineering — and never buys a roadmap position. The page below states the gaps as they actually are.")}</p>
+                  <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
                     <ButtonLink href="/sponsors" size="lg" trailing={<ArrowRight />}>
           {t("Sponsor the build")}
         </ButtonLink>
@@ -731,7 +732,7 @@ export default async function HomePage({ params }: PageProps) {
       {/* ═══ 10 · Screenshots ═══════════════════════════════════════ */}
       <Section tone="sunken" aria-labelledby="screens-heading">
         <Container>
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col items-center gap-8 text-center">
             <SectionHeading
               id="screens-heading"
               eyebrow={t("The interface")}

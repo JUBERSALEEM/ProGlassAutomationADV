@@ -3894,6 +3894,15 @@ html[lang^="zh"] body {
 }
 [data-appearance="clay"] .band-deep {
   background-color: rgb(var(--brand-700) / 0.94);
+  /* The prose links and eyebrow labels on the band are set in `text-brand-*`.
+     The text ramp was flipped for the saturated fill but the brand ramp was
+     not, and in Daylight the brand ramp runs *dark* — dark violet ink on a
+     0.94 brand-700 fill. The light steps are the family's own midnight ramp. */
+  --brand-50: 240 238 255;
+  --brand-100: 232 228 254;
+  --brand-200: 214 204 253;
+  --brand-300: 178 164 250;
+  --brand-400: 142 124 242;
   --text-1: 255 255 255;
   --text-2: 248 247 255;
   --text-3: 236 232 254;
