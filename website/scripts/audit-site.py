@@ -96,7 +96,7 @@ BUDGET = {
     "/features": {"gz": 95, "nodes": 4900},     # re-measured 92.2K / 4828 after the global centring passes (256cfd4 onward); baseline 88.7K / 4608 (+73 nodes: footer icons) predates them
     "/optimization": {"gz": 61, "nodes": 2400},  # measured 58.4K / 2259 (+73 nodes: footer icons)
     "/how-it-works": {"gz": 57, "nodes": 2100},  # measured 54.9K / 1957 (+72 nodes: footer icons)
-    "/screenshots": {"gz": 38, "nodes": 1350},   # measured 33.9K / 1189 (was 69.1K / 9198)
+    "/screenshots": {"gz": 39, "nodes": 1400},   # §E: PageHero ornaments (+3 spans/page) measured 38.2K (was 33.9K / 1189; 69.1K / 9198 pre-diet)
     "/worked-example": {"gz": 59, "nodes": 1800},  # measured 55.8K / 1711 (+73 nodes: footer icons)
     "/sponsors": {"gz": 41, "nodes": 950},       # measured 38.8K / 870 (+73 nodes: footer icons)
     "/pricing": {"gz": 40, "nodes": 980},     # measured 36.8K / 901 (+75 nodes: footer icons)

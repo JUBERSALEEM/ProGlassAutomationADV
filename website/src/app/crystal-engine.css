@@ -435,11 +435,18 @@
  * keeps every reading intact.
  */
 [data-appearance="crystal"] {
-  --wall-wash-1: rgb(101 70 181 / 0.52);
-  --wall-wash-2: rgb(26 197 226 / 0.30);
-  --pool-1: rgb(126 87 206 / 0.55);
-  --pool-2: rgb(20 184 226 / 0.42);
-  --pool-3: rgb(242 96 164 / 0.34);
+  --wall-wash-1: rgb(101 70 181 / 0.55);
+  --wall-wash-2: rgb(26 197 226 / 0.34);
+  --pool-1: rgb(126 87 206 / 0.62);
+  --pool-2: rgb(20 184 226 / 0.50);
+  --pool-3: rgb(242 96 164 / 0.44);
+  --aurora-image:
+    radial-gradient(118% 92% at 12% 0%, var(--aurora-1) 0%, transparent 56%),
+    radial-gradient(92% 72% at 88% 8%, var(--aurora-2) 0%, transparent 58%),
+    radial-gradient(122% 104% at 50% 108%, var(--aurora-3) 0%, transparent 62%),
+    radial-gradient(26rem 26rem at 84% 16%, rgb(20 184 226 / 0.55) 0%, rgb(20 184 226 / 0.30) 55%, rgb(20 184 226 / 0.12) 70%, transparent 78%),
+    radial-gradient(22rem 22rem at 10% 82%, rgb(242 96 164 / 0.45) 0%, rgb(126 87 206 / 0.28) 58%, transparent 74%),
+    linear-gradient(90deg, var(--sweep-1) 0%, var(--sweep-2) 22%, transparent 78%);
 
   /* ── B · The drop shadow the lift keeps missing: soft, wide-set, dark —
      the 0 24px 48px class from every reference. Panes take it; chips and
@@ -452,8 +459,8 @@
 
   /* ── C · The edge at the reference's stated strength: ring 0.16 → 0.24,
      line 0.24 → 0.34. */
-  --glass-ring: rgb(255 255 255 / 0.24);
-  --glass-line: rgb(255 255 255 / 0.34);
+  --glass-ring: rgb(255 255 255 / 0.30);
+  --glass-line: rgb(255 255 255 / 0.42);
 
   /* ── D · The scrim takes what the fill returns: midnight fill lightened
      (§C1, below), the scrim stiffens from 0.34 → 0.42 to hold the text
@@ -465,11 +472,21 @@
 }
 
 [data-theme="daylight"][data-appearance="crystal"] {
-  --wall-wash-1: rgb(244 166 201 / 0.50);
-  --wall-wash-2: rgb(181 161 225 / 0.42);
-  --pool-1: rgb(228 105 160 / 0.46);
-  --pool-2: rgb(245 133 52 / 0.30);
-  --pool-3: rgb(158 121 229 / 0.38);
+  --wall-wash-1: rgb(244 166 201 / 0.58);
+  --wall-wash-2: rgb(181 161 225 / 0.50);
+  --pool-1: rgb(228 105 160 / 0.62);
+  --pool-2: rgb(245 133 52 / 0.40);
+  --pool-3: rgb(158 121 229 / 0.54);
+  --aurora-image:
+    radial-gradient(118% 92% at 12% 0%, var(--aurora-1) 0%, transparent 56%),
+    radial-gradient(92% 72% at 88% 8%, var(--aurora-2) 0%, transparent 58%),
+    radial-gradient(122% 104% at 50% 108%, var(--aurora-3) 0%, transparent 62%),
+    radial-gradient(24rem 24rem at 80% 12%, rgb(217 70 239 / 0.50) 0%, rgb(217 70 239 / 0.28) 56%, transparent 72%),
+    radial-gradient(20rem 20rem at 12% 88%, rgb(124 58 237 / 0.38) 0%, rgb(228 105 160 / 0.24) 60%, transparent 75%),
+    linear-gradient(90deg, var(--sweep-1) 0%, var(--sweep-2) 22%, transparent 78%);
+  --glass-ring: rgb(255 255 255 / 0.50);
+  --glass-line: rgb(255 255 255 / 0.60);
+  --radius-scale: 1.25;
 
   --glass-drop:
     0 20px 45px -18px rgb(70 40 120 / 0.30),

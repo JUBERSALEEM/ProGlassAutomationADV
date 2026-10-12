@@ -66,7 +66,11 @@ export function PageHero({
       */}
       <div aria-hidden="true" className="glow-layer pointer-events-none absolute inset-0 overflow-hidden">
         <span className="orb aurora-drift -bottom-24 left-[30%] h-[30rem] w-[46rem]" />
-        <div className="aurora-field aurora-drift" />
+        <div className="aurora-field aurora-drift">
+          <span className="decor decor-ring" aria-hidden="true" style={{ right: "7%", top: "14%", width: 150, height: 150 }} />
+          <span className="decor decor-ring" aria-hidden="true" style={{ left: "4%", bottom: "10%", width: 96, height: 96 }} />
+          <span className="glass-sphere" aria-hidden="true" style={{ position: "absolute", right: "22%", top: "34%", width: 190, height: 190 }} />
+        </div>
       </div>
       {/* One hairline of accent along the top edge, so a page opener is a
           threshold rather than a place the content happens to start. */}
