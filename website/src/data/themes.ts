@@ -138,7 +138,7 @@ export const DEFAULT_THEME_MODE: ThemeMode = "system";
  * wins over this default — the default only greets a visitor who has never
  * picked.
  */
-export const DEFAULT_APPEARANCE: AppearanceFamily = "crystal";
+export const DEFAULT_APPEARANCE: AppearanceFamily = "clay";
 
 export function isThemeMode(value: unknown): value is ThemeMode {
   return value === "light" || value === "dark" || value === "system";
@@ -168,8 +168,17 @@ export const themeBootScript = `(function(){try{
 var mk=${JSON.stringify(THEME_STORAGE_KEY)},ak=${JSON.stringify(APPEARANCE_STORAGE_KEY)},vk="proglass-studio-vars";
 var m=localStorage.getItem(mk);
 if(m!=="light"&&m!=="dark"&&m!=="system")m="system";
+/* Hygiene v2 — rides BEFORE the appearance resolves, so it takes effect on
+   this very boot: clears the stored studio dials (an old edge/scale dial
+   could outrank the clay recipe's own corners and strokes) AND lands the
+   visitor on the Clay family once. The palette picker still switches away
+   — this just makes Clay the first thing every visitor feels, including a
+   returning one whose storage pinned an older family. */
+var vk2="proglass-studio-attrs";
+var hv="proglass-hygiene-v2";
+if(localStorage.getItem(hv)!=="1"){localStorage.removeItem(vk);localStorage.removeItem(vk2);localStorage.setItem(ak,"clay");localStorage.setItem(hv,"1");}
 var a=localStorage.getItem(ak);
-if(a!=="studio"&&a!=="monet"&&a!=="industrial"&&a!=="crystal"&&a!=="clay")a="crystal";
+if(a!=="studio"&&a!=="monet"&&a!=="industrial"&&a!=="crystal"&&a!=="clay")a="clay";
 var d=window.matchMedia("(prefers-color-scheme: dark)").matches;
 var t=m==="light"?"daylight":m==="dark"?"midnight":(d?"midnight":"daylight");
 var e=document.documentElement;
@@ -177,15 +186,12 @@ e.setAttribute("data-theme",t);
 e.setAttribute("data-theme-mode",m);
 e.setAttribute("data-appearance",a);
 e.style.colorScheme=t==="daylight"?"light":"dark";
-var hv="proglass-hygiene-v1";
-if(localStorage.getItem(hv)!=="1"){localStorage.removeItem(vk);localStorage.removeItem(vk2);localStorage.setItem(hv,"1");}
 var v=localStorage.getItem(vk);
 if(v){var o=JSON.parse(v);for(var k in o){if(Object.prototype.hasOwnProperty.call(o,k)){
 var w=o[k];
 if(k==="--ui-scale"){var n2=parseFloat(w);if(!isFinite(n2)||n2<0.9||n2>1.15)continue;}
 if(typeof w!=="string"||w.length>96||k.slice(0,2)!=="--")continue;
 e.style.setProperty(k,w);}}}
-var vk2="proglass-studio-attrs";
 var v2=localStorage.getItem(vk2);
 if(v2){var o2=JSON.parse(v2);for(var k2 in o2){if(Object.prototype.hasOwnProperty.call(o2,k2))e.setAttribute(k2,o2[k2]);}}
 }catch(e){}})();`;

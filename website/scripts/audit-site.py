@@ -103,7 +103,7 @@ BUDGET = {
     "/developer": {"gz": 62, "nodes": 1450},     # measured 59.2K / 1331 (+73 nodes: footer icons)
     "/collaborate": {"gz": 42, "nodes": 980},   # measured 39.6K / 918 (+75 nodes: footer icons)
 }
-BUDGET_DEFAULT = {"gz": 37, "nodes": 800}      # post footer-icon round: /resources 36.1K/671, /about ~34K/679, /blog ~29K/555, /legal/* ≤31K/564
+BUDGET_DEFAULT = {"gz": 39, "nodes": 800}      # was 37 (post footer-icon); the hygiene-v2 boot migration added bytes to the inlined script on every page — /resources measured 37.3K
 
 # Built assets, measured from `.next` when a build is present. The JS figure is
 # every chunk the build emits, gzipped; the browser never downloads all of them,

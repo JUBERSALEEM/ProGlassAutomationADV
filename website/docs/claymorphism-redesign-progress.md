@@ -90,6 +90,7 @@ layout (Navbar, Footer/band-deep, Menu sheet, SupportBubble, ThemeStudio).
 | D9 | midnight screenshots 08:57 | daylight dark text lock unscoped → plum ink painted onto midnight sheets | guard audit | guards rescoped per mode, both extended to §7.4 registry |
 | D10 | review | divide-line/divide-ink COLOR utilities missed by the border sweep (table stripes, accordion rules stayed gray) | class audit | added to hairline sweep |
 | D11 | user report | desktop dropdowns: hover opened on enter, so the first click TOGGLED SHUT what hover opened — read as "needs double click"; no outside-close | Navbar.tsx hover/click conflict | pinnedMenu ref: click pins, hover-out never closes pinned, pointer-down outside + Escape + route-change clear |
+| D12 | "didn't felt the engine" | TWO causes: (a) the shipped DEFAULT family was crystal — a returning visitor's stored choice also outranked clay, so pages were judged without ever reaching the engine; (b) stale studio dials could outrank family recipe. | boot audit | DEFAULT_APPEARANCE + boot fallback = clay; hygiene v2 migration runs before resolution: wipes stored studio vars/attrs AND seeds stored appearance = clay once; palette picker still freely switches away |
 
 ## E. Current gate results (this build)
 
