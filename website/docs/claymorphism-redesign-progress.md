@@ -4,8 +4,9 @@ Owner loop: **Inspect → Implement → Build → Run → Screenshot → Compare
 Fix → Retest → Update progress → Continue.**
 Spec authority: `docs/CLAYMORPHISM.md` + reference boards (img-1..8).
 Engine: `src/app/clay-engine.css` (imported last, fully isolated to
-`[data-appearance="clay"]`). Latest milestone: **§7 fullness pass + live face
-boards at `/clay-faces.html`**.
+`[data-appearance="clay"]`). Latest milestone: **§8 physicality + the midnight &
+nav-interaction batch** (aurora whisper, guards rescoped, divide-line gap,
+nav single-click pins).
 
 ---
 
@@ -85,6 +86,10 @@ layout (Navbar, Footer/band-deep, Menu sheet, SupportBubble, ThemeStudio).
 | D5 | 40/100 review (user) | named-class registry baked ink fills beyond the bg-ink sweep: .menu-card, .plate, .float-card, .card-live, .card-glass, .band-solid, .band-rich, .panel-feature, .nav-pill, .spine-node, .mpane\_\_\*, .mat-rail\_\_chip | class-level grep of all baked backgrounds | §7.4: full registry on recipe |
 | D6 | 40/100 review (user) | aurora wallpaper too loud for boards' calm ground; gradient clip-ink headlines; 2px strokes on the material; pastel rotation too faint | boards + tokens grep | §7.1–§7.5 |
 | D7 | §7 | buttons w/o presence; status chips translucent ghosts | boards | §7.6–§7.7 |
+| D8 | midnight screenshots 08:57 | aurora base token 0.5 alpha = lilac ocean behind midnight pages, dark cards on it | screenshots | §7.1 base → 0.10/0.05 |
+| D9 | midnight screenshots 08:57 | daylight dark text lock unscoped → plum ink painted onto midnight sheets | guard audit | guards rescoped per mode, both extended to §7.4 registry |
+| D10 | review | divide-line/divide-ink COLOR utilities missed by the border sweep (table stripes, accordion rules stayed gray) | class audit | added to hairline sweep |
+| D11 | user report | desktop dropdowns: hover opened on enter, so the first click TOGGLED SHUT what hover opened — read as "needs double click"; no outside-close | Navbar.tsx hover/click conflict | pinnedMenu ref: click pins, hover-out never closes pinned, pointer-down outside + Escape + route-change clear |
 
 ## E. Current gate results (this build)
 

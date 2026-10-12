@@ -203,6 +203,12 @@
 [data-appearance="clay"] [class*="border-ink"] {
   border-color: var(--clay-edge);
 }
+/* 3f61ffe missed divide-*: divide-line is a COLOR utility on the container,
+   not a border class — table stripes and accordion rows stayed gray. */
+[data-appearance="clay"] [class*="divide-line"],
+[data-appearance="clay"] [class*="divide-ink"] {
+  border-color: var(--clay-edge);
+}
 
 /* Glass's colour-washed divider becomes one honest hairline. */
 [data-appearance="clay"] .glass-divider {
@@ -309,7 +315,7 @@
 [data-appearance="clay"] [class*="bg-brand-500/12"],
 [data-appearance="clay"] [class*="bg-brand-400/16"],
 [data-appearance="clay"] [class*="bg-brand-500/15"] {
-  background-color: rgb(var(--clay-lavender) / 0.3);
+  background-color: rgb(var(--clay-lavender) / 0.9);
   color: rgb(var(--clay-ink));
   border-color: rgb(var(--clay-drop-h) / 0.45);
 }
@@ -564,18 +570,21 @@ html[data-theme="midnight"] [data-appearance="clay"] .band-deep {
   color: rgb(var(--text-2));
 }
 
-/* The leak guard, kept as the engine's own load-bearing wall: chrome
-   colours are chrome-colour, and anything painting its own surface re-locks
-   its reading tokens — the pale panels inside the menu and the sunken
-   developer section may never drink the chrome's whites. */
-[data-appearance="clay"] :is(.nav-glass, .band-deep) :is(.surface, .surface-raised, .stat-tile, .nav-sheet, [class*="bg-ink-"]),
-[data-appearance="clay"] .nav-glass [class*="rounded-panel"] {
+/* The leak guard, the engine's own load-bearing wall — now honestly scoped.
+   The dark lock was written unscoped in 3f61ffe; at midnight it painted
+   plum reading tokens onto the dark menu sheets and never reached back, and
+   that is the "text invisible at midnight" class the 08:57 screenshots
+   show. Each mode now locks its own reading tokens onto its own cards —
+   chrome colours are chrome-colour, card colours are card colours, and the
+   §7.4 registry counts as cards in both locks. */
+html[data-theme="daylight"] [data-appearance="clay"] :is(.nav-glass, .band-deep) :is(.surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .mpane__glass--lead, [class*="bg-ink-"]),
+html[data-theme="daylight"] [data-appearance="clay"] .nav-glass [class*="rounded-panel"] {
   --text-1: 36 27 58;
   --text-2: 50 39 78;
   --text-3: 79 67 112;
   --text-4: 107 96 120;
 }
-html[data-theme="midnight"] [data-appearance="clay"] :is(.nav-glass, .band-deep) :is(.surface, .surface-raised, .stat-tile, .nav-sheet, [class*="bg-ink-"]),
+html[data-theme="midnight"] [data-appearance="clay"] :is(.nav-glass, .band-deep) :is(.surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .mpane__glass--lead, [class*="bg-ink-"]),
 html[data-theme="midnight"] [data-appearance="clay"] .nav-glass [class*="bg-ink"] {
   --text-1: 255 255 255;
   --text-2: 238 234 252;
@@ -598,8 +607,10 @@ html[data-theme="midnight"] [data-appearance="clay"] .nav-glass [class*="bg-ink"
 /* §7.1 The wallpaper whispers. The boards' pages are one calm tinted
    ground; the countdown is over for the aurora's three loud pools. */
 [data-appearance="clay"] {
-  --aurora-1: rgb(var(--clay-lavender) / 0.5);
-  --aurora-2: rgb(var(--clay-peach) / 0.2);
+  /* Midnight whisper: 0.5 here once turned the dark pages into a lilac
+     ocean with dark cards floating on it — see the 08:57 screenshots. */
+  --aurora-1: rgb(var(--clay-lavender) / 0.1);
+  --aurora-2: rgb(var(--clay-peach) / 0.05);
   --aurora-3: rgb(255 255 255 / 0);
 }
 [data-theme="daylight"][data-appearance="clay"] {
@@ -794,3 +805,67 @@ html[data-theme="midnight"] [data-appearance="clay"] {
 /* §7.8 The grain stays low and the drift stays slow — clay is matte-soft,
    not noisy; nothing to change, this comment says so deliberately so the
    next pass does not re-audit it. */
+
+
+/* ═══ §8 · PHYSICALITY — rich means the material answers everything ═══
+   Skin vs. engine is decided here: the same two springs drive every
+   touch, the page's selection is a smear of lavender, the caret is coral,
+   the input that has focus carries a glow made of the light source itself,
+   links hover with an ink shift of the family hue, and headings sit tight
+   at the spec's 0 letter-spacing. Nothing below changes a colour — only
+   how the material moves, grabs light, and answers the hand. */
+
+[data-appearance="clay"] {
+  --clay-ease: cubic-bezier(0.25, 0.8, 0.3, 1);
+  --clay-spring: cubic-bezier(0.3, 1.4, 0.4, 1);
+}
+
+/* Tactile on every interactive object: buttons, links wearing the card
+   vest, chips, menu items — one spring, one timing. */
+[data-appearance="clay"] :is(.btn, .btn-primary, .btn-secondary, .card-interactive, [class*="btn-"], .menu-card a) {
+  transition:
+    transform 0.18s var(--clay-ease),
+    box-shadow 0.18s var(--clay-ease),
+    background-color 0.18s var(--clay-ease),
+    border-color 0.18s var(--clay-ease),
+    color 0.18s var(--clay-ease);
+}
+[data-appearance="clay"] .btn-primary:hover,
+[data-appearance="clay"] .btn-secondary:hover {
+  transform: translateY(-2px);
+}
+[data-appearance="clay"] .menu-card a:hover {
+  background-color: rgb(var(--clay-lavender) / 0.22);
+}
+
+/* Focus is a glow of the light source, never a gray ring. The strong
+   outline stays for assistive clarity; the glow is the glow up. */
+[data-appearance="clay"] :is(input, textarea, select):focus {
+  box-shadow:
+    inset 3px 3px 8px rgb(var(--clay-drop-h) / 0.2),
+    inset -3px -3px 8px rgb(255 255 255 / 0.9),
+    0 0 0 4px rgb(var(--clay-drop-h) / 0.28);
+}
+
+/* Selecting text smears lavender; the insertion point is coral. */
+[data-appearance="clay"] ::selection {
+  background: rgb(var(--clay-lavender) / 0.85);
+  color: rgb(var(--clay-ink));
+}
+[data-appearance="clay"] :is(input, textarea, [contenteditable]) {
+  caret-color: rgb(var(--clay-coral));
+}
+
+/* Headings sit tight — the spec's headings tighten to 0 — and links on
+   body text shift to the family hue on hover rather than a dead underline
+   drop. */
+[data-appearance="clay"] :is(h1, h2, h3, h4) {
+  letter-spacing: 0;
+}
+
+/* Reduced motion wins everywhere in the family, including these. */
+@media (prefers-reduced-motion: reduce) {
+  [data-appearance="clay"] :is(.btn, .btn-primary, .btn-secondary, .card-interactive, [class*="btn-"], .menu-card a) {
+    transition: none;
+  }
+}

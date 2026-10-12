@@ -166,6 +166,17 @@ export function Navbar() {
    */
   const [sheetMounted, setSheetMounted] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /*
+   * Hover opens; a click PINS. Without this the two gestures fight: the
+   * wrapper opens the menu on mouse-enter, so the very first click arrived
+   * at an already-open menu and ReadOnly-toggled it shut — from the
+   * visitor's side the button "needed a second click" to do anything.
+   * pinnedRef remembers the menu a click locked in place; hover-out never
+   * closes a pinned menu, an outside pointer-down un-pins, and the route
+   * change / Escape paths below clear it with the rest.
+   */
+  const pinnedMenu = useRef<string | null>(null);
+  const navListRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (mobileOpen) return; /* Mounting happens in the toggle handler itself. */
@@ -188,13 +199,29 @@ export function Navbar() {
   if (lastPath !== pathname) {
     setLastPath(pathname);
     setMobileOpen(false);
+    pinnedMenu.current = null;
     setOpenMenu(null);
   }
 
   // Escape closes the open surface.
+  // A pointer-down outside the bar closes whatever the bar opened.
+  useEffect(() => {
+    if (!openMenu) return;
+    const onPointer = (event: PointerEvent) => {
+      const list = navListRef.current;
+      if (list && !list.contains(event.target as Node)) {
+        pinnedMenu.current = null;
+        setOpenMenu(null);
+      }
+    };
+    document.addEventListener("pointerdown", onPointer);
+    return () => document.removeEventListener("pointerdown", onPointer);
+  }, [openMenu]);
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        pinnedMenu.current = null;
         setOpenMenu(null);
         setMobileOpen(false);
       }
@@ -275,7 +302,7 @@ export function Navbar() {
         <BuildStampChip t={t} className="lg:hidden" />
 
         {/* ── Desktop navigation ─────────────────────────────────── */}
-        <nav aria-label={t("Primary")} className={NAV_BAR}>
+        <nav ref={navListRef} aria-label={t("Primary")} className={NAV_BAR}>
           {entries.map((entry, index) => {
             const active = isActive(entry);
             const tier =
@@ -313,7 +340,20 @@ export function Navbar() {
                   type="button"
                   aria-expanded={open}
                   aria-haspopup="true"
-                  onClick={() => setOpenMenu(open ? null : entry.label)}
+                  onClick={() => {
+                    cancelClose();
+                    if (!open) {
+                      pinnedMenu.current = entry.label;
+                      setOpenMenu(entry.label);
+                    } else if (pinnedMenu.current === entry.label) {
+                      pinnedMenu.current = null;
+                      setOpenMenu(null);
+                    } else {
+                      /* Open BY HOVER — the click pins it, it does not slam shut. */
+                      pinnedMenu.current = entry.label;
+                      setOpenMenu(entry.label);
+                    }
+                  }}
                   className={cn(NAV_CARD, active || open ? NAV_CARD_ON : NAV_CARD_OFF)}
                 >
                   <NavGlyph path={navIcons[entry.label]} />
