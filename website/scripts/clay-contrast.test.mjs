@@ -52,7 +52,9 @@ const exact = (selector) => {
 const BASE = exact('[data-appearance="clay"]'); // midnight-first channels
 /* Daylight inherits the base channels and overrides its own. */
 const DAY = { ...BASE, ...exact('[data-theme="daylight"][data-appearance="clay"]') };
-const M = (sel) => scope(`html[data-theme="midnight"] [data-appearance="clay"] ${sel}`);
+/* Selectors were collapsed to the single-element form (both attrs ride on
+   <html>) — the spaced ancestor chain never matched in a live browser. */
+const M = (sel) => scope(`html[data-theme="midnight"][data-appearance="clay"] ${sel}`);
 
 const resolveVar = (vars, name, depth = 0) => {
   assert.ok(depth < 6, `var() chain too deep at ${name}`);
