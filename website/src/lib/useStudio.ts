@@ -849,6 +849,23 @@ function pastelGuard(hex: string) {
     pg += (255 - pg) * 0.3;
     pb += (255 - pb) * 0.3;
   }
+  /* …and saturation is capped too. The luma loop alone passes a neon pick:
+     #00FF00 is already at luminance ~199, so it used to flow straight into
+     --clay-lavender and flood every pool, band and plate with acid green
+     (the 16:29 screenshot). Plates are PASTEL by grammar — a family hue
+     over s ≈ 0.55 stops reading as clay and starts reading as a
+     highlighter. Clamp s ≤ 0.55 at a kept hue, floor the lightness so the
+     pastel registers, then re-check luma. */
+  const hsl = rgbToHsl({ r: pr, g: pg, b: pb });
+  if (hsl.s > 0.55) {
+    const softened = hslToRgb({ h: hsl.h, s: 0.55, l: Math.max(hsl.l, 0.84) });
+    [pr, pg, pb] = [softened.r, softened.g, softened.b];
+  }
+  for (let i = 0; i < 5 && lum() < 185; i++) {
+    pr += (255 - pr) * 0.3;
+    pg += (255 - pg) * 0.3;
+    pb += (255 - pb) * 0.3;
+  }
   return { r: pr, g: pg, b: pb };
 }
 

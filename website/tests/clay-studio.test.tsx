@@ -13,6 +13,7 @@
 
 import { describe, expect, it, beforeEach } from "vitest";
 import { applyStudioVars, CLAY_PRESETS, defaultStudio, STUDIO_STORAGE_KEY } from "@/lib/useStudio";
+import { rgbToHsl } from "@/lib/color";
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -45,6 +46,23 @@ describe("clay studio bench", () => {
     expect(0.2126 * r + 0.7152 * g + 0.0722 * b).toBeGreaterThanOrEqual(185);
     /* …and it keeps the pick's hue family: the violet stays violet. */
     expect(b).toBeGreaterThan(r);
+  });
+
+  it("THE NEON GUARD: a saturated pick is pulled soft, not just light", () => {
+    /* #00FF00 already sits at luminance ~199 — the luma-only guard used to
+       wave it through and every pool, band and plate flooded acid green
+       (the 16:29 daylight screenshot). A pastel plate family caps
+       saturation, so the bench moves but never screams. */
+    applyStudioVars({ ...defaultStudio, clayPreset: "custom", clayAccent: "#00ff00" });
+    const written = document.documentElement.style.getPropertyValue("--clay-lavender");
+    const chans = written.split(" ").map(Number);
+    const [r = 0, g = 0, b = 0] = chans;
+    const { s, h } = rgbToHsl({ r, g, b });
+    expect(s).toBeLessThanOrEqual(0.56);
+    expect(0.2126 * r + 0.7152 * g + 0.0722 * b).toBeGreaterThanOrEqual(185);
+    /* …and the hue family survives the softening: it is still green. */
+    expect(h).toBeGreaterThan(90);
+    expect(h).toBeLessThan(150);
   });
 
   it("the free plate slot takes the visitor's color", () => {

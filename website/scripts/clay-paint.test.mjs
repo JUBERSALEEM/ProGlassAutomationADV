@@ -122,7 +122,7 @@ const splitTop = (str, sep = ",") => {
 /* El = { tag, classes:Set, attrs:Map, childIndex (1-based, null = n/a) } */
 const compoundMatches = (compound, el) => {
   // tokenize one compound selector
-  const re = /(\*|[a-zA-Z][\w-]*|\.[\w-]+|\[[^\]]+\]|::?[\w-]+(?:\([^)]*\))?)/g;
+  const re = /(\*|[a-zA-Z][\w-]*|\.(?:[\w-]|\\.)+|\[[^\]]+\]|::?[\w-]+(?:\([^)]*\))?)/g;
   let m;
   let any = false;
   while ((m = re.exec(compound))) {
@@ -130,7 +130,12 @@ const compoundMatches = (compound, el) => {
     any = true;
     if (tok === "*") continue;
     if (tok.startsWith(".")) {
-      if (!el.classes.has(tok.slice(1))) return false;
+      /* Built CSS escapes carrier classes: .text-brand-200\/90. The harness
+         hand-feeds the real DOM class ("text-brand-200/90"), so peel the
+         backslash before comparing — otherwise class selectors silently
+         miss and elements render with inherited colour, painting a probe
+         "green" for a variant its product classes never apply to. */
+      if (!el.classes.has(tok.slice(1).replace(/\\(.)/g, "$1"))) return false;
       continue;
     }
     if (tok.startsWith("[")) {
@@ -191,7 +196,7 @@ const specificityOf = (compound) => {
   let a = 0;
   let b = 0;
   let c = 0;
-  const re = /(\*|[a-zA-Z][\w-]*|\.[\w-]+|\[[^\]]+\]|::?[\w-]+(?:\([^)]*\))?)/g;
+  const re = /(\*|[a-zA-Z][\w-]*|\.(?:[\w-]|\\.)+|\[[^\]]+\]|::?[\w-]+(?:\([^)]*\))?)/g;
   let m;
   while ((m = re.exec(compound))) {
     const tok = m[1];

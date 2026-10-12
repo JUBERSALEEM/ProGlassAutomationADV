@@ -2455,3 +2455,21 @@ html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-r
   --text-4: 66 59 92;
   color: rgb(var(--text-2));
 }
+
+/* ═══ §20 · BRAND TEXT ON LIFTED FOILS — the invisible file names ═══════
+   The §9 foil lift turns bg-ink and bg-white chips into the clay foil
+   (light lavender by day, deep plum at night). But any text class from
+   the brand scale — text-brand-200 and kin, authored as LIGHT INK FOR
+   DARK GROUNDS — survives the lift, and lavender-on-lavender is the
+   "file names are invisible" report of the 16:29 screenshot. On clay,
+   the tier system already flips per mode (plum by day, near-white at
+   night), so brand-tinted text on a lifted foil resolves through
+   --text-2 instead. Same-element chips (.bg-ink-950/60 carrying
+   .text-brand-200/90) and descendant labels are both covered. Darker
+   brand inks (600/700) lose only their violet tint here — they land on
+   the same readable plums.                                            */
+[data-appearance="clay"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"])[class*="text-brand-"],
+[data-appearance="clay"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]) [class*="text-brand-"],
+[data-appearance="clay"] [class*="bg-brand-"][class*="text-brand-"] {
+  color: rgb(var(--text-2));
+}
