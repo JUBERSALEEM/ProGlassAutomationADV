@@ -669,6 +669,11 @@ export function applyStudioVars(studio: Studio) {
     vars["--card-tint-h"] = triplet(whisper);
     vars["--card-tint-h2"] = triplet(analogue);
     vars["--clay-wash"] = (0.12 * studio.tint).toFixed(3);
+    /* §17 zone plates: the feature card takes the bench's first plate (or
+       the hand-picked house plate when one is set), and the calm lit bands
+       take a foil twisted to the bench hue at the foil's own 94% light. */
+    vars["--panel-face"] = studio.clayAccent ? vars["--clay-lavender"]! : bench["--plate-1"];
+    vars["--band-face"] = triplet(hslToRgb({ h: benchHue, s: 0.35, l: 0.945 }));
     vars["--pool-1"] = `rgb(${triplet(drop)} / ${target === "dark" ? 0.1 : 0.13})`;
     vars["--pool-2"] = `rgb(${triplet(hslToRgb({ h: (benchHue + 38) % 360, s: 0.7, l: 0.7 }))} / ${target === "dark" ? 0.05 : 0.1})`;
     vars["--pool-3"] = `rgb(${triplet(hslToRgb({ h: (benchHue + 322) % 360, s: 0.7, l: 0.72 }))} / ${target === "dark" ? 0.045 : 0.09})`;

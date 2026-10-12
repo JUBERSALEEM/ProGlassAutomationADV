@@ -697,23 +697,60 @@ html[data-theme="midnight"][data-appearance="clay"] {
     inset 4px 4px 8px var(--clay-hi),
     inset -6px -6px 12px var(--clay-lo);
 }
-/* The accent card was accent-FILLED glass; on clay it is the lavender
-   plate's sibling with card altitude, plum ink throughout. */
+/* The accent card was accent-FILLED glass; on clay it is a zone plate —
+   it reads `--panel-face` so the bench recolours it (§17), house default
+   being the lavender plate it has always worn. */
 [data-appearance="clay"] .card-accent {
-  background-color: rgb(var(--clay-lavender));
+  background-color: rgb(var(--panel-face));
   background-image: none;
   box-shadow: 12px 12px 30px rgb(var(--clay-drop-h) / 0.38),
     -9px -9px 22px rgb(255 255 255 / 0.5),
     inset 5px 5px 10px rgb(255 255 255 / 0.5),
-    inset -7px -7px 14px rgb(92 60 220 / 0.26);
+    inset -7px -7px 14px rgb(var(--clay-drop-h) / 0.26);
   --text-1: var(--clay-ink);
   color: rgb(var(--text-1));
 }
-/* The facts strip and the lit band: calm family surfaces, no neon. */
+/* §17.1 The lit bands take the calm zone plate: `--band-face` defaults to
+   the shipped foil, and the bench writes a twisted one for a preset. */
 [data-appearance="clay"] .band-solid {
-  background-color: rgb(var(--clay-foil));
+  background-color: rgb(var(--band-face));
   background-image: none;
   box-shadow: inset 0 2px 10px rgb(var(--clay-drop-h) / 0.12);
+}
+/* §17.2 A divided sheet of rows (the FAQ accordion, spec ledgers) is the
+   bench's most visible demo: rows carry the plates in rotation, thin
+   enough that the row's plum ink never moves (they are washes at 16%,
+   gated by design to stay under the text locks). */
+[data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+1) {
+  background-color: rgb(var(--plate-1) / 0.32);
+}
+[data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+2) {
+  background-color: rgb(var(--plate-2) / 0.32);
+}
+[data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+3) {
+  background-color: rgb(var(--plate-3) / 0.32);
+}
+[data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+4) {
+  background-color: rgb(var(--plate-4) / 0.32);
+}
+/* At midnight the rows are on a dark raised card — the same rotation at a
+   silk-screen depth, so the zone stays dark ground and the bench still
+   shows. Written as the plain selector list form (D22: the source-level
+   gate's :is() merge would read this as a midnight-global token view).   */
+html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > * {
+  background-color: transparent;
+}
+html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+1) {
+  background-color: rgb(var(--plate-1) / 0.13);
+}
+html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+2) {
+  background-color: rgb(var(--plate-2) / 0.13);
+}
+html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+3) {
+  background-color: rgb(var(--plate-3) / 0.13);
+}
+html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+4) {
+  background-color: rgb(var(--plate-4) / 0.13);
 }
 [data-appearance="clay"] .band-rich {
   background-color: rgb(var(--clay-lavender));
@@ -1909,6 +1946,14 @@ html[data-theme="midnight"][data-appearance="clay"] .panel-feature {
   --card-tint-h: 158 145 240;
   --card-tint-h2: 250 196 150;
   --clay-wash: 0.1;
+  /* §17 Zone plates — the big cards the bench also owns. `--panel-face`
+     colours the feature/CTA card (defaults to the house plate; the studio
+     writes the bench's first plate here); `--band-face` colours the calm
+     lit bands (defaults to the shipped foil). Registering them as tokens
+     is what makes the studio able to move these surfaces at all: nothing
+     outside a token can follow a preset, so nothing here is a literal.    */
+  --panel-face: var(--clay-lavender);
+  --band-face: var(--clay-foil);
 }
 
 [data-appearance="clay"] :is(.plate-1, .plate-2, .plate-3, .plate-4, .plate-5, .plate-6, .plate-custom) {

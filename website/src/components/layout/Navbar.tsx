@@ -15,6 +15,7 @@ import { LanguageMenu, LanguageMenuBlock } from "@/components/layout/LanguageMen
 import { BuildStampChip, BuildStampPill, BuildStampRow } from "@/components/layout/BuildStamp";
 import { Logo } from "@/components/brand/Logo";
 import { useT } from "@/i18n/provider";
+import { pathWithoutLocale } from "@/i18n/core";
 
 type NavChild = { label: string; href: string; description?: string };
 type NavEntry = { label: string; href?: string; children?: NavChild[] };
@@ -140,6 +141,16 @@ function NavGlyph({ path }: { path?: string }) {
 export function Navbar() {
   const t = useT();
   const pathname = usePathname();
+  /*
+   * `usePathname` returns the URL as the browser speaks it, and every route
+   * in this app lives under /[locale]/ — so the first segment is the
+   * language, not a page. Comparing raw, `isActive` matched nothing beyond
+   * "/", which meant: no `aria-current` on the bar, and the clay bar's
+   * indicator (§15) had no current page to rest on — it only appeared
+   * under the pointer. The LanguageMenu already strips with
+   * `pathWithoutLocale`; the bar must do the same.
+   */
+  const barePath = pathWithoutLocale(pathname ?? "");
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -222,12 +233,21 @@ export function Navbar() {
   };
   useEffect(() => {
     /* Route changes re-seat the pill; fonts and the tier ladder can move
-       items too, so measure again after paint and on resize. */
+       items too, so measure again after paint and on resize. The late pass
+       is the one the reference bar (the NavClay pack: a pill pinned to the
+       active index, its demo cycle off) gets for free with widths baked at
+       load: our labels are re-typeset when the overlay dictionary lands,
+       so the first measurement can stale before fonts/overlay finish —
+       settle once more on the next microtask wave and once when the
+       document's fonts report ready. */
     const settle = () => settleIndicator();
     const frame = requestAnimationFrame(settle);
+    const late = window.setTimeout(settle, 420);
+    document.fonts?.ready.then(settle).catch(() => undefined);
     window.addEventListener("resize", settle);
     return () => {
       cancelAnimationFrame(frame);
+      clearTimeout(late);
       window.removeEventListener("resize", settle);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -300,8 +320,10 @@ export function Navbar() {
   }, [mobileOpen]);
 
   const isActive = (entry: NavEntry) => {
-    if (entry.href) return pathname === entry.href || pathname.startsWith(`${entry.href}/`);
-    return entry.children?.some((c) => pathname === c.href || pathname.startsWith(`${c.href}/`)) ?? false;
+    if (entry.href) return barePath === entry.href || barePath.startsWith(`${entry.href}/`);
+    return (
+      entry.children?.some((c) => barePath === c.href || barePath.startsWith(`${c.href}/`)) ?? false
+    );
   };
 
   const scheduleClose = () => {
@@ -670,6 +692,14 @@ export function Navbar() {
                 {entry.href ? (
                   <Link
                     href={entry.href}
+                    /* The open page must be inked on the sheet without a
+                       gesture — the same current-page story the clay bar
+                       tells at rest (§15). */
+                    aria-current={
+                      barePath === entry.href || barePath.startsWith(`${entry.href}/`)
+                        ? "page"
+                        : undefined
+                    }
                     className="flex items-center justify-between border-b border-line/50 pb-2 text-base font-semibold text-text-primary"
                   >
                     {t(entry.label)}
@@ -685,6 +715,11 @@ export function Navbar() {
                         <li key={child.href}>
                           <Link
                             href={child.href}
+                            aria-current={
+                              barePath === child.href || barePath.startsWith(`${child.href}/`)
+                                ? "page"
+                                : undefined
+                            }
                             className="card-interactive group flex items-start gap-3 rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2.5"
                           >
                             <span

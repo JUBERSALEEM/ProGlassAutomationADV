@@ -109,7 +109,32 @@ describe("§16 — the bench recolors the whole system", () => {
   it("a hand-picked accent steers the whole system, not just the plates", () => {
     applyStudioVars({ ...defaultStudio, clayPreset: "custom", clayAccent: "#2f9e44" });
     const drop = document.documentElement.style.getPropertyValue("--clay-drop-h");
-    const [r = 0, g = 0, b = 0] = drop.split(" ").map(Number);
+    const [r = 0, g = 0] = drop.split(" ").map(Number);
     expect(g).toBeGreaterThan(r); /* green hand, green shadows */
+  });
+
+  it("§17 zone plates: the feature card and lit bands take the bench too", () => {
+    applyStudioVars({ ...defaultStudio, clayPreset: "lagoon" });
+    expect(document.documentElement.style.getPropertyValue("--panel-face")).toBe(
+      CLAY_PRESETS.lagoon.tokens["--plate-1"],
+    );
+    /* the band face is a foil, twisted to the bench hue but kept pale */
+    const band = document.documentElement.style.getPropertyValue("--band-face");
+    expect(band).not.toBe("");
+    const [r = 0, g = 0, b = 0] = band.split(" ").map(Number);
+    expect(0.2126 * r + 0.7152 * g + 0.0722 * b).toBeGreaterThanOrEqual(230);
+  });
+
+  it("a hand-picked house plate becomes the feature card's face", () => {
+    applyStudioVars({ ...defaultStudio, clayPreset: "custom", clayAccent: "#dc8327" });
+    expect(document.documentElement.style.getPropertyValue("--panel-face")).toBe(
+      document.documentElement.style.getPropertyValue("--clay-lavender"),
+    );
+  });
+
+  it("house still writes none of the zone-plate tokens", () => {
+    applyStudioVars(defaultStudio);
+    expect(document.documentElement.style.getPropertyValue("--panel-face")).toBe("");
+    expect(document.documentElement.style.getPropertyValue("--band-face")).toBe("");
   });
 });
