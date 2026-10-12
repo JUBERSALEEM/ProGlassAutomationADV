@@ -45,7 +45,7 @@
  *   cyan corners are what sell glass on paper, not the translucency.
  * <option> is excluded: it belongs to the OS popup, not the page's room.
  */
-[data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+[data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
   background-color: rgb(var(--ink-900) / 0.66);
   background-image:
     var(--glass-frost),
@@ -58,7 +58,7 @@
     inset 0 -1px 0 0 var(--glass-edge-dark);
 }
 
-[data-theme="daylight"][data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+[data-theme="daylight"][data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
   /* §C8 pass, user-signed: daylight fill 0.86 → 0.74 — the pattern's own
      light-glass weight (the pink reference). The scrim in §C7 catches what
      the fill returns (0.60 → 0.68) and the contract re-floored every
@@ -71,12 +71,12 @@
 
 /* §C1f · The lift, blur-less: fills rise, gradients drop, text survives. */
 @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
-  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
     background-color: rgb(var(--ink-900) / 0.94);
     background-image: none;
   }
 
-  [data-theme="daylight"][data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+  [data-theme="daylight"][data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
     background-color: rgb(var(--ink-900) / 0.97);
     background-image: none;
   }
@@ -248,7 +248,7 @@
 
 /* The lift carries the light: every utility carrier (chips, wells, code,
    pills, cards) takes the cursor's wash as its TOP layer. */
-[data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+[data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
   background-image:
     var(--glass-catch),
     var(--glass-frost),
@@ -260,7 +260,7 @@
    the catch light drops with them. The pointer keeps writing — harmless —
    and §C1f keeps painting exactly what it painted in G1. */
 @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
-  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
     background-image: none;
   }
 }
@@ -308,7 +308,7 @@
    engine owns the right to refuse it; the view-chill animation roster is
    the clay §11.12 pattern, verbatim in shape. */
 @media (prefers-reduced-motion: reduce) {
-  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
     background-image:
       var(--glass-frost),
       linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),
@@ -498,7 +498,7 @@
    stays 0.86: daylight's glassiness comes from the pastel wall, not from
    transparency, and the 0.80 doctrine (G4) holds. */
 @supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
-  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
     background-color: rgb(var(--ink-900) / 0.50);
     backdrop-filter: blur(calc(18px * var(--glass-frost-mult, 1))) saturate(180%);
     -webkit-backdrop-filter: blur(calc(18px * var(--glass-frost-mult, 1))) saturate(180%);
