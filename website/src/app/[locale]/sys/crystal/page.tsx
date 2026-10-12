@@ -245,6 +245,28 @@ export default async function CrystalCatalogPage({ params }: PageProps) {
         </Container>
       </Section>
 
+      {/* ── 6.7 · The ornaments (§C9): rings + volumetric orbs + spectrum ── */}
+      <Section aria-labelledby="cat-ornaments" className="!py-6">
+        <Container>
+          <h2 id="cat-ornaments" className="card-title mb-4">{t("The ornaments — rings, orbs, spectrum (§C9/§C13)")}</h2>
+          <div className="plate relative h-44 overflow-hidden">
+            <div className="aurora-field">
+              <span className="decor decor-ring" style={{ left: "6%", top: "18%", width: 92, height: 92 }} />
+              <span className="decor decor-ring" style={{ left: "58%", top: "8%", width: 54, height: 54 }} />
+              <span className="decor decor-orb" style={{ left: "30%", top: "26%", width: 116, height: 116 }} />
+              <span className="glass-sphere" style={{ position: "absolute", left: "76%", top: "22%", width: 72, height: 72 }} />
+            </div>
+            <div className="relative z-10 flex h-full items-center justify-center gap-3">
+              <div className="menu-card rounded-panel px-5 py-4">
+                <p className="mono-label !text-[0.6rem]">frost over ornaments</p>
+                <p className="mt-1 text-sm text-text-secondary">{t("Rings and spheres smear under 18px of frost — the screenshots' first grammar, now ours.")}</p>
+              </div>
+              <button type="button" className="btn btn-primary btn-sm">{t("Spectrum primary — §C13")}</button>
+            </div>
+          </div>
+        </Container>
+      </Section>
+
       {/* ── 7 · Notes for the reviewer ─────────────────────────────── */}
       <Section aria-labelledby="cat-notes" className="!py-6 pb-14">
         <Container>

@@ -4182,3 +4182,50 @@ body {
 [data-theme="daylight"]:not([data-appearance="clay"]) [class*="bg-brand-"][class*="text-brand-"] {
   color: rgb(var(--brand-600));
 }
+
+/* ═══ §C9 · decor primitives (glassmorphism ornaments) ════════════════════
+ *
+ * What the references paint behind every card: glowing donut RINGS and
+ * VOLUMETRIC orbs. Grammar is global and value-less — a family that does
+ * not opt in renders nothing; the crystal engine fills the paint in §C9
+ * values. Kinds: .decor-ring (thin luminous circle), .decor-orb (sphere
+ * with specular + rim), .decor-dot (small ticker dot), .decor-pill (soft
+ * dash, seen in the pink reference's separators).
+ */
+.aurora-field .decor {
+  position: absolute;
+  pointer-events: none;
+}
+.aurora-field .decor-ring {
+  border-radius: 999px;
+  border: var(--decor-ring-w, 2px) solid var(--decor-1, transparent);
+  box-shadow: 0 0 18px -4px var(--decor-1, transparent),
+    inset 0 0 14px -6px rgb(255 255 255 / 0.5);
+}
+.aurora-field .decor-orb {
+  border-radius: 999px;
+  background-image:
+    radial-gradient(120% 120% at 30% 24%, rgb(255 255 255 / 0.55), transparent 38%),
+    radial-gradient(120% 120% at 50% 50%, var(--decor-2, transparent), var(--decor-3, transparent) 70%),
+    radial-gradient(140% 140% at 50% 118%, var(--decor-rim, transparent), transparent 44%);
+}
+.aurora-field .decor-pill {
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--decor-1, transparent), var(--decor-2, transparent));
+}
+
+/* ═══ §C9 · glass sphere (the saucer/orb marker family) ═══════════════════
+ *
+ * The pink reference's language of floating bubbles: a volumetric sphere
+ * whose own specular + rim is STRONGER than the wallpaper's decor tokens
+ * permit, so that when it is chilled by the lift's frost above it, the
+ * frosted image still reads as a sphere smeared on glass — not as a murmur.
+ * Grammar global, paint default-empty — the crystal engine fills it.
+ */
+.glass-sphere {
+  border-radius: 999px;
+  background-image:
+    radial-gradient(120% 120% at 30% 24%, rgb(255 255 255 / 0.62), transparent 34%),
+    radial-gradient(120% 120% at 50% 50%, var(--decor-2, transparent), var(--decor-3, transparent) 68%),
+    radial-gradient(140% 140% at 50% 118%, var(--decor-rim, transparent), transparent 46%);
+}

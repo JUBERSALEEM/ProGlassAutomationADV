@@ -613,3 +613,60 @@
     0 14px 34px -16px rgb(2 1 10 / 0.5),
     inset 0 1px 1px 0 rgb(255 255 255 / 0.18);
 }
+
+/* ═══ §C9 · THE ORNAMENTED WALLPAPER (reference match, phase 1 of 5) ═══
+ *
+ * The screenshots' first difference is not the cards — it is what sits
+ * BEHIND the cards: luminous donut rings, volumetric orbs, ticker dots.
+ * Grammar global and empty (globals.css §C9); the crystal family paints
+ * every value here — clay's paint var(--decor-*) stays default/empty.
+ */
+[data-appearance="crystal"] .decor, [data-appearance="crystal"] .glass-sphere {
+  --decor-1: rgb(var(--brand-400) / 0.62);
+  --decor-2: rgb(var(--brand-500) / 0.80);
+  --decor-3: rgb(var(--brand-700) / 0.92);
+  --decor-rim: rgb(6 2 22 / 0.35);
+}
+[data-theme="daylight"][data-appearance="crystal"] .decor,
+[data-theme="daylight"][data-appearance="crystal"] .glass-sphere {
+  --decor-1: rgb(158 87 181 / 0.38);
+  --decor-2: rgb(233 144 196 / 0.72);
+  --decor-3: rgb(166 96 208 / 0.80);
+  --decor-rim: rgb(121 62 152 / 0.22);
+}
+[data-appearance="crystal"] .decor-ring {
+  box-shadow: 0 0 22px -2px var(--decor-1),
+    inset 0 0 12px -4px rgb(255 255 255 / 0.65);
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-appearance="crystal"] .aurora-field .decor-orb,
+  [data-appearance="crystal"] .aurora-field .glass-sphere {
+    animation: decor-orb-breathe 9s ease-in-out infinite alternate;
+  }
+}
+@keyframes decor-orb-breathe {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to { transform: scale(1.055) translate3d(0, -1.5%, 0); }
+}
+
+/* ═══ §C13 · SPECTRUM PRIMARY (reference match: the teal→violet grad) ════
+ *
+ * The fintech reference's pills are not the brand's own hue sharpened —
+ * they are a SPECTRUM: they enter in the family's hue and exit one stop
+ * over the scale's violet shoulder. Grammar: two tokens, crystal fills
+ * them; the facet/shadow grammar of §C8 is untouched.
+ */
+[data-appearance="crystal"] {
+  --glass-spectrum-1: rgb(var(--brand-400));
+  --glass-spectrum-2: rgb(118 92 226 / 1);
+}
+[data-theme="daylight"][data-appearance="crystal"] {
+  --glass-spectrum-1: rgb(217 70 239 / 1);
+  --glass-spectrum-2: rgb(124 58 237 / 1);
+}
+[data-appearance="crystal"] .btn-primary {
+  background-image: linear-gradient(155deg, var(--glass-spectrum-1) 0%, var(--glass-spectrum-2) 55%, rgb(var(--brand-700)) 100%);
+}
+[data-appearance="crystal"] .support-launcher {
+  background-image: linear-gradient(155deg, var(--glass-spectrum-1) 0%, var(--glass-spectrum-2) 55%, rgb(var(--brand-700)) 100%);
+}
