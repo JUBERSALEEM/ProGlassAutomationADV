@@ -4,7 +4,8 @@ Owner loop: **Inspect → Implement → Build → Run → Screenshot → Compare
 Fix → Retest → Update progress → Continue.**
 Spec authority: `docs/CLAYMORPHISM.md` + reference boards (img-1..8).
 Engine: `src/app/clay-engine.css` (imported last, fully isolated to
-`[data-appearance="clay"]`). Latest milestone: **primitives layer shipped**.
+`[data-appearance="clay"]`). Latest milestone: **§7 fullness pass + live face
+boards at `/clay-faces.html`**.
 
 ---
 
@@ -81,11 +82,14 @@ layout (Navbar, Footer/band-deep, Menu sheet, SupportBubble, ThemeStudio).
 | D2 | db03d88 (user screenshots) | white-on-white insider cards, violet chrome slabs, un-clayed utility fills | Screenshots\_20261012\_0206\*\* | engine 3f61ffe floors all utilities |
 | D3 | pre-primitives | 9.6px-radius icon tiles, metric cards monochromatic white, invisible active nav mark, pale expanded pin text | class audit | primitives layer shipped |
 | D4 | open | pixel-verification gap (no browser here) | environment | needs on-device review; preview + Vercel |
+| D5 | 40/100 review (user) | named-class registry baked ink fills beyond the bg-ink sweep: .menu-card, .plate, .float-card, .card-live, .card-glass, .band-solid, .band-rich, .panel-feature, .nav-pill, .spine-node, .mpane\_\_\*, .mat-rail\_\_chip | class-level grep of all baked backgrounds | §7.4: full registry on recipe |
+| D6 | 40/100 review (user) | aurora wallpaper too loud for boards' calm ground; gradient clip-ink headlines; 2px strokes on the material; pastel rotation too faint | boards + tokens grep | §7.1–§7.5 |
+| D7 | §7 | buttons w/o presence; status chips translucent ghosts | boards | §7.6–§7.7 |
 
 ## E. Current gate results (this build)
 
 - tsc 0 · eslint 0 · `test:job-orders` 8/8 · build 399/399
-- audit 0 failures / 0 warnings; css ≤30K budget (was 27.9K/28K before primitives)
+- audit 0 failures / 0 warnings; css budget re-measured per trail: 27.0 → 27.9 (engine) → 28.2 (primitives) → see commit message of the §7 pass for current
 
 ## F. Next exact tasks (resume here)
 

@@ -582,3 +582,215 @@ html[data-theme="midnight"] [data-appearance="clay"] .nav-glass [class*="bg-ink"
   --text-3: 215 208 241;
   --text-4: 194 185 226;
 }
+
+
+/* ═══ §7 · THE FULLNESS PASS — what reads 40/100, made whole ═══
+   Cross-checked against the boards: the family reached every route at the
+   floor, but four system-level masses still spoke flat-UI vocabulary, and
+   an entire registry of NAMED classes baked ink backgrounds into globals
+   that the bg-ink-* utility sweep could never match by class name. This
+   section flattens the wallpaper to one whisper, retires gradient ink
+   everywhere, un-strokes the material, saturates the stat rotation to the
+   boards' values, and puts every named class on the recipe — menus,
+   frames, preview panes, facts strips, floating cards, band variants,
+   the Features exhibit panes, all of them. */
+
+/* §7.1 The wallpaper whispers. The boards' pages are one calm tinted
+   ground; the countdown is over for the aurora's three loud pools. */
+[data-appearance="clay"] {
+  --aurora-1: rgb(var(--clay-lavender) / 0.5);
+  --aurora-2: rgb(var(--clay-peach) / 0.2);
+  --aurora-3: rgb(255 255 255 / 0);
+}
+[data-theme="daylight"][data-appearance="clay"] {
+  --aurora-1: rgb(var(--clay-lavender) / 0.16);
+  --aurora-2: rgb(var(--clay-peach) / 0.09);
+  --aurora-3: rgb(255 255 255 / 0);
+  /* The live-preview graph paper reads in violet light, not neon. */
+  --viz-grid: rgb(140 108 255 / 0.22);
+  --viz-part: rgb(142 124 242 / 0.6);
+  --viz-part-2: rgb(var(--clay-coral) / 0.8);
+  --viz-scrap: rgb(var(--clay-pink) / 0.7);
+  --viz-plate: rgb(239 234 252);
+}
+/* Midnight keeps the pools at half voice on the plum ground. */
+html[data-theme="midnight"] [data-appearance="clay"] {
+  --viz-grid: rgb(140 108 255 / 0.3);
+  --viz-part: rgb(166 148 250 / 0.75);
+  --viz-part-2: rgb(var(--clay-coral) / 0.85);
+  --viz-scrap: rgb(var(--clay-pink) / 0.5);
+  --viz-plate: rgb(46 34 62);
+}
+
+/* §7.2 Solid ink headlines. Every heading on the boards is one confident
+   plum voice; the brand-gradient clip-ink was flat-UI jewellery. */
+[data-appearance="clay"] .text-gradient,
+[data-appearance="clay"] .text-gradient-rich {
+  background-image: none !important;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  color: rgb(var(--text-1));
+  -webkit-text-fill-color: rgb(var(--text-1));
+}
+
+/* §7.3 Clay is edged by light, never stroke. Globals banks a 2px edge on
+   every tier via --card-edge-width; under this family the edge colour of
+   the whole material registry goes transparent (fabric preserved: the
+   width stays, so no layout shifts). */
+[data-appearance="clay"] :is(.surface, .surface-raised, .stat-tile, .glass-primary,
+  .nav-glass, .nav-sheet, .band-deep, .band-solid, .band-rich, .menu-card,
+  .plate, .card-live, .card-accent, .float-card, .card-glass, .panel-feature,
+  .mpane__glass, .mpane__glass--lead, .mpane__badge, .mpane__stage-caption,
+  .mat-rail__chip) {
+  border-color: transparent;
+}
+
+/* §7.4 The named registry, on the recipe. Every class below once carried a
+   baked ink fill the utility sweep could not see; each now names its own
+   clay tier, and the Features exhibit panes — the site's prize exhibit —
+   read as clay tiles, not glass shards. */
+[data-appearance="clay"] .nav-pill {
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  border-color: transparent;
+  box-shadow: var(--shadow-panel),
+    inset 3px 3px 7px var(--clay-hi),
+    inset -4px -4px 8px var(--clay-lo);
+}
+[data-appearance="clay"] .card-live,
+[data-appearance="clay"] .float-card,
+[data-appearance="clay"] .card-glass {
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  box-shadow: var(--shadow-raised),
+    inset 4px 4px 8px var(--clay-hi),
+    inset -6px -6px 12px var(--clay-lo);
+}
+[data-appearance="clay"] .menu-card {
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  border-color: transparent;
+  box-shadow: var(--shadow-raised),
+    inset 3px 3px 7px var(--clay-hi),
+    inset -5px -5px 10px var(--clay-lo);
+}
+/* The product frame — every module preview and screenshot lives inside. */
+[data-appearance="clay"] .plate {
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  box-shadow: var(--shadow-raised),
+    inset 4px 4px 8px var(--clay-hi),
+    inset -6px -6px 12px var(--clay-lo);
+}
+/* The accent card was accent-FILLED glass; on clay it is the lavender
+   plate's sibling with card altitude, plum ink throughout. */
+[data-appearance="clay"] .card-accent {
+  background-color: rgb(var(--clay-lavender));
+  background-image: none;
+  box-shadow: 12px 12px 30px rgb(var(--clay-drop-h) / 0.38),
+    -9px -9px 22px rgb(255 255 255 / 0.5),
+    inset 5px 5px 10px rgb(255 255 255 / 0.5),
+    inset -7px -7px 14px rgb(92 60 220 / 0.26);
+  --text-1: var(--clay-ink);
+  color: rgb(var(--text-1));
+}
+/* The facts strip and the lit band: calm family surfaces, no neon. */
+[data-appearance="clay"] .band-solid {
+  background-color: rgb(var(--clay-foil));
+  background-image: none;
+  box-shadow: inset 0 2px 10px rgb(var(--clay-drop-h) / 0.12);
+}
+[data-appearance="clay"] .band-rich {
+  background-color: rgb(var(--clay-lavender));
+  background-image: none;
+  --text-1: var(--clay-ink);
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+  box-shadow: var(--shadow-panel),
+    inset 4px 4px 8px rgb(255 255 255 / 0.4),
+    inset -6px -6px 12px rgb(92 60 220 / 0.22);
+}
+[data-appearance="clay"] .band-rich .btn-primary {
+  border-color: transparent;
+  background-color: rgb(252 250 255);
+  color: rgb(var(--brand-700));
+  box-shadow: 8px 8px 18px rgb(92 60 220 / 0.3),
+    inset 3px 3px 6px rgb(255 255 255 / 0.9),
+    inset -4px -4px 8px rgb(var(--brand-700) / 0.2);
+}
+/* The tinted feature panel joins the pastel bench; plum inks stay. */
+[data-appearance="clay"] .panel-feature {
+  background-color: rgb(232 226 253);
+  background-image: none;
+  box-shadow: var(--shadow-panel),
+    inset 4px 4px 8px rgb(255 255 255 / 0.6),
+    inset -6px -6px 12px rgb(var(--clay-drop-h) / 0.2);
+}
+/* The story spine's nodes are little clay beads. */
+[data-appearance="clay"] .spine-node {
+  background-color: rgb(var(--clay-lavender));
+  box-shadow: 2px 2px 6px rgb(var(--clay-drop-h) / 0.4),
+    inset 1px 1px 3px rgb(255 255 255 / 0.6),
+    inset -2px -2px 4px rgb(92 60 220 / 0.3);
+}
+/* The Features exhibit: panes re-materialize — the lead pane is a raised
+   clay window, the glass stage panes are foils, badge and caption are
+   chips, the rail chip is a quiet tile. The index numbers keep their ink. */
+[data-appearance="clay"] .mpane__glass {
+  background-color: rgb(var(--clay-foil));
+  background-image: none;
+  box-shadow: 6px 6px 16px rgb(var(--clay-drop-h) / 0.22),
+    inset 3px 3px 7px rgb(255 255 255 / 0.6),
+    inset -4px -4px 9px rgb(var(--clay-drop-h) / 0.16);
+}
+[data-appearance="clay"] .mpane__glass--lead {
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  box-shadow: var(--shadow-raised),
+    inset 4px 4px 8px var(--clay-hi),
+    inset -6px -6px 12px var(--clay-lo);
+}
+[data-appearance="clay"] .mpane__badge,
+[data-appearance="clay"] .mpane__stage-caption,
+[data-appearance="clay"] .mat-rail__chip {
+  background-color: rgb(var(--clay-lavender) / 0.9);
+  background-image: none;
+  color: rgb(var(--clay-ink));
+  box-shadow: 3px 3px 8px rgb(var(--clay-drop-h) / 0.3),
+    inset 2px 2px 4px rgb(255 255 255 / 0.55),
+    inset -2px -2px 5px rgb(92 60 220 / 0.2);
+}
+
+/* §7.5 The boards' saturation, on the numbers. The first rotation tinted
+   too cautiously; these are the metric-card values from the boards
+   themselves — unmistakably saturated pastels, plum motives on top. */
+[data-appearance="clay"] .stat-tile:nth-child(4n+1) { background-color: rgb(206 196 255); }
+[data-appearance="clay"] .stat-tile:nth-child(4n+2) { background-color: rgb(187 232 201); }
+[data-appearance="clay"] .stat-tile:nth-child(4n+3) { background-color: rgb(255 214 192); }
+[data-appearance="clay"] .stat-tile:nth-child(4n+4) { background-color: rgb(188 216 240); }
+
+/* §7.6 The verb has presence: primaries carry the reference's height so
+   the one action per view reads at a glance. */
+[data-appearance="clay"] .btn-primary {
+  min-height: 3rem;
+}
+
+/* §7.7 Status chips are solid pastel pills with plum-strong ink, exactly
+   as the boards' Active/Pending/Archived pins — not translucent ghosts. */
+[data-appearance="clay"] [class*="bg-state-success"],
+[data-appearance="clay"] [class*="bg-money-positive"],
+[data-appearance="clay"] [class*="bg-state-positive"] {
+  background-color: rgb(var(--clay-mint) / 0.75);
+}
+[data-appearance="clay"] [class*="bg-state-warning"] {
+  background-color: rgb(var(--clay-lemon) / 0.85);
+}
+[data-appearance="clay"] [class*="bg-state-danger"] {
+  background-color: rgb(var(--clay-coral) / 0.4);
+}
+
+/* §7.8 The grain stays low and the drift stays slow — clay is matte-soft,
+   not noisy; nothing to change, this comment says so deliberately so the
+   next pass does not re-audit it. */
