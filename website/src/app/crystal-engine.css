@@ -59,7 +59,11 @@
 }
 
 [data-theme="daylight"][data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
-  background-color: rgb(var(--ink-900) / 0.86);
+  /* §C8 pass, user-signed: daylight fill 0.86 → 0.74 — the pattern's own
+     light-glass weight (the pink reference). The scrim in §C7 catches what
+     the fill returns (0.60 → 0.68) and the contract re-floored every
+     daylight tier below in the same move. */
+  background-color: rgb(var(--ink-900) / 0.74);
   box-shadow: 0 0 0 1px var(--glass-line),
     inset 0 1px 0 0 var(--glass-edge-light),
     inset 0 -1px 0 0 var(--glass-edge-dark);
@@ -367,14 +371,18 @@
 [data-theme="daylight"][data-appearance="crystal"] {
   --surface-blur-base: 28px;
   --surface-specular-base: 0.34;
-  --surface-alpha-base: 0.82;
-  --surface-alpha-base-2: 0.9;
-  --surface-alpha-base-3: 0.99;
+  /* §C8 (user-signed, the 100/100 pass): daylight tier bases and the floor
+     renegotiated — 0.82/0.90/0.99 → 0.74/0.82/0.96, clamp floor 0.80 → 0.68.
+     Text rides the FILL + scrim composite either way; the contract asserts
+     the composite, not the floor constant. */
+  --surface-alpha-base: 0.74;
+  --surface-alpha-base-2: 0.82;
+  --surface-alpha-base-3: 0.96;
 
   --surface-specular: min(calc(var(--surface-specular-base) * var(--glass-glint-mult, 1)), 0.55);
-  --surface-alpha: clamp(0.8, calc(var(--surface-alpha-base) * var(--glass-body-mult, 1)), 0.98);
-  --surface-alpha-2: clamp(0.8, calc(var(--surface-alpha-base-2) * var(--glass-body-mult, 1)), 0.99);
-  --surface-alpha-3: clamp(0.8, calc(var(--surface-alpha-base-3) * var(--glass-body-mult, 1)), 1);
+  --surface-alpha: clamp(0.68, calc(var(--surface-alpha-base) * var(--glass-body-mult, 1)), 0.98);
+  --surface-alpha-2: clamp(0.68, calc(var(--surface-alpha-base-2) * var(--glass-body-mult, 1)), 0.99);
+  --surface-alpha-3: clamp(0.68, calc(var(--surface-alpha-base-3) * var(--glass-body-mult, 1)), 1);
 }
 
 @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
@@ -471,7 +479,9 @@
 
   /* Light self-shadow hairline is already the daylight grammar; bump the
      white scrim a notch so the pattern's airy panes stay text-safe. */
-  --glass-scrim: rgb(255 255 255 / 0.60);
+  /* §C8: the scrim catches what §C1's daylight fill returned (0.86→0.74):
+     0.60 → 0.68. The light text field the contract computed is unchanged. */
+  --glass-scrim: rgb(255 255 255 / 0.68);
 }
 
 [data-appearance="crystal"] :is(
@@ -515,4 +525,91 @@
 [data-appearance="crystal"] table thead tr {
   backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1)));
   -webkit-backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1)));
+}
+
+/* ═══ §C8 · THE CHROME (the 100/100 pass, second half) ═══════════════════
+ *
+ * The references' most-copied shape is not a card at all — it is the
+ * ACCENT DISC: a saturated gradient ball with a specular top lip and a
+ * halo, seated in a frosted bar. This is family chrome, not material — it
+ * lives here, crystal-scoped, and it changes nothing for the other five
+ * families (the engine's isolation covenant — proven below — holds).
+ *
+ * Three tokens in the grammar:
+ *   --glass-fab-ring     the specular lip (white, strong at the top)
+ *   --glass-fab-glow     the halo — the family's own brand color, softly
+ *   --glass-fab-depth    the ball's weight at its lower edge
+ */
+[data-appearance="crystal"] .glass-fab {
+  background-image: linear-gradient(
+    155deg,
+    rgb(var(--brand-300)) 0%,
+    rgb(var(--brand-500)) 52%,
+    rgb(var(--brand-700)) 100%
+  );
+  color: rgb(255 255 255);
+  border-radius: 999px;
+  box-shadow:
+    0 14px 34px -10px var(--glass-fab-glow),
+    0 0 0 1px rgb(255 255 255 / 0.16),
+    inset 0 2px 3px 0 rgb(255 255 255 / 0.40),
+    inset 0 -5px 8px -3px var(--glass-fab-depth);
+  backdrop-filter: saturate(140%);
+  -webkit-backdrop-filter: saturate(140%);
+}
+[data-appearance="crystal"] {
+  --glass-fab-ring: rgb(255 255 255 / 0.40);
+  --glass-fab-glow: rgb(var(--brand-500) / 0.55);
+  --glass-fab-depth: rgb(12 4 40 / 0.35);
+}
+
+/* The support launcher is the site's real FAB: under crystal it takes the
+   disc's own grammar (the .support-launcher marker names it without the
+   i18n aria-label — which changes language — being the hook). */
+[data-appearance="crystal"] .support-launcher {
+  background-image: linear-gradient(
+    155deg,
+    rgb(var(--brand-300) / 0.92) 0%,
+    rgb(var(--brand-500) / 0.92) 52%,
+    rgb(var(--brand-700) / 0.92) 100%
+  );
+  color: rgb(255 255 255);
+  border-color: rgb(255 255 255 / 0.30);
+  box-shadow:
+    0 14px 34px -10px var(--glass-fab-glow),
+    inset 0 1px 2px 0 rgb(255 255 255 / 0.35),
+    inset 0 -4px 8px -4px var(--glass-fab-depth);
+}
+[data-appearance="crystal"] .support-launcher :is(svg, .relative) {
+  color: rgb(255 255 255);
+}
+
+/* The primary button, the same way: a saturated faceted disc-turned-pill
+   with the family's own glow. Buttons are chrome; cards are material. */
+[data-appearance="crystal"] .btn-primary {
+  background-image: linear-gradient(
+    155deg,
+    rgb(var(--brand-400)) 0%,
+    rgb(var(--brand-600)) 55%,
+    rgb(var(--brand-700)) 100%
+  );
+  box-shadow:
+    0 12px 28px -10px var(--glass-fab-glow),
+    0 0 0 1px rgb(255 255 255 / 0.14),
+    inset 0 1px 2px 0 rgb(255 255 255 / 0.35),
+    inset 0 -4px 8px -4px var(--glass-fab-depth);
+}
+
+/* The frosted bar the disc sits in: a stronger blur-backed pill with a
+   bright hairline — the references' bottom-nav grammar, available to any
+   bar the family seats on glass. */
+[data-appearance="crystal"] .glass-bar {
+  background-color: rgb(var(--ink-900) / calc(var(--surface-alpha-base, 0.55) * 0.9));
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 0.22);
+  backdrop-filter: blur(calc(16px * var(--glass-frost-mult, 1))) saturate(180%);
+  -webkit-backdrop-filter: blur(calc(16px * var(--glass-frost-mult, 1))) saturate(180%);
+  box-shadow:
+    0 14px 34px -16px rgb(2 1 10 / 0.5),
+    inset 0 1px 1px 0 rgb(255 255 255 / 0.18);
 }

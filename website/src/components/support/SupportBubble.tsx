@@ -167,7 +167,7 @@ export function SupportBubble() {
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-label={open ? t("Close chat support") : t("Chat with support")}
-        className="menu-card group flex items-center gap-2.5 rounded-full border-2 border-line-strong/70 bg-ink-900/90 px-4 py-3 text-xs font-bold text-text-primary shadow-raised transition-transform hover:-translate-y-0.5"
+        className="menu-card support-launcher group flex items-center gap-2.5 rounded-full border-2 border-line-strong/70 bg-ink-900/90 px-4 py-3 text-xs font-bold text-text-primary shadow-raised transition-transform hover:-translate-y-0.5"
       >
         <span className="relative grid h-6 w-6 place-items-center rounded-full bg-emerald-500/20 text-emerald-300">
           <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

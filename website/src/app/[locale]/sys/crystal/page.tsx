@@ -221,6 +221,30 @@ export default async function CrystalCatalogPage({ params }: PageProps) {
         </Container>
       </Section>
 
+      {/* ── 6.5 · The chrome (§C8): the accent disc + the glass bar ────── */}
+      <Section aria-labelledby="cat-chrome" className="!py-6">
+        <Container>
+          <h2 id="cat-chrome" className="card-title mb-4">{t("The chrome — accent disc + glass bar (§C8)")}</h2>
+          <div className="glass-bar inline-flex items-center gap-4 px-5 py-4">
+            <button type="button" className="glass-fab grid h-14 w-14 place-items-center" aria-label={t("Demo accent action")}>
+              <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10 3v14M3 10h14" />
+              </svg>
+            </button>
+            <div>
+              <p className="mono-label !text-[0.6rem]">.glass-fab in .glass-bar</p>
+              <p className="mt-1 text-sm text-text-secondary">
+                {t("The saturated disc sits in the frosted bar — the references' most-copied chrome. Gradient + specular lip + family halo; available to any round action under crystal.")}
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button type="button" className="btn btn-primary btn-sm">{t("Primary — faceted + halo")}</button>
+            <button type="button" className="btn btn-secondary btn-sm">{t("Secondary — untouched")}</button>
+          </div>
+        </Container>
+      </Section>
+
       {/* ── 7 · Notes for the reviewer ─────────────────────────────── */}
       <Section aria-labelledby="cat-notes" className="!py-6 pb-14">
         <Container>

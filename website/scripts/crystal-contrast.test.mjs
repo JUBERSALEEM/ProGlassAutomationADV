@@ -256,7 +256,7 @@ const LIFT_ALPHA = {
      this pair. (§C7 pass: midnight lift 0.66 → 0.50 with scrim 0.34 → 0.42
      — pattern fill weight; daylight unchanged: its glassiness comes from
      the pastel wall, the 0.80 doctrine holds.) */
-  mainline: { midnight: 0.50, daylight: 0.86 },
+  mainline: { midnight: 0.50, daylight: 0.74 },
   fallback: { midnight: 0.94, daylight: 0.97 },
 };
 const buildLift = (lane, mode) => {
@@ -361,7 +361,7 @@ test("G4·caps: the glint cap and the daylight body floor hold everywhere (the h
       }
       for (const body of [0.5, 0.75, 1.5]) {
         const a = resolveSurface(lane, mode, { "--glass-body-mult": body })["--surface-alpha"];
-        if (mode === "daylight") assert.ok(a >= 0.79, `${lane} daylight: body ${body} → alpha ${a} below the 0.80 floor`);
+        if (mode === "daylight") assert.ok(a >= 0.67, `${lane} daylight: body ${body} → alpha ${a} below the 0.68 floor (user-signed §C8 renegotiation)`);
         assert.ok(a >= 0.44, `${lane} ${mode}: body ${body} → alpha ${a} below the 0.45 global floor`);
       }
     }
