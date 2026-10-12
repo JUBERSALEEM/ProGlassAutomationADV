@@ -133,8 +133,8 @@ export default async function PricingPage({ params }: PageProps) {
                 delay={index * 60}
                 className={
                   edition.featured
-                    ? "surface-raised relative flex flex-col border-brand-400/40 p-6 shadow-glow"
-                    : "surface relative flex flex-col p-6"
+                    ? "pricing-card--featured surface-raised relative flex flex-col border-brand-400/40 p-6 shadow-glow"
+                    : "pricing-card--basic surface relative flex flex-col p-6"
                 }
               >
                 {edition.featured ? (

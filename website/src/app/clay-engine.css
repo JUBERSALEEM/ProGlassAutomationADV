@@ -1077,3 +1077,696 @@ html[data-theme="midnight"] [data-appearance="clay"] :is(.band-deep, .band-rich)
     inset 5px 5px 9px var(--clay-hi),
     inset -8px -8px 14px var(--clay-lo);
 }
+
+
+/* ═══ §11 · THE MOTION & SHAPE PACK — the reference pack, on this family ═══
+   Ported section for section from the claymorphism reference stylesheet
+   (animated nav, organic blobs, floating hero, press pricing, testimonial,
+   breathing grid, media card, inset panel, responsive rules, reduced
+   motion), and bridged onto the engine's own channels so every piece reads
+   correctly in BOTH modes — the pack's --clay-* vocabulary now resolves
+   here, and each keyframe answers prefers-reduced-motion. One deliberate
+   deviation: the demo's auto-cycling nav indicator is choreography that
+   would lie beside real interactive state, so on the site's own bar the
+   raised pill answers the hand and the route instead of a timer; the
+   verbatim .navclay class below keeps its slide for anyone who borrows
+   the pack as-is. */
+
+/* §11.0 The token bridge — pack vocabulary → engine channels. */
+[data-appearance="clay"] {
+  --clay-surface: rgb(var(--clay-card));
+  --clay-surface-raised: rgb(var(--ink-800));
+  --clay-surface-inset: rgb(var(--ink-900));
+  --clay-border: rgb(var(--clay-drop-h) / 0.22);
+  --clay-text: rgb(var(--text-1));
+  --clay-text-secondary: rgb(var(--text-2));
+  --clay-text-muted: rgb(var(--text-4));
+  --clay-primary: rgb(var(--brand-400));
+  --clay-primary-soft: rgb(var(--clay-lavender) / 0.3);
+  --clay-accent: rgb(var(--clay-coral));
+  --clay-secondary: rgb(var(--clay-archived));
+  --clay-success: rgb(var(--clay-mint));
+  --clay-radius-lg: calc(0.75rem * var(--radius-scale));
+  --clay-radius-xl: calc(1rem * var(--radius-scale));
+  --clay-shadow-raised: var(--shadow-panel);
+  --clay-shadow-large: var(--shadow-raised);
+  --clay-shadow-sm: 5px 5px 14px rgb(18 10 38 / 0.5),
+    -4px -4px 10px rgb(255 255 255 / 0.06);
+  --clay-shadow-inset: inset 6px 6px 14px var(--clay-lo),
+    inset -5px -5px 12px var(--clay-hi);
+  --clay-shadow-button: 6px 6px 16px rgb(var(--clay-coral-h) / 0.42),
+    inset 3px 3px 6px rgb(255 255 255 / 0.4),
+    inset -3px -3px 8px rgb(219 74 61 / 0.35);
+  --clay-highlight: rgb(255 255 255 / var(--clay-lift));
+  --clay-shadow-dark: rgb(18 10 38 / 0.6);
+  --clay-highlight-soft: var(--clay-hi);
+  --clay-shadow-deep: var(--clay-lo);
+  --clay-ease: cubic-bezier(0.25, 0.8, 0.3, 1);
+}
+[data-theme="daylight"][data-appearance="clay"] {
+  --clay-surface-raised: rgb(var(--clay-raised));
+  --clay-surface-inset: rgb(var(--clay-foil));
+  --clay-border: rgb(var(--clay-drop-h) / 0.16);
+  --clay-primary: rgb(var(--brand-600));
+  --clay-primary-soft: rgb(var(--clay-lavender) / 0.32);
+  --clay-shadow-sm: 5px 5px 14px rgb(var(--clay-drop-h) / 0.22),
+    -4px -4px 10px rgb(255 255 255 / 0.85);
+  --clay-shadow-button: 6px 6px 16px rgb(var(--clay-coral-h) / 0.4),
+    inset 3px 3px 6px rgb(255 255 255 / 0.45),
+    inset -3px -3px 8px rgb(200 60 48 / 0.3);
+}
+
+/* §11.1 The keyframes — one timing, six motions. */
+@keyframes clay-nav-slide {
+  0%, 15% { transform: translateX(0); }
+  25%, 40% { transform: translateX(100%); }
+  50%, 65% { transform: translateX(200%); }
+  75%, 90% { transform: translateX(300%); }
+  100% { transform: translateX(0); }
+}
+@keyframes clay-blob-morph {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+  }
+  50% {
+    transform: translate(10px, -12px) rotate(10deg) scale(1.06);
+    border-radius: 58% 42% 39% 61% / 56% 63% 37% 44%;
+  }
+}
+@keyframes clay-card-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+@keyframes clay-pricing-press {
+  0%, 100% { transform: scale(1); }
+  45% { transform: scale(0.985); }
+  55% { transform: scale(1.015); }
+}
+@keyframes clay-avatar-wobble {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(5deg); }
+}
+@keyframes clay-bubble-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes clay-grid-breathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* §11.2 Animated clay navigation — the pack's class, verbatim in spirit. */
+[data-appearance="clay"] .navclay {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--clay-border);
+  border-radius: 999px;
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-raised);
+}
+[data-appearance="clay"] .navclay__brand {
+  padding-inline: 10px;
+  color: var(--clay-text);
+  font-size: 0.9rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+[data-appearance="clay"] .navclay__menu {
+  position: relative;
+  display: flex;
+  flex: 1;
+  gap: 2px;
+  padding: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--clay-surface-inset);
+  box-shadow: var(--clay-shadow-inset);
+}
+[data-appearance="clay"] .navclay__indicator {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 5px;
+  width: calc((100% - 10px) / 4);
+  border: 1px solid var(--clay-border);
+  border-radius: 999px;
+  background: var(--clay-surface-raised);
+  box-shadow: var(--clay-shadow-sm);
+  pointer-events: none;
+  animation: clay-nav-slide 8s ease-in-out infinite;
+}
+[data-appearance="clay"] .navclay__item {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding: 10px 8px;
+  border-radius: 999px;
+  color: var(--clay-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+[data-appearance="clay"] .navclay__item:hover { color: var(--clay-primary); }
+[data-appearance="clay"] .navclay__cta {
+  flex-shrink: 0;
+  padding: 11px 19px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--clay-primary);
+  box-shadow: var(--clay-shadow-button);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 200ms ease;
+}
+[data-appearance="clay"] .navclay__cta:hover { transform: translateY(-2px); }
+
+/* §11.3 Organic clay blobs. */
+[data-appearance="clay"] .clay-blob {
+  position: absolute;
+  z-index: 0;
+  width: clamp(120px, 22vw, 260px);
+  aspect-ratio: 1;
+  border: 1px solid var(--clay-border);
+  border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+  background: var(--clay-primary-soft);
+  box-shadow: var(--clay-shadow-large);
+  pointer-events: none;
+  animation: clay-blob-morph 8s ease-in-out infinite;
+}
+[data-appearance="clay"] .clay-blob--blue {
+  background: color-mix(in srgb, var(--clay-primary) 28%, var(--clay-surface));
+}
+[data-appearance="clay"] .clay-blob--accent {
+  background: color-mix(in srgb, var(--clay-accent) 30%, var(--clay-surface));
+  animation-delay: -2s;
+}
+[data-appearance="clay"] .clay-blob--purple {
+  background: color-mix(in srgb, var(--clay-secondary) 25%, var(--clay-surface));
+  animation-delay: -4s;
+}
+
+/* §11.4 Floating clay hero card. */
+[data-appearance="clay"] .hero-clay {
+  position: relative;
+  isolation: isolate;
+  width: min(100%, 460px);
+  margin-inline: auto;
+}
+[data-appearance="clay"] .hero-clay__card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: clamp(24px, 5vw, 38px);
+  border: 1px solid var(--clay-border);
+  border-radius: var(--clay-radius-xl);
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-large);
+  animation: clay-card-float 5s ease-in-out infinite;
+}
+[data-appearance="clay"] .hero-clay__eyebrow {
+  margin: 0;
+  color: var(--clay-primary);
+  font-size: 0.75rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+[data-appearance="clay"] .hero-clay__title {
+  margin: 0;
+  color: var(--clay-text);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 850;
+  letter-spacing: -0.055em;
+  line-height: 1.15;
+}
+[data-appearance="clay"] .hero-clay__description {
+  margin: 0;
+  color: var(--clay-text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+[data-appearance="clay"] .hero-clay__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* §11.5 Animated pricing cards. */
+[data-appearance="clay"] .pricing-clay {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+}
+[data-appearance="clay"] .pricing-clay__card {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  padding: 30px;
+  border: 1px solid var(--clay-border);
+  border-radius: var(--clay-radius-xl);
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-raised);
+  transition: transform 300ms var(--clay-ease), box-shadow 300ms ease;
+}
+[data-appearance="clay"] .pricing-clay__card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--clay-shadow-large);
+}
+[data-appearance="clay"] .pricing-clay__card--basic {
+  background: var(--clay-surface-inset);
+  box-shadow: var(--clay-shadow-inset);
+}
+[data-appearance="clay"] .pricing-clay__card--featured,
+[data-appearance="clay"] .pricing-card--featured {
+  border-color: transparent;
+  background: var(--clay-surface-raised);
+  box-shadow: 0 0 0 5px var(--clay-primary-soft), var(--clay-shadow-large);
+  animation: clay-pricing-press 6s ease-in-out infinite;
+}
+[data-appearance="clay"] .pricing-clay__card--featured .pricing-clay__badge {
+  position: absolute;
+  top: -14px;
+  left: 24px;
+  padding: 7px 15px;
+  border-radius: 999px;
+  background: var(--clay-primary);
+  box-shadow: var(--clay-shadow-button);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+[data-appearance="clay"] .pricing-clay__name {
+  margin: 0 0 10px;
+  color: var(--clay-text);
+  font-size: 1.2rem;
+  font-weight: 850;
+}
+[data-appearance="clay"] .pricing-clay__price {
+  margin: 0 0 24px;
+  color: var(--clay-text-secondary);
+  font-size: 1rem;
+  font-weight: 700;
+}
+[data-appearance="clay"] .pricing-clay__features {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0 0 28px;
+  padding: 22px 0;
+  border-top: 1px solid var(--clay-border);
+  list-style: none;
+}
+[data-appearance="clay"] .pricing-clay__features li {
+  color: var(--clay-text-secondary);
+  font-size: 0.9rem;
+}
+[data-appearance="clay"] .pricing-clay__features li::before {
+  margin-right: 10px;
+  color: var(--clay-success);
+  font-weight: 900;
+  content: "✓";
+}
+
+/* §11.6 Testimonial with animated avatar. */
+[data-appearance="clay"] .testi-clay {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 26px;
+  border: 1px solid var(--clay-border);
+  border-radius: var(--clay-radius-lg);
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-raised);
+}
+[data-appearance="clay"] .testi-clay__avatar {
+  display: grid;
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--clay-border);
+  border-radius: 50%;
+  background: var(--clay-primary-soft);
+  box-shadow: var(--clay-shadow-raised);
+  color: var(--clay-primary);
+  font-size: 1.2rem;
+  font-weight: 850;
+  animation: clay-avatar-wobble 5s ease-in-out infinite;
+}
+[data-appearance="clay"] .testi-clay__bubble {
+  flex: 1;
+  min-width: 0;
+  padding: 20px 24px;
+  border: 1px solid var(--clay-border);
+  border-radius: var(--clay-radius-lg);
+  background: var(--clay-surface-raised);
+  box-shadow: var(--clay-shadow-raised);
+  animation: clay-bubble-float 5s ease-in-out infinite;
+}
+[data-appearance="clay"] .testi-clay__quote {
+  margin: 0 0 12px;
+  color: var(--clay-text);
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+[data-appearance="clay"] .testi-clay__name {
+  margin: 0;
+  color: var(--clay-text);
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+[data-appearance="clay"] .testi-clay__role {
+  margin: 4px 0 0;
+  color: var(--clay-text-muted);
+  font-size: 0.8rem;
+}
+
+/* §11.7 Animated feature grid. */
+[data-appearance="clay"] .card-grid-clay {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+}
+[data-appearance="clay"] .card-grid-clay__item {
+  display: flex;
+  min-height: 180px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid var(--clay-border);
+  border-radius: var(--clay-radius-lg);
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-raised);
+  text-align: center;
+  animation: clay-grid-breathe 5s ease-in-out infinite;
+  animation-delay: var(--clay-delay, 0s);
+  transition: box-shadow 250ms ease;
+}
+[data-appearance="clay"] .card-grid-clay__item:hover {
+  box-shadow: var(--clay-shadow-large);
+}
+[data-appearance="clay"] .card-grid-clay__icon {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  border: 1px solid var(--clay-border);
+  border-radius: 22px;
+  background: var(--clay-surface-raised);
+  box-shadow: var(--clay-shadow-sm);
+  color: var(--clay-primary);
+  font-size: 1.5rem;
+}
+[data-appearance="clay"] .card-grid-clay__label {
+  margin: 0;
+  color: var(--clay-text);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+/* §11.8 Image-based clay card. */
+[data-appearance="clay"] .clay-media-card {
+  container-type: inline-size;
+  overflow: hidden;
+  border: 1px solid var(--clay-border);
+  border-radius: var(--clay-radius-xl);
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-large);
+  color: var(--clay-text);
+  transition: transform 300ms var(--clay-ease), box-shadow 300ms ease;
+}
+[data-appearance="clay"] .clay-media-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--clay-shadow-large);
+}
+[data-appearance="clay"] .clay-media-card__media {
+  position: relative;
+  margin: 12px;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: 1px solid var(--clay-border);
+  border-radius: calc(var(--clay-radius-xl) - 8px);
+  background: var(--clay-surface-inset);
+  box-shadow: var(--clay-shadow-inset);
+}
+[data-appearance="clay"] .clay-media-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 500ms var(--clay-ease);
+}
+[data-appearance="clay"] .clay-media-card:hover .clay-media-card__image {
+  transform: scale(1.045);
+}
+[data-appearance="clay"] .clay-media-card__tag {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 7px 12px;
+  border: 1px solid var(--clay-border);
+  border-radius: 999px;
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-sm);
+  color: var(--clay-text);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+[data-appearance="clay"] .clay-media-card__body { padding: 18px 24px 24px; }
+[data-appearance="clay"] .clay-media-card__eyebrow {
+  margin: 0 0 10px;
+  color: var(--clay-primary);
+  font-size: 0.75rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+[data-appearance="clay"] .clay-media-card__title {
+  margin: 0 0 12px;
+  font-size: 1.35rem;
+  font-weight: 850;
+  letter-spacing: -0.035em;
+}
+[data-appearance="clay"] .clay-media-card__description {
+  margin: 0;
+  color: var(--clay-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+[data-appearance="clay"] .clay-media-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--clay-border);
+}
+[data-appearance="clay"] .clay-media-card__avatars {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+[data-appearance="clay"] .clay-media-card__avatar {
+  width: 30px;
+  height: 30px;
+  margin-left: -7px;
+  border: 2px solid var(--clay-surface);
+  border-radius: 50%;
+  background: var(--clay-primary-soft);
+}
+[data-appearance="clay"] .clay-media-card__avatar:first-child { margin-left: 0; }
+[data-appearance="clay"] .clay-media-card__count {
+  color: var(--clay-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+[data-appearance="clay"] .clay-media-card__footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+[data-appearance="clay"] .clay-media-card__footer .clay-btn { flex: 1; }
+[data-appearance="clay"] .clay-media-card__save {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  place-items: center;
+  border: 1px solid var(--clay-border);
+  border-radius: 50%;
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-button);
+  color: var(--clay-text);
+  cursor: pointer;
+  transition: transform 200ms ease;
+}
+[data-appearance="clay"] .clay-media-card__save:hover {
+  transform: translateY(-2px);
+  color: var(--clay-primary);
+}
+@container (max-width: 340px) {
+  [data-appearance="clay"] .clay-media-card__body { padding: 14px; }
+  [data-appearance="clay"] .clay-media-card__title { font-size: 1.1rem; }
+  [data-appearance="clay"] .clay-media-card__meta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+/* §11.9 Large inset clay surface. */
+[data-appearance="clay"] .clay-inset-panel {
+  padding: clamp(28px, 5vw, 60px);
+  border: 1px solid var(--clay-border);
+  border-radius: clamp(28px, 6vw, 64px);
+  background: var(--clay-surface);
+  box-shadow:
+    12px 12px 28px var(--clay-shadow-dark),
+    -12px -12px 28px var(--clay-highlight),
+    inset 4px 4px 10px var(--clay-highlight-soft),
+    inset -4px -4px 10px var(--clay-shadow-deep);
+}
+[data-appearance="clay"] .clay-inset-panel__title {
+  margin: 0 0 16px;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 850;
+  letter-spacing: -0.055em;
+}
+[data-appearance="clay"] .clay-inset-panel__description {
+  max-width: 650px;
+  margin: 0;
+  color: var(--clay-text-secondary);
+  line-height: 1.9;
+}
+
+/* §11.10 The pack on the site's own chrome.
+
+   The top bar takes the navclay vocabulary for real: the pill is the
+   raised outer, every item inside it becomes a full pill, hover raises the
+   one under the hand, and the current route / open trigger carries the
+   lavender pressed pill — the indicator that answers the visitor instead
+   of cycling on a timer. */
+[data-appearance="clay"] .nav-pill :is(a, button) {
+  border-radius: 999px;
+  transition:
+    transform 0.18s var(--clay-ease),
+    box-shadow 0.18s var(--clay-ease),
+    background-color 0.18s var(--clay-ease),
+    border-color 0.18s var(--clay-ease),
+    color 0.18s var(--clay-ease);
+}
+[data-appearance="clay"] .nav-pill :is(a, button):hover {
+  border-color: transparent;
+  background-color: var(--clay-surface-raised);
+  background-image: none;
+  color: rgb(var(--text-1));
+  box-shadow: var(--clay-shadow-sm),
+    inset 2px 2px 5px var(--clay-hi),
+    inset -3px -3px 6px var(--clay-lo);
+  transform: translateY(-1px);
+}
+[data-appearance="clay"] .nav-pill :is(a[aria-current="page"], button[aria-expanded="true"]) {
+  border-color: transparent;
+  background-color: rgb(var(--clay-lavender));
+  background-image: none;
+  color: rgb(var(--clay-ink));
+  box-shadow: 3px 3px 9px rgb(var(--clay-drop-h) / 0.34),
+    inset 2px 2px 5px rgb(255 255 255 / 0.55),
+    inset -3px -3px 7px rgb(92 60 220 / 0.24);
+}
+
+/* The hero's floating shards become the pack's organic blobs in clay:
+   the screenshots walk off and the moulded shape takes their slot, each
+   staggered by the --d the shards already carry. */
+[data-appearance="clay"] .hero-shard {
+  overflow: visible;
+  border: 1px solid var(--clay-border);
+  border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+  background: color-mix(in srgb, rgb(var(--clay-lavender)) 30%, var(--clay-surface));
+  box-shadow: var(--clay-shadow-large);
+  animation: clay-blob-morph 9s ease-in-out infinite;
+  animation-delay: calc(var(--d, 1) * -1.7s);
+}
+[data-appearance="clay"] .hero-shard img { display: none; }
+[data-appearance="clay"] .hero-shard-2,
+[data-appearance="clay"] .hero-shard-4 {
+  background: color-mix(in srgb, var(--clay-accent) 24%, var(--clay-surface));
+}
+
+/* The basic edition presses into the page; the featured one carries the
+   halo and breathes — the pricing page's own markup, via its hooks. */
+[data-appearance="clay"] .pricing-card--basic {
+  background-color: var(--clay-surface-inset);
+  background-image: none;
+  box-shadow: var(--clay-shadow-inset);
+}
+[data-appearance="clay"] .pricing-card--featured .chip {
+  background-color: rgb(var(--clay-lavender));
+  color: rgb(var(--clay-ink));
+}
+
+/* Media plates answer like the pack's media card: the frame stays put,
+   the picture leans a breath closer. */
+[data-appearance="clay"] .plate :is(img, video) {
+  transition: transform 500ms var(--clay-ease);
+}
+[data-appearance="clay"] .plate:hover :is(img, video) {
+  transform: scale(1.045);
+}
+
+/* §11.11 The pack's responsive grammar, kept for the pack's own classes. */
+@media (max-width: 900px) {
+  [data-appearance="clay"] .card-grid-clay {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  [data-appearance="clay"] .pricing-clay { flex-wrap: wrap; }
+  [data-appearance="clay"] .pricing-clay__card { flex-basis: calc(50% - 12px); }
+  [data-appearance="clay"] .navclay { flex-wrap: wrap; }
+}
+@media (max-width: 600px) {
+  [data-appearance="clay"] .navclay { border-radius: var(--clay-radius-lg); }
+  [data-appearance="clay"] .navclay__menu { order: 3; flex-basis: 100%; }
+  [data-appearance="clay"] .navclay__brand { flex: 1; }
+  [data-appearance="clay"] .navclay__item { padding-inline: 4px; font-size: 0.7rem; }
+  [data-appearance="clay"] .card-grid-clay { grid-template-columns: minmax(0, 1fr); }
+  [data-appearance="clay"] .pricing-clay { flex-direction: column; }
+  [data-appearance="clay"] .pricing-clay__card { flex-basis: auto; }
+  [data-appearance="clay"] .testi-clay { flex-direction: column; }
+  [data-appearance="clay"] .hero-clay__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* §11.12 Reduced motion wins across the whole pack, without exception. */
+@media (prefers-reduced-motion: reduce) {
+  [data-appearance="clay"] :is(
+    .navclay__indicator, .clay-blob, .hero-clay__card,
+    .pricing-clay__card--featured, .pricing-card--featured,
+    .testi-clay__avatar, .testi-clay__bubble, .card-grid-clay__item,
+    .hero-shard
+  ) {
+    animation: none !important;
+  }
+  [data-appearance="clay"] :is(.clay-media-card, .pricing-clay__card):hover,
+  [data-appearance="clay"] .plate:hover :is(img, video) {
+    transform: none;
+  }
+}
