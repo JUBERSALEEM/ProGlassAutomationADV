@@ -1,5 +1,13 @@
 # Claymorphism Redesign — Completion Report & Phased Roadmap
 *Generated 2026-10-12, build `7a45690`+ (phase-P fixes included). Living document: update tick boxes as phases close, and log every change in `claymorphism-redesign-progress.md` section D.*
+*
+> **How the 25-route pixel audit works (Phase 1):**
+> ```bash
+> python3 scripts/audit-site.py                      # links/metadata/headings/budget crawl
+> python3 scripts/audit-site.py --budget             # same + raw/compressed HTML + DOM count gates
+> ```
+> For the visual half: run `clay-paint` against a fresh build (`npm run build && node --test scripts/clay-paint.test.mjs`) — it paints the computed cascade for every surface class the engine ships and fails the run at any pair under the WCAG floors, route-labeled; pair that with the screenshot set (preview at `npm run start`) and every mismatch goes into progress doc §D with route + computed pair attached.
+> Contrast floors: text 7:1 on cards, 4.5:1 on plates/heads; every zone holds 70/20/10 luminance budget in both modes — verified by `clay-paint` + `clay-contrast` on every build.
 
 ## 1. Where the material stands today
 

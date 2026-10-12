@@ -124,7 +124,14 @@ BUDGET_DEFAULT = {"gz": 39, "nodes": 800}      # was 37 (post footer-icon); the 
 # css was 28; the clay engine + primitives added a full utility-floor layer:
 # measured 27.0 → 27.9 (engine, 3f61ffe) → 28.2 (primitives). Ceilings move
 # only with their measurement trail, never silently.
-ASSET_BUDGET = {"js_gz": 540, "css_gz": 31}
+ASSET_BUDGET = {"js_gz": 540, "css_gz": 34}
+# css_gz moved 31 → 34 with the clay plate-bench trail (§13–§17 of
+# clay-engine.css): the dynamic 6-plate bench + midnight plum locks, the
+# segmented clay bar, the §16 family wash, and the §17 zone plates are
+# ≈2.4 KB gz of measured, gate-covered rules (paint 106, contrast 25).
+# Justification recorded in docs/claymorphism-redesign-progress.md §E (the
+# same trail that moved 27.0 → 27.9 → 28.2 → 31); the css number after this
+# move was measured at 33.4K.
 
 # First-load JavaScript, per page this time: the chunks that page's own
 # document pulls in, compressed. The build-wide figure above can hide a
