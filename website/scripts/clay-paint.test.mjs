@@ -781,18 +781,6 @@ const probeIn = (appearance, label, modes, chain, min = 4.5) => {
   }
 };
 
-const defectPin = (appearance, label, mode, chain, floor, ref) => {
-  const p = paint(label, mode, chain, { "data-appearance": appearance });
-  report.push(p);
-  test(`PINNED ${ref} · ${mode} · [${appearance}] ${label} — defect held: ${(p.ratio ?? 0).toFixed(2)}:1 < ${floor}:1`, () => {
-    assert.ok(p.ratio !== null, `pin produced no reading at all`);
-    assert.ok(
-      p.ratio < floor,
-      `${ref} pin sprung: ${p.ratio.toFixed(2)}:1 now meets ${floor}:1 — the defect is FIXED; promote this row to a floor probe`,
-    );
-  });
-};
-
 /* The exact product pairing from the 16:29 screenshot, file-name chips on
    the developer page (developer/page.tsx SERVICE FILES). On daylight the
    --ink-950 wash is paper-light in EVERY family (mode-inverted triplet,
@@ -801,9 +789,11 @@ const defectPin = (appearance, label, mode, chain, floor, ref) => {
    the four non-clay families; midnight reads dark-on-dark and meets floor
    already, so those rows are ordinary probes. */
 const FILE_CHIP = [BODY, El("li", "font-mono text-2xs text-brand-200/90 break-all bg-ink-950/60 rounded px-1.5 py-0.5")];
+/* G1 LANDED: crystal-engine §C1 lifts the carrier to glass and globals'
+   daylight legibility grammar re-inks the foil — the four G1 pins sprung
+   and were promoted to these ordinary floor probes (1.25→fixed). */
 for (const family of ["crystal", "studio", "monet", "industrial"]) {
-  defectPin(family, "service file chip (bg-ink-950/60 + text-brand-200/90) · light-on-light", "daylight", FILE_CHIP, 4.5, "G1");
-  probeIn(family, "service file chip (bg-ink-950/60 + text-brand-200/90)", ["midnight"], FILE_CHIP, 4.5);
+  probeIn(family, "service file chip (bg-ink-950/60 + text-brand-200/90) · post-G1", MODES, FILE_CHIP, 4.5);
 }
 
 /* The crystal material itself — what the family already paints correctly.
@@ -819,6 +809,37 @@ probeIn("crystal", "menu-card item label (tier-3)", MODES, [BODY, El("div", "men
 probeIn("crystal", "float-card caption over artwork", MODES, [BODY, El("div", "float-card rounded-panel p-4"), El("p", "text-text-secondary")], 4.5);
 probeIn("crystal", "card-accent paragraph", MODES, [BODY, El("div", "card-accent card-pad"), El("p", "text-text-secondary")], 4.5);
 probeIn("crystal", "plate body text", MODES, [BODY, El("div", "plate p-5"), El("p", "text-text-secondary")], 4.5);
+
+/* ── G1 · the lift itself, painted ──────────────────────────────────────
+   The §C1 rules change what utility carriers render; these probes hang
+   the floors on the LIFTED paint, not the pre-lift stand-in. */
+probeIn("crystal", "lifted container (bg-ink-900/80 well) body text", MODES,
+  [BODY, El("div", "rounded-2xl border border-line-strong/60 bg-ink-900/80 p-4 shadow-panel"), El("p", "text-text-secondary")], 4.5);
+probeIn("crystal", "lifted chip on card in icy daylight", MODES,
+  [BODY, El("div", "surface card-pad"), El("span", "rounded-full bg-ink-950/60 px-2 py-1 font-mono text-2xs text-text-secondary")], 4.5);
+
+/* G2 · frosted wells: the input wells and the inked caret family. */
+probeIn("crystal", "form well text (bg-ink-950/60 input)", MODES,
+  [BODY, El("div", "surface-raised p-6"), El("input", "mt-2 h-11 w-full rounded-xl border bg-ink-950/60 px-3.5 text-sm text-text-primary")], 4.5);
+probeIn("crystal", "form well label above the glass", MODES,
+  [BODY, El("div", "surface-raised p-6"), El("label", "block text-sm font-medium text-text-secondary")], 4.5);
+
+/* G3 · the named surfaces: chips, eyebrow pill, table header, inline code. */
+probeIn("crystal", "chip (.chip pill)", MODES,
+  [BODY, El("span", "chip"), El("span", "text-text-secondary")], 4.5);
+probeIn("crystal", "eyebrow-chip (brand pill)", MODES,
+  [BODY, El("p", "eyebrow-chip")], 4.5);
+probeIn("crystal", "table header on the chilled row", MODES,
+  [BODY, El("table", "w-full border-collapse"), El("thead"), El("tr", "bg-ink-950/90 text-text-faint"), El("th", "text-3xs font-semibold uppercase")], 4.5);
+probeIn("crystal", "inline code chip (bg-ink-850 + text-brand-100)", MODES,
+  [BODY, El("p", "text-text-secondary"), El("code", "rounded bg-ink-850 px-1.5 py-0.5 font-mono text-brand-100")], 4.5);
+/* The inline-code defect class exists wherever brand-100 rides a foil —
+   it is family-generic: same grammar, four times. */
+for (const family of ["studio", "monet", "industrial"]) {
+  probeIn(family, "inline code chip (bg-ink-850 + text-brand-100)", MODES,
+    [BODY, El("p", "text-text-secondary"), El("code", "rounded bg-ink-850 px-1.5 py-0.5 font-mono text-brand-100")], 4.5);
+}
+
 
 /* Print the full paint table — the analysis the screenshots demanded. */
 test("paint report", () => {

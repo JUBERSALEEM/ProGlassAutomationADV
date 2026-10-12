@@ -151,6 +151,21 @@ const buildFill = (lane, mode, alphaProp, { scrim = true } = {}) => {
 };
 const solidFill = (mode, token, at) => [[...triplet(modeSheet[mode][token], `${mode} ${token}`), at]];
 
+/* §C1's hard-coded fills, re-typed here as declarations of contract: the
+   engine file owns these numbers; editing the engine below a floor
+   fails this pair. (Engine: crystal-engine.css §C1 + §C1f) */
+const LIFT_ALPHA = {
+  mainline: { midnight: 0.66, daylight: 0.86 },
+  fallback: { midnight: 0.94, daylight: 0.97 },
+};
+const buildLift = (lane, mode) => {
+  const fam = sheet(lane, mode);
+  const ink = triplet(modeSheet[mode]["--ink-900"], `${mode} --ink-900`);
+  const layers = [[...ink, LIFT_ALPHA[lane][mode]]];
+  layers.push(rgba(fam["--glass-scrim"], `${lane} ${mode} --glass-scrim`));
+  return layers;
+};
+
 const ratioFor = (mode, textVar, layers) => {
   const fg = [...triplet(modeSheet[mode][textVar], `${mode} ${textVar}`), 1];
   let bg = triplet(modeSheet[mode]["--ink-950"], `${mode} --ink-950`);
@@ -177,9 +192,13 @@ for (const lane of ["mainline", "fallback"]) {
     pair("tier-3 fill / body (text-2)", lane, mode, "--text-2", buildFill(lane, mode, "--surface-alpha-3"), 4.5);
     pair("menu-card fill / item (text-2)", lane, mode, "--text-2", [...solidFill(mode, "--ink-900", lane === "fallback" ? 1 : 0.9)], 4.5);
     pair("chip fill / label (text-2)", lane, mode, "--text-2", solidFill(mode, "--ink-800", 1), 4.5);
+    /* §C1 · the lift's own fill, exactly as the engine declares it
+       (0.66 midnight / 0.86 mainline daylight / 0.94+0.97 fallback). */
+    pair("lift fill / well text (text-1)", lane, mode, "--text-1", buildLift(lane, mode), 4.5);
+    pair("lift fill / faint label (text-4)", lane, mode, "--text-4", buildLift(lane, mode), 4.5);
   }
 }
 
 test(`crystal contract complete: ${pass} pairs across 2 lanes × 2 modes, parsed not restated`, () => {
-  assert.ok(pass === 32, `expected 32 pairs, got ${pass}`);
+  assert.ok(pass === 40, `expected 40 pairs, got ${pass}`);
 });

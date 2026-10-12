@@ -4153,3 +4153,32 @@ body {
   .ribbon-photon::after { opacity: 0; }
   .card-interactive { transition-property: border-color, box-shadow; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * THE DAYLIGHT LEGIBILITY GRAMMAR — family-generic, non-clay
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * The 16:29 chip, one grammar, every family. `--ink-950` inverts per mode
+ * (8 5 22 by night, 248 245 238 by day — family-independent), so any
+ * bg-ink/bg-white/bg-line/bg-glass carrier is PAPER by day, and any
+ * text-brand-200-class ink authored for dark grounds becomes light ink on
+ * light paper: 1.25:1 crystal, 1.52:1 studio, 1.35:1 monet, 1.29:1
+ * industrial — measured and pinned in the G0 dossier. Clay fixed its own
+ * in clay-engine §20; this is the same grammar for the other four
+ * families, written once, scoped to daylight only (midnight reads dark-on-
+ * dark and is healthy at 12.6:1).
+ *
+ *   foils + light brand text     → the tier system (--text-2)
+ *   brand-on-brand pills         → the family's dark accent (--brand-600)
+ *   …descendants: only the two lightest tiers are re-inked; 300+ accents
+ *     keep their identity (daylight ramps carry dark 300s by design).
+ */
+[data-theme="daylight"]:not([data-appearance="clay"]) :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"])[class*="text-brand-"],
+[data-theme="daylight"]:not([data-appearance="clay"]) :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]) [class*="text-brand-100"],
+[data-theme="daylight"]:not([data-appearance="clay"]) :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]) [class*="text-brand-200"] {
+  color: rgb(var(--text-2));
+}
+
+[data-theme="daylight"]:not([data-appearance="clay"]) [class*="bg-brand-"][class*="text-brand-"] {
+  color: rgb(var(--brand-600));
+}

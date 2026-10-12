@@ -1,6 +1,6 @@
 # Glassmorphism roadmap — the Crystal family, brought to 100%
 
-Status: **ANALYSIS CLOSED 2026-10-12** · roadmap agreed in principle, phases G0–G7 sequenced below.
+Status: **G0–G3 CLOSED 2026-10-12** · G4–G7 open · engines are separate by design (crystal-engine.css / clay-engine.css).
 Companion doc: `claymorphism-roadmap.md` (phases 1–7 closed) — this file follows the same
 conventions: components declare intent, selectors live in the stylesheet, every claim is gated,
 numbers in commit messages are executed, not read.
@@ -147,7 +147,7 @@ G0–G6 is a deliberate last decision, not an accident of shipping.
 
 ## 3 · The phases
 
-### G0 — Gates first *(prerequisite; red before green)*
+### G0 — Gates first ✅ CLOSED `8040c23` *(red before green; 28 dossier rows + 33 contract pairs)*
 
 Extend the verification stack to be family-parametric before any pixel moves:
 
@@ -162,7 +162,7 @@ Extend the verification stack to be family-parametric before any pixel moves:
   re-validating the documented 4.5:1 scrim math automatically.
 - Exit: new probes run; S1 red rows identified; everything else green.
 
-### G1 — The glass lift *(S1 + S2 core)*
+### G1 — The glass lift ✅ CLOSED *(same commit as G2/G3)*
 
 Family-scoped utility lift, mirroring clay §9's grammar:
 
@@ -176,7 +176,7 @@ Family-scoped utility lift, mirroring clay §9's grammar:
 - Probes: the S1 red rows turn green; paint count rises with the new surface
   rows; isolation green.
 
-### G2 — Chrome & forms in glass
+### G2 — Chrome & forms in glass ✅ CLOSED *(§C2 wells, focus lip, caret, placeholder, accent)*
 
 - Inputs, selects, textareas, checkboxes, radios, range: frosted wells
   (inset, slightly more solid than tier 1 — wells receive text), family
@@ -186,7 +186,7 @@ Family-scoped utility lift, mirroring clay §9's grammar:
 - Probes: field wells + focus lip + placeholder contrast, both modes;
   family isolation.
 
-### G3 — Chips, tables, code
+### G3 — Chips, tables, code ✅ CLOSED *(§C3 named surfaces + seams/hover)*
 
 - `.chip` (20 files) → glass pill: translucent fill, rim, tier ink.
 - Tables (16 files) → frosted header band + glass seams; row hover lifts.
@@ -194,7 +194,7 @@ Family-scoped utility lift, mirroring clay §9's grammar:
   with etched edge; mono ink unchanged.
 - Probes per surface class, both modes.
 
-### G4 — The Crystal bench (studio parity, S3)
+### G4 — The Crystal bench (studio parity, S3) ⬜ OPEN
 
 - Three dials, crystal-scoped, write-only-when-moved, persisted under the
   studio keys with the existing guards:
@@ -210,7 +210,7 @@ Family-scoped utility lift, mirroring clay §9's grammar:
   shares `rampFor`; verify + pin).
 - Probes: bench-active vs house renders; isolation.
 
-### G5 — Living glass (motion, S3b)
+### G5 — Living glass (motion, S3b) ⬜ OPEN
 
 - Pointer-tracked specular: cards take a cursor-following catch-light
   (the nav-photon grammar, card-local), via one shared rAF throttled
@@ -222,7 +222,7 @@ Family-scoped utility lift, mirroring clay §9's grammar:
   measured heavy (see G5 budget check).
 - Probes: reduced-motion block scan (the minified-tolerant regex precedent).
 
-### G6 — Performance & fallback certification (S5)
+### G6 — Performance & fallback certification (S5) ⬜ OPEN
 
 - Per-route blurred-surface census script (counts `backdrop-filter` live
   surfaces per route DOM), budget recorded in `audit-site.py` with the
@@ -233,7 +233,7 @@ Family-scoped utility lift, mirroring clay §9's grammar:
 - Fallback sweep: `@supports not` path painted and probed (near-opaque,
   scrim-raised) on every new surface from G1–G3.
 
-### G7 — Catalog, docs & the default decision (S6)
+### G7 — Catalog, docs & the default decision (S6) ⬜ OPEN
 
 - `/sys/crystal` — the single-screen review surface (mirror of `/sys/clay`:
   every re-glassed class lane, both modes, noindex + sitemap-free).
@@ -245,7 +245,17 @@ Family-scoped utility lift, mirroring clay §9's grammar:
 
 ---
 
-## 4 · Immediate next action
+## 4 · Where it stands now
+
+**Closed:** G0, G1, G2, G3 — the crystal engine is a separate file
+(`src/app/crystal-engine.css`, §C1–§C3); the four daylight light-chip pins
+sprung and were PROMOTED to floor probes (paint 175/175, contract 41/41).
+The shared daylight legibility grammar lives in globals.css (requested:
+engines stay separate; clay's §20 untouched).
+
+**Balance to 100%:** G4 · G5 · G6 · G7.
+
+Next action when resumed:
 
 Phase G0 (~small): family-parameterize the probe runner, add the crystal
 dossier incl. the S1 daylight chip rows (expect them red), extend contrast

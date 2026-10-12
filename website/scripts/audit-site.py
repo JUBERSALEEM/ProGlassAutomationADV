@@ -129,6 +129,9 @@ ASSET_BUDGET = {"js_gz": 540, "css_gz": 35.5}
 #   the engine), → 35.5 with the phase-5/6 additions (§18 noria,
 #   §18b rule carves, §19 chrome & forms, §11.8b wide vignette,
 #   §11.13 clay-fall). Budget lines move only with an annotated trail.
+#   → measured 35.4/35.5 after the CRYSTAL ENGINE (G1–G3: §C1 lift,
+#   §C2 forms, §C3 chips/tables — a new unlayered family file). No
+#   bump needed; the G4–G6 phases will re-measure and re-trail.
 # clay-engine.css): the dynamic 6-plate bench + midnight plum locks, the
 # segmented clay bar, the §16 family wash, and the §17 zone plates are
 # ≈2.4 KB gz of measured, gate-covered rules (paint 106, contrast 25).

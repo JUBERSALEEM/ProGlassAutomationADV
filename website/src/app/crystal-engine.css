@@ -1,0 +1,192 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+ * THE CRYSTAL ENGINE — glassmorphism
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * A theme engine of its own. Clay owns clay-engine.css; this file owns the
+ * crystal family, and the two never edit each other — "separate engine,
+ * don't mix it with clay."
+ *
+ *   §C1  the glass lift      utility carriers (bg-ink/bg-white/bg-line,
+ *                            bg-glass) become real glass: tiered fill +
+ *                            frost + scrim + rim (phase G1)
+ *   §C2  forms in glass      frosted wells that receive text, focus lip,
+ *                            caret, placeholder, accent (phase G2)
+ *   §C3  chips/tables/code   the named surfaces the utility census found
+ *                            (phase G3)
+ *
+ * The contract (verbatim from docs/glassmorphism-roadmap.md):
+ *
+ *   1. `--text-*` is NEVER written here. The tiers are mode-scoped and
+ *      family-independent; glass rules material only (fillets, fills,
+ *      blurs, rims). Text grammar lives in globals.css ("the daylight
+ *      legibility grammar"); clay's in clay-engine §20.
+ *   2. Daylight doctrine: the fill carries the text (≥ 0.80 by day). Blur
+ *      is frosting, never the load-bearing layer.
+ *   3. Every glass surface ships its @supports fallback: fills rise and
+ *      gradients drop when backdrop-filter is absent, so an old engine
+ *      loses the sheen, never the text — the crystal-contrast harness
+ *      measures BOTH lanes.
+ *   4. No selector leaves this file without [data-appearance="crystal"].
+ *      Isolation is proven by the family-parametric dossier in
+ *      scripts/clay-paint.test.mjs.
+ *
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ═══ §C1 · THE GLASS LIFT (G1) ════════════════════════════════════════════
+ *
+ * Ninety-four utility-carry sites were opaque islands on a translucent
+ * page: chips, wells, table wells, inline code, form fields. Clay's §9
+ * pattern is the grammar: the engine lifts every utility carrier to the
+ * family's material, and the components keep declaring intent.
+ *
+ * Midnight: 0.66 fill — through it, the pools bleed (that is the point of
+ *   glass) — while the scrim does its documented job underneath the text.
+ * Daylight: 0.86 fill — the fill carries the text (doctrine ≥ 0.80); the
+ *   cyan corners are what sell glass on paper, not the translucency.
+ * <option> is excluded: it belongs to the OS popup, not the page's room.
+ */
+[data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+  background-color: rgb(var(--ink-900) / 0.66);
+  background-image:
+    var(--glass-frost),
+    linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),
+    linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%);
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  box-shadow: 0 0 0 1px var(--glass-ring),
+    inset 0 1px 0 0 var(--glass-edge-light),
+    inset 0 -1px 0 0 var(--glass-edge-dark);
+}
+
+[data-theme="daylight"][data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+  background-color: rgb(var(--ink-900) / 0.86);
+  box-shadow: 0 0 0 1px var(--glass-line),
+    inset 0 1px 0 0 var(--glass-edge-light),
+    inset 0 -1px 0 0 var(--glass-edge-dark);
+}
+
+/* §C1f · The lift, blur-less: fills rise, gradients drop, text survives. */
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+    background-color: rgb(var(--ink-900) / 0.94);
+    background-image: none;
+  }
+
+  [data-theme="daylight"][data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+    background-color: rgb(var(--ink-900) / 0.97);
+    background-image: none;
+  }
+}
+
+/* ═══ §C2 · FORMS IN GLASS (G2) ═══════════════════════════════════════════
+ *
+ * A well is not a card: it RECEIVES text, so it is more solid than tier 1
+ * and quieter inside — no frost behind a caret. The rim stays (it is what
+ * separates the well from the page), the interior is one soft inset shadow,
+ * and the caret and selection speak in the family's own cyan. Specificity
+ * beats §C1's lift on purpose (element + the utility pairing + appearance).
+ */
+[data-appearance="crystal"] :is(input, textarea, select)[class*="bg-ink-"],
+[data-appearance="crystal"] :is(input, textarea, select)[class*="bg-glass"] {
+  background-color: rgb(var(--ink-900) / var(--surface-alpha-2));
+  background-image: none;
+  border-color: var(--glass-line);
+  color: rgb(var(--text-1));
+  caret-color: rgb(var(--brand-400));
+  backdrop-filter: blur(8px) saturate(150%);
+  -webkit-backdrop-filter: blur(8px) saturate(150%);
+  box-shadow: inset 0 2px 6px rgb(6 26 38 / 0.18),
+    0 0 0 1px var(--glass-ring);
+}
+
+[data-appearance="crystal"] :is(input, textarea, select)::placeholder {
+  color: rgb(var(--text-4));
+  opacity: 1;
+}
+
+/* The focus lip: a luminous ring, not the OS default — same grammar clay
+   uses for its focused wells, drawn with glass light instead of clay ink. */
+[data-appearance="crystal"] :is(input, textarea, select):focus-visible {
+  outline: 2px solid rgb(var(--brand-400) / 0.6);
+  outline-offset: 2px;
+  box-shadow: inset 0 2px 6px rgb(6 26 38 / 0.18),
+    0 0 0 1px var(--glass-edge-light),
+    0 0 18px -2px rgb(var(--brand-400) / 0.4);
+}
+
+/* Checked states follow the family accent, not the OS hue. */
+[data-appearance="crystal"] :is(input[type="checkbox"], input[type="radio"]) {
+  accent-color: rgb(var(--brand-500));
+}
+
+/* The select's dropdown belongs to the OS popup — solid, tier ink, done. */
+[data-appearance="crystal"] option {
+  background-color: rgb(var(--ink-900));
+  color: rgb(var(--text-1));
+}
+
+/* ☛ the re-ink for light text on lifted foils is NOT here: it is shared
+   daylight grammar (globals.css), because studio/monet/industrial carry
+   the same defect. This file only re-states chip-and-pill ink that is
+   crystal-material — none. §C1 leaves text alone, always. */
+
+/* §C2f · wells without blur: same rise as the lift. */
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  [data-appearance="crystal"] :is(input, textarea, select)[class*="bg-ink-"],
+  [data-appearance="crystal"] :is(input, textarea, select)[class*="bg-glass"] {
+    background-color: rgb(var(--ink-900) / 0.96);
+  }
+}
+
+/* ═══ §C3 · CHIPS, TABLES, CODE (G3) ═════════════════════════════════════
+ *
+ * The named surfaces the census found: .chip (the @apply'd pill),
+ * .eyebrow-chip (brand pill), and tables. Utility carriers inside them
+ * (table wells, header rows, inline <code>, pre) are already §C1-lifted;
+ * these rules give the NAMED components their glass grammar + the table
+ * its seams and hover lift.
+ */
+[data-appearance="crystal"] .chip {
+  background-color: rgb(var(--ink-800) / var(--surface-alpha-2));
+  border-color: var(--glass-line);
+  backdrop-filter: blur(8px) saturate(160%);
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  box-shadow: 0 0 0 1px var(--glass-ring),
+    inset 0 1px 0 0 var(--glass-edge-light);
+}
+
+[data-appearance="crystal"] .eyebrow-chip {
+  background-color: rgb(var(--brand-500) / 0.16);
+  border-color: rgb(var(--brand-400) / 0.38);
+  backdrop-filter: blur(8px) saturate(170%);
+  -webkit-backdrop-filter: blur(8px) saturate(170%);
+  box-shadow: 0 0 0 1px var(--glass-ring),
+    inset 0 1px 0 0 var(--glass-edge-light);
+}
+
+/* Table seams in glass: the header chills (tier 2), row hovers lift the
+   family's accent by a whisper — reading a ledger, the row under the
+   hand is the one row that gathers light. */
+[data-appearance="crystal"] table thead tr {
+  background-color: rgb(var(--ink-900) / 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+[data-appearance="crystal"] table tbody tr {
+  border-bottom-color: var(--glass-line);
+  transition: background-color 120ms ease;
+}
+
+[data-appearance="crystal"] table tbody tr:hover {
+  background-color: rgb(var(--brand-500) / 0.08);
+}
+
+/* §C3f · blur-less: named surfaces rise the same. */
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  [data-appearance="crystal"] .chip,
+  [data-appearance="crystal"] .eyebrow-chip,
+  [data-appearance="crystal"] table thead tr {
+    background-image: none;
+  }
+}
