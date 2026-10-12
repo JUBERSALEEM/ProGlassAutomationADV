@@ -842,8 +842,8 @@
 }
 @supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
   [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
-    backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%) brightness(1.08);
-    -webkit-backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%) brightness(1.08);
+    backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%) brightness(var(--glass-bright, 1.08));
+    -webkit-backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%) brightness(var(--glass-bright, 1.08));
   }
 }
 @media (prefers-reduced-transparency: reduce) {
@@ -941,4 +941,17 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* ═══ §F6 · THE ECONOMY LANE — weak devices keep the glass, skip the tax ═
+ * The governor flips ONE class on <html>; the engine reads dials only:
+ * frost rests at 0.5× and the liquid brightness is stripped. Ornaments,
+ * rings, specular all STAY — the look must survive the optimization.
+ */
+html.glass-econ [data-appearance="crystal"] {
+  --glass-frost-mult: 0.5;
+  --glass-bright: none;
+}
+@media (pointer: coarse), (max-width: 820px) {
+  [data-appearance="crystal"] { --glass-bright: none; }
 }

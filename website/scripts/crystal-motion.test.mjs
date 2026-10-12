@@ -137,7 +137,9 @@ test("G6·1 the coarse-pointer block exists, crystal-scoped, and touches ONLY th
     a.walkDecls((d) => decls.push(d.prop));
   });
   assert.ok(inMedia >= 1, "no (pointer: coarse) mitigation block in the engine");
-  assert.deepEqual(decls, ["--glass-frost-mult"], `coarse block must touch the frost dial and nothing else, got ${decls.join(", ")}`);
+  /* §F6 evolution: coarse blocks may touch the crystal DIAL SET (frost and
+   the liquid brightness) — never properties. Dials, not declarations. */
+  assert.ok(decls.includes("--glass-frost-mult") && new Set(["--glass-frost-mult", "--glass-bright"]).isSupersetOf(new Set(decls)), `coarse block touches the dial set only, got ${decls.join(", ")}`);
 });
 
 test("G6·2 the radius step rests at 0.6 — strong enough to matter, small enough to stay glass", () => {

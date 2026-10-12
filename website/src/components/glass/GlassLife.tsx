@@ -9,6 +9,14 @@ import { initGlassLife } from "@/lib/glassLife";
  * and the coordinates live in lib/glassLife.ts.
  */
 export function GlassLife() {
-  useEffect(() => initGlassLife(), []);
+  useEffect(() => {
+    // §F6 — the economy lane: a weak device gets the frost halved and the
+    // per-pixel brightness tax removed. The glass itself is untouched.
+    const nav = navigator as Navigator & { deviceMemory?: number };
+    const weak = (nav.deviceMemory !== undefined && nav.deviceMemory <= 4)
+      || (navigator.hardwareConcurrency !== undefined && navigator.hardwareConcurrency <= 4);
+    if (weak) document.documentElement.classList.add("glass-econ");
+    return initGlassLife();
+  }, []);
   return null;
 }
