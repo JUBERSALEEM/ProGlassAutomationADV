@@ -121,6 +121,8 @@ layout (Navbar, Footer/band-deep, Menu sheet, SupportBubble, ThemeStudio).
 | D32 | G6 — the performance census | Diagnosis: no counting of backdrop-filter surfaces — no number to worry about until there is. | Measured not argued: 23 routes × four carrier lanes, worst = /features at 522, budget 600 in the audit convention (a little above the shipped figure) | the census runs as crystal:census --budget alongside audit; audit itself mirrors the count live (the ledger prints with --budget); /features and home both sit coherently inside the 600 line |
 | D33 | G6 — coarse pointers (εC6) | Diagnosis: the dial the bench built is a GLOBAL control: one inline var writes for all five backdrop-filter sites | --glass-frost-mult: 0.6 on (pointer: coarse), nothing else written — fills + scrims + text untouched (the contract's caps hold the floor) | motion gate now 12/12 with the three G6 covenant tests; the engine refuses the coarse rule outside the dial, and the bench bench-moved will beat it inline as the bench should |
 
+| D34 | G7 — the catalog, and the default-family decision | The eight G-phases shipped (bench 69, motion 12, census 522@/features → §C6 coarse 0.6, catalog /sys/crystal). The question the roadmap withheld for the user only | The user answered 2026-10-12: **clay remains the default appearance; crystal remains opt-in in the studio** | a one-line docs entry; no code change — by design that's the whole scope of the decision |
+
 
 ## E. Current gate results (this build)
 

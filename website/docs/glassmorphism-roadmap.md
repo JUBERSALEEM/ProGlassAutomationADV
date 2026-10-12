@@ -1,6 +1,6 @@
 # Glassmorphism roadmap — the Crystal family, brought to 100%
 
-Status: **G0–G7 CLOSED 2026-10-12 (all eight phases shipped)** · the default-family question (below) is the user's alone · engines are separate by design (crystal-engine.css / clay-engine.css).
+Status: **G0–G7 CLOSED 2026-10-12 (all eight phases shipped)** · **the default-family question is DECIDED: clay stays** (user's call, 2026-10-12 — crystal remains opt-in through the Appearance Studio) · engines are separate by design (crystal-engine.css / clay-engine.css).
 Companion doc: `claymorphism-roadmap.md` (phases 1–7 closed) — this file follows the same
 conventions: components declare intent, selectors live in the stylesheet, every claim is gated,
 numbers in commit messages are executed, not read.
@@ -239,6 +239,11 @@ Family-scoped utility lift, mirroring clay §9's grammar:
   every re-glassed class lane, both modes, noindex + sitemap-free).
 - Decision log in `claymorphism-redesign-progress.md` (D30+) with executed
   numbers per phase; this roadmap's phases marked CLOSED as they land.
+- The default-family decision: **clay remains the default; crystal remains
+  fully opt-in in the Appearance Studio.** Decided by the user 2026-10-12.
+  No code change follows from it — by design, the only change it's ever
+  allowed to be is a one-line edit of `DEFAULT_APPEARANCE` and a written
+  trail.
 - **Default family decision**, made here and only here, with evidence:
   switch `DEFAULT_APPEARANCE`/boot hygiene key to crystal (or deliberately
   keep clay), documented as its own commit with rollback = one revert.
