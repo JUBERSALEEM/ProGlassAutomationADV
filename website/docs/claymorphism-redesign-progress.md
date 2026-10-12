@@ -91,10 +91,12 @@ layout (Navbar, Footer/band-deep, Menu sheet, SupportBubble, ThemeStudio).
 | D10 | review | divide-line/divide-ink COLOR utilities missed by the border sweep (table stripes, accordion rules stayed gray) | class audit | added to hairline sweep |
 | D11 | user report | desktop dropdowns: hover opened on enter, so the first click TOGGLED SHUT what hover opened — read as "needs double click"; no outside-close | Navbar.tsx hover/click conflict | pinnedMenu ref: click pins, hover-out never closes pinned, pointer-down outside + Escape + route-change clear |
 | D12 | "didn't felt the engine" | TWO causes: (a) the shipped DEFAULT family was crystal — a returning visitor's stored choice also outranked clay, so pages were judged without ever reaching the engine; (b) stale studio dials could outrank family recipe. | boot audit | DEFAULT_APPEARANCE + boot fallback = clay; hygiene v2 migration runs before resolution: wipes stored studio vars/attrs AND seeds stored appearance = clay once; palette picker still freely switches away |
+| D13 | user report (2bd0c23 stamp) | **The real dropdown defect D11 never touched**: `.nav-pill { overflow: hidden }` (photon-clip from the pill redesign) CLIPPED every dropdown panel — an absolutely-positioned descendant — before it could paint. Hover opened, clicks opened, nothing painted; misread as "menus need a double click". Source-reading verification was blind to it (geometry, not logic). | globals.css audit + reproduced with `tests/navbar.test.tsx` against the DOM | clip moved onto the streak itself (`clip-path` on `.nav-pill::after`), pill overflow freed; regression guard `scripts/nav-pill-clip.test.mjs` fails if the pill ever clips again |
+| D14 | same report | Pin state machine corrupted: the 140ms grace timer closed PINNED menus on hover-out AND left the stale pin set → the next click took the close branch: genuinely "first click does nothing, second opens". | reproduced: 2/8 failures in `tests/navbar.test.tsx` against pre-fix Navbar | pin invariant (pin ⇒ open): timer skips pinned menus, hover-switch hands pin back, re-click on pinned trigger is the one toggle-off; 8/8 after fix; `react-hooks/refs` render-write moved to a route-change effect |
 
 ## E. Current gate results (this build)
 
-- tsc 0 · eslint 0 · `test:job-orders` 8/8 · build 399/399
+- tsc 0 · eslint 0 · `test:job-orders` 8/8 · `test:navbar` (css guard 2/2 + interaction 8/8, with 2/8 failing on the pre-fix build as the honest baseline) · build 399/399
 - audit 0 failures / 0 warnings; css budget re-measured per trail: 27.0 → 27.9 (engine) → 28.2 (primitives) → see commit message of the §7 pass for current
 
 ## F. Next exact tasks (resume here)

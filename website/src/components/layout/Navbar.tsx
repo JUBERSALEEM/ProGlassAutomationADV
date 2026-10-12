@@ -168,12 +168,21 @@ export function Navbar() {
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   /*
    * Hover opens; a click PINS. Without this the two gestures fight: the
-   * wrapper opens the menu on mouse-enter, so the very first click arrived
-   * at an already-open menu and ReadOnly-toggled it shut — from the
-   * visitor's side the button "needed a second click" to do anything.
-   * pinnedRef remembers the menu a click locked in place; hover-out never
-   * closes a pinned menu, an outside pointer-down un-pins, and the route
-   * change / Escape paths below clear it with the rest.
+   * wrapper opens the menu on mouse-enter, so the very first click arrives
+   * at an already-open menu and would toggle it shut — from the visitor's
+   * side the button "needs a second click" to do anything.
+   *
+   * The pin carries one invariant, and every path below keeps it:
+   * `pinnedMenu` is only ever the label of the menu that is OPEN right now.
+   * The pin sets it (click), the deliberate re-click on the same trigger
+   * clears it (the one toggle-off), a hover switch to a sibling reverts to
+   * hover mode, and the outside-pointer-down / Escape / route-change paths
+   * clear it with the rest. If a pin could outlive its menu — which the
+   * first version of this allowed, closing a pinned menu on hover-out but
+   * keeping the pin — the next click landed on the stale pin and CLOSED
+   * instead of opening: the "double click" bug, baked into the state
+   * machine rather than the hand. `tests/navbar.test.tsx` walks these
+   * sequences against a real DOM so they cannot silently regress again.
    */
   const pinnedMenu = useRef<string | null>(null);
   const navListRef = useRef<HTMLDivElement | null>(null);
@@ -199,9 +208,15 @@ export function Navbar() {
   if (lastPath !== pathname) {
     setLastPath(pathname);
     setMobileOpen(false);
-    pinnedMenu.current = null;
     setOpenMenu(null);
   }
+  /* Ref writes don't belong to render (react-hooks/refs), so the pin clears
+     in an effect that follows the same route change — the menu itself has
+     already closed in the render pass above, and a pin cleared a frame
+     later can only make the next close MORE permissive, never less. */
+  useEffect(() => {
+    pinnedMenu.current = null;
+  }, [pathname]);
 
   // Escape closes the open surface.
   // A pointer-down outside the bar closes whatever the bar opened.
@@ -245,7 +260,15 @@ export function Navbar() {
 
   const scheduleClose = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
-    closeTimer.current = setTimeout(() => setOpenMenu(null), 140);
+    closeTimer.current = setTimeout(() => {
+      closeTimer.current = null;
+      /* The grace timer closes hover-opens only. A pinned menu — one the
+         visitor clicked to hold — survives the hand leaving; it closes on
+         the re-click on its trigger, on a pointer-down outside the bar, on
+         Escape, or on a route change, each of which also clears the pin. */
+      if (pinnedMenu.current) return;
+      setOpenMenu(null);
+    }, 140);
   };
   const cancelClose = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -332,6 +355,11 @@ export function Navbar() {
                 className={cn(tier, "relative")}
                 onMouseEnter={() => {
                   cancelClose();
+                  /* Moving to a sibling hands the bar back to hover: the pin
+                     belongs to the menu that is open, and a hover-opened
+                     sibling must never inherit it (a stale pin is what made
+                     the next click close instead of open). */
+                  if (openMenu !== entry.label) pinnedMenu.current = null;
                   setOpenMenu(entry.label);
                 }}
                 onMouseLeave={scheduleClose}
@@ -342,17 +370,20 @@ export function Navbar() {
                   aria-haspopup="true"
                   onClick={() => {
                     cancelClose();
-                    if (!open) {
-                      pinnedMenu.current = entry.label;
-                      setOpenMenu(entry.label);
-                    } else if (pinnedMenu.current === entry.label) {
+                    if (open && pinnedMenu.current === entry.label) {
+                      /* The one toggle-off: a re-click on the trigger the
+                         visitor pinned. Reachable ONLY while that menu is
+                         visibly open — the pin invariant guarantees it. */
                       pinnedMenu.current = null;
                       setOpenMenu(null);
-                    } else {
-                      /* Open BY HOVER — the click pins it, it does not slam shut. */
-                      pinnedMenu.current = entry.label;
-                      setOpenMenu(entry.label);
+                      return;
                     }
+                    /* Closed menu, or one open by hover that the click now
+                       commits to: pin it open. The click never slams the
+                       menu it lands on — that was the "needs a double
+                       click" defect. */
+                    pinnedMenu.current = entry.label;
+                    setOpenMenu(entry.label);
                   }}
                   className={cn(NAV_CARD, active || open ? NAV_CARD_ON : NAV_CARD_OFF)}
                 >

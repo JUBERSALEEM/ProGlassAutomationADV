@@ -1338,10 +1338,21 @@
    * links never lose their footing — position static, gradient transparent
    * at both ends, and wholly absent under reduced motion. Everywhere else
    * in the header, light answers the visitor (hover, focus) instead.
+   *
+   * The clip lives on the streak, not the pill. This rule once carried
+   * `overflow: hidden` so the photon stayed inside the rounded edge — and
+   * when the nav redesign put the dropdown panels inside the pill, that
+   * clip silently ate every menu the bar opened: React state flipped, the
+   * panel rendered `top-full`, and the pill's box cut it off before it
+   * could paint. Hover "did nothing", clicks "did nothing", and the one
+   * gesture that occasionally re-rendered — the second click of a pair —
+   * was misread as the menus needing a double click. Panels must hang
+   * BELOW the pill, so the pill's overflow is free again; the photon keeps
+   * its lane with its own clip-path matching the rounded rect instead.
+   * Guarded by `scripts/nav-pill-clip.test.mjs`.
    */
   .nav-pill {
     position: relative;
-    overflow: hidden;
     perspective: 550px;
   }
 
@@ -1350,6 +1361,7 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
+    clip-path: inset(0 round calc(1.25rem * var(--radius-scale, 1)));
     background: linear-gradient(104deg,
       transparent 62%,
       rgb(186 226 255 / 0.10) 68.5%,
