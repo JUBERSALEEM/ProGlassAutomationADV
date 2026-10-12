@@ -39,14 +39,14 @@
  * pattern is the grammar: the engine lifts every utility carrier to the
  * family's material, and the components keep declaring intent.
  *
- * Midnight: 0.66 fill — through it, the pools bleed (that is the point of
+ * Midnight: 0.10 white tint (§D2) — through it, the pools bleed (the point
  *   glass) — while the scrim does its documented job underneath the text.
  * Daylight: 0.86 fill — the fill carries the text (doctrine ≥ 0.80); the
  *   cyan corners are what sell glass on paper, not the translucency.
  * <option> is excluded: it belongs to the OS popup, not the page's room.
  */
 [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
-  background-color: rgb(var(--ink-900) / 0.66);
+  background-color: rgb(255 255 255 / 0.10);
   background-image:
     var(--glass-frost),
     linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),
@@ -63,7 +63,7 @@
      light-glass weight (the pink reference). The scrim in §C7 catches what
      the fill returns (0.60 → 0.68) and the contract re-floored every
      daylight tier below in the same move. */
-  background-color: rgb(var(--ink-900) / 0.74);
+  background-color: rgb(255 255 255 / 0.42);
   box-shadow: 0 0 0 1px var(--glass-line),
     inset 0 1px 0 0 var(--glass-edge-light),
     inset 0 -1px 0 0 var(--glass-edge-dark);
@@ -458,7 +458,7 @@
   /* ── D · The scrim takes what the fill returns: midnight fill lightened
      (§C1, below), the scrim stiffens from 0.34 → 0.42 to hold the text
      field exactly where the contract measured it. */
-  --glass-scrim: rgb(6 26 38 / 0.42);
+  --glass-scrim: rgb(6 26 38 / 0.30);
 
   /* ── E · Saturation behind EVERY pane goes to the pattern's 180%. */
   --glass-sat: 180%;
@@ -481,7 +481,7 @@
      white scrim a notch so the pattern's airy panes stay text-safe. */
   /* §C8: the scrim catches what §C1's daylight fill returned (0.86→0.74):
      0.60 → 0.68. The light text field the contract computed is unchanged. */
-  --glass-scrim: rgb(255 255 255 / 0.68);
+  --glass-scrim: rgb(255 255 255 / 0.18);
 }
 
 [data-appearance="crystal"] :is(
@@ -492,14 +492,14 @@
 }
 
 /* ── F · §C1, retuned to the pattern: the midnight fill comes DOWN from
-   0.66 to 0.50 (glass, not paint — the scrim above keeps the text field's
+   0.66 → 0.50 → 0.10 white-tint (§D2: the pattern's own grammar — the
    effective darkening where the contract measured it), and the blur trades
    sharpness for presence: 10px → 18px at saturate 180%. The daylight fill
    stays 0.86: daylight's glassiness comes from the pastel wall, not from
    transparency, and the 0.80 doctrine (G4) holds. */
 @supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
   [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
-    background-color: rgb(var(--ink-900) / 0.50);
+    background-color: rgb(255 255 255 / 0.10);
     backdrop-filter: blur(calc(18px * var(--glass-frost-mult, 1))) saturate(180%);
     -webkit-backdrop-filter: blur(calc(18px * var(--glass-frost-mult, 1))) saturate(180%);
   }
