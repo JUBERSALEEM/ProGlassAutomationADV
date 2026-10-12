@@ -26,8 +26,8 @@ locks, reduced-motion gates, and the ability to re-theme live.
 | Zone plates (§17: feature card, lit bands, divided-sheet row rotation) | complete | 100% |
 | Edges (§14: rim moved inside; directional inner relief, no closed ring) | complete | 95% (multi-element edge covers still to audit) |
 | Clay bar (§15: segmented plate, pinned indicator, pointer + route driven) | complete — including the aria-current root-cause fix | 100% |
-| Clay Studio (presets, accent, custom plate, tint dial, replay) | complete v1 | 90% (no radius/depth dials yet) |
-| Performance on interaction (D25: imperative pill, shared observer) | complete v1 | 90% (see Phase 2 notes) |
+| Clay Studio (presets, accent, custom plate, tint dial, **depth dial**, share links) | complete v2 | 100% |
+| Performance on interaction (D25: imperative pill, shared observer, delta-writes, rAF applies, pointer-state guard) | complete | 100% |
 | Coverage of *motion grammar* (§11 pack: blobs, press pricing, hover lifts) | complete | 95% (reduced-motion audited, container-query media card pending) |
 | Pixel-perfect pass across all 25 routes, both modes | **not done** | 0% |
 | Remaining fine washes (`bg-brand-400/8,10`), PreviewShell bubble-input, hero orb clamps | open | — |
