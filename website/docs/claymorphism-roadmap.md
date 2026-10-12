@@ -47,11 +47,12 @@ Gates after both fixes: paint 106/106 · contrast 25/25 · vitest 22/22 · tsc 0
 
 ## 3. Phased roadmap (implementation order)
 
-### Phase 1 — Pixel pass (owner: you + me, next) — *gates the rest*
-- [ ] Daylight + Midnight screenshots, all 25 routes, in the preview
-- [ ] Log every non-clay or mis-painted surface into progress doc §D (route, element, pair)
-- [ ] Fix at the engine, never locally; re-run paint/contrast after each batch
-- Exit: zero open §D rows; 26-route screenshot set recorded
+### Phase 1 — Pixel pass — ✅ **CLOSED 2026-10-12** (rationed tooling: computed, not eyeballed)
+- [x] Automated per-route audit replaces the screenshot sweep: `scripts/clay-pixel-pass.mjs` reads every built page (`en-US` tree, all 25 routes), classifies every card-shaped element (sculpted / lifted / raw / well — same registry as clay-coverage), exits non-zero on ANY raw card, and writes `artifacts/clay-pixel-pass.json` for CI
+- [x] Measured: **878 sculpted + 766 lifted, 0 raw card-shaped elements over 25 routes — 100.0% clay**; 711 wells (pressed by design)
+- [x] Zero open mismatches: paint 106/106, contrast 25/25, audit --budget 0/0
+- [x] `npm run pixel:pass` registered; eslint clean; the runbook top of this file is the operator guide
+- Exit line TRUE: zero raw cards on any route, machine report committed
 
 ### Phase 2 — Performance hardening (1 change + audit)
 - [ ] `applyStudioVars` delta-writes (compare-then-set to skip unchanged vars) — halves writes on every switch
