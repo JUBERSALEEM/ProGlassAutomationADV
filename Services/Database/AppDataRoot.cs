@@ -14,18 +14,15 @@ namespace ProGlassAutomation.Services.Database
     /// Supports a professional LAN/Wi-Fi shared data root so all company
     /// workstations can point at the same dataset from Settings.
     ///
-    /// SENIOR AUDIT (2026-09-24) — shared LAN/Wi-Fi data root:
-    /// The old ConfigureFrom() swallowed every exception from a bare
-    /// Directory.CreateDirectory and silently reset the shared root to "",
-    /// so a workstation that started while its WiFi/LAN share was
-    /// unreachable (file server off, WiFi not up yet, SMB name down)
-    /// opened its LOCAL AppData database while the rest of the company
-    /// kept writing to the share — two diverging data sets, no warning
-    /// anywhere. A configured but unavailable share now fails closed:
-    /// database access is blocked rather than redirected to local AppData.
-    /// The configured root and reason are surfaced as a red Settings banner;
-    /// every database folder access goes through EnsureCurrentFolder(),
-    /// which throws an operator-readable SharedDataRootUnavailableException.
+    /// SHARED LAN/WI-FI DATA ROOT:
+    /// The saved UNC path is probed before any DbContext opens. If the share
+    /// is reachable, all databases use it. If it is unavailable at startup,
+    /// the application remains usable against this workstation's local
+    /// AppData database and raises a visible warning; it never pretends that
+    /// local writes are shared. A persisted review marker prevents a later
+    /// startup from silently switching datasets after offline local work.
+    /// A share that disappears after it has been selected remains a hard
+    /// database error; the app never hot-switches roots mid-session.
     /// </summary>
     public static class AppDataRoot
     {
@@ -34,8 +31,6 @@ namespace ProGlassAutomation.Services.Database
 
         private static string _sharedDataRoot = "";
         private static string _configuredSharedDataRoot = "";
-        private static string _sharedRootFailureDetail = "";
-        private static Exception? _sharedRootFailureCause;
         private static bool _sharedFolderVerified = false;
 
         public static bool IsDemo { get; private set; }
@@ -51,23 +46,25 @@ namespace ProGlassAutomation.Services.Database
 
         /// <summary>
         /// The persisted settings asked for a shared root, whether or not
-        /// it was reachable at startup. Lets the UI distinguish "shared is
-        /// configured but unreachable" (must show a warning) from "local
-        /// mode was chosen on purpose".
+        /// it is active. Lets the UI distinguish configured-but-offline or
+        /// reconnect-pending local mode from a deliberate local profile.
         /// </summary>
         public static bool SharedRootConfigured { get; private set; }
 
         /// <summary>
-        /// Human-readable reason database access is blocked because the
-        /// configured shared root is unavailable or invalid. Empty when
-        /// there is no problem. Written once at startup by ConfigureFrom;
-        /// restart after repairing the share to reselect it.
+        /// Human-readable local-mode warning when the saved shared root is
+        /// unavailable or requires an explicit reconnect after prior offline
+        /// work. Empty when the configured root is active or local mode was
+        /// deliberately selected.
         /// </summary>
         public static string SharedRootFallbackReason { get; private set; } = "";
 
-        /// <summary>True when a configured shared root is NOT the live root.</summary>
+        /// <summary>True when a configured shared root is not active and this workstation is using local data.</summary>
         public static bool SharedRootFallbackActive =>
             SharedRootConfigured && !IsSharedDataRootEnabled && !IsDemo;
+
+        /// <summary>True when the saved network path responds but requires explicit reconnect review.</summary>
+        public static bool SharedRootReconnectAvailable { get; private set; }
 
         public static string? TestFolderOverride { get; set; }
 
@@ -82,12 +79,9 @@ namespace ProGlassAutomation.Services.Database
                 if (IsDemo)
                     return DemoFolder;
 
-                // A configured but unavailable share remains the selected
-                // root. EnsureCurrentFolder will fail closed before any DB
-                // connection is opened; never route this state to local AppData.
-                if (SharedRootFallbackActive)
-                    return _configuredSharedDataRoot;
-
+                // Offline fallback is a single, deliberate local root for
+                // every module. SharedRootFallbackActive remains exposed so
+                // the UI can warn that these local changes do not sync.
                 if (!string.IsNullOrWhiteSpace(_sharedDataRoot))
                     return _sharedDataRoot;
 
@@ -108,11 +102,10 @@ namespace ProGlassAutomation.Services.Database
             // Reset every shared-root state, then re-derive it from config.
             _sharedDataRoot = "";
             _configuredSharedDataRoot = "";
-            _sharedRootFailureDetail = "";
-            _sharedRootFailureCause = null;
             _sharedFolderVerified = false;
             SharedRootConfigured = false;
             SharedRootFallbackReason = "";
+            SharedRootReconnectAvailable = false;
 
             var data = config?.DataConnectivity;
             if (data?.UseSharedDataRoot != true) return;
@@ -122,124 +115,138 @@ namespace ProGlassAutomation.Services.Database
 
             if (!TryNormalizeSharedRoot(data.SharedDataRootPath, out var normalized))
             {
-                // Enabled in config but the path is empty/invalid — usually
-                // a half-saved state from an older build. Fail closed before
-                // any DbContext can open a local database.
-                _sharedRootFailureDetail =
-                    "The saved shared-folder path is empty or invalid.";
-                _sharedRootFailureCause = new ArgumentException(
-                    _sharedRootFailureDetail, nameof(data.SharedDataRootPath));
+                const string detail = "The saved shared-folder path is empty or invalid.";
+                if (!data.SharedRootOfflineFallbackNeedsReview)
+                    data.SharedRootLocalModeNoticePending = true;
+                data.SharedRootOfflineFallbackNeedsReview = true;
                 SharedRootFallbackReason =
-                    "Shared company database mode is enabled, but the saved folder path is empty or invalid. " +
-                    "Database access is blocked; this workstation will not open local AppData. Open " +
-                    "Settings → Data, enter the shared folder, test it, save, and restart ProGlass.";
-                AppLogService.Error(
-                    "Shared data root enabled in config but path is empty or invalid — " +
-                    "database access is blocked; local AppData will not be opened.",
-                    null,
+                    "The saved shared-folder path is empty or invalid. ProGlass is continuing with " +
+                    "this workstation's local database. Changes saved locally will not be shared with " +
+                    "other workstations. Open Settings → Data, enter the real host/share path, test it, " +
+                    "and explicitly prepare/reconnect when the correct company dataset is available.";
+                AppLogService.Warning(
+                    "Shared data root is enabled with an empty or invalid path; continuing with the " +
+                    $"local database. {detail}",
                     new LogContext { Module = "Database", Operation = "ConfigureSharedRoot" });
                 return;
             }
 
             _configuredSharedDataRoot = normalized;
 
-            if (TryEnsureSharedFolder(
+            if (!TryVerifySharedFolder(
                 normalized, out var failure, out var failureCause))
             {
-                _sharedDataRoot = normalized;
-                _sharedRootFailureDetail = "";
-                _sharedRootFailureCause = null;
-                _sharedFolderVerified = true;
-                AppLogService.Info(
-                    $"Shared company database root enabled: {_sharedDataRoot}",
-                    new LogContext { Module = "Database", Operation = "ConfigureSharedRoot" });
-            }
-            else
-            {
-                // Never open a second, local database while the company root
-                // is configured. Keep the chosen share visible, block all DB
-                // access, and require a restart after the share is restored.
-                _sharedRootFailureDetail = failure;
-                _sharedRootFailureCause = failureCause ?? new IOException(failure);
+                failureCause ??= new IOException(failure);
+                if (!data.SharedRootOfflineFallbackNeedsReview)
+                    data.SharedRootLocalModeNoticePending = true;
+                data.SharedRootOfflineFallbackNeedsReview = true;
+                string placeholderHint = UsesExampleServerName(normalized)
+                    ? " If 'SERVER' is only the example name, replace it with the actual host PC name."
+                    : "";
                 SharedRootFallbackReason =
                     "The configured shared company data folder " + normalized + " is unavailable. " +
-                    "Database access is blocked; this workstation will not open local AppData. Make sure the " +
-                    "host computer is on, the folder is still shared on the WiFi/LAN, and " +
-                    "this workstation is on the same network, then restart ProGlass. (" +
-                    failure + ")";
-                AppLogService.Error(
-                    "Configured shared company database root is unreachable — database access is blocked; " +
-                    $"local AppData will not be opened. Path: {normalized}. {failure}",
-                    null,
+                    "ProGlass is continuing with this workstation's local database; changes made now " +
+                    "will not appear on other workstations. The saved path is checked again at startup. " +
+                    "After the network returns, review/prepare the correct company folder and explicitly " +
+                    "reconnect in Settings → Data; local changes are not merged automatically. " +
+                    failure + placeholderHint;
+                AppLogService.Warning(
+                    "Configured shared data root is unreachable; continuing with the local database. " +
+                    $"Path: {normalized}. {failure}",
+                    failureCause,
                     new LogContext { Module = "Database", Operation = "ConfigureSharedRoot" });
+                return;
             }
+
+            if (data.SharedRootOfflineFallbackNeedsReview)
+            {
+                // This workstation wrote to local AppData while the saved
+                // share was offline. Even though the share has returned, do
+                // not silently switch datasets and hide those local changes.
+                // Settings can explicitly prepare/reconnect after review.
+                SharedRootReconnectAvailable = true;
+                if (!data.SharedRootReconnectNoticeShown)
+                {
+                    data.SharedRootLocalModeNoticePending = true;
+                    data.SharedRootReconnectNoticeShown = true;
+                }
+                SharedRootFallbackReason =
+                    "The saved shared folder is reachable again: " + normalized + ". ProGlass is " +
+                    "staying on this workstation's local database because it may contain changes made " +
+                    "while the share was offline. Local changes are not merged automatically. Review " +
+                    "the local data, then use Settings → Data to prepare/reconcile and explicitly " +
+                    "reconnect to the shared folder.";
+                AppLogService.Warning(
+                    "The saved shared folder is reachable, but this workstation remains in local mode " +
+                    "until offline local data is reviewed. Path: " + normalized,
+                    new LogContext { Module = "Database", Operation = "SharedRootReconnectReview" });
+                return;
+            }
+
+            _sharedDataRoot = normalized;
+            _sharedFolderVerified = true;
+            AppLogService.Info(
+                $"Shared company database root enabled: {_sharedDataRoot}",
+                new LogContext { Module = "Database", Operation = "ConfigureSharedRoot" });
+        }
+
+        private static bool UsesExampleServerName(string path)
+        {
+            if (!path.StartsWith(@"\\", StringComparison.Ordinal)) return false;
+            string remainder = path.Substring(2);
+            int separator = remainder.IndexOf('\\');
+            string host = separator < 0 ? remainder : remainder[..separator];
+            return host.Equals("SERVER", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
         /// Ensures the current data folder exists, with shared-root
-        /// awareness. Every DbContext.OnConfiguring calls this instead of a
-        /// bare Directory.CreateDirectory so that (1) a missing/unreachable
-        /// LAN share produces a clear, actionable error instead of a raw
-        /// IOException from deep inside a module, and (2) a share that is
-        /// already verified reachable is not re-probed with an SMB
-        /// round-trip on every context creation.
+        /// awareness. An unavailable share is resolved to the local root
+        /// once during startup, before any DbContext opens. A selected shared
+        /// root is not hot-switched if it fails during a live session, and a
+        /// verified share is not re-probed on every context creation.
         /// </summary>
         public static void EnsureCurrentFolder()
         {
-            bool usingTestOverride = !string.IsNullOrWhiteSpace(TestFolderOverride);
-            if (!usingTestOverride && SharedRootFallbackActive)
-            {
-                string configured = string.IsNullOrWhiteSpace(_configuredSharedDataRoot)
-                    ? "(empty or invalid path)"
-                    : _configuredSharedDataRoot;
-                var inner = _sharedRootFailureCause ?? new IOException(
-                    "The configured shared data root could not be verified.");
-                throw new SharedDataRootUnavailableException(
-                    configured,
-                    inner,
-                    string.IsNullOrWhiteSpace(_sharedRootFailureDetail)
-                        ? null
-                        : _sharedRootFailureDetail);
-            }
-
             string folder = CurrentFolder;
 
             if (IsSharedDataRootEnabled)
             {
                 if (_sharedFolderVerified) return;
-                try
+                if (TryVerifySharedFolder(folder, out var failure, out var cause))
                 {
-                    Directory.CreateDirectory(folder);
                     _sharedFolderVerified = true;
+                    return;
                 }
-                catch (Exception ex)
-                {
-                    _sharedFolderVerified = false;
-                    throw new SharedDataRootUnavailableException(
-                        folder, ex, DescribeShareFailure(ex));
-                }
-                return;
+
+                _sharedFolderVerified = false;
+                throw new SharedDataRootUnavailableException(
+                    folder,
+                    cause ?? new IOException(failure),
+                    failure);
             }
 
             Directory.CreateDirectory(folder);
         }
 
         /// <summary>
-        /// True when the folder exists and is reachable. Does NOT create —
-        /// used by the startup probe where a share that is configured but
-        /// not yet created by its host should count as "not there yet".
+        /// Confirms that the configured folder already exists and supports
+        /// read/write/delete access. Startup must not create a missing share;
+        /// folder creation and preparation belong to the explicit Settings
+        /// workflow. The bounded probe cannot freeze startup on dead SMB.
         /// </summary>
-        internal static bool TryEnsureSharedFolder(
+        internal static bool TryVerifySharedFolder(
             string folder, out string failure, out Exception? failureCause)
         {
-            // Directory.CreateDirectory on a dead UNC path blocks inside the
-            // SMB redirector. Keep the probe off the UI thread and bound the
-            // wait, but fail closed on timeout; never switch to local data.
+            // Network filesystem calls can block inside the SMB redirector.
+            // Run the read/write/delete probe off-thread with a hard bound.
+            // A timeout selects local mode before DbContexts open; an active
+            // shared session is never switched to local mid-operation.
             failure = "";
             failureCause = null;
             try
             {
-                var probe = Task.Run(() => Directory.CreateDirectory(folder));
+                var probe = Task.Run(() => VerifySharedFolderAccess(folder));
                 probe.ContinueWith(
                     t => { _ = t.Exception; },
                     TaskContinuationOptions.OnlyOnFaulted);
@@ -269,6 +276,28 @@ namespace ProGlassAutomation.Services.Database
             }
         }
 
+        private static void VerifySharedFolderAccess(string folder)
+        {
+            var attributes = File.GetAttributes(folder);
+            if ((attributes & FileAttributes.Directory) == 0)
+                throw new IOException("The configured shared-root path is not a folder.");
+
+            string probePath = Path.Combine(
+                folder, ".proglass_startup_probe_" + Guid.NewGuid().ToString("N") + ".tmp");
+            try
+            {
+                File.WriteAllText(probePath, "ProGlass shared-root startup probe.");
+                _ = File.ReadAllText(probePath);
+                File.Delete(probePath);
+            }
+            catch
+            {
+                try { if (File.Exists(probePath)) File.Delete(probePath); }
+                catch { /* Preserve the original access failure. */ }
+                throw;
+            }
+        }
+
         /// <summary>
         /// Maps a raw .NET share exception onto a sentence an operator can
         /// act on. Shared by the startup probe, the Settings probe button
@@ -285,9 +314,10 @@ namespace ProGlassAutomation.Services.Database
                 string msg = ex.Message ?? "";
                 if (msg.Contains("network path", StringComparison.OrdinalIgnoreCase)
                     || msg.Contains("not found", StringComparison.OrdinalIgnoreCase)
-                    || msg.Contains("cannot find", StringComparison.OrdinalIgnoreCase))
-                    return "The network path could not be found — check the computer name or " +
-                        "IP, that the share exists, and that this workstation is on the same WiFi/LAN.";
+                    || msg.Contains("cannot find", StringComparison.OrdinalIgnoreCase)
+                    || msg.Contains("could not find", StringComparison.OrdinalIgnoreCase))
+                    return "The configured folder path could not be found — check the host computer " +
+                        "name or IP, that the shared folder exists, and that this workstation is on the same WiFi/LAN.";
                 return "The shared folder did not respond — the host computer may be off or " +
                     "the network is down.";
             }

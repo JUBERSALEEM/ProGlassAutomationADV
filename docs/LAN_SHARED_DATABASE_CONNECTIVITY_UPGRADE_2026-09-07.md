@@ -61,12 +61,17 @@ The follow-up senior pass added three important production safeguards:
 Settings → Data now has a **Company LAN / Wi-Fi Database** panel:
 
 - enable/disable shared company database folder;
-- enter UNC/mapped path, e.g. `\\SERVER\\ProGlassData`;
+- enter UNC/mapped path, e.g. `\\OFFICE-PC\ProGlassData` (replace OFFICE-PC with the host PC name);
 - workstation name for audit/support;
 - test connection;
 - prepare folder;
 - copy local data if the shared folder is empty;
-- save setting with restart-required guidance.
+- apply a root change with explicit restart guidance. The root setting is committed only when the workstation can restart; declining or failing the restart leaves the previously active/saved root in place. Folder preparation can succeed without switching the live root.
+
+### Startup and offline behavior
+The app probes the saved path at startup. It does not scan arbitrary LAN shares because Windows discovery is not reliable and could select the wrong company data. Use the real host computer name (for example `\\OFFICE-PC\ProGlassData`); `SERVER` is only a placeholder in examples.
+
+If the configured share is unavailable, ProGlass continues on this workstation's local AppData database so the application can launch. A visible warning makes clear that local changes do not appear on other workstations. The app does not change roots mid-session. If a workstation used local mode while the share was offline, the next launch probes the saved path but stays local until the operator reviews the local dataset and explicitly reconnects. The local and shared databases are not automatically merged. Prepare Folder can copy local data into an empty share; do not use that action to overwrite an existing company dataset.
 
 ### Security/process-open support
 `ProcessStartGuard` now allows files/folders under the configured shared data root, including UNC paths, while still blocking arbitrary UNC paths outside the approved root.
@@ -74,19 +79,19 @@ Settings → Data now has a **Company LAN / Wi-Fi Database** panel:
 ## Operational guidance
 Recommended setup:
 
-1. Create a Windows shared folder on a stable office PC/server/NAS, e.g. `\\OFFICE-SERVER\\ProGlassData`.
+1. Create a Windows shared folder on a stable office PC/server/NAS, e.g. `\\OFFICE-SERVER\ProGlassData`.
 2. Give ProGlass users modify permissions.
 3. On the first workstation, open Settings → Data → Company LAN / Wi-Fi Database.
-4. Enter the shared path, enable copy-local-data if this workstation has the current master data, and click **Prepare Folder**.
-5. Click **Save + Restart Required**, close/reopen ProGlass.
-6. On every other workstation, enter the same shared path, disable copy if the folder is already populated, save and restart.
+4. Enter the shared path, enable copy-local-data if this workstation has the current master data, and click **Prepare Folder**. Review the backup/copy confirmation.
+5. Accept the restart prompt to save and activate the prepared root on that workstation. If you decline, the folder stays prepared but the active root is unchanged.
+6. On every other workstation, enter the same shared path, disable copy if the folder is already populated, then click **Save + Restart** and accept the prompt.
 7. Avoid cloud-sync folders such as OneDrive/Google Drive/Dropbox for live DB files.
 
 For high concurrency or unreliable Wi-Fi, a real client/server database remains the stronger architecture, but this upgrade makes same-network shared-folder operation much safer and more transparent for a small office.
 
 ## Validation
-- C# brace-balance checks passed for changed files.
-- XAML parse passed.
+- C# syntax parsing passed for the changed source files; no compile-risk findings were reported.
+- XAML well-formedness check passed.
 - `git diff --check` passed.
 - Conflict-marker scan passed.
-- Full .NET build could not run because the sandbox does not have the .NET SDK installed.
+- .NET build and tests were not run because the sandbox does not have the .NET SDK installed.

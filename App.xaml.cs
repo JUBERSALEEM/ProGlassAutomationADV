@@ -173,8 +173,9 @@ namespace ProGlassAutomation
         //  The original body moved into StartupCoreAsync(). This wrapper
         //  awaits it inside a try/catch so unexpected startup faults are
         //  logged, written to the crash report, and shown to the user.
-        //  The expected "configured shared root is offline" condition has
-        //  a separate fail-closed warning path, not a crash report.
+        //  A share that is offline at the initial probe selects visible local
+        //  mode and continues startup. The separate shared-root exception
+        //  path is reserved for a selected share that fails during startup.
         // ══════════════════════════════════════════════════════════════
         private async void Application_Startup(
             object sender, StartupEventArgs e)
@@ -196,10 +197,10 @@ namespace ProGlassAutomation
         }
 
         /// <summary>
-        /// A configured LAN share that is offline is an expected
-        /// availability condition, not an application crash. Keep the
-        /// fail-closed policy, but explain the recovery steps without
-        /// generating a crash report or misleading generic database advice.
+        /// A share that was selected as the active root but fails during
+        /// database initialization must not silently switch to local data:
+        /// some databases may already have opened on the share. Stop this
+        /// partial startup cleanly and explain recovery without a crash report.
         /// </summary>
         private void HandleSharedDataRootUnavailable(
             SharedDataRootUnavailableException ex)

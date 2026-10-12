@@ -34,8 +34,10 @@ namespace ProGlassAutomation.Services.Database
     ///      is not reliable over a network share, and two workstations can
     ///      diverge silently.
     ///   3. ApplyToConfig persisted UseSharedDataRoot=true with an empty
-    ///      path when validation failed, so the next startup silently ran
-    ///      on local AppData while Settings still claimed "shared".
+    ///      path when validation failed, leaving the next startup without
+    ///      a usable shared target. That invalid configuration is still
+    ///      rejected; a valid share that later goes offline now selects a
+    ///      visible local fallback instead of terminating the application.
     /// All three are fixed here: checkpoint the local databases first,
     /// copy only the .db files, convert every shared database to
     /// rollback-journal (DELETE) mode — persisted in the SQLite header —
@@ -54,7 +56,7 @@ namespace ProGlassAutomation.Services.Database
                 return new SharedDataRootProbeResult
                 {
                     Ok = false,
-                    Message = "Enter a shared folder different from the local ProGlass AppData folder. Recommended: \\\\SERVER\\\\ProGlassData or a mapped drive on the same LAN/Wi-Fi.",
+                    Message = "Enter a shared folder different from the local ProGlass AppData folder. Recommended: \\\\OFFICE-PC\\ProGlassData (replace OFFICE-PC with the host PC name) or a mapped drive on the same LAN/Wi-Fi.",
                     NormalizedPath = folder ?? ""
                 };
             }
@@ -310,12 +312,15 @@ namespace ProGlassAutomation.Services.Database
             if (enabled && !AppDataRoot.TryNormalizeSharedRoot(path, out normalized))
             {
                 return (false, "✗ Enter a valid shared folder path first " +
-                    "(for example \\\\SERVER\\ProGlassData) — shared mode is not saved with a missing path.");
+                    "(for example \\\\OFFICE-PC\\ProGlassData) — shared mode is not saved with a missing path.");
             }
 
             config.DataConnectivity.UseSharedDataRoot = enabled;
             config.DataConnectivity.SharedDataRootPath = enabled ? normalized : "";
             config.DataConnectivity.CopyLocalDataOnEnable = copyLocalData;
+            config.DataConnectivity.SharedRootOfflineFallbackNeedsReview = false;
+            config.DataConnectivity.SharedRootLocalModeNoticePending = false;
+            config.DataConnectivity.SharedRootReconnectNoticeShown = false;
             if (string.IsNullOrWhiteSpace(config.DataConnectivity.WorkstationName))
                 config.DataConnectivity.WorkstationName = Environment.MachineName;
 

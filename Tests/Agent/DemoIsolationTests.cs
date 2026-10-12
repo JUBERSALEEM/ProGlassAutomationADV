@@ -10,6 +10,9 @@ using Xunit;
 
 namespace ProGlassAutomation.Tests.Agent
 {
+    // Demo toggles mutate the same process-wide AppDataRoot used by the
+    // shared-root and database tests; serialize them in the hermetic collection.
+    [Collection("HermeticDb")]
     public class DemoIsolationTests
     {
         [Fact]

@@ -679,7 +679,7 @@ likely to fail.
 | | |
 |---|---|
 | **Installed data** | `%AppData%\ProGlassAutomation\` — one SQLite file per module, `config.json`, `logs\`, `Backups\`, per-module attachment folders. Full layout in [`docs/INSTALL.md`](docs/INSTALL.md). |
-| **Shared LAN/Wi-Fi root** | Configured in Settings → Data. If the share is unreachable at startup the app falls back to local **and says so** (`SharedRootFallbackActive`, red banner) instead of silently splitting the dataset. |
+| **Shared LAN/Wi-Fi root** | Configured in Settings → Data using the real host/share path. Startup probes that saved path (it does not scan arbitrary LAN shares). If unavailable, the app launches in local mode with a visible warning; local writes do not sync. A persisted review marker prevents silently switching datasets when the share returns; explicitly prepare/reconcile and reconnect from Settings. |
 | **Demo mode** | A separate `ProGlassAutomation.Demo` data folder, so a demonstration can never touch production records. |
 | **Upgrades** | Never touch the data folder. Migrations are additive-only and run backup → transaction → rollback. |
 | **Uninstall** | Velopack removes the app; `%AppData%\ProGlassAutomation\` is left alone on purpose. Delete it to remove all data. |

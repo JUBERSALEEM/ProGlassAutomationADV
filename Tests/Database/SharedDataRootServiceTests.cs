@@ -10,10 +10,9 @@
 //   3. LooksNetworkBased recognises UNC paths (and never a plain local
 //      drive).
 //   4. ApplyToConfig REFUSES to persist a half-configured shared mode —
-//      enabled=true with an empty or local path must not be saved, because
-//      the next startup would silently fall back to local AppData while
-//      Settings still claimed "shared" (the split-brain bug this audit
-//      exists to keep dead).
+//      enabled=true with an empty or local path must not be saved. Runtime
+//      offline fallback is visible, but an invalid saved target is still
+//      rejected rather than being accepted as a working shared configuration.
 //   5. SharedDataRootUnavailableException carries the operator-facing
 //      message with the folder path and the inner exception.
 //
@@ -155,6 +154,29 @@ namespace ProGlassAutomation.Tests.Database
             Assert.False(result.Ok);
         }
 
+        [Fact]
+        public void StartupProbe_verifies_existing_folder_without_creating_a_missing_one()
+        {
+            var missing = Path.Combine(_tempRoot, "not-created-by-startup");
+
+            Assert.False(AppDataRoot.TryVerifySharedFolder(
+                missing, out var failure, out var cause));
+            Assert.False(Directory.Exists(missing));
+            Assert.False(string.IsNullOrWhiteSpace(failure));
+            Assert.NotNull(cause);
+        }
+
+        [Fact]
+        public void StartupProbe_requires_read_write_and_delete_access_to_existing_folder()
+        {
+            var folder = MakeFolder("startup-probe");
+
+            Assert.True(AppDataRoot.TryVerifySharedFolder(
+                folder, out var failure, out var cause), failure);
+            Assert.Null(cause);
+            Assert.Empty(Directory.GetFiles(folder));
+        }
+
         // ── ApplyToConfig — the half-configured-state ratchet ────────
 
         [Fact]
@@ -186,13 +208,19 @@ namespace ProGlassAutomation.Tests.Database
         public void Apply_persists_the_path_when_enabling()
         {
             var config = new AppConfig();
+            config.DataConnectivity!.SharedRootOfflineFallbackNeedsReview = true;
+            config.DataConnectivity.SharedRootLocalModeNoticePending = true;
+            config.DataConnectivity.SharedRootReconnectNoticeShown = true;
             var folder = MakeFolder("apply-on");
 
             var (ok, _) = SharedDataRootService.ApplyToConfig(
                 config, enabled: true, path: folder, copyLocalData: true);
 
             Assert.True(ok);
-            Assert.True(config.DataConnectivity!.UseSharedDataRoot);
+            Assert.True(config.DataConnectivity.UseSharedDataRoot);
+            Assert.False(config.DataConnectivity.SharedRootOfflineFallbackNeedsReview);
+            Assert.False(config.DataConnectivity.SharedRootLocalModeNoticePending);
+            Assert.False(config.DataConnectivity.SharedRootReconnectNoticeShown);
             Assert.Equal(folder, config.DataConnectivity.SharedDataRootPath);
             Assert.False(string.IsNullOrEmpty(config.DataConnectivity.WorkstationName));
         }
@@ -201,41 +229,125 @@ namespace ProGlassAutomation.Tests.Database
         public void Apply_clears_the_path_when_disabling()
         {
             var config = new AppConfig();
+            config.DataConnectivity!.SharedRootOfflineFallbackNeedsReview = true;
+            config.DataConnectivity.SharedRootLocalModeNoticePending = true;
+            config.DataConnectivity.SharedRootReconnectNoticeShown = true;
             var folder = MakeFolder("apply-off");
 
             var on = SharedDataRootService.ApplyToConfig(config, true, folder, true);
             Assert.True(on.Ok);
+            Assert.False(config.DataConnectivity.SharedRootOfflineFallbackNeedsReview);
+            Assert.False(config.DataConnectivity.SharedRootLocalModeNoticePending);
+            Assert.False(config.DataConnectivity.SharedRootReconnectNoticeShown);
 
             var off = SharedDataRootService.ApplyToConfig(config, false, folder, true);
             Assert.True(off.Ok);
             Assert.False(config.DataConnectivity!.UseSharedDataRoot);
+            Assert.False(config.DataConnectivity.SharedRootOfflineFallbackNeedsReview);
+            Assert.False(config.DataConnectivity.SharedRootLocalModeNoticePending);
+            Assert.False(config.DataConnectivity.SharedRootReconnectNoticeShown);
             Assert.Equal("", config.DataConnectivity.SharedDataRootPath);
         }
 
-        // ── Startup remains fail-closed ──────────────────────────────
+        // ── Startup uses visible local mode if shared root is unavailable ──
 
         [Fact]
-        public void Enabled_shared_mode_with_invalid_path_never_selects_local_AppData()
+        public void Enabled_shared_mode_with_invalid_path_selects_local_and_marks_review()
         {
+            var previousOverride = AppDataRoot.TestFolderOverride;
             try
             {
+                AppDataRoot.TestFolderOverride = null;
                 var config = new AppConfig();
                 config.DataConnectivity!.UseSharedDataRoot = true;
                 config.DataConnectivity.SharedDataRootPath = "";
                 AppDataRoot.ConfigureFrom(config);
 
                 Assert.True(AppDataRoot.SharedRootFallbackActive);
-                Assert.NotEqual(AppDataRoot.ProductionFolder, AppDataRoot.CurrentFolder);
-                Assert.Contains("will not open local AppData", AppDataRoot.SharedRootFallbackReason,
+                Assert.False(AppDataRoot.IsSharedDataRootEnabled);
+                Assert.Equal(AppDataRoot.ProductionFolder, AppDataRoot.CurrentFolder);
+                Assert.True(config.DataConnectivity.SharedRootOfflineFallbackNeedsReview);
+                Assert.True(config.DataConnectivity.SharedRootLocalModeNoticePending);
+                Assert.Contains("local database", AppDataRoot.SharedRootFallbackReason,
                     StringComparison.OrdinalIgnoreCase);
-                var unavailable = Assert.Throws<SharedDataRootUnavailableException>(
-                    AppDataRoot.EnsureCurrentFolder);
-                Assert.Contains("saved shared-folder path is empty or invalid", unavailable.Message,
+                Assert.Contains("will not be shared", AppDataRoot.SharedRootFallbackReason,
                     StringComparison.OrdinalIgnoreCase);
-                Assert.DoesNotContain("Technical detail:", unavailable.Message);
+
+                // After the one-time notice is acknowledged, repeated offline
+                // launches must remain visible in Settings/logs without
+                // forcing the same modal on every launch.
+                config.DataConnectivity.SharedRootLocalModeNoticePending = false;
+                AppDataRoot.ConfigureFrom(config);
+                Assert.False(config.DataConnectivity.SharedRootLocalModeNoticePending);
+
+                // Exercise the local-root ensure path without touching the
+                // test runner user's real %AppData% database directory.
+                var localOverride = Path.Combine(_tempRoot, "offline-local");
+                AppDataRoot.TestFolderOverride = localOverride;
+                AppDataRoot.EnsureCurrentFolder();
+                Assert.True(Directory.Exists(localOverride));
             }
             finally
             {
+                AppDataRoot.TestFolderOverride = previousOverride;
+                AppDataRoot.ConfigureFrom(new AppConfig());
+            }
+        }
+
+        [Fact]
+        public void Recovered_share_stays_local_until_offline_data_is_reviewed()
+        {
+            var previousOverride = AppDataRoot.TestFolderOverride;
+            try
+            {
+                AppDataRoot.TestFolderOverride = null;
+                var config = new AppConfig();
+                config.DataConnectivity!.UseSharedDataRoot = true;
+                config.DataConnectivity.SharedDataRootPath = MakeFolder("recovered-share");
+                config.DataConnectivity.SharedRootOfflineFallbackNeedsReview = true;
+
+                AppDataRoot.ConfigureFrom(config);
+
+                Assert.True(AppDataRoot.SharedRootFallbackActive);
+                Assert.True(AppDataRoot.SharedRootReconnectAvailable);
+                Assert.True(config.DataConnectivity.SharedRootLocalModeNoticePending);
+                Assert.True(config.DataConnectivity.SharedRootReconnectNoticeShown);
+                Assert.False(AppDataRoot.IsSharedDataRootEnabled);
+                Assert.Equal(AppDataRoot.ProductionFolder, AppDataRoot.CurrentFolder);
+                Assert.Contains("reachable again", AppDataRoot.SharedRootFallbackReason,
+                    StringComparison.OrdinalIgnoreCase);
+                Assert.Contains("not merged automatically", AppDataRoot.SharedRootFallbackReason,
+                    StringComparison.OrdinalIgnoreCase);
+            }
+            finally
+            {
+                AppDataRoot.TestFolderOverride = previousOverride;
+                AppDataRoot.ConfigureFrom(new AppConfig());
+            }
+        }
+
+        [Fact]
+        public void Reachable_share_is_selected_when_no_offline_review_is_pending()
+        {
+            var previousOverride = AppDataRoot.TestFolderOverride;
+            try
+            {
+                AppDataRoot.TestFolderOverride = null;
+                var folder = MakeFolder("reachable-share");
+                var config = new AppConfig();
+                config.DataConnectivity!.UseSharedDataRoot = true;
+                config.DataConnectivity.SharedDataRootPath = folder;
+
+                AppDataRoot.ConfigureFrom(config);
+
+                Assert.True(AppDataRoot.IsSharedDataRootEnabled);
+                Assert.False(AppDataRoot.SharedRootFallbackActive);
+                Assert.False(AppDataRoot.SharedRootReconnectAvailable);
+                Assert.Equal(folder, AppDataRoot.CurrentFolder);
+            }
+            finally
+            {
+                AppDataRoot.TestFolderOverride = previousOverride;
                 AppDataRoot.ConfigureFrom(new AppConfig());
             }
         }

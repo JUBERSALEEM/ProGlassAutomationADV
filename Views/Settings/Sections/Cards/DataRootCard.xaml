@@ -14,9 +14,9 @@
      Create Folder does not wait on a backup. There is no access-type toggle.
 
      The mode decision is made by the explicit Save/Revert commands,
-     which validate the path first. A red split-brain banner appears
-     (SharedRootWarning) whenever this workstation is on LOCAL data
-     while a shared root is configured — the state used to be silent.
+     which validate the path first. An amber local-only banner appears
+     (SharedRootWarning) whenever a configured shared root is inactive,
+     so local fallback is never mistaken for shared company data.
      DataContext inherits SettingsViewModel from the section; styles
      from the two merged module dictionaries.
 ═══════════════════════════════════════════════════════════════════════ -->
@@ -60,11 +60,11 @@
                 </Border>
             </Grid>
 
-            <!-- ── SPLIT-BRAIN BANNER — visible only when the live root
-                 is local while shared mode is configured ── -->
+            <!-- ── LOCAL-ONLY FALLBACK — visible when shared is configured
+                 but local AppData is the active root ── -->
             <Border Style="{StaticResource SettingsWashTileStyle}"
-                    Background="{DynamicResource TintRedBrush}"
-                    BorderBrush="{DynamicResource DangerBrush}"
+                    Background="{DynamicResource TintAmberBrush}"
+                    BorderBrush="{DynamicResource WarningBrush}"
                     Padding="10,8"
                     Margin="{StaticResource SettingsStackGap10}"
                     Visibility="{Binding SharedRootWarning, Converter={StaticResource StringToVisibilityConverter}}">
@@ -72,14 +72,14 @@
                            TextWrapping="Wrap"
                            FontSize="{DynamicResource FontSize.BodySmall}"
                            FontWeight="{DynamicResource Weight.SemiBold}"
-                           Foreground="{DynamicResource DangerBrush}"/>
+                           Foreground="{DynamicResource WarningBrush}"/>
             </Border>
 
             <!-- ── BODY ── -->
             <StackPanel Margin="{StaticResource SettingsStackGap12}">
 
                 <!-- Shared folder path — the one input that matters -->
-                <TextBlock Text="Shared folder path (UNC recommended: \\SERVER\ProGlassData — a mapped LAN drive works too)"
+                <TextBlock Text="Shared folder path (UNC: \\OFFICE-PC\ProGlassData — replace OFFICE-PC with the host PC's Windows name)"
                            Style="{StaticResource SettingsRowMetaStyle}"/>
                 <TextBox Text="{Binding SharedDataRootPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Padding="10,7"

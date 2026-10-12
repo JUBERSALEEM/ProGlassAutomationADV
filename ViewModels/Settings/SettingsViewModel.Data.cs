@@ -97,47 +97,45 @@ namespace ProGlassAutomation.ViewModels.Settings
 
 
 
+        // Root selection is a draft until the explicit Save + Restart
+        // command is confirmed. Keeping these values out of the shared
+        // AppConfig object prevents an unrelated debounced save elsewhere
+        // in the app from switching roots behind the operator's back.
+        private bool _useSharedDataRootDraft;
+        private string _sharedDataRootPathDraft = "";
+
         // ══════════════════════════════════════════════════════════════
         //  LAN / Wi-Fi SHARED DATABASE CONNECTIVITY
         // ══════════════════════════════════════════════════════════════
 
         public bool UseSharedDataRoot
         {
-            get => _config?.DataConnectivity?.UseSharedDataRoot ?? false;
+            get => _useSharedDataRootDraft;
             set
             {
-                if (_config?.DataConnectivity == null) return;
-                if (_config.DataConnectivity.UseSharedDataRoot == value) return;
-                _config.DataConnectivity.UseSharedDataRoot = value;
+                if (_useSharedDataRootDraft == value) return;
+                _useSharedDataRootDraft = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(DataRootModeDisplay));
+                OnPropertyChanged(nameof(CurrentDataRootDisplay));
                 NetworkDataRootStatus = value
                     ? "Shared database mode selected. Test/prepare the folder, then Save + Restart on every workstation."
-                    : "Local database mode selected. Save and restart to return this workstation to local AppData.";
-                // Senior fix (2026-09-24): this setter used to debounce-save
-                // the config immediately. Toggling the mode with an empty or
-                // untested path persisted a HALF-CONFIGURED shared mode
-                // (UseSharedDataRoot=true, SharedDataRootPath="") that the
-                // next startup silently fell back out of — a split-brain the
-                // operator could never see. The decision is persisted only by
-                // the explicit "Save + Restart" / "Revert to local" commands,
-                // which validate the path first.
+                    : "Local database mode selected. Save + Restart to return this workstation to local AppData.";
             }
         }
 
         public string SharedDataRootPath
         {
-            get => _config?.DataConnectivity?.SharedDataRootPath ?? "";
+            get => _sharedDataRootPathDraft;
             set
             {
-                if (_config?.DataConnectivity == null) return;
                 var v = value ?? "";
-                if (_config.DataConnectivity.SharedDataRootPath == v) return;
-                _config.DataConnectivity.SharedDataRootPath = v;
+                if (_sharedDataRootPathDraft == v) return;
+                _sharedDataRootPathDraft = v;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(DataRootModeDisplay));
                 OnPropertyChanged(nameof(CurrentDataRootDisplay));
                 NetworkDataRootStatus = "Shared folder changed. Run Test Connection before enabling across the company.";
-                ScheduleDebouncedSave();
             }
         }
 
@@ -175,11 +173,39 @@ namespace ProGlassAutomation.ViewModels.Settings
             private set { _networkDataRootStatus = value; OnPropertyChanged(); }
         }
 
-        public string DataRootModeDisplay => Services.Database.AppDataRoot.SharedRootFallbackActive
-            ? "Shared root unavailable — database access blocked"
-            : UseSharedDataRoot
-                ? "Shared LAN/Wi-Fi database mode"
-                : "Local workstation database mode";
+        private bool SelectedDataRootDiffersFromLiveRoot
+        {
+            get
+            {
+                if (UseSharedDataRoot !=
+                    Services.Database.AppDataRoot.SharedRootConfigured)
+                    return true;
+                if (!UseSharedDataRoot) return false;
+                return !AppDataRoot.TryNormalizeSharedRoot(
+                           SharedDataRootPath, out var selectedPath)
+                       || !selectedPath.Equals(
+                           Services.Database.AppDataRoot.ConfiguredSharedDataRoot,
+                           StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        public string DataRootModeDisplay
+        {
+            get
+            {
+                if (Services.Database.AppDataRoot.SharedRootFallbackActive)
+                    return Services.Database.AppDataRoot.SharedRootReconnectAvailable
+                        ? "Local mode — shared folder found; review required"
+                        : "Local mode — shared folder unavailable";
+
+                if (SelectedDataRootDiffersFromLiveRoot)
+                    return "A different root is selected; current root stays active until Save + Restart";
+
+                return Services.Database.AppDataRoot.IsSharedDataRootEnabled
+                    ? "Shared LAN/Wi-Fi database mode — active"
+                    : "Local workstation database mode — active";
+            }
+        }
 
         public string CurrentDataRootDisplay
         {
@@ -191,21 +217,29 @@ namespace ProGlassAutomation.ViewModels.Settings
                         Services.Database.AppDataRoot.ConfiguredSharedDataRoot)
                         ? "(empty or invalid saved path)"
                         : Services.Database.AppDataRoot.ConfiguredSharedDataRoot;
-                    return "UNAVAILABLE — configured shared root: " + configured +
-                        "   |   database access blocked; local AppData is not in use";
+                    var status = Services.Database.AppDataRoot.SharedRootReconnectAvailable
+                        ? "shared path is reachable; reconnect is pending review"
+                        : "shared path is unavailable; changes stay on this workstation";
+                    return Services.Database.AppDataRoot.ProductionFolder +
+                        "   |   LOCAL DATA ACTIVE   |   saved shared path: " + configured +
+                        "   |   " + status + PendingRootSelectionSuffix;
                 }
 
                 var root = Services.Database.AppDataRoot.CurrentFolder;
-                return root + (Services.Database.AppDataRoot.IsSharedDataRootEnabled
+                string activeRoot = root + (Services.Database.AppDataRoot.IsSharedDataRootEnabled
                     ? "   |   shared root active"
                     : "   |   local root active");
+                return activeRoot + PendingRootSelectionSuffix;
             }
         }
 
+        private string PendingRootSelectionSuffix => SelectedDataRootDiffersFromLiveRoot
+            ? "   |   selected root is not active; restart is required"
+            : "";
+
         /// <summary>
-        /// Red unavailable-root banner for the Data card. Non-empty only
-        /// when a shared root is configured but invalid or unreachable; the
-        /// application blocks database access instead of opening local data.
+        /// Warning banner for the Data card. Non-empty when a configured
+        /// shared root is inactive and this workstation is using local data.
         /// The XAML collapses the tile via StringToVisibilityConverter.
         /// </summary>
         private string _sharedRootWarning = "";
@@ -226,8 +260,9 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 SharedRootWarning = string.IsNullOrEmpty(
                     Services.Database.AppDataRoot.SharedRootFallbackReason)
-                    ? "A shared company database is configured but unavailable. Database access is blocked; " +
-                      "local AppData will not be opened. Check the shared folder and restart ProGlass."
+                    ? "A shared company database is configured but inactive. ProGlass is using this " +
+                      "workstation's local data; changes will not be shared automatically. Review the " +
+                      "configured folder and reconnect explicitly from this page."
                     : Services.Database.AppDataRoot.SharedRootFallbackReason;
             }
             else

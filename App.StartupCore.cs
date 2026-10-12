@@ -317,16 +317,59 @@ namespace ProGlassAutomation
             // 1a) DATA ROOT — must be applied BEFORE any DbContext opens.
             // When Settings enables a LAN/Wi-Fi shared data folder, every
             // business DbContext now resolves through AppDataRoot.CurrentFolder.
+            // An unavailable share selects one explicit, visible local mode
+            // for this whole startup; it never hot-switches during a session.
+            // The persisted review marker prevents a later launch from
+            // silently selecting a different dataset after offline writes.
+            bool hadOfflineFallbackReview =
+                Config.DataConnectivity?.SharedRootOfflineFallbackNeedsReview == true;
+            bool hadFallbackNotice =
+                Config.DataConnectivity?.SharedRootLocalModeNoticePending == true;
+            bool hadReconnectNotice =
+                Config.DataConnectivity?.SharedRootReconnectNoticeShown == true;
             AppDataRoot.ConfigureFrom(Config);
-
-            // A configured share that failed the four-second startup probe
-            // must stop startup here. Otherwise every repository repeats the
-            // same blocked DbContext initialization, and the expected network
-            // outage is misreported as a cascade of fatal database failures.
-            // EnsureCurrentFolder throws the operator-facing exception while
-            // preserving the fail-closed rule (never open local AppData).
-            if (AppDataRoot.SharedRootFallbackActive)
-                AppDataRoot.EnsureCurrentFolder();
+            bool fallbackStateChanged =
+                (!hadOfflineFallbackReview &&
+                 Config.DataConnectivity?.SharedRootOfflineFallbackNeedsReview == true)
+                || (!hadFallbackNotice &&
+                    Config.DataConnectivity?.SharedRootLocalModeNoticePending == true)
+                || (!hadReconnectNotice &&
+                    Config.DataConnectivity?.SharedRootReconnectNoticeShown == true);
+            if (fallbackStateChanged)
+            {
+                // Persist the local-fallback history before any business data
+                // can be written, so the next startup cannot hide offline
+                // records by silently switching to a recovered network share.
+                if (!ConfigService.TrySave(Config))
+                {
+                    const string saveFailure =
+                        "ProGlass could not save the offline data-root review state. " +
+                        "No business database has been opened. To avoid writing local data " +
+                        "that a later startup could hide, ProGlass will close. Check that " +
+                        "your Windows profile's AppData folder is writable, then launch again.";
+                    AppLogService.Error(
+                        "Startup stopped because the offline shared-root review state could not be persisted.",
+                        null,
+                        new LogContext { Module = "Database", Operation = "PersistOfflineRootReview" });
+                    try
+                    {
+                        Prompts.Show(
+                            saveFailure,
+                            "Offline mode could not be saved",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                    }
+                    catch (Exception promptEx)
+                    {
+                        AppLogService.Warning(
+                            "Could not display the offline-mode persistence warning.",
+                            promptEx,
+                            new LogContext { Module = "Database", Operation = "PersistOfflineRootReview" });
+                    }
+                    Shutdown();
+                    return;
+                }
+            }
 
             // 1b) GLOBAL LOCALE — language, currency, country.
             //     • GeoService: cached country first, IP refresh after.
@@ -1021,6 +1064,43 @@ namespace ProGlassAutomation
             // written whichever way it is answered, including Escape or the
             // window's X.
             await ShowLanguageOfferIfPendingAsync(mainWindow);
+
+            // A shared-root outage no longer blocks launch, but the operator
+            // must know this session is using this PC's database. Show the
+            // warning only after the shell is visible; never shut down or
+            // interrupt the database initialization path.
+            if (AppDataRoot.SharedRootFallbackActive &&
+                Config.DataConnectivity?.SharedRootLocalModeNoticePending == true)
+            {
+                string localModeNotice = AppDataRoot.SharedRootFallbackReason +
+                    "\n\nProGlass has continued in local mode, so you can use the application. " +
+                    "Changes are saved on this workstation only and are not synchronized or merged " +
+                    "automatically. Before reconnecting, review the dataset in Settings → Data. Use " +
+                    "Prepare Folder only when the shared folder is empty and this local dataset should " +
+                    "seed it; do not overwrite an existing company dataset.";
+                try
+                {
+                    Prompts.Show(
+                        localModeNotice,
+                        "Local database mode",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    if (Config.DataConnectivity != null)
+                    {
+                        Config.DataConnectivity.SharedRootLocalModeNoticePending = false;
+                        ConfigService.Save(Config);
+                    }
+                }
+                catch (Exception noticeEx)
+                {
+                    // The informational warning must never turn a valid
+                    // local-mode startup into a fatal startup failure.
+                    AppLogService.Warning(
+                        "Could not display the local-database-mode notice.",
+                        noticeEx,
+                        new LogContext { Module = "Database", Operation = "ShowLocalFallbackNotice" });
+                }
+            }
 
             // 15) v3 OTA §18 — daily background update check.
             // Fully async + offline-safe; never delays or blocks

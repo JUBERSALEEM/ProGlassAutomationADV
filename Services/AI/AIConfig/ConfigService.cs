@@ -272,47 +272,59 @@ namespace ProGlassAutomation.Services.AI.AIConfig
 
         public static void Save(AppConfig config)
         {
+            _ = TrySave(config);
+        }
+
+        /// <summary>
+        /// Saves the config and reports whether the file write completed successfully.
+        /// Most legacy callers remain best-effort through <see cref="Save"/>;
+        /// safety-critical startup state and data-root changes can require a
+        /// confirmed save before proceeding.
+        /// </summary>
+        public static bool TrySave(AppConfig config)
+        {
+            AiSettings? ai = null;
+            string g = "";
+            string q = "";
+            string c = "";
+            bool keysMasked = false;
+
             try
             {
+                if (config == null)
+                    throw new ArgumentNullException(nameof(config));
+
+                ai = config.Ai;
+                g = ai?.GeminiApiKey ?? "";
+                q = ai?.GroqApiKey ?? "";
+                c = ai?.CohereApiKey ?? "";
+
                 if (!Directory.Exists(ConfigFolder))
                     Directory.CreateDirectory(ConfigFolder);
 
                 // v2: keys go to the vault — never to the JSON file.
                 PersistKeysToVault(config);
 
-                var ai = config.Ai;
-                string g = ai?.GeminiApiKey ?? "";
-                string q = ai?.GroqApiKey ?? "";
-                string c = ai?.CohereApiKey ?? "";
-
                 if (ai != null)
                 {
                     ai.GeminiApiKey = "";
                     ai.GroqApiKey = "";
                     ai.CohereApiKey = "";
+                    keysMasked = true;
                 }
 
                 var json = JsonSerializer.Serialize(config,
                     new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(ConfigPath, json);
-
-                // Restore the in-memory working values.
-                if (ai != null)
-                {
-                    ai.GeminiApiKey = g;
-                    ai.GroqApiKey = q;
-                    ai.CohereApiKey = c;
-                }
+                return true;
             }
             catch (Exception ex)
             {
                 // S-5: this used to be silent. It is the worst place in the
                 // app to be silent: Save() failing means the user's settings
                 // (AI provider choice, theme, company details) were NOT
-                // written, yet every caller reports success. The user then
-                // loses the change on restart with no explanation.
-                // Still non-throwing — a settings write must not crash the
-                // app — but it is now visible in the log.
+                // written, yet every caller reports success. It is now
+                // visible in the log, and critical callers can stop safely.
                 AppLogService.Error(
                     "Failed to save app configuration — changes will be " +
                     "lost on restart.",
@@ -323,6 +335,18 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                         Class = nameof(ConfigService),
                         Operation = "Save"
                     });
+                return false;
+            }
+            finally
+            {
+                // Preserve the in-memory working values even when JSON
+                // serialization or the file write fails.
+                if (keysMasked && ai != null)
+                {
+                    ai.GeminiApiKey = g;
+                    ai.GroqApiKey = q;
+                    ai.CohereApiKey = c;
+                }
             }
         }
 
