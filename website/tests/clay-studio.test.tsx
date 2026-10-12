@@ -155,6 +155,22 @@ describe("phase 2 — studio performance contract", () => {
 });
 
 describe("phase 3 — studio v2 contract", () => {
+  it("zone plates follow the bench as BARE triplets (phase 4)", () => {
+    /* The css consumers wrap these as rgb(var(--panel-face)) — a studio
+       write that carried an rgb() wrapper would paint rgb(rgb(…)) and die
+       at computed-value time (the latent band-solid bug the harness
+       caught). Assert the write shape, the move, and the clean wipe. */
+    applyStudioVars({ ...defaultStudio, clayPreset: "orchard" });
+    const pf = document.documentElement.style.getPropertyValue("--panel-face");
+    const bf = document.documentElement.style.getPropertyValue("--band-face");
+    expect(pf).toBe(CLAY_PRESETS.orchard.tokens["--plate-1"]);
+    expect(bf).not.toBe("");
+    for (const v of [pf, bf]) expect(v.trim()).toMatch(/^\d+ \d+ \d+$/);
+    applyStudioVars(defaultStudio);
+    expect(document.documentElement.style.getPropertyValue("--panel-face")).toBe("");
+    expect(document.documentElement.style.getPropertyValue("--band-face")).toBe("");
+  });
+
   it("dusk and dust presets rewrite the whole bench", () => {
     applyStudioVars({ ...defaultStudio, clayPreset: "dusk" });
     expect(document.documentElement.style.getPropertyValue("--plate-1")).toBe(CLAY_PRESETS.dusk.tokens["--plate-1"]);

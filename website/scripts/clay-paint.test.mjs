@@ -585,6 +585,55 @@ probe("clay bar pressed item on the pill", MODES, [...CLAYBAR, El("span", "navcl
   probe("dossier date row (mono-label)", MODES, [...DOSS, El("span", "mono-label")], 4.5);
 }
 
+/* 14. NORIA + ZONE PLATES (phase 4) — a grid wrapper may re-point the stat
+   rotation at any 4-of-6 plates, the feature grid walks panel/band faces
+   in daylight, and both fall silent at night (zones keep the night).    */
+test("noria: .plate-set-b re-points its own stat rotation", () => {
+  const tile = (set, nth) =>
+    paint("tile", "daylight", [BODY, El("dl", `${set} grid grid-cols-2 gap-3`.trim()), El("div", "stat-tile p-3.5", {}, nth)]).bg;
+  const base1 = tile("", 1);
+  const alt1 = tile("plate-set-b", 1);
+  const alt3 = tile("plate-set-b", 3);
+  assert.notDeepEqual(alt1, base1, `plate-set-b never moved tile 1 (still ${hx(base1)})`);
+  assert.ok(luminance(alt1) > 0.55, `plate-set-b tile 1 left the pastel band: ${hx(alt1)}`);
+  assert.ok(luminance(alt3) > 0.55, `plate-set-b tile 3 left the pastel band: ${hx(alt3)}`);
+});
+test("noria: no wrapper means exactly the house rotation", () => {
+  const t1 = paint("tile", "daylight", [BODY, El("dl", "grid"), El("div", "stat-tile p-3.5", {}, 1)]).bg;
+  const t2 = paint("tile", "daylight", [BODY, El("dl", "grid"), El("div", "stat-tile p-3.5", {}, 2)]).bg;
+  assert.notDeepEqual(t1, t2, "house rotation stopped rotating");
+});
+test("noria: midnight tiles stay pastel even under a re-pointed set", () => {
+  const t = paint("tile", "midnight", [BODY, El("dl", "plate-set-b grid"), El("div", "stat-tile p-3.5", {}, 3)]).bg;
+  assert.ok(luminance(t) > 0.55, `plate-set-b tile darkened at midnight: ${hx(t)}`);
+});
+test("feature-plates: daylight walks panel/band faces, midnight stays zones", () => {
+  const grid = (mode, nth) =>
+    paint("fp", mode, [BODY, El("div", "feature-plates mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"), El("div", "surface-raised p-5", {}, nth)]).bg;
+  const day1 = grid("daylight", 1), day2 = grid("daylight", 2), day3 = grid("daylight", 3);
+  assert.notDeepEqual(day1, day2, `feature-plates even tiles took the panel face: ${hx(day1)} on 1`);
+  assert.notDeepEqual(day3, day1, `feature-plates nth-3 repeats the panel face instead of the band: ${hx(day3)}`);
+  const night1 = grid("midnight", 1), night2 = grid("midnight", 2);
+  assert.deepEqual(night1, night2, `midnight feature grid rotated: ${hx(night1)} vs ${hx(night2)}`);
+  assert.ok(luminance(night1) < 0.16, `midnight feature panel lit up: ${hx(night1)}`);
+});
+probe("feature-plates heading on the panel face (daylight)", ["daylight"], [BODY, El("div", "feature-plates"), El("div", "surface-raised p-5", {}, 1), El("h3", "card-title")], 7);
+probe("feature-plates heading on the band face (daylight)", ["daylight"], [BODY, El("div", "feature-plates"), El("div", "surface-raised p-5", {}, 3), El("h3", "card-title")], 7);
+probe("feature-plates note on the card face (daylight)", ["daylight"], [BODY, El("div", "feature-plates"), El("div", "surface-raised p-5", {}, 2), El("p", "mt-2.5 text-sm leading-relaxed text-text-muted")], 4.5);
+probe("feature-plates heading at midnight (zone ink)", ["midnight"], [BODY, El("div", "feature-plates"), El("div", "surface-raised p-5", {}, 1), El("h3", "card-title")], 7);
+test("rule-plate: the carve exists in both modes, reading family hues", () => {
+  const hits = rules.filter((r) => r.selector.includes("rule-plate"));
+  assert.ok(hits.length >= 4, `engine lost the rule-plate rules: ${hits.length} left`);
+  assert.ok(
+    hits.some((h) => h.decls.some((d) => /clay-drop-h/u.test(d.value))),
+    "rule-plate daylight carve does not read --clay-drop-h",
+  );
+  assert.ok(
+    hits.some((h) => /midnight/u.test(h.selector) && h.decls.some((d) => /clay-foil/u.test(d.value))),
+    "rule-plate midnight carve does not read --clay-foil",
+  );
+});
+
 /* The zone-luminance contract (the 70/20/10 rule at midnight). */
 test("midnight zones stay dark: page < cards < accents (70/20/10)", () => {
   const pageBg = paint("page", "midnight", [BODY]).bg;

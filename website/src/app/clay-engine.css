@@ -104,6 +104,7 @@
   --clay-hi: rgb(255 255 255 / 0.11);
   --clay-lo: rgb(18 10 38 / 0.62);
   --clay-foil: rgb(46 34 62);
+  --band-face: 46 34 62;
   --clay-lift: 0.045;
   --clay-scrim: rgb(18 10 38 / 0.62);
   --clay-edge: rgb(var(--clay-drop-h) / 0.28);
@@ -271,36 +272,36 @@
    peach, sky — each shadow keyed to its own hue, plum text on every tile.
    Default (white) tiles keep the standard recipe from §2. */
 [data-appearance="clay"] .stat-tile:nth-child(4n+1) {
-  background-color: rgb(var(--plate-1));
+  background-color: rgb(var(--rot-1));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(var(--plate-h-1, var(--clay-drop-h)) / 0.3),
+  box-shadow: 8px 8px 22px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.85),
     inset 4px 4px 8px rgb(255 255 255 / 0.6),
-    inset -6px -6px 12px rgb(var(--plate-h-1, var(--clay-drop-h)) / 0.25);
+    inset -6px -6px 12px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.25);
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+2) {
-  background-color: rgb(var(--plate-2));
+  background-color: rgb(var(--rot-2));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(var(--plate-h-2, var(--clay-drop-h)) / 0.3),
+  box-shadow: 8px 8px 22px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.85),
     inset 4px 4px 8px rgb(255 255 255 / 0.6),
-    inset -6px -6px 12px rgb(var(--plate-h-2, var(--clay-drop-h)) / 0.25);
+    inset -6px -6px 12px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.25);
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+3) {
-  background-color: rgb(var(--plate-3));
+  background-color: rgb(var(--rot-3));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(var(--plate-h-3, var(--clay-drop-h)) / 0.3),
+  box-shadow: 8px 8px 22px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.85),
     inset 4px 4px 8px rgb(255 255 255 / 0.6),
-    inset -6px -6px 12px rgb(var(--plate-h-3, var(--clay-drop-h)) / 0.25);
+    inset -6px -6px 12px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.25);
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+4) {
-  background-color: rgb(var(--plate-4));
+  background-color: rgb(var(--rot-4));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(var(--plate-h-4, var(--clay-drop-h)) / 0.3),
+  box-shadow: 8px 8px 22px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.85),
     inset 4px 4px 8px rgb(255 255 255 / 0.6),
-    inset -6px -6px 12px rgb(var(--plate-h-4, var(--clay-drop-h)) / 0.25);
+    inset -6px -6px 12px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.25);
 }
 
 /* The active page carries the family's pill, in bar and sheet; the verb
@@ -417,7 +418,7 @@
 /* The closing band echoes the feature plate at page scale: solid lavender,
    plum ink, white pills. Midnight keeps the dark plum plate instead. */
 [data-appearance="clay"] .band-deep {
-  background-color: rgb(var(--clay-lavender));
+  background-color: rgb(var(--panel-face));
   background-image: none;
   --text-1: var(--clay-ink);
   --text-2: 40 36 56;
@@ -777,7 +778,7 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
 }
 /* The tinted feature panel joins the pastel bench; plum inks stay. */
 [data-appearance="clay"] .panel-feature {
-  background-color: rgb(232 226 253);
+  background-color: rgb(var(--panel-face));
   background-image: none;
   box-shadow: var(--shadow-panel),
     inset 4px 4px 8px rgb(255 255 255 / 0.6),
@@ -826,10 +827,10 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
    "cards not accepting the engine's colours" the second sighting named.
    (They only LOOKED right because the literals were pasted from the house
    plates — the first custom preset to ship exposed them instantly.) */
-[data-appearance="clay"] .stat-tile:nth-child(4n+1) { background-color: rgb(var(--plate-1)); }
-[data-appearance="clay"] .stat-tile:nth-child(4n+2) { background-color: rgb(var(--plate-2)); }
-[data-appearance="clay"] .stat-tile:nth-child(4n+3) { background-color: rgb(var(--plate-3)); }
-[data-appearance="clay"] .stat-tile:nth-child(4n+4) { background-color: rgb(var(--plate-4)); }
+[data-appearance="clay"] .stat-tile:nth-child(4n+1) { background-color: rgb(var(--rot-1)); }
+[data-appearance="clay"] .stat-tile:nth-child(4n+2) { background-color: rgb(var(--rot-2)); }
+[data-appearance="clay"] .stat-tile:nth-child(4n+3) { background-color: rgb(var(--rot-3)); }
+[data-appearance="clay"] .stat-tile:nth-child(4n+4) { background-color: rgb(var(--rot-4)); }
 
 /* §7.6 The verb has presence: primaries carry the reference's height so
    the one action per view reads at a glance. */
@@ -1900,7 +1901,7 @@ html[data-theme="midnight"][data-appearance="clay"] .glass-primary :is(.btn-prim
    the "developer section whitish" of the 12:42 review. It is a pastel
    plate in both modes; lock the full plum bench like its card-accent kin. */
 [data-appearance="clay"] .panel-feature {
-  --text-1: 46 42 63;
+  --text-1: 36 27 58;
   --text-2: 40 36 56;
   --text-3: 51 45 72;
   --text-4: 66 59 92;
@@ -1912,7 +1913,7 @@ html[data-theme="midnight"][data-appearance="clay"] .glass-primary :is(.btn-prim
    LIGHT at midnight — pastel accents do not invert. Override at the lock's
    own specificity, later in source, so the plum bench wins from dusk on. */
 html[data-theme="midnight"][data-appearance="clay"] .panel-feature {
-  --text-1: 46 42 63;
+  --text-1: 36 27 58;
   --text-2: 40 36 56;
   --text-3: 51 45 72;
   --text-4: 66 59 92;
@@ -1956,7 +1957,96 @@ html[data-theme="midnight"][data-appearance="clay"] .panel-feature {
      is what makes the studio able to move these surfaces at all: nothing
      outside a token can follow a preset, so nothing here is a literal.    */
   --panel-face: var(--clay-lavender);
-  --band-face: var(--clay-foil);
+  /* --band-face must stay a BARE triplet: consumers wrap it as
+     rgb(var(--band-face)) (band-solid, feature-plates). Defaulting it to
+     var(--clay-foil) painted rgb(rgb(…)) — invalid at computed-value time,
+     so the foil face never actually rendered. Theme scope keeps the two
+     modes honest side by side. */
+  --band-face: 239 234 252;
+  /* §18 — rotation noria: the stat tiles read these four pairs; a wrapper
+     (.plate-set-b/.plate-set-c) re-points them so one route can ride
+     plates 5/2/6/4 (or 3/1/5/2 …) while its neighbour keeps the house
+     order. Identity by default: nothing changes until a wrapper asks.   */
+  --rot-1: var(--plate-1);   --rot-1h: var(--plate-h-1);
+  --rot-2: var(--plate-2);   --rot-2h: var(--plate-h-2);
+  --rot-3: var(--plate-3);   --rot-3h: var(--plate-h-3);
+  --rot-4: var(--plate-4);   --rot-4h: var(--plate-h-4);
+}
+/* §18 — the two opt-in sets. Written as plain rules (not a utility loop)
+   because the studio also speaks these names if a route declares them. */
+[data-appearance="clay"] .plate-set-b {
+  --rot-1: var(--plate-5);   --rot-1h: var(--plate-h-5);
+  --rot-2: var(--plate-2);   --rot-2h: var(--plate-h-2);
+  --rot-3: var(--plate-6);   --rot-3h: var(--plate-h-6);
+  --rot-4: var(--plate-4);   --rot-4h: var(--plate-h-4);
+}
+[data-appearance="clay"] .plate-set-c {
+  --rot-1: var(--plate-3);   --rot-1h: var(--plate-h-3);
+  --rot-2: var(--plate-1);   --rot-2h: var(--plate-h-1);
+  --rot-3: var(--plate-5);   --rot-3h: var(--plate-h-5);
+  --rot-4: var(--plate-2);   --rot-4h: var(--plate-h-2);
+}
+/* The rotation rules above now read the noria instead of the house
+   bench directly. */
+
+/* ═══ §18b · RULE UNDERLINES — chips & dividers, plate-thin ══════════════
+   A drawn 2px edge cannot survive on clay (§4 semantics: strokes die where
+   a corner lives) — but a header rule or a footer divider is a HAIRLINE,
+   and hairlines carve. In clay the carve is a 2px groove pressed in the
+   family hue: a drop-h shadow line below, a lit lip above where daylight
+   is the ground. Components declare `.rule-plate` (+ direction); the
+   bench presets re-hue it like every other surface because it speaks
+   tokens only. Directionless (default) = horizontal rule.               */
+[data-appearance="clay"] .rule-plate {
+  display: block;
+  width: 100%;
+  height: 3px;
+  border: 0;
+  margin: 0;
+  border-radius: 999px;
+  background: linear-gradient(to right,
+    rgb(var(--clay-drop-h) / 0) 0%,
+    rgb(var(--clay-drop-h) / 0.45) 12%,
+    rgb(var(--clay-drop-h) / 0.45) 88%,
+    rgb(var(--clay-drop-h) / 0) 100%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.55);
+}
+html[data-theme="midnight"][data-appearance="clay"] .rule-plate {
+  background: linear-gradient(to right,
+    rgb(var(--clay-foil) / 0) 0%,
+    rgb(var(--clay-foil) / 0.28) 14%,
+    rgb(var(--clay-foil) / 0.28) 86%,
+    rgb(var(--clay-foil) / 0) 100%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.05);
+}
+[data-appearance="clay"] .rule-plate--vertical {
+  width: 3px;
+  height: auto;
+  align-self: stretch;
+  background: linear-gradient(to bottom,
+    rgb(var(--clay-drop-h) / 0) 0%,
+    rgb(var(--clay-drop-h) / 0.45) 12%,
+    rgb(var(--clay-drop-h) / 0.45) 88%,
+    rgb(var(--clay-drop-h) / 0) 100%);
+  box-shadow: 1px 0 0 rgb(255 255 255 / 0.55);
+}
+html[data-theme="midnight"][data-appearance="clay"] .rule-plate--vertical {
+  background: linear-gradient(to bottom,
+    rgb(var(--clay-foil) / 0) 0%,
+    rgb(var(--clay-foil) / 0.28) 14%,
+    rgb(var(--clay-foil) / 0.28) 86%,
+    rgb(var(--clay-foil) / 0) 100%);
+  box-shadow: 1px 0 0 rgb(255 255 255 / 0.05);
+}
+/* On a lit face (band, plate, feature panel) the carve inverts — the lip
+   is shaded, the floor is lit. */
+[data-appearance="clay"] :is(.band-deep, .panel-feature, .glass-primary, .plate-1, .plate-2, .plate-3, .plate-4, .plate-5, .plate-6, .card-accent) .rule-plate {
+  background: linear-gradient(to right,
+    rgb(var(--clay-drop-h) / 0) 0%,
+    rgb(var(--clay-drop-h) / 0.3) 15%,
+    rgb(var(--clay-drop-h) / 0.3) 85%,
+    rgb(var(--clay-drop-h) / 0) 100%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.35);
 }
 
 [data-appearance="clay"] :is(.plate-1, .plate-2, .plate-3, .plate-4, .plate-5, .plate-6, .plate-custom) {
@@ -2184,3 +2274,37 @@ html[data-theme="midnight"][data-appearance="clay"] .nav-pill {
       transparent 62%);
 }
 
+
+
+/* ═══ §18c · FEATURE PLATES — the big cards walk the bench row-by-row ══
+   .stat-tile already rotates inside its own grid (§1). The feature grid's
+   panels are zone plates — big, quiet, scoped to the 20% of each page the
+   zones own. In clay a `.feature-plates` grid cycles its direct children
+   through --panel-face / --band-face pairs (plum ink is locked by §12.4
+   the moment a panel-feature class is present, so this is a FACE choice,
+   never an ink choice). It does not repaint: backgrounds stay their
+   surfaces, only the plate affinity moves — read: the grid carries the
+   bench without reordering it. Midnight keeps its deep-plum zone family;
+   this rotation therefore runs in DAYLIGHT only (§9.5: zones at night
+   belong to the night, not to the bench).                              */
+html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-raised:nth-child(4n+1) {
+  background-color: rgb(var(--panel-face));
+}
+html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-raised:nth-child(4n+3) {
+  background-color: rgb(var(--band-face));
+}
+html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-raised:nth-child(4n+2),
+html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-raised:nth-child(4n+4) {
+  /* even tiles hold the recipe card face — the alternation carries the
+     alternated, never the whole grid at once. */
+  background-color: rgb(var(--clay-card));
+}
+/* Plum ink is a property of the clay registry, not of the plate face —
+   re-assert it under the rotation so a face move can never move ink. */
+html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-raised {
+  --text-1: 36 27 58;
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+}

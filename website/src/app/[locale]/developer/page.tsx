@@ -405,7 +405,7 @@ const faq = [
 
             <p className="max-w-3xl pt-6 text-sm leading-relaxed text-text-secondary">{t(dream.lead)}</p>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="feature-plates mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {dream.intentions.map((item, index) => (
                 <div key={t(item.title)} className="surface-raised p-5">
                   <IconChip path={dreamCardIcons[index % dreamCardIcons.length]!} className="mb-4" />
@@ -487,7 +487,7 @@ const faq = [
               title={t("Four habits you can check against the files above.")}
               lead={t("None of these is a claim about character. Each one is visible in the documents this page just cited, which is the only reason it is on the page at all.")}
             />
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="feature-plates mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {workingMethod.map((item, index) => (
                 <Reveal key={t(item.title)} delay={index * 50}>
                   <article className="surface h-full p-5">
