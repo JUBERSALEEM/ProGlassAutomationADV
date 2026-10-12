@@ -126,6 +126,43 @@ test("G5·8 one listener, rAF-coalesced, style props only — the pointer-guard 
   assert.ok(life.includes('setProperty("--my"'), "listener not writing --my");
 });
 
+
+/* ── G6 · the coarse-pointer mitigation, audited from the engine ─────── */
+test("G6·1 the coarse-pointer block exists, crystal-scoped, and touches ONLY the frost dial", () => {
+  let inMedia = 0;
+  const decls = [];
+  root.walkAtRules("media", (a) => {
+    if (!/pointer:\s*coarse/u.test(a.params)) return;
+    inMedia++;
+    a.walkDecls((d) => decls.push(d.prop));
+  });
+  assert.ok(inMedia >= 1, "no (pointer: coarse) mitigation block in the engine");
+  assert.deepEqual(decls, ["--glass-frost-mult"], `coarse block must touch the frost dial and nothing else, got ${decls.join(", ")}`);
+});
+
+test("G6·2 the radius step rests at 0.6 — strong enough to matter, small enough to stay glass", () => {
+  let value = null;
+  root.walkAtRules("media", (a) => {
+    if (!/pointer:\s*coarse/u.test(a.params)) return;
+    a.walkDecls("--glass-frost-mult", (d) => { value = Number(d.value); });
+  });
+  assert.ok(value === 0.6, `coarse frost dial must rest at 0.6 (the G6 denomination), read ${value}`);
+});
+
+test("G6·3 the coarse dial never fights the bench: the ?only? write is the declarated (inline styles from a moved bench win — the hand said so)", () => {
+  /* reduced-motion is defense-in-depth here: the same user on coarse AND
+     reduce keeps the radius step (it is a perf seam, not a motion seam —
+     but the motion gates above still bind §C5 motion to zero). */
+  const coarseRules = [];
+  root.walkAtRules("media", (a) => {
+    if (!/pointer:\s*coarse/u.test(a.params)) return;
+    a.walkRules((r) => coarseRules.push(r.selector));
+  });
+  for (const sel of coarseRules) {
+    assert.match(sel, /appearance="?crystal"?/u, `coarse rule escaped the crystal family: ${sel}`);
+  }
+});
+
 test("G5·9 @property registers the coords (no discrete snap animating from outside)", () => {
   let mx = false, my = false, chill = false;
   root.walkAtRules("property", (a) => {

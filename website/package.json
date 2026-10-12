@@ -33,7 +33,8 @@
     "test:navbar": "node --test scripts/nav-pill-clip.test.mjs && vitest run",
     "test:clay": "node --test scripts/clay-contrast.test.mjs && node scripts/clay-coverage.mjs --check",
     "guard:pointer": "node scripts/pointer-state-guard.mjs",
-    "testcrystal": "node scripts/crystal-contrast.test.mjs"
+    "testcrystal": "node scripts/crystal-contrast.test.mjs",
+    "crystal:census": "node scripts/crystal-blur-census.mjs --budget"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.9.0",

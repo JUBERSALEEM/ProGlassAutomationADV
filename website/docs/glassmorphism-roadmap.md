@@ -1,6 +1,6 @@
 # Glassmorphism roadmap — the Crystal family, brought to 100%
 
-Status: **G0–G5 CLOSED 2026-10-12** · G6–G7 open · engines are separate by design (crystal-engine.css / clay-engine.css).
+Status: **G0–G6 CLOSED 2026-10-12** · G7 open · engines are separate by design (crystal-engine.css / clay-engine.css).
 Companion doc: `claymorphism-roadmap.md` (phases 1–7 closed) — this file follows the same
 conventions: components declare intent, selectors live in the stylesheet, every claim is gated,
 numbers in commit messages are executed, not read.
@@ -222,7 +222,7 @@ Family-scoped utility lift, mirroring clay §9's grammar:
   measured heavy (see G5 budget check).
 - Probes: reduced-motion block scan (the minified-tolerant regex precedent).
 
-### G6 — Performance & fallback certification (S5) ⬜ OPEN
+### G6 — Performance & fallback certification (S5) ✅ CLOSED 2026-10-12 — `scripts/crystal-blur-census.mjs` (23 routes, measured: /features worst 522, budget 600, `--budget` gate + `crystal:census` npm script); the audit mirrors the count live (BLUR_BUDGET 600, per-page census printed on --budget) — and the measured finding was the roadmap's predicted case, so §C6 ships: (pointer: coarse) → --glass-frost-mult 0.6, fills/scrims/text untouched; contract +3 covenant tests (12/12); fallback sweep rides the contract's fallback lane (§C1f + raises) instead of a bespoke probe
 
 - Per-route blurred-surface census script (counts `backdrop-filter` live
   surfaces per route DOM), budget recorded in `audit-site.py` with the
@@ -253,7 +253,7 @@ sprung and were PROMOTED to floor probes (paint 175/175, contract 41/41).
 The shared daylight legibility grammar lives in globals.css (requested:
 engines stay separate; clay's §20 untouched).
 
-**Balance to 100%:** G6 · G7.
+**Balance to 100%:** G7.
 
 Next action when resumed:
 

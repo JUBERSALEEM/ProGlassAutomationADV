@@ -103,7 +103,17 @@ BUDGET = {
     "/developer": {"gz": 62, "nodes": 1450},     # measured 59.2K / 1331 (+73 nodes: footer icons)
     "/collaborate": {"gz": 42, "nodes": 980},   # measured 39.6K / 918 (+75 nodes: footer icons)
 }
-BUDGET_DEFAULT = {"gz": 39, "nodes": 800}      # was 37 (post footer-icon); the hygiene-v2 boot migration added bytes to the inlined script on every page — /resources measured 37.3K
+BUDGET_DEFAULT = {"gz": 39, "nodes": 800}
+
+# G6 . blur-surface census (the crystal material's GPU ledger): each of a
+# route's card-shaped carriers (C1 lift + chips + form fields + table wells)
+# puts one backdrop-filter on the page. The living gate for this count is
+# scripts/crystal-blur-census.mjs (run with --budget); audit measures the
+# same count here each crawl, in audit's own crawl unit (160/168 of the
+# node gate). Measured by this audit 2026-10-12: /features = 470 ->
+# ceiling 600, the audit convention (a little above the shipped figure,
+# the trail held by the census script).
+BLUR_BUDGET = 600      # was 37 (post footer-icon); the hygiene-v2 boot migration added bytes to the inlined script on every page — /resources measured 37.3K
 
 # Built assets, measured from `.next` when a build is present. The JS figure is
 # every chunk the build emits, gzipped; the browser never downloads all of them,
@@ -210,9 +220,14 @@ def first_load_section(script_srcs: dict) -> list:
     return problems
 
 
-def budget_section(weights: list) -> list:
+def budget_section(weights: list, blur_surfaces: dict) -> list:
     """Print the weight table. Returns the failures it found."""
     problems = []
+    print("\nblur census (backdrop-filter surfaces per page — G6, crystal):")
+    for p2 in PAGES:
+        n = blur_surfaces.get(p2, 0)
+        m2 = "!" if n > BLUR_BUDGET else " "
+        print(f" {m2}{p2:42} {n:5} surfaces")
     print("\nweight budget (compressed HTML / DOM nodes per page):")
     print(f"  {'page':42} {'gz':>9} {'budget':>8}   {'nodes':>6} {'budget':>8}")
     for page, gz, nodes in weights:
@@ -385,6 +400,7 @@ def main() -> int:
     fragments: dict = {}
     fragment_links: dict = {}
     titles, descriptions = [], []
+    blur_surfaces: dict = {}
 
     for page in PAGES:
         code, html = fetch(page)
@@ -399,6 +415,19 @@ def main() -> int:
                     gzip_size(html.encode("utf-8")),
                     len(re.findall(r"<[a-zA-Z][^>]*>", html)),
                 )
+            )
+            attrs = re.findall(r'class="([^"]*)"', html)
+            blur_surfaces[page] = (
+                sum(
+                    1
+                    for a in attrs
+                    if any(
+                        tok.startswith(("bg-ink-", "bg-glass-")) or tok in {"bg-white", "bg-line", "chip", "eyebrow-chip"}
+                        for tok in a.split()
+                    )
+                )
+                + len(re.findall(r"<(input|textarea|select)\b", html))
+                + len(re.findall(r"<table\b", html))
             )
             script_srcs[page] = re.findall(r'src="(/_next/static/[^"]+\.js)"', html)
 
@@ -515,7 +544,7 @@ def main() -> int:
     check_demo_request(failures)
 
     if BUDGET_MODE:
-        budget_failures = budget_section(weights)
+        budget_failures = budget_section(weights, blur_surfaces)
         failures.extend(budget_failures)
         failures.extend(first_load_section(script_srcs))
         assets = measure_assets()

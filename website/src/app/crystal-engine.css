@@ -384,3 +384,25 @@
     --surface-alpha-base-3: 0.99;
   }
 }
+
+/* ═══ §C6 · COARSE POINTERS (G6) — the radius steps down ════════════════
+ *
+ * The census (scripts/crystal-blur-census.mjs) says /features asks for 522
+ * blurred surfaces. On a mid-range phone's GPU that many full-strength
+ * filters is a stutter class; on desktop nothing is audible. The road's
+ * prescribed mitigation (G6): SHRINK THE RADIUS, nothing else — fills,
+ * scrims and text never move (they carry legibility; the G4 contract
+ * floors stay exactly as the dial math states them; a smaller radius does
+ * not subtract alpha).
+ *
+ * The multiplication goes through the bench seam itself — one line,
+ * because G4 built the dial for exactly this: --glass-frost-mult lives on
+ * the root as the inert default the bench dials multiply; on coarse
+ * pointers it rests at 0.6 instead of 1. A user-moved bench (inline style)
+ * outranks this rule, which is correct: the hand said so.
+ */
+@media (pointer: coarse) {
+  [data-appearance="crystal"] {
+    --glass-frost-mult: 0.6;
+  }
+}
