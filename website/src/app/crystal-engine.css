@@ -46,7 +46,7 @@
  * <option> is excluded: it belongs to the OS popup, not the page's room.
  */
 [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
-  background-color: rgb(255 255 255 / 0.10);
+  background-color: rgb(255 255 255 / 0.07);
   background-image:
     var(--glass-frost),
     linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),
@@ -63,7 +63,7 @@
      light-glass weight (the pink reference). The scrim in §C7 catches what
      the fill returns (0.60 → 0.68) and the contract re-floored every
      daylight tier below in the same move. */
-  background-color: rgb(255 255 255 / 0.42);
+  background-color: rgb(255 255 255 / 0.35);
   box-shadow: 0 0 0 1px var(--glass-line),
     inset 0 1px 0 0 var(--glass-edge-light),
     inset 0 -1px 0 0 var(--glass-edge-dark);
@@ -516,9 +516,9 @@
    transparency, and the 0.80 doctrine (G4) holds. */
 @supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
   [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
-    background-color: rgb(255 255 255 / 0.10);
-    backdrop-filter: blur(calc(18px * var(--glass-frost-mult, 1))) saturate(180%);
-    -webkit-backdrop-filter: blur(calc(18px * var(--glass-frost-mult, 1))) saturate(180%);
+    background-color: rgb(255 255 255 / 0.07);
+    backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%);
+    -webkit-backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%);
   }
 }
 

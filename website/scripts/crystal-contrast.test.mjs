@@ -256,7 +256,7 @@ const LIFT_ALPHA = {
      this pair. (§C7 pass: midnight lift 0.66 → 0.50 with scrim 0.34 → 0.42
      — pattern fill weight; daylight unchanged: its glassiness comes from
      the pastel wall, the 0.80 doctrine holds.) */
-  mainline: { midnight: 0.10, daylight: 0.42 },  // §D2: white-tint grammar (the screenshots' own fill band)
+  mainline: { midnight: 0.07, daylight: 0.35 },  // §E2: iOS liquid-glass band (clear + deep frost)
   fallback: { midnight: 0.94, daylight: 0.97 },
 };
 const buildLift = (lane, mode) => {
