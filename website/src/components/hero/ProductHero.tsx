@@ -79,7 +79,13 @@ export function ProductHero({ t }: { t: Translator }) {
           a lit room rather than as a flat field, and it is drawn from the
           family's own pools so switching palette re-hues it. */}
       <div aria-hidden="true" className="hero-backdrop-parallax pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="aurora-field aurora-drift" />
+        <div className="aurora-field aurora-drift">
+          {/* §C9/§R — the references' ornaments live behind the hero's glass:
+              two rings and one sphere, crystal-painted only. */}
+          <span className="decor decor-ring" style={{ right: "9%", top: "12%", width: 180, height: 180 }} />
+          <span className="decor decor-ring" style={{ left: "6%", bottom: "18%", width: 120, height: 120 }} />
+          <span className="glass-sphere" data-chill-target style={{ position: "absolute", right: "26%", top: "30%", width: 260, height: 260 }} />
+        </div>
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-400/60 to-transparent" />
       </div>
 
