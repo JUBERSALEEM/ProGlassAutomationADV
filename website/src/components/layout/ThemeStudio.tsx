@@ -16,7 +16,9 @@ import {
   studioTypography,
   typefaces,
   useStudio,
+  encodeStudio,
 } from "@/lib/useStudio";
+
 import { luminance } from "@/lib/color";
 import { Slider, edgeReadout } from "@/components/ui/Slider";
 import { useT } from "@/i18n/provider";
@@ -51,6 +53,12 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
      visitor clicks the trigger once and the panel is simply there. */
   const [open, setOpen] = useState(autoOpen);
   const [customHex, setCustomHex] = useState("#6546B5");
+  const [shareCopied, setShareCopied] = useState(false);
+  useEffect(() => {
+    if (!shareCopied) return;
+    const timer = window.setTimeout(() => setShareCopied(false), 1800);
+    return () => window.clearTimeout(timer);
+  }, [shareCopied]);
   const panel = useRef<HTMLDivElement | null>(null);
   const trigger = useRef<HTMLButtonElement | null>(null);
 
@@ -367,6 +375,33 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
             >
               {t("Reset the bench to House")}
             </button>
+            <button
+              type="button"
+              title={t("Copy a link carrying this whole studio — the bench rides in the URL")}
+              onClick={() => {
+                const encoded = encodeStudio(studio);
+                const url = `${window.location.origin}${window.location.pathname}?studio=${encoded}`;
+                void navigator.clipboard?.writeText(url).then(() => setShareCopied(true));
+              }}
+              className="mt-2 ml-3 text-[0.72rem] font-semibold text-text-faint underline-offset-2 hover:underline"
+            >
+              {shareCopied ? t("Bench link copied ✓") : t("Copy bench link")}
+            </button>
+          </fieldset>
+          <fieldset className="mt-4">
+            <legend className="mono-label">{t("Clay depth")}</legend>
+            <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">
+              {t("How hard the shadows press. 1.00 is the shipped recipe; geometry and the light lift never move, so cards deepen without floating.")}
+            </p>
+            <Slider
+              label={t("Shadow depth")}
+              value={studio.clayDepth}
+              min={0.7}
+              max={1.35}
+              step={0.05}
+              display={`${studio.clayDepth.toFixed(2)}×`}
+              onChange={(value) => setStudio({ clayDepth: value })}
+            />
           </fieldset>
 
           {/* ── Typeface ──────────────────────────────────────────────── */}

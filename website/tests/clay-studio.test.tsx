@@ -143,7 +143,6 @@ describe("phase 2 — studio performance contract", () => {
   it("setStudio applies on the next frame, not per input event", async () => {
     const raf = window.requestAnimationFrame;
     expect(typeof raf).toBe("function");
-    const before = document.documentElement.style.getPropertyValue("--tint-mix");
     applyStudioVars(defaultStudio); /* clear */
     expect(document.documentElement.style.getPropertyValue("--tint-mix")).toBe("");
     const { setStudio } = await import("@/lib/useStudio");
@@ -152,5 +151,37 @@ describe("phase 2 — studio performance contract", () => {
     document.documentElement.style.getPropertyValue("--tint-mix"); /* no throw; read allowed */
     await new Promise((resolve) => raf(() => resolve(null)));
     expect(document.documentElement.style.getPropertyValue("--tint-mix")).toBe("calc(var(--tint-base, 0.1) * 2.00)");
+  });
+});
+
+describe("phase 3 — studio v2 contract", () => {
+  it("dusk and dust presets rewrite the whole bench", () => {
+    applyStudioVars({ ...defaultStudio, clayPreset: "dusk" });
+    expect(document.documentElement.style.getPropertyValue("--plate-1")).toBe(CLAY_PRESETS.dusk.tokens["--plate-1"]);
+    applyStudioVars({ ...defaultStudio, clayPreset: "dust" });
+    expect(document.documentElement.style.getPropertyValue("--clay-lavender")).toBe(CLAY_PRESETS.dust.tokens["--clay-lavender"]);
+  });
+
+  it("the depth dial writes --clay-depth only when off recipe", () => {
+    applyStudioVars(defaultStudio);
+    expect(document.documentElement.style.getPropertyValue("--clay-depth")).toBe("");
+    applyStudioVars({ ...defaultStudio, clayDepth: 1.3 });
+    expect(document.documentElement.style.getPropertyValue("--clay-depth")).toBe("1.30");
+  });
+
+  it("a bench link round-trips through encode/decode without loss", async () => {
+    const { encodeStudio, decodeStudio } = await import("@/lib/useStudio");
+    const bench = { ...defaultStudio, clayPreset: "lagoon" as const, clayDepth: 1.2, tint: 1.5 };
+    const decoded = decodeStudio(encodeStudio(bench));
+    expect(decoded).not.toBeNull();
+    expect(decoded?.clayPreset).toBe("lagoon");
+    expect(decoded?.clayDepth).toBe(1.2);
+    expect(decoded?.tint).toBe(1.5);
+  });
+
+  it("a hostile share link degrades to null, never to a broken page", async () => {
+    const { decodeStudio } = await import("@/lib/useStudio");
+    expect(decodeStudio("not-base64-at-all!!!")).toBeNull();
+    expect(decodeStudio("")).toBeNull();
   });
 });

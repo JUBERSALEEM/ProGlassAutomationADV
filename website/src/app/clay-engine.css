@@ -111,10 +111,13 @@
 
   /* §4 recipe — L1 resting card; L2 lifts offset 12 / blur 32. On dark
      grounds H deepens into the plum family (18 10 38) rather than going
-     neutral black, and the light lift is faint moonlight. */
-  --shadow-panel: 12px 12px 32px rgb(18 10 38 / 0.68),
+     neutral black, and the light lift is faint moonlight. The depth dial
+     (Phase 3: `--clay-depth`) scales the drop alpha only — geometry and
+     the light lift stay, so cards deepen without ever floating. */
+  --clay-depth: 1;
+  --shadow-panel: 12px 12px 32px rgb(18 10 38 / calc(0.68 * var(--clay-depth, 1))),
     -10px -10px 24px rgb(255 255 255 / 0.07);
-  --shadow-raised: 16px 16px 42px rgb(18 10 38 / 0.74),
+  --shadow-raised: 16px 16px 42px rgb(18 10 38 / calc(0.74 * var(--clay-depth, 1))),
     -14px -14px 30px rgb(255 255 255 / 0.08);
 
   /* Clay is solid and cheap: no translucency tier, no backdrop blur. */
@@ -156,9 +159,9 @@
   --clay-scrim: rgb(140 108 255 / 0.3);
   --clay-edge: rgb(var(--clay-drop-h) / 0.2);
   --clay-edge-hover: rgb(var(--clay-drop-h) / 0.45);
-  --shadow-panel: 12px 12px 30px rgb(var(--clay-drop-h) / 0.36),
+  --shadow-panel: 12px 12px 30px rgb(var(--clay-drop-h) / calc(0.36 * var(--clay-depth, 1))),
     -10px -10px 26px rgb(255 255 255 / 1);
-  --shadow-raised: 16px 16px 42px rgb(var(--clay-drop-h) / 0.42),
+  --shadow-raised: 16px 16px 42px rgb(var(--clay-drop-h) / calc(0.42 * var(--clay-depth, 1))),
     -14px -14px 32px rgb(255 255 255 / 1);
 }
 

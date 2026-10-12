@@ -107,6 +107,13 @@ export type Studio = {
   clayAccent: string;
   /** The free `.plate-custom` slot; "" follows the preset's first plate. */
   clayCustom: string;
+  /**
+   * Phase 3 — the depth dial. Multiplies the drop-shadow alpha of the clay
+   * family's shadow tiers (1 = the shipped recipe; 0.7–1.35 in the UI).
+   * Geometry and the light lift are never scaled, so cards deepen without
+   * floating, and text-contrast pairs don't move at all.
+   */
+  clayDepth: number;
 };
 
 export const defaultStudio: Studio = {
@@ -130,6 +137,7 @@ export const defaultStudio: Studio = {
   clayPreset: "house",
   clayAccent: "",
   clayCustom: "",
+  clayDepth: 1,
 };
 
 /*
@@ -174,6 +182,24 @@ export const CLAY_PRESETS = {
       "--plate-4": "250 226 198", "--plate-5": "255 208 220", "--plate-6": "252 232 168",
       "--clay-lavender": "255 186 158", "--clay-sky": "250 208 184", "--clay-mint": "214 224 168",
       "--clay-peach": "250 172 146", "--clay-lemon": "247 206 124", "--clay-pink": "250 178 198",
+    },
+  },
+  dusk: {
+    label: "Dusk",
+    tokens: {
+      "--plate-1": "214 208 234", "--plate-2": "208 224 216", "--plate-3": "236 220 208",
+      "--plate-4": "206 216 230", "--plate-5": "228 208 220", "--plate-6": "232 224 200",
+      "--clay-lavender": "190 178 226", "--clay-sky": "176 196 224", "--clay-mint": "176 206 190",
+      "--clay-peach": "230 196 182", "--clay-lemon": "224 210 166", "--clay-pink": "216 186 202",
+    },
+  },
+  dust: {
+    label: "Dust",
+    tokens: {
+      "--plate-1": "236 222 206", "--plate-2": "226 228 206", "--plate-3": "242 214 196",
+      "--plate-4": "210 224 222", "--plate-5": "238 212 214", "--plate-6": "238 226 190",
+      "--clay-lavender": "226 202 182", "--clay-sky": "198 214 212", "--clay-mint": "206 214 188",
+      "--clay-peach": "236 188 168", "--clay-lemon": "232 208 152", "--clay-pink": "228 190 196",
     },
   },
 } as const;
@@ -221,7 +247,11 @@ function emit() {
 function read(): Studio {
   if (typeof document === "undefined") return defaultStudio;
   if (cached) return cached;
-  cached = readStored();
+  /* A share link (?studio=…) brought this visitor's bench from somewhere
+     else: it wins over whatever this browser remembered — that is the
+     whole point of handing someone a link. */
+  const shared = readSharedStudio();
+  cached = shared ?? readStored();
   return cached;
 }
 
@@ -255,10 +285,53 @@ function readStored(): Studio {
     const hexOrEmpty = (v: unknown) => typeof v === "string" && (v === "" || /^#[0-9a-f]{6}$/i.test(v));
     if (!hexOrEmpty(merged.clayAccent)) merged.clayAccent = defaultStudio.clayAccent;
     if (!hexOrEmpty(merged.clayCustom)) merged.clayCustom = defaultStudio.clayCustom;
+    if (!Number.isFinite(merged.clayDepth)) merged.clayDepth = defaultStudio.clayDepth;
 
     return merged;
   } catch {
     return defaultStudio;
+  }
+}
+
+/*
+ * Phase 3 — a bench you can hand over. The whole studio state travels in
+ * one URL parameter (?studio=…) so a tuned palette can be shared, reviewed
+ * and returned to; encodeStudio/decodeStudio are the two honest halves of
+ * that contract — everything read back in is run through the same
+ * normalisation as localStorage, so a hostile or stale link degrades to
+ * defaults, never to a broken page.
+ */
+export function encodeStudio(studio: Studio): string {
+  try {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(studio))));
+  } catch {
+    return "";
+  }
+}
+
+export function decodeStudio(encoded: string): Studio | null {
+  try {
+    const parsed = JSON.parse(decodeURIComponent(escape(atob(encoded.trim())))) as Partial<Studio>;
+    if (typeof parsed !== "object" || parsed === null) return null;
+    return { ...defaultStudio, ...parsed };
+  } catch {
+    return null;
+  }
+}
+
+/** Read the bench from the URL once, if a share link brought one. */
+export function readSharedStudio(): Studio | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const param = new URLSearchParams(window.location.search).get("studio");
+    if (!param) return null;
+    const shared = decodeStudio(param);
+    if (shared && shared.clayPreset !== "custom" && !(shared.clayPreset in CLAY_PRESETS)) {
+      shared.clayPreset = defaultStudio.clayPreset;
+    }
+    return shared;
+  } catch {
+    return null;
   }
 }
 
@@ -697,6 +770,16 @@ export function applyStudioVars(studio: Studio) {
     vars["--pool-1"] = `rgb(${triplet(drop)} / ${target === "dark" ? 0.1 : 0.13})`;
     vars["--pool-2"] = `rgb(${triplet(hslToRgb({ h: (benchHue + 38) % 360, s: 0.7, l: 0.7 }))} / ${target === "dark" ? 0.05 : 0.1})`;
     vars["--pool-3"] = `rgb(${triplet(hslToRgb({ h: (benchHue + 322) % 360, s: 0.7, l: 0.72 }))} / ${target === "dark" ? 0.045 : 0.09})`;
+  }
+
+  /*
+   * Phase 3 — the depth dial is independent of the bench: a visitor may
+   * want house plates that cast deeper shadows. Written like `--tint-mix`
+   * (only when off default) so the shipped recipe stays stylesheet-owned,
+   * and clamped server- and client-side to the dial's own bounds.
+   */
+  if (studio.clayDepth !== defaultStudio.clayDepth) {
+    vars["--clay-depth"] = Math.min(2, Math.max(0.5, studio.clayDepth)).toFixed(2);
   }
 
   // Tokens that were not overridden must return to the stylesheet's value, so

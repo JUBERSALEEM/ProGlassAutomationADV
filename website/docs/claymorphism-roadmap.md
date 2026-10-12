@@ -33,7 +33,7 @@ locks, reduced-motion gates, and the ability to re-theme live.
 | Remaining fine washes (`bg-brand-400/8,10`), PreviewShell bubble-input, hero orb clamps | open | — |
 | Typography/specimen clay styling in the studio | not started | 20% |
 
-**Overall: ≈ 88–90% of the clay grammar is shipped and gated.** What remains
+**Overall: ≈ 91–93% of the clay grammar is shipped and gated** (phases 1–3 closed 2026-10-12). What remains
 is polish, two service-quality upgrades, and the site-wide pixel audit.
 
 ## 2. The freezing fixes that just shipped (phase P)
@@ -54,18 +54,19 @@ Gates after both fixes: paint 106/106 · contrast 25/25 · vitest 22/22 · tsc 0
 - [x] `npm run pixel:pass` registered; eslint clean; the runbook top of this file is the operator guide
 - Exit line TRUE: zero raw cards on any route, machine report committed
 
-### Phase 2 — Performance hardening (1 change + audit)
-- [ ] `applyStudioVars` delta-writes (compare-then-set to skip unchanged vars) — halves writes on every switch
-- [ ] Audit every `onPointerOver/MouseMove` in `src/components` for setState-in-handler (rule: pointer handlers write styles or nothing)
-- [ ] Profile the studio open path (dial drag currently applies ~40 vars per input event — throttle to rAF)
-- Exit: no React state write from any pointermove/-over handler app-wide (grep guard in CI)
+### Phase 2 — Performance hardening — ✅ **CLOSED 2026-10-12** (26290f5)
+- [x] `applyStudioVars` delta-writes — writes/removals only on real change (the whole cost budget of a theme change lives in that one loop)
+- [x] Audit of every pointer handler: new CI guard `scripts/pointer-state-guard.mjs` (`npm run guard:pointer`) — 154 files scanned, the one justified call annotated inline
+- [x] Studio applies coalesced to rAF (`setStudio` schedules; deliberate actions stay synchronous) + vitest case for the frame contract
+- Exit line TRUE: 0 unguarded state writes in pointer handlers, guard green
 
-### Phase 3 — Studio v2 (the visible upgrade)
-- [ ] Radius dial (bends `--radius-*` scales, keeps wells pressed)
-- [ ] Depth dial (bends `--shadow-panel` tiers at kept geometry)
-- [ ] Preset gallery: 2 more families (dust/dusk) with the §16 twist chains
-- [ ] Share/export the bench (JSON in localStorage → copyable URL param), "reset to house" already lives
-- Exit: 5 new vitest cases; paint/contrast still 106/25 green
+### Phase 3 — Studio v2 — ✅ **CLOSED 2026-10-12** (this commit)
+- [x] Radius dial: **already existed** (`--radius-scale` with the engine's intentional family-replacement semantics) — roadmap mis-assessed; kept + documented
+- [x] Depth dial: `--clay-depth` scales drop-shadow alpha only, in all four clay shadow tiers (geometry + light lift untouched) — slider 0.7–1.35×
+- [x] Preset gallery +2: **Dusk** and **Dust** benches (full §16 twist chains)
+- [x] Share/export: `?studio=…` link carries the whole studio state; encode/decode round-trip + hostile-link tests; boot decodes share links before localStorage ("share wins — the point of a link")
+- [x] "Reset the bench to House" already shipped with §13
+- Exit: 4 new vitest cases (19 in the clay-studio suite, 27 overall); paint 106/106, contrast 25/25
 
 ### Phase 4 — Plate adoption pass (visual richness, strictly inside 70/20/10)
 - [ ] Stats grids: connect `.stat-tile` rotation to `--plate-5/6` pairs so teams can pick 4-of-6
