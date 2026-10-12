@@ -278,24 +278,44 @@ function subscribe(listener: () => void): () => void {
    * the new family's colours were invisible. Choosing a family before choosing
    * a colour worked, which is exactly what "not working constantly" describes.
    */
-  const observer = new MutationObserver((records) => {
-    for (const record of records) {
-      if (record.attributeName === "data-theme" || record.attributeName === "data-appearance") {
+  if (!sharedObserver) {
+    /* One observer for every subscriber, not one each: ThemeStudio,
+       AppearancePreview and the lazy keeper all subscribe, and a fresh
+       observer per subscriber meant a single theme click re-ran
+       applyStudioVars — forty-odd style writes plus two localStorage
+       serialisations — once per mounted subscriber. The rAF coalescing is
+       the second half of the same freeze: a family switch flips
+       data-appearance AND (often) data-theme inside the same task, and one
+       apply per frame is enough for both. */
+    sharedObserver = new MutationObserver(() => {
+      if (applyScheduled) return;
+      applyScheduled = true;
+      requestAnimationFrame(() => {
+        applyScheduled = false;
         applyStudioVars(read());
-        break;
-      }
-    }
-  });
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ["data-theme", "data-appearance"],
-  });
+      });
+    });
+    sharedObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme", "data-appearance"],
+    });
+  }
+  subscriberCount += 1;
 
   return () => {
     listeners.delete(listener);
-    observer.disconnect();
+    subscriberCount -= 1;
+    if (subscriberCount <= 0 && sharedObserver) {
+      sharedObserver.disconnect();
+      sharedObserver = null;
+      subscriberCount = 0;
+    }
   };
 }
+
+let sharedObserver: MutationObserver | null = null;
+let subscriberCount = 0;
+let applyScheduled = false;
 
 /**
  * The typefaces the studio offers.

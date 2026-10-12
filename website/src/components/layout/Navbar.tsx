@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { navIcons } from "@/data/navIcons";
 import { footerIconFor } from "@/data/footerIcons";
@@ -203,28 +203,50 @@ export function Navbar() {
    * slides to the item under the pointer and rests on the current page
    * (§15 of the engine; the pack's demo cycle is switched off). All this
    * component owns is the geometry: measure, translate, hand back. In
-   * other families the pill stays invisible — nothing here is theirs. */
-  const [indicatorStyle, setIndicatorStyle] = useState<CSSProperties>({ opacity: 0 });
+   * other families the pill stays invisible — nothing here is theirs.
+   *
+   * Third sighting: this used to live in React state, and `onPointerOver`
+   * BUBBLES — moving the pointer across a link's glyph, text span and
+   * inner nodes fires it for every boundary it crosses, each event
+   * forcing two layout reads (`getBoundingClientRect`) plus a setState
+   * that re-rendered the whole header. On a slow phone that reads as a
+   * menu that freezes while the hand moves across it. The pill is now
+   * written imperatively (style writes only, no re-render), and the
+   * hover handler dedupes: the same target and the same geometry touch
+   * the DOM at most once. */
+  const indicatorRef = useRef<HTMLSpanElement | null>(null);
+  const hoverTargetRef = useRef<HTMLElement | null>(null);
   const moveIndicator = (target: HTMLElement | null) => {
     const list = navListRef.current;
-    if (!list) return;
+    const pill = indicatorRef.current;
+    if (!list || !pill) return;
     if (!target) {
-      setIndicatorStyle((style) => (style.opacity === 0 ? style : { ...style, opacity: 0 }));
+      hoverTargetRef.current = null;
+      if (pill.dataset.geo) {
+        delete pill.dataset.geo;
+        pill.style.opacity = "0";
+      }
       return;
     }
+    hoverTargetRef.current = target;
     const listRect = list.getBoundingClientRect();
     const rect = target.getBoundingClientRect();
     if (rect.width === 0) {
-      setIndicatorStyle((style) => (style.opacity === 0 ? style : { ...style, opacity: 0 }));
+      if (pill.dataset.geo) {
+        delete pill.dataset.geo;
+        pill.style.opacity = "0";
+      }
       return;
     }
-    setIndicatorStyle({
-      opacity: 1,
-      width: rect.width,
-      /* The pill is parked at the list's left padding, so the slide is the
-         item's left edge measured from that same parking spot. */
-      transform: `translateX(${Math.max(0, rect.left - listRect.left - 4)}px)`,
-    });
+    const x = Math.max(0, rect.left - listRect.left - 4);
+    const geo = `${Math.round(x)}x${Math.round(rect.width)}`;
+    if (pill.dataset.geo === geo) return; /* same item, same box: no work */
+    pill.dataset.geo = geo;
+    /* The pill is parked at the list's left padding, so the slide is the
+       item's left edge measured from that same parking spot. */
+    pill.style.opacity = "1";
+    pill.style.width = `${rect.width}px`;
+    pill.style.transform = `translateX(${x}px)`;
   };
   const settleIndicator = () => {
     const list = navListRef.current;
@@ -399,18 +421,39 @@ export function Navbar() {
           className={NAV_BAR}
           onPointerOver={(event) => {
             const target = (event.target as HTMLElement).closest("a, button");
-            if (target && navListRef.current?.contains(target)) moveIndicator(target as HTMLElement);
+            /* pointerover fires for every inner-node boundary; only a new
+               target is new information — the dedupe is what keeps the
+               menu from re-measuring (and before, re-rendering) per
+               crossing. The open menu's own cards are inside this nav too:
+               without the menu-card guard the pill teleported 22rem across
+               to whatever dropdown item the hand entered — it read as the
+               bar glitching on every menu visit. */
+            if (
+              target &&
+              target !== hoverTargetRef.current &&
+              !target.closest(".menu-card") &&
+              navListRef.current?.contains(target)
+            ) {
+              moveIndicator(target as HTMLElement);
+            }
           }}
           onPointerLeave={() => settleIndicator()}
           onFocusCapture={(event) => {
             const target = (event.target as HTMLElement).closest("a, button");
-            if (target && navListRef.current?.contains(target)) moveIndicator(target as HTMLElement);
+            if (
+              target &&
+              target !== hoverTargetRef.current &&
+              !target.closest(".menu-card") &&
+              navListRef.current?.contains(target)
+            ) {
+              moveIndicator(target as HTMLElement);
+            }
           }}
           onBlurCapture={(event) => {
             if (!navListRef.current?.contains(event.relatedTarget as Node)) settleIndicator();
           }}
         >
-          <span aria-hidden="true" className="navclay__indicator" style={indicatorStyle} />
+          <span aria-hidden="true" className="navclay__indicator" ref={indicatorRef} style={{ opacity: 0 }} />
           {entries.map((entry, index) => {
             const active = isActive(entry);
             const tier =
