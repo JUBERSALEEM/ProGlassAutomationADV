@@ -32,7 +32,8 @@
     "i18n:fill": "node scripts/i18n-machine-fill.mjs --all",
     "test:navbar": "node --test scripts/nav-pill-clip.test.mjs && vitest run",
     "test:clay": "node --test scripts/clay-contrast.test.mjs && node scripts/clay-coverage.mjs --check",
-    "guard:pointer": "node scripts/pointer-state-guard.mjs"
+    "guard:pointer": "node scripts/pointer-state-guard.mjs",
+    "testcrystal": "node scripts/crystal-contrast.test.mjs"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.9.0",
