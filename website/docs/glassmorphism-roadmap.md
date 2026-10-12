@@ -1,6 +1,6 @@
 # Glassmorphism roadmap — the Crystal family, brought to 100%
 
-Status: **G0–G6 CLOSED 2026-10-12** · G7 open · engines are separate by design (crystal-engine.css / clay-engine.css).
+Status: **G0–G7 CLOSED 2026-10-12 (all eight phases shipped)** · the default-family question (below) is the user's alone · engines are separate by design (crystal-engine.css / clay-engine.css).
 Companion doc: `claymorphism-roadmap.md` (phases 1–7 closed) — this file follows the same
 conventions: components declare intent, selectors live in the stylesheet, every claim is gated,
 numbers in commit messages are executed, not read.
@@ -233,7 +233,7 @@ Family-scoped utility lift, mirroring clay §9's grammar:
 - Fallback sweep: `@supports not` path painted and probed (near-opaque,
   scrim-raised) on every new surface from G1–G3.
 
-### G7 — Catalog, docs & the default decision (S6) ⬜ OPEN
+### G7 — Catalog, docs & the default decision (S6) ✅ CLOSED 2026-10-12 — `/sys/crystal` (mirror of /sys/clay: surfaces/lift/forms/chips+seams/light/bench demos — noindex + sitemap-free); decision log D30–D33 appended to claymorphism-redesign-progress.md; the DEFAULT FAMILY question (crystal vs clay as DEFAULT_APPEARANCE) stays explicitly the USER's — it is a product-call, not an engineering one
 
 - `/sys/crystal` — the single-screen review surface (mirror of `/sys/clay`:
   every re-glassed class lane, both modes, noindex + sitemap-free).
@@ -253,7 +253,7 @@ sprung and were PROMOTED to floor probes (paint 175/175, contract 41/41).
 The shared daylight legibility grammar lives in globals.css (requested:
 engines stay separate; clay's §20 untouched).
 
-**Balance to 100%:** G7.
+**Balance achieved:** all eight phases shipped. The remaining decision — the product default family — is the user's alone; nothing below this line moves it without a written call.
 
 Next action when resumed:
 
