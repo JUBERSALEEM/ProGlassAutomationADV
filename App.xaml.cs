@@ -204,9 +204,14 @@ namespace ProGlassAutomation
         private void HandleSharedDataRootUnavailable(
             SharedDataRootUnavailableException ex)
         {
+            string summary =
+                "Startup blocked because the configured shared data root is unavailable. " +
+                "Path: " + ex.SharedFolder;
+            if (!string.IsNullOrWhiteSpace(ex.FailureReason))
+                summary += " Reason: " + ex.FailureReason;
+
             AppLogService.Warning(
-                "Startup stopped because the configured shared data root is unavailable. " +
-                ex.Message,
+                summary,
                 new LogContext
                 {
                     Module = "Database",

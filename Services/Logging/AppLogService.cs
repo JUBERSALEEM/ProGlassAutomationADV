@@ -331,7 +331,7 @@ namespace ProGlassAutomation.Services.Logging
                     LogFolder,
                     $"app-{DateTime.Now:yyyyMMdd}.log");
 
-                var line = new StringBuilder()
+                var lineBuilder = new StringBuilder()
                     .Append(entry.TimestampUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss.fff"))
                     .Append("  [").Append(entry.LevelDisplay.PadRight(8)).Append("]")
                     .Append(string.IsNullOrEmpty(errorId) ? "" : $"  ({errorId})")
@@ -340,11 +340,13 @@ namespace ProGlassAutomation.Services.Logging
                     .Append(string.IsNullOrEmpty(entry.DocumentId) ? "" : $"  {entry.DocumentId}")
                     .Append(string.IsNullOrEmpty(entry.Username) ? "" : $"  user={entry.Username}")
                     .Append(entry.ContextDisplay.Length == 0 ? "" : $"  [{entry.ContextDisplay}]")
-                    .Append("  ").Append(entry.Message)
-                    .AppendLine(entry.ExceptionText.Length == 0
-                        ? ""
-                        : Environment.NewLine + entry.ExceptionText)
-                    .ToString();
+                    .Append("  ");
+
+                AppendMultiline(lineBuilder, entry.Message, "      ");
+                if (entry.ExceptionText.Length > 0)
+                    lineBuilder.AppendLine().Append(entry.ExceptionText);
+                lineBuilder.AppendLine();
+                var line = lineBuilder.ToString();
 
                 lock (_writeLock)
                 {
@@ -385,6 +387,19 @@ namespace ProGlassAutomation.Services.Logging
             }
         }
 
+        private static void AppendMultiline(
+            StringBuilder builder, string value, string continuationIndent)
+        {
+            string[] lines = NormalizeLines(value).Split('\n');
+            builder.Append(lines[0]);
+            for (int i = 1; i < lines.Length; i++)
+            {
+                builder.AppendLine();
+                if (lines[i].Length > 0)
+                    builder.Append(continuationIndent).Append(lines[i]);
+            }
+        }
+
         private static string FormatException(Exception ex)
         {
             var sb = new StringBuilder();
@@ -394,12 +409,30 @@ namespace ProGlassAutomation.Services.Logging
             while (current != null && depth < 4)
             {
                 if (depth > 0) sb.AppendLine("  caused by:");
+
+                string[] messageLines = NormalizeLines(current.Message).Split('\n');
                 sb.Append("  ").Append(current.GetType().Name)
-                  .Append(": ").AppendLine(current.Message);
+                    .Append(": ").AppendLine(messageLines[0]);
+                for (int i = 1; i < messageLines.Length; i++)
+                {
+                    if (messageLines[i].Length == 0)
+                        sb.AppendLine();
+                    else
+                        sb.Append("      ").AppendLine(messageLines[i]);
+                }
 
                 var stack = current.StackTrace ?? "";
                 if (stack.Length > 1500) stack = stack[..1500] + " ...";
-                if (stack.Length > 0) sb.AppendLine(stack);
+                if (stack.Length > 0)
+                {
+                    foreach (string stackLine in NormalizeLines(stack).Split('\n'))
+                    {
+                        if (stackLine.Length == 0)
+                            sb.AppendLine();
+                        else
+                            sb.Append("    ").AppendLine(stackLine);
+                    }
+                }
 
                 current = current.InnerException;
                 depth++;
@@ -407,6 +440,9 @@ namespace ProGlassAutomation.Services.Logging
 
             return sb.ToString().TrimEnd();
         }
+
+        private static string NormalizeLines(string value) =>
+            (value ?? "").Replace("\r\n", "\n").Replace('\r', '\n');
 
         private static string NewErrorId() =>
             "ERR-" + Guid.NewGuid().ToString("N")[..6].ToUpperInvariant();

@@ -34,6 +34,8 @@ namespace ProGlassAutomation.Services.Database
 
         private static string _sharedDataRoot = "";
         private static string _configuredSharedDataRoot = "";
+        private static string _sharedRootFailureDetail = "";
+        private static Exception? _sharedRootFailureCause;
         private static bool _sharedFolderVerified = false;
 
         public static bool IsDemo { get; private set; }
@@ -106,6 +108,8 @@ namespace ProGlassAutomation.Services.Database
             // Reset every shared-root state, then re-derive it from config.
             _sharedDataRoot = "";
             _configuredSharedDataRoot = "";
+            _sharedRootFailureDetail = "";
+            _sharedRootFailureCause = null;
             _sharedFolderVerified = false;
             SharedRootConfigured = false;
             SharedRootFallbackReason = "";
@@ -121,6 +125,10 @@ namespace ProGlassAutomation.Services.Database
                 // Enabled in config but the path is empty/invalid — usually
                 // a half-saved state from an older build. Fail closed before
                 // any DbContext can open a local database.
+                _sharedRootFailureDetail =
+                    "The saved shared-folder path is empty or invalid.";
+                _sharedRootFailureCause = new ArgumentException(
+                    _sharedRootFailureDetail, nameof(data.SharedDataRootPath));
                 SharedRootFallbackReason =
                     "Shared company database mode is enabled, but the saved folder path is empty or invalid. " +
                     "Database access is blocked; this workstation will not open local AppData. Open " +
@@ -135,9 +143,12 @@ namespace ProGlassAutomation.Services.Database
 
             _configuredSharedDataRoot = normalized;
 
-            if (TryEnsureSharedFolder(normalized, out var failure))
+            if (TryEnsureSharedFolder(
+                normalized, out var failure, out var failureCause))
             {
                 _sharedDataRoot = normalized;
+                _sharedRootFailureDetail = "";
+                _sharedRootFailureCause = null;
                 _sharedFolderVerified = true;
                 AppLogService.Info(
                     $"Shared company database root enabled: {_sharedDataRoot}",
@@ -148,6 +159,8 @@ namespace ProGlassAutomation.Services.Database
                 // Never open a second, local database while the company root
                 // is configured. Keep the chosen share visible, block all DB
                 // access, and require a restart after the share is restored.
+                _sharedRootFailureDetail = failure;
+                _sharedRootFailureCause = failureCause ?? new IOException(failure);
                 SharedRootFallbackReason =
                     "The configured shared company data folder " + normalized + " is unavailable. " +
                     "Database access is blocked; this workstation will not open local AppData. Make sure the " +
@@ -179,12 +192,14 @@ namespace ProGlassAutomation.Services.Database
                 string configured = string.IsNullOrWhiteSpace(_configuredSharedDataRoot)
                     ? "(empty or invalid path)"
                     : _configuredSharedDataRoot;
-                var inner = new IOException(
-                    string.IsNullOrWhiteSpace(SharedRootFallbackReason)
-                        ? "The configured shared data root is unavailable."
-                        : SharedRootFallbackReason);
-                throw new SharedDataRootUnavailableException(configured, inner,
-                    SharedRootFallbackReason);
+                var inner = _sharedRootFailureCause ?? new IOException(
+                    "The configured shared data root could not be verified.");
+                throw new SharedDataRootUnavailableException(
+                    configured,
+                    inner,
+                    string.IsNullOrWhiteSpace(_sharedRootFailureDetail)
+                        ? null
+                        : _sharedRootFailureDetail);
             }
 
             string folder = CurrentFolder;
@@ -200,7 +215,8 @@ namespace ProGlassAutomation.Services.Database
                 catch (Exception ex)
                 {
                     _sharedFolderVerified = false;
-                    throw new SharedDataRootUnavailableException(folder, ex);
+                    throw new SharedDataRootUnavailableException(
+                        folder, ex, DescribeShareFailure(ex));
                 }
                 return;
             }
@@ -213,12 +229,14 @@ namespace ProGlassAutomation.Services.Database
         /// used by the startup probe where a share that is configured but
         /// not yet created by its host should count as "not there yet".
         /// </summary>
-        internal static bool TryEnsureSharedFolder(string folder, out string failure)
+        internal static bool TryEnsureSharedFolder(
+            string folder, out string failure, out Exception? failureCause)
         {
             // Directory.CreateDirectory on a dead UNC path blocks inside the
-            // SMB redirector. That call used to run on the UI thread at
-            // launch, so a host that was off froze this process and could
-            // stall Explorer with it. Four seconds, then local data.
+            // SMB redirector. Keep the probe off the UI thread and bound the
+            // wait, but fail closed on timeout; never switch to local data.
+            failure = "";
+            failureCause = null;
             try
             {
                 var probe = Task.Run(() => Directory.CreateDirectory(folder));
@@ -229,19 +247,23 @@ namespace ProGlassAutomation.Services.Database
                 {
                     failure = "The shared folder did not respond within 4 seconds — the host " +
                         "computer may be off or the network is down.";
+                    failureCause = new TimeoutException(
+                        "The shared-folder startup probe exceeded four seconds.");
                     return false;
                 }
 
-                failure = "";
                 return true;
             }
             catch (AggregateException ex)
             {
-                failure = DescribeShareFailure(ex.GetBaseException());
+                var cause = ex.GetBaseException();
+                failureCause = cause;
+                failure = DescribeShareFailure(cause);
                 return false;
             }
             catch (Exception ex)
             {
+                failureCause = ex;
                 failure = DescribeShareFailure(ex);
                 return false;
             }
@@ -375,29 +397,44 @@ namespace ProGlassAutomation.Services.Database
 
     /// <summary>
     /// Thrown when a database operation needs the shared company data folder
-    /// and the share is not reachable right now. The message is written for
-    /// the operator, not the developer — it surfaces verbatim in UI error
-    /// toasts, so it must stay plain language.
+    /// and the share is not reachable right now. The outer message is the
+    /// single operator-facing explanation; the inner exception retains the
+    /// underlying technical cause for logs and crash reports.
     /// </summary>
     public sealed class SharedDataRootUnavailableException : Exception
     {
         public string SharedFolder { get; }
+        public string FailureReason { get; }
 
         public SharedDataRootUnavailableException(
             string folder,
             Exception inner,
-            string? configuredReason = null)
-            : base(
-                "The configured shared company data folder is unavailable: " + folder + "\r\n\r\n" +
+            string? failureReason = null)
+            : base(BuildOperatorMessage(folder, failureReason), inner)
+        {
+            SharedFolder = folder;
+            FailureReason = ToSingleLine(failureReason);
+        }
+
+        private static string BuildOperatorMessage(
+            string folder, string? failureReason)
+        {
+            var message =
+                "The configured shared company data folder is unavailable: " + ToSingleLine(folder) +
+                ".\r\n\r\n" +
                 "Database access is blocked. This workstation will not open local AppData. " +
                 "Check that (1) the computer hosting the share is on, (2) the folder is " +
                 "still shared on the WiFi/LAN, and (3) this workstation is connected to " +
-                "the same network. Restore access and restart ProGlass.\r\n\r\n" +
-                (string.IsNullOrWhiteSpace(configuredReason) ? "" : configuredReason + "\r\n\r\n") +
-                "Technical detail: " + inner.Message,
-                inner)
-        {
-            SharedFolder = folder;
+                "the same network. Restore access and restart ProGlass.";
+
+            string reason = ToSingleLine(failureReason);
+            if (reason.Length > 0)
+                message += "\r\n\r\nReason: " + reason;
+
+            return message;
         }
+
+        private static string ToSingleLine(string? value) =>
+            (value ?? "").Replace("\r\n", " ").Replace('\r', ' ').Replace('\n', ' ').Trim();
     }
 }

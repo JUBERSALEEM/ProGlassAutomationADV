@@ -228,8 +228,11 @@ namespace ProGlassAutomation.Tests.Database
                 Assert.NotEqual(AppDataRoot.ProductionFolder, AppDataRoot.CurrentFolder);
                 Assert.Contains("will not open local AppData", AppDataRoot.SharedRootFallbackReason,
                     StringComparison.OrdinalIgnoreCase);
-                Assert.Throws<SharedDataRootUnavailableException>(
+                var unavailable = Assert.Throws<SharedDataRootUnavailableException>(
                     AppDataRoot.EnsureCurrentFolder);
+                Assert.Contains("saved shared-folder path is empty or invalid", unavailable.Message,
+                    StringComparison.OrdinalIgnoreCase);
+                Assert.DoesNotContain("Technical detail:", unavailable.Message);
             }
             finally
             {
@@ -248,6 +251,28 @@ namespace ProGlassAutomation.Tests.Database
             Assert.Equal(@"\\OFFICE\ProGlassData", ex.SharedFolder);
             Assert.Contains(@"\\OFFICE\ProGlassData", ex.Message);
             Assert.Contains("same network", ex.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Same(inner, ex.InnerException);
+        }
+
+        [Fact]
+        public void UnavailableException_does_not_duplicate_path_or_failure_reason()
+        {
+            const string folder = @"\\OFFICE\ProGlassData";
+            const string reason = "The shared folder did not respond within 4 seconds.";
+            var inner = new TimeoutException("The startup probe exceeded four seconds.");
+            var ex = new SharedDataRootUnavailableException(folder, inner, reason);
+
+            Assert.Contains(folder, ex.Message);
+            Assert.Contains(reason, ex.Message);
+            Assert.Equal(reason, ex.FailureReason);
+            Assert.Equal(
+                ex.Message.IndexOf(folder, StringComparison.Ordinal),
+                ex.Message.LastIndexOf(folder, StringComparison.Ordinal));
+            Assert.Equal(
+                ex.Message.IndexOf(reason, StringComparison.Ordinal),
+                ex.Message.LastIndexOf(reason, StringComparison.Ordinal));
+            Assert.DoesNotContain("Technical detail:", ex.Message);
+            Assert.DoesNotContain(inner.Message, ex.Message);
             Assert.Same(inner, ex.InnerException);
         }
     }
