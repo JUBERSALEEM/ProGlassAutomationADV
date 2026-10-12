@@ -900,3 +900,16 @@
       inset 0 1px 0 0 rgb(255 255 255 / 0.5);
   }
 }
+
+/* ═══ §F3 · THE LENS RING — refraction's silhouette, honestly ════════════
+ * Real refraction is WebGL-per-screen (declined). What the eye actually
+ * reads from Apple's material at the pane's edge is a brighter, hi-key
+ * BAND just inside the rim. One inset line, hero tiers only — no DOM cost.
+ */
+[data-appearance="crystal"] :is(.panel-feature, .menu-card, .glass-fab, .glass-bar) {
+  box-shadow:
+    var(--glass-drop),
+    inset 0 0 0 1px rgb(255 255 255 / 0.10),
+    inset 0 0 22px -6px rgb(255 255 255 / 0.22),
+    inset 0 1px 0 0 rgb(255 255 255 / 0.5);
+}
