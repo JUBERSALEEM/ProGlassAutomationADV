@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cn } from "@/lib/cn";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
@@ -99,11 +100,16 @@ export default async function HowItWorksPage({ params }: PageProps) {
               <div className="surface p-5">
                 <p className="eyebrow mb-4">{t("At a glance")}</p>
                 <ol className="space-y-1.5">
-                  {businessChain.map((stage) => (
+                  {businessChain.map((stage, stageIndex) => (
                     <li key={stage.id}>
                       <a
                         href={`#stage-${stage.id}`}
-                        className="group flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors duration-200 hover:bg-ink-850/70"
+                        className={cn(
+                          "group flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors duration-200 hover:bg-ink-850/70",
+                          /* The bench walks the row — nine steps, six plates,
+                             the colors repeat the way the chain repeats. */
+                          `plate-${(stageIndex % 6) + 1}`,
+                        )}
                       >
                         <span className="font-mono text-2xs tabular-nums text-text-faint font-medium">{stage.index}</span>
                         <span className="text-sm text-text-secondary transition-colors group-hover:text-brand-200">

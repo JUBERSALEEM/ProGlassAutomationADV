@@ -102,10 +102,15 @@ layout (Navbar, Footer/band-deep, Menu sheet, SupportBubble, ThemeStudio).
 
 
 
+| D20 | midnight screenshot 12:42 (about page) | The developer dossier (`.panel-feature`) painted its light tinted face but locked NO ink; worse, the §9-era midnight registry lock listed it among dark foils and nailed its ink WHITE at (0,3,1). Whole dossier — name, figures, spine, dates — measured 1.07–1.26:1, exactly the "whitish developer section" reported. | harness probes reproduced the screenshot (white #FFF on #E8E2FD) | §12.4 locks the plum bench both modes at (0,2,0); §12.4b overrides the registry lock at its own specificity, later in source — 11.01:1 name/figures, 7.92:1 notes; 14 dossier probes gate it |
+| D21 | user upgrade ask 12:42 | "Clay is not one main color" — needed a dynamic multi-plate bench + custom color; the edge ring sat OUTSIDE cards (conic stroke) instead of inside as thickness; nav was not the reference segmented bar; flat sections (facts strip, chain links) had no cards; no dials for the clay engine. | analysis: §0 token grammar + component audit | §13 plate bench: six tokens + 6 classes + `.plate-custom` (inline `--plate-custom`) + midnight plum lock, 26 harness probes 6.38–13.26:1 both modes; facts strip walks 4 plates, chain links rotate 6; §14 edge-conic becomes an INNER relief rim (lit top-left, shaded bottom-right) in clay; §15 the clay bar: segmented plate + JS-measured sliding pill (pack's 8s auto-cycle killed — pill follows real pointer/route), 4 probes incl. pressed pair 10.03:1; Clay Studio bench in ThemeStudio: 4 presets (house/orchard/lagoon/sunset) + hand-picked house plate + free plate, pastelGuard pulls picks ≥185 luma, vars ride the studio's replay + MutationObserver; 6 vitest cases |
+| D22 | gate interaction | §13's midnight plate lock used `:is(...)`; the source-level token gate merges ALL midnight `:is(` blocks into one view and read plum as the midnight global ink (25-pair suite dropped to ~1:1). The real cascade distinguishes surfaces; the legacy merge cannot. | suite output | plate lock rewritten as a plain selector list — identical cascade semantics, gate-safe merge; both suites green |
+
 ## E. Current gate results (this build)
 
-- `clay-paint` (computed cascade vs built css): **62/62** — 60 contrast probes both modes + midnight zone-luminance contract (page, bands, cards, pastel tiles)
-- tsc 0 · eslint 0 · `test:job-orders` 8/8 · `test:navbar` (css guard + 8/8 interaction) · `test:clay` (contrast 25/25 both modes · coverage 100% of card-shaped) · build 399/399
+- `clay-paint` (computed cascade vs built css): **106/106** — dossier (14), plate bench (26), clay bar (4), card-accent, bands, tiles, nav, footer pills + midnight zone-luminance contract
+- `test:clay` contrast **25/25** both modes · coverage **100%** of card-shaped · vitest **14/14** (navbar 8 + clay-studio 6) · nav-pill-clip 2/2 · job-orders 8/8
+- tsc 0 · eslint 0 · measure-panel: every tier fits · audit 0 failures / 0 warnings · build 399/399
 - audit 0 failures / 0 warnings; css budget re-measured per trail: 27.0 → 27.9 (engine) → 28.2 (primitives) → see commit message of the §7 pass for current
 
 ## F. Next exact tasks (resume here)

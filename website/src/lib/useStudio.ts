@@ -96,6 +96,17 @@ export type Studio = {
   moneyPositive: string;
   moneyNegative: string;
   moneyNeutral: string;
+  /**
+   * The clay engine's plate bench — which preset the plates come from, or
+   * "custom" when the visitor colors the bench by hand. Clay is a separate
+   * engine; this is its set of dials, written as the same CSS variables the
+   * engine's own §13 tokens hold, so the bench changes live on every page.
+   */
+  clayPreset: ClayPresetKey;
+  /** Overrides the bench's house lavender plate; "" follows the preset. */
+  clayAccent: string;
+  /** The free `.plate-custom` slot; "" follows the preset's first plate. */
+  clayCustom: string;
 };
 
 export const defaultStudio: Studio = {
@@ -116,7 +127,57 @@ export const defaultStudio: Studio = {
   moneyPositive: "#34D399",
   moneyNegative: "#FB7185",
   moneyNeutral: "",
+  clayPreset: "house",
+  clayAccent: "",
+  clayCustom: "",
 };
+
+/*
+ * The clay bench presets. Every preset carries the six §13 plates plus the
+ * engine's six accent channels (--clay-lavender and kin the rest of the
+ * engine reads), so one tap re-colors the whole family — plates, tiles and
+ * accents together — while ink stays the plum bench by construction.
+ * "house" is the shipped palette and writes nothing: the stylesheet owns it.
+ */
+export const CLAY_PRESETS = {
+  house: {
+    label: "House",
+    tokens: {
+      "--plate-1": "206 196 255", "--plate-2": "187 232 201", "--plate-3": "255 214 192",
+      "--plate-4": "188 216 240", "--plate-5": "255 205 222", "--plate-6": "250 231 178",
+      "--clay-lavender": "184 166 255", "--clay-sky": "158 201 240", "--clay-mint": "125 212 168",
+      "--clay-peach": "255 181 158", "--clay-lemon": "245 215 122", "--clay-pink": "245 184 208",
+    },
+  },
+  orchard: {
+    label: "Orchard",
+    tokens: {
+      "--plate-1": "216 235 196", "--plate-2": "187 232 201", "--plate-3": "255 224 190",
+      "--plate-4": "196 226 210", "--plate-5": "255 210 216", "--plate-6": "250 235 182",
+      "--clay-lavender": "196 222 156", "--clay-sky": "168 210 196", "--clay-mint": "128 214 154",
+      "--clay-peach": "255 193 150", "--clay-lemon": "240 220 130", "--clay-pink": "240 186 186",
+    },
+  },
+  lagoon: {
+    label: "Lagoon",
+    tokens: {
+      "--plate-1": "190 222 246", "--plate-2": "184 234 218", "--plate-3": "255 222 198",
+      "--plate-4": "186 215 242", "--plate-5": "222 216 246", "--plate-6": "246 234 184",
+      "--clay-lavender": "156 205 238", "--clay-sky": "146 199 244", "--clay-mint": "138 224 198",
+      "--clay-peach": "255 201 172", "--clay-lemon": "240 222 142", "--clay-pink": "196 192 238",
+    },
+  },
+  sunset: {
+    label: "Sunset",
+    tokens: {
+      "--plate-1": "255 216 192", "--plate-2": "238 232 192", "--plate-3": "255 200 172",
+      "--plate-4": "250 226 198", "--plate-5": "255 208 220", "--plate-6": "252 232 168",
+      "--clay-lavender": "255 186 158", "--clay-sky": "250 208 184", "--clay-mint": "214 224 168",
+      "--clay-peach": "250 172 146", "--clay-lemon": "247 206 124", "--clay-pink": "250 178 198",
+    },
+  },
+} as const;
+export type ClayPresetKey = keyof typeof CLAY_PRESETS | "custom";
 
 const listeners = new Set<() => void>();
 let cached: Studio | null = null;
@@ -153,6 +214,15 @@ function readStored(): Studio {
     if (!Number.isFinite(merged.uiScale)) merged.uiScale = defaultStudio.uiScale;
     if (!Number.isFinite(merged.radius)) merged.radius = defaultStudio.radius;
     if (!Number.isFinite(merged.tint)) merged.tint = defaultStudio.tint;
+
+    /* The clay bench: an unknown preset or a hand-edited hex must never
+       reach the dom — plates would go unpainted, or worse, half-painted. */
+    if (merged.clayPreset !== "custom" && !(merged.clayPreset in CLAY_PRESETS)) {
+      merged.clayPreset = defaultStudio.clayPreset;
+    }
+    const hexOrEmpty = (v: unknown) => typeof v === "string" && (v === "" || /^#[0-9a-f]{6}$/i.test(v));
+    if (!hexOrEmpty(merged.clayAccent)) merged.clayAccent = defaultStudio.clayAccent;
+    if (!hexOrEmpty(merged.clayCustom)) merged.clayCustom = defaultStudio.clayCustom;
 
     return merged;
   } catch {
@@ -527,6 +597,20 @@ export function applyStudioVars(studio: Studio) {
     vars["--money-neutral"] = triplet(hexToTriplet(readableMoney(studio.moneyNeutral, target)));
   }
 
+  /* The clay engine's plate bench (§13 of clay-engine.css). The tokens are
+     written the same way as every other studio variable, so the boot replay
+     restores them and the MutationObserver keeps them in step with the mode.
+     Off the clay family nothing reads them, and "house" writes nothing —
+     the stylesheet owns the shipped palette. */
+  if (studio.clayPreset !== "house" || studio.clayAccent || studio.clayCustom) {
+    const benchKey = studio.clayPreset === "custom" ? "house" : studio.clayPreset;
+    const bench = CLAY_PRESETS[benchKey].tokens;
+    for (const [key, value] of Object.entries(bench)) vars[key] = value;
+    if (studio.clayAccent) vars["--clay-lavender"] = triplet(pastelGuard(studio.clayAccent));
+    if (studio.clayCustom) vars["--plate-custom"] = triplet(pastelGuard(studio.clayCustom));
+    else vars["--plate-custom"] = bench["--plate-1"];
+  }
+
   // Tokens that were not overridden must return to the stylesheet's value, so
   // the previous run's variables are cleared before the new set is written.
   for (const key of previousKeys) {
@@ -570,6 +654,23 @@ function readableMoney(hex: string, target: "light" | "dark"): string {
   return `#${[lighten(r), lighten(g), lighten(b)]
     .map((channel) => Math.max(0, Math.min(255, channel)).toString(16).padStart(2, "0"))
     .join("")}`;
+}
+
+/**
+ * The bench's only rule: plates are pastel, because the plum ink bench sits
+ * on them. A visitor's pick that lands darker than the accent floor is
+ * pulled toward white until the plate can carry the ink — hue kept.
+ */
+function pastelGuard(hex: string) {
+  const { r, g, b } = hexToTriplet(hex);
+  let [pr, pg, pb] = [r, g, b];
+  const lum = () => 0.2126 * pr + 0.7152 * pg + 0.0722 * pb;
+  for (let i = 0; i < 5 && lum() < 185; i++) {
+    pr += (255 - pr) * 0.3;
+    pg += (255 - pg) * 0.3;
+    pb += (255 - pb) * 0.3;
+  }
+  return { r: pr, g: pg, b: pb };
 }
 
 function hexToTriplet(hex: string) {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { cn } from "@/lib/cn";
 import { navIcons } from "@/data/navIcons";
 import { footerIconFor } from "@/data/footerIcons";
@@ -187,6 +187,52 @@ export function Navbar() {
   const pinnedMenu = useRef<string | null>(null);
   const navListRef = useRef<HTMLDivElement | null>(null);
 
+  /* ── The clay bar's sliding pill ────────────────────────────────────
+   * Under `[data-appearance="clay"]` the bar paints a raised pill that
+   * slides to the item under the pointer and rests on the current page
+   * (§15 of the engine; the pack's demo cycle is switched off). All this
+   * component owns is the geometry: measure, translate, hand back. In
+   * other families the pill stays invisible — nothing here is theirs. */
+  const [indicatorStyle, setIndicatorStyle] = useState<CSSProperties>({ opacity: 0 });
+  const moveIndicator = (target: HTMLElement | null) => {
+    const list = navListRef.current;
+    if (!list) return;
+    if (!target) {
+      setIndicatorStyle((style) => (style.opacity === 0 ? style : { ...style, opacity: 0 }));
+      return;
+    }
+    const listRect = list.getBoundingClientRect();
+    const rect = target.getBoundingClientRect();
+    if (rect.width === 0) {
+      setIndicatorStyle((style) => (style.opacity === 0 ? style : { ...style, opacity: 0 }));
+      return;
+    }
+    setIndicatorStyle({
+      opacity: 1,
+      width: rect.width,
+      /* The pill is parked at the list's left padding, so the slide is the
+         item's left edge measured from that same parking spot. */
+      transform: `translateX(${Math.max(0, rect.left - listRect.left - 4)}px)`,
+    });
+  };
+  const settleIndicator = () => {
+    const list = navListRef.current;
+    if (!list) return;
+    moveIndicator(list.querySelector<HTMLElement>('[aria-current="page"], [aria-expanded="true"]'));
+  };
+  useEffect(() => {
+    /* Route changes re-seat the pill; fonts and the tier ladder can move
+       items too, so measure again after paint and on resize. */
+    const settle = () => settleIndicator();
+    const frame = requestAnimationFrame(settle);
+    window.addEventListener("resize", settle);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", settle);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
   useEffect(() => {
     if (mobileOpen) return; /* Mounting happens in the toggle handler itself. */
     /* One transition length past the 300 ms ease — see the comment above. */
@@ -325,7 +371,24 @@ export function Navbar() {
         <BuildStampChip t={t} className="lg:hidden" />
 
         {/* ── Desktop navigation ─────────────────────────────────── */}
-        <nav ref={navListRef} aria-label={t("Primary")} className={NAV_BAR}>
+        <nav
+          ref={navListRef}
+          aria-label={t("Primary")}
+          className={NAV_BAR}
+          onPointerOver={(event) => {
+            const target = (event.target as HTMLElement).closest("a, button");
+            if (target && navListRef.current?.contains(target)) moveIndicator(target as HTMLElement);
+          }}
+          onPointerLeave={() => settleIndicator()}
+          onFocusCapture={(event) => {
+            const target = (event.target as HTMLElement).closest("a, button");
+            if (target && navListRef.current?.contains(target)) moveIndicator(target as HTMLElement);
+          }}
+          onBlurCapture={(event) => {
+            if (!navListRef.current?.contains(event.relatedTarget as Node)) settleIndicator();
+          }}
+        >
+          <span aria-hidden="true" className="navclay__indicator" style={indicatorStyle} />
           {entries.map((entry, index) => {
             const active = isActive(entry);
             const tier =

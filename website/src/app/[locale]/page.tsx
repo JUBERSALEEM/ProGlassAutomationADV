@@ -92,17 +92,22 @@ export default async function HomePage({ params }: PageProps) {
       <div className="band-solid relative overflow-hidden">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-sheen-violet" />
         <Container className="relative">
-          <ul className="grid divide-line/50 sm:grid-cols-2 sm:divide-x lg:grid-cols-4">
+          <ul className="facts-strip grid divide-line/50 sm:grid-cols-2 sm:divide-x lg:grid-cols-4">
             {[
-              { value: t("Windows desktop"), label: t("Installed software, not a browser tab") },
-              { value: t("Local SQLite"), label: t("Your data on your machine, 16 databases") },
-              { value: t("No account"), label: t("Nothing to sign up for, nothing to log into") },
-              { value: `${site.locales} languages`, label: t("Interface translated, not just labelled") },
+              { value: t("Windows desktop"), label: t("Installed software, not a browser tab"), plate: "plate-1" },
+              { value: t("Local SQLite"), label: t("Your data on your machine, 16 databases"), plate: "plate-2" },
+              { value: t("No account"), label: t("Nothing to sign up for, nothing to log into"), plate: "plate-3" },
+              { value: `${site.locales} languages`, label: t("Interface translated, not just labelled"), plate: "plate-4" },
             ].map((fact, index) => (
               <li
                 key={t(fact.value)}
                 className={cn(
                   "flex flex-col gap-1 py-6 sm:px-6 lg:px-8",
+                  /* In clay these four stops are plates of the bench — real
+                     cards, each its own color, still one fluent family. In
+                     other families the classes are unknown and inert, and
+                     the strip renders exactly as before. */
+                  fact.plate,
                   index === 0 && "sm:pl-0",
                 )}
               >

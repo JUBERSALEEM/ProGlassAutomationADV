@@ -295,6 +295,17 @@ const cascadeChain = (() => {
           }
         }
       }
+      /* Inline styles: win against every rule, lose only to !important. */
+      const inline = chain[i].attrs.get("style");
+      if (inline) {
+        for (const decl of inline.split(";")) {
+          const idx = decl.indexOf(":");
+          if (idx < 1) continue;
+          const prop = decl.slice(0, idx).trim();
+          const value = decl.slice(idx + 1).trim();
+          maps[i].set(prop, { value, key: [0, 1e9, 0, 0, 0, 1e9], selector: "[style]", layerRank: null, order: 1e9 });
+        }
+      }
     }
     cache.set(cacheKey, maps);
     return maps;
@@ -360,9 +371,11 @@ const parseColor = (value) => {
     return [r, g, b, parts.length > 3 ? parts[3] : 1];
   }
   if (/^#/u.test(v)) {
-    const h = v.slice(1);
-    const n = parseInt(h.length === 3 ? h.split("").map((c) => c + c).join("") : h, 16);
-    return [(n >> 16) & 255, (n >> 8) & 255, n & 255, 1];
+    let h = v.slice(1);
+    if (h.length === 3 || h.length === 4) h = h.split("").map((c) => c + c).join("");
+    const n = parseInt(h.slice(0, 6), 16);
+    const alpha = h.length === 8 ? parseInt(h.slice(6, 8), 16) / 255 : 1;
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255, alpha];
   }
   const rm = /^rgba?\((.*)\)$/u.exec(v);
   if (rm) {
@@ -535,6 +548,42 @@ probe("nav dropdown link tile", MODES, [...MENU, El("a", "card-interactive group
 
 /* 12. Nav bar items at rest. */
 probe("nav pill link at rest", MODES, [BODY, El("header"), El("nav", "nav-pill"), El("a", "relative flex items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold border-transparent text-text-muted")], 4.5);
+
+/* §13 plate bench: every plate must carry the plum bench in BOTH modes,
+   and a custom color behaves like any named plate. */
+const PLATES = [
+  ["lavender", "plate-1"],
+  ["mint", "plate-2"],
+  ["peach", "plate-3"],
+  ["sky", "plate-4"],
+  ["rose", "plate-5"],
+  ["lemon", "plate-6"],
+];
+for (const [name, cls] of PLATES) {
+  const CHAIN = [BODY, El("div", "p-6"), El("div", `${cls} rounded-panel-card p-5`)];
+  probe(`plate ${name} heading`, MODES, [...CHAIN, El("p", "text-sm font-semibold text-text-primary")], 7);
+  probe(`plate ${name} body`, MODES, [...CHAIN, El("p", "mt-1 text-xs text-text-muted")], 4.5);
+}
+probe("plate custom heading (--plate-custom set inline)", MODES, [BODY, El("div", "p-6"), El("div", "plate-custom rounded-panel-card p-5", { style: "--plate-custom: 255 205 222" }), El("p", "text-sm font-semibold text-text-primary")], 7);
+
+/* §15 The clay bar: segmented plate + the sliding pill. The pressed item
+   pair is measured as the pill's lavender face against the pressed ink. */
+const CLAYBAR = [BODY, El("header"), El("nav", "nav-pill")];
+probe("clay bar resting link", MODES, [...CLAYBAR, El("a", "relative flex items-center gap-1.5 rounded-card px-2.5 py-1.5 text-sm font-semibold")], 4.5);
+probe("clay bar pressed item on the pill", MODES, [...CLAYBAR, El("span", "navclay__indicator"), El("a", "relative flex items-center gap-1.5 rounded-card px-2.5 py-1.5 text-sm font-semibold", { "aria-current": "page" })], 7);
+
+/* The developer dossier (DeveloperStory /about): a light tinted plate
+   nested in band-rich — its innards were washed white at midnight (D20). */
+{
+  const DOSS = [BODY, El("section", "band-rich relative overflow-hidden"), El("div", "shell relative py-16"), El("div", "panel-feature edge-conic p-6 sm:p-8")];
+  probe("dossier name (text-text-primary)", MODES, [...DOSS, El("p", "mt-1.5 text-xl font-semibold tracking-tight text-text-primary")], 7);
+  probe("dossier figure (.figure-md)", MODES, [...DOSS, El("span", "figure figure-md block")], 7);
+  probe("dossier muted line (text-text-muted)", MODES, [...DOSS, El("p", "mt-1 text-sm text-text-muted")], 4.5);
+  probe("dossier mono-label", MODES, [...DOSS, El("p", "mono-label")], 4.5);
+  probe("dossier spine phase (text-text-primary)", MODES, [...DOSS, El("li", ""), El("p", "text-sm font-semibold text-text-primary")], 7);
+  probe("dossier spine note (text-text-muted)", MODES, [...DOSS, El("li", ""), El("p", "mt-0.5 text-sm leading-relaxed text-text-muted")], 4.5);
+  probe("dossier date row (mono-label)", MODES, [...DOSS, El("span", "mono-label")], 4.5);
+}
 
 /* The zone-luminance contract (the 70/20/10 rule at midnight). */
 test("midnight zones stay dark: page < cards < accents (70/20/10)", () => {

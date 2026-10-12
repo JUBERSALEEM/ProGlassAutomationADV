@@ -1847,3 +1847,221 @@ html[data-theme="midnight"][data-appearance="clay"] .glass-primary :is(.btn-prim
     inset 3px 3px 6px rgb(255 255 255 / 0.95),
     inset -4px -4px 8px rgb(140 108 255 / 0.24);
 }
+
+/* §12.4 The dossier plate (.panel-feature — the developer story panel on
+   /about, and the email-scrub feature panel on /) paints a light tinted
+   face but locked NO ink: at midnight the page-level --text-* are white,
+   so the whole dossier (name, figures, spine, dates) measured 1.07–1.26:1 —
+   the "developer section whitish" of the 12:42 review. It is a pastel
+   plate in both modes; lock the full plum bench like its card-accent kin. */
+[data-appearance="clay"] .panel-feature {
+  --text-1: 46 42 63;
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+}
+
+/* §12.4b …but the midnight registry lock (§9-era) lists .panel-feature
+   among the dark foils and nails its ink white at (0,3,1). The plate is
+   LIGHT at midnight — pastel accents do not invert. Override at the lock's
+   own specificity, later in source, so the plum bench wins from dusk on. */
+html[data-theme="midnight"][data-appearance="clay"] .panel-feature {
+  --text-1: 46 42 63;
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+}
+
+/* ═══ §13 · THE PLATE BENCH — dynamic color plates, custom color too ═════
+   One main color was never clay — the material is a bench of plates. Six
+   named pastels ship as tokens (the same family the stat tiles use, held
+   to the accent budget), plus `.plate-custom` for any one-off color:
+   set `--plate-custom` inline (or from the Clay Studio) to any "r g b".
+   Every plate locks the full plum bench, so a page may carry many colors
+   at once and every one of them still reads, in BOTH modes. At midnight
+   plates stay pastel — they are accents (70/20/10), not zones.         */
+
+[data-appearance="clay"] {
+  --plate-1: 206 196 255;   /* lavender — the house plate              */
+  --plate-2: 187 232 201;   /* mint                                   */
+  --plate-3: 255 214 192;   /* peach                                  */
+  --plate-4: 188 216 240;   /* sky                                    */
+  --plate-5: 255 205 222;   /* rose                                   */
+  --plate-6: 250 231 178;   /* lemon                                  */
+}
+
+[data-appearance="clay"] :is(.plate-1, .plate-2, .plate-3, .plate-4, .plate-5, .plate-6, .plate-custom) {
+  background-color: rgb(var(--plate-face, var(--plate-1)));
+  background-image: none;
+  border-color: transparent;
+  --text-1: 36 27 58;
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+  box-shadow: 10px 10px 24px rgb(var(--clay-drop-h) / 0.32),
+    inset 0 1.5px 0 rgb(255 255 255 / 0.7),
+    inset 5px 5px 11px rgb(255 255 255 / 0.42),
+    inset -6px -6px 13px rgb(var(--clay-drop-h) / 0.2);
+}
+[data-appearance="clay"] .plate-2 { --plate-face: var(--plate-2); }
+[data-appearance="clay"] .plate-3 { --plate-face: var(--plate-3); }
+[data-appearance="clay"] .plate-4 { --plate-face: var(--plate-4); }
+[data-appearance="clay"] .plate-5 { --plate-face: var(--plate-5); }
+[data-appearance="clay"] .plate-6 { --plate-face: var(--plate-6); }
+[data-appearance="clay"] .plate-custom { --plate-face: var(--plate-custom, var(--plate-1)); }
+
+/* Plates are cards: hands raise them, gently. */
+[data-appearance="clay"] :is(.plate-1, .plate-2, .plate-3, .plate-4, .plate-5, .plate-6, .plate-custom).card-interactive {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+[data-appearance="clay"] :is(.plate-1, .plate-2, .plate-3, .plate-4, .plate-5, .plate-6, .plate-custom).card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 14px 16px 30px rgb(var(--clay-drop-h) / 0.4),
+    inset 0 1.5px 0 rgb(255 255 255 / 0.75),
+    inset 5px 5px 11px rgb(255 255 255 / 0.5),
+    inset -6px -6px 13px rgb(var(--clay-drop-h) / 0.22);
+}
+
+/* The midnight registry lock would nail plate inks white if a plate ever
+   also carried a registry class; plates are light, so give the bench the
+   lock's own specificity with the plum bench behind it. (Written as a plain
+   selector list rather than :is() because the source-level token gate
+   merges every midnight :is(...) block into one view — the registry lock
+   and this surface-specific one are different facts, not one merge.) */
+html[data-theme="midnight"][data-appearance="clay"] .plate-1,
+html[data-theme="midnight"][data-appearance="clay"] .plate-2,
+html[data-theme="midnight"][data-appearance="clay"] .plate-3,
+html[data-theme="midnight"][data-appearance="clay"] .plate-4,
+html[data-theme="midnight"][data-appearance="clay"] .plate-5,
+html[data-theme="midnight"][data-appearance="clay"] .plate-6,
+html[data-theme="midnight"][data-appearance="clay"] .plate-custom {
+  --text-1: 36 27 58;
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+}
+
+/* ═══ §14 · EDGES LIVE INSIDE THE CARD ═══════════════════════════════════
+   The conic rim (.edge-conic) draws a stroke OUTSIDE the face — a normal
+   outlined card wearing a gradient. Clay's edge is thickness, and thickness
+   reads from inside: a static inner rim, lit across the top-left, shaded
+   along the bottom-right, whose color comes from the plate itself. In clay
+   mode the rim moves inside the card and stops blinking on hover.        */
+[data-appearance="clay"] .edge-conic::after {
+  inset: 0;
+  padding: 0;
+  background: none;
+  -webkit-mask: none;
+  mask: none;
+  opacity: 1;
+  transition: none;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1.5px rgb(255 255 255 / 0.42),
+    inset 2px 3px 5px rgb(255 255 255 / 0.5),
+    inset -3px -4px 8px rgb(var(--clay-drop-h) / 0.26);
+}
+
+/* §13.1 The facts strip IS the bench's demo reel — in clay the four stops
+   become real plates of four colors; the table's dividers and flat padding
+   (meant for the other families' ledger look) step out of the way. */
+[data-appearance="clay"] .facts-strip {
+  gap: 0.75rem;
+}
+[data-appearance="clay"] .facts-strip > li {
+  border: 0;
+  border-radius: var(--radius-card, 1.25rem);
+  padding: 1.1rem 1.25rem;
+  margin: 0;
+}
+[data-appearance="clay"] .facts-strip > li.sm\:pl-0 {
+  padding-left: 1.25rem;
+}
+
+/* ═══ §15 · THE CLAY BAR — the reference nav, earned, not imitated ════════
+   The sample bar's grammar: one solid segmented plate, items resting flat
+   in it, a raised clay pill that slides under the pointer and settles on
+   the current page, a real CTA at its side. The pack's indicator cycle is
+   NOT a slide show here — `animation: none` kills the 8s demo loop; the
+   bar's own JS moves the pill to actual pointer and route state.        */
+
+[data-appearance="clay"] .nav-pill {
+  position: relative;
+  isolation: isolate;
+  gap: 2px;
+  border-radius: 999px;
+  background-color: rgb(246 243 254);
+  background-image: none;
+  border-color: transparent;
+  box-shadow:
+    8px 8px 18px rgb(var(--clay-drop-h) / 0.3),
+    inset 2px 2px 5px rgb(255 255 255 / 0.8),
+    inset -3px -3px 7px rgb(var(--clay-drop-h) / 0.18);
+  --nav-item: 69 62 94;
+  --nav-item-strong: 36 27 58;
+}
+html[data-theme="midnight"][data-appearance="clay"] .nav-pill {
+  background-color: rgb(24 16 46);
+  box-shadow:
+    8px 8px 18px rgb(6 3 16 / 0.55),
+    inset 2px 2px 5px rgb(255 255 255 / 0.12),
+    inset -3px -3px 7px rgb(4 2 10 / 0.5);
+  --nav-item: 201 192 228;
+  --nav-item-strong: 255 255 255;
+}
+
+/* Items rest flat on the plate — no cards inside the segment, only words. */
+[data-appearance="clay"] .nav-pill :is(a, button) {
+  position: relative;
+  z-index: 1;
+  border-color: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border-radius: 999px;
+  color: rgb(var(--nav-item)) !important;
+}
+[data-appearance="clay"] .nav-pill :is(a, button):hover {
+  color: rgb(var(--nav-item-strong)) !important;
+}
+
+/* The sliding pill: a small plate of house lavender, rounded to the same
+   pill circle, moved by the bar (see Navbar.tsx). No animation of its own —
+   it only eases between measured positions. */
+[data-appearance="clay"] .nav-pill .navclay__indicator {
+  z-index: 0;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: 0;
+  border: 0;
+  background-color: rgb(var(--plate-1));
+  background-image: none;
+  box-shadow: 4px 4px 10px rgb(var(--clay-drop-h) / 0.35),
+    inset 1.5px 1.5px 3px rgb(255 255 255 / 0.65),
+    inset -2px -2px 4px rgb(var(--clay-drop-h) / 0.22);
+  animation: none;
+  opacity: 0;
+  transition: transform 0.26s cubic-bezier(0.2, 0.8, 0.2, 1),
+    width 0.26s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.18s ease;
+}
+
+/* The item the pill sits under reads as pressed: plum on lavender, in both
+   modes — the plate is an accent and does not invert after dark. */
+[data-appearance="clay"] .nav-pill :is(a, button):is(:hover, [aria-current="page"], [aria-expanded="true"]) {
+  color: rgb(36 27 58) !important;
+}
+[data-appearance="clay"] .nav-pill :is(a, button):focus-visible {
+  outline: 2px solid rgb(var(--brand-500));
+  outline-offset: -2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-appearance="clay"] .nav-pill .navclay__indicator {
+    transition: none;
+  }
+}
