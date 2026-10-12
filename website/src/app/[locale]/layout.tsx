@@ -16,6 +16,7 @@ import { I18nProvider } from "@/i18n/provider";
 import { LOCALE_CODES, dirOf, isLocale, localeInfo, type Locale } from "@/i18n/locales";
 import { ogLocale } from "@/i18n/core";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { GlassLife } from "@/components/glass/GlassLife";
 import { SupportBubble } from "@/components/support/SupportBubble";
 import { chromeOverlayFor, translatorForLocale } from "@/i18n/server";
 import { APP_STRINGS } from "@/i18n/app-strings";
@@ -289,6 +290,10 @@ export default async function LocaleLayout({
           heading above them.
         */}
         <I18nProvider locale={locale} overlay={overlay}>
+          {/* §C5 living glass — one listener for every lifted surface,
+              gated twice (JS: hover+fine+no-reduce; CSS: reduce unpaints).
+              Renders nothing. */}
+          <GlassLife />
           <Navbar />
           <main id="main" className="pt-[var(--nav-height)]">
             {children}

@@ -295,6 +295,19 @@ for (const lane of ["mainline", "fallback"]) {
   }
 }
 
+/* ── G5 · the catch light over the text ──────────────────────────────
+   The beacon's silver flash was the attacking class: a moving white wash
+   over paragraphs. §C5's catch peaks at specular × 0.55, capped by the
+   same §C4 dial math (glint 2.0 ⇒ specular 0.55 ⇒ α = 0.3025 at the very
+   center, falling to 0). Prove the worst point the cursor can paint keeps
+   body text above the floor. */
+for (const mode of ["midnight", "daylight"]) {
+  const spec = resolveSurface("mainline", mode, { "--glass-glint-mult": 2 })["--surface-specular"];
+  const catchPeak = [255, 255, 255, spec * 0.55];
+  pair(`hover catch at peak (glint 2.0, center) / body (text-2)`, "mainline", mode, "--text-2",
+    [...buildFill("mainline", mode, "--surface-alpha"), catchPeak], 4.5);
+}
+
 /* ── G4 · the bench under voltage ──────────────────────────────────── */
 /* The shipped default is the m = 1 case (proved above). The bench's whole
    danger is every OTHER point, so the contract sweeps the body dial across
@@ -356,6 +369,8 @@ test("G4·isolation: every engine selector stays under data-appearance=crystal",
   const root = postcss.parse(engineCss);
   const offenders = [];
   root.walkRules((r) => {
+    /* keyframe steps ("from", "to", "50%") are not selectors — skip them */
+    if (r.parent?.type === "atrule" && r.parent.name === "keyframes") return;
     for (const sel of r.selectors) {
       if (!sel.includes('appearance="crystal"') && !sel.includes("appearance=crystal")) offenders.push(sel);
     }
@@ -371,5 +386,5 @@ test("G4·text: the engine never writes --text-/​--ink- tokens (glass is mater
 });
 
 test(`crystal contract complete: ${pass} pairs across 2 lanes × 2 modes, parsed not restated`, () => {
-  assert.ok(pass === 64, `expected 64 pairs (40 default + 24 bench-grid), got ${pass}`);
+  assert.ok(pass === 66, `expected 66 pairs (40 default + 24 bench-grid + 2 catch-peak), got ${pass}`);
 });

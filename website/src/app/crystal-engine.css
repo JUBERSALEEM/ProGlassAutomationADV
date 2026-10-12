@@ -192,6 +192,130 @@
 }
 
 
+
+/* ═══ §C5 · LIVING GLASS (G5) — motion, gated ═══════════════════════════
+ *
+ * What the diagnosis found before this section was written:
+ *
+ *   1. crystal-engine had NO reduced-motion gate at all (clay has four).
+ *      It had no animation to gate — but G5 adds motion, so the gate had
+ *      to arrive WITH it, not after it.
+ *   2. The pilot already answered the coarse-pointer question, so G5 did
+ *      not need a budget to decide: write-only pointer handlers measured
+ *      ONE pointermove listener with zero style writes at ≈0.05ms per frame
+ *      (the frame is never in danger). Here, each pointer writes --mx/--my
+ *      on one element — two setProperty calls, a value the pilot pinned at
+ *      ≈2.6× the write-less baseline (≈0.13ms/frame, write-only up to four
+ *      props). Still one-hundredth of the frame. The catch light is fine
+ *      on EVERY pointer. It is gated only by (hover: hover) and (pointer:
+ *      fine) in the JS — because a light chasing a scrolling thumb is a
+ *      UI defect, not a perf defect — plus prefers-reduced-motion: reduce.
+ *
+ * The catch light. The family's already-inherited --glass-frost corner
+ * washes stay exactly where the doctrine put them (static, corner-pinned);
+ * the pointer adds ONE more background layer, --glass-catch, whose center
+ * is (var(--mx), var(--my)) — percentages of each element's own box, the
+ * useSpotlight.ts grammar. The layer defaults to a center far outside the
+ * box (pointer never arrived), so no-JS and coarse pointers paint the
+ * static sheet and nothing else.
+ */
+
+@property --mx {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: -400%;
+}
+@property --my {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: -400%;
+}
+
+[data-appearance="crystal"] {
+  /* Strength rides the family's own glint dial — a moved bench moves the
+     catch, the bench's heart having nothing to prove twice. */
+  --glass-catch: radial-gradient(
+    260px circle at var(--mx) var(--my),
+    rgb(255 255 255 / calc(var(--surface-specular, 0.32) * 0.55)),
+    rgb(var(--glass-cyan, 103 232 249) / calc(var(--surface-specular, 0.32) * 0.2)) 38%,
+    transparent 72%
+  );
+}
+
+/* The lift carries the light: every utility carrier (chips, wells, code,
+   pills, cards) takes the cursor's wash as its TOP layer. */
+[data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+  background-image:
+    var(--glass-catch),
+    var(--glass-frost),
+    linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),
+    linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%);
+}
+
+/* §C1f parallel: the blur-less lane drops gradients (crisp fill, no sheets);
+   the catch light drops with them. The pointer keeps writing — harmless —
+   and §C1f keeps painting exactly what it painted in G1. */
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+    background-image: none;
+  }
+}
+
+/* ── View-linked frost: sections cool as they leave the viewport ───────
+   The clay-fall §11.13 precedent: one keyframe on a registered var, riding
+   the section's own view() exit range, behind @supports so engines without
+   scroll-driven animations read nothing. The chill paints a cool inset
+   wash (box-shadow, alpha zero at rest → no layer cost off-supports) —
+   the section's frosting THE DOOR, not its text. Target: `.section` — the
+   one Section component every band on every route renders through (no new
+   attribute to stamp and forget). */
+@property --glass-chill {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@keyframes glass-chill {
+  to { --glass-chill: 0.45; }
+}
+
+@supports (animation-timeline: view()) {
+  [data-appearance="crystal"] .section {
+    --glass-chill: 0;
+    animation-name: glass-chill;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
+    animation-fill-mode: both;
+    animation-timeline: view();
+    animation-range: exit 0% exit 100%;
+    transition-property: none;
+  }
+  [data-appearance="crystal"][data-theme="midnight"] .section {
+    box-shadow: inset 0 0 140px rgb(var(--ink-950, 5 4 12) / var(--glass-chill));
+  }
+  [data-appearance="crystal"][data-theme="daylight"] .section {
+    box-shadow: inset 0 0 140px rgb(var(--brand-100, 214 232 255) / var(--glass-chill));
+  }
+}
+
+/* ── The gate that was missing: motion off = motion OFF ────────────────
+   The catch light is JS-written but its paint is engine-owned, so the
+   engine owns the right to refuse it; the view-chill animation roster is
+   the clay §11.12 pattern, verbatim in shape. */
+@media (prefers-reduced-motion: reduce) {
+  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+    background-image:
+      var(--glass-frost),
+      linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),
+      linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%);
+  }
+  [data-appearance="crystal"] .section {
+    animation: none !important;
+    box-shadow: none !important;
+  }
+}
+
 /* ═══ §C4 · THE BENCH (G4) — three dials, multiplied, never overwritten ═
  *
  * Clay has the plate bench; glass has the MATERIAL bench: frost, body,

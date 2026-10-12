@@ -337,8 +337,61 @@ const resolveDeep = (maps, idx, input) => {
       return fb !== undefined ? fb.trim() : all;
     });
   }
+  return evalCalc(v);
+};
+
+/* The §C4 bench left `clamp()/calc()/min()` arithmetic where a number sat
+   during G1–G3 — after substitution it is pure arithmetic over literals
+   (multipliers absent → fallback 1). A numerator cannot read strings, so
+   the evaluator folds the arithmetic it finds: calc(A * B), clamp(l, e, h),
+   min(e, h), parens, + - * / with px/%-free numbers. Anything it cannot
+   fold it leaves alone (the parse hand-off still catches what must fail). */
+const evalCalc = (s) => {
+  if (!/[\w-]+\(|\bcalc\(/u.test(s)) return s;
+  const num = "(-?\\d*\\.?\\d+)";
+  let v = s;
+  for (let pass = 0; pass < 24; pass++) {
+    const before = v;
+    /* innermost calc/function-free parens */
+    v = v.replace(/calc\(([^()]+)\)/u, (_, inner) => foldExpr(inner));
+    v = v.replace(/clamp\(\s*([^(),]+?)\s*,\s*([^(),]+?)\s*,\s*([^(),]+?)\s*\)/u,
+      (_, lo, e, hi) => foldNum(Math.min(lit(hi), Math.max(lit(lo), lit(e)))));
+    v = v.replace(/min\(\s*([^(),]+?)\s*,\s*([^(),]+?)\s*\)/u,
+      (_, a, b) => foldNum(Math.min(lit(a), lit(b))));
+    v = v.replace(/max\(\s*([^(),]+?)\s*,\s*([^(),]+?)\s*\)/u,
+      (_, a, b) => foldNum(Math.max(lit(a), lit(b))));
+    /* multiplication of literals, unit-carrying right or left */
+    v = v.replace(new RegExp(num + "(px|%)?\\s*\\*\\s*" + num + "(px|%)?(?!\\s*[\\w(])", "u"),
+      (_, a, ua, b, ub) => foldNum(parseFloat(a) * parseFloat(b)) + (ub || ua || ""));
+    if (v === before) break;
+  }
   return v;
 };
+/* number-or-calc-folded number; unit-carrying answers stay unfoldable
+   (left as-is rather than mangled — the parse hand-off handles those). */
+const lit = (x) => {
+  const m = /^\s*(-?[\d.]+)\s*$/u.exec(x);
+  if (m) return parseFloat(m[1]);
+  const f = foldExpr(x);
+  const m2 = /^(-?[\d.]+)(px|%)?$/u.exec(f);
+  if (m2) return parseFloat(m2[1]);
+  return NaN; /* genuinely non-numeric: the pair below fails loudly */
+};
+const foldExpr = (expr) => {
+  /* "0.55 * 1" or "26px * 1" when observered innermost */
+  const m = /^\s*(-?[\d.]+)(px|%)?\s*([*/+-])\s*(-?[\d.]+)(px|%)?\s*$/u.exec(expr);
+  if (!m) {
+    const plain = /^\s*(-?[\d.]+)(px|%)?\s*$/u.exec(expr);
+    if (plain) return plain[1] + (plain[2] ?? "");
+    return `calc(${expr})`;
+  }
+  const a = parseFloat(m[1]), b = parseFloat(m[4]);
+  const op = m[3];
+  const out = op === "*" ? a * b : op === "/" ? a / b : op === "+" ? a + b : a - b;
+  const unit = m[5] ?? m[2] ?? "";
+  return foldNum(out) + (op === "*" || op === "/" ? unit : m[5] && m[5] === m[2] ? unit : unit);
+};
+const foldNum = (n) => String(Math.round(n * 1e6) / 1e6);
 
 /* ── Colour math ───────────────────────────────────────────────────────── */
 const oklchToSrgb = (L, C, H) => {
@@ -475,6 +528,15 @@ const paint = (label, mode, chain, htmlOverride = {}, pseudo = null) => {
     } catch (e) { colorErr = String(e.message ?? e); color = null; }
   }
   const ratio = color ? contrast(color, bg) : null;
+  if (process.env.PAINT_DEBUG === label) {
+    console.error("=== PAINT_DEBUG:", label, "|", mode);
+    console.error(bgRawValues.join("\n"));
+    console.error("color:", colorRaw, cHit?.selector, "| bg:", bg.map((x) => x.toFixed(1)).join(","));
+    const m0 = maps[0];
+    for (const k of ["--surface-alpha", "--surface-alpha-2", "--surface-alpha-base", "--surface-alpha-base-2"]) {
+      console.error("maps[0]", k, "→", m0.has(k) ? m0.get(k).value : "ABSENT");
+    }
+  }
   return {
     label, mode, bg, color, ratio, colorRaw, colorErr, bgRawValues, shadow, pseudo,
     colorWinner: cHit ? `${cHit.selector} (layer ${cHit.layerRank} #${cHit.order})` : "",
