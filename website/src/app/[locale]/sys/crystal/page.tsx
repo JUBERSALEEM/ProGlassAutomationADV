@@ -267,6 +267,22 @@ export default async function CrystalCatalogPage({ params }: PageProps) {
         </Container>
       </Section>
 
+      {/* ── 6.8 · Tiles + selected glass (§C10) ─────────────────────────── */}
+      <Section aria-labelledby="cat-tiles" className="!py-6">
+        <Container>
+          <h2 id="cat-tiles" className="card-title mb-4">{t("Tiles + selected glass (§C10)")}</h2>
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="grid h-11 w-11 place-items-center rounded-card bg-brand-500/15 text-brand-300">
+              <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M4 10h12M10 4v12" /></svg>
+            </span>
+            <button type="button" className="chip" aria-pressed="false">$50</button>
+            <button type="button" className="chip" aria-pressed="true">$100</button>
+            <span className="chip glass-active">{t("Living room — picked")}</span>
+            <p className="text-sm text-text-secondary">{t("The chosen thing saturates: spectrum fill, white ink, halo — the references' selection grammar.")}</p>
+          </div>
+        </Container>
+      </Section>
+
       {/* ── 7 · Notes for the reviewer ─────────────────────────────── */}
       <Section aria-labelledby="cat-notes" className="!py-6 pb-14">
         <Container>
