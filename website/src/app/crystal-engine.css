@@ -857,3 +857,27 @@
     background-color: rgb(255 255 255 / 0.97);
   }
 }
+
+/* ═══ §F1 · PROGRESSIVE FROST (the iOS scroll-edge signature) ════════════
+ * The header's bar chills harder at its top edge than at its bottom: one
+ * masked backdrop element, blur+sat 24px/200% reading full at 62%, fading
+ * to clear at the fold. Content (nav text) rides ABOVE via isolation; the
+ * lane is decorative (a11y: ink sits on the opaque midnight surface).
+ */
+[data-appearance="crystal"] .nav-glass {
+  isolation: isolate;
+}
+[data-appearance="crystal"] .nav-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%);
+  -webkit-backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%);
+  -webkit-mask-image: linear-gradient(180deg, black 62%, transparent 98%);
+  mask-image: linear-gradient(180deg, black 62%, transparent 98%);
+}
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  [data-appearance="crystal"] .nav-glass::before { display: none; }
+}
