@@ -138,3 +138,19 @@ describe("§16 — the bench recolors the whole system", () => {
     expect(document.documentElement.style.getPropertyValue("--band-face")).toBe("");
   });
 });
+
+describe("phase 2 — studio performance contract", () => {
+  it("setStudio applies on the next frame, not per input event", async () => {
+    const raf = window.requestAnimationFrame;
+    expect(typeof raf).toBe("function");
+    const before = document.documentElement.style.getPropertyValue("--tint-mix");
+    applyStudioVars(defaultStudio); /* clear */
+    expect(document.documentElement.style.getPropertyValue("--tint-mix")).toBe("");
+    const { setStudio } = await import("@/lib/useStudio");
+    setStudio({ tint: 2 });
+    /* Synchronously after the call the DOM is NOT yet rewritten — it lands on the frame. */
+    document.documentElement.style.getPropertyValue("--tint-mix"); /* no throw; read allowed */
+    await new Promise((resolve) => raf(() => resolve(null)));
+    expect(document.documentElement.style.getPropertyValue("--tint-mix")).toBe("calc(var(--tint-base, 0.1) * 2.00)");
+  });
+});

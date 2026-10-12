@@ -488,6 +488,10 @@ export function Navbar() {
                      sibling must never inherit it (a stale pin is what made
                      the next click close instead of open). */
                   if (openMenu !== entry.label) pinnedMenu.current = null;
+                  /* pointer-guard-ok: onMouseEnter fires once per entry
+                     boundary (it does not bubble from children), and React
+                     bails on an identical state value — this is the menu
+                     open call itself, not per-frame pointer work. */
                   setOpenMenu(entry.label);
                 }}
                 onMouseLeave={scheduleClose}

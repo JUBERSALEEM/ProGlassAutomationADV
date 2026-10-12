@@ -701,14 +701,22 @@ export function applyStudioVars(studio: Studio) {
 
   // Tokens that were not overridden must return to the stylesheet's value, so
   // the previous run's variables are cleared before the new set is written.
+  //
+  // Phase 2: the writes are FILTERED — a setProperty for a value the inline
+  // style already holds still dirties style recalculation downstream, and a
+  // removeProperty of an absent property is a wasted mutation record. Every
+  // applicator path on this site (dial drags, observer passes, theme/family
+  // switches) calls through here, so this one loop is the whole cost budget.
   for (const key of previousKeys) {
-    if (!(key in vars)) root.style.removeProperty(key);
+    if (!(key in vars) && root.style.getPropertyValue(key) !== "") {
+      root.style.removeProperty(key);
+    }
   }
   for (const [key, value] of Object.entries(vars)) {
-    root.style.setProperty(key, value);
+    if (root.style.getPropertyValue(key) !== value) root.style.setProperty(key, value);
   }
   for (const [key, value] of Object.entries(attributes)) {
-    root.setAttribute(key, value);
+    if (root.getAttribute(key) !== value) root.setAttribute(key, value);
   }
   previousKeys = Object.keys(vars);
 
@@ -781,13 +789,33 @@ function hexToTriplet(hex: string) {
 export function setStudio(patch: Partial<Studio>) {
   const next = { ...read(), ...patch };
   cached = next;
-  applyStudioVars(next);
+  /* Phase 2: dial drags pour input events — dozens per second — and every
+     one used to pay a full token application immediately. The write pass
+     is coalesced to the next animation frame: sixty pointer events per
+     second cost one application per frame, and the studio preview never
+     reads stale (subscribers get the new state synchronously via emit).
+     Direct applicators — boot, family/mode switches, observer passes —
+     keep applyStudioVars() synchronous: one deliberate action, one apply. */
+  scheduleApply(next);
   try {
     window.localStorage.setItem(STUDIO_STORAGE_KEY, JSON.stringify(next));
   } catch {
     /* Storage may be unavailable. */
   }
   emit();
+}
+
+let applyFrame = 0;
+function scheduleApply(studio: Studio) {
+  if (applyFrame) return;
+  if (typeof requestAnimationFrame !== "function") {
+    applyStudioVars(studio);
+    return;
+  }
+  applyFrame = requestAnimationFrame(() => {
+    applyFrame = 0;
+    applyStudioVars(read());
+  });
 }
 
 /**
