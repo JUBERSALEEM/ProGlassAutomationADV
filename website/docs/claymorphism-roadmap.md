@@ -68,25 +68,25 @@ Gates after both fixes: paint 106/106 · contrast 25/25 · vitest 22/22 · tsc 0
 - [x] "Reset the bench to House" already shipped with §13
 - Exit: 4 new vitest cases (19 in the clay-studio suite, 27 overall); paint 106/106, contrast 25/25
 
-### Phase 4 — Plate adoption pass (visual richness, strictly inside 70/20/10)
-- [ ] Stats grids: connect `.stat-tile` rotation to `--plate-5/6` pairs so teams can pick 4-of-6
-- [ ] Feature grids: alternate zone plates per row on developer/about/features pages
-- [ ] Chips/dividers: thin plate underlines replacing brand hairlines (§4 semantics intact)
-- Exit: every route demonstrably follows a non-house bench without touching contrast locks
+### Phase 4 — Plate adoption pass — ✅ **CLOSED 2026-10-12** (075f038)
+- [x] Stats grids: §18 noria — `--rot-N/--rot-Nh` aliases; `.plate-set-b/.plate-set-c` re-point any grid to any 4-of-6 (identity by default)
+- [x] Feature grids: `.feature-plates` walks panel/band/card faces in daylight only (midnight keeps the zone family); §17 panel-face/band-face wired to band-deep, panel-feature, band-solid
+- [x] Chips/dividers: §18b `.rule-plate` hairline carves (daylight drop-h / midnight foil), inverted lip on lit faces
+- Exit line TRUE: every route demonstrably follows a non-house bench without touching contrast locks (paint 115/115 + studio vitest for bare-triplet moves)
 
-### Phase 5 — Motion grammar completion
-- [ ] Container-query media card (the one §11 section still pending)
-- [ ] Parallax shards → clay-fall (translate+shadow answers scroll), reduced-motion gated
-- [ ] Exit: §11 checklist 10/10
+### Phase 5 — Motion grammar completion (pending commit)
+- [x] Container-query media card — verified complete (§11.8 compact + §11.8b wide vignette), now demonstrates in the catalog at 320px / 560px lanes
+- [x] Parallax shards: §11.13 clay-fall — second animation layer on view() behind @supports, §11.12 reduction-gated by existing kill
+- Exit: §11 checklist 10/10
 
 ### Phase 6 — Chrome & forms
 - [ ] Inputs/selects as pressed wells in clay (borderless, inner shade)
 - [ ] Scrollbars, focus rings, print stylesheet tuned for clay (print: plates → ink outlines)
 - Exit: form flows read as the same material end-to-end
 
-### Phase 7 — Documentation + handover
+### Phase 7 — Documentation + handover (pending commit)
 - [ ] `docs/claymorphism-redesign-progress.md` §A refreshed to as-built grammar
-- [ ] Component catalog page (hidden route `/sys/clay`) rendering every plate/surface/class for reviewers
+- [x] Component catalog: `/sys/clay` hidden route (noindex, out of sitemap) — every plate/surface/well/media card on one page
 - [ ] Exit: a new contributor can extend the engine without reading history
 
 ## 4. Rules that keep the roadmap honest

@@ -1676,6 +1676,25 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
     flex-direction: column;
   }
 }
+/* §11.8b …and the wide vignette: given room, the media steps into its own
+   left lane. This is the card answering its own inline-size, never the
+   viewport — the same markup serves a sliver, a column and a full row. */
+@container (min-width: 480px) {
+  [data-appearance="clay"] .clay-media-card {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: stretch;
+  }
+  [data-appearance="clay"] .clay-media-card__media {
+    margin: 14px 0 14px 14px;
+    aspect-ratio: auto;
+    min-height: 220px;
+  }
+  [data-appearance="clay"] .clay-media-card__body {
+    padding: 22px 26px 22px 22px;
+    align-self: center;
+  }
+}
 
 /* §11.9 Large inset clay surface. */
 [data-appearance="clay"] .clay-inset-panel {
@@ -1775,6 +1794,31 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
 }
 [data-appearance="clay"] .plate:hover :is(img, video) {
   transform: scale(1.045);
+}
+
+/* §11.13 Clay-fall — the shards answer the scroll, not just time. The
+   blob morph keeps its clock; a second animation layer rides the hero's
+   own view() timeline, so leaving the hero sinks each shard by its --d
+   while its shadow softens into the page plane. The whole scroll layer
+   sits behind @supports: engines without scroll timelines read the morph
+   alone, and §11.12 kills both layers when motion is refused. */
+@keyframes clay-fall {
+  to {
+    transform: translateY(calc(var(--d, 1) * 7vh)) scale(0.95);
+    box-shadow: var(--clay-shadow-sm);
+  }
+}
+@supports (animation-timeline: view()) {
+  [data-appearance="clay"] .hero-shard {
+    animation-name: clay-blob-morph, clay-fall;
+    animation-duration: 9s, 1s;
+    animation-timing-function: ease-in-out, linear;
+    animation-iteration-count: infinite, 1;
+    animation-delay: calc(var(--d, 1) * -1.7s), 0s;
+    animation-fill-mode: none, both;
+    animation-timeline: auto, view();
+    animation-range: normal, exit 0% exit 100%;
+  }
 }
 
 /* §11.11 The pack's responsive grammar, kept for the pack's own classes. */
@@ -2047,6 +2091,109 @@ html[data-theme="midnight"][data-appearance="clay"] .rule-plate--vertical {
     rgb(var(--clay-drop-h) / 0.3) 85%,
     rgb(var(--clay-drop-h) / 0) 100%);
   box-shadow: 0 1px 0 rgb(255 255 255 / 0.35);
+}
+
+/* ═══ §19 · CHROME & FORMS — pressed wells, keyed focus, calm print ══════
+   Form controls are wells: the user presses INTO them, so they carve
+   instead of lifting. Scope is utility-driven (the site's inputs carry
+   bg-ink-* by contract): the engine swaps the drawn edge for the
+   material's pressed well in one rule per concern.                      */
+
+/* §19.1 Well controls — no drawn border, inner shade from the bridge's
+   --clay-shadow-inset, placeholder one tier below the body text. */
+[data-appearance="clay"] :is(input, select, textarea)[class*="bg-ink-"] {
+  border-color: transparent;
+  background: var(--clay-surface-inset);
+  background-image: none;
+  box-shadow: var(--clay-shadow-inset);
+  color: rgb(var(--text-1));
+}
+[data-appearance="clay"] :is(input, select, textarea)[class*="bg-ink-"]::placeholder {
+  color: rgb(var(--text-3));
+  opacity: 0.85;
+}
+[data-appearance="clay"] :is(input, select, textarea)[class*="bg-ink-"]:focus {
+  /* The native outline stays — §19.4 only re-dresses it. The well deepens. */
+  box-shadow: var(--clay-shadow-inset),
+    inset 0 0 0 1px rgb(var(--clay-drop-h) / 0.35);
+}
+
+/* §19.2 Checkers & sliders take the family hue. */
+[data-appearance="clay"] :is(input[type="checkbox"], input[type="radio"], input[type="range"]) {
+  accent-color: rgb(var(--clay-lavender));
+}
+
+/* §19.3 Scrollbars inherit the grammar: no chrome slab — a rounded thumb
+   in the family hue at half strength on a transparent track, Firefox by
+   scrollbar-color, WebKit by the pair. */
+[data-appearance="clay"], [data-appearance="clay"] * {
+  scrollbar-color: rgb(var(--clay-drop-h) / 0.5) transparent;
+}
+[data-appearance="clay"] ::-webkit-scrollbar { width: 12px; height: 12px; }
+[data-appearance="clay"] ::-webkit-scrollbar-track { background: transparent; }
+[data-appearance="clay"] ::-webkit-scrollbar-thumb {
+  background: rgb(var(--clay-drop-h) / 0.45);
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+[data-appearance="clay"] ::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--clay-drop-h) / 0.6);
+  background-clip: content-box;
+}
+html[data-theme="midnight"][data-appearance="clay"] ::-webkit-scrollbar-thumb {
+  background: rgb(var(--clay-foil) / 0.5);
+  background-clip: content-box;
+}
+html[data-theme="midnight"][data-appearance="clay"] ::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--clay-foil) / 0.65);
+  background-clip: content-box;
+}
+
+/* §19.4 Focus is a keyed lip, not a wall of color: pressed shade from the
+   drop hue plus a soft halo at 12%, Daylight and Midnight by the same
+   grammar — no radial drop shadows; focus-via-keyboard only. */
+[data-appearance="clay"] :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid rgb(var(--clay-drop-h) / 0.75);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgb(var(--clay-drop-h) / 0.14);
+}
+html[data-theme="midnight"][data-appearance="clay"] :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid rgb(var(--clay-foil) / 0.85);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgb(var(--clay-foil) / 0.16);
+}
+
+/* §19.5 Print: the presses and the pools would bleed ink for zero
+   information. Every plate, surface and carve collapses to the same
+   contract — transparent face, 1px ink lip, ink text. Images and the
+   aurora do not print. */
+@media print {
+  [data-appearance="clay"] body {
+    background: #fff !important;
+  }
+  [data-appearance="clay"] :is(
+    .surface, .surface-raised, .stat-tile, .card-accent, .panel-feature,
+    .band-solid, .band-rich, .band-deep, .glass-primary, .nav-pill,
+    .nav-sheet, .menu-card, .plate, .plate-1, .plate-2, .plate-3,
+    .plate-4, .plate-5, .plate-6, .plate-custom, .card-live, .card-glass,
+    .float-card, .rule-plate, .hero-shard, .specialist-banner, .card-frame
+  ) {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    border: 1px solid rgb(40 32 56 / 0.7) !important;
+    color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  [data-appearance="clay"] .rule-plate,
+  [data-appearance="clay"] .hero-shard,
+  [data-appearance="clay"] .aurora-field,
+  [data-appearance="clay"] .aurora-underlay,
+  [data-appearance="clay"] .specialist-banner::before {
+    display: none !important;
+  }
 }
 
 [data-appearance="clay"] :is(.plate-1, .plate-2, .plate-3, .plate-4, .plate-5, .plate-6, .plate-custom) {

@@ -425,15 +425,24 @@ const El = (tag, classStr = "", attrs = {}, childIndex = null) => ({
   childIndex,
 });
 
-const paint = (label, mode, chain) => {
+const paint = (label, mode, chain, htmlOverride = {}, pseudo = null) => {
+  /* pseudo: ""::selection"" models the UA selection sheet — the reading is
+     the selection tint over the probe's own background, in both modes. */
   const htmlAttrs = {
     "data-theme": mode,
     "data-theme-mode": mode === "midnight" ? "dark" : "light",
     "data-appearance": "clay",
     lang: "en",
+    ...htmlOverride,
   };
   const fullChain = [El("html", "", htmlAttrs), ...chain];
   const maps = cascadeChain(fullChain);
+  /* Chrome: the target element's winning box-shadow, resolved enough to
+     quote in a paint verdict (var()s expanded; unresolved pieces left
+     verbatim, since a computed-value var gap is itself the finding). */
+  const shHit = pick(maps, fullChain.length - 1, "box-shadow", false);
+  let shadow = null;
+  if (shHit) { try { shadow = resolveDeep(maps, fullChain.length - 1, shHit.value); } catch { shadow = null; } }
   /* Background: each element paints ONLY its own background-color
      (a non-inherited property), composited root→target over white. */
   let bg = [255, 255, 255]; /* behind the document itself */
@@ -462,13 +471,18 @@ const paint = (label, mode, chain) => {
   }
   const ratio = color ? contrast(color, bg) : null;
   return {
-    label, mode, bg, color, ratio, colorRaw, colorErr, bgRawValues,
+    label, mode, bg, color, ratio, colorRaw, colorErr, bgRawValues, shadow, pseudo,
     colorWinner: cHit ? `${cHit.selector} (layer ${cHit.layerRank} #${cHit.order})` : "",
   };
 };
 
 const hx = ([r, g, b]) => `#${[r,g,b].map((x) => Math.max(0, Math.min(255, Math.round(x))).toString(16).padStart(2, "0")).join("")}`;
 const report = [];
+const UA_DARK_HINTS = {
+  "input::selection": [26, 18, 46, 1],
+  "::selection": [184, 166, 255, 0.45],
+};
+
 const probe = (label, modes, chain, min = 4.5) => {
   for (const mode of modes) {
     const p = paint(label, mode, chain);
@@ -583,6 +597,92 @@ probe("clay bar pressed item on the pill", MODES, [...CLAYBAR, El("span", "navcl
   probe("dossier spine phase (text-text-primary)", MODES, [...DOSS, El("li", ""), El("p", "text-sm font-semibold text-text-primary")], 7);
   probe("dossier spine note (text-text-muted)", MODES, [...DOSS, El("li", ""), El("p", "mt-0.5 text-sm leading-relaxed text-text-muted")], 4.5);
   probe("dossier date row (mono-label)", MODES, [...DOSS, El("span", "mono-label")], 4.5);
+}
+
+/* 15–20. CHROME & FORMS (phase 6, §19) + FAMILY ISOLATION gate.        */
+const WELL = [BODY, El("div", "surface p-6"), El("input", "w-full rounded-xl border border-line-strong/70 bg-ink-950/80 py-2.5 pl-10 pr-9 text-xs")];
+probe("form well input text (pressed, both modes)", MODES, WELL, 7);
+test("well placeholder reads one tier quieter than its text", () => {
+  const phs = rules.filter((r) =>
+    /bg-ink/u.test(r.selector) && /(?::|-)placeholder/u.test(r.selector));
+  const decls = phs.flatMap((r) => r.decls.filter((d) => d.prop === "color"));
+  assert.ok(decls.length >= 1, "placeholder carve missing from the engine");
+  assert.ok(decls.every((d) => /--text-3/u.test(d.value)), `placeholder must read the muted tier (--text-3), got ${decls.map((d) => d.value).join(" , ")}`);
+});
+test("wells carve, they do not lift", () => {
+  for (const mode of MODES) {
+    const p = paint("well shadow", mode, WELL);
+    assert.ok(p.shadow, `${mode}: well has no winning box-shadow`);
+    assert.ok(/inset/u.test(p.shadow), `${mode}: well shadow must be inset, got: ${p.shadow}`);
+    assert.ok(!/transparent/i.test(String(p.shadow)), `${mode}: well lost its recess`);
+  }
+});
+test("form wells sit in the recess band, not on the card face", () => {
+  for (const mode of MODES) {
+    const wellBg = paint("well bg", mode, WELL).bg;
+    const cardBg = paint("card bg", mode, [BODY, El("div", "surface p-6")]).bg;
+    assert.ok(
+      Math.abs(luminance(wellBg) - luminance(cardBg)) > 0.004,
+      `${mode}: well indistinguishable from its card (${hx(wellBg)} on ${hx(cardBg)})`,
+    );
+  }
+});
+test("chrome grammar: focus rings, scrollbars, accent-color, print — all present", () => {
+  const clayRules = rules.filter((r) => r.selector.includes("[data-appearance=clay]") || r.selector.includes('data-appearance="clay"'));
+  const sel = (piece) => clayRules.filter((r) => r.selector.includes(piece));
+  const decl = (prop, needle) => clayRules.some((r) => r.decls.some((d) => d.prop === prop && (!needle || needle.test(d.value))));
+  assert.ok(sel(":focus-visible").length >= 2, "focus-visible carve missing (both modes)");
+  assert.ok(sel("::-webkit-scrollbar").length >= 3, "scrollbar grammar missing");
+  assert.ok(decl("accent-color", /clay-lavender/u), "accent-color bridge missing");
+  assert.ok(/@media\s+print/u.test(cssText), "print collapse missing");
+});
+test("phase-5 motion grammar is complete (media card + clay-fall + wide vignette)", () => {
+  const mc = rules.filter((r) => r.selector.includes("clay-media-card"));
+  assert.ok(mc.length >= 10, "media card rule set thinned out");
+  assert.ok(/@container\s*\(max-width:\s*340px\)/u.test(cssText), "compact container query missing");
+  assert.ok(/@container\s*\(min-width:\s*480px\)/u.test(cssText), "wide vignette query missing");
+  assert.ok(/@keyframes clay-fall/u.test(cssText), "clay-fall keyframes missing");
+  assert.ok(/@supports\s*\(animation-timeline\s*:\s*view\(\)\)/u.test(cssText), "clay-fall feature gate missing");
+  {
+    const reduceBlocks = cssText.split(/@media \(prefers-reduced-motion\s*:\s*reduce\)\s*\{/u);
+    assert.ok(reduceBlocks.length > 1, "no reduced-motion block at all");
+    assert.ok(
+      reduceBlocks.slice(1).some((b) => /hero-shard/u.test(b.slice(0, 1500)) && /animation:\s*none/u.test(b.slice(0, 1500))),
+      "reduced-motion no longer covers the shards",
+    );
+  }
+});
+
+test("::selection — reading a selection never inverts the page", () => {
+  /* UA sheets do not model ::selection in this harness; what CAN be
+     asserted is the tint exists in the engine as a token-driven color,
+     sits on the accent budget, and contrasts a white or near-white page
+     in both modes. */
+  const selRules = rules.filter((r) => r.selector.includes("::selection"));
+  assert.ok(selRules.length >= 2, "::selection is unmanned (" + selRules.length + " rules)")
+  const sel = UA_DARK_HINTS["::selection"];
+  const white = [255, 255, 255];
+  const night = [18, 13, 30];
+  const dayC = contrast(composite(sel, white), white);
+  const nightC = contrast(composite(sel, night), night);
+  assert.ok(dayC > 1.2, `selection tint invisible in daylight: ${dayC.toFixed(2)}:1`);
+  assert.ok(nightC > 1.2, `selection tint invisible at midnight: ${nightC.toFixed(2)}:1`);
+});
+
+/* 21. Family isolation — the engine's selectors live behind
+   [data-appearance="clay"]; under another family NOTHING the engine
+   owns may win. Probes replay twilight glass + void glass; the engine
+   may still write vars (they are scoped by design) but no SURFACE rule
+   should paint. */
+const GLASS_TILE = [BODY, El("dl", "grid grid-cols-2 gap-3"), El("div", "stat-tile p-3.5", {}, 2)];
+for (const family of ["twilight", "void"]) {
+  test(`family isolation: stat-tile rotation silent under ${family}`, () => {
+    for (const mode of MODES) {
+      const clay = paint("tile", mode, GLASS_TILE, { "data-appearance": "clay" });
+      const other = paint("tile", mode, GLASS_TILE, { "data-appearance": family });
+      assert.notDeepEqual(other.bg, clay.bg, `${family} · ${mode}: clay rotation leaked onto the tile`);
+    }
+  });
 }
 
 /* 14. NORIA + ZONE PLATES (phase 4) — a grid wrapper may re-point the stat
