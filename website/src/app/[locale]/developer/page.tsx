@@ -686,7 +686,7 @@ const faq = [
               {technicalWorkflowArchitecture.map((item) => (
                 <div
                   key={item.index}
-                  className="rounded-card border border-line-strong/60 bg-ink-900/60 p-5 flex flex-col justify-between"
+                  className="surface card-interactive p-5 flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-center justify-between gap-2">
