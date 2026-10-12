@@ -388,6 +388,62 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
               {shareCopied ? t("Bench link copied ✓") : t("Copy bench link")}
             </button>
           </fieldset>
+
+          {/* ── Crystal engine · the material bench ───────────────────
+              Clay gets plates; glass gets the material itself: frost (how
+              hard the page blurs behind every pane), body (how solid the
+              fills stand), glint (how bright the corner light burns).
+              The dials multiply the family's own recipe — never a family-
+              token overwrite — and the engine's floors and caps in
+              crystal-engine §C4 keep every move inside the doctrine
+              (body ≥ 0.80 by day, glint ≤ 0.55 at the corners). */}
+          <fieldset className="mt-4">
+            <legend className="mono-label">{t("Crystal engine — glass bench")}</legend>
+            <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">
+              {t("Frost, body and glint for the Crystal family — the material the site is made of, multiplied from its own recipe. Applies when the Crystal family is active; text ink never moves.")}
+            </p>
+            <div className="mt-3 grid gap-3">
+              <Slider
+                label={t("Frost — blur behind every pane")}
+                value={studio.glassFrost}
+                min={0.4}
+                max={1.6}
+                step={0.05}
+                display={`${studio.glassFrost.toFixed(2)}×`}
+                onChange={(v) => setStudio({ glassFrost: v })}
+                hint={t("1.00 is the shipped recipe — 26–28px with 200% saturation, multiplied by this dial. 0.40 is nearly clear.")}
+              />
+              <Slider
+                label={t("Body — how solid the fills stand")}
+                value={studio.glassBody}
+                min={0.5}
+                max={1.5}
+                step={0.05}
+                display={`${studio.glassBody.toFixed(2)}×`}
+                onChange={(v) => setStudio({ glassBody: v })}
+                hint={t("1.00 keeps the family's tiers (0.55–0.92 by night, 0.82–0.99 by day). The engine never lets daylight body drop below 0.80 — text rides the fill, not the blur.")}
+              />
+              <Slider
+                label={t("Glint — corner catch-light")}
+                value={studio.glassGlint}
+                min={0}
+                max={2}
+                step={0.05}
+                display={`${studio.glassGlint.toFixed(2)}×`}
+                onChange={(v) => setStudio({ glassGlint: v })}
+                hint={t("0 reads as frosted plastic; 2.00 burns bright at the corners — the engine caps the light at 0.55 so the text field is never lifted.")}
+              />
+            </div>
+            {studio.glassFrost !== 1 || studio.glassBody !== 1 || studio.glassGlint !== 1 ? (
+              <button
+                type="button"
+                onClick={() => setStudio({ glassFrost: 1, glassBody: 1, glassGlint: 1 })}
+                className="mt-2 text-[0.72rem] font-semibold text-text-faint underline-offset-2 hover:underline"
+              >
+                {t("Reset the glass bench")}
+              </button>
+            ) : null}
+          </fieldset>
           <fieldset className="mt-4">
             <legend className="mono-label">{t("Clay depth")}</legend>
             <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">

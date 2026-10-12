@@ -638,12 +638,12 @@
      * on a phone — where every card is a composited layer — that is felt as
      * scroll weight rather than seen as depth.
      */
-    --surface-alpha: 0.55;
-    --surface-alpha-2: 0.72;
-    --surface-alpha-3: 0.92;
-    --surface-blur: 26px;
+    --surface-alpha-base: 0.55;
+    --surface-alpha-base-2: 0.72;
+    --surface-alpha-base-3: 0.92;
+    --surface-blur-base: 26px;
     --surface-sat: 200%;
-    --surface-specular: 0.32;
+    --surface-specular-base: 0.32;
     --card-edge: rgb(255 255 255 / 0.34);
     --tint-alpha: 0.19;
     --tint-alpha-2: 0.08;
@@ -791,16 +791,16 @@
      * the text (≥ 0.8), and the blur where it works is frosting, never the
      * load-bearing layer.
      */
-    --surface-alpha: 0.82;
-    --surface-alpha-2: 0.9;
-    --surface-alpha-3: 0.99;
-    --surface-blur: 28px;
+    --surface-alpha-base: 0.82;
+    --surface-alpha-base-2: 0.9;
+    --surface-alpha-base-3: 0.99;
+    --surface-blur-base: 28px;
     --surface-sat: 185%;
     /* A sheet on a white desk reads almost entirely by its corners: the
        catch-light is the strongest dial in this reading, and the fill is the
        weakest. The scrim is what holds the text up — on paper the legibility
        wash runs light, and it is the only layer here that is not glass. */
-    --surface-specular: 0.34;
+    --surface-specular-base: 0.34;
     --card-edge: rgb(255 255 255 / 0.92);
     --glass-hi: rgb(255 255 255 / 0.5);
     --glass-lo: rgb(8 74 96 / 0.12);
@@ -843,16 +843,16 @@
    */
   @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
     [data-appearance="crystal"] {
-      --surface-alpha: 0.94;
-      --surface-alpha-2: 0.96;
-      --surface-alpha-3: 0.99;
+      --surface-alpha-base: 0.94;
+      --surface-alpha-base-2: 0.96;
+      --surface-alpha-base-3: 0.99;
       --glass-scrim: rgb(6 26 38 / 0.5);
     }
 
     [data-theme="daylight"][data-appearance="crystal"] {
-      --surface-alpha: 0.95;
-      --surface-alpha-2: 0.97;
-      --surface-alpha-3: 0.99;
+      --surface-alpha-base: 0.95;
+      --surface-alpha-base-2: 0.97;
+      --surface-alpha-base-3: 0.99;
       --glass-scrim: rgb(255 255 255 / 0.6);
     }
   }

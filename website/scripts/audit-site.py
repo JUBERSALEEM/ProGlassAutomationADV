@@ -124,7 +124,7 @@ BUDGET_DEFAULT = {"gz": 39, "nodes": 800}      # was 37 (post footer-icon); the 
 # css was 28; the clay engine + primitives added a full utility-floor layer:
 # measured 27.0 → 27.9 (engine, 3f61ffe) → 28.2 (primitives). Ceilings move
 # only with their measurement trail, never silently.
-ASSET_BUDGET = {"js_gz": 540, "css_gz": 35.5}
+ASSET_BUDGET = {"js_gz": 540, "css_gz": 36.5}
 # css_gz: 31 → 34 with the clay plate-bench trail (§13–§17 of
 #   the engine), → 35.5 with the phase-5/6 additions (§18 noria,
 #   §18b rule carves, §19 chrome & forms, §11.8b wide vignette,
@@ -132,6 +132,10 @@ ASSET_BUDGET = {"js_gz": 540, "css_gz": 35.5}
 #   → measured 35.4/35.5 after the CRYSTAL ENGINE (G1–G3: §C1 lift,
 #   §C2 forms, §C3 chips/tables — a new unlayered family file). No
 #   bump needed; the G4–G6 phases will re-measure and re-trail.
+#   → measured 35.0/36.5 after G4 §C4 (the material bench: -base plumbing
+#   + dial aliases + daylight floors, all evaluated by the contract under
+#   the whole dial grid — the bench buys every crystal surface honest
+#   frost/body/glint dials for ≈0.7K gz).
 # clay-engine.css): the dynamic 6-plate bench + midnight plum locks, the
 # segmented clay bar, the §16 family wash, and the §17 zone plates are
 # ≈2.4 KB gz of measured, gate-covered rules (paint 106, contrast 25).

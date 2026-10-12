@@ -1,6 +1,6 @@
 # Glassmorphism roadmap — the Crystal family, brought to 100%
 
-Status: **G0–G3 CLOSED 2026-10-12** · G4–G7 open · engines are separate by design (crystal-engine.css / clay-engine.css).
+Status: **G0–G4 CLOSED 2026-10-12** · G5–G7 open · engines are separate by design (crystal-engine.css / clay-engine.css).
 Companion doc: `claymorphism-roadmap.md` (phases 1–7 closed) — this file follows the same
 conventions: components declare intent, selectors live in the stylesheet, every claim is gated,
 numbers in commit messages are executed, not read.
@@ -194,7 +194,7 @@ Family-scoped utility lift, mirroring clay §9's grammar:
   with etched edge; mono ink unchanged.
 - Probes per surface class, both modes.
 
-### G4 — The Crystal bench (studio parity, S3) ⬜ OPEN
+### G4 — The Crystal bench (studio parity, S3) ✅ CLOSED 2026-10-12 — §C4 plumbing (-base × dial, evaluated; daylight floors kept); `tests/crystal-studio.test.tsx` 7/7; contract 41 → 69 with a full dial grid; css 35.0/36.5K
 
 - Three dials, crystal-scoped, write-only-when-moved, persisted under the
   studio keys with the existing guards:
@@ -253,7 +253,7 @@ sprung and were PROMOTED to floor probes (paint 175/175, contract 41/41).
 The shared daylight legibility grammar lives in globals.css (requested:
 engines stay separate; clay's §20 untouched).
 
-**Balance to 100%:** G4 · G5 · G6 · G7.
+**Balance to 100%:** G5 · G6 · G7.
 
 Next action when resumed:
 

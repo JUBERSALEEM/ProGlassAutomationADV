@@ -51,8 +51,8 @@
     var(--glass-frost),
     linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),
     linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%);
-  backdrop-filter: blur(10px) saturate(160%);
-  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(160%);
+  -webkit-backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(160%);
   box-shadow: 0 0 0 1px var(--glass-ring),
     inset 0 1px 0 0 var(--glass-edge-light),
     inset 0 -1px 0 0 var(--glass-edge-dark);
@@ -93,8 +93,8 @@
   border-color: var(--glass-line);
   color: rgb(var(--text-1));
   caret-color: rgb(var(--brand-400));
-  backdrop-filter: blur(8px) saturate(150%);
-  -webkit-backdrop-filter: blur(8px) saturate(150%);
+  backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(150%);
+  -webkit-backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(150%);
   box-shadow: inset 0 2px 6px rgb(6 26 38 / 0.18),
     0 0 0 1px var(--glass-ring);
 }
@@ -149,8 +149,8 @@
 [data-appearance="crystal"] .chip {
   background-color: rgb(var(--ink-800) / var(--surface-alpha-2));
   border-color: var(--glass-line);
-  backdrop-filter: blur(8px) saturate(160%);
-  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(160%);
+  -webkit-backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(160%);
   box-shadow: 0 0 0 1px var(--glass-ring),
     inset 0 1px 0 0 var(--glass-edge-light);
 }
@@ -158,8 +158,8 @@
 [data-appearance="crystal"] .eyebrow-chip {
   background-color: rgb(var(--brand-500) / 0.16);
   border-color: rgb(var(--brand-400) / 0.38);
-  backdrop-filter: blur(8px) saturate(170%);
-  -webkit-backdrop-filter: blur(8px) saturate(170%);
+  backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(170%);
+  -webkit-backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(170%);
   box-shadow: 0 0 0 1px var(--glass-ring),
     inset 0 1px 0 0 var(--glass-edge-light);
 }
@@ -169,8 +169,8 @@
    hand is the one row that gathers light. */
 [data-appearance="crystal"] table thead tr {
   background-color: rgb(var(--ink-900) / 0.8);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1)));
+  -webkit-backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1)));
 }
 
 [data-appearance="crystal"] table tbody tr {
@@ -188,5 +188,75 @@
   [data-appearance="crystal"] .eyebrow-chip,
   [data-appearance="crystal"] table thead tr {
     background-image: none;
+  }
+}
+
+
+/* ═══ §C4 · THE BENCH (G4) — three dials, multiplied, never overwritten ═
+ *
+ * Clay has the plate bench; glass has the MATERIAL bench: frost, body,
+ * glint. The studio writes ONLY the multiplier vars
+ * (--glass-frost-mult / --glass-body-mult / --glass-glint-mult), and only
+ * when the visitor moves a dial — the family's -base tokens stay the
+ * source of truth, so a hand-edited dial can never leave the family
+ * silent: `var(--glass-*-mult, 1)` rests at one. The ceilings and floors
+ * below are the doctrine encoded as math, not prose:
+ *
+ *   body   0.45 floor at midnight (the scrim is the legibility layer),
+ *          0.98 cap (flat white is paper, not glass)
+ *   body, daylight  ≥ 0.80 — the fill carries the text, always; a dial
+ *          may only ADD body by day
+ *   glint  0.55 cap — the specular brightens corner edges, never the
+ *          text field (the 72/84% ellipses do the confining)
+ *   frost  open above: blur scales with the dial, saturation stays
+ *
+ * Inline --glass-*-mult writes outrank these aliases (html.style beats
+ * the attribute sheet) — the dial wins over the recipe, and the recipe
+ * still guards the dial.
+ */
+[data-appearance="crystal"] {
+  /* Engine-owned bases for the tokens other engines stand on. The family
+     block in globals.css declares the same numbers as `-base`; this engine
+     is unlayered, so ITS aliases would beat the @supports fallback raise —
+     which is why the base is plumbed through the engine, fallback aware. */
+  --surface-blur-base: 26px;
+  --surface-specular-base: 0.32;
+  --surface-alpha-base: 0.55;
+  --surface-alpha-base-2: 0.72;
+  --surface-alpha-base-3: 0.92;
+
+  --surface-blur: calc(var(--surface-blur-base) * var(--glass-frost-mult, 1));
+  --surface-specular: min(calc(var(--surface-specular-base) * var(--glass-glint-mult, 1)), 0.55);
+  --surface-alpha: clamp(0.45, calc(var(--surface-alpha-base) * var(--glass-body-mult, 1)), 0.98);
+  --surface-alpha-2: clamp(0.45, calc(var(--surface-alpha-base-2) * var(--glass-body-mult, 1)), 0.98);
+  --surface-alpha-3: clamp(0.45, calc(var(--surface-alpha-base-3) * var(--glass-body-mult, 1)), 1);
+}
+
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  [data-appearance="crystal"] {
+    --surface-alpha-base: 0.94;
+    --surface-alpha-base-2: 0.96;
+    --surface-alpha-base-3: 0.99;
+  }
+}
+
+[data-theme="daylight"][data-appearance="crystal"] {
+  --surface-blur-base: 28px;
+  --surface-specular-base: 0.34;
+  --surface-alpha-base: 0.82;
+  --surface-alpha-base-2: 0.9;
+  --surface-alpha-base-3: 0.99;
+
+  --surface-specular: min(calc(var(--surface-specular-base) * var(--glass-glint-mult, 1)), 0.55);
+  --surface-alpha: clamp(0.8, calc(var(--surface-alpha-base) * var(--glass-body-mult, 1)), 0.98);
+  --surface-alpha-2: clamp(0.8, calc(var(--surface-alpha-base-2) * var(--glass-body-mult, 1)), 0.99);
+  --surface-alpha-3: clamp(0.8, calc(var(--surface-alpha-base-3) * var(--glass-body-mult, 1)), 1);
+}
+
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  [data-theme="daylight"][data-appearance="crystal"] {
+    --surface-alpha-base: 0.95;
+    --surface-alpha-base-2: 0.97;
+    --surface-alpha-base-3: 0.99;
   }
 }

@@ -114,6 +114,16 @@ export type Studio = {
    * floating, and text-contrast pairs don't move at all.
    */
   clayDepth: number;
+  /**
+   * The crystal bench (G4) — material multipliers for the glass family.
+   * 1 is "the family's own recipe". Body < 1 ghosts the fills (floor 0.45
+   * midnight / 0.80 daylight in the engine, never here); glint > 1 brightens
+   * the corner light (capped 0.55 by the engine); frost scales every blur.
+   * Multiplied in crystal-engine §C4 — never a family-token overwrite.
+   */
+  glassFrost: number;
+  glassBody: number;
+  glassGlint: number;
 };
 
 export const defaultStudio: Studio = {
@@ -138,6 +148,9 @@ export const defaultStudio: Studio = {
   clayAccent: "",
   clayCustom: "",
   clayDepth: 1,
+  glassFrost: 1,
+  glassBody: 1,
+  glassGlint: 1,
 };
 
 /*
@@ -286,6 +299,9 @@ function readStored(): Studio {
     if (!hexOrEmpty(merged.clayAccent)) merged.clayAccent = defaultStudio.clayAccent;
     if (!hexOrEmpty(merged.clayCustom)) merged.clayCustom = defaultStudio.clayCustom;
     if (!Number.isFinite(merged.clayDepth)) merged.clayDepth = defaultStudio.clayDepth;
+    if (!Number.isFinite(merged.glassFrost)) merged.glassFrost = defaultStudio.glassFrost;
+    if (!Number.isFinite(merged.glassBody)) merged.glassBody = defaultStudio.glassBody;
+    if (!Number.isFinite(merged.glassGlint)) merged.glassGlint = defaultStudio.glassGlint;
 
     return merged;
   } catch {
@@ -634,6 +650,23 @@ export function applyStudioVars(studio: Studio) {
    */
   if (studio.tint !== defaultStudio.tint) {
     vars["--tint-mix"] = `calc(var(--tint-base, 0.1) * ${studio.tint.toFixed(2)})`;
+  }
+
+  /* The crystal bench (G4). Three multipliers, written only when moved —
+     the daytime doctrine lives in crystal-engine §C4 (floors and caps are
+     math there, not promises here). Under every family but crystal the
+     vars are inert: no consumer reads them. */
+  if (studio.glassFrost !== defaultStudio.glassFrost) {
+    const v = Math.min(1.6, Math.max(0.4, studio.glassFrost));
+    vars["--glass-frost-mult"] = v.toFixed(2);
+  }
+  if (studio.glassBody !== defaultStudio.glassBody) {
+    const v = Math.min(3, Math.max(0.5, studio.glassBody));
+    vars["--glass-body-mult"] = v.toFixed(2);
+  }
+  if (studio.glassGlint !== defaultStudio.glassGlint) {
+    const v = Math.min(2, Math.max(0, studio.glassGlint));
+    vars["--glass-glint-mult"] = v.toFixed(2);
   }
 
   if (studio.radius !== defaultStudio.radius) vars["--radius-scale"] = String(studio.radius);
