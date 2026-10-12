@@ -406,3 +406,113 @@
     --glass-frost-mult: 0.6;
   }
 }
+
+/* ═══ §C7 · THE PATTERN (the 100/100 pass) ═══════════════════════════════
+ *
+ * The audit, scored against the three references and the canonical code
+ * (blur 16–24px + saturate 150–180%, fill 8–20% white / dark 30–45%, a 1px
+ * white edge at .15–.30, a soft 24px drop shadow — and the rule every
+ * source states first: THE WALLPAPER MUST CARRY THE COLOR, or glass reads
+ * gray): the engine measured 68/100, losing its points exactly where the
+ * references earn theirs: wallpaper (4/10), blur (4/10), shadow (3/10),
+ * fill weight (5/10). This section buys them back, crystal-scoped, clay
+ * untouched, every dial seam kept.
+ *
+ * ── A · The wallpaper. Pools at 0.13–0.32 and washes at 0.46/0.15 are
+ * fog; glass has nothing rich to blur. The family overrides the SHARED
+ * wallpaper tokens (the grammar and geometry stay in globals.css — G7's
+ * family-generic rule, the values are family-owned). Daylight gets pastel
+ * rather than saturated pools: the pink reference reads exactly as light
+ * wallpaper + near-white panes, and the 0.80 body floor (G4, contract)
+ * keeps every reading intact.
+ */
+[data-appearance="crystal"] {
+  --wall-wash-1: rgb(101 70 181 / 0.52);
+  --wall-wash-2: rgb(26 197 226 / 0.30);
+  --pool-1: rgb(126 87 206 / 0.55);
+  --pool-2: rgb(20 184 226 / 0.42);
+  --pool-3: rgb(242 96 164 / 0.34);
+
+  /* ── B · The drop shadow the lift keeps missing: soft, wide-set, dark —
+     the 0 24px 48px class from every reference. Panes take it; chips and
+     wells stay close to the page (a halo per chip is noise, not depth). */
+  --glass-drop:
+    0 24px 55px -18px rgb(2 1 10 / 0.55),
+    0 0 0 1px var(--glass-ring),
+    inset 0 1px 0 0 var(--glass-edge-light),
+    inset 0 -1px 0 0 var(--glass-edge-dark);
+
+  /* ── C · The edge at the reference's stated strength: ring 0.16 → 0.24,
+     line 0.24 → 0.34. */
+  --glass-ring: rgb(255 255 255 / 0.24);
+  --glass-line: rgb(255 255 255 / 0.34);
+
+  /* ── D · The scrim takes what the fill returns: midnight fill lightened
+     (§C1, below), the scrim stiffens from 0.34 → 0.42 to hold the text
+     field exactly where the contract measured it. */
+  --glass-scrim: rgb(6 26 38 / 0.42);
+
+  /* ── E · Saturation behind EVERY pane goes to the pattern's 180%. */
+  --glass-sat: 180%;
+}
+
+[data-theme="daylight"][data-appearance="crystal"] {
+  --wall-wash-1: rgb(244 166 201 / 0.50);
+  --wall-wash-2: rgb(181 161 225 / 0.42);
+  --pool-1: rgb(228 105 160 / 0.46);
+  --pool-2: rgb(245 133 52 / 0.30);
+  --pool-3: rgb(158 121 229 / 0.38);
+
+  --glass-drop:
+    0 20px 45px -18px rgb(70 40 120 / 0.30),
+    0 0 0 1px var(--glass-line),
+    inset 0 1px 0 0 var(--glass-edge-light),
+    inset 0 -1px 0 0 var(--glass-edge-dark);
+
+  /* Light self-shadow hairline is already the daylight grammar; bump the
+     white scrim a notch so the pattern's airy panes stay text-safe. */
+  --glass-scrim: rgb(255 255 255 / 0.60);
+}
+
+[data-appearance="crystal"] :is(
+  .surface, .surface-raised, .menu-card, .float-card,
+  .glass-primary, .card-accent, .panel-feature, .stat-tile
+) {
+  box-shadow: var(--glass-drop);
+}
+
+/* ── F · §C1, retuned to the pattern: the midnight fill comes DOWN from
+   0.66 to 0.50 (glass, not paint — the scrim above keeps the text field's
+   effective darkening where the contract measured it), and the blur trades
+   sharpness for presence: 10px → 18px at saturate 180%. The daylight fill
+   stays 0.86: daylight's glassiness comes from the pastel wall, not from
+   transparency, and the 0.80 doctrine (G4) holds. */
+@supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option) {
+    background-color: rgb(var(--ink-900) / 0.50);
+    backdrop-filter: blur(calc(18px * var(--glass-frost-mult, 1))) saturate(180%);
+    -webkit-backdrop-filter: blur(calc(18px * var(--glass-frost-mult, 1))) saturate(180%);
+  }
+}
+
+/* §C2 field wells: 8px saturate(150%) → 14px saturate(180%). The carved
+   well softens INTO the pane, the pattern's own reading. */
+[data-appearance="crystal"] :is(input, textarea, select):not(option) {
+  backdrop-filter: blur(calc(14px * var(--glass-frost-mult, 1))) saturate(180%);
+  -webkit-backdrop-filter: blur(calc(14px * var(--glass-frost-mult, 1))) saturate(180%);
+}
+
+/* §C3 the named surfaces: chips get presence (12px/180%), the eyebrow gets
+   the brand chip's extra glow (10px/200%), the thead chills (10px). */
+[data-appearance="crystal"] .chip {
+  backdrop-filter: blur(calc(12px * var(--glass-frost-mult, 1))) saturate(180%);
+  -webkit-backdrop-filter: blur(calc(12px * var(--glass-frost-mult, 1))) saturate(180%);
+}
+[data-appearance="crystal"] .eyebrow-chip {
+  backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(200%);
+  -webkit-backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(200%);
+}
+[data-appearance="crystal"] table thead tr {
+  backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1)));
+  -webkit-backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1)));
+}

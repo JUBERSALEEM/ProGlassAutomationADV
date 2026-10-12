@@ -251,7 +251,12 @@ const solidFill = (mode, token, at) => [[...triplet(modeSheet[mode][token], `${m
    engine file owns these numbers; editing the engine below a floor
    fails this pair. (Engine: crystal-engine.css §C1 + §C1f) */
 const LIFT_ALPHA = {
-  mainline: { midnight: 0.66, daylight: 0.86 },
+  /* §C1's hard-coded fills, re-typed here as declarations of contract: the
+     engine file owns these numbers; editing the engine below a floor fails
+     this pair. (§C7 pass: midnight lift 0.66 → 0.50 with scrim 0.34 → 0.42
+     — pattern fill weight; daylight unchanged: its glassiness comes from
+     the pastel wall, the 0.80 doctrine holds.) */
+  mainline: { midnight: 0.50, daylight: 0.86 },
   fallback: { midnight: 0.94, daylight: 0.97 },
 };
 const buildLift = (lane, mode) => {
