@@ -268,36 +268,36 @@
    peach, sky — each shadow keyed to its own hue, plum text on every tile.
    Default (white) tiles keep the standard recipe from §2. */
 [data-appearance="clay"] .stat-tile:nth-child(4n+1) {
-  background-color: rgb(220 214 255);
+  background-color: rgb(var(--plate-1));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(150 132 250 / 0.3),
+  box-shadow: 8px 8px 22px rgb(var(--plate-h-1, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.85),
     inset 4px 4px 8px rgb(255 255 255 / 0.6),
-    inset -6px -6px 12px rgb(150 132 250 / 0.25);
+    inset -6px -6px 12px rgb(var(--plate-h-1, var(--clay-drop-h)) / 0.25);
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+2) {
-  background-color: rgb(205 240 220);
+  background-color: rgb(var(--plate-2));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(120 190 150 / 0.3),
+  box-shadow: 8px 8px 22px rgb(var(--plate-h-2, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.85),
     inset 4px 4px 8px rgb(255 255 255 / 0.6),
-    inset -6px -6px 12px rgb(120 190 150 / 0.25);
+    inset -6px -6px 12px rgb(var(--plate-h-2, var(--clay-drop-h)) / 0.25);
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+3) {
-  background-color: rgb(255 227 214);
+  background-color: rgb(var(--plate-3));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(228 148 122 / 0.3),
+  box-shadow: 8px 8px 22px rgb(var(--plate-h-3, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.85),
     inset 4px 4px 8px rgb(255 255 255 / 0.6),
-    inset -6px -6px 12px rgb(228 148 122 / 0.25);
+    inset -6px -6px 12px rgb(var(--plate-h-3, var(--clay-drop-h)) / 0.25);
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+4) {
-  background-color: rgb(210 229 247);
+  background-color: rgb(var(--plate-4));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(140 170 214 / 0.3),
+  box-shadow: 8px 8px 22px rgb(var(--plate-h-4, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.85),
     inset 4px 4px 8px rgb(255 255 255 / 0.6),
-    inset -6px -6px 12px rgb(140 170 214 / 0.25);
+    inset -6px -6px 12px rgb(var(--plate-h-4, var(--clay-drop-h)) / 0.25);
 }
 
 /* The active page carries the family's pill, in bar and sheet; the verb
@@ -780,11 +780,16 @@ html[data-theme="midnight"][data-appearance="clay"] {
 
 /* §7.5 The boards' saturation, on the numbers. The first rotation tinted
    too cautiously; these are the metric-card values from the boards
-   themselves — unmistakably saturated pastels, plum motives on top. */
-[data-appearance="clay"] .stat-tile:nth-child(4n+1) { background-color: rgb(206 196 255); }
-[data-appearance="clay"] .stat-tile:nth-child(4n+2) { background-color: rgb(187 232 201); }
-[data-appearance="clay"] .stat-tile:nth-child(4n+3) { background-color: rgb(255 214 192); }
-[data-appearance="clay"] .stat-tile:nth-child(4n+4) { background-color: rgb(188 216 240); }
+   themselves — unmistakably saturated pastels, plum motives on top.
+   The values are the plate tokens live, not copies of them: the bench
+   recolours the plates, and tiles that keep their own literals are the
+   "cards not accepting the engine's colours" the second sighting named.
+   (They only LOOKED right because the literals were pasted from the house
+   plates — the first custom preset to ship exposed them instantly.) */
+[data-appearance="clay"] .stat-tile:nth-child(4n+1) { background-color: rgb(var(--plate-1)); }
+[data-appearance="clay"] .stat-tile:nth-child(4n+2) { background-color: rgb(var(--plate-2)); }
+[data-appearance="clay"] .stat-tile:nth-child(4n+3) { background-color: rgb(var(--plate-3)); }
+[data-appearance="clay"] .stat-tile:nth-child(4n+4) { background-color: rgb(var(--plate-4)); }
 
 /* §7.6 The verb has presence: primaries carry the reference's height so
    the one action per view reads at a glance. */
@@ -1890,6 +1895,20 @@ html[data-theme="midnight"][data-appearance="clay"] .panel-feature {
   --plate-4: 188 216 240;   /* sky                                    */
   --plate-5: 255 205 222;   /* rose                                   */
   --plate-6: 250 231 178;   /* lemon                                  */
+  /* Each plate's own shadow hue — the stat-tile rotation reads these so a
+     tile's depth stays keyed to its face when the bench moves them.        */
+  --plate-h-1: 150 132 250;
+  --plate-h-2: 120 190 150;
+  --plate-h-3: 228 148 122;
+  --plate-h-4: 140 170 214;
+  --plate-h-5: 235 130 160;
+  --plate-h-6: 220 190 100;
+  /* The interior wash (§16): the two hues the registry cards carry inside,
+     and how deep that wash runs (0.12 at tint 1, dial-scaled by the
+     studio). Cards read as carrying the family colour, not floating on it. */
+  --card-tint-h: 158 145 240;
+  --card-tint-h2: 250 196 150;
+  --clay-wash: 0.1;
 }
 
 [data-appearance="clay"] :is(.plate-1, .plate-2, .plate-3, .plate-4, .plate-5, .plate-6, .plate-custom) {
@@ -1948,22 +1967,37 @@ html[data-theme="midnight"][data-appearance="clay"] .plate-custom {
 /* ═══ §14 · EDGES LIVE INSIDE THE CARD ═══════════════════════════════════
    The conic rim (.edge-conic) draws a stroke OUTSIDE the face — a normal
    outlined card wearing a gradient. Clay's edge is thickness, and thickness
-   reads from inside: a static inner rim, lit across the top-left, shaded
-   along the bottom-right, whose color comes from the plate itself. In clay
-   mode the rim moves inside the card and stops blinking on hover.        */
+   reads from inside. The old fix did move the rim inside, but it kept a
+   closed 1.5px ring — and any CLOSED, UNIFORM ring reads as an outline,
+   not as relief, whatever its alpha. Real clay relief is directional:
+   light catches the top and left lips, the bottom and right sit in soft
+   shadow, and the two together carve a shallow channel inside the face.
+   No uniform ring survives; on hover the channel deepens instead of
+   blinking.                                                              */
 [data-appearance="clay"] .edge-conic::after {
   inset: 0;
   padding: 0;
+  /* No face-fill gradient here: the ::after overlaps the card's content, and
+     painting a sheen over text is how contrast dies. The channel is carved
+     by the directional insets below and by nothing else. */
   background: none;
   -webkit-mask: none;
   mask: none;
   opacity: 1;
-  transition: none;
+  transition: box-shadow 0.35s ease;
   border-radius: inherit;
   box-shadow:
-    inset 0 0 0 1.5px rgb(255 255 255 / 0.42),
-    inset 2px 3px 5px rgb(255 255 255 / 0.5),
-    inset -3px -4px 8px rgb(var(--clay-drop-h) / 0.26);
+    inset 3px 3px 6px rgb(255 255 255 / 0.55),
+    inset 1px 1px 2px rgb(255 255 255 / 0.7),
+    inset -4px -5px 10px rgb(var(--clay-drop-h) / 0.3),
+    inset -1px -2px 4px rgb(var(--clay-drop-h) / 0.22);
+}
+[data-appearance="clay"] .edge-conic:hover::after {
+  box-shadow:
+    inset 4px 4px 8px rgb(255 255 255 / 0.6),
+    inset 1px 1px 3px rgb(255 255 255 / 0.75),
+    inset -5px -6px 12px rgb(var(--clay-drop-h) / 0.34),
+    inset -1px -2px 5px rgb(var(--clay-drop-h) / 0.26);
 }
 
 /* §13.1 The facts strip IS the bench's demo reel — in clay the four stops
@@ -2065,3 +2099,40 @@ html[data-theme="midnight"][data-appearance="clay"] .nav-pill {
     transition: none;
   }
 }
+
+/* ═══ §16 · THE BENCH IS A FAMILY — cards carry the colour ═══════════════
+   The third sighting: "cards not accepting the clay engine's colours".
+   Cause, found in the source: the plates were tokens but the card FACES
+   were fixed literals -- the bench had nothing to recolor. Now the bench
+   carries the whole system (§13 tokens + useStudio hue twist): card
+   channels twist to the bench hue at unchanged lightness, and every
+   registry surface holds a whisper of the family wash inside, so cards
+   visibly accept a preset or a bench colour instead of staying house plum
+   below pastel plates. The dial sets the depth -- 0 is a flat token face,
+   3x is unmistakable. Washes sit under the text locks (§9) and inside the
+   contrast gates: they are a tint, not a fill.
+*/
+
+/* Every raised clay surface carries the family's two wash hues inside. */
+[data-appearance="clay"] .surface,
+[data-appearance="clay"] .surface-raised,
+[data-appearance="clay"] .menu-card,
+[data-appearance="clay"] .card-live,
+[data-appearance="clay"] .card-glass,
+[data-appearance="clay"] .float-card,
+[data-appearance="clay"] .card-interactive,
+[data-appearance="clay"] [class*="bg-ink-900"][class*="rounded-2xl"],
+[data-appearance="clay"] [class*="bg-ink-850"][class*="rounded-2xl"],
+[data-appearance="clay"] [class*="bg-ink-800"][class*="rounded-xl"],
+[data-appearance="clay"] [class*="bg-ink-900"][class*="rounded-card"],
+[data-appearance="clay"] [class*="bg-ink-850"][class*="rounded-card"],
+[data-appearance="clay"] [class*="bg-ink-800"][class*="rounded-panel"] {
+  background-image:
+    radial-gradient(130% 150% at 8% 0%,
+      rgb(var(--card-tint-h) / var(--clay-wash, 0.1)) 0%,
+      transparent 58%),
+    radial-gradient(140% 150% at 100% 100%,
+      rgb(var(--card-tint-h2) / calc(var(--clay-wash, 0.1) * 0.8)) 0%,
+      transparent 62%);
+}
+

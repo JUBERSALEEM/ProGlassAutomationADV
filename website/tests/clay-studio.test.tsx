@@ -69,3 +69,47 @@ describe("clay studio bench", () => {
     expect(CLAY_PRESETS.orchard.tokens["--clay-mint"]).toBe("128 214 154");
   });
 });
+
+describe("§16 — the bench recolors the whole system", () => {
+  it("card faces twist to the bench hue without losing their lightness", () => {
+    applyStudioVars({ ...defaultStudio, clayPreset: "lagoon" });
+    const written = document.documentElement.style.getPropertyValue("--ink-850");
+    expect(written).not.toBe("");
+    const [r = 0, g = 0, b = 0] = written.split(" ").map(Number);
+    /* lagoon's hue is cyan; the twisted channel must leave plum for water */
+    expect(g).toBeGreaterThan(r);
+    /* …while keeping the dark card's own brightness: a tinted hug, not a re-paint */
+    const twisted = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    const base = 0.2126 * 40 + 0.7152 * 28 + 0.0722 * 56;
+    expect(Math.abs(twisted - base) / base).toBeLessThan(0.35);
+  });
+
+  it("the drop shadow and wash hues leave the house violet with the bench", () => {
+    applyStudioVars({ ...defaultStudio, clayPreset: "lagoon" });
+    expect(document.documentElement.style.getPropertyValue("--clay-drop-h")).not.toBe("140 108 255");
+    expect(document.documentElement.style.getPropertyValue("--clay-drop-h")).not.toBe("");
+    expect(document.documentElement.style.getPropertyValue("--card-tint-h")).not.toBe("");
+    expect(document.documentElement.style.getPropertyValue("--card-tint-h2")).not.toBe("");
+  });
+
+  it("house still writes none of the system-wide tokens", () => {
+    applyStudioVars(defaultStudio);
+    expect(document.documentElement.style.getPropertyValue("--ink-850")).toBe("");
+    expect(document.documentElement.style.getPropertyValue("--clay-drop-h")).toBe("");
+    expect(document.documentElement.style.getPropertyValue("--clay-wash")).toBe("");
+  });
+
+  it("the wash depth rides the tint dial", () => {
+    applyStudioVars({ ...defaultStudio, clayPreset: "orchard", tint: 0 });
+    expect(document.documentElement.style.getPropertyValue("--clay-wash")).toBe("0.000");
+    applyStudioVars({ ...defaultStudio, clayPreset: "orchard", tint: 2 });
+    expect(document.documentElement.style.getPropertyValue("--clay-wash")).toBe("0.240");
+  });
+
+  it("a hand-picked accent steers the whole system, not just the plates", () => {
+    applyStudioVars({ ...defaultStudio, clayPreset: "custom", clayAccent: "#2f9e44" });
+    const drop = document.documentElement.style.getPropertyValue("--clay-drop-h");
+    const [r = 0, g = 0, b = 0] = drop.split(" ").map(Number);
+    expect(g).toBeGreaterThan(r); /* green hand, green shadows */
+  });
+});

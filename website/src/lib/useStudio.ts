@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { rampFor, shift, triplet } from "@/lib/color";
+import { hslToRgb, rgbToHsl, rampFor, shift, triplet } from "@/lib/color";
 import {
   accentPresets,
   appearanceFamilies,
@@ -178,6 +178,38 @@ export const CLAY_PRESETS = {
   },
 } as const;
 export type ClayPresetKey = keyof typeof CLAY_PRESETS | "custom";
+
+/*
+ * §16 The bench is a family, not a sextet. When the bench moves, the whole
+ * card system must move with it — faces, shadows, interior wash, ambient
+ * pools — or the site is left with green plates casting violet shadows,
+ * which reads as broken, not themed. These are the engine's card channels
+ * at rest, per mode (clay-engine.css §0 channels, midnight-first); the
+ * twist keeps EACH channel's own lightness and saturation and takes the
+ * bench's hue, so every contrast lock survives the recolor untouched.
+ */
+const CLAY_CARD_BASE: Record<"dark" | "light", Record<string, string>> = {
+  dark: { "--ink-950": "22 15 33", "--ink-900": "30 21 42", "--ink-850": "40 28 52", "--ink-800": "51 36 64" },
+  light: { "--ink-950": "238 232 248", "--ink-900": "247 245 251", "--ink-850": "255 255 255", "--ink-800": "250 248 253" },
+};
+
+const tripletToRgb = (str: string) => {
+  const [r = 255, g = 255, b = 255] = str.trim().split(/\s+/).map(Number);
+  return { r, g, b };
+};
+
+/**
+ * Move `baseTriplet`'s hue toward the bench hue by `blend`, around the
+ * shortest arc, keeping its own saturation (floored so near-neutral foils
+ * still take a whisper of the bench) and lightness. Luminance stays within
+ * the tolerance the contrast floors carry (locks run 12–19:1; the twist
+ * moves less than 15%).
+ */
+export function twistTriplet(baseTriplet: string, toHue: number, blend = 0.72): string {
+  const hsl = rgbToHsl(tripletToRgb(baseTriplet));
+  const delta = ((toHue - hsl.h + 540) % 360) - 180;
+  return triplet(hslToRgb({ h: hsl.h + delta * blend, s: Math.max(hsl.s, 0.16), l: hsl.l }));
+}
 
 const listeners = new Set<() => void>();
 let cached: Studio | null = null;
@@ -609,6 +641,37 @@ export function applyStudioVars(studio: Studio) {
     if (studio.clayAccent) vars["--clay-lavender"] = triplet(pastelGuard(studio.clayAccent));
     if (studio.clayCustom) vars["--plate-custom"] = triplet(pastelGuard(studio.clayCustom));
     else vars["--plate-custom"] = bench["--plate-1"];
+
+    /*
+     * §16 …and the rest of the system follows. A bench that changes the
+     * plates but leaves the faces, shadows, interior wash and ambient pools
+     * violet is half a theme: mint plates casting lavender shadow read as a
+     * stylesheet bug. The effective accent's hue is taken as the family hue,
+     * and from it are derived:
+     *
+     *   --ink-9xx/-8xx  every card face, re-hued to the bench while keeping
+     *                   per-channel lightness, so every contrast lock stands;
+     *   --clay-drop-h   the shadow the edge card and surfaces cast;
+     *   --card-tint-h*  the two hues of the interior wash (§16 of the
+     *                   engine), one bench-true, one analogous +38°;
+     *   --clay-wash     depth of that wash, driven by the tint dial;
+     *   --pool-1..3     the ambient glow behind everything.
+     */
+    const lavTriplet = studio.clayAccent ? pastelGuard(studio.clayAccent) : tripletToRgb(bench["--clay-lavender"]);
+    const { h: benchHue } = rgbToHsl(lavTriplet);
+    for (const [channel, base] of Object.entries(CLAY_CARD_BASE[target])) {
+      vars[channel] = twistTriplet(base, benchHue);
+    }
+    const drop = hslToRgb({ h: benchHue, s: 0.7, l: 0.5 });
+    const whisper = hslToRgb({ h: benchHue, s: 0.55, l: 0.8 });
+    const analogue = hslToRgb({ h: (benchHue + 38) % 360, s: 0.6, l: 0.8 });
+    vars["--clay-drop-h"] = triplet(drop);
+    vars["--card-tint-h"] = triplet(whisper);
+    vars["--card-tint-h2"] = triplet(analogue);
+    vars["--clay-wash"] = (0.12 * studio.tint).toFixed(3);
+    vars["--pool-1"] = `rgb(${triplet(drop)} / ${target === "dark" ? 0.1 : 0.13})`;
+    vars["--pool-2"] = `rgb(${triplet(hslToRgb({ h: (benchHue + 38) % 360, s: 0.7, l: 0.7 }))} / ${target === "dark" ? 0.05 : 0.1})`;
+    vars["--pool-3"] = `rgb(${triplet(hslToRgb({ h: (benchHue + 322) % 360, s: 0.7, l: 0.72 }))} / ${target === "dark" ? 0.045 : 0.09})`;
   }
 
   // Tokens that were not overridden must return to the stylesheet's value, so
