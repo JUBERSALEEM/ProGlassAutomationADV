@@ -239,6 +239,10 @@ namespace ProGlassAutomation.Services.Logging
         public static void Warning(string message, LogContext? context = null)
             => Write(LogLevel.Warning, message, null, context);
 
+        public static void Warning(
+            string message, Exception? ex, LogContext? context = null)
+            => Write(LogLevel.Warning, message, ex, context);
+
         /// <summary>Logs an error; returns its ErrorId for user-facing dialogs.</summary>
         public static string Error(
             string message, Exception? ex = null, LogContext? context = null)
