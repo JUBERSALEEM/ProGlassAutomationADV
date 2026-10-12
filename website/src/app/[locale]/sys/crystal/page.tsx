@@ -300,6 +300,28 @@ export default async function CrystalCatalogPage({ params }: PageProps) {
         </Container>
       </Section>
 
+      {/* ── 6.10 · Glass rows + accordion (§C12) ─────────────────────────── */}
+      <Section aria-labelledby="cat-rows" className="!py-6">
+        <Container>
+          <h2 id="cat-rows" className="card-title mb-4">{t("Glass rows + the accordion (§C12)")}</h2>
+          <div className="glass-rows max-w-md">
+            <details className="glass-row group cursor-pointer" open>
+              <summary className="flex items-center justify-between text-sm font-semibold text-text-primary [&::-webkit-details-marker]:hidden">
+                TITLE #01 GOES HERE
+                <svg viewBox="0 0 12 12" className="h-3 w-3 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M2 4l4 4 4-4" /></svg>
+              </summary>
+              <p className="mt-2 text-xs text-text-secondary">{t("The content opens on lighter fill — the notes reference's accordion.")}</p>
+            </details>
+            <a className="glass-row flex items-center justify-between text-sm text-text-primary" href="#cat-rows">
+              GHI · stock name <span className="font-semibold">1200 <span className="text-xs text-emerald-400">+50.00</span></span>
+            </a>
+            <a className="glass-row flex items-center justify-between text-sm text-text-primary" href="#cat-rows">
+              JKL · stock name <span className="font-semibold">350 <span className="text-xs text-emerald-400">+25.00</span></span>
+            </a>
+          </div>
+        </Container>
+      </Section>
+
       {/* ── 7 · Notes for the reviewer ─────────────────────────────── */}
       <Section aria-labelledby="cat-notes" className="!py-6 pb-14">
         <Container>

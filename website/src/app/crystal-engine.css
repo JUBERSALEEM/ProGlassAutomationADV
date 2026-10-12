@@ -758,3 +758,42 @@
     transform: translateY(-5px) scale(1.04);
   }
 }
+
+/* ═══ §C12 · GLASS ROWS + THE ACCORDION (reference match, phase 4 of 5) ═
+ *
+ * The notes reference stacks accordion headers as translucent pills inside
+ * the pane; the trade reference lists positions as hairline-separated rows
+ * lifted a whisper above the card. Grammar:
+ *   .glass-rows  → the wallet: frosted container (tier-2 fill, ring, seam)
+ *   .glass-row   → the row: hairlines between siblings, hover gathers light,
+ *                  focus-visible takes the family's lip; mode-token fillers
+ *                  keep both readings legible (the contract measures both).
+ */
+[data-appearance="crystal"] .glass-rows {
+  background-color: rgb(var(--ink-900) / var(--glass-rows-fill, 0.34));
+  border-radius: 1rem;
+  box-shadow: 0 0 0 1px var(--glass-ring);
+  overflow: hidden;
+}
+[data-appearance="crystal"] .glass-row {
+  padding: 0.8rem 1.1rem;
+  border-bottom: 1px solid var(--glass-line);
+  background-color: rgb(var(--ink-900) / var(--glass-row-fill, 0.16));
+  transition: background-color 120ms ease;
+}
+[data-appearance="crystal"] .glass-row:last-child {
+  border-bottom: 0;
+}
+[data-appearance="crystal"] .glass-row:hover {
+  background-color: rgb(var(--brand-500) / 0.10);
+}
+[data-appearance="crystal"] .glass-row:focus-visible {
+  outline: 2px solid rgb(var(--brand-400) / 0.6);
+  outline-offset: -2px;
+}
+[data-theme="daylight"][data-appearance="crystal"] .glass-rows {
+  --glass-rows-fill: 0.42;
+}
+[data-theme="daylight"][data-appearance="crystal"] .glass-row {
+  --glass-row-fill: 0.30;
+}
