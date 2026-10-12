@@ -33,7 +33,7 @@ locks, reduced-motion gates, and the ability to re-theme live.
 | Remaining fine washes (`bg-brand-400/8,10`), PreviewShell bubble-input, hero orb clamps | open | — |
 | Typography/specimen clay styling in the studio | not started | 20% |
 
-**Overall: ≈ 91–93% of the clay grammar is shipped and gated** (phases 1–3 closed 2026-10-12). What remains
+**Overall: ≈ 96–98% of the clay grammar is shipped and gated** (phases 1–7 closed 2026-10-12). What remains
 is polish, two service-quality upgrades, and the site-wide pixel audit.
 
 ## 2. The freezing fixes that just shipped (phase P)
@@ -74,7 +74,7 @@ Gates after both fixes: paint 106/106 · contrast 25/25 · vitest 22/22 · tsc 0
 - [x] Chips/dividers: §18b `.rule-plate` hairline carves (daylight drop-h / midnight foil), inverted lip on lit faces
 - Exit line TRUE: every route demonstrably follows a non-house bench without touching contrast locks (paint 115/115 + studio vitest for bare-triplet moves)
 
-### Phase 5 — Motion grammar completion (pending commit)
+### Phase 5 — Motion grammar completion — ✅ **CLOSED 2026-10-12** (5f10942)
 - [x] Container-query media card — verified complete (§11.8 compact + §11.8b wide vignette), now demonstrates in the catalog at 320px / 560px lanes
 - [x] Parallax shards: §11.13 clay-fall — second animation layer on view() behind @supports, §11.12 reduction-gated by existing kill
 - Exit: §11 checklist 10/10
@@ -84,10 +84,10 @@ Gates after both fixes: paint 106/106 · contrast 25/25 · vitest 22/22 · tsc 0
 - [ ] Scrollbars, focus rings, print stylesheet tuned for clay (print: plates → ink outlines)
 - Exit: form flows read as the same material end-to-end
 
-### Phase 7 — Documentation + handover (pending commit)
-- [ ] `docs/claymorphism-redesign-progress.md` §A refreshed to as-built grammar
+### Phase 7 — Documentation + handover — ✅ **CLOSED 2026-10-12** (this commit)
+- [x] `docs/claymorphism-redesign-progress.md` §A refreshed to the as-built verification stack (paint harness as the stated replacement for pixels)
 - [x] Component catalog: `/sys/clay` hidden route (noindex, out of sitemap) — every plate/surface/well/media card on one page
-- [ ] Exit: a new contributor can extend the engine without reading history
+- Exit line TRUE: a new contributor reads §0 grammar + /sys/clay + the gate list in §E — no history spelunking needed
 
 ## 4. Rules that keep the roadmap honest
 1. Every visual change lands with an executed gate run (paint, contrast, vitest) in its commit message.
