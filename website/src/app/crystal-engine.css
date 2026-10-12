@@ -727,3 +727,34 @@
     inset 0 1px 1px 0 rgb(255 255 255 / 0.35),
     inset 0 -3px 6px -4px var(--glass-fab-depth);
 }
+
+/* ═══ §C11 · THE DOCKED DISC (reference match, phase 3 of 5) ════════════
+ *
+ * The pink reference's most-copied silhouette: the frosted bottom bar
+ * holds an accent disc that breaks its top edge and casts the family's
+ * halo UPWARD onto the bar. Grammar is additive to §C8: the disc keeps
+ * its facets; the dock changes the seating.
+ *   .glass-bar.dock        → the bar makes room (it is the disc's seat)
+ *   .glass-fab.is-docked   → the disc rises out of the bar
+ * Hover: the disc floats higher; rest, it settles back. Motion gated.
+ */
+[data-appearance="crystal"] .glass-bar.dock {
+  overflow: visible;
+}
+[data-appearance="crystal"] .glass-fab.is-docked {
+  margin-top: -2.1rem;
+  margin-bottom: 0.45rem;
+  box-shadow:
+    0 18px 38px -12px var(--glass-fab-glow),
+    0 0 0 1px rgb(255 255 255 / 0.18),
+    inset 0 2px 3px 0 rgb(255 255 255 / 0.42),
+    inset 0 -5px 8px -3px var(--glass-fab-depth);
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-appearance="crystal"] .glass-fab.is-docked {
+    transition: transform 180ms cubic-bezier(0.2, 0.9, 0.3, 1.4), box-shadow 180ms ease;
+  }
+  [data-appearance="crystal"] .glass-fab.is-docked:hover {
+    transform: translateY(-5px) scale(1.04);
+  }
+}

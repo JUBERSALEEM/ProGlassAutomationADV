@@ -283,6 +283,23 @@ export default async function CrystalCatalogPage({ params }: PageProps) {
         </Container>
       </Section>
 
+      {/* ── 6.9 · The docked disc (§C11) ─────────────────────────────────── */}
+      <Section aria-labelledby="cat-dock" className="!py-6">
+        <Container>
+          <h2 id="cat-dock" className="card-title mb-4">{t("The docked disc — the bar's seat (§C11)")}</h2>
+          <div className="glass-bar dock mx-auto flex max-w-sm items-end justify-around px-8 py-3">
+            <span className="pb-1 text-xs text-text-muted">⌂</span>
+            <span className="pb-1 text-xs text-text-muted">◷</span>
+            <button type="button" className="glass-fab is-docked grid h-14 w-14 place-items-center" aria-label={t("Demo docked action")}>
+              <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M10 4a2.5 2.5 0 0 1 2.5 2.5v3a2.5 2.5 0 0 1-5 0v-3A2.5 2.5 0 0 1 10 4Zm-5 5a5 5 0 0 0 10 0M10 14v3" /></svg>
+            </button>
+            <span className="pb-1 text-xs text-text-muted">⚡</span>
+            <span className="pb-1 text-xs text-text-muted">☺</span>
+          </div>
+          <p className="mt-3 text-center text-sm text-text-secondary">{t("The disc breaks the bar's top edge and casts the family's halo upward — the mic-button grammar.")}</p>
+        </Container>
+      </Section>
+
       {/* ── 7 · Notes for the reviewer ─────────────────────────────── */}
       <Section aria-labelledby="cat-notes" className="!py-6 pb-14">
         <Container>
