@@ -46,7 +46,7 @@
  * <option> is excluded: it belongs to the OS popup, not the page's room.
  */
 [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
-  background-color: rgb(255 255 255 / 0.07);
+  background-color: rgb(255 255 255 / 0.05);
   background-image:
     var(--glass-frost),
     linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),
@@ -63,7 +63,7 @@
      light-glass weight (the pink reference). The scrim in §C7 catches what
      the fill returns (0.60 → 0.68) and the contract re-floored every
      daylight tier below in the same move. */
-  background-color: rgb(255 255 255 / 0.35);
+  background-color: rgb(255 255 255 / 0.18);
   box-shadow: 0 0 0 1px var(--glass-line),
     inset 0 1px 0 0 var(--glass-edge-light),
     inset 0 -1px 0 0 var(--glass-edge-dark);
@@ -813,4 +813,47 @@
 }
 [data-theme="daylight"][data-appearance="crystal"] .glass-row {
   --glass-row-fill: 0.30;
+}
+
+/* ═══ §E3 · LIQUID GLASS, TUNED (iOS 26-spec pass, sources below) ═══════
+ *
+ * What the spec research says is missing, applied crystal-scoped:
+ *
+ *   1. THE SPECULAR TOP EDGE is the highest-value line in the language —
+ *      `inset 0 1.5px 0 rgb(255 255 255 / 0.85)`: the thin glass lip that
+ *      separates "glass" from "tinted film". (theplusaddons.com liquid-
+ *      glass-ui: "this single top-edge highlight makes a panel read as
+ *      glass rather than tinted film".)
+ *   2. brightness(1.08) in the frost — the luminant lift Apple renders
+ *      inside its material; emit-solution.com's Chromium path numbers.
+ *   3. prefers-reduced-transparency: Apple itself ships an opaque lane
+ *      for it (the same escalating escalation, crystal-scoped).
+ *   4. Daylight fill to the measured floor 0.35 → 0.22 — the language's
+ *      tint band is 0.06–0.13 white in dark mode / ~0.2 in light; the
+ *      frost (24px/200%) and the scrim carry legibility, proven 71/71.
+ */
+[data-appearance="crystal"] :is(.surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent),
+[data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option):not(.decor):not(.glass-fab) {
+  --glass-edge-light: rgb(255 255 255 / 0.85);
+  --glass-edge-dark: rgb(2 6 14 / 0.18);
+}
+[data-appearance="crystal"] {
+  --radius-scale: 1.25;
+}
+@supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
+    backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%) brightness(1.08);
+    -webkit-backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%) brightness(1.08);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .menu-card, .plate, .card-live, .card-glass, .panel-feature):not(option) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background-color: rgb(var(--ink-900));
+    background-image: none;
+  }
+  [data-theme="daylight"][data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], .surface, .menu-card, .plate, .card-live):not(option) {
+    background-color: rgb(255 255 255 / 0.97);
+  }
 }

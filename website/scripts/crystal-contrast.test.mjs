@@ -256,13 +256,26 @@ const LIFT_ALPHA = {
      this pair. (§C7 pass: midnight lift 0.66 → 0.50 with scrim 0.34 → 0.42
      — pattern fill weight; daylight unchanged: its glassiness comes from
      the pastel wall, the 0.80 doctrine holds.) */
-  mainline: { midnight: 0.07, daylight: 0.35 },  // §E2: iOS liquid-glass band (clear + deep frost)
+  mainline: { midnight: 0.05, daylight: 0.18 },  // §E3: spec floor — measured, still ≥4.5
   fallback: { midnight: 0.94, daylight: 0.97 },
 };
 const buildLift = (lane, mode) => {
   const fam = sheet(lane, mode);
   const ink = triplet(modeSheet[mode]["--ink-900"], `${mode} --ink-900`);
   const layers = [[...ink, LIFT_ALPHA[lane][mode]]];
+
+/* §E3-G · the map is the engine's own floor: the LIFT_ALPHA constants must
+   equal the fills the engine file ships (parse the two §C1 lanes and force
+   a sync — a model describing yesterday's file proves nothing). */
+{
+  const mid = /\n  background-color: rgb\(255 255 255 \/ (0\.0?\d)\);/.exec(engineCss);
+  const day = /\n  background-color: rgb\(255 255 255 \/ (0\.\d\d)\);/g;
+  let m; const vals = [];
+  while ((m = day.exec(engineCss)) !== null) vals.push(m[1]);
+  assert.ok(mid, "G§E3: midnight §C1 white-tint lane not found in the engine file");
+  assert.equal(parseFloat(mid[1]), LIFT_ALPHA.mainline.midnight, "map/file drift: midnight");
+  assert.ok(vals.includes(String(LIFT_ALPHA.mainline.daylight)), "map/file drift: daylight");
+}
   layers.push(rgba(fam["--glass-scrim"], `${lane} ${mode} --glass-scrim`));
   return layers;
 };
