@@ -135,6 +135,16 @@
    the same defect. This file only re-states chip-and-pill ink that is
    crystal-material — none. §C1 leaves text alone, always. */
 
+/* Stat tiles at midnight: the §C1 lift is 0.05 white over the wallpaper,
+   so a bright pool behind the tile (mint, lemon, peach) lightens the text
+   field until the white figure washes out — the merged, glowing column of
+   the 17:21 witness. Tiles are reading surfaces, not panes: at midnight
+   they take a solid ink fill and keep the §C1 ring/edges for separation.
+   Daylight is untouched (its lift already reads as paper). */
+html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
+  background-color: rgb(var(--ink-900) / 0.72);
+}
+
 /* §C2f · wells without blur: same rise as the lift. */
 @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
   [data-appearance="crystal"] :is(input, textarea, select)[class*="bg-ink-"],
@@ -973,7 +983,7 @@
  */
 @media (prefers-reduced-motion: no-preference) {
   [data-appearance="crystal"] :is(.surface, .surface-raised, .stat-tile, .menu-card, .plate, .float-card, .card-live, .card-glass, .panel-feature, .chip) {
-    transition: transform 140ms cubic-bezier(0.3, 0.1, 0.4, 1.4), box-shadow 140ms ease;
+    transition: transform var(--dur-press) var(--ease-spring), box-shadow var(--dur-press) ease;
   }
   [data-appearance="crystal"] :is(.surface, .surface-raised, .stat-tile, .menu-card, .plate, .float-card, .card-live, .card-glass, .panel-feature, .chip):active {
     transform: scale(0.985) translateY(1px);

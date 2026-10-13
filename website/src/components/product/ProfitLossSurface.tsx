@@ -257,16 +257,16 @@ export function ProfitLossSurface({
 
           <div className="mt-2 grid gap-2 lg:grid-cols-3">
             <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
-              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Required target price")}</p>
+              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-muted font-medium">{t("Required target price")}</p>
               <p className="mt-1 text-[1.0625rem] font-semibold tabular-nums text-text-primary">
                 AED {cash(totals.requiredPerSqm)} <span className="text-[0.75rem] font-medium text-text-muted">/ m²</span>
               </p>
               <p className="mt-1 text-[0.6875rem] leading-snug text-text-muted font-medium">{t("Base price (no uplift) AED {v1} / m² → AED {v2} across the job.", { v1: cash(totals.basePricePerSqm), v2: cash(totals.required) })}</p>
-              <p className="mt-1 text-[0.6875rem] leading-snug text-text-faint font-medium">{t("Basis · area-weighted across specifications")}</p>
+              <p className="mt-1 text-[0.6875rem] leading-snug text-text-muted font-medium">{t("Basis · area-weighted across specifications")}</p>
             </div>
 
             <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
-              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Expected profit margin")}</p>
+              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-muted font-medium">{t("Expected profit margin")}</p>
               <div className="mt-1 flex items-baseline gap-2">
                 <input
                   type="number"
@@ -281,7 +281,7 @@ export function ProfitLossSurface({
                 <span className="font-mono text-[0.75rem] text-text-muted">×{(1 + target / 100).toFixed(2)}</span>
               </div>
               <p className="mt-1 text-[0.6875rem] leading-snug text-text-muted font-medium">{t("Uplift applied to the cost basis.")}</p>
-              <p className="mt-1 text-[0.6875rem] leading-snug text-text-faint font-medium">
+              <p className="mt-1 text-[0.6875rem] leading-snug text-text-muted font-medium">
                 Source · Step 9 pricing defaults{target === 15 ? " (the application's fresh-install value)" : " (changed in this preview)"}
               </p>
             </div>
@@ -292,7 +292,7 @@ export function ProfitLossSurface({
                 totals.aboveTarget ? "border-money-positive/45 bg-money-positive/8" : "border-amber-400/45 bg-amber-400/8",
               )}
             >
-              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Price balance — base / target")}</p>
+              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-muted font-medium">{t("Price balance — base / target")}</p>
               <p
                 className={cn(
                   "mt-1 text-[1.0625rem] font-semibold",
@@ -305,7 +305,7 @@ export function ProfitLossSurface({
                 Given AED {cash(totals.revenue)} against a required AED {cash(totals.required)} — {totals.aboveTarget ? "surplus" : "shortfall"} AED{" "}
                 {cash(Math.abs(totals.difference))}.
               </p>
-              <p className="mt-1 text-[0.6875rem] leading-snug text-text-faint font-medium">
+              <p className="mt-1 text-[0.6875rem] leading-snug text-text-muted font-medium">
                 {pnl.givenPriceSource} · margin against target {fmtPct(totals.marginVsTarget)}
               </p>
             </div>
@@ -341,7 +341,7 @@ export function ProfitLossSurface({
           <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">{t("5 · Result — base and target balance")}</p>
           <div className="mt-2 grid gap-2 sm:grid-cols-3">
             <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
-              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Status")}</p>
+              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-muted font-medium">{t("Status")}</p>
               <p
                 className={cn(
                   "mt-1 inline-flex rounded-full border px-2 py-0.5 font-mono text-3xs uppercase tracking-[0.08em] font-semibold",

@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
  *
  * Three components, and they exist because the site needed one card system
  * rather than a fifth way to draw a box. Everything here is a thin shell over
- * the classes in `globals.css` — `glass-primary`, `surface-raised`, `surface`,
+ * the classes in `globals.css` — `surface-raised`, `surface`,
  * `glass-metric` — so a page composes a layout out of them, and the appearance
  * family decides what they are made of. Studio renders them as the product's
  * own flat cards; Crystal renders the same markup as layered glass. Nothing in
@@ -20,7 +20,7 @@ import { cn } from "@/lib/cn";
 type GlassTier = "primary" | "raised" | "card";
 
 const tierClass: Record<GlassTier, string> = {
-  primary: "glass-primary",
+  primary: "surface-raised",
   raised: "surface-raised",
   card: "surface",
 };
@@ -44,7 +44,8 @@ export type GlassCardHead = {
  * `tier="primary"` is the one card per section that carries the section's
  * subject — it is larger, more lit, and it is where the metrics and the way in
  * go. `tier="raised"` is an elevated panel; `tier="card"` is a normal card of
- * content. Use one primary card per section, and let the related cards below it
+ * content; `tier="floating"` is a small panel overlapping artwork or another
+ * surface. Use one primary card per section, and let the related cards below it
  * be quieter: a page where every card is the primary card has no hierarchy at
  * all, which is the problem this system exists to solve.
  */
@@ -81,7 +82,7 @@ export function GlassCard({
       {head ? (
         <div
           className={cn(
-            "glass-primary-head flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6",
+            "flex flex-col gap-3 border-b border-line/60 sm:flex-row sm:items-start sm:justify-between sm:gap-6",
             /* The header rule is the boundary between the card's title and its
                body; with no body it would be a line drawn under nothing. */
             children ? "pb-5" : "border-b-0",

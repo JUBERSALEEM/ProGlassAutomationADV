@@ -336,6 +336,26 @@
 
     /* Corner rounding, scaled live by the appearance studio. */
     --radius-scale: 1;
+
+    /* ── Motion ──────────────────────────────────────────────────────────
+       The canonical duration/easing scale (Phase 2, WEBSITE_DESIGN_SYSTEM.md).
+       Values are the site's de-facto grammar, named once so new motion never
+       invents a private number: press 140 · hover 200 · card 220/280 ·
+       theme cross-fade 260 · reveals 380/340 · settle 550. Easings mirror
+       tailwind.config (industrial = standard, reveal = out) plus the one
+       spring the liquid press already uses. Families never override these;
+       reduced-motion handling stays in the media-query gates, not here. */
+    --dur-press: 140ms;
+    --dur-hover: 200ms;
+    --dur-card: 220ms;
+    --dur-lift: 280ms;
+    --dur-theme: 260ms;
+    --dur-reveal: 380ms;
+    --dur-reveal-scale: 340ms;
+    --dur-settle: 550ms;
+    --ease-standard: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-spring: cubic-bezier(0.3, 0.1, 0.4, 1.4);
   }
 
   [data-theme="daylight"] {
@@ -1669,10 +1689,10 @@
   html[data-theme-switch="on"] .btn-primary,
   html[data-theme-switch="on"] .btn-secondary {
     transition:
-      background-color 260ms ease,
-      border-color 260ms ease,
-      color 260ms ease,
-      box-shadow 260ms ease;
+      background-color var(--dur-theme) ease,
+      border-color var(--dur-theme) ease,
+      color var(--dur-theme) ease,
+      box-shadow var(--dur-theme) ease;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1991,9 +2011,9 @@
    * desktop app does not move a card under the cursor, and neither does this. */
   .card-interactive {
     transition:
-      border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      border-color var(--dur-card) var(--ease-out),
+      box-shadow var(--dur-card) var(--ease-out),
+      transform var(--dur-lift) var(--ease-out);
   }
 
   /* The lift is a pointer cue, not content: it waits for a motion-safe world. */
@@ -2392,8 +2412,8 @@
     opacity: 0;
     transform: translate3d(0, 12px, 0);
     transition:
-      opacity 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity var(--dur-reveal) var(--ease-out),
+      transform var(--dur-reveal) var(--ease-out);
     will-change: opacity, transform;
   }
 
@@ -2407,8 +2427,8 @@
     opacity: 0;
     transform: scale(0.975);
     transition:
-      opacity 0.34s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity var(--dur-reveal-scale) var(--ease-out),
+      transform var(--dur-reveal-scale) var(--ease-out);
     will-change: opacity, transform;
   }
 

@@ -54,6 +54,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
       description={t("One job, inquiry to statement, without re-keying — the ProGlass workflow, stage by stage.")}
     />
       <PageHero
+        variant="showcase"
       t={t}
         glyph={footerIconFor("/how-it-works")!}
         eyebrow={t("How it works")}
@@ -100,15 +101,12 @@ export default async function HowItWorksPage({ params }: PageProps) {
               <div className="surface p-5">
                 <p className="eyebrow mb-4">{t("At a glance")}</p>
                 <ol className="space-y-1.5">
-                  {businessChain.map((stage, stageIndex) => (
+                  {businessChain.map((stage) => (
                     <li key={stage.id}>
                       <a
                         href={`#stage-${stage.id}`}
                         className={cn(
                           "group flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors duration-200 hover:bg-ink-850/70",
-                          /* The bench walks the row — nine steps, six plates,
-                             the colors repeat the way the chain repeats. */
-                          `plate-${(stageIndex % 6) + 1}`,
                         )}
                       >
                         <span className="font-mono text-2xs tabular-nums text-text-faint font-medium">{stage.index}</span>
@@ -462,7 +460,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("Walk the chain on your own job.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("We will take one real quotation from inquiry through to statement, including the cutting plan and the margin it produced.")}</p>

@@ -72,6 +72,7 @@ export default async function OptimizationPage({ params }: PageProps) {
       description={t("Guillotine nesting for glass: safety edges, kerf, cut-sequence verification, machine-ready exports.")}
     />
       <PageHero
+        variant="showcase"
       t={t}
         glyph={footerIconFor("/optimization")!}
         eyebrow={t("Optimization")}
@@ -257,7 +258,7 @@ export default async function OptimizationPage({ params }: PageProps) {
                   <div className="flex items-center justify-between gap-3">
                     <h3 className="font-mono text-sm font-semibold tracking-wide text-text-primary">
                       {t(item.name)}
-                      <span className="text-text-faint"> {item.ext}</span>
+                      <span className="text-text-muted"> {item.ext}</span>
                     </h3>
                     <Badge tone={item.ready ? "success" : "warning"}>
                       {item.ready ? t("Written today") : t("Awaiting your sample")}
@@ -597,7 +598,7 @@ export default async function OptimizationPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("Send us a cutting list.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration is most useful when it runs on your glass, your sheet sizes and your margins — not on a sample project. Bring a job you recognise.")}</p>
@@ -621,7 +622,7 @@ export default async function OptimizationPage({ params }: PageProps) {
 
 function EnginePipeline({ t }: { t: Translator }) {
   return (
-    <div className="plate sticky top-28 p-6">
+    <div className="surface-raised sticky top-28 p-6">
       <p className="mono-label">{t("How a run is produced")}</p>
       <ol className="mt-5">
         {enginePipeline.map((stage, index) => (

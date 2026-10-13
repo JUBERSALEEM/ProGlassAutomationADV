@@ -45,6 +45,7 @@ export default async function PricingPage({ params }: PageProps) {
       description={t("ProGlass Automation editions — Trial, Basic, Business, Factory and Enterprise: which modules each tier unlocks, and how offline licensing works.")}
     />
       <PageHero
+        variant="showcase"
       t={t}
         glyph={footerIconFor("/pricing")!}
         eyebrow={t("Pricing")}
@@ -77,7 +78,7 @@ export default async function PricingPage({ params }: PageProps) {
       <Section aria-label={t("How pricing works")}>
         <Container>
           <Reveal>
-            <div className="glass-primary grid gap-6 p-6 sm:grid-cols-3 sm:p-8">
+            <div className="surface-raised grid gap-6 p-6 sm:grid-cols-3 sm:p-8">
               <div className="sm:col-span-2">
                 <h2 className="display-3">{t("There is no price on this page, and that is deliberate.")}</h2>
                 <p className="mt-4 text-sm leading-relaxed text-text-muted">{t("ProGlass is sold to glass businesses with different shapes: a single estimator, a five-person office, or a factory running eight production stages. What you need ranges from the proforma wizard alone to the full chain plus the cutting-optimization engine. Quoting one number for all of those would mean either overcharging the first or underdelivering the last.")}</p>
@@ -322,7 +323,7 @@ export default async function PricingPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request pricing")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("Tell us what you need, and get a number.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("How many people, which modules, and whether the cutting table is part of it. Every request is answered by a person.")}</p>

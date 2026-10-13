@@ -49,6 +49,7 @@ export default async function BlogPage({ params }: PageProps) {
       items={posts.map((post) => ({ name: post.title, url: `${site.url}/blog/${post.slug}` }))}
     />
       <PageHero
+        variant="document"
       t={t}
         glyph={footerIconFor("/blog")!}
         eyebrow={t("Blog")}
@@ -85,7 +86,7 @@ export default async function BlogPage({ params }: PageProps) {
             <Reveal delay={80} className="mt-8">
               <Link
                 href={`/blog/${lead.slug}`}
-                className="plate group block p-6 transition-colors duration-300 hover:border-brand-400/40 sm:p-8"
+                className="surface-raised group block p-6 transition-colors duration-300 hover:border-brand-400/40 sm:p-8"
               >
                 <div className="flex flex-wrap items-center gap-3">
                   <Badge tone="accent">{t(lead.category)}</Badge>
@@ -162,7 +163,7 @@ export default async function BlogPage({ params }: PageProps) {
       <Section aria-label={t("Explore the product")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("Reading about it is not the same as seeing it.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">

@@ -877,7 +877,7 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
           const ready = done >= 1;
           const label = row.job || row.piece || row.ref || `Row ${index + 1}`;
           return (
-            <div role="listitem" key={`${id}-${index}`} className="card-live p-2.5">
+            <div role="listitem" key={`${id}-${index}`} className="surface p-2.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="min-w-0">
                   <p className="truncate text-[0.75rem] font-semibold text-text-primary">
@@ -1232,7 +1232,7 @@ function DashboardEngine({
 
       <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {summary.map((item, index) => (
-          <div key={`${t(item.label)}-${index}`} className="stat-tile p-2.5">
+          <div key={`${t(item.label)}-${index}`} className="surface-raised p-2.5">
             <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t(item.label)}</dt>
             <dd className="mt-1 text-[0.8125rem] font-semibold leading-snug text-text-primary">{t(item.value)}</dd>
           </div>
@@ -1361,7 +1361,7 @@ function AppearanceDeck() {
   ] as const;
 
   return (
-    <div className="card-accent p-3">
+    <div className="surface-raised p-3">
       <p className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-brand-200">{t("Live · changes this site")}</p>
       <p className="mt-1.5 text-[0.75rem] leading-relaxed text-text-secondary">{t("These are the application's four families. Pressing one re-themes this page, which is exactly what it does to the application.")}</p>
       <div className="mt-3 flex flex-wrap gap-1.5">

@@ -24,6 +24,7 @@ export function PageHero({
   glyph,
   children,
   align = "left",
+  variant = "editorial",
 }: {
   /** The page's translator — this component renders on the server. */
   t: Translator;
@@ -45,8 +46,18 @@ export function PageHero({
   /** Left is the editorial composition (title left, facts right). Centre is
      the document page: everything on the middle axis of the shell. */
   align?: "left" | "center";
+  /**
+   * Per-route hierarchy (Gate G-C, Phase 3). `editorial` is the default
+   * opening (title left, facts right). `document` centres a narrow reading
+   * column (blog, resources). `showcase` gives product-led routes the full
+   * row for the title, then lays the facts out as a strip beneath it
+   * (features, optimization, screenshots) — same primitives, different
+   * rhythm, so routes stop reading as the same page with different words.
+   */
+  variant?: "editorial" | "document" | "showcase";
 }) {
-  const centred = align === "center";
+  const centred = align === "center" || variant === "document";
+  const showcase = variant === "showcase";
   return (
     <section className="relative overflow-hidden border-b border-line/60 pb-14 pt-12 sm:pb-16 sm:pt-16 lg:pb-20 lg:pt-20">
       {/*
@@ -96,12 +107,12 @@ export function PageHero({
 
         <div
           className={
-            centred
+            centred || showcase
               ? "grid gap-10"
               : "grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-end lg:gap-14"
           }
         >
-          <div className={centred ? "mx-auto max-w-3xl text-center" : undefined}>
+          <div className={centred ? "mx-auto max-w-3xl text-center" : showcase ? "max-w-3xl" : undefined}>
             <Reveal>
               <p className="eyebrow-chip mb-5 inline-flex items-center gap-2">
                 {glyph ? <Icon path={glyph} className="!h-3.5 !w-3.5" /> : null}
@@ -122,8 +133,8 @@ export function PageHero({
           </div>
 
           {meta ? (
-            <Reveal delay={140}>
-              <dl className={`grid gap-4${centred ? " mx-auto max-w-2xl grid-cols-2" : " grid-cols-2"}`}>
+            <Reveal delay={140} className={showcase ? "lg:col-span-full" : undefined}>
+              <dl className={`grid gap-4${centred ? " mx-auto max-w-2xl grid-cols-2" : showcase ? " grid-cols-2 lg:grid-cols-4" : " grid-cols-2"}`}>
                 {meta.map((item) => (
                   /* The page's own facts, in the site's surface system: on
                      Crystal these are small panes of glass beside the title,

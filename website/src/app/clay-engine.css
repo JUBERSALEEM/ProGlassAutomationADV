@@ -295,32 +295,32 @@
 [data-appearance="clay"] .stat-tile:nth-child(4n+1) {
   background-color: rgb(var(--rot-1));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.3),
-    -7px -7px 18px rgb(255 255 255 / 0.85),
+  box-shadow: 8px 8px 14px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.2),
+    -7px -7px 18px rgb(255 255 255 / 0.5),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.25);
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+2) {
   background-color: rgb(var(--rot-2));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.3),
-    -7px -7px 18px rgb(255 255 255 / 0.85),
+  box-shadow: 8px 8px 14px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.2),
+    -7px -7px 18px rgb(255 255 255 / 0.5),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.25);
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+3) {
   background-color: rgb(var(--rot-3));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.3),
-    -7px -7px 18px rgb(255 255 255 / 0.85),
+  box-shadow: 8px 8px 14px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.2),
+    -7px -7px 18px rgb(255 255 255 / 0.5),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.25);
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+4) {
   background-color: rgb(var(--rot-4));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.3),
-    -7px -7px 18px rgb(255 255 255 / 0.85),
+  box-shadow: 8px 8px 14px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.2),
+    -7px -7px 18px rgb(255 255 255 / 0.5),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.25);
 }
@@ -338,22 +338,22 @@
    and their violet inset literal moves to the P13 band-glow token
    (accent-aware under a pick, byte-identical at house). */
 html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+1) {
-  box-shadow: 8px 8px 20px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.16),
+  box-shadow: 8px 8px 14px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.12),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.18);
 }
 html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+2) {
-  box-shadow: 8px 8px 20px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.16),
+  box-shadow: 8px 8px 14px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.12),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.18);
 }
 html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+3) {
-  box-shadow: 8px 8px 20px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.16),
+  box-shadow: 8px 8px 14px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.12),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.18);
 }
 html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+4) {
-  box-shadow: 8px 8px 20px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.16),
+  box-shadow: 8px 8px 14px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.12),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.18);
 }
@@ -652,6 +652,22 @@ html[data-theme="midnight"][data-appearance="clay"] .nav-glass [class*="bg-ink"]
   --text-2: 238 234 252;
   --text-3: 215 208 241;
   --text-4: 194 185 226;
+}
+
+/* §7.4b Daylight card ink. The global daylight --text-4 (107 96 120) is
+   measured on ivory; on clay's lilac card faces it falls to 3.6:1, and the
+   warning state lands at 4.4:1. Cards therefore take the deep plum the
+   .glass-primary lock already uses, with the warning state deepened to
+   match. Midnight is untouched: its pale tiers are correct on plum. */
+html[data-theme="daylight"][data-appearance="clay"] :is(.surface, .surface-raised),
+html[data-theme="daylight"][data-appearance="clay"] :is(.nav-glass, .band-deep) :is(.surface, .surface-raised) {
+  --text-4: 66 59 92;
+}
+html[data-theme="daylight"][data-appearance="clay"] :is(.surface, .surface-raised) .text-state-warning {
+  color: rgb(122 48 8);
+}
+html[data-theme="daylight"][data-appearance="clay"] :is(.surface, .surface-raised) .text-state-danger {
+  color: rgb(127 14 44);
 }
 
 
@@ -2598,3 +2614,19 @@ html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-r
 
 
 
+
+/* § chip & badge ink — small pills are not card foils. The app-icon tiles
+   are plum-inked pastel (§2 sets their ink), and the generic brand-wash
+   ink rule above must not whiten them. State badges likewise keep their
+   own state wash: the [class*=bg-state-*] foil rules repaint large
+   callout carriers in lemon/rose, which swallows a badge's 22% wash
+   whole — amber on lemon measured 1.0:1 at midnight. */
+[data-appearance="clay"] .icon-chip[class*="text-brand-"],
+[data-appearance="clay"] .index-chip[class*="text-brand-"] {
+  color: rgb(var(--clay-ink));
+}
+html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state-warning"],
+html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state-success"],
+html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state-danger"] {
+  background-color: rgb(var(--clay-ink) / 0.92);
+}

@@ -151,7 +151,7 @@ export function AppFrame({
   tall?: boolean;
 }) {
   return (
-    <figure className={cn("plate shadow-raised", className)}>
+    <figure className={cn("surface-raised", className)}>
       {/* ── Window chrome ─────────────────────────────────────────── */}
       <div className="app-chrome flex items-center justify-between gap-3 border-b border-line/70 bg-ink-900/85 px-3 py-2 sm:px-4">
         <div className="flex items-center gap-2.5">

@@ -36,7 +36,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-3xs font-bold uppercase tracking-[0.1em]",
+        "badge-pill inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-3xs font-bold uppercase tracking-[0.1em]",
         tones[tone],
         className,
       )}
@@ -58,7 +58,7 @@ export function IndexChip({ children, className }: { children: ReactNode; classN
          * mark, where an outlined box with the same type reads as a button that
          * does not work.
          */
-        "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.6rem] border border-brand-500/45 bg-brand-600/25 font-mono text-xs font-bold text-brand-200 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.08)]",
+        "index-chip inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.6rem] border border-brand-500/45 bg-brand-600/25 font-mono text-xs font-bold text-brand-200 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.08)]",
         className,
       )}
     >

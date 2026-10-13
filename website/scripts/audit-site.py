@@ -95,13 +95,13 @@ BUDGET = {
     "/": {"gz": 107, "nodes": 4400},            # measured 103.2K / 4170 (+73 nodes: footer icon tiles)
     "/features": {"gz": 95, "nodes": 4900},     # re-measured 92.2K / 4828 after the global centring passes (256cfd4 onward); baseline 88.7K / 4608 (+73 nodes: footer icons) predates them
     "/optimization": {"gz": 61, "nodes": 2400},  # measured 58.4K / 2259 (+73 nodes: footer icons)
-    "/how-it-works": {"gz": 57, "nodes": 2100},  # measured 54.9K / 1957 (+72 nodes: footer icons)
+    "/how-it-works": {"gz": 58, "nodes": 2100},  # measured 54.9K / 1957 (+72 nodes: footer icons); 57.1K after Phase 5 showcase hero (+0.1K class tokens, 2026-10-13)
     "/screenshots": {"gz": 39, "nodes": 1400},   # §E: PageHero ornaments (+3 spans/page) measured 38.2K (was 33.9K / 1189; 69.1K / 9198 pre-diet)
     "/worked-example": {"gz": 59, "nodes": 1800},  # measured 55.8K / 1711 (+73 nodes: footer icons)
     "/sponsors": {"gz": 41, "nodes": 950},       # measured 38.8K / 870 (+73 nodes: footer icons)
     "/pricing": {"gz": 40, "nodes": 980},     # measured 36.8K / 901 (+75 nodes: footer icons)
     "/developer": {"gz": 62, "nodes": 1450},     # measured 59.2K / 1331 (+73 nodes: footer icons)
-    "/collaborate": {"gz": 42, "nodes": 980},   # measured 39.6K / 918 (+75 nodes: footer icons)
+    "/collaborate": {"gz": 43, "nodes": 980},   # measured 39.6K / 918 (+75 nodes: footer icons); 42.0K after Phase 5 document hero (+0.1K class tokens, 2026-10-13)
 }
 BUDGET_DEFAULT = {"gz": 39, "nodes": 800}
 
@@ -134,7 +134,13 @@ BLUR_BUDGET = 600      # was 37 (post footer-icon); the hygiene-v2 boot migratio
 # css was 28; the clay engine + primitives added a full utility-floor layer:
 # measured 27.0 → 27.9 (engine, 3f61ffe) → 28.2 (primitives). Ceilings move
 # only with their measurement trail, never silently.
-ASSET_BUDGET = {"js_gz": 540, "css_gz": 39}
+# js_gz: 540 → 560 with Phase 3 (owner Gate G-B, 2026-10-13): motion/react
+#   14.2 enters for the hero sequence, ModuleBrowser layout transitions and
+#   the PlateInspector sheet-focus transition. Measured at introduction:
+#   total emitted JS 493.6K → 543.9K gz (+50.3K, the shared motion chunk);
+#   homepage first-load 304.1K → 352.3K (budget 360K, 7.7K headroom left).
+#   The LazyMotion/m diet is logged as a Phase 7 candidate, not assumed.
+ASSET_BUDGET = {"js_gz": 560, "css_gz": 39}
 # css_gz: 31 → 34 with the clay plate-bench trail (§13–§17 of
 #   the engine), → 35.5 with the phase-5/6 additions (§18 noria,
 #   §18b rule carves, §19 chrome & forms, §11.8b wide vignette,

@@ -43,7 +43,7 @@ export function ModuleShowcase({
           <Reveal key={module.id} as="article" className="scroll-mt-28">
             <div id={`showcase-${module.id}`} className="surface-raised scroll-mt-28 card-pad">
               {/* The card's own heading: number, rail group, name. */}
-              <div className="glass-primary-head flex flex-wrap items-center gap-3 pb-5">
+              <div className="flex flex-wrap items-center gap-3 border-b border-line/60 pb-5">
                 <IndexChip>{module.number}</IndexChip>
                 <div className="min-w-0">
                   <p className="eyebrow">{module.railGroup}</p>
@@ -75,7 +75,7 @@ export function ModuleShowcase({
 
                 <div className={cn("min-w-0", flip && "lg:order-1")}>
                   {module.illustration ? (
-                    <figure className="plate overflow-hidden">
+                    <figure className="surface-raised overflow-hidden">
                       <div className="relative aspect-[3/2] w-full">
                         <Image
                           src={module.illustration.src}
@@ -117,7 +117,7 @@ function ModulePanel({
   module: ProductModule
 }) {
   return (
-    <div className="plate p-4 sm:p-5">
+    <div className="surface-raised p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="inline-flex items-center gap-2.5 rounded-full border border-line-strong/70 bg-ink-900/70 px-3 py-1.5">
           <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand-400" />
@@ -129,7 +129,7 @@ function ModulePanel({
         <span className="font-mono text-2xs text-brand-300">{module.moduleKey}</span>
       </div>
 
-      <div className="card-live mt-4 p-3.5 sm:p-4">
+      <div className="surface mt-4 p-3.5 sm:p-4">
         <LiveSurface
           moduleKey={module.moduleKey}
           name={t(module.name)}
