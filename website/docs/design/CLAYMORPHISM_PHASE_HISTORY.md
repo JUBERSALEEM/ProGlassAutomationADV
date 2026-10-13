@@ -37,3 +37,11 @@
 - Deliverable: scripts/color-liter-audit.mjs (repeatable; exit 1 on any unresolved item). Two guards: (1) malformed shadow-item syntax (the P05 regression class: color var glued to a bare rgb() or missing geometry); (2) every #rrggbb literal classified into token-declaration / registry-data (plates, money defaults, brushes, swatch sheets, studio picks) / documented-exceptions (print stylesheet paper grade, OG image SVG, brand specular stops) / inline dynamic styles.
 - Result on full src scan: 25 token-decl · 67 registry · 19 documented · 4 inline-dynamic · **0 unresolved** (it did catch 119 raw hexes on first pass, of which ~100 were color-quoting comments — comments are not colors; classifier strips them before classification).
 - Fresh exposures fixed along the way: none — every presentation color in the codebase already flows through tokens or is documented data.
+
+
+## P07 — performance & stability investigation · completed 2026-10-13
+
+- Measured (fresh build, branch HEAD): CSS gz 38.0K/39K budget (raw 221K) · JS gz 492.9K/540K · frost surface census 522/600 (/features worst of 23 pages) · motion contract 12/12 · link/content audit 0/0.
+- Clay rendering profile by construction (engine §4 doctrine): no backdrop-filter, no translucency tier on clay; shadow stacks ≤ 4 items; luxury color burden concentrated in tokens, not per-element filters.
+- Recorded limitation: production hydration/runtime-exception telemetry (Vercel logs) is not observable from this sandbox; local build + SSR smoke (audit crawls built pages) show no failures. Not claimed verified.
+- No perf-relevant diffs this phase: PASS = preserved budgets.
