@@ -734,9 +734,13 @@ export function applyStudioVars(studio: Studio) {
        toward light, overlays above them again — the material steps, never
        blanks. Midnight inverts: deeper + denser. */
       const cd = plateHues[studio.clayCards - 1] ?? plateHues[0]!;
+      /* D1 recalibration (P02): paler steps KEEP SATURATION — hue stays,
+         +0.10/+0.05 s as lightness rises; a lighter-but-pale tile read
+         as "white card with blue shadow" (user screenshots 10:42).
+         Midnight dims slightly instead — plastic glare guard. */
       vars["--card-face"] = rot(cd[0], cd[1], target === "dark" ? 0.3 : cd[2]);
-      vars["--data-face"] = rot(cd[0], cd[1], target === "dark" ? 0.37 : Math.min(0.96, cd[2] + 0.06));
-      vars["--overlay-face"] = rot(cd[0], cd[1], target === "dark" ? 0.26 : Math.min(0.97, cd[2] + 0.12));
+      vars["--data-face"] = rot(cd[0], Math.min(0.78, cd[1] + 0.1), target === "dark" ? 0.37 : Math.min(0.95, cd[2] + 0.055));
+      vars["--overlay-face"] = rot(cd[0], Math.min(0.72, cd[1] + 0.05), target === "dark" ? 0.26 : Math.min(0.97, cd[2] + 0.115));
     }
     vars["--band-face"] = rot(-24, 0.3, 0.948);
     vars["--pool-1"] = `rgb(${rot(0, 0.7, 0.5)} / ${target === "dark" ? 0.1 : 0.13})`;
