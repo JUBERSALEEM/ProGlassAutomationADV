@@ -54,3 +54,9 @@
 - Reduced motion: motion suite 12/12 (PRM guards verified scan-wide).
 - Semantics census (code evidence): 308 aria attributes across components; ThemeStudio 16 (aria-pressed rows/mode); Navbar 7 (menu expanded/controls); DemoRequestForm labels htmlFor + aria-invalid + role=alert; alt attributes on media (counted).
 - Recorded limitation: keyboard-walk + screen-reader pass needs real browser assistive tooling (sandbox lacks browsers) — code-level evidence only; not claimed as manual verification.
+
+
+## P09 — independent final audit · completed 2026-10-13
+
+- Fresh end-to-end re-run (nothing reused from phase text); route/theme coverage as tabulated in CLAYMORPHISM_FINAL_AUDIT.md; all gates green; queue contained only P09 itself at audit start.
+- Action: queue file deleted after last entry (per master-program rule Part 7 §“When to delete the remaining-phase file”). Final scores 90/96/90/85/88/90/84 with criteria + limitation ledger in the final audit document. No 100/100 claimed; 100/100 marked as not-used.
