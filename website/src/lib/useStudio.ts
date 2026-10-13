@@ -848,19 +848,24 @@ export function applyStudioVars(studio: Studio) {
        DEEPER (0.78/0.38 — the pillow reads weight, not mist); the interior
        wash deepens with the dial (0.16× — the plate's puff is felt); the
        band pulls NEUTRAL so plates and bands never share one wash. */
-    vars["--clay-drop-h"] = rot(0, 0.78, 0.38);
+    vars["--clay-drop-h"] = rot(0, 0.85, 0.35);
     vars["--card-tint-h"] = rot(0, 0.5, 0.82);
     vars["--card-tint-h2"] = rot(38, 0.55, 0.82);
-    vars["--clay-wash"] = (0.16 * studio.tint).toFixed(3);
+    vars["--clay-wash"] = (0.18 * studio.tint).toFixed(3);
     vars["--panel-face"] = vars[`--plate-${studio.clayPlate}`] ?? vars["--plate-1"]!;
     /* The on-screen cards: the chosen plate softened to air — it keeps the
        plate's hue/saturation at a near-surface light, so cards read as clay
        (pastel body) yet never fight the ink. */
     {
-      const [cdh, cs] = plateHues[studio.clayCards - 1] ?? plateHues[0]!;
-      vars["--card-face"] = rot(cdh, cs, target === "dark" ? 0.27 : 0.93);
-      vars["--data-face"] = rot(cdh, cs, target === "dark" ? 0.34 : 0.9);
-      vars["--overlay-face"] = rot(cdh, cs, target === "dark" ? 0.24 : 0.985);
+      /* RICHNESS DECREE: cards wear the PLATE ITSELF (full pastel body —
+       L~0.78–0.82, the same palette the house patterns ship), not the
+       near-white wash. The ladder steps work ON that: data cards raise
+       toward light, overlays above them again — the material steps, never
+       blanks. Midnight inverts: deeper + denser. */
+      const cd = plateHues[studio.clayCards - 1] ?? plateHues[0]!;
+      vars["--card-face"] = rot(cd[0], cd[1], target === "dark" ? 0.3 : cd[2]);
+      vars["--data-face"] = rot(cd[0], cd[1], target === "dark" ? 0.37 : Math.min(0.96, cd[2] + 0.06));
+      vars["--overlay-face"] = rot(cd[0], cd[1], target === "dark" ? 0.26 : Math.min(0.97, cd[2] + 0.12));
     }
     vars["--plate-custom"] = vars["--plate-1"]!;
     vars["--band-face"] = rot(-24, 0.3, 0.948);
