@@ -16,3 +16,10 @@
 - Objective: shadows as TIER tokens (well/rest/raised/float), one declared light direction, hover = tier promotion.
 - Changes: §23 declarations both modes (--clay-light-x/y; --shadow-well incl. daylight concave + midnight concave; --shadow-float depth-dial folded); migrations: glass-primary hero + card-accent + menu-card + noria hover → --shadow-float (insets kept). Buttons/beads remain documented grammar/micro-exceptions; state never by depth alone (existing edge+transform hover kept and minted with float).
 - Gates: build fresh (06c8d45 baseline) · clay-paint 175/175 · contrast 87/87 · motion 12/12 · vitest 35/35 · census 522/600 · audit 0/0 (single clean server: stale-process artifact re-verified and cleared).
+
+
+## P04 — midnight inset dimming (D3) · completed 2026-10-13
+
+- Defect: 44 literal inset-white call-sites (0.4–0.75) burned day-bright highlights on dark pastel = plastic-glare risk (reference principle 7). The --clay-hi token was correctly dim (0.11) — the literals bypassed it.
+- Fix: role tokens --clay-hi-2 (0.55 daylight / 0.12 midnight) and --clay-lip (0.75 / 0.16); 42 numeric insets + 2 zero-blur hairlines migrated, geometry preserved; daylight intensities keep shipped recipe (median mapping).
+- Gates: clay-paint 175/175 · contrast 87/87 · motion 12/12 · vitest 35/35 · census 522/600 · audit 0/0.

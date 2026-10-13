@@ -102,6 +102,11 @@
   /* Named surfaces + moulding channels (Midnight values; Daylight below). */
   --clay-card: var(--ink-850);
   --clay-hi: rgb(255 255 255 / 0.11);
+  /* §24 — the inset whites at midnight (D3): glassy bright insets read as
+     PLASTIC GLARE on dark pastel (reference principle 7). Midnight caps:
+     soft highlight 0.12, lip 0.16; daylight keeps its shipped intensities. */
+  --clay-hi-2: rgb(255 255 255 / 0.12);
+  --clay-lip: rgb(255 255 255 / 0.16);
   --clay-lo: rgb(18 10 38 / 0.62);
   --clay-foil: rgb(46 34 62);
   --band-face: 46 34 62;
@@ -128,7 +133,7 @@
      own press grammar on rest; beads (spine) are micro-exceptions. */
   --clay-light-x: 1;
   --clay-light-y: 1;
-  --shadow-well: inset 4px 4px 10px rgb(18 10 38 / 0.35), inset -3px -3px 8px rgb(255 255 255 / 0.06);
+  --shadow-well: inset 4px 4px 10px rgb(18 10 38 / 0.35), inset var(--clay-hi-2)rgb(255 255 255 / 0.06);
   --shadow-float: 22px 22px 52px rgb(18 10 38 / calc(0.8 * var(--clay-depth, 1))),
     -18px -18px 36px rgb(255 255 255 / 0.09);
 
@@ -165,6 +170,8 @@
   --ink-700: 243 239 251;
   --clay-card: var(--clay-raised);
   --clay-hi: rgb(255 255 255 / 0.9);
+  --clay-hi-2: rgb(255 255 255 / 0.55);
+  --clay-lip: rgb(255 255 255 / 0.75);
   --clay-lo: rgb(var(--clay-drop-h) / 0.34);
   --clay-foil: rgb(239 234 252);
   --clay-lift: 0.9;
@@ -175,7 +182,7 @@
     -10px -10px 26px rgb(255 255 255 / 1);
   --shadow-raised: 16px 16px 42px rgb(var(--clay-drop-h) / calc(0.42 * var(--clay-depth, 1))),
     -14px -14px 32px rgb(255 255 255 / 1);
-  --shadow-well: inset 4px 4px 10px rgb(var(--clay-drop-h) / 0.16), inset -3px -3px 8px rgb(255 255 255 / 0.95);
+  --shadow-well: inset 4px 4px 10px rgb(var(--clay-drop-h) / 0.16), inset var(--clay-lip)rgb(255 255 255 / 0.95);
   --shadow-float: 22px 22px 52px rgb(var(--clay-drop-h) / calc(0.48 * var(--clay-depth, 1))),
     -18px -18px 38px rgb(255 255 255 / 1);
 }
@@ -278,7 +285,7 @@
   color: rgb(var(--clay-ink));
   box-shadow: 4px 4px 10px rgb(var(--clay-drop-h) / 0.32),
     -3px -3px 8px rgb(255 255 255 / 0.7),
-    inset 2px 2px 5px rgb(255 255 255 / 0.55),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.55),
     inset -3px -3px 6px rgb(92 60 220 / 0.22);
 }
 
@@ -290,7 +297,7 @@
   background-image: none;
   box-shadow: 8px 8px 22px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.85),
-    inset 4px 4px 8px rgb(255 255 255 / 0.6),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.6),
     inset -6px -6px 12px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.25);
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+2) {
@@ -298,7 +305,7 @@
   background-image: none;
   box-shadow: 8px 8px 22px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.85),
-    inset 4px 4px 8px rgb(255 255 255 / 0.6),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.6),
     inset -6px -6px 12px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.25);
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+3) {
@@ -306,7 +313,7 @@
   background-image: none;
   box-shadow: 8px 8px 22px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.85),
-    inset 4px 4px 8px rgb(255 255 255 / 0.6),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.6),
     inset -6px -6px 12px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.25);
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+4) {
@@ -314,7 +321,7 @@
   background-image: none;
   box-shadow: 8px 8px 22px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.85),
-    inset 4px 4px 8px rgb(255 255 255 / 0.6),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.6),
     inset -6px -6px 12px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.25);
 }
 
@@ -326,7 +333,7 @@
   color: rgb(var(--clay-ink));
   border-radius: 999px;
   box-shadow: 3px 3px 8px rgb(var(--clay-drop-h) / 0.28),
-    inset 2px 2px 4px rgb(255 255 255 / 0.5),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.5),
     inset -2px -2px 5px rgb(92 60 220 / 0.18);
 }
 
@@ -396,7 +403,7 @@
   background-color: rgb(var(--clay-lavender));
   background-image: none;
   box-shadow: var(--shadow-float),
-    inset 5px 5px 10px rgb(255 255 255 / 0.5),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.5),
     inset -7px -7px 14px rgb(92 60 220 / 0.28);
   --text-1: var(--clay-ink);
   --text-2: 40 36 56;
@@ -409,7 +416,7 @@
   background-image: none;
   color: rgb(var(--brand-700));
   box-shadow: 8px 8px 18px rgb(92 60 220 / 0.3),
-    inset 3px 3px 6px rgb(255 255 255 / 0.9),
+    inset var(--clay-lip)rgb(255 255 255 / 0.9),
     inset -4px -4px 8px rgb(var(--brand-700) / 0.2);
 }
 
@@ -448,7 +455,7 @@
   background-image: none;
   color: rgb(var(--brand-700));
   box-shadow: 8px 8px 18px rgb(92 60 220 / 0.3),
-    inset 3px 3px 6px rgb(255 255 255 / 0.9),
+    inset var(--clay-lip)rgb(255 255 255 / 0.9),
     inset -4px -4px 8px rgb(var(--brand-700) / 0.2);
 }
 [data-appearance="clay"] .band-deep .btn-secondary {
@@ -457,7 +464,7 @@
   background-image: none;
   color: rgb(var(--brand-700));
   box-shadow: 6px 6px 14px rgb(92 60 220 / 0.22),
-    inset 3px 3px 6px rgb(255 255 255 / 0.8),
+    inset var(--clay-lip)rgb(255 255 255 / 0.8),
     inset -4px -4px 8px rgb(92 60 220 / 0.18);
 }
 
@@ -496,7 +503,7 @@
   border-color: transparent;
   color: rgb(255 255 255);
   box-shadow: 8px 8px 20px rgb(var(--clay-coral-h) / 0.4),
-    inset 4px 4px 8px rgb(255 255 255 / 0.45),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.45),
     inset -4px -4px 10px rgb(219 74 61 / 0.4);
   transition: box-shadow 0.14s ease, transform 0.14s ease;
 }
@@ -504,7 +511,7 @@
   transform: scale(0.97);
   box-shadow: 4px 4px 10px rgb(var(--clay-coral-h) / 0.35),
     inset -3px -3px 9px rgb(219 74 61 / 0.35),
-    inset 3px 3px 9px rgb(255 255 255 / 0.35);
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.35);
 }
 
 /* The quiet option: a white sheet at quarter shadow strength. */
@@ -515,7 +522,7 @@
   color: rgb(var(--text-2));
   border-color: transparent;
   box-shadow: 8px 8px 18px rgb(var(--clay-drop-h) / 0.22),
-    inset 3px 3px 6px rgb(255 255 255 / 0.8),
+    inset var(--clay-lip)rgb(255 255 255 / 0.8),
     inset -4px -4px 8px rgb(var(--clay-drop-h) / 0.18);
 }
 
@@ -525,7 +532,7 @@
 [data-appearance="clay"] select {
   border-radius: 16px;
   box-shadow: inset 3px 3px 8px rgb(var(--clay-drop-h) / 0.2),
-    inset -3px -3px 8px rgb(255 255 255 / 0.9);
+    inset var(--clay-lip)rgb(255 255 255 / 0.9);
 }
 
 /* Soft shadows never replace a visible focus outline. */
@@ -724,7 +731,7 @@ html[data-theme="midnight"][data-appearance="clay"] {
   background-color: rgb(var(--panel-face));
   background-image: none;
   box-shadow: var(--shadow-float),
-    inset 5px 5px 10px rgb(255 255 255 / 0.5),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.5),
     inset -7px -7px 14px rgb(var(--clay-drop-h) / 0.26);
   --text-1: var(--clay-ink);
   color: rgb(var(--text-1));
@@ -780,7 +787,7 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
   --text-4: 66 59 92;
   color: rgb(var(--text-2));
   box-shadow: var(--shadow-panel),
-    inset 4px 4px 8px rgb(255 255 255 / 0.4),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.4),
     inset -6px -6px 12px rgb(92 60 220 / 0.22);
 }
 [data-appearance="clay"] .band-rich .btn-primary {
@@ -788,7 +795,7 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
   background-color: rgb(252 250 255);
   color: rgb(var(--brand-700));
   box-shadow: 8px 8px 18px rgb(92 60 220 / 0.3),
-    inset 3px 3px 6px rgb(255 255 255 / 0.9),
+    inset var(--clay-lip)rgb(255 255 255 / 0.9),
     inset -4px -4px 8px rgb(var(--brand-700) / 0.2);
 }
 /* The tinted feature panel joins the pastel bench; plum inks stay. */
@@ -796,14 +803,14 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
   background-color: rgb(var(--panel-face));
   background-image: none;
   box-shadow: var(--shadow-panel),
-    inset 4px 4px 8px rgb(255 255 255 / 0.6),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.6),
     inset -6px -6px 12px rgb(var(--clay-drop-h) / 0.2);
 }
 /* The story spine's nodes are little clay beads. */
 [data-appearance="clay"] .spine-node {
   background-color: rgb(var(--clay-lavender));
   box-shadow: 2px 2px 6px rgb(var(--clay-drop-h) / 0.4),
-    inset 1px 1px 3px rgb(255 255 255 / 0.6),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.6),
     inset -2px -2px 4px rgb(92 60 220 / 0.3);
 }
 /* The Features exhibit: panes re-materialize — the lead pane is a raised
@@ -813,7 +820,7 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
   background-color: rgb(var(--clay-foil));
   background-image: none;
   box-shadow: 6px 6px 16px rgb(var(--clay-drop-h) / 0.22),
-    inset 3px 3px 7px rgb(255 255 255 / 0.6),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.6),
     inset -4px -4px 9px rgb(var(--clay-drop-h) / 0.16);
 }
 [data-appearance="clay"] .mpane__glass--lead {
@@ -830,7 +837,7 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
   background-image: none;
   color: rgb(var(--clay-ink));
   box-shadow: 3px 3px 8px rgb(var(--clay-drop-h) / 0.3),
-    inset 2px 2px 4px rgb(255 255 255 / 0.55),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.55),
     inset -2px -2px 5px rgb(92 60 220 / 0.2);
 }
 
@@ -908,7 +915,7 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
 [data-appearance="clay"] :is(input, textarea, select):focus {
   box-shadow:
     inset 3px 3px 8px rgb(var(--clay-drop-h) / 0.2),
-    inset -3px -3px 8px rgb(255 255 255 / 0.9),
+    inset var(--clay-lip)rgb(255 255 255 / 0.9),
     0 0 0 4px rgb(var(--clay-drop-h) / 0.28);
 }
 
@@ -1039,7 +1046,7 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
   background-image: none;
   color: rgb(var(--clay-ink));
   box-shadow: 8px 8px 18px rgb(18 10 38 / 0.42),
-    inset 3px 3px 6px rgb(255 255 255 / 0.95),
+    inset var(--clay-lip)rgb(255 255 255 / 0.95),
     inset -4px -4px 8px rgb(140 108 255 / 0.24);
 }
 
@@ -1086,7 +1093,7 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
   border-radius: 999px;
   border-color: transparent;
   background-color: rgb(var(--clay-lavender) / 0.3);
-  box-shadow: inset 2px 2px 4px rgb(255 255 255 / 0.5),
+  box-shadow: inset var(--clay-hi-2)rgb(255 255 255 / 0.5),
     inset -2px -2px 5px rgb(var(--clay-drop-h) / 0.2);
 }
 
@@ -1120,7 +1127,7 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
   background-image: none;
   color: rgb(var(--clay-ink));
   box-shadow: 5px 5px 12px rgb(var(--clay-drop-h) / 0.38),
-    inset 3px 3px 5px rgb(255 255 255 / 0.55),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.55),
     inset -4px -4px 8px rgb(92 60 220 / 0.24);
 }
 [data-appearance="clay"] .menu-card [class*="rounded-[0.3rem]"] {
@@ -1179,7 +1186,7 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
   --clay-shadow-inset: inset 6px 6px 14px var(--clay-lo),
     inset -5px -5px 12px var(--clay-hi);
   --clay-shadow-button: 6px 6px 16px rgb(var(--clay-coral-h) / 0.42),
-    inset 3px 3px 6px rgb(255 255 255 / 0.4),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.4),
     inset -3px -3px 8px rgb(219 74 61 / 0.35);
   --clay-highlight: rgb(255 255 255 / var(--clay-lift));
   --clay-shadow-dark: rgb(18 10 38 / 0.6);
@@ -1196,7 +1203,7 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
   --clay-shadow-sm: 5px 5px 14px rgb(var(--clay-drop-h) / 0.22),
     -4px -4px 10px rgb(255 255 255 / 0.85);
   --clay-shadow-button: 6px 6px 16px rgb(var(--clay-coral-h) / 0.4),
-    inset 3px 3px 6px rgb(255 255 255 / 0.45),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.45),
     inset -3px -3px 8px rgb(200 60 48 / 0.3);
 }
 
@@ -1771,7 +1778,7 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
   background-image: none;
   color: rgb(var(--clay-ink));
   box-shadow: 3px 3px 9px rgb(var(--clay-drop-h) / 0.34),
-    inset 2px 2px 5px rgb(255 255 255 / 0.55),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.55),
     inset -3px -3px 7px rgb(92 60 220 / 0.24);
 }
 
@@ -1920,7 +1927,7 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
   background-image: none;
   color: rgb(var(--brand-700));
   box-shadow: 8px 8px 18px rgb(92 60 220 / 0.3),
-    inset 3px 3px 6px rgb(255 255 255 / 0.9),
+    inset var(--clay-lip)rgb(255 255 255 / 0.9),
     inset -4px -4px 8px rgb(var(--brand-700) / 0.2);
 }
 
@@ -1937,7 +1944,7 @@ html[data-theme="midnight"][data-appearance="clay"] .glass-primary {
   background-color: rgb(50 34 76);
   background-image: none;
   box-shadow: 12px 12px 30px rgb(10 6 24 / 0.55),
-    inset 4px 4px 9px rgb(255 255 255 / 0.1),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.1),
     inset -6px -6px 12px rgb(16 9 36 / 0.5);
   --text-1: 255 255 255;
   --text-2: 243 240 252;
@@ -1952,7 +1959,7 @@ html[data-theme="midnight"][data-appearance="clay"] .glass-primary :is(.btn-prim
   background-image: none;
   color: rgb(var(--clay-ink));
   box-shadow: 8px 8px 18px rgb(18 10 38 / 0.42),
-    inset 3px 3px 6px rgb(255 255 255 / 0.95),
+    inset var(--clay-lip)rgb(255 255 255 / 0.95),
     inset -4px -4px 8px rgb(140 108 255 / 0.24);
 }
 
@@ -2252,8 +2259,8 @@ html[data-theme="midnight"][data-appearance="clay"] :where(a, button, input, sel
   --text-4: 66 59 92;
   color: rgb(var(--text-2));
   box-shadow: 10px 10px 24px rgb(var(--clay-drop-h) / 0.32),
-    inset 0 1.5px 0 rgb(255 255 255 / 0.7),
-    inset 5px 5px 11px rgb(255 255 255 / 0.42),
+    inset 0 1.5px 0 var(--clay-lip),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.42),
     inset -6px -6px 13px rgb(var(--clay-drop-h) / 0.2);
 }
 [data-appearance="clay"] .plate-2 { --plate-face: var(--plate-2); }
@@ -2270,8 +2277,8 @@ html[data-theme="midnight"][data-appearance="clay"] :where(a, button, input, sel
 [data-appearance="clay"] :is(.plate-1, .plate-2, .plate-3, .plate-4, .plate-5, .plate-6, .plate-custom).card-interactive:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-float),
-    inset 0 1.5px 0 rgb(255 255 255 / 0.75),
-    inset 5px 5px 11px rgb(255 255 255 / 0.5),
+    inset 0 1.5px 0 var(--clay-lip),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.5),
     inset -6px -6px 13px rgb(var(--clay-drop-h) / 0.22);
 }
 
@@ -2318,15 +2325,15 @@ html[data-theme="midnight"][data-appearance="clay"] .plate-custom {
   transition: box-shadow 0.35s ease;
   border-radius: inherit;
   box-shadow:
-    inset 3px 3px 6px rgb(255 255 255 / 0.55),
-    inset 1px 1px 2px rgb(255 255 255 / 0.7),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.55),
+    inset var(--clay-lip)rgb(255 255 255 / 0.7),
     inset -4px -5px 10px rgb(var(--clay-drop-h) / 0.3),
     inset -1px -2px 4px rgb(var(--clay-drop-h) / 0.22);
 }
 [data-appearance="clay"] .edge-conic:hover::after {
   box-shadow:
-    inset 4px 4px 8px rgb(255 255 255 / 0.6),
-    inset 1px 1px 3px rgb(255 255 255 / 0.75),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.6),
+    inset var(--clay-lip)rgb(255 255 255 / 0.75),
     inset -5px -6px 12px rgb(var(--clay-drop-h) / 0.34),
     inset -1px -2px 5px rgb(var(--clay-drop-h) / 0.26);
 }
@@ -2364,7 +2371,7 @@ html[data-theme="midnight"][data-appearance="clay"] .plate-custom {
   border-color: transparent;
   box-shadow:
     8px 8px 18px rgb(var(--clay-drop-h) / 0.3),
-    inset 2px 2px 5px rgb(255 255 255 / 0.8),
+    inset var(--clay-lip)rgb(255 255 255 / 0.8),
     inset -3px -3px 7px rgb(var(--clay-drop-h) / 0.18);
   --nav-item: 69 62 94;
   --nav-item-strong: 36 27 58;
@@ -2373,7 +2380,7 @@ html[data-theme="midnight"][data-appearance="clay"] .nav-pill {
   background-color: rgb(24 16 46);
   box-shadow:
     8px 8px 18px rgb(6 3 16 / 0.55),
-    inset 2px 2px 5px rgb(255 255 255 / 0.12),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.12),
     inset -3px -3px 7px rgb(4 2 10 / 0.5);
   --nav-item: 201 192 228;
   --nav-item-strong: 255 255 255;
@@ -2407,7 +2414,7 @@ html[data-theme="midnight"][data-appearance="clay"] .nav-pill {
   background-color: rgb(var(--plate-1));
   background-image: none;
   box-shadow: 4px 4px 10px rgb(var(--clay-drop-h) / 0.35),
-    inset 1.5px 1.5px 3px rgb(255 255 255 / 0.65),
+    inset var(--clay-hi-2)rgb(255 255 255 / 0.65),
     inset -2px -2px 4px rgb(var(--clay-drop-h) / 0.22);
   animation: none;
   opacity: 0;
