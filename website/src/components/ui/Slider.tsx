@@ -20,6 +20,7 @@ export function Slider({
   display,
   onChange,
   hint,
+  disabled = false,
 }: {
   label: string;
   value: number;
@@ -30,6 +31,16 @@ export function Slider({
   onChange: (value: number) => void;
   /** One line under the dial saying what the range does at its ends. */
   hint?: string;
+  /**
+   * Family gating (senior audit): the glass bench wraps itself in
+   * `pointer-events-none` when a dial's family is not active — but
+   * pointer-events never stops a KEYBOARD. Without this flag a visitor
+   * tabbing the drawer could still drag a veiled dial with the arrow keys,
+   * writing a token no consumer reads on the active family: a dial that
+   * moves and does nothing, which is exactly what "frostness not working"
+   * means. The gate must be an actual `disabled`, not a visual veil.
+   */
+  disabled?: boolean;
 }) {
   return (
     <label className="block">
@@ -44,6 +55,7 @@ export function Slider({
         step={step}
         value={value}
         aria-label={label}
+        disabled={disabled}
         onChange={(event) => onChange(Number(event.target.value))}
         className="mt-1"
       />

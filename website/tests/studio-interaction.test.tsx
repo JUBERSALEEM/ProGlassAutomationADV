@@ -387,3 +387,86 @@ describe("P18 · benches outside their family explain themselves", () => {
     expect(inline("--glass-frost-mult")).toBe("1.80");
   });
 });
+
+/* ──────────────────────────────────────────────────────────────────────── *
+ * P19 — the senior-audit regressions. Witness: "theme & colour card plates,
+ * theme studio not working … frostness also not working properly."
+ * Code ledger findings and their locks:
+ *   1. --pool-1 was declared 13× (every family block) and rotated 3× by the
+ *      studio, but the wallpaper painted ZERO of it: the page's principal
+ *      ambient light was dead paint, so a pick visibly failed to move the
+ *      wall. Guard: body::after must consume var(--pool-1).
+ *   2. The family gates were a visual veil only — pointer-events:none stops
+ *      the mouse, never the keyboard. A veiled frost dial still wrote live
+ *      tokens nothing consumed: "the dial moves and does nothing." Guard:
+ *      gated controls carry a real `disabled`.
+ *   3. The launcher's accent dot fell back to a house-violet literal on
+ *      every family. Guard: with no pick, the dot IS the family swatch.
+ * ──────────────────────────────────────────────────────────────────────── */
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { appearanceFamilies } from "@/data/themes";
+
+describe("P19 · the wallpaper paints what the studio writes", () => {
+  it("body::after consumes --pool-1 (the restored crown pool)", () => {
+    const css = readFileSync(resolve(process.cwd(), "src/app/globals.css"), "utf8");
+    const after = css.slice(css.indexOf("body::after"));
+    expect(after).toContain("var(--pool-1, transparent)");
+    /* And the repeat list keeps one entry per layer (the P16/P17-count class
+       of drift: a layer whose repeat-state silently shifts the grain). */
+    const repeatDecl = after.match(/background-repeat:\s*[^;]+;/);
+    expect(repeatDecl).not.toBeNull();
+    const entries = repeatDecl![0].split(",").length;
+    const images = after
+      .slice(after.indexOf("background-image:"), after.indexOf("background-repeat"))
+      .split(/radial-gradient|linear-gradient|url\(/).length - 1;
+    /* Sweep is one token layer; url( + gradients count the paint layers. */
+    expect(entries).toBeGreaterThanOrEqual(images);
+  });
+
+  it("the launcher's accent dot is the family swatch when nothing is picked", async () => {
+    const user = userEvent.setup();
+    render(<ThemeStudio />);
+    const trigger = screen.getByRole("button", { name: /open the theme studio/i });
+    const dots = Array.from(trigger.querySelectorAll("span[style]"));
+    const claySwatch = appearanceFamilies.find((f) => f.id === "clay")?.swatch ?? "";
+    const hexToRgb = (hex: string) => {
+      const n = parseInt(hex.slice(1), 16);
+      return `rgb(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255})`;
+    };
+    const accentDot = dots[dots.length - 1] as HTMLElement;
+    const bg = accentDot.style.background?.replace(/\s+/g, " ");
+    expect(bg).not.toContain("#7E57CE");
+    expect(bg).not.toContain("rgb(126, 87, 206)");
+    expect(bg).toBe(hexToRgb(claySwatch));
+  });
+});
+
+describe("P19 · the family gates are real gates, not veils", () => {
+  it("glass-bench sliders are disabled off-crystal — keyboard included", async () => {
+    const user = userEvent.setup();
+    render(<ThemeStudio />);
+    const panel = await openStudio(user); // family = clay (beforeEach)
+    const frost = within(panel).getByRole("slider", { name: /frost/i });
+    const body = within(panel).getByRole("slider", { name: /body/i });
+    const glint = within(panel).getByRole("slider", { name: /glint/i });
+    for (const dial of [frost, body, glint]) {
+      expect((dial as HTMLInputElement).disabled).toBe(true);
+    }
+    /* After the family plate flips to crystal the same dials go live. */
+    await user.click(within(panel).getByRole("button", { name: /^crystal$/i }));
+    expect((within(panel).getByRole("slider", { name: /frost/i }) as HTMLInputElement).disabled).toBe(false);
+  });
+
+  it("the clay plate rows are disabled off-clay — and live on clay", async () => {
+    const user = userEvent.setup();
+    render(<ThemeStudio />);
+    const panel = await openStudio(user); // clay: live
+    let rowSix = within(panel).getAllByRole("button", { name: /^6$/ })[0]!;
+    expect((rowSix as HTMLButtonElement).disabled).toBe(false);
+    /* Switch to crystal: the bench veils AND disables. */
+    await user.click(within(panel).getByRole("button", { name: /^crystal$/i }));
+    rowSix = within(panel).getAllByRole("button", { name: /^6$/ })[0]!;
+    expect((rowSix as HTMLButtonElement).disabled).toBe(true);
+  });
+});
