@@ -35,6 +35,14 @@ namespace ProGlassAutomation.Models.MasterData
         [MaxLength(300)]
         public string CompanyLocation { get; set; } = "";
 
+        /// <summary>Official company telephone used on production labels and documents.</summary>
+        [MaxLength(40)]
+        public string CompanyTelephone { get; set; } = "";
+
+        /// <summary>Company website URL used on printed material.</summary>
+        [MaxLength(200)]
+        public string CompanyWebsite { get; set; } = "";
+
         /// <summary>How many times this company has been used in invoices.</summary>
         public int UsageCount { get; set; } = 1;
 

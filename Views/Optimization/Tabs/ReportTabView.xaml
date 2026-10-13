@@ -227,6 +227,10 @@
                                                 Command="{Binding ExportAllCommand}" CommandParameter="PDF"
                                                 ToolTip="Export shop floor printable cutting tickets"/>
                                     </StackPanel>
+                                    <Button Content="Print Glass Stickers" Style="{StaticResource OptOutlinedButton}"
+                                            Height="30" Padding="12,0" Margin="0,6,0,0" HorizontalAlignment="Left"
+                                            Command="{Binding PrintStickersCommand}"
+                                            ToolTip="Preview, customize stock dimensions and print labels from the current Optimization panes"/>
                                 </StackPanel>
                             </StackPanel>
                         </Grid>

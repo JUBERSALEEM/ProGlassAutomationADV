@@ -268,6 +268,7 @@ public ProformaInvoiceViewModel() : this(
             // proforma. Late-bound so the grid never references the
             // optimization module — the same idiom as the two bindings above.
             Step5VM.BindOptimizationRunner(RunOptimizationFromStep5);
+            Step5VM.BindStickerPrintAction(PrintStickersFromStep5);
 
             // Step 5's VIEW RESULT. The grid raises it without knowing where
             // "the result" lives; this adds the one thing only the invoice
@@ -488,6 +489,48 @@ public ProformaInvoiceViewModel() : this(
             if (!started)
                 Step5VM.ReportOptimizationProgress(false, 0, message ?? string.Empty);
             return (started, message);
+        }
+
+        /// <summary>
+        /// Builds sticker rows from the current Step 5 snapshot and the open
+        /// invoice header. This keeps the grid free of invoice/printing details.
+        /// </summary>
+        private void PrintStickersFromStep5(
+            System.Collections.Generic.IReadOnlyList<Models.ProformaInvoice.SavedInvoice.SpecGroupSnapshot> specGroups)
+        {
+            var sourceInvoice = new Models.ProformaInvoice.SavedInvoice.ProformaInvoiceSnapshot
+            {
+                Company = new Models.ProformaInvoice.SavedInvoice.CompanySnapshot
+                {
+                    CompanyName = Step1VM.CompanyName ?? string.Empty,
+                    CompanyLocation = Step1VM.CompanyLocation ?? string.Empty,
+                    CompanyTelephone = Step1VM.CompanyTelephone ?? string.Empty,
+                    CompanyWebsite = Step1VM.CompanyWebsite ?? string.Empty,
+                    CompanyEmail = Step1VM.CompanyEmail ?? string.Empty,
+                    RepresentativeMobile = Step1VM.RepresentativeMobile ?? string.Empty,
+                    LogoPath = Step1VM.LogoPath ?? string.Empty,
+                    LogoBase64 = Step1VM.LogoBase64 ?? string.Empty,
+                    ProformaId = Step1VM.ProformaId ?? string.Empty
+                },
+                Client = new Models.ProformaInvoice.SavedInvoice.ClientSnapshot
+                {
+                    CustomerName = Step2VM.CustomerName ?? string.Empty,
+                    CustomerReferenceCode = Step2VM.CustomerReferenceCode ?? string.Empty
+                },
+                Project = new Models.ProformaInvoice.SavedInvoice.ProjectSnapshot
+                {
+                    ProjectReference = Step3VM.ProjectReference ?? string.Empty,
+                    ProjectContractNo = Step3VM.ProjectContractNo ?? string.Empty,
+                    LpoNumber = Step3VM.LpoNumber ?? string.Empty
+                }
+            };
+
+            var labels = Services.Printing.Stickers.GlassStickerLabelBuilder
+                .FromStep5(specGroups, sourceInvoice);
+            Services.Printing.Stickers.StickerPrintDialogService.Show(
+                Application.Current?.MainWindow,
+                labels,
+                "Glass stickers — " + (Step1VM.ProformaId ?? string.Empty));
         }
 
         /// <summary>
@@ -968,6 +1011,8 @@ public ProformaInvoiceViewModel() : this(
             Step1VM.CompanyName = "";
             Step1VM.CompanyTrn = "";
             Step1VM.CompanyLocation = "";
+            Step1VM.CompanyTelephone = "";
+            Step1VM.CompanyWebsite = "";
             Step1VM.IssueDate = DateTime.Now;
             Step1VM.ValidUntil = DateTime.Now.AddDays(7);
             Step1VM.ProformaStatus = "Draft";

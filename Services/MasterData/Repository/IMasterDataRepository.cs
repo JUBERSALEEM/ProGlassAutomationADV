@@ -247,6 +247,8 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             string? companyBankName = null,
             CompanyLogoLayout companyLogoLayout = CompanyLogoLayout.None,
             double companyLogoWidthMm = 0,
-            double companyLogoHeightMm = 0);
+            double companyLogoHeightMm = 0,
+            string? companyTelephone = null,
+            string? companyWebsite = null);
     }
 }

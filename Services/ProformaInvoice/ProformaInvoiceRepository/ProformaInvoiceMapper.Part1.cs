@@ -62,6 +62,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             }
         }
 
+        private static string LogoBase64ForSnapshot(string? path, string? fallback)
+        {
+            string embedded = TryEmbedLogoBase64(path);
+            return !string.IsNullOrWhiteSpace(embedded)
+                ? embedded
+                : fallback ?? string.Empty;
+        }
+
         private static CompanyLogoLayout EffectiveLogoLayout(
             string? logoPath,
             CompanyLogoLayout layout,
@@ -159,6 +167,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     companyName: company.CompanyName ?? "",
                     companyTrn: company.CompanyTrn ?? "",
                     companyLocation: company.CompanyLocation ?? "",
+                    companyTelephone: company.CompanyTelephone ?? "",
+                    companyWebsite: company.CompanyWebsite ?? "",
 
                     // AUDIT-FIX F-2: Step 1 profile fields enrich the saved
                     // company record. The repository preserves any stored
@@ -213,6 +223,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     CompanyName = company.CompanyName ?? "",
                     CompanyTrn = company.CompanyTrn ?? "",
                     CompanyLocation = company.CompanyLocation ?? "",
+                    CompanyTelephone = company.CompanyTelephone ?? "",
+                    CompanyWebsite = company.CompanyWebsite ?? "",
                     ProformaId = company.ProformaId ?? "",
                     InquiryId = company.InquiryId,
                     IssueDate = company.IssueDate,
@@ -224,7 +236,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     AccountNumber = company.AccountNumber ?? "",
                     BankName = company.BankName ?? "",
                     LogoPath = company.LogoPath ?? "",
-                    LogoBase64 = TryEmbedLogoBase64(company.LogoPath),
+                    LogoBase64 = LogoBase64ForSnapshot(company.LogoPath, company.LogoBase64),
                     CompanyRecordId = company.CompanyRecordId,
                     LogoLayout = EffectiveLogoLayout(company.LogoPath, company.LogoLayout, company.LogoWidthMm, company.LogoHeightMm),
                     LogoWidthMm = company.LogoWidthMm,
@@ -689,6 +701,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 company.CompanyName = snap.Company.CompanyName ?? "";
                 company.CompanyTrn = snap.Company.CompanyTrn ?? "";
                 company.CompanyLocation = snap.Company.CompanyLocation ?? "";
+                company.CompanyTelephone = snap.Company.CompanyTelephone ?? "";
+                company.CompanyWebsite = snap.Company.CompanyWebsite ?? "";
                 company.ProformaId = snap.Company.ProformaId ?? "";
                 company.InquiryId = snap.Company.InquiryId;
                 company.IssueDate = snap.Company.IssueDate;
@@ -700,6 +714,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 company.AccountNumber = snap.Company.AccountNumber ?? "";
                 company.BankName = snap.Company.BankName ?? "";
                 company.LogoPath = snap.Company.LogoPath ?? "";
+                company.LogoBase64 = snap.Company.LogoBase64 ?? "";
                 company.CompanyRecordId = snap.Company.CompanyRecordId;
                 company.LogoLayout = snap.Company.LogoLayout;
                 company.LogoWidthMm = snap.Company.LogoWidthMm;

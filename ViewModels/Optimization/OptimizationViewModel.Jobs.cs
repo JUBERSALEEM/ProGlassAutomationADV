@@ -49,6 +49,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 ? string.Empty
                 : "from " + SourceProformaId;
             public string CustomerName { get; set; } = string.Empty;
+            /// <summary>Immutable PI snapshot carried by this Job Order (branding, references, customer).</summary>
+            public ProformaInvoiceSnapshot? SourceInvoice { get; set; }
             public string Summary { get; set; } = string.Empty;
             public int PieceRows { get; set; }
 
@@ -482,7 +484,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
             {
                 JobOrderId = jobOrderId,
                 SourceProformaId = sourceProformaId ?? string.Empty,
-                CustomerName = customerName
+                CustomerName = customerName,
+                SourceInvoice = invoice
             };
 
             // ── Step 4/5 spec build-up (outer → ASP → inner) ─────

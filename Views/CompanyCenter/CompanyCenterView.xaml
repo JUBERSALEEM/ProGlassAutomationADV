@@ -359,6 +359,8 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="12"/>
                                     <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="12"/>
+                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
                                 <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="0" Grid.Column="0">
@@ -386,7 +388,20 @@
                                              Style="{StaticResource Input.TextBox}"/>
                                 </StackPanel>
 
-                                <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="4" Grid.ColumnSpan="3">
+                                <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="4" Grid.Column="0">
+                                    <TextBlock Text="Telephone" Style="{StaticResource Field.Label}"/>
+                                    <TextBox Text="{Binding CompanyTelephone, UpdateSourceTrigger=PropertyChanged}"
+                                             MaxLength="40" AutomationProperties.AutomationId="CompanyCenter.CompanyTelephone"
+                                             Style="{StaticResource Input.TextBox}"/>
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="4" Grid.Column="2">
+                                    <TextBlock Text="Website" Style="{StaticResource Field.Label}"/>
+                                    <TextBox Text="{Binding CompanyWebsite, UpdateSourceTrigger=PropertyChanged}"
+                                             MaxLength="200" AutomationProperties.AutomationId="CompanyCenter.CompanyWebsite"
+                                             Style="{StaticResource Input.TextBox}"/>
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="6" Grid.ColumnSpan="3">
                                     <TextBlock Text="{DynamicResource CompanyCenter.AccountNumberIBAN}" Style="{StaticResource Field.Label}"/>
                                     <TextBox Text="{Binding AccountNumber, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource Input.TextBox}"/>

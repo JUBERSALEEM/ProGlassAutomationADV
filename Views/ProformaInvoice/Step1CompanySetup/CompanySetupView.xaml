@@ -218,6 +218,28 @@
                     </StackPanel>
                 </Grid>
 
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Style="{StaticResource Field.Panel}">
+                        <TextBlock Style="{StaticResource Field.Label}" Text="Telephone"/>
+                        <TextBox Text="{Binding CompanyTelephone, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="40"
+                                 AutomationProperties.AutomationId="ProformaInvoice.CompanyTelephone"
+                                 AutomationProperties.Name="Company telephone"
+                                 Style="{StaticResource TextBoxStyle}"/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="2">
+                        <TextBlock Style="{StaticResource Field.Label}" Text="Website"/>
+                        <TextBox Text="{Binding CompanyWebsite, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="200"
+                                 AutomationProperties.AutomationId="ProformaInvoice.CompanyWebsite"
+                                 AutomationProperties.Name="Company website"
+                                 Style="{StaticResource TextBoxStyle}"/>
+                    </StackPanel>
+                </Grid>
+
                 <Grid Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/>
