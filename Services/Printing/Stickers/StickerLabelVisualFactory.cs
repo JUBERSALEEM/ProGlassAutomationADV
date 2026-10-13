@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -12,6 +14,207 @@ namespace ProGlassAutomation.Services.Printing.Stickers
     public static class StickerLabelVisualFactory
     {
         private static readonly Dictionary<string, BitmapSource?> LogoCache = new(StringComparer.OrdinalIgnoreCase);
+        private static readonly Regex FieldTokenRegex = new(@"\{\{\s*([A-Za-z0-9_]+)\s*\}\}",
+            RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+        /// <summary>
+        /// Renders the editable template to a physical-size Canvas. The same
+        /// renderer is used by the on-screen editor and the printer paginator.
+        /// </summary>
+        public static Canvas CreateTemplateCanvas(
+            GlassStickerLabel label,
+            StickerLayoutTemplate template,
+            int? displayQuantity = null,
+            bool editorMode = false,
+            string? selectedElementId = null)
+        {
+            double widthDip = MmToDip(SafeRange(template.LabelWidthMm, 15, 500, 100));
+            double heightDip = MmToDip(SafeRange(template.LabelHeightMm, 15, 500, 75));
+            var canvas = new Canvas
+            {
+                Width = widthDip,
+                Height = heightDip,
+                Background = ParseBrush(template.Background, Brushes.White),
+                ClipToBounds = true,
+                Focusable = editorMode,
+                SnapsToDevicePixels = true
+            };
+
+            foreach (var element in template.Elements ?? new System.Collections.ObjectModel.ObservableCollection<StickerLayoutElement>())
+            {
+                if (element == null || !element.IsVisible) continue;
+                var visual = CreateTemplateElement(label, element, displayQuantity, editorMode,
+                    string.Equals(element.Id, selectedElementId, StringComparison.Ordinal));
+                if (visual == null) continue;
+                Canvas.SetLeft(visual, MmToDip(SafeRange(element.Xmm, -500, 1000, 0)));
+                Canvas.SetTop(visual, MmToDip(SafeRange(element.Ymm, -500, 1000, 0)));
+                Canvas.SetZIndex(visual, template.Elements.IndexOf(element));
+                canvas.Children.Add(visual);
+            }
+            return canvas;
+        }
+
+        public static string ResolveFieldValue(GlassStickerLabel label, string fieldKey,
+            int? displayQuantity = null)
+        {
+            if (label == null || string.IsNullOrWhiteSpace(fieldKey)) return string.Empty;
+            return fieldKey.Trim().ToUpperInvariant() switch
+            {
+                "COMPANYNAME" => label.Company?.CompanyName ?? string.Empty,
+                "COMPANYADDRESS" => label.Company?.Address ?? string.Empty,
+                "COMPANYTELEPHONE" => label.Company?.Telephone ?? string.Empty,
+                "COMPANYMOBILE" => label.Company?.RepresentativeMobile ?? string.Empty,
+                "COMPANYWEBSITE" => label.Company?.Website ?? string.Empty,
+                "COMPANYEMAIL" => label.Company?.Email ?? string.Empty,
+                "ORDERDISPLAY" => label.OrderDisplay,
+                "ORDERNUMBER" => label.OrderNumber ?? string.Empty,
+                "JOBORDERNUMBER" => label.JobOrderNumber ?? string.Empty,
+                "PROFORMANUMBER" => label.ProformaNumber ?? string.Empty,
+                "CUSTOMERCOMPANYNAME" => label.CustomerCompanyName ?? string.Empty,
+                "GLASSNAME" => label.GlassName ?? string.Empty,
+                "GLASSTYPE" => label.GlassType ?? string.Empty,
+                "PANEPOSITION" => label.PanePosition ?? string.Empty,
+                "WIDTHMM" => label.WidthMm.ToString(CultureInfo.InvariantCulture),
+                "HEIGHTMM" => label.HeightMm.ToString(CultureInfo.InvariantCulture),
+                "SIZETEXT" => label.SizeText,
+                "QUANTITY" => (displayQuantity ?? label.QuantityToDisplay).ToString(CultureInfo.InvariantCulture),
+                "REFERENCE" => label.Reference ?? string.Empty,
+                "GLASSREFERENCE" => label.GlassReference ?? string.Empty,
+                _ => string.Empty
+            };
+        }
+
+        private static FrameworkElement? CreateTemplateElement(GlassStickerLabel label,
+            StickerLayoutElement element, int? displayQuantity, bool editorMode, bool selected)
+        {
+            UIElement? content = null;
+            string dynamicValue = string.Empty;
+            switch (element.Kind)
+            {
+                case StickerTemplateElementKind.Text:
+                    dynamicValue = !string.IsNullOrWhiteSpace(element.FieldKey)
+                        ? ResolveFieldValue(label, element.FieldKey, displayQuantity)
+                        : ResolveInlineTokens(label, element.Text, displayQuantity);
+                    bool missingData = element.HideWhenEmpty && string.IsNullOrWhiteSpace(dynamicValue);
+                    if (missingData && !editorMode) return null;
+                    if (missingData)
+                        dynamicValue = string.IsNullOrWhiteSpace(element.FieldKey)
+                            ? (string.IsNullOrWhiteSpace(element.Text) ? "[" + element.Name + "]" : element.Text)
+                            : "[" + element.FieldKey + "]";
+                    string displayText = string.IsNullOrWhiteSpace(element.FieldKey)
+                        ? dynamicValue
+                        : element.Prefix + dynamicValue + element.Suffix;
+                    var text = new TextBlock
+                    {
+                        Text = displayText,
+                        FontSize = SafeRange(element.FontSizePt, 3, 72, 9) * 96.0 / 72.0,
+                        FontWeight = element.Bold ? FontWeights.Bold : FontWeights.Normal,
+                        FontStyle = element.Italic ? FontStyles.Italic : FontStyles.Normal,
+                        Foreground = missingData ? Brushes.Gray : ParseBrush(element.Foreground, Brushes.Black),
+                        TextWrapping = TextWrapping.Wrap,
+                        TextAlignment = ToTextAlignment(element.TextAlignment),
+                        VerticalAlignment = ToVerticalAlignment(element.ContentAlignment),
+                        FontFamily = SafeFontFamily(element.FontFamily)
+                    };
+                    if (element.Underline) text.TextDecorations = TextDecorations.Underline;
+                    content = text;
+                    break;
+
+                case StickerTemplateElementKind.Logo:
+                    var logo = ResolveLogo(label.Company);
+                    if (logo == null && !editorMode) return null;
+                    content = logo == null
+                        ? new TextBlock
+                        {
+                            Text = "COMPANY LOGO",
+                            Foreground = Brushes.Gray,
+                            FontSize = 7,
+                            HorizontalAlignment = HorizontalAlignment.Center,
+                            VerticalAlignment = VerticalAlignment.Center,
+                            TextAlignment = TextAlignment.Center
+                        }
+                        : new Image { Source = logo, Stretch = Stretch.Uniform };
+                    break;
+
+                case StickerTemplateElementKind.Rectangle:
+                case StickerTemplateElementKind.Line:
+                    // The outer Border is the visible shape; a nested Border
+                    // would draw its fill and stroke twice.
+                    content = null;
+                    break;
+            }
+
+            var border = new Border
+            {
+                Width = MmToDip(SafeRange(element.WidthMm, 0.5, 500, 10)),
+                Height = MmToDip(SafeRange(element.HeightMm, 0.5, 500, 10)),
+                Padding = new Thickness(MmToDip(SafeRange(element.PaddingMm, 0, 20, 0))),
+                Background = ParseBrush(element.Background, Brushes.Transparent),
+                BorderBrush = ParseBrush(element.BorderColor, Brushes.Transparent),
+                BorderThickness = new Thickness(MmToDip(SafeRange(element.BorderWidthMm, 0, 10, 0))),
+                Opacity = SafeRange(element.Opacity, 0, 1, 1),
+                Child = content,
+                Tag = element,
+                SnapsToDevicePixels = true,
+                RenderTransformOrigin = new Point(0.5, 0.5)
+            };
+            double rotation = SafeRange(element.RotationDegrees, -360, 360, 0);
+            if (Math.Abs(rotation) > 0.001)
+                border.RenderTransform = new RotateTransform(rotation);
+            if (editorMode)
+            {
+                border.BorderBrush = selected
+                    ? Brushes.DodgerBlue
+                    : new SolidColorBrush(Color.FromArgb(72, 52, 64, 84));
+                border.BorderThickness = new Thickness(selected ? 1.5 : 0.6);
+                border.Cursor = element.IsLocked ? System.Windows.Input.Cursors.Arrow : System.Windows.Input.Cursors.SizeAll;
+                border.ToolTip = element.IsLocked ? element.DisplayName + " (locked)" : element.DisplayName;
+            }
+            return border;
+        }
+
+        private static string ResolveInlineTokens(GlassStickerLabel label, string text, int? displayQuantity)
+        {
+            return FieldTokenRegex.Replace(text ?? string.Empty,
+                match => ResolveFieldValue(label, match.Groups[1].Value, displayQuantity));
+        }
+
+        private static Brush ParseBrush(string? value, Brush fallback)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(value)) return fallback;
+                var color = (Color)ColorConverter.ConvertFromString(value);
+                var brush = new SolidColorBrush(color);
+                brush.Freeze();
+                return brush;
+            }
+            catch
+            {
+                return fallback;
+            }
+        }
+
+        private static FontFamily SafeFontFamily(string? value)
+        {
+            try { return new FontFamily(string.IsNullOrWhiteSpace(value) ? "Segoe UI" : value); }
+            catch { return new FontFamily("Segoe UI"); }
+        }
+
+        private static TextAlignment ToTextAlignment(StickerTextAlignment alignment) => alignment switch
+        {
+            StickerTextAlignment.Center => TextAlignment.Center,
+            StickerTextAlignment.Right => TextAlignment.Right,
+            StickerTextAlignment.Justify => TextAlignment.Justify,
+            _ => TextAlignment.Left
+        };
+
+        private static VerticalAlignment ToVerticalAlignment(StickerContentAlignment alignment) => alignment switch
+        {
+            StickerContentAlignment.Top => VerticalAlignment.Top,
+            StickerContentAlignment.Bottom => VerticalAlignment.Bottom,
+            _ => VerticalAlignment.Center
+        };
 
         public static FrameworkElement Create(GlassStickerLabel label, StickerPrintPreferences preferences,
             int? displayQuantity = null)
@@ -88,6 +291,12 @@ namespace ProGlassAutomation.Services.Printing.Stickers
         }
 
         public static double MmToDip(double mm) => mm * 96.0 / 25.4;
+        public static double DipToMm(double dip) => dip * 25.4 / 96.0;
+
+        private static double SafeRange(double value, double minimum, double maximum, double fallback)
+        {
+            return double.IsFinite(value) ? Math.Clamp(value, minimum, maximum) : fallback;
+        }
 
         private static void AddCompanyHeader(Panel body, GlassStickerLabel label,
             StickerPrintPreferences preferences, double contentWidth, double fontSize)

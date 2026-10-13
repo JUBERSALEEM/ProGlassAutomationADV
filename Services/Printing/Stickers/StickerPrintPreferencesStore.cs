@@ -47,6 +47,7 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                     loaded.MarginMm = 2.5;
                 if (!double.IsFinite(loaded.FontSizePt) || loaded.FontSizePt < 5 || loaded.FontSizePt > 30)
                     loaded.FontSizePt = 9;
+                loaded.HasPersistedSettings = true;
                 return loaded;
             }
             catch (Exception ex)

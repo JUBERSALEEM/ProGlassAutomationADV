@@ -1,6 +1,8 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using ProGlassAutomation.Services.Printing.Stickers;
@@ -32,19 +34,67 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         private bool _showReference;
         private bool _showPanePosition;
         private GlassStickerLabel? _selectedLabel;
+        private StickerLayoutTemplate _activeTemplate = new();
+        private StickerTemplateChoice? _selectedTemplateChoice;
+        private StickerLayoutElement? _selectedElement;
+        private string _newFieldKey = "CompanyName";
+        private bool _isTemplateDirty;
         private string _statusMessage = string.Empty;
+        private bool _loadingTemplate;
 
         public StickerPrintDialogViewModel(
             System.Collections.Generic.IEnumerable<GlassStickerLabel> labels,
             StickerPrintPreferences? preferences)
         {
             var settings = preferences?.Copy() ?? new StickerPrintPreferences();
+            bool hasLegacySettings = settings.LastTemplate == null
+                && (settings.HasPersistedSettings || !string.IsNullOrWhiteSpace(settings.LastTemplateName));
             Items = new ObservableCollection<GlassStickerLabel>(labels ?? Array.Empty<GlassStickerLabel>());
             _selectedLabel = Items.FirstOrDefault();
-            _widthMmText = Format(settings.LabelWidthMm);
-            _heightMmText = Format(settings.LabelHeightMm);
-            _marginMmText = Format(settings.MarginMm);
-            _fontSizePtText = Format(settings.FontSizePt);
+
+            TemplateChoices = new ObservableCollection<StickerTemplateChoice>();
+            foreach (var preset in StickerTemplatePresets.All)
+                TemplateChoices.Add(new StickerTemplateChoice(preset.Name, preset, isBuiltIn: true));
+            foreach (var stored in StickerTemplateStore.LoadLibrary())
+                TemplateChoices.Add(new StickerTemplateChoice(
+                    stored.Template.Name + " · saved", stored.Template, isBuiltIn: false, filePath: stored.Path));
+
+            if (settings.LastTemplate != null
+                && StickerTemplateStore.TryValidate(settings.LastTemplate, out _))
+            {
+                var lastChoice = new StickerTemplateChoice(
+                    settings.LastTemplate.Name + " · last used", settings.LastTemplate, isBuiltIn: false);
+                TemplateChoices.Insert(0, lastChoice);
+                _selectedTemplateChoice = lastChoice;
+                _activeTemplate = settings.LastTemplate.DeepClone();
+            }
+            else
+            {
+                var selected = TemplateChoices.FirstOrDefault(choice =>
+                    string.Equals(choice.Template.Name, settings.LastTemplateName,
+                        StringComparison.OrdinalIgnoreCase))
+                    ?? TemplateChoices.FirstOrDefault(choice => choice.Template.Kind == StickerTemplateKind.Sgu)
+                    ?? TemplateChoices.First();
+                _selectedTemplateChoice = selected;
+                _activeTemplate = selected.Template.DeepClone();
+
+                // Preferences created by the first-generation sticker dialog
+                // remain useful when an operator upgrades to the template editor.
+                // A fresh install keeps the dimensions chosen by the selected preset.
+                if (hasLegacySettings)
+                {
+                    _activeTemplate.LabelWidthMm = settings.LabelWidthMm;
+                    _activeTemplate.LabelHeightMm = settings.LabelHeightMm;
+                    _activeTemplate.MarginMm = settings.MarginMm;
+                    _activeTemplate.DefaultFontSizePt = settings.FontSizePt;
+                    ApplyLegacyFieldVisibility(settings);
+                }
+            }
+
+            _widthMmText = Format(_activeTemplate.LabelWidthMm);
+            _heightMmText = Format(_activeTemplate.LabelHeightMm);
+            _marginMmText = Format(_activeTemplate.MarginMm);
+            _fontSizePtText = Format(_activeTemplate.DefaultFontSizePt);
             _oneLabelPerPiece = settings.OneLabelPerPiece;
             _showLogo = settings.ShowLogo;
             _showCompanyName = settings.ShowCompanyName;
@@ -60,9 +110,105 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             _showQuantity = settings.ShowQuantity;
             _showReference = settings.ShowReference;
             _showPanePosition = settings.ShowPanePosition;
+            _templateKinds = Enum.GetValues<StickerTemplateKind>().ToArray();
+            _textAlignments = Enum.GetValues<StickerTextAlignment>().ToArray();
+            _contentAlignments = Enum.GetValues<StickerContentAlignment>().ToArray();
+            _fieldChoices = StickerTemplateFieldCatalog.All;
+            AttachTemplateEvents();
         }
 
+        private readonly StickerTemplateKind[] _templateKinds;
+        private readonly StickerTextAlignment[] _textAlignments;
+        private readonly StickerContentAlignment[] _contentAlignments;
+        private readonly System.Collections.Generic.IReadOnlyList<StickerTemplateField> _fieldChoices;
+
         public ObservableCollection<GlassStickerLabel> Items { get; }
+        public ObservableCollection<StickerTemplateChoice> TemplateChoices { get; }
+        public StickerTemplateKind[] TemplateKinds => _templateKinds;
+        public StickerTextAlignment[] TextAlignments => _textAlignments;
+        public StickerContentAlignment[] ContentAlignments => _contentAlignments;
+        public System.Collections.Generic.IReadOnlyList<StickerTemplateField> FieldChoices => _fieldChoices;
+        public ObservableCollection<StickerLayoutElement> TemplateElements => _activeTemplate.Elements;
+        public StickerLayoutTemplate ActiveTemplate => _activeTemplate;
+
+        public StickerTemplateChoice? SelectedTemplateChoice
+        {
+            get => _selectedTemplateChoice;
+            set
+            {
+                if (value != null) SelectTemplateChoice(value);
+            }
+        }
+
+        public void SelectTemplateChoice(StickerTemplateChoice choice)
+        {
+            if (choice == null || ReferenceEquals(_selectedTemplateChoice, choice)) return;
+            ReplaceActiveTemplate(choice.Template, choice, markDirty: false);
+        }
+
+        public string TemplateNameText
+        {
+            get => _activeTemplate.Name;
+            set
+            {
+                string next = value ?? string.Empty;
+                if (_activeTemplate.Name == next) return;
+                _activeTemplate.Name = next;
+                OnPropertyChanged();
+                MarkTemplateDirty();
+            }
+        }
+
+        public StickerTemplateKind TemplateKind
+        {
+            get => _activeTemplate.Kind;
+            set
+            {
+                if (_activeTemplate.Kind == value) return;
+                _activeTemplate.Kind = value;
+                OnPropertyChanged();
+                MarkTemplateDirty();
+            }
+        }
+
+        public string TemplateBackgroundText
+        {
+            get => _activeTemplate.Background;
+            set
+            {
+                string next = value ?? string.Empty;
+                if (_activeTemplate.Background == next) return;
+                _activeTemplate.Background = next;
+                OnPropertyChanged();
+                MarkTemplateDirty();
+            }
+        }
+
+        public StickerLayoutElement? SelectedElement
+        {
+            get => _selectedElement;
+            set
+            {
+                if (ReferenceEquals(_selectedElement, value)) return;
+                _selectedElement = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasSelectedElement));
+                OnPropertyChanged(nameof(CanMoveSelectedElement));
+            }
+        }
+
+        public bool HasSelectedElement => SelectedElement != null;
+        public bool CanMoveSelectedElement => SelectedElement != null && !SelectedElement.IsLocked;
+        public string NewFieldKey
+        {
+            get => _newFieldKey;
+            set => Set(ref _newFieldKey, value ?? string.Empty, notifyBatch: false);
+        }
+        public bool IsTemplateDirty
+        {
+            get => _isTemplateDirty;
+            private set => Set(ref _isTemplateDirty, value, notifyBatch: false);
+        }
 
         public GlassStickerLabel? SelectedLabel
         {
@@ -70,10 +216,63 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             set => Set(ref _selectedLabel, value, notifyBatch: false);
         }
 
-        public string WidthMmText { get => _widthMmText; set => Set(ref _widthMmText, value ?? string.Empty); }
-        public string HeightMmText { get => _heightMmText; set => Set(ref _heightMmText, value ?? string.Empty); }
-        public string MarginMmText { get => _marginMmText; set => Set(ref _marginMmText, value ?? string.Empty); }
-        public string FontSizePtText { get => _fontSizePtText; set => Set(ref _fontSizePtText, value ?? string.Empty); }
+        public string WidthMmText
+        {
+            get => _widthMmText;
+            set
+            {
+                if (!Set(ref _widthMmText, value ?? string.Empty)) return;
+                if (TryParseNumber(_widthMmText, out double width) && width >= 15 && width <= 500)
+                {
+                    _activeTemplate.LabelWidthMm = width;
+                    MarkTemplateDirty();
+                }
+            }
+        }
+
+        public string HeightMmText
+        {
+            get => _heightMmText;
+            set
+            {
+                if (!Set(ref _heightMmText, value ?? string.Empty)) return;
+                if (TryParseNumber(_heightMmText, out double height) && height >= 15 && height <= 500)
+                {
+                    _activeTemplate.LabelHeightMm = height;
+                    MarkTemplateDirty();
+                }
+            }
+        }
+
+        public string MarginMmText
+        {
+            get => _marginMmText;
+            set
+            {
+                if (!Set(ref _marginMmText, value ?? string.Empty)) return;
+                if (TryParseNumber(_marginMmText, out double margin) && margin >= 0 && margin <= 25
+                    && margin * 2 < Math.Min(_activeTemplate.LabelWidthMm, _activeTemplate.LabelHeightMm))
+                {
+                    _activeTemplate.MarginMm = margin;
+                    MarkTemplateDirty();
+                }
+            }
+        }
+
+        public string FontSizePtText
+        {
+            get => _fontSizePtText;
+            set
+            {
+                if (!Set(ref _fontSizePtText, value ?? string.Empty)) return;
+                if (TryParseNumber(_fontSizePtText, out double size) && size >= 3 && size <= 72)
+                {
+                    _activeTemplate.DefaultFontSizePt = size;
+                    MarkTemplateDirty();
+                }
+            }
+        }
+
         public bool OneLabelPerPiece { get => _oneLabelPerPiece; set => Set(ref _oneLabelPerPiece, value); }
         public bool ShowLogo { get => _showLogo; set => Set(ref _showLogo, value); }
         public bool ShowCompanyName { get => _showCompanyName; set => Set(ref _showCompanyName, value); }
@@ -123,19 +322,222 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             }
         }
 
+        public void CreateNewTemplate()
+        {
+            ReplaceActiveTemplate(StickerTemplatePresets.CreateCustom(), null, markDirty: true);
+            TemplateNameText = "New custom template";
+            StatusMessage = "Blank template created. Add text or source fields, drag to position, then save as .pgsticker.";
+        }
+
+        public void AddTextElement()
+        {
+            var element = new StickerLayoutElement
+            {
+                Name = "Text",
+                Kind = StickerTemplateElementKind.Text,
+                Text = "New text",
+                Xmm = _activeTemplate.MarginMm,
+                Ymm = _activeTemplate.MarginMm,
+                WidthMm = Math.Max(12, _activeTemplate.LabelWidthMm - (_activeTemplate.MarginMm * 2)),
+                HeightMm = 8,
+                FontSizePt = _activeTemplate.DefaultFontSizePt,
+                HideWhenEmpty = false
+            };
+            AddElement(element);
+        }
+
+        public void AddFieldElement()
+        {
+            var field = StickerTemplateFieldCatalog.Find(NewFieldKey);
+            if (field == null) return;
+            if (field.IsImage)
+            {
+                AddLogoElement();
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(field.Key))
+            {
+                AddTextElement();
+                return;
+            }
+            AddElement(new StickerLayoutElement
+            {
+                Name = field.Label,
+                Kind = StickerTemplateElementKind.Text,
+                FieldKey = field.Key,
+                Xmm = _activeTemplate.MarginMm,
+                Ymm = _activeTemplate.MarginMm + (TemplateElements.Count * 7),
+                WidthMm = Math.Max(12, _activeTemplate.LabelWidthMm - (_activeTemplate.MarginMm * 2)),
+                HeightMm = 7,
+                FontSizePt = _activeTemplate.DefaultFontSizePt,
+                HideWhenEmpty = true
+            });
+        }
+
+        public void AddLogoElement()
+        {
+            AddElement(new StickerLayoutElement
+            {
+                Name = "Company logo",
+                Kind = StickerTemplateElementKind.Logo,
+                FieldKey = "CompanyLogo",
+                Xmm = _activeTemplate.MarginMm,
+                Ymm = _activeTemplate.MarginMm,
+                WidthMm = 20,
+                HeightMm = 14,
+                HideWhenEmpty = false
+            });
+        }
+
+        public void AddRectangleElement()
+        {
+            AddElement(new StickerLayoutElement
+            {
+                Name = "Box",
+                Kind = StickerTemplateElementKind.Rectangle,
+                Xmm = _activeTemplate.MarginMm,
+                Ymm = _activeTemplate.MarginMm,
+                WidthMm = Math.Max(0.5, Math.Min(40,
+                    _activeTemplate.LabelWidthMm - _activeTemplate.MarginMm * 2)),
+                HeightMm = Math.Max(0.5, Math.Min(15,
+                    _activeTemplate.LabelHeightMm - _activeTemplate.MarginMm * 2)),
+                Background = "#00FFFFFF",
+                BorderColor = "#FF344054",
+                BorderWidthMm = 0.3
+            });
+        }
+
+        public void AddLineElement()
+        {
+            AddElement(new StickerLayoutElement
+            {
+                Name = "Divider line",
+                Kind = StickerTemplateElementKind.Line,
+                Xmm = _activeTemplate.MarginMm,
+                Ymm = _activeTemplate.MarginMm,
+                WidthMm = Math.Max(10, _activeTemplate.LabelWidthMm - (_activeTemplate.MarginMm * 2)),
+                HeightMm = 0.7,
+                Background = "#FF344054",
+                BorderColor = "#FF344054"
+            });
+        }
+
+        public void DuplicateSelectedElement()
+        {
+            if (SelectedElement == null) return;
+            var copy = SelectedElement.DeepClone();
+            copy.Name = SelectedElement.Name + " copy";
+            copy.Xmm = Math.Min(_activeTemplate.LabelWidthMm - copy.WidthMm,
+                SelectedElement.Xmm + 2);
+            copy.Ymm = Math.Min(_activeTemplate.LabelHeightMm - copy.HeightMm,
+                SelectedElement.Ymm + 2);
+            copy.IsLocked = false;
+            AddElement(copy);
+        }
+
+        public void DeleteSelectedElement()
+        {
+            if (SelectedElement == null) return;
+            int index = TemplateElements.IndexOf(SelectedElement);
+            TemplateElements.Remove(SelectedElement);
+            SelectedElement = TemplateElements.Count == 0
+                ? null
+                : TemplateElements[Math.Min(index, TemplateElements.Count - 1)];
+        }
+
+        public void MoveSelectedElementLayer(int direction)
+        {
+            if (SelectedElement == null || direction == 0) return;
+            int index = TemplateElements.IndexOf(SelectedElement);
+            int target = Math.Clamp(index + Math.Sign(direction), 0, TemplateElements.Count - 1);
+            if (target != index) TemplateElements.Move(index, target);
+        }
+
+        public void NudgeSelectedElement(double dxMm, double dyMm)
+        {
+            if (SelectedElement == null || SelectedElement.IsLocked) return;
+            SetSelectedElementPosition(
+                SelectedElement.Xmm + dxMm,
+                SelectedElement.Ymm + dyMm);
+        }
+
+        public void SetSelectedElementPosition(double xMm, double yMm)
+        {
+            if (SelectedElement == null || SelectedElement.IsLocked) return;
+            SelectedElement.Xmm = Math.Clamp(xMm, 0, Math.Max(0, _activeTemplate.LabelWidthMm - SelectedElement.WidthMm));
+            SelectedElement.Ymm = Math.Clamp(yMm, 0, Math.Max(0, _activeTemplate.LabelHeightMm - SelectedElement.HeightMm));
+        }
+
+        public void LoadTemplateFile(StickerLayoutTemplate template, string path)
+        {
+            var choice = new StickerTemplateChoice(template.Name + " · file", template, false, path);
+            AddOrReplaceChoice(choice);
+            _selectedTemplateChoice = choice;
+            OnPropertyChanged(nameof(SelectedTemplateChoice));
+            ReplaceActiveTemplate(template, choice, markDirty: false);
+            StatusMessage = "Loaded template file: " + Path.GetFileName(path);
+        }
+
+        public bool TrySaveActiveTemplateToLibrary(out string path, out string error)
+        {
+            path = string.Empty;
+            if (!TryPrepareTemplateForSave(out error)) return false;
+            if (!StickerTemplateStore.TrySaveToLibrary(_activeTemplate, out path, out error)) return false;
+            RegisterSavedTemplate(path);
+            return true;
+        }
+
+        public bool TryPrepareTemplateForSave(out string error)
+        {
+            error = string.Empty;
+            if (!TryParseNumber(_widthMmText, out double width) || width < 15 || width > 500)
+            {
+                error = "Label width must be between 15 and 500 mm.";
+                return false;
+            }
+            if (!TryParseNumber(_heightMmText, out double height) || height < 15 || height > 500)
+            {
+                error = "Label height must be between 15 and 500 mm.";
+                return false;
+            }
+            if (!TryParseNumber(_marginMmText, out double margin) || margin < 0 || margin > 25
+                || margin * 2 >= Math.Min(width, height))
+            {
+                error = "Margin must be between 0 and 25 mm and leave printable space.";
+                return false;
+            }
+            if (!TryParseNumber(_fontSizePtText, out double fontSize) || fontSize < 3 || fontSize > 72)
+            {
+                error = "Default font size must be between 3 and 72 pt.";
+                return false;
+            }
+
+            _activeTemplate.LabelWidthMm = width;
+            _activeTemplate.LabelHeightMm = height;
+            _activeTemplate.MarginMm = margin;
+            _activeTemplate.DefaultFontSizePt = fontSize;
+            return StickerTemplateStore.TryValidate(_activeTemplate, out error);
+        }
+
+        public void RegisterExportedTemplate(string path)
+        {
+            RegisterSavedTemplate(path);
+        }
+
+        public void SetTemplateSavedMessage(string message) => StatusMessage = message;
+        public void MarkTemplatePersisted() => IsTemplateDirty = false;
+
         public bool TryCreatePreferences(out StickerPrintPreferences preferences, out string error)
         {
             preferences = new StickerPrintPreferences();
             error = string.Empty;
 
-            if (!TryParseNumber(WidthMmText, out double width)
-                || width < 15 || width > 500)
+            if (!TryParseNumber(WidthMmText, out double width) || width < 15 || width > 500)
             {
                 error = "Label width must be between 15 and 500 mm.";
                 return false;
             }
-            if (!TryParseNumber(HeightMmText, out double height)
-                || height < 15 || height > 500)
+            if (!TryParseNumber(HeightMmText, out double height) || height < 15 || height > 500)
             {
                 error = "Label height must be between 15 and 500 mm.";
                 return false;
@@ -146,10 +548,9 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 error = "Margin must be between 0 and 25 mm and leave printable space.";
                 return false;
             }
-            if (!TryParseNumber(FontSizePtText, out double fontSize)
-                || fontSize < 5 || fontSize > 30)
+            if (!TryParseNumber(FontSizePtText, out double fontSize) || fontSize < 3 || fontSize > 72)
             {
-                error = "Font size must be between 5 and 30 pt.";
+                error = "Default font size must be between 3 and 72 pt.";
                 return false;
             }
             if (Items.Count == 0 || EstimatedLabelCount == 0)
@@ -163,12 +564,19 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 return false;
             }
 
+            _activeTemplate.LabelWidthMm = width;
+            _activeTemplate.LabelHeightMm = height;
+            _activeTemplate.MarginMm = margin;
+            _activeTemplate.DefaultFontSizePt = fontSize;
+            if (!StickerTemplateStore.TryValidate(_activeTemplate, out error)) return false;
             preferences = new StickerPrintPreferences
             {
                 LabelWidthMm = width,
                 LabelHeightMm = height,
                 MarginMm = margin,
                 FontSizePt = fontSize,
+                LastTemplateName = _activeTemplate.Name,
+                LastTemplate = _activeTemplate.DeepClone(),
                 OneLabelPerPiece = OneLabelPerPiece,
                 ShowLogo = ShowLogo,
                 ShowCompanyName = ShowCompanyName,
@@ -186,6 +594,135 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 ShowPanePosition = ShowPanePosition
             };
             return true;
+        }
+
+        private void ReplaceActiveTemplate(StickerLayoutTemplate template,
+            StickerTemplateChoice? choice, bool markDirty)
+        {
+            DetachTemplateEvents();
+            _loadingTemplate = true;
+            _activeTemplate = template.DeepClone();
+            _selectedElement = null;
+            _widthMmText = Format(_activeTemplate.LabelWidthMm);
+            _heightMmText = Format(_activeTemplate.LabelHeightMm);
+            _marginMmText = Format(_activeTemplate.MarginMm);
+            _fontSizePtText = Format(_activeTemplate.DefaultFontSizePt);
+            _selectedTemplateChoice = choice;
+            AttachTemplateEvents();
+            _loadingTemplate = false;
+            OnPropertyChanged(nameof(ActiveTemplate));
+            OnPropertyChanged(nameof(TemplateElements));
+            OnPropertyChanged(nameof(TemplateNameText));
+            OnPropertyChanged(nameof(TemplateKind));
+            OnPropertyChanged(nameof(TemplateBackgroundText));
+            OnPropertyChanged(nameof(SelectedTemplateChoice));
+            OnPropertyChanged(nameof(SelectedElement));
+            OnPropertyChanged(nameof(HasSelectedElement));
+            OnPropertyChanged(nameof(CanMoveSelectedElement));
+            OnPropertyChanged(nameof(WidthMmText));
+            OnPropertyChanged(nameof(HeightMmText));
+            OnPropertyChanged(nameof(MarginMmText));
+            OnPropertyChanged(nameof(FontSizePtText));
+            if (markDirty) MarkTemplateDirty();
+            else IsTemplateDirty = false;
+        }
+
+        private void AddElement(StickerLayoutElement element)
+        {
+            TemplateElements.Add(element);
+            SelectedElement = element;
+        }
+
+        private void ApplyLegacyFieldVisibility(StickerPrintPreferences settings)
+        {
+            SetVisible("CompanyLogo", settings.ShowLogo);
+            SetVisible("CompanyName", settings.ShowCompanyName);
+            SetVisible("CompanyAddress", settings.ShowAddress);
+            SetVisible("CompanyTelephone", settings.ShowTelephone);
+            SetVisible("CompanyMobile", settings.ShowMobile);
+            SetVisible("CompanyWebsite", settings.ShowWebsite);
+            SetVisible("CompanyEmail", settings.ShowEmail);
+            SetVisible("OrderDisplay", settings.ShowOrder);
+            SetVisible("CustomerCompanyName", settings.ShowCustomer);
+            SetVisible("GlassName", settings.ShowGlassName);
+            SetVisible("SizeText", settings.ShowSize);
+            SetVisible("Quantity", settings.ShowQuantity);
+            SetVisible("Reference", settings.ShowReference);
+            SetVisible("PanePosition", settings.ShowPanePosition);
+        }
+
+        private void SetVisible(string fieldKey, bool visible)
+        {
+            foreach (var element in _activeTemplate.Elements.Where(e =>
+                         string.Equals(e.FieldKey, fieldKey, StringComparison.OrdinalIgnoreCase)))
+                element.IsVisible = visible;
+        }
+
+        private void AddOrReplaceChoice(StickerTemplateChoice choice)
+        {
+            for (int i = TemplateChoices.Count - 1; i >= 0; i--)
+            {
+                if (!string.IsNullOrWhiteSpace(choice.FilePath)
+                    && string.Equals(TemplateChoices[i].FilePath, choice.FilePath,
+                        StringComparison.OrdinalIgnoreCase))
+                    TemplateChoices.RemoveAt(i);
+            }
+            TemplateChoices.Add(choice);
+        }
+
+        private void RegisterSavedTemplate(string path)
+        {
+            var choice = new StickerTemplateChoice(_activeTemplate.Name + " · saved",
+                _activeTemplate.DeepClone(), isBuiltIn: false, filePath: path);
+            AddOrReplaceChoice(choice);
+            _selectedTemplateChoice = choice;
+            OnPropertyChanged(nameof(SelectedTemplateChoice));
+            IsTemplateDirty = false;
+            OnPropertyChanged(nameof(TemplateNameText));
+        }
+
+        private void AttachTemplateEvents()
+        {
+            _activeTemplate.Elements.CollectionChanged += OnTemplateElementsChanged;
+            foreach (var element in _activeTemplate.Elements)
+                element.PropertyChanged += OnTemplateElementChanged;
+        }
+
+        private void DetachTemplateEvents()
+        {
+            _activeTemplate.Elements.CollectionChanged -= OnTemplateElementsChanged;
+            foreach (var element in _activeTemplate.Elements)
+                element.PropertyChanged -= OnTemplateElementChanged;
+        }
+
+        private void OnTemplateElementsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+                foreach (StickerLayoutElement element in e.OldItems)
+                    element.PropertyChanged -= OnTemplateElementChanged;
+            if (e.NewItems != null)
+                foreach (StickerLayoutElement element in e.NewItems)
+                    element.PropertyChanged += OnTemplateElementChanged;
+            OnPropertyChanged(nameof(TemplateElements));
+            OnPropertyChanged(nameof(EditorRevision));
+            if (!_loadingTemplate) MarkTemplateDirty();
+        }
+
+        private void OnTemplateElementChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (ReferenceEquals(sender, SelectedElement) && e.PropertyName == nameof(StickerLayoutElement.IsLocked))
+                OnPropertyChanged(nameof(CanMoveSelectedElement));
+            OnPropertyChanged(nameof(EditorRevision));
+            if (!_loadingTemplate) MarkTemplateDirty();
+        }
+
+        public int EditorRevision => 0;
+
+        private void MarkTemplateDirty()
+        {
+            IsTemplateDirty = true;
+            OnPropertyChanged(nameof(ActiveTemplate));
+            OnPropertyChanged(nameof(EditorRevision));
         }
 
         private static bool TryParseNumber(string text, out double value)

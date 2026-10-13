@@ -70,6 +70,9 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                     ProformaNumber = orderId,
                     CustomerCompanyName = invoice.Client?.CustomerName?.Trim() ?? string.Empty,
                     GlassName = glassName,
+                    GlassType = !string.IsNullOrWhiteSpace(group.SelectedGlassType)
+                        ? group.SelectedGlassType
+                        : buildType,
                     GlassReference = item.GlassRef ?? string.Empty,
                     WidthMm = item.WidthMm,
                     HeightMm = item.HeightMm,
@@ -104,6 +107,7 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                     ProformaNumber = (r.ProformaNumber ?? string.Empty).Trim(),
                     CustomerCompanyName = (r.CustomerCompanyName ?? string.Empty).Trim(),
                     GlassName = ComposeGlassName(r.GlassName, string.Empty, 0),
+                    GlassType = (r.GlassType ?? string.Empty).Trim(),
                     GlassReference = (r.GlassReference ?? string.Empty).Trim(),
                     WidthMm = r.WidthMm,
                     HeightMm = r.HeightMm,

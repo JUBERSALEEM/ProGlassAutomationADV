@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text.Json.Serialization;
 
 namespace ProGlassAutomation.Services.Printing.Stickers
 {
@@ -43,6 +44,7 @@ namespace ProGlassAutomation.Services.Printing.Stickers
         public string ProformaNumber { get; set; } = string.Empty;
         public string CustomerCompanyName { get; set; } = string.Empty;
         public string GlassName { get; set; } = string.Empty;
+        public string GlassType { get; set; } = string.Empty;
         public string GlassReference { get; set; } = string.Empty;
         public int WidthMm { get; set; }
         public int HeightMm { get; set; }
@@ -78,6 +80,7 @@ namespace ProGlassAutomation.Services.Printing.Stickers
         public string ProformaNumber { get; set; } = string.Empty;
         public string CustomerCompanyName { get; set; } = string.Empty;
         public string GlassName { get; set; } = string.Empty;
+        public string GlassType { get; set; } = string.Empty;
         public string GlassReference { get; set; } = string.Empty;
         public int WidthMm { get; set; }
         public int HeightMm { get; set; }
@@ -96,6 +99,10 @@ namespace ProGlassAutomation.Services.Printing.Stickers
         public double LabelHeightMm { get; set; } = 75;
         public double MarginMm { get; set; } = 2.5;
         public double FontSizePt { get; set; } = 9;
+        public string LastTemplateName { get; set; } = string.Empty;
+        public StickerLayoutTemplate? LastTemplate { get; set; }
+        [JsonIgnore]
+        public bool HasPersistedSettings { get; set; }
         public bool OneLabelPerPiece { get; set; } = true;
         public bool ShowLogo { get; set; } = true;
         public bool ShowCompanyName { get; set; } = true;
@@ -112,6 +119,11 @@ namespace ProGlassAutomation.Services.Printing.Stickers
         public bool ShowReference { get; set; } = true;
         public bool ShowPanePosition { get; set; } = false;
 
-        public StickerPrintPreferences Copy() => (StickerPrintPreferences)MemberwiseClone();
+        public StickerPrintPreferences Copy()
+        {
+            var copy = (StickerPrintPreferences)MemberwiseClone();
+            copy.LastTemplate = LastTemplate?.DeepClone();
+            return copy;
+        }
     }
 }

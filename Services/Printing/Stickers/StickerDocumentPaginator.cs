@@ -11,18 +11,28 @@ namespace ProGlassAutomation.Services.Printing.Stickers
     {
         private readonly IReadOnlyList<GlassStickerLabel> _rows;
         private readonly StickerPrintPreferences _preferences;
+        private readonly StickerLayoutTemplate _template;
         private readonly long[] _pageEnds;
         private Size _pageSize;
 
         public StickerDocumentPaginator(
             IReadOnlyList<GlassStickerLabel> rows,
             StickerPrintPreferences preferences)
+            : this(rows, preferences, preferences?.LastTemplate ?? StickerTemplatePresets.CreateSgu())
+        {
+        }
+
+        public StickerDocumentPaginator(
+            IReadOnlyList<GlassStickerLabel> rows,
+            StickerPrintPreferences preferences,
+            StickerLayoutTemplate template)
         {
             _rows = rows ?? Array.Empty<GlassStickerLabel>();
             _preferences = preferences ?? throw new ArgumentNullException(nameof(preferences));
+            _template = template?.DeepClone() ?? StickerTemplatePresets.CreateSgu();
             _pageSize = new Size(
-                StickerLabelVisualFactory.MmToDip(preferences.LabelWidthMm),
-                StickerLabelVisualFactory.MmToDip(preferences.LabelHeightMm));
+                StickerLabelVisualFactory.MmToDip(_template.LabelWidthMm),
+                StickerLabelVisualFactory.MmToDip(_template.LabelHeightMm));
 
             _pageEnds = new long[_rows.Count];
             long count = 0;
@@ -66,7 +76,8 @@ namespace ProGlassAutomation.Services.Printing.Stickers
             // The preview and physical paginator share the same visual factory;
             // one-per-piece mode only changes the quantity printed per page.
             var label = CloneWithPrintedQuantity(source, printedQuantity);
-            page.Children.Add(StickerLabelVisualFactory.Create(label, _preferences));
+            page.Children.Add(StickerLabelVisualFactory.CreateTemplateCanvas(
+                label, _template, printedQuantity));
             page.Measure(PageSize);
             page.Arrange(new Rect(new Point(0, 0), PageSize));
             page.UpdateLayout();
@@ -105,6 +116,7 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                 ProformaNumber = source.ProformaNumber,
                 CustomerCompanyName = source.CustomerCompanyName,
                 GlassName = source.GlassName,
+                GlassType = source.GlassType,
                 GlassReference = source.GlassReference,
                 WidthMm = source.WidthMm,
                 HeightMm = source.HeightMm,

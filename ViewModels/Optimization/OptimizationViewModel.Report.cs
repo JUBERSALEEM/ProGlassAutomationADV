@@ -180,6 +180,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         CustomerCompanyName = invoice?.Client?.CustomerName
                             ?? job?.CustomerName ?? string.Empty,
                         GlassName = glassName,
+                        GlassType = piece.GlassType ?? string.Empty,
                         GlassReference = piece.PieceLabel ?? string.Empty,
                         WidthMm = width,
                         HeightMm = height,

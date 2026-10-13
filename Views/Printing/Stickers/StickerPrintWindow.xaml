@@ -1,160 +1,302 @@
 <Window x:Class="ProGlassAutomation.Views.Printing.Stickers.StickerPrintWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Glass Sticker Printer"
-        Width="1220" Height="820" MinWidth="980" MinHeight="680"
+        Title="Glass Sticker Designer &amp; Printer"
+        Width="1480" Height="960" MinWidth="1160" MinHeight="760"
         WindowStartupLocation="CenterOwner"
         Background="#F4F6FA"
         FontFamily="Segoe UI"
         TextOptions.TextFormattingMode="Display">
-    <Grid Margin="18">
+    <Grid Margin="16">
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="1.2*"/>
+            <RowDefinition Height="0.8*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="350"/>
-            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="390"/>
+            <ColumnDefinition Width="14"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <ScrollViewer Grid.Row="0" Grid.Column="0" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
+                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
-                <TextBlock Text="GLASS STICKER PRINTER" FontSize="19" FontWeight="Bold"
+                <TextBlock Text="STICKER DESIGNER" FontSize="20" FontWeight="Bold"
                            Foreground="#182230" Margin="0,0,0,4"/>
-                <TextBlock Text="Set label stock, choose printed fields, then review the live preview before printing."
-                           FontSize="12" Foreground="#667085" TextWrapping="Wrap" Margin="0,0,0,14"/>
+                <TextBlock Text="Choose a printer style or freely build one. Drag objects on the label, edit their properties, then save or export a reusable .pgsticker file."
+                           FontSize="12" Foreground="#667085" TextWrapping="Wrap" Margin="0,0,0,12"/>
 
-                <Border Background="White" BorderBrush="#D0D5DD" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,0,12">
+                <Border Background="White" BorderBrush="#D0D5DD" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,10">
                     <StackPanel>
-                        <TextBlock Text="LABEL STOCK &amp; TYPE" FontSize="11" FontWeight="Bold" Foreground="#344054" Margin="0,0,0,10"/>
+                        <DockPanel Margin="0,0,0,8">
+                            <TextBlock Text="PRINTER STYLE TEMPLATE" FontSize="11" FontWeight="Bold" Foreground="#344054"/>
+                            <TextBlock DockPanel.Dock="Right" FontSize="10" FontWeight="SemiBold">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="Saved"/>
+                                        <Setter Property="Foreground" Value="#027A48"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsTemplateDirty}" Value="True">
+                                                <Setter Property="Text" Value="Unsaved edits"/>
+                                                <Setter Property="Foreground" Value="#B54708"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </DockPanel>
+                        <ComboBox x:Name="TemplateCombo" ItemsSource="{Binding TemplateChoices}"
+                                  SelectedItem="{Binding SelectedTemplateChoice, Mode=OneWay}"
+                                  DisplayMemberPath="DisplayName" SelectionChanged="TemplateCombo_SelectionChanged"
+                                  Padding="6,5" Margin="0,0,0,8"/>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Content="New custom" Click="NewTemplate_Click" Padding="7,5"/>
+                            <Button Grid.Column="2" Content="Open .pgsticker" Click="OpenTemplate_Click" Padding="7,5"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Content="Save to library" Click="SaveTemplate_Click" Padding="7,5"
+                                    Background="#EFF8FF" BorderBrush="#84CAFF"/>
+                            <Button Grid.Column="2" Content="Export file…" Click="ExportTemplate_Click" Padding="7,5"/>
+                        </Grid>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="12"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="135"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel>
-                                <TextBlock Text="Width (mm)" FontSize="11" Foreground="#667085"/>
-                                <TextBox Text="{Binding WidthMmText, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,10" Padding="8,6"/>
+                                <TextBlock Text="Template name" FontSize="10" Foreground="#667085"/>
+                                <TextBox Text="{Binding TemplateNameText, UpdateSourceTrigger=PropertyChanged}" Margin="0,3,0,0" Padding="6,4"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Height (mm)" FontSize="11" Foreground="#667085"/>
-                                <TextBox Text="{Binding HeightMmText, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,10" Padding="8,6"/>
+                                <TextBlock Text="Style family" FontSize="10" Foreground="#667085"/>
+                                <ComboBox ItemsSource="{Binding TemplateKinds}" SelectedItem="{Binding TemplateKind, Mode=TwoWay}"
+                                          Margin="0,3,0,0" Padding="4,4"/>
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel Margin="0,7,0,0">
+                            <TextBlock Text="Label background (#RRGGBB or #AARRGGBB)" FontSize="10" Foreground="#667085"/>
+                            <TextBox Text="{Binding TemplateBackgroundText, UpdateSourceTrigger=PropertyChanged}" Margin="0,3,0,0" Padding="5,4"/>
+                        </StackPanel>
+                        <TextBlock Text="SGU, DGU and Proforma/Job presets are starting points. Saved files contain layout only—not invoice or customer data."
+                                   FontSize="10" Foreground="#667085" TextWrapping="Wrap" Margin="0,7,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="White" BorderBrush="#D0D5DD" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="LABEL STOCK &amp; REPEAT MODE" FontSize="11" FontWeight="Bold" Foreground="#344054" Margin="0,0,0,8"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Width (mm)" FontSize="10" Foreground="#667085"/>
+                                <TextBox Text="{Binding WidthMmText, UpdateSourceTrigger=PropertyChanged}" Margin="0,3,0,8" Padding="6,4"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Height (mm)" FontSize="10" Foreground="#667085"/>
+                                <TextBox Text="{Binding HeightMmText, UpdateSourceTrigger=PropertyChanged}" Margin="0,3,0,8" Padding="6,4"/>
                             </StackPanel>
                         </Grid>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="12"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel>
-                                <TextBlock Text="Inner margin (mm)" FontSize="11" Foreground="#667085"/>
-                                <TextBox Text="{Binding MarginMmText, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,10" Padding="8,6"/>
+                                <TextBlock Text="Default inset (mm)" FontSize="10" Foreground="#667085"/>
+                                <TextBox Text="{Binding MarginMmText, UpdateSourceTrigger=PropertyChanged}" Margin="0,3,0,8" Padding="6,4"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Base font (pt)" FontSize="11" Foreground="#667085"/>
-                                <TextBox Text="{Binding FontSizePtText, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,10" Padding="8,6"/>
+                                <TextBlock Text="New text size (pt)" FontSize="10" Foreground="#667085"/>
+                                <TextBox Text="{Binding FontSizePtText, UpdateSourceTrigger=PropertyChanged}" Margin="0,3,0,8" Padding="6,4"/>
                             </StackPanel>
                         </Grid>
                         <CheckBox Content="Print one sticker per physical glass piece" IsChecked="{Binding OneLabelPerPiece}"
-                                  FontSize="12" Foreground="#344054" Margin="0,2,0,4"/>
-                        <TextBlock Text="When unchecked, one sticker is printed per source row and shows the row quantity."
+                                  FontSize="11" Foreground="#344054" Margin="0,2,0,4"/>
+                        <TextBlock Text="Uncheck to print one label per source row and show that row’s total quantity."
                                    FontSize="10" Foreground="#667085" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
 
-                <Border Background="White" BorderBrush="#D0D5DD" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,0,12">
+                <Border Background="White" BorderBrush="#D0D5DD" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,10">
                     <StackPanel>
-                        <TextBlock Text="FIELDS ON LABEL" FontSize="11" FontWeight="Bold" Foreground="#344054" Margin="0,0,0,8"/>
-                        <CheckBox Content="Company logo" IsChecked="{Binding ShowLogo}" FontSize="12" Margin="0,3"/>
-                        <CheckBox Content="Company name" IsChecked="{Binding ShowCompanyName}" FontSize="12" Margin="0,3"/>
-                        <CheckBox Content="Company address" IsChecked="{Binding ShowAddress}" FontSize="12" Margin="0,3"/>
-                        <CheckBox Content="Company telephone" IsChecked="{Binding ShowTelephone}" FontSize="12" Margin="0,3"/>
-                        <CheckBox Content="Representative mobile" IsChecked="{Binding ShowMobile}" FontSize="12" Margin="0,3"/>
-                        <CheckBox Content="Website" IsChecked="{Binding ShowWebsite}" FontSize="12" Margin="0,3"/>
-                        <CheckBox Content="Email" IsChecked="{Binding ShowEmail}" FontSize="12" Margin="0,3"/>
-                        <Separator Margin="0,8"/>
-                        <CheckBox Content="Order / Job / PI" IsChecked="{Binding ShowOrder}" FontSize="12" Margin="0,3"/>
-                        <CheckBox Content="Customer company" IsChecked="{Binding ShowCustomer}" FontSize="12" Margin="0,3"/>
-                        <CheckBox Content="Glass / colour name" IsChecked="{Binding ShowGlassName}" FontSize="12" Margin="0,3"/>
-                        <CheckBox Content="Width × height" IsChecked="{Binding ShowSize}" FontSize="12" Margin="0,3"/>
-                        <CheckBox Content="Quantity" IsChecked="{Binding ShowQuantity}" FontSize="12" Margin="0,3"/>
-                        <CheckBox Content="Reference" IsChecked="{Binding ShowReference}" FontSize="12" Margin="0,3"/>
-                        <CheckBox Content="Pane position" IsChecked="{Binding ShowPanePosition}" FontSize="12" Margin="0,3"/>
+                        <DockPanel Margin="0,0,0,7">
+                            <TextBlock Text="LAYOUT OBJECTS" FontSize="11" FontWeight="Bold" Foreground="#344054"/>
+                            <TextBlock Text="{Binding TemplateElements.Count, StringFormat={}{0} objects}" DockPanel.Dock="Right"
+                                       FontSize="10" Foreground="#667085"/>
+                        </DockPanel>
+                        <ListBox x:Name="TemplateElementsList" ItemsSource="{Binding TemplateElements}"
+                                 SelectedItem="{Binding SelectedElement, Mode=TwoWay}" DisplayMemberPath="DisplayName"
+                                 Height="110" BorderBrush="#D0D5DD"/>
+                        <Grid Margin="0,7,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="5"/><ColumnDefinition Width="*"/><ColumnDefinition Width="5"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Content="+ Text" Click="AddText_Click" Padding="4,5"/>
+                            <Button Grid.Column="2" Content="+ Logo" Click="AddLogo_Click" Padding="4,5"/>
+                            <Button Grid.Column="4" Content="+ Box" Click="AddBox_Click" Padding="4,5"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="5"/><ColumnDefinition Width="*"/><ColumnDefinition Width="5"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <ComboBox x:Name="FieldPicker" ItemsSource="{Binding FieldChoices}" DisplayMemberPath="Label"
+                                      SelectedValuePath="Key" SelectedValue="{Binding NewFieldKey, Mode=TwoWay}"
+                                      Padding="4,4" ToolTip="Select a source value to add"/>
+                            <Button Grid.Column="2" Content="+ Field" Click="AddField_Click" Padding="4,5"/>
+                            <Button Grid.Column="4" Content="+ Line" Click="AddLine_Click" Padding="4,5"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="5"/><ColumnDefinition Width="*"/><ColumnDefinition Width="5"/><ColumnDefinition Width="*"/><ColumnDefinition Width="5"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Content="Duplicate" Click="DuplicateElement_Click" Padding="3,5" IsEnabled="{Binding HasSelectedElement}"/>
+                            <Button Grid.Column="2" Content="Delete" Click="DeleteElement_Click" Padding="3,5" IsEnabled="{Binding HasSelectedElement}"/>
+                            <Button Grid.Column="4" Content="Back" Click="SendBackward_Click" Padding="3,5" IsEnabled="{Binding HasSelectedElement}"/>
+                            <Button Grid.Column="6" Content="Front" Click="BringForward_Click" Padding="3,5" IsEnabled="{Binding HasSelectedElement}"/>
+                        </Grid>
                     </StackPanel>
                 </Border>
 
-                <Border Background="#EEF4FF" BorderBrush="#B2CCFF" BorderThickness="1" CornerRadius="8" Padding="10">
-                    <TextBlock Text="Company and customer values come from the source PI / Job Order snapshot. Edit telephone and website in Company Center or Step 1; this dialog does not silently replace invoice data."
-                               FontSize="11" Foreground="#344054" TextWrapping="Wrap"/>
+                <Border Background="White" BorderBrush="#D0D5DD" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,10">
+                    <StackPanel IsEnabled="{Binding HasSelectedElement}">
+                        <TextBlock Text="SELECTED OBJECT — STYLE &amp; POSITION" FontSize="11" FontWeight="Bold" Foreground="#344054" Margin="0,0,0,8"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Object name" FontSize="10" Foreground="#667085"/>
+                                <TextBox Text="{Binding SelectedElement.Name, UpdateSourceTrigger=PropertyChanged}" Margin="0,3,0,7" Padding="5,4"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Data field" FontSize="10" Foreground="#667085"/>
+                                <ComboBox ItemsSource="{Binding FieldChoices}" DisplayMemberPath="Label" SelectedValuePath="Key"
+                                          SelectedValue="{Binding SelectedElement.FieldKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Margin="0,3,0,7" Padding="3,4"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="Text (static when no field is selected)" FontSize="10" Foreground="#667085"/>
+                        <TextBox Text="{Binding SelectedElement.Text, UpdateSourceTrigger=PropertyChanged}"
+                                 AcceptsReturn="True" TextWrapping="Wrap" Height="46" Margin="0,3,0,7" Padding="5,4"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Prefix" FontSize="10" Foreground="#667085"/>
+                                <TextBox Text="{Binding SelectedElement.Prefix, UpdateSourceTrigger=PropertyChanged}" Margin="0,3,0,7" Padding="5,4"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Suffix" FontSize="10" Foreground="#667085"/>
+                                <TextBox Text="{Binding SelectedElement.Suffix, UpdateSourceTrigger=PropertyChanged}" Margin="0,3,0,7" Padding="5,4"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel IsEnabled="{Binding CanMoveSelectedElement}"><TextBlock Text="X (mm)" FontSize="10" Foreground="#667085"/><TextBox Text="{Binding SelectedElement.Xmm, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,3,0,7" Padding="4"/></StackPanel>
+                            <StackPanel Grid.Column="2" IsEnabled="{Binding CanMoveSelectedElement}"><TextBlock Text="Y (mm)" FontSize="10" Foreground="#667085"/><TextBox Text="{Binding SelectedElement.Ymm, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,3,0,7" Padding="4"/></StackPanel>
+                            <StackPanel Grid.Column="4"><TextBlock Text="W (mm)" FontSize="10" Foreground="#667085"/><TextBox Text="{Binding SelectedElement.WidthMm, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,3,0,7" Padding="4"/></StackPanel>
+                            <StackPanel Grid.Column="6"><TextBlock Text="H (mm)" FontSize="10" Foreground="#667085"/><TextBox Text="{Binding SelectedElement.HeightMm, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,3,0,7" Padding="4"/></StackPanel>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <StackPanel><TextBlock Text="Font family" FontSize="10" Foreground="#667085"/><TextBox Text="{Binding SelectedElement.FontFamily, UpdateSourceTrigger=LostFocus}" Margin="0,3,0,7" Padding="4"/></StackPanel>
+                            <StackPanel Grid.Column="2"><TextBlock Text="Size (pt)" FontSize="10" Foreground="#667085"/><TextBox Text="{Binding SelectedElement.FontSizePt, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,3,0,7" Padding="4"/></StackPanel>
+                            <StackPanel Grid.Column="4"><TextBlock Text="Rotate °" FontSize="10" Foreground="#667085"/><TextBox Text="{Binding SelectedElement.RotationDegrees, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,3,0,7" Padding="4"/></StackPanel>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <StackPanel><TextBlock Text="Text color" FontSize="10" Foreground="#667085"/><TextBox Text="{Binding SelectedElement.Foreground, UpdateSourceTrigger=PropertyChanged}" Margin="0,3,0,7" Padding="4"/></StackPanel>
+                            <StackPanel Grid.Column="2"><TextBlock Text="Fill color" FontSize="10" Foreground="#667085"/><TextBox Text="{Binding SelectedElement.Background, UpdateSourceTrigger=PropertyChanged}" Margin="0,3,0,7" Padding="4"/></StackPanel>
+                            <StackPanel Grid.Column="4"><TextBlock Text="Border color" FontSize="10" Foreground="#667085"/><TextBox Text="{Binding SelectedElement.BorderColor, UpdateSourceTrigger=PropertyChanged}" Margin="0,3,0,7" Padding="4"/></StackPanel>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <StackPanel><TextBlock Text="Border (mm)" FontSize="10" Foreground="#667085"/><TextBox Text="{Binding SelectedElement.BorderWidthMm, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,3,0,7" Padding="4"/></StackPanel>
+                            <StackPanel Grid.Column="2"><TextBlock Text="Padding (mm)" FontSize="10" Foreground="#667085"/><TextBox Text="{Binding SelectedElement.PaddingMm, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,3,0,7" Padding="4"/></StackPanel>
+                            <StackPanel Grid.Column="4"><TextBlock Text="Align" FontSize="10" Foreground="#667085"/><ComboBox ItemsSource="{Binding DataContext.TextAlignments, RelativeSource={RelativeSource AncestorType=Window}}" SelectedItem="{Binding SelectedElement.TextAlignment}" Margin="0,3,0,7" Padding="2"/></StackPanel>
+                            <StackPanel Grid.Column="6"><TextBlock Text="Vertical" FontSize="10" Foreground="#667085"/><ComboBox ItemsSource="{Binding DataContext.ContentAlignments, RelativeSource={RelativeSource AncestorType=Window}}" SelectedItem="{Binding SelectedElement.ContentAlignment}" Margin="0,3,0,7" Padding="2"/></StackPanel>
+                        </Grid>
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Opacity (0–1)" FontSize="10" Foreground="#667085"/>
+                                <TextBox Text="{Binding SelectedElement.Opacity, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,3,0,7" Padding="4"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="2" Text="1 = fully opaque · 0 = transparent" FontSize="10" Foreground="#667085" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                        </Grid>
+                        <WrapPanel Margin="0,2,0,0">
+                            <CheckBox Content="Bold" IsChecked="{Binding SelectedElement.Bold}" Margin="0,2,12,2"/>
+                            <CheckBox Content="Italic" IsChecked="{Binding SelectedElement.Italic}" Margin="0,2,12,2"/>
+                            <CheckBox Content="Underline" IsChecked="{Binding SelectedElement.Underline}" Margin="0,2,12,2"/>
+                            <CheckBox Content="Visible" IsChecked="{Binding SelectedElement.IsVisible}" Margin="0,2,12,2"/>
+                            <CheckBox Content="Hide if blank" IsChecked="{Binding SelectedElement.HideWhenEmpty}" Margin="0,2,12,2"/>
+                            <CheckBox Content="Hold / lock position" IsChecked="{Binding SelectedElement.IsLocked}" Margin="0,2,0,2"/>
+                        </WrapPanel>
+                    </StackPanel>
                 </Border>
             </StackPanel>
         </ScrollViewer>
 
-        <Grid Grid.Row="0" Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="1.15*"/>
-                <RowDefinition Height="0.85*"/>
-            </Grid.RowDefinitions>
-            <Border Grid.Row="0" Background="White" BorderBrush="#D0D5DD" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,0,12">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <DockPanel Margin="0,0,0,8">
-                        <TextBlock Text="LIVE PREVIEW" FontSize="11" FontWeight="Bold" Foreground="#344054"/>
-                        <TextBlock Text="{Binding EstimatedLabelCountText}" DockPanel.Dock="Right"
-                                   FontSize="11" FontWeight="SemiBold" Foreground="#175CD3"/>
-                    </DockPanel>
-                    <Border x:Name="PreviewSurface" Grid.Row="1" Background="#EAECF0" CornerRadius="8" Padding="18">
-                        <ContentControl x:Name="PreviewHost"/>
-                    </Border>
-                    <TextBlock Grid.Row="2" Text="Preview displays the selected source row. The table below is the print source cross-check."
-                               FontSize="10" Foreground="#667085" Margin="0,8,0,0" TextWrapping="Wrap"/>
-                </Grid>
-            </Border>
+        <Border Grid.Row="0" Grid.Column="2" Background="White" BorderBrush="#D0D5DD" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,0,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <DockPanel Margin="0,0,0,8">
+                    <TextBlock Text="LIVE CANVAS — drag to move · arrow keys nudge · hold/lock prevents movement"
+                               FontSize="11" FontWeight="Bold" Foreground="#344054"/>
+                    <TextBlock Text="{Binding EstimatedLabelCountText}" DockPanel.Dock="Right"
+                               FontSize="11" FontWeight="SemiBold" Foreground="#175CD3"/>
+                </DockPanel>
+                <Border x:Name="PreviewSurface" Grid.Row="1" Background="#EAECF0" CornerRadius="8" Padding="20">
+                    <ContentControl x:Name="PreviewHost"/>
+                </Border>
+                <TextBlock Grid.Row="2" Text="Select a row below to cross-check its live data. The canvas and printer use the same saved template geometry and typography."
+                           FontSize="10" Foreground="#667085" Margin="0,8,0,0" TextWrapping="Wrap"/>
+            </Grid>
+        </Border>
 
-            <Border Grid.Row="1" Background="White" BorderBrush="#D0D5DD" BorderThickness="1" CornerRadius="10" Padding="10">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="SOURCE LABELS — verify order, customer, glass, size, quantity and reference"
-                               FontSize="11" FontWeight="Bold" Foreground="#344054" Margin="2,0,0,8"/>
-                    <DataGrid x:Name="StickerItemsGrid" Grid.Row="1" ItemsSource="{Binding Items}"
-                              SelectedItem="{Binding SelectedLabel, Mode=TwoWay}"
-                              AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
-                              IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                              SelectionMode="Single" SelectionUnit="FullRow" FontSize="11"
-                              RowHeaderWidth="0" Background="White" BorderThickness="0">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="ORDER / PI" Binding="{Binding OrderDisplay}" Width="1.1*"/>
-                            <DataGridTextColumn Header="CUSTOMER" Binding="{Binding CustomerCompanyName}" Width="1.15*"/>
-                            <DataGridTextColumn Header="GLASS" Binding="{Binding GlassName}" Width="1.4*"/>
-                            <DataGridTextColumn Header="SIZE" Binding="{Binding SizeText}" Width="0.9*"/>
-                            <DataGridTextColumn Header="SIDE" Binding="{Binding PanePosition}" Width="0.7*"/>
-                            <DataGridTextColumn Header="SOURCE QTY" Binding="{Binding Quantity}" Width="78"/>
-                            <DataGridTextColumn Header="REF" Binding="{Binding Reference}" Width="1*"/>
-                            <DataGridTextColumn Header="GLASS REF" Binding="{Binding GlassReference}" Width="1*"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
-            </Border>
-        </Grid>
+        <Border Grid.Row="1" Grid.Column="2" Background="White" BorderBrush="#D0D5DD" BorderThickness="1" CornerRadius="10" Padding="10">
+            <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                <TextBlock Text="SOURCE LABELS — verify order, customer, glass type, side, size, quantity and references"
+                           FontSize="11" FontWeight="Bold" Foreground="#344054" Margin="2,0,0,7"/>
+                <DataGrid x:Name="StickerItemsGrid" Grid.Row="1" ItemsSource="{Binding Items}"
+                          SelectedItem="{Binding SelectedLabel, Mode=TwoWay}"
+                          AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                          IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                          SelectionMode="Single" SelectionUnit="FullRow" FontSize="11"
+                          RowHeaderWidth="0" Background="White" BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ORDER / PI" Binding="{Binding OrderDisplay}" Width="1.1*"/>
+                        <DataGridTextColumn Header="CUSTOMER" Binding="{Binding CustomerCompanyName}" Width="1.1*"/>
+                        <DataGridTextColumn Header="TYPE" Binding="{Binding GlassType}" Width="0.6*"/>
+                        <DataGridTextColumn Header="GLASS" Binding="{Binding GlassName}" Width="1.3*"/>
+                        <DataGridTextColumn Header="SIZE" Binding="{Binding SizeText}" Width="0.9*"/>
+                        <DataGridTextColumn Header="SIDE" Binding="{Binding PanePosition}" Width="0.7*"/>
+                        <DataGridTextColumn Header="SOURCE QTY" Binding="{Binding Quantity}" Width="78"/>
+                        <DataGridTextColumn Header="REF" Binding="{Binding Reference}" Width="1*"/>
+                        <DataGridTextColumn Header="GLASS REF" Binding="{Binding GlassReference}" Width="1*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
 
-        <DockPanel Grid.Row="1" Grid.ColumnSpan="3" Margin="0,14,0,0" LastChildFill="True">
+        <DockPanel Grid.Row="2" Grid.ColumnSpan="3" Margin="0,12,0,0" LastChildFill="True">
             <TextBlock Text="{Binding StatusMessage}" DockPanel.Dock="Left" VerticalAlignment="Center"
-                       FontSize="11" Foreground="#475467" TextWrapping="Wrap" MaxWidth="620"/>
+                       FontSize="11" Foreground="#475467" TextWrapping="Wrap" MaxWidth="740"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Save Layout" Click="SaveSettings_Click" Padding="16,8" Margin="0,0,8,0"
-                        Background="White" BorderBrush="#98A2B3" BorderThickness="1"/>
+                <Button Content="Save setup" Click="SaveSettings_Click" Padding="14,8" Margin="0,0,8,0"/>
                 <Button Content="Print" Click="Print_Click" Padding="20,8" Margin="0,0,8,0"
-                        Background="#175CD3" Foreground="White" BorderBrush="#175CD3" BorderThickness="1" IsDefault="True"/>
+                        Background="#175CD3" Foreground="White" BorderBrush="#175CD3" IsDefault="True"/>
                 <Button Content="Close" Click="Close_Click" Padding="16,8" IsCancel="True"/>
             </StackPanel>
         </DockPanel>

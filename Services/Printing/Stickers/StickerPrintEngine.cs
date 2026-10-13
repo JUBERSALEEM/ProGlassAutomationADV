@@ -24,12 +24,21 @@ namespace ProGlassAutomation.Services.Printing.Stickers
         public static StickerPrintResult Print(
             IReadOnlyList<GlassStickerLabel> labels,
             StickerPrintPreferences preferences,
+            string documentName) => Print(labels, preferences,
+                preferences?.LastTemplate ?? StickerTemplatePresets.CreateSgu(), documentName);
+
+        public static StickerPrintResult Print(
+            IReadOnlyList<GlassStickerLabel> labels,
+            StickerPrintPreferences preferences,
+            StickerLayoutTemplate template,
             string documentName)
         {
             if (labels == null || labels.Count == 0)
                 return new StickerPrintResult { Message = "There are no glass stickers to print." };
             if (preferences == null)
                 return new StickerPrintResult { Message = "Sticker print settings are missing." };
+            if (!StickerTemplateStore.TryValidate(template, out string templateError))
+                return new StickerPrintResult { Message = "The selected sticker template is invalid: " + templateError };
 
             try
             {
@@ -40,17 +49,17 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                 if (dialog.ShowDialog() != true)
                     return new StickerPrintResult { Cancelled = true, Message = "Printing was cancelled." };
 
-                double widthDip = StickerLabelVisualFactory.MmToDip(preferences.LabelWidthMm);
-                double heightDip = StickerLabelVisualFactory.MmToDip(preferences.LabelHeightMm);
+                double widthDip = StickerLabelVisualFactory.MmToDip(template.LabelWidthMm);
+                double heightDip = StickerLabelVisualFactory.MmToDip(template.LabelHeightMm);
                 var ticket = dialog.PrintTicket ?? new PrintTicket();
                 ticket.PageMediaSize = new PageMediaSize(
                     PageMediaSizeName.Unknown, widthDip, heightDip);
-                ticket.PageOrientation = preferences.LabelWidthMm >= preferences.LabelHeightMm
+                ticket.PageOrientation = template.LabelWidthMm >= template.LabelHeightMm
                     ? PageOrientation.Landscape
                     : PageOrientation.Portrait;
                 dialog.PrintTicket = ticket;
 
-                var paginator = new StickerDocumentPaginator(labels, preferences)
+                var paginator = new StickerDocumentPaginator(labels, preferences, template)
                 {
                     PageSize = new Size(widthDip, heightDip)
                 };

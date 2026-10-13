@@ -40,8 +40,10 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
             Assert.Equal(730, label.WidthMm);
             Assert.Equal(555, label.HeightMm);
             Assert.Equal(1, label.Quantity);
+            Assert.Equal("SGU", label.GlassType);
             Assert.Equal("Ocean Glass Industry LLC", label.Company.CompanyName);
             Assert.Equal("+971 6 555 0100", label.Company.Telephone);
+            Assert.Equal("+971 50 111 2222", label.Company.RepresentativeMobile);
             Assert.Equal("https://example.test", label.Company.Website);
             Assert.Equal("Ocean Glass Industry LLC", label.Company.LogoPath);
             Assert.Equal("bG9nby1zbmFwc2hvdA==", label.Company.LogoBase64);
@@ -76,6 +78,7 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
             var labels = GlassStickerLabelBuilder.FromStep5(invoice.SpecGroups, invoice);
 
             Assert.Equal(2, labels.Count);
+            Assert.All(labels, label => Assert.Equal("DGU", label.GlassType));
             Assert.Contains(labels, label => label.PanePosition == "Outer"
                 && label.WidthMm == 800 && label.HeightMm == 600 && label.Quantity == 2);
             Assert.Contains(labels, label => label.PanePosition == "Inner"
@@ -94,6 +97,7 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
                     ProformaNumber = "PI-20",
                     CustomerCompanyName = "AL NEEFA",
                     GlassName = "6mm SNLX D GREY CHROMA",
+                    GlassType = "DGU",
                     WidthMm = 730,
                     HeightMm = 555,
                     Quantity = 3,
@@ -106,6 +110,7 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
             var label = Assert.Single(labels);
             Assert.Equal("JOB-20 / PI-20", label.OrderDisplay);
             Assert.Equal("AL NEEFA", label.CustomerCompanyName);
+            Assert.Equal("DGU", label.GlassType);
             Assert.Equal("730 × 555 mm", label.SizeText);
             Assert.Equal(3, label.Quantity);
             Assert.Equal("Outer", label.PanePosition);
@@ -168,6 +173,7 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
                     CompanyName = "Ocean Glass Industry LLC",
                     CompanyLocation = "Ajman Industrial Area Jurf-3",
                     CompanyTelephone = "+971 6 555 0100",
+                    RepresentativeMobile = "+971 50 111 2222",
                     CompanyWebsite = "https://example.test",
                     CompanyEmail = "info@example.test",
                     LogoPath = "Ocean Glass Industry LLC",
