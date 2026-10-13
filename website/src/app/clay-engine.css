@@ -1080,13 +1080,24 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
     inset -5px -5px 10px var(--clay-lo);
 }
 
-/* §9.9 Chips are pills, plum-inked on the family wash — no stroke. */
+/* §9.9 + §26 (P11) Chips are micro-pillows, not wells: a solid pastel
+   face (never a wash), a thin lip crest where the light lands, and a
+   tiny drop that grounds the bead — the ClayHub delta-chip grammar.
+   State semantics stay on the face; the puff is just geometry. */
 [data-appearance="clay"] .chip {
   border-radius: 999px;
   border-color: transparent;
+  background-color: rgb(var(--clay-lavender) / 0.55);
+  box-shadow: 2px 3px 6px rgb(var(--clay-drop-h) / 0.22),
+    inset 0 1.5px 0 var(--clay-lip),
+    inset 0 -2px 3px rgb(var(--clay-drop-h) / 0.14);
+}
+
+/* Midnight: the chip face returns to the wash recipe — the 0.55 pillow
+   lifts the pastel past the 4.5:1 line for its light mist text (measured
+   by the paint contract: 3.69:1). The pillow geometry (lip + drop) stays. */
+html[data-theme="midnight"][data-appearance="clay"] .chip {
   background-color: rgb(var(--clay-lavender) / 0.3);
-  box-shadow: inset 5px 5px 10px var(--clay-hi-2),
-    inset -2px -2px 5px rgb(var(--clay-drop-h) / 0.2);
 }
 
 /* §9.10 The Theme & colour studio answers in clay too. The option cards
@@ -1799,6 +1810,17 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
   background-image: none;
   box-shadow: var(--clay-shadow-inset);
 }
+/* §26 · the tiny landed pills (delta chips, jelly avatars, the bead
+   dots): they keep their semantic faces (brand/state/ink) but answer as
+   chips — lip crest, small grounding drop. NOT cards (the §21 door
+   still declines them from the ladder). */
+[data-appearance="clay"] [class*="rounded-full"]:where([class*="bg-ink-"], [class*="bg-brand-"], [class*="bg-state-"]),
+[data-appearance="clay"] [class*="rounded-md"]:where([class*="bg-state-"]) {
+  box-shadow: 2px 3px 6px rgb(var(--clay-drop-h) / 0.2),
+    inset 0 1.5px 0 var(--clay-lip),
+    inset 0 -2px 3px rgb(var(--clay-drop-h) / 0.12);
+}
+
 [data-appearance="clay"] .pricing-card--featured .chip {
   background-color: rgb(var(--clay-lavender));
   color: rgb(var(--clay-ink));
@@ -2518,4 +2540,6 @@ html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-r
 [data-appearance="clay"] [class*="bg-brand-"][class*="text-brand-"] {
   color: rgb(var(--text-2));
 }
+
+
 
