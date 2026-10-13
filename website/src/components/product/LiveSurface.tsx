@@ -25,6 +25,8 @@ import { enginePipeline } from "@/data/optimization";
 import { packGuillotine, plateViews } from "@/lib/guillotinePack";
 import { useT } from "@/i18n/provider";
 import { NoTranslate } from "@/components/i18n/NoTranslate";
+import { useAppearance } from "@/lib/useTheme";
+import { setFamily } from "@/lib/useStudio";
 
 /**
  * The live module preview.
@@ -1353,11 +1355,13 @@ function FormEngine({ moduleKey, demo, view }: { moduleKey: string; demo: Demo; 
  */
 function AppearanceDeck() {
   const t = useT();
+  const activeFamily = useAppearance();
   const families = [
+    { id: "clay", label: t("Clay") },
+    { id: "crystal", label: t("Crystal") },
     { id: "studio", label: t("Studio") },
     { id: "monet", label: t("Monet") },
     { id: "industrial", label: t("Industrial") },
-    { id: "crystal", label: t("Crystal") },
   ] as const;
 
   return (
@@ -1366,27 +1370,38 @@ function AppearanceDeck() {
       <p className="mt-1.5 text-[0.75rem] leading-relaxed text-text-secondary">{t("These are the application's four families. Pressing one re-themes this page, which is exactly what it does to the application.")}</p>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {families.map((entry) => (
-          <FamilyButton key={entry.id} id={entry.id} label={t(entry.label)} />
+          <FamilyButton
+            key={entry.id}
+            id={entry.id}
+            label={t(entry.label)}
+            active={activeFamily === entry.id}
+          />
         ))}
       </div>
     </div>
   );
 }
 
-function FamilyButton({ id, label }: { id: string; label: string }) {
+function FamilyButton({
+  id,
+  label,
+  active,
+}: {
+  id: "clay" | "crystal" | "studio" | "monet" | "industrial";
+  label: string;
+  active: boolean;
+}) {
   return (
     <button
       type="button"
-      onClick={() => {
-        document.documentElement.setAttribute("data-appearance", id);
-        try {
-          window.localStorage.setItem("proglass-appearance", id);
-        } catch {
-          /* Storage may be unavailable; the attribute still applies. */
-        }
-        window.dispatchEvent(new Event("proglass-theme"));
-      }}
-      className="rounded-full border border-line-strong/70 bg-ink-900/70 px-2.5 py-1 text-[0.75rem] font-medium text-text-secondary transition-colors hover:border-brand-400/50 hover:text-text-primary"
+      aria-pressed={active}
+      onClick={() => setFamily(id)}
+      className={cn(
+        "rounded-full border px-2.5 py-1 text-[0.75rem] font-medium transition-colors",
+        active
+          ? "border-brand-400 bg-brand-500/20 text-text-primary"
+          : "border-line-strong/70 bg-ink-900/70 text-text-secondary hover:border-brand-400/50 hover:text-text-primary",
+      )}
     >
       {label}
     </button>

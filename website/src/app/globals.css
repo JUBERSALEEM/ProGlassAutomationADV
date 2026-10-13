@@ -564,6 +564,8 @@
     --pool-1: rgb(228 105 160 / 0.3);
     --pool-2: rgb(245 133 52 / 0.16);
     --pool-3: rgb(158 121 229 / 0.14);
+    --wall-wash-1: rgb(205 62 126 / 0.42);
+    --wall-wash-2: rgb(245 133 52 / 0.18);
     --card-tint: rgb(205 62 126 / 0.24);
     --card-tint-2: rgb(245 133 52 / 0.11);
   }
@@ -581,6 +583,8 @@
     --pool-1: rgb(45 176 240 / 0.26);
     --pool-2: rgb(34 205 189 / 0.15);
     --pool-3: rgb(99 102 241 / 0.11);
+    --wall-wash-1: rgb(12 148 214 / 0.42);
+    --wall-wash-2: rgb(34 205 189 / 0.18);
     --card-tint: rgb(12 148 214 / 0.2);
     --card-tint-2: rgb(34 205 189 / 0.1);
   }
@@ -887,6 +891,11 @@
     --brand-500: 140 20 72;
     --brand-600: 118 18 62;
     --brand-700: 98 16 52;
+    --pool-1: rgb(205 62 126 / 0.22);
+    --pool-2: rgb(245 133 52 / 0.14);
+    --pool-3: rgb(158 121 229 / 0.1);
+    --wall-wash-1: rgb(242 152 194 / 0.44);
+    --wall-wash-2: rgb(250 198 227 / 0.34);
     --card-tint: rgb(205 62 126 / 0.12);
     --card-tint-2: rgb(245 133 52 / 0.09);
   }
@@ -900,6 +909,11 @@
     --brand-500: 6 88 138;
     --brand-600: 8 72 116;
     --brand-700: 10 58 94;
+    --pool-1: rgb(12 148 214 / 0.2);
+    --pool-2: rgb(13 148 136 / 0.12);
+    --pool-3: rgb(99 102 241 / 0.09);
+    --wall-wash-1: rgb(174 226 252 / 0.46);
+    --wall-wash-2: rgb(205 237 254 / 0.34);
     --card-tint: rgb(12 148 214 / 0.11);
     --card-tint-2: rgb(13 148 136 / 0.08);
   }
@@ -4117,7 +4131,7 @@ body {
 .hero-aurora-strong {
   background:
     radial-gradient(42% 30% at 80% 14%, rgb(var(--brand-500) / 0.38), transparent 62%),
-    radial-gradient(34% 40% at 10% 74%, rgb(96 172 255 / 0.26), transparent 64%),
+    radial-gradient(34% 40% at 10% 74%, rgb(var(--brand-400) / 0.26), transparent 64%),
     radial-gradient(24% 18% at 58% 40%, rgb(var(--brand-300) / 0.10), transparent 70%);
   filter: blur(42px) saturate(1.2);
   animation: aurora-drift-2 32s ease-in-out infinite alternate;
@@ -4176,7 +4190,7 @@ body {
    hook; `.icon-chip-strong` stays as the legacy alias. */
 .icon-chip, .icon-chip-strong {
   background-color: rgb(var(--brand-600)) !important;
-  background-image: linear-gradient(140deg, rgb(var(--brand-500) / 0.95), rgb(96 170 255 / 0.85)) !important;
+  background-image: linear-gradient(140deg, rgb(var(--brand-500) / 0.95), rgb(var(--brand-400) / 0.88)) !important;
   border-color: rgb(var(--brand-400) / 0.75) !important;
   color: #fff !important;
   box-shadow:

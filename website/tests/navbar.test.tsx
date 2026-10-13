@@ -16,7 +16,7 @@
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 
@@ -25,8 +25,28 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("next/link", () => ({
-  default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) =>
-    React.createElement("a", { href, ...rest }, children),
+  default: ({
+    href,
+    children,
+    onClick,
+    ...rest
+  }: {
+    href: string;
+    children: React.ReactNode;
+    onClick?: React.MouseEventHandler<HTMLAnchorElement>;
+  }) =>
+    React.createElement(
+      "a",
+      {
+        href,
+        onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
+          onClick?.(e);
+          e.preventDefault();
+        },
+        ...rest,
+      },
+      children,
+    ),
 }));
 
 /* Words pass through untranslated; the suite asserts on the English source. */
@@ -49,6 +69,7 @@ vi.mock("@/components/layout/BuildStamp", () => ({
 vi.mock("@/components/brand/Logo", () => ({ Logo: () => null }));
 
 import { Navbar } from "@/components/layout/Navbar";
+import { setThemeMode } from "@/lib/useTheme";
 
 const PRODUCT_BLURB = "Every module, in the app's own vocabulary";
 const RESOURCES_BLURB = "Guides to the glass workflows";
@@ -193,5 +214,51 @@ describe("desktop top-panel menus", () => {
     fireEvent.keyDown(window, { key: "Escape" });
 
     expect(screen.queryByText(PRODUCT_BLURB)).toBeNull();
+  });
+
+  it("the lg–2xl Menu button mounts #mobile-menu and keeps it visible up to wide", async () => {
+    const user = userEvent.setup();
+    render(<Navbar />);
+
+    const menuBtn = screen.getByRole("button", { name: /^Menu$/ });
+    const mobileSheet = document.getElementById("mobile-menu")!;
+    expect(mobileSheet.className).toContain("wide:hidden");
+    expect(mobileSheet.className).not.toContain("xl:hidden");
+    expect(within(mobileSheet).queryByRole("navigation", { name: "Mobile" })).toBeNull();
+
+    await user.click(menuBtn);
+    expect(menuBtn.getAttribute("aria-expanded")).toBe("true");
+    expect(within(mobileSheet).getByRole("navigation", { name: "Mobile" })).not.toBeNull();
+
+    /* Clicking any link in the sheet closes it immediately. */
+    const mobileNav = within(mobileSheet).getByRole("navigation", { name: "Mobile" });
+    await user.click(within(mobileNav).getByRole("link", { name: /Pricing/i }));
+    expect(menuBtn.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("syncChromeColour updates all theme-color meta tags in place without detaching React-managed head nodes", () => {
+    document.documentElement.style.setProperty("--ink-950", "17 11 41");
+    const darkMeta = document.createElement("meta");
+    darkMeta.setAttribute("name", "theme-color");
+    darkMeta.setAttribute("media", "(prefers-color-scheme: dark)");
+    darkMeta.setAttribute("content", "#110B29");
+    const lightMeta = document.createElement("meta");
+    lightMeta.setAttribute("name", "theme-color");
+    lightMeta.setAttribute("media", "(prefers-color-scheme: light)");
+    lightMeta.setAttribute("content", "#FDFBF7");
+    document.head.appendChild(darkMeta);
+    document.head.appendChild(lightMeta);
+
+    try {
+      setThemeMode("dark");
+      expect(darkMeta.parentNode).toBe(document.head);
+      expect(lightMeta.parentNode).toBe(document.head);
+      expect(darkMeta.content).toBe("rgb(17 11 41)");
+      expect(lightMeta.content).toBe("rgb(17 11 41)");
+    } finally {
+      document.documentElement.style.removeProperty("--ink-950");
+      darkMeta.remove();
+      lightMeta.remove();
+    }
   });
 });

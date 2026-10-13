@@ -165,8 +165,11 @@ export function resolveTheme(mode: ThemeMode, systemPrefersDark: boolean): Resol
  * modes.
  */
 export const themeBootScript = `(function(){try{
+var sg=function(k){try{return localStorage.getItem(k)}catch(e){return null}};
+var ss=function(k,v){try{localStorage.setItem(k,v)}catch(e){}};
+var sr=function(k){try{localStorage.removeItem(k)}catch(e){}};
 var mk=${JSON.stringify(THEME_STORAGE_KEY)},ak=${JSON.stringify(APPEARANCE_STORAGE_KEY)},vk="proglass-studio-vars";
-var m=localStorage.getItem(mk);
+var m=sg(mk);
 if(m!=="light"&&m!=="dark"&&m!=="system")m="system";
 /* Hygiene v2 — rides BEFORE the appearance resolves, so it takes effect on
    this very boot: clears the stored studio dials (an old edge/scale dial
@@ -176,17 +179,17 @@ if(m!=="light"&&m!=="dark"&&m!=="system")m="system";
    returning one whose storage pinned an older family. */
 var vk2="proglass-studio-attrs";
 var hv="proglass-hygiene-v2";
-if(localStorage.getItem(hv)!=="1"){localStorage.removeItem(vk);localStorage.removeItem(vk2);localStorage.setItem(ak,"clay");localStorage.setItem(hv,"1");}
-var a=localStorage.getItem(ak);
+if(sg(hv)!=="1"){sr(vk);sr(vk2);ss(ak,"clay");ss(hv,"1");}
+var a=sg(ak);
 if(a!=="studio"&&a!=="monet"&&a!=="industrial"&&a!=="crystal"&&a!=="clay")a="clay";
-var d=window.matchMedia("(prefers-color-scheme: dark)").matches;
+var d=window.matchMedia?window.matchMedia("(prefers-color-scheme: dark)").matches:true;
 var t=m==="light"?"daylight":m==="dark"?"midnight":(d?"midnight":"daylight");
 var e=document.documentElement;
 e.setAttribute("data-theme",t);
 e.setAttribute("data-theme-mode",m);
 e.setAttribute("data-appearance",a);
 e.style.colorScheme=t==="daylight"?"light":"dark";
-var v=localStorage.getItem(vk);
+var v=sg(vk);
 if(v){var o=JSON.parse(v);for(var k in o){if(Object.prototype.hasOwnProperty.call(o,k)){
 var w=o[k];
 if(k==="--ui-scale"){var n2=parseFloat(w);if(!isFinite(n2)||n2<0.9||n2>1.15)continue;}
@@ -198,6 +201,7 @@ if(k==="--ui-scale"){var n2=parseFloat(w);if(!isFinite(n2)||n2<0.9||n2>1.15)cont
 if(/nan|infinity/i.test(w))continue;
 if(typeof w!=="string"||w.length>96||k.slice(0,2)!=="--")continue;
 e.style.setProperty(k,w);}}}
-var v2=localStorage.getItem(vk2);
+var v2=sg(vk2);
 if(v2){var o2=JSON.parse(v2);for(var k2 in o2){if(Object.prototype.hasOwnProperty.call(o2,k2))e.setAttribute(k2,o2[k2]);}}
+var cs=document.currentScript;if(cs&&cs.parentNode)cs.parentNode.removeChild(cs);
 }catch(e){}})();`;

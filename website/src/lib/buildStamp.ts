@@ -50,8 +50,16 @@ const ENVIRONMENT_KEY: Record<BuildEnvironment, string> = {
  * argument would return `undefined` in production while working perfectly in
  * `next dev`. The reads therefore stay written out, one per value.
  */
-const rawBuiltAt = (process.env.PROGLASS_BUILD_TIME ?? "").trim();
-const rawRevision = (process.env.PROGLASS_BUILD_REVISION ?? "").trim();
+const domBuiltAt =
+  typeof document !== "undefined"
+    ? document.documentElement.getAttribute("data-build-time")?.trim()
+    : null;
+const domRevision =
+  typeof document !== "undefined"
+    ? document.documentElement.getAttribute("data-build-rev")?.trim()
+    : null;
+const rawBuiltAt = domBuiltAt || (process.env.PROGLASS_BUILD_TIME ?? "").trim();
+const rawRevision = domRevision || (process.env.PROGLASS_BUILD_REVISION ?? "").trim();
 const rawRef = (process.env.PROGLASS_BUILD_REF ?? "").trim();
 const rawEnvironment = (process.env.PROGLASS_BUILD_ENV ?? "").trim();
 const rawVersion = (process.env.PROGLASS_BUILD_VERSION ?? "").trim();

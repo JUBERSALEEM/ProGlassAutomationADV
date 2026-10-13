@@ -90,16 +90,25 @@ export function buildStamp() {
   const refRaw = env("VERCEL_GIT_COMMIT_REF") ?? git(["rev-parse", "--abbrev-ref", "HEAD"]);
   const ref = refRaw && refRaw !== "HEAD" ? refRaw : null;
 
+  const envName = environmentOf();
+  const commitIso = envName === "development" ? git(["show", "-s", "--format=%cI", "HEAD"]) : null;
+  const builtAt =
+    env("PROGLASS_BUILD_TIME") ??
+    (commitIso ? new Date(commitIso).toISOString() : new Date().toISOString());
+  process.env.PROGLASS_BUILD_TIME = builtAt;
+
   return {
     /*
      * `PROGLASS_BUILD_TIME` exists so a reproducible build (or a test) can pin
-     * the stamp instead of racing the clock. It is not set in normal use.
+     * the stamp instead of racing the clock. In `next dev`, defaulting to HEAD's
+     * commit timestamp prevents Turbopack's persistent client cache and a
+     * restarted server process from disagreeing on the minute.
      */
-    builtAt: env("PROGLASS_BUILD_TIME") ?? new Date().toISOString(),
+    builtAt,
     revision,
     revisionShort: revision ? revision.slice(0, 7) : null,
     ref,
-    environment: environmentOf(),
+    environment: envName,
     version: versionOf(),
   };
 }

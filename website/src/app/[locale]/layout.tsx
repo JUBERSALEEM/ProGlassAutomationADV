@@ -11,7 +11,8 @@ import { Footer } from "@/components/layout/Footer";
 import { ThemeStudioLazy } from "@/components/layout/ThemeStudioLazy";
 import { brandIcon } from "@/data/assets";
 import { site } from "@/lib/site";
-import { themeBootScript } from "@/data/themes";
+import { buildStamp } from "@/lib/buildStamp";
+import { ThemeBootScript } from "@/components/layout/ThemeBootScript";
 import { I18nProvider } from "@/i18n/provider";
 import { LOCALE_CODES, dirOf, isLocale, localeInfo, type Locale } from "@/i18n/locales";
 import { ogLocale } from "@/i18n/core";
@@ -262,13 +263,15 @@ export default async function LocaleLayout({
       data-locale={locale}
       data-theme="midnight"
       data-theme-mode="system"
-      data-appearance="crystal"
+      data-appearance="clay"
+      data-build-time={buildStamp.builtAt}
+      data-build-rev={buildStamp.revision ?? ""}
       /* The boot script sets these before paint; the server renders the default. */
       suppressHydrationWarning
       className={`${inter.variable} ${mono.variable} ${serif.variable} ${plex.variable} ${nunito.variable}`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+        <ThemeBootScript />
         {/*
           No-JS resilience (Phase 8). Entrance states start hidden by design —
           `.reveal` at opacity 0, motion writing its hidden variant inline,
@@ -282,7 +285,7 @@ export default async function LocaleLayout({
           <style>{`.reveal,.reveal-scale,.motion-reveal{opacity:1!important;transform:none!important}.accordion-panel{grid-template-rows:1fr!important}`}</style>
         </noscript>
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {/*
           One shared gradient sheet for every SVG on the page — see SvgDefs.
           It has to be inside <body>: it is a rendered element, and a

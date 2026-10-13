@@ -171,16 +171,15 @@ const tripletToRgb = (str: string) => {
 };
 
 /**
- * Move `baseTriplet`'s hue toward the bench hue by `blend`, around the
- * shortest arc, keeping its own saturation (floored so near-neutral foils
- * still take a whisper of the bench) and lightness. Luminance stays within
- * the tolerance the contrast floors carry (locks run 12–19:1; the twist
- * moves less than 15%).
+ * Move `baseTriplet` to the exact target hue `toHue`, scaling saturation by
+ * `blend` while preserving the base channel's lightness so contrast floors
+ * stay intact and no partial hue-angle rotation lands on an unrelated hue.
  */
 export function twistTriplet(baseTriplet: string, toHue: number, blend = 0.72): string {
   const hsl = rgbToHsl(tripletToRgb(baseTriplet));
-  const delta = ((toHue - hsl.h + 540) % 360) - 180;
-  return triplet(hslToRgb({ h: hsl.h + delta * blend, s: Math.max(hsl.s, 0.16), l: hsl.l }));
+  const targetH = ((toHue % 360) + 360) % 360;
+  const targetS = Math.max(hsl.s * Math.min(1, blend), Math.min(0.18, 0.22 * blend));
+  return triplet(hslToRgb({ h: targetH, s: targetS, l: hsl.l }));
 }
 
 const listeners = new Set<() => void>();
@@ -388,6 +387,17 @@ function subscribe(listener: () => void): () => void {
       attributes: true,
       attributeFilter: ["data-theme", "data-appearance"],
     });
+    try {
+      if (
+        typeof window !== "undefined" &&
+        (window.localStorage.getItem(STUDIO_STORAGE_KEY) !== null ||
+          window.location.search.includes("studio="))
+      ) {
+        applyStudioVars(read());
+      }
+    } catch {
+      /* Storage may be unavailable. */
+    }
   }
   subscriberCount += 1;
 
@@ -625,12 +635,32 @@ export function applyStudioVars(studio: Studio) {
   if (tuned) {
     const ramp = rampFor(base, target, bright, vivid);
     vars["--brand-50"] = ramp["50"];
+    vars["--brand-100"] = ramp["100"];
     vars["--brand-200"] = ramp["200"];
     vars["--brand-300"] = ramp["300"];
     vars["--brand-400"] = ramp["400"];
     vars["--brand-500"] = ramp["500"];
     vars["--brand-600"] = ramp["600"];
     vars["--brand-700"] = ramp["700"];
+
+    const baseHsl = rgbToHsl(hexToTriplet(base));
+    const chroma = baseHsl.l < 0.2 ? Math.max(0.18, baseHsl.l / 0.22) : 1;
+    const effS = Math.max(0.08, Math.min(0.96, (baseHsl.s + vivid) * chroma));
+    const rotTuned = (dh: number, s: number, l: number) =>
+      triplet(hslToRgb({ h: (baseHsl.h + dh + 360) % 360, s, l }));
+
+    // Keep secondary spectrum stops, card tints, hover edges, and grid lines
+    // anchored in the chosen plate's colour family across all appearances.
+    vars["--glass-cyan"] = rotTuned(10, Math.min(0.9, effS), target === "dark" ? 0.56 : 0.36);
+    vars["--glass-teal"] = rotTuned(-10, Math.min(0.86, effS), target === "dark" ? 0.52 : 0.34);
+    vars["--glass-rose"] = rotTuned(18, Math.min(0.88, effS), target === "dark" ? 0.6 : 0.4);
+    vars["--card-tint"] = `rgb(${ramp["500"]} / ${target === "dark" ? 0.22 : 0.14})`;
+    vars["--card-tint-2"] = `rgb(${rotTuned(12, Math.min(0.85, effS), target === "dark" ? 0.54 : 0.44)} / ${target === "dark" ? 0.12 : 0.09})`;
+    vars["--card-edge-hover"] = `rgb(${ramp["400"]} / ${target === "dark" ? 0.85 : 0.65})`;
+    vars["--glass-primary-glow"] = `rgb(${ramp["500"]} / ${target === "dark" ? 0.42 : 0.28})`;
+    vars["--wall-grid"] = `rgb(${ramp["400"]} / ${target === "dark" ? 0.13 : 0.09})`;
+    vars["--wall-grid-major"] = `rgb(${ramp["400"]} / ${target === "dark" ? 0.2 : 0.13})`;
+    vars["--selection"] = `rgb(${ramp["400"]} / ${target === "dark" ? 0.38 : 0.26})`;
 
     // The ambient pools follow the accent too, so the page never ends up with a
     // green accent sitting over a violet glow.
@@ -773,156 +803,119 @@ export function applyStudioVars(studio: Studio) {
      plates stay Material-You (hue-rotated from the effective accent); the
      two rows split them: --panel-face (feature cards) vs --card-face (the
      .plate cards on screen). Default: both wear plate 1. */
-  if (studio.accent || studio.clayPlate !== 1 || studio.clayCards !== 1) {
-    const { h: hub } = rgbToHsl(hexToTriplet(studio.accent ?? FAMILY_ACCENT[family]!));
+  if (studio.accent || studio.clayPlate !== 1 || studio.clayCards !== 1 || tuned) {
+    const rawHsl = rgbToHsl(hexToTriplet(studio.accent ?? FAMILY_ACCENT[family]!));
+    const hub = rawHsl.h;
+    const chroma = rawHsl.l < 0.2 ? Math.max(0.18, rawHsl.l / 0.22) : 1;
+    const effS = Math.max(0.08, Math.min(0.95, (rawHsl.s + vivid) * chroma));
+    const effL = Math.max(0.08, Math.min(0.92, rawHsl.l + bright));
+    const pSat = Math.max(0.1, Math.min(0.84, effS));
+    const pLight = Math.max(0.72, Math.min(0.8, 0.68 + effL * 0.18));
     const rot = (dh: number, s: number, l: number) =>
       triplet(hslToRgb({ h: (hub + dh + 360) % 360, s, l }));
-    /* P14 — the bench narrows to the accent's own arc. The six offsets
-       used to span the whole hue circle (0/55/110/180/245/310), so any
-       pick painted a full rainbow — the fuchsia-on-salmon tiles and the
-       lone violet tile on the green page of the 13:17 screenshots. Six
-       tones remain (the noria keeps its carousel), all inside a ±92°
-       analogous arc of the picked hue: cousins, not confetti — the
-       reference boards work the same kind of arc. */
-    const plateHues: Array<[number, number, number]> = [[0, 0.62, 0.8], [32, 0.58, 0.72], [62, 0.6, 0.82], [92, 0.56, 0.74], [298, 0.62, 0.8], [328, 0.58, 0.72]];
-    plateHues.forEach(([dh, s, l], i) => { vars[`--plate-${i + 1}`] = rot(dh, s, l); });
-    const chanHues = [0, 42, 88, 160, 220, 300];
+    /* When an accent plate is picked (or sliders are tuned), keep all six
+       plates tightly anchored to the picked plate's exact hue and saturation
+       so every surface, tile, and divider row adapts to the visible plate.
+       When running on the house palette (accent === null && !tuned) and only
+       the clayPlate/clayCards bench numbers are switched, preserve the six
+       house clay plates (lavender, mint, peach, sky, rose, lemon). */
+    const plateHues: Array<[number, number, number]> = tuned
+      ? [
+          [0, pSat, pLight],
+          [8, Math.max(0.1, pSat - 0.04), Math.max(0.68, pLight - 0.05)],
+          [-8, Math.min(0.88, pSat + 0.04), Math.min(0.83, pLight + 0.03)],
+          [14, Math.max(0.1, pSat - 0.05), Math.max(0.7, pLight - 0.03)],
+          [-14, pSat, Math.min(0.82, pLight + 0.02)],
+          [20, Math.max(0.1, pSat - 0.04), Math.max(0.68, pLight - 0.05)],
+        ]
+      : [
+          [0, 0.9, 0.88],
+          [-112, 0.63, 0.82],
+          [-230, 0.95, 0.88],
+          [-43, 0.68, 0.84],
+          [89, 0.95, 0.9],
+          [-207, 0.88, 0.84],
+        ];
+    plateHues.forEach(([dh, s, l], i) => {
+      vars[`--plate-${i + 1}`] = rot(dh, s, l);
+      vars[`--plate-h-${i + 1}`] = rot(dh, Math.min(0.88, s + 0.12), 0.42);
+    });
+    const chanHues = tuned ? [0, 8, -8, 14, -14, 20] : [0, -43, -112, -230, -207, 89];
     const chanNames = ["lavender", "sky", "mint", "peach", "lemon", "pink"];
-    chanHues.forEach((dh, i) => { vars[`--clay-${chanNames[i]}`] = rot(dh, 0.68, 0.72); });
+    chanHues.forEach((dh, i) => {
+      let chL = Math.max(0.72, pLight);
+      const chS = Math.max(0.12, Math.min(0.76, pSat));
+      while (chL < 0.86) {
+        const tp = rot(dh, chS, chL);
+        const { r, g, b } = tripletToRgb(tp);
+        if (0.2126 * r + 0.7152 * g + 0.0722 * b >= 146) break;
+        chL += 0.01;
+      }
+      vars[`--clay-${chanNames[i]}`] = rot(dh, chS, chL);
+    });
 
-    /* LAYER SEPARATION (user decree: "main card color vs cards — both should
-       be different"): the Material-You discipline is surfaces at a WHISPER of
-       the hue (blend 0.16, luminance untouched — the contrast locks hold),
-       chroma in the plates + wallpaper. The 0.72 blend was washing every face
-       to the accent's own color — the monoculture the user saw. */
-    /* Faces restored to clay's pastel identity (0.72 — the richness);
-       separation is done by HUE-STEPPING the ambient, not by bleaching the
-       material: pools and band drift −30°/+38° so plates and wallpaper read
-       as family, not clone. */
-    for (const [channel, base] of Object.entries(CLAY_CARD_BASE[target])) {
-      vars[channel] = twistTriplet(base, hub, 0.72);
+    for (const [channel, baseChannel] of Object.entries(CLAY_CARD_BASE[target])) {
+      vars[channel] = twistTriplet(baseChannel, hub, 0.72 * chroma);
     }
-    /* P14a — the verb follows the bench. --clay-coral was a house coral
-       literal (230 110 96): the "Email the developer" pill stayed coral
-       under an orange pick, a green pick, everything — the "hard coded
-       button" of the 13:17 review. Now the action hue IS the bench hue,
-       with the coral's own contract kept: white bold labels hold ≥3.2:1
-       (the house coral's documented 3.1:1 + margin). Lightness is SOLVED
-       per hue — greens and yellows sit perceptually far lighter than red
-       or blue at equal HSL-L, so one fixed recipe would wash their labels
-       out. coral-h steps with it, same relation as the house pair. */
+    /* P14a — the verb follows the bench. Start at the picked plate's actual
+       saturation and lightness so primary buttons match the visible plate
+       directly whenever it already clears the 3.2:1 white-label floor, and
+       only deepen lightness when a bright yellow/lime plate needs contrast. */
     {
       const lumOf = (tp: string) => {
         const { r, g, b } = tripletToRgb(tp);
         const f = (c: number) => { const s = c / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; };
         return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
       };
-      let coralL = 0.64;
-      const coralS = 0.72;
-      while (coralL > 0.36 && 1.05 / (lumOf(triplet(hslToRgb({ h: hub, s: coralS, l: coralL }))) + 0.05) < 3.2) coralL -= 0.01;
+      let coralL = Math.min(0.62, Math.max(0.11, effL));
+      const coralS = Math.max(0.12, Math.min(0.92, rawHsl.s + vivid));
+      while (coralL > 0.3 && 1.05 / (lumOf(triplet(hslToRgb({ h: hub, s: coralS, l: coralL }))) + 0.05) < 3.2) coralL -= 0.01;
       vars["--clay-coral"] = triplet(hslToRgb({ h: hub, s: coralS, l: coralL }));
-      vars["--clay-coral-h"] = triplet(hslToRgb({ h: hub, s: Math.min(0.85, coralS + 0.06), l: Math.max(0.3, coralL - 0.07) }));
-      /* The navy foil (utility panes, the neutral badges on the dossier)
-         was the last accent-deaf chip: fixed plum under any pick. Same
-         twist contract the ink channels above already carry — hue only,
-         luminance untouched, the contrast locks hold. Kept in rgb() form:
-         its bare-var consumers expect the wrapped value.
-         The base is PER MODE, like CLAY_CARD_BASE above: the foil paints
-         every bg-ink-* utility carrier in the family (§1 of the engine),
-         and the two modes' foils are opposite ends of the ramp — midnight
-         46 34 62, daylight 239 234 252 (the engine's own §0 values).
-         Twisting the midnight base in daylight used to paint every
-         utility pane dark maroon under daylight's plum ink (1.0–1.6:1,
-         the 16:54 screenshots); the locks only hold when the foil keeps
-         its own mode's luminance. */
-      vars["--clay-foil"] = `rgb(${twistTriplet(target === "dark" ? "46 34 62" : "239 234 252", hub, 0.72)})`;
+      vars["--clay-coral-h"] = triplet(hslToRgb({ h: hub, s: Math.min(0.92, coralS + 0.06), l: Math.max(0.08, coralL - 0.07) }));
+      vars["--clay-foil"] = `rgb(${twistTriplet(target === "dark" ? "46 34 62" : "239 234 252", hub, 0.72 * chroma)})`;
     }
-    /* Hardness + richness of the mould: the drop grounds at its own hue,
-       DEEPER (0.78/0.38 — the pillow reads weight, not mist); the interior
-       wash deepens with the dial (0.16× — the plate's puff is felt); the
-       band pulls NEUTRAL so plates and bands never share one wash. */
-    vars["--clay-drop-h"] = rot(0, 0.85, 0.35);
-    vars["--card-tint-h"] = rot(0, 0.5, 0.82);
-    vars["--card-tint-h2"] = rot(38, 0.55, 0.82);
+    vars["--clay-drop-h"] = rot(0, Math.min(0.85, pSat + 0.1), 0.35);
+    vars["--card-tint-h"] = rot(0, Math.min(0.65, pSat), 0.8);
+    vars["--card-tint-h2"] = rot(12, Math.min(0.65, pSat), 0.82);
     vars["--clay-wash"] = (0.18 * tinted).toFixed(3);
     vars["--panel-face"] = vars[`--plate-${studio.clayPlate}`] ?? vars["--plate-1"]!;
-    /* The on-screen cards: the chosen plate softened to air — it keeps the
-       plate's hue/saturation at a near-surface light, so cards read as clay
-       (pastel body) yet never fight the ink. */
     {
-      /* RICHNESS DECREE: cards wear the PLATE ITSELF (full pastel body —
-       L~0.78–0.82, the same palette the house patterns ship), not the
-       near-white wash. The ladder steps work ON that: data cards raise
-       toward light, overlays above them again — the material steps, never
-       blanks. Midnight inverts: deeper + denser. */
       const cd = plateHues[studio.clayCards - 1] ?? plateHues[0]!;
-      /* D1 recalibration (P02): paler steps KEEP SATURATION — hue stays,
-         +0.10/+0.05 s as lightness rises; a lighter-but-pale tile read
-         as "white card with blue shadow" (user screenshots 10:42).
-         Midnight dims slightly instead — plastic glare guard.
-         P14 recalibration: full plate saturation at L≤0.37 read as neon
-         brick on OLED (the 13:17 dossier slab and meta tiles). Midnight
-         now caps chroma at clay-wall levels (s≤0.45/0.5/0.4) and steps
-         the ladder apart in LIGHTNESS instead — overlay 0.26 < card 0.29
-         < data 0.34 — hue untouched. White value text holds ≥4.5:1 even
-         on the perceptually lightest (green) hue; daylight keeps the
-         D1 recipe unchanged. */
       vars["--card-face"] = rot(cd[0], target === "dark" ? Math.min(cd[1], 0.45) : cd[1], target === "dark" ? 0.29 : cd[2]);
-      vars["--data-face"] = rot(cd[0], target === "dark" ? Math.min(cd[1] + 0.1, 0.5) : Math.min(0.78, cd[1] + 0.1), target === "dark" ? 0.34 : Math.min(0.95, cd[2] + 0.055));
-      vars["--overlay-face"] = rot(cd[0], target === "dark" ? Math.min(cd[1] + 0.05, 0.4) : Math.min(0.72, cd[1] + 0.05), target === "dark" ? 0.26 : Math.min(0.97, cd[2] + 0.115));
+      vars["--data-face"] = rot(cd[0], target === "dark" ? Math.min(cd[1] + 0.1, 0.5) : Math.min(0.86, cd[1] + 0.06), target === "dark" ? 0.34 : Math.min(0.94, cd[2] + 0.055));
+      vars["--overlay-face"] = rot(cd[0], target === "dark" ? Math.min(cd[1] + 0.05, 0.4) : Math.min(0.82, cd[1] + 0.03), target === "dark" ? 0.26 : Math.min(0.97, cd[2] + 0.115));
     }
-    /* P10 PAPER MODE (ref: ClayDash cream / ClayHub fog): the ambient goes
-       neutral paper so the plates IGNITE — band at s0.12 (a hue whisper),
-       pools desaturated + gossamer. Cards/channels/tints keep the serif
-       saturation. Crystal/glass wallpaper ("the floors breathe the accent")
-       is untouched: this branch is clay-family grammar only. */
     if (family === "clay") {
-      vars["--band-face"] = rot(-24, 0.12, target === "dark" ? 0.18 : 0.955);
-      vars["--pool-1"] = `rgb(${rot(0, 0.35, 0.72)} / ${target === "dark" ? 0.07 : 0.09})`;
-      vars["--pool-2"] = `rgb(${rot(38, 0.35, 0.78)} / ${target === "dark" ? 0.045 : 0.07})`;
-      vars["--pool-3"] = `rgb(${rot(330, 0.35, 0.8)} / ${target === "dark" ? 0.04 : 0.06})`;
-      /* P13 ONE HUE FAMILY (ref: user 12:44/12:46 screenshots — violet
-         islands under an orange/green bench): the zone bands finally read
-         the adoption. Their faces used to be house-violet literals that
-         no token reached (.band-rich 60 42 94, .band-deep/glass-primary
-         50 34 76 at midnight; full-saturation --clay-lavender channel by
-         day), so every picked accent stranded violet slabs on the page.
-         Now the zones hue-rotate with the bench like cards and pools:
-         sunken deep, lit band one step under the card face at midnight,
-         paper-lit whispers by day — the purple the user asked about is
-         gone unless purple is the pick. */
-      vars["--band-rich-h"] = rot(-24, 0.3, target === "dark" ? 0.235 : 0.93);
-      vars["--band-deep-h"] = rot(-24, 0.26, target === "dark" ? 0.19 : 0.9);
-      vars["--band-glow-h"] = rot(0, 0.8, target === "dark" ? 0.5 : 0.42);
+      vars["--band-face"] = rot(0, Math.min(0.12, pSat * 0.2), target === "dark" ? 0.18 : 0.95);
+      vars["--pool-1"] = `rgb(${rot(0, Math.min(0.55, pSat), 0.68)} / ${target === "dark" ? 0.1 : 0.18})`;
+      vars["--pool-2"] = `rgb(${rot(12, Math.min(0.5, pSat), 0.74)} / ${target === "dark" ? 0.06 : 0.12})`;
+      vars["--pool-3"] = `rgb(${rot(-12, Math.min(0.5, pSat), 0.76)} / ${target === "dark" ? 0.05 : 0.1})`;
+      vars["--band-rich-h"] = rot(0, target === "dark" ? Math.min(0.32, pSat * 0.5) : pSat, target === "dark" ? 0.235 : Math.max(0.75, pLight));
+      vars["--band-deep-h"] = rot(0, target === "dark" ? Math.min(0.28, pSat * 0.45) : pSat, target === "dark" ? 0.19 : Math.max(0.72, pLight - 0.03));
+      vars["--band-glow-h"] = rot(0, Math.min(0.85, pSat + 0.08), target === "dark" ? 0.5 : 0.42);
     } else {
-      vars["--band-face"] = rot(-24, 0.3, 0.948);
-      vars["--pool-1"] = `rgb(${rot(0, 0.7, 0.5)} / ${target === "dark" ? 0.1 : 0.13})`;
-      vars["--pool-2"] = `rgb(${rot(38, 0.7, 0.7)} / ${target === "dark" ? 0.06 : 0.12})`;
-      vars["--pool-3"] = `rgb(${rot(330, 0.7, 0.72)} / ${target === "dark" ? 0.05 : 0.1})`;
-
-      /* P18 — the crystal WALLS join the bench. The family's wallpaper is
-         half of what the eye takes as "the colour of the site" (more so
-         after P17 bought the mid-vault seam), and until now it stayed the
-         shipped cyan/violet/rose under every picked accent — on crystal a
-         colour plate visibly changed almost nothing, which is exactly what
-         "theme & colour plates not working" names. From here, under a
-         pick, the washes, the mid pools, the aurora balls and the meniscus
-         relight all rotate with the hub — the hub keeps the key light,
-         ±20°…±60° analogous cousins answer it, and the alpha grammar stays
-         the engine's own (contrast-tuned there, never retuned here). The
-         family falls back byte-identically when nothing is picked. */
+      vars["--band-face"] = rot(0, Math.min(0.3, pSat * 0.45), 0.948);
       if (family === "crystal") {
-        vars["--wall-wash-1"] = `rgb(${rot(target === "dark" ? -40 : 48, target === "dark" ? 0.72 : 0.8, target === "dark" ? 0.62 : 0.8)} / ${target === "dark" ? 0.55 : 0.58})`;
-        vars["--wall-wash-2"] = `rgb(${rot(target === "dark" ? 20 : -40, 0.85, target === "dark" ? 0.55 : 0.8)} / ${target === "dark" ? 0.34 : 0.5})`;
-        vars["--wall-mid-1"] = `rgb(${rot(-20, 0.85, target === "dark" ? 0.6 : 0.62)} / ${target === "dark" ? 0.4 : 0.34})`;
-        vars["--wall-mid-2"] = `rgb(${rot(60, 0.8, 0.66)} / ${target === "dark" ? 0.32 : 0.3})`;
-        /* The balls ride as bare triplets — the alpha stop grammar (and
-           the fallbacks, = the shipped paint) stay engine-owned. */
-        vars["--aurora-ball-1"] = rot(-20, 0.85, target === "dark" ? 0.6 : 0.62);
-        vars["--aurora-ball-2"] = rot(60, 0.8, target === "dark" ? 0.72 : 0.7);
-        vars["--aurora-ball-3"] = rot(20, 0.7, target === "dark" ? 0.7 : 0.66);
-        vars["--glass-relight-1"] = `rgb(${rot(-30, 0.9, 0.72)} / ${target === "dark" ? 0.4 : 0.34})`;
-        vars["--glass-relight-2"] = `rgb(${rot(50, 0.85, 0.7)} / ${target === "dark" ? 0.34 : 0.4})`;
+        vars["--pool-1"] = `rgb(${rot(0, Math.min(0.86, effS), target === "dark" ? 0.56 : 0.58)} / ${target === "dark" ? 0.58 : 0.56})`;
+        vars["--pool-2"] = `rgb(${rot(14, Math.min(0.84, effS), 0.62)} / ${target === "dark" ? 0.46 : 0.38})`;
+        vars["--pool-3"] = `rgb(${rot(-14, Math.min(0.82, effS), 0.64)} / ${target === "dark" ? 0.4 : 0.48})`;
+        vars["--wall-wash-1"] = `rgb(${rot(0, Math.min(0.84, effS), target === "dark" ? 0.58 : 0.78)} / ${target === "dark" ? 0.55 : 0.58})`;
+        vars["--wall-wash-2"] = `rgb(${rot(14, Math.min(0.85, effS), target === "dark" ? 0.54 : 0.78)} / ${target === "dark" ? 0.34 : 0.5})`;
+        vars["--wall-mid-1"] = `rgb(${rot(-10, Math.min(0.85, effS), target === "dark" ? 0.6 : 0.62)} / ${target === "dark" ? 0.4 : 0.34})`;
+        vars["--wall-mid-2"] = `rgb(${rot(16, Math.min(0.82, effS), 0.66)} / ${target === "dark" ? 0.32 : 0.3})`;
+        vars["--aurora-ball-1"] = rot(0, Math.min(0.88, effS), target === "dark" ? 0.6 : 0.62);
+        vars["--aurora-ball-2"] = rot(14, Math.min(0.84, effS), target === "dark" ? 0.72 : 0.7);
+        vars["--aurora-ball-3"] = rot(-14, Math.min(0.8, effS), target === "dark" ? 0.7 : 0.66);
+        vars["--glass-relight-1"] = `rgb(${rot(-10, Math.min(0.9, effS), 0.72)} / ${target === "dark" ? 0.4 : 0.34})`;
+        vars["--glass-relight-2"] = `rgb(${rot(14, Math.min(0.85, effS), 0.7)} / ${target === "dark" ? 0.34 : 0.4})`;
+        vars["--glass-spectrum-1"] = `rgb(${vars["--brand-500"] ?? rot(0, effS, 0.46)})`;
+        vars["--glass-spectrum-2"] = `rgb(${vars["--brand-600"] ?? rot(10, effS, 0.38)})`;
+      } else {
+        vars["--pool-1"] = `rgb(${rot(0, Math.min(0.78, effS), 0.54)} / ${target === "dark" ? 0.28 : 0.22})`;
+        vars["--pool-2"] = `rgb(${rot(14, Math.min(0.74, effS), 0.64)} / ${target === "dark" ? 0.16 : 0.13})`;
+        vars["--pool-3"] = `rgb(${rot(-14, Math.min(0.74, effS), 0.66)} / ${target === "dark" ? 0.13 : 0.11})`;
+        vars["--wall-wash-1"] = `rgb(${rot(0, target === "dark" ? Math.min(0.7, effS) : Math.min(0.65, effS), target === "dark" ? 0.48 : 0.74)} / 0.42)`;
+        vars["--wall-wash-2"] = `rgb(${rot(14, target === "dark" ? Math.min(0.72, effS) : Math.min(0.65, effS), target === "dark" ? 0.54 : 0.78)} / ${target === "dark" ? 0.18 : 0.3})`;
       }
     }
   }

@@ -65,6 +65,7 @@ let switchTimer: ReturnType<typeof setTimeout> | null = null;
 function withoutAnimations(): boolean {
   return (
     typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
 }
@@ -80,12 +81,15 @@ function flagSwitch() {
 
 function subscribe(listener: () => void) {
   listeners.add(listener);
-  const media = window.matchMedia("(prefers-color-scheme: dark)");
+  const media =
+    typeof window.matchMedia === "function"
+      ? window.matchMedia("(prefers-color-scheme: dark)")
+      : null;
   const onSystemChange = () => {
     /* Only the mode that defers to the system reacts to a system change. */
     if (readMode() === "system") writeDom(readMode(), readAppearance(), { flash: true });
   };
-  media.addEventListener("change", onSystemChange);
+  media?.addEventListener("change", onSystemChange);
 
   /*
    * A second tab is the same visitor.
@@ -104,7 +108,7 @@ function subscribe(listener: () => void) {
 
   return () => {
     listeners.delete(listener);
-    media.removeEventListener("change", onSystemChange);
+    media?.removeEventListener("change", onSystemChange);
     window.removeEventListener("storage", onStorage);
   };
 }
@@ -155,14 +159,17 @@ function serverResolved(): ResolvedTheme {
  */
 function syncChromeColour() {
   if (typeof document === "undefined") return;
-  const triplet = getComputedStyle(document.documentElement).getPropertyValue("--ink-950").trim();
+  const root = document.documentElement;
+  const triplet = (
+    root.style.getPropertyValue("--ink-950") ||
+    getComputedStyle(root).getPropertyValue("--ink-950")
+  ).trim();
   if (!triplet) return;
+  const color = `rgb(${triplet.split(/\s+/).join(" ")})`;
   const metas = Array.from(document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]'));
-  const [primary, ...rest] = metas;
-  if (!primary) return;
-  primary.content = `rgb(${triplet.split(/\s+/).join(" ")})`;
-  primary.removeAttribute("media");
-  for (const meta of rest) meta.remove();
+  for (const meta of metas) {
+    meta.content = color;
+  }
 }
 
 /** Writes every attribute the document needs, and the chrome colour with them. */
@@ -172,7 +179,11 @@ function writeDom(mode: ThemeMode, appearance: AppearanceFamily, options: { flas
   const wasResolved = readResolved();
   const wasAppearance = readAppearance();
 
-  const resolved = resolveTheme(mode, window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const prefersDark =
+    typeof window.matchMedia === "function"
+      ? window.matchMedia("(prefers-color-scheme: dark)").matches
+      : true;
+  const resolved = resolveTheme(mode, prefersDark);
   root.setAttribute("data-theme", resolved);
   root.setAttribute("data-theme-mode", mode);
   root.setAttribute("data-appearance", appearance);

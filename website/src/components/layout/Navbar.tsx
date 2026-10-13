@@ -15,7 +15,7 @@ import { LanguageMenu, LanguageMenuBlock } from "@/components/layout/LanguageMen
 import { BuildStampChip, BuildStampPill, BuildStampRow } from "@/components/layout/BuildStamp";
 import { Logo } from "@/components/brand/Logo";
 import { useT } from "@/i18n/provider";
-import { pathWithoutLocale } from "@/i18n/core";
+import { hrefIn, localeOfPath, pathWithoutLocale } from "@/i18n/core";
 
 type NavChild = { label: string; href: string; description?: string };
 type NavEntry = { label: string; href?: string; children?: NavChild[] };
@@ -151,6 +151,8 @@ export function Navbar() {
    * `pathWithoutLocale`; the bar must do the same.
    */
   const barePath = pathWithoutLocale(pathname ?? "");
+  const activeLocale = localeOfPath(pathname ?? "");
+  const toHref = (path: string) => hrefIn(activeLocale, path);
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -197,6 +199,7 @@ export function Navbar() {
    */
   const pinnedMenu = useRef<string | null>(null);
   const navListRef = useRef<HTMLDivElement | null>(null);
+  const headerRef = useRef<HTMLElement | null>(null);
 
   /* ── The clay bar's sliding pill ────────────────────────────────────
    * Under `[data-appearance="clay"]` the bar paints a raised pill that
@@ -322,6 +325,18 @@ export function Navbar() {
   }, [openMenu]);
 
   useEffect(() => {
+    if (!mobileOpen) return;
+    const onPointer = (event: PointerEvent) => {
+      const header = headerRef.current;
+      if (header && !header.contains(event.target as Node)) {
+        setMobileOpen(false);
+      }
+    };
+    document.addEventListener("pointerdown", onPointer);
+    return () => document.removeEventListener("pointerdown", onPointer);
+  }, [mobileOpen]);
+
+  useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         pinnedMenu.current = null;
@@ -366,6 +381,7 @@ export function Navbar() {
 
   return (
     <header
+      ref={headerRef}
       className={cn(
         // `no-print`: a fixed bar that repeats on every printed sheet is waste.
         "no-print fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-industrial",
@@ -394,7 +410,7 @@ export function Navbar() {
       </a>
 
       <div className="shell flex h-[var(--nav-height)] items-center justify-between gap-4">
-        <Link href="/" className="group flex items-center gap-3" aria-label={`${site.name} — home`}>
+        <Link href={toHref("/")} className="group flex items-center gap-3" aria-label={`${site.name} — home`}>
           <Logo size={34} wordmarkClassName="hidden lg:flex" />
         </Link>
 
@@ -466,8 +482,12 @@ export function Navbar() {
               return (
                 <Link
                   key={t(entry.label)}
-                  href={entry.href ?? "#"}
+                  href={entry.href ? toHref(entry.href) : "#"}
                   aria-current={active ? "page" : undefined}
+                  onClick={() => {
+                    pinnedMenu.current = null;
+                    setOpenMenu(null);
+                  }}
                   className={cn(NAV_CARD, tier, active ? NAV_CARD_ON : NAV_CARD_OFF)}
                 >
                   <NavGlyph path={navIcons[entry.label]} />
@@ -553,7 +573,11 @@ export function Navbar() {
                         {entry.children.map((child) => (
                           <li key={child.href}>
                             <Link
-                              href={child.href}
+                              href={toHref(child.href)}
+                              onClick={() => {
+                                pinnedMenu.current = null;
+                                setOpenMenu(null);
+                              }}
                               className="card-interactive group flex items-start gap-3 rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2.5"
                             >
                               <span
@@ -611,7 +635,13 @@ export function Navbar() {
           */}
           <button
             type="button"
-            onClick={() => setMobileOpen((value) => !value)}
+            onClick={() => {
+              const opening = !mobileOpen;
+              if (opening) {
+                setSheetMounted(true);
+              }
+              setMobileOpen(opening);
+            }}
             aria-expanded={mobileOpen}
             aria-controls="mobile-menu"
             className={cn(
@@ -647,7 +677,7 @@ export function Navbar() {
             A shortcut to a page that is also a menu child is the cheapest thing
             in this row to lose; the primary call to action is not.
           */}
-          <ButtonLink href="/contact" size="sm" trailing={<ArrowRight />}>
+          <ButtonLink href={toHref("/contact")} size="sm" trailing={<ArrowRight />}>
             {t("Request a Demo")}
           </ButtonLink>
 
@@ -725,7 +755,7 @@ export function Navbar() {
           id="mobile-menu"
           aria-hidden={!mobileOpen}
           className={cn(
-            "nav-sheet absolute inset-x-0 top-full transition-[opacity,transform,visibility] duration-300 ease-industrial xl:hidden",
+            "nav-sheet absolute inset-x-0 top-full transition-[opacity,transform,visibility] duration-300 ease-industrial wide:hidden",
             mobileOpen
               ? "pointer-events-auto visible translate-y-0 opacity-100 will-change-transform"
               : "pointer-events-none invisible -translate-y-2 opacity-0",
@@ -738,7 +768,8 @@ export function Navbar() {
               <div key={t(entry.label)}>
                 {entry.href ? (
                   <Link
-                    href={entry.href}
+                    href={toHref(entry.href)}
+                    onClick={() => setMobileOpen(false)}
                     /* The open page must be inked on the sheet without a
                        gesture — the same current-page story the clay bar
                        tells at rest (§15). */
@@ -761,7 +792,8 @@ export function Navbar() {
                       {entry.children?.map((child) => (
                         <li key={child.href}>
                           <Link
-                            href={child.href}
+                            href={toHref(child.href)}
+                            onClick={() => setMobileOpen(false)}
                             aria-current={
                               barePath === child.href || barePath.startsWith(`${child.href}/`)
                                 ? "page"
@@ -800,10 +832,10 @@ export function Navbar() {
           </div>
 
           <div className="mt-7 flex flex-col gap-2.5">
-            <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
+            <ButtonLink href={toHref("/contact")} size="lg" trailing={<ArrowRight />} onClick={() => setMobileOpen(false)}>
               {t("Request a Demo")}
             </ButtonLink>
-            <ButtonLink href="/optimization" variant="secondary" size="lg">
+            <ButtonLink href={toHref("/optimization")} variant="secondary" size="lg" onClick={() => setMobileOpen(false)}>
               {t("See the optimization engine")}
             </ButtonLink>
           </div>

@@ -90,10 +90,10 @@ const csp = [
     ? "connect-src 'self' ws: wss: https://*.supabase.co"
     : "connect-src 'self' https://afpbdyamedpanwijxghk.supabase.co",
   "form-action 'self'",
-  "frame-ancestors 'none'",
+  ...(isDevelopment ? [] : ["frame-ancestors 'none'"]),
   "base-uri 'self'",
   "object-src 'none'",
-  "upgrade-insecure-requests",
+  ...(isDevelopment ? [] : ["upgrade-insecure-requests"]),
 ].join("; ");
 
 /**
@@ -121,6 +121,7 @@ const nextConfig: NextConfig = {
    * map names its sources — and are never part of a deployable build.
    */
   productionBrowserSourceMaps: process.env.ANALYZE === "true",
+  deploymentId: stamp.revisionShort ? `dpl_${stamp.revisionShort}` : undefined,
   env: {
     PROGLASS_BUILD_TIME: stamp.builtAt,
     PROGLASS_BUILD_REVISION: stamp.revisionShort ?? "",
@@ -132,6 +133,16 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
+  allowedDevOrigins: [
+    "**.e2b.app",
+    "*.e2b.app",
+    "e2b.app",
+    "**.arena.ai",
+    "*.arena.ai",
+    "arena.ai",
+    "localhost",
+    "127.0.0.1",
+  ],
 
   images: {
     formats: ["image/avif", "image/webp"],
@@ -166,7 +177,7 @@ const nextConfig: NextConfig = {
         headers: [
           { key: "Content-Security-Policy", value: csp },
           { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options", value: "DENY" },
+          ...(isDevelopment ? [] : [{ key: "X-Frame-Options", value: "DENY" }]),
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           {
             key: "Permissions-Policy",

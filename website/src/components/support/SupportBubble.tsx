@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { site } from "@/lib/site";
 import { useT, useHref } from "@/i18n/provider";
@@ -30,6 +31,7 @@ export function SupportBubble() {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const wasOpenRef = useRef(false);
 
   useEffect(() => {
     const show = () => setOpen(true);
@@ -38,7 +40,14 @@ export function SupportBubble() {
   }, []);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      if (wasOpenRef.current) {
+        wasOpenRef.current = false;
+        triggerRef.current?.focus();
+      }
+      return;
+    }
+    wasOpenRef.current = true;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
     };
@@ -56,10 +65,6 @@ export function SupportBubble() {
     };
   }, [open]);
 
-  useEffect(() => {
-    if (!open) triggerRef.current?.focus();
-  }, [open]);
-
   const whatsappHref = site.whatsappNumber
     ? `https://wa.me/${site.whatsappNumber}?text=${encodeURIComponent(
         "Hello — I am on the ProGlass Automation site and have a question.",
@@ -72,9 +77,10 @@ export function SupportBubble() {
     <div ref={rootRef} className="no-print fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] left-[max(1.25rem,env(safe-area-inset-left))] z-40">
       {open ? (
         <div
+          id="support-dialog"
           role="dialog"
           aria-label={t("Support")}
-          className="menu-card animate-scale-in w-[min(21rem,calc(100vw-2.5rem))] rounded-panel border-2 border-line-strong/60 bg-ink-900/95 p-4 shadow-raised"
+          className="menu-card animate-scale-in mb-3 w-[min(21rem,calc(100vw-2.5rem))] rounded-panel border-2 border-line-strong/60 bg-ink-900/95 p-4 shadow-raised"
         >
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -140,7 +146,7 @@ export function SupportBubble() {
               </span>
             </a>
 
-            <a
+            <Link
               href={href("/contact")}
               onClick={() => setOpen(false)}
               className="group flex items-center gap-3 rounded-card border-2 border-line-strong/60 bg-ink-950/60 px-3.5 py-3 transition-colors hover:border-brand-400/60"
@@ -152,7 +158,7 @@ export function SupportBubble() {
                 <span className="block text-sm font-semibold text-text-primary">{t("Demo request")}</span>
                 <span className="block text-xs text-text-muted">{t("Written quote on your sizes and rates — straight to the Gmail inbox.")}</span>
               </span>
-            </a>
+            </Link>
           </div>
 
           <p className="mt-3 border-t border-line/60 pt-2.5 text-2xs leading-relaxed text-text-faint">
@@ -166,6 +172,7 @@ export function SupportBubble() {
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
+        aria-controls="support-dialog"
         aria-label={open ? t("Close chat support") : t("Chat with support")}
         className="menu-card support-launcher group flex items-center gap-2.5 rounded-full border-2 border-line-strong/70 bg-ink-900/90 px-4 py-3 text-xs font-bold text-text-primary shadow-raised transition-transform hover:-translate-y-0.5"
       >

@@ -274,7 +274,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                   label={t(entry.name)}
                   colour={entry.hex ?? "#0369A1"}
                   active={studio.accentKey === entry.key && studio.accent !== null}
-                  onClick={() => setAccent(entry.key, entry.hex)}
+                  onClick={() => setAccent(entry.key, entry.hex ?? "#0369A1")}
                   onDark={luminance(entry.hex ?? "#0369A1") < 0.4}
                 />
               ))}
@@ -348,15 +348,20 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                     <button
                       key={`${key}-${n}`}
                       type="button"
+                      data-color-plate="true"
                       aria-pressed={studio[key] === n}
                       disabled={clayGated}
                       onClick={() => setStudio({ [key]: n })}
                       className={cn(
                         "grid h-7 w-7 place-items-center rounded-full border-2 text-[0.68rem] font-bold transition-transform",
                         studio[key] === n
-                          ? "scale-110 border-brand-500/70 bg-brand-600/20 text-text-primary"
-                          : "border-line-strong/60 text-text-muted hover:border-line-strong",
+                          ? "scale-110 border-text-primary ring-2 ring-text-primary/60"
+                          : "border-line-strong/60 hover:border-line-strong",
                       )}
+                      style={{
+                        backgroundColor: `rgb(var(--plate-${n}))`,
+                        color: "#241B3A",
+                      }}
                       title={t("Pick the plate this zone wears")}
                     >
                       {n}
@@ -373,7 +378,26 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
               onClick={() => {
                 const encoded = encodeStudio(studio);
                 const url = `${window.location.origin}${window.location.pathname}?studio=${encoded}`;
-                void navigator.clipboard?.writeText(url).then(() => setShareCopied(true));
+                const markCopied = () => setShareCopied(true);
+                if (navigator.clipboard?.writeText) {
+                  navigator.clipboard.writeText(url).then(markCopied).catch(() => {
+                    try {
+                      const ta = document.createElement("textarea");
+                      ta.value = url;
+                      ta.style.position = "fixed";
+                      ta.style.opacity = "0";
+                      document.body.appendChild(ta);
+                      ta.select();
+                      document.execCommand("copy");
+                      document.body.removeChild(ta);
+                    } catch {
+                      /* Clipboard blocked by iframe policy */
+                    }
+                    markCopied();
+                  });
+                } else {
+                  markCopied();
+                }
               }}
               className="mt-2 ml-3 text-[0.72rem] font-semibold text-text-faint underline-offset-2 hover:underline"
             >
@@ -688,6 +712,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                     <button
                       key={plate.name}
                       type="button"
+                      data-color-plate="true"
                       aria-pressed={studio.edgeColor === (plate.hex ?? "")}
                       aria-label={t(plate.name)}
                       title={t(plate.name)}
@@ -695,7 +720,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                       className={cn(
                         "grid h-7 w-7 place-items-center rounded-full border-2 transition-transform duration-150 hover:scale-110",
                         studio.edgeColor === (plate.hex ?? "")
-                          ? "border-text-primary"
+                          ? "border-text-primary ring-2 ring-text-primary/60"
                           : "border-line-strong/60",
                       )}
                       style={{
@@ -817,13 +842,14 @@ function PlateButton({
   return (
     <button
       type="button"
+      data-color-plate="true"
       aria-pressed={active}
       aria-label={t.template`${label} colour plate`}
       title={label}
       onClick={onClick}
       className={cn(
         "flex h-14 flex-col items-center justify-end gap-1 rounded-card border-2 p-1.5 text-[0.6875rem] font-bold uppercase tracking-wider transition-transform hover:-translate-y-0.5",
-        active ? "border-text-primary" : "border-line-strong/60",
+        active ? "border-text-primary ring-2 ring-text-primary/60" : "border-line-strong/60",
       )}
       style={{ background: colour, color: onDark ? "#FFFFFF" : "#080516" }}
     >

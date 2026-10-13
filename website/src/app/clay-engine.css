@@ -86,6 +86,8 @@
   --pool-1: rgb(142 124 242 / 0.3);
   --pool-2: rgb(253 186 116 / 0.16);
   --pool-3: rgb(228 105 160 / 0.13);
+  --wall-wash-1: rgb(var(--clay-lavender) / 0.28);
+  --wall-wash-2: rgb(var(--clay-peach) / 0.16);
   --card-tint: rgb(112 94 224 / 0.2);
   --card-tint-2: rgb(253 186 116 / 0.1);
 
@@ -286,7 +288,7 @@
   box-shadow: 4px 4px 10px rgb(var(--clay-drop-h) / 0.32),
     -3px -3px 8px rgb(255 255 255 / 0.7),
     inset 2px 2px 5px var(--clay-hi-2),
-    inset -3px -3px 6px rgb(92 60 220 / 0.22);
+    inset -3px -3px 6px rgb(var(--band-glow-h) / 0.22);
 }
 
 /* Metric cards speak in the references' pastel rotation — lavender, mint,
@@ -373,7 +375,7 @@ html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] 
   border-radius: 999px;
   box-shadow: 3px 3px 8px rgb(var(--clay-drop-h) / 0.28),
     inset 2px 2px 4px var(--clay-hi-2),
-    inset -2px -2px 5px rgb(92 60 220 / 0.18);
+    inset -2px -2px 5px rgb(var(--band-glow-h) / 0.18);
 }
 
 /* Faint brand washes (chips, expanded pins, dots) were the last place
@@ -399,11 +401,11 @@ html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] 
     inset 4px 4px 8px var(--clay-hi),
     inset -6px -6px 12px var(--clay-lo);
 }
-[data-appearance="clay"] .surface-raised {
-  background-color: rgb(var(--card-face));
 [data-appearance="clay"] .surface {
   background-color: rgb(var(--card-face));
 }
+[data-appearance="clay"] .surface-raised {
+  background-color: rgb(var(--card-face));
   background-image: none;
   box-shadow: var(--shadow-raised),
     inset 4px 4px 8px var(--clay-hi),
@@ -543,13 +545,13 @@ html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] 
   color: rgb(255 255 255);
   box-shadow: 8px 8px 20px rgb(var(--clay-coral-h) / 0.4),
     inset 4px 4px 8px var(--clay-hi-2),
-    inset -4px -4px 10px rgb(219 74 61 / 0.4);
+    inset -4px -4px 10px rgb(var(--clay-coral-h) / 0.4);
   transition: box-shadow 0.14s ease, transform 0.14s ease;
 }
 [data-appearance="clay"] .btn-primary:active {
   transform: scale(0.97);
   box-shadow: 4px 4px 10px rgb(var(--clay-coral-h) / 0.35),
-    inset -3px -3px 9px rgb(219 74 61 / 0.35),
+    inset -3px -3px 9px rgb(var(--clay-coral-h) / 0.35),
     inset 3px 3px 6px var(--clay-hi-2)
 }
 
@@ -858,7 +860,7 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
   background-color: rgb(var(--clay-lavender));
   box-shadow: 2px 2px 6px rgb(var(--clay-drop-h) / 0.4),
     inset 2px 2px 4px var(--clay-hi-2),
-    inset -2px -2px 4px rgb(92 60 220 / 0.3);
+    inset -2px -2px 4px rgb(var(--band-glow-h) / 0.3);
 }
 /* The Features exhibit: panes re-materialize — the lead pane is a raised
    clay window, the glass stage panes are foils, badge and caption are
@@ -885,7 +887,7 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
   color: rgb(var(--clay-ink));
   box-shadow: 3px 3px 8px rgb(var(--clay-drop-h) / 0.3),
     inset 3px 3px 6px var(--clay-hi-2),
-    inset -2px -2px 5px rgb(92 60 220 / 0.2);
+    inset -2px -2px 5px rgb(var(--band-glow-h) / 0.2);
 }
 
 /* §7.5 The boards' saturation, on the numbers. The first rotation tinted
@@ -1008,11 +1010,11 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
    fields. Daylight keeps its wash; midnight gets the same hues at whisper
    strength — the page stays a plum room with two lamps, not a violet wall. */
 html[data-theme="midnight"][data-appearance="clay"] {
-  --pool-1: rgb(142 124 242 / 0.13);
-  --pool-2: rgb(253 186 116 / 0.05);
-  --pool-3: rgb(228 105 160 / 0.045);
-  --wall-wash-1: rgb(142 124 242 / 0.16);
-  --wall-wash-2: rgb(228 105 160 / 0.07);
+  --pool-1: rgb(var(--clay-lavender) / 0.13);
+  --pool-2: rgb(var(--clay-peach) / 0.05);
+  --pool-3: rgb(var(--clay-pink) / 0.045);
+  --wall-wash-1: rgb(var(--clay-lavender) / 0.16);
+  --wall-wash-2: rgb(var(--clay-pink) / 0.07);
 }
 
 /* §9.2 Dark registry surfaces declare their ink themselves — they used to
@@ -1101,7 +1103,7 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
    card is flat-UI vocabulary — the mould's boundary is its shadow and the
    light in its insets. Divider hairlines (border-t rules between rows,
    never rounded) keep their violet edge. */
-[data-appearance="clay"] :is([class*="border-line"], [class*="border-ink"]):is([class*="rounded"]) {
+[data-appearance="clay"] :is([class*="border-line"], [class*="border-ink"]):is([class*="rounded"]):not([data-color-plate]) {
   border-color: transparent;
 }
 
@@ -1168,8 +1170,8 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
     border-color 0.18s var(--clay-ease),
     color 0.18s var(--clay-ease);
 }
-[data-appearance="clay"] .menu-card button[class*="border-line-strong"],
-[data-appearance="clay"] .menu-card button[class*="border-line"] {
+[data-appearance="clay"] .menu-card button[class*="border-line-strong"]:not([data-color-plate]),
+[data-appearance="clay"] .menu-card button[class*="border-line"]:not([data-color-plate]) {
   border-color: transparent;
   border-radius: 18px;
   background-color: rgb(var(--clay-card));
@@ -1178,7 +1180,7 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
     inset 3px 3px 6px var(--clay-hi),
     inset -4px -4px 8px var(--clay-lo);
 }
-[data-appearance="clay"] .menu-card button[class*="border-brand-400"] {
+[data-appearance="clay"] .menu-card button[class*="border-brand-400"]:not([data-color-plate]) {
   border-color: transparent;
   border-radius: 18px;
   background-color: rgb(var(--clay-lavender));
@@ -1186,7 +1188,7 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
   color: rgb(var(--clay-ink));
   box-shadow: 5px 5px 12px rgb(var(--clay-drop-h) / 0.38),
     inset 3px 3px 6px var(--clay-hi-2),
-    inset -4px -4px 8px rgb(92 60 220 / 0.24);
+    inset -4px -4px 8px rgb(var(--band-glow-h) / 0.24);
 }
 [data-appearance="clay"] .menu-card [class*="rounded-[0.3rem]"] {
   border-radius: 8px;
@@ -1245,7 +1247,7 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
     inset -5px -5px 12px var(--clay-hi);
   --clay-shadow-button: 6px 6px 16px rgb(var(--clay-coral-h) / 0.42),
     inset 2px 2px 5px var(--clay-hi-2),
-    inset -3px -3px 8px rgb(219 74 61 / 0.35);
+    inset -3px -3px 8px rgb(var(--clay-coral-h) / 0.35);
   --clay-highlight: rgb(255 255 255 / var(--clay-lift));
   --clay-shadow-dark: rgb(18 10 38 / 0.6);
   --clay-highlight-soft: var(--clay-hi);
@@ -1837,7 +1839,7 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
   color: rgb(var(--clay-ink));
   box-shadow: 3px 3px 9px rgb(var(--clay-drop-h) / 0.34),
     inset 4px 4px 9px var(--clay-hi-2),
-    inset -3px -3px 7px rgb(92 60 220 / 0.24);
+    inset -3px -3px 7px rgb(var(--band-glow-h) / 0.24);
 }
 
 /* The hero's floating shards become the pack's organic blobs in clay:

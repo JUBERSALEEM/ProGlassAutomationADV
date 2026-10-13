@@ -50,10 +50,12 @@ vi.mock("@/i18n/provider", () => {
   const t = (copy: string): string => copy;
   t.template = (strings: TemplateStringsArray, ...values: unknown[]) =>
     strings.reduce((acc, s, i) => acc + s + (i < values.length ? String(values[i]) : ""), "");
-  return { useT: () => t };
+  return { useT: () => t, useHref: () => (path: string) => path };
 });
 
 import { ThemeStudio } from "@/components/layout/ThemeStudio";
+import { ThemeStudioLazy } from "@/components/layout/ThemeStudioLazy";
+import { SupportBubble } from "@/components/support/SupportBubble";
 import {
   applyStudioVars,
   decodeStudio,
@@ -468,5 +470,101 @@ describe("P19 · the family gates are real gates, not veils", () => {
     await user.click(within(panel).getByRole("button", { name: /^crystal$/i }));
     rowSix = within(panel).getAllByRole("button", { name: /^6$/ })[0]!;
     expect((rowSix as HTMLButtonElement).disabled).toBe(true);
+  });
+});
+
+describe("P20 · live Chrome, GlassBlue plate, Frost IACVT guard & Chat bubble", () => {
+  it("ThemeStudioLazy mounts the real launcher immediately and opens synchronously on click", async () => {
+    const user = userEvent.setup();
+    render(<ThemeStudioLazy />);
+    const trigger = screen.getByRole("button", { name: /open the theme studio/i });
+    await user.click(trigger);
+    expect(screen.getByRole("dialog", { name: /theme and colour/i })).toBeTruthy();
+  });
+
+  it("the Glass Blue colour plate applies #0369A1 instead of resetting to Family", async () => {
+    const user = userEvent.setup();
+    render(<ThemeStudio />);
+    const panel = await openStudio(user);
+    const glassBlue = within(panel).getByRole("button", { name: /glass blue colour plate/i });
+    await user.click(glassBlue);
+    await settle();
+    expect(glassBlue.getAttribute("aria-pressed")).toBe("true");
+    expect(inline("--brand-400")).not.toBe("");
+    const stored = JSON.parse(window.localStorage.getItem(STUDIO_STORAGE_KEY) ?? "{}");
+    expect(stored.accentKey).toBe("GlassBlue");
+    expect(stored.accent).toBe("#0369A1");
+  });
+
+  it("crystal-engine never writes --glass-bright: none (which invalidates backdrop-filter via IACVT)", () => {
+    const css = readFileSync(resolve(process.cwd(), "src/app/crystal-engine.css"), "utf8");
+    expect(css).not.toMatch(/--glass-bright\s*:\s*none/);
+    expect(css).toMatch(/--glass-bright\s*:\s*1/);
+  });
+
+  it("SupportBubble does not steal focus on mount, opens on click, and restores focus on close", async () => {
+    const user = userEvent.setup();
+    render(<SupportBubble />);
+    const trigger = screen.getByRole("button", { name: /chat with support/i });
+    expect(document.activeElement).not.toBe(trigger);
+
+    await user.click(trigger);
+    expect(screen.getByRole("dialog", { name: /support/i })).toBeTruthy();
+
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog", { name: /support/i })).toBeNull();
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("colour plates apply their exact hue across daylight and midnight without drifting to pink/cyan/purple", () => {
+    const parseTripletHue = (triplet: string): number => {
+      const nums = triplet.match(/\d+/g)?.map(Number) ?? [0, 0, 0];
+      const r = (nums[0] ?? 0) / 255;
+      const g = (nums[1] ?? 0) / 255;
+      const b = (nums[2] ?? 0) / 255;
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      const d = max - min;
+      if (d === 0) return 0;
+      let h = 0;
+      if (max === r) h = ((g - b) / d) % 6;
+      else if (max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      return ((h * 60) + 360) % 360;
+    };
+    const hueDistance = (a: number, b: number): number => {
+      const diff = Math.abs(a - b) % 360;
+      return diff > 180 ? 360 - diff : diff;
+    };
+
+    html().setAttribute("data-theme", "daylight");
+    html().setAttribute("data-appearance", "clay");
+
+    // Pick Gold (#CA8A04, hue ~41°) in daylight
+    applyStudioVars({ ...defaultStudio, accent: "#CA8A04", accentKey: "Gold" });
+    const goldHue = parseTripletHue("202 138 4");
+    expect(inline("--brand-100")).not.toBe("");
+    expect(hueDistance(parseTripletHue(inline("--brand-400")), goldHue)).toBeLessThan(8);
+    expect(hueDistance(parseTripletHue(inline("--brand-500")), goldHue)).toBeLessThan(8);
+    expect(hueDistance(parseTripletHue(inline("--clay-coral")), goldHue)).toBeLessThan(8);
+    expect(hueDistance(parseTripletHue(inline("--band-rich-h")), goldHue)).toBeLessThan(8);
+    expect(hueDistance(parseTripletHue(inline("--card-face")), goldHue)).toBeLessThan(12);
+
+    // Pick Emerald (#059669, hue ~161°) in daylight on Crystal
+    html().setAttribute("data-appearance", "crystal");
+    applyStudioVars({ ...defaultStudio, accent: "#059669", accentKey: "Emerald" });
+    const emeraldHue = parseTripletHue("5 150 105");
+    expect(hueDistance(parseTripletHue(inline("--brand-400")), emeraldHue)).toBeLessThan(8);
+    expect(hueDistance(parseTripletHue(inline("--aurora-ball-1")), emeraldHue)).toBeLessThan(15);
+    expect(hueDistance(parseTripletHue(inline("--aurora-ball-2")), emeraldHue)).toBeLessThan(20);
+    expect(hueDistance(parseTripletHue(inline("--aurora-ball-3")), emeraldHue)).toBeLessThan(20);
+  });
+
+  it("colour swatch buttons carry data-color-plate='true' so clay border rules preserve their exact swatch fill", async () => {
+    const user = userEvent.setup();
+    render(<ThemeStudio />);
+    const panel = await openStudio(user);
+    const gold = within(panel).getByRole("button", { name: /gold colour plate/i });
+    expect(gold.getAttribute("data-color-plate")).toBe("true");
   });
 });

@@ -498,7 +498,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
     rgb(255 255 255 / 0.03) 52%,
     var(--glass-relight-1, rgb(120 220 255 / 0.40)) 88%,
     var(--glass-relight-2, rgb(242 96 164 / 0.34)) 100%);
-  --glass-spec-a: 0.18;
+  --glass-spec-a: clamp(0.06, calc(0.18 * var(--glass-frost-mult, 1)), 0.42);
 
   /* P17 — the mid-vault seam bought: glass over a bare page reads as
      slate ("not even close", 14:12); these give every scroll region its
@@ -547,7 +547,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
     rgb(255 255 255 / 0.10) 55%,
     var(--glass-relight-1, rgb(217 120 239 / 0.40)) 88%,
     var(--glass-relight-2, rgb(120 220 255 / 0.34)) 100%);
-  --glass-spec-a: 0.30;
+  --glass-spec-a: clamp(0.12, calc(0.30 * var(--glass-frost-mult, 1)), 0.56);
 
   /* P17 — daylight's mid-vault colour: aqua one side, rose the other. */
   --wall-mid-1: rgb(26 197 226 / 0.34);
@@ -737,10 +737,10 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 }
 [data-theme="daylight"][data-appearance="crystal"] .decor,
 [data-theme="daylight"][data-appearance="crystal"] .glass-sphere {
-  --decor-1: rgb(158 87 181 / 0.38);
-  --decor-2: rgb(233 144 196 / 0.72);
-  --decor-3: rgb(166 96 208 / 0.80);
-  --decor-rim: rgb(121 62 152 / 0.22);
+  --decor-1: rgb(var(--brand-400, 158 87 181) / 0.38);
+  --decor-2: rgb(var(--aurora-ball-1, 233 144 196) / 0.72);
+  --decor-3: rgb(var(--aurora-ball-2, 166 96 208) / 0.80);
+  --decor-rim: rgb(var(--brand-700, 121 62 152) / 0.22);
 }
 [data-appearance="crystal"] .decor-ring {
   box-shadow: 0 0 22px -2px var(--decor-1),
@@ -766,11 +766,11 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
  */
 [data-appearance="crystal"] {
   --glass-spectrum-1: rgb(var(--brand-400));
-  --glass-spectrum-2: rgb(118 92 226 / 1);
+  --glass-spectrum-2: rgb(var(--brand-600));
 }
 [data-theme="daylight"][data-appearance="crystal"] {
-  --glass-spectrum-1: rgb(217 70 239 / 1);
-  --glass-spectrum-2: rgb(124 58 237 / 1);
+  --glass-spectrum-1: rgb(var(--brand-400));
+  --glass-spectrum-2: rgb(var(--brand-600));
 }
 [data-appearance="crystal"] .btn-primary {
   background-image: linear-gradient(155deg, var(--glass-spectrum-1) 0%, var(--glass-spectrum-2) 55%, rgb(var(--brand-700)) 100%);
@@ -811,9 +811,9 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 [data-theme="daylight"][data-appearance="crystal"] :is(span, div, a, button)[class*="bg-brand-500/1"]:not(.glass-fab):not(.btn-primary) {
   background-image:
     linear-gradient(150deg, rgb(255 255 255 / 0.35), transparent 46%),
-    linear-gradient(155deg, rgb(233 144 196 / 0.55), rgb(166 96 208 / 0.50));
+    linear-gradient(155deg, rgb(var(--brand-400) / 0.45), rgb(var(--brand-600) / 0.45));
   box-shadow:
-    0 8px 18px -8px rgb(166 96 208 / 0.40),
+    0 8px 18px -8px rgb(var(--brand-600) / 0.38),
     0 0 0 1px rgb(255 255 255 / 0.45),
     inset 0 1px 0 0 rgb(255 255 255 / 0.55);
 }
@@ -1039,12 +1039,12 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
  * frost rests at 0.5× and the liquid brightness is stripped. Ornaments,
  * rings, specular all STAY — the look must survive the optimization.
  */
-html.glass-econ [data-appearance="crystal"] {
+html.glass-econ[data-appearance="crystal"] {
   --glass-frost-mult: 0.5;
-  --glass-bright: none;
+  --glass-bright: 1;
 }
 @media (pointer: coarse), (max-width: 820px) {
-  [data-appearance="crystal"] { --glass-bright: none; }
+  [data-appearance="crystal"] { --glass-bright: 1; }
 }
 
 /* ═══ §F7 · WIDE GAMUT — deeper teals/pinks where the display earns them ═
@@ -1056,12 +1056,10 @@ html.glass-econ [data-appearance="crystal"] {
     --pool-1: color(display-p3 0.62 0.45 0.86 / 0.62);
     --pool-2: color(display-p3 0.05 0.78 0.88 / 0.50);
     --pool-3: color(display-p3 0.95 0.44 0.70 / 0.44);
-    --glass-spectrum-2: oklch(52% 0.28 288);
   }
   [data-theme="daylight"][data-appearance="crystal"] {
     --pool-1: color(display-p3 0.95 0.44 0.70 / 0.62);
     --pool-3: color(display-p3 0.62 0.45 0.86 / 0.54);
-    --glass-spectrum-1: oklch(62% 0.30 330);
   }
 }
 

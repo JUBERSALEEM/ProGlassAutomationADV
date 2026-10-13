@@ -93,6 +93,7 @@ export function shift(hex: string, lightness: number, saturation = 0): Rgb {
 
 export type Ramp = {
   "50": string;
+  "100": string;
   "200": string;
   "300": string;
   "400": string;
@@ -111,18 +112,28 @@ export type Ramp = {
 export function rampFor(hex: string, target: "dark" | "light", brightness = 0, vividness = 0): Ramp {
   const base = hexToRgb(hex);
   const hsl = rgbToHsl(base);
+  const s = (delta: number) => Math.max(0, Math.min(1, hsl.s + delta + vividness));
   const step = (lightness: number, saturation: number) =>
     triplet(
       hslToRgb({
         h: hsl.h,
-        s: Math.max(0, Math.min(1, hsl.s + saturation + vividness)),
+        s: s(saturation),
         l: Math.max(0.02, Math.min(0.98, hsl.l + lightness + brightness)),
+      }),
+    );
+  const atL = (targetL: number, saturation = 0) =>
+    triplet(
+      hslToRgb({
+        h: hsl.h,
+        s: s(saturation),
+        l: Math.max(0.02, Math.min(0.98, targetL + brightness)),
       }),
     );
 
   if (target === "dark") {
     return {
       "50": step(0.44, -0.12),
+      "100": step(0.37, -0.09),
       "200": step(0.3, -0.06),
       "300": step(0.2, -0.02),
       "400": step(0.09, 0),
@@ -132,14 +143,21 @@ export function rampFor(hex: string, target: "dark" | "light", brightness = 0, v
     };
   }
 
+  /* Daylight: keep 400/500 faithful to the visible colour plate while ensuring
+     light tints (50/200) stay airy and text steps (100/300/600/700) hold
+     contrast on light surfaces without crushing dark plates to black. */
+  const plateL = Math.max(0.11, Math.min(0.48, hsl.l));
+  const btnL = Math.max(0.11, Math.min(0.44, hsl.l));
+  const deepL = Math.max(0.08, Math.min(0.36, hsl.l - 0.06));
   return {
-    "50": step(0.34, -0.3),
-    "200": step(0.24, -0.12),
-    "300": step(-0.14, 0.04),
-    "400": step(-0.08, 0.04),
-    "500": step(-0.14, 0.02),
-    "600": step(-0.2, 0),
-    "700": step(-0.26, -0.02),
+    "50": atL(Math.max(hsl.l + 0.38, 0.93), -0.18),
+    "100": atL(btnL, 0),
+    "200": atL(Math.max(hsl.l + 0.26, 0.82), -0.08),
+    "300": atL(Math.max(0.12, Math.min(0.42, hsl.l)), 0.02),
+    "400": atL(Math.max(0.14, Math.min(0.5, hsl.l)), 0.02),
+    "500": atL(plateL, 0),
+    "600": atL(btnL, 0),
+    "700": atL(deepL, 0),
   };
 }
 

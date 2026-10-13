@@ -73,7 +73,7 @@ export function AppearancePreview() {
 
       {/* ── Family ───────────────────────────────────────────────────── */}
       <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-text-secondary">{t("Palette family")}</p>
-      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
         {appearanceFamilies.map((entry) => {
           const active = entry.id === family;
           return (
@@ -109,7 +109,7 @@ export function AppearancePreview() {
           label={t("Family")}
           colour={activeFamily.swatch}
           active={studio.accent === null}
-          onClick={() => setAccent("GlassBlue", null)}
+          onClick={() => setAccent("Family", null)}
         />
         {studioAccents.map((entry) => (
           <Plate
@@ -117,7 +117,7 @@ export function AppearancePreview() {
             label={t(entry.name)}
             colour={entry.hex ?? "#0369A1"}
             active={studio.accentKey === entry.key && studio.accent !== null}
-            onClick={() => setAccent(entry.key, entry.hex)}
+            onClick={() => setAccent(entry.key, entry.hex ?? "#0369A1")}
           />
         ))}
       </div>
@@ -247,13 +247,14 @@ function Plate({
   return (
     <button
       type="button"
+      data-color-plate="true"
       aria-pressed={active}
       aria-label={t.template`${label} colour plate`}
       title={label}
       onClick={onClick}
       className={cn(
         "flex h-12 items-end justify-center rounded-card border-2 p-1 text-[0.625rem] font-bold uppercase tracking-wide transition-transform hover:-translate-y-0.5",
-        active ? "border-text-primary" : "border-line-strong/60",
+        active ? "border-text-primary ring-2 ring-text-primary/60" : "border-line-strong/60",
       )}
       style={{ background: colour, color: onDark ? "#FFFFFF" : "#080516" }}
     >

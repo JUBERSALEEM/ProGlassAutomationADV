@@ -13,8 +13,8 @@ export function GlassLife() {
     // §F6 — the economy lane: a weak device gets the frost halved and the
     // per-pixel brightness tax removed. The glass itself is untouched.
     const nav = navigator as Navigator & { deviceMemory?: number };
-    const weak = (nav.deviceMemory !== undefined && nav.deviceMemory <= 4)
-      || (navigator.hardwareConcurrency !== undefined && navigator.hardwareConcurrency <= 4);
+    const weak = (nav.deviceMemory !== undefined && nav.deviceMemory <= 2)
+      || (navigator.hardwareConcurrency !== undefined && navigator.hardwareConcurrency <= 2);
     if (weak) document.documentElement.classList.add("glass-econ");
     return initGlassLife();
   }, []);

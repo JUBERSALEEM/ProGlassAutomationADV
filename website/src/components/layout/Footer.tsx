@@ -4,7 +4,7 @@ import { Logo } from "@/components/brand/Logo";
 import { GlassCubeEmblem } from "@/components/brand/GlassCubeEmblem";
 import { Icon } from "@/components/ui/Icon";
 import { channelIcons, footerIconFor } from "@/data/footerIcons";
-import type { Translator } from "@/i18n/core";
+import { hrefIn, type Translator } from "@/i18n/core";
 import { BuildStampRow } from "@/components/layout/BuildStamp";
 
 function Column({
@@ -32,7 +32,7 @@ function Column({
         {links.map((link) => (
           <li key={link.href}>
             <Link
-              href={link.href}
+              href={hrefIn(t.locale, link.href)}
               className="card-interactive group relative flex items-center justify-center gap-2.5 rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors duration-200 hover:border-brand-400/60 hover:text-text-primary"
             >
               <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg border border-brand-400/30 bg-brand-500/12 text-brand-300 transition-colors duration-200 group-hover:border-brand-400/60 group-hover:text-brand-200">
@@ -133,11 +133,11 @@ export function Footer({ t }: { t: Translator }) {
                 work, and their name and address are on it. */}
             <p className="mt-6 border-s-2 border-brand-500/60 ps-4 text-sm leading-relaxed text-text-secondary">
               {t("Written and maintained by")}{" "}
-              <Link href="/developer" className="link-grow font-semibold text-brand-200 hover:text-brand-50">
+              <Link href={hrefIn(t.locale, "/developer")} className="link-grow font-semibold text-brand-200 hover:text-brand-50">
                 {site.developerName}
               </Link>
               {t(", a glass estimator in")} {site.developerLocation}.{" "}
-              <Link href="/collaborate" className="link-grow font-medium text-brand-300 hover:text-brand-200">
+              <Link href={hrefIn(t.locale, "/collaborate")} className="link-grow font-medium text-brand-300 hover:text-brand-200">
                 {t("Work on it with him")}
               </Link>
               .

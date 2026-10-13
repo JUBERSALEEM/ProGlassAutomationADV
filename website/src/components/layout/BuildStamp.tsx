@@ -68,14 +68,15 @@ export function BuildStampPill({
        * and the platform tooltip costs nothing to show and nothing to dismiss.
        */
       title={stampTitle(t)}
+      suppressHydrationWarning
       className={cn(
         "select-none rounded-card border border-line-strong/60 bg-ink-900/50 px-2 py-1 text-center font-mono text-[0.59375rem] font-semibold leading-[1.35] tracking-tight text-text-muted",
         className,
       )}
     >
       <span className="block whitespace-nowrap text-text-faint">{site.name}</span>
-      <span className="block whitespace-nowrap">{buildStamp.dateUae}</span>
-      <span className="block whitespace-nowrap text-text-faint">{buildStamp.timeUae}</span>
+      <span suppressHydrationWarning className="block whitespace-nowrap">{buildStamp.dateUae}</span>
+      <span suppressHydrationWarning className="block whitespace-nowrap text-text-faint">{buildStamp.timeUae}</span>
     </span>
   );
 }
@@ -90,6 +91,7 @@ export function BuildStampChip({
   return (
     <span
       title={stampTitle(t)}
+      suppressHydrationWarning
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border border-line/60 bg-ink-900/60 px-2.5 py-1 font-mono text-[0.6rem] leading-none text-text-faint",
         className,
@@ -113,7 +115,7 @@ export function BuildStampChip({
         <path d="M12.5 6.5A5 5 0 0 0 4.9 4.3M3.5 9.5a5 5 0 0 0 7.6 2.2" />
         <path d="M4.6 1.8v3h3M11.4 14.2v-3h-3" />
       </svg>
-      <span className="whitespace-nowrap">{buildStamp.timeUae}</span>
+      <span suppressHydrationWarning className="whitespace-nowrap">{buildStamp.timeUae}</span>
     </span>
   );
 }
@@ -129,17 +131,18 @@ export function BuildStampRow({
   return (
     <p
       title={stampTitle(t)}
+      suppressHydrationWarning
       className={cn(
         "flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[0.75rem] font-medium text-text-faint",
         className,
       )}
     >
       <span className="mono-label">{t("Updated")}</span>
-      <span className="font-mono font-semibold text-text-muted">{buildStampLine}</span>
+      <span suppressHydrationWarning className="font-mono font-semibold text-text-muted">{buildStampLine}</span>
       {/* The UTC clock, faint, for the one reader who compares this line with a
           deploy log — the panel itself is read in Gulf Standard Time. */}
-      <span className="font-mono text-text-faint">{buildStamp.time}</span>
-      <span className="text-text-faint">{t(buildEnvironmentKey)}</span>
+      <span suppressHydrationWarning className="font-mono text-text-faint">{buildStamp.time}</span>
+      <span suppressHydrationWarning className="text-text-faint">{t(buildEnvironmentKey)}</span>
     </p>
   );
 }
