@@ -121,6 +121,17 @@
   --shadow-raised: 16px 16px 42px rgb(18 10 38 / calc(0.74 * var(--clay-depth, 1))),
     -14px -14px 30px rgb(255 255 255 / 0.08);
 
+  /* §23 — the four-tier elevation (reference: one light, never a pile
+     of per-class choreography). Light arrives top-left: every drop goes
+     (+x,+y), every highlight (-x,-y) inset. Tiers: well (concave) < rest
+     (panel) < raised < float (menus, the chroma hero). Buttons keep their
+     own press grammar on rest; beads (spine) are micro-exceptions. */
+  --clay-light-x: 1;
+  --clay-light-y: 1;
+  --shadow-well: inset 4px 4px 10px rgb(18 10 38 / 0.35), inset -3px -3px 8px rgb(255 255 255 / 0.06);
+  --shadow-float: 22px 22px 52px rgb(18 10 38 / calc(0.8 * var(--clay-depth, 1))),
+    -18px -18px 36px rgb(255 255 255 / 0.09);
+
   /* Clay is solid and cheap: no translucency tier, no backdrop blur. */
   --surface-alpha: 1;
   --surface-alpha-2: 1;
@@ -164,6 +175,9 @@
     -10px -10px 26px rgb(255 255 255 / 1);
   --shadow-raised: 16px 16px 42px rgb(var(--clay-drop-h) / calc(0.42 * var(--clay-depth, 1))),
     -14px -14px 32px rgb(255 255 255 / 1);
+  --shadow-well: inset 4px 4px 10px rgb(var(--clay-drop-h) / 0.16), inset -3px -3px 8px rgb(255 255 255 / 0.95);
+  --shadow-float: 22px 22px 52px rgb(var(--clay-drop-h) / calc(0.48 * var(--clay-depth, 1))),
+    -18px -18px 38px rgb(255 255 255 / 1);
 }
 
 /* The studio's hairline tokens follow the family color, both modes. */
@@ -381,8 +395,7 @@
 [data-appearance="clay"] .glass-primary {
   background-color: rgb(var(--clay-lavender));
   background-image: none;
-  box-shadow: 12px 12px 32px rgb(var(--clay-drop-h) / 0.4),
-    -10px -10px 26px rgb(255 255 255 / 0.55),
+  box-shadow: var(--shadow-float),
     inset 5px 5px 10px rgb(255 255 255 / 0.5),
     inset -7px -7px 14px rgb(92 60 220 / 0.28);
   --text-1: var(--clay-ink);
@@ -692,7 +705,7 @@ html[data-theme="midnight"][data-appearance="clay"] {
   background-color: rgb(var(--overlay-face));
   background-image: none;
   border-color: transparent;
-  box-shadow: var(--shadow-raised),
+  box-shadow: var(--shadow-float),
     inset 3px 3px 7px var(--clay-hi),
     inset -5px -5px 10px var(--clay-lo);
 }
@@ -710,8 +723,7 @@ html[data-theme="midnight"][data-appearance="clay"] {
 [data-appearance="clay"] .card-accent {
   background-color: rgb(var(--panel-face));
   background-image: none;
-  box-shadow: 12px 12px 30px rgb(var(--clay-drop-h) / 0.38),
-    -9px -9px 22px rgb(255 255 255 / 0.5),
+  box-shadow: var(--shadow-float),
     inset 5px 5px 10px rgb(255 255 255 / 0.5),
     inset -7px -7px 14px rgb(var(--clay-drop-h) / 0.26);
   --text-1: var(--clay-ink);
@@ -2257,7 +2269,7 @@ html[data-theme="midnight"][data-appearance="clay"] :where(a, button, input, sel
 }
 [data-appearance="clay"] :is(.plate-1, .plate-2, .plate-3, .plate-4, .plate-5, .plate-6, .plate-custom).card-interactive:hover {
   transform: translateY(-2px);
-  box-shadow: 14px 16px 30px rgb(var(--clay-drop-h) / 0.4),
+  box-shadow: var(--shadow-float),
     inset 0 1.5px 0 rgb(255 255 255 / 0.75),
     inset 5px 5px 11px rgb(255 255 255 / 0.5),
     inset -6px -6px 13px rgb(var(--clay-drop-h) / 0.22);

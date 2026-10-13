@@ -2,7 +2,6 @@
 
 *Rules: a phase leaves this file only when its implementation AND verification pass (evidence appended to CLAYMORPHISM_PHASE_HISTORY.md). Generated from actual findings, not targets.*
 
-- [ ] **P03 — elevation tiers + one light variable (D2).** `--clay-light` direction + `--elev-0..3` token maps; every clay surface consumes a tier; hover on interactive cards promotes a tier. Acceptance: no per-class shadow literals left except documented tokens; motion suite 12/12 green.
 - [ ] **P04 — midnight inset dimming (D3).** Insets dim ~35% + fill-tier carries depth at midnight. Acceptance: midnight clay screenshot shows matte puff (no plastic glare) + contrast suite green.
 - [ ] **P05 — interaction grammar pass (D4/D6).** transform-only press on all clay buttons/cards (PRM-gated); `:focus-visible` 3px token everywhere clay controls exist; chips exception documented IN the token block. Acceptance: motion + audit gates; keyboard walk record on /features.
 - [ ] **P06 — hard-coded color re-audit → zero unexplained literals (incl. JS-generated styles & inline style objects).** Add a repeatable scanner to scripts/ (source + computed DSL). Acceptance: scanner report empty of "unresolved" class.
