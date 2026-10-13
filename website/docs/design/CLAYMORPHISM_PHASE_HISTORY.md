@@ -23,3 +23,10 @@
 - Defect: 44 literal inset-white call-sites (0.4–0.75) burned day-bright highlights on dark pastel = plastic-glare risk (reference principle 7). The --clay-hi token was correctly dim (0.11) — the literals bypassed it.
 - Fix: role tokens --clay-hi-2 (0.55 daylight / 0.12 midnight) and --clay-lip (0.75 / 0.16); 42 numeric insets + 2 zero-blur hairlines migrated, geometry preserved; daylight intensities keep shipped recipe (median mapping).
 - Gates: clay-paint 175/175 · contrast 87/87 · motion 12/12 · vitest 35/35 · census 522/600 · audit 0/0.
+
+
+## P05 — interaction grammar (D4/D6) + P04-regression repair · completed 2026-10-13
+
+- Cross-check caught a P04 side effect: the regex migration replaced geometry, producing 42 malformed shadow items (`inset var(--clay-hi-2)rgb(255 255 255 / V)` — invalid CSS, browsers drop the item silently). Repaired all 42 from the 2cb8b32↔d1cd0bf diff ledger (geometry restored, color→role var): whole-file `)rgb(` syntax scan = 0. Disclosure: this class of defect passed ALL gates — the DSLs don't validate box-shadow item grammar; a syntax guard is queued (folded into P06 scanner).
+- §25 one-ring grammar: competing 3px-brand vs 2px-clay+halo focus rules unified to `--clay-focus` token (3px/offset 3px, brand-500 daylight / foil midnight) + one `:where(...):focus-visible` rule; press = transform-only (verified in btn-primary/card-interactive :active); chips exception documented at §21 door.
+- Gates: clay-paint 175/175 · contrast 87/87 · motion 12/12 · vitest 35/35 · census 522/600 · audit 0/0.
