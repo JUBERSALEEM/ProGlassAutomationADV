@@ -1,24 +1,3 @@
-// ═══════════════════════════════════════════════════════════════════════
-// FILE: Tests/Database/SharedDataRootServiceTests.cs
-// PROJECT: ProGlassAutomation.Tests
-// MODULE: Database — Company LAN/Wi-Fi shared data root (senior audit — 2026-09-24)
-//
-// Hermetic tests for the shared data root fixes:
-//   1. TryNormalizeSharedRoot rejects the local AppData roots (a "shared"
-//      folder pointing at the local database is a data-loss mistake).
-//   2. Probe verifies a real folder and rejects the local AppData folder.
-//   3. LooksNetworkBased recognises UNC paths (and never a plain local
-//      drive).
-//   4. ApplyToConfig REFUSES to persist a half-configured shared mode —
-//      enabled=true with an empty or local path must not be saved. Runtime
-//      offline fallback is visible, but an invalid saved target is still
-//      rejected rather than being accepted as a working shared configuration.
-//   5. SharedDataRootUnavailableException carries the operator-facing
-//      message with the folder path and the inner exception.
-//
-// No test touches %AppData% or opens a real database file.
-// ═══════════════════════════════════════════════════════════════════════
-
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.Database;
 using System;
@@ -54,14 +33,6 @@ namespace ProGlassAutomation.Tests.Database
             return path;
         }
 
-        // ── TryNormalizeSharedRoot ───────────────────────────────────
-
-        [Fact]
-        public void Local_dataset_copy_is_off_by_default_until_the_host_operator_opts_in()
-        {
-            Assert.False(new DataConnectivitySettings().CopyLocalDataOnEnable);
-        }
-
         [Fact]
         public void Normalize_rejects_the_local_production_folder()
         {
@@ -93,7 +64,8 @@ namespace ProGlassAutomation.Tests.Database
                 + Path.DirectorySeparatorChar;
 
             Assert.True(AppDataRoot.TryNormalizeSharedRoot(folder, out var normalized));
-            Assert.False(normalized.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal));
+            Assert.False(normalized.EndsWith(
+                Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal));
         }
 
         [Fact]
@@ -105,13 +77,13 @@ namespace ProGlassAutomation.Tests.Database
             Assert.Equal(@"Z:\", normalized);
         }
 
-        // ── LooksNetworkBased ────────────────────────────────────────
-
         [Fact]
         public void LooksNetworkBased_detects_unc_paths()
         {
-            Assert.True(SharedDataRootService.LooksNetworkBased(@"\\OFFICE-PC\ProGlassData"));
-            Assert.True(SharedDataRootService.LooksNetworkBased(@"\\192.168.1.50\share"));
+            Assert.True(SharedDataRootService.LooksNetworkBased(
+                @"\\OFFICE-PC\ProGlassData"));
+            Assert.True(SharedDataRootService.LooksNetworkBased(
+                @"\\192.168.1.50\ProGlassData"));
         }
 
         [Fact]
@@ -122,25 +94,54 @@ namespace ProGlassAutomation.Tests.Database
             Assert.False(SharedDataRootService.LooksNetworkBased(""));
         }
 
-        // ── Probe ────────────────────────────────────────────────────
-
         [Fact]
-        public void Probe_accepts_a_real_writable_folder()
+        public void Probe_accepts_a_writable_folder_but_does_not_treat_it_as_a_network_path()
         {
-            var result = SharedDataRootService.Probe(MakeFolder("probe-ok"));
+            var folder = MakeFolder("probe-ok");
+            var result = SharedDataRootService.Probe(folder);
 
-            Assert.True(result.Ok);
+            Assert.True(result.Ok, result.Message);
             Assert.Contains("✓", result.Message);
             Assert.False(result.LooksLikeNetworkPath);
+            Assert.Contains("local path", result.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Empty(Directory.GetFiles(folder));
         }
 
         [Fact]
-        public void Probe_reports_no_databases_in_a_fresh_folder()
+        public void Probe_counts_existing_database_files_without_modifying_them()
+        {
+            var folder = MakeFolder("probe-existing-data");
+            string database = Path.Combine(folder, "Customers.db");
+            File.WriteAllText(database, "existing dataset marker");
+
+            var result = SharedDataRootService.Probe(folder);
+
+            Assert.True(result.Ok, result.Message);
+            Assert.Equal(1, result.DatabaseFileCount);
+            Assert.Contains("1 top-level ProGlass database file", result.Message);
+            Assert.Equal("existing dataset marker", File.ReadAllText(database));
+            Assert.Single(Directory.GetFiles(folder));
+        }
+
+        [Fact]
+        public void Probe_flags_an_empty_folder_for_operator_review()
         {
             var result = SharedDataRootService.Probe(MakeFolder("probe-empty"));
 
-            Assert.True(result.Ok);
-            Assert.Contains("No database files found yet", result.Message);
+            Assert.True(result.Ok, result.Message);
+            Assert.Equal(0, result.DatabaseFileCount);
+            Assert.Contains("No top-level ProGlass database files were found", result.Message);
+        }
+
+        [Fact]
+        public void Probe_does_not_create_a_missing_folder()
+        {
+            var missing = Path.Combine(_tempRoot, "must-not-be-created");
+
+            var result = SharedDataRootService.Probe(missing);
+
+            Assert.False(result.Ok);
+            Assert.False(Directory.Exists(missing));
         }
 
         [Fact]
@@ -149,27 +150,13 @@ namespace ProGlassAutomation.Tests.Database
             var result = SharedDataRootService.Probe(AppDataRoot.ProductionFolder);
 
             Assert.False(result.Ok);
-            Assert.Contains("different from the local ProGlass AppData folder", result.Message);
-        }
-
-        [Fact]
-        public void Prepare_refuses_to_run_against_a_non_host_root()
-        {
-            var localFolder = MakeFolder("prepare-not-host");
-
-            Assert.False(SharedDataRootService.IsCurrentComputerShareRoot(localFolder));
-            var result = SharedDataRootService.PrepareSharedFolder(
-                localFolder, copyLocalData: true);
-
-            Assert.False(result.Ok);
-            Assert.Contains("primary PC", result.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("other than the local ProGlass AppData folder", result.Message);
         }
 
         [Fact]
         public void Probe_rejects_a_blank_path()
         {
             var result = SharedDataRootService.Probe("");
-
             Assert.False(result.Ok);
         }
 
@@ -196,15 +183,13 @@ namespace ProGlassAutomation.Tests.Database
             Assert.Empty(Directory.GetFiles(folder));
         }
 
-        // ── ApplyToConfig — the half-configured-state ratchet ────────
-
         [Fact]
         public void Apply_refuses_to_enable_with_an_empty_path()
         {
             var config = new AppConfig();
 
             var (ok, message) = SharedDataRootService.ApplyToConfig(
-                config, enabled: true, path: "", copyLocalData: true);
+                config, enabled: true, path: "");
 
             Assert.False(ok);
             Assert.Contains("valid shared folder path", message, StringComparison.OrdinalIgnoreCase);
@@ -212,63 +197,61 @@ namespace ProGlassAutomation.Tests.Database
         }
 
         [Fact]
-        public void Apply_refuses_to_enable_with_the_local_AppData_folder()
+        public void Apply_refuses_to_enable_with_a_local_path()
         {
             var config = new AppConfig();
 
-            var (ok, _) = SharedDataRootService.ApplyToConfig(
-                config, enabled: true, path: AppDataRoot.ProductionFolder, copyLocalData: true);
+            var (ok, message) = SharedDataRootService.ApplyToConfig(
+                config, enabled: true, path: MakeFolder("apply-local"));
 
             Assert.False(ok);
+            Assert.Contains("path is local", message, StringComparison.OrdinalIgnoreCase);
             Assert.False(config.DataConnectivity!.UseSharedDataRoot);
         }
 
         [Fact]
-        public void Apply_persists_the_path_when_enabling()
+        public void Apply_persists_a_network_path_and_clears_review_flags()
         {
+            if (!OperatingSystem.IsWindows()) return;
+
             var config = new AppConfig();
             config.DataConnectivity!.SharedRootOfflineFallbackNeedsReview = true;
             config.DataConnectivity.SharedRootLocalModeNoticePending = true;
             config.DataConnectivity.SharedRootReconnectNoticeShown = true;
-            var folder = MakeFolder("apply-on");
+            const string path = @"\\OFFICE-PC\ProGlassData";
+            Assert.True(AppDataRoot.TryNormalizeSharedRoot(path, out var normalizedPath));
 
-            var (ok, _) = SharedDataRootService.ApplyToConfig(
-                config, enabled: true, path: folder, copyLocalData: true);
+            var (ok, message) = SharedDataRootService.ApplyToConfig(
+                config, enabled: true, path: path);
 
-            Assert.True(ok);
+            Assert.True(ok, message);
             Assert.True(config.DataConnectivity.UseSharedDataRoot);
             Assert.False(config.DataConnectivity.SharedRootOfflineFallbackNeedsReview);
             Assert.False(config.DataConnectivity.SharedRootLocalModeNoticePending);
             Assert.False(config.DataConnectivity.SharedRootReconnectNoticeShown);
-            Assert.Equal(folder, config.DataConnectivity.SharedDataRootPath);
+            Assert.Equal(normalizedPath, config.DataConnectivity.SharedDataRootPath);
             Assert.False(string.IsNullOrEmpty(config.DataConnectivity.WorkstationName));
+            Assert.Contains("No data was copied or merged", message);
         }
 
         [Fact]
-        public void Apply_clears_the_path_when_disabling()
+        public void Apply_clears_the_shared_path_when_disabling()
         {
             var config = new AppConfig();
             config.DataConnectivity!.SharedRootOfflineFallbackNeedsReview = true;
             config.DataConnectivity.SharedRootLocalModeNoticePending = true;
             config.DataConnectivity.SharedRootReconnectNoticeShown = true;
-            var folder = MakeFolder("apply-off");
 
-            var on = SharedDataRootService.ApplyToConfig(config, true, folder, true);
-            Assert.True(on.Ok);
-            Assert.False(config.DataConnectivity.SharedRootOfflineFallbackNeedsReview);
-            Assert.False(config.DataConnectivity.SharedRootLocalModeNoticePending);
-            Assert.False(config.DataConnectivity.SharedRootReconnectNoticeShown);
+            var (ok, message) = SharedDataRootService.ApplyToConfig(
+                config, enabled: false, path: "");
 
-            var off = SharedDataRootService.ApplyToConfig(config, false, folder, true);
-            Assert.True(off.Ok);
-            Assert.False(config.DataConnectivity!.UseSharedDataRoot);
+            Assert.True(ok, message);
+            Assert.False(config.DataConnectivity.UseSharedDataRoot);
             Assert.False(config.DataConnectivity.SharedRootOfflineFallbackNeedsReview);
             Assert.False(config.DataConnectivity.SharedRootLocalModeNoticePending);
             Assert.False(config.DataConnectivity.SharedRootReconnectNoticeShown);
             Assert.Equal("", config.DataConnectivity.SharedDataRootPath);
         }
-
-        // ── Startup uses visible local mode if shared root is unavailable ──
 
         [Fact]
         public void Enabled_shared_mode_with_invalid_path_selects_local_and_marks_review()
@@ -292,15 +275,10 @@ namespace ProGlassAutomation.Tests.Database
                 Assert.Contains("will not be shared", AppDataRoot.SharedRootFallbackReason,
                     StringComparison.OrdinalIgnoreCase);
 
-                // After the one-time notice is acknowledged, repeated offline
-                // launches must remain visible in Settings/logs without
-                // forcing the same modal on every launch.
                 config.DataConnectivity.SharedRootLocalModeNoticePending = false;
                 AppDataRoot.ConfigureFrom(config);
                 Assert.False(config.DataConnectivity.SharedRootLocalModeNoticePending);
 
-                // Exercise the local-root ensure path without touching the
-                // test runner user's real %AppData% database directory.
                 var localOverride = Path.Combine(_tempRoot, "offline-local");
                 AppDataRoot.TestFolderOverride = localOverride;
                 AppDataRoot.EnsureCurrentFolder();
@@ -314,7 +292,7 @@ namespace ProGlassAutomation.Tests.Database
         }
 
         [Fact]
-        public void Recovered_share_stays_local_until_offline_data_is_reviewed()
+        public void Saved_local_path_is_not_accepted_as_a_shared_root_at_startup()
         {
             var previousOverride = AppDataRoot.TestFolderOverride;
             try
@@ -322,20 +300,16 @@ namespace ProGlassAutomation.Tests.Database
                 AppDataRoot.TestFolderOverride = null;
                 var config = new AppConfig();
                 config.DataConnectivity!.UseSharedDataRoot = true;
-                config.DataConnectivity.SharedDataRootPath = MakeFolder("recovered-share");
-                config.DataConnectivity.SharedRootOfflineFallbackNeedsReview = true;
+                config.DataConnectivity.SharedDataRootPath = MakeFolder("not-a-network-share");
 
                 AppDataRoot.ConfigureFrom(config);
 
                 Assert.True(AppDataRoot.SharedRootFallbackActive);
-                Assert.True(AppDataRoot.SharedRootReconnectAvailable);
-                Assert.True(config.DataConnectivity.SharedRootLocalModeNoticePending);
-                Assert.True(config.DataConnectivity.SharedRootReconnectNoticeShown);
                 Assert.False(AppDataRoot.IsSharedDataRootEnabled);
-                Assert.Equal(AppDataRoot.ProductionFolder, AppDataRoot.CurrentFolder);
-                Assert.Contains("reachable again", AppDataRoot.SharedRootFallbackReason,
+                Assert.True(config.DataConnectivity.SharedRootOfflineFallbackNeedsReview);
+                Assert.Contains("not a network location", AppDataRoot.SharedRootFallbackReason,
                     StringComparison.OrdinalIgnoreCase);
-                Assert.Contains("not merged automatically", AppDataRoot.SharedRootFallbackReason,
+                Assert.DoesNotContain("not a network location", AppDataRoot.CurrentFolder,
                     StringComparison.OrdinalIgnoreCase);
             }
             finally
@@ -344,40 +318,13 @@ namespace ProGlassAutomation.Tests.Database
                 AppDataRoot.ConfigureFrom(new AppConfig());
             }
         }
-
-        [Fact]
-        public void Reachable_share_is_selected_when_no_offline_review_is_pending()
-        {
-            var previousOverride = AppDataRoot.TestFolderOverride;
-            try
-            {
-                AppDataRoot.TestFolderOverride = null;
-                var folder = MakeFolder("reachable-share");
-                var config = new AppConfig();
-                config.DataConnectivity!.UseSharedDataRoot = true;
-                config.DataConnectivity.SharedDataRootPath = folder;
-
-                AppDataRoot.ConfigureFrom(config);
-
-                Assert.True(AppDataRoot.IsSharedDataRootEnabled);
-                Assert.False(AppDataRoot.SharedRootFallbackActive);
-                Assert.False(AppDataRoot.SharedRootReconnectAvailable);
-                Assert.Equal(folder, AppDataRoot.CurrentFolder);
-            }
-            finally
-            {
-                AppDataRoot.TestFolderOverride = previousOverride;
-                AppDataRoot.ConfigureFrom(new AppConfig());
-            }
-        }
-
-        // ── SharedDataRootUnavailableException ───────────────────────
 
         [Fact]
         public void UnavailableException_carries_the_operator_message()
         {
             var inner = new IOException("The network path was not found.");
-            var ex = new SharedDataRootUnavailableException(@"\\OFFICE\ProGlassData", inner);
+            var ex = new SharedDataRootUnavailableException(
+                @"\\OFFICE\ProGlassData", inner);
 
             Assert.Equal(@"\\OFFICE\ProGlassData", ex.SharedFolder);
             Assert.Contains(@"\\OFFICE\ProGlassData", ex.Message);

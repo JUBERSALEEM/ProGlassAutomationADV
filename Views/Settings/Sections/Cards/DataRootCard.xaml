@@ -1,27 +1,8 @@
-<!-- ═══════════════════════════════════════════════════════════════════
-     FILE: Views/Settings/Sections/Cards/DataRootCard.xaml
-     PROJECT: ProGlassAutomation
-     MODULE: Settings v4 — Company LAN / Wi-Fi shared database card
-             (senior audit 2026-09-24: one direct share-the-folder flow)
-     ───────────────────────────────────────────────────────────────────
-     The data-root flow separates primary-PC host creation from client
-     connection:
-
-         1. Primary: Create Share on This PC; client: Find on LAN/type UNC
-         2. Test Connection  →  3. Prepare the host folder if needed
-         4. Save + Restart  (or explicitly Revert to local)
-
-     Host creation publishes a real SMB share and never returns a local
-     C:\\ path as if clients could use it. No data is copied at creation.
-     Save + Restart explicitly enables the tested shared root; Revert is
-     the explicit local-mode action. An amber local-only banner appears
-     whenever a configured shared root is inactive, so local fallback is
-     never mistaken for shared company data.
-     DataContext inherits SettingsViewModel from the section; styles
-     from the two merged module dictionaries.
-═══════════════════════════════════════════════════════════════════════ -->
+<!-- Company shared-data folder settings. Windows sharing is configured in
+     File Explorer; ProGlass only tests and uses the selected UNC/mapped path. -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.DataRootCard"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -33,8 +14,6 @@
 
     <Border Style="{StaticResource SettingsCompactCardStyle}">
         <StackPanel>
-
-            <!-- ── HEADER ── -->
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -45,9 +24,9 @@
                     <TextBlock Text="&#xE968;" Style="{StaticResource SettingsIconGlyphStyle}"/>
                 </Border>
                 <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                    <TextBlock Text="Company LAN / Wi-Fi Database"
+                    <TextBlock Text="Shared Company Data Folder"
                                Style="{StaticResource SettingsCardTitleStyle}"/>
-                    <TextBlock Text="Create and publish the company folder on the primary Windows PC, then connect each client by host name or IP. Use a stable LAN/Wi-Fi connection (not cloud-sync); restart each workstation after applying."
+                    <TextBlock Text="Use the same Windows shared-folder path on every workstation. Test it before applying; changes take effect after restart."
                                Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
                 </StackPanel>
                 <Border Grid.Column="2" Background="{DynamicResource TintIndigoBrush}"
@@ -60,8 +39,6 @@
                 </Border>
             </Grid>
 
-            <!-- ── LOCAL-ONLY FALLBACK — visible when shared is configured
-                 but local AppData is the active root ── -->
             <Border Style="{StaticResource SettingsWashTileStyle}"
                     Background="{DynamicResource TintAmberBrush}"
                     BorderBrush="{DynamicResource WarningBrush}"
@@ -75,11 +52,8 @@
                            Foreground="{DynamicResource WarningBrush}"/>
             </Border>
 
-            <!-- ── BODY ── -->
             <StackPanel Margin="{StaticResource SettingsStackGap12}">
-
-                <!-- Host setup and client connection path -->
-                <TextBlock Text="Shared folder path (UNC by host name or IP: \\OFFICE-PC\ProGlassData or \\192.168.1.25\ProGlassData)"
+                <TextBlock Text="Shared folder path (UNC or mapped network drive)"
                            Style="{StaticResource SettingsRowMetaStyle}"/>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -91,67 +65,33 @@
                              Text="{Binding SharedDataRootPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Padding="10,7"
                              FontSize="{DynamicResource FontSize.Body}"
-                             ToolTip="Use a real host name or IPv4 address, for example \\Office-PC\ProGlassData or \\192.168.1.25\ProGlassData. Do not leave SERVER as a placeholder."
+                             ToolTip="Enter the same network path on each workstation, for example \\OFFICE-PC\ProGlassData or Z:\ProGlassData."
                              Style="{StaticResource TextBoxStyle}"/>
                     <Button Grid.Column="2"
                             Style="{StaticResource SettingsActionButtonStyle}"
                             Height="36" Margin="0"
-                            Content="Find on LAN"
-                            Command="{Binding FindSharedDataRootsCommand}"
-                            ToolTip="Scans this PC's local private IPv4 subnet for ProGlass-marked SMB shares. It does not select or apply a dataset automatically."/>
+                            Content="Browse…"
+                            Command="{Binding BrowseSharedDataRootCommand}"
+                            ToolTip="Browse to the existing shared folder. You can also type a UNC path or mapped network drive."/>
                 </Grid>
 
-                <StackPanel Margin="{StaticResource SettingsStackGap8}"
-                            Visibility="{Binding HasDiscoveredSharedDataRootCandidates, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="ProGlass share candidates found on this local network. Select the intended company host, then test it; discovery never changes the active database."
-                               TextWrapping="Wrap"
-                               FontSize="{DynamicResource FontSize.BodySmall}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                    <Grid Margin="0,6,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <ComboBox Grid.Column="0"
-                                  ItemsSource="{Binding DiscoveredSharedDataRootCandidates}"
-                                  SelectedItem="{Binding SelectedSharedDataRootCandidate, Mode=TwoWay}"
-                                  MinHeight="36"
-                                  Padding="8,5"
-                                  FontSize="{DynamicResource FontSize.Body}"
-                                  Style="{StaticResource ComboBoxStyle}"/>
-                        <Button Grid.Column="2"
-                                Style="{StaticResource SettingsActionButtonStyle}"
-                                Height="36" Margin="0"
-                                Content="Use Selected Path"
-                                Command="{Binding UseDiscoveredSharedDataRootCommand}"
-                                ToolTip="Copies the selected candidate into the path field only. Test and explicitly apply it afterward."/>
-                    </Grid>
-                </StackPanel>
+                <TextBlock Text="Examples: \\OFFICE-PC\ProGlassData   •   \\192.168.1.25\ProGlassData   •   Z:\ProGlassData"
+                           TextWrapping="Wrap"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="{StaticResource SettingsStackGap6}"/>
 
-                <TextBlock Text="Primary-PC sharing requires Windows administrator approval. ProGlass grants authenticated users share Change + NTFS Modify access and limits inbound SMB/TCP 445 to the local subnet on Private/Domain firewall profiles. Client PCs may need the host PC or office-domain Windows credentials; do not use a Public Wi-Fi profile."
+                <TextBlock Text="Set up sharing in Windows File Explorer on the host PC (folder Properties → Sharing). Use a UNC path or mapped drive reachable by every workstation over the office network or your remote/VPN connection. ProGlass does not create Windows shares or change permissions and firewall settings."
                            TextWrapping="Wrap"
                            FontSize="{DynamicResource FontSize.BodySmall}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            Margin="{StaticResource SettingsStackGap8}"/>
 
-                <!-- Workstation label + live root, side by side -->
-                <Grid Margin="{StaticResource SettingsStackGap10}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="1.35*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="Workstation name for support/audit"
-                                   Style="{StaticResource SettingsRowMetaStyle}"/>
-                        <TextBox Text="{Binding WorkstationName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 Padding="10,7"
-                                 FontSize="{DynamicResource FontSize.Body}"
-                                 Style="{StaticResource TextBoxStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="Configured / current data root"
+                <Border Style="{StaticResource SettingsWashTileStyle}"
+                        Padding="10,8"
+                        Margin="{StaticResource SettingsStackGap10}">
+                    <StackPanel>
+                        <TextBlock Text="Currently active data root"
                                    Style="{StaticResource SettingsRowMetaStyle}"/>
                         <TextBlock Text="{Binding CurrentDataRootDisplay}"
                                    FontSize="{DynamicResource FontSize.BodySmall}"
@@ -159,58 +99,42 @@
                                    Foreground="{DynamicResource AccentBrush}"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
-                </Grid>
+                </Border>
 
-                <!-- One-time copy — single compact line -->
-                <CheckBox Content="Copy this PC's local data into the shared folder if empty (primary host only; off by default)"
-                          AutomationProperties.Name="Copy this PC's local data into the shared folder if empty (primary host only; off by default)"
-                          IsChecked="{Binding CopyLocalDataOnEnable, Mode=TwoWay}"
-                          Foreground="{DynamicResource SecondaryForegroundBrush}"
-                          Margin="{StaticResource SettingsStackGap8}"/>
+                <TextBlock Text="Changing folders does not copy, merge, or overwrite records. Confirm that every workstation is connecting to the intended company dataset."
+                           TextWrapping="Wrap"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="{StaticResource SettingsStackGap8}"/>
 
-                <!-- Actions — standardized 36px row -->
                 <Grid Margin="{StaticResource SettingsStackGap10}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="8"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="8"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="8"/>
-                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Style="{StaticResource PrimaryPillButton}"
-                            Height="36" Margin="0"
-                            Content="Create Share on This PC"
-                            Command="{Binding CreateSharedFolderCommand}"
-                            ToolTip="On the primary PC, creates a local data folder and publishes it as the ProGlassData Windows share. Windows administrator approval may be required. Returns the UNC path for clients. Does not copy or merge databases."
-                            HorizontalAlignment="Stretch"/>
-                    <Button Grid.Column="2" Style="{StaticResource SettingsActionButtonStyle}"
+                    <Button Grid.Column="0"
+                            Style="{StaticResource SettingsActionButtonStyle}"
                             Height="36" Margin="0"
                             Content="Test Connection"
                             Command="{Binding TestSharedDataRootCommand}"
                             HorizontalAlignment="Stretch"/>
-                    <Button Grid.Column="4" Style="{StaticResource SettingsActionButtonStyle}"
+                    <Button Grid.Column="2"
+                            Style="{StaticResource PrimaryPillButton}"
                             Height="36" Margin="0"
-                            Content="Prepare Folder"
-                            Command="{Binding PrepareSharedDataRootCommand}"
-                            HorizontalAlignment="Stretch"/>
-                    <Button Grid.Column="6" Style="{StaticResource PrimaryPillButton}"
-                            Height="36" Margin="0"
-                            Content="Save + Restart"
+                            Content="Apply and Restart"
                             Command="{Binding ApplySharedDataRootCommand}"
-                            HorizontalAlignment="Stretch"/>
+                            HorizontalAlignment="Stretch"
+                            ToolTip="Enabled after the current network path passes Test Connection."/>
                 </Grid>
 
-                <!-- Way back — quiet, never a big card -->
                 <Button Style="{StaticResource OutlinedPillButton}"
                         Height="36"
-                        Content="Revert to local workstation database"
+                        Content="Return to local workstation database"
                         Command="{Binding RevertToLocalDataRootCommand}"
                         HorizontalAlignment="Right"
                         Padding="14,0"/>
 
-                <!-- Status — always present, operator-readable -->
                 <Border Style="{StaticResource SettingsWashTileStyle}"
                         Background="{DynamicResource TintAmberBrush}"
                         Padding="10,8"

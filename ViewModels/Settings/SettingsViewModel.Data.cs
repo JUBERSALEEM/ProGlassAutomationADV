@@ -119,8 +119,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged(nameof(DataRootModeDisplay));
                 OnPropertyChanged(nameof(CurrentDataRootDisplay));
                 NetworkDataRootStatus = value
-                    ? "Shared database mode selected. Test/prepare the folder, then Save + Restart on every workstation."
-                    : "Local database mode selected. Save + Restart to return this workstation to local AppData.";
+                    ? "Shared folder mode selected. Test the same UNC or mapped network path used on every workstation, then Apply and Restart."
+                    : "Local database mode selected. Apply and Restart to return this workstation to local AppData.";
             }
         }
 
@@ -135,20 +135,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(DataRootModeDisplay));
                 OnPropertyChanged(nameof(CurrentDataRootDisplay));
-                NetworkDataRootStatus = "Shared folder changed. Run Test Connection before enabling across the company.";
-            }
-        }
-
-        public bool CopyLocalDataOnEnable
-        {
-            get => _config?.DataConnectivity?.CopyLocalDataOnEnable ?? false;
-            set
-            {
-                if (_config?.DataConnectivity == null) return;
-                if (_config.DataConnectivity.CopyLocalDataOnEnable == value) return;
-                _config.DataConnectivity.CopyLocalDataOnEnable = value;
-                OnPropertyChanged();
-                ScheduleDebouncedSave();
+                NetworkDataRootStatus = "Shared folder path changed. Test access before applying; the active root is unchanged.";
+                (ApplySharedDataRootCommand as RelayCommand)?.RaiseCanExecuteChanged();
             }
         }
 
@@ -166,51 +154,22 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
         }
 
-        private string _networkDataRootStatus = "This PC currently uses its local database. On the primary PC choose Create Share on This PC; on clients choose Find on LAN or enter the host computer name/IP. The example \\\\SERVER is not a real host name.";
+        private string _networkDataRootStatus =
+            "Enter the existing shared-folder UNC path or mapped network drive, test it, then explicitly apply it. The active data root will not change until restart.";
         public string NetworkDataRootStatus
         {
             get => _networkDataRootStatus;
             private set { _networkDataRootStatus = value; OnPropertyChanged(); }
         }
 
-        public ObservableCollection<string> DiscoveredSharedDataRootCandidates { get; } = new();
-
-        private string? _selectedSharedDataRootCandidate;
-        public string? SelectedSharedDataRootCandidate
+        private bool _isTestingSharedDataRoot;
+        public bool IsTestingSharedDataRoot
         {
-            get => _selectedSharedDataRootCandidate;
-            set
-            {
-                if (_selectedSharedDataRootCandidate == value) return;
-                _selectedSharedDataRootCandidate = value;
-                OnPropertyChanged();
-                (UseDiscoveredSharedDataRootCommand as RelayCommand)?.RaiseCanExecuteChanged();
-            }
-        }
-
-        public bool HasDiscoveredSharedDataRootCandidates =>
-            DiscoveredSharedDataRootCandidates.Count > 0;
-
-        private bool _isDiscoveringSharedDataRoots;
-        public bool IsDiscoveringSharedDataRoots
-        {
-            get => _isDiscoveringSharedDataRoots;
+            get => _isTestingSharedDataRoot;
             private set
             {
-                if (_isDiscoveringSharedDataRoots == value) return;
-                _isDiscoveringSharedDataRoots = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private bool _isCreatingHostShare;
-        public bool IsCreatingHostShare
-        {
-            get => _isCreatingHostShare;
-            private set
-            {
-                if (_isCreatingHostShare == value) return;
-                _isCreatingHostShare = value;
+                if (_isTestingSharedDataRoot == value) return;
+                _isTestingSharedDataRoot = value;
                 OnPropertyChanged();
             }
         }
@@ -241,7 +200,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                         : "Local mode — shared folder unavailable";
 
                 if (SelectedDataRootDiffersFromLiveRoot)
-                    return "A different root is selected; current root stays active until Save + Restart";
+                    return "A different root is selected; current root stays active until Apply and Restart";
 
                 return Services.Database.AppDataRoot.IsSharedDataRootEnabled
                     ? "Shared LAN/Wi-Fi database mode — active"
@@ -294,7 +253,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// <summary>
         /// Re-derives <see cref="SharedRootWarning"/> from the live
         /// AppDataRoot state. Called at VM init and after every
-        /// test/prepare/apply/revert step.
+        /// test/apply/revert step.
         /// </summary>
         public void RefreshSharedRootWarning()
         {
@@ -315,11 +274,8 @@ namespace ProGlassAutomation.ViewModels.Settings
             OnPropertyChanged(nameof(CurrentDataRootDisplay));
         }
 
+        public ICommand BrowseSharedDataRootCommand { get; private set; }
         public ICommand TestSharedDataRootCommand { get; private set; }
-        public ICommand CreateSharedFolderCommand { get; private set; }
-        public ICommand FindSharedDataRootsCommand { get; private set; }
-        public ICommand UseDiscoveredSharedDataRootCommand { get; private set; }
-        public ICommand PrepareSharedDataRootCommand { get; private set; }
         public ICommand ApplySharedDataRootCommand { get; private set; }
         public ICommand RevertToLocalDataRootCommand { get; private set; }
 

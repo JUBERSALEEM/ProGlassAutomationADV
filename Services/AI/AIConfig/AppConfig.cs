@@ -21,9 +21,6 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// <summary>UNC or mapped-drive folder, e.g. \\OFFICE-PC\ProGlassData (replace OFFICE-PC with the host PC name).</summary>
         public string SharedDataRootPath { get; set; } = "";
 
-        /// <summary>When true, copy the current local data set into an empty shared folder before switching.</summary>
-        public bool CopyLocalDataOnEnable { get; set; } = false;
-
         /// <summary>
         /// Set after this workstation has used its local database because a
         /// configured shared root was unavailable. Prevents a later startup

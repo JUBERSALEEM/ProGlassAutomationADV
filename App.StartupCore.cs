@@ -1075,9 +1075,9 @@ namespace ProGlassAutomation
                 string localModeNotice = AppDataRoot.SharedRootFallbackReason +
                     "\n\nProGlass has continued in local mode, so you can use the application. " +
                     "Changes are saved on this workstation only and are not synchronized or merged " +
-                    "automatically. Before reconnecting, review the dataset in Settings → Data. Use " +
-                    "Prepare Folder only when the shared folder is empty and this local dataset should " +
-                    "seed it; do not overwrite an existing company dataset.";
+                    "automatically. Before reconnecting, review the local and shared datasets in " +
+                    "Settings → Data, enter the same UNC or mapped-drive path used by the other " +
+                    "workstations, test it, and explicitly apply it. ProGlass will not copy or merge records.";
                 try
                 {
                     Prompts.Show(

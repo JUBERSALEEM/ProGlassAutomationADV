@@ -1,7 +1,6 @@
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.Logging;
 using System;
-using System.Collections.Concurrent;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -122,7 +121,9 @@ namespace ProGlassAutomation.Services.Database
                 SharedRootFallbackReason =
                     "The saved shared-folder path is empty or invalid. ProGlass is continuing with " +
                     "this workstation's local database. Changes saved locally will not be shared with " +
-                    "other workstations. In Settings → Data, the primary PC can choose Create Share on This PC; a client can choose Find on LAN or enter the host name/IP. Test the intended share, review the dataset, then explicitly Save + Restart to reconnect. Prepare Folder is only for the primary host when an empty share should be seeded.";
+                    "other workstations. In Settings → Data, enter the existing UNC or mapped network " +
+                    "folder path, test access, review the intended dataset, then select Apply and Restart " +
+                    "to reconnect. Local and shared data are never copied or merged automatically.";
                 AppLogService.Warning(
                     "Shared data root is enabled with an empty or invalid path; continuing with the " +
                     $"local database. {detail}",
@@ -132,6 +133,24 @@ namespace ProGlassAutomation.Services.Database
 
             _configuredSharedDataRoot = normalized;
 
+            if (!SharedDataRootService.LooksNetworkBased(normalized))
+            {
+                const string failure = "The saved path is local, not a UNC or mapped network folder.";
+                if (!data.SharedRootOfflineFallbackNeedsReview)
+                    data.SharedRootLocalModeNoticePending = true;
+                data.SharedRootOfflineFallbackNeedsReview = true;
+                SharedRootFallbackReason =
+                    "The configured shared data path is not a network location. ProGlass is continuing with " +
+                    "this workstation's local database; local changes will not be shared with other PCs. " +
+                    "Enter and test the same UNC or mapped-drive path on each workstation, review the " +
+                    "intended dataset, and select Apply and Restart to reconnect. " + failure;
+                AppLogService.Warning(
+                    "Configured shared data root is local; continuing with the local database. " +
+                    $"Path: {normalized}.",
+                    new LogContext { Module = "Database", Operation = "ConfigureSharedRoot" });
+                return;
+            }
+
             if (!TryVerifySharedFolder(
                 normalized, out var failure, out var failureCause))
             {
@@ -140,14 +159,15 @@ namespace ProGlassAutomation.Services.Database
                     data.SharedRootLocalModeNoticePending = true;
                 data.SharedRootOfflineFallbackNeedsReview = true;
                 string placeholderHint = UsesExampleServerName(normalized)
-                    ? " 'SERVER' is only an example, not the primary PC's name. On the primary PC open Settings → Data and choose Create Share on This PC; on each client use Find on LAN or enter the real host name/IP, for example \\\\OFFICE-PC\\ProGlassData or \\\\192.168.1.25\\ProGlassData."
+                    ? " 'SERVER' is only an example, not a real host name. Enter the actual shared-folder UNC path or mapped network drive that is available on every workstation."
                     : "";
                 SharedRootFallbackReason =
                     "The configured shared company data folder " + normalized + " is unavailable. " +
                     "ProGlass is continuing with this workstation's local database; changes made now " +
                     "will not appear on other workstations. The saved path is checked again at startup. " +
-                    "After the network returns, use Find on LAN or enter the real host name/IP in Settings → Data, test the intended share, review the datasets, and explicitly Save + Restart to reconnect. Prepare Folder is only for seeding an empty host share; local changes are never merged automatically. " +
-                    failure + placeholderHint;
+                    "When the network returns, enter the same UNC or mapped-drive path in Settings → Data, " +
+                    "test access, review the intended dataset, and select Apply and Restart to reconnect. " +
+                    "Local and shared data are never copied or merged automatically. " + failure + placeholderHint;
                 AppLogService.Warning(
                     "Configured shared data root is unreachable; continuing with the local database. " +
                     $"Path: {normalized}. {failure}",
@@ -161,7 +181,7 @@ namespace ProGlassAutomation.Services.Database
                 // This workstation wrote to local AppData while the saved
                 // share was offline. Even though the share has returned, do
                 // not silently switch datasets and hide those local changes.
-                // Settings can explicitly prepare/reconnect after review.
+                // Settings can explicitly reconnect after review.
                 SharedRootReconnectAvailable = true;
                 if (!data.SharedRootReconnectNoticeShown)
                 {
@@ -172,8 +192,8 @@ namespace ProGlassAutomation.Services.Database
                     "The saved shared folder is reachable again: " + normalized + ". ProGlass is " +
                     "staying on this workstation's local database because it may contain changes made " +
                     "while the share was offline. Local changes are not merged automatically. Review " +
-                    "the local data, then use Settings → Data to prepare/reconcile and explicitly " +
-                    "reconnect to the shared folder.";
+                    "the local data separately, then use Settings → Data to explicitly reconnect " +
+                    "to the shared folder. Reconnecting does not copy or merge records.";
                 AppLogService.Warning(
                     "The saved shared folder is reachable, but this workstation remains in local mode " +
                     "until offline local data is reviewed. Path: " + normalized,
@@ -228,10 +248,10 @@ namespace ProGlassAutomation.Services.Database
         }
 
         /// <summary>
-        /// Confirms that the configured folder already exists and supports
-        /// read/write/delete access. Startup must not create a missing share;
-        /// folder creation and preparation belong to the explicit Settings
-        /// workflow. The bounded probe cannot freeze startup on dead SMB.
+        /// Confirms that the configured network folder already exists and
+        /// supports read/write/delete access. Startup never creates a missing
+        /// folder or changes Windows sharing. The bounded probe cannot freeze
+        /// startup on an unresponsive network location.
         /// </summary>
         internal static bool TryVerifySharedFolder(
             string folder, out string failure, out Exception? failureCause)
@@ -297,7 +317,7 @@ namespace ProGlassAutomation.Services.Database
         }
 
         /// <summary>
-        /// Maps a raw .NET share exception onto a sentence an operator can
+        /// Maps a raw .NET folder-access exception onto a sentence an operator can
         /// act on. Shared by the startup probe, the Settings probe button
         /// and EnsureCurrentFolder so every surface says the same thing.
         /// </summary>
@@ -315,7 +335,8 @@ namespace ProGlassAutomation.Services.Database
                     || msg.Contains("cannot find", StringComparison.OrdinalIgnoreCase)
                     || msg.Contains("could not find", StringComparison.OrdinalIgnoreCase))
                     return "The configured folder path could not be found — check the host computer " +
-                        "name or IP, that the shared folder exists, and that this workstation is on the same WiFi/LAN.";
+                        "name or IP, that the shared folder exists, and that this workstation can reach " +
+                        "the same LAN, Wi-Fi, VPN, or remote network.";
                 return "The shared folder did not respond — the host computer may be off or " +
                     "the network is down.";
             }
@@ -324,15 +345,9 @@ namespace ProGlassAutomation.Services.Database
         }
 
         // ── Mapped-drive detection (WNetGetConnection) ────────────────────
-        //
-        // A company that maps the share as Z:\ on every workstation is just
-        // as "shared" as one that types the UNC path. The old
-        // LooksNetworkBased only recognised "\\\\" prefixes, so a mapped
-        // drive was reported as a local path. WNetGetConnection asks the
-        // Windows redirector directly; results are cached per drive letter.
-
-        private static readonly ConcurrentDictionary<string, string> _mappedDriveUcnc =
-            new(StringComparer.OrdinalIgnoreCase);
+        // A mapped network drive is a shared location just like a UNC path.
+        // Query the Windows redirector at use time so drives mapped or
+        // remapped during the session are classified correctly.
 
         /// <summary>
         /// Returns the UNC path a local drive letter points at ("Z:" →
@@ -342,9 +357,6 @@ namespace ProGlassAutomation.Services.Database
         {
             string root = GetDriveRoot(path);
             if (root.Length < 3) return "";
-
-            if (_mappedDriveUcnc.TryGetValue(root, out var cached))
-                return cached;
 
             string unc = "";
             try
@@ -369,7 +381,6 @@ namespace ProGlassAutomation.Services.Database
                 // DllImport unavailable (non-Windows host, tests) — treat as local.
             }
 
-            _mappedDriveUcnc[root] = unc;
             return unc;
         }
 

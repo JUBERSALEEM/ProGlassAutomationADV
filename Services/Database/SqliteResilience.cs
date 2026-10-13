@@ -172,9 +172,8 @@ namespace ProGlassAutomation.Services.Database
         /// Applies the central path-aware SQLite policy and verifies the
         /// journal mode SQLite actually accepted. Runtime EF connections and
         /// raw migration/conversion connections call this exact routine.
-        /// <paramref name="sharedRootOverride"/> is reserved for the shared-
-        /// root preparation path, which must convert a local folder before
-        /// it becomes reachable through a UNC/mapped-drive path.
+        /// A caller can explicitly identify a known shared-root file with
+        /// <paramref name="sharedRootOverride"/> when path detection alone is insufficient.
         /// </summary>
         internal static string ApplyConnectionPolicy(
             SqliteConnection connection, bool? sharedRootOverride = null)
@@ -295,8 +294,9 @@ namespace ProGlassAutomation.Services.Database
             if (shared && !string.Equals(effectiveMode, "delete", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException(
                     $"Shared database '{connection.DataSource}' is using journal_mode={effectiveMode}, " +
-                    "but DELETE is required for a LAN/Wi-Fi data root. Close every ProGlass workstation, " +
-                    "run Settings → Data → Prepare Folder to convert the database, and restart all clients.");
+                    "but DELETE is required for a LAN/Wi-Fi data root. Database access is blocked. " +
+                    "Close every ProGlass workstation, make a backup, and retry. If the journal mode " +
+                    "still cannot be changed safely, contact ProGlass support before using this folder.");
 
             if (!shared && !string.Equals(effectiveMode, "wal", StringComparison.OrdinalIgnoreCase))
                 AppLogService.Warning(
@@ -325,9 +325,8 @@ namespace ProGlassAutomation.Services.Database
                 databaseFilePath, SqliteOpenMode.ReadWriteCreate, sharedRootOverride: null);
 
         /// <summary>
-        /// Builds a connection for a folder being prepared as a company root,
-        /// even when the selected local folder is not yet detectable as a UNC
-        /// or mapped network path.
+        /// Builds a connection for an explicitly identified shared-root file,
+        /// even when path detection alone cannot classify the location.
         /// </summary>
         internal static string BuildSharedRootConnectionString(string databaseFilePath) =>
             BuildConnectionStringCore(
