@@ -221,7 +221,7 @@ function FilterChip({
         "rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors duration-200",
         active
           ? "border-brand-400/60 bg-brand-400/12 text-brand-200"
-          : "border-line-strong/70 text-text-muted hover:border-brand-400/40 hover:text-text-primary",
+          : "border-line-strong/70 bg-ink-850/60 text-text-muted hover:border-brand-400/40 hover:text-text-primary",
       )}
     >
       {children}

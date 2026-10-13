@@ -178,7 +178,7 @@ if(m!=="light"&&m!=="dark"&&m!=="system")m="system";
    — this just makes Clay the first thing every visitor feels, including a
    returning one whose storage pinned an older family. */
 var vk2="proglass-studio-attrs";
-var hv="proglass-hygiene-v2";
+var hv="proglass-hygiene-v3";
 if(sg(hv)!=="1"){sr(vk);sr(vk2);ss(ak,"clay");ss(hv,"1");}
 var a=sg(ak);
 if(a!=="studio"&&a!=="monet"&&a!=="industrial"&&a!=="crystal"&&a!=="clay")a="clay";

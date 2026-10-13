@@ -402,12 +402,12 @@
     --wall-lamp: rgb(255 255 255 / 0);
     --wall-floor: transparent;
 
-    /* Surfaces: warm paper with a violet cast, not flat grey. */
-    --ink-950: 248 245 238;  /* page      #F8F5EE — the app's warm ivory, not a cold white */
-    --ink-900: 253 251 247;  /* card      #FDFBF7 */
-    --ink-850: 251 248 242;  /* raised    #FBF8F2 */
-    --ink-800: 243 238 229;  /* inset     #F3EEE5 */
-    --ink-700: 235 228 244;  /* highest   #EBE4F4 */
+    /* Surfaces: warm paper with a violet cast, not flat grey or stark white. */
+    --ink-950: 238 232 248;  /* page      tinted lavender paper */
+    --ink-900: 232 225 246;  /* card      stepped pastel tier 1 */
+    --ink-850: 225 216 244;  /* raised    stepped pastel tier 2 */
+    --ink-800: 218 208 242;  /* inset     wells / code / inputs */
+    --ink-700: 210 198 238;  /* highest   pressed / active      */
 
     --line: 214 205 233;     /* #D6CDE9 */
     --line-soft: 232 226 242;/* #E8E2F2 */
@@ -438,7 +438,7 @@
     --text-1: 36 27 58;       /* #241B3A — the app's own Sp.Ink */
     --text-2: 50 39 78;      /* #32274E */
     --text-3: 79 67 112;      /* #4F4370 */
-    --text-4: 107 96 120;      /* #6B6078 — the app's own Sp.Muted, 5.4:1 on ivory */
+    --text-4: 92 81 108;      /* #5C516C — deepened for stepped pastel cards */
 
     --state-success: 4 120 87;
     --state-warning: 161 74 8;
@@ -466,7 +466,7 @@
     --pool-3: rgb(214 78 140 / 0.11);
 
     /* Day lighter than dark: paper needs less ink to read as tinted. */
-    --tint-base: 0.12;
+    --tint-base: 0.16;
     --card-tint: rgb(101 70 181 / 0.11);
     --card-highlight: rgb(255 255 255 / 0.96);
     --tint-mix: 0.12;
@@ -883,6 +883,14 @@
 
   /* Daylight needs its own re-weighting of the ramps so contrast holds. */
   [data-theme="daylight"][data-appearance="monet"] {
+    --ink-950: 246 233 241;
+    --ink-900: 241 224 235;
+    --ink-850: 235 214 228;
+    --ink-800: 228 202 220;
+    --ink-700: 218 188 209;
+    --line: 214 182 204;
+    --line-soft: 228 202 220;
+    --line-strong: 194 156 183;
     --brand-50: 253 235 244;
     --brand-100: 140 20 72;
     --brand-200: 248 194 222;
@@ -901,6 +909,14 @@
   }
 
   [data-theme="daylight"][data-appearance="industrial"] {
+    --ink-950: 231 240 248;
+    --ink-900: 222 234 245;
+    --ink-850: 212 227 241;
+    --ink-800: 200 218 236;
+    --ink-700: 186 208 230;
+    --line: 178 202 226;
+    --line-soft: 198 216 235;
+    --line-strong: 152 182 212;
     --brand-50: 232 245 253;
     --brand-100: 6 88 138;
     --brand-200: 178 222 246;

@@ -52,7 +52,7 @@
 
   /* Grounds. */
   --clay-page: 247 245 251;      /* #F7F5FB tinted near-white */
-  --clay-raised: 255 255 255;    /* floating sheets over it   */
+  --clay-raised: 234 226 255;    /* floating pastel sheets over it */
 
   /* The pastel surfaces — the clay itself. */
   --clay-lavender: 184 166 255;  /* #B8A6FF primary plates    */
@@ -170,12 +170,13 @@
   --ink-850: 225 216 244;
   --ink-800: 218 208 242;
   --ink-700: 210 198 238;
+  --clay-raised: 234 226 255;
   --clay-card: var(--clay-raised);
   --clay-hi: rgb(var(--overlay-face) / 0.55);
   --clay-hi-2: rgb(var(--overlay-face) / 0.42);
   --clay-lip: rgb(var(--overlay-face) / 0.65);
   --clay-lo: rgb(var(--clay-drop-h) / 0.32);
-  --clay-foil: rgb(224 216 255);
+  --clay-foil: rgb(214 205 254);
   --clay-lift: 0.35;
   --clay-scrim: rgb(var(--clay-drop-h) / 0.3);
   --clay-edge: rgb(var(--clay-drop-h) / 0.22);
@@ -453,7 +454,7 @@ html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] 
   color: rgb(var(--text-2));
 }
 [data-appearance="clay"] .glass-primary .btn-primary {
-  background-color: rgb(252 250 255);
+  background-color: rgb(var(--overlay-face));
   background-image: none;
   color: rgb(var(--brand-700));
   box-shadow: 8px 8px 18px rgb(var(--band-glow-h) / 0.3),
@@ -500,7 +501,7 @@ html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] 
 }
 [data-appearance="clay"] .band-deep .btn-primary {
   border-color: transparent;
-  background-color: rgb(252 250 255);
+  background-color: rgb(var(--overlay-face));
   background-image: none;
   color: rgb(var(--brand-700));
   box-shadow: 8px 8px 18px rgb(var(--band-glow-h) / 0.3),
@@ -858,14 +859,14 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
     inset -6px -6px 12px rgb(var(--band-glow-h) / 0.22);
 }
 html[data-theme="daylight"][data-appearance="clay"] :is(.band-deep, .band-rich) :is(.surface, .surface-raised) {
-  background-color: rgb(var(--data-face));
+  background-color: rgb(var(--card-face));
   box-shadow: var(--shadow-raised),
     inset 5px 5px 10px var(--clay-hi),
     inset -8px -8px 14px var(--clay-lo);
 }
 [data-appearance="clay"] .band-rich .btn-primary {
   border-color: transparent;
-  background-color: rgb(252 250 255);
+  background-color: rgb(var(--overlay-face));
   color: rgb(var(--brand-700));
   box-shadow: 8px 8px 18px rgb(var(--band-glow-h) / 0.3),
     inset 1px 1px 3px var(--clay-lip),
@@ -892,7 +893,7 @@ html[data-theme="daylight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
 [data-appearance="clay"] .mat-stage,
 [data-appearance="clay"] .mat-railview__inner {
   border-color: transparent;
-  background-color: rgb(var(--card-face));
+  background-color: var(--clay-foil);
   background-image:
     radial-gradient(120% 90% at 14% 0%, rgb(var(--card-tint-h) / var(--clay-wash)) 0%, transparent 58%),
     radial-gradient(100% 80% at 88% 100%, rgb(var(--card-tint-h2) / calc(var(--clay-wash) * 0.7)) 0%, transparent 62%);
@@ -901,7 +902,7 @@ html[data-theme="daylight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
     inset -8px -8px 14px var(--clay-lo);
 }
 [data-appearance="clay"] .mpane__glass {
-  background-color: rgb(var(--card-face));
+  background-color: rgb(var(--data-face));
   background-image: none;
   box-shadow: 6px 6px 16px rgb(var(--clay-drop-h) / 0.22),
     inset -3px -3px 8px var(--clay-hi-2),
@@ -1126,7 +1127,7 @@ html[data-theme="midnight"][data-appearance="clay"] .band-solid {
 }
 html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) :is(.btn-primary, .btn-secondary) {
   border-color: transparent;
-  background-color: rgb(250 246 255);
+  background-color: rgb(var(--clay-raised));
   background-image: none;
   color: rgb(var(--clay-ink));
   box-shadow: 8px 8px 18px rgb(18 10 38 / 0.42),
@@ -1148,7 +1149,7 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
    flatten them; now they carry the mould and its insets. Wells (small
    radii: rounded / rounded-lg / code chips / input fields) stay pressed
    and flat on purpose, and real fields keep their pressed-in grammar. */
-[data-appearance="clay"] :is([class*="bg-ink-950"]:not([class*="min-h-screen"]):not([class*="fixed"]), [class*="bg-ink-900"], [class*="bg-ink-850"], [class*="bg-ink-800"], [class*="bg-glass-"]):is([class*="rounded-card"], [class*="rounded-2xl"], [class*="rounded-panel"], [class*="rounded-xl"], [class*="rounded-3xl"], [class*="rounded-lg"]):not(input):not(textarea):not(select) {
+[data-appearance="clay"] :is([class*="bg-ink-950"], [class*="bg-ink-900"], [class*="bg-ink-850"], [class*="bg-ink-800"], [class*="bg-glass-"]):is([class*="rounded-card"], [class*="rounded-2xl"], [class*="rounded-panel"], [class*="rounded-xl"], [class*="rounded-3xl"], [class*="rounded-lg"]):not(input):not(textarea):not(select):not([class*="min-h-"]):not([class*="fixed"]) {
   /* §21: the door answers rounded-3xl + rounded-lg too — the utility
      panes the shorthand leaked. Chips (rounded-md and smaller) keep
      their ink fills so tags/badges never pose as cards. */
@@ -1173,7 +1174,7 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
     inset -5px -5px 10px var(--clay-lo);
 }
 html[data-theme="daylight"][data-appearance="clay"] :is(.band-deep, .band-rich) .card-interactive {
-  background-color: rgb(var(--data-face));
+  background-color: rgb(var(--card-face));
 }
 
 /* §9.9 + §26 (P11) Chips are micro-pillows, not wells: a solid pastel
@@ -2033,7 +2034,7 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
 }
 [data-appearance="clay"] .card-accent :is(.btn-primary, .btn-secondary) {
   border-color: transparent;
-  background-color: rgb(252 250 255);
+  background-color: rgb(var(--clay-raised));
   background-image: none;
   color: rgb(var(--brand-700));
   box-shadow: 8px 8px 18px rgb(var(--band-glow-h) / 0.3),
@@ -2065,7 +2066,7 @@ html[data-theme="midnight"][data-appearance="clay"] .glass-primary {
 }
 html[data-theme="midnight"][data-appearance="clay"] .glass-primary :is(.btn-primary, .btn-secondary) {
   border-color: transparent;
-  background-color: rgb(250 246 255);
+  background-color: rgb(var(--clay-raised));
   background-image: none;
   color: rgb(var(--clay-ink));
   box-shadow: 8px 8px 18px rgb(18 10 38 / 0.42),
@@ -2168,7 +2169,7 @@ html[data-theme="midnight"][data-appearance="clay"] .panel-feature {
      studio's adoption rewrites all three hue-rotated per pick. */
   --card-face: 206 196 255;
   --data-face: 224 216 255;
-  --overlay-face: 238 230 255;
+  --overlay-face: 234 226 255;
 
 }
 
@@ -2492,7 +2493,7 @@ html[data-theme="midnight"][data-appearance="clay"] .plate-custom {
   isolation: isolate;
   gap: 2px;
   border-radius: 999px;
-  background-color: rgb(246 243 254);
+  background-color: rgb(var(--overlay-face));
   background-image: none;
   border-color: transparent;
   box-shadow:
@@ -2503,7 +2504,7 @@ html[data-theme="midnight"][data-appearance="clay"] .plate-custom {
   --nav-item-strong: 36 27 58;
 }
 html[data-theme="midnight"][data-appearance="clay"] .nav-pill {
-  background-color: rgb(24 16 46);
+  background-color: rgb(var(--ink-900));
   box-shadow:
     8px 8px 18px rgb(6 3 16 / 0.55),
     inset 2px 2px 5px var(--clay-hi-2),
@@ -2698,7 +2699,7 @@ html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-r
 [data-appearance="clay"] .studio-button-primary:hover {
   border-color: transparent;
   background-color: rgb(var(--clay-coral));
-  color: #ffffff;
+  color: rgb(255 255 255);
   box-shadow: 8px 8px 20px rgb(var(--clay-coral-h) / 0.4),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -4px -4px 10px rgb(var(--clay-coral-h) / 0.4);
@@ -2761,6 +2762,11 @@ html[data-theme="daylight"][data-appearance="clay"] .studio-inset {
 [data-appearance="clay"] .index-chip[class*="text-brand-"] {
   color: rgb(var(--clay-ink));
 }
+[data-appearance="clay"] .badge-pill[class*="bg-brand-"] {
+  background-color: rgb(var(--clay-lavender) / 0.85);
+  color: rgb(var(--clay-ink));
+  border-color: transparent;
+}
 html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state-warning"],
 html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state-success"],
 html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state-danger"] {
@@ -2770,14 +2776,16 @@ html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state
 /* ═══ §21 · NESTED SURFACES, APP FRAME & HOVER-ONLY WASHES ══════════════
    1. Elements whose only bg-ink-* token is a hover:bg-ink-* or focus:bg-ink-*
       variant (table rows, inactive tab pills, accordion headers, ghost buttons,
-      nav items) must stay transparent at rest instead of being painted solid
-      foil by the unanchored [class*="bg-ink-"] substring selector.
-   2. Nested surfaces inside cards (.surface / .surface-raised inside a parent
-      card) alternate between --data-face and --card-face with compact,
-      hue-keyed shadows so multi-tier module showcases never wash out in
-      stacked white highlights.
+      nav items), as well as full-viewport page wrappers (min-h-screen), must
+      stay transparent at rest instead of being painted solid foil by the
+      unanchored [class*="bg-ink-"] substring selector.
+   2. Nested surfaces and rounded bg-ink-* sub-panels inside cards alternate
+      between --data-face, --card-face, and --clay-foil with compact,
+      hue-keyed shadows so multi-tier module showcases never collide with
+      their parent background or wash out in stacked white highlights.
    3. AppFrame chrome (.app-chrome, .app-rail, figcaption) and table sticky
       headers/footers (thead, tfoot) wear sculpted clay plates. */
+[data-appearance="clay"] :is([class*="min-h-screen"], [class*="min-h-["])[class*="bg-ink-"],
 [data-appearance="clay"] :is([class*="hover:bg-ink-"], [class*="focus:bg-ink-"]):not([class^="bg-ink-"]):not([class*=" bg-ink-"]):not(.surface):not(.surface-raised):not(.stat-tile):not(.plate):not(.card-live):not(.card-accent):not(.card-glass):not(.glass-primary):not(.float-card):not(.menu-card):not(.nav-pill) {
   background-color: transparent;
   background-image: none;
@@ -2787,19 +2795,57 @@ html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state
   background-color: rgb(var(--clay-lavender) / 0.28);
 }
 
-[data-appearance="clay"] :is(.surface, .surface-raised, .plate, .panel-feature, .glass-primary) :is(.surface, .surface-raised, .card-live) {
+[data-appearance="clay"] .btn-ghost {
+  border-color: transparent;
+  background-color: rgb(var(--data-face));
+  color: rgb(var(--text-1));
+  box-shadow: 4px 4px 10px rgb(var(--clay-drop-h) / 0.22),
+    inset 2px 2px 5px var(--clay-lip),
+    inset -2px -2px 5px rgb(var(--clay-drop-h) / 0.16);
+}
+[data-appearance="clay"] .btn-ghost:hover {
+  background-color: rgb(var(--clay-lavender) / 0.55);
+}
+
+html[data-appearance="clay"] :is(.surface, .surface-raised, .plate, .panel-feature, .glass-primary, .card-live, .studio-sheet, .mpane__glass--lead, [class*="bg-ink-950"][class*="rounded-2xl"], [class*="bg-ink-900"][class*="rounded-2xl"], [class*="bg-ink-950"][class*="rounded-card"], [class*="bg-ink-900"][class*="rounded-card"]) :is(.surface, .surface-raised, .card-live),
+html[data-appearance="clay"] :is(.surface, .surface-raised, .plate, .panel-feature, .glass-primary, .card-live, .studio-sheet, .mpane__glass--lead, [class*="bg-ink-950"][class*="rounded-2xl"], [class*="bg-ink-900"][class*="rounded-2xl"], [class*="bg-ink-950"][class*="rounded-card"], [class*="bg-ink-900"][class*="rounded-card"]) :is([class*="bg-ink-950"], [class*="bg-ink-900"], [class*="bg-ink-850"], [class*="bg-ink-800"], [class*="bg-glass-"]):is([class*="rounded-card"], [class*="rounded-2xl"], [class*="rounded-panel"], [class*="rounded-xl"], [class*="rounded-3xl"], [class*="rounded-lg"]):not(input):not(textarea):not(select):not([class*="min-h-"]):not([class*="fixed"]) {
   background-color: rgb(var(--data-face));
   box-shadow: 6px 6px 16px rgb(var(--clay-drop-h) / 0.24),
     inset 2px 2px 5px var(--clay-hi-2),
     inset -3px -3px 7px var(--clay-lo);
 }
-[data-appearance="clay"] :is(.surface, .surface-raised) :is(.surface, .surface-raised) :is(.surface, .surface-raised, .card-live) {
+
+html[data-appearance="clay"] :is(.surface, .surface-raised, .plate) :is(.surface, .surface-raised, .studio-inset, [class*="bg-ink-900"][class*="rounded-2xl"], [class*="bg-ink-950"][class*="rounded-card"], [class*="bg-ink-900"][class*="rounded-card"]) :is(.surface, .surface-raised, .card-live),
+html[data-appearance="clay"] :is(.surface, .surface-raised, .plate, .studio-sheet, [class*="bg-ink-900"][class*="rounded-2xl"]) :is(.surface, .surface-raised, .studio-inset, [class*="bg-ink-900"][class*="rounded-2xl"], [class*="bg-ink-950"][class*="rounded-card"], [class*="bg-ink-900"][class*="rounded-card"], [class*="bg-ink-950"][class*="rounded-xl"], [class*="bg-ink-900"][class*="rounded-xl"]) :is([class*="bg-ink-950"], [class*="bg-ink-900"], [class*="bg-ink-850"], [class*="bg-ink-800"], [class*="bg-glass-"]):is([class*="rounded-card"], [class*="rounded-2xl"], [class*="rounded-panel"], [class*="rounded-xl"], [class*="rounded-3xl"], [class*="rounded-lg"]):not(input):not(textarea):not(select):not([class*="min-h-"]):not([class*="fixed"]) {
   background-color: rgb(var(--card-face));
   box-shadow: 5px 5px 14px rgb(var(--clay-drop-h) / 0.22),
     inset 2px 2px 4px var(--clay-hi-2),
     inset -3px -3px 6px var(--clay-lo);
 }
-[data-appearance="clay"] :is(.surface, .surface-raised) :is(.surface, .surface-raised) :is(.surface, .surface-raised) :is(.surface, .surface-raised) {
+
+html[data-appearance="clay"] :is(.surface, .surface-raised, .plate) :is(.surface, .surface-raised, [class*="bg-ink-900"][class*="rounded-xl"], [class*="bg-ink-900"][class*="rounded-2xl"]) :is(.surface, .surface-raised, [class*="bg-ink-950"][class*="rounded-xl"], [class*="bg-ink-900"][class*="rounded-xl"], [class*="bg-ink-900"][class*="rounded-2xl"]) :is(.surface, .surface-raised, [class*="bg-ink-950"], [class*="bg-ink-900"], [class*="bg-ink-850"], [class*="bg-ink-800"]):is(.surface, .surface-raised, [class*="rounded-card"], [class*="rounded-2xl"], [class*="rounded-panel"], [class*="rounded-xl"], [class*="rounded-3xl"], [class*="rounded-lg"]):not(input):not(textarea):not(select):not([class*="min-h-"]):not([class*="fixed"]) {
+  background-color: rgb(var(--data-face));
+}
+
+html[data-appearance="clay"] :is(.surface, .surface-raised, .plate) :is(.surface, .surface-raised) :is(.surface, .surface-raised) :is([class*="bg-ink-900"][class*="rounded-xl"], [class*="bg-ink-950"][class*="rounded-xl"]) :is([class*="bg-ink-950"], [class*="bg-ink-900"], [class*="bg-ink-850"], [class*="bg-ink-800"]):is([class*="rounded-card"], [class*="rounded-2xl"], [class*="rounded-panel"], [class*="rounded-xl"], [class*="rounded-3xl"], [class*="rounded-lg"]):not(input):not(textarea):not(select):not([class*="min-h-"]):not([class*="fixed"]) {
+  background-color: rgb(var(--card-face));
+}
+
+html[data-appearance="clay"] :is(.surface, .surface-raised, .plate) :is(.surface, .surface-raised) :is(.surface, .surface-raised) :is([class*="bg-ink-900"][class*="rounded-xl"]) :is([class*="bg-ink-950"][class*="rounded-xl"]) :is([class*="bg-ink-950"], [class*="bg-ink-900"], [class*="bg-ink-850"], [class*="bg-ink-800"]):is([class*="rounded-card"], [class*="rounded-2xl"], [class*="rounded-panel"], [class*="rounded-xl"], [class*="rounded-3xl"], [class*="rounded-lg"]):not(input):not(textarea):not(select):not([class*="min-h-"]):not([class*="fixed"]) {
+  background-color: rgb(var(--data-face));
+}
+
+[data-appearance="clay"] select[class*="bg-ink-"] option[class*="bg-ink-"] {
+  background-color: rgb(var(--data-face));
+}
+[data-appearance="clay"] [class*="bg-state-warning"] .badge-pill[class*="bg-state-warning"] {
+  background-color: rgb(var(--card-face));
+}
+
+/* Foil children nested inside a foil container (or 1px hairline grid) step to
+   --data-face so they never merge into their parent's --clay-foil fill. */
+[data-appearance="clay"] :is([class*="gap-px"][class*="bg-line"], thead[class*="bg-ink-"], tfoot[class*="bg-ink-"], [class*="bg-ink-"]:not(.surface):not(.surface-raised):not([class*="rounded-card"]):not([class*="rounded-2xl"]):not([class*="rounded-panel"]):not([class*="rounded-xl"]):not([class*="rounded-3xl"]):not([class*="rounded-lg"]):not([class*="min-h-"])) :is([class*="bg-ink-"], [class*="bg-line"], [class*="bg-white"], input[class*="bg-ink-"], select[class*="bg-ink-"]):not([class*="hover:bg-ink-"]):not([class*="focus:bg-ink-"]),
+[data-appearance="clay"] :is([class*="gap-px"][class*="bg-line"], thead[class*="bg-ink-"], tfoot[class*="bg-ink-"], [class*="bg-ink-"]:not(.surface):not(.surface-raised):not([class*="rounded-card"]):not([class*="rounded-2xl"]):not([class*="rounded-panel"]):not([class*="rounded-xl"]):not([class*="rounded-3xl"]):not([class*="rounded-lg"]):not([class*="min-h-"])) :is([class^="bg-ink-"], [class*=" bg-ink-"]) {
   background-color: rgb(var(--data-face));
 }
 

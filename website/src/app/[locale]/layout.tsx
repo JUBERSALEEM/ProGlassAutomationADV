@@ -264,6 +264,7 @@ export default async function LocaleLayout({
       data-theme="midnight"
       data-theme-mode="system"
       data-appearance="clay"
+      data-scroll-behavior="smooth"
       data-build-time={buildStamp.builtAt}
       data-build-rev={buildStamp.revision ?? ""}
       /* The boot script sets these before paint; the server renders the default. */

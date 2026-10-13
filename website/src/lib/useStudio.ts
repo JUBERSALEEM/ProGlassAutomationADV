@@ -875,7 +875,7 @@ export function applyStudioVars(studio: Studio) {
       while (coralL > 0.3 && 1.05 / (lumOf(triplet(hslToRgb({ h: hub, s: coralS, l: coralL }))) + 0.05) < 3.2) coralL -= 0.01;
       vars["--clay-coral"] = triplet(hslToRgb({ h: hub, s: coralS, l: coralL }));
       vars["--clay-coral-h"] = triplet(hslToRgb({ h: hub, s: Math.min(0.92, coralS + 0.06), l: Math.max(0.08, coralL - 0.07) }));
-      vars["--clay-foil"] = `rgb(${target === "dark" ? twistTriplet("46 34 62", hub, 0.72 * chroma) : rot(0, Math.min(0.82, pSat), Math.min(0.86, pLight + 0.04))})`;
+      vars["--clay-foil"] = `rgb(${target === "dark" ? twistTriplet("46 34 62", hub, 0.72 * chroma) : rot(0, Math.min(0.84, pSat + 0.02), Math.min(0.84, pLight + 0.025))})`;
     }
     vars["--clay-drop-h"] = rot(0, Math.min(0.85, pSat + 0.1), 0.35);
     vars["--card-tint-h"] = rot(0, Math.min(0.65, pSat), 0.8);
@@ -885,13 +885,11 @@ export function applyStudioVars(studio: Studio) {
     {
       const cd = plateHues[studio.clayCards - 1] ?? plateHues[0]!;
       vars["--card-face"] = rot(cd[0], target === "dark" ? Math.min(cd[1], 0.45) : cd[1], target === "dark" ? 0.29 : cd[2]);
-      vars["--data-face"] = rot(cd[0], target === "dark" ? Math.min(cd[1] + 0.1, 0.5) : Math.min(0.86, cd[1] + 0.06), target === "dark" ? 0.34 : Math.min(0.94, cd[2] + 0.055));
-      vars["--overlay-face"] = rot(cd[0], target === "dark" ? Math.min(cd[1] + 0.05, 0.4) : Math.min(0.82, cd[1] + 0.03), target === "dark" ? 0.26 : Math.min(0.97, cd[2] + 0.115));
+      vars["--data-face"] = rot(cd[0], target === "dark" ? Math.min(cd[1] + 0.1, 0.5) : Math.min(0.86, cd[1] + 0.06), target === "dark" ? 0.34 : Math.min(0.89, cd[2] + 0.05));
+      vars["--overlay-face"] = rot(cd[0], target === "dark" ? Math.min(cd[1] + 0.05, 0.4) : Math.min(0.82, cd[1] + 0.03), target === "dark" ? 0.26 : Math.min(0.93, cd[2] + 0.09));
     }
     if (family === "clay") {
-      if (target === "light") {
-        vars["--clay-raised"] = rot(0, Math.min(0.5, pSat * 0.62), 0.935);
-      }
+      vars["--clay-raised"] = rot(0, Math.min(0.68, pSat * 0.78), target === "dark" ? 0.88 : Math.min(0.88, pLight + 0.08));
       vars["--band-face"] = rot(0, Math.min(0.12, pSat * 0.2), target === "dark" ? 0.18 : 0.95);
       vars["--pool-1"] = `rgb(${rot(0, Math.min(0.55, pSat), 0.68)} / ${target === "dark" ? 0.1 : 0.18})`;
       vars["--pool-2"] = `rgb(${rot(12, Math.min(0.5, pSat), 0.74)} / ${target === "dark" ? 0.06 : 0.12})`;
@@ -944,6 +942,14 @@ export function applyStudioVars(studio: Studio) {
   // removeProperty of an absent property is a wasted mutation record. Every
   // applicator path on this site (dial drags, observer passes, theme/family
   // switches) calls through here, so this one loop is the whole cost budget.
+  if (previousKeys.length === 0) {
+    try {
+      const storedVars = JSON.parse(window.localStorage.getItem(STUDIO_VARS_KEY) ?? "{}") as Record<string, unknown>;
+      previousKeys = Object.keys(storedVars);
+    } catch {
+      /* ignore */
+    }
+  }
   for (const key of previousKeys) {
     if (!(key in vars) && root.style.getPropertyValue(key) !== "") {
       root.style.removeProperty(key);
