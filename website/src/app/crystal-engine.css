@@ -445,8 +445,8 @@
     radial-gradient(118% 92% at 12% 0%, var(--aurora-1) 0%, transparent 56%),
     radial-gradient(92% 72% at 88% 8%, var(--aurora-2) 0%, transparent 58%),
     radial-gradient(122% 104% at 50% 108%, var(--aurora-3) 0%, transparent 62%),
-    radial-gradient(26rem 26rem at 84% 16%, rgb(20 184 226 / 0.55) 0%, rgb(20 184 226 / 0.30) 55%, rgb(20 184 226 / 0.12) 70%, transparent 78%),
-    radial-gradient(22rem 22rem at 10% 82%, rgb(242 96 164 / 0.45) 0%, rgb(126 87 206 / 0.28) 58%, transparent 74%),
+    radial-gradient(26rem 26rem at 84% 16%, rgb(var(--aurora-ball-1, 20 184 226) / 0.55) 0%, rgb(var(--aurora-ball-1, 20 184 226) / 0.30) 55%, rgb(var(--aurora-ball-1, 20 184 226) / 0.12) 70%, transparent 78%),
+    radial-gradient(22rem 22rem at 10% 82%, rgb(var(--aurora-ball-2, 242 96 164) / 0.45) 0%, rgb(var(--aurora-ball-3, 126 87 206) / 0.28) 58%, transparent 74%),
     linear-gradient(90deg, var(--sweep-1) 0%, var(--sweep-2) 22%, transparent 78%);
 
   /* ── B · The drop shadow the lift keeps missing: soft, wide-set, dark —
@@ -473,18 +473,21 @@
   /* ── E · Saturation behind EVERY pane goes to the pattern's 180%. */
   --glass-sat: 195%;
 
-  /* ── G · P16/P17, the meniscus: the RIM sells liquid, not the blur —
+  /* ── G · P16/P17/P18, the meniscus: the RIM sells liquid, not the blur —
      key light strikes the top-left curve, dies at the under-edge, and a
      relight answers from below. P17 (14:12 witness: "not even close"):
      the arc brightens to phone scale and the lower-right corner picks up
-     the references' caustic fringe (cyan answers, rose fringes). The spec
-     streak rises a notch. Composes over the scrim, never instead of it. */
+     the references' caustic fringe (cyan answers, rose fringes). P18: the
+     relight stops become tokens — a picked accent re-hues the run below it
+     (useStudio crystal-wall adoption); the fallbacks here ARE the shipped
+     paint, so a clean bench composites byte-identically. Strike + spec
+     stay white (light is light; only the answer below is hue). */
   --glass-meniscus: linear-gradient(155deg,
     rgb(255 255 255 / 0.68) 0%,
     rgb(255 255 255 / 0.22) 24%,
     rgb(255 255 255 / 0.03) 52%,
-    rgb(120 220 255 / 0.40) 88%,
-    rgb(242 96 164 / 0.34) 100%);
+    var(--glass-relight-1, rgb(120 220 255 / 0.40)) 88%,
+    var(--glass-relight-2, rgb(242 96 164 / 0.34)) 100%);
   --glass-spec-a: 0.18;
 
   /* P17 — the mid-vault seam bought: glass over a bare page reads as
@@ -504,8 +507,8 @@
     radial-gradient(118% 92% at 12% 0%, var(--aurora-1) 0%, transparent 56%),
     radial-gradient(92% 72% at 88% 8%, var(--aurora-2) 0%, transparent 58%),
     radial-gradient(122% 104% at 50% 108%, var(--aurora-3) 0%, transparent 62%),
-    radial-gradient(24rem 24rem at 80% 12%, rgb(217 70 239 / 0.50) 0%, rgb(217 70 239 / 0.28) 56%, transparent 72%),
-    radial-gradient(20rem 20rem at 12% 88%, rgb(124 58 237 / 0.38) 0%, rgb(228 105 160 / 0.24) 60%, transparent 75%),
+    radial-gradient(24rem 24rem at 80% 12%, rgb(var(--aurora-ball-1, 217 70 239) / 0.50) 0%, rgb(var(--aurora-ball-1, 217 70 239) / 0.28) 56%, transparent 72%),
+    radial-gradient(20rem 20rem at 12% 88%, rgb(var(--aurora-ball-2, 124 58 237) / 0.38) 0%, rgb(var(--aurora-ball-3, 228 105 160) / 0.24) 60%, transparent 75%),
     linear-gradient(90deg, var(--sweep-1) 0%, var(--sweep-2) 22%, transparent 78%);
   --glass-ring: rgb(255 255 255 / var(--glass-ring-a));
   --glass-ring-a: min(calc(0.50 * var(--glass-glint-mult, 1)), 0.62);
@@ -525,14 +528,15 @@
   --glass-lift-a: calc(0.18 * var(--glass-body-mult, 1));
   --glass-scrim: rgb(255 255 255 / 0.18);
 
-  /* P16/P17 daylight meniscus: brighter strike, rose relight with the
-     cyan fringe at the corner (the Jack White tile's chromatic edge). */
+  /* P16/P17/P18 daylight meniscus: brighter strike, rose relight with the
+     cyan fringe at the corner (the Jack White tile's chromatic edge).
+     P18 relight slots — same adoption contract as midnight. */
   --glass-meniscus: linear-gradient(155deg,
     rgb(255 255 255 / 0.92) 0%,
     rgb(255 255 255 / 0.38) 26%,
     rgb(255 255 255 / 0.10) 55%,
-    rgb(217 120 239 / 0.40) 88%,
-    rgb(120 220 255 / 0.34) 100%);
+    var(--glass-relight-1, rgb(217 120 239 / 0.40)) 88%,
+    var(--glass-relight-2, rgb(120 220 255 / 0.34)) 100%);
   --glass-spec-a: 0.30;
 
   /* P17 — daylight's mid-vault colour: aqua one side, rose the other. */

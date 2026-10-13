@@ -198,41 +198,112 @@ function read(): Studio {
      whole point of handing someone a link. */
   const shared = readSharedStudio();
   cached = shared ?? readStored();
+  /* P18 self-heal: whatever storage or the link carried has just been
+     normalised (readStored/decodeStudio run the full spectrum). If the
+     normalisation CHANGED anything — a poisoned NaN, a null from an old
+     build's JSON, a hand-edited value out of range — write the healed
+     state back over the poison, so the next visit opens clean without
+     the visitor ever having to find "Reset everything". */
+  try {
+    if (shared) {
+      window.localStorage.setItem(STUDIO_STORAGE_KEY, JSON.stringify(cached));
+    } else {
+      const raw = window.localStorage.getItem(STUDIO_STORAGE_KEY);
+      if (raw !== null && raw !== JSON.stringify(cached)) {
+        window.localStorage.setItem(STUDIO_STORAGE_KEY, JSON.stringify(cached));
+      }
+    }
+  } catch {
+    /* Storage may be unavailable; the heal just rides this session. */
+  }
   return cached;
+}
+
+/*
+ * P18 — the bench spectrum.
+ *
+ * The write path (applyStudioVars) used to trust whatever it was handed:
+ * any number that was not a finite in-range dial value became a literal
+ * "NaN" string written into a custom property — `calc(24px * NaN)` —
+ * which browsers drop as an invalid declaration, taking the ENTIRE
+ * backdrop filter down with it (every frosted pane in the family), the
+ * entire brand ramp with a NaN brightness/vividness (every accent plate
+ * on the site suddenly painting nothing), the card radius with a NaN
+ * radius. JSON turns NaN into null, so a poisoned bench could no longer
+ * even remember being poisoned across a reload — it healed as `null →
+ * not guarded on the dials → clamped somewhere arbitrary` (frost stuck
+ * at 0.25 = "nearly clear", forever, until the visitor found Reset).
+ *
+ * Three holes let the poison in, all closed here:
+ *   1. `decodeStudio` (share links) ran NO validation at all;
+ *   2. `readStored` guarded a cherry-picked subset of the dials;
+ *   3. the hygiene-v2 boot migration cleared the paint blobs but left
+ *      this state blob, so benches from superseded builds rode forward.
+ *
+ * Every value the state can carry is now normalised in ONE place, on
+ * every read path, and clamped to the dial's own range: an out-of-range
+ * value is a stale schema, not a preference. The write path then runs
+ * each numeric token through `finite()` again before touching the DOM,
+ * so even a caller that bypassed the store can never paint "NaN".
+ */
+/** Clamp a dial: non-finite → fallback; finite → the dial's own range. */
+const finite = (value: unknown, min: number, max: number, fallback: number): number => {
+  const n = typeof value === "number" && Number.isFinite(value) ? value : NaN;
+  return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback;
+};
+
+/** Every bench a stored blob or share link can claim, made safe. */
+export function normalizeStudio(raw: Partial<Studio> | null | undefined): Studio {
+  const merged = { ...defaultStudio, ...(raw ?? {}) };
+
+  /* The two strings that drive the paint. */
+  if (typeof merged.accent === "string" && !/^#(?:[0-9a-fA-F]{3}){1,2}$/.test(merged.accent.trim())) {
+    merged.accent = null;
+  }
+  if (typeof merged.accentKey !== "string" || merged.accentKey === "") {
+    merged.accentKey = merged.accent === null ? FAMILY_ACCENT_KEY : "Custom";
+  }
+  if (typeof merged.edgeColor !== "string") merged.edgeColor = defaultStudio.edgeColor;
+  if (merged.edgeColor !== "" && !/^#[0-9a-fA-F]{3,8}$/.test(merged.edgeColor)) merged.edgeColor = defaultStudio.edgeColor;
+
+  /* The money hexes. The paint path forgives garbage (hexToTriplet falls
+     back), but the studio UI echoes them into colour inputs, where a
+     non-hex string is a broken control. */
+  if (typeof merged.moneyPositive !== "string" || !/^#[0-9a-fA-F]{6}$/i.test(merged.moneyPositive)) merged.moneyPositive = defaultStudio.moneyPositive;
+  if (typeof merged.moneyNegative !== "string" || !/^#[0-9a-fA-F]{6}$/i.test(merged.moneyNegative)) merged.moneyNegative = defaultStudio.moneyNegative;
+  if (typeof merged.moneyNeutral !== "string" || (merged.moneyNeutral !== "" && !/^#[0-9a-fA-F]{6}$/i.test(merged.moneyNeutral))) merged.moneyNeutral = defaultStudio.moneyNeutral;
+
+  /* The dials. Ranges are the sliders' own — anything outside is a stale
+     schema (an older build once let brightness run ±0.08; its stored 0.09
+     is now a 1-step clamp, never a crash). */
+  merged.brightness = finite(merged.brightness, -0.09, 0.09, 0);
+  merged.vividness = finite(merged.vividness, -0.16, 0.16, 0);
+  merged.tint = finite(merged.tint, 0, 3, 1);
+  merged.radius = finite(merged.radius, 0.3, 1.8, 1);
+  merged.edge = finite(merged.edge, 1, 10, 2);
+  merged.uiScale = finite(merged.uiScale, 0.9, 1.15, 1);
+  merged.clayDepth = finite(merged.clayDepth, 0.5, 2, 1);
+  merged.glassFrost = finite(merged.glassFrost, 0.25, 3, 1);
+  merged.glassBody = finite(merged.glassBody, 0.25, 3, 1);
+  merged.glassGlint = finite(merged.glassGlint, 0, 3, 1);
+  merged.clayPlate = Number.isInteger(merged.clayPlate) && merged.clayPlate >= 1 && merged.clayPlate <= 6 ? merged.clayPlate : defaultStudio.clayPlate;
+  merged.clayCards = Number.isInteger(merged.clayCards) && merged.clayCards >= 1 && merged.clayCards <= 6 ? merged.clayCards : defaultStudio.clayCards;
+
+  /* The typographic enums and flags — strict membership, never truthiness. */
+  if (!(merged.typeface in typefaces)) merged.typeface = defaultStudio.typeface;
+  if (merged.weight !== "regular" && merged.weight !== "bold") merged.weight = defaultStudio.weight;
+  if (merged.density !== "compact" && merged.density !== "comfortable") merged.density = defaultStudio.density;
+  merged.italic = merged.italic === true;
+  merged.underline = merged.underline === true;
+
+  return merged;
 }
 
 function readStored(): Studio {
   try {
     const raw = window.localStorage.getItem(STUDIO_STORAGE_KEY);
     if (!raw) return defaultStudio;
-    const parsed = JSON.parse(raw) as Partial<Studio>;
-    const merged = { ...defaultStudio, ...parsed };
-
-    // A value stored by an older build — or edited by hand — must never reach
-    // the components. An unknown typeface key would render no font and, in the
-    // specimen, read a property off `undefined`.
-    if (!(merged.typeface in typefaces)) merged.typeface = defaultStudio.typeface;
-
-    // Same reasoning for the numeric dials: a stored value that is not a finite
-    // number would turn a `calc()` into `NaN` and take the card frame with it.
-    if (!Number.isFinite(merged.edge)) merged.edge = defaultStudio.edge;
-    if (typeof merged.edgeColor !== "string") merged.edgeColor = defaultStudio.edgeColor;
-    if (merged.weight !== "regular" && merged.weight !== "bold") merged.weight = defaultStudio.weight;
-    if (merged.density !== "compact" && merged.density !== "comfortable") merged.density = defaultStudio.density;
-    if (!Number.isFinite(merged.uiScale)) merged.uiScale = defaultStudio.uiScale;
-    if (!Number.isFinite(merged.radius)) merged.radius = defaultStudio.radius;
-    if (!Number.isFinite(merged.tint)) merged.tint = defaultStudio.tint;
-
-    /* The clay bench: an unknown preset or a hand-edited hex must never
-       reach the dom — plates would go unpainted, or worse, half-painted. */
-    if (!Number.isFinite(merged.clayPlate) || merged.clayPlate < 1 || merged.clayPlate > 6) merged.clayPlate = defaultStudio.clayPlate;
-    if (!Number.isFinite(merged.clayCards) || merged.clayCards < 1 || merged.clayCards > 6) merged.clayCards = defaultStudio.clayCards;
-    if (!Number.isFinite(merged.clayDepth)) merged.clayDepth = defaultStudio.clayDepth;
-    if (!Number.isFinite(merged.glassFrost)) merged.glassFrost = defaultStudio.glassFrost;
-    if (!Number.isFinite(merged.glassBody)) merged.glassBody = defaultStudio.glassBody;
-    if (!Number.isFinite(merged.glassGlint)) merged.glassGlint = defaultStudio.glassGlint;
-
-    return merged;
+    return normalizeStudio(JSON.parse(raw) as Partial<Studio>);
   } catch {
     return defaultStudio;
   }
@@ -258,7 +329,10 @@ export function decodeStudio(encoded: string): Studio | null {
   try {
     const parsed = JSON.parse(decodeURIComponent(escape(atob(encoded.trim())))) as Partial<Studio>;
     if (typeof parsed !== "object" || parsed === null) return null;
-    return { ...defaultStudio, ...parsed };
+    /* P18: a share link is the other write path into the bench — it runs
+       the same spectrum as storage, so a hand-made or stale link degrades
+       to defaults, never to a poisoned DOM (see normalizeStudio). */
+    return normalizeStudio(parsed);
   } catch {
     return null;
   }
@@ -538,10 +612,18 @@ export function applyStudioVars(studio: Studio) {
   const base = studio.accent ?? FAMILY_ACCENT[family] ?? FAMILY_ACCENT["studio"]!;
   // A family on its own keeps its hand-tuned ramp; the moment the visitor
   // moves any ramp control, the ramp is rebuilt from that family's colour.
-  const tuned = studio.brightness !== 0 || studio.vividness !== 0 || studio.accent !== null;
+  /* P18 — the spectrum reaches the write path too. A bench is now always
+     normalised on every read, but applyStudioVars is exported and directly
+     callable (boot mirrors, observer passes, tests): numeric tokens that
+     feed a calc() or a colour channel are clamped here as well, so even a
+     bypassed store can never let a NaN near a custom property. */
+  const bright = finite(studio.brightness, -0.09, 0.09, 0);
+  const vivid = finite(studio.vividness, -0.16, 0.16, 0);
+  const tinted = finite(studio.tint, 0, 3, 1);
+  const tuned = bright !== 0 || vivid !== 0 || studio.accent !== null;
 
   if (tuned) {
-    const ramp = rampFor(base, target, studio.brightness, studio.vividness);
+    const ramp = rampFor(base, target, bright, vivid);
     vars["--brand-50"] = ramp["50"];
     vars["--brand-200"] = ramp["200"];
     vars["--brand-300"] = ramp["300"];
@@ -574,8 +656,8 @@ export function applyStudioVars(studio: Studio) {
    * (This is why a family can claim 32px corners in CSS and still draw 12px
    * in a browser: its tokens were being overwritten on every boot.)
    */
-  if (studio.tint !== defaultStudio.tint) {
-    vars["--tint-mix"] = `calc(var(--tint-base, 0.1) * ${studio.tint.toFixed(2)})`;
+  if (tinted !== defaultStudio.tint) {
+    vars["--tint-mix"] = `calc(var(--tint-base, 0.1) * ${tinted.toFixed(2)})`;
   }
 
   /* The crystal bench (G4). Three multipliers, written only when moved —
@@ -583,19 +665,16 @@ export function applyStudioVars(studio: Studio) {
      math there, not promises here). Under every family but crystal the
      vars are inert: no consumer reads them. */
   if (studio.glassFrost !== defaultStudio.glassFrost) {
-    const v = Math.min(3, Math.max(0.25, studio.glassFrost));
-    vars["--glass-frost-mult"] = v.toFixed(2);
+    vars["--glass-frost-mult"] = finite(studio.glassFrost, 0.25, 3, 1).toFixed(2);
   }
   if (studio.glassBody !== defaultStudio.glassBody) {
-    const v = Math.min(3, Math.max(0.25, studio.glassBody));
-    vars["--glass-body-mult"] = v.toFixed(2);
+    vars["--glass-body-mult"] = finite(studio.glassBody, 0.25, 3, 1).toFixed(2);
   }
   if (studio.glassGlint !== defaultStudio.glassGlint) {
-    const v = Math.min(3, Math.max(0, studio.glassGlint));
-    vars["--glass-glint-mult"] = v.toFixed(2);
+    vars["--glass-glint-mult"] = finite(studio.glassGlint, 0, 3, 1).toFixed(2);
   }
 
-  if (studio.radius !== defaultStudio.radius) vars["--radius-scale"] = String(studio.radius);
+  if (studio.radius !== defaultStudio.radius) vars["--radius-scale"] = String(finite(studio.radius, 0.3, 1.8, 1));
 
   /*
    * The card edge — the application's "Define Card Edges" setting.
@@ -607,11 +686,12 @@ export function applyStudioVars(studio: Studio) {
    * content inside it. Writing the padding here as well would be a second copy
    * of one rule, and the two would drift.
    */
-  const edge = Number.isFinite(studio.edge) ? Math.min(10, Math.max(1, studio.edge)) : defaultStudio.edge;
+  const edge = finite(studio.edge, 1, 10, defaultStudio.edge);
   if (edge !== defaultStudio.edge) vars["--card-edge-width"] = `${edge}px`;
   // Colour sits beside it: a plate picked in the studio overrides the family's
-  // edge colour, "" leaves the family in charge of it.
-  if (studio.edgeColor.trim() !== "") vars["--card-edge"] = studio.edgeColor.trim();
+  // edge colour, "" leaves the family in charge of it. P18: a tampered string
+  // is dropped rather than shipped to the DOM.
+  if (studio.edgeColor.trim() !== "" && /^#[0-9a-fA-F]{3,8}$/.test(studio.edgeColor.trim())) vars["--card-edge"] = studio.edgeColor.trim();
   vars["--font-sans"] = typefaces[studio.typeface]?.stack ?? typefaces.inter.stack;
 
   /*
@@ -756,7 +836,7 @@ export function applyStudioVars(studio: Studio) {
     vars["--clay-drop-h"] = rot(0, 0.85, 0.35);
     vars["--card-tint-h"] = rot(0, 0.5, 0.82);
     vars["--card-tint-h2"] = rot(38, 0.55, 0.82);
-    vars["--clay-wash"] = (0.18 * studio.tint).toFixed(3);
+    vars["--clay-wash"] = (0.18 * tinted).toFixed(3);
     vars["--panel-face"] = vars[`--plate-${studio.clayPlate}`] ?? vars["--plate-1"]!;
     /* The on-screen cards: the chosen plate softened to air — it keeps the
        plate's hue/saturation at a near-surface light, so cards read as clay
@@ -811,6 +891,31 @@ export function applyStudioVars(studio: Studio) {
       vars["--pool-1"] = `rgb(${rot(0, 0.7, 0.5)} / ${target === "dark" ? 0.1 : 0.13})`;
       vars["--pool-2"] = `rgb(${rot(38, 0.7, 0.7)} / ${target === "dark" ? 0.06 : 0.12})`;
       vars["--pool-3"] = `rgb(${rot(330, 0.7, 0.72)} / ${target === "dark" ? 0.05 : 0.1})`;
+
+      /* P18 — the crystal WALLS join the bench. The family's wallpaper is
+         half of what the eye takes as "the colour of the site" (more so
+         after P17 bought the mid-vault seam), and until now it stayed the
+         shipped cyan/violet/rose under every picked accent — on crystal a
+         colour plate visibly changed almost nothing, which is exactly what
+         "theme & colour plates not working" names. From here, under a
+         pick, the washes, the mid pools, the aurora balls and the meniscus
+         relight all rotate with the hub — the hub keeps the key light,
+         ±20°…±60° analogous cousins answer it, and the alpha grammar stays
+         the engine's own (contrast-tuned there, never retuned here). The
+         family falls back byte-identically when nothing is picked. */
+      if (family === "crystal") {
+        vars["--wall-wash-1"] = `rgb(${rot(target === "dark" ? -40 : 48, target === "dark" ? 0.72 : 0.8, target === "dark" ? 0.62 : 0.8)} / ${target === "dark" ? 0.55 : 0.58})`;
+        vars["--wall-wash-2"] = `rgb(${rot(target === "dark" ? 20 : -40, 0.85, target === "dark" ? 0.55 : 0.8)} / ${target === "dark" ? 0.34 : 0.5})`;
+        vars["--wall-mid-1"] = `rgb(${rot(-20, 0.85, target === "dark" ? 0.6 : 0.62)} / ${target === "dark" ? 0.4 : 0.34})`;
+        vars["--wall-mid-2"] = `rgb(${rot(60, 0.8, 0.66)} / ${target === "dark" ? 0.32 : 0.3})`;
+        /* The balls ride as bare triplets — the alpha stop grammar (and
+           the fallbacks, = the shipped paint) stay engine-owned. */
+        vars["--aurora-ball-1"] = rot(-20, 0.85, target === "dark" ? 0.6 : 0.62);
+        vars["--aurora-ball-2"] = rot(60, 0.8, target === "dark" ? 0.72 : 0.7);
+        vars["--aurora-ball-3"] = rot(20, 0.7, target === "dark" ? 0.7 : 0.66);
+        vars["--glass-relight-1"] = `rgb(${rot(-30, 0.9, 0.72)} / ${target === "dark" ? 0.4 : 0.34})`;
+        vars["--glass-relight-2"] = `rgb(${rot(50, 0.85, 0.7)} / ${target === "dark" ? 0.34 : 0.4})`;
+      }
     }
   }
 
@@ -821,7 +926,7 @@ export function applyStudioVars(studio: Studio) {
    * and clamped server- and client-side to the dial's own bounds.
    */
   if (studio.clayDepth !== defaultStudio.clayDepth) {
-    vars["--clay-depth"] = Math.min(2, Math.max(0.5, studio.clayDepth)).toFixed(2);
+    vars["--clay-depth"] = finite(studio.clayDepth, 0.5, 2, 1).toFixed(2);
   }
 
   // Tokens that were not overridden must return to the stylesheet's value, so

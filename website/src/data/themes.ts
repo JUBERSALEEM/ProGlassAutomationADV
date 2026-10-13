@@ -190,6 +190,12 @@ var v=localStorage.getItem(vk);
 if(v){var o=JSON.parse(v);for(var k in o){if(Object.prototype.hasOwnProperty.call(o,k)){
 var w=o[k];
 if(k==="--ui-scale"){var n2=parseFloat(w);if(!isFinite(n2)||n2<0.9||n2>1.15)continue;}
+/* P18 — a poisoned blob (any "NaN"/"Infinity" string, from a stale build's
+   write path or a hand edit) must never reach the DOM: calc() drops the
+   whole declaration, which is "the frost/font/colour is gone forever".
+   The studio now normalises + heals the state on read, so a skipped value
+   here is re-painted from healthy defaults on the same load. */
+if(/nan|infinity/i.test(w))continue;
 if(typeof w!=="string"||w.length>96||k.slice(0,2)!=="--")continue;
 e.style.setProperty(k,w);}}}
 var v2=localStorage.getItem(vk2);

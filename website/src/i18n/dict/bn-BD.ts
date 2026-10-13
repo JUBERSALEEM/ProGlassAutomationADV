@@ -110,6 +110,7 @@ const dict: Overlay = {
   "1 inquiry · 1 proforma · 1 job · 1 invoice": "1 জিজ্ঞাসা · 1 প্রোফর্মা · 1 কাজ · 1 ইনভয়েস",
   "1 note · 15 of 22 items leaving · 7 on balance": "1টি নোট · 22টি আইটেমের মধ্যে 15টি বাকি আছে · 7টি ব্যালেন্সে",
   "1 quote · INQ-2026-001 · confirmed": "1 উদ্ধৃতি · INQ-2026-001 · নিশ্চিত করা হয়েছে",
+  "1.00 is the shipped recipe — 24px at 195% saturation, multiplied by this dial. 0.25 is nearly clear.": "1.00 হলো প্রেরণ করা রেসিপি — এই ডায়ালের গুণক অনুযায়ী 195% স্যাচুরেশনে 24px অস্পষ্টতা। 0.25 প্রায় পরিষ্কার।",
   "1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with.": "অ্যাপটি ইনপুট এবং গ্রিডলাইনের জন্য ব্যবহার করে 1.5 পিএক্স হল হেয়ারলাইন; 2 px হল কার্ডের প্রান্ত যা দিয়ে এটি পাঠানো হয়।",
   "1.5 px is the hairline the app uses for inputs; 2 px is the defined card edge it ships with.": "1.5 px হল হেয়ারলাইন অ্যাপটি ইনপুটগুলির জন্য ব্যবহার করে; 2 px হল সংজ্ঞায়িত কার্ডের প্রান্ত যার সাথে এটি পাঠানো হয়।",
   "1.52mm Clear PVB": "1.52 মিমি ক্লিয়ার পিভিবি",

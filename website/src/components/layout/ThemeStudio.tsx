@@ -314,11 +314,20 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
             <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">
               {t("Six pastel plates plus the accent channels, recolored as one bench. Applies when the Clay family is active; the plum print on the plates never changes.")}
             </p>
-            <p className="mt-2 text-[0.75rem] font-medium leading-relaxed text-text-muted">
+            <p className={cn(
+              "mt-2 text-[0.75rem] leading-relaxed",
+              /* P18 — veneer-gate: a bench outside its family used to sit
+                 interactive and inert, which reads as broken. Now the owner
+                 sentence BECOMES the notice chip when the bench is off. */
+              family === "clay"
+                ? "font-medium text-text-muted"
+                : "rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2 font-semibold text-text-secondary",
+            )}>
               {t("The bench is the colour plates above: pick any plate and every clay plate, face, shadow and pool re-derives hue-rotated from it — Material-You adoption, instantly. The plum ink never moves; the engine file stays untouched. Reset = Family accent above.")}
             </p>
-            <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
-              {([
+            <div className={family === "clay" ? undefined : "pointer-events-none select-none opacity-50 saturate-[0.6]"}>
+              <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+                {([
                 { key: "clayCards", label: t("Cards wear plate:") },
                 { key: "clayPlate", label: t("Main card wears plate:") },
               ] as const).map(({ key, label }) => (
@@ -357,6 +366,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
             >
               {shareCopied ? t("Bench link copied ✓") : t("Copy bench link")}
             </button>
+            </div>
           </fieldset>
 
           {/* ── Crystal engine · the material bench ───────────────────
@@ -369,20 +379,26 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
               (body ≥ 0.80 by day, glint ≤ 0.55 at the corners). */}
           <fieldset className="mt-4">
             <legend className="mono-label">{t("Crystal engine — glass bench")}</legend>
-            <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">
+            <p className={cn(
+              "mt-1.5 text-[0.75rem] leading-relaxed",
+              family === "crystal"
+                ? "font-medium text-text-muted"
+                : "rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2 font-semibold text-text-secondary",
+            )}>
               {t("Frost, body and glint for the Crystal family — the material the site is made of, multiplied from its own recipe. Applies when the Crystal family is active; text ink never moves.")}
             </p>
-            <div className="mt-3 grid gap-3">
-              <Slider
-                label={t("Frost — blur behind every pane")}
-                value={studio.glassFrost}
-                min={0.25}
-                max={3}
-                step={0.05}
-                display={`${studio.glassFrost.toFixed(2)}×`}
-                onChange={(v) => setStudio({ glassFrost: v })}
-                hint={t("1.00 is the shipped recipe — 26–28px with 200% saturation, multiplied by this dial. 0.40 is nearly clear.")}
-              />
+            <div className={family === "crystal" ? undefined : "pointer-events-none select-none opacity-50 saturate-[0.6]"}>
+              <div className="mt-3 grid gap-3">
+                <Slider
+                  label={t("Frost — blur behind every pane")}
+                  value={studio.glassFrost}
+                  min={0.25}
+                  max={3}
+                  step={0.05}
+                  display={`${studio.glassFrost.toFixed(2)}×`}
+                  onChange={(v) => setStudio({ glassFrost: v })}
+                  hint={t("1.00 is the shipped recipe — 24px at 195% saturation, multiplied by this dial. 0.25 is nearly clear.")}
+                />
               <Slider
                 label={t("Body — how solid the fills stand")}
                 value={studio.glassBody}
@@ -403,16 +419,17 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                 onChange={(v) => setStudio({ glassGlint: v })}
                 hint={t("0 reads as frosted plastic; 2.00 burns bright at the corners — the engine caps the light at 0.55 so the text field is never lifted.")}
               />
+              </div>
+              {studio.glassFrost !== 1 || studio.glassBody !== 1 || studio.glassGlint !== 1 ? (
+                <button
+                  type="button"
+                  onClick={() => setStudio({ glassFrost: 1, glassBody: 1, glassGlint: 1 })}
+                  className="mt-2 text-[0.72rem] font-semibold text-text-faint underline-offset-2 hover:underline"
+                >
+                  {t("Reset the glass bench")}
+                </button>
+              ) : null}
             </div>
-            {studio.glassFrost !== 1 || studio.glassBody !== 1 || studio.glassGlint !== 1 ? (
-              <button
-                type="button"
-                onClick={() => setStudio({ glassFrost: 1, glassBody: 1, glassGlint: 1 })}
-                className="mt-2 text-[0.72rem] font-semibold text-text-faint underline-offset-2 hover:underline"
-              >
-                {t("Reset the glass bench")}
-              </button>
-            ) : null}
           </fieldset>
           <fieldset className="mt-4">
             <legend className="mono-label">{t("Clay depth")}</legend>

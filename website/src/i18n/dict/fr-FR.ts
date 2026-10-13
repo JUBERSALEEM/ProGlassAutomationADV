@@ -110,6 +110,7 @@ const dict: Overlay = {
   "1 inquiry · 1 proforma · 1 job · 1 invoice": "1 Demande · 1 formulaire · 1 emploi · 1 Facture",
   "1 note · 15 of 22 items leaving · 7 on balance": "1 note · 15 articles sur 22 sortants · 7 en solde",
   "1 quote · INQ-2026-001 · confirmed": "1 soumission · INQ-2026-001 · confirmé",
+  "1.00 is the shipped recipe — 24px at 195% saturation, multiplied by this dial. 0.25 is nearly clear.": "1.00 est la recette livrée — 24px de flou à 195% de saturation, multiplié par ce curseur. 0.25 est presque net.",
   "1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with.": "1,5 px est la ligne de cheveux que l'application utilise pour les entrées et le quadrillage; 2 px est le bord de la carte avec lequel elle est livrée.",
   "1.5 px is the hairline the app uses for inputs; 2 px is the defined card edge it ships with.": "1,5 px est la racine des cheveux que l'application utilise pour les entrées; 2 px est le bord défini de la carte avec laquelle elle est livrée.",
   "1.52mm Clear PVB": "PVB transparent de 1,52 mm",
