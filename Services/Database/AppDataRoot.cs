@@ -135,7 +135,7 @@ namespace ProGlassAutomation.Services.Database
 
             if (!SharedDataRootService.LooksNetworkBased(normalized))
             {
-                const string failure = "The saved path is local, not a UNC or mapped network folder.";
+                const string localPathFailure = "The saved path is local, not a UNC or mapped network folder.";
                 if (!data.SharedRootOfflineFallbackNeedsReview)
                     data.SharedRootLocalModeNoticePending = true;
                 data.SharedRootOfflineFallbackNeedsReview = true;
@@ -143,7 +143,7 @@ namespace ProGlassAutomation.Services.Database
                     "The configured shared data path is not a network location. ProGlass is continuing with " +
                     "this workstation's local database; local changes will not be shared with other PCs. " +
                     "Enter and test the same UNC or mapped-drive path on each workstation, review the " +
-                    "intended dataset, and select Apply and Restart to reconnect. " + failure;
+                    "intended dataset, and select Apply and Restart to reconnect. " + localPathFailure;
                 AppLogService.Warning(
                     "Configured shared data root is local; continuing with the local database. " +
                     $"Path: {normalized}.",
