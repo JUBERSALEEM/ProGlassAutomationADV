@@ -859,6 +859,8 @@ export function applyStudioVars(studio: Studio) {
     {
       const [cdh, cs] = plateHues[studio.clayCards - 1] ?? plateHues[0]!;
       vars["--card-face"] = rot(cdh, cs, target === "dark" ? 0.27 : 0.93);
+      vars["--data-face"] = rot(cdh, cs, target === "dark" ? 0.34 : 0.9);
+      vars["--overlay-face"] = rot(cdh, cs, target === "dark" ? 0.24 : 0.985);
     }
     vars["--plate-custom"] = vars["--plate-1"]!;
     vars["--band-face"] = rot(-24, 0.3, 0.948);
