@@ -46,7 +46,7 @@
  * <option> is excluded: it belongs to the OS popup, not the page's room.
  */
 [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
-  background-color: rgb(255 255 255 / 0.05);
+  background-color: rgb(255 255 255 / var(--glass-lift-a));
   background-image:
     var(--glass-frost),
     linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),
@@ -63,7 +63,7 @@
      light-glass weight (the pink reference). The scrim in §C7 catches what
      the fill returns (0.60 → 0.68) and the contract re-floored every
      daylight tier below in the same move. */
-  background-color: rgb(255 255 255 / 0.18);
+  background-color: rgb(255 255 255 / var(--glass-lift-a));
   box-shadow: 0 0 0 1px var(--glass-line),
     inset 0 1px 0 0 var(--glass-edge-light),
     inset 0 -1px 0 0 var(--glass-edge-dark);
@@ -459,12 +459,14 @@
 
   /* ── C · The edge at the reference's stated strength: ring 0.16 → 0.24,
      line 0.24 → 0.34. */
-  --glass-ring: rgb(255 255 255 / 0.30);
+  --glass-ring: rgb(255 255 255 / var(--glass-ring-a));
+  --glass-ring-a: min(calc(0.30 * var(--glass-glint-mult, 1)), 0.55);
   --glass-line: rgb(255 255 255 / 0.42);
 
   /* ── D · The scrim takes what the fill returns: midnight fill lightened
      (§C1, below), the scrim stiffens from 0.34 → 0.42 to hold the text
      field exactly where the contract measured it. */
+  --glass-lift-a: calc(0.05 * var(--glass-body-mult, 1));
   --glass-scrim: rgb(6 26 38 / 0.30);
 
   /* ── E · Saturation behind EVERY pane goes to the pattern's 180%. */
@@ -484,7 +486,8 @@
     radial-gradient(24rem 24rem at 80% 12%, rgb(217 70 239 / 0.50) 0%, rgb(217 70 239 / 0.28) 56%, transparent 72%),
     radial-gradient(20rem 20rem at 12% 88%, rgb(124 58 237 / 0.38) 0%, rgb(228 105 160 / 0.24) 60%, transparent 75%),
     linear-gradient(90deg, var(--sweep-1) 0%, var(--sweep-2) 22%, transparent 78%);
-  --glass-ring: rgb(255 255 255 / 0.50);
+  --glass-ring: rgb(255 255 255 / var(--glass-ring-a));
+  --glass-ring-a: min(calc(0.50 * var(--glass-glint-mult, 1)), 0.62);
   --glass-line: rgb(255 255 255 / 0.60);
   --radius-scale: 1.25;
 
@@ -498,6 +501,7 @@
      white scrim a notch so the pattern's airy panes stay text-safe. */
   /* §C8: the scrim catches what §C1's daylight fill returned (0.86→0.74):
      0.60 → 0.68. The light text field the contract computed is unchanged. */
+  --glass-lift-a: calc(0.18 * var(--glass-body-mult, 1));
   --glass-scrim: rgb(255 255 255 / 0.18);
 }
 
@@ -516,7 +520,7 @@
    transparency, and the 0.80 doctrine (G4) holds. */
 @supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
   [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
-    background-color: rgb(255 255 255 / 0.07);
+    background-color: rgb(255 255 255 / var(--glass-lift-a));
     backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%);
     -webkit-backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%);
   }
@@ -834,7 +838,8 @@
  */
 [data-appearance="crystal"] :is(.surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent),
 [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option):not(.decor):not(.glass-fab) {
-  --glass-edge-light: rgb(255 255 255 / 0.85);
+  --glass-edge-a: min(calc(0.85 * var(--glass-glint-mult, 1)), 1);
+  --glass-edge-light: rgb(255 255 255 / var(--glass-edge-a));
   --glass-edge-dark: rgb(2 6 14 / 0.18);
 }
 [data-appearance="crystal"] {

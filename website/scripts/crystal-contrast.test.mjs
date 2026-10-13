@@ -268,8 +268,8 @@ const buildLift = (lane, mode) => {
    equal the fills the engine file ships (parse the two §C1 lanes and force
    a sync — a model describing yesterday's file proves nothing). */
 {
-  const mid = /\n  background-color: rgb\(255 255 255 \/ (0\.0?\d)\);/.exec(engineCss);
-  const day = /\n  background-color: rgb\(255 255 255 \/ (0\.\d\d)\);/g;
+  const mid = /--glass-lift-a: calc\((0\.\d+) \* var\(--glass-body-mult/.exec(engineCss);
+  const day = /--glass-lift-a: calc\((0\.\d+) \* var\(--glass-body-mult/g;
   let m; const vals = [];
   while ((m = day.exec(engineCss)) !== null) vals.push(m[1]);
   assert.ok(mid, "G§E3: midnight §C1 white-tint lane not found in the engine file");
