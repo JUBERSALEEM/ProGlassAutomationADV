@@ -317,6 +317,27 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
             <p className="mt-2 text-[0.75rem] font-medium leading-relaxed text-text-muted">
               {t("The bench is the colour plates above: pick any plate and every clay plate, face, shadow and pool re-derives hue-rotated from it — Material-You adoption, instantly. The plum ink never moves; the engine file stays untouched. Reset = Family accent above.")}
             </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="text-[0.72rem] font-semibold text-text-primary">{t("Main card wears plate:")}</span>
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  aria-pressed={studio.clayPlate === n}
+                  onClick={() => setStudio({ clayPlate: n })}
+                  className={cn(
+                    "grid h-7 w-7 place-items-center rounded-full border-2 text-[0.68rem] font-bold transition-transform",
+                    studio.clayPlate === n
+                      ? "scale-110 border-brand-500/70 bg-brand-600/20 text-text-primary"
+                      : "border-line-strong/60 text-text-muted hover:border-line-strong",
+                  )}
+                  title={t("Feature card takes this plate")}
+                >
+                  {n}
+                </button>
+              ))}
+              <span className="text-[0.72rem] text-text-muted">{t("— only the feature card swaps; the rest keep their own.")}</span>
+            </div>
             <button
               type="button"
               title={t("Copy a link carrying this whole studio — the bench rides in the URL")}

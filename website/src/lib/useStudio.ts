@@ -114,6 +114,7 @@ export type Studio = {
    * floating, and text-contrast pairs don't move at all.
    */
   clayDepth: number;
+  /** Which plate the FEATURE card wears (1..6) — the main card is its own color. */ clayPlate: number;
   /**
    * The crystal bench (G4) — material multipliers for the glass family.
    * 1 is "the family's own recipe". Body < 1 ghosts the fills (floor 0.45
@@ -145,6 +146,7 @@ export const defaultStudio: Studio = {
   moneyNegative: "#FB7185",
   moneyNeutral: "",
   clayPreset: "house",
+  clayPlate: 1,
   clayAccent: "",
   clayCustom: "",
   clayDepth: 1,
@@ -292,6 +294,7 @@ function readStored(): Studio {
 
     /* The clay bench: an unknown preset or a hand-edited hex must never
        reach the dom — plates would go unpainted, or worse, half-painted. */
+    if (!Number.isFinite(merged.clayPlate) || merged.clayPlate < 1 || merged.clayPlate > 6) merged.clayPlate = defaultStudio.clayPlate;
     if (merged.clayPreset !== "custom" && !(merged.clayPreset in CLAY_PRESETS)) {
       merged.clayPreset = defaultStudio.clayPreset;
     }
@@ -798,7 +801,7 @@ export function applyStudioVars(studio: Studio) {
     /* §17 zone plates: the feature card takes the bench's first plate (or
        the hand-picked house plate when one is set), and the calm lit bands
        take a foil twisted to the bench hue at the foil's own 94% light. */
-    vars["--panel-face"] = studio.clayAccent ? vars["--clay-lavender"]! : bench["--plate-1"];
+    vars["--panel-face"] = studio.clayAccent ? vars["--clay-lavender"]! : ((bench as Record<string, string>)[`--plate-${studio.clayPlate}`] ?? bench["--plate-1"]);
     vars["--band-face"] = triplet(hslToRgb({ h: benchHue, s: 0.35, l: 0.945 }));
     vars["--pool-1"] = `rgb(${triplet(drop)} / ${target === "dark" ? 0.1 : 0.13})`;
     vars["--pool-2"] = `rgb(${triplet(hslToRgb({ h: (benchHue + 38) % 360, s: 0.7, l: 0.7 }))} / ${target === "dark" ? 0.05 : 0.1})`;
@@ -825,8 +828,12 @@ export function applyStudioVars(studio: Studio) {
        the hue (blend 0.16, luminance untouched — the contrast locks hold),
        chroma in the plates + wallpaper. The 0.72 blend was washing every face
        to the accent's own color — the monoculture the user saw. */
+    /* Faces restored to clay's pastel identity (0.72 — the richness);
+       separation is done by HUE-STEPPING the ambient, not by bleaching the
+       material: pools and band drift −30°/+38° so plates and wallpaper read
+       as family, not clone. */
     for (const [channel, base] of Object.entries(CLAY_CARD_BASE[target])) {
-      vars[channel] = twistTriplet(base, hub, 0.16);
+      vars[channel] = twistTriplet(base, hub, 0.72);
     }
     /* Hardness + richness of the mould: the drop grounds at its own hue,
        DEEPER (0.78/0.38 — the pillow reads weight, not mist); the interior
@@ -836,12 +843,12 @@ export function applyStudioVars(studio: Studio) {
     vars["--card-tint-h"] = rot(0, 0.5, 0.82);
     vars["--card-tint-h2"] = rot(38, 0.55, 0.82);
     vars["--clay-wash"] = (0.16 * studio.tint).toFixed(3);
-    vars["--panel-face"] = vars["--plate-1"]!;
+    vars["--panel-face"] = vars[`--plate-${studio.clayPlate}`] ?? vars["--plate-1"]!;
     vars["--plate-custom"] = vars["--plate-1"]!;
-    vars["--band-face"] = rot(0, 0.22, 0.955);
+    vars["--band-face"] = rot(-24, 0.3, 0.948);
     vars["--pool-1"] = `rgb(${rot(0, 0.7, 0.5)} / ${target === "dark" ? 0.1 : 0.13})`;
-    vars["--pool-2"] = `rgb(${rot(38, 0.7, 0.7)} / ${target === "dark" ? 0.05 : 0.1})`;
-    vars["--pool-3"] = `rgb(${rot(322, 0.7, 0.72)} / ${target === "dark" ? 0.045 : 0.09})`;
+    vars["--pool-2"] = `rgb(${rot(38, 0.7, 0.7)} / ${target === "dark" ? 0.06 : 0.12})`;
+    vars["--pool-3"] = `rgb(${rot(330, 0.7, 0.72)} / ${target === "dark" ? 0.05 : 0.1})`;
   }
 
   /*
