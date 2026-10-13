@@ -325,6 +325,45 @@
     inset -6px -6px 12px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.25);
 }
 
+/* ═══ §26.1 (P15) — midnight kills the lamps · user witness 13:42 ═══════
+   The noria rim light is a DAYLIGHT instrument: -7px -7px 18px white/0.85
+   reads on paper as the sun; on the dark page it is a xenon halo around
+   every pastel tile (the "extra glowing" engineering-metrics section) —
+   and the colored bleed at 0.3 smogs pastel light into the page. §24
+   capped the bright INSETS for this exact reason ("plastic glare on dark
+   pastel"); this takes the same doctrine OUTSIDE the tile. The faces
+   stay pastel at midnight (§9.4's four lamps are the FACES, not the
+   halos); the white ambient dies everywhere after dark, and the bleed
+   halves. The little index/icon tiles carried the same lamp — same cure,
+   and their violet inset literal moves to the P13 band-glow token
+   (accent-aware under a pick, byte-identical at house). */
+html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+1) {
+  box-shadow: 8px 8px 20px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.16),
+    inset 4px 4px 8px var(--clay-hi-2),
+    inset -6px -6px 12px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.18);
+}
+html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+2) {
+  box-shadow: 8px 8px 20px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.16),
+    inset 4px 4px 8px var(--clay-hi-2),
+    inset -6px -6px 12px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.18);
+}
+html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+3) {
+  box-shadow: 8px 8px 20px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.16),
+    inset 4px 4px 8px var(--clay-hi-2),
+    inset -6px -6px 12px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.18);
+}
+html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+4) {
+  box-shadow: 8px 8px 20px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.16),
+    inset 4px 4px 8px var(--clay-hi-2),
+    inset -6px -6px 12px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.18);
+}
+/* The 36-unit index/icon tiles: same lamp out after dark. */
+html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] {
+  box-shadow: 4px 4px 10px rgb(var(--clay-drop-h) / 0.24),
+    inset 2px 2px 5px var(--clay-hi-2),
+    inset -3px -3px 6px rgb(var(--band-glow-h) / 0.2);
+}
+
 /* The active page carries the family's pill, in bar and sheet; the verb
    (coral) stays exclusively on buttons. */
 [data-appearance="clay"] .nav-glass a[aria-current="page"],

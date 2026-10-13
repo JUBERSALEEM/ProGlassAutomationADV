@@ -110,3 +110,11 @@
   • `--clay-foil` twists with the hub at the ink channels' own contract (hue-only, luminance untouched), keeping its rgb()-wrapped form.
 - New contract test (#38, worst-hue aware): for orange/green/blue picks at midnight — coral ≠ house literal AND white ≥3.2:1; all three ladder faces hold white ≥4.5:1 and their luminance order; every plate sits within 96° of the bench hue; the foil left its navy literal.
 - Gates: vitest 38/38 · clay-paint 175/175 · contrast 87/87 (crystal) + 25/25 (clay) · motion 12/12 · color-audit 0 · census 100% · build+tsc+eslint clean.
+
+
+## P15 — midnight kills the lamps (user witness: "extra glowing section") · completed 2026-10-13
+
+- Witness: 13:42 midnight /developer (house palette) — the Engineering Metrics stat tiles carried a white xenon halo on the dark page.
+- Trace: the noria recipe's rim light is a daylight instrument that never got a midnight branch — `-7px -7px 18px rgb(255 255 255 / 0.85)` ambient plus a 0.3 colored bleed on every `.stat-tile:nth-child(4n±)`, and the same lamp at 0.7 on the 36-unit index/icon tiles. §24 had capped bright INSETS ("plastic glare on dark pastel"); the amBIENT lamp outside the tile was untouched until now. Faces unchanged — §9.4's lamps are the pastel FACES by design, the halo was the defect.
+- Change: midnight-scoped shadow stacks for the four noria tiles (white ambient removed, bleed halved to 0.16/0.18) and for `rounded-[0.6rem]` carriers (ambient out, violet inset → P13's `--band-glow-h` token — byte-identical at house, accent-aware under a pick).
+- Gates: build+tsc · vitest 38/38 · clay-paint 175/175 · contrast 87/87 + 25/25 · motion 12/12 · color-audit 0 · census 100%.
