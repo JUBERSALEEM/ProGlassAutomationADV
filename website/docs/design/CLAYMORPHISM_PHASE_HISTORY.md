@@ -45,3 +45,12 @@
 - Clay rendering profile by construction (engine §4 doctrine): no backdrop-filter, no translucency tier on clay; shadow stacks ≤ 4 items; luxury color burden concentrated in tokens, not per-element filters.
 - Recorded limitation: production hydration/runtime-exception telemetry (Vercel logs) is not observable from this sandbox; local build + SSR smoke (audit crawls built pages) show no failures. Not claimed verified.
 - No perf-relevant diffs this phase: PASS = preserved budgets.
+
+
+## P08 — accessibility pass · completed 2026-10-13
+
+- Focus grammar: §25 --clay-focus (3px/3px offset, brand-500 daylight / foil midnight + halo) on all interactive types incl. summary/[tabindex] (P05).
+- Contrast: crystal suite 87/87 pairs incl. all dial extremes; clay-paint 175/175 (luminance floors, midnight/daylight, ladder steps measured in vitest: card<data<overlay ordering asserted).
+- Reduced motion: motion suite 12/12 (PRM guards verified scan-wide).
+- Semantics census (code evidence): 308 aria attributes across components; ThemeStudio 16 (aria-pressed rows/mode); Navbar 7 (menu expanded/controls); DemoRequestForm labels htmlFor + aria-invalid + role=alert; alt attributes on media (counted).
+- Recorded limitation: keyboard-walk + screen-reader pass needs real browser assistive tooling (sandbox lacks browsers) — code-level evidence only; not claimed as manual verification.
