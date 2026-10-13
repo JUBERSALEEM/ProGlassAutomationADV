@@ -471,21 +471,27 @@
   --glass-scrim: rgb(6 26 38 / 0.30);
 
   /* ── E · Saturation behind EVERY pane goes to the pattern's 180%. */
-  --glass-sat: 180%;
+  --glass-sat: 195%;
 
-  /* ── G · P16, the meniscus (iOS Liquid pass, witness round 13:42):
-     the references' tell is not the blur — it is the RIM: the key light
-     strikes the top-left curve and dies at the under-edge, where a cool
-     relight answers from below (cyan at night, rose by day). The spec
-     streak is the thin wet line just under the top edge. Alphas stay
-     under the text floors' notice; the streak composes over the scrim,
-     never without it. */
+  /* ── G · P16/P17, the meniscus: the RIM sells liquid, not the blur —
+     key light strikes the top-left curve, dies at the under-edge, and a
+     relight answers from below. P17 (14:12 witness: "not even close"):
+     the arc brightens to phone scale and the lower-right corner picks up
+     the references' caustic fringe (cyan answers, rose fringes). The spec
+     streak rises a notch. Composes over the scrim, never instead of it. */
   --glass-meniscus: linear-gradient(155deg,
-    rgb(255 255 255 / 0.50) 0%,
-    rgb(255 255 255 / 0.16) 24%,
-    rgb(255 255 255 / 0.02) 52%,
-    rgb(120 220 255 / 0.26) 100%);
-  --glass-spec-a: 0.14;
+    rgb(255 255 255 / 0.68) 0%,
+    rgb(255 255 255 / 0.22) 24%,
+    rgb(255 255 255 / 0.03) 52%,
+    rgb(120 220 255 / 0.40) 88%,
+    rgb(242 96 164 / 0.34) 100%);
+  --glass-spec-a: 0.18;
+
+  /* P17 — the mid-vault seam bought: glass over a bare page reads as
+     slate ("not even close", 14:12); these give every scroll region its
+     colour to bend, anchored at the gutters, off the text columns. */
+  --wall-mid-1: rgb(20 184 226 / 0.40);
+  --wall-mid-2: rgb(242 96 164 / 0.32);
 }
 
 [data-theme="daylight"][data-appearance="crystal"] {
@@ -519,14 +525,19 @@
   --glass-lift-a: calc(0.18 * var(--glass-body-mult, 1));
   --glass-scrim: rgb(255 255 255 / 0.18);
 
-  /* P16 daylight meniscus: brighter strike, rose relight (the pink
-     reference's lower-right answer). */
+  /* P16/P17 daylight meniscus: brighter strike, rose relight with the
+     cyan fringe at the corner (the Jack White tile's chromatic edge). */
   --glass-meniscus: linear-gradient(155deg,
-    rgb(255 255 255 / 0.85) 0%,
-    rgb(255 255 255 / 0.32) 26%,
-    rgb(255 255 255 / 0.08) 55%,
-    rgb(217 120 239 / 0.30) 100%);
-  --glass-spec-a: 0.26;
+    rgb(255 255 255 / 0.92) 0%,
+    rgb(255 255 255 / 0.38) 26%,
+    rgb(255 255 255 / 0.10) 55%,
+    rgb(217 120 239 / 0.40) 88%,
+    rgb(120 220 255 / 0.34) 100%);
+  --glass-spec-a: 0.30;
+
+  /* P17 — daylight's mid-vault colour: aqua one side, rose the other. */
+  --wall-mid-1: rgb(26 197 226 / 0.34);
+  --wall-mid-2: rgb(217 70 239 / 0.30);
 }
 
 [data-appearance="crystal"] :is(
@@ -539,14 +550,20 @@
 /* ═══ §C9 · THE MENISCUS RIM (P16 — the iOS Liquid pass) ══════════════════
    The references' rim is an ARC, not a ring: a masked 1px conic sweep over
    the pane's own radius — bright where the key light strikes, dead at the
-   under-edge, a cool relight from below. position: relative is the anvil;
-   the pseudo draws at 1px and never touches the text. The @supports guard
-   keeps engines without mask-composite from flooding the pane with an
-   unmasked gradient — they lose the arc, never the legibility. */
+   under-edge, a cool relight from below. The pseudo needs a positioned
+   anvil — P17 GUARD: the first cut declared `position: relative` on the
+   whole registry, which OUTRANKED Tailwind's `.fixed` on the ThemeStudio
+   launcher (a `.menu-card fixed bottom-5 right-5`) and threw it out of
+   the viewport entirely ("why did you remove the theme and colour plate",
+   14:12). Relative is now declared ONLY on panes that carry no position
+   utility of their own; fixed/absolute/sticky panes are already
+   positioned anvils and keep their anchoring. The @supports guard keeps
+   engines without mask-composite from flooding the pane with an unmasked
+   gradient — they lose the arc, never the legibility. */
 [data-appearance="crystal"] :is(
   .surface, .surface-raised, .menu-card, .float-card,
   .glass-primary, .card-accent, .panel-feature, .stat-tile
-) {
+):not(.fixed):not(.absolute):not(.sticky):not(.relative) {
   position: relative;
 }
 @supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {

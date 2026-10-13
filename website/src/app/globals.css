@@ -1078,6 +1078,16 @@
       radial-gradient(820px 500px at 70% 98%, var(--pool-3), transparent 62%),
       radial-gradient(700px 440px at 26% 74%, var(--pool-2), transparent 66%),
       /*
+       * 4b · mid-vault pools — OFF by default (transparent). The glass
+       * families buy this seam when their panes need colour in the middle
+       * of the viewport, not just at its crown and floor: a pane blurring
+       * flat page colour reads as slate, not glass (the crystal witness
+       * round, 14:12). Anchored to the gutters so the colour lives behind
+       * panes and margins, not behind running text.
+       */
+      radial-gradient(760px 520px at 12% 42%, var(--wall-mid-1, transparent), transparent 68%),
+      radial-gradient(720px 500px at 88% 58%, var(--wall-mid-2, transparent), transparent 68%),
+      /*
        * 5 · the sweep, left to right.
        *
        * The one layer on this list with a direction, and the reason the page
@@ -1115,7 +1125,7 @@
        */
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
     background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
-      no-repeat, no-repeat, repeat;
+      no-repeat, no-repeat, no-repeat, no-repeat, repeat;
     contain: paint;
   }
 
