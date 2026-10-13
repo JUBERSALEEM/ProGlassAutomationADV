@@ -1095,6 +1095,22 @@
       /* 1–4 · ambient pools */
       radial-gradient(1180px 660px at 10% -10%, var(--wall-wash-1), transparent 62%),
       radial-gradient(940px 560px at 94% 2%, var(--wall-wash-2), transparent 58%),
+      /*
+       * 2b · the crown pool — restored to the paint stack (studio witness
+       * round: "theme & colour plates do nothing" / "frostness not working
+       * properly"). Every family block declares --pool-1 as its MAIN
+       * ambient light — 13 declarations, repeatedly tuned (clay's midnight
+       * whisper at 0.13 under §9.1, crystal's 0.62 mass, the studio's own
+       * accent rotation writing it on every pick at useStudio.ts:638 and
+       * in both family branches) — but the wallpaper stack lost its layer
+       * in the wash-era rewrite, so the strongest declared pool was
+       * painted by NOTHING. Visible effect: on a pick, pools 2/3 rotated
+       * and the wall's biggest mass didn't, so the page ambient read as
+       * "barely following the accent". Seat: the ceiling, between the two
+       * gutter washes, where the family's principal light belongs; the
+       * alpha grammar stays in the family token blocks, owned there.
+       */
+      radial-gradient(1080px 620px at 52% 4%, var(--pool-1, transparent), transparent 60%),
       radial-gradient(820px 500px at 70% 98%, var(--pool-3), transparent 62%),
       radial-gradient(700px 440px at 26% 74%, var(--pool-2), transparent 66%),
       /*
@@ -1145,7 +1161,7 @@
        */
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
     background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
-      no-repeat, no-repeat, no-repeat, no-repeat, repeat;
+      no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat;
     contain: paint;
   }
 

@@ -155,3 +155,23 @@ from pages and shared components:
   audit-site 0/0 incl. budget (CSS 38.8K/39K).
 - Still E3-pending: user's browser witness. Production unchanged until the
   owner commits and merges this branch.
+
+### Post-programme fix — card text cross-check, all pages × both modes (2026-10-13)
+
+User flagged the /optimization machine-file cards (Lisec .DAT, Bottero .OPT).
+A computed sweep of 15 shipped text-on-card chains × 10 appearance/mode
+combos found four defects, all in Clay, all fixed at engine level:
+- `.text-text-faint` extension span on the machine cards: 4.32:1 in
+  daylight clay → bumped to text-text-muted (7.67:1).
+- `--text-4` on lilac card faces in daylight clay: 3.63:1 → §7.4b lock
+  deepens card ink to the .glass-primary plum (6.44:1); warning/danger
+  state inks on daylight cards deepened with it (4.38/4.21 → 5.75/≥4.5).
+- State badges at midnight clay measured 1.04:1 (amber on the lemon
+  [class*=bg-state-*] foil): Badge gained a `badge-pill` hook; midnight
+  clay badges now sit on a deep plum pill (7.24:1). Daylight keeps lemon.
+- IndexChip/IconChip glyphs whitened to 1.88:1 by the generic brand-wash
+  ink rule: clay now locks them to plum ink (6.54:1), the family's own
+  pastel rule. `index-chip` class added beside the existing `icon-chip`.
+All 15 chains now ≥4.5:1 in all 10 combos; 27 probes added permanently
+(clay-paint 249/249). Gates: lint, typecheck, build, clay, crystal,
+census, pixel-pass, vitest, audit-site 0/0 incl. budget.

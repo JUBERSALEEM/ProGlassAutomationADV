@@ -258,7 +258,7 @@ export default async function OptimizationPage({ params }: PageProps) {
                   <div className="flex items-center justify-between gap-3">
                     <h3 className="font-mono text-sm font-semibold tracking-wide text-text-primary">
                       {t(item.name)}
-                      <span className="text-text-faint"> {item.ext}</span>
+                      <span className="text-text-muted"> {item.ext}</span>
                     </h3>
                     <Badge tone={item.ready ? "success" : "warning"}>
                       {item.ready ? t("Written today") : t("Awaiting your sample")}

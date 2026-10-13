@@ -976,6 +976,33 @@ probe("developer closing heading (surface-raised)", MODES,
 probe("developer closing body (surface-raised)", MODES,
   [BODY, El("div", "surface-raised grid gap-8 p-8"), El("p", "mt-3 text-sm leading-relaxed text-text-secondary")], 4.5);
 
+/* ── Cross-page card cross-check (2026-10-13) ──────────────────────────
+   The machine-files cards on /optimization (a .dat extension in
+   text-text-faint measured 4.32:1 in daylight clay) prompted a sweep of
+   every text tier that sits on the standard cards, in every appearance.
+   Three clay defects fell out: small brand chips whitened by the generic
+   brand-wash ink rule (1.88:1), state badges repainted lemon by the
+   [class*=bg-state-*] foil rules (1.04:1), and --text-4 on lilac card
+   faces (3.63:1). The locks live in clay-engine.css §7.4b + the chip &
+   badge ink section; these probes hold them. */
+const X_SUNKEN = El("section", "section relative band-deep border-y border-line/50");
+const X_MACHINE = [BODY, X_SUNKEN, El("article", "surface flex h-full flex-col p-5")];
+probe("xcheck machine name", MODES, [...X_MACHINE, El("h3", "font-mono text-sm font-semibold text-text-primary")], 7);
+probe("xcheck machine extension (text-muted)", MODES, [...X_MACHINE, El("h3", "font-mono text-sm font-semibold text-text-primary"), El("span", "text-text-muted")]);
+probe("xcheck machine note (text-muted)", MODES, [...X_MACHINE, El("p", "mt-3 text-sm leading-relaxed text-text-muted")]);
+const X_BADGE = "badge-pill inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-3xs font-bold uppercase tracking-[0.1em]";
+probe("xcheck badge warning", MODES, [...X_MACHINE, El("span", `${X_BADGE} border-state-warning/50 bg-state-warning/22 text-state-warning`)]);
+probe("xcheck badge success", MODES, [...X_MACHINE, El("span", `${X_BADGE} border-state-success/50 bg-state-success/22 text-state-success`)]);
+probe("xcheck badge danger", MODES, [...X_MACHINE, El("span", `${X_BADGE} border-state-danger/50 bg-state-danger/22 text-state-danger`)]);
+probe("xcheck index chip", MODES, [BODY, El("div", "surface p-5"), El("span", "index-chip inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.6rem] border border-brand-500/45 bg-brand-600/25 font-mono text-xs font-bold text-brand-200")]);
+probe("xcheck faint evidence on surface-raised", MODES, [BODY, El("div", "surface-raised p-6"), El("p", "mt-4 font-mono text-2xs text-text-faint")]);
+probe("xcheck state-warning on surface-raised", MODES, [BODY, El("div", "surface-raised p-6"), El("dd", "mt-2 text-sm font-semibold text-state-warning")]);
+for (const fam of ["crystal", "studio", "monet", "industrial"]) {
+  probeIn(fam, "xcheck machine extension (text-muted)", MODES, [...X_MACHINE, El("h3", "font-mono text-sm font-semibold text-text-primary"), El("span", "text-text-muted")]);
+  probeIn(fam, "xcheck badge warning", MODES, [...X_MACHINE, El("span", `${X_BADGE} border-state-warning/50 bg-state-warning/22 text-state-warning`)]);
+  probeIn(fam, "xcheck faint evidence on surface-raised", MODES, [BODY, El("div", "surface-raised p-6"), El("p", "mt-4 font-mono text-2xs text-text-faint")]);
+}
+
 /* Print the full paint table — the analysis the screenshots demanded. */
 test("paint report", () => {
   console.log("\nMIDNIGHT / DAYLIGHT PAINT TABLE");

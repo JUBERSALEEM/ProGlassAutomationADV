@@ -768,7 +768,7 @@ export function applyStudioVars(studio: Studio) {
      six channels, faces, shadows, pools — hue-rotated from the accent itself.
      clay-engine.css is untouched; the engine reads these tokens as its own. */
   /* Bench live-ness contract: the six switches must move cards IMMEDIATELY,
-     even before a color plate is picked ΓÇö so the block runs on the family
+     even before a color plate is picked — so the block runs on the family
      accent too, and the panel/cards rows are inputs, not ornaments. The
      plates stay Material-You (hue-rotated from the effective accent); the
      two rows split them: --panel-face (feature cards) vs --card-face (the

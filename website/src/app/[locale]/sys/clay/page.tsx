@@ -29,8 +29,8 @@ const MEDIA_BODY =
   "The card answers its own width: compact under 340px, media in its own lane past 480px — the same markup in a sliver, a column, a full row.";
 
 export default async function ClayCatalogPage({ params }: PageProps) {
-  /* Validates the locale (404s unknown tags) — this internal catalog renders
-     in English by design, so no translator is bound. */
+  /* Validates the locale like every other route; the page itself is an
+     internal English review surface (noindex), so it takes no copy key. */
   await translatorFor(params);
   return (
     <>
