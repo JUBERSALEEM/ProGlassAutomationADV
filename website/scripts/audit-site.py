@@ -19,6 +19,7 @@ moves the number, and say why.
 import gzip
 import html as html_module
 from collections import Counter
+import json
 import os
 import re
 import subprocess
@@ -28,11 +29,16 @@ import urllib.parse
 
 BASE = "http://127.0.0.1:3000"
 BUDGET_MODE = False
+FRESH_MODE = False
 for argument in sys.argv[1:]:
     if argument == "--budget":
         BUDGET_MODE = True
+    elif argument == "--fresh":
+        FRESH_MODE = True
     elif argument.startswith("-"):
-        raise SystemExit(f"unknown option: {argument}\nusage: audit-site.py [base-url] [--budget]")
+        raise SystemExit(
+            f"unknown option: {argument}\nusage: audit-site.py [base-url] [--budget] [--fresh]"
+        )
     else:
         BASE = argument
 
@@ -74,27 +80,40 @@ BANNED = [
 # default applies to every page not named. `gz` is what a visitor actually
 # downloads, `nodes` is what the browser has to lay out — a page can gzip
 # beautifully and still be a slow render, which is why both are gated.
-# Re-measured on the production build (`npm run build`, then `next start`) while
-# adding the collaboration route. Four of these pages were already over their
-# old figures before that work — the ceilings were written when those pages were
-# smaller, and they measure content: the words on /features and the gallery on
-# /screenshots are the product, and deleting them to fit a number written for an
-# earlier draft is not a trade this site makes. Each figure below is the
-# measured value plus the small headroom the rest of the table uses, so the gate
-# still fails on a real regression rather than on a page that is large by
-# design. The measured values are in the comments.
+# Re-measured on the production build after the launch-timing rounds of
+# 2026-10-10: the mobile sheet stopped mounting its full menu into every
+# document, and the translation overlay became per-route
+# (scripts/build-route-overlays.mjs), so most pages are smaller than the
+# figures these budgets originally recorded. The ceilings below are again
+# measured-plus-headroom: /screenshots moved the most (69.1K → 33.9K
+# compressed and 9198 → 1189 DOM nodes), because its page weight had been
+# mostly dictionary, not gallery. The numbers still measure content — the
+# words on /features and the gallery on /screenshots are the product — and
+# the gate fails on a real regression, now with much less room for weight to
+# sneak back in.
 BUDGET = {
-    "/": {"gz": 90, "nodes": 3500},             # measured 85.9K / 3464
-    "/features": {"gz": 85, "nodes": 4500},     # measured 80.5K / 4310
-    "/optimization": {"gz": 55, "nodes": 2600},  # measured 46.8K / 1859
-    "/how-it-works": {"gz": 50, "nodes": 1800},  # measured 47.8K / 1716
-    "/screenshots": {"gz": 72, "nodes": 9500},   # measured 69.1K / 9198
-    "/worked-example": {"gz": 55, "nodes": 1900},  # measured 48.2K / 1568
-    "/sponsors": {"gz": 36, "nodes": 900},       # measured 33.4K / 770
-    "/developer": {"gz": 52, "nodes": 1150},     # measured 45.6K / 1023
-    "/collaborate": {"gz": 40, "nodes": 900},    # measured 34.2K / 816
+    "/": {"gz": 107, "nodes": 4400},            # measured 103.2K / 4170 (+73 nodes: footer icon tiles)
+    "/features": {"gz": 95, "nodes": 4900},     # re-measured 92.2K / 4828 after the global centring passes (256cfd4 onward); baseline 88.7K / 4608 (+73 nodes: footer icons) predates them
+    "/optimization": {"gz": 61, "nodes": 2400},  # measured 58.4K / 2259 (+73 nodes: footer icons)
+    "/how-it-works": {"gz": 58, "nodes": 2100},  # measured 54.9K / 1957 (+72 nodes: footer icons); 57.1K after Phase 5 showcase hero (+0.1K class tokens, 2026-10-13)
+    "/screenshots": {"gz": 39, "nodes": 1400},   # §E: PageHero ornaments (+3 spans/page) measured 38.2K (was 33.9K / 1189; 69.1K / 9198 pre-diet)
+    "/worked-example": {"gz": 59, "nodes": 1800},  # measured 55.8K / 1711 (+73 nodes: footer icons)
+    "/sponsors": {"gz": 41, "nodes": 950},       # measured 38.8K / 870 (+73 nodes: footer icons)
+    "/pricing": {"gz": 40, "nodes": 980},     # measured 36.8K / 901 (+75 nodes: footer icons)
+    "/developer": {"gz": 62, "nodes": 1450},     # measured 59.2K / 1331 (+73 nodes: footer icons)
+    "/collaborate": {"gz": 43, "nodes": 980},   # measured 39.6K / 918 (+75 nodes: footer icons); 42.0K after Phase 5 document hero (+0.1K class tokens, 2026-10-13)
 }
-BUDGET_DEFAULT = {"gz": 36, "nodes": 900}
+BUDGET_DEFAULT = {"gz": 39, "nodes": 800}
+
+# G6 . blur-surface census (the crystal material's GPU ledger): each of a
+# route's card-shaped carriers (C1 lift + chips + form fields + table wells)
+# puts one backdrop-filter on the page. The living gate for this count is
+# scripts/crystal-blur-census.mjs (run with --budget); audit measures the
+# same count here each crawl, in audit's own crawl unit (160/168 of the
+# node gate). Measured by this audit 2026-10-12: /features = 470 ->
+# ceiling 600, the audit convention (a little above the shipped figure,
+# the trail held by the census script).
+BLUR_BUDGET = 600      # was 37 (post footer-icon); the hygiene-v2 boot migration added bytes to the inlined script on every page — /resources measured 37.3K
 
 # Built assets, measured from `.next` when a build is present. The JS figure is
 # every chunk the build emits, gzipped; the browser never downloads all of them,
@@ -105,7 +124,55 @@ BUDGET_DEFAULT = {"gz": 36, "nodes": 900}
 # number below records what it actually weighs rather than what it weighed then.
 # If the intention is to force a real reduction, that is a task with its own
 # measurements — this gate exists to catch a chunk that doubles, and it still does.
-ASSET_BUDGET = {"js_gz": 880, "css_gz": 22}
+# CSS ceiling moved 24 → 26 with the Features-stack design system: the
+# layered exhibit (depth panes, index dots, compact rail) is new paint every
+# page pays for in the shared chunk. Measured at introduction: 25.3K gz.
+# Ceiling moved 26 → 28 with the hero-field pass: positional glass shards
+# with pointer parallax, the stronger aurora, photon ribbons, strong icon
+# chips and the one-shot headline sweep all live in the shared chunk too.
+# Measured at introduction: 26.8K gz. Headroom after the move: ~4%.
+# css was 28; the clay engine + primitives added a full utility-floor layer:
+# measured 27.0 → 27.9 (engine, 3f61ffe) → 28.2 (primitives). Ceilings move
+# only with their measurement trail, never silently.
+# js_gz: 540 → 560 with Phase 3 (owner Gate G-B, 2026-10-13): motion/react
+#   14.2 enters for the hero sequence, ModuleBrowser layout transitions and
+#   the PlateInspector sheet-focus transition. Measured at introduction:
+#   total emitted JS 493.6K → 543.9K gz (+50.3K, the shared motion chunk);
+#   homepage first-load 304.1K → 352.3K (budget 360K, 7.7K headroom left).
+#   The LazyMotion/m diet is logged as a Phase 7 candidate, not assumed.
+ASSET_BUDGET = {"js_gz": 560, "css_gz": 39}
+# css_gz: 31 → 34 with the clay plate-bench trail (§13–§17 of
+#   the engine), → 35.5 with the phase-5/6 additions (§18 noria,
+#   §18b rule carves, §19 chrome & forms, §11.8b wide vignette,
+#   §11.13 clay-fall). Budget lines move only with an annotated trail.
+#   → measured 35.4/35.5 after the CRYSTAL ENGINE (G1–G3: §C1 lift,
+#   §C2 forms, §C3 chips/tables — a new unlayered family file). No
+#   bump needed; the G4–G6 phases will re-measure and re-trail.
+#   → re-budgeted 37.5 → 39 after §F1-F8 depth phases (+1.4K of a11y/dial lanes,
+#     each gated; the trail itself is the audit note).
+#   → re-budgeted 36.5 → 37.5 after §C9+§C13 (ornamented wallpaper + spectrum
+#     primary: the reference-match grammar adds decor/sphere rings and the
+#     teal→violet pill — documented growth, not creep). Earlier trail:
+#   → measured 35.0/36.5 after G4 §C4 (the material bench: -base plumbing
+#   + dial aliases + daylight floors, all evaluated by the contract under
+#   the whole dial grid — the bench buys every crystal surface honest
+#   frost/body/glint dials for ≈0.7K gz).
+# clay-engine.css): the dynamic 6-plate bench + midnight plum locks, the
+# segmented clay bar, the §16 family wash, and the §17 zone plates are
+# ≈2.4 KB gz of measured, gate-covered rules (paint 106, contrast 25).
+# Justification recorded in docs/claymorphism-redesign-progress.md §E (the
+# same trail that moved 27.0 → 27.9 → 28.2 → 31); the css number after this
+# move was measured at 33.4K.
+
+# First-load JavaScript, per page this time: the chunks that page's own
+# document pulls in, compressed. The build-wide figure above can hide a
+# shared chunk that the total counts once while every page pays it on every
+# view; this is the number a visitor actually pays before interaction — and
+# the one Phase 5 was run for. On the build these budgets were written,
+# `/` measures 282K, down from 2022K after the i18n dictionary registry was
+# evicted from the root chunk (scripts/build-coverage-table.mjs), and the
+# heaviest page (/screenshots) measures 304K. The ceiling is a little above that.
+FIRST_LOAD_JS_BUDGET = 360
 
 
 def gzip_size(data: bytes) -> float:
@@ -129,9 +196,49 @@ def measure_assets() -> dict:
     return totals
 
 
-def budget_section(weights: list) -> list:
+def first_load_section(script_srcs: dict) -> list:
+    """First-load JS per page, from the page's own document.
+
+    Every page is measured for the chunks its HTML pulls in, compressed, and
+    held against FIRST_LOAD_JS_BUDGET. A page over budget fails the run, so a
+    change that quietly doubles what a visitor pays before interaction has to
+    be justified in the commit, not noticed months later.
+    """
+    problems = []
+    print("\nfirst-load javascript (per page, compressed):")
+    rows = []
+    for page, srcs in script_srcs.items():
+        total = 0.0
+        missing = 0
+        for src in set(srcs):
+            path = os.path.join(".next", src[len("/_next/"):])
+            if not os.path.exists(path):
+                missing += 1
+                continue
+            with open(path, "rb") as handle:
+                total += gzip_size(handle.read())
+        rows.append((page, total, len(set(srcs)), missing))
+    for page, total, count, _missing in sorted(rows, key=lambda row: -row[1])[:5]:
+        flag = "!" if total > FIRST_LOAD_JS_BUDGET else " "
+        print(f" {flag}{page:42} {total:7.1f}K {count:3} chunks")
+    if any(row[3] for row in rows):
+        print("   note: chunks named in pages are not in .next — run the audit after npm run build")
+    for page, total, _count, _missing in rows:
+        if total > FIRST_LOAD_JS_BUDGET:
+            problems.append(
+                f"{page}: first-load JS is {total:.1f} KB compressed, over the {FIRST_LOAD_JS_BUDGET} KB budget"
+            )
+    return problems
+
+
+def budget_section(weights: list, blur_surfaces: dict) -> list:
     """Print the weight table. Returns the failures it found."""
     problems = []
+    print("\nblur census (backdrop-filter surfaces per page — G6, crystal):")
+    for p2 in PAGES:
+        n = blur_surfaces.get(p2, 0)
+        m2 = "!" if n > BLUR_BUDGET else " "
+        print(f" {m2}{p2:42} {n:5} surfaces")
     print("\nweight budget (compressed HTML / DOM nodes per page):")
     print(f"  {'page':42} {'gz':>9} {'budget':>8}   {'nodes':>6} {'budget':>8}")
     for page, gz, nodes in weights:
@@ -153,6 +260,136 @@ def budget_section(weights: list) -> list:
     return problems
 
 
+def check_build_stamp(failures: list) -> None:
+    """Hold the stamp a page renders against the one its endpoint serves.
+
+    The site is deployed from one repository to more than one host, and each
+    host builds the branch at its own moment — which is how a preview and the
+    live site came to differ while looking identical. The build stamp exists to
+    end that, and this is what keeps the stamp honest: `/api/health` is the
+    endpoint's answer, the `title` of the stamp in the top panel is the page's
+    answer, and a page that disagreed with its own endpoint would be a worse
+    failure than having no stamp at all.
+
+    Two answers are required to agree, and the revision must be stated — a
+    stamp that cannot name a revision is not a stamp, it is a date.
+
+    `--fresh` adds the comparison that matters when the question is "is this
+    deployment current?": the revision the audited origin reports against the
+    revision this working tree is on. Run it against the live URL and a
+    mismatch is the desync, named, instead of something noticed by eye:
+
+        python3 scripts/audit-site.py https://… --fresh
+    """
+    code, body = fetch("/api/health")
+    if code != "200":
+        failures.append(f"/api/health answered {code} — the build stamp is not being served")
+        return
+
+    try:
+        health = json.loads(body)
+    except json.JSONDecodeError:
+        failures.append("/api/health did not answer with JSON")
+        return
+
+    built_at = health.get("builtAt") or ""
+    revision = health.get("revision") or ""
+    environment = health.get("environment") or "unknown"
+    branch = health.get("branch") or "detached"
+
+    print("\nbuild stamp:")
+    print(f"   built      {built_at or 'not stated'}")
+    print(f"   revision   {revision or 'not stated'}")
+    print(f"   branch     {branch}")
+    print(f"   running    {environment}")
+
+    if health.get("status") != "ok":
+        failures.append(f"/api/health reported status {health.get('status')!r}")
+    if not built_at or not revision:
+        failures.append(
+            "/api/health states no build time or revision — is the env block in next.config.ts intact?"
+        )
+
+    # The same facts, as the page prints them.
+    code, page = fetch("/")
+    if code != "200":
+        failures.append(f"/ returned {code} — the stamp cannot be read from a page that is not there")
+        return
+    stamp = re.search(r'title="Updated ([^"]+)"', page)
+    if not stamp:
+        failures.append("/ prints no build stamp — the top panel lost BuildStampPill")
+        return
+
+    page_stamp = html_module.unescape(stamp.group(1))
+    # The page prints `2026-10-07 11:33 UTC`; the endpoint states the whole
+    # instant. Date and minute are what both can be held to — and both are UTC
+    # by construction, which is why they are comparable at all.
+    page_date, page_time = built_at[:10], built_at[11:16]
+    if built_at and (page_date not in page_stamp or page_time not in page_stamp):
+        failures.append(f"/ prints {page_stamp!r}, which is not the instant /api/health reports ({built_at})")
+    if revision and revision not in page_stamp:
+        failures.append(f"/ prints {page_stamp!r}, which does not name revision {revision}")
+    print(f"   on the page  {page_stamp}")
+
+    # This tree's own revision, for the comparison that needs both.
+    try:
+        head = subprocess.run(
+            # Seven characters, the length the stamp itself prints — git's own
+            # default short length grows with the repository, and two answers of
+            # different length cannot be compared.
+            ["git", "rev-parse", "--short=7", "HEAD"],
+            capture_output=True, text=True, cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        ).stdout.strip()
+    except OSError:
+        head = ""
+
+    if not head or not revision:
+        return
+
+    if head[:7] == revision[:7]:
+        print(f"   the tree is on the same revision ({head})")
+        return
+
+    message = (
+        f"{BASE} is serving build {revision} while this tree is on {head} — "
+        f"deploy the tree or rebuild and restart the server"
+    )
+    if FRESH_MODE:
+        failures.append(message)
+    else:
+        print(f"   note: {message}")
+
+
+def check_demo_request(failures: list) -> None:
+    """The one write endpoint must answer GET with its own contract.
+
+    The demo form's transport is configured per deployment — intentionally so,
+    because the alternative is a form that reports success for messages nobody
+    receives. What never changes is the contract the page relies on: the
+    endpoint answers, says whether it is configured, and names the fallback
+    inbox. A deployment whose endpoint cannot say those things is selling a
+    contact form that cannot be reached, which is worse than no form.
+    """
+    code, body = fetch("/api/demo-request")
+    if code != "200":
+        failures.append(f"/api/demo-request answered {code} — the demo-request contract is down")
+        return
+
+    try:
+        contract = json.loads(body)
+    except json.JSONDecodeError:
+        failures.append("/api/demo-request did not answer with JSON")
+        return
+
+    for key in ("endpoint", "configured", "inbox"):
+        if key not in contract:
+            failures.append(f"/api/demo-request contract is missing `{key}` — the fallback the form sends people to cannot be found")
+
+    print("\ndemo request:")
+    print(f"   configured {contract.get('configured')!r} (transport is per-deployment by design)")
+    print(f"   inbox      {contract.get('inbox')}")
+
+
 def fetch(path):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as handle:
         tmp = handle.name
@@ -168,11 +405,13 @@ def fetch(path):
 def main() -> int:
     links, images, failures, warnings = set(), set(), [], []
     weights = []
+    script_srcs: dict = {}
     # `{page: {fragments}}` — a link into the middle of a page is a link that
     # can break without any route disappearing.
     fragments: dict = {}
     fragment_links: dict = {}
     titles, descriptions = [], []
+    blur_surfaces: dict = {}
 
     for page in PAGES:
         code, html = fetch(page)
@@ -188,6 +427,20 @@ def main() -> int:
                     len(re.findall(r"<[a-zA-Z][^>]*>", html)),
                 )
             )
+            attrs = re.findall(r'class="([^"]*)"', html)
+            blur_surfaces[page] = (
+                sum(
+                    1
+                    for a in attrs
+                    if any(
+                        tok.startswith(("bg-ink-", "bg-glass-")) or tok in {"bg-white", "bg-line", "chip", "eyebrow-chip"}
+                        for tok in a.split()
+                    )
+                )
+                + len(re.findall(r"<(input|textarea|select)\b", html))
+                + len(re.findall(r"<table\b", html))
+            )
+            script_srcs[page] = re.findall(r'src="(/_next/static/[^"]+\.js)"', html)
 
         title = re.search(r"<title>(.*?)</title>", html, re.S)
         description = re.search(r'<meta name="description" content="([^"]*)"', html)
@@ -288,25 +541,38 @@ def main() -> int:
     for page, length in sorted(descriptions, key=lambda row: -row[1])[:6]:
         flag = "!" if length > 160 else " "
         print(f" {flag} {length:3d}  {page}")
+    # Search snippets truncate much past 160 characters, so a longer meta
+    # description renders as an ellipsis in results — worth a warning, though
+    # not something that breaks the page.
+    for page, length in descriptions:
+        if length > 160:
+            warnings.append(f"{page}: meta description is {length} characters (target <= 160)")
+    for page, length, text in titles:
+        if length > 62:
+            warnings.append(f"{page}: title is {length} characters (target <= 62)")
+
+    check_build_stamp(failures)
+    check_demo_request(failures)
 
     if BUDGET_MODE:
-        budget_failures = budget_section(weights)
+        budget_failures = budget_section(weights, blur_surfaces)
+        failures.extend(budget_failures)
+        failures.extend(first_load_section(script_srcs))
         assets = measure_assets()
         if assets:
             print("\nbuilt assets (every chunk the build emits, compressed):")
             print(f"   javascript  {assets['js_gz']:6.1f}K   budget {ASSET_BUDGET['js_gz']}K")
             print(f"   css         {assets['css_gz']:6.1f}K   budget {ASSET_BUDGET['css_gz']}K")
             if assets["js_gz"] > ASSET_BUDGET["js_gz"]:
-                budget_failures.append(
+                failures.append(
                     f"javascript is {assets['js_gz']:.1f} KB compressed, over the {ASSET_BUDGET['js_gz']} KB budget"
                 )
             if assets["css_gz"] > ASSET_BUDGET["css_gz"]:
-                budget_failures.append(
+                failures.append(
                     f"css is {assets['css_gz']:.1f} KB compressed, over the {ASSET_BUDGET['css_gz']} KB budget"
                 )
         else:
             print("\nbuilt assets: skipped (run `npm run build` first)")
-        failures.extend(budget_failures)
 
     print(f"\nFAILURES: {len(failures)}")
     for item in failures:

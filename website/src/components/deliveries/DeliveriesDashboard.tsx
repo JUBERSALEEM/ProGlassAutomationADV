@@ -310,7 +310,7 @@ export function DeliveriesDashboard() {
   if (isAuthRequired) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-ink-950 px-4 py-20">
-        <div className="w-full max-w-md rounded-panel border border-line-strong/80 bg-ink-900/80 p-8 text-center shadow-raised backdrop-blur-xl">
+        <div className="w-full max-w-md rounded-panel border border-line-strong/80 bg-ink-900 p-8 text-center shadow-raised">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-400/40 bg-brand-500/10 text-brand-300">
             <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path

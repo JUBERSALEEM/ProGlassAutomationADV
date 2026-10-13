@@ -49,6 +49,34 @@ export function SvgDefs() {
           <stop offset="60%" stopColor="#FFFFFF" stopOpacity="0" />
         </linearGradient>
 
+        {/*
+          The brand emblem's three faces — see components/brand/GlassCubeEmblem.
+
+          The splash screen paints them from three fixed brushes; these paint
+          them from the site's tokens so the emblem follows the mode and the
+          appearance family. In the Studio family at the dark default the three
+          ramps land on the splash's own #EFEAFB→#B4A1E1, #8568CF→#5A3FA8 and
+          #A78BDA→#6546B5, which is the same violet at the same three tones.
+        */}
+        <linearGradient id="pg-cube-top" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="rgb(var(--brand-50))" />
+          <stop offset="100%" stopColor="rgb(var(--brand-200))" />
+        </linearGradient>
+        <linearGradient id="pg-cube-left" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="rgb(var(--brand-400))" />
+          <stop offset="100%" stopColor="rgb(var(--brand-600))" />
+        </linearGradient>
+        <linearGradient id="pg-cube-right" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="rgb(var(--brand-300))" />
+          <stop offset="100%" stopColor="rgb(var(--brand-500))" />
+        </linearGradient>
+        {/* The right face re-tinted, which is what SplashThemeManager does to
+            GlassFacePath when the accent changes. */}
+        <linearGradient id="pg-cube-accent" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="rgb(var(--brand-400))" />
+          <stop offset="100%" stopColor="rgb(var(--brand-700))" />
+        </linearGradient>
+
         {/* Page banner: a warm-to-cool wash and the ink fade that grounds it. */}
         <linearGradient id="pg-banner" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="rgb(var(--brand-400))" stopOpacity="0.5" />

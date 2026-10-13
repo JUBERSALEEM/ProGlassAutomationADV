@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Clay faces — the 100/100 target boards · ProGlass</title>
+<style>
+/* ── The engine's channels, verbatim from src/app/clay-engine.css (daylight).
+     These faces are the design target; live routes inherit the same tokens
+     through the engine when Clay is chosen in the Theme & colour panel. ── */
+:root {
+  --page: #F7F5FB;
+  --white: #FFFFFF;
+  --lavender: #B8A6FF;
+  --sky: #9EC9F0;
+  --mint: #7DD4A8;
+  --peach: #FFB59E;
+  --lemon: #F5D77A;
+  --coral: #FF7A6B;
+  --coral-h: 255, 90, 75;
+  --drop: 140, 108, 255;
+  --ink: #2E2A3F;
+  --ink-2: #332E44;
+  --muted: #6B6580;
+  font-family: "Nunito", "Quicksand", "Fredoka", ui-rounded, "Segoe UI Rounded", system-ui, sans-serif;
+}
+* { margin: 0; box-sizing: border-box; }
+body { background: var(--page); color: var(--ink); padding: 32px 20px 64px; line-height: 1.4; }
+main { max-width: 1120px; margin: 0 auto; display: grid; gap: 56px; }
+
+.face-tag { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 14px;
+  border-radius: 999px; background: rgb(var(--drop) / 0.18); color: var(--ink);
+  font-size: 12px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+h1 { font-size: 30px; font-weight: 800; letter-spacing: 0; margin: 10px 0 4px; }
+.face p.note { color: var(--muted); font-size: 14px; max-width: 640px; }
+
+/* The recipe, exactly: SE hue-keyed drop · NW light lift · TL sheen · BR depth */
+.recipe { border-radius: 28px; box-shadow:
+  8px 8px 24px rgba(var(--drop), .30), -8px -8px 22px rgba(255 255 255, .9),
+  inset 4px 4px 8px rgba(255 255 255, .55), inset -6px -6px 12px rgba(var(--drop), .26); }
+.recipe-flat { border-radius: 24px; background: var(--white); }
+.btn-coral { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 54px; padding: 0 26px; border: 0; border-radius: 18px; background: var(--coral);
+  color: #fff; font-weight: 800; font-size: 16px; cursor: pointer;
+  box-shadow: 8px 8px 20px rgba(var(--coral-h), .4), inset 4px 4px 8px rgba(255 255 255, .45),
+    inset -4px -4px 10px rgba(219, 74, 61, .4); transition: transform .14s ease, box-shadow .14s ease; }
+.btn-coral:active { transform: scale(.97); box-shadow: 4px 4px 10px rgba(var(--coral-h), .35),
+  inset -3px -3px 9px rgba(219, 74, 61, .35), inset 3px 3px 9px rgba(255 255 255, .35); }
+.btn-sheet { display: inline-flex; align-items: center; min-height: 54px; padding: 0 26px;
+  border: 0; border-radius: 18px; background: var(--white); color: var(--ink); font-weight: 700; font-size: 16px;
+  box-shadow: 8px 8px 18px rgba(var(--drop), .22), inset 3px 3px 6px rgba(255 255 255, .8),
+    inset -4px -4px 8px rgba(var(--drop), .18); cursor: pointer; }
+.pill { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 14px;
+  border-radius: 999px; font-size: 13px; font-weight: 800; color: var(--ink); }
+.pill i { width: 8px; height: 8px; border-radius: 50%; display: block; }
+
+/* ═══ FACE 1 — the home/call face ═══ */
+.home-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 24px; margin-top: 18px; }
+.hero-plate { background: var(--lavender); padding: 34px; display: grid; align-content: start; gap: 16px; }
+.hero-plate h2 { font-size: 30px; font-weight: 800; color: var(--ink); }
+.hero-plate p { color: #403A56; font-size: 15px; max-width: 46ch; }
+.hero-plate .rows { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+.hero-plate .btn-pill { background: #FDFAFF; color: #4333B0; border-radius: 999px; min-height: 48px;
+  padding: 0 22px; display: inline-flex; align-items: center; font-weight: 800; border: 0;
+  box-shadow: 8px 8px 18px rgba(92, 60, 220, .3), inset 3px 3px 6px rgba(255 255 255, .9),
+    inset -4px -4px 8px rgba(67, 54, 176, .2); cursor: pointer; }
+.stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+.stat { padding: 20px 22px; position: relative; }
+.stat b { font-size: 26px; font-weight: 800; display: block; }
+.stat span { font-size: 13px; font-weight: 600; color: rgba(46, 42, 63, .72); }
+.stat em { position: absolute; top: 18px; right: 18px; font-style: normal; font-size: 11px; font-weight: 800; }
+.s-lav { background: #CEC4FF; box-shadow: 8px 8px 22px rgba(150, 132, 250, .3), inset 4px 4px 8px rgba(255 255 255, .6), inset -6px -6px 12px rgba(150, 132, 250, .25); }
+.s-min { background: #BBE8C9; box-shadow: 8px 8px 22px rgba(120, 190, 150, .3), inset 4px 4px 8px rgba(255 255 255, .6), inset -6px -6px 12px rgba(120, 190, 150, .25); }
+.s-pea { background: #FFD6C0; box-shadow: 8px 8px 22px rgba(228, 148, 122, .3), inset 4px 4px 8px rgba(255 255 255, .6), inset -6px -6px 12px rgba(228, 148, 122, .25); }
+.s-sky { background: #BCD8F0; box-shadow: 8px 8px 22px rgba(140, 170, 214, .3), inset 4px 4px 8px rgba(255 255 255, .6), inset -6px -6px 12px rgba(140, 170, 214, .25); }
+.acc { background: var(--white); padding: 18px; display: grid; gap: 12px; margin-top: 24px; }
+.acc-row { display: flex; justify-content: space-between; align-items: center; background: #FBF9FF;
+  border-radius: 999px; padding: 14px 18px; font-weight: 700; font-size: 15px;
+  box-shadow: inset 3px 3px 8px rgba(var(--drop), .14), inset -3px -3px 8px rgba(255 255 255, .9); }
+.acc-row i { width: 26px; height: 26px; border-radius: 50%; background: rgb(var(--drop) / .18);
+  display: grid; place-items: center; font-weight: 800; font-style: normal; font-size: 15px; color: var(--ink); }
+
+/* ═══ FACE 2 — the records/analytics face ═══ */
+.an-grid { display: grid; grid-template-columns: 240px 1fr; gap: 24px; margin-top: 18px; }
+.side { background: #EDE7FE; padding: 22px 18px; display: grid; gap: 8px; align-content: start; }
+.side b { font-size: 17px; padding: 6px 10px 14px; }
+.side a { display: flex; gap: 10px; align-items: center; text-decoration: none; color: var(--ink);
+  font-weight: 700; font-size: 14px; padding: 11px 12px; border-radius: 18px; }
+.side a.on { background: var(--coral); color: #fff; box-shadow: 6px 6px 14px rgba(var(--coral-h), .35),
+  inset 3px 3px 6px rgba(255 255 255, .4); }
+.side i { width: 20px; height: 20px; border-radius: 6px; background: rgb(var(--drop) / .25); display: block; }
+.side a.on i { background: rgba(255 255 255, .4); }
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.chart-card { background: var(--white); padding: 24px; margin-top: 16px; position: relative; }
+.chart-card h3 { font-size: 17px; font-weight: 800; }
+.bars { display: flex; align-items: end; gap: 10px; height: 130px; margin-top: 18px; }
+.bars i { flex: 1; border-radius: 10px 10px 4px 4px; background: var(--lavender);
+  box-shadow: inset 3px 3px 6px rgba(255 255 255, .45), 4px 4px 10px rgba(var(--drop), .25); }
+.bars i.c { background: var(--coral); box-shadow: inset 3px 3px 6px rgba(255 255 255, .4), 4px 4px 10px rgba(var(--coral-h), .3); }
+.act { background: #FFE7DA; border-radius: 24px; padding: 22px; margin-top: 16px;
+  box-shadow: 8px 8px 22px rgba(228, 148, 122, .28), inset 4px 4px 8px rgba(255 255 255, .5),
+    inset -6px -6px 12px rgba(228, 148, 122, .25); }
+.act h3 { font-weight: 800; font-size: 17px; }
+.act li { display: flex; gap: 12px; align-items: center; list-style: none; padding: 10px 0;
+  font-size: 14px; font-weight: 600; color: var(--ink-2); }
+.act ul { padding: 8px 0 0; }
+.act i { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  font-style: normal; font-size: 12px; font-weight: 800; color: var(--ink); flex-shrink: 0; }
+
+/* ═══ FACE 3 — the job-orders kanban face ═══ */
+.kan-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 18px; }
+.lane { padding: 14px; border-radius: 24px; display: grid; gap: 12px; align-content: start;
+  background: color-mix(in srgb, var(--lane) 22%, var(--page));
+  box-shadow: inset 3px 3px 10px rgba(var(--drop), .10); }
+.lane > b { display: flex; justify-content: space-between; align-items: center;
+  background: var(--lane); border-radius: 16px; padding: 10px 14px; font-size: 14px;
+  box-shadow: inset 3px 3px 6px rgba(255 255 255, .45), 4px 4px 10px rgba(var(--drop), .22); }
+.kard { background: var(--white); border-radius: 20px; padding: 14px; display: grid; gap: 8px;
+  box-shadow: 6px 6px 14px rgba(var(--drop), .22), inset 3px 3px 6px rgba(255 255 255, .8),
+    inset -4px -4px 8px rgba(var(--drop), .14); }
+.kard h4 { font-size: 14px; font-weight: 800; }
+.kard small { color: var(--muted); font-size: 12px; font-weight: 600; }
+.kard .row { display: flex; gap: 6px; flex-wrap: wrap; }
+@media (max-width: 900px) {
+  .home-grid, .an-grid, .kan-grid { grid-template-columns: 1fr; }
+  .metrics { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px) { .metrics, .stats { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="face-tag">Clay faces · design target</span>
+    <h1>Three faces at 100/100 — hold any route against these.</h1>
+    <p class="note">Each face is built from the exact channels and shadow recipe in
+    <code>src/app/clay-engine.css</code> with ProGlass content, following the reference boards'
+    composition. On the live site, choose <b>Theme &amp; colour → Clay</b> (Daylight) and compare
+    page for page; anything that doesn't hold up to these faces is a bug, report the route.</p>
+  </header>
+
+  <section class="face">
+    <span class="face-tag">Face 1 · Home &amp; CTA</span>
+    <div class="home-grid">
+      <div class="hero-plate recipe">
+        <h2>The software works the way<br/>your glass shop already does.</h2>
+        <p>Estimation, production preparation, stock, dispatch, invoicing and reporting —
+         on one machine, in one application. Written and maintained by one person.</p>
+        <div class="rows">
+          <button class="btn-pill">Request a demo →</button>
+          <button class="btn-pill" style="box-shadow:6px 6px 14px rgba(92,60,220,.2),inset 3px 3px 6px rgba(255,255,255,.8)">See how it works</button>
+        </div>
+        <div class="rows">
+          <span class="pill" style="background:#BCE8C9"><i style="background:#5DC48C"></i>Active</span>
+          <span class="pill" style="background:#F8DE8E"><i style="background:#D9A821"></i>Pending</span>
+          <span class="pill" style="background:#DCCDFC"><i style="background:#A88CEE"></i>Archived</span>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat recipe s-lav"><b>299,946</b><span>lines of C# in production</span></div>
+        <div class="stat recipe s-min"><b>2,358</b><span>expectations run in tests</span></div>
+        <div class="stat recipe s-pea"><b>256</b><span>screens painted in XAML</span></div>
+        <div class="stat recipe s-sky"><b>0</b><span>cloud accounts required</span></div>
+      </div>
+    </div>
+    <div class="acc recipe recipe-flat" style="border-radius:28px">
+      <div class="acc-row">Was this written by a software company? <i>+</i></div>
+      <div class="acc-row">Is the author a trained programmer? <i>+</i></div>
+      <div class="acc-row">Who do I speak to if something is wrong? <i>+</i></div>
+    </div>
+  </section>
+
+  <section class="face">
+    <span class="face-tag">Face 2 · Records &amp; reports</span>
+    <div class="an-grid">
+      <nav class="side recipe">
+        <b>ProGlass Records</b>
+        <a href="#"><i></i>Overview</a>
+        <a class="on" href="#"><i></i>Dashboard</a>
+        <a href="#"><i></i>Job orders</a>
+        <a href="#"><i></i>Deliveries</a>
+        <a href="#"><i></i>Statements</a>
+        <a href="#"><i></i>Settings</a>
+      </nav>
+      <div>
+        <div class="metrics">
+          <div class="stat recipe s-lav"><b>138</b><span>orders this quarter</span><em>+12%</em></div>
+          <div class="stat recipe s-min"><b>92</b><span>delivered in full</span><em>+8%</em></div>
+          <div class="stat recipe s-pea"><b>AED 184k</b><span>stamped quotes value</span><em>−3%</em></div>
+          <div class="stat recipe s-sky"><b>21</b><span>open balances</span><em>steady</em></div>
+        </div>
+        <div class="chart-card recipe">
+          <h3>Deliveries over time</h3>
+          <div class="bars"><i style="height:38%"></i><i style="height:66%"></i><i style="height:44%"></i><i class="c" style="height:82%"></i><i style="height:58%"></i><i style="height:71%"></i><i style="height:49%"></i><i style="height:63%"></i></div>
+        </div>
+        <div class="act">
+          <h3>Recent activity</h3>
+          <ul>
+            <li><i style="background:#CDBCFF">S</i>Sheet store updated after job JO-2241<em style="margin-left:auto;font-style:normal;font-size:12px;color:var(--muted)">2h ago</em></li>
+            <li><i style="background:#BCE8C9">D</i>Delivery note DN-1188 signed and received<em style="margin-left:auto;font-style:normal;font-size:12px;color:var(--muted)">5h ago</em></li>
+            <li><i style="background:#FFD6C0">V</i>VAT invoice stamped from proforma PF-0931<em style="margin-left:auto;font-style:normal;font-size:12px;color:var(--muted)">1d ago</em></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="face">
+    <span class="face-tag">Face 3 · Job-order board</span>
+    <div class="kan-grid">
+      <div class="lane" style="--lane:#CDC2FF">
+        <b>Draft <span>5</span></b>
+        <div class="kard"><h4>JO-2242 · Grand Hyatt canopy</h4><small>12 panels · DG12 laminated</small><div class="row"><span class="pill" style="background:#DCCDFC">Converted</span></div></div>
+        <div class="kard"><h4>JO-2243 · Marina villa stair</h4><small>8 panels · 10mm clear</small><div class="row"><span class="pill" style="background:#F8DE8E">Awaiting price</span></div></div>
+      </div>
+      <div class="lane" style="--lane:#FF9B8C">
+        <b>Released <span>4</span></b>
+        <div class="kard"><h4>JO-2241 · Al Rigga shopfront</h4><small>22 panels · SGU DG8</small><div class="row"><span class="pill" style="background:#FFD6C0">On floor</span></div></div>
+      </div>
+      <div class="lane" style="--lane:#FFC9BB">
+        <b>In production <span>2</span></b>
+        <div class="kard"><h4>JO-2239 · DIFC boardroom walls</h4><small>16 panels · hybrid acoustic</small><div class="row"><span class="pill" style="background:#BCD8F0">Lamination</span></div></div>
+        <div class="kard"><h4>JO-2238 · Rashidiya canopies</h4><small>30 panels · 8mm heat-soaked</small><div class="row"><span class="pill" style="background:#BCD8F0">Cutting</span></div></div>
+      </div>
+      <div class="lane" style="--lane:#8AE0B6">
+        <b>Completed <span>8</span></b>
+        <div class="kard"><h4>JO-2231 · Karama fronts</h4><small>11 panels · 12mm clear</small><div class="row"><span class="pill" style="background:#BCE8C9">Balance paid</span></div></div>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

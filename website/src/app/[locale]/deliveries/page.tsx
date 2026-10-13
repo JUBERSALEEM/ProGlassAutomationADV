@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DeliveriesDashboard } from "@/components/deliveries/DeliveriesDashboard";
+import { OperatorOpener } from "@/components/operations/OperatorOpener";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -11,9 +13,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const t = await translatorFor(params);
   return pageMetadata({
     locale: t.locale,
-    title: t("Delivery Balance Tracker"),
+    title: t("Delivery balance tracker"),
     description: t(
-      "Track confirmed proforma PIs to dispatch: part deliveries, outstanding balances and delivery-note history from the same Excel Sync records as Reports.",
+      "Track confirmed proformas to dispatch: part deliveries, outstanding balances and the delivery-note history behind each one.",
     ),
     path: "/deliveries",
     ogEyebrow: t("Operations & ERP"),
@@ -69,6 +71,7 @@ export default async function DeliveriesPage({ params }: PageProps) {
   const t = await translatorFor(params);
 
   return (
+    <PageOverlay locale={t.locale} route="deliveries">
     <>
       <RouteSchema
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -79,9 +82,21 @@ export default async function DeliveriesPage({ params }: PageProps) {
           "Deliveries tracker over Supabase public.records and public.delivery_entries: confirmed PIs, part loads and balances.",
         )}
       />
+      <OperatorOpener
+        t={t}
+        eyebrow="Dispatch · balance"
+        title="Deliveries Tracker"
+        lead="What has left the yard and what is still owed, per document and per line. Part deliveries accumulate against the same proforma, and the balance is computed from the ledger rather than from anything typed onto this page."
+        meta={[
+          { label: "Grouped by", value: "Confirmed proforma" },
+          { label: "Ledger", value: "Per movement, per PI" },
+          { label: "Reads", value: "Published records" },
+        ]}
+      />
       <Suspense fallback={<DeliveriesPageSkeleton />}>
         <DeliveriesDashboard />
       </Suspense>
     </>
+    </PageOverlay>
   );
 }

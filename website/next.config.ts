@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
+import bundleAnalyzer from "@next/bundle-analyzer";
 
 import { inspectDeps, formatProblems } from "./scripts/dep-check.mjs";
+import { buildStamp } from "./scripts/build-stamp.mjs";
 
 /**
  * Fail at configuration time, before anything is compiled.
@@ -94,7 +96,39 @@ const csp = [
   "upgrade-insecure-requests",
 ].join("; ");
 
+/**
+ * The build stamp, computed once per build.
+ *
+ * `env` is the one setting in this file that changes the *compiled output*
+ * rather than the server that serves it: every `process.env.PROGLASS_BUILD_*`
+ * reference below is replaced by its value as a string literal while Next
+ * builds. A literal cannot drift, which is the whole point — a page prerendered
+ * during the build and a route handler starting cold an hour later must report
+ * the same time and the same revision, and only a value baked into the bundle
+ * can promise that.
+ *
+ * These are public values on purpose: a revision hash and a build time are what
+ * a visitor is told when they hover the stamp in the top panel, and the same
+ * two facts are served as JSON by `/api/health` so the live site can be checked
+ * against the build it claims to be.
+ */
+const stamp = buildStamp();
+
 const nextConfig: NextConfig = {
+  /**
+   * Browser source maps exist ONLY for measurement runs (`ANALYZE=true npm
+   * run build`). They are how the bundle diet is attributed — each chunk's
+   * map names its sources — and are never part of a deployable build.
+   */
+  productionBrowserSourceMaps: process.env.ANALYZE === "true",
+  env: {
+    PROGLASS_BUILD_TIME: stamp.builtAt,
+    PROGLASS_BUILD_REVISION: stamp.revisionShort ?? "",
+    PROGLASS_BUILD_REF: stamp.ref ?? "",
+    PROGLASS_BUILD_ENV: stamp.environment,
+    PROGLASS_BUILD_VERSION: stamp.version,
+  },
+
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
@@ -167,4 +201,13 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default bundleAnalyzer({
+  // Off unless asked for with `ANALYZE=true npm run build`: the analyzer is a
+  // measurement instrument (Phase 5's bundle diet), and a production build
+  // should pay no toll for it, not even a branch of configuration. On
+  // Turbopack the useful artifact is the browser source map the flag below
+  // also gates — maps name every source inside every chunk, and a deployed
+  // build must never ship them.
+  enabled: process.env.ANALYZE === "true",
+  openAnalyzer: false,
+})(nextConfig);

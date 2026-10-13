@@ -107,3 +107,53 @@ python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<concern>" --stack wpf
 
 and treat results as recommendations to verify against this codebase,
 not instructions that override its established patterns.
+
+---
+
+## Website pass — what the skill changed (2026-10-10)
+
+The audit above covered the WPF application; the marketing site had not
+been run through the skill until this pass. Queries and the changes they
+drove:
+
+| Query | Top result | Applied |
+|---|---|---|
+| `SaaS manufacturing premium marketing dark immersive --design-system` | Pattern: Scroll-Triggered Storytelling · Style: Liquid Glass | Crystal (the site's liquid-glass family, parity with the app's Crystal Fluid) became the first-run default family — previously the default was Clay. Stored visitor choices still win. |
+| `glassmorphism dark premium --domain style` | Glassmorphism: blur 10–20px, translucent 10–30%, 1px light border, z-depth | Crystal token strength raised (specular .26→.32, edge alpha .30→.34, tint .16→.19); the tiered translucency/blur/saturation system itself already predates the pass. |
+| `premium entrance reveal stagger --domain gsap` | Scroll Reveal: 300–400ms, y 12, expo/power out, start "top 90%" | `.reveal` retuned 700ms/18px → 380ms/12px; the 90% trigger (rootMargin `-10%`) was already in place. |
+| `midnight violet ice cyan dark premium --domain color` | Violet #7C3AED + cyan #0891B2 on #0F172A | No change warranted — the site's violet+cyan ramps already sit in this family. |
+
+Not applied (with reasons): the design-system light palette (site is a
+dark-first twin of a dark-first app; Daylight mode keeps its own
+engineered tokens), the Calistoga display pairing (adding a third family
+of webfonts to replace Inter/Source Serif 4 would be a font swap for
+novelty, and Inter is the application's own face — see `fontFamily` in
+`[locale]/layout.tsx`; the skill's own pairing table lists Inter for this
+product class), split-text headline animation (one DOM node per
+character in 16 locales, measured gain over the existing gradient sweep:
+none).
+
+---
+
+## Complete route read — the professionalism sweep (2026-10-11)
+
+Machine-read of every EN route against the site's own rulebook plus the
+skill's priority table (DOM-level traversal, not class-name grep):
+
+- **Alignment:** all h1/h2 across 22 routes resolve to a centred context
+  (wrapper inheritance counted). The explicit `align="left"` headings in
+  two-column compositions are intentional, documented in code.
+- **Hero on stacked widths:** on phones the hero column read as a ragged
+  left edge (screenshot-verified complaint); the text column now centres
+  under `lg` (mark row, byline, headline, keyline, lede, CTAs). Desktop
+  keeps the two-column composition.
+- **Skill-labelled results:** `/job-orders`, `/deliveries`, `/reports`,
+  `/records` stay left/data-dense — the skill's own "Data-Dense Dashboard"
+  profile (see first section) prescribes exactly that for app pages.
+- **Sweep findings, honestly resolved:** `TODO` on /about = the status
+  vocabulary of the application, not an editorial accident; "empty buttons"
+  = nav triggers carrying accessible names (`Menu`, aria-labels on
+  language/theme controls); unprefixed internal hrefs = LocaleLink
+  hydrates the prefix (cannot SSR without turning every link server-side);
+  English canonical fallback is the audit-checked design.
+- **399-page crawler:** `scripts/audit-site.py` — 0 failures, 0 warnings.

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/layout/LegalPage";
+import { footerIconFor } from "@/data/footerIcons";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -21,6 +23,7 @@ export default async function PrivacyPage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="legal/privacy">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
@@ -31,6 +34,7 @@ export default async function PrivacyPage({ params }: PageProps) {
     />
     <LegalPage
       t={t}
+      glyph={footerIconFor("/legal/privacy")!}
         eyebrow={t("Privacy")}
         title={t("Privacy")}
         lead={t("Two different things are covered here, and they behave very differently. This website is a set of static pages. The application is desktop software that keeps your business data on your own machine.")}
@@ -79,5 +83,6 @@ export default async function PrivacyPage({ params }: PageProps) {
         ]}
       />
   </>
+    </PageOverlay>
   );
 }

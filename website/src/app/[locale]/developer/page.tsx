@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
-import { Badge, IndexChip } from "@/components/ui/Badge";
+import { Badge, IconChip, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
@@ -22,8 +23,28 @@ import { site } from "@/lib/site";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
+
+
+/*
+ * The dream's four cards, pictured. Drawn here rather than in the data file
+ * because the data file is the author's own ledger in his own words — the
+ * marks are the page's furniture: collaborators for the team card, the
+ * licence key for the product card, the reports bars for shops-count growth,
+ * and an hourglass for the years already in it.
+ */
+const dreamCardIcons = [
+  /* two figures and a joined hand — the Collaborate nav glyph */
+  "M6 7.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM12.5 7a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2zM2.5 13c0-1.9 1.6-3.2 3.5-3.2S9.5 11.1 9.5 13M10.5 10.2c1.6.2 3 1.4 3 2.8",
+  /* key — the licence card, shared with the legal footer */
+  "M9 7.5a3 3 0 1 0-3 3.8L7.5 10v2l1.5 1.5v-1h1.5v-2zM9.9 6h.4",
+  /* bars going up — the reports glyph */
+  "M2.5 13.5h11M4 13.5V9M7 13.5V5.5M10 13.5V8M13 13.5V3.5",
+  /* hourglass */
+  "M4 2.5h8M4 13.5h8M5.5 2.5v3l2.5 3 2.5-3v-3M5.5 13.5v-3l2.5-3 2.5 3v3",
+];
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const t = await translatorFor(params);
@@ -128,7 +149,7 @@ const principles = [
 const gaps = [
   { title: t("A second pair of hands"), body: t("Someone who writes WPF and wants to work on a real product with real users.") },
   { title: t("A machine to develop on"), body: t("Work is done on borrowed and shared computers. A dedicated one changes how much gets finished in a week.") },
-  { title: t("A cutting table to test against"), body: t("The optimiser writes Bottero .OPT, Intermac .ISO and Lisec .DAT. Those files deserve to be proved on a machine.") },
+  { title: t("A cutting table to test against"), body: t("The optimiser writes generic DXF and a cut-list CSV today; Bottero .OPT, Intermac .ISO and Lisec .DAT are declared but not yet written — each waits on one sample file from that table. A cutting table is what finishes them.") },
   { title: t("Translators who know glass"), body: t("Fifteen locales are already in the application; the trade vocabulary in each one can be better.") },
 ];
 const faq = [
@@ -156,6 +177,7 @@ const faq = [
 ];
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="developer">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
@@ -166,6 +188,7 @@ const faq = [
     />
       <PageHero
       t={t}
+        glyph={footerIconFor("/developer")!}
         eyebrow={t("The developer")}
         banner="people"
         title={
@@ -208,7 +231,7 @@ const faq = [
             <div className="flex items-start gap-5">
               <span
                 aria-hidden="true"
-                className="grid h-16 w-16 shrink-0 place-items-center rounded-panel border-2 border-brand-400/50 bg-gradient-to-br from-brand-500/30 to-ink-950 text-xl font-semibold text-brand-100 sm:h-20 sm:w-20 sm:text-2xl"
+                className="grid h-16 w-16 shrink-0 place-items-center rounded-panel border-2 border-line-strong/60 bg-ink-900/70 text-xl font-semibold text-brand-200 sm:h-20 sm:w-20 sm:text-2xl"
               >
                 {site.developerName
                   .split(" ")
@@ -239,7 +262,7 @@ const faq = [
                 { label: t("On this project"), value: t("Everything"), note: t("Code, documents, tests, this site.") },
                 { label: t("On support"), value: t("The only tier"), note: t("Questions arrive at his inbox.") },
               ].map((item) => (
-                <div key={t(item.label)} className="stat-tile p-3.5">
+                <div key={t(item.label)} className="surface-raised p-3.5">
                   <dt className="mono-label">{t(item.label)}</dt>
                   <dd className="mt-1.5 text-base font-semibold text-text-primary">{t(item.value)}</dd>
                   <dd className="mt-1 text-[0.75rem] leading-relaxed text-text-muted">{t(item.note)}</dd>
@@ -266,7 +289,7 @@ const faq = [
               { label: t("Funding"), value: t("None"), hint: "No investors, and no sponsors so far." },
               { label: t("Formal training"), value: t("None in software"), hint: "An estimator's background instead." },
             ].map((item) => (
-              <div key={t(item.label)} className="stat-tile p-3.5">
+              <div key={t(item.label)} className="surface-raised p-3.5">
                 <dt className="mono-label">{t(item.label)}</dt>
                 <dd className="mt-1.5 text-base font-semibold text-text-primary">{t(item.value)}</dd>
                 <dd className="mt-1 text-[0.75rem] leading-relaxed text-text-muted">{t(item.hint)}</dd>
@@ -346,7 +369,7 @@ const faq = [
             <ol className="flow">
               {overthinking.points.map((point, index) => (
                 <Reveal key={point.index} as="li" delay={index * 60}>
-                  <div className="card-live flex gap-4 p-5 sm:p-6">
+                  <div className="surface flex gap-4 p-5 sm:p-6">
                     <IndexChip>{point.index}</IndexChip>
                     <div className="min-w-0">
                       <h3 className="card-title">{t(point.title)}</h3>
@@ -369,8 +392,8 @@ const faq = [
       {/* ── The dream ────────────────────────────────────────────────── */}
       <Section aria-labelledby="dream-heading">
         <Container>
-          <div className="glass-primary card-pad">
-            <div className="glass-primary-head">
+          <div className="surface-raised card-pad">
+            <div className="border-b border-line/60 pb-2">
               <div className="min-w-0">
                 <p className="eyebrow">{t("What it is for")}</p>
                 <h2 id="dream-heading" className="display-2 mt-3">
@@ -382,9 +405,10 @@ const faq = [
 
             <p className="max-w-3xl pt-6 text-sm leading-relaxed text-text-secondary">{t(dream.lead)}</p>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {dream.intentions.map((item) => (
+            <div className="feature-plates mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {dream.intentions.map((item, index) => (
                 <div key={t(item.title)} className="surface-raised p-5">
+                  <IconChip path={dreamCardIcons[index % dreamCardIcons.length]!} className="mb-4" />
                   <h3 className="card-title">{t(item.title)}</h3>
                   <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
                 </div>
@@ -437,7 +461,7 @@ const faq = [
                       aria-hidden="true"
                       className="absolute -left-[1.9rem] top-6 h-3 w-3 rounded-full border-2 border-brand-400 bg-ink-950 sm:-left-[2.4rem]"
                     />
-                    <article className="card-live card-interactive p-5 sm:p-6">
+                    <article className="surface card-interactive p-5 sm:p-6">
                       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                         <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">{entry.tag}</span>
                         <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
@@ -463,7 +487,7 @@ const faq = [
               title={t("Four habits you can check against the files above.")}
               lead={t("None of these is a claim about character. Each one is visible in the documents this page just cited, which is the only reason it is on the page at all.")}
             />
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="feature-plates mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {workingMethod.map((item, index) => (
                 <Reveal key={t(item.title)} delay={index * 50}>
                   <article className="surface h-full p-5">
@@ -495,7 +519,7 @@ const faq = [
             <ol className="flow">
               {before.map((item, index) => (
                 <Reveal key={`${t(item.title)}-${index}`} delay={index * 60}>
-                  <li className="card-live flex gap-4 p-5">
+                  <li className="surface flex gap-4 p-5">
                     <IndexChip>{item.index}</IndexChip>
                     <div className="min-w-0">
                       <h3 className="text-base font-semibold text-text-primary">{t(item.title)}</h3>
@@ -522,7 +546,7 @@ const faq = [
           <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             {consequences.map((item, index) => (
               <Reveal key={`${t(item.title)}-${index}`} delay={index * 50}>
-                <article className="card-live card-interactive flex h-full flex-col p-5">
+                <article className="surface card-interactive flex h-full flex-col p-5">
                   <span className="font-mono text-2xs text-brand-300">{item.index}</span>
                   <h3 className="mt-2 text-base font-semibold text-text-primary">{t(item.title)}</h3>
                   <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
@@ -602,7 +626,7 @@ const faq = [
 
           {/* ── Engineering Scale & Codebase Metrics ──────────────────────── */}
           <div className="mt-14 pt-12 border-t border-line/50">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="flex flex-col items-center gap-6 text-center">
               <div>
                 <p className="eyebrow mb-2 text-brand-300">{t("Engineering Metrics")}</p>
                 <h3 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
@@ -612,7 +636,7 @@ const faq = [
                   {t("Every number below is counted directly from the source tree: bounded contexts, test suites, and localization dictionaries.")}
                 </p>
               </div>
-              <p className="max-w-xs text-xs leading-relaxed text-text-faint font-medium">
+              <p className="mx-auto max-w-xs text-xs leading-relaxed text-text-faint font-medium">
                 {t("Measured on {v1}: {v2}, {v3}, {v4}. obj/, bin/ and .git/ excluded.", {
                   v1: site.statsMeasuredOn,
                   v2: site.framework,
@@ -662,7 +686,7 @@ const faq = [
               {technicalWorkflowArchitecture.map((item) => (
                 <div
                   key={item.index}
-                  className="rounded-card border border-line-strong/60 bg-ink-900/60 p-5 flex flex-col justify-between"
+                  className="surface card-interactive p-5 flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-center justify-between gap-2">
@@ -725,7 +749,13 @@ const faq = [
 
             <ul className="grid gap-3 sm:grid-cols-2">
               {gaps.map((gap) => (
-                <li key={t(gap.title)} className="card-accent p-4">
+                /* The gaps are the section's MAIN content cards, so they
+                   wear the standard surface, and so does every other card
+                   on this page: no pastel tiles, no accent slabs — the
+                   family's dynamic recipe (surface / surface-raised) is
+                   the only card language here, so the page reads the same
+                   in every appearance and mode. */
+                <li key={t(gap.title)} className="surface p-4">
                   <h3 className="text-sm font-semibold text-text-primary">{t(gap.title)}</h3>
                   <p className="mt-2 text-xs leading-relaxed text-text-secondary">{t(gap.body)}</p>
                 </li>
@@ -752,7 +782,7 @@ const faq = [
       {/* ── Closing ──────────────────────────────────────────────────── */}
       <Section aria-labelledby="dev-cta-heading">
         <Container>
-          <div className="card-accent grid gap-8 p-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center lg:p-10">
+          <div className="surface-raised grid gap-8 p-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center lg:p-10">
             <div>
               <h2 id="dev-cta-heading" className="display-2">
           {t("You talk to the person who writes it.")}
@@ -774,6 +804,7 @@ const faq = [
                 <Badge tone="neutral">{t("Self-taught")}</Badge>
                 <Badge tone="neutral">{t("Desktop only")}</Badge>
                 <Badge tone="neutral">Version {site.version}</Badge>
+                <Badge tone="neutral">{t.template`Development line ${site.developmentVersion}`}</Badge>
               </div>
               <p className="text-xs leading-relaxed text-text-faint font-medium">
 {t("Every claim about the software on this site names the file it comes from. If something here cannot be checked, it should not be here — say so and it will be corrected.")}.{" "}
@@ -790,5 +821,6 @@ const faq = [
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

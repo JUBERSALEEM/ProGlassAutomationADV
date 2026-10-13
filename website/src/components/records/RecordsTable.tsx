@@ -3,6 +3,8 @@
 import { memo } from "react";
 import type { RecordRow, RecordSort, RecordSortField } from "@/types/records";
 import { Badge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { groupIcons } from "@/data/groupIcons";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { formatDateDDMMYYYY } from "@/lib/date-utils";
 
@@ -45,18 +47,11 @@ export function RecordsTable({
 
   if (records.length === 0) {
     return (
-      <div className="rounded-2xl border border-line-strong/60 bg-ink-900/80 p-12 text-center shadow-panel">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-line-strong bg-ink-850 text-text-faint">
-          <svg aria-hidden="true" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <h3 className="mt-4 text-base font-bold text-text-primary">No records found</h3>
-        <p className="mt-1.5 text-xs text-text-muted max-w-sm mx-auto">
-          No operations match your active filter criteria or date range. Try broadening your search or resetting filters.
-        </p>
-        {onResetFilters && (
-          <div className="mt-5">
+      <EmptyState
+        glyph={groupIcons["Master Data"]!}
+        title="No records found"
+        body="No operations match your active filter criteria or date range. Try broadening your search or resetting filters."
+        action={onResetFilters ? (
             <button
               type="button"
               onClick={onResetFilters}
@@ -64,9 +59,8 @@ export function RecordsTable({
             >
               Reset All Filters
             </button>
-          </div>
-        )}
-      </div>
+          ) : undefined}
+      />
     );
   }
 

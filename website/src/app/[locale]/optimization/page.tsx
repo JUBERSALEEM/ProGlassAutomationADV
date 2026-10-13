@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
@@ -8,8 +10,18 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
 import { AppFrame } from "@/components/product/AppFrame";
 import { LiveSurface } from "@/components/product/LiveSurface";
-import { NestingDemo } from "@/components/optimization/NestingDemo";
+import { OptimizationRunGate } from "@/components/optimization/OptimizationRunGate";
+import { PlateInspector } from "@/components/optimization/PlateInspector";
 import { StrategyPicker } from "@/components/optimization/StrategyPicker";
+import {
+  cutList,
+  planBreakoutMm,
+  planMargins,
+  planSheet,
+  planThicknessMm,
+  planTotals,
+  plates,
+} from "@/components/optimization/sheetPlan";
 import { ProductSlider } from "@/components/product/ProductSlider";
 import { ScreenshotFrame } from "@/components/gallery/ScreenshotFrame";
 import { screenshotById } from "@/data/screenshots";
@@ -26,6 +38,7 @@ import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
 import type { Translator } from "@/i18n/core";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -34,7 +47,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return pageMetadata({
   locale: t.locale,
   title: t("Glass cutting optimization and nesting"),
-  description: t("How ProGlass nests glass parts on stock plates: safety edges, kerf, the guillotine cut sequence, verification and export to Bottero, Intermac, Lisec and DXF."),
+  description: t("Guillotine nesting for glass: safety edges, kerf, cut-sequence verification, machine-ready exports."),
   path: "/optimization",
   keywords: ["glass cutting optimization software", "guillotine nesting", "glass optimization software", t("CNC glass cutting export"), t("Bottero OPT export"), t("Lisec DAT export"), "glass cutting layout software"],
   ogEyebrow: t("Cutting plans"),
@@ -49,16 +62,19 @@ export default async function OptimizationPage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="optimization">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
       locale={locale}
       path="/optimization"
       title={t("Glass cutting optimization and nesting")}
-      description={t("How ProGlass nests glass parts on stock plates: safety edges, kerf, the guillotine cut sequence, verification and export to Bottero, Intermac, Lisec and DXF.")}
+      description={t("Guillotine nesting for glass: safety edges, kerf, cut-sequence verification, machine-ready exports.")}
     />
       <PageHero
+        variant="showcase"
       t={t}
+        glyph={footerIconFor("/optimization")!}
         eyebrow={t("Optimization")}
         title={
           <>
@@ -76,7 +92,7 @@ export default async function OptimizationPage({ params }: PageProps) {
           { label: t("Algorithm"), value: t("Guillotine nesting") },
           { label: t("Workspace"), value: "8 tabs" },
           { label: t("Search families"), value: t("5 + Auto") },
-          { label: t("Exports"), value: t("DXF · .OPT · .ISO · .DAT") },
+          { label: t("Exports"), value: t("DXF · CSV · Excel") },
         ]}
         actions={
           <>
@@ -130,22 +146,140 @@ export default async function OptimizationPage({ params }: PageProps) {
         </Container>
       </Section>
 
-      {/* ── Demonstration ────────────────────────────────────────── */}
+      {/* ── The 2D view ──────────────────────────────────────────── */}
       <Section tone="raised" aria-labelledby="demo-heading">
         <Container>
           <SectionHeading
             id="demo-heading"
-            eyebrow={t("Nesting, step by step")}
-            title={t("Watch the plate get split, not just filled.")}
-            lead={t("The animation below follows one worked example: a 3210 × 2250 plate of 6 mm glass, a 15 mm trim on all four edges, a 3 mm blade gap, and five pieces to come out of it.")}
+            eyebrow={t("The 2D view")}
+            title={t("Every plate, drawn the way the operator sees it.")}
+            lead={t(
+              "One worked example, all the way through: {v1} references and {v2} pieces across {v3} plates of {v4} mm {v5} glass, a {v6} mm trim on all four edges and a {v7} mm blade gap. The plate is drawn to scale with its trims, its pieces and the remnant each one leaves — and the schedule beside it is the same result, one row per cut.",
+              {
+                v1: cutList.length,
+                v2: planTotals.pieces,
+                v3: planTotals.plates,
+                v4: planThicknessMm,
+                v5: t(planSheet.label),
+                v6: planMargins.left,
+                v7: planMargins.kerf,
+              },
+            )}
           />
-          <div className="mt-10">
-            <NestingDemo />
-          </div>
+          {/*
+            Behind the gate: the plan, the schedule and the gallery appear when
+            the visitor runs the job, and the cutting list stands alone until
+            then — the way the application's own tabs stand empty until a run
+            has been asked for. Nothing about the plan changes; only when it is
+            put on screen.
+          */}
+          <OptimizationRunGate
+            rows={cutList}
+            className="mt-10"
+            note={t("{v1} · trim {v2} mm · kerf {v3} mm", {
+              v1: t(planSheet.label),
+              v2: planMargins.left,
+              v3: planMargins.kerf,
+            })}
+          >
+            <PlateInspector
+              plates={plates}
+              margins={planMargins}
+              minBreakoutMm={planBreakoutMm}
+              thicknessMm={planThicknessMm}
+              composition={t("{v1} mm plate · sample job", { v1: planThicknessMm })}
+              showSchedule
+              showLegend
+              playable
+            />
+          </OptimizationRunGate>
         </Container>
       </Section>
 
       {/* ── Thickness profiles ───────────────────────────────────── */}
+      {/* ── Machine files, said honestly ───────────────────────────
+         *
+         * This showcase mirrors the application's own contract in
+         * Services/Reporting/CncExport/CncExportFormats.cs: formats it can
+         * prove are written; formats it cannot are declared, named, and say
+         * exactly what finishes them — one sample file from the machine
+         * that will read them. Repeating the app's rule here, instead of
+         * selling over it, is the difference between a showcase and a
+         * claim.
+         */}
+      <Section tone="sunken" aria-labelledby="machine-formats-heading">
+        <Container>
+          <SectionHeading
+            id="machine-formats-heading"
+            eyebrow={t("Machine files")}
+            title={t("Two formats the engine writes today — and three it names honestly.")}
+            lead={t("The rule is in the application's own export code: formats that are documented are implemented; formats that are not are declared, shown, and say exactly what finishes them — one sample file from the machine that will read them. Nothing writes a file it cannot stand behind.")}
+          />
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {[
+              {
+                key: "dxf",
+                name: "Generic DXF",
+                ext: ".dxf",
+                note: "DXF R12 (AC1009): the sheet outline, every piece, and the cut sequence as lines in execution order. Documented, so CAM suites and the drawing packages the floor already has can read it.",
+                ready: true,
+              },
+              {
+                key: "cutlist",
+                name: "Cut list CSV",
+                ext: ".csv",
+                note: "One row per cut in execution order — sheet, sequence, axis, position, the rectangle the cut crosses, the stage, the trim flag. Opens in Excel and feeds any CAM that accepts a table.",
+                ready: true,
+              },
+              {
+                key: "lisec",
+                name: "Lisec .DAT",
+                ext: ".dat",
+                note: "Declared, not written. Lisec does not publish this format; vendor format lists name its output OPT101.CNC. One sample file from your Lisec table is what finishes it — the app says so itself, on the same tab.",
+                ready: false,
+              },
+              {
+                key: "bottero",
+                name: "Bottero .OPT",
+                ext: ".opt",
+                note: "Declared, not written. Bottero does not publish this format; vendor format lists name its output *.CUT. One sample file from your Bottero table finishes it.",
+                ready: false,
+              },
+              {
+                key: "intermac",
+                name: "Intermac .ISO",
+                ext: ".iso",
+                note: "Declared, not written. Intermac (Biesse) does not publish this format. One sample file from your Intermac table finishes it.",
+                ready: false,
+              },
+            ].map((item, index) => (
+              <Reveal key={item.key} delay={Math.min(index, 6) * 45} className="h-full">
+                <article className="surface flex h-full flex-col p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="font-mono text-sm font-semibold tracking-wide text-text-primary">
+                      {t(item.name)}
+                      <span className="text-text-muted"> {item.ext}</span>
+                    </h3>
+                    <Badge tone={item.ready ? "success" : "warning"}>
+                      {item.ready ? t("Written today") : t("Awaiting your sample")}
+                    </Badge>
+                  </div>
+                  <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(item.note)}</p>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+          <Reveal className="mt-8">
+            <p className="max-w-3xl text-xs leading-relaxed text-text-faint font-medium">
+              {t("Run a Bottero, Intermac or Lisec table? One exported sample file is the whole ask — see what a machine day is worth:")}{" "}
+              <Link href="/sponsors" className="link-underline font-semibold">
+                {t("Sponsors")}
+              </Link>
+            </p>
+          </Reveal>
+        </Container>
+      </Section>
+
       <Section aria-labelledby="profiles-heading">
         <Container>
           <SectionHeading
@@ -363,18 +497,33 @@ export default async function OptimizationPage({ params }: PageProps) {
                 ))}
               </div>
 
-              <div className="mt-8">
-                <p className="eyebrow mb-3">{t("Machine-readable exports")}</p>
-                <ul className="flex flex-wrap gap-2">
-                  {["Generic DXF", "Bottero .OPT", "Intermac .ISO", "Lisec .DAT", "Cut-list CSV", "Excel (.xlsx)"].map((item) => (
-                    <li
-                      key={item}
-                      className="rounded-lg border border-line-strong/70 bg-ink-900/60 px-3 py-1.5 font-mono text-xs text-text-secondary"
-                    >
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+              <div className="mt-8 space-y-4">
+                <div>
+                  <p className="eyebrow mb-3">{t("Machine files written today")}</p>
+                  <ul className="flex flex-wrap gap-2">
+                    {["Generic DXF", "Cut-list CSV"].map((item) => (
+                      <li
+                        key={item}
+                        className="rounded-lg border border-line-strong/70 bg-ink-900/60 px-3 py-1.5 font-mono text-xs text-text-secondary"
+                      >
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <p className="eyebrow mb-3">{t("Declared in the app — each finished by one sample file from your table")}</p>
+                  <ul className="flex flex-wrap gap-2">
+                    {["Bottero .OPT", "Intermac .ISO", "Lisec .DAT"].map((item) => (
+                      <li
+                        key={item}
+                        className="rounded-lg border border-line/60 bg-ink-900/40 px-3 py-1.5 font-mono text-xs text-text-faint"
+                      >
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
 
@@ -395,6 +544,8 @@ export default async function OptimizationPage({ params }: PageProps) {
                   moduleKey="Optimization"
                   name="Optimization report"
                   capabilities={["Sheets used", "Utilization", "Wastage"]}
+                  /* The report's own screen: the nested-sheets summary, not the canvas. */
+                  variant="report"
                 />
               </AppFrame>
             </Reveal>
@@ -447,12 +598,12 @@ export default async function OptimizationPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("Send us a cutting list.")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration is most useful when it runs on your glass, your sheet sizes and your margins — not on a sample project. Bring a job you recognise.")}</p>
+                <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration is most useful when it runs on your glass, your sheet sizes and your margins — not on a sample project. Bring a job you recognise.")}</p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
           {t("Request a Demo")}
         </ButtonLink>
@@ -465,12 +616,13 @@ export default async function OptimizationPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }
 
 function EnginePipeline({ t }: { t: Translator }) {
   return (
-    <div className="plate sticky top-28 p-6">
+    <div className="surface-raised sticky top-28 p-6">
       <p className="mono-label">{t("How a run is produced")}</p>
       <ol className="mt-5">
         {enginePipeline.map((stage, index) => (

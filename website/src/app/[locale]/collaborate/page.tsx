@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
-import { Badge, IndexChip } from "@/components/ui/Badge";
+import { Badge, IconChip, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
@@ -20,8 +21,26 @@ import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
 import { site } from "@/lib/site";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
+
+
+/*
+ * The six collaboration roles, each pitched by the thing the role holds: the
+ * fabricator holds plates, the investor holds the banknote, hardware is a
+ * laptop silhouette, the engineer is the developer's `</>`, the translator
+ * is two scripts side by side, and the operator is the shop's truck.
+ * Same 16-unit grid and one-hand stroke as the rest of the site.
+ */
+const roleIcons: Record<string, string> = {
+  fabricator: "M2.8 2.8h7v7h-7zM9.8 6.2h3.4v3.4M9.8 9.6h3.4v3.4M2.8 9.8h7v3.4",
+  investor: "M2.5 5.5h11v6h-11zM8 7.3a1.9 1.9 0 1 0 0 3.8 1.9 1.9 0 0 0 0-3.8z",
+  hardware: "M3 4h10v6H3zM2 12h12M6 10v2M10 10v2",
+  engineer: "M6 4 2.5 8 6 12M10 4l3.5 4L10 12M8.8 3.5 7.2 12.5",
+  translator: "M3 3.5h9v3H8.5M6.5 3.5V2.5M9 6.5c-1 2-3.2 3.8-5.5 4.4M4 7.2c.8 1.8 3 3.6 5 4.4M13 9.5h2.5M14.2 9.5c-.3 2-1.6 3.6-3.4 4.4",
+  operator: "M2 4.5h8v7H2zM10 7h2.3l1.7 2.3v2.2h-4zM4.7 13.2a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6zM11.4 13.2a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6z",
+};
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const t = await translatorFor(params);
@@ -63,6 +82,7 @@ export default async function CollaboratePage({ params }: PageProps) {
   const locale = t.locale;
 
   return (
+    <PageOverlay locale={t.locale} route="collaborate">
     <>
       {/* Structured data for this route — see lib/schema.ts. */}
       <RouteSchema
@@ -75,7 +95,9 @@ export default async function CollaboratePage({ params }: PageProps) {
       />
 
       <PageHero
+        variant="document"
         t={t}
+        glyph={footerIconFor("/collaborate")!}
         eyebrow={t("Collaboration")}
         title={
           <>
@@ -137,7 +159,7 @@ export default async function CollaboratePage({ params }: PageProps) {
             </div>
 
             <Reveal delay={80} className="flow">
-              <div className="glass-primary p-6 sm:p-7">
+              <div className="surface-raised p-6 sm:p-7">
                 <p className="eyebrow">{t("What would change the trajectory")}</p>
                 <ul className="mt-4 space-y-3.5">
                   {[
@@ -169,8 +191,8 @@ export default async function CollaboratePage({ params }: PageProps) {
       {/* ── The performance-data calculator ──────────────────────────── */}
       <Section tone="raised" id="performance" aria-labelledby="performance-heading">
         <Container>
-          <div className="glass-primary card-pad">
-            <div className="glass-primary-head">
+          <div className="surface-raised card-pad">
+            <div className="border-b border-line/60 pb-5">
               <div className="min-w-0">
                 <p className="eyebrow">{t("Industry partnership")}</p>
                 <h2 id="performance-heading" className="display-2 mt-3">
@@ -285,7 +307,7 @@ export default async function CollaboratePage({ params }: PageProps) {
               <Reveal key={role.id} as="li" delay={Math.min(index, 5) * 55} id={role.id}>
                 <article className="surface-raised card-interactive flex h-full flex-col p-6">
                   <div className="flex items-center gap-3">
-                    <IndexChip>{String(index + 1).padStart(2, "0")}</IndexChip>
+                    <IconChip path={roleIcons[role.id] ?? roleIcons.fabricator!} className="h-8 w-8" />
                     <h3 className="card-title">{t(role.title)}</h3>
                   </div>
                   <p className="mt-4 text-sm leading-relaxed text-text-secondary">{t(role.who)}</p>
@@ -344,7 +366,7 @@ export default async function CollaboratePage({ params }: PageProps) {
             </div>
 
             <Reveal delay={120}>
-              <div className="card-accent card-pad h-full">
+              <div className="surface-raised card-pad h-full">
                 <p className="eyebrow">{t("What is definitely not on offer")}</p>
                 <ul className="mt-4 space-y-3">
                   {notOnOffer.map((line) => (
@@ -395,7 +417,7 @@ export default async function CollaboratePage({ params }: PageProps) {
             <ol className="flow">
               {howItStarts.map((item, index) => (
                 <Reveal key={item.step} as="li" delay={index * 60}>
-                  <div className="plate flex gap-4 p-5">
+                  <div className="surface-raised flex gap-4 p-5">
                     <IndexChip>{item.step}</IndexChip>
                     <div className="min-w-0">
                       <h3 className="card-title">{t(item.title)}</h3>
@@ -426,18 +448,18 @@ export default async function CollaboratePage({ params }: PageProps) {
       {/* ── Closing ──────────────────────────────────────────────────── */}
       <Section aria-labelledby="collab-cta-heading">
         <Container>
-          <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+          <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
             <div>
               <h2 id="collab-cta-heading" className="display-2">
                 {t("One conversation is the whole ask.")}
               </h2>
-              <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
+              <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
                 {t(
                   "A machine, a data set, a funded day a week or an hour of an operator's time — any one of them moves this further than another year of evenings. Write in plain words and the answer will be plain words back.",
                 )}
               </p>
             </div>
-            <div className="flex shrink-0 flex-wrap gap-3">
+            <div className="flex flex-wrap justify-center gap-3">
               <ButtonLink
                 href={`mailto:${site.developerEmail}?subject=ProGlass%20Automation%20—%20collaboration`}
                 size="lg"
@@ -453,5 +475,6 @@ export default async function CollaboratePage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { Badge } from "@/components/ui/Badge";
+import { Badge, IconChip } from "@/components/ui/Badge";
+import { footerLinkIcons } from "@/data/footerIcons";
 import { Button } from "@/components/ui/Button";
 import { OperationsTabs } from "@/components/operations/OperationsTabs";
 import { LocaleLink } from "@/components/ui/LocaleLink";
@@ -52,7 +53,7 @@ export function DeliveriesHeader({
     : null;
 
   return (
-    <header className="relative border-b border-line-strong/60 bg-ink-950/80 backdrop-blur-md">
+    <header className="relative border-b border-line-strong/60 bg-ink-950/90">
       <div className="shell py-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
@@ -92,10 +93,11 @@ export function DeliveriesHeader({
 
             <OperationsTabs className="mt-3" />
 
-            <div className="mt-1 flex flex-wrap items-baseline gap-3">
-              <h1 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
+            <div className="mt-1 flex flex-wrap items-center gap-3">
+              <IconChip path={footerLinkIcons["/deliveries"]!} />
+              <h2 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
                 Deliveries Tracker
-              </h1>
+              </h2>
               <span className="text-xs font-mono text-text-faint">
                 {totalPis.toLocaleString()} confirmed {totalPis === 1 ? "PI" : "PIs"} tracked
               </span>

@@ -1,7 +1,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Container } from "@/components/ui/Container";
+import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
+import { Spotlight } from "@/components/ui/Spotlight";
 import { PageBanner, type BannerArt } from "@/components/layout/PageBanner";
 import type { Translator } from "@/i18n/core";
 
@@ -19,7 +21,10 @@ export function PageHero({
   meta,
   breadcrumb,
   banner,
+  glyph,
   children,
+  align = "left",
+  variant = "editorial",
 }: {
   /** The page's translator — this component renders on the server. */
   t: Translator;
@@ -31,22 +36,63 @@ export function PageHero({
   breadcrumb?: { label: string; href: string }[];
   /** Which banner drawing opens this page. */
   banner?: BannerArt;
+  /**
+   * The page's mark, drawn inside the eyebrow chip: the same glyph the
+   * destination carries in the footer, so the doorway's picture is the
+   * same at the bottom of the site as at the top of the page.
+   */
+  glyph?: string;
   children?: ReactNode;
+  /** Left is the editorial composition (title left, facts right). Centre is
+     the document page: everything on the middle axis of the shell. */
+  align?: "left" | "center";
+  /**
+   * Per-route hierarchy (Gate G-C, Phase 3). `editorial` is the default
+   * opening (title left, facts right). `document` centres a narrow reading
+   * column (blog, resources). `showcase` gives product-led routes the full
+   * row for the title, then lays the facts out as a strip beneath it
+   * (features, optimization, screenshots) — same primitives, different
+   * rhythm, so routes stop reading as the same page with different words.
+   */
+  variant?: "editorial" | "document" | "showcase";
 }) {
+  const centred = align === "center" || variant === "document";
+  const showcase = variant === "showcase";
   return (
     <section className="relative overflow-hidden border-b border-line/60 pb-14 pt-12 sm:pb-16 sm:pt-16 lg:pb-20 lg:pt-20">
-      <div aria-hidden="true" className="glow-layer pointer-events-none absolute inset-0">
-        <div className="animate-drift-slow absolute -top-32 left-[10%] h-80 w-80 rounded-full bg-brand-500/14 blur-[110px]" />
-        <div className="absolute -top-20 right-[6%] h-64 w-64 rounded-full bg-glass-cyan/10 blur-[100px]" />
-        <div className="absolute bottom-0 left-[46%] h-52 w-52 rounded-full bg-glass-rose/8 blur-[110px]" />
+      {/*
+        The opener's light.
+
+        One aurora field carrying the family's own two accent washes across the
+        band, plus a single wide orb low on the page for the ground under the
+        title. Three separate `filter: blur(110px)` circles used to do this, and
+        a blur that wide on a 20 rem element is a multi-pass kernel re-run
+        whenever anything near it changes — which, on a page whose whole top
+        third is this, is every frame. `.orb` draws the same falloff from one
+        gradient: same picture, one rasterisation, then free.
+
+        The field drifts on a transform only, so it composites; it is
+        `contain: paint`, so a pixel invalidated inside it cannot make the
+        browser re-examine the page around it.
+      */}
+      <div aria-hidden="true" className="glow-layer pointer-events-none absolute inset-0 overflow-hidden">
+        <span className="orb aurora-drift -bottom-24 left-[30%] h-[30rem] w-[46rem]" />
+        <div className="aurora-field aurora-drift">
+          <span className="decor decor-ring" aria-hidden="true" style={{ right: "7%", top: "14%", width: 150, height: 150 }} />
+          <span className="decor decor-ring" aria-hidden="true" style={{ left: "4%", bottom: "10%", width: 96, height: 96 }} />
+          <span className="glass-sphere" aria-hidden="true" style={{ position: "absolute", right: "22%", top: "34%", width: 190, height: 190 }} />
+        </div>
       </div>
+      {/* One hairline of accent along the top edge, so a page opener is a
+          threshold rather than a place the content happens to start. */}
+      <span aria-hidden="true" className="rule-rich absolute inset-x-0 top-0" />
 
       {banner ? <PageBanner art={banner} /> : null}
 
       <Container className="relative">
         {breadcrumb ? (
           <nav aria-label={t("Breadcrumb")} className="mb-6">
-            <ol className="flex flex-wrap items-center gap-2 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
+            <ol className={`flex flex-wrap items-center gap-2 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium${centred ? " justify-center" : ""}`}>
               {breadcrumb.map((crumb, index) => (
                 <li key={crumb.href} className="flex items-center gap-2">
                   {index > 0 ? <span aria-hidden="true">/</span> : null}
@@ -59,11 +105,17 @@ export function PageHero({
           </nav>
         ) : null}
 
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-end lg:gap-14">
-          <div>
+        <div
+          className={
+            centred || showcase
+              ? "grid gap-10"
+              : "grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-end lg:gap-14"
+          }
+        >
+          <div className={centred ? "mx-auto max-w-3xl text-center" : showcase ? "max-w-3xl" : undefined}>
             <Reveal>
-              <p className="eyebrow mb-4 flex items-center gap-3">
-                <span aria-hidden="true" className="h-px w-8 bg-brand-400/60" />
+              <p className="eyebrow-chip mb-5 inline-flex items-center gap-2">
+                {glyph ? <Icon path={glyph} className="!h-3.5 !w-3.5" /> : null}
                 {eyebrow}
               </p>
             </Reveal>
@@ -71,27 +123,27 @@ export function PageHero({
               <h1 className="display-1">{title}</h1>
             </Reveal>
             <Reveal delay={120}>
-              <p className="lede mt-5 max-w-2xl">{lead}</p>
+              <p className="lede-lg mt-5 max-w-2xl">{lead}</p>
             </Reveal>
             {actions ? (
-              <Reveal delay={180} className="mt-8 flex flex-wrap items-center gap-3">
+              <Reveal delay={180} className={`mt-8 flex flex-wrap items-center gap-3${centred ? " justify-center" : ""}`}>
                 {actions}
               </Reveal>
             ) : null}
           </div>
 
           {meta ? (
-            <Reveal delay={140}>
-              <dl className="grid grid-cols-2 gap-4">
+            <Reveal delay={140} className={showcase ? "lg:col-span-full" : undefined}>
+              <dl className={`grid gap-4${centred ? " mx-auto max-w-2xl grid-cols-2" : showcase ? " grid-cols-2 lg:grid-cols-4" : " grid-cols-2"}`}>
                 {meta.map((item) => (
                   /* The page's own facts, in the site's surface system: on
                      Crystal these are small panes of glass beside the title,
                      and in the other families they are the plain cards they
                      have always been. */
-                  <div key={t(item.label)} className="surface p-4">
+                  <Spotlight key={t(item.label)} className="surface edge-conic p-4">
                     <dt className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">{t(item.label)}</dt>
                     <dd className="mt-1.5 text-sm font-medium text-text-secondary">{t(item.value)}</dd>
-                  </div>
+                  </Spotlight>
                 ))}
               </dl>
             </Reveal>

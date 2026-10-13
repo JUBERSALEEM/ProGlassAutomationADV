@@ -23,12 +23,13 @@
  *
  * Usage, from `website/`:
  *
- *   npx tsx scripts/render-hero-backdrop.mts     # writes the 3840 × 1920 master
- *   npm run assets:optimize                       # re-encodes the web derivatives
+ *   npm run assets:backdrop     # writes the 3840 × 1920 master
+ *   npm run assets:plates       # both plates, then the web derivatives
  */
 import path from "node:path";
 import { mkdir } from "node:fs/promises";
 import sharp from "sharp";
+import { palette } from "./lib/theme-tokens.mts";
 
 /* ══════════════════════════════════════════════════════════════════════════
  * The canvas
@@ -42,24 +43,13 @@ const HEIGHT = 960;
 const SCALE = 2;
 
 /* ══════════════════════════════════════════════════════════════════════════
- * Tokens — copied once from `src/app/globals.css` (midnight), as the banner
- * renderer does. If a token moves, both files move with it.
+ * Tokens
+ *
+ * `palette` is read live from `[data-theme="midnight"]` in
+ * `src/app/globals.css` by `scripts/lib/theme-tokens.mts` — this file owns no
+ * colours of its own, so re-rendering after a theme change is enough to bring
+ * the plate with it.
  * ════════════════════════════════════════════════════════════════════════ */
-
-const palette = {
-  ink950: "#0B0820",
-  ink900: "#120D2E",
-  ink850: "#171138",
-  ink800: "#1D1646",
-  line: "#2A2159",
-  lineStrong: "#3B2F7A",
-  brand300: "#C4B5FD",
-  brand400: "#A78BFA",
-  brand500: "#8B5CF6",
-  brand600: "#7C3AED",
-  cyan: "#22D3EE",
-  teal: "#2DD4BF",
-} as const;
 
 /** Numbers in SVG, trimmed: 12.5 stays 12.5, 12.0 becomes 12. */
 const n = (value: number) => Number(value.toFixed(2)).toString();

@@ -52,6 +52,10 @@ export function DemoRequestForm() {
   const [errors, setErrors] = useState<Partial<Record<FormFields, string>>>({});
   const [status, setStatus] = useState<Status>("idle");
   const [serverMessage, setServerMessage] = useState<string>("");
+  // True when the endpoint answered honestly that no transport is wired —
+  // the deployment cannot send, so the one-click fallback below is what
+  // actually delivers the visitor's words rather than a shrug.
+  const [offerDraft, setOfferDraft] = useState(false);
 
   const set = (field: FormFields) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setValues((v) => ({ ...v, [field]: event.target.value }));
@@ -82,6 +86,7 @@ export function DemoRequestForm() {
 
     setStatus("submitting");
     setServerMessage("");
+    setOfferDraft(false);
 
     try {
       const response = await fetch("/api/demo-request", {
@@ -98,12 +103,14 @@ export function DemoRequestForm() {
       }
 
       setStatus("error");
+      setOfferDraft(payload.configured === false);
       setServerMessage(
         payload.message ??
           "The request could not be delivered from this deployment. Please email proglassautomation@gmail.com directly.",
       );
     } catch {
       setStatus("error");
+      setOfferDraft(false);
       setServerMessage(
         "The request could not reach the server. Please email proglassautomation@gmail.com directly — the address is monitored.",
       );
@@ -253,6 +260,36 @@ export function DemoRequestForm() {
             </a>
             .
           </p>
+          {offerDraft ? (
+            <div className="mt-3 rounded-lg border border-line/60 bg-ink-900/50 p-3">
+              <p className="text-xs leading-relaxed text-text-secondary">
+                {t("Your words are still on this page — nothing was sent, and nothing pretends otherwise. Send them yourself in one click:")}
+              </p>
+              <a
+                className="link-underline mt-1.5 inline-block text-xs font-semibold"
+                href={
+                  `mailto:${site.developerEmail}` +
+                  `?subject=${encodeURIComponent(`Demo request — ${values.company || values.name}`)}` +
+                  `&body=${encodeURIComponent(
+                    [
+                      `Name: ${values.name}`,
+                      `Company: ${values.company}`,
+                      `Email: ${values.email}`,
+                      values.phone ? `Phone: ${values.phone}` : "",
+                      `Country: ${values.country}`,
+                      `Business type: ${values.businessType}`,
+                      "",
+                      values.message,
+                    ]
+                      .filter((line) => line !== "")
+                      .join("\n"),
+                  )}`
+                }
+              >
+                {t("Open this request as an email, already written")}
+              </a>
+            </div>
+          ) : null}
         </div>
       ) : null}
 

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { RecordsDashboard } from "@/components/records/RecordsDashboard";
+import { OperatorOpener } from "@/components/operations/OperatorOpener";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -11,9 +13,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const t = await translatorFor(params);
   return pageMetadata({
     locale: t.locale,
-    title: t("Operational Reports & Records Dashboard"),
+    title: t("Operational records dashboard"),
     description: t(
-      "Live operational reports dashboard for ProGlass Automation. High-volume server-side aggregation, multi-faceted filtering, and real-time synchronization from Excel Sync.",
+      "Search every proforma published from Excel Sync, with the job orders and deliveries raised against it, and export the filtered set.",
     ),
     path: "/reports",
     ogEyebrow: t("Operations & ERP"),
@@ -55,6 +57,7 @@ export default async function ReportsPage({ params }: PageProps) {
   const t = await translatorFor(params);
 
   return (
+    <PageOverlay locale={t.locale} route="reports">
     <>
       <RouteSchema
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,9 +68,21 @@ export default async function ReportsPage({ params }: PageProps) {
           "Live operational reports dashboard for ProGlass Automation, consuming Supabase public.records.",
         )}
       />
+      <OperatorOpener
+        t={t}
+        eyebrow="Live operations · read-only"
+        title="Records & Operations Dashboard"
+        lead="Every proforma that Excel Sync has published, indexed and searchable, with the job orders and deliveries raised against it. This page reads the published table; the desktop application remains the only thing that writes to it."
+        meta={[
+          { label: "Source", value: "Supabase · public.records" },
+          { label: "Written by", value: "ProGlass Records Sync" },
+          { label: "Signed in as", value: "Operator" },
+        ]}
+      />
       <Suspense fallback={<ReportsPageSkeleton />}>
         <RecordsDashboard />
       </Suspense>
     </>
+    </PageOverlay>
   );
 }

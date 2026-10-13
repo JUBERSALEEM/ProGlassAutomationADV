@@ -28,10 +28,26 @@ export function Section({
   as?: ElementType;
   "aria-labelledby"?: string;
 }) {
+  /*
+   * Three tones, and each one is a surface rather than a fill.
+   *
+   * They used to be `bg-ink-900/55` and `bg-ink-850/60` — a flat wash of one
+   * of the page's own shades, which on a deep page is very nearly the same
+   * colour as the page and reads as nothing at all. Each tone now carries its
+   * own light:
+   *
+   *   raised  the family's accent washing in from the top-left corner and the
+   *           glass colour from the bottom-right, i.e. a lit band
+   *   sunken  a well: a shade below the page colour, with a soft lip at the
+   *           top where the page steps down into it
+   *
+   * Both are drawn from tokens (`.band-rich` / `.band-deep` in globals.css), so
+   * switching palette family re-hues every banded section on the site at once.
+   */
   const tones = {
     default: "",
-    raised: "border-y border-line-strong/45 bg-ink-900/55",
-    sunken: "border-y border-line/45 bg-ink-850/60",
+    raised: "band-rich border-y border-line-strong/50",
+    sunken: "band-deep border-y border-line/50",
   } as const;
 
   return (

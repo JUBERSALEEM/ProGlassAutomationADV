@@ -3,15 +3,29 @@ import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { cn as cnCell } from "@/lib/cn";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { OptimizationRunGate } from "@/components/optimization/OptimizationRunGate";
+import { PlateInspector } from "@/components/optimization/PlateInspector";
+import {
+  seedRunBreakoutMm,
+  seedRunCutList,
+  seedRunGeometry,
+  seedRunMargins,
+  seedRunPieces,
+  seedRunPlates,
+  seedRunSheet,
+  seedRunTotals,
+} from "@/components/optimization/seedRun";
 import { StatBadge } from "@/components/ui/Stat";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 import {
   ROUNDING_SOURCE,
   SEED_SOURCE,
@@ -51,7 +65,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return pageMetadata({
   locale: t.locale,
   title: t("Worked example — one glass job"),
-  description: t("One job through ProGlass Automation: 22 quotation lines, 83 pieces and AED 34,762.19 across three specification groups, a partial delivery and its tax invoice."),
+  description: t("One complete job: 22 quotation lines, 83 pieces, AED 34,762.19 — from inquiry to tax invoice, numbers from the seed."),
   path: "/worked-example",
   keywords: [t("glass fabrication ERP example"), "glass quotation calculation", "glass delivery balance", t("VAT invoice glass"), "cutting optimization example"],
   ogEyebrow: t("Worked example"),
@@ -81,16 +95,19 @@ export default async function WorkedExamplePage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="worked-example">
     <>
       <RouteSchema
       locale={locale}
         path="/worked-example"
         title={t("Worked example — one glass job")}
-        description={t("One job through ProGlass Automation: 22 quotation lines, 83 pieces and AED 34,762.19 across three specification groups, a partial delivery and its tax invoice.")}
+        description={t("One complete job: 22 quotation lines, 83 pieces, AED 34,762.19 — from inquiry to tax invoice, numbers from the seed.")}
       />
 
       <PageHero
+        variant="showcase"
       t={t}
+        glyph={footerIconFor("/worked-example")!}
         eyebrow={t("Worked example")}
         title={t("One job, all the way through.")}
         lead={t("Not a mock-up and not a market rate: this is the demonstration job the application seeds into an empty database, read back line by line. The customer, the project, the 22 quotation lines, the sheet stock behind them, the partial delivery and the invoice that followed are the records the software itself creates.")}
@@ -449,7 +466,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
           {/* ── Totals ─────────────────────────────────────────────── */}
           <Reveal className="mt-12">
             <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-              <div className="plate p-6 sm:p-8">
+              <div className="surface-raised p-6 sm:p-8">
                 <p className="eyebrow">{t("Quotation total")}</p>
                 <dl className="mt-5 space-y-3 text-sm">
                   <div className="flex items-baseline justify-between gap-4 border-b border-line/50 pb-3">
@@ -661,6 +678,85 @@ export default async function WorkedExamplePage({ params }: PageProps) {
         </Container>
       </Section>
 
+      {/* ── The 2D view of the seeded job ────────────────────────── */}
+      <Section aria-labelledby="nested-heading">
+        <Container>
+          <SectionHeading
+            id="nested-heading"
+            eyebrow={t("The 2D view")}
+            title={t("Where those sheets go.")}
+            lead={t(
+              "A sheet store is only half the picture; the other half is what comes off the sheets. Below is the seeded job's own glass, nested on the seeded stock — {v1} panes of {v2} mm {v3} from {v4}, cut with the application's house profile for that thickness: a {v5} mm trim on all four edges and a {v6} mm blade gap.",
+              {
+                v1: seedRunPieces,
+                v2: seedRunSheet.thicknessMm,
+                v3: t(seedRunSheet.category),
+                v4: seedRunSheet.supplier,
+                v5: seedRunMargins.left,
+                v6: seedRunMargins.kerf,
+              },
+            )}
+          />
+
+          {/*
+            Behind the same gate as the module. The drawing is the seeded job's
+            own glass and it is still one press away — Run optimization — but it
+            is not on screen before a run is asked for, because the application
+            does not show a plan it has not been asked for either, and the
+            worked example is where a reader learns what the module does.
+          */}
+          <OptimizationRunGate
+            rows={seedRunCutList}
+            className="mt-10"
+            note={t("{v1} · trim {v2} mm · kerf {v3} mm", {
+              v1: seedRunSheet.label,
+              v2: seedRunMargins.left,
+              v3: seedRunMargins.kerf,
+            })}
+          >
+            <PlateInspector
+              plates={seedRunPlates}
+              margins={seedRunMargins}
+              minBreakoutMm={seedRunBreakoutMm}
+              thicknessMm={seedRunSheet.thicknessMm}
+              composition={t("{v1} mm {v2} · {v3}", {
+                v1: seedRunSheet.thicknessMm,
+                v2: t(seedRunSheet.category),
+                v3: seedRunSheet.colour,
+              })}
+              showSchedule
+              galleryColumns="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
+            />
+
+            {/* The two notes below explain the drawing above them, so they
+                appear with it rather than before it. */}
+            <div className="mt-6 grid max-w-4xl gap-4 sm:grid-cols-2">
+            <p className="text-xs font-medium leading-relaxed text-text-faint">
+              {t(
+                "The panes are grouped by the sheet they are bought on — one glass to a run, the way a shop actually cuts it — and this is the largest of those runs, so the drawing above is the seeded quotation's own glass and not a cut list written for the occasion. The store holds {available} sheets of this glass, {used} spoken for; the run takes {plates}.",
+                {
+                  available: seedRunTotals.sheetsAvailable,
+                  used: seedRunSheet.used,
+                  plates: seedRunTotals.plates,
+                },
+              )}
+            </p>
+            <p className="text-xs font-medium leading-relaxed text-text-faint">
+              {t(
+                "Why some plates carry only two panes: the run's tallest pane is {tallest} mm, and under it the trims and the blade gap leave {below} mm — short of the run's next size down at {smallest} mm. Beside it there is {beside} mm against a smallest width of {smallest} mm. That is the sheet size, not the packing: it is why a rack holds more than one, and why the engine searches other sizes as well as other patterns.",
+                {
+                  tallest: seedRunGeometry.tallest,
+                  below: seedRunGeometry.belowTallest,
+                  beside: seedRunGeometry.besideTallest,
+                  smallest: seedRunGeometry.smallest,
+                },
+              )}
+            </p>
+          </div>
+          </OptimizationRunGate>
+        </Container>
+      </Section>
+
       {/* ── The stock behind the job ─────────────────────────────── */}
       <Section tone="raised" aria-labelledby="stock-heading">
         <Container>
@@ -821,7 +917,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
           <div className="mt-10 grid gap-5 lg:grid-cols-2">
             {pricingRules.map((rule) => (
               <Reveal key={rule.id}>
-                <div className="plate h-full p-6 sm:p-7">
+                <div className="surface-raised h-full p-6 sm:p-7">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="eyebrow">{t(rule.label)}</p>
                     <p className="font-mono text-sm font-semibold text-brand-200">{t(rule.value)}</p>
@@ -916,7 +1012,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
           */}
           <Reveal className="mt-10">
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-              <div className="plate p-6 sm:p-7">
+              <div className="surface-raised p-6 sm:p-7">
                 <p className="eyebrow">{t("The cost behind the rate")}</p>
                 <h3 className="mt-2 text-xl font-semibold text-text-primary">{t("Step 9 costs these same panels at the purchase price.")}</h3>
                 <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{t("Step 9 is the application's only profit-and-loss step, and it asks one question: is the given price above target? Revenue is what the specification bills; the glass cost is the same billable square metres at the Sheet Store purchase price; the target is the base price plus the expected margin. Every row below is a seeded stock line, and the sell column is the rate the quotation above charges — which is why the two figures reconcile rather than merely agreeing.")}</p>
@@ -1019,7 +1115,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Next steps")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <p className="eyebrow">{t("See it on your own numbers")}</p>
                 <h2 className="mt-3 text-2xl leading-tight sm:text-3xl">
@@ -1027,7 +1123,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
         </h2>
                 <p className="lede mt-3 max-w-2xl">{t("Ask for a demo and the same walkthrough is run against your specification groups, your thicknesses and your supplier pricing. There is no price list to publish and nothing to sign up for — just an email back.")}</p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
           {t("Request a demo")}
         </ButtonLink>
@@ -1040,5 +1136,6 @@ export default async function WorkedExamplePage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

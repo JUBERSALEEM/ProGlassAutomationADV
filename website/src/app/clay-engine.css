@@ -1,0 +1,2632 @@
+/* ==========================================================================
+   THE CLAY ENGINE — an independent theme engine for appearance="clay"
+   ==========================================================================
+
+   This file is not a reskin of the other families. It is the complete theme
+   layer for Clay, imported AFTER globals.css so every rule here ranks as the
+   final word, and everything it says applies only inside
+   `[data-appearance="clay"]` — the five other appearance families do not see
+   a single line of it. The spec it implements is docs/CLAYMORPHISM.md, and
+   its channels are used verbatim.
+
+   How the engine reads a page it never saw — five layers, in source order:
+
+     §0 CHANNELS    the spec's named colors, both modes, shadow recipe.
+     §1 FLOOR       lowest rank. Every imperative utility a component writes
+                    (bg-ink-*, bg-white/*, bg-line-strong/*, border-line*,
+                    shadow-*, backdrop-blur-*) is intercepted and re-voiced:
+                    gray fills become lavender foils, gray hairlines become
+                    violet light, translucency and blur are retired, scrims
+                    dim in the family hue instead of going black.
+     §2 SURFACES    the material's named surfaces (.surface, .stat-tile,
+                    .surface-raised, .glass-primary, .nav-glass, .nav-sheet,
+                    .band-deep) take the full sculpting recipe — §4 of the
+                    spec: SE hue-keyed drop, NW light lift, inset top-left
+                    sheen, inset bottom-right depth. Ranked after §1 so the
+                    floor never over-paints a real surface.
+     §3 GRAMMAR     the pieces a user touches: coral .btn-primary (the one
+                    verb per screen), white .btn-secondary, pressed-in input
+                    wells, 16px-radius floor, visible focus rings.
+     §4 SEMANTICS   state chips re-tint to the spec's status pastels.
+     §5 MIDNIGHT    the same recipe on dark plum grounds. The spec is a
+                    light-mode language; at midnight the shadow hue deepens
+                    toward violet-black instead of going gray, and the only
+                    text flips are the ones contrast actually needs.
+
+   Old code that is deliberately NOT here: the 7px 9px solid offset plate
+   (neo-brutalist vocabulary; it once sat behind every card and fought the
+   soft blur), the violet gradient feature plate (volume is sculpted by the
+   shadows, never painted), the 0.94 near-black-violet chrome slabs, and the
+   near-white-to-near-white card grounds (~1.03:1 — invisible boundaries).
+   ========================================================================== */
+
+
+/* ═══ §0 · CHANNELS — the spec's named colors, verbatim ═══ */
+
+[data-appearance="clay"] {
+  color-scheme: light dark;
+
+  /* Text channels — plum inks, never pure #000. */
+  --clay-ink: 46 42 63;          /* #2E2A3F text-strong */
+  --clay-muted: 107 101 128;     /* #6B6580 text-muted  */
+
+  /* Grounds. */
+  --clay-page: 247 245 251;      /* #F7F5FB tinted near-white */
+  --clay-raised: 255 255 255;    /* floating sheets over it   */
+
+  /* The pastel surfaces — the clay itself. */
+  --clay-lavender: 184 166 255;  /* #B8A6FF primary plates    */
+  --clay-sky: 158 201 240;       /* #9EC9F0 info              */
+  --clay-mint: 125 212 168;      /* #7DD4A8 success / active  */
+  --clay-peach: 255 181 158;     /* #FFB59E warm              */
+  --clay-lemon: 245 215 122;     /* #F5D77A pending           */
+  --clay-archived: 201 181 255;  /* #C9B5FF archived          */
+  --clay-pink: 245 184 208;      /* #F5B8D0 playful accents   */
+
+  /* The one verb. */
+  /* #E66E60 — the boards' coral walked 10% toward its own depth: white
+     bold labels measured 2.55:1 on #FF7A6B, under even the 3:1 large-text
+     floor; this holds 3.1:1 while keeping the family hue (the contrast
+     gate in scripts/clay-contrast.test.mjs owns this number). */
+  --clay-coral: 230 110 96;      /* the action */
+  --clay-coral-h: 230 81 68;     /* its shadow hue, stepped with it */
+
+  /* Shadow hues. H is the surface's own family ~15% darkened, never gray. */
+  --clay-drop-h: 140 108 255;    /* lavender shadow           */
+
+  /* The family ramp the surrounding chrome, pools and diagrams reuse. */
+  --brand-50: 240 238 255;
+  --brand-100: 232 228 254;
+  --brand-200: 214 204 253;
+  --brand-300: 178 164 250;
+  --brand-400: 142 124 242;
+  --brand-500: 112 94 224;
+  --brand-600: 89 70 206;
+  --brand-700: 67 54 176;
+  --pool-1: rgb(142 124 242 / 0.3);
+  --pool-2: rgb(253 186 116 / 0.16);
+  --pool-3: rgb(228 105 160 / 0.13);
+  --card-tint: rgb(112 94 224 / 0.2);
+  --card-tint-2: rgb(253 186 116 / 0.1);
+
+  /* Midnight grounds: the same family, drawn dark plum. */
+  --ink-950: 22 15 33;
+  --ink-900: 30 21 42;
+  --ink-850: 40 28 52;
+  --ink-800: 51 36 64;
+  --ink-700: 66 48 80;
+
+  /* Cards sit at 24px, panels 32px — inside the spec's 24–32 band. */
+  --radius-scale: 2;
+
+  /* Named surfaces + moulding channels (Midnight values; Daylight below). */
+  --clay-card: var(--ink-850);
+  --clay-hi: rgb(255 255 255 / 0.11);
+  /* §24 — the inset whites at midnight (D3): glassy bright insets read as
+     PLASTIC GLARE on dark pastel (reference principle 7). Midnight caps:
+     soft highlight 0.12, lip 0.16; daylight keeps its shipped intensities. */
+  --clay-hi-2: rgb(255 255 255 / 0.12);
+  --clay-lip: rgb(255 255 255 / 0.16);
+  --clay-lo: rgb(18 10 38 / 0.62);
+  --clay-foil: rgb(46 34 62);
+  --band-face: 46 34 62;
+  --clay-lift: 0.045;
+  --clay-scrim: rgb(18 10 38 / 0.62);
+  --clay-edge: rgb(var(--clay-drop-h) / 0.28);
+  --clay-edge-hover: rgb(var(--clay-drop-h) / 0.5);
+
+  /* §4 recipe — L1 resting card; L2 lifts offset 12 / blur 32. On dark
+     grounds H deepens into the plum family (18 10 38) rather than going
+     neutral black, and the light lift is faint moonlight. The depth dial
+     (Phase 3: `--clay-depth`) scales the drop alpha only — geometry and
+     the light lift stay, so cards deepen without ever floating. */
+  --clay-depth: 1;
+  --shadow-panel: 12px 12px 32px rgb(18 10 38 / calc(0.68 * var(--clay-depth, 1))),
+    -10px -10px 24px rgb(255 255 255 / 0.07);
+  --shadow-raised: 16px 16px 42px rgb(18 10 38 / calc(0.74 * var(--clay-depth, 1))),
+    -14px -14px 30px rgb(255 255 255 / 0.08);
+
+  /* §23 — the four-tier elevation (reference: one light, never a pile
+     of per-class choreography). Light arrives top-left: every drop goes
+     (+x,+y), every highlight (-x,-y) inset. Tiers: well (concave) < rest
+     (panel) < raised < float (menus, the chroma hero). Buttons keep their
+     own press grammar on rest; beads (spine) are micro-exceptions. */
+  --clay-light-x: 1;
+  --clay-light-y: 1;
+  --shadow-well: inset 4px 4px 10px rgb(18 10 38 / 0.35), inset -3px -3px 8px var(--clay-hi-2);
+  --shadow-float: 22px 22px 52px rgb(18 10 38 / calc(0.8 * var(--clay-depth, 1))),
+    -18px -18px 36px rgb(255 255 255 / 0.09);
+
+  /* Clay is solid and cheap: no translucency tier, no backdrop blur. */
+  --surface-alpha: 1;
+  --surface-alpha-2: 1;
+  --surface-alpha-3: 1;
+  --surface-blur: 0px;
+  --surface-sat: 100%;
+  --surface-specular: 0;
+
+  /* §6: chunky radii pair with chunky round type (Nunito, self-hosted). */
+  --font-sans: var(--font-nunito);
+}
+
+/* Daylight: the reference composition — #F7F5FB page, white floaters,
+   saturated pastel plates, plum ink. */
+[data-theme="daylight"][data-appearance="clay"] {
+  color-scheme: light;
+  --brand-50: 244 241 255;
+  --brand-100: 67 54 176;
+  --brand-200: 205 197 250;
+  --brand-300: 89 70 206;
+  --brand-400: 79 62 194;
+  --brand-500: 72 54 190;
+  --brand-600: 67 54 176;
+  --brand-700: 56 43 150;
+  --card-tint: rgb(112 94 224 / 0.12);
+  --card-tint-2: rgb(253 186 116 / 0.09);
+  --ink-950: 238 232 248;
+  --ink-900: var(--clay-page);
+  --ink-850: var(--clay-raised);
+  --ink-800: 250 248 253;
+  --ink-700: 243 239 251;
+  --clay-card: var(--clay-raised);
+  --clay-hi: rgb(255 255 255 / 0.9);
+  --clay-hi-2: rgb(255 255 255 / 0.55);
+  --clay-lip: rgb(255 255 255 / 0.75);
+  --clay-lo: rgb(var(--clay-drop-h) / 0.34);
+  --clay-foil: rgb(239 234 252);
+  --clay-lift: 0.9;
+  --clay-scrim: rgb(140 108 255 / 0.3);
+  --clay-edge: rgb(var(--clay-drop-h) / 0.2);
+  --clay-edge-hover: rgb(var(--clay-drop-h) / 0.45);
+  --shadow-panel: 12px 12px 30px rgb(var(--clay-drop-h) / calc(0.36 * var(--clay-depth, 1))),
+    -10px -10px 26px rgb(255 255 255 / 1);
+  --shadow-raised: 16px 16px 42px rgb(var(--clay-drop-h) / calc(0.42 * var(--clay-depth, 1))),
+    -14px -14px 32px rgb(255 255 255 / 1);
+  --shadow-well: inset 4px 4px 10px rgb(var(--clay-drop-h) / 0.16), inset -3px -3px 8px var(--clay-lip);
+  --shadow-float: 22px 22px 52px rgb(var(--clay-drop-h) / calc(0.48 * var(--clay-depth, 1))),
+    -18px -18px 38px rgb(255 255 255 / 1);
+}
+
+/* The studio's hairline tokens follow the family color, both modes. */
+[data-appearance="clay"] {
+  --card-edge: rgb(var(--clay-drop-h) / 0.16);
+  --card-edge-hover: rgb(var(--clay-drop-h) / 0.4);
+}
+[data-theme="daylight"][data-appearance="clay"] {
+  --card-edge: rgb(var(--clay-drop-h) / 0.2);
+  --card-edge-hover: rgb(var(--clay-drop-h) / 0.45);
+}
+
+
+/* ═══ §1 · THE FLOOR — what every imperative utility becomes in clay ═══
+   Lowest rank in this file: named surfaces in §2 are authored after this
+   block on purpose, so a .surface with a stray bg-ink utility still reads
+   as the recipe, not the foil. */
+
+/* No backdrop blur anywhere in the family. Solid is the look; cheaper too. */
+[data-appearance="clay"] [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Veils dim in the family hue — a lilac scrim, never a black one. */
+[data-appearance="clay"] [class*="fixed"][class*="inset-0"][class*="bg-ink-950"] {
+  background-color: var(--clay-scrim) !important;
+}
+
+/* Every ink wash and white wash is a clay foil: solid, family-tinted, and
+   not its own shadow — foils never float, or the page turns to mush. The
+   old neutral-gray bg-line-strong fills were the single most un-clay class
+   in the inventory ("gray shadows kill the moulded feel"); here they are
+   lavender at last. */
+[data-appearance="clay"] [class*="bg-ink-"],
+[data-appearance="clay"] [class*="bg-white"],
+[data-appearance="clay"] [class*="bg-line"],
+[data-appearance="clay"] [class*="bg-glass"] {
+  background-color: var(--clay-foil);
+  background-image: none;
+}
+
+/* Hairlines: the pipes between surfaces glow violet, never gray. */
+[data-appearance="clay"] [class*="border-line"],
+[data-appearance="clay"] [class*="border-ink"] {
+  border-color: var(--clay-edge);
+}
+/* 3f61ffe missed divide-*: divide-line is a COLOR utility on the container,
+   not a border class — table stripes and accordion rows stayed gray. */
+[data-appearance="clay"] [class*="divide-line"],
+[data-appearance="clay"] [class*="divide-ink"] {
+  border-color: var(--clay-edge);
+}
+
+/* Glass's colour-washed divider becomes one honest hairline. */
+[data-appearance="clay"] .glass-divider {
+  border-color: var(--clay-edge);
+  background-image: none;
+}
+
+/* Shadow utilities a component writes directly — keyed to the family hue. */
+[data-appearance="clay"] [class*="shadow-accent"],
+[data-appearance="clay"] .shadow-raised,
+[data-appearance="clay"] [class*="shadow-raised"] {
+  box-shadow: 10px 10px 28px rgb(var(--clay-drop-h) / 0.3),
+    -8px -8px 20px rgb(255 255 255 / var(--clay-lift));
+}
+[data-appearance="clay"] .shadow-panel,
+[data-appearance="clay"] [class*="shadow-panel"],
+[data-appearance="clay"] [class*="shadow-lg"],
+[data-appearance="clay"] [class*="shadow-xl"],
+[data-appearance="clay"] [class*="shadow-2xl"],
+[data-appearance="clay"] [class*="shadow-md"] {
+  box-shadow: 8px 8px 22px rgb(var(--clay-drop-h) / 0.26),
+    -6px -6px 16px rgb(255 255 255 / var(--clay-lift));
+}
+[data-appearance="clay"] [class*="shadow-sm"],
+[data-appearance="clay"] [class*="shadow-card"] {
+  box-shadow: 4px 4px 12px rgb(var(--clay-drop-h) / 0.2);
+}
+
+/* ── §2.6 · THE PRIMITIVES — the small shapes the style is counted in ──
+   The reference boards carry the style in tiles, pins, pills and chips.
+   These six rules give every repeated small element its clay role: icon
+   tiles become squircles on full recipe, the numbered index chips with
+   them, stat tiles rotate through the metric pastels, the active page in
+   the chrome carries the family's pill, accordion pins tint when open,
+   and every faint brand wash reads ink-on-lavender. */
+
+/* The app-icon tile: squircle --r-icon 20px, single pastel fill, full
+   recipe with its own small altitude. Both tiles in ui/Badge.tsx write
+   rounded-[0.6rem], which is below the 16px shadow floor — they are
+   re-cornered here, exactly as the spec's icon recipe asks. */
+[data-appearance="clay"] [class*="rounded-[0.6rem]"] {
+  border-radius: 20px;
+  border-color: transparent;
+  background-color: rgb(var(--clay-lavender));
+  color: rgb(var(--clay-ink));
+  box-shadow: 4px 4px 10px rgb(var(--clay-drop-h) / 0.32),
+    -3px -3px 8px rgb(255 255 255 / 0.7),
+    inset 2px 2px 5px var(--clay-hi-2),
+    inset -3px -3px 6px rgb(92 60 220 / 0.22);
+}
+
+/* Metric cards speak in the references' pastel rotation — lavender, mint,
+   peach, sky — each shadow keyed to its own hue, plum text on every tile.
+   Default (white) tiles keep the standard recipe from §2. */
+[data-appearance="clay"] .stat-tile:nth-child(4n+1) {
+  background-color: rgb(var(--rot-1));
+  background-image: none;
+  box-shadow: 8px 8px 14px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.2),
+    -7px -7px 18px rgb(255 255 255 / 0.5),
+    inset 4px 4px 8px var(--clay-hi-2),
+    inset -6px -6px 12px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.25);
+}
+[data-appearance="clay"] .stat-tile:nth-child(4n+2) {
+  background-color: rgb(var(--rot-2));
+  background-image: none;
+  box-shadow: 8px 8px 14px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.2),
+    -7px -7px 18px rgb(255 255 255 / 0.5),
+    inset 4px 4px 8px var(--clay-hi-2),
+    inset -6px -6px 12px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.25);
+}
+[data-appearance="clay"] .stat-tile:nth-child(4n+3) {
+  background-color: rgb(var(--rot-3));
+  background-image: none;
+  box-shadow: 8px 8px 14px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.2),
+    -7px -7px 18px rgb(255 255 255 / 0.5),
+    inset 4px 4px 8px var(--clay-hi-2),
+    inset -6px -6px 12px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.25);
+}
+[data-appearance="clay"] .stat-tile:nth-child(4n+4) {
+  background-color: rgb(var(--rot-4));
+  background-image: none;
+  box-shadow: 8px 8px 14px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.2),
+    -7px -7px 18px rgb(255 255 255 / 0.5),
+    inset 4px 4px 8px var(--clay-hi-2),
+    inset -6px -6px 12px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.25);
+}
+
+/* ═══ §26.1 (P15) — midnight kills the lamps · user witness 13:42 ═══════
+   The noria rim light is a DAYLIGHT instrument: -7px -7px 18px white/0.85
+   reads on paper as the sun; on the dark page it is a xenon halo around
+   every pastel tile (the "extra glowing" engineering-metrics section) —
+   and the colored bleed at 0.3 smogs pastel light into the page. §24
+   capped the bright INSETS for this exact reason ("plastic glare on dark
+   pastel"); this takes the same doctrine OUTSIDE the tile. The faces
+   stay pastel at midnight (§9.4's four lamps are the FACES, not the
+   halos); the white ambient dies everywhere after dark, and the bleed
+   halves. The little index/icon tiles carried the same lamp — same cure,
+   and their violet inset literal moves to the P13 band-glow token
+   (accent-aware under a pick, byte-identical at house). */
+html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+1) {
+  box-shadow: 8px 8px 14px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.12),
+    inset 4px 4px 8px var(--clay-hi-2),
+    inset -6px -6px 12px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.18);
+}
+html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+2) {
+  box-shadow: 8px 8px 14px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.12),
+    inset 4px 4px 8px var(--clay-hi-2),
+    inset -6px -6px 12px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.18);
+}
+html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+3) {
+  box-shadow: 8px 8px 14px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.12),
+    inset 4px 4px 8px var(--clay-hi-2),
+    inset -6px -6px 12px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.18);
+}
+html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+4) {
+  box-shadow: 8px 8px 14px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.12),
+    inset 4px 4px 8px var(--clay-hi-2),
+    inset -6px -6px 12px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.18);
+}
+/* The 36-unit index/icon tiles: same lamp out after dark. */
+html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] {
+  box-shadow: 4px 4px 10px rgb(var(--clay-drop-h) / 0.24),
+    inset 2px 2px 5px var(--clay-hi-2),
+    inset -3px -3px 6px rgb(var(--band-glow-h) / 0.2);
+}
+
+/* The active page carries the family's pill, in bar and sheet; the verb
+   (coral) stays exclusively on buttons. */
+[data-appearance="clay"] .nav-glass a[aria-current="page"],
+[data-appearance="clay"] .nav-sheet a[aria-current="page"] {
+  background-color: rgb(var(--clay-lavender));
+  color: rgb(var(--clay-ink));
+  border-radius: 999px;
+  box-shadow: 3px 3px 8px rgb(var(--clay-drop-h) / 0.28),
+    inset 2px 2px 4px var(--clay-hi-2),
+    inset -2px -2px 5px rgb(92 60 220 / 0.18);
+}
+
+/* Faint brand washes (chips, expanded pins, dots) were the last place
+   light-lavender text survived on lavender fill — Daylight's 3xs labels
+   measured under 2:1. Every one of them now reads plum on lavender. */
+[data-appearance="clay"] [class*="bg-brand-400/12"],
+[data-appearance="clay"] [class*="bg-brand-500/12"],
+[data-appearance="clay"] [class*="bg-brand-400/16"],
+[data-appearance="clay"] [class*="bg-brand-500/15"] {
+  background-color: rgb(var(--clay-lavender) / 0.9);
+  color: rgb(var(--clay-ink));
+  border-color: rgb(var(--clay-drop-h) / 0.45);
+}
+
+
+/* ═══ §2 · SURFACES — the named material, sculpted by the recipe ═══ */
+
+[data-appearance="clay"] .surface,
+[data-appearance="clay"] .stat-tile {
+  background-color: rgb(var(--data-face));
+  background-image: none;
+  box-shadow: var(--shadow-panel),
+    inset 4px 4px 8px var(--clay-hi),
+    inset -6px -6px 12px var(--clay-lo);
+}
+[data-appearance="clay"] .surface-raised {
+  background-color: rgb(var(--card-face));
+[data-appearance="clay"] .surface {
+  background-color: rgb(var(--card-face));
+}
+  background-image: none;
+  box-shadow: var(--shadow-raised),
+    inset 4px 4px 8px var(--clay-hi),
+    inset -6px -6px 12px var(--clay-lo);
+}
+
+/* Clay answers the finger (§5 of the spec): hover lifts two pixels, a press
+   squishes to 0.97 with the offsets halving and the sheen inverting into
+   shade — the blob sinks into the page, not just shrinks. */
+[data-appearance="clay"] .card-interactive {
+  transition:
+    border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.14s ease,
+    transform 0.14s ease;
+}
+[data-appearance="clay"] .card-interactive:hover,
+[data-appearance="clay"] .card-interactive:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--clay-edge-hover);
+  box-shadow: var(--shadow-raised),
+    inset 4px 4px 8px var(--clay-hi),
+    inset -6px -6px 12px var(--clay-lo);
+}
+[data-appearance="clay"] .card-interactive:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 4px 4px 12px rgb(var(--clay-drop-h) / 0.3),
+    inset -3px -3px 10px var(--clay-lo),
+    inset 3px 3px 10px var(--clay-hi);
+}
+
+/* The feature plate — one solid saturated pastel face, plum ink, the
+   family's identity in a single panel. #2E2A3F on #B8A6FF holds 5.9:1
+   body, ~4.7:1 muted; the pastel stays because it IS the family. Its
+   button is the white pill the references draw on lavender. */
+[data-appearance="clay"] .glass-primary {
+  background-color: rgb(var(--band-rich-h));
+  background-image: none;
+  box-shadow: var(--shadow-float),
+    inset 5px 5px 10px var(--clay-hi-2),
+    inset -7px -7px 14px rgb(var(--band-glow-h) / 0.28);
+  --text-1: var(--clay-ink);
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+}
+[data-appearance="clay"] .glass-primary .btn-primary {
+  background-color: rgb(252 250 255);
+  background-image: none;
+  color: rgb(var(--brand-700));
+  box-shadow: 8px 8px 18px rgb(var(--band-glow-h) / 0.3),
+    inset 3px 3px 6px var(--clay-lip),
+    inset -4px -4px 8px rgb(var(--brand-700) / 0.2);
+}
+
+/* The chrome is a clay sheet too — a white floating bar at daylight, a dark
+   plum plate at midnight — with the nav's own text only flipped where the
+   ground actually went dark. */
+[data-appearance="clay"] .nav-glass {
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  border-color: transparent;
+  box-shadow: var(--shadow-panel);
+}
+[data-appearance="clay"] .nav-sheet {
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  border-color: var(--clay-edge);
+  box-shadow: var(--shadow-raised),
+    inset 4px 4px 8px var(--clay-hi),
+    inset -6px -6px 12px var(--clay-lo);
+}
+
+/* The closing band echoes the feature plate at page scale: solid lavender,
+   plum ink, white pills. Midnight keeps the dark plum plate instead. */
+[data-appearance="clay"] .band-deep {
+  background-color: rgb(var(--band-deep-h));
+  background-image: none;
+  --text-1: var(--clay-ink);
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+}
+[data-appearance="clay"] .band-deep .btn-primary {
+  border-color: transparent;
+  background-color: rgb(252 250 255);
+  background-image: none;
+  color: rgb(var(--brand-700));
+  box-shadow: 8px 8px 18px rgb(var(--band-glow-h) / 0.3),
+    inset 3px 3px 6px var(--clay-lip),
+    inset -4px -4px 8px rgb(var(--brand-700) / 0.2);
+}
+[data-appearance="clay"] .band-deep .btn-secondary {
+  border-color: transparent;
+  background-color: rgb(var(--clay-raised));
+  background-image: none;
+  color: rgb(var(--brand-700));
+  box-shadow: 6px 6px 14px rgb(var(--band-glow-h) / 0.22),
+    inset 3px 3px 6px var(--clay-lip),
+    inset -4px -4px 8px rgb(var(--band-glow-h) / 0.18);
+}
+
+/* Clip-text gradients die on saturated ground; on clay they re-read in the
+   surface's own ink channel (which each plate above sets correctly). */
+[data-appearance="clay"] :is(.band-deep, .glass-primary) :where(.text-gradient-rich, .text-gradient) {
+  background-image: none !important;
+  color: rgb(var(--text-1));
+  -webkit-text-fill-color: rgb(var(--text-1));
+}
+
+
+/* ═══ §3 · GRAMMAR — the pieces a user touches ═══ */
+
+/* Radius: cards 24 / panels 32 come from the scale; buttons are a fixed
+   18px chunk (§2), inputs a fixed 16px, and these four utilities that 100+
+   files write raw now compute against the family's corners. Nothing with a
+   radius under 16px carries a shadow — below that line, soft reads flat. */
+[data-appearance="clay"] .rounded-lg { border-radius: calc(0.5rem * var(--radius-scale)); }
+[data-appearance="clay"] .rounded-xl { border-radius: calc(0.75rem * var(--radius-scale)); }
+[data-appearance="clay"] .rounded-2xl { border-radius: calc(1rem * var(--radius-scale)); }
+[data-appearance="clay"] .rounded-md { border-radius: calc(0.5rem * var(--radius-scale)); }
+[data-appearance="clay"] .btn,
+[data-appearance="clay"] .btn-primary,
+[data-appearance="clay"] .btn-secondary,
+[data-appearance="clay"] [class*="btn-"] {
+  border-radius: 20px;
+}
+
+/* The verb. Coral fill, white bold label, coral-keyed shadows, and the
+   spec's sink on press: scale(.97), offsets halve, sheen inverts. */
+[data-appearance="clay"] .btn-primary,
+[data-appearance="clay"] .btn-primary:hover {
+  background-color: rgb(var(--clay-coral));
+  background-image: none;
+  border-color: transparent;
+  color: rgb(255 255 255);
+  box-shadow: 8px 8px 20px rgb(var(--clay-coral-h) / 0.4),
+    inset 4px 4px 8px var(--clay-hi-2),
+    inset -4px -4px 10px rgb(219 74 61 / 0.4);
+  transition: box-shadow 0.14s ease, transform 0.14s ease;
+}
+[data-appearance="clay"] .btn-primary:active {
+  transform: scale(0.97);
+  box-shadow: 4px 4px 10px rgb(var(--clay-coral-h) / 0.35),
+    inset -3px -3px 9px rgb(219 74 61 / 0.35),
+    inset 3px 3px 6px var(--clay-hi-2)
+}
+
+/* The quiet option: a white sheet at quarter shadow strength. */
+[data-appearance="clay"] .btn-secondary,
+[data-appearance="clay"] .btn-secondary:hover {
+  background-color: rgb(var(--clay-raised));
+  background-image: none;
+  color: rgb(var(--text-2));
+  border-color: transparent;
+  box-shadow: 8px 8px 18px rgb(var(--clay-drop-h) / 0.22),
+    inset 5px 5px 10px var(--clay-lip),
+    inset -4px -4px 8px rgb(var(--clay-drop-h) / 0.18);
+}
+
+/* Fields press the other way: a well, inset shadows only, 16px. */
+[data-appearance="clay"] input,
+[data-appearance="clay"] textarea,
+[data-appearance="clay"] select {
+  border-radius: 16px;
+  box-shadow: inset 3px 3px 8px rgb(var(--clay-drop-h) / 0.2),
+    inset 4px 4px 8px var(--clay-lip)
+}
+
+
+
+
+/* ═══ §4 · SEMANTICS — states speak in the spec's status pastels ═══
+   Solid semantic fills become tinted chips carrying strong plum ink; their
+   borders keep the saturated edge of the same hue. */
+
+[data-appearance="clay"] [class*="bg-state-success"],
+[data-appearance="clay"] [class*="bg-money-positive"],
+[data-appearance="clay"] [class*="bg-state-positive"] {
+  background-color: rgb(var(--clay-mint) / 0.32);
+  background-image: none;
+}
+[data-appearance="clay"] [class*="border-state-success"],
+[data-appearance="clay"] [class*="border-money-positive"] {
+  border-color: rgb(var(--clay-mint) / 0.8);
+}
+[data-appearance="clay"] [class*="bg-state-warning"] {
+  background-color: rgb(var(--clay-lemon) / 0.38);
+  background-image: none;
+}
+[data-appearance="clay"] [class*="border-state-warning"] {
+  border-color: rgb(214 164 32 / 0.7);
+}
+[data-appearance="clay"] [class*="bg-state-danger"] {
+  background-color: rgb(var(--clay-coral) / 0.22);
+  background-image: none;
+}
+[data-appearance="clay"] [class*="border-state-danger"] {
+  border-color: rgb(var(--clay-coral) / 0.6);
+}
+
+
+/* ═══ §5 · MIDNIGHT — the same language on dark plum ═══ */
+
+/* Chrome text flips only where the ground is dark; daylight's ink returns
+   by default because these rules are midnight-scoped. */
+html[data-theme="midnight"][data-appearance="clay"] .nav-glass {
+  --text-1: 255 255 255;
+  --text-2: 248 247 255;
+  --text-3: 236 232 254;
+  --text-4: 214 204 248;
+  color: rgb(var(--text-2));
+}
+html[data-theme="midnight"][data-appearance="clay"] .band-deep {
+  background-color: rgb(var(--brand-700) / 0.94);
+  --brand-50: 240 238 255;
+  --brand-100: 232 228 254;
+  --brand-200: 214 204 253;
+  --brand-300: 178 164 250;
+  --brand-400: 142 124 242;
+  --text-1: 255 255 255;
+  --text-2: 248 247 255;
+  --text-3: 236 232 254;
+  --text-4: 214 204 248;
+  color: rgb(var(--text-2));
+}
+
+/* The leak guard, the engine's own load-bearing wall — now honestly scoped.
+   The dark lock was written unscoped in 3f61ffe; at midnight it painted
+   plum reading tokens onto the dark menu sheets and never reached back, and
+   that is the "text invisible at midnight" class the 08:57 screenshots
+   show. Each mode now locks its own reading tokens onto its own cards —
+   chrome colours are chrome-colour, card colours are card colours, and the
+   §7.4 registry counts as cards in both locks. */
+html[data-theme="daylight"][data-appearance="clay"] :is(.nav-glass, .band-deep) :is(.surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .mpane__glass--lead, [class*="bg-ink-"]),
+html[data-theme="daylight"][data-appearance="clay"] .nav-glass [class*="rounded-panel"] {
+  --text-1: 36 27 58;
+  --text-2: 50 39 78;
+  --text-3: 79 67 112;
+  --text-4: 107 96 120;
+}
+html[data-theme="midnight"][data-appearance="clay"] :is(.nav-glass, .band-deep) :is(.surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .mpane__glass--lead, [class*="bg-ink-"]),
+html[data-theme="midnight"][data-appearance="clay"] .nav-glass [class*="bg-ink"] {
+  --text-1: 255 255 255;
+  --text-2: 238 234 252;
+  --text-3: 215 208 241;
+  --text-4: 194 185 226;
+}
+
+/* §7.4b Daylight card ink. The global daylight --text-4 (107 96 120) is
+   measured on ivory; on clay's lilac card faces it falls to 3.6:1, and the
+   warning state lands at 4.4:1. Cards therefore take the deep plum the
+   .glass-primary lock already uses, with the warning state deepened to
+   match. Midnight is untouched: its pale tiers are correct on plum. */
+html[data-theme="daylight"][data-appearance="clay"] :is(.surface, .surface-raised),
+html[data-theme="daylight"][data-appearance="clay"] :is(.nav-glass, .band-deep) :is(.surface, .surface-raised) {
+  --text-4: 66 59 92;
+}
+html[data-theme="daylight"][data-appearance="clay"] :is(.surface, .surface-raised) .text-state-warning {
+  color: rgb(122 48 8);
+}
+html[data-theme="daylight"][data-appearance="clay"] :is(.surface, .surface-raised) .text-state-danger {
+  color: rgb(127 14 44);
+}
+
+
+/* ═══ §7 · THE FULLNESS PASS — what reads 40/100, made whole ═══
+   Cross-checked against the boards: the family reached every route at the
+   floor, but four system-level masses still spoke flat-UI vocabulary, and
+   an entire registry of NAMED classes baked ink backgrounds into globals
+   that the bg-ink-* utility sweep could never match by class name. This
+   section flattens the wallpaper to one whisper, retires gradient ink
+   everywhere, un-strokes the material, saturates the stat rotation to the
+   boards' values, and puts every named class on the recipe — menus,
+   frames, preview panes, facts strips, floating cards, band variants,
+   the Features exhibit panes, all of them. */
+
+/* §7.1 The wallpaper whispers. The boards' pages are one calm tinted
+   ground; the countdown is over for the aurora's three loud pools. */
+[data-appearance="clay"] {
+  /* Midnight whisper: 0.5 here once turned the dark pages into a lilac
+     ocean with dark cards floating on it — see the 08:57 screenshots. */
+  --aurora-1: rgb(var(--clay-lavender) / 0.1);
+  --aurora-2: rgb(var(--clay-peach) / 0.05);
+  --aurora-3: rgb(255 255 255 / 0);
+}
+[data-theme="daylight"][data-appearance="clay"] {
+  --aurora-1: rgb(var(--clay-lavender) / 0.16);
+  --aurora-2: rgb(var(--clay-peach) / 0.09);
+  --aurora-3: rgb(255 255 255 / 0);
+  /* The live-preview graph paper reads in violet light, not neon. */
+  --viz-grid: rgb(140 108 255 / 0.22);
+  --viz-part: rgb(142 124 242 / 0.6);
+  --viz-part-2: rgb(var(--clay-coral) / 0.8);
+  --viz-scrap: rgb(var(--clay-pink) / 0.7);
+  --viz-plate: rgb(239 234 252);
+}
+/* Midnight keeps the pools at half voice on the plum ground. */
+html[data-theme="midnight"][data-appearance="clay"] {
+  --viz-grid: rgb(140 108 255 / 0.3);
+  --viz-part: rgb(166 148 250 / 0.75);
+  --viz-part-2: rgb(var(--clay-coral) / 0.85);
+  --viz-scrap: rgb(var(--clay-pink) / 0.5);
+  --viz-plate: rgb(46 34 62);
+}
+
+/* §7.2 Solid ink headlines. Every heading on the boards is one confident
+   plum voice; the brand-gradient clip-ink was flat-UI jewellery. */
+[data-appearance="clay"] .text-gradient,
+[data-appearance="clay"] .text-gradient-rich {
+  background-image: none !important;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  color: rgb(var(--text-1));
+  -webkit-text-fill-color: rgb(var(--text-1));
+}
+
+/* §7.3 Clay is edged by light, never stroke. Globals banks a 2px edge on
+   every tier via --card-edge-width; under this family the edge colour of
+   the whole material registry goes transparent (fabric preserved: the
+   width stays, so no layout shifts). */
+[data-appearance="clay"] :is(.surface, .surface-raised, .stat-tile, .glass-primary,
+  .nav-glass, .nav-sheet, .band-deep, .band-solid, .band-rich, .menu-card,
+  .plate, .card-live, .card-accent, .float-card, .card-glass, .panel-feature,
+  .mpane__glass, .mpane__glass--lead, .mpane__badge, .mpane__stage-caption,
+  .mat-rail__chip) {
+  border-color: transparent;
+}
+
+/* §7.4 The named registry, on the recipe. Every class below once carried a
+   baked ink fill the utility sweep could not see; each now names its own
+   clay tier, and the Features exhibit panes — the site's prize exhibit —
+   read as clay tiles, not glass shards. */
+[data-appearance="clay"] .nav-pill {
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  border-color: transparent;
+  box-shadow: var(--shadow-panel),
+    inset 3px 3px 7px var(--clay-hi),
+    inset -4px -4px 8px var(--clay-lo);
+}
+[data-appearance="clay"] .card-live,
+[data-appearance="clay"] .float-card,
+[data-appearance="clay"] .card-glass {
+  background-color: rgb(var(--card-face));
+  background-image: none;
+  box-shadow: var(--shadow-raised),
+    inset 4px 4px 8px var(--clay-hi),
+    inset -6px -6px 12px var(--clay-lo);
+}
+[data-appearance="clay"] .menu-card {
+  background-color: rgb(var(--overlay-face));
+  background-image: none;
+  border-color: transparent;
+  box-shadow: var(--shadow-float),
+    inset 3px 3px 7px var(--clay-hi),
+    inset -5px -5px 10px var(--clay-lo);
+}
+/* The product frame — every module preview and screenshot lives inside. */
+[data-appearance="clay"] .plate {
+  background-color: rgb(var(--card-face));
+  background-image: none;
+  box-shadow: var(--shadow-raised),
+    inset 4px 4px 8px var(--clay-hi),
+    inset -6px -6px 12px var(--clay-lo);
+}
+/* The accent card was accent-FILLED glass; on clay it is a zone plate —
+   it reads `--panel-face` so the bench recolours it (§17), house default
+   being the lavender plate it has always worn. */
+[data-appearance="clay"] .card-accent {
+  background-color: rgb(var(--panel-face));
+  background-image: none;
+  box-shadow: var(--shadow-float),
+    inset 3px 3px 6px var(--clay-hi-2),
+    inset -7px -7px 14px rgb(var(--clay-drop-h) / 0.26);
+  --text-1: var(--clay-ink);
+  color: rgb(var(--text-1));
+}
+/* §17.1 The lit bands take the calm zone plate: `--band-face` defaults to
+   the shipped foil, and the bench writes a twisted one for a preset. */
+[data-appearance="clay"] .band-solid {
+  background-color: rgb(var(--band-face));
+  background-image: none;
+  box-shadow: inset 0 2px 10px rgb(var(--clay-drop-h) / 0.12);
+}
+/* §17.2 A divided sheet of rows (the FAQ accordion, spec ledgers) is the
+   bench's most visible demo: rows carry the plates in rotation, thin
+   enough that the row's plum ink never moves (they are washes at 16%,
+   gated by design to stay under the text locks). */
+[data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+1) {
+  background-color: rgb(var(--plate-1) / 0.32);
+}
+[data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+2) {
+  background-color: rgb(var(--plate-2) / 0.32);
+}
+[data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+3) {
+  background-color: rgb(var(--plate-3) / 0.32);
+}
+[data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+4) {
+  background-color: rgb(var(--plate-4) / 0.32);
+}
+/* At midnight the rows are on a dark raised card — the same rotation at a
+   silk-screen depth, so the zone stays dark ground and the bench still
+   shows. Written as the plain selector list form (D22: the source-level
+   gate's :is() merge would read this as a midnight-global token view).   */
+html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > * {
+  background-color: transparent;
+}
+html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+1) {
+  background-color: rgb(var(--plate-1) / 0.13);
+}
+html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+2) {
+  background-color: rgb(var(--plate-2) / 0.13);
+}
+html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+3) {
+  background-color: rgb(var(--plate-3) / 0.13);
+}
+html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :nth-child(4n+4) {
+  background-color: rgb(var(--plate-4) / 0.13);
+}
+[data-appearance="clay"] .band-rich {
+  background-color: rgb(var(--band-rich-h));
+  background-image: none;
+  --text-1: var(--clay-ink);
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+  box-shadow: var(--shadow-panel),
+    inset 4px 4px 8px var(--clay-hi-2),
+    inset -6px -6px 12px rgb(var(--band-glow-h) / 0.22);
+}
+[data-appearance="clay"] .band-rich .btn-primary {
+  border-color: transparent;
+  background-color: rgb(252 250 255);
+  color: rgb(var(--brand-700));
+  box-shadow: 8px 8px 18px rgb(var(--band-glow-h) / 0.3),
+    inset 1px 1px 3px var(--clay-lip),
+    inset -4px -4px 8px rgb(var(--brand-700) / 0.2);
+}
+/* The tinted feature panel joins the pastel bench; plum inks stay. */
+[data-appearance="clay"] .panel-feature {
+  background-color: rgb(var(--panel-face));
+  background-image: none;
+  box-shadow: var(--shadow-panel),
+    inset 3px 3px 7px var(--clay-hi-2),
+    inset -6px -6px 12px rgb(var(--clay-drop-h) / 0.2);
+}
+/* The story spine's nodes are little clay beads. */
+[data-appearance="clay"] .spine-node {
+  background-color: rgb(var(--clay-lavender));
+  box-shadow: 2px 2px 6px rgb(var(--clay-drop-h) / 0.4),
+    inset 2px 2px 4px var(--clay-hi-2),
+    inset -2px -2px 4px rgb(92 60 220 / 0.3);
+}
+/* The Features exhibit: panes re-materialize — the lead pane is a raised
+   clay window, the glass stage panes are foils, badge and caption are
+   chips, the rail chip is a quiet tile. The index numbers keep their ink. */
+[data-appearance="clay"] .mpane__glass {
+  background-color: rgb(var(--clay-foil));
+  background-image: none;
+  box-shadow: 6px 6px 16px rgb(var(--clay-drop-h) / 0.22),
+    inset -3px -3px 8px var(--clay-hi-2),
+    inset -4px -4px 9px rgb(var(--clay-drop-h) / 0.16);
+}
+[data-appearance="clay"] .mpane__glass--lead {
+  background-color: rgb(var(--card-face));
+  background-image: none;
+  box-shadow: var(--shadow-raised),
+    inset 4px 4px 8px var(--clay-hi),
+    inset -6px -6px 12px var(--clay-lo);
+}
+[data-appearance="clay"] .mpane__badge,
+[data-appearance="clay"] .mpane__stage-caption,
+[data-appearance="clay"] .mat-rail__chip {
+  background-color: rgb(var(--clay-lavender) / 0.9);
+  background-image: none;
+  color: rgb(var(--clay-ink));
+  box-shadow: 3px 3px 8px rgb(var(--clay-drop-h) / 0.3),
+    inset 3px 3px 6px var(--clay-hi-2),
+    inset -2px -2px 5px rgb(92 60 220 / 0.2);
+}
+
+/* §7.5 The boards' saturation, on the numbers. The first rotation tinted
+   too cautiously; these are the metric-card values from the boards
+   themselves — unmistakably saturated pastels, plum motives on top.
+   The values are the plate tokens live, not copies of them: the bench
+   recolours the plates, and tiles that keep their own literals are the
+   "cards not accepting the engine's colours" the second sighting named.
+   (They only LOOKED right because the literals were pasted from the house
+   plates — the first custom preset to ship exposed them instantly.) */
+[data-appearance="clay"] .stat-tile:nth-child(4n+1) { background-color: rgb(var(--rot-1)); }
+[data-appearance="clay"] .stat-tile:nth-child(4n+2) { background-color: rgb(var(--rot-2)); }
+[data-appearance="clay"] .stat-tile:nth-child(4n+3) { background-color: rgb(var(--rot-3)); }
+[data-appearance="clay"] .stat-tile:nth-child(4n+4) { background-color: rgb(var(--rot-4)); }
+
+/* §7.6 The verb has presence: primaries carry the reference's height so
+   the one action per view reads at a glance. */
+[data-appearance="clay"] .btn-primary {
+  min-height: 3rem;
+}
+
+/* §7.7 Status chips are solid pastel pills with plum-strong ink, exactly
+   as the boards' Active/Pending/Archived pins — not translucent ghosts. */
+[data-appearance="clay"] [class*="bg-state-success"],
+[data-appearance="clay"] [class*="bg-money-positive"],
+[data-appearance="clay"] [class*="bg-state-positive"] {
+  background-color: rgb(var(--clay-mint) / 0.75);
+}
+[data-appearance="clay"] [class*="bg-state-warning"] {
+  background-color: rgb(var(--clay-lemon) / 0.85);
+}
+[data-appearance="clay"] [class*="bg-state-danger"] {
+  background-color: rgb(var(--clay-coral) / 0.4);
+}
+
+/* §7.8 The grain stays low and the drift stays slow — clay is matte-soft,
+   not noisy; nothing to change, this comment says so deliberately so the
+   next pass does not re-audit it. */
+
+
+/* ═══ §8 · PHYSICALITY — rich means the material answers everything ═══
+   Skin vs. engine is decided here: the same two springs drive every
+   touch, the page's selection is a smear of lavender, the caret is coral,
+   the input that has focus carries a glow made of the light source itself,
+   links hover with an ink shift of the family hue, and headings sit tight
+   at the spec's 0 letter-spacing. Nothing below changes a colour — only
+   how the material moves, grabs light, and answers the hand. */
+
+[data-appearance="clay"] {
+  --clay-ease: cubic-bezier(0.25, 0.8, 0.3, 1);
+  --clay-spring: cubic-bezier(0.3, 1.4, 0.4, 1);
+}
+
+/* Tactile on every interactive object: buttons, links wearing the card
+   vest, chips, menu items — one spring, one timing. */
+[data-appearance="clay"] :is(.btn, .btn-primary, .btn-secondary, .card-interactive, [class*="btn-"], .menu-card a, .menu-card button) {
+  transition:
+    transform 0.18s var(--clay-ease),
+    box-shadow 0.18s var(--clay-ease),
+    background-color 0.18s var(--clay-ease),
+    border-color 0.18s var(--clay-ease),
+    color 0.18s var(--clay-ease);
+}
+[data-appearance="clay"] .btn-primary:hover,
+[data-appearance="clay"] .btn-secondary:hover {
+  transform: translateY(-2px);
+}
+[data-appearance="clay"] .menu-card a:hover {
+  background-color: rgb(var(--clay-lavender) / 0.22);
+}
+
+/* Focus is a glow of the light source, never a gray ring. The strong
+   outline stays for assistive clarity; the glow is the glow up. */
+[data-appearance="clay"] :is(input, textarea, select):focus {
+  box-shadow:
+    inset 3px 3px 8px rgb(var(--clay-drop-h) / 0.2),
+    inset 3px 3px 5px var(--clay-lip),
+    0 0 0 4px rgb(var(--clay-drop-h) / 0.28);
+}
+
+/* Selecting text smears lavender; the insertion point is coral. */
+[data-appearance="clay"] ::selection {
+  background: rgb(var(--clay-lavender) / 0.85);
+  color: rgb(var(--clay-ink));
+}
+[data-appearance="clay"] :is(input, textarea, [contenteditable]) {
+  caret-color: rgb(var(--clay-coral));
+}
+
+/* Headings sit tight — the spec's headings tighten to 0 — and links on
+   body text shift to the family hue on hover rather than a dead underline
+   drop. */
+[data-appearance="clay"] :is(h1, h2, h3, h4) {
+  letter-spacing: 0;
+}
+
+/* Reduced motion wins everywhere in the family, including these. */
+@media (prefers-reduced-motion: reduce) {
+  [data-appearance="clay"] :is(.btn, .btn-primary, .btn-secondary, .card-interactive, [class*="btn-"], .menu-card a) {
+    transition: none;
+  }
+}
+
+
+/* ═══ §9 · MIDNIGHT, COMPLETED — one token contract, every zone, both modes ═══
+   The 10:17 midnight screenshots named the failures individually: invisible
+   titles on dark cards, white-on-mint metric tiles, a near-black secondary
+   button on the closing band, and lavender light-pools glowing neon behind
+   dark pages. Every one is the same root defect: surfaces inherited their
+   ink from whichever ancestor happened to declare --text-*, and whole
+   classes of zones (the floor foils, the pastel tiles, the bands copied
+   from the daylight reference) declared nothing or declared the wrong mode.
+   The engine no longer inherits where it can declare — every surface below
+   names its own reading tokens, dark ground reads white, pastel reads plum,
+   and `scripts/clay-contrast.test.mjs` measures the contract on every pair
+   so a regression is a failing gate, not a screenshot. */
+
+/* §9.1 The wallpaper calms at night. The pools were tuned on the #F7F5FB
+   daylight page; over midnight plum the same alpha reads as glowing lilac
+   fields. Daylight keeps its wash; midnight gets the same hues at whisper
+   strength — the page stays a plum room with two lamps, not a violet wall. */
+html[data-theme="midnight"][data-appearance="clay"] {
+  --pool-1: rgb(142 124 242 / 0.13);
+  --pool-2: rgb(253 186 116 / 0.05);
+  --pool-3: rgb(228 105 160 / 0.045);
+  --wall-wash-1: rgb(142 124 242 / 0.16);
+  --wall-wash-2: rgb(228 105 160 / 0.07);
+}
+
+/* §9.2 Dark registry surfaces declare their ink themselves — they used to
+   borrow it, and inside any plum-token band they borrowed dark onto dark. */
+html[data-theme="midnight"][data-appearance="clay"] :is(
+  .surface, .surface-raised, .menu-card, .plate, .card-live, .card-glass,
+  .float-card, .nav-sheet, .nav-pill, .panel-feature,
+  .mpane__glass, .mpane__glass--lead
+) {
+  --text-1: 255 255 255;
+  --text-2: 243 240 252;
+  --text-3: 224 218 240;
+  --text-4: 198 190 222;
+}
+
+/* §9.3 The floor foils name their ink too. A flat well is still a reading
+   surface; midnight foils read white, daylight foils read plum — footer
+   pills, table wells, raw bg-ink cards and code chips covered at once. */
+html[data-theme="midnight"][data-appearance="clay"] :is([class*="bg-ink-"], [class*="bg-glass-"]) {
+  --text-1: 255 255 255;
+  --text-2: 243 240 252;
+  --text-3: 224 218 240;
+  --text-4: 198 190 222;
+}
+html[data-theme="daylight"][data-appearance="clay"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"]) {
+  --text-1: var(--clay-ink);
+  --text-2: 44 40 62;
+  --text-3: 71 63 99;
+  --text-4: 102 92 116;
+}
+
+/* §9.4 Pastel is always plum-inked — the metric tiles keep their daylight
+   rotation at midnight (the dark page's four lamps), and their ink comes
+   with them. The default tile joins the rotation as lavender so no tile
+   can ever fall back to a dark fill carrying plum text. */
+[data-appearance="clay"] .stat-tile {
+  --text-1: var(--clay-ink);
+  --text-2: 44 40 62;
+  --text-3: 64 57 88;
+  --text-4: 88 79 104;
+  background-color: rgb(220 214 255);
+  background-image: none;
+}
+
+/* §9.5 Midnight bands are deep plum, never neon. brand-700 at 94% was an
+   indigo slab; the daylight lavender band inverted mode entirely. Both now
+   draw the band from the midnight family — one step up from the page —
+   with the full light token set, and their buttons are porcelain pills
+   with plum ink, in both bands, in both modes (the near-black
+   .btn-secondary on the closing band was brand-700 text on ink-850). */
+html[data-theme="midnight"][data-appearance="clay"] .band-deep {
+  background-color: rgb(var(--band-deep-h));
+  background-image: none;
+  --text-1: 255 255 255;
+  --text-2: 243 240 252;
+  --text-3: 224 218 240;
+  --text-4: 198 190 222;
+  color: rgb(var(--text-2));
+}
+html[data-theme="midnight"][data-appearance="clay"] .band-rich {
+  background-color: rgb(var(--band-rich-h));
+  background-image: none;
+  --text-1: 255 255 255;
+  --text-2: 243 240 252;
+  --text-3: 224 218 240;
+  --text-4: 198 190 222;
+  color: rgb(var(--text-2));
+}
+html[data-theme="midnight"][data-appearance="clay"] .band-solid {
+  --text-1: 255 255 255;
+  --text-2: 243 240 252;
+  --text-3: 224 218 240;
+  --text-4: 198 190 222;
+}
+html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) :is(.btn-primary, .btn-secondary) {
+  border-color: transparent;
+  background-color: rgb(250 246 255);
+  background-image: none;
+  color: rgb(var(--clay-ink));
+  box-shadow: 8px 8px 18px rgb(18 10 38 / 0.42),
+    inset 3px 3px 6px var(--clay-lip),
+    inset -4px -4px 8px rgb(var(--clay-drop-h) / 0.24);
+}
+
+/* §9.6 Strokes die where a corner lives. A drawn 2px edge around a rounded
+   card is flat-UI vocabulary — the mould's boundary is its shadow and the
+   light in its insets. Divider hairlines (border-t rules between rows,
+   never rounded) keep their violet edge. */
+[data-appearance="clay"] :is([class*="border-line"], [class*="border-ink"]):is([class*="rounded"]) {
+  border-color: transparent;
+}
+
+/* §9.7 Card-shaped foils step up to the recipe. A bg-ink panel at card
+   radius is a card the author wrote by hand — SpecificationSurface panes,
+   filter panels, summary cards, showcase frames — the engine used to
+   flatten them; now they carry the mould and its insets. Wells (small
+   radii: rounded / rounded-lg / code chips / input fields) stay pressed
+   and flat on purpose, and real fields keep their pressed-in grammar. */
+[data-appearance="clay"] :is([class*="bg-ink-900"], [class*="bg-ink-850"], [class*="bg-ink-800"], [class*="bg-glass-"]):is([class*="rounded-card"], [class*="rounded-2xl"], [class*="rounded-panel"], [class*="rounded-xl"], [class*="rounded-3xl"], [class*="rounded-lg"]):not(input):not(textarea):not(select) {
+  /* §21: the door answers rounded-3xl + rounded-lg too — the utility
+     panes the shorthand leaked. Chips (rounded-md and smaller) keep
+     their ink fills so tags/badges never pose as cards. */
+  background-color: rgb(var(--card-face));
+  background-image: none;
+  border-color: transparent;
+  box-shadow: var(--shadow-panel),
+    inset 3px 3px 7px var(--clay-hi),
+    inset -5px -5px 10px var(--clay-lo);
+}
+
+/* §9.8 .card-interactive always carries its own altitude — a clickable
+   tile that borrowed its fill from a foil parent read flat at rest and
+   only moved on hover. Now the body has the mould before the gesture. */
+[data-appearance="clay"] .card-interactive {
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  box-shadow: 8px 8px 20px rgb(var(--clay-drop-h) / 0.3),
+    -6px -6px 16px rgb(255 255 255 / var(--clay-lift)),
+    inset 3px 3px 7px var(--clay-hi),
+    inset -5px -5px 10px var(--clay-lo);
+}
+
+/* §9.9 + §26 (P11) Chips are micro-pillows, not wells: a solid pastel
+   face (never a wash), a thin lip crest where the light lands, and a
+   tiny drop that grounds the bead — the ClayHub delta-chip grammar.
+   State semantics stay on the face; the puff is just geometry. */
+[data-appearance="clay"] .chip {
+  border-radius: 999px;
+  border-color: transparent;
+  background-color: rgb(var(--clay-lavender) / 0.55);
+  box-shadow: 2px 3px 6px rgb(var(--clay-drop-h) / 0.22),
+    inset 0 1.5px 0 var(--clay-lip),
+    inset 0 -2px 3px rgb(var(--clay-drop-h) / 0.14);
+}
+
+/* Midnight: the chip face returns to the wash recipe — the 0.55 pillow
+   lifts the pastel past the 4.5:1 line for its light mist text (measured
+   by the paint contract: 3.69:1). The pillow geometry (lip + drop) stays. */
+html[data-theme="midnight"][data-appearance="clay"] .chip {
+  background-color: rgb(var(--clay-lavender) / 0.3);
+}
+
+/* §9.10 The Theme & colour studio answers in clay too. The option cards
+   keep their selected state legible (lavender plate, plum ink) but the
+   hairline strokes and utility corners go: the studio is a menu-card, and
+   everything it holds takes the menu's corners and the mould, including
+   the mode/palette preview strips and the reset button. */
+[data-appearance="clay"] .menu-card button {
+  transition:
+    transform 0.18s var(--clay-ease),
+    box-shadow 0.18s var(--clay-ease),
+    background-color 0.18s var(--clay-ease),
+    border-color 0.18s var(--clay-ease),
+    color 0.18s var(--clay-ease);
+}
+[data-appearance="clay"] .menu-card button[class*="border-line-strong"],
+[data-appearance="clay"] .menu-card button[class*="border-line"] {
+  border-color: transparent;
+  border-radius: 18px;
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  box-shadow: 5px 5px 12px rgb(var(--clay-drop-h) / 0.3),
+    inset 3px 3px 6px var(--clay-hi),
+    inset -4px -4px 8px var(--clay-lo);
+}
+[data-appearance="clay"] .menu-card button[class*="border-brand-400"] {
+  border-color: transparent;
+  border-radius: 18px;
+  background-color: rgb(var(--clay-lavender));
+  background-image: none;
+  color: rgb(var(--clay-ink));
+  box-shadow: 5px 5px 12px rgb(var(--clay-drop-h) / 0.38),
+    inset 3px 3px 6px var(--clay-hi-2),
+    inset -4px -4px 8px rgb(92 60 220 / 0.24);
+}
+[data-appearance="clay"] .menu-card [class*="rounded-[0.3rem]"] {
+  border-radius: 8px;
+  border-color: transparent;
+}
+
+/* §9.11 The deeper mould, applied to the registry in one sweep: insets
+   grow from 4/6 to 5/8 so the NW sheen and the SE depth are visible at a
+   phone's distance, both modes. */
+[data-appearance="clay"] :is(.surface, .surface-raised, .nav-sheet) {
+  box-shadow: var(--shadow-panel),
+    inset 5px 5px 9px var(--clay-hi),
+    inset -8px -8px 14px var(--clay-lo);
+}
+[data-appearance="clay"] .surface-raised {
+  box-shadow: var(--shadow-raised),
+    inset 5px 5px 9px var(--clay-hi),
+    inset -8px -8px 14px var(--clay-lo);
+}
+
+
+/* ═══ §11 · THE MOTION & SHAPE PACK — the reference pack, on this family ═══
+   Ported section for section from the claymorphism reference stylesheet
+   (animated nav, organic blobs, floating hero, press pricing, testimonial,
+   breathing grid, media card, inset panel, responsive rules, reduced
+   motion), and bridged onto the engine's own channels so every piece reads
+   correctly in BOTH modes — the pack's --clay-* vocabulary now resolves
+   here, and each keyframe answers prefers-reduced-motion. One deliberate
+   deviation: the demo's auto-cycling nav indicator is choreography that
+   would lie beside real interactive state, so on the site's own bar the
+   raised pill answers the hand and the route instead of a timer; the
+   verbatim .navclay class below keeps its slide for anyone who borrows
+   the pack as-is. */
+
+/* §11.0 The token bridge — pack vocabulary → engine channels. */
+[data-appearance="clay"] {
+  --clay-surface: rgb(var(--clay-card));
+  --clay-surface-raised: rgb(var(--ink-800));
+  --clay-surface-inset: rgb(var(--ink-900));
+  --clay-border: rgb(var(--clay-drop-h) / 0.22);
+  --clay-text: rgb(var(--text-1));
+  --clay-text-secondary: rgb(var(--text-2));
+  --clay-text-muted: rgb(var(--text-4));
+  --clay-primary: rgb(var(--brand-400));
+  --clay-primary-soft: rgb(var(--clay-lavender) / 0.3);
+  --clay-accent: rgb(var(--clay-coral));
+  --clay-secondary: rgb(var(--clay-archived));
+  --clay-success: rgb(var(--clay-mint));
+  --clay-radius-lg: calc(0.75rem * var(--radius-scale));
+  --clay-radius-xl: calc(1rem * var(--radius-scale));
+  --clay-shadow-raised: var(--shadow-panel);
+  --clay-shadow-large: var(--shadow-raised);
+  --clay-shadow-sm: 5px 5px 14px rgb(18 10 38 / 0.5),
+    -4px -4px 10px rgb(255 255 255 / 0.06);
+  --clay-shadow-inset: inset 6px 6px 14px var(--clay-lo),
+    inset -5px -5px 12px var(--clay-hi);
+  --clay-shadow-button: 6px 6px 16px rgb(var(--clay-coral-h) / 0.42),
+    inset 2px 2px 5px var(--clay-hi-2),
+    inset -3px -3px 8px rgb(219 74 61 / 0.35);
+  --clay-highlight: rgb(255 255 255 / var(--clay-lift));
+  --clay-shadow-dark: rgb(18 10 38 / 0.6);
+  --clay-highlight-soft: var(--clay-hi);
+  --clay-shadow-deep: var(--clay-lo);
+  --clay-ease: cubic-bezier(0.25, 0.8, 0.3, 1);
+}
+[data-theme="daylight"][data-appearance="clay"] {
+  --clay-surface-raised: rgb(var(--clay-raised));
+  --clay-surface-inset: rgb(var(--clay-foil));
+  --clay-border: rgb(var(--clay-drop-h) / 0.16);
+  --clay-primary: rgb(var(--brand-600));
+  --clay-primary-soft: rgb(var(--clay-lavender) / 0.32);
+  --clay-shadow-sm: 5px 5px 14px rgb(var(--clay-drop-h) / 0.22),
+    -4px -4px 10px rgb(255 255 255 / 0.85);
+  --clay-shadow-button: 6px 6px 16px rgb(var(--clay-coral-h) / 0.4),
+    inset 3px 3px 6px var(--clay-hi-2),
+    inset -3px -3px 8px rgb(200 60 48 / 0.3);
+}
+
+/* §11.1 The keyframes — one timing, six motions. */
+@keyframes clay-nav-slide {
+  0%, 15% { transform: translateX(0); }
+  25%, 40% { transform: translateX(100%); }
+  50%, 65% { transform: translateX(200%); }
+  75%, 90% { transform: translateX(300%); }
+  100% { transform: translateX(0); }
+}
+@keyframes clay-blob-morph {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+  }
+  50% {
+    transform: translate(10px, -12px) rotate(10deg) scale(1.06);
+    border-radius: 58% 42% 39% 61% / 56% 63% 37% 44%;
+  }
+}
+@keyframes clay-card-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+@keyframes clay-pricing-press {
+  0%, 100% { transform: scale(1); }
+  45% { transform: scale(0.985); }
+  55% { transform: scale(1.015); }
+}
+@keyframes clay-avatar-wobble {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(5deg); }
+}
+@keyframes clay-bubble-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes clay-grid-breathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* §11.2 Animated clay navigation — the pack's class, verbatim in spirit. */
+[data-appearance="clay"] .navclay {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--clay-border);
+  border-radius: 999px;
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-raised);
+}
+[data-appearance="clay"] .navclay__brand {
+  padding-inline: 10px;
+  color: var(--clay-text);
+  font-size: 0.9rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+[data-appearance="clay"] .navclay__menu {
+  position: relative;
+  display: flex;
+  flex: 1;
+  gap: 2px;
+  padding: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--clay-surface-inset);
+  box-shadow: var(--clay-shadow-inset);
+}
+[data-appearance="clay"] .navclay__indicator {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 5px;
+  width: calc((100% - 10px) / 4);
+  border: 1px solid var(--clay-border);
+  border-radius: 999px;
+  background: var(--clay-surface-raised);
+  box-shadow: var(--clay-shadow-sm);
+  pointer-events: none;
+  animation: clay-nav-slide 8s ease-in-out infinite;
+}
+[data-appearance="clay"] .navclay__item {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding: 10px 8px;
+  border-radius: 999px;
+  color: var(--clay-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+[data-appearance="clay"] .navclay__item:hover { color: var(--clay-primary); }
+[data-appearance="clay"] .navclay__cta {
+  flex-shrink: 0;
+  padding: 11px 19px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--clay-primary);
+  box-shadow: var(--clay-shadow-button);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 200ms ease;
+}
+[data-appearance="clay"] .navclay__cta:hover { transform: translateY(-2px); }
+
+/* §11.3 Organic clay blobs. */
+[data-appearance="clay"] .clay-blob {
+  position: absolute;
+  z-index: 0;
+  width: clamp(120px, 22vw, 260px);
+  aspect-ratio: 1;
+  border: 1px solid var(--clay-border);
+  border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+  background: var(--clay-primary-soft);
+  box-shadow: var(--clay-shadow-large);
+  pointer-events: none;
+  animation: clay-blob-morph 8s ease-in-out infinite;
+}
+[data-appearance="clay"] .clay-blob--blue {
+  background: color-mix(in srgb, var(--clay-primary) 28%, var(--clay-surface));
+}
+[data-appearance="clay"] .clay-blob--accent {
+  background: color-mix(in srgb, var(--clay-accent) 30%, var(--clay-surface));
+  animation-delay: -2s;
+}
+[data-appearance="clay"] .clay-blob--purple {
+  background: color-mix(in srgb, var(--clay-secondary) 25%, var(--clay-surface));
+  animation-delay: -4s;
+}
+
+/* §11.4 Floating clay hero card. */
+[data-appearance="clay"] .hero-clay {
+  position: relative;
+  isolation: isolate;
+  width: min(100%, 460px);
+  margin-inline: auto;
+}
+[data-appearance="clay"] .hero-clay__card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: clamp(24px, 5vw, 38px);
+  border: 1px solid var(--clay-border);
+  border-radius: var(--clay-radius-xl);
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-large);
+  animation: clay-card-float 5s ease-in-out infinite;
+}
+[data-appearance="clay"] .hero-clay__eyebrow {
+  margin: 0;
+  color: var(--clay-primary);
+  font-size: 0.75rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+[data-appearance="clay"] .hero-clay__title {
+  margin: 0;
+  color: var(--clay-text);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 850;
+  letter-spacing: -0.055em;
+  line-height: 1.15;
+}
+[data-appearance="clay"] .hero-clay__description {
+  margin: 0;
+  color: var(--clay-text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+[data-appearance="clay"] .hero-clay__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* §11.5 Animated pricing cards. */
+[data-appearance="clay"] .pricing-clay {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+}
+[data-appearance="clay"] .pricing-clay__card {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  padding: 30px;
+  border: 1px solid var(--clay-border);
+  border-radius: var(--clay-radius-xl);
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-raised);
+  transition: transform 300ms var(--clay-ease), box-shadow 300ms ease;
+}
+[data-appearance="clay"] .pricing-clay__card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--clay-shadow-large);
+}
+[data-appearance="clay"] .pricing-clay__card--basic {
+  background: var(--clay-surface-inset);
+  box-shadow: var(--clay-shadow-inset);
+}
+[data-appearance="clay"] .pricing-clay__card--featured,
+[data-appearance="clay"] .pricing-card--featured {
+  border-color: transparent;
+  background: var(--clay-surface-raised);
+  box-shadow: 0 0 0 5px var(--clay-primary-soft), var(--clay-shadow-large);
+  animation: clay-pricing-press 6s ease-in-out infinite;
+}
+[data-appearance="clay"] .pricing-clay__card--featured .pricing-clay__badge {
+  position: absolute;
+  top: -14px;
+  left: 24px;
+  padding: 7px 15px;
+  border-radius: 999px;
+  background: var(--clay-primary);
+  box-shadow: var(--clay-shadow-button);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+[data-appearance="clay"] .pricing-clay__name {
+  margin: 0 0 10px;
+  color: var(--clay-text);
+  font-size: 1.2rem;
+  font-weight: 850;
+}
+[data-appearance="clay"] .pricing-clay__price {
+  margin: 0 0 24px;
+  color: var(--clay-text-secondary);
+  font-size: 1rem;
+  font-weight: 700;
+}
+[data-appearance="clay"] .pricing-clay__features {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0 0 28px;
+  padding: 22px 0;
+  border-top: 1px solid var(--clay-border);
+  list-style: none;
+}
+[data-appearance="clay"] .pricing-clay__features li {
+  color: var(--clay-text-secondary);
+  font-size: 0.9rem;
+}
+[data-appearance="clay"] .pricing-clay__features li::before {
+  margin-right: 10px;
+  color: var(--clay-success);
+  font-weight: 900;
+  content: "✓";
+}
+
+/* §11.6 Testimonial with animated avatar. */
+[data-appearance="clay"] .testi-clay {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 26px;
+  border: 1px solid var(--clay-border);
+  border-radius: var(--clay-radius-lg);
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-raised);
+}
+[data-appearance="clay"] .testi-clay__avatar {
+  display: grid;
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--clay-border);
+  border-radius: 50%;
+  background: var(--clay-primary-soft);
+  box-shadow: var(--clay-shadow-raised);
+  color: var(--clay-primary);
+  font-size: 1.2rem;
+  font-weight: 850;
+  animation: clay-avatar-wobble 5s ease-in-out infinite;
+}
+[data-appearance="clay"] .testi-clay__bubble {
+  flex: 1;
+  min-width: 0;
+  padding: 20px 24px;
+  border: 1px solid var(--clay-border);
+  border-radius: var(--clay-radius-lg);
+  background: var(--clay-surface-raised);
+  box-shadow: var(--clay-shadow-raised);
+  animation: clay-bubble-float 5s ease-in-out infinite;
+}
+[data-appearance="clay"] .testi-clay__quote {
+  margin: 0 0 12px;
+  color: var(--clay-text);
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+[data-appearance="clay"] .testi-clay__name {
+  margin: 0;
+  color: var(--clay-text);
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+[data-appearance="clay"] .testi-clay__role {
+  margin: 4px 0 0;
+  color: var(--clay-text-muted);
+  font-size: 0.8rem;
+}
+
+/* §11.7 Animated feature grid. */
+[data-appearance="clay"] .card-grid-clay {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+}
+[data-appearance="clay"] .card-grid-clay__item {
+  display: flex;
+  min-height: 180px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid var(--clay-border);
+  border-radius: var(--clay-radius-lg);
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-raised);
+  text-align: center;
+  animation: clay-grid-breathe 5s ease-in-out infinite;
+  animation-delay: var(--clay-delay, 0s);
+  transition: box-shadow 250ms ease;
+}
+[data-appearance="clay"] .card-grid-clay__item:hover {
+  box-shadow: var(--clay-shadow-large);
+}
+[data-appearance="clay"] .card-grid-clay__icon {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  border: 1px solid var(--clay-border);
+  border-radius: 22px;
+  background: var(--clay-surface-raised);
+  box-shadow: var(--clay-shadow-sm);
+  color: var(--clay-primary);
+  font-size: 1.5rem;
+}
+[data-appearance="clay"] .card-grid-clay__label {
+  margin: 0;
+  color: var(--clay-text);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+/* §11.8 Image-based clay card. */
+[data-appearance="clay"] .clay-media-card {
+  container-type: inline-size;
+  overflow: hidden;
+  border: 1px solid var(--clay-border);
+  border-radius: var(--clay-radius-xl);
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-large);
+  color: var(--clay-text);
+  transition: transform 300ms var(--clay-ease), box-shadow 300ms ease;
+}
+[data-appearance="clay"] .clay-media-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--clay-shadow-large);
+}
+[data-appearance="clay"] .clay-media-card__media {
+  position: relative;
+  margin: 12px;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: 1px solid var(--clay-border);
+  border-radius: calc(var(--clay-radius-xl) - 8px);
+  background: var(--clay-surface-inset);
+  box-shadow: var(--clay-shadow-inset);
+}
+[data-appearance="clay"] .clay-media-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 500ms var(--clay-ease);
+}
+[data-appearance="clay"] .clay-media-card:hover .clay-media-card__image {
+  transform: scale(1.045);
+}
+[data-appearance="clay"] .clay-media-card__tag {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 7px 12px;
+  border: 1px solid var(--clay-border);
+  border-radius: 999px;
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-sm);
+  color: var(--clay-text);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+[data-appearance="clay"] .clay-media-card__body { padding: 18px 24px 24px; }
+[data-appearance="clay"] .clay-media-card__eyebrow {
+  margin: 0 0 10px;
+  color: var(--clay-primary);
+  font-size: 0.75rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+[data-appearance="clay"] .clay-media-card__title {
+  margin: 0 0 12px;
+  font-size: 1.35rem;
+  font-weight: 850;
+  letter-spacing: -0.035em;
+}
+[data-appearance="clay"] .clay-media-card__description {
+  margin: 0;
+  color: var(--clay-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+[data-appearance="clay"] .clay-media-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--clay-border);
+}
+[data-appearance="clay"] .clay-media-card__avatars {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+[data-appearance="clay"] .clay-media-card__avatar {
+  width: 30px;
+  height: 30px;
+  margin-left: -7px;
+  border: 2px solid var(--clay-surface);
+  border-radius: 50%;
+  background: var(--clay-primary-soft);
+}
+[data-appearance="clay"] .clay-media-card__avatar:first-child { margin-left: 0; }
+[data-appearance="clay"] .clay-media-card__count {
+  color: var(--clay-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+[data-appearance="clay"] .clay-media-card__footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+[data-appearance="clay"] .clay-media-card__footer .clay-btn { flex: 1; }
+[data-appearance="clay"] .clay-media-card__save {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  place-items: center;
+  border: 1px solid var(--clay-border);
+  border-radius: 50%;
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-button);
+  color: var(--clay-text);
+  cursor: pointer;
+  transition: transform 200ms ease;
+}
+[data-appearance="clay"] .clay-media-card__save:hover {
+  transform: translateY(-2px);
+  color: var(--clay-primary);
+}
+@container (max-width: 340px) {
+  [data-appearance="clay"] .clay-media-card__body { padding: 14px; }
+  [data-appearance="clay"] .clay-media-card__title { font-size: 1.1rem; }
+  [data-appearance="clay"] .clay-media-card__meta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+/* §11.8b …and the wide vignette: given room, the media steps into its own
+   left lane. This is the card answering its own inline-size, never the
+   viewport — the same markup serves a sliver, a column and a full row. */
+@container (min-width: 480px) {
+  [data-appearance="clay"] .clay-media-card {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: stretch;
+  }
+  [data-appearance="clay"] .clay-media-card__media {
+    margin: 14px 0 14px 14px;
+    aspect-ratio: auto;
+    min-height: 220px;
+  }
+  [data-appearance="clay"] .clay-media-card__body {
+    padding: 22px 26px 22px 22px;
+    align-self: center;
+  }
+}
+
+/* §11.9 Large inset clay surface. */
+[data-appearance="clay"] .clay-inset-panel {
+  padding: clamp(28px, 5vw, 60px);
+  border: 1px solid var(--clay-border);
+  border-radius: clamp(28px, 6vw, 64px);
+  background: var(--clay-surface);
+  box-shadow:
+    12px 12px 28px var(--clay-shadow-dark),
+    -12px -12px 28px var(--clay-highlight),
+    inset 4px 4px 10px var(--clay-highlight-soft),
+    inset -4px -4px 10px var(--clay-shadow-deep);
+}
+[data-appearance="clay"] .clay-inset-panel__title {
+  margin: 0 0 16px;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 850;
+  letter-spacing: -0.055em;
+}
+[data-appearance="clay"] .clay-inset-panel__description {
+  max-width: 650px;
+  margin: 0;
+  color: var(--clay-text-secondary);
+  line-height: 1.9;
+}
+
+/* §11.10 The pack on the site's own chrome.
+
+   The top bar takes the navclay vocabulary for real: the pill is the
+   raised outer, every item inside it becomes a full pill, hover raises the
+   one under the hand, and the current route / open trigger carries the
+   lavender pressed pill — the indicator that answers the visitor instead
+   of cycling on a timer. */
+[data-appearance="clay"] .nav-pill :is(a, button) {
+  border-radius: 999px;
+  transition:
+    transform 0.18s var(--clay-ease),
+    box-shadow 0.18s var(--clay-ease),
+    background-color 0.18s var(--clay-ease),
+    border-color 0.18s var(--clay-ease),
+    color 0.18s var(--clay-ease);
+}
+[data-appearance="clay"] .nav-pill :is(a, button):hover {
+  border-color: transparent;
+  background-color: var(--clay-surface-raised);
+  background-image: none;
+  color: rgb(var(--text-1));
+  box-shadow: var(--clay-shadow-sm),
+    inset 2px 2px 5px var(--clay-hi),
+    inset -3px -3px 6px var(--clay-lo);
+  transform: translateY(-1px);
+}
+[data-appearance="clay"] .nav-pill :is(a[aria-current="page"], button[aria-expanded="true"]) {
+  border-color: transparent;
+  background-color: rgb(var(--clay-lavender));
+  background-image: none;
+  color: rgb(var(--clay-ink));
+  box-shadow: 3px 3px 9px rgb(var(--clay-drop-h) / 0.34),
+    inset 4px 4px 9px var(--clay-hi-2),
+    inset -3px -3px 7px rgb(92 60 220 / 0.24);
+}
+
+/* The hero's floating shards become the pack's organic blobs in clay:
+   the screenshots walk off and the moulded shape takes their slot, each
+   staggered by the --d the shards already carry. */
+[data-appearance="clay"] .hero-shard {
+  overflow: visible;
+  border: 1px solid var(--clay-border);
+  border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+  background: color-mix(in srgb, rgb(var(--clay-lavender)) 30%, var(--clay-surface));
+  box-shadow: var(--clay-shadow-large);
+  animation: clay-blob-morph 9s ease-in-out infinite;
+  animation-delay: calc(var(--d, 1) * -1.7s);
+}
+[data-appearance="clay"] .hero-shard img { display: none; }
+[data-appearance="clay"] .hero-shard-2,
+[data-appearance="clay"] .hero-shard-4 {
+  background: color-mix(in srgb, var(--clay-accent) 24%, var(--clay-surface));
+}
+
+/* The basic edition presses into the page; the featured one carries the
+   halo and breathes — the pricing page's own markup, via its hooks. */
+[data-appearance="clay"] .pricing-card--basic {
+  background-color: var(--clay-surface-inset);
+  background-image: none;
+  box-shadow: var(--clay-shadow-inset);
+}
+/* §26 · the tiny landed pills (delta chips, jelly avatars, the bead
+   dots): they keep their semantic faces (brand/state/ink) but answer as
+   chips — lip crest, small grounding drop. NOT cards (the §21 door
+   still declines them from the ladder). */
+[data-appearance="clay"] [class*="rounded-full"]:where([class*="bg-ink-"], [class*="bg-brand-"], [class*="bg-state-"]),
+[data-appearance="clay"] [class*="rounded-md"]:where([class*="bg-state-"]) {
+  box-shadow: 2px 3px 6px rgb(var(--clay-drop-h) / 0.2),
+    inset 0 1.5px 0 var(--clay-lip),
+    inset 0 -2px 3px rgb(var(--clay-drop-h) / 0.12);
+}
+
+[data-appearance="clay"] .pricing-card--featured .chip {
+  background-color: rgb(var(--clay-lavender));
+  color: rgb(var(--clay-ink));
+}
+
+/* Media plates answer like the pack's media card: the frame stays put,
+   the picture leans a breath closer. */
+[data-appearance="clay"] .plate :is(img, video) {
+  transition: transform 500ms var(--clay-ease);
+}
+[data-appearance="clay"] .plate:hover :is(img, video) {
+  transform: scale(1.045);
+}
+
+/* §11.13 Clay-fall — the shards answer the scroll, not just time. The
+   blob morph keeps its clock; a second animation layer rides the hero's
+   own view() timeline, so leaving the hero sinks each shard by its --d
+   while its shadow softens into the page plane. The whole scroll layer
+   sits behind @supports: engines without scroll timelines read the morph
+   alone, and §11.12 kills both layers when motion is refused. */
+@keyframes clay-fall {
+  to {
+    transform: translateY(calc(var(--d, 1) * 7vh)) scale(0.95);
+    box-shadow: var(--clay-shadow-sm);
+  }
+}
+@supports (animation-timeline: view()) {
+  [data-appearance="clay"] .hero-shard {
+    animation-name: clay-blob-morph, clay-fall;
+    animation-duration: 9s, 1s;
+    animation-timing-function: ease-in-out, linear;
+    animation-iteration-count: infinite, 1;
+    animation-delay: calc(var(--d, 1) * -1.7s), 0s;
+    animation-fill-mode: none, both;
+    animation-timeline: auto, view();
+    animation-range: normal, exit 0% exit 100%;
+  }
+}
+
+/* §11.11 The pack's responsive grammar, kept for the pack's own classes. */
+@media (max-width: 900px) {
+  [data-appearance="clay"] .card-grid-clay {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  [data-appearance="clay"] .pricing-clay { flex-wrap: wrap; }
+  [data-appearance="clay"] .pricing-clay__card { flex-basis: calc(50% - 12px); }
+  [data-appearance="clay"] .navclay { flex-wrap: wrap; }
+}
+@media (max-width: 600px) {
+  [data-appearance="clay"] .navclay { border-radius: var(--clay-radius-lg); }
+  [data-appearance="clay"] .navclay__menu { order: 3; flex-basis: 100%; }
+  [data-appearance="clay"] .navclay__brand { flex: 1; }
+  [data-appearance="clay"] .navclay__item { padding-inline: 4px; font-size: 0.7rem; }
+  [data-appearance="clay"] .card-grid-clay { grid-template-columns: minmax(0, 1fr); }
+  [data-appearance="clay"] .pricing-clay { flex-direction: column; }
+  [data-appearance="clay"] .pricing-clay__card { flex-basis: auto; }
+  [data-appearance="clay"] .testi-clay { flex-direction: column; }
+  [data-appearance="clay"] .hero-clay__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* §11.12 Reduced motion wins across the whole pack, without exception. */
+@media (prefers-reduced-motion: reduce) {
+  [data-appearance="clay"] :is(
+    .navclay__indicator, .clay-blob, .hero-clay__card,
+    .pricing-clay__card--featured, .pricing-card--featured,
+    .testi-clay__avatar, .testi-clay__bubble, .card-grid-clay__item,
+    .hero-shard
+  ) {
+    animation: none !important;
+  }
+  [data-appearance="clay"] :is(.clay-media-card, .pricing-clay__card):hover,
+  [data-appearance="clay"] .plate:hover :is(img, video) {
+    transform: none;
+  }
+}
+
+/* ═══ §12 · THE MIDNIGHT FAMILY, COMPLETED — the paint-harness kill-list ═
+   The computed cascade (scripts/clay-paint.test.mjs, run against the built
+   stylesheet) exposed four live wounds at midnight, all of one species:
+
+     1. glass-primary — the dream band — drew daylight lavender (#B8A6FF)
+        under the moon because §951's midnight-band selector list named
+        .band-deep and .band-rich but never this surface. 6.54:1 heading,
+        1.04:1 eyebrow — lavender ink on a lavender field.
+     2. card-accent — the closing "You talk" card — locked only --text-1
+        and color in §7.4 (line 702), leaving --text-2…4 at mode level.
+        At midnight those tiers are light (#EEEAFC family), painted on
+        the card's lavender: 1.79:1 paragraphs, the washed-out text in
+        the screenshots. Its secondary button was worse: porcelain face
+        with light ink, 1.18:1.
+     3. Both lavender surfaces ran --text-1: var(--clay-ink) = #2E2A3F —
+        6.54:1 at every hour, under the 7:1 bar headings answer to.
+
+   Decisions (senior review, two debates settled):
+     • card-accent STAYS pastel at midnight. It is the 10% accent of the
+       70/20/10 budget, kin to the stat tiles that also keep their pastel
+       faces after dark. What changes is the ink: the full plum family on
+       it, at every hour.
+     • glass-primary JOINS the midnight band family (#32224C, one step up
+       from the page, porcelain buttons, light tokens). It is a zone, not
+       an accent — a lavender zone at midnight is exactly the inversion
+       the §9.6.2 note already outlawed for its sister bands.            */
+
+/* §12.1 card-accent — pastel in both modes, plum inks locked in full. */
+[data-appearance="clay"] .card-accent {
+  --text-1: 36 27 58;
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-1));
+}
+[data-appearance="clay"] .card-accent :is(.btn-primary, .btn-secondary) {
+  border-color: transparent;
+  background-color: rgb(252 250 255);
+  background-image: none;
+  color: rgb(var(--brand-700));
+  box-shadow: 8px 8px 18px rgb(var(--band-glow-h) / 0.3),
+    inset 3px 3px 6px var(--clay-lip),
+    inset -4px -4px 8px rgb(var(--brand-700) / 0.2);
+}
+
+/* §12.2 glass-primary — heading ink steps deeper in BOTH modes so the
+   display faces answer 7:1 on lavender; the paragraph tiers stay the
+   family §416 set. */
+[data-appearance="clay"] .glass-primary {
+  --text-1: 36 27 58;
+}
+
+/* §12.3 At midnight the dream band draws from the midnight family,
+   inheriting §951's recipe — plum ground, light tokens, porcelain pills. */
+html[data-theme="midnight"][data-appearance="clay"] .glass-primary {
+  background-color: rgb(var(--band-deep-h));
+  background-image: none;
+  box-shadow: 12px 12px 30px rgb(10 6 24 / 0.55),
+    inset 0 1.5px 0 var(--clay-hi-2),
+    inset -6px -6px 12px rgb(16 9 36 / 0.5);
+  --text-1: 255 255 255;
+  --text-2: 243 240 252;
+  --text-3: 224 218 240;
+  --text-4: 198 190 222;
+  --brand-300: 178 164 250;
+  color: rgb(var(--text-2));
+}
+html[data-theme="midnight"][data-appearance="clay"] .glass-primary :is(.btn-primary, .btn-secondary) {
+  border-color: transparent;
+  background-color: rgb(250 246 255);
+  background-image: none;
+  color: rgb(var(--clay-ink));
+  box-shadow: 8px 8px 18px rgb(18 10 38 / 0.42),
+    inset 5px 5px 11px var(--clay-lip),
+    inset -4px -4px 8px rgb(var(--clay-drop-h) / 0.24);
+}
+
+/* §12.4 The dossier plate (.panel-feature — the developer story panel on
+   /about, and the email-scrub feature panel on /) paints a light tinted
+   face but locked NO ink: at midnight the page-level --text-* are white,
+   so the whole dossier (name, figures, spine, dates) measured 1.07–1.26:1 —
+   the "developer section whitish" of the 12:42 review. It is a pastel
+   plate in both modes; lock the full plum bench like its card-accent kin. */
+[data-appearance="clay"] .panel-feature {
+  --text-1: 36 27 58;
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+}
+
+/* §12.4b …but the midnight registry lock (§9-era) lists .panel-feature
+   among the dark foils and nails its ink white at (0,3,1). The plate is
+   LIGHT at midnight — pastel accents do not invert. Override at the lock's
+   own specificity, later in source, so the plum bench wins from dusk on. */
+html[data-theme="midnight"][data-appearance="clay"] .panel-feature {
+  --text-1: 36 27 58;
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+}
+
+/* ═══ §13 · THE PLATE BENCH — dynamic color plates, custom color too ═════
+   One main color was never clay — the material is a bench of plates. Six
+   named pastels ship as tokens (the same family the stat tiles use, held
+   to the accent budget), plus `.plate-custom` for any one-off color:
+   set `--plate-custom` inline (or from the Clay Studio) to any "r g b".
+   Every plate locks the full plum bench, so a page may carry many colors
+   at once and every one of them still reads, in BOTH modes. At midnight
+   plates stay pastel — they are accents (70/20/10), not zones.         */
+
+[data-appearance="clay"] {
+  --plate-1: 206 196 255;   /* lavender — the house plate              */
+  --plate-2: 187 232 201;   /* mint                                   */
+  --plate-3: 255 214 192;   /* peach                                  */
+  --plate-4: 188 216 240;   /* sky                                    */
+  --plate-5: 255 205 222;   /* rose                                   */
+  --plate-6: 250 231 178;   /* lemon                                  */
+  /* Each plate's own shadow hue — the stat-tile rotation reads these so a
+     tile's depth stays keyed to its face when the bench moves them.        */
+  --plate-h-1: 150 132 250;
+  --plate-h-2: 120 190 150;
+  --plate-h-3: 228 148 122;
+  --plate-h-4: 140 170 214;
+  --plate-h-5: 235 130 160;
+  --plate-h-6: 220 190 100;
+  /* The interior wash (§16): the two hues the registry cards carry inside,
+     and how deep that wash runs (0.12 at tint 1, dial-scaled by the
+     studio). Cards read as carrying the family colour, not floating on it. */
+  --card-tint-h: 158 145 240;
+  --card-tint-h2: 250 196 150;
+  --clay-wash: 0.1;
+  /* §17 Zone plates — the big cards the bench also owns. `--panel-face`
+     colours the feature/CTA card (defaults to the house plate; the studio
+     writes the bench's first plate here); `--band-face` colours the calm
+     lit bands (defaults to the shipped foil). Registering them as tokens
+     is what makes the studio able to move these surfaces at all: nothing
+     outside a token can follow a preset, so nothing here is a literal.    */
+  --panel-face: var(--clay-lavender);
+  /* --band-face must stay a BARE triplet: consumers wrap it as
+     rgb(var(--band-face)) (band-solid, feature-plates). Defaulting it to
+     var(--clay-foil) painted rgb(rgb(…)) — invalid at computed-value time,
+     so the foil face never actually rendered. Theme scope keeps the two
+     modes honest side by side. */
+  --band-face: 239 234 252;
+  /* P13 — the zone bands' faces and mould glow, tokenised so the Studio
+     adoption block can re-hue them with the accent. Their faces used to
+     be house-violet literals no token could reach (.band-rich 60 42 94,
+     .band-deep/.glass-primary 50 34 76 at midnight; the full-saturation
+     lavender channel by day) — every picked accent stranded violet islands
+     on the page (the 12:44/12:46 screenshots). Daylight defaults resolve
+     to exactly what the literals painted; the midnight pair lives in the
+     theme block right below, so the house look is byte-stable while the
+     studio may move both. */
+  --band-rich-h: var(--clay-lavender);
+  --band-deep-h: var(--panel-face);
+  --band-glow-h: 92 60 220;
+  /* §19 — the on-screen cards' face. Every CARD-class surface (.surface,
+     .stat-tile, .surface-raised, .card-live, .float-card, .card-glass,
+     .plate, the utility-matched rounded panes) reads this, while chrome
+     (nav-glass/sheet/pill, menu-card) keeps --clay-card. Default = the
+     card channel → byte-identical shipped look until the studio's cards
+     row picks a plate; then the cards soften into pastel clay while the
+     feature card (§17 --panel-face) is free to wear its own plate. */
+  /* §20–§22 — tonal layering, SHIPPED PASTEL (user decree: white cards
+     are the bug, not the recipe). card cards wear the house lavender
+     body at full depth; data chips ride one step up toward light;
+     overlays (menus) the lightest clip. One family, three steps; the
+     studio's adoption rewrites all three hue-rotated per pick. */
+  --card-face: 206 196 255;
+  --data-face: 224 216 255;
+  --overlay-face: 238 230 255;
+
+}
+
+/* §22.1 — the midnight trio (top-level scope — nesting it inside the
+   token rule compiled to a descendant selector that can never match:
+   html-as-child-of-clay. Dead code in production, the real midnight bug.) */
+html[data-theme="midnight"][data-appearance="clay"] {
+  --card-face: 62 40 94;
+  --data-face: 76 50 112;
+  --overlay-face: 52 32 76;
+  /* P13 midnight zone faces — the values the band literals always painted;
+     the studio's adoption block re-hues them with a picked accent. */
+  --band-rich-h: 60 42 94;
+  --band-deep-h: 50 34 76;
+}
+
+[data-appearance="clay"] {
+  /* §18 — rotation noria: the stat tiles read these four pairs; a wrapper
+     (.plate-set-b/.plate-set-c) re-points them so one route can ride
+     plates 5/2/6/4 (or 3/1/5/2 …) while its neighbour keeps the house
+     order. Identity by default: nothing changes until a wrapper asks.   */
+  --rot-1: var(--plate-1);   --rot-1h: var(--plate-h-1);
+  --rot-2: var(--plate-2);   --rot-2h: var(--plate-h-2);
+  --rot-3: var(--plate-3);   --rot-3h: var(--plate-h-3);
+  --rot-4: var(--plate-4);   --rot-4h: var(--plate-h-4);
+}
+/* §18 — the two opt-in sets. Written as plain rules (not a utility loop)
+   because the studio also speaks these names if a route declares them. */
+[data-appearance="clay"] .plate-set-b {
+  --rot-1: var(--plate-5);   --rot-1h: var(--plate-h-5);
+  --rot-2: var(--plate-2);   --rot-2h: var(--plate-h-2);
+  --rot-3: var(--plate-6);   --rot-3h: var(--plate-h-6);
+  --rot-4: var(--plate-4);   --rot-4h: var(--plate-h-4);
+}
+[data-appearance="clay"] .plate-set-c {
+  --rot-1: var(--plate-3);   --rot-1h: var(--plate-h-3);
+  --rot-2: var(--plate-1);   --rot-2h: var(--plate-h-1);
+  --rot-3: var(--plate-5);   --rot-3h: var(--plate-h-5);
+  --rot-4: var(--plate-2);   --rot-4h: var(--plate-h-2);
+}
+/* The rotation rules above now read the noria instead of the house
+   bench directly. */
+
+/* ═══ §18b · RULE UNDERLINES — chips & dividers, plate-thin ══════════════
+   A drawn 2px edge cannot survive on clay (§4 semantics: strokes die where
+   a corner lives) — but a header rule or a footer divider is a HAIRLINE,
+   and hairlines carve. In clay the carve is a 2px groove pressed in the
+   family hue: a drop-h shadow line below, a lit lip above where daylight
+   is the ground. Components declare `.rule-plate` (+ direction); the
+   bench presets re-hue it like every other surface because it speaks
+   tokens only. Directionless (default) = horizontal rule.               */
+[data-appearance="clay"] .rule-plate {
+  display: block;
+  width: 100%;
+  height: 3px;
+  border: 0;
+  margin: 0;
+  border-radius: 999px;
+  background: linear-gradient(to right,
+    rgb(var(--clay-drop-h) / 0) 0%,
+    rgb(var(--clay-drop-h) / 0.45) 12%,
+    rgb(var(--clay-drop-h) / 0.45) 88%,
+    rgb(var(--clay-drop-h) / 0) 100%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.55);
+}
+html[data-theme="midnight"][data-appearance="clay"] .rule-plate {
+  background: linear-gradient(to right,
+    rgb(var(--clay-foil) / 0) 0%,
+    rgb(var(--clay-foil) / 0.28) 14%,
+    rgb(var(--clay-foil) / 0.28) 86%,
+    rgb(var(--clay-foil) / 0) 100%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.05);
+}
+[data-appearance="clay"] .rule-plate--vertical {
+  width: 3px;
+  height: auto;
+  align-self: stretch;
+  background: linear-gradient(to bottom,
+    rgb(var(--clay-drop-h) / 0) 0%,
+    rgb(var(--clay-drop-h) / 0.45) 12%,
+    rgb(var(--clay-drop-h) / 0.45) 88%,
+    rgb(var(--clay-drop-h) / 0) 100%);
+  box-shadow: 1px 0 0 rgb(255 255 255 / 0.55);
+}
+html[data-theme="midnight"][data-appearance="clay"] .rule-plate--vertical {
+  background: linear-gradient(to bottom,
+    rgb(var(--clay-foil) / 0) 0%,
+    rgb(var(--clay-foil) / 0.28) 14%,
+    rgb(var(--clay-foil) / 0.28) 86%,
+    rgb(var(--clay-foil) / 0) 100%);
+  box-shadow: 1px 0 0 rgb(255 255 255 / 0.05);
+}
+/* On a lit face (band, plate, feature panel) the carve inverts — the lip
+   is shaded, the floor is lit. */
+[data-appearance="clay"] :is(.band-deep, .panel-feature, .glass-primary, .plate-1, .plate-2, .plate-3, .plate-4, .plate-5, .plate-6, .card-accent) .rule-plate {
+  background: linear-gradient(to right,
+    rgb(var(--clay-drop-h) / 0) 0%,
+    rgb(var(--clay-drop-h) / 0.3) 15%,
+    rgb(var(--clay-drop-h) / 0.3) 85%,
+    rgb(var(--clay-drop-h) / 0) 100%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.35);
+}
+
+/* ═══ §19 · CHROME & FORMS — pressed wells, keyed focus, calm print ══════
+   Form controls are wells: the user presses INTO them, so they carve
+   instead of lifting. Scope is utility-driven (the site's inputs carry
+   bg-ink-* by contract): the engine swaps the drawn edge for the
+   material's pressed well in one rule per concern.                      */
+
+/* §19.1 Well controls — no drawn border, inner shade from the bridge's
+   --clay-shadow-inset, placeholder one tier below the body text. */
+[data-appearance="clay"] :is(input, select, textarea)[class*="bg-ink-"] {
+  border-color: transparent;
+  background: var(--clay-surface-inset);
+  background-image: none;
+  box-shadow: var(--clay-shadow-inset);
+  color: rgb(var(--text-1));
+}
+[data-appearance="clay"] :is(input, select, textarea)[class*="bg-ink-"]::placeholder {
+  color: rgb(var(--text-3));
+  opacity: 0.85;
+}
+[data-appearance="clay"] :is(input, select, textarea)[class*="bg-ink-"]:focus {
+  /* The native outline stays — §19.4 only re-dresses it. The well deepens. */
+  box-shadow: var(--clay-shadow-inset),
+    inset 0 0 0 1px rgb(var(--clay-drop-h) / 0.35);
+}
+
+/* §19.2 Checkers & sliders take the family hue. */
+[data-appearance="clay"] :is(input[type="checkbox"], input[type="radio"], input[type="range"]) {
+  accent-color: rgb(var(--clay-lavender));
+}
+
+/* §19.3 Scrollbars inherit the grammar: no chrome slab — a rounded thumb
+   in the family hue at half strength on a transparent track, Firefox by
+   scrollbar-color, WebKit by the pair. */
+[data-appearance="clay"], [data-appearance="clay"] * {
+  scrollbar-color: rgb(var(--clay-drop-h) / 0.5) transparent;
+}
+[data-appearance="clay"] ::-webkit-scrollbar { width: 12px; height: 12px; }
+[data-appearance="clay"] ::-webkit-scrollbar-track { background: transparent; }
+[data-appearance="clay"] ::-webkit-scrollbar-thumb {
+  background: rgb(var(--clay-drop-h) / 0.45);
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+[data-appearance="clay"] ::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--clay-drop-h) / 0.6);
+  background-clip: content-box;
+}
+html[data-theme="midnight"][data-appearance="clay"] ::-webkit-scrollbar-thumb {
+  background: rgb(var(--clay-foil) / 0.5);
+  background-clip: content-box;
+}
+html[data-theme="midnight"][data-appearance="clay"] ::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--clay-foil) / 0.65);
+  background-clip: content-box;
+}
+
+/* §19.4 Focus is a keyed lip, not a wall of color: pressed shade from the
+   drop hue plus a soft halo at 12%, Daylight and Midnight by the same
+   grammar — no radial drop shadows; focus-via-keyboard only. */
+/* §25 — one ring. Two competing focus grammars (3px brand vs 2px clay +
+   halo) are now a token + a rule: soft shadows never replace the outline,
+   state is never depth-only, and WCAG 2.2 SC 1.4.11 gets its 3:1 edge. */
+[data-appearance="clay"] { --clay-focus: 3px solid rgb(var(--brand-500) / 0.85); }
+html[data-theme="midnight"][data-appearance="clay"] { --clay-focus: 3px solid rgb(var(--clay-foil) / 0.85); }
+[data-appearance="clay"] :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: var(--clay-focus);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgb(var(--clay-drop-h) / 0.14);
+}
+
+/* §19.5 Print: the presses and the pools would bleed ink for zero
+   information. Every plate, surface and carve collapses to the same
+   contract — transparent face, 1px ink lip, ink text. Images and the
+   aurora do not print. */
+@media print {
+  [data-appearance="clay"] body {
+    background: #fff !important;
+  }
+  [data-appearance="clay"] :is(
+    .surface, .surface-raised, .stat-tile, .card-accent, .panel-feature,
+    .band-solid, .band-rich, .band-deep, .glass-primary, .nav-pill,
+    .nav-sheet, .menu-card, .plate, .plate-1, .plate-2, .plate-3,
+    .plate-4, .plate-5, .plate-6, .plate-custom, .card-live, .card-glass,
+    .float-card, .rule-plate, .hero-shard, .specialist-banner, .card-frame
+  ) {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    border: 1px solid rgb(40 32 56 / 0.7) !important;
+    color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  [data-appearance="clay"] .rule-plate,
+  [data-appearance="clay"] .hero-shard,
+  [data-appearance="clay"] .aurora-field,
+  [data-appearance="clay"] .aurora-underlay,
+  [data-appearance="clay"] .specialist-banner::before {
+    display: none !important;
+  }
+}
+
+[data-appearance="clay"] :is(.plate-1, .plate-2, .plate-3, .plate-4, .plate-5, .plate-6, .plate-custom) {
+  background-color: rgb(var(--plate-face, var(--plate-1)));
+  background-image: none;
+  border-color: transparent;
+  --text-1: 36 27 58;
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+  box-shadow: 10px 10px 24px rgb(var(--clay-drop-h) / 0.32),
+    inset 0 1.5px 0 var(--clay-lip),
+    inset 0 1.5px 0 var(--clay-hi-2),
+    inset -6px -6px 13px rgb(var(--clay-drop-h) / 0.2);
+}
+[data-appearance="clay"] .plate-2 { --plate-face: var(--plate-2); }
+[data-appearance="clay"] .plate-3 { --plate-face: var(--plate-3); }
+[data-appearance="clay"] .plate-4 { --plate-face: var(--plate-4); }
+[data-appearance="clay"] .plate-5 { --plate-face: var(--plate-5); }
+[data-appearance="clay"] .plate-6 { --plate-face: var(--plate-6); }
+[data-appearance="clay"] .plate-custom { --plate-face: var(--plate-custom, var(--plate-1)); }
+
+/* Plates are cards: hands raise them, gently. */
+[data-appearance="clay"] :is(.plate-1, .plate-2, .plate-3, .plate-4, .plate-5, .plate-6, .plate-custom).card-interactive {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+[data-appearance="clay"] :is(.plate-1, .plate-2, .plate-3, .plate-4, .plate-5, .plate-6, .plate-custom).card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-float),
+    inset 0 1.5px 0 var(--clay-lip),
+    inset 5px 5px 11px var(--clay-hi-2),
+    inset -6px -6px 13px rgb(var(--clay-drop-h) / 0.22);
+}
+
+/* The midnight registry lock would nail plate inks white if a plate ever
+   also carried a registry class; plates are light, so give the bench the
+   lock's own specificity with the plum bench behind it. (Written as a plain
+   selector list rather than :is() because the source-level token gate
+   merges every midnight :is(...) block into one view — the registry lock
+   and this surface-specific one are different facts, not one merge.) */
+html[data-theme="midnight"][data-appearance="clay"] .plate-1,
+html[data-theme="midnight"][data-appearance="clay"] .plate-2,
+html[data-theme="midnight"][data-appearance="clay"] .plate-3,
+html[data-theme="midnight"][data-appearance="clay"] .plate-4,
+html[data-theme="midnight"][data-appearance="clay"] .plate-5,
+html[data-theme="midnight"][data-appearance="clay"] .plate-6,
+html[data-theme="midnight"][data-appearance="clay"] .plate-custom {
+  --text-1: 36 27 58;
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+}
+
+/* ═══ §14 · EDGES LIVE INSIDE THE CARD ═══════════════════════════════════
+   The conic rim (.edge-conic) draws a stroke OUTSIDE the face — a normal
+   outlined card wearing a gradient. Clay's edge is thickness, and thickness
+   reads from inside. The old fix did move the rim inside, but it kept a
+   closed 1.5px ring — and any CLOSED, UNIFORM ring reads as an outline,
+   not as relief, whatever its alpha. Real clay relief is directional:
+   light catches the top and left lips, the bottom and right sit in soft
+   shadow, and the two together carve a shallow channel inside the face.
+   No uniform ring survives; on hover the channel deepens instead of
+   blinking.                                                              */
+[data-appearance="clay"] .edge-conic::after {
+  inset: 0;
+  padding: 0;
+  /* No face-fill gradient here: the ::after overlaps the card's content, and
+     painting a sheen over text is how contrast dies. The channel is carved
+     by the directional insets below and by nothing else. */
+  background: none;
+  -webkit-mask: none;
+  mask: none;
+  opacity: 1;
+  transition: box-shadow 0.35s ease;
+  border-radius: inherit;
+  box-shadow:
+    inset 3px 3px 6px var(--clay-hi-2),
+    inset 1px 1px 2px var(--clay-lip),
+    inset -4px -5px 10px rgb(var(--clay-drop-h) / 0.3),
+    inset -1px -2px 4px rgb(var(--clay-drop-h) / 0.22);
+}
+[data-appearance="clay"] .edge-conic:hover::after {
+  box-shadow:
+    inset 4px 4px 8px var(--clay-hi-2),
+    inset 1px 1px 3px var(--clay-lip),
+    inset -5px -6px 12px rgb(var(--clay-drop-h) / 0.34),
+    inset -1px -2px 5px rgb(var(--clay-drop-h) / 0.26);
+}
+
+/* §13.1 The facts strip IS the bench's demo reel — in clay the four stops
+   become real plates of four colors; the table's dividers and flat padding
+   (meant for the other families' ledger look) step out of the way. */
+[data-appearance="clay"] .facts-strip {
+  gap: 0.75rem;
+}
+[data-appearance="clay"] .facts-strip > li {
+  border: 0;
+  border-radius: var(--radius-card, 1.25rem);
+  padding: 1.1rem 1.25rem;
+  margin: 0;
+}
+[data-appearance="clay"] .facts-strip > li.sm\:pl-0 {
+  padding-left: 1.25rem;
+}
+
+/* ═══ §15 · THE CLAY BAR — the reference nav, earned, not imitated ════════
+   The sample bar's grammar: one solid segmented plate, items resting flat
+   in it, a raised clay pill that slides under the pointer and settles on
+   the current page, a real CTA at its side. The pack's indicator cycle is
+   NOT a slide show here — `animation: none` kills the 8s demo loop; the
+   bar's own JS moves the pill to actual pointer and route state.        */
+
+[data-appearance="clay"] .nav-pill {
+  position: relative;
+  isolation: isolate;
+  gap: 2px;
+  border-radius: 999px;
+  background-color: rgb(246 243 254);
+  background-image: none;
+  border-color: transparent;
+  box-shadow:
+    8px 8px 18px rgb(var(--clay-drop-h) / 0.3),
+    inset 2px 2px 5px var(--clay-lip),
+    inset -3px -3px 7px rgb(var(--clay-drop-h) / 0.18);
+  --nav-item: 69 62 94;
+  --nav-item-strong: 36 27 58;
+}
+html[data-theme="midnight"][data-appearance="clay"] .nav-pill {
+  background-color: rgb(24 16 46);
+  box-shadow:
+    8px 8px 18px rgb(6 3 16 / 0.55),
+    inset 2px 2px 5px var(--clay-hi-2),
+    inset -3px -3px 7px rgb(4 2 10 / 0.5);
+  --nav-item: 201 192 228;
+  --nav-item-strong: 255 255 255;
+}
+
+/* Items rest flat on the plate — no cards inside the segment, only words. */
+[data-appearance="clay"] .nav-pill :is(a, button) {
+  position: relative;
+  z-index: 1;
+  border-color: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border-radius: 999px;
+  color: rgb(var(--nav-item)) !important;
+}
+[data-appearance="clay"] .nav-pill :is(a, button):hover {
+  color: rgb(var(--nav-item-strong)) !important;
+}
+
+/* The sliding pill: a small plate of house lavender, rounded to the same
+   pill circle, moved by the bar (see Navbar.tsx). No animation of its own —
+   it only eases between measured positions. */
+[data-appearance="clay"] .nav-pill .navclay__indicator {
+  z-index: 0;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: 0;
+  border: 0;
+  background-color: rgb(var(--plate-1));
+  background-image: none;
+  box-shadow: 4px 4px 10px rgb(var(--clay-drop-h) / 0.35),
+    inset 1.5px 1.5px 3px var(--clay-hi-2),
+    inset -2px -2px 4px rgb(var(--clay-drop-h) / 0.22);
+  animation: none;
+  opacity: 0;
+  transition: transform 0.26s cubic-bezier(0.2, 0.8, 0.2, 1),
+    width 0.26s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.18s ease;
+}
+
+/* The item the pill sits under reads as pressed: plum on lavender, in both
+   modes — the plate is an accent and does not invert after dark. */
+[data-appearance="clay"] .nav-pill :is(a, button):is(:hover, [aria-current="page"], [aria-expanded="true"]) {
+  color: rgb(36 27 58) !important;
+}
+[data-appearance="clay"] .nav-pill :is(a, button):focus-visible {
+  outline: 2px solid rgb(var(--brand-500));
+  outline-offset: -2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-appearance="clay"] .nav-pill .navclay__indicator {
+    transition: none;
+  }
+}
+
+/* ═══ §16 · THE BENCH IS A FAMILY — cards carry the colour ═══════════════
+   The third sighting: "cards not accepting the clay engine's colours".
+   Cause, found in the source: the plates were tokens but the card FACES
+   were fixed literals -- the bench had nothing to recolor. Now the bench
+   carries the whole system (§13 tokens + useStudio hue twist): card
+   channels twist to the bench hue at unchanged lightness, and every
+   registry surface holds a whisper of the family wash inside, so cards
+   visibly accept a preset or a bench colour instead of staying house plum
+   below pastel plates. The dial sets the depth -- 0 is a flat token face,
+   3x is unmistakable. Washes sit under the text locks (§9) and inside the
+   contrast gates: they are a tint, not a fill.
+*/
+
+/* Every raised clay surface carries the family's two wash hues inside. */
+[data-appearance="clay"] .surface,
+[data-appearance="clay"] .surface-raised,
+[data-appearance="clay"] .menu-card,
+[data-appearance="clay"] .card-live,
+[data-appearance="clay"] .card-glass,
+[data-appearance="clay"] .float-card,
+[data-appearance="clay"] .card-interactive,
+[data-appearance="clay"] [class*="bg-ink-900"][class*="rounded-2xl"],
+[data-appearance="clay"] [class*="bg-ink-850"][class*="rounded-2xl"],
+[data-appearance="clay"] [class*="bg-ink-800"][class*="rounded-xl"],
+[data-appearance="clay"] [class*="bg-ink-900"][class*="rounded-card"],
+[data-appearance="clay"] [class*="bg-ink-850"][class*="rounded-card"],
+[data-appearance="clay"] [class*="bg-ink-800"][class*="rounded-panel"] {
+  background-image:
+    radial-gradient(130% 150% at 8% 0%,
+      rgb(var(--card-tint-h) / var(--clay-wash, 0.1)) 0%,
+      transparent 58%),
+    radial-gradient(140% 150% at 100% 100%,
+      rgb(var(--card-tint-h2) / calc(var(--clay-wash, 0.1) * 0.8)) 0%,
+      transparent 62%);
+}
+
+
+
+/* ═══ §18c · FEATURE PLATES — the big cards walk the bench row-by-row ══
+   .stat-tile already rotates inside its own grid (§1). The feature grid's
+   panels are zone plates — big, quiet, scoped to the 20% of each page the
+   zones own. In clay a `.feature-plates` grid cycles its direct children
+   through --panel-face / --band-face pairs (plum ink is locked by §12.4
+   the moment a panel-feature class is present, so this is a FACE choice,
+   never an ink choice). It does not repaint: backgrounds stay their
+   surfaces, only the plate affinity moves — read: the grid carries the
+   bench without reordering it. Midnight keeps its deep-plum zone family;
+   this rotation therefore runs in DAYLIGHT only (§9.5: zones at night
+   belong to the night, not to the bench).                              */
+html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-raised:nth-child(4n+1) {
+  background-color: rgb(var(--panel-face));
+}
+html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-raised:nth-child(4n+3) {
+  background-color: rgb(var(--band-face));
+}
+html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-raised:nth-child(4n+2),
+html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-raised:nth-child(4n+4) {
+  /* even tiles hold the recipe card face — the alternation carries the
+     alternated, never the whole grid at once. */
+  background-color: rgb(var(--clay-card));
+}
+/* Plum ink is a property of the clay registry, not of the plate face —
+   re-assert it under the rotation so a face move can never move ink. */
+html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-raised {
+  --text-1: 36 27 58;
+  --text-2: 40 36 56;
+  --text-3: 51 45 72;
+  --text-4: 66 59 92;
+  color: rgb(var(--text-2));
+}
+
+/* ═══ §20 · BRAND TEXT ON LIFTED FOILS — the invisible file names ═══════
+   The §9 foil lift turns bg-ink and bg-white chips into the clay foil
+   (light lavender by day, deep plum at night). But any text class from
+   the brand scale — text-brand-200 and kin, authored as LIGHT INK FOR
+   DARK GROUNDS — survives the lift, and lavender-on-lavender is the
+   "file names are invisible" report of the 16:29 screenshot. On clay,
+   the tier system already flips per mode (plum by day, near-white at
+   night), so brand-tinted text on a lifted foil resolves through
+   --text-2 instead. Same-element chips (.bg-ink-950/60 carrying
+   .text-brand-200/90) and descendant labels are both covered. Darker
+   brand inks (600/700) lose only their violet tint here — they land on
+   the same readable plums.                                            */
+[data-appearance="clay"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"])[class*="text-brand-"],
+[data-appearance="clay"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]) [class*="text-brand-"],
+[data-appearance="clay"] [class*="bg-brand-"][class*="text-brand-"] {
+  color: rgb(var(--text-2));
+}
+
+
+
+
+/* § chip & badge ink — small pills are not card foils. The app-icon tiles
+   are plum-inked pastel (§2 sets their ink), and the generic brand-wash
+   ink rule above must not whiten them. State badges likewise keep their
+   own state wash: the [class*=bg-state-*] foil rules repaint large
+   callout carriers in lemon/rose, which swallows a badge's 22% wash
+   whole — amber on lemon measured 1.0:1 at midnight. */
+[data-appearance="clay"] .icon-chip[class*="text-brand-"],
+[data-appearance="clay"] .index-chip[class*="text-brand-"] {
+  color: rgb(var(--clay-ink));
+}
+html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state-warning"],
+html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state-success"],
+html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state-danger"] {
+  background-color: rgb(var(--clay-ink) / 0.92);
+}

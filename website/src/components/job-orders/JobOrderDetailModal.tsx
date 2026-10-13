@@ -184,7 +184,7 @@ export function JobOrderDetailModal({ row, authToken, productionTrackingAvailabl
   const completedStages = production?.stages.filter((stage) => stage.status === "Completed").length ?? 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/80 p-4 backdrop-blur-sm animate-fade-in" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy && !savingStage) onClose(); }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/85 p-4 animate-fade-in" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy && !savingStage) onClose(); }}>
       <section role="dialog" aria-modal="true" aria-labelledby="job-order-detail-title" className="relative flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-line-strong/80 bg-ink-900 shadow-raised">
         <div className="flex shrink-0 items-start justify-between gap-4 border-b border-line-strong/60 p-5 sm:p-6">
           <div className="min-w-0">

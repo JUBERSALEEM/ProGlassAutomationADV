@@ -11,6 +11,7 @@ import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 /**
  * One page per Markdown file in `posts/`. Drafts are not in this list, so a
@@ -79,6 +80,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   const tokens = postTokens(post.markdown);
 
   return (
+    <PageOverlay locale={t.locale} route="blog/[slug]">
     <>
       {/*
         One graph for the article, its WebPage and its breadcrumb trail, all
@@ -103,7 +105,11 @@ export default async function BlogPostPage({ params }: PageProps) {
       <article>
         <header className="relative overflow-hidden border-b border-line/60 pb-12 pt-12 sm:pb-14 sm:pt-16">
           <div aria-hidden="true" className="glow-layer pointer-events-none absolute inset-0">
-            <div className="absolute -top-28 left-[12%] h-72 w-72 rounded-full bg-brand-500/10 blur-[110px]" />
+            <span
+              aria-hidden="true"
+              className="orb orb-wide -top-28 left-[12%] h-72 w-72"
+              style={{ "--orb": "rgb(var(--brand-500) / 0.12)" } as React.CSSProperties}
+            />
           </div>
           <Container className="relative">
             <nav aria-label={t("Breadcrumb")} className="mb-6">
@@ -122,8 +128,8 @@ export default async function BlogPostPage({ params }: PageProps) {
               </ol>
             </nav>
 
-            <div className="max-w-3xl">
-              <div className="flex flex-wrap items-center gap-3">
+            <div className="mx-auto max-w-3xl text-center">
+              <div className="flex flex-wrap items-center justify-center gap-3">
                 <Badge tone="accent">{t(post.category)}</Badge>
                 <time dateTime={post.date} className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                   {new Date(post.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
@@ -210,5 +216,6 @@ export default async function BlogPostPage({ params }: PageProps) {
         </Section>
       ) : null}
     </>
+    </PageOverlay>
   );
 }

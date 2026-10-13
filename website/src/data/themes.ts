@@ -30,7 +30,7 @@ export type ThemeMode = "light" | "dark" | "system";
 export type ResolvedTheme = "midnight" | "daylight";
 
 /** The `data-appearance` value written to <html>. */
-export type AppearanceFamily = "studio" | "monet" | "industrial" | "crystal";
+export type AppearanceFamily = "studio" | "monet" | "industrial" | "crystal" | "clay";
 
 export type ThemeModeEntry = {
   id: ThemeMode;
@@ -59,26 +59,33 @@ export const appearanceFamilies: AppearanceFamilyEntry[] = [
     id: "studio",
     label: "Studio",
     origin: "The website's own palette — the application's Violet accent, taken deep.",
-    swatch: "#8B5CF6",
+    swatch: "#7E57CE",
   },
   {
     id: "monet",
     label: "Monet",
     origin:
       "The application's Material-You family: surfaces derived from the accent's own dusk (its Golden Hour wallpaper).",
-    swatch: "#E879A6",
+    swatch: "#E469A0",
   },
   {
     id: "industrial",
     label: "Industrial",
     origin: "The application's strict default family — crisp sky over slate, minimal tinting.",
-    swatch: "#38BDF8",
+    swatch: "#2DB0F0",
   },
   {
     id: "crystal",
     label: "Crystal",
     origin: "The application's Crystal Fluid family: see-through surfaces over a luminous environment.",
-    swatch: "#22D3EE",
+    swatch: "#1AC5E2",
+  },
+  {
+    id: "clay",
+    label: "Clay",
+    origin:
+      "Claymorphism — solid pastel surfaces with puffed corners and a soft tinted pillow-shadow, moulded rather than assembled. Rounded higher, and with no backdrop blur at all, it is also the cheapest family to paint.",
+    swatch: "#B8A6FF",
   },
 ];
 
@@ -103,6 +110,18 @@ export const accentPresets: { key: string; name: string; hex: string | null }[] 
   { key: "Fuchsia", name: "Fuchsia", hex: "#C026D3" },
   { key: "Violet", name: "Violet", hex: "#7C3AED" },
   { key: "Indigo", name: "Indigo", hex: "#4F46E5" },
+  /*
+   * The website's own vivid plates — beyond the application's sixteen,
+   * added for the readers who asked for more colour at full strength. Same
+   * mechanics as the rest of the grid: one tap recolours the whole site,
+   * tinted shadows and all.
+   */
+  { key: "Brick", name: "Brick", hex: "#DC2626" },
+  { key: "Canary", name: "Canary", hex: "#EAB308" },
+  { key: "Azure", name: "Azure", hex: "#0BA5F4" },
+  { key: "Leaf", name: "Leaf", hex: "#22C55E" },
+  { key: "Magenta", name: "Magenta", hex: "#EC4899" },
+  { key: "Tangerine", name: "Tangerine", hex: "#FB923C" },
   { key: "Slate", name: "Slate", hex: "#475569" },
   { key: "Black", name: "Black", hex: "#111827" },
   { key: "Custom", name: "Custom", hex: null },
@@ -113,14 +132,20 @@ export const THEME_STORAGE_KEY = "proglass-theme-mode";
 export const APPEARANCE_STORAGE_KEY = "proglass-appearance";
 
 export const DEFAULT_THEME_MODE: ThemeMode = "system";
-export const DEFAULT_APPEARANCE: AppearanceFamily = "studio";
+/*
+ * The first-run family. Crystal is the liquid-glass identity the site is
+ * art-directed around; a stored choice (any family, including Clay) always
+ * wins over this default — the default only greets a visitor who has never
+ * picked.
+ */
+export const DEFAULT_APPEARANCE: AppearanceFamily = "clay";
 
 export function isThemeMode(value: unknown): value is ThemeMode {
   return value === "light" || value === "dark" || value === "system";
 }
 
 export function isAppearanceFamily(value: unknown): value is AppearanceFamily {
-  return value === "studio" || value === "monet" || value === "industrial" || value === "crystal";
+  return value === "studio" || value === "monet" || value === "industrial" || value === "crystal" || value === "clay";
 }
 
 /** Mode → the `data-theme` value to write on <html>. */
@@ -143,8 +168,17 @@ export const themeBootScript = `(function(){try{
 var mk=${JSON.stringify(THEME_STORAGE_KEY)},ak=${JSON.stringify(APPEARANCE_STORAGE_KEY)},vk="proglass-studio-vars";
 var m=localStorage.getItem(mk);
 if(m!=="light"&&m!=="dark"&&m!=="system")m="system";
+/* Hygiene v2 — rides BEFORE the appearance resolves, so it takes effect on
+   this very boot: clears the stored studio dials (an old edge/scale dial
+   could outrank the clay recipe's own corners and strokes) AND lands the
+   visitor on the Clay family once. The palette picker still switches away
+   — this just makes Clay the first thing every visitor feels, including a
+   returning one whose storage pinned an older family. */
+var vk2="proglass-studio-attrs";
+var hv="proglass-hygiene-v2";
+if(localStorage.getItem(hv)!=="1"){localStorage.removeItem(vk);localStorage.removeItem(vk2);localStorage.setItem(ak,"clay");localStorage.setItem(hv,"1");}
 var a=localStorage.getItem(ak);
-if(a!=="studio"&&a!=="monet"&&a!=="industrial"&&a!=="crystal")a="studio";
+if(a!=="studio"&&a!=="monet"&&a!=="industrial"&&a!=="crystal"&&a!=="clay")a="clay";
 var d=window.matchMedia("(prefers-color-scheme: dark)").matches;
 var t=m==="light"?"daylight":m==="dark"?"midnight":(d?"midnight":"daylight");
 var e=document.documentElement;
@@ -153,8 +187,17 @@ e.setAttribute("data-theme-mode",m);
 e.setAttribute("data-appearance",a);
 e.style.colorScheme=t==="daylight"?"light":"dark";
 var v=localStorage.getItem(vk);
-if(v){var o=JSON.parse(v);for(var k in o){if(Object.prototype.hasOwnProperty.call(o,k))e.style.setProperty(k,o[k]);}}
-var vk2="proglass-studio-attrs";
+if(v){var o=JSON.parse(v);for(var k in o){if(Object.prototype.hasOwnProperty.call(o,k)){
+var w=o[k];
+if(k==="--ui-scale"){var n2=parseFloat(w);if(!isFinite(n2)||n2<0.9||n2>1.15)continue;}
+/* P18 — a poisoned blob (any "NaN"/"Infinity" string, from a stale build's
+   write path or a hand edit) must never reach the DOM: calc() drops the
+   whole declaration, which is "the frost/font/colour is gone forever".
+   The studio now normalises + heals the state on read, so a skipped value
+   here is re-painted from healthy defaults on the same load. */
+if(/nan|infinity/i.test(w))continue;
+if(typeof w!=="string"||w.length>96||k.slice(0,2)!=="--")continue;
+e.style.setProperty(k,w);}}}
 var v2=localStorage.getItem(vk2);
 if(v2){var o2=JSON.parse(v2);for(var k2 in o2){if(Object.prototype.hasOwnProperty.call(o2,k2))e.setAttribute(k2,o2[k2]);}}
 }catch(e){}})();`;

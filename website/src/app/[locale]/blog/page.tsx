@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+import { Badge, IconChip } from "@/components/ui/Badge";
+import { footerLinkIcons } from "@/data/footerIcons";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { allPosts } from "@/lib/posts";
@@ -11,6 +13,7 @@ import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -33,6 +36,7 @@ export default async function BlogPage({ params }: PageProps) {
   const [lead, ...rest] = posts;
 
   return (
+    <PageOverlay locale={t.locale} route="blog">
 
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
@@ -45,7 +49,9 @@ export default async function BlogPage({ params }: PageProps) {
       items={posts.map((post) => ({ name: post.title, url: `${site.url}/blog/${post.slug}` }))}
     />
       <PageHero
+        variant="document"
       t={t}
+        glyph={footerIconFor("/blog")!}
         eyebrow={t("Blog")}
         title={t("Notes on glass software and the work behind it.")}
         lead={t("Short pieces about the decisions inside a glass-business application: what to store, what to recompute, and which constraints are real. Written to be useful whether or not you use ProGlass.")}
@@ -80,7 +86,7 @@ export default async function BlogPage({ params }: PageProps) {
             <Reveal delay={80} className="mt-8">
               <Link
                 href={`/blog/${lead.slug}`}
-                className="plate group block p-6 transition-colors duration-300 hover:border-brand-400/40 sm:p-8"
+                className="surface-raised group block p-6 transition-colors duration-300 hover:border-brand-400/40 sm:p-8"
               >
                 <div className="flex flex-wrap items-center gap-3">
                   <Badge tone="accent">{t(lead.category)}</Badge>
@@ -122,6 +128,7 @@ export default async function BlogPage({ params }: PageProps) {
                   className="surface group flex h-full flex-col p-6 transition-colors duration-300 hover:border-brand-400/40"
                 >
                   <div className="flex flex-wrap items-center gap-3">
+                    <IconChip path={footerLinkIcons["/blog"]!} className="h-7 w-7" />
                     <Badge>{t(post.category)}</Badge>
                     <time dateTime={post.date} className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                       {new Date(post.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
@@ -156,14 +163,14 @@ export default async function BlogPage({ params }: PageProps) {
       <Section aria-label={t("Explore the product")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("Reading about it is not the same as seeing it.")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
+                <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
           {t("The application is the argument. A demonstration will take you through the chain on a job you recognise.")}
         </p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
           {t("Request a Demo")}
         </ButtonLink>
@@ -176,5 +183,6 @@ export default async function BlogPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

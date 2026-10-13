@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
@@ -13,6 +14,7 @@ import { site } from "@/lib/site";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -21,7 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return pageMetadata({
   locale: t.locale,
   title: t("Sponsorship and collaboration"),
-  description: t("ProGlass Automation is built by one developer. What sponsorship funds, which work is open to collaborators, and how to get involved without buying influence."),
+  description: t("Built by one developer. What sponsorship unblocks, what collaborators can take, and how to help without buying influence."),
   path: "/sponsors",
   keywords: ["sponsor glass software", t("open collaboration WPF project"), "glass software developer sponsorship", t("ProGlass Automation contributors")],
   ogEyebrow: t("Sponsorship"),
@@ -39,16 +41,18 @@ export default async function SponsorsPage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="sponsors">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
       locale={locale}
       path="/sponsors"
       title={t("Sponsorship and collaboration")}
-      description={t("ProGlass Automation is built by one developer. What sponsorship funds, which work is open to collaborators, and how to get involved without buying influence.")}
+      description={t("Built by one developer. What sponsorship unblocks, what collaborators can take, and how to help without buying influence.")}
     />
       <PageHero
       t={t}
+        glyph={footerIconFor("/sponsors")!}
         eyebrow={t("Support the build")}
         title={t("One developer, one desktop product, and room for help.")}
         lead={t("ProGlass Automation is a complete commercial chain with a cutting-optimization engine behind it, written and maintained by a single person. It is not short of ideas. It is short of hours, hardware to test against, and reviewed translations.")}
@@ -117,7 +121,7 @@ export default async function SponsorsPage({ params }: PageProps) {
                 />
               </div>
 
-              <div className="card-accent mt-4 p-6">
+              <div className="surface-raised mt-4 p-6">
                 <p className="eyebrow">{t("The rule this page keeps")}</p>
                 <p className="mt-3 text-sm leading-relaxed text-text-secondary">{t("Sponsorship funds work. It does not buy a roadmap position, a feature nobody needs, or a claim on the website that the software cannot demonstrate.")}</p>
               </div>
@@ -223,7 +227,7 @@ export default async function SponsorsPage({ params }: PageProps) {
 
             <Reveal delay={80}>
               <div className="flow">
-                <div className="plate p-6 sm:p-7">
+                <div className="surface-raised p-6 sm:p-7">
                   <p className="eyebrow">{t("Where to write")}</p>
                   <h3 className="mt-3 text-lg font-semibold text-text-primary">{t("One address, read by the person who writes the code.")}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-text-muted">{t("There is no sales team and no support queue between you and the developer. Mention “sponsorship” or the specific gap you are interested in, and the reply will come from {v1}.", { v1: site.developerName })}</p>
@@ -289,12 +293,12 @@ export default async function SponsorsPage({ params }: PageProps) {
       <Section aria-label={t("Support the project")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("Back the build, or join it.")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("Funding, a developer with spare capacity, a cutting table that can be tested against, or a translation that deserves a native speaker — all four move this product forward.")}</p>
+                <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("Funding, a developer with spare capacity, a cutting table that can be tested against, or a translation that deserves a native speaker — all four move this product forward.")}</p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <ButtonLink href={`mailto:${site.developerEmail}?subject=ProGlass%20Automation%20—%20sponsorship`} size="lg" trailing={<ArrowRight />}>
           {t("Email the developer")}
         </ButtonLink>
@@ -307,6 +311,7 @@ export default async function SponsorsPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }
 

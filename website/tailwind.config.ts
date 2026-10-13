@@ -20,6 +20,23 @@ const config: Config = {
   content: ["./src/**/*.{ts,tsx,mdx}"],
   theme: {
     extend: {
+      /**
+       * One screen of our own, over Tailwind's defaults.
+       *
+       * The header is the one part of this site whose width budget can be
+       * worked out exactly: it is a fixed-height row of fixed-size things — a
+       * lockup, seven nav cards, three settings controls, a call to action and
+       * the build stamp — and every one of them is measured from the real font
+       * files by `scripts/measure-panel.py`. Measured, the full row needs about
+       * 1660 px of content width. No default breakpoint describes where that
+       * becomes true: `2xl` is 1536, and the next stop is the whole of a 1920
+       * monitor. `wide` is where everything the panel owns fits at once, which
+       * is why the nav's glyph icons and the palette's word appear there and
+       * not below it — and why the panel sheds items in a defined order on the
+       * way down instead of being squeezed (see `measure-panel.py` for the
+       * ladder, and `Navbar.tsx` for the classes that implement it).
+       */
+      screens: { wide: "1920px" },
       colors: {
         /** Surfaces, darkest page tier first. */
         ink: {
@@ -36,6 +53,17 @@ const config: Config = {
         },
         brand: {
           50: "rgb(var(--brand-50) / <alpha-value>)",
+          /*
+           * 100 exists because the site was already writing `text-brand-100`
+           * in six places — a monogram, a pricing chip, a metric figure and a
+           * code span — and Tailwind, finding no `brand.100` in this scale,
+           * silently emitted nothing. The class was in the markup and had no
+           * effect: those figures were inheriting their colour from whatever
+           * surrounded them. It is defined here rather than renamed in the six
+           * call sites because the intent of the call site was right — the
+           * lightest accent step, for figure text on a tinted chip.
+           */
+          100: "rgb(var(--brand-100) / <alpha-value>)",
           200: "rgb(var(--brand-200) / <alpha-value>)",
           300: "rgb(var(--brand-300) / <alpha-value>)",
           400: "rgb(var(--brand-400) / <alpha-value>)",
@@ -125,18 +153,21 @@ const config: Config = {
         glow: "var(--shadow-glow)",
         "glow-strong": "var(--shadow-glow-strong)",
         /* Static violet glows for elements that must not follow the theme. */
-        accent: "0 10px 30px -12px rgb(139 92 246 / 0.65)",
-        "accent-strong": "0 16px 38px -12px rgb(139 92 246 / 0.8)",
+        accent: "0 12px 34px -12px rgb(var(--brand-600) / 0.75)",
+        "accent-strong": "0 18px 44px -12px rgb(var(--brand-500) / 0.9)",
       },
       backgroundImage: {
         "grid-fine":
           "linear-gradient(to right, rgb(var(--line) / 0.55) 1px, transparent 1px), linear-gradient(to bottom, rgb(var(--line) / 0.55) 1px, transparent 1px)",
         "sheen-violet":
-          "linear-gradient(135deg, rgb(var(--brand-400) / 0.16) 0%, rgb(var(--brand-400) / 0) 55%)",
+          "linear-gradient(135deg, rgb(var(--brand-500) / 0.3) 0%, rgb(var(--brand-400) / 0) 58%)",
         "sheen-glass":
-          "linear-gradient(135deg, rgb(var(--glass-teal) / 0.16) 0%, rgb(var(--brand-500) / 0) 60%)",
+          "linear-gradient(135deg, rgb(var(--glass-teal) / 0.28) 0%, rgb(var(--brand-500) / 0) 62%)",
         "plate-top":
-          "linear-gradient(180deg, rgb(var(--text-1) / 0.06) 0%, rgb(var(--text-1) / 0) 42%)",
+          "linear-gradient(180deg, rgb(var(--text-1) / 0.08) 0%, rgb(var(--text-1) / 0) 42%)",
+        /** A hairline that fades at both ends — the site's own section rule. */
+        "rule-fade":
+          "linear-gradient(90deg, transparent, rgb(var(--brand-400) / 0.55) 22%, rgb(var(--glass-cyan) / 0.4) 50%, rgb(var(--brand-400) / 0.55) 78%, transparent)",
       },
       backgroundSize: {
         "grid-fine": "56px 56px",

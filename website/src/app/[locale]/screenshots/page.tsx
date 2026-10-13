@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -11,6 +12,7 @@ import { capabilityGroups } from "@/data/screenshots";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -18,9 +20,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const t = await translatorFor(params);
   return pageMetadata({
     locale: t.locale,
-    title: t("Inside ProGlass Automation — Interactive Product Showcase"),
+    /*
+     * 39 characters, because `metadata.title.template` appends
+     * " · ProGlass Automation" and a title that overruns 62 characters is one
+     * a search result truncates. The old one ran to 56 on its own and 79 with
+     * the suffix, which the site's own audit reported as the longest title on
+     * the site — for the page whose subject is the interface.
+     */
+    title: t("The interface, screen by screen"),
     description: t(
-      "Explore the complete ProGlass Automation ERP interface: commercial estimation, 3D glass calculators, 2D guillotine cutting optimization, 8-stage production tracking, and financial analytics.",
+      "Walk every ProGlass Automation screen: estimation, the 3D glass calculators, 2D cutting optimization, the eight production stages and the reports.",
     ),
     path: "/screenshots",
     keywords: [
@@ -40,20 +49,23 @@ export default async function ScreenshotsPage({ params }: PageProps) {
   const totalCurated = capabilityGroups.reduce((acc, g) => acc + g.screenshotIds.length, 0);
 
   return (
+    <PageOverlay locale={t.locale} route="screenshots">
     <>
       {/* Structured data for this route */}
       <RouteSchema
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         locale={locale as any}
         path="/screenshots"
-        title={t("Inside ProGlass Automation — Interactive Product Showcase")}
+        title={t("The interface, screen by screen")}
         description={t(
           "Explore the complete ProGlass Automation ERP interface: commercial estimation, 3D glass calculators, 2D guillotine cutting optimization, 8-stage production tracking, and financial analytics.",
         )}
       />
 
       <PageHero
+        variant="showcase"
         t={t}
+        glyph={footerIconFor("/screenshots")!}
         eyebrow={t("Product Showcase")}
         title={t("Inside ProGlass Automation.")}
         lead={t(
@@ -159,16 +171,16 @@ export default async function ScreenshotsPage({ params }: PageProps) {
       <Section aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("The best screenshot is your own data.")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
+                <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
                   {t(
                     "A customized demonstration walks through your factory's exact screens with your glass specifications, standard sheet stock, and pricing formulas.",
                   )}
                 </p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
                   {t("Request a Demo")}
                 </ButtonLink>
@@ -181,5 +193,6 @@ export default async function ScreenshotsPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

@@ -5,12 +5,17 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { navIcons } from "@/data/navIcons";
+import { footerIconFor } from "@/data/footerIcons";
 import { site } from "@/lib/site";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
+import { ThemeModeSwitch } from "@/components/layout/ThemeModeSwitch";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { LanguageMenu, LanguageMenuBlock } from "@/components/layout/LanguageMenu";
+import { BuildStampChip, BuildStampPill, BuildStampRow } from "@/components/layout/BuildStamp";
 import { Logo } from "@/components/brand/Logo";
 import { useT } from "@/i18n/provider";
+import { pathWithoutLocale } from "@/i18n/core";
 
 type NavChild = { label: string; href: string; description?: string };
 type NavEntry = { label: string; href?: string; children?: NavChild[] };
@@ -52,9 +57,11 @@ const entries: NavEntry[] = [
   /*
    * Collaboration takes the top-level slot, and Sponsors keeps the one it
    * already had inside this same nav's Resources menu (and in the footer, and
-   * on the collaboration page itself). Adding an eighth top-level item instead
-   * would push the pill past what `lg` has room for, and a navigation that
-   * wraps is worse than one page reached by two routes.
+   * on the collaboration page itself). An eighth top-level item would push the
+   * last card from `2xl` to `wide` in the ladder below, which is the honest
+   * price of one — but a page reached by two routes is still better than a
+   * navigation that wraps, and this one is reachable from the footer, the
+   * Resources menu and its own page.
    */
   { label: "Collaborate", href: "/collaborate" },
 ];
@@ -70,12 +77,48 @@ const entries: NavEntry[] = [
  * transparent edge that only resolves on hover. The entry you are on, or have
  * open, keeps its edge and its wash, so the panel always says where you are.
  */
-const NAV_BAR = "nav-pill hidden items-center gap-0.5 rounded-panel p-1 lg:flex";
+const NAV_BAR = "nav-pill hidden items-center gap-0.5 rounded-panel p-1 xl:flex";
+/*
+ * The card ladder.
+ *
+ * Seven cards, the settings, the call to action and a stamp that carries the
+ * site's name, the date and the time in Gulf Standard Time do not fit in
+ * 1280px — measured, they need about 1450. So the cards arrive in three
+ * steps, widest last: the first three at `xl`, the next two at `2xl`, and the
+ * last two at `wide`, the one tier where the panel fits everything it owns.
+ * The Menu button holds the cards that are not on screen yet, and steps aside
+ * at `wide`. Below `xl` the pill is not rendered at all and the Menu button
+ * holds all seven.
+ *
+ * `scripts/measure-panel.py` measures each tier and checks these lines
+ * against its own model, so the tool cannot go on reporting room that the
+ * markup does not have — which is exactly what it did when the seventh entry
+ * was added and it was still counting six; and for one pass the roles
+ * flipped, with the markup showing all seven at `2xl` while the model counted
+ * five — the two now agree on this ladder, checked at edit time.
+ */
+const NAV_CARD_FIRST_TIER = 3;
+const NAV_CARD_SECOND_TIER = 5;
+const NAV_CARD_TIERS = [
+  "hidden xl:flex",
+  "hidden 2xl:flex",
+  "hidden wide:flex",
+] as const;
 const NAV_CARD =
-  "relative flex items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold transition-colors duration-200";
+  "relative flex items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold transition-all duration-200 wide:px-3";
 const NAV_CARD_OFF =
   "border-transparent text-text-muted hover:border-line-strong/80 hover:bg-ink-800/70 hover:text-text-primary";
-const NAV_CARD_ON = "border-brand-400/60 bg-brand-500/14 text-text-primary";
+/*
+ * The active card.
+ *
+ * It keeps its edge and takes a real fill rather than a 14%-alpha wash: the
+ * navigation is the one element a visitor reads on every page, and "where am I"
+ * has to survive being glanced at while scrolling. The accent bar on the
+ * leading edge is the only ornament, and it is the same mark the application
+ * puts on a selected rail row.
+ */
+const NAV_CARD_ON =
+  "border-brand-500/60 bg-brand-600/30 text-text-primary shadow-[inset_0_1px_0_0_rgb(255_255_255/0.07)] before:absolute before:inset-y-1.5 before:start-0 before:w-[3px] before:rounded-full before:bg-brand-300";
 
 function NavGlyph({ path }: { path?: string }) {
   if (!path) return null;
@@ -83,7 +126,7 @@ function NavGlyph({ path }: { path?: string }) {
     <svg
       aria-hidden="true"
       viewBox="0 0 16 16"
-      className="h-3.5 w-3.5 shrink-0 opacity-80"
+      className="hidden h-3.5 w-3.5 shrink-0 opacity-80 wide:block"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.6"
@@ -98,10 +141,146 @@ function NavGlyph({ path }: { path?: string }) {
 export function Navbar() {
   const t = useT();
   const pathname = usePathname();
+  /*
+   * `usePathname` returns the URL as the browser speaks it, and every route
+   * in this app lives under /[locale]/ — so the first segment is the
+   * language, not a page. Comparing raw, `isActive` matched nothing beyond
+   * "/", which meant: no `aria-current` on the bar, and the clay bar's
+   * indicator (§15) had no current page to rest on — it only appeared
+   * under the pointer. The LanguageMenu already strips with
+   * `pathWithoutLocale`; the bar must do the same.
+   */
+  const barePath = pathWithoutLocale(pathname ?? "");
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  /*
+   * Whether the sheet's CONTENT exists at all — three lives it leads:
+   *
+   *   1. Server render and first client render: empty. The sheet used to be
+   *      a full menu painted `invisible` beneath the bar, and that hidden
+   *      full menu cost a real launch debt: Next's prefetch watcher
+   *      (use-intersection.js) reads geometry through an
+   *      IntersectionObserver, and `visibility: hidden` is not geometry —
+   *      every card link in the sheet intersected the viewport as far as the
+   *      watcher could tell, so the phone that had just opened a page quietly
+   *      prefetched the RSC payloads of a dozen more. Mounting the content
+   *      only on demand removes the observers, which removes the traffic.
+   *
+   *   2. Open and closing: mounted. Unmounting the instant the visitor asks
+   *      to close would cut the 300 ms fade to a hard cut, so the content
+   *      outlives the open state by exactly one transition.
+   *
+   *   3. Hydration safety: the gate below is a state change inside an effect,
+   *      so the server's output and the first client render agree on the
+   *      empty sheet — no mismatch, no recover-and-redraw.
+   */
+  const [sheetMounted, setSheetMounted] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /*
+   * Hover opens; a click PINS. Without this the two gestures fight: the
+   * wrapper opens the menu on mouse-enter, so the very first click arrives
+   * at an already-open menu and would toggle it shut — from the visitor's
+   * side the button "needs a second click" to do anything.
+   *
+   * The pin carries one invariant, and every path below keeps it:
+   * `pinnedMenu` is only ever the label of the menu that is OPEN right now.
+   * The pin sets it (click), the deliberate re-click on the same trigger
+   * clears it (the one toggle-off), a hover switch to a sibling reverts to
+   * hover mode, and the outside-pointer-down / Escape / route-change paths
+   * clear it with the rest. If a pin could outlive its menu — which the
+   * first version of this allowed, closing a pinned menu on hover-out but
+   * keeping the pin — the next click landed on the stale pin and CLOSED
+   * instead of opening: the "double click" bug, baked into the state
+   * machine rather than the hand. `tests/navbar.test.tsx` walks these
+   * sequences against a real DOM so they cannot silently regress again.
+   */
+  const pinnedMenu = useRef<string | null>(null);
+  const navListRef = useRef<HTMLDivElement | null>(null);
+
+  /* ── The clay bar's sliding pill ────────────────────────────────────
+   * Under `[data-appearance="clay"]` the bar paints a raised pill that
+   * slides to the item under the pointer and rests on the current page
+   * (§15 of the engine; the pack's demo cycle is switched off). All this
+   * component owns is the geometry: measure, translate, hand back. In
+   * other families the pill stays invisible — nothing here is theirs.
+   *
+   * Third sighting: this used to live in React state, and `onPointerOver`
+   * BUBBLES — moving the pointer across a link's glyph, text span and
+   * inner nodes fires it for every boundary it crosses, each event
+   * forcing two layout reads (`getBoundingClientRect`) plus a setState
+   * that re-rendered the whole header. On a slow phone that reads as a
+   * menu that freezes while the hand moves across it. The pill is now
+   * written imperatively (style writes only, no re-render), and the
+   * hover handler dedupes: the same target and the same geometry touch
+   * the DOM at most once. */
+  const indicatorRef = useRef<HTMLSpanElement | null>(null);
+  const hoverTargetRef = useRef<HTMLElement | null>(null);
+  const moveIndicator = (target: HTMLElement | null) => {
+    const list = navListRef.current;
+    const pill = indicatorRef.current;
+    if (!list || !pill) return;
+    if (!target) {
+      hoverTargetRef.current = null;
+      if (pill.dataset.geo) {
+        delete pill.dataset.geo;
+        pill.style.opacity = "0";
+      }
+      return;
+    }
+    hoverTargetRef.current = target;
+    const listRect = list.getBoundingClientRect();
+    const rect = target.getBoundingClientRect();
+    if (rect.width === 0) {
+      if (pill.dataset.geo) {
+        delete pill.dataset.geo;
+        pill.style.opacity = "0";
+      }
+      return;
+    }
+    const x = Math.max(0, rect.left - listRect.left - 4);
+    const geo = `${Math.round(x)}x${Math.round(rect.width)}`;
+    if (pill.dataset.geo === geo) return; /* same item, same box: no work */
+    pill.dataset.geo = geo;
+    /* The pill is parked at the list's left padding, so the slide is the
+       item's left edge measured from that same parking spot. */
+    pill.style.opacity = "1";
+    pill.style.width = `${rect.width}px`;
+    pill.style.transform = `translateX(${x}px)`;
+  };
+  const settleIndicator = () => {
+    const list = navListRef.current;
+    if (!list) return;
+    moveIndicator(list.querySelector<HTMLElement>('[aria-current="page"], [aria-expanded="true"]'));
+  };
+  useEffect(() => {
+    /* Route changes re-seat the pill; fonts and the tier ladder can move
+       items too, so measure again after paint and on resize. The late pass
+       is the one the reference bar (the NavClay pack: a pill pinned to the
+       active index, its demo cycle off) gets for free with widths baked at
+       load: our labels are re-typeset when the overlay dictionary lands,
+       so the first measurement can stale before fonts/overlay finish —
+       settle once more on the next microtask wave and once when the
+       document's fonts report ready. */
+    const settle = () => settleIndicator();
+    const frame = requestAnimationFrame(settle);
+    const late = window.setTimeout(settle, 420);
+    document.fonts?.ready.then(settle).catch(() => undefined);
+    window.addEventListener("resize", settle);
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(late);
+      window.removeEventListener("resize", settle);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  useEffect(() => {
+    if (mobileOpen) return; /* Mounting happens in the toggle handler itself. */
+    /* One transition length past the 300 ms ease — see the comment above. */
+    const done = setTimeout(() => setSheetMounted(false), 320);
+    return () => clearTimeout(done);
+  }, [mobileOpen]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -119,11 +298,33 @@ export function Navbar() {
     setMobileOpen(false);
     setOpenMenu(null);
   }
+  /* Ref writes don't belong to render (react-hooks/refs), so the pin clears
+     in an effect that follows the same route change — the menu itself has
+     already closed in the render pass above, and a pin cleared a frame
+     later can only make the next close MORE permissive, never less. */
+  useEffect(() => {
+    pinnedMenu.current = null;
+  }, [pathname]);
 
   // Escape closes the open surface.
+  // A pointer-down outside the bar closes whatever the bar opened.
+  useEffect(() => {
+    if (!openMenu) return;
+    const onPointer = (event: PointerEvent) => {
+      const list = navListRef.current;
+      if (list && !list.contains(event.target as Node)) {
+        pinnedMenu.current = null;
+        setOpenMenu(null);
+      }
+    };
+    document.addEventListener("pointerdown", onPointer);
+    return () => document.removeEventListener("pointerdown", onPointer);
+  }, [openMenu]);
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        pinnedMenu.current = null;
         setOpenMenu(null);
         setMobileOpen(false);
       }
@@ -141,13 +342,23 @@ export function Navbar() {
   }, [mobileOpen]);
 
   const isActive = (entry: NavEntry) => {
-    if (entry.href) return pathname === entry.href || pathname.startsWith(`${entry.href}/`);
-    return entry.children?.some((c) => pathname === c.href || pathname.startsWith(`${c.href}/`)) ?? false;
+    if (entry.href) return barePath === entry.href || barePath.startsWith(`${entry.href}/`);
+    return (
+      entry.children?.some((c) => barePath === c.href || barePath.startsWith(`${c.href}/`)) ?? false
+    );
   };
 
   const scheduleClose = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
-    closeTimer.current = setTimeout(() => setOpenMenu(null), 140);
+    closeTimer.current = setTimeout(() => {
+      closeTimer.current = null;
+      /* The grace timer closes hover-opens only. A pinned menu — one the
+         visitor clicked to hold — survives the hand leaving; it closes on
+         the re-click on its trigger, on a pointer-down outside the bar, on
+         Escape, or on a route change, each of which also clears the pin. */
+      if (pinnedMenu.current) return;
+      setOpenMenu(null);
+    }, 140);
   };
   const cancelClose = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -177,27 +388,87 @@ export function Navbar() {
     >
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-brand-400 focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-accent-ink"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-brand-600 focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-accent-ink"
       >
         {t("Skip to content")}
       </a>
 
       <div className="shell flex h-[var(--nav-height)] items-center justify-between gap-4">
         <Link href="/" className="group flex items-center gap-3" aria-label={`${site.name} — home`}>
-          <Logo size={34} />
+          <Logo size={34} wordmarkClassName="hidden lg:flex" />
         </Link>
 
+        {/*
+         * The build's sync time, after the logo, on the widths the pill
+         * cannot afford.
+         *
+         * Below `lg` the three-line pill has no room — it waits on the right
+         * for 1024 and up — and the only stamp a phone reader got was the
+         * footer, two scrolls away from the question "which build is this".
+         * The chip prints the one fact in the one place that is always on
+         * screen: the time the build shipped, in Gulf Standard Time, with
+         * the full two-zone tooltip the pill carries. It steps aside at `lg`
+         * precisely when the pill takes over, so the bar never pays for both
+         * at once — the same shed-ladder rule as the rest of this row, and
+         * measured into the phone and sm tiers like everything else in it.
+         */}
+        <BuildStampChip t={t} className="lg:hidden" />
+
         {/* ── Desktop navigation ─────────────────────────────────── */}
-        <nav aria-label={t("Primary")} className={NAV_BAR}>
-          {entries.map((entry) => {
+        <nav
+          ref={navListRef}
+          aria-label={t("Primary")}
+          className={NAV_BAR}
+          onPointerOver={(event) => {
+            const target = (event.target as HTMLElement).closest("a, button");
+            /* pointerover fires for every inner-node boundary; only a new
+               target is new information — the dedupe is what keeps the
+               menu from re-measuring (and before, re-rendering) per
+               crossing. The open menu's own cards are inside this nav too:
+               without the menu-card guard the pill teleported 22rem across
+               to whatever dropdown item the hand entered — it read as the
+               bar glitching on every menu visit. */
+            if (
+              target &&
+              target !== hoverTargetRef.current &&
+              !target.closest(".menu-card") &&
+              navListRef.current?.contains(target)
+            ) {
+              moveIndicator(target as HTMLElement);
+            }
+          }}
+          onPointerLeave={() => settleIndicator()}
+          onFocusCapture={(event) => {
+            const target = (event.target as HTMLElement).closest("a, button");
+            if (
+              target &&
+              target !== hoverTargetRef.current &&
+              !target.closest(".menu-card") &&
+              navListRef.current?.contains(target)
+            ) {
+              moveIndicator(target as HTMLElement);
+            }
+          }}
+          onBlurCapture={(event) => {
+            if (!navListRef.current?.contains(event.relatedTarget as Node)) settleIndicator();
+          }}
+        >
+          <span aria-hidden="true" className="navclay__indicator" ref={indicatorRef} style={{ opacity: 0 }} />
+          {entries.map((entry, index) => {
             const active = isActive(entry);
+            const tier =
+              index < NAV_CARD_FIRST_TIER
+                ? NAV_CARD_TIERS[0]
+                : index < NAV_CARD_SECOND_TIER
+                  ? NAV_CARD_TIERS[1]
+                  : NAV_CARD_TIERS[2];
             if (!entry.children) {
               return (
                 <Link
                   key={t(entry.label)}
                   href={entry.href ?? "#"}
                   aria-current={active ? "page" : undefined}
-                  className={cn(NAV_CARD, active ? NAV_CARD_ON : NAV_CARD_OFF)}
+                  className={cn(NAV_CARD, tier, active ? NAV_CARD_ON : NAV_CARD_OFF)}
                 >
                   <NavGlyph path={navIcons[entry.label]} />
                   {t(entry.label)}
@@ -209,9 +480,18 @@ export function Navbar() {
             return (
               <div
                 key={t(entry.label)}
-                className="relative"
+                className={cn(tier, "relative")}
                 onMouseEnter={() => {
                   cancelClose();
+                  /* Moving to a sibling hands the bar back to hover: the pin
+                     belongs to the menu that is open, and a hover-opened
+                     sibling must never inherit it (a stale pin is what made
+                     the next click close instead of open). */
+                  if (openMenu !== entry.label) pinnedMenu.current = null;
+                  /* pointer-guard-ok: onMouseEnter fires once per entry
+                     boundary (it does not bubble from children), and React
+                     bails on an identical state value — this is the menu
+                     open call itself, not per-frame pointer work. */
                   setOpenMenu(entry.label);
                 }}
                 onMouseLeave={scheduleClose}
@@ -220,7 +500,23 @@ export function Navbar() {
                   type="button"
                   aria-expanded={open}
                   aria-haspopup="true"
-                  onClick={() => setOpenMenu(open ? null : entry.label)}
+                  onClick={() => {
+                    cancelClose();
+                    if (open && pinnedMenu.current === entry.label) {
+                      /* The one toggle-off: a re-click on the trigger the
+                         visitor pinned. Reachable ONLY while that menu is
+                         visibly open — the pin invariant guarantees it. */
+                      pinnedMenu.current = null;
+                      setOpenMenu(null);
+                      return;
+                    }
+                    /* Closed menu, or one open by hover that the click now
+                       commits to: pin it open. The click never slams the
+                       menu it lands on — that was the "needs a double
+                       click" defect. */
+                    pinnedMenu.current = entry.label;
+                    setOpenMenu(entry.label);
+                  }}
                   className={cn(NAV_CARD, active || open ? NAV_CARD_ON : NAV_CARD_OFF)}
                 >
                   <NavGlyph path={navIcons[entry.label]} />
@@ -246,14 +542,15 @@ export function Navbar() {
                    * the card edge, but nothing inside it did, so it read as a
                    * dropdown bolted onto a product whose whole interface is
                    * cards. Each destination is now a card in its own right:
-                   * numbered, titled, described, with the same edge, radius and
-                   * accent-on-hover treatment as every other card on the site.
+                   * glyph, titled, described, with the same edge, radius and
+                   * accent-on-hover treatment as every other card on the site —
+                   * the mark is the one the footer and the banner already use.
                    */
                   <div className="absolute left-1/2 top-full max-h-[calc(100vh-var(--nav-height))] w-[22rem] -translate-x-1/2 overflow-y-auto overscroll-contain pt-3">
                     <div className="menu-card animate-scale-in rounded-panel p-2 shadow-raised">
                       <p className="mono-label px-2.5 pb-2 pt-1">{t(entry.label)}</p>
                       <ul className="space-y-1.5">
-                        {entry.children.map((child, index) => (
+                        {entry.children.map((child) => (
                           <li key={child.href}>
                             <Link
                               href={child.href}
@@ -261,14 +558,14 @@ export function Navbar() {
                             >
                               <span
                                 aria-hidden="true"
-                                className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-[0.4rem] border border-brand-400/35 bg-brand-500/12 font-mono text-[0.625rem] font-bold text-brand-200"
+                                className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-[0.4rem] border border-brand-400/35 bg-brand-500/12 text-brand-200"
                               >
-                                {String(index + 1).padStart(2, "0")}
+                                <Icon path={footerIconFor(child.href)} className="h-3.5 w-3.5" />
                               </span>
                               <span className="min-w-0 flex-1">
                                 <span className="flex items-center gap-1.5 text-sm font-semibold text-text-primary">
                                   {t(child.label)}
-                                  <ArrowRight className="opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+                                  <ArrowRight className="-translate-x-1 opacity-0 transition-all duration-300 ease-industrial group-hover:translate-x-0 group-hover:opacity-100" />
                                 </span>
                                 {child.description ? (
                                   <span className="mt-0.5 block text-xs font-medium leading-relaxed text-text-muted">
@@ -289,25 +586,118 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          {/* The language menu sits with the theme control: both are settings
-              about how the site presents itself, not navigation through it. */}
+          {/*
+            The panel's own settings, in two controls rather than one: the
+            reading (Light · System · Dark) and the palette. They answer
+            different questions, so they are different controls — see
+            `ThemeModeSwitch` and `ThemeToggle`.
+
+            The language menu sits with them: all three are settings about how
+            the site presents itself, not navigation through it.
+          */}
+          {/*
+            The way to the pages that are not cards yet.
+
+            The settings cluster arrives at `lg` and the nav cards arrive in
+            three steps — three at `xl`, five at `2xl`, all seven at `wide` —
+            so the Menu button holds whatever is missing above 1024: all seven
+            at `lg`, the last four at `xl`, the last two at `2xl`. It is the
+            same sheet the phone menu opens, from the same component, so
+            nothing is ever unreachable. It goes at `wide`, the one tier where
+            all seven cards are on screen.
+
+            Measured, the full row needs about 1660px of content; the ladder is
+            in `scripts/measure-panel.py` and the numbers are in the README.
+          */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen((value) => !value)}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
+            className={cn(
+              "hidden items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold transition-all duration-200 lg:flex wide:hidden",
+              mobileOpen
+                ? "border-brand-500/60 bg-brand-600/30 text-text-primary"
+                : "border-line-strong/60 text-text-muted hover:border-line-strong/80 hover:bg-ink-800/70 hover:text-text-primary",
+            )}
+          >
+            <svg
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+              className="h-4 w-4 shrink-0 opacity-80"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+            >
+              <path d="M3 6h14M3 10h14M3 14h14" />
+            </svg>
+            {t("Menu")}
+          </button>
           <LanguageMenu />
+          <ThemeModeSwitch />
           <ThemeToggle />
-          <ButtonLink href="/screenshots" variant="ghost" size="sm">
-            {t("See the app")}
-          </ButtonLink>
+          {/*
+            There used to be a ghost "See the app" button here, shown from
+            1920px. It is gone, and the page it pointed at is not: Screenshots
+            is the first child of the Product menu, one hover away, and at 1920
+            the row has better uses for 126px — the stamp card now carries the
+            site's name, the date and the time in Gulf Standard Time, and it is
+            the sight of that card that answers "which build am I looking at".
+            A shortcut to a page that is also a menu child is the cheapest thing
+            in this row to lose; the primary call to action is not.
+          */}
           <ButtonLink href="/contact" size="sm" trailing={<ArrowRight />}>
             {t("Request a Demo")}
           </ButtonLink>
+
+          {/*
+            The build stamp, at the end of the panel where chrome belongs.
+
+            It appears at `lg` and not before: the stamp carries the site's own
+            name, the date and the time in Gulf Standard Time, so a reader on a
+            1024px window gets the answer to "which build is this, and when was
+            it made" without opening anything. It is measured rather than
+            guessed — `scripts/measure-panel.py` holds the arithmetic and says
+            the row still fits with slack at every tier — and below `lg` it is
+            still on every page, in the mobile panel and in the footer, where
+            there is room to print the revision and both clocks. The divider at
+            `2xl` is what tells the eye this is a fact about the build rather
+            than one more thing to click.
+          */}
+          <span aria-hidden="true" className="mx-1 hidden h-6 w-px bg-line/70 2xl:block" />
+          <BuildStampPill t={t} className="hidden lg:block" />
         </div>
 
         {/* ── Mobile trigger ─────────────────────────────────────── */}
         <div className="flex items-center gap-2 lg:hidden">
-          <LanguageMenu compact />
+          {/*
+            The language button waits for `sm`. At 360px the row measures 297px
+            in the 305px a phone leaves it once the shell's own padding is
+            counted — which fits, and fits by 8px, on the one width where a
+            device is smallest and a scrollbar is not the only thing that can
+            change. The language list is one tap away in the sheet below, where
+            all fifteen languages are spelled out in their own names, so nothing
+            is lost by waiting. The palette stays: the sheet has no other way to
+            reach the palette families.
+          */}
+          <span className="hidden sm:flex">
+            <LanguageMenu compact />
+          </span>
+          <ThemeModeSwitch className="hidden sm:flex" />
           <ThemeToggle />
           <button
             type="button"
-            onClick={() => setMobileOpen((v) => !v)}
+            onClick={() => {
+              const opening = !mobileOpen;
+              if (opening) {
+                /* The sheet's content mounts with the click, inside the same
+                   fade-in, so the first frame never shows an empty panel — and
+                   no observer for its links has existed before this moment. */
+                setSheetMounted(true);
+              }
+              setMobileOpen(opening);
+            }}
             aria-expanded={mobileOpen}
             aria-controls="mobile-menu"
             className="flex h-11 w-11 items-center justify-center rounded-xl border border-line-strong/70 bg-ink-900/70 text-text-primary transition-colors duration-200 hover:border-brand-400/50"
@@ -320,15 +710,28 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* ── Mobile sheet ─────────────────────────────────────────── */}
-      <div
-        id="mobile-menu"
-        hidden={!mobileOpen}
-        className={cn(
-          "lg:hidden",
-          mobileOpen && "nav-sheet animate-fade-in",
-        )}
-      >
+      {/* ── Mobile sheet ───────────────────────────────────────────
+         * Absolutely anchored under the bar, never part of the flow.
+         *
+         * THE GHOST, recorded so it never returns: a sheet that is only made
+         * invisible but left IN the layout still takes its full viewport of
+         * space inside this fixed header. On scroll, the header's own glass
+         * background then paints through that invisible hundred-viewport-high
+         * sheet — a full-page panel that had no business existing, on top of
+         * content that was fine. Anchored absolutely, closed or open, the
+         * sheet participates in nothing that isn't its own box.
+         */}
+        <div
+          id="mobile-menu"
+          aria-hidden={!mobileOpen}
+          className={cn(
+            "nav-sheet absolute inset-x-0 top-full transition-[opacity,transform,visibility] duration-300 ease-industrial xl:hidden",
+            mobileOpen
+              ? "pointer-events-auto visible translate-y-0 opacity-100 will-change-transform"
+              : "pointer-events-none invisible -translate-y-2 opacity-0",
+          )}
+        >
+        {sheetMounted ? (
         <div className="shell max-h-[calc(100vh-var(--nav-height))] overflow-y-auto py-5">
           <nav aria-label={t("Mobile")} className="space-y-6">
             {entries.map((entry) => (
@@ -336,6 +739,14 @@ export function Navbar() {
                 {entry.href ? (
                   <Link
                     href={entry.href}
+                    /* The open page must be inked on the sheet without a
+                       gesture — the same current-page story the clay bar
+                       tells at rest (§15). */
+                    aria-current={
+                      barePath === entry.href || barePath.startsWith(`${entry.href}/`)
+                        ? "page"
+                        : undefined
+                    }
                     className="flex items-center justify-between border-b border-line/50 pb-2 text-base font-semibold text-text-primary"
                   >
                     {t(entry.label)}
@@ -345,19 +756,24 @@ export function Navbar() {
                   <>
                     <p className="eyebrow mb-2">{t(entry.label)}</p>
                     {/* The same card treatment as the desktop menu: a sheet
-                        of cards, numbered, each with its own edge. */}
+                        of cards, each carrying the destination's own mark. */}
                     <ul className="space-y-1.5">
-                      {entry.children?.map((child, index) => (
+                      {entry.children?.map((child) => (
                         <li key={child.href}>
                           <Link
                             href={child.href}
+                            aria-current={
+                              barePath === child.href || barePath.startsWith(`${child.href}/`)
+                                ? "page"
+                                : undefined
+                            }
                             className="card-interactive group flex items-start gap-3 rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2.5"
                           >
                             <span
                               aria-hidden="true"
-                              className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-[0.4rem] border border-brand-400/35 bg-brand-500/12 font-mono text-[0.625rem] font-bold text-brand-200"
+                              className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-[0.4rem] border border-brand-400/35 bg-brand-500/12 text-brand-200"
                             >
-                              {String(index + 1).padStart(2, "0")}
+                              <Icon path={footerIconFor(child.href)} className="h-3.5 w-3.5" />
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className="text-sm font-semibold text-text-primary">{t(child.label)}</span>
@@ -395,7 +811,11 @@ export function Navbar() {
           <p className="mt-6 font-mono text-2xs uppercase tracking-[0.18em] text-text-faint font-medium">
             {t("Desktop software · v{version} · No account required", { version: site.version })}
           </p>
+
+          {/* The same stamp as the desktop panel, with room for the revision. */}
+          <BuildStampRow t={t} className="mt-3" />
         </div>
+        ) : null}
       </div>
     </header>
   );

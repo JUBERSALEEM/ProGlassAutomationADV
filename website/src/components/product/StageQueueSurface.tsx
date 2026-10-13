@@ -203,7 +203,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
               "{stage} stage queue — {rows} work items for the seeded job, with the pieces that arrived, the pieces recorded done and the balance.",
               { stage: current, rows: rows.length },
             )}</caption>
-          <thead className="sticky top-0 z-10 bg-ink-900/95 backdrop-blur">
+          <thead className="sticky top-0 z-10 bg-ink-900/97">
             <tr className="border-b border-line/60">
               {columns.map((column) => (
                 <th

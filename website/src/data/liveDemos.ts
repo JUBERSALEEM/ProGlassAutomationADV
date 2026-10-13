@@ -21,6 +21,7 @@
  */
 
 import { lineArea, lineValue, pieceArea, seedSpecGroups } from "@/data/workedExample";
+import { houseMarginProfiles } from "@/data/optimization";
 import { STANDARD_SURCHARGE_PERCENT } from "@/data/pricingRules";
 import type { SpecSurfaceInput } from "@/components/product/SpecificationSurface";
 import type { PnLInput } from "@/components/product/ProfitLossSurface";
@@ -154,8 +155,24 @@ export const sheetSizes = [
   { label: "Oversize 6000 × 3210", w: 6000, h: 3210 },
 ];
 
-/** Margins and kerf the nesting respect. Millimetres. */
-export const optimizerLimits = { kerf: 4, marginLeft: 15, marginRight: 15, marginTop: 3, marginBottom: 3 };
+/**
+ * Margins and kerf the sample run respects, in the shape the preview reads.
+ *
+ * Millimetres, and they are the application's house Thin profile rather than
+ * numbers chosen here: 6 mm glass is trimmed 15 mm on all four edges and cut
+ * with a 3 mm blade gap (`Services/Optimization/OptimizationModels.cs` →
+ * `MarginProfile.DefaultFor`). The earlier draft of this preview carried
+ * 15/15/3/3 with a 4 mm kerf, which is not the default for any thickness bucket
+ * — a plate drawn with trims the application would not use.
+ */
+export const optimizerLimits = {
+  kerf: houseMarginProfiles.thin.kerf,
+  marginLeft: houseMarginProfiles.thin.left,
+  marginRight: houseMarginProfiles.thin.right,
+  marginTop: houseMarginProfiles.thin.top,
+  marginBottom: houseMarginProfiles.thin.bottom,
+  minBreakout: houseMarginProfiles.thin.breakout,
+};
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Sample data
@@ -177,36 +194,43 @@ const sampleJobs: DemoRow[] = [
 ];
 
 /**
- * The sample cutting list the whole production chain is previewed against.
+ * The sample cutting list the optimizer preview runs on.
  *
- * The sizes are a mixed shopfront job and the quantities are chosen so the job
- * suits the plate it is drawn on. That second point is not decoration — it is
- * the difference between a preview that reads as a working optimizer and one
- * that reads as broken.
+ * A shopfront-and-facade job of the shape a real one takes: **twenty-two
+ * distinct sizes**, from a 2480 × 1980 lobby pane down to a 620 × 320 shelf, in
+ * quantities that put roughly ninety pieces on the table. It replaced a
+ * five-line list — five sizes, twenty-four pieces — which is a diagram of a
+ * cutting list rather than a cutting list, and it made the engine look
+ * tidier than any job that arrives on a Monday morning.
  *
- * This list used to be dominated by 1180 × 2340 door panels. A piece that tall
- * cannot be stacked with anything else on a 3210 × 2250 plate: rotated it is
- * 2340 wide, so the next piece cannot sit beside it, and it is 2340 of the
- * 2244 usable height the other way. The packer therefore gave six plates of two
- * pieces each at 61.8%, with most of the plate bare — and because those were
- * the first sheets in the run, the first thing anyone saw was a row of
- * half-empty boxes.
- *
- * These sizes suit the sheet. On a 3210 × 2250 plate the list comes out as four
- * plates at 94% — 97 / 94 / 96 / 91 — which is what a shop sees when the sizes
- * have been chosen sensibly, and is the honest illustration of what the engine
- * is for. The quantities were also chosen to hold up if the preview is switched
- * to a smaller sheet: the same list on 4 × 8 ft gives nine plates with nothing
- * below 59%, where the old list left a plate 39% full.
+ * The columns are the application's Cut List tab: reference, room, outer sizes,
+ * quantity, edge work and holes. The sizes are the sizes; nothing here is
+ * derived, and nothing here is a claim about the engine.
  */
 const cutList: DemoRow[] = [
-  { piece: "P-01", room: "Lobby", w: "1580", h: "1110", qty: "4", edge: "Polished", holes: "0" },
-  { piece: "P-02", room: "Stair", w: "1580", h: "730", qty: "10", edge: "Polished", holes: "2" },
-  { piece: "P-03", room: "Office 1", w: "1180", h: "1110", qty: "4", edge: "Polished", holes: "0" },
-  { piece: "P-04", room: "Office 2", w: "1040", h: "740", qty: "2", edge: "Flat", holes: "4" },
-  { piece: "P-05", room: "Washroom", w: "780", h: "620", qty: "4", edge: "Flat", holes: "1" },
+  { piece: "P-01", room: "Lobby", w: "2480", h: "1980", qty: "2", edge: "Polished", holes: "0" },
+  { piece: "P-02", room: "Lobby", w: "980", h: "2480", qty: "2", edge: "Polished", holes: "4" },
+  { piece: "P-03", room: "Reception", w: "1580", h: "1180", qty: "3", edge: "Polished", holes: "2" },
+  { piece: "P-04", room: "Stair", w: "1180", h: "2280", qty: "2", edge: "Polished", holes: "6" },
+  { piece: "P-05", room: "Office 1", w: "1040", h: "2380", qty: "4", edge: "Polished", holes: "4" },
+  { piece: "P-06", room: "Office 2", w: "940", h: "2380", qty: "4", edge: "Flat", holes: "4" },
+  { piece: "P-07", room: "Washroom", w: "860", h: "2100", qty: "2", edge: "Polished", holes: "6" },
+  { piece: "P-08", room: "Washroom", w: "620", h: "1980", qty: "3", edge: "Polished", holes: "4" },
+  { piece: "P-09", room: "Storefront", w: "1780", h: "1380", qty: "3", edge: "Polished", holes: "0" },
+  { piece: "P-10", room: "Storefront", w: "1780", h: "420", qty: "3", edge: "Polished", holes: "0" },
+  { piece: "P-11", room: "Showcase", w: "1180", h: "780", qty: "4", edge: "Flat", holes: "0" },
+  { piece: "P-12", room: "Showcase", w: "780", h: "880", qty: "4", edge: "Flat", holes: "2" },
+  { piece: "P-13", room: "Balustrade", w: "1280", h: "980", qty: "8", edge: "Polished", holes: "4" },
+  { piece: "P-14", room: "Balustrade", w: "980", h: "880", qty: "4", edge: "Polished", holes: "4" },
+  { piece: "P-15", room: "Canopy", w: "1480", h: "980", qty: "3", edge: "Flat", holes: "2" },
+  { piece: "P-16", room: "Canopy", w: "1480", h: "480", qty: "3", edge: "Flat", holes: "0" },
+  { piece: "P-17", room: "Mirror wall", w: "900", h: "1200", qty: "5", edge: "Polished", holes: "4" },
+  { piece: "P-18", room: "Canteen", w: "1200", h: "800", qty: "2", edge: "Polished", holes: "8" },
+  { piece: "P-19", room: "Doors", w: "1080", h: "2240", qty: "6", edge: "Polished", holes: "6" },
+  { piece: "P-20", room: "Doors", w: "1080", h: "540", qty: "6", edge: "Polished", holes: "0" },
+  { piece: "P-21", room: "Shelving", w: "1180", h: "320", qty: "10", edge: "Flat", holes: "0" },
+  { piece: "P-22", room: "Shelving", w: "620", h: "320", qty: "8", edge: "Flat", holes: "0" },
 ];
-
 const sheetStock: DemoRow[] = [
   { code: "SHT-6001", spec: "Clear 6 mm", size: "3210 × 2250", plates: "46", reserved: "12", location: "Rack A1" },
   { code: "SHT-6002", spec: "Clear 8 mm", size: "3210 × 2250", plates: "18", reserved: "4", location: "Rack A2" },
@@ -454,7 +478,7 @@ const bespoke: Record<string, Demo> = {
      * items and one invoice — so nothing here is a fabricated trade volume.
      */
     kind: "dashboard",
-    blurb: "Seven dashboard pages on one design grammar — Overview, Sheet Store, Proforma Invoice, Job Orders, Deliveries, Tax Invoices, Statements.",
+    blurb: "Nine dashboard pages on one design grammar — Overview, Sheet Store, Proforma Invoice, Job Orders, Deliveries, Tax Invoices, Statements, Optimization, Production.",
     views: [
       {
         label: "Overview",

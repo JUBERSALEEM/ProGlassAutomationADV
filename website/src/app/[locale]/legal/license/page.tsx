@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/layout/LegalPage";
+import { footerIconFor } from "@/data/footerIcons";
 import { ButtonLink } from "@/components/ui/Button";
 import { ArrowRight } from "@/components/ui/Button";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -23,6 +25,7 @@ export default async function LicensePage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="legal/license">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
@@ -33,6 +36,7 @@ export default async function LicensePage({ params }: PageProps) {
     />
     <LegalPage
       t={t}
+      glyph={footerIconFor("/legal/license")!}
         eyebrow={t("License")}
         title={t("How licensing works")}
         lead={t("ProGlass Automation is licensed with a signed licence file that is activated offline. There is no licence server that has to be reachable, and no account to create. This page describes what a customer needs to know.")}
@@ -112,5 +116,6 @@ export default async function LicensePage({ params }: PageProps) {
         }
       />
   </>
+    </PageOverlay>
   );
 }

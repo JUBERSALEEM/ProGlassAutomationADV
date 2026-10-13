@@ -66,7 +66,7 @@ const TARGETS = [
 /**
  * Masters that live inside this tree. They are resolved from `website/`, not
  * from the application checkout, because the banner renderer is part of the
- * site: `npx tsx scripts/render-hero-banner.mts` writes the 3840 px master and
+ * site: `npm run assets:banner` writes the 3840 px master and
  * these derivatives follow from it.
  *
  * `fallback` caps the PNG: a palette PNG 3840 px wide would be several

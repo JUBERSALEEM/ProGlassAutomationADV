@@ -237,7 +237,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
               Diagnostics.LOGEntries. `logColumns` holds them with the key each
               one comes from, so the table and the application cannot drift.
             */}
-            <thead className="sticky top-0 z-10 bg-ink-900/95 backdrop-blur">
+            <thead className="sticky top-0 z-10 bg-ink-900/97">
               <tr className="border-b border-line/60">
                 {logColumns.map((column) => (
                   <th

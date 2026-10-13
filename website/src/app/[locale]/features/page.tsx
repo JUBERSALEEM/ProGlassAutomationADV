@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -16,8 +17,10 @@ import { logFacts } from "@/data/activityLog";
 import { stageRoutes, stageRouting } from "@/data/stageQueue";
 import { pricingRules } from "@/data/pricingRules";
 import { RouteSchema } from "@/components/seo/RouteSchema";
+import { FeaturesShowcaseServer } from "@/components/home/FeaturesShowcaseServer";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -26,7 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return pageMetadata({
   locale: t.locale,
   title: t("Features — every ProGlass module"),
-  description: t("Inside ProGlass Automation: proforma estimation, SGU/DGU/lamination pricing, job orders, cutting optimization, sheet store, production, delivery and reports."),
+  description: t("Estimation, pricing, job orders, cutting optimization, production, stock, delivery and reporting in ProGlass Automation."),
   path: "/features",
   keywords: ["glass estimation software features", t("glass ERP modules"), "proforma invoice software", "glass stock management software", "glass production management"],
   ogEyebrow: t("Every module"),
@@ -44,6 +47,7 @@ export default async function FeaturesPage({ params }: PageProps) {
   );
 
   return (
+    <PageOverlay locale={t.locale} route="features">
 
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
@@ -51,10 +55,12 @@ export default async function FeaturesPage({ params }: PageProps) {
       locale={locale}
       path="/features"
       title={t("Features — every ProGlass module")}
-      description={t("Inside ProGlass Automation: proforma estimation, SGU/DGU/lamination pricing, job orders, cutting optimization, sheet store, production, delivery and reports.")}
+      description={t("Estimation, pricing, job orders, cutting optimization, production, stock, delivery and reporting in ProGlass Automation.")}
     />
       <PageHero
+        variant="showcase"
       t={t}
+        glyph={footerIconFor("/features")!}
         eyebrow={t("Features")}
         title={t("Every module, named the way the application names it.")}
         lead={t("ProGlass Automation is built as one document chain carried by twenty-five view areas. This page walks the modules that make up the working day: what each one does, which screens it opens, and where in the product it sits.")}
@@ -95,7 +101,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             <ModuleBrowser />
           </div>
 
-          <div className="surface mt-8 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="surface mt-8 flex flex-col items-center gap-4 p-6 text-center">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
 {t("A feature list only means something once a job runs through it. The")}{" "}
               <Link href="/worked-example" className="link-underline text-brand-200">
@@ -178,7 +184,7 @@ export default async function FeaturesPage({ params }: PageProps) {
           <div className="mt-6 grid gap-5 lg:grid-cols-2">
             {pricingRules.map((rule, index) => (
               <Reveal key={rule.id} delay={index * 60}>
-                <div className="plate h-full p-6">
+                <div className="surface-raised h-full p-6">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="eyebrow">{t(rule.label)}</p>
                     <p className="font-mono text-sm font-semibold text-brand-200">{t(rule.value)}</p>
@@ -252,7 +258,7 @@ export default async function FeaturesPage({ params }: PageProps) {
           <div className="mt-6 grid gap-5 lg:grid-cols-3">
             {logFacts.map((fact, index) => (
               <Reveal key={fact.id} delay={index * 60}>
-                <div className="plate h-full p-6">
+                <div className="surface-raised h-full p-6">
                   <p className="eyebrow">{t(fact.label)}</p>
                   <h3 className="mt-3 text-lg font-semibold text-text-primary">{t(fact.headline)}</h3>
                   <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{t(fact.body)}</p>
@@ -315,7 +321,7 @@ export default async function FeaturesPage({ params }: PageProps) {
 
           <div className="mt-6 grid gap-5 lg:grid-cols-2">
             <Reveal>
-              <div className="plate h-full p-6">
+              <div className="surface-raised h-full p-6">
                 <p className="eyebrow">{t("Routing by build family")}</p>
                 <ul className="mt-4 space-y-3">
                   {stageRoutes.map((route) => (
@@ -333,7 +339,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             </Reveal>
 
             <Reveal delay={60}>
-              <div className="plate h-full p-6">
+              <div className="surface-raised h-full p-6">
                 <p className="eyebrow">{t("Step 6 charges that raise floor work")}</p>
                 <table className="mt-4 w-full border-collapse text-left">
                   <caption className="sr-only">{t("Production charges and the stage each one arrives at.")}</caption>
@@ -437,7 +443,7 @@ export default async function FeaturesPage({ params }: PageProps) {
                   "It is not a cloud service. There is no web dashboard, no tenant and no online account.",
                   "It is not a CRM. Inquiries and customers are recorded so quotations can be built from them, not for pipeline or campaign management.",
                   "It does not file tax returns. The VAT Submission report prepares the figures for a period; filing is done by a person.",
-                  "It does not drive your cutting machine directly. The optimizer exports machine-readable files — Bottero .OPT, Intermac .ISO, Lisec .DAT and generic DXF — for the equipment's own software to run.",
+                  "It does not drive your cutting machine directly. The optimizer writes generic DXF and a cut-list CSV for the equipment's own software; the proprietary machine formats — Bottero .OPT, Intermac .ISO, Lisec .DAT — are declared in the app and finished one sample file per table.",
                   "There is no mobile application and no mobile interface.",
                   "The AI assistant is read-heavy by design: it can look things up across the business, but it has exactly one permission-gated write.",
                 ].map((item) => (
@@ -455,15 +461,24 @@ export default async function FeaturesPage({ params }: PageProps) {
       </Section>
 
       {/* ── CTA ──────────────────────────────────────────────────── */}
+      {/* ── Closing exhibit ───────────────────────────────────────────
+          The same layered exhibit as the homepage, repeated here as the
+          page's terminus: the visitor who just read the feature groups
+          sees the product surfaces one last time, interactive, before the
+          FAQ answers their remaining doubts. */}
+      <Section aria-label={t("Closing exhibit")}>
+        <FeaturesShowcaseServer t={t} />
+      </Section>
+
       <Section aria-label={t("Next steps")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("Want the same walkthrough on your own data?")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration uses a real job: a multi-section quotation, its cutting list and the delivery behind it.")}</p>
+                <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration uses a real job: a multi-section quotation, its cutting list and the delivery behind it.")}</p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
           {t("Request a Demo")}
         </ButtonLink>
@@ -499,5 +514,6 @@ export default async function FeaturesPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

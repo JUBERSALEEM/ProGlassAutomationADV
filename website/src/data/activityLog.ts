@@ -55,7 +55,7 @@ export const logLevels = [
   { id: "success", label: "SUCCESS", brush: "SuccessBrush", colour: "#34D399", meaning: "Step or action succeeded." },
   { id: "warning", label: "WARNING", brush: "WarningBrush", colour: "#FBBF24", meaning: "Non-fatal issue detected." },
   { id: "error", label: "ERROR", brush: "DangerBrush", colour: "#F87171", meaning: "Step or action failed." },
-  { id: "section", label: "SECTION", brush: "AccentDarkBrush", colour: "#8B5CF6", meaning: "A separator: section and error rows are bold for scanning." },
+  { id: "section", label: "SECTION", brush: "AccentDarkBrush", colour: "#7E57CE", meaning: "A separator: section and error rows are bold for scanning." },
 ] as const;
 
 export type LogLevelId = (typeof logLevels)[number]["id"];

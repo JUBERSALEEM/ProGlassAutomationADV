@@ -1,6 +1,8 @@
 "use client";
 
 import { Badge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { footerLinkIcons } from "@/data/footerIcons";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { formatDateDDMMYYYY } from "@/lib/date-utils";
 import { confirmedProformaHrefForJobOrder } from "@/lib/job-order-links";
@@ -31,22 +33,16 @@ export function JobOrdersTable({ rows, loading, sort, onSortChange, onSelect, pr
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-2xl border border-line-strong/60 bg-ink-900/80 p-12 text-center shadow-panel">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-line-strong bg-ink-850 text-brand-300">
-          <svg aria-hidden="true" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 4h8l4 4v12H4V4h4zm0 0v5h8V4m-8 9h8m-8 3h5" />
-          </svg>
-        </div>
-        <h2 className="mt-4 text-base font-bold text-text-primary">No confirmed proformas found</h2>
-        <p className="mx-auto mt-1.5 max-w-md text-xs leading-relaxed text-text-muted">
-          This queue only includes active PI records marked Confirmed. Clear the filters or confirm a proforma in the source workbook.
-        </p>
-        {onResetFilters && (
+      <EmptyState
+        glyph={footerLinkIcons["/job-orders"]!}
+        title="No confirmed proformas found"
+        body="This queue only includes active PI records marked Confirmed. Clear the filters or confirm a proforma in the source workbook."
+        action={onResetFilters ? (
           <button type="button" onClick={onResetFilters} className="mt-5 rounded-xl border border-line-strong bg-ink-850 px-4 py-2 text-xs font-semibold text-brand-300 transition-colors hover:bg-ink-800 hover:text-brand-200">
             Reset filters
           </button>
-        )}
-      </div>
+        ) : undefined}
+      />
     );
   }
 

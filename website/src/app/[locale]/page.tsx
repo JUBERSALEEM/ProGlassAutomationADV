@@ -3,31 +3,40 @@ import Image from "next/image";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
-import { Badge, IndexChip } from "@/components/ui/Badge";
+import { Badge, IconChip, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { StatBadge, StatCounter } from "@/components/ui/Stat";
 import { Accordion } from "@/components/ui/Accordion";
 import { GlassCard, GlassDivider, GlassMetric, GlassMetricRow } from "@/components/ui/Glass";
 import { ProductHero } from "@/components/hero/ProductHero";
+import { StatusFlows } from "@/components/home/StatusFlows";
+import { DeveloperStory } from "@/components/hero/DeveloperStory";
+import { Spotlight } from "@/components/ui/Spotlight";
+import { GlassCubeEmblem } from "@/components/brand/GlassCubeEmblem";
 import { WorkflowRail } from "@/components/product/WorkflowRail";
 import { AppearancePreview } from "@/components/layout/AppearancePreview";
 import { ModuleShowcase } from "@/components/product/ModuleShowcase";
 import { ProductSlider } from "@/components/product/ProductSlider";
 import { SheetPlanStrip } from "@/components/optimization/SheetPlanStrip";
 import { ScreenshotFrame } from "@/components/gallery/ScreenshotFrame";
+import { FeaturesShowcaseServer } from "@/components/home/FeaturesShowcaseServer";
 import { cn } from "@/lib/cn";
-import { modules } from "@/data/modules";
+import { groupNotes, moduleGroups, modules, modulesByGroup } from "@/data/modules";
+import { editionIcons, groupIcons } from "@/data/groupIcons";
+import { footerLinkIcons } from "@/data/footerIcons";
+import { Icon } from "@/components/ui/Icon";
 import { glass3d } from "@/data/assets";
 import { featureGroups } from "@/data/features";
 import { faq } from "@/data/faq";
 import { quotationTotals, seedParties, seededDocuments } from "@/data/workedExample";
-import { screenshots, screenshotById } from "@/data/screenshots";
+import { screenshotById } from "@/data/screenshots";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 import type { Translator } from "@/i18n/core";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -58,6 +67,7 @@ export default async function HomePage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
@@ -71,10 +81,18 @@ export default async function HomePage({ params }: PageProps) {
       <ProductHero
       t={t} />
 
-      {/* ═══ 01b · The facts strip ═══════════════════════════════════ */}
-      <div className="band-solid">
-        <Container>
-          <ul className="grid divide-line/50 sm:grid-cols-2 sm:divide-x lg:grid-cols-4">
+      <div aria-hidden="true" className="ribbon-photon" />
+
+      {/* ═══ 01b · The facts strip ═══════════════════════════════════
+          Four facts about what kind of software this is. It is a band of its
+          own rather than a row inside the hero because it is the first thing a
+          visitor reads after the claim, and a claim followed immediately by
+          four constraints reads as honest in a way a claim followed by four
+          more claims does not. */}
+      <div className="band-solid relative overflow-hidden">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-sheen-violet" />
+        <Container className="relative">
+          <ul className="facts-strip grid divide-line/50 sm:grid-cols-2 sm:divide-x lg:grid-cols-4">
             {[
               { value: t("Windows desktop"), label: t("Installed software, not a browser tab") },
               { value: t("Local SQLite"), label: t("Your data on your machine, 16 databases") },
@@ -84,17 +102,28 @@ export default async function HomePage({ params }: PageProps) {
               <li
                 key={t(fact.value)}
                 className={cn(
-                  "flex flex-col gap-1 py-5 sm:px-6 lg:px-8",
+                  "flex flex-col gap-1 py-6 sm:px-6 lg:px-8",
+                  /* Four stops of one band, not four coloured cards: the
+                     strip reads through the band's own surface so it stays
+                     the family's colour in every appearance and mode. */
                   index === 0 && "sm:pl-0",
                 )}
               >
-                <span className="text-base font-bold text-text-primary">{t(fact.value)}</span>
-                <span className="text-xs font-medium leading-relaxed text-text-muted">{t(fact.label)}</span>
+                <span className="figure text-lg">{t(fact.value)}</span>
+                <span className="mt-1 text-xs font-medium leading-relaxed text-text-muted">{t(fact.label)}</span>
               </li>
             ))}
           </ul>
         </Container>
       </div>
+
+      {/* ═══ 01c · The developer story ═════════════════════════════════
+          The opening of the page ends here, and it ends on the person rather
+          than on the product: the claim, the constraints, and then who is
+          accountable for both. Everything on it is drawn from the dated
+          working documents at the root of the repository — see the note in
+          `src/data/developerHistory.ts`. */}
+      <DeveloperStory t={t} />
 
       {/* ═══ 02 · What ProGlass is ═══════════════════════════════════ */}
       <Section tone="raised" id="what" aria-labelledby="what-heading">
@@ -103,6 +132,7 @@ export default async function HomePage({ params }: PageProps) {
             <div>
               <SectionHeading
                 id="what-heading"
+                align="left"
                 eyebrow={t("Built for glass operations")}
                 title={t("From the first inquiry to the final statement, without re-keying the job.")}
                 lead={t("ProGlass Automation is a Windows desktop application for glass fabrication. It holds the parts of the business that normally live in separate spreadsheets — the quotation, the glass build-up, the cutting plan, the stock, the deliveries and the invoices — and makes each one carry the last one forward.")}
@@ -119,25 +149,31 @@ export default async function HomePage({ params }: PageProps) {
 
             <Reveal delay={80} className="grid gap-6 sm:grid-cols-2">
               {[
+                /* One role, one mark — the same glyph the rail already uses for
+                   the module that role lives in. */
                 {
+                  icon: groupIcons.Sales,
                   title: t("For the estimator"),
                   body: t("Price SGU, DGU, laminated and combined build-ups against real sheet costs, then turn the quotation into a job order without retyping it."),
                 },
                 {
+                  icon: editionIcons.factory!,
                   title: t("For the factory"),
                   body: t("Cut from optimized plans with safety edges and kerf honoured, work the eight production stages, and know what is still owed on every job."),
                 },
                 {
+                  icon: footerLinkIcons["/worked-example"]!,
                   title: t("For the office"),
                   body: t("Ship in as many movements as the customer needs, invoice against the delivery, and read a statement that adds up the same way twice."),
                 },
                 {
+                  icon: groupIcons.Reports,
                   title: t("For the owner"),
                   body: t("Margins that do not move after the fact: the profit snapshot is written once and reported forever, and a stale price basis is flagged."),
                 },
               ].map((card, index) => (
                 <div key={`${t(card.title)}-${index}`} className="surface p-5">
-                  <p className="eyebrow mb-2">{String(index + 1).padStart(2, "0")}</p>
+                  <IconChip path={card.icon} className="icon-chip-strong mb-4" />
                   <h3 className="text-base font-semibold text-text-primary">{t(card.title)}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(card.body)}</p>
                 </div>
@@ -161,6 +197,8 @@ export default async function HomePage({ params }: PageProps) {
             <div className="lg:sticky lg:top-28 lg:self-start">
               <ChainDiagram t={t} />
               <p className="mt-6 text-xs leading-relaxed text-text-faint font-medium">{t("Status vocabularies and handoff guarantees are taken from the application's own workflow documentation and the transition code that enforces them.")}</p>
+
+              <StatusFlows t={t} className="mt-6" />
             </div>
             <WorkflowRail
       t={t} />
@@ -171,14 +209,14 @@ export default async function HomePage({ params }: PageProps) {
       {/* ═══ 04 · Operational Scale ═════════════════════════════════ */}
       <Section tone="sunken" aria-labelledby="scale-heading">
         <Container>
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col items-center gap-8 text-center">
             <SectionHeading
               id="scale-heading"
               eyebrow={t("Operational Scale")}
               title={t("Engineered for complete factory operations.")}
               lead={t("ProGlass Automation connects every department into one integrated workflow — from estimating multi-layer architectural glass to floor-level production queues, cutting optimization, and multi-drop delivery.")}
             />
-            <p className="max-w-sm text-xs leading-relaxed text-text-faint font-medium">
+            <p className="mx-auto max-w-md text-xs leading-relaxed text-text-faint font-medium">
               {t("Unified Windows desktop software covering nine integrated modules and 15 business languages.")}
             </p>
           </div>
@@ -206,7 +244,7 @@ export default async function HomePage({ params }: PageProps) {
             />
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-line-strong/60 bg-ink-900/50 p-4">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 rounded-xl border border-line-strong/60 bg-ink-900/50 p-4 text-center">
             <span className="text-xs text-text-muted">
               {t("Looking for technical codebase metrics, SQLite architecture, and test statistics?")}
             </span>
@@ -395,7 +433,7 @@ export default async function HomePage({ params }: PageProps) {
             </div>
 
             <Reveal delay={100} className="lg:sticky lg:top-28 lg:self-start">
-              <div className="plate p-5">
+              <div className="surface-raised p-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="font-mono text-2xs uppercase tracking-[0.16em] text-text-faint font-medium">
                     Step 9 · Profit &amp; loss
@@ -534,6 +572,62 @@ export default async function HomePage({ params }: PageProps) {
         </Container>
       </Section>
 
+      {/* ── The nine rail groups, as a tour ────────────────────────
+         *
+         * Home is a guided tour of the application as it actually is: the
+         * sidebar's nine groups hold every module the catalogue lists. Each
+         * card links into the catalogue at that group's own anchor, so the
+         * walk home → catalogue never restarts at the top of a long page.
+         */}
+      <Section id="rail-tour" aria-labelledby="rail-tour-heading">
+        <Container>
+          <SectionHeading
+            id="rail-tour-heading"
+            eyebrow={t("Take the tour")}
+            title={t.template`Nine rail groups, ${modules.length} rooms of the same building.`}
+            lead={t("The application is organized exactly as its sidebar is: nine groups, from Main to System, hold every module the catalogue lists. Walk them here, then open one in the catalogue itself — every card there keeps the app's own navigation label and the file that backs the claim.")}
+          />
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {moduleGroups.map((group, index) => {
+              const list = modulesByGroup(group);
+              return (
+                <Reveal key={group} delay={Math.min(index, 6) * 45} className="h-full">
+                  <Link
+                    href={`/features#group-${group.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                    className="surface card-interactive group flex h-full flex-col p-5"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="grid h-9 w-9 place-items-center rounded-card border border-line/60 bg-ink-900/50 text-brand-300">
+                        <Icon path={groupIcons[group]} className="h-4 w-4" />
+                      </span>
+                      <span className="font-mono text-2xs tabular-nums text-text-faint font-medium">
+                        {t.template`${list.length} modules`}
+                      </span>
+                    </div>
+                    <h3 className="mt-3 flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.18em] text-brand-300">
+                      {t(group)}
+                    </h3>
+                    <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(groupNotes[group])}</p>
+                    <ul className="mt-4 space-y-1.5 border-t border-line/60 pt-4">
+                      {list.slice(0, 3).map((item) => (
+                        <li key={item.id} className="flex gap-2.5 text-xs leading-relaxed text-text-muted">
+                          <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
+                          {t(item.name)}
+                        </li>
+                      ))}
+                    </ul>
+                    <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-brand-300 transition-colors duration-200 group-hover:text-brand-200">
+                      {t("Open this group in the catalogue")}
+                      <ArrowRight />
+                    </span>
+                  </Link>
+                </Reveal>
+              );
+            })}
+          </div>
+        </Container>
+      </Section>
+
       {/* ═══ 08c · Appearance ═════════════════════════════════════════ */}
       <Section tone="sunken" aria-labelledby="appearance-heading">
         <Container>
@@ -568,13 +662,13 @@ export default async function HomePage({ params }: PageProps) {
       <Section aria-labelledby="sponsors-heading">
         <Container>
           <Reveal>
-            <div className="card-accent p-8 sm:p-10">
+            <div className="surface-raised p-8 sm:p-10">
               <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-center lg:gap-12">
                 <div>
-                  <p className="eyebrow">{t("Open to help")}</p>
-                  <h2 id="sponsors-heading" className="display-2 mt-3">{t("One developer, and room for a few more hands.")}</h2>
-                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-secondary">{t("ProGlass Automation is written and maintained by one person. Sponsorship funds work — a cutting table to test export formats against, reviewed translations, test engineering — and never buys a roadmap position. The page below states the gaps as they actually are.")}</p>
-                  <div className="mt-6 flex flex-wrap gap-3">
+                  <p className="eyebrow max-lg:text-center">{t("Open to help")}</p>
+                  <h2 id="sponsors-heading" className="display-2 mt-3 max-lg:text-center">{t("One developer, and room for a few more hands.")}</h2>
+                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-secondary max-lg:mx-auto max-lg:text-center">{t("ProGlass Automation is written and maintained by one person. Sponsorship funds work — a cutting table to test export formats against, reviewed translations, test engineering — and never buys a roadmap position. The page below states the gaps as they actually are.")}</p>
+                  <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
                     <ButtonLink href="/sponsors" size="lg" trailing={<ArrowRight />}>
           {t("Sponsor the build")}
         </ButtonLink>
@@ -618,7 +712,7 @@ export default async function HomePage({ params }: PageProps) {
             {featureGroups
               .filter((group) => ["platform", "money", "documents"].includes(group.id))
               .map((group, index) => (
-                <Reveal key={group.id} delay={index * 70} className="surface-raised flex flex-col p-6">
+                <Reveal key={group.id} delay={index * 70} className="surface-raised card-interactive flex flex-col p-6">
                   <h3 className="text-lg font-semibold text-text-primary">{t(group.title)}</h3>
                   <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(group.lead)}</p>
                   <ul className="mt-5 space-y-3 border-t border-line/60 pt-5">
@@ -639,31 +733,26 @@ export default async function HomePage({ params }: PageProps) {
         </Container>
       </Section>
 
+      <div aria-hidden="true" className="ribbon-photon" />
+
       {/* ═══ 10 · Screenshots ═══════════════════════════════════════ */}
       <Section tone="sunken" aria-labelledby="screens-heading">
         <Container>
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col items-center gap-8 text-center">
             <SectionHeading
               id="screens-heading"
               eyebrow={t("The interface")}
               title={t("What you would be looking at all day.")}
-              lead={t("A working application is judged by its list screens and its data grids, so those are what this gallery shows first. Every frame here is interactive: sort the grids, widen the search, run the optimizer, and read the figures it calculates.")}
+              lead={t("Four modules lead the workflow — the same interfaces the gallery preserves in full. Walk them with the dots; the exhibit never moves without you.")}
             />
             <ButtonLink href="/screenshots" variant="secondary" size="lg" trailing={<ArrowRight />} className="shrink-0">
           {t("Open the gallery")}
         </ButtonLink>
           </div>
 
-          <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {screenshots
-              .filter((s) => ["optimization-2d", "sheet-store-overview", "overview-dashboard"].includes(s.id))
-              .map((shot, index) => (
-                <Reveal key={shot.id} as="li" delay={index * 70}>
-                  <ScreenshotFrame
-      t={t} shot={shot} />
-                </Reveal>
-              ))}
-          </ul>
+          <Reveal delay={120} className="mt-10 block">
+            <FeaturesShowcaseServer t={t} />
+          </Reveal>
         </Container>
       </Section>
 
@@ -679,7 +768,7 @@ export default async function HomePage({ params }: PageProps) {
             />
 
             <Reveal delay={80}>
-              <figure className="plate overflow-hidden">
+              <figure className="surface-raised overflow-hidden">
                 <div className="relative aspect-[16/7] w-full">
                   <Image
                     src={glass3d.dguLam.src}
@@ -737,22 +826,29 @@ export default async function HomePage({ params }: PageProps) {
       <Section aria-labelledby="cta-heading">
         <Container>
           <Reveal>
-            <div className="plate relative overflow-hidden p-8 sm:p-12">
-              <div aria-hidden="true" className="glow-layer pointer-events-none absolute inset-0">
-                <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-500/14 blur-[90px]" />
-                <div className="absolute -bottom-32 left-10 h-72 w-72 rounded-full bg-glass-teal/8 blur-[100px]" />
+            <div className="surface-raised edge-conic relative overflow-hidden p-8 sm:p-12">
+              <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+                <div className="aurora-field aurora-drift" />
+              </div>
+              {/* The emblem, at the size a closing panel can carry it, behind
+                  the buttons and out of the way of the text. */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -bottom-14 -end-8 hidden opacity-[0.09] sm:block"
+              >
+                <GlassCubeEmblem size={280} label={null} />
               </div>
 
               <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-center">
-                <div>
-                  <p className="eyebrow mb-4">{t("Next step")}</p>
-                  <h2 id="cta-heading" className="display-2">
+                <div className="max-lg:text-center">
+                  <p className="eyebrow-chip mb-5">{t("Next step")}</p>
+                  <h2 id="cta-heading" className="display-2 max-lg:mx-auto">
           {t("See it against your own cutting list.")}
         </h2>
-                  <p className="lede mt-4 max-w-xl">
+                  <p className="lede-lg mx-auto mt-5 max-w-xl lg:mx-0">
           {t("Tell us the glass types you run and how the work reaches your floor. A demonstration works best when it uses a job you recognise rather than a sample project.")}
         </p>
-                  <div className="mt-7 flex flex-wrap gap-3">
+                  <div className="mt-7 flex flex-wrap justify-center gap-3 lg:justify-start">
                     <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
           {t("Request a Demo")}
         </ButtonLink>
@@ -762,6 +858,9 @@ export default async function HomePage({ params }: PageProps) {
                   </div>
                 </div>
 
+                {/* The four facts a visitor checks before asking for a demo.
+                    Each one is a small lit card rather than a bordered box, so
+                    the panel's own glow reads through between them. */}
                 <dl className="grid grid-cols-2 gap-4">
                   {[
                     ["Platform", "Windows (WPF)"],
@@ -769,10 +868,10 @@ export default async function HomePage({ params }: PageProps) {
                     ["Trial", "30 days, all features"],
                     ["Activation", "Offline licence file"],
                   ].map(([term, detail]) => (
-                    <div key={term} className="rounded-card border border-line/60 bg-ink-950/50 p-4">
+                    <Spotlight key={term} className="surface p-4">
                       <dt className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">{term}</dt>
-                      <dd className="mt-1.5 text-sm font-medium text-text-secondary">{detail}</dd>
-                    </div>
+                      <dd className="mt-1.5 text-sm font-semibold text-text-primary">{detail}</dd>
+                    </Spotlight>
                   ))}
                 </dl>
               </div>
@@ -781,6 +880,7 @@ export default async function HomePage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }
 

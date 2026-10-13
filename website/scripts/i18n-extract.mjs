@@ -490,7 +490,7 @@ for await (const file of walk("src")) {
        stayed English. */
     if (CLASSISH.test(value) && (value.includes("-") || value.includes(":") || !/\s/.test(value))) continue;
     /* A colour or a CSS paint function is a value, not a sentence — the
-       capital-letter rule above lets `radial-gradient(circle, #22D3EE33, …)`
+       capital-letter rule above lets `radial-gradient(circle, #1AC5E233, …)`
        through, because a hex colour has capitals in it. */
     if (/#[0-9a-fA-F]{3,8}|\b(?:radial|linear|conic)-gradient\(|\brgba?\(|\bhsla?\(/.test(value)) continue;
     if (isContent(value) && translatable(value)) {

@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+import { Badge, IconChip } from "@/components/ui/Badge";
+import { groupIcons } from "@/data/groupIcons";
+import { navIcons } from "@/data/navIcons";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { guides, resourceCategories } from "@/data/resources";
@@ -11,6 +14,7 @@ import { allPosts } from "@/lib/posts";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -31,6 +35,7 @@ export default async function ResourcesPage({ params }: PageProps) {
   const locale = t.locale;
   const posts = allPosts();
   return (
+    <PageOverlay locale={t.locale} route="resources">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
@@ -40,7 +45,9 @@ export default async function ResourcesPage({ params }: PageProps) {
       description={t("Guides for glass businesses: the vocabulary of an order, why a cutting plan must be cuttable, and how stock accuracy works when movements are recorded.")}
     />
       <PageHero
+        variant="document"
       t={t}
+        glyph={footerIconFor("/resources")!}
         eyebrow={t("Resources")}
         title={t("Reference material for glass workflows.")}
         lead={t("Written for the person who has to make the quotation add up: how the vocabulary works, why a cutting plan has to be cuttable, what a job order should inherit, and how stock stays auditable. No product pitch in the body text — these are explanations first.")}
@@ -101,7 +108,23 @@ export default async function ResourcesPage({ params }: PageProps) {
 
           <div className="mt-12 space-y-8">
             {guides.map((guide, index) => (
+              /* The glyph names the guide's subject in the same hand the rail
+                 names its modules: vocabulary is a book, the cutting guide is
+                 optimization's arrow, quoting is the sales document, and stock
+                 is the inventory stack. */
               <Reveal key={guide.id} id={guide.id} delay={index * 60} as="article" className="surface-raised p-6 sm:p-8">
+                <IconChip
+                  path={
+                    guide.id === "cutting-optimization-basics"
+                      ? navIcons.Optimization!
+                      : guide.id === "quote-versus-order"
+                        ? groupIcons.Sales!
+                        : guide.id === "stock-accuracy"
+                          ? groupIcons.Inventory!
+                          : navIcons.Resources!
+                  }
+                  className="mb-5"
+                />
                 <header className="flex flex-wrap items-start justify-between gap-4">
                   <div className="max-w-3xl">
                     <div className="flex flex-wrap items-center gap-3">
@@ -186,12 +209,12 @@ export default async function ResourcesPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("See how these ideas look on a real job.")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("The guides explain the concepts; a demonstration shows the application applying them to your glass.")}</p>
+                <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("The guides explain the concepts; a demonstration shows the application applying them to your glass.")}</p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
           {t("Request a Demo")}
         </ButtonLink>
@@ -204,5 +227,6 @@ export default async function ResourcesPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

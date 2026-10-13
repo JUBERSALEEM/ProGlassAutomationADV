@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/layout/LegalPage";
+import { footerIconFor } from "@/data/footerIcons";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -21,6 +23,7 @@ export default async function TermsPage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="legal/terms">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
@@ -31,6 +34,7 @@ export default async function TermsPage({ params }: PageProps) {
     />
     <LegalPage
       t={t}
+      glyph={footerIconFor("/legal/terms")!}
         eyebrow={t("Terms")}
         title={t("Terms of use")}
         lead={t("Short, and written to be read. These terms cover this website and set the expectations that apply to the desktop application.")}
@@ -84,5 +88,6 @@ export default async function TermsPage({ params }: PageProps) {
         ]}
       />
   </>
+    </PageOverlay>
   );
 }

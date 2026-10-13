@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { appearanceFamilies, themeModes, type AppearanceFamilyEntry, type ThemeModeEntry } from "@/data/themes";
-import { setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
+import { setThemeMode, useAppearance, useResolvedTheme, useThemeMode } from "@/lib/useTheme";
 import {
   bundledTypefaceKeys,
   installedTypefaceKeys,
@@ -15,7 +15,9 @@ import {
   studioTypography,
   typefaces,
   useStudio,
+  encodeStudio,
 } from "@/lib/useStudio";
+
 import { luminance } from "@/lib/color";
 import { Slider, edgeReadout } from "@/components/ui/Slider";
 import { useT } from "@/i18n/provider";
@@ -43,15 +45,26 @@ function tintReadout(value: number): string {
   return `${value.toFixed(2)}×`;
 }
 
-export function ThemeStudio() {
+export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
   const t = useT();
-  const [open, setOpen] = useState(false);
-  const [customHex, setCustomHex] = useState("#7C3AED");
+  /* The lazy host (ThemeStudioLazy) summons the drawer chunk already-asked-for:
+     when it mounts this component the open state is owed at once, so the
+     visitor clicks the trigger once and the panel is simply there. */
+  const [open, setOpen] = useState(autoOpen);
+  const [customHex, setCustomHex] = useState("#6546B5");
+  const [shareCopied, setShareCopied] = useState(false);
+  useEffect(() => {
+    if (!shareCopied) return;
+    const timer = window.setTimeout(() => setShareCopied(false), 1800);
+    return () => window.clearTimeout(timer);
+  }, [shareCopied]);
   const panel = useRef<HTMLDivElement | null>(null);
   const trigger = useRef<HTMLButtonElement | null>(null);
 
   const mode = useThemeMode();
   const family = useAppearance();
+  /* What `System` currently resolves to — see the note under the mode plates. */
+  const resolved = useResolvedTheme();
   const studio = useStudio();
 
   // The header dropdown can open the studio, so there is one obvious way in
@@ -86,6 +99,13 @@ export function ThemeStudio() {
   const activeFamily: AppearanceFamilyEntry =
     appearanceFamilies.find((entry) => entry.id === family) ?? appearanceFamilies[0]!;
 
+  /* Senior audit: a bench outside its family is veiled (pointer-events,
+     opacity) AND truly disabled. The veil alone stopped the mouse but not
+     the keyboard — a veiled dial still wrote invisible tokens, which is
+     the precise failure "plates/frost do nothing" reports. */
+  const clayGated = family !== "clay";
+  const glassGated = family !== "crystal";
+
   return (
     <>
       <button
@@ -94,11 +114,15 @@ export function ThemeStudio() {
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-controls="theme-studio"
-        className="no-print menu-card group fixed bottom-5 right-5 z-40 flex items-center gap-2.5 rounded-full px-4 py-3 text-xs font-bold text-text-primary shadow-raised transition-transform hover:-translate-y-0.5"
+        className="no-print menu-card group fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-[max(1.25rem,env(safe-area-inset-right))] z-40 flex items-center gap-2.5 rounded-full px-4 py-3 text-xs font-bold text-text-primary shadow-raised transition-transform hover:-translate-y-0.5"
       >
         <span aria-hidden="true" className="flex items-center gap-1">
           <span className="h-4 w-4 rounded-full ring-2 ring-white/25" style={{ background: activeFamily.swatch }} />
-          <span className="h-4 w-4 -ml-2 rounded-full ring-2 ring-white/25" style={{ background: studio.accent ?? "#8B5CF6" }} />
+          {/* The second dot is the LIVE accent: a picked plate if there is
+              one, the family's own colour if not. It used to fall back to a
+              house-violet literal — a fixed purple dot on every family,
+              asserting an accent the page does not wear. */}
+          <span className="h-4 w-4 -ml-2 rounded-full ring-2 ring-white/25" style={{ background: studio.accent ?? activeFamily.swatch }} />
         </span>
         <span>Theme &amp; colour</span>
         <span className="sr-only">{t("— open the theme studio. Current: {v1} mode, {v2} palette.", { v1: t(activeMode.label), v2: t(activeFamily.label) })}</span>
@@ -146,23 +170,51 @@ export function ThemeStudio() {
                         : "border-line-strong/70 text-text-secondary hover:border-brand-400/60 hover:text-text-primary",
                     )}
                   >
-                    {/* A miniature of the mode, so the plate reads at a glance. */}
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        "flex h-6 w-full items-center justify-center rounded-[0.3rem] border text-[0.625rem] font-bold uppercase tracking-wider",
-                        entry.id === "dark" && "border-white/20 bg-[#120D2E] text-white",
-                        entry.id === "light" && "border-black/15 bg-white text-black",
-                        entry.id === "system" && "border-line-strong bg-gradient-to-r from-white to-[#120D2E] text-black",
-                      )}
-                    >
-                      {t(entry.label)}
-                    </span>
+                    {/*
+                      A miniature of the mode, so the plate reads at a glance.
+                      The two colours are the site's own two page colours — the
+                      midnight page and the ivory one — rather than white and
+                      black: these are the actual surfaces the choice paints,
+                      and black is not one of them.
+                    */}
+                    {entry.id === "system" ? (
+                      <span
+                        aria-hidden="true"
+                        className="flex h-6 w-full overflow-hidden rounded-[0.3rem] border border-line-strong"
+                      >
+                        <span className="h-full w-1/2 bg-[rgb(248_245_238)]" />
+                        <span className="h-full w-1/2 bg-[rgb(8_5_22)]" />
+                      </span>
+                    ) : (
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "flex h-6 w-full items-center justify-center rounded-[0.3rem] border text-[0.625rem] font-bold uppercase tracking-wider",
+                          entry.id === "dark" && "border-white/20 bg-[rgb(8_5_22)] text-[rgb(248_245_238)]",
+                          entry.id === "light" && "border-[rgb(8_5_22)]/25 bg-[rgb(248_245_238)] text-[rgb(8_5_22)]",
+                        )}
+                      >
+                        {t(entry.label)}
+                      </span>
+                    )}
                     {t(entry.label)}
                   </button>
                 );
               })}
             </div>
+            {/*
+              The engine's third value, printed where it is decided.
+
+              `System` is not a shade — it is a deferral, so the plates above
+              cannot show what it currently means. This line does: it says what
+              the page is wearing right now, which is the answer a visitor who
+              clicked System is looking for.
+            */}
+            <p className="mt-2 font-mono text-[0.6875rem] font-medium text-text-faint">
+              {mode === "system"
+                ? t.template`Following the system — this page is ${t(resolved === "daylight" ? "light" : "dark")} right now.`
+                : t.template`Set to ${t(mode === "light" ? "Light" : "Dark")} — this page does not follow the system while an explicit reading is chosen.`}
+            </p>
           </fieldset>
 
           {/* ── Palette family ────────────────────────────────────────── */}
@@ -258,6 +310,158 @@ export function ThemeStudio() {
                 />
               </label>
             </div>
+          </fieldset>
+
+          {/* ── Clay engine · the plate bench ─────────────────────────
+              Clay is a separate engine, so its colours get their own set of
+              dials instead of living inside the shared accent plates: the
+              six-plate bench preset, a hand-picked house plate, and the
+              free custom plate slot. One tap re-colors every clay card on
+              every page at once — that is the point of a material that is
+              many colors, not one brand violet. The plum ink never moves;
+              picks are pulled pastel so plates always carry it. */}
+          <fieldset className="mt-4">
+            <legend className="mono-label">{t("Clay engine — plate bench")}</legend>
+            <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">
+              {t("Six pastel plates plus the accent channels, recolored as one bench. Applies when the Clay family is active; the plum print on the plates never changes.")}
+            </p>
+            <p className={cn(
+              "mt-2 text-[0.75rem] leading-relaxed",
+              /* P18 — veneer-gate: a bench outside its family used to sit
+                 interactive and inert, which reads as broken. Now the owner
+                 sentence BECOMES the notice chip when the bench is off. */
+              family === "clay"
+                ? "font-medium text-text-muted"
+                : "rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2 font-semibold text-text-secondary",
+            )}>
+              {t("The bench is the colour plates above: pick any plate and every clay plate, face, shadow and pool re-derives hue-rotated from it — Material-You adoption, instantly. The plum ink never moves; the engine file stays untouched. Reset = Family accent above.")}
+            </p>
+            <div className={family === "clay" ? undefined : "pointer-events-none select-none opacity-50 saturate-[0.6]"}>
+              <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+                {([
+                { key: "clayCards", label: t("Cards wear plate:") },
+                { key: "clayPlate", label: t("Main card wears plate:") },
+              ] as const).map(({ key, label }) => (
+                <span key={key} className="flex items-center gap-2">
+                  <span className="text-[0.72rem] font-semibold text-text-primary">{label}</span>
+                  {[1, 2, 3, 4, 5, 6].map((n) => (
+                    <button
+                      key={`${key}-${n}`}
+                      type="button"
+                      aria-pressed={studio[key] === n}
+                      disabled={clayGated}
+                      onClick={() => setStudio({ [key]: n })}
+                      className={cn(
+                        "grid h-7 w-7 place-items-center rounded-full border-2 text-[0.68rem] font-bold transition-transform",
+                        studio[key] === n
+                          ? "scale-110 border-brand-500/70 bg-brand-600/20 text-text-primary"
+                          : "border-line-strong/60 text-text-muted hover:border-line-strong",
+                      )}
+                      title={t("Pick the plate this zone wears")}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </span>
+              ))}
+              <span className="text-[0.72rem] text-text-muted">{t("— same by default; split them to dress the cards apart.")}</span>
+            </div>
+            <button
+              type="button"
+              title={t("Copy a link carrying this whole studio — the bench rides in the URL")}
+              disabled={clayGated}
+              onClick={() => {
+                const encoded = encodeStudio(studio);
+                const url = `${window.location.origin}${window.location.pathname}?studio=${encoded}`;
+                void navigator.clipboard?.writeText(url).then(() => setShareCopied(true));
+              }}
+              className="mt-2 ml-3 text-[0.72rem] font-semibold text-text-faint underline-offset-2 hover:underline"
+            >
+              {shareCopied ? t("Bench link copied ✓") : t("Copy bench link")}
+            </button>
+            </div>
+          </fieldset>
+
+          {/* ── Crystal engine · the material bench ───────────────────
+              Clay gets plates; glass gets the material itself: frost (how
+              hard the page blurs behind every pane), body (how solid the
+              fills stand), glint (how bright the corner light burns).
+              The dials multiply the family's own recipe — never a family-
+              token overwrite — and the engine's floors and caps in
+              crystal-engine §C4 keep every move inside the doctrine
+              (body ≥ 0.80 by day, glint ≤ 0.55 at the corners). */}
+          <fieldset className="mt-4">
+            <legend className="mono-label">{t("Crystal engine — glass bench")}</legend>
+            <p className={cn(
+              "mt-1.5 text-[0.75rem] leading-relaxed",
+              family === "crystal"
+                ? "font-medium text-text-muted"
+                : "rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2 font-semibold text-text-secondary",
+            )}>
+              {t("Frost, body and glint for the Crystal family — the material the site is made of, multiplied from its own recipe. Applies when the Crystal family is active; text ink never moves.")}
+            </p>
+            <div className={family === "crystal" ? undefined : "pointer-events-none select-none opacity-50 saturate-[0.6]"}>
+              <div className="mt-3 grid gap-3">
+                <Slider
+                  label={t("Frost — blur behind every pane")}
+                  value={studio.glassFrost}
+                  min={0.25}
+                  max={3}
+                  step={0.05}
+                  disabled={glassGated}
+                  display={`${studio.glassFrost.toFixed(2)}×`}
+                  onChange={(v) => setStudio({ glassFrost: v })}
+                  hint={t("1.00 is the shipped recipe — 24px at 195% saturation, multiplied by this dial. 0.25 is nearly clear.")}
+                />
+              <Slider
+                label={t("Body — how solid the fills stand")}
+                value={studio.glassBody}
+                min={0.25}
+                max={3}
+                step={0.05}
+                disabled={glassGated}
+                display={`${studio.glassBody.toFixed(2)}×`}
+                onChange={(v) => setStudio({ glassBody: v })}
+                hint={t("1.00 keeps the family's tiers (0.55–0.92 by night, 0.82–0.99 by day). The engine never lets daylight body drop below 0.80 — text rides the fill, not the blur.")}
+              />
+              <Slider
+                label={t("Glint — corner catch-light")}
+                value={studio.glassGlint}
+                min={0}
+                max={3}
+                step={0.05}
+                disabled={glassGated}
+                display={`${studio.glassGlint.toFixed(2)}×`}
+                onChange={(v) => setStudio({ glassGlint: v })}
+                hint={t("0 reads as frosted plastic; 2.00 burns bright at the corners — the engine caps the light at 0.55 so the text field is never lifted.")}
+              />
+              </div>
+              {studio.glassFrost !== 1 || studio.glassBody !== 1 || studio.glassGlint !== 1 ? (
+                <button
+                  type="button"
+                  disabled={glassGated}
+                  onClick={() => setStudio({ glassFrost: 1, glassBody: 1, glassGlint: 1 })}
+                  className="mt-2 text-[0.72rem] font-semibold text-text-faint underline-offset-2 hover:underline"
+                >
+                  {t("Reset the glass bench")}
+                </button>
+              ) : null}
+            </div>
+          </fieldset>
+          <fieldset className="mt-4">
+            <legend className="mono-label">{t("Clay depth")}</legend>
+            <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">
+              {t("How hard the shadows press. 1.00 is the shipped recipe; geometry and the light lift never move, so cards deepen without floating.")}
+            </p>
+            <Slider
+              label={t("Shadow depth")}
+              value={studio.clayDepth}
+              min={0.7}
+              max={1.35}
+              step={0.05}
+              display={`${studio.clayDepth.toFixed(2)}×`}
+              onChange={(value) => setStudio({ clayDepth: value })}
+            />
           </fieldset>
 
           {/* ── Typeface ──────────────────────────────────────────────── */}
@@ -450,11 +654,11 @@ export function ThemeStudio() {
                   label={t("Border line")}
                   value={studio.edge}
                   min={1}
-                  max={4}
+                  max={10}
                   step={0.25}
                   display={edgeReadout(studio.edge)}
                   onChange={(value) => setStudio({ edge: value })}
-                  hint={t("1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with.")}
+                  hint={t("1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with; the dial runs to 10 px for plate-strength borders.")}
                 />
                 <Slider
                   label={t("Corner radius")}
@@ -466,6 +670,52 @@ export function ThemeStudio() {
                   onChange={(value) => setStudio({ radius: value })}
                   hint={t("Scales the 12 px card radius, exactly as the radius setting scales it in the application.")}
                 />
+              </div>
+
+              <div className="mt-3.5">
+                <p className="mono-label mb-2">{t("Edge colour")}</p>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {[
+                    { key: "", name: "Family colour", hex: null as string | null },
+                    { key: "#FFFFFF", name: "White", hex: "#FFFFFF" },
+                    { key: "#161226", name: "Ink", hex: "#161226" },
+                    { key: "#8B7CF0", name: "Violet", hex: "#8B7CF0" },
+                    { key: "#F27EA2", name: "Rose", hex: "#F27EA2" },
+                    { key: "#38BDF8", name: "Sky", hex: "#38BDF8" },
+                    { key: "#4ADE80", name: "Leaf", hex: "#4ADE80" },
+                    { key: "#FBBF24", name: "Gold", hex: "#FBBF24" },
+                  ].map((plate) => (
+                    <button
+                      key={plate.name}
+                      type="button"
+                      aria-pressed={studio.edgeColor === (plate.hex ?? "")}
+                      aria-label={t(plate.name)}
+                      title={t(plate.name)}
+                      onClick={() => setStudio({ edgeColor: plate.hex ?? "" })}
+                      className={cn(
+                        "grid h-7 w-7 place-items-center rounded-full border-2 transition-transform duration-150 hover:scale-110",
+                        studio.edgeColor === (plate.hex ?? "")
+                          ? "border-text-primary"
+                          : "border-line-strong/60",
+                      )}
+                      style={{
+                        background: plate.hex ?? "linear-gradient(135deg, rgb(var(--brand-500)), rgb(var(--brand-300)))",
+                      }}
+                    >
+                      <span className="sr-only">{t(plate.name)}</span>
+                    </button>
+                  ))}
+                  <input
+                    type="color"
+                    value={studio.edgeColor || "#8B7CF0"}
+                    aria-label={t("Pick a custom edge colour")}
+                    onChange={(event) => setStudio({ edgeColor: event.target.value })}
+                    className="h-7 w-9 shrink-0"
+                  />
+                </div>
+                <p className="mt-1.5 text-[0.6875rem] leading-relaxed text-text-faint">
+                  {t("Follows the family until you plate it yourself — every card edge on the site takes the same colour.")}
+                </p>
               </div>
 
               <div className="mt-3 flex items-center gap-3 rounded-card border-2 border-line-strong/70 bg-ink-950/60 p-2.5">
@@ -575,7 +825,7 @@ function PlateButton({
         "flex h-14 flex-col items-center justify-end gap-1 rounded-card border-2 p-1.5 text-[0.6875rem] font-bold uppercase tracking-wider transition-transform hover:-translate-y-0.5",
         active ? "border-text-primary" : "border-line-strong/60",
       )}
-      style={{ background: colour, color: onDark ? "#FFFFFF" : "#0B0820" }}
+      style={{ background: colour, color: onDark ? "#FFFFFF" : "#080516" }}
     >
       <span className="max-w-full truncate drop-shadow-sm">{label}</span>
     </button>

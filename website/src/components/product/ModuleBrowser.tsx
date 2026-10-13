@@ -3,8 +3,11 @@
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
 import { Badge } from "@/components/ui/Badge";
-import { Reveal } from "@/components/ui/Reveal";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { dur, springs } from "@/lib/motion";
 import { moduleCounts, modules, type ModuleGroup, type ProductModule } from "@/data/modules";
+import { groupIcons } from "@/data/groupIcons";
+import { Icon } from "@/components/ui/Icon";
 import { useT } from "@/i18n/provider";
 
 /**
@@ -19,6 +22,7 @@ export function ModuleBrowser() {
   const t = useT();
   const [group, setGroup] = useState<ModuleGroup | "all">("all");
   const [query, setQuery] = useState("");
+  const reduced = useReducedMotion();
 
   const counts = useMemo(() => moduleCounts(), []);
 
@@ -104,14 +108,19 @@ export function ModuleBrowser() {
 
       {/* ── Groups ───────────────────────────────────────────────── */}
       <div className="mt-10 space-y-14">
-        {grouped.map(([groupName, list]) => (
+        {grouped.map(([groupName, list]) => {
+          const note = counts.find((entry) => entry.group === groupName)?.note;
+          return (
           <div key={groupName} id={`group-${slug(groupName)}`} className="scroll-mt-28">
             <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-line/60 pb-3">
-              <h3 className="font-mono text-sm font-semibold uppercase tracking-[0.18em] text-brand-300">
-                {groupName}
+              <h3 className="flex items-center gap-2.5 font-mono text-sm font-semibold uppercase tracking-[0.18em] text-brand-300">
+                <span className="grid h-7 w-7 place-items-center rounded-lg border border-line/60 bg-ink-900/50">
+                  <Icon path={groupIcons[groupName]} className="h-3.5 w-3.5" />
+                </span>
+                {t(groupName)}
               </h3>
               <p className="text-xs text-text-faint font-medium">
-                {counts.find((entry) => entry.group === groupName)?.note}
+                {note ? t(note) : null}
               </p>
             </div>
 
@@ -122,14 +131,26 @@ export function ModuleBrowser() {
               navigation once it is there.
             */}
             <ul className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {list.map((item, index) => (
-                <Reveal key={item.id} as="li" id={item.id} delay={Math.min(index, 6) * 45} className="scroll-mt-28">
-                  <ModuleCard module={item} />
-                </Reveal>
-              ))}
+              <AnimatePresence mode="popLayout">
+                {list.map((item) => (
+                  <motion.li
+                    key={item.id}
+                    id={item.id}
+                    layout={!reduced}
+                    initial={{ opacity: 0, scale: reduced ? 1 : 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: reduced ? 1 : 0.96 }}
+                    transition={{ layout: springs.layout, duration: dur.card, ease: "easeOut" }}
+                    className="scroll-mt-28"
+                  >
+                    <ModuleCard module={item} />
+                  </motion.li>
+                ))}
+              </AnimatePresence>
             </ul>
           </div>
-        ))}
+          );
+        })}
 
         {visible.length === 0 ? (
           <div className="surface p-8 text-center">
@@ -163,6 +184,11 @@ function ModuleCard({ module }: { module: ProductModule }) {
       </ul>
 
       <div className="mt-auto pt-5">
+        {module.statusNote ? (
+          <p className="mb-3 rounded-card border border-line/60 bg-ink-800/60 px-2.5 py-1.5 text-2xs leading-relaxed text-text-faint font-medium">
+            {t(module.statusNote)}
+          </p>
+        ) : null}
         <p className="mono-label border-t border-line/60 pt-3">
           <span className="sr-only">{t("Navigation label:")}</span>
           {t(module.railLabel)}

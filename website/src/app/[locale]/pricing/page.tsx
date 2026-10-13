@@ -2,16 +2,20 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
 import { editions, licenceFacts, licenceGates, openModules } from "@/data/editions";
+import { editionIcon } from "@/data/groupIcons";
+import { Icon } from "@/components/ui/Icon";
 import { faq } from "@/data/faq";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -31,6 +35,7 @@ export default async function PricingPage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="pricing">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
@@ -40,7 +45,9 @@ export default async function PricingPage({ params }: PageProps) {
       description={t("ProGlass Automation editions — Trial, Basic, Business, Factory and Enterprise: which modules each tier unlocks, and how offline licensing works.")}
     />
       <PageHero
+        variant="showcase"
       t={t}
+        glyph={footerIconFor("/pricing")!}
         eyebrow={t("Pricing")}
         title={t("Editions, not subscriptions.")}
         lead={t("ProGlass Automation is licensed per business with a signed licence file activated offline. The editions below are the ones the application itself defines, and the feature gating is the same map the navigation rail uses — so what this page says and what the application does cannot drift apart.")}
@@ -71,7 +78,7 @@ export default async function PricingPage({ params }: PageProps) {
       <Section aria-label={t("How pricing works")}>
         <Container>
           <Reveal>
-            <div className="glass-primary grid gap-6 p-6 sm:grid-cols-3 sm:p-8">
+            <div className="surface-raised grid gap-6 p-6 sm:grid-cols-3 sm:p-8">
               <div className="sm:col-span-2">
                 <h2 className="display-3">{t("There is no price on this page, and that is deliberate.")}</h2>
                 <p className="mt-4 text-sm leading-relaxed text-text-muted">{t("ProGlass is sold to glass businesses with different shapes: a single estimator, a five-person office, or a factory running eight production stages. What you need ranges from the proforma wizard alone to the full chain plus the cutting-optimization engine. Quoting one number for all of those would mean either overcharging the first or underdelivering the last.")}</p>
@@ -95,6 +102,18 @@ export default async function PricingPage({ params }: PageProps) {
               </ul>
             </div>
           </Reveal>
+          {/*
+            The same facts, with the code that enforces them — the licence
+            facts above are claims until a reader can open the file that makes
+            them true. Paths are printed, not translated, like every other
+            evidence line on the site.
+          */}
+          <p className="mono-label mt-5">
+            {t("Enforced in code:")} Licensing/Contracts/LicenseService.cs ·
+            Licensing/Contracts/OfflineActivationService.cs ·
+            Licensing/Contracts/LicenseKeyArmor.cs ·
+            Licensing/ProGlass.Licensing.Tests/
+          </p>
         </Container>
       </Section>
 
@@ -115,8 +134,8 @@ export default async function PricingPage({ params }: PageProps) {
                 delay={index * 60}
                 className={
                   edition.featured
-                    ? "surface-raised relative flex flex-col border-brand-400/40 p-6 shadow-glow"
-                    : "surface relative flex flex-col p-6"
+                    ? "pricing-card--featured surface-raised relative flex flex-col border-brand-400/40 p-6 shadow-glow"
+                    : "pricing-card--basic surface relative flex flex-col p-6"
                 }
               >
                 {edition.featured ? (
@@ -126,7 +145,12 @@ export default async function PricingPage({ params }: PageProps) {
                 ) : null}
 
                 <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="text-lg font-semibold text-text-primary">{t(edition.name)}</h3>
+                  <h3 className="flex items-center gap-2.5 text-lg font-semibold text-text-primary">
+                    <span className="grid h-8 w-8 place-items-center rounded-card border border-line/60 bg-ink-900/50 text-brand-300">
+                      <Icon path={editionIcon(edition.id)} className="h-4 w-4" />
+                    </span>
+                    {t(edition.name)}
+                  </h3>
                   <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                     Tier {edition.order}
                   </span>
@@ -299,12 +323,12 @@ export default async function PricingPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request pricing")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("Tell us what you need, and get a number.")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("How many people, which modules, and whether the cutting table is part of it. Every request is answered by a person.")}</p>
+                <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("How many people, which modules, and whether the cutting table is part of it. Every request is answered by a person.")}</p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
           {t("Request pricing")}
         </ButtonLink>
@@ -317,5 +341,6 @@ export default async function PricingPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

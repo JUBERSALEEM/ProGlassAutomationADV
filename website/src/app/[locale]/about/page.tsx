@@ -2,15 +2,18 @@ import type { Metadata } from "next";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { StatCounter } from "@/components/ui/Stat";
-import { IndexChip } from "@/components/ui/Badge";
+import { IconChip, IndexChip } from "@/components/ui/Badge";
 import { site } from "@/lib/site";
 import { RouteSchema } from "@/components/seo/RouteSchema";
+import { editionIcons, groupIcons } from "@/data/groupIcons";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -30,6 +33,7 @@ export default async function AboutPage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="about">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
@@ -39,7 +43,9 @@ export default async function AboutPage({ params }: PageProps) {
       description={t("ProGlass Automation is desktop software for glass fabrication businesses: what it is, the problem it solves, how it is built and what it does not do.")}
     />
       <PageHero
+        variant="document"
       t={t}
+        glyph={footerIconFor("/about")!}
         eyebrow={t("About")}
         title={t("A glass business is not a general business.")}
         lead={t("Generic ERP software assumes widgets: identical units, a bill of materials, a production order. Glass is not that. It is sold by area, priced on a build-up, cut from sheets, delivered in part-loads and invoiced against whatever actually left the yard. ProGlass Automation exists because that mismatch is where the money quietly goes missing.")}
@@ -125,20 +131,23 @@ export default async function AboutPage({ params }: PageProps) {
           <div className="mt-12 grid gap-6 lg:grid-cols-3">
             {[
               {
+                icon: groupIcons.Sales,
                 title: t("Documents convert, they do not re-enter"),
                 body: t("An inquiry becomes a quotation becomes a job order becomes a delivery becomes an invoice. Each step copies the previous record and keeps the audit trail, so the third version of a number never appears out of nowhere."),
               },
               {
+                icon: groupIcons.Finance,
                 title: t("Money is computed once"),
                 body: t("Proforma Step 9 is the single pricing engine. Profitability, statements and reports read the snapshot it writes. A stale price basis is flagged rather than quietly rescored."),
               },
               {
+                icon: groupIcons.Production,
                 title: t("The floor gets what the office promised"),
                 body: t("Real grid geometry crosses from quotation to job order — sheet selections and air-spacer gaps included — so the panel that was priced is the panel that gets built."),
               },
             ].map((pillar, index) => (
               <Reveal key={`${t(pillar.title)}-${index}`} delay={index * 70} className="surface-raised p-6">
-                <p className="eyebrow mb-3">{String(index + 1).padStart(2, "0")}</p>
+                <IconChip path={pillar.icon} className="mb-4" />
                 <h3 className="text-lg font-semibold text-text-primary">{t(pillar.title)}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(pillar.body)}</p>
               </Reveal>
@@ -217,31 +226,38 @@ export default async function AboutPage({ params }: PageProps) {
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
+                icon: editionIcons.factory!,
                 title: t("Glass fabrication and processing"),
                 body: t("Cutting, edging, tempering, laminating and assembling — the business model the application was written around."),
               },
               {
+                icon: groupIcons.Dispatch,
                 title: t("Glazing contractors and installers"),
                 body: t("Where the quoting happens before the site visit and the delivery has to match what the client actually specified."),
               },
               {
+                icon: groupIcons.Main,
                 title: t("Aluminium and glass contracting"),
                 body: t("Multi-section jobs where each section has its own build-up and cannot all be priced from the same panel."),
               },
               {
+                icon: groupIcons.Inventory,
                 title: t("Glass trading and distribution"),
                 body: t("Where the sheet is the product and stock accuracy and reorder levels are the daily problem."),
               },
               {
+                icon: groupIcons.Sales,
                 title: t("The estimation desk"),
                 body: t("Someone who needs a defensible quotation out the same day, built from costs the business actually buys at."),
               },
               {
+                icon: groupIcons.Reports,
                 title: t("The owner who prices the awkward jobs"),
                 body: t("The one who wants the margin visible at the moment of quoting rather than at the end of the quarter."),
               },
             ].map((item, index) => (
               <Reveal key={`${t(item.title)}-${index}`} delay={index * 50} className="surface p-5">
+                <IconChip path={item.icon} className="mb-4 h-8 w-8" />
                 <h3 className="text-sm font-semibold text-text-primary">{t(item.title)}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
               </Reveal>
@@ -308,12 +324,12 @@ export default async function AboutPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("If that describes your business, see it working.")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration runs on a job you recognise, from the quotation through to the cutting plan.")}</p>
+                <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration runs on a job you recognise, from the quotation through to the cutting plan.")}</p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
           {t("Request a Demo")}
         </ButtonLink>
@@ -326,5 +342,6 @@ export default async function AboutPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

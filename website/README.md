@@ -54,7 +54,11 @@ DNS records for the domain, the certificate, the launch checklist, and the
 `Module not found` build error that appears when dependencies have not been
 installed.
 
-The short version, once the repository is on `main`:
+The short version. Note the second word of the sentence people usually write
+here: there is no `main` in this repository. Production follows the Vercel
+project's **Production Branch** setting, which is a setting and not a branch
+name — §5 of the deployment guide carries the value this site uses, the second
+project that shares the repository, and the one-project rule:
 
 ```
 Vercel → Add New → Project → import this repository
@@ -78,6 +82,245 @@ Deploy → then Settings → Domains → add the domain and its www form
 | `/developer` | The person who writes it, the stack and the engineering principles |
 | `/contact` | Demo-request form and the direct address |
 | `/resources` | Reference guides |
+
+## The design system, and what it is anchored to
+
+The site is not styled from a mood board. Its palette is the application's own,
+read out of the WPF tree and transcribed:
+
+| Site token | Value | Where it comes from |
+|---|---|---|
+| `--brand-600` | `#6546B5` | `Sp.Accent` — `Views/Splash/SplashView.xaml`, the "Studio Ivory & Glass" splash |
+| `--brand-700` | `#493080` | `Sp.AccentDeep` — the same file |
+| `--brand-100/200/300/400` | the rest of the ramp | `Sp.PaneLight`, `Sp.Pane`, `Sp.FaceTop/Left/Right` — the floating panes and the isometric emblem |
+| `--ink-950` (daylight) | `#F8F5EE` | `Sp.Canvas` — the warm ivory studio ground, not a cold white |
+| `--line` (daylight) | `#D6CDE9` | `Sp.Keyline` — the divider rule under the wordmark |
+| `--text-1` (daylight) | `#241B3A` | `Sp.Ink` |
+| `--text-4` (daylight) | `#6B6078` | `Sp.Muted` |
+| `--ink-950` (midnight) | `#080516` | the deep end of the same violet, extended |
+| `--state-danger` | `#F43F5E`-family | `DarkTheme.xaml` · `DangerColor` |
+
+`src/components/brand/GlassCubeEmblem.tsx` carries the application's emblem — the
+three face paths are transcribed coordinate-for-coordinate from the splash's
+`Viewbox`/`Grid Width="160" Height="170"`, so the mark on the site is the same
+drawing as the mark the product opens with, at any size.
+
+Five cosmetic layers sit on top of the tokens, all in the `@layer components`
+block at the foot of `src/app/globals.css`:
+
+| Class | What it is |
+|---|---|
+| `.aurora-field` | three saturated washes crossing a band, drifting on a 34 s cycle — one paint, from `--aurora-image` |
+| `.orb` / `.orb-wide` | a pool of light drawn as a radial gradient; the caller sets `--orb` to its colour and gives the element its size |
+| `.edge-conic` | a hairline of accent light around a card, revealed on hover by an opacity transition |
+| `.spot` | a light that follows the pointer across a card's face — driven by `src/lib/useSpotlight.ts` |
+| `.bento`, `.spine`, `.marquee`, `.panel-feature`, `.figure` | the layout patterns the redesigned pages are built from |
+
+Every one of them reads `--brand-*`, `--glass-*` or `--wall-*`, so switching
+mode or palette family repaints all of them with no markup change, and every one
+degrades to nothing: with `prefers-reduced-motion`, with scripting off, or on a
+touch device the content is still complete and still readable.
+
+The page's own surface — the wallpaper's nine gradient layers and the noise tile
+that finishes them — is the `body::after` background stack rather than a class.
+It is one paint, and nothing in it is composited against the content above it.
+
+### The performance contract
+
+Three things nearly cost this site its responsiveness, and all three were
+decoration. They are banned, and the bans are the point of this section:
+
+| Never | Why | Instead |
+|---|---|---|
+| `mix-blend-mode` on a full-viewport layer | the browser re-blends the whole document on every scroll frame, and the page drops off Chromium's GPU fast paths | an alpha token — `--aurora-1/2/3` — or a heavier colour in the gradient itself |
+| `@property` plus a keyframed gradient angle | a conic-gradient repaint per frame, per element, on every unhovered card on the page | a static ring, revealed by an `opacity` transition |
+| `filter: blur()` more than a few pixels wide | a multi-pass kernel over a 20 rem element, re-run whenever it changes | `.orb` — the same light as a radial gradient, one paint |
+
+The rule underneath all three: **a decorative layer may animate `transform` or
+`opacity`, or nothing at all.** The aurora drifts with `translate3d`, the edge
+ring fades in, the spot follows the pointer. None of them repaints, and the
+texture survives every one of them — the aurora still crosses the opening
+screen, the grain still finishes the surface, the cards still catch the light.
+
+Check it after a design change, from `website/`:
+
+```bash
+npx tsc --noEmit && npm run lint && npm run build
+python3 scripts/audit-site.py http://127.0.0.1:3000
+python3 scripts/audit-site.py --fresh                        # also: is the server the build it claims?
+grep -rn "mix-blend-mode\|blur-\[" src/ --include=*.tsx    # expect no hits
+```
+
+### Which build is this?
+
+The top panel prints a build stamp — the site's name, the date and the time in
+**Gulf Standard Time**, with UTC, the revision and the branch in its hover text
+and all of it in `/api/health` as JSON:
+
+```bash
+curl -s http://127.0.0.1:3000/api/health
+curl -s https://proglassautomationadv-website-tkim.vercel.app/api/health
+```
+
+The site is deployed from one repository to more than one host, and each host
+builds the branch at its own moment, so two deploys of the same commit can be
+hours apart while looking identical. The stamp is how that stops being
+invisible. `scripts/audit-site.py --fresh` reads the endpoint, reads the stamp
+the page itself prints, and fails if the origin is serving a different revision
+from the one the tree is on — point it at a preview URL or the live site and the
+answer is the desync, named.
+
+`npm run check:live` asks the same question of every origin the site is meant to
+be reachable at, in one line each, and exits non-zero if any of them is behind:
+
+```bash
+npm run check:live                              # the two hosts, plus this machine
+npm run check:live https://a-preview-url.vercel.app
+```
+
+The shape of a line — the origin, then what it is serving, then the verdict:
+
+```
+local           http://127.0.0.1:3000
+                <rev> · <builtAt> · local
+                CURRENT — it is running the revision the branch is on
+```
+
+The two clocks are deliberate. The panel is read in the UAE, so the card prints
+the clock in the room it is read in — Gulf Standard Time, UTC+4 all year, no
+daylight saving, so the conversion is four hours of arithmetic rather than a
+time-zone lookup that could differ between the server and the browser. UTC stays
+beside it because two hosts are compared in UTC, and the hover text spells that
+instant out rather than leaving it to be worked out. That is also what
+`audit-site.py` reads: a page and its own endpoint are held against each other in
+UTC, whatever the card prints.
+
+At the time of writing the two Vercel origins both answer **no stamp**, which is
+the desync this repository was carrying and the reason the table in the
+deployment guide exists. Setting the project's Production Branch moves them off
+it; nothing on this side of the wire can.
+
+The three answers it can give are worth knowing apart: **current**, **behind**
+(the deployment exists; production has not been pointed at it — the fix is the
+project's Production Branch setting), and **no stamp** (the origin answers with
+the site's own 404 for `/api/health`, so the build predates the stamp at all).
+The third is the dangerous one, because the site looks perfectly healthy while
+being months behind. The values are inlined at build time by the `env`
+block in `next.config.ts` (see `scripts/build-stamp.mjs`), so a page prerendered
+during the build and a route handler starting cold later report the same instant.
+
+Every string in the stamp is an English sentence in the catalogue and falls back
+to it in the other fourteen locales — deliberately, because the stamp is a fact
+two builds are compared by, and the same characters everywhere is what makes the
+comparison cheap. The keys are in `src/i18n/dict/keys.ts` like any other if a
+locale ever wants its own words.
+
+### The top panel's budget
+
+The header is the one part of the site whose width can be worked out exactly:
+a fixed-height row of fixed-size things, and the only unknown in the arithmetic
+is how wide a word is — which is not unknown, because the font files are in
+`src/fonts` and `scripts/measure-panel.py` reads the advance widths straight out
+of them at the right weight.
+
+That matters because the panel must not squeeze. Everything in it is a flex item
+in a `nowrap` row, so a row that is over budget does not overflow politely: the
+flexible children shrink and their labels wrap mid-phrase inside a bar whose
+height is fixed — "Request a / Demo" — which reads as a broken header. Run the
+script after touching the panel:
+
+```bash
+python3 scripts/measure-panel.py          # the ladder, with verdicts
+python3 scripts/measure-panel.py --json   # the same numbers, machine-readable
+```
+
+It also checks itself. The nav entries are parsed out of `Navbar.tsx` rather
+than copied into the script, and ten assertions hold the model against the
+classes in the components; a run that has drifted from the markup fails instead
+of reporting room that is not there. That is not hypothetical — the nav grew a
+seventh entry, the script went on measuring six, and the panel was called fine
+while wanting about 1450px at 1280. The numbers now are the browser's:
+
+| Tier | From | What the panel shows | Needs / has |
+|---|---|---|---|
+| `wide` | 1920 | all seven cards with glyph icons, palette word, divider, primary CTA, stamp | 1661 / 1777 |
+| `2xl` | 1536 | five cards + Menu for the other two, divider, primary CTA, stamp — no palette word | 1342 / 1393 |
+| `xl` | 1280 | three cards + Menu for the other four, settings, primary CTA, stamp | 1133 / 1169 |
+| `lg` | 1024 | Menu button holding all seven, settings, primary CTA, stamp | 849 / 929 |
+| `sm` | 640 | mark, build-sync chip, language, reading switch, palette, menu button | 539 / 569 |
+| phone | 360 | mark alone, build-sync chip, palette, menu button — no wordmark, no language button | 290 / 305 |
+
+Three of those are visible choices rather than accidents:
+
+- **the cards arrive in three steps.** Seven cards, the settings, the call to
+  action and the stamp need about 1450px at 1280, so the first three cards
+  arrive at `xl`, the next two at `2xl` and the last two at `wide`, with the
+  **Menu button** holding whatever is not on screen yet — all seven at
+  1024–1279, the last four at 1280–1535, the last two at 1536–1919. It is the
+  same sheet the phone menu opens, so no page is ever unreachable from the
+  header;
+- **the stamp is a card, not a timestamp**: the site's name, the date, and the
+  time in Gulf Standard Time, which is what makes it ~126px wide instead of ~75.
+  It outranks the ghost shortcut that used to sit at 1920 — Screenshots is the
+  first child of the Product menu, and a duplicate route is the cheapest thing
+  in this row to lose — and the palette's own word waits for `wide` for the same
+  reason;
+- **on phones the lockup drops to the mark alone** and the language button waits
+  for `sm` — 290px in the 305px a 360px screen leaves it, which is the
+  difference between a header that fits every phone and one that fits the phones
+  that happened to be measured. The **build-sync chip** — the time this build
+  shipped, in Gulf Standard Time — rides right after the mark there and at
+  `sm`, because the answer to "which build is this" belongs at the top of the
+  screen, not beneath the footer; it steps aside at `lg` exactly when the
+  three-line stamp card takes over, so the row never pays for both. The full
+  lockup is in the footer on every screen, and all fifteen languages are
+  spelled out in the sheet, one tap away.
+
+### The plates
+
+The hero backdrop and the brand banner are drawn from the site's own tokens by
+`scripts/render-hero-backdrop.mts` and `scripts/render-hero-banner.mts`, through
+`sharp` — no headless browser is involved, so the artwork is reproducible from
+the repository alone. Both read `[data-theme="midnight"]` straight out of
+`src/app/globals.css` through `scripts/lib/theme-tokens.mts`: the private colour
+copies they used to carry went stale the moment the palette was deepened, and a
+plate that is drawn in last month's violet is worse than no plate at all. A
+token that is renamed now stops the render rather than silently falling back.
+
+```bash
+npm run assets:plates     # re-render both masters, then re-encode the derivatives
+```
+
+Masters land in `public/images/brand/` at 3840 px wide (plus `README_ASSETS/hero.png`
+for the repository's front page), and `npm run assets:optimize` writes the
+AVIF / WebP / PNG derivatives at 1280–3840 into `public/images/brand` and
+`public/images/glass3d`. Pages reach them through `src/data/assets.ts` — the
+metadata icons included, which is why nothing in `src/` hard-codes a path into
+`public/`.
+
+### Typography
+
+Inter, IBM Plex Sans, Source Serif 4 and JetBrains Mono are self-hosted from
+`src/fonts`, and the appearance studio can set the whole site in any of twelve
+more families the visitor's own machine already has. The display scale
+(`.display-hero`, `.display-1/2/3`) uses fluid `clamp()` sizes with tracking that
+tightens as the size grows, and `.figure` / `.figure-lg` / `.figure-md` set every
+number in tabular mono so a column of them lines up.
+
+## What the site says about the product
+
+`src/data/modules.ts` is the registry of the application's navigation targets.
+It is read against the application's **development branch**, so a module lands
+here when the source carries it rather than when it ships in a tag. Two entries
+are in that position as of October 2026 and both name their evidence:
+
+- **Document Register** — `Views/DocumentRegister/`,
+  `ViewModels/DocumentRegisterViewModel.cs`, `docs/document-register-architecture.md`
+- **Records Sync** — `Services/RecordsSync/`, `docs/proglass-sync-implementation-design.md`
+
+Neither has a `screenshotId`, because there is no published capture of either
+yet, and their cards say so rather than showing a placeholder.
+
 | `/blog`, `/blog/[slug]` | Short notes, one file each in `src/data/resources.ts` |
 | `/legal/privacy`, `/legal/terms`, `/legal/license` | Website and licence terms |
 | `/reports` | Proforma and operations records: every active Excel Sync row and status, with server-side aggregation |
@@ -144,6 +387,32 @@ src/data/screenshots.ts         the screenshot registry
 src/data/resources.ts           guides and blog posts
 src/data/assets.ts              image paths for the real product assets
 ```
+
+Every drawing of a plate on this site is generated, not stored, and they all come
+out of one packer:
+
+```
+src/lib/guillotinePack.ts       the packer — best-area-fit with a two-way split,
+                                so every boundary is a straight cut
+src/components/optimization/
+  sheetPlan.ts                  the homepage's sample job and its margins
+  seedRun.ts                    the seeded job's own run, off the seeded stock
+  cad.ts                        the arithmetic a 2D view draws: usable rectangle,
+                                breakout band, reusable remnant, schedule, and
+                                how big a piece must be to carry a label
+  PlateCad.tsx                  the plate, drawn to scale in millimetres
+  PlateSchedule.tsx             the piece cutting schedule for one sheet
+  CadLegend.tsx                 the key, transcribed from the application's
+  PlateInspector.tsx            canvas + schedule + gallery, wired together
+  SheetCard.tsx / SheetGallery.tsx   the multi-sheet gallery
+```
+
+The plate geometry — the usable rectangle, the breakout band and the 200 mm
+reusable-remnant rule — is the application's, transcribed from
+`ViewModels/Optimization/OptimizationViewModel.Preview.cs`; the label thresholds
+are its `ShowDimensions` / `ShowSequence` / `ShowFullDetails` pixel rules
+converted to millimetres, so a responsive drawing drops a label that would not
+fit rather than smudging one on.
 
 ## Languages
 
@@ -237,6 +506,11 @@ name the evidence, and state the limit of what is being claimed.
 Until a real capture exists, leave the entry as `pending`. The placeholder
 exists so that no page has to show something the product did not render.
 
+A pending Optimization entry may also set `previewVariant` to `settings`, `2d`
+or `report`, which picks which screen of the module the interactive preview
+draws. It exists because the site lists three of the module's tabs and one
+preview was, for a while, shown under all three captions.
+
 ## Wiring the demo-request form
 
 `src/app/api/demo-request/route.ts` is the single integration point. It
@@ -259,8 +533,13 @@ The route stores nothing: no database, no server-side log of personal data.
 
 - Fonts are self-hosted from `src/fonts` through `next/font/local`, so no page
   makes a request to a third-party font host.
-- The only product imagery that ships is the real artwork from the WPF
-  repository (`Resources/Glass3D/*`, the application icon and the brand
-  banner), re-encoded to WebP at the widths the layout requests.
+- Two kinds of image ship, and both are files this repository can produce from
+  scratch: the real artwork from the WPF repository (`Resources/Glass3D/*` and
+  the application icon), re-encoded at the widths the layout requests, and the
+  two plates drawn from the site's own tokens by the renderers above. No stock
+  photograph and no invented screenshot is served anywhere.
+- Every decorative layer animates `transform` or `opacity` only, and the surface
+  layers are single paintings rather than blends — see *The performance
+  contract*.
 - `prefers-reduced-motion: reduce` is honoured globally, and every animation
   collapses while its content stays visible.

@@ -4,6 +4,7 @@ import { ReportsAuthForm } from "@/components/reports/ReportsAuthForm";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -25,6 +26,7 @@ export default async function ReportsLoginPage({ params }: PageProps) {
   const t = await translatorFor(params);
 
   return (
+    <PageOverlay locale={t.locale} route="reports/login">
     <main className="min-h-screen bg-ink-950 flex flex-col justify-center py-16 px-4 sm:px-6 lg:px-8">
       <RouteSchema
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,5 +39,6 @@ export default async function ReportsLoginPage({ params }: PageProps) {
         <ReportsAuthForm />
       </Suspense>
     </main>
+    </PageOverlay>
   );
 }

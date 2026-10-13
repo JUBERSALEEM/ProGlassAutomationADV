@@ -255,7 +255,7 @@ function Plate({
         "flex h-12 items-end justify-center rounded-card border-2 p-1 text-[0.625rem] font-bold uppercase tracking-wide transition-transform hover:-translate-y-0.5",
         active ? "border-text-primary" : "border-line-strong/60",
       )}
-      style={{ background: colour, color: onDark ? "#FFFFFF" : "#0B0820" }}
+      style={{ background: colour, color: onDark ? "#FFFFFF" : "#080516" }}
     >
       <span className="max-w-full truncate">{label}</span>
     </button>

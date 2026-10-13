@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { cn } from "@/lib/cn";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
@@ -13,6 +15,7 @@ import { beforeAfter, businessChain } from "@/data/workflows";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -21,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return pageMetadata({
   locale: t.locale,
   title: t("How it works: inquiry to statement"),
-  description: t("The ProGlass workflow stage by stage: inquiry, the 9-step proforma wizard, job order, production stages, multi-movement delivery, VAT invoices and statements."),
+  description: t("One job, inquiry to statement, without re-keying — the ProGlass workflow, stage by stage."),
   path: "/how-it-works",
   keywords: ["glass business workflow software", "quotation to invoice software", "glass production workflow", "delivery note software", t("glass ERP workflow")],
   ogEyebrow: t("Working day"),
@@ -41,16 +44,19 @@ export default async function HowItWorksPage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="how-it-works">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
       locale={locale}
       path="/how-it-works"
       title={t("How it works: inquiry to statement")}
-      description={t("The ProGlass workflow stage by stage: inquiry, the 9-step proforma wizard, job order, production stages, multi-movement delivery, VAT invoices and statements.")}
+      description={t("One job, inquiry to statement, without re-keying — the ProGlass workflow, stage by stage.")}
     />
       <PageHero
+        variant="showcase"
       t={t}
+        glyph={footerIconFor("/how-it-works")!}
         eyebrow={t("How it works")}
         title={t("One job, nine stages, and nothing typed twice.")}
         lead={t("This is the complete business journey in sequence. Each stage below shows what it captures, what it carries into the next stage, and the operational guarantees that keep the process reliable.")}
@@ -99,7 +105,9 @@ export default async function HowItWorksPage({ params }: PageProps) {
                     <li key={stage.id}>
                       <a
                         href={`#stage-${stage.id}`}
-                        className="group flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors duration-200 hover:bg-ink-850/70"
+                        className={cn(
+                          "group flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors duration-200 hover:bg-ink-850/70",
+                        )}
                       >
                         <span className="font-mono text-2xs tabular-nums text-text-faint font-medium">{stage.index}</span>
                         <span className="text-sm text-text-secondary transition-colors group-hover:text-brand-200">
@@ -125,6 +133,106 @@ export default async function HowItWorksPage({ params }: PageProps) {
               <WorkflowRail
       t={t} />
             </div>
+          </div>
+        </Container>
+      </Section>
+
+      {/* ── Out to the website: the one opt-in bridge ──────────────
+         *
+         * Records Sync in one picture. Every fact here is in
+         * Services/RecordsSync/RecordsSyncService.cs (development line) and
+         * the two sync design documents; the diagram is static markup — no
+         * runtime canvas — and the arrows flip with RTL by rotation.
+         */}
+      <Section id="sync" aria-labelledby="sync-heading">
+        <Container>
+          <SectionHeading
+            id="sync-heading"
+            eyebrow={t("Out to the world")}
+            title={t("One opt-in bridge from the shop's machine to this website.")}
+            lead={t("ProGlass stays the source of truth and keeps working with the cable unplugged. When a shop switches Records Sync on, a background pass publishes finished documents into the cloud table this website reads — and until it is switched on, nothing leaves the machine at all.")}
+          />
+          <div className="mt-12 grid items-stretch gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)]">
+            <div className="surface p-5">
+              <p className="eyebrow">{t("On the shop's machine")}</p>
+              <h3 className="mt-2 text-base font-semibold text-text-primary">{t("ProGlass Automation")}</h3>
+              <ul className="mt-3 space-y-1.5 text-xs leading-relaxed text-text-muted">
+                {[
+                  "Source of truth — local first; every document is kept on the machine",
+                  "Works with no network at all; the sync is never part of a save",
+                  "A background pass whose retries back off exponentially and stop at an hour",
+                ].map((item) => (
+                  <li key={item} className="flex gap-2.5">
+                    <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
+                    {t(item)}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4 border-t border-line/60 pt-4">
+                <p className="eyebrow mb-2">{t("Settings → Records Sync")}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {["URL", "Auth email", "API key", "Password", "Save", "Test"].map((item) => (
+                    <span key={item} className="rounded-lg border border-line-strong/70 bg-ink-900/60 px-2.5 py-1 font-mono text-2xs text-text-secondary">
+                      {t(item)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <span aria-hidden="true" className="hidden items-center justify-center text-xl text-brand-300 lg:flex rtl:rotate-180">
+              →
+            </span>
+            <div className="surface p-5">
+              <p className="eyebrow">{t("In the cloud")}</p>
+              <h3 className="mt-2 text-base font-semibold text-text-primary">{t("The pinned project")}</h3>
+              <ul className="mt-3 space-y-1.5 text-xs leading-relaxed text-text-muted">
+                {[
+                  "Published rows only — the website can never reach back into the machine",
+                  "Credentials bind to this project at save time, not whenever a sync happens to run",
+                  "Unconfigured, unbound or mismatched, the service stays dormant",
+                ].map((item) => (
+                  <li key={item} className="flex gap-2.5">
+                    <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
+                    {t(item)}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <span aria-hidden="true" className="hidden items-center justify-center text-xl text-brand-300 lg:flex rtl:rotate-180">
+              →
+            </span>
+            <div className="surface p-5">
+              <p className="eyebrow">{t("On this website")}</p>
+              <h3 className="mt-2 text-base font-semibold text-text-primary">{t("Only what published successfully")}</h3>
+              <ul className="mt-3 space-y-1.5 text-xs leading-relaxed text-text-muted">
+                <li className="flex gap-2.5">
+                  <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
+                  <span>
+                    <Link href="/records" className="link-underline font-semibold">{t("Records")}</Link>
+                    {" — "}{t("confirmed proformas, published after the shop is done with them")}
+                  </span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
+                  <span>
+                    <Link href="/job-orders" className="link-underline font-semibold">{t("Job orders")}</Link>
+                    {" — "}{t("released work, with its progress")}
+                  </span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
+                  <span>
+                    <Link href="/deliveries" className="link-underline font-semibold">{t("Deliveries")}</Link>
+                    {" — "}{t("what the shop still owes, against which invoice, with the ledger")}
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <Badge tone="neutral">{t("Off until a shop switches it on")}</Badge>
+            <Badge tone="neutral">{t("Backoff gives up after an hour, politely")}</Badge>
+            <Badge tone="neutral">{t("Keys stay in the machine's vault, never in the queue")}</Badge>
           </div>
         </Container>
       </Section>
@@ -173,7 +281,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
 
           <p className="mt-6 max-w-4xl text-xs leading-relaxed text-text-faint font-medium">{t("The left-hand descriptions are general practice, not a claim about any particular business, and no figures are quoted for it. The right-hand column is limited to behaviour that exists in the application.")}</p>
 
-          <div className="surface mt-6 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="surface mt-6 flex flex-col items-center gap-4 p-6 text-center">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
 {t("For the numbers rather than the description, the")}{" "}
               <Link href="/worked-example" className="link-underline text-brand-200">
@@ -352,12 +460,12 @@ export default async function HowItWorksPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("Walk the chain on your own job.")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("We will take one real quotation from inquiry through to statement, including the cutting plan and the margin it produced.")}</p>
+                <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("We will take one real quotation from inquiry through to statement, including the cutting plan and the margin it produced.")}</p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
           {t("Request a Demo")}
         </ButtonLink>
@@ -370,5 +478,6 @@ export default async function HowItWorksPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

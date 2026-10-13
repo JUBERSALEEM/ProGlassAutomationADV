@@ -64,7 +64,7 @@ export function DeliveriesDetailModal({
   };
 
   return (
-    <div className="animate-fade-in fixed inset-0 z-50 flex items-center justify-center bg-ink-950/80 p-4 backdrop-blur-sm">
+    <div className="animate-fade-in fixed inset-0 z-50 flex items-center justify-center bg-ink-950/85 p-4">
       <div
         className="relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-line-strong/80 bg-ink-900 p-6 shadow-raised"
         onClick={(event) => event.stopPropagation()}

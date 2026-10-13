@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { deliverDemoRequest, activeTransport, type DemoData } from "@/lib/demoTransport";
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -7,20 +8,13 @@ import { NextResponse } from "next/server";
  *
  * This route is the single place where the contact form leaves the website.
  * It performs server-side validation and abuse checks, then hands the request
- * to a transport.
+ * to `src/lib/demoTransport.ts`, which actually carries it:
  *
- * NO TRANSPORT IS CONFIGURED IN THIS BUILD. The route therefore answers
- * `configured: false` with the customer's own mail client as the fallback,
- * rather than returning a success message for a message nobody will receive.
+ *   formsubmit  (default)  free, no credentials; one activation email to click
+ *   resend      (opt-in)   DEMO_REQUEST_PROVIDER=resend + RESEND_API_KEY
  *
- * TO WIRE IT UP
- *   1. Add a transport below (Resend, Postmark, SES, SendGrid, a webhook to
- *      the CRM, or your own SMTP relay).
- *   2. Put the credential in an environment variable — never in the repo.
- *   3. Set DEMO_REQUEST_PROVIDER so the route reports the truth about itself.
- *
- * The endpoint deliberately stores nothing: no database, and no log of
- * personal data beyond what a delivery failure needs to be diagnosable.
+ * Nothing is stored here: no database row, and no log of personal data beyond
+ * what a delivery failure needs to be diagnosable.
  */
 
 const REQUIRED_FIELDS = ["name", "company", "email", "country", "businessType", "message"] as const;
@@ -160,7 +154,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const data = {
+  const data: DemoData = {
     name: asTrimmedString(body.name, 120),
     company: asTrimmedString(body.company, 160),
     email: asTrimmedString(body.email, 200),
@@ -198,51 +192,35 @@ export async function POST(request: Request) {
     );
   }
 
-  const provider = process.env.DEMO_REQUEST_PROVIDER;
-
-  if (!provider) {
-    // Honest failure: nothing was sent, and the visitor is told so. Only the
-    // company name is logged — not the message body, and not the address.
-    console.warn(
-      `[demo-request] No DEMO_REQUEST_PROVIDER configured; nothing delivered. ` +
-        `A request from company "${data.company}" should reach ${FALLBACK_INBOX}.`,
-    );
-    return NextResponse.json(
-      {
-        ok: false,
-        configured: false,
-        message:
-          `This deployment has no mail transport configured, so the request was not delivered. ` +
-          `Please email ${FALLBACK_INBOX} directly — an email address is enough, and paste your message there.`,
-      },
-      { status: 503 },
-    );
+  const delivery = await deliverDemoRequest(data);
+  if (delivery.ok) {
+    return NextResponse.json({ ok: true, configured: true, transport: delivery.transport });
   }
 
-  // ── Replace this block with the real transport ──────────────────────
-  // Example (Resend): the SDK call belongs here, using process.env.RESEND_API_KEY.
-  // Keep the same response shape: { ok: true } on success, and pass through a
-  // truthful message on failure.
+  const transport = activeTransport();
   return NextResponse.json(
     {
       ok: false,
-      configured: true,
+      configured: transport.id !== "none",
+      transport,
       message:
-        `A provider is named (${provider}) but no transport implementation is wired yet. ` +
-        `Please email ${FALLBACK_INBOX} directly until it is.`,
+        `The request could not be delivered from this deployment (${delivery.reason}). ` +
+        `Please email ${FALLBACK_INBOX} directly — the address is monitored, and paste your message there.`,
     },
-    { status: 501 },
+    { status: 502 },
   );
 }
 
 export function GET() {
+  const transport = activeTransport();
   return NextResponse.json(
     {
       endpoint: "/api/demo-request",
       method: "POST",
-      configured: Boolean(process.env.DEMO_REQUEST_PROVIDER),
-      inbox: FALLBACK_INBOX,
-      note: "POST a JSON body with name, company, email, phone, country, businessType and message.",
+      configured: transport.id !== "none",
+      transport,
+      inbox: transport.inbox,
+      note: "POST a JSON body with name, company, email, phone, country, businessType and message. FormSubmit carries it by default (first delivery activates the inbox); DEMO_REQUEST_PROVIDER=resend + RESEND_API_KEY swaps to Resend.",
     },
     { status: 200 },
   );

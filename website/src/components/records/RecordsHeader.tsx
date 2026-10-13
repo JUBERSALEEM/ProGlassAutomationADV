@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Badge } from "@/components/ui/Badge";
+import { Badge, IconChip } from "@/components/ui/Badge";
+import { groupIcons } from "@/data/groupIcons";
 import { Button } from "@/components/ui/Button";
 import { OperationsTabs } from "@/components/operations/OperationsTabs";
 
@@ -39,7 +40,7 @@ export function RecordsHeader({
     : null;
 
   return (
-    <header className="relative border-b border-line-strong/60 bg-ink-950/80 backdrop-blur-md">
+    <header className="relative border-b border-line-strong/60 bg-ink-950/90">
       <div className="shell py-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
@@ -77,10 +78,11 @@ export function RecordsHeader({
             {/* The two views of the same workbook sit one click apart. */}
             <OperationsTabs className="mt-3" />
 
-            <div className="mt-1 flex flex-wrap items-baseline gap-3">
-              <h1 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
+            <div className="mt-1 flex flex-wrap items-center gap-3">
+              <IconChip path={groupIcons["Master Data"]!} />
+              <h2 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
                 Records & Operations Dashboard
-              </h1>
+              </h2>
               <span className="text-xs font-mono text-text-faint">
                 {totalEntries.toLocaleString()} indexed {totalEntries === 1 ? "entry" : "entries"}
               </span>

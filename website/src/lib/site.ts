@@ -12,15 +12,41 @@ export const site = {
   name: "ProGlass Automation",
   legalName: "ProGlass Automation",
   tagline: "Glass business software, built around your workflow.",
-  /** `<Version>` in ProGlassAutomation.csproj — the single version source. */
+  /** `<Version>` in ProGlassAutomation.csproj — the single version source.
+   *  This is the release line the website ships beside. The development
+   *  line reads 2.0.15 (Records Sync and Document Register work, October
+   *  2026); it is shown on the developer page, never swapped into product
+   *  claims, so a reader always knows which is which. */
   version: "2.0.11",
+  /** The development line's `<Version>` — same file, on that branch. */
+  developmentVersion: "2.0.15",
   copyrightOwner: "Juber Saleem",
   developerName: "Juber Saleem",
   developerEmail: "proglassautomation@gmail.com",
+  /** The public repository — linked by the footer's GitHub channel chip. */
+  repositoryUrl: "https://github.com/JUBERSALEEM/ProGlassAutomationADV",
+  /**
+   * WhatsApp support line — international format for `wa.me` links (digits
+   * only, country code first: e.g. 9715XXXXXXXX for UAE). Set in one of two
+   * places: the NEXT_PUBLIC_WHATSAPP_NUMBER environment variable (Vercel
+   * dashboard, never committed), or it falls back to the number set in
+   * commit by the owner (+971 55 911 7727) below.
+   */
+  whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "971559117727",
   developerLocation: "India",
   /** From Themes/Languages/en-US.xaml → About.Copyright */
   copyrightLine: "© 2026 Juber Saleem. Made in India. All rights reserved.",
-  url: "https://proglassautomation.com",
+  /**
+   * Public origin used in canonical URLs, sitemap, robots and OG links.
+   *
+   * This was a registered-name placeholder — and it returned NXDOMAIN for a
+   * week, so crawlers and auditors read "no canonical tag" because the
+   * canonical pointed at a domain name nobody was serving. Default is now
+   * the deployment that serves traffic today. The day a real domain is
+   * attached, set NEXT_PUBLIC_SITE_URL in Vercel and this flips with no code
+   * change — which is why the variable is public.
+   */
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://proglassautomationadv-website-tkim.vercel.app",
   platform: "Windows desktop (WPF)",
   framework: ".NET 8 · WPF",
   database: "SQLite · EF Core 8",

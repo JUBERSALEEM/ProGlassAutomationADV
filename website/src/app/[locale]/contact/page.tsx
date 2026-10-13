@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -9,6 +10,7 @@ import { site } from "@/lib/site";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
+import { PageOverlay } from "@/i18n/PageOverlay";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -17,7 +19,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return pageMetadata({
   locale: t.locale,
   title: t("Contact — request a demo"),
-  description: t("Request a demonstration of ProGlass Automation: tell us your glass types, team size and whether cutting optimization matters, and you will get a reply."),
+  description: t("Request a demo of ProGlass Automation: your glass types, team size, and whether cutting optimization matters — one reply per request."),
   path: "/contact",
   keywords: ["request glass software demo", t("contact ProGlass Automation"), t("glass ERP demo")],
   ogEyebrow: t("Request a demo"),
@@ -28,16 +30,19 @@ export default async function ContactPage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
   return (
+    <PageOverlay locale={t.locale} route="contact">
     <>
     {/* Structured data for this route — see lib/schema.ts. */}
     <RouteSchema
       locale={locale}
       path="/contact"
       title={t("Contact — request a demo")}
-      description={t("Request a demonstration of ProGlass Automation: tell us your glass types, team size and whether cutting optimization matters, and you will get a reply.")}
+      description={t("Request a demo of ProGlass Automation: your glass types, team size, and whether cutting optimization matters — one reply per request.")}
     />
       <PageHero
+        variant="document"
       t={t}
+        glyph={footerIconFor("/contact")!}
         eyebrow={t("Contact")}
         title={t("Request a demo.")}
         lead={t("A demonstration is a walkthrough of the application on a job you recognise — a multi-section quotation, its cutting list, and the delivery behind it. Tell us a little about your business and we will arrange a time.")}
@@ -125,6 +130,35 @@ export default async function ContactPage({ params }: PageProps) {
               </div>
             </Reveal>
           </div>
+
+          <div className="mt-16 border-t border-line/60 pt-14">
+            <SectionHeading
+              eyebrow={t("The walkthrough")}
+              title={t("What a demonstration runs through.")}
+              lead={t("A demonstration runs on the current release build of ProGlass Automation, shown on a screen share. It is the software working, not a slide deck about software.")}
+            />
+            <div className="mt-10 grid gap-5 lg:grid-cols-3">
+              {[
+                {
+                  title: t("From quotation to cutting list"),
+                  detail: t("The session opens with a quotation written the way your office would write one — a customer, the sections they asked for, the glass build-up and the hardware. You watch that quotation become a cutting list with the dimensions carried across, and a quotation total that shows the margin line by line."),
+                },
+                {
+                  title: t("Into the workshop"),
+                  detail: t("The job then becomes workshop work. The cutting engine runs your real cutting list against stock or standard sheet sizes, the constraints for laminated and coated glass are respected, and the machine export is written in the formats the optimization page lists for your cutting table. A confirmed order leaves with its delivery note and route slip printed from the same record."),
+                },
+                {
+                  title: t("What you will not see"),
+                  detail: t("No online demo account and no sales presentation: the person answering is the person who wrote the application. If a particular part of the system matters to your business — records synchronization between a head office and a branch, or one of the reports — name it in the request, and that is where the demonstration starts."),
+                },
+              ].map((item) => (
+                <div key={item.title} className="surface-raised p-6">
+                  <p className="text-sm font-semibold text-text-primary">{item.title}</p>
+                  <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </Container>
       </Section>
 
@@ -132,12 +166,12 @@ export default async function ContactPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Next step")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("While you wait for a reply.")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("The interface tour shows the screens a demonstration runs through, and the optimization page explains what the cutting engine does with a real cutting list.")}</p>
+                <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("The interface tour shows the screens a demonstration runs through, and the optimization page explains what the cutting engine does with a real cutting list.")}</p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <ButtonLink href="/screenshots" size="lg" trailing={<ArrowRight />}>
           {t("See the interface")}
         </ButtonLink>
@@ -150,5 +184,6 @@ export default async function ContactPage({ params }: PageProps) {
         </Container>
       </Section>
     </>
+    </PageOverlay>
   );
 }

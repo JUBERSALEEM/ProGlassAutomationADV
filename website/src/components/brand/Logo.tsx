@@ -67,17 +67,29 @@ export function Logo({
   size = 28,
   showWordmark = true,
   subtitle = "Automation",
+  wordmarkClassName,
 }: {
   className?: string;
   size?: number;
   showWordmark?: boolean;
   subtitle?: string | null;
+  /**
+   * Extra classes for the wordmark itself.
+   *
+   * The header passes `hidden lg:flex`, because the mark plus the two-line
+   * wordmark is 141px and the phone row cannot spend it: at 360px the row
+   * already carries the language, the reading switch and the palette beside the
+   * menu button. The mark alone is the identity at that size, the footer keeps
+   * the full lockup on every screen, and `scripts/measure-panel.py` holds the
+   * arithmetic.
+   */
+  wordmarkClassName?: string;
 }) {
   return (
     <span className={cn("flex items-center gap-2.5", className)}>
       <LogoMark size={size} />
       {showWordmark ? (
-        <span className="flex flex-col leading-none">
+        <span className={cn("flex flex-col leading-none", wordmarkClassName)}>
           <span className="text-[0.95rem] font-semibold tracking-tight text-text-primary">
             Pro<span className="text-brand-300">Glass</span>
           </span>

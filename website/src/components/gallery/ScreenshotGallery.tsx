@@ -272,7 +272,7 @@ function Lightbox({
         antialiasing. Down here it costs nothing and blurs only the screenshot
         it is covering.
       */}
-      <span aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-ink-950/95 backdrop-blur-md" />
+      <span aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-ink-950/97" />
       <div className="flex items-center justify-between gap-4 border-b border-line/60 px-4 py-3 sm:px-6">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-text-primary">{t(shot.title)}</p>
