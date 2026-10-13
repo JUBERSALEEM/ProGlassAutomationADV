@@ -654,6 +654,22 @@ html[data-theme="midnight"][data-appearance="clay"] .nav-glass [class*="bg-ink"]
   --text-4: 194 185 226;
 }
 
+/* §7.4b Daylight card ink. The global daylight --text-4 (107 96 120) is
+   measured on ivory; on clay's lilac card faces it falls to 3.6:1, and the
+   warning state lands at 4.4:1. Cards therefore take the deep plum the
+   .glass-primary lock already uses, with the warning state deepened to
+   match. Midnight is untouched: its pale tiers are correct on plum. */
+html[data-theme="daylight"][data-appearance="clay"] :is(.surface, .surface-raised),
+html[data-theme="daylight"][data-appearance="clay"] :is(.nav-glass, .band-deep) :is(.surface, .surface-raised) {
+  --text-4: 66 59 92;
+}
+html[data-theme="daylight"][data-appearance="clay"] :is(.surface, .surface-raised) .text-state-warning {
+  color: rgb(122 48 8);
+}
+html[data-theme="daylight"][data-appearance="clay"] :is(.surface, .surface-raised) .text-state-danger {
+  color: rgb(127 14 44);
+}
+
 
 /* ═══ §7 · THE FULLNESS PASS — what reads 40/100, made whole ═══
    Cross-checked against the boards: the family reached every route at the
@@ -2598,3 +2614,19 @@ html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-r
 
 
 
+
+/* § chip & badge ink — small pills are not card foils. The app-icon tiles
+   are plum-inked pastel (§2 sets their ink), and the generic brand-wash
+   ink rule above must not whiten them. State badges likewise keep their
+   own state wash: the [class*=bg-state-*] foil rules repaint large
+   callout carriers in lemon/rose, which swallows a badge's 22% wash
+   whole — amber on lemon measured 1.0:1 at midnight. */
+[data-appearance="clay"] .icon-chip[class*="text-brand-"],
+[data-appearance="clay"] .index-chip[class*="text-brand-"] {
+  color: rgb(var(--clay-ink));
+}
+html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state-warning"],
+html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state-success"],
+html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state-danger"] {
+  background-color: rgb(var(--clay-ink) / 0.92);
+}
