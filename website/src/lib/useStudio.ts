@@ -227,7 +227,6 @@ function readStored(): Studio {
        reach the dom — plates would go unpainted, or worse, half-painted. */
     if (!Number.isFinite(merged.clayPlate) || merged.clayPlate < 1 || merged.clayPlate > 6) merged.clayPlate = defaultStudio.clayPlate;
     if (!Number.isFinite(merged.clayCards) || merged.clayCards < 1 || merged.clayCards > 6) merged.clayCards = defaultStudio.clayCards;
-    const hexOrEmpty = (v: unknown) => typeof v === "string" && (v === "" || /^#[0-9a-f]{6}$/i.test(v));
     if (!Number.isFinite(merged.clayDepth)) merged.clayDepth = defaultStudio.clayDepth;
     if (!Number.isFinite(merged.glassFrost)) merged.glassFrost = defaultStudio.glassFrost;
     if (!Number.isFinite(merged.glassBody)) merged.glassBody = defaultStudio.glassBody;
@@ -808,39 +807,6 @@ function readableMoney(hex: string, target: "light" | "dark"): string {
     .join("")}`;
 }
 
-/**
- * The bench's only rule: plates are pastel, because the plum ink bench sits
- * on them. A visitor's pick that lands darker than the accent floor is
- * pulled toward white until the plate can carry the ink — hue kept.
- */
-function pastelGuard(hex: string) {
-  const { r, g, b } = hexToTriplet(hex);
-  let [pr, pg, pb] = [r, g, b];
-  const lum = () => 0.2126 * pr + 0.7152 * pg + 0.0722 * pb;
-  for (let i = 0; i < 5 && lum() < 185; i++) {
-    pr += (255 - pr) * 0.3;
-    pg += (255 - pg) * 0.3;
-    pb += (255 - pb) * 0.3;
-  }
-  /* …and saturation is capped too. The luma loop alone passes a neon pick:
-     #00FF00 is already at luminance ~199, so it used to flow straight into
-     --clay-lavender and flood every pool, band and plate with acid green
-     (the 16:29 screenshot). Plates are PASTEL by grammar — a family hue
-     over s ≈ 0.55 stops reading as clay and starts reading as a
-     highlighter. Clamp s ≤ 0.55 at a kept hue, floor the lightness so the
-     pastel registers, then re-check luma. */
-  const hsl = rgbToHsl({ r: pr, g: pg, b: pb });
-  if (hsl.s > 0.55) {
-    const softened = hslToRgb({ h: hsl.h, s: 0.55, l: Math.max(hsl.l, 0.84) });
-    [pr, pg, pb] = [softened.r, softened.g, softened.b];
-  }
-  for (let i = 0; i < 5 && lum() < 185; i++) {
-    pr += (255 - pr) * 0.3;
-    pg += (255 - pg) * 0.3;
-    pb += (255 - pb) * 0.3;
-  }
-  return { r: pr, g: pg, b: pb };
-}
 
 function hexToTriplet(hex: string) {
   const clean = hex.replace(/^#/, "");
