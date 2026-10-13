@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
@@ -211,21 +212,75 @@ namespace ProGlassAutomation.Services.Printing.Stickers
         public bool IsImage { get; }
     }
 
-    public sealed class StickerTemplateChoice
+    public sealed class StickerTemplateKindOption
     {
+        public StickerTemplateKindOption(StickerTemplateKind value, string displayName)
+        {
+            Value = value;
+            DisplayName = displayName;
+        }
+
+        public StickerTemplateKind Value { get; }
+        public string DisplayName { get; }
+    }
+
+    public sealed class StickerTemplateChoice : INotifyPropertyChanged
+    {
+        private string _displayName;
+        private string _templateName;
+
         public StickerTemplateChoice(string displayName, StickerLayoutTemplate template,
             bool isBuiltIn, string? filePath = null)
         {
-            DisplayName = displayName;
             Template = template;
             IsBuiltIn = isBuiltIn;
             FilePath = filePath ?? string.Empty;
+            _templateName = template?.Name ?? string.Empty;
+            _displayName = displayName ?? _templateName;
+            DisplaySuffix = _displayName.StartsWith(_templateName, StringComparison.Ordinal)
+                ? _displayName.Substring(_templateName.Length)
+                : string.Empty;
         }
 
-        public string DisplayName { get; }
+        public string DisplayName => _displayName;
+        public string TemplateName => _templateName;
+        public string KindDisplayName => Template.Kind switch
+        {
+            StickerTemplateKind.Sgu => "SGU · Single glass",
+            StickerTemplateKind.Dgu => "DGU · Insulated glass",
+            StickerTemplateKind.ProformaInvoice => "Proforma / Job",
+            _ => "Custom layout"
+        };
+        public string SourceLabel
+        {
+            get
+            {
+                if (IsBuiltIn) return "PRESET";
+                if (string.IsNullOrWhiteSpace(FilePath)) return "LAST USED";
+                if (DisplaySuffix.Contains("file", StringComparison.OrdinalIgnoreCase)) return "FILE";
+                return string.Equals(Path.GetDirectoryName(FilePath), StickerTemplateStore.LibraryDirectory,
+                    StringComparison.OrdinalIgnoreCase) ? "LIBRARY" : "EXPORTED";
+            }
+        }
         public StickerLayoutTemplate Template { get; }
         public bool IsBuiltIn { get; }
         public string FilePath { get; }
+        private string DisplaySuffix { get; }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public void UpdateTemplateName(string? name)
+        {
+            string next = name?.Trim() ?? string.Empty;
+            if (string.Equals(_templateName, next, StringComparison.Ordinal)
+                && string.Equals(_displayName, next + DisplaySuffix, StringComparison.Ordinal))
+                return;
+
+            _templateName = next;
+            _displayName = next + DisplaySuffix;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TemplateName)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayName)));
+        }
     }
 
     public static class StickerTemplateFieldCatalog

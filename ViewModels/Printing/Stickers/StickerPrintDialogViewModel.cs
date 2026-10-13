@@ -113,21 +113,27 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             _showQuantity = settings.ShowQuantity;
             _showReference = settings.ShowReference;
             _showPanePosition = settings.ShowPanePosition;
-            _templateKinds = Enum.GetValues<StickerTemplateKind>().ToArray();
+            _templateKindOptions = new[]
+            {
+                new StickerTemplateKindOption(StickerTemplateKind.Sgu, "SGU · Single glass"),
+                new StickerTemplateKindOption(StickerTemplateKind.Dgu, "DGU · Insulated glass"),
+                new StickerTemplateKindOption(StickerTemplateKind.ProformaInvoice, "Proforma / Job"),
+                new StickerTemplateKindOption(StickerTemplateKind.Custom, "Custom layout")
+            };
             _textAlignments = Enum.GetValues<StickerTextAlignment>().ToArray();
             _contentAlignments = Enum.GetValues<StickerContentAlignment>().ToArray();
             _fieldChoices = StickerTemplateFieldCatalog.All;
             AttachTemplateEvents();
         }
 
-        private readonly StickerTemplateKind[] _templateKinds;
+        private readonly StickerTemplateKindOption[] _templateKindOptions;
         private readonly StickerTextAlignment[] _textAlignments;
         private readonly StickerContentAlignment[] _contentAlignments;
         private readonly System.Collections.Generic.IReadOnlyList<StickerTemplateField> _fieldChoices;
 
         public ObservableCollection<GlassStickerLabel> Items { get; }
         public ObservableCollection<StickerTemplateChoice> TemplateChoices { get; }
-        public StickerTemplateKind[] TemplateKinds => _templateKinds;
+        public StickerTemplateKindOption[] TemplateKindOptions => _templateKindOptions;
         public StickerTextAlignment[] TextAlignments => _textAlignments;
         public StickerContentAlignment[] ContentAlignments => _contentAlignments;
         public System.Collections.Generic.IReadOnlyList<StickerTemplateField> FieldChoices => _fieldChoices;
@@ -157,6 +163,7 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 string next = value ?? string.Empty;
                 if (_activeTemplate.Name == next) return;
                 _activeTemplate.Name = next;
+                _selectedTemplateChoice?.UpdateTemplateName(next);
                 OnPropertyChanged();
                 MarkTemplateDirty();
             }
@@ -608,6 +615,7 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         private void ReplaceActiveTemplate(StickerLayoutTemplate template,
             StickerTemplateChoice? choice, bool markDirty)
         {
+            RestoreSelectedChoiceName();
             DetachTemplateEvents();
             _loadingTemplate = true;
             _activeTemplate = template.DeepClone();
@@ -617,6 +625,7 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             _marginMmText = Format(_activeTemplate.MarginMm);
             _fontSizePtText = Format(_activeTemplate.DefaultFontSizePt);
             _selectedTemplateChoice = choice;
+            _selectedTemplateChoice?.UpdateTemplateName(_activeTemplate.Name);
             AttachTemplateEvents();
             _loadingTemplate = false;
             OnPropertyChanged(nameof(ActiveTemplate));
@@ -679,8 +688,15 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             TemplateChoices.Add(choice);
         }
 
+        private void RestoreSelectedChoiceName()
+        {
+            if (_selectedTemplateChoice != null)
+                _selectedTemplateChoice.UpdateTemplateName(_selectedTemplateChoice.Template.Name);
+        }
+
         private void RegisterSavedTemplate(string path)
         {
+            RestoreSelectedChoiceName();
             var choice = new StickerTemplateChoice(_activeTemplate.Name + " · saved",
                 _activeTemplate.DeepClone(), isBuiltIn: false, filePath: path);
             AddOrReplaceChoice(choice);

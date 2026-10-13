@@ -149,6 +149,7 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                 FontSizePt = fontSize,
                 FontFamily = "Segoe UI",
                 Bold = bold,
+                PaddingMm = 0.4,
                 TextAlignment = alignment,
                 ContentAlignment = StickerContentAlignment.Center,
                 Foreground = "#FF101828",

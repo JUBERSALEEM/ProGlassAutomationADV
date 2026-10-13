@@ -26,6 +26,80 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
         }
 
         [Fact]
+        public void TemplateChoicesExposeReadableNamesAndHumanFriendlyStyleFamilies()
+        {
+            var template = StickerTemplatePresets.CreateSgu();
+            var choice = new StickerTemplateChoice(template.Name, template, isBuiltIn: true);
+
+            Assert.Equal(template.Name, choice.TemplateName);
+            Assert.Equal("SGU · Single glass", choice.KindDisplayName);
+            Assert.Equal("PRESET", choice.SourceLabel);
+            Assert.Equal(template.Name, choice.DisplayName);
+            Assert.Equal("LAST USED", new StickerTemplateChoice(
+                template.Name + " · last used", template, isBuiltIn: false).SourceLabel);
+            Assert.Equal("EXPORTED", new StickerTemplateChoice(
+                template.Name + " · saved", template, isBuiltIn: false,
+                filePath: Path.Combine(Path.GetTempPath(), "exported.pgsticker")).SourceLabel);
+            Assert.Equal("LIBRARY", new StickerTemplateChoice(
+                template.Name + " · saved", template, isBuiltIn: false,
+                filePath: Path.Combine(StickerTemplateStore.LibraryDirectory, "saved.pgsticker")).SourceLabel);
+
+            choice.UpdateTemplateName("Workshop SGU label");
+            Assert.Equal("Workshop SGU label", choice.TemplateName);
+            Assert.Equal("Workshop SGU label", choice.DisplayName);
+        }
+
+        [Fact]
+        public void CanvasResizeKeepsTheOppositeEdgesAnchoredAndClampsToLabel()
+        {
+            var template = StickerTemplatePresets.CreateCustom("Resize test", 100, 50);
+            var element = new StickerLayoutElement
+            {
+                Xmm = 20,
+                Ymm = 10,
+                WidthMm = 30,
+                HeightMm = 15
+            };
+
+            Assert.True(StickerElementResize.TryApply(element, template,
+                StickerResizeEdges.Left | StickerResizeEdges.Top, 5, 4));
+            Assert.Equal(25, element.Xmm);
+            Assert.Equal(14, element.Ymm);
+            Assert.Equal(25, element.WidthMm);
+            Assert.Equal(11, element.HeightMm);
+            Assert.Equal(50, element.Xmm + element.WidthMm);
+            Assert.Equal(25, element.Ymm + element.HeightMm);
+
+            Assert.True(StickerElementResize.TryApply(element, template,
+                StickerResizeEdges.Right | StickerResizeEdges.Bottom, 100, 100));
+            Assert.Equal(100, element.Xmm + element.WidthMm);
+            Assert.Equal(50, element.Ymm + element.HeightMm);
+        }
+
+        [Fact]
+        public void CanvasResizeHonorsMinimumSizeAndLockedElements()
+        {
+            var template = StickerTemplatePresets.CreateCustom("Resize test", 100, 50);
+            var element = new StickerLayoutElement
+            {
+                Xmm = 10,
+                Ymm = 10,
+                WidthMm = 20,
+                HeightMm = 12
+            };
+
+            Assert.True(StickerElementResize.TryApply(element, template,
+                StickerResizeEdges.Left, 100, 0));
+            Assert.Equal(29.5, element.Xmm);
+            Assert.Equal(StickerElementResize.MinimumElementSizeMm, element.WidthMm);
+            double widthBeforeLock = element.WidthMm;
+            element.IsLocked = true;
+            Assert.False(StickerElementResize.TryApply(element, template,
+                StickerResizeEdges.Right, 5, 0));
+            Assert.Equal(widthBeforeLock, element.WidthMm);
+        }
+
+        [Fact]
         public void EditorSupportsDuplicateLockNudgeAndDeleteActions()
         {
             var viewModel = new StickerPrintDialogViewModel(

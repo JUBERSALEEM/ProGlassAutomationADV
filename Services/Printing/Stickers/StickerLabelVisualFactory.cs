@@ -155,6 +155,7 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                 Opacity = SafeRange(element.Opacity, 0, 1, 1),
                 Child = content,
                 Tag = element,
+                ClipToBounds = true,
                 SnapsToDevicePixels = true,
                 RenderTransformOrigin = new Point(0.5, 0.5)
             };

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
@@ -23,7 +24,26 @@ namespace ProGlassAutomation.Views.Printing.Stickers
         private Point _dragStart;
         private double _dragStartLeft;
         private double _dragStartTop;
+        private readonly System.Collections.Generic.List<Thumb> _resizeThumbs = new();
+        private StickerLayoutElement? _resizeElement;
+        private StickerLayoutElement? _resizeStartGeometry;
+        private StickerResizeEdges _resizeEdges;
+        private Border? _resizeTarget;
+        private Point _resizeStartPoint;
+        private bool _isResizing;
         private bool _ignoreTemplateSelectionChange = true;
+
+        private static readonly (StickerResizeEdges Edges, Cursor Cursor, double Width, double Height)[] ResizeHandleDefinitions =
+        {
+            (StickerResizeEdges.Left | StickerResizeEdges.Top, Cursors.SizeNWSE, 12, 12),
+            (StickerResizeEdges.Top, Cursors.SizeNS, 14, 10),
+            (StickerResizeEdges.Right | StickerResizeEdges.Top, Cursors.SizeNESW, 12, 12),
+            (StickerResizeEdges.Right, Cursors.SizeWE, 10, 14),
+            (StickerResizeEdges.Right | StickerResizeEdges.Bottom, Cursors.SizeNWSE, 12, 12),
+            (StickerResizeEdges.Bottom, Cursors.SizeNS, 14, 10),
+            (StickerResizeEdges.Left | StickerResizeEdges.Bottom, Cursors.SizeNESW, 12, 12),
+            (StickerResizeEdges.Left, Cursors.SizeWE, 10, 14)
+        };
 
         public StickerPrintWindow(
             System.Collections.Generic.IReadOnlyList<GlassStickerLabel> labels,
@@ -40,14 +60,14 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             DataContext = _viewModel;
             if (_designOnly)
             {
-                Title = "Sticker Template Library — ProGlass";
                 DesignOnlyBanner.Visibility = Visibility.Visible;
                 PrintButton.IsEnabled = false;
                 PreviewExplanation.Text = "Sample content is for layout positioning only. Save or export the template, then print real source rows from Step 5 or Optimization.";
-                SourceLabelsHeader.Text = "NO SOURCE ROWS — this sidebar workspace edits reusable layouts only";
+                SourceLabelsHeader.Text = "DESIGN-ONLY · NO SOURCE ROWS";
                 _viewModel.StatusMessage = "Template library mode. Changes saved here are used by Step 5 and Optimization sticker printing.";
             }
             _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+            UpdateWindowTitle();
             StickerItemsGrid.SelectionChanged += (_, _) => RefreshPreview();
             Loaded += (_, _) =>
             {
@@ -62,6 +82,13 @@ namespace ProGlassAutomation.Views.Printing.Stickers
 
         private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
+            if (e.PropertyName == nameof(StickerPrintDialogViewModel.TemplateNameText))
+            {
+                UpdateWindowTitle();
+                return;
+            }
+            if (_isResizing && e.PropertyName == nameof(StickerPrintDialogViewModel.EditorRevision))
+                return;
             if (e.PropertyName == nameof(StickerPrintDialogViewModel.SelectedElement)
                 || e.PropertyName == nameof(StickerPrintDialogViewModel.HasSelectedElement))
             {
@@ -76,11 +103,21 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             RefreshPreview();
         }
 
+        private void UpdateWindowTitle()
+        {
+            string templateName = string.IsNullOrWhiteSpace(_viewModel.TemplateNameText)
+                ? "Untitled sticker" : _viewModel.TemplateNameText.Trim();
+            Title = _designOnly
+                ? templateName + " — Sticker Template Library"
+                : templateName + " — Sticker Printer Studio";
+        }
+
         private void RefreshPreview()
         {
             var label = _viewModel.SelectedLabel;
             if (label == null)
             {
+                RemoveResizeThumbs();
                 _editorCanvas = null;
                 PreviewHost.Content = new TextBlock
                 {
@@ -92,6 +129,7 @@ namespace ProGlassAutomation.Views.Printing.Stickers
                 return;
             }
 
+            RemoveResizeThumbs();
             int quantity = _viewModel.OneLabelPerPiece ? 1 : label.Quantity;
             _editorCanvas = StickerLabelVisualFactory.CreateTemplateCanvas(
                 label,
@@ -115,11 +153,13 @@ namespace ProGlassAutomation.Views.Printing.Stickers
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 VerticalAlignment = VerticalAlignment.Stretch
             };
+            AddResizeThumbs();
         }
 
         private void UpdateSelectionOutlines()
         {
             if (_editorCanvas == null) return;
+            RemoveResizeThumbs();
             foreach (var border in _editorCanvas.Children.OfType<Border>())
             {
                 bool selected = border.Tag is StickerLayoutElement element
@@ -131,6 +171,162 @@ namespace ProGlassAutomation.Views.Printing.Stickers
                 if (border.Tag is StickerLayoutElement item)
                     border.Cursor = item.IsLocked ? Cursors.Arrow : Cursors.SizeAll;
             }
+            AddResizeThumbs();
+        }
+
+        private void RemoveResizeThumbs()
+        {
+            if (_editorCanvas != null)
+                foreach (var thumb in _resizeThumbs)
+                    _editorCanvas.Children.Remove(thumb);
+            _resizeThumbs.Clear();
+        }
+
+        private void AddResizeThumbs()
+        {
+            if (_editorCanvas == null || _viewModel.SelectedElement is not { IsLocked: false } element)
+                return;
+            if (Math.Abs(element.RotationDegrees) > 0.001) return;
+
+            var target = _editorCanvas.Children.OfType<Border>()
+                .FirstOrDefault(border => ReferenceEquals(border.Tag, element));
+            if (target == null) return;
+
+            bool compactWidth = target.Width < 28;
+            bool compactHeight = target.Height < 28;
+            foreach (var definition in ResizeHandleDefinitions)
+            {
+                var edges = definition.Edges;
+                if (compactWidth && ((edges & StickerResizeEdges.Right) != 0
+                        || edges == StickerResizeEdges.Top || edges == StickerResizeEdges.Bottom))
+                    continue;
+                if (compactHeight && ((edges & StickerResizeEdges.Bottom) != 0
+                        || edges == StickerResizeEdges.Left || edges == StickerResizeEdges.Right))
+                    continue;
+
+                var thumb = new Thumb
+                {
+                    Style = (Style)FindResource("StickerResizeThumbStyle"),
+                    Width = definition.Width,
+                    Height = definition.Height,
+                    Cursor = definition.Cursor,
+                    Tag = definition.Edges,
+                    Focusable = false,
+                    IsTabStop = false,
+                    ToolTip = "Drag this handle to resize the selected object"
+                };
+                thumb.DragStarted += ResizeThumb_DragStarted;
+                thumb.DragDelta += ResizeThumb_DragDelta;
+                thumb.DragCompleted += ResizeThumb_DragCompleted;
+                _resizeThumbs.Add(thumb);
+                _editorCanvas.Children.Add(thumb);
+                Canvas.SetZIndex(thumb, int.MaxValue);
+            }
+            PositionResizeThumbs(target);
+        }
+
+        private void PositionResizeThumbs(Border target)
+        {
+            if (_editorCanvas == null) return;
+            double left = Canvas.GetLeft(target);
+            double top = Canvas.GetTop(target);
+            if (double.IsNaN(left)) left = 0;
+            if (double.IsNaN(top)) top = 0;
+            double width = target.Width;
+            double height = target.Height;
+
+            foreach (var thumb in _resizeThumbs)
+            {
+                var edges = (StickerResizeEdges)thumb.Tag;
+                double x = (edges & StickerResizeEdges.Left) != 0
+                    ? left - thumb.Width / 2
+                    : (edges & StickerResizeEdges.Right) != 0
+                        ? left + width - thumb.Width / 2
+                        : left + (width - thumb.Width) / 2;
+                double y = (edges & StickerResizeEdges.Top) != 0
+                    ? top - thumb.Height / 2
+                    : (edges & StickerResizeEdges.Bottom) != 0
+                        ? top + height - thumb.Height / 2
+                        : top + (height - thumb.Height) / 2;
+                x = Math.Clamp(x, 0, Math.Max(0, _editorCanvas.Width - thumb.Width));
+                y = Math.Clamp(y, 0, Math.Max(0, _editorCanvas.Height - thumb.Height));
+                Canvas.SetLeft(thumb, x);
+                Canvas.SetTop(thumb, y);
+            }
+        }
+
+        private void ResizeThumb_DragStarted(object sender, DragStartedEventArgs e)
+        {
+            if (sender is not Thumb thumb || _editorCanvas == null
+                || thumb.Tag is not StickerResizeEdges edges
+                || _viewModel.SelectedElement is not { IsLocked: false } element)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            var target = _editorCanvas.Children.OfType<Border>()
+                .FirstOrDefault(border => ReferenceEquals(border.Tag, element));
+            if (target == null)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            _resizeElement = element;
+            _resizeStartGeometry = element.DeepClone();
+            _resizeEdges = edges;
+            _resizeTarget = target;
+            _resizeStartPoint = Mouse.GetPosition(_editorCanvas);
+            _isResizing = true;
+            e.Handled = true;
+        }
+
+        private void ResizeThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if (_editorCanvas == null || _resizeTarget == null || _resizeStartGeometry == null)
+                return;
+
+            Point current = Mouse.GetPosition(_editorCanvas);
+            var previewGeometry = _resizeStartGeometry.DeepClone();
+            double dxMm = StickerLabelVisualFactory.DipToMm(current.X - _resizeStartPoint.X);
+            double dyMm = StickerLabelVisualFactory.DipToMm(current.Y - _resizeStartPoint.Y);
+            if (!StickerElementResize.TryApply(previewGeometry, _viewModel.ActiveTemplate,
+                    _resizeEdges, dxMm, dyMm))
+                return;
+
+            _resizeTarget.Width = StickerLabelVisualFactory.MmToDip(previewGeometry.WidthMm);
+            _resizeTarget.Height = StickerLabelVisualFactory.MmToDip(previewGeometry.HeightMm);
+            Canvas.SetLeft(_resizeTarget, StickerLabelVisualFactory.MmToDip(previewGeometry.Xmm));
+            Canvas.SetTop(_resizeTarget, StickerLabelVisualFactory.MmToDip(previewGeometry.Ymm));
+            PositionResizeThumbs(_resizeTarget);
+            e.Handled = true;
+        }
+
+        private void ResizeThumb_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            try
+            {
+                if (!e.Canceled && _editorCanvas != null && _resizeElement != null
+                    && _resizeStartGeometry != null)
+                {
+                    Point current = Mouse.GetPosition(_editorCanvas);
+                    double dxMm = StickerLabelVisualFactory.DipToMm(current.X - _resizeStartPoint.X);
+                    double dyMm = StickerLabelVisualFactory.DipToMm(current.Y - _resizeStartPoint.Y);
+                    StickerElementResize.TryApply(_resizeElement, _viewModel.ActiveTemplate,
+                        _resizeEdges, dxMm, dyMm);
+                }
+            }
+            finally
+            {
+                _isResizing = false;
+                _resizeElement = null;
+                _resizeStartGeometry = null;
+                _resizeTarget = null;
+                _resizeEdges = StickerResizeEdges.None;
+                RefreshPreview();
+            }
+            e.Handled = true;
         }
 
         private void EditorCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -177,6 +373,7 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             double maxTop = Math.Max(0, _editorCanvas.Height - _dragBorder.Height);
             Canvas.SetLeft(_dragBorder, Math.Clamp(nextLeft, 0, maxLeft));
             Canvas.SetTop(_dragBorder, Math.Clamp(nextTop, 0, maxTop));
+            PositionResizeThumbs(_dragBorder);
         }
 
         private void EditorElement_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
