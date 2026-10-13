@@ -57,6 +57,12 @@ namespace ProGlassAutomation.Tests.Database
         // ── TryNormalizeSharedRoot ───────────────────────────────────
 
         [Fact]
+        public void Local_dataset_copy_is_off_by_default_until_the_host_operator_opts_in()
+        {
+            Assert.False(new DataConnectivitySettings().CopyLocalDataOnEnable);
+        }
+
+        [Fact]
         public void Normalize_rejects_the_local_production_folder()
         {
             Assert.False(AppDataRoot.TryNormalizeSharedRoot(
@@ -144,6 +150,19 @@ namespace ProGlassAutomation.Tests.Database
 
             Assert.False(result.Ok);
             Assert.Contains("different from the local ProGlass AppData folder", result.Message);
+        }
+
+        [Fact]
+        public void Prepare_refuses_to_run_against_a_non_host_root()
+        {
+            var localFolder = MakeFolder("prepare-not-host");
+
+            Assert.False(SharedDataRootService.IsCurrentComputerShareRoot(localFolder));
+            var result = SharedDataRootService.PrepareSharedFolder(
+                localFolder, copyLocalData: true);
+
+            Assert.False(result.Ok);
+            Assert.Contains("primary PC", result.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]

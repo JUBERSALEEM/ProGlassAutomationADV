@@ -1,6 +1,6 @@
-// Pins the LAN/Wi-Fi "Create Folder" path. Prepare used to cancel on a
-// failed safety backup and never created the folder. CreateSharedFolder
-// must create a writable folder outside AppData without copying data.
+// Pins the LAN/Wi-Fi host-folder behavior. A folder create must be
+// separated from dataset preparation, return the host UNC path after SMB
+// publication, and never copy or merge data as a side effect.
 
 using System;
 using System.IO;
@@ -50,6 +50,30 @@ namespace ProGlassAutomation.Tests.Database
                 Path.GetFullPath(AppDataRoot.ProductionFolder),
                 Path.GetFullPath(suggested),
                 StringComparer.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void BuildHostSharePath_UsesTheSelectedHostName()
+        {
+            Assert.Equal(@"\\PRIMARY-PC\ProGlassData",
+                SharedDataRootService.BuildHostSharePath("PRIMARY-PC"));
+        }
+
+        [Fact]
+        public void ServerPlaceholder_IsRecognizedAndProbeExplainsHostSetup()
+        {
+            Assert.True(SharedDataRootService.IsServerPlaceholderPath(
+                @"\\SERVER\ProGlassData"));
+            Assert.False(SharedDataRootService.IsServerPlaceholderPath(
+                @"\\SERVER-01\ProGlassData"));
+
+            var probe = SharedDataRootService.Probe(@"\\SERVER\ProGlassData");
+
+            Assert.False(probe.Ok);
+            Assert.Contains("not a real computer name", probe.Message,
+                StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("Create Share on This PC", probe.Message,
+                StringComparison.Ordinal);
         }
     }
 }

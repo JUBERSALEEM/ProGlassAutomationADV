@@ -22,7 +22,7 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public string SharedDataRootPath { get; set; } = "";
 
         /// <summary>When true, copy the current local data set into an empty shared folder before switching.</summary>
-        public bool CopyLocalDataOnEnable { get; set; } = true;
+        public bool CopyLocalDataOnEnable { get; set; } = false;
 
         /// <summary>
         /// Set after this workstation has used its local database because a

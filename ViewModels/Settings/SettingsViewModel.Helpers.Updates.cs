@@ -100,6 +100,87 @@ namespace ProGlassAutomation.ViewModels.Settings
             RefreshSharedRootWarning();
         }
 
+        private async Task CreateHostSharedFolderAsync()
+        {
+            if (IsCreatingHostShare) return;
+            IsCreatingHostShare = true;
+            (CreateSharedFolderCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            NetworkDataRootStatus = "Creating the local host folder and configuring the Windows SMB share. Approve the administrator prompt if Windows asks; this can take a short time.";
+            await Task.Yield();
+
+            try
+            {
+                string preferredLocalPath = SharedDataRootPath;
+                var created = await Task.Run(() =>
+                    SharedDataRootService.CreateHostSharedFolder(preferredLocalPath));
+                // A failed host setup may mean the fixed share name already
+                // points at some other dataset. Do not auto-fill that UNC
+                // path on failure; require the operator to resolve/test it.
+                if (created.Ok && !string.IsNullOrWhiteSpace(created.Path))
+                    SharedDataRootPath = created.Path;
+                NetworkDataRootStatus = created.Message;
+                RefreshSharedRootWarning();
+            }
+            catch (Exception ex)
+            {
+                NetworkDataRootStatus = "✗ Could not create the host share: " + ex.Message;
+                AppLogService.Error(
+                    "Creating the primary-PC shared data folder failed.", ex,
+                    new LogContext { Module = "Database", Operation = "CreateHostSharedFolder" });
+            }
+            finally
+            {
+                IsCreatingHostShare = false;
+                (CreateSharedFolderCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            }
+        }
+
+        private async Task FindSharedDataRootsAsync()
+        {
+            if (IsDiscoveringSharedDataRoots) return;
+            IsDiscoveringSharedDataRoots = true;
+            (FindSharedDataRootsCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            DiscoveredSharedDataRootCandidates.Clear();
+            SelectedSharedDataRootCandidate = null;
+            OnPropertyChanged(nameof(HasDiscoveredSharedDataRootCandidates));
+            NetworkDataRootStatus = "Scanning this PC's local private IPv4 subnets (up to about 2,048 addresses; 30-second safety limit) for ProGlass SMB shares. This does not change the active database.";
+            await Task.Yield();
+
+            try
+            {
+                var candidates = await Task.Run(
+                    () => SharedDataRootService.DiscoverSharedDataRootsAsync());
+                foreach (string candidate in candidates)
+                    DiscoveredSharedDataRootCandidates.Add(candidate);
+                OnPropertyChanged(nameof(HasDiscoveredSharedDataRootCandidates));
+                // Discovery is candidate listing only. Do not preselect the
+                // first network host: the operator must choose the intended
+                // company dataset explicitly, even when there is one result.
+                SelectedSharedDataRootCandidate = null;
+                (UseDiscoveredSharedDataRootCommand as RelayCommand)?.RaiseCanExecuteChanged();
+
+                NetworkDataRootStatus = candidates.Count switch
+                {
+                    0 => "No ProGlass-marked share was found in the local private subnets scanned (the scan stops after 30 seconds). On the primary PC use Create Share on This PC. On a client, confirm the host is on the same LAN/Wi-Fi, awake, using a Private/Domain network profile, and permits SMB/TCP 445; then enter \\\\HOSTNAME\\ProGlassData or \\\\192.168.x.x\\ProGlassData manually. A Windows host/domain credential may be required.",
+                    1 => "Found one ProGlass share candidate. Select it from the list, choose Use Selected Path, then Test Connection. It is only a draft; ProGlass will not switch or merge data until you review and Save + Restart.",
+                    _ => $"Found {candidates.Count} ProGlass share candidates. Select the correct company host, choose Use Selected Path, then Test Connection. Nothing is selected or applied automatically."
+                };
+            }
+            catch (Exception ex)
+            {
+                NetworkDataRootStatus = "✗ LAN share discovery failed: " + ex.Message
+                    + " You can still enter \\\\HOSTNAME\\ProGlassData or \\\\192.168.x.x\\ProGlassData manually.";
+                AppLogService.Warning(
+                    "LAN discovery of ProGlass shared data roots failed.", ex,
+                    new LogContext { Module = "Database", Operation = "DiscoverSharedDataRoots" });
+            }
+            finally
+            {
+                IsDiscoveringSharedDataRoots = false;
+                (FindSharedDataRootsCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            }
+        }
+
         private void InitializeLanWifiCommands()
         {
             // Root settings remain an explicit draft until Save + Restart.
@@ -120,7 +201,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             else if (AppDataRoot.SharedRootFallbackActive)
                 NetworkDataRootStatus = AppDataRoot.SharedRootFallbackReason;
             else
-                NetworkDataRootStatus = "Local database mode. Press Create Folder to make C:\\ProGlassData and publish the Windows share, or type an existing share path.";
+                NetworkDataRootStatus = "This PC currently uses its local database. On the primary PC choose Create Share on This PC; on clients choose Find on LAN or enter the host computer name/IP. The example \\\\SERVER is not a real host name.";
 
             TestSharedDataRootCommand = new RelayCommand(_ =>
             {
@@ -129,37 +210,65 @@ namespace ProGlassAutomation.ViewModels.Settings
                 RefreshSharedRootWarning();
             });
 
-            // Create the folder (and the Windows share, when Windows allows
-            // it) before any backup. The old Prepare path cancelled on a
-            // failed safety backup and never created the folder at all.
-            CreateSharedFolderCommand = new RelayCommand(_ =>
-            {
-                var created = SharedDataRootService.CreateSharedFolder(SharedDataRootPath);
-                if (!string.IsNullOrWhiteSpace(created.Path))
-                    SharedDataRootPath = created.Path;
-                NetworkDataRootStatus = created.Message;
-                RefreshSharedRootWarning();
-            });
+            // Host creation is a deliberate action: it creates a local
+            // data-only folder on this PC, requests administrator approval
+            // to publish a private-LAN SMB share, and returns the UNC path.
+            // It never treats a local C:\\ path as if clients could use it.
+            CreateSharedFolderCommand = new RelayCommand(
+                unused => _ = CreateHostSharedFolderAsync(),
+                _ => !IsCreatingHostShare);
+
+            FindSharedDataRootsCommand = new RelayCommand(
+                unused => _ = FindSharedDataRootsAsync(),
+                _ => !IsDiscoveringSharedDataRoots);
+
+            UseDiscoveredSharedDataRootCommand = new RelayCommand(
+                _ =>
+                {
+                    string? selectedCandidate = SelectedSharedDataRootCandidate;
+                    if (string.IsNullOrWhiteSpace(selectedCandidate)) return;
+                    SharedDataRootPath = selectedCandidate;
+                    NetworkDataRootStatus = "Candidate path selected: " + SharedDataRootPath
+                        + ". Test Connection and verify the intended company data before Save + Restart. "
+                        + "The active database has not changed and no data was copied or merged.";
+                },
+                _ => !string.IsNullOrWhiteSpace(SelectedSharedDataRootCandidate));
 
             PrepareSharedDataRootCommand = new RelayCommand(_ =>
             {
-                if (string.IsNullOrWhiteSpace(SharedDataRootPath))
+                if (string.IsNullOrWhiteSpace(SharedDataRootPath)
+                    || SharedDataRootService.IsServerPlaceholderPath(SharedDataRootPath))
                 {
-                    var created = SharedDataRootService.CreateSharedFolder(null);
-                    if (!string.IsNullOrWhiteSpace(created.Path))
-                        SharedDataRootPath = created.Path;
-                    // Set after the path setter — that setter replaces the
-                    // status line with "run Test Connection".
-                    NetworkDataRootStatus = created.Message;
-                    if (!created.Ok)
-                    {
-                        RefreshSharedRootWarning();
-                        return;
-                    }
+                    NetworkDataRootStatus = "Enter a real shared path first. On the primary PC click Create Share on This PC; on a client click Find on LAN or enter the actual host computer name/IP (\\\\HOSTNAME\\ProGlassData or \\\\192.168.x.x\\ProGlassData). The literal \\\\SERVER is only an example.";
+                    return;
                 }
 
+                var targetProbe = SharedDataRootService.Probe(SharedDataRootPath);
+                if (!targetProbe.Ok || !targetProbe.LooksLikeNetworkPath)
+                {
+                    NetworkDataRootStatus = targetProbe.Ok
+                        ? "✗ Prepare Folder requires a UNC or mapped network share, not a local C:\\ path. On the primary PC use Create Share on This PC first."
+                        : targetProbe.Message;
+                    RefreshSharedRootWarning();
+                    return;
+                }
+
+                if (!SharedDataRootService.IsCurrentComputerShareRoot(targetProbe.NormalizedPath))
+                {
+                    NetworkDataRootStatus = "✗ Prepare Folder is host-only. Use the primary PC's own \\\\HOSTNAME\\ProGlassData path to seed or set journal mode; client PCs should test the intended share and use Save + Restart. No company records were copied or changed.";
+                    return;
+                }
+
+                bool targetHasNoTopLevelDatabases = targetProbe.Message.Contains(
+                    "No database files found yet", StringComparison.OrdinalIgnoreCase);
+                string emptyShareNotice = targetHasNoTopLevelDatabases
+                    && !CopyLocalDataOnEnable
+                    ? "The share has no top-level database files and copy-local is off. Preparing without copying leaves this workstation's existing local records separate; the shared database will start blank/new. Only cancel, enable copy, and retry if this is the primary PC and its local dataset is the approved company dataset.\n\n"
+                    : "";
+
                 var confirm = _dialogs.Show(
-                    "This will verify the shared folder and, if enabled, copy the current local ProGlass dataset only when the shared folder is empty.\n\n" +
+                    emptyShareNotice +
+                    "This will verify the shared folder and copy this workstation's local ProGlass dataset only if the folder is empty and the copy-local checkbox is enabled (off by default). Use that option only on the primary PC when its local dataset is the approved company dataset. Do not prepare from a client PC or use it to merge/overwrite an existing company dataset. Close ProGlass on all other workstations while preparation changes shared database journal settings.\n\n" +
                     "Use a reliable Windows shared folder on the same LAN/Wi-Fi. Do not use cloud-sync folders for live databases. Continue?",
                     "Prepare shared company database folder",
                     System.Windows.MessageBoxButton.YesNo,
@@ -173,7 +282,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                     // A failed backup must not hide the folder. Copy is the
                     // only step that needed the backup; the folder itself
                     // can still be created so the company share exists.
-                    var created = SharedDataRootService.CreateSharedFolder(SharedDataRootPath);
+                    var created = SharedDataRootService.CreateSharedFolder(
+                        SharedDataRootPath, publishWindowsShare: false);
                     if (!string.IsNullOrWhiteSpace(created.Path))
                         SharedDataRootPath = created.Path;
                     NetworkDataRootStatus = "✗ Safety backup failed, so local data was not copied. "
@@ -196,13 +306,13 @@ namespace ProGlassAutomation.ViewModels.Settings
                         ? "This workstation may contain local-only changes made while the share was offline. Preparation seeds only an empty folder; it does not merge data into an existing company dataset. Review/reconcile the local records separately before reconnecting.\n\n"
                         : "";
                     var restart = _dialogs.Show(
-                        reviewWarning +
+                        reviewWarning + emptyShareNotice +
                         "The shared folder is prepared. To switch this workstation to it, the root setting must be saved and ProGlass restarted now.\n\n" +
                         "If you choose No, the folder remains prepared but this workstation keeps its current active root and no root change is saved.\n\n" +
                         "Restart this workstation now?",
                         "Apply prepared shared folder",
                         System.Windows.MessageBoxButton.YesNo,
-                        offlineDataNeedsReview
+                        offlineDataNeedsReview || !string.IsNullOrEmpty(emptyShareNotice)
                             ? System.Windows.MessageBoxImage.Warning
                             : System.Windows.MessageBoxImage.Question);
                     if (restart != System.Windows.MessageBoxResult.Yes)
@@ -242,39 +352,53 @@ namespace ProGlassAutomation.ViewModels.Settings
             ApplySharedDataRootCommand = new RelayCommand(_ =>
             {
                 var probe = SharedDataRootService.Probe(SharedDataRootPath);
-                if (UseSharedDataRoot && !probe.Ok)
+                if (!probe.Ok || !probe.LooksLikeNetworkPath)
                 {
-                    NetworkDataRootStatus = probe.Message;
+                    NetworkDataRootStatus = probe.Ok
+                        ? "✗ This is a local folder, not a network share. On the primary PC use Create Share on This PC, then Test the returned UNC path; clients must use the host name/IP UNC path."
+                        : probe.Message;
                     RefreshSharedRootWarning();
                     return;
                 }
 
+                // This is the explicit "use the selected share" action.
+                // The separate Revert button is the only action that saves
+                // local mode; a fresh client must not remain local merely
+                // because no hidden mode checkbox was previously ticked.
+                UseSharedDataRoot = true;
                 bool offlineDataNeedsReview =
-                    UseSharedDataRoot &&
                     _config.DataConnectivity?.SharedRootOfflineFallbackNeedsReview == true;
                 string reviewWarning = offlineDataNeedsReview
                     ? "This workstation may contain local-only changes made while the share was offline. Reconnecting will not merge those records into the company dataset; review and reconcile them separately first.\n\n"
                     : "";
                 string dataSetWarning = SelectedDataRootDiffersFromLiveRoot
-                    ? "Local and shared folders may contain different records. Changing roots does not merge them; verify the intended dataset and make a backup before switching.\n\n"
+                    ? "Local and shared folders may contain different records. Changing roots does not merge them; verify the intended company dataset and make a backup before switching.\n\n"
+                    : "";
+                bool targetNeedsIdentityReview =
+                    probe.Message.Contains("No database files found yet", StringComparison.OrdinalIgnoreCase)
+                    || probe.Message.Contains("manifest not found", StringComparison.OrdinalIgnoreCase)
+                    || probe.Message.Contains("not identified as a ProGlass", StringComparison.OrdinalIgnoreCase)
+                    || probe.Message.Contains("manifest file exists but could not be read", StringComparison.OrdinalIgnoreCase);
+                string targetIdentityWarning = targetNeedsIdentityReview
+                    ? "The tested share has no top-level database files and/or no recognized ProGlass shared-root manifest. Applying it could start a new blank dataset. Proceed only if you have confirmed that this is the intended company share; if it is a new share to seed, use Prepare Folder on the primary PC only.\n\n"
                     : "";
                 var restart = _dialogs.Show(
-                    reviewWarning + dataSetWarning +
-                    "Applying a root alone does not copy or merge data; use Prepare Folder first if an empty share should be seeded from local data. The selected root is saved only if ProGlass restarts now. If you choose No, the saved and active roots remain unchanged. Restart this workstation to apply the selected root?",
-                    "Apply data-root settings",
+                    reviewWarning + dataSetWarning + targetIdentityWarning +
+                    "This will enable the tested shared root on this workstation after restart. It does not copy or merge data; use Prepare Folder first only if the company share is empty and this local dataset is explicitly approved to seed it. If you choose No, the saved and active roots remain unchanged. Restart this workstation to apply the selected shared root?",
+                    "Apply shared data root",
                     System.Windows.MessageBoxButton.YesNo,
                     offlineDataNeedsReview
                         ? System.Windows.MessageBoxImage.Warning
                         : System.Windows.MessageBoxImage.Question);
                 if (restart != System.Windows.MessageBoxResult.Yes)
                 {
-                    NetworkDataRootStatus = "No root settings were saved. The current active root is unchanged; your selection remains a draft until you apply it with a restart.";
+                    NetworkDataRootStatus = "No root settings were saved. The current active root is unchanged; the tested share remains a draft until you explicitly apply it with a restart.";
                     RefreshSharedRootWarning();
                     return;
                 }
 
                 var snapshot = CaptureDataRootConfig();
-                var applied = SharedDataRootService.ApplyToConfig(_config, UseSharedDataRoot,
+                var applied = SharedDataRootService.ApplyToConfig(_config, true,
                     SharedDataRootPath, CopyLocalDataOnEnable);
                 if (!applied.Ok)
                 {
@@ -293,7 +417,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 }
 
                 NetworkDataRootStatus = applied.Message
-                    + " Restarting now so all modules open the selected root.";
+                    + " Restarting now so all modules open the selected shared root.";
                 if (!RestartApplication())
                 {
                     ReportRootActivationFailure(snapshot,
@@ -303,13 +427,11 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 Services.Audit.AuditService.Log(
                     Services.Audit.AuditSections.Settings,
-                    UseSharedDataRoot ? "Shared database enabled" : "Shared database disabled",
-                    UseSharedDataRoot
-                        ? $"Shared data root saved: {_config.DataConnectivity.SharedDataRootPath}"
-                        : "Workstation will use local AppData database root after restart.",
+                    "Shared database enabled",
+                    $"Shared data root saved: {_config.DataConnectivity.SharedDataRootPath}",
                     "Settings",
                     "DataConnectivity",
-                    "Company LAN/Wi-Fi database connectivity setting changed.");
+                    "Company LAN/Wi-Fi shared database connectivity setting changed.");
             });
 
             RevertToLocalDataRootCommand = new RelayCommand(_ =>

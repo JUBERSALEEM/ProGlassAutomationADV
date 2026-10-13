@@ -122,8 +122,7 @@ namespace ProGlassAutomation.Services.Database
                 SharedRootFallbackReason =
                     "The saved shared-folder path is empty or invalid. ProGlass is continuing with " +
                     "this workstation's local database. Changes saved locally will not be shared with " +
-                    "other workstations. Open Settings → Data, enter the real host/share path, test it, " +
-                    "and explicitly prepare/reconnect when the correct company dataset is available.";
+                    "other workstations. In Settings → Data, the primary PC can choose Create Share on This PC; a client can choose Find on LAN or enter the host name/IP. Test the intended share, review the dataset, then explicitly Save + Restart to reconnect. Prepare Folder is only for the primary host when an empty share should be seeded.";
                 AppLogService.Warning(
                     "Shared data root is enabled with an empty or invalid path; continuing with the " +
                     $"local database. {detail}",
@@ -141,14 +140,13 @@ namespace ProGlassAutomation.Services.Database
                     data.SharedRootLocalModeNoticePending = true;
                 data.SharedRootOfflineFallbackNeedsReview = true;
                 string placeholderHint = UsesExampleServerName(normalized)
-                    ? " If 'SERVER' is only the example name, replace it with the actual host PC name."
+                    ? " 'SERVER' is only an example, not the primary PC's name. On the primary PC open Settings → Data and choose Create Share on This PC; on each client use Find on LAN or enter the real host name/IP, for example \\\\OFFICE-PC\\ProGlassData or \\\\192.168.1.25\\ProGlassData."
                     : "";
                 SharedRootFallbackReason =
                     "The configured shared company data folder " + normalized + " is unavailable. " +
                     "ProGlass is continuing with this workstation's local database; changes made now " +
                     "will not appear on other workstations. The saved path is checked again at startup. " +
-                    "After the network returns, review/prepare the correct company folder and explicitly " +
-                    "reconnect in Settings → Data; local changes are not merged automatically. " +
+                    "After the network returns, use Find on LAN or enter the real host name/IP in Settings → Data, test the intended share, review the datasets, and explicitly Save + Restart to reconnect. Prepare Folder is only for seeding an empty host share; local changes are never merged automatically. " +
                     failure + placeholderHint;
                 AppLogService.Warning(
                     "Configured shared data root is unreachable; continuing with the local database. " +
@@ -351,9 +349,20 @@ namespace ProGlassAutomation.Services.Database
             string unc = "";
             try
             {
-                var sb = new StringBuilder(261);
-                if (WNetGetConnectionW(root, sb) == 0)
-                    unc = sb.ToString();
+                int capacity = 512;
+                while (capacity <= 32768)
+                {
+                    var sb = new StringBuilder(capacity);
+                    int length = sb.Capacity;
+                    int result = WNetGetConnectionW(root, sb, ref length);
+                    if (result == 0)
+                    {
+                        unc = sb.ToString();
+                        break;
+                    }
+                    if (result != 234) break; // ERROR_MORE_DATA
+                    capacity = Math.Max(length + 1, capacity * 2);
+                }
             }
             catch
             {
@@ -377,8 +386,9 @@ namespace ProGlassAutomation.Services.Database
             return "";
         }
 
-        [DllImport("wtsapi32.dll", CharSet = CharSet.Unicode, BestFitMapping = false, ExactSpelling = true)]
-        private static extern int WNetGetConnectionW(string localName, StringBuilder remoteName);
+        [DllImport("mpr.dll", CharSet = CharSet.Unicode, BestFitMapping = false, ExactSpelling = true)]
+        private static extern int WNetGetConnectionW(
+            string localName, StringBuilder remoteName, ref int bufferLength);
 
         public static bool TryNormalizeSharedRoot(string? path, out string normalized)
         {

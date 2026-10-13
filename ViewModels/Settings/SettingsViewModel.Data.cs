@@ -141,7 +141,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public bool CopyLocalDataOnEnable
         {
-            get => _config?.DataConnectivity?.CopyLocalDataOnEnable ?? true;
+            get => _config?.DataConnectivity?.CopyLocalDataOnEnable ?? false;
             set
             {
                 if (_config?.DataConnectivity == null) return;
@@ -166,11 +166,53 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
         }
 
-        private string _networkDataRootStatus = "Local database mode. Use this only after creating a reliable shared Windows folder on the same LAN/Wi-Fi.";
+        private string _networkDataRootStatus = "This PC currently uses its local database. On the primary PC choose Create Share on This PC; on clients choose Find on LAN or enter the host computer name/IP. The example \\\\SERVER is not a real host name.";
         public string NetworkDataRootStatus
         {
             get => _networkDataRootStatus;
             private set { _networkDataRootStatus = value; OnPropertyChanged(); }
+        }
+
+        public ObservableCollection<string> DiscoveredSharedDataRootCandidates { get; } = new();
+
+        private string? _selectedSharedDataRootCandidate;
+        public string? SelectedSharedDataRootCandidate
+        {
+            get => _selectedSharedDataRootCandidate;
+            set
+            {
+                if (_selectedSharedDataRootCandidate == value) return;
+                _selectedSharedDataRootCandidate = value;
+                OnPropertyChanged();
+                (UseDiscoveredSharedDataRootCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            }
+        }
+
+        public bool HasDiscoveredSharedDataRootCandidates =>
+            DiscoveredSharedDataRootCandidates.Count > 0;
+
+        private bool _isDiscoveringSharedDataRoots;
+        public bool IsDiscoveringSharedDataRoots
+        {
+            get => _isDiscoveringSharedDataRoots;
+            private set
+            {
+                if (_isDiscoveringSharedDataRoots == value) return;
+                _isDiscoveringSharedDataRoots = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _isCreatingHostShare;
+        public bool IsCreatingHostShare
+        {
+            get => _isCreatingHostShare;
+            private set
+            {
+                if (_isCreatingHostShare == value) return;
+                _isCreatingHostShare = value;
+                OnPropertyChanged();
+            }
         }
 
         private bool SelectedDataRootDiffersFromLiveRoot
@@ -275,6 +317,8 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public ICommand TestSharedDataRootCommand { get; private set; }
         public ICommand CreateSharedFolderCommand { get; private set; }
+        public ICommand FindSharedDataRootsCommand { get; private set; }
+        public ICommand UseDiscoveredSharedDataRootCommand { get; private set; }
         public ICommand PrepareSharedDataRootCommand { get; private set; }
         public ICommand ApplySharedDataRootCommand { get; private set; }
         public ICommand RevertToLocalDataRootCommand { get; private set; }
