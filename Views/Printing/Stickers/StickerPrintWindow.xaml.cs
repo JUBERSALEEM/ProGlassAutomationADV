@@ -16,6 +16,7 @@ namespace ProGlassAutomation.Views.Printing.Stickers
     {
         private readonly StickerPrintDialogViewModel _viewModel;
         private readonly string _documentName;
+        private readonly bool _designOnly;
         private Canvas? _editorCanvas;
         private Border? _dragBorder;
         private StickerLayoutElement? _dragElement;
@@ -26,20 +27,36 @@ namespace ProGlassAutomation.Views.Printing.Stickers
 
         public StickerPrintWindow(
             System.Collections.Generic.IReadOnlyList<GlassStickerLabel> labels,
-            string documentName)
+            string documentName,
+            bool designOnly = false)
         {
             InitializeComponent();
+            _designOnly = designOnly;
             _documentName = string.IsNullOrWhiteSpace(documentName)
                 ? "ProGlass Glass Stickers" : documentName;
             var settings = StickerPrintPreferencesStore.Load();
-            _viewModel = new StickerPrintDialogViewModel(labels, settings);
+            _viewModel = new StickerPrintDialogViewModel(
+                labels, settings, designOnly ? CreateDesignerPreviewLabel() : null);
             DataContext = _viewModel;
+            if (_designOnly)
+            {
+                Title = "Sticker Template Library — ProGlass";
+                DesignOnlyBanner.Visibility = Visibility.Visible;
+                PrintButton.IsEnabled = false;
+                PreviewExplanation.Text = "Sample content is for layout positioning only. Save or export the template, then print real source rows from Step 5 or Optimization.";
+                SourceLabelsHeader.Text = "NO SOURCE ROWS — this sidebar workspace edits reusable layouts only";
+                _viewModel.StatusMessage = "Template library mode. Changes saved here are used by Step 5 and Optimization sticker printing.";
+            }
             _viewModel.PropertyChanged += OnViewModelPropertyChanged;
             StickerItemsGrid.SelectionChanged += (_, _) => RefreshPreview();
             Loaded += (_, _) =>
             {
                 _ignoreTemplateSelectionChange = false;
                 RefreshPreview();
+            };
+            Closing += (_, e) =>
+            {
+                if (!ConfirmTemplateChange()) e.Cancel = true;
             };
         }
 
@@ -200,6 +217,7 @@ namespace ProGlassAutomation.Views.Printing.Stickers
                 return;
             }
             _viewModel.SelectTemplateChoice(choice);
+            if (_designOnly) SavePreferencesAfterTemplateOperation();
         }
 
         private void NewTemplate_Click(object sender, RoutedEventArgs e)
@@ -226,6 +244,7 @@ namespace ProGlassAutomation.Views.Printing.Stickers
                 return;
             }
             _viewModel.LoadTemplateFile(template, dialog.FileName);
+            if (_designOnly) SavePreferencesAfterTemplateOperation();
         }
 
         private void SaveTemplate_Click(object sender, RoutedEventArgs e)
@@ -272,7 +291,8 @@ namespace ProGlassAutomation.Views.Printing.Stickers
 
         private void SaveSettings_Click(object sender, RoutedEventArgs e)
         {
-            if (!_viewModel.TryCreatePreferences(out var preferences, out string error))
+            if (!_viewModel.TryCreatePreferences(out var preferences, out string error,
+                    requirePrintableRows: !_designOnly))
             {
                 _viewModel.StatusMessage = error;
                 return;
@@ -292,6 +312,11 @@ namespace ProGlassAutomation.Views.Printing.Stickers
 
         private void Print_Click(object sender, RoutedEventArgs e)
         {
+            if (_designOnly)
+            {
+                _viewModel.StatusMessage = "Printing is disabled in the standalone template library. Use Step 5 or Optimization to print real source rows.";
+                return;
+            }
             if (!_viewModel.TryCreatePreferences(out var preferences, out string error))
             {
                 _viewModel.StatusMessage = error;
@@ -329,6 +354,31 @@ namespace ProGlassAutomation.Views.Printing.Stickers
                 _viewModel.StatusMessage = result.Message + " Setup could not be saved: " + saveError;
         }
 
+        private static GlassStickerLabel CreateDesignerPreviewLabel() => new()
+        {
+            Company = new StickerCompanyProfile
+            {
+                CompanyName = "Your company name",
+                Address = "Company address",
+                Telephone = "Company telephone",
+                Website = "company website",
+                Email = "company email"
+            },
+            OrderNumber = "SAMPLE ORDER",
+            ProformaNumber = "SAMPLE PI",
+            CustomerCompanyName = "Customer company",
+            GlassName = "6MM CLEAR — PREVIEW",
+            GlassType = "DGU",
+            GlassReference = "Glass reference",
+            WidthMm = 730,
+            HeightMm = 555,
+            Quantity = 1,
+            PrintedQuantity = 1,
+            Reference = "REF",
+            PanePosition = "Outer",
+            Source = "Design-only sample"
+        };
+
         private static string SafeSuggestedFileName(string? value)
         {
             string name = string.IsNullOrWhiteSpace(value) ? "Custom sticker" : value.Trim();
@@ -359,8 +409,20 @@ namespace ProGlassAutomation.Views.Printing.Stickers
 
         private void SavePreferencesAfterTemplateOperation()
         {
-            if (_viewModel.TryCreatePreferences(out var preferences, out _))
-                StickerPrintPreferencesStore.TrySave(preferences, out _);
+            if (!_viewModel.TryCreatePreferences(out var preferences, out string validationError,
+                    requirePrintableRows: false))
+            {
+                _viewModel.StatusMessage = "The template was selected, but its default layout could not be saved: " + validationError;
+                return;
+            }
+
+            if (!StickerPrintPreferencesStore.TrySave(preferences, out string saveError))
+            {
+                MessageBox.Show(this,
+                    "The template is available in the local library, but Step 5's last-used layout could not be updated." +
+                    Environment.NewLine + Environment.NewLine + saveError,
+                    "Could not save default sticker layout", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void AddText_Click(object sender, RoutedEventArgs e) => _viewModel.AddTextElement();
@@ -372,6 +434,10 @@ namespace ProGlassAutomation.Views.Printing.Stickers
         private void DeleteElement_Click(object sender, RoutedEventArgs e) => _viewModel.DeleteSelectedElement();
         private void BringForward_Click(object sender, RoutedEventArgs e) => _viewModel.MoveSelectedElementLayer(1);
         private void SendBackward_Click(object sender, RoutedEventArgs e) => _viewModel.MoveSelectedElementLayer(-1);
+        private void MoveLeft_Click(object sender, RoutedEventArgs e) => _viewModel.NudgeSelectedElement(-1, 0);
+        private void MoveRight_Click(object sender, RoutedEventArgs e) => _viewModel.NudgeSelectedElement(1, 0);
+        private void MoveUp_Click(object sender, RoutedEventArgs e) => _viewModel.NudgeSelectedElement(0, -1);
+        private void MoveDown_Click(object sender, RoutedEventArgs e) => _viewModel.NudgeSelectedElement(0, 1);
         private void Close_Click(object sender, RoutedEventArgs e) => Close();
     }
 }

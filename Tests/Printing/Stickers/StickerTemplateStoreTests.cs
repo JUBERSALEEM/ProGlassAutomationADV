@@ -51,9 +51,36 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
             viewModel.SetSelectedElementPosition(3, 5);
             Assert.Equal(3, copy.Xmm);
             Assert.Equal(5, copy.Ymm);
+            viewModel.MoveSelectedElementLayer(-1);
+            Assert.Same(copy, viewModel.TemplateElements[0]);
             viewModel.DeleteSelectedElement();
             Assert.Single(viewModel.TemplateElements);
             Assert.Same(original, viewModel.SelectedElement);
+        }
+
+        [Fact]
+        public void StandaloneDesignerCanPersistAReusableLayoutWithoutPrintRows()
+        {
+            var previewLabel = new GlassStickerLabel
+            {
+                OrderNumber = "SAMPLE ONLY",
+                GlassName = "PREVIEW",
+                WidthMm = 100,
+                HeightMm = 50,
+                Quantity = 1
+            };
+            var viewModel = new StickerPrintDialogViewModel(
+                Array.Empty<GlassStickerLabel>(), new StickerPrintPreferences(), previewLabel);
+
+            Assert.Empty(viewModel.Items);
+            Assert.Same(previewLabel, viewModel.SelectedLabel);
+            viewModel.SelectedLabel = null;
+            Assert.Same(previewLabel, viewModel.SelectedLabel);
+            Assert.Equal(0, viewModel.EstimatedLabelCount);
+            Assert.False(viewModel.TryCreatePreferences(out _, out _));
+            Assert.True(viewModel.TryCreatePreferences(out var preferences, out _, requirePrintableRows: false));
+            Assert.NotNull(preferences.LastTemplate);
+            Assert.Equal(viewModel.ActiveTemplate.Name, preferences.LastTemplateName);
         }
 
         [Fact]

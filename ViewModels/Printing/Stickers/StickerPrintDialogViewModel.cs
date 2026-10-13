@@ -34,6 +34,7 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         private bool _showReference;
         private bool _showPanePosition;
         private GlassStickerLabel? _selectedLabel;
+        private readonly GlassStickerLabel? _previewLabel;
         private StickerLayoutTemplate _activeTemplate = new();
         private StickerTemplateChoice? _selectedTemplateChoice;
         private StickerLayoutElement? _selectedElement;
@@ -44,13 +45,15 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
 
         public StickerPrintDialogViewModel(
             System.Collections.Generic.IEnumerable<GlassStickerLabel> labels,
-            StickerPrintPreferences? preferences)
+            StickerPrintPreferences? preferences,
+            GlassStickerLabel? previewLabel = null)
         {
             var settings = preferences?.Copy() ?? new StickerPrintPreferences();
             bool hasLegacySettings = settings.LastTemplate == null
                 && (settings.HasPersistedSettings || !string.IsNullOrWhiteSpace(settings.LastTemplateName));
             Items = new ObservableCollection<GlassStickerLabel>(labels ?? Array.Empty<GlassStickerLabel>());
-            _selectedLabel = Items.FirstOrDefault();
+            _previewLabel = previewLabel;
+            _selectedLabel = Items.FirstOrDefault() ?? _previewLabel;
 
             TemplateChoices = new ObservableCollection<StickerTemplateChoice>();
             foreach (var preset in StickerTemplatePresets.All)
@@ -213,7 +216,12 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         public GlassStickerLabel? SelectedLabel
         {
             get => _selectedLabel;
-            set => Set(ref _selectedLabel, value, notifyBatch: false);
+            set
+            {
+                if (value == null && Items.Count == 0 && _previewLabel != null)
+                    value = _previewLabel;
+                Set(ref _selectedLabel, value, notifyBatch: false);
+            }
         }
 
         public string WidthMmText
@@ -527,7 +535,8 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         public void SetTemplateSavedMessage(string message) => StatusMessage = message;
         public void MarkTemplatePersisted() => IsTemplateDirty = false;
 
-        public bool TryCreatePreferences(out StickerPrintPreferences preferences, out string error)
+        public bool TryCreatePreferences(out StickerPrintPreferences preferences, out string error,
+            bool requirePrintableRows = true)
         {
             preferences = new StickerPrintPreferences();
             error = string.Empty;
@@ -553,12 +562,12 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 error = "Default font size must be between 3 and 72 pt.";
                 return false;
             }
-            if (Items.Count == 0 || EstimatedLabelCount == 0)
+            if (requirePrintableRows && (Items.Count == 0 || EstimatedLabelCount == 0))
             {
                 error = "There are no valid glass panes to print.";
                 return false;
             }
-            if (EstimatedLabelCount > MaximumBatchSize)
+            if (requirePrintableRows && EstimatedLabelCount > MaximumBatchSize)
             {
                 error = "This batch exceeds 50,000 labels. Filter or split the source job before printing.";
                 return false;

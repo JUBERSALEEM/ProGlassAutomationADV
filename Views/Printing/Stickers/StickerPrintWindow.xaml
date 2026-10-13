@@ -158,8 +158,8 @@
                             </Grid.ColumnDefinitions>
                             <Button Content="Duplicate" Click="DuplicateElement_Click" Padding="3,5" IsEnabled="{Binding HasSelectedElement}"/>
                             <Button Grid.Column="2" Content="Delete" Click="DeleteElement_Click" Padding="3,5" IsEnabled="{Binding HasSelectedElement}"/>
-                            <Button Grid.Column="4" Content="Back" Click="SendBackward_Click" Padding="3,5" IsEnabled="{Binding HasSelectedElement}"/>
-                            <Button Grid.Column="6" Content="Front" Click="BringForward_Click" Padding="3,5" IsEnabled="{Binding HasSelectedElement}"/>
+                            <Button Grid.Column="4" Content="Send back" ToolTip="Send selected object behind the previous layer" Click="SendBackward_Click" Padding="3,5" IsEnabled="{Binding HasSelectedElement}"/>
+                            <Button Grid.Column="6" Content="Bring front" ToolTip="Bring selected object in front of the next layer" Click="BringForward_Click" Padding="3,5" IsEnabled="{Binding HasSelectedElement}"/>
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -202,6 +202,13 @@
                             <StackPanel Grid.Column="2" IsEnabled="{Binding CanMoveSelectedElement}"><TextBlock Text="Y (mm)" FontSize="10" Foreground="#667085"/><TextBox Text="{Binding SelectedElement.Ymm, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,3,0,7" Padding="4"/></StackPanel>
                             <StackPanel Grid.Column="4"><TextBlock Text="W (mm)" FontSize="10" Foreground="#667085"/><TextBox Text="{Binding SelectedElement.WidthMm, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,3,0,7" Padding="4"/></StackPanel>
                             <StackPanel Grid.Column="6"><TextBlock Text="H (mm)" FontSize="10" Foreground="#667085"/><TextBox Text="{Binding SelectedElement.HeightMm, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,3,0,7" Padding="4"/></StackPanel>
+                        </Grid>
+                        <Grid Margin="0,0,0,5" IsEnabled="{Binding CanMoveSelectedElement}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="5"/><ColumnDefinition Width="*"/><ColumnDefinition Width="5"/><ColumnDefinition Width="*"/><ColumnDefinition Width="5"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Button Content="← 1 mm" Click="MoveLeft_Click" Padding="3,4"/>
+                            <Button Grid.Column="2" Content="↑ 1 mm" Click="MoveUp_Click" Padding="3,4"/>
+                            <Button Grid.Column="4" Content="↓ 1 mm" Click="MoveDown_Click" Padding="3,4"/>
+                            <Button Grid.Column="6" Content="→ 1 mm" Click="MoveRight_Click" Padding="3,4"/>
                         </Grid>
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
@@ -250,16 +257,23 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <DockPanel Margin="0,0,0,8">
-                    <TextBlock Text="LIVE CANVAS — drag to move · arrow keys nudge · hold/lock prevents movement"
-                               FontSize="11" FontWeight="Bold" Foreground="#344054"/>
-                    <TextBlock Text="{Binding EstimatedLabelCountText}" DockPanel.Dock="Right"
-                               FontSize="11" FontWeight="SemiBold" Foreground="#175CD3"/>
-                </DockPanel>
+                <StackPanel Grid.Row="0">
+                    <Border x:Name="DesignOnlyBanner" Visibility="Collapsed" Background="#FFF7E8"
+                            BorderBrush="#FEDF89" BorderThickness="1" CornerRadius="7" Padding="9,7" Margin="0,0,0,8">
+                        <TextBlock Text="DESIGN-ONLY PREVIEW — sample values are placeholders. Printing is disabled here; Step 5 and Optimization print using the saved layout."
+                                   FontSize="10" FontWeight="SemiBold" Foreground="#93370D" TextWrapping="Wrap"/>
+                    </Border>
+                    <DockPanel Margin="0,0,0,8">
+                        <TextBlock Text="LIVE CANVAS — drag or use the 1 mm move buttons · hold/lock prevents movement"
+                                   FontSize="11" FontWeight="Bold" Foreground="#344054"/>
+                        <TextBlock Text="{Binding EstimatedLabelCountText}" DockPanel.Dock="Right"
+                                   FontSize="11" FontWeight="SemiBold" Foreground="#175CD3"/>
+                    </DockPanel>
+                </StackPanel>
                 <Border x:Name="PreviewSurface" Grid.Row="1" Background="#EAECF0" CornerRadius="8" Padding="20">
                     <ContentControl x:Name="PreviewHost"/>
                 </Border>
-                <TextBlock Grid.Row="2" Text="Select a row below to cross-check its live data. The canvas and printer use the same saved template geometry and typography."
+                <TextBlock x:Name="PreviewExplanation" Grid.Row="2" Text="Select a row below to cross-check its live data. The canvas and printer use the same saved template geometry and typography."
                            FontSize="10" Foreground="#667085" Margin="0,8,0,0" TextWrapping="Wrap"/>
             </Grid>
         </Border>
@@ -267,7 +281,7 @@
         <Border Grid.Row="1" Grid.Column="2" Background="White" BorderBrush="#D0D5DD" BorderThickness="1" CornerRadius="10" Padding="10">
             <Grid>
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-                <TextBlock Text="SOURCE LABELS — verify order, customer, glass type, side, size, quantity and references"
+                <TextBlock x:Name="SourceLabelsHeader" Text="SOURCE LABELS — verify order, customer, glass type, side, size, quantity and references"
                            FontSize="11" FontWeight="Bold" Foreground="#344054" Margin="2,0,0,7"/>
                 <DataGrid x:Name="StickerItemsGrid" Grid.Row="1" ItemsSource="{Binding Items}"
                           SelectedItem="{Binding SelectedLabel, Mode=TwoWay}"
@@ -295,7 +309,7 @@
                        FontSize="11" Foreground="#475467" TextWrapping="Wrap" MaxWidth="740"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Save setup" Click="SaveSettings_Click" Padding="14,8" Margin="0,0,8,0"/>
-                <Button Content="Print" Click="Print_Click" Padding="20,8" Margin="0,0,8,0"
+                <Button x:Name="PrintButton" Content="Print" Click="Print_Click" Padding="20,8" Margin="0,0,8,0"
                         Background="#175CD3" Foreground="White" BorderBrush="#175CD3" IsDefault="True"/>
                 <Button Content="Close" Click="Close_Click" Padding="16,8" IsCancel="True"/>
             </StackPanel>

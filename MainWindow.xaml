@@ -673,6 +673,13 @@
                                         Command="{Binding NavigateCommand}"
                                         CommandParameter="Specifications"/>
 
+                                <!-- Standalone reusable sticker template library -->
+                                <Button Style="{StaticResource PgSidebarItemStyle}"
+                                        Content="Sticker Printer"
+                                        Tag="&#xE749;"
+                                        ToolTip="Create, edit and save reusable sticker layouts"
+                                        Click="OpenStickerDesigner_Click"/>
+
                                 <!-- SALES & ORDERS (EXPANDED with one chevron) -->
                                 <StackPanel x:Name="SalesGroupHost" Margin="0,4,0,0">
                                     <ToggleButton x:Name="SalesGroup"

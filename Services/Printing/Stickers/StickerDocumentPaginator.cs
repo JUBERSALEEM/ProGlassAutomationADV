@@ -68,16 +68,15 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                 throw new ArgumentOutOfRangeException(nameof(pageNumber));
 
             var (source, printedQuantity) = FindRow(pageNumber);
-            var page = new FixedPage
-            {
-                Width = PageSize.Width,
-                Height = PageSize.Height
-            };
-            // The preview and physical paginator share the same visual factory;
-            // one-per-piece mode only changes the quantity printed per page.
+            // Return the actual label canvas as the page visual. PrintDialog's
+            // XPS writer wraps paginator visuals in its own FixedPage; returning
+            // a FixedPage here nests one FixedPage inside another and throws
+            // "FixedPage cannot contain another FixedPage" at print time.
             var label = CloneWithPrintedQuantity(source, printedQuantity);
-            page.Children.Add(StickerLabelVisualFactory.CreateTemplateCanvas(
-                label, _template, printedQuantity));
+            var page = StickerLabelVisualFactory.CreateTemplateCanvas(
+                label, _template, printedQuantity);
+            page.Width = PageSize.Width;
+            page.Height = PageSize.Height;
             page.Measure(PageSize);
             page.Arrange(new Rect(new Point(0, 0), PageSize));
             page.UpdateLayout();
