@@ -2058,9 +2058,9 @@ html[data-theme="midnight"][data-appearance="clay"] .panel-feature {
      body at full depth; data chips ride one step up toward light;
      overlays (menus) the lightest clip. One family, three steps; the
      studio's adoption rewrites all three hue-rotated per pick. */
-  --card-face: 216 200 255;
-  --data-face: 227 215 255;
-  --overlay-face: 237 228 255;
+  --card-face: 206 196 255;
+  --data-face: 224 216 255;
+  --overlay-face: 238 230 255;
 
 }
 
@@ -2068,9 +2068,9 @@ html[data-theme="midnight"][data-appearance="clay"] .panel-feature {
    token rule compiled to a descendant selector that can never match:
    html-as-child-of-clay. Dead code in production, the real midnight bug.) */
 html[data-theme="midnight"][data-appearance="clay"] {
-  --card-face: 58 38 86;
-  --data-face: 74 46 104;
-  --overlay-face: 48 30 72;
+  --card-face: 62 40 94;
+  --data-face: 76 50 112;
+  --overlay-face: 52 32 76;
 }
 
 [data-appearance="clay"] {

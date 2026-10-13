@@ -75,3 +75,10 @@
 - Re-voiced .chip from a washed well to a RAISED micro-pillow: solid pastel face (0.55 daylight), lip crest lit top, small grounding drop (2px 3px 6px @0.22, + thin bottom shade) — the ClayHub delta-chip grammar. Same pill geometry for utility beads via §26: rounded-full bg-ink/brand/state + rounded-md bg-state tiles get lip+drop while keeping semantic faces and staying outside the §21 card ladder.
 - Harness-side catch + fix (the loop works): midnight chip face at 0.55 lifted pastel past the 4.5:1 floor for its light text → midnight override keeps the wash face (0.3), pillow geometry unchanged.
 - Gates: clay-paint 175/175 · contrast 87/87 · motion 12/12 · vitest 36/36 · color-audit 0 · census 522/600 · audit 0/0.
+
+
+## P12 — default richness (user witness: "still white cards") · completed 2026-10-13
+
+-Witness evidence: 12:19–12:20 deployed screenshots with NO accent picked — noria plates read saturated but every generic card white. Compared against the 10:42 pick-active build (cards visibly pastel). Mechanics: the §22 DEFAULT ladder (216/227/237, s-tapered cousin of the plates) was the wash the user named.
+- Change: shipped defaults rise to plate-family richness — card-face 206 196 255 (the house plate body itself), data 224 216 255, overlay 238 230 255; midnight trio deepens (62 40 94 / 76 50 112 / 52 32 76). Pick-active adoption already wrote full-plate saturation — defaults now match that poverty-line elimination.
+- Gates: vitest 36/36 · clay-paint 175/175 · contrast 87/87 · motion 12/12 · color-audit 0 · census 522/600 · audit 0/0.
