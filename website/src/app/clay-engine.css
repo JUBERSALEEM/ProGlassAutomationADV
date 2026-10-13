@@ -2020,15 +2020,22 @@ html[data-theme="midnight"][data-appearance="clay"] .panel-feature {
      card channel → byte-identical shipped look until the studio's cards
      row picks a plate; then the cards soften into pastel clay while the
      feature card (§17 --panel-face) is free to wear its own plate. */
-  --card-face: var(--clay-card);
-  /* §20 — tonal layering (the MD3 discipline the bench was missing):
-     nested surfaces are SEPARATE TONES stepping down in luminance —
-     band(lightest) > content card(--card-face) > data card(--data-face)
-     — with the hero panel as the chroma accent (--panel-face) and menus
-     as the lightest overlay (--overlay-face). Defaults alias today's
-     channels → the shipped look is byte-identical until the bench writes. */
-  --data-face: var(--card-face);
-  --overlay-face: var(--clay-card);
+  /* §20–§22 — tonal layering, SHIPPED PASTEL (user decree: white cards
+     are the bug, not the recipe). card cards wear the house lavender
+     body at full depth; data chips ride one step up toward light;
+     overlays (menus) the lightest clip. One family, three steps; the
+     studio's adoption rewrites all three hue-rotated per pick. */
+  --card-face: 221 212 254;
+  --data-face: 234 228 255;
+  --overlay-face: 245 242 255;
+
+/* §22.1 — the midnight trio: deep lavender clay at dark. Same ladder,
+   inverted: cards rich-plum, chips one step up, overlays between. */
+html[data-theme="midnight"][data-appearance="clay"] {
+  --card-face: 58 40 84;
+  --data-face: 72 50 100;
+  --overlay-face: 50 34 72;
+}
   /* §18 — rotation noria: the stat tiles read these four pairs; a wrapper
      (.plate-set-b/.plate-set-c) re-points them so one route can ride
      plates 5/2/6/4 (or 3/1/5/2 …) while its neighbour keeps the house
@@ -2495,3 +2502,4 @@ html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-r
 [data-appearance="clay"] [class*="bg-brand-"][class*="text-brand-"] {
   color: rgb(var(--text-2));
 }
+
