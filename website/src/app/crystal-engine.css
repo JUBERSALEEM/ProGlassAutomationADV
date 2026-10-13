@@ -48,6 +48,7 @@
 [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
   background-color: rgb(255 255 255 / var(--glass-lift-a));
   background-image:
+    linear-gradient(180deg, rgb(255 255 255 / var(--glass-spec-a, 0)) 0%, transparent 14%),
     var(--glass-frost),
     linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),
     linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%);
@@ -471,6 +472,20 @@
 
   /* ── E · Saturation behind EVERY pane goes to the pattern's 180%. */
   --glass-sat: 180%;
+
+  /* ── G · P16, the meniscus (iOS Liquid pass, witness round 13:42):
+     the references' tell is not the blur — it is the RIM: the key light
+     strikes the top-left curve and dies at the under-edge, where a cool
+     relight answers from below (cyan at night, rose by day). The spec
+     streak is the thin wet line just under the top edge. Alphas stay
+     under the text floors' notice; the streak composes over the scrim,
+     never without it. */
+  --glass-meniscus: linear-gradient(155deg,
+    rgb(255 255 255 / 0.50) 0%,
+    rgb(255 255 255 / 0.16) 24%,
+    rgb(255 255 255 / 0.02) 52%,
+    rgb(120 220 255 / 0.26) 100%);
+  --glass-spec-a: 0.14;
 }
 
 [data-theme="daylight"][data-appearance="crystal"] {
@@ -503,6 +518,15 @@
      0.60 → 0.68. The light text field the contract computed is unchanged. */
   --glass-lift-a: calc(0.18 * var(--glass-body-mult, 1));
   --glass-scrim: rgb(255 255 255 / 0.18);
+
+  /* P16 daylight meniscus: brighter strike, rose relight (the pink
+     reference's lower-right answer). */
+  --glass-meniscus: linear-gradient(155deg,
+    rgb(255 255 255 / 0.85) 0%,
+    rgb(255 255 255 / 0.32) 26%,
+    rgb(255 255 255 / 0.08) 55%,
+    rgb(217 120 239 / 0.30) 100%);
+  --glass-spec-a: 0.26;
 }
 
 [data-appearance="crystal"] :is(
@@ -510,6 +534,38 @@
   .glass-primary, .card-accent, .panel-feature, .stat-tile
 ) {
   box-shadow: var(--glass-drop);
+}
+
+/* ═══ §C9 · THE MENISCUS RIM (P16 — the iOS Liquid pass) ══════════════════
+   The references' rim is an ARC, not a ring: a masked 1px conic sweep over
+   the pane's own radius — bright where the key light strikes, dead at the
+   under-edge, a cool relight from below. position: relative is the anvil;
+   the pseudo draws at 1px and never touches the text. The @supports guard
+   keeps engines without mask-composite from flooding the pane with an
+   unmasked gradient — they lose the arc, never the legibility. */
+[data-appearance="crystal"] :is(
+  .surface, .surface-raised, .menu-card, .float-card,
+  .glass-primary, .card-accent, .panel-feature, .stat-tile
+) {
+  position: relative;
+}
+@supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
+  [data-appearance="crystal"] :is(
+    .surface, .surface-raised, .menu-card, .float-card,
+    .glass-primary, .card-accent, .panel-feature, .stat-tile
+  )::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--glass-meniscus);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
 }
 
 /* ── F · §C1, retuned to the pattern: the midnight fill comes DOWN from
