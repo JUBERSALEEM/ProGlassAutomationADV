@@ -10,6 +10,7 @@ import { LiveSurface } from "@/components/product/LiveSurface";
    built assets: identical first-load weight either way. A direct import is
    the same outcome with less machinery, so the split was reverted. */
 import { Reveal } from "@/components/ui/Reveal";
+import { MotionReveal } from "@/components/motion/MotionReveal";
 import { HeroField } from "@/components/hero/HeroField";
 import { Spotlight } from "@/components/ui/Spotlight";
 import { Marquee, MarqueeItem } from "@/components/ui/Marquee";
@@ -133,7 +134,7 @@ export function ProductHero({ t }: { t: Translator }) {
                 with a bare eyebrow label says nothing about who is behind the
                 claim; this one names the author in the first line a visitor
                 reads, and links to the story that follows it. */}
-            <Reveal>
+            <MotionReveal>
               <div className="mb-7 flex flex-wrap items-center gap-x-4 gap-y-3 max-lg:justify-center">
                 <span className="flex items-center gap-2.5">
                   <GlassCubeEmblem size={26} className="h-6 w-6" />
@@ -149,9 +150,9 @@ export function ProductHero({ t }: { t: Translator }) {
                   v{site.version}
                 </span>
               </div>
-            </Reveal>
+            </MotionReveal>
 
-            <Reveal delay={60}>
+            <MotionReveal delay={60}>
               <p className="mb-5 flex flex-wrap items-center gap-x-2.5 gap-y-2 text-xs leading-relaxed text-text-muted max-lg:justify-center">
                 <span aria-hidden="true" className="h-1.5 w-1.5 rotate-45 bg-brand-400" />
                 <span>
@@ -167,32 +168,32 @@ export function ProductHero({ t }: { t: Translator }) {
                 </Link>
                 <ArrowRight className="h-3 w-3 text-brand-400" />
               </p>
-            </Reveal>
+            </MotionReveal>
 
-            <Reveal delay={110}>
+            <MotionReveal delay={110}>
               <h1 className="display-hero">
                 {t("Glass business management,")}
                 <span className="text-gradient-rich block">{t("built around your workflow.")}</span>
               </h1>
-            </Reveal>
+            </MotionReveal>
 
             {/* The application's own descriptor, from the keyline it prints
                 under its wordmark on the splash screen. */}
-            <Reveal delay={160}>
+            <MotionReveal delay={160}>
               <BrandKeyline
                 label={t("Glass cutting automation suite")}
                 className="mt-7 justify-start max-lg:justify-center"
               />
-            </Reveal>
+            </MotionReveal>
 
-            <Reveal delay={200}>
+            <MotionReveal delay={200}>
               <p className="lede-lg mt-7 max-w-xl max-lg:mx-auto">
                 {t("A Windows desktop application for glass fabrication: price the job, cut the stock, track what left the")}{" "}
                 {t("yard, and invoice it — without re-keying the same glass twice.")}
               </p>
-            </Reveal>
+            </MotionReveal>
 
-            <Reveal delay={250}>
+            <MotionReveal delay={250}>
               <div className="mt-9 flex flex-wrap items-center gap-3 max-lg:justify-center">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
                   {t("Request a Demo")}
@@ -201,11 +202,11 @@ export function ProductHero({ t }: { t: Translator }) {
                   {t("Explore ProGlass")}
                 </ButtonLink>
               </div>
-            </Reveal>
+            </MotionReveal>
           </div>
 
           {/* ── Layered product presentation ───────────────────────── */}
-          <Reveal delay={120} variant="scale" className="relative">
+          <MotionReveal delay={120} variant="scale" className="relative">
             <div aria-hidden="true" className="pointer-events-none absolute -inset-8 -z-10">
               <span
                 className="orb orb-wide left-1/2 top-1/2 h-[26rem] w-[34rem] -translate-x-1/2 -translate-y-1/2"
@@ -267,7 +268,7 @@ export function ProductHero({ t }: { t: Translator }) {
                 {chainVerbs.slice(0, 5).join(" → ")}
               </span>
             </div>
-          </Reveal>
+          </MotionReveal>
         </div>
 
         {/* ── The fact row ───────────────────────────────────────────────

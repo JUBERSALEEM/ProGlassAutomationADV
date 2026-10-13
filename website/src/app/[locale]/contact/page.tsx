@@ -40,6 +40,7 @@ export default async function ContactPage({ params }: PageProps) {
       description={t("Request a demo of ProGlass Automation: your glass types, team size, and whether cutting optimization matters — one reply per request.")}
     />
       <PageHero
+        variant="document"
       t={t}
         glyph={footerIconFor("/contact")!}
         eyebrow={t("Contact")}
@@ -165,7 +166,7 @@ export default async function ContactPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Next step")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("While you wait for a reply.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("The interface tour shows the screens a demonstration runs through, and the optimization page explains what the cutting engine does with a real cutting list.")}</p>

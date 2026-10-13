@@ -147,7 +147,7 @@ export function ReadOut({
           : "text-text-primary";
   return (
     <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
-      <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">{label}</p>
+      <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-muted font-medium">{label}</p>
       <p className={["mt-1 text-[0.9375rem] font-semibold tabular-nums", toneClass, money ? "" : ""].join(" ")}>{value}</p>
       {note ? <p className="mt-1 text-[0.6875rem] leading-snug text-text-muted font-medium">{note}</p> : null}
     </div>

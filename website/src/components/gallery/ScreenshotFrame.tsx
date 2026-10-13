@@ -38,7 +38,7 @@ export function ScreenshotFrame({
 }) {
   if (shot.src && shot.source !== "pending") {
     return (
-      <figure className={cn("plate shadow-raised", className, modal && "mx-auto w-fit max-w-full")}>
+      <figure className={cn("surface-raised", className, modal && "mx-auto w-fit max-w-full")}>
         {/*
           Opened large, the asset is fitted to the window.
           

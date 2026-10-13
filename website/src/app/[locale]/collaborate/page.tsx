@@ -95,6 +95,7 @@ export default async function CollaboratePage({ params }: PageProps) {
       />
 
       <PageHero
+        variant="document"
         t={t}
         glyph={footerIconFor("/collaborate")!}
         eyebrow={t("Collaboration")}
@@ -158,7 +159,7 @@ export default async function CollaboratePage({ params }: PageProps) {
             </div>
 
             <Reveal delay={80} className="flow">
-              <div className="glass-primary p-6 sm:p-7">
+              <div className="surface-raised p-6 sm:p-7">
                 <p className="eyebrow">{t("What would change the trajectory")}</p>
                 <ul className="mt-4 space-y-3.5">
                   {[
@@ -190,8 +191,8 @@ export default async function CollaboratePage({ params }: PageProps) {
       {/* ── The performance-data calculator ──────────────────────────── */}
       <Section tone="raised" id="performance" aria-labelledby="performance-heading">
         <Container>
-          <div className="glass-primary card-pad">
-            <div className="glass-primary-head">
+          <div className="surface-raised card-pad">
+            <div className="border-b border-line/60 pb-5">
               <div className="min-w-0">
                 <p className="eyebrow">{t("Industry partnership")}</p>
                 <h2 id="performance-heading" className="display-2 mt-3">
@@ -365,7 +366,7 @@ export default async function CollaboratePage({ params }: PageProps) {
             </div>
 
             <Reveal delay={120}>
-              <div className="card-accent card-pad h-full">
+              <div className="surface-raised card-pad h-full">
                 <p className="eyebrow">{t("What is definitely not on offer")}</p>
                 <ul className="mt-4 space-y-3">
                   {notOnOffer.map((line) => (
@@ -416,7 +417,7 @@ export default async function CollaboratePage({ params }: PageProps) {
             <ol className="flow">
               {howItStarts.map((item, index) => (
                 <Reveal key={item.step} as="li" delay={index * 60}>
-                  <div className="plate flex gap-4 p-5">
+                  <div className="surface-raised flex gap-4 p-5">
                     <IndexChip>{item.step}</IndexChip>
                     <div className="min-w-0">
                       <h3 className="card-title">{t(item.title)}</h3>
@@ -447,7 +448,7 @@ export default async function CollaboratePage({ params }: PageProps) {
       {/* ── Closing ──────────────────────────────────────────────────── */}
       <Section aria-labelledby="collab-cta-heading">
         <Container>
-          <div className="glass-primary flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+          <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
             <div>
               <h2 id="collab-cta-heading" className="display-2">
                 {t("One conversation is the whole ask.")}

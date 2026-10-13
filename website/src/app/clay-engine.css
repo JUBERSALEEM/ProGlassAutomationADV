@@ -295,32 +295,32 @@
 [data-appearance="clay"] .stat-tile:nth-child(4n+1) {
   background-color: rgb(var(--rot-1));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.3),
-    -7px -7px 18px rgb(255 255 255 / 0.85),
+  box-shadow: 8px 8px 14px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.2),
+    -7px -7px 18px rgb(255 255 255 / 0.5),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.25);
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+2) {
   background-color: rgb(var(--rot-2));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.3),
-    -7px -7px 18px rgb(255 255 255 / 0.85),
+  box-shadow: 8px 8px 14px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.2),
+    -7px -7px 18px rgb(255 255 255 / 0.5),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.25);
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+3) {
   background-color: rgb(var(--rot-3));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.3),
-    -7px -7px 18px rgb(255 255 255 / 0.85),
+  box-shadow: 8px 8px 14px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.2),
+    -7px -7px 18px rgb(255 255 255 / 0.5),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.25);
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+4) {
   background-color: rgb(var(--rot-4));
   background-image: none;
-  box-shadow: 8px 8px 22px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.3),
-    -7px -7px 18px rgb(255 255 255 / 0.85),
+  box-shadow: 8px 8px 14px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.2),
+    -7px -7px 18px rgb(255 255 255 / 0.5),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.25);
 }
@@ -338,22 +338,22 @@
    and their violet inset literal moves to the P13 band-glow token
    (accent-aware under a pick, byte-identical at house). */
 html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+1) {
-  box-shadow: 8px 8px 20px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.16),
+  box-shadow: 8px 8px 14px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.12),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.18);
 }
 html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+2) {
-  box-shadow: 8px 8px 20px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.16),
+  box-shadow: 8px 8px 14px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.12),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.18);
 }
 html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+3) {
-  box-shadow: 8px 8px 20px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.16),
+  box-shadow: 8px 8px 14px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.12),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.18);
 }
 html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+4) {
-  box-shadow: 8px 8px 20px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.16),
+  box-shadow: 8px 8px 14px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.12),
     inset 4px 4px 8px var(--clay-hi-2),
     inset -6px -6px 12px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.18);
 }

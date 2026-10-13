@@ -63,6 +63,7 @@ export default async function ScreenshotsPage({ params }: PageProps) {
       />
 
       <PageHero
+        variant="showcase"
         t={t}
         glyph={footerIconFor("/screenshots")!}
         eyebrow={t("Product Showcase")}
@@ -170,7 +171,7 @@ export default async function ScreenshotsPage({ params }: PageProps) {
       <Section aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("The best screenshot is your own data.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">

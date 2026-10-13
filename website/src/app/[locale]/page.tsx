@@ -94,20 +94,18 @@ export default async function HomePage({ params }: PageProps) {
         <Container className="relative">
           <ul className="facts-strip grid divide-line/50 sm:grid-cols-2 sm:divide-x lg:grid-cols-4">
             {[
-              { value: t("Windows desktop"), label: t("Installed software, not a browser tab"), plate: "plate-1" },
-              { value: t("Local SQLite"), label: t("Your data on your machine, 16 databases"), plate: "plate-2" },
-              { value: t("No account"), label: t("Nothing to sign up for, nothing to log into"), plate: "plate-3" },
-              { value: `${site.locales} languages`, label: t("Interface translated, not just labelled"), plate: "plate-4" },
+              { value: t("Windows desktop"), label: t("Installed software, not a browser tab") },
+              { value: t("Local SQLite"), label: t("Your data on your machine, 16 databases") },
+              { value: t("No account"), label: t("Nothing to sign up for, nothing to log into") },
+              { value: `${site.locales} languages`, label: t("Interface translated, not just labelled") },
             ].map((fact, index) => (
               <li
                 key={t(fact.value)}
                 className={cn(
                   "flex flex-col gap-1 py-6 sm:px-6 lg:px-8",
-                  /* In clay these four stops are plates of the bench — real
-                     cards, each its own color, still one fluent family. In
-                     other families the classes are unknown and inert, and
-                     the strip renders exactly as before. */
-                  fact.plate,
+                  /* Four stops of one band, not four coloured cards: the
+                     strip reads through the band's own surface so it stays
+                     the family's colour in every appearance and mode. */
                   index === 0 && "sm:pl-0",
                 )}
               >
@@ -435,7 +433,7 @@ export default async function HomePage({ params }: PageProps) {
             </div>
 
             <Reveal delay={100} className="lg:sticky lg:top-28 lg:self-start">
-              <div className="plate p-5">
+              <div className="surface-raised p-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="font-mono text-2xs uppercase tracking-[0.16em] text-text-faint font-medium">
                     Step 9 · Profit &amp; loss
@@ -664,7 +662,7 @@ export default async function HomePage({ params }: PageProps) {
       <Section aria-labelledby="sponsors-heading">
         <Container>
           <Reveal>
-            <div className="card-accent p-8 sm:p-10">
+            <div className="surface-raised p-8 sm:p-10">
               <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-center lg:gap-12">
                 <div>
                   <p className="eyebrow max-lg:text-center">{t("Open to help")}</p>
@@ -770,7 +768,7 @@ export default async function HomePage({ params }: PageProps) {
             />
 
             <Reveal delay={80}>
-              <figure className="plate overflow-hidden">
+              <figure className="surface-raised overflow-hidden">
                 <div className="relative aspect-[16/7] w-full">
                   <Image
                     src={glass3d.dguLam.src}
@@ -828,7 +826,7 @@ export default async function HomePage({ params }: PageProps) {
       <Section aria-labelledby="cta-heading">
         <Container>
           <Reveal>
-            <div className="panel-feature edge-conic relative overflow-hidden p-8 sm:p-12">
+            <div className="surface-raised edge-conic relative overflow-hidden p-8 sm:p-12">
               <div aria-hidden="true" className="pointer-events-none absolute inset-0">
                 <div className="aurora-field aurora-drift" />
               </div>

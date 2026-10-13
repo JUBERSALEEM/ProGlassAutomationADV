@@ -69,7 +69,7 @@ export function SupportBubble() {
   const mailtoHref = `mailto:${site.developerEmail}?subject=${encodeURIComponent("Support — ProGlass Automation")}`;
 
   return (
-    <div ref={rootRef} className="no-print fixed bottom-5 left-5 z-40">
+    <div ref={rootRef} className="no-print fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] left-[max(1.25rem,env(safe-area-inset-left))] z-40">
       {open ? (
         <div
           role="dialog"

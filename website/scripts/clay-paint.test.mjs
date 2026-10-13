@@ -614,9 +614,9 @@ probe("card-accent secondary button", MODES, [...CTA, El("a", "btn btn-secondary
 
 /* 9. Stat tiles — every pastel, both modes. */
 for (const [nth, name] of [[1, "lavender"], [2, "mint"], [3, "peach"], [4, "sky"]]) {
-  const TILE = [BODY, El("dl", "grid grid-cols-2 gap-3"), El("div", "stat-tile p-3.5", {}, nth)];
-  probe(`stat-tile ${name} big number`, MODES, [...TILE, El("dd", "mt-1.5 text-base font-semibold text-text-primary")], 7);
-  probe(`stat-tile ${name} note (text-text-muted)`, MODES, [...TILE, El("dd", "mt-1 text-[0.75rem] leading-relaxed text-text-muted")], 4.5);
+  const TILE = [BODY, El("dl", "grid grid-cols-2 gap-3"), El("div", "surface-raised p-3.5", {}, nth)];
+  probe(`metric tile ${name} big number`, MODES, [...TILE, El("dd", "mt-1.5 text-base font-semibold text-text-primary")], 7);
+  probe(`metric tile ${name} note (text-text-muted)`, MODES, [...TILE, El("dd", "mt-1 text-[0.75rem] leading-relaxed text-text-muted")], 4.5);
 }
 
 /* 10. Boring rows: chips inside surfaces. */
@@ -902,6 +902,79 @@ for (const family of ["studio", "monet", "industrial"]) {
     [BODY, El("p", "text-text-secondary"), El("code", "rounded bg-ink-850 px-1.5 py-0.5 font-mono text-brand-100")], 4.5);
 }
 
+
+/* The studio foil contract — the 16:54 screenshots. When a visitor picks an
+   accent in the ThemeStudio, useStudio rewrites --clay-foil inline on <html>,
+   and §1 of the engine paints EVERY bg-ink-* utility carrier with it. The
+   write once twisted the midnight base (46 34 62) in daylight too, so the
+   P&L bars, stage chips and sample tags went dark maroon under daylight's
+   plum ink (measured 1.0–1.6:1). These probes pin the contract at the
+   values the studio actually writes, per mode (raspberry-hub twists): the
+   foil may change hue, never its own mode's luminance. */
+const studioFoilProbe = (mode, foil, label, chain) => {
+  const p = paint(label, mode, chain, { style: `--clay-foil: ${foil}` });
+  report.push(p);
+  test(`${mode} · ${label} — ${p.ratio?.toFixed(2)}:1 ≥ 4.5:1  (${p.color ? hx(p.color) : "?"} on ${hx(p.bg)})`, () => {
+    assert.ok(p.color && p.ratio >= 4.5, `${mode} ${label}: ${p.ratio?.toFixed(2)}:1 below 4.5:1 — foil ${foil}`);
+  });
+};
+const PNL_BAR = [
+  BODY, El("main"), El("div", "plate p-5"), El("dl", "mt-5 space-y-3"),
+  El("div", "rounded-card border border-line/60 bg-ink-950/50 p-3.5"),
+  El("dd", "mt-1 text-sm leading-relaxed text-text-secondary"),
+];
+const STAGE_CHIP = [
+  BODY, El("main"),
+  El("div", "min-w-0 flex-1 rounded-card border border-line/60 bg-ink-900/55 p-4"),
+  El("span", "rounded-md border border-line-strong/60 bg-ink-850/80 px-2 py-0.5 font-mono text-text-muted"),
+];
+studioFoilProbe("daylight", "rgb(252 234 247)", "studio foil (daylight base) · P&L bar in .plate", PNL_BAR);
+studioFoilProbe("daylight", "rgb(252 234 247)", "studio foil (daylight base) · stage status chip", STAGE_CHIP);
+studioFoilProbe("midnight", "rgb(62 34 53)", "studio foil (midnight base) · P&L bar in .plate", PNL_BAR);
+studioFoilProbe("midnight", "rgb(62 34 53)", "studio foil (midnight base) · stage status chip", STAGE_CHIP);
+
+/* The engineering-metrics tiles as StatCounter actually ships them
+   (17:21 witness: one merged glowing column, white figures). The figure
+   carries text-text-primary so the surface's own ink lock governs it —
+   the probe uses the component's real shipped classes. Since the
+   site-wide dynamic pass, StatCounter/StatBadge render surface-raised
+   everywhere; there is no pastel tile left to measure. */
+probe("stat figure (StatCounter on surface-raised)", MODES,
+  [BODY, El("div", "mt-8 grid gap-4"), El("div", "surface-raised p-4"), El("p", "figure figure-md flex items-baseline gap-1 text-text-primary")], 7);
+probe("stat label (StatCounter on surface-raised)", MODES,
+  [BODY, El("div", "mt-8 grid gap-4"), El("div", "surface-raised p-4"), El("p", "mt-2 text-xs font-semibold text-text-secondary")], 4.5);
+probeIn("crystal", "stat figure (surface-raised at midnight)", ["midnight"],
+  [BODY, El("div", "mt-8 grid gap-4"), El("div", "surface-raised p-4"), El("p", "figure figure-md flex items-baseline gap-1 text-text-primary")], 7);
+probeIn("crystal", "stat hint (surface-raised at midnight)", ["midnight"],
+  [BODY, El("div", "mt-8 grid gap-4"), El("div", "surface-raised p-4"), El("p", "mt-1 text-3xs leading-relaxed text-text-faint font-medium")], 4.5);
+
+/* ── Developer page rewrite (2026-10-13, full-page dynamic pass) —─────
+   The /developer page no longer uses stat-tile, card-live, card-accent or
+   glass-primary: every card wears the family's standard surface recipe.
+   These probes measure the page's real shipped chains on those surfaces
+   in all five appearances × both modes. */
+probe("developer metric figure (surface-raised)", MODES,
+  [BODY, El("div", "mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"), El("div", "surface-raised p-4"), El("p", "figure figure-md flex items-baseline gap-1 text-text-primary")], 7);
+probe("developer metric label (surface-raised)", MODES,
+  [BODY, El("div", "mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"), El("div", "surface-raised p-4"), El("p", "mt-2 text-xs font-semibold text-text-secondary")], 4.5);
+probe("developer metric hint (surface-raised)", MODES,
+  [BODY, El("div", "mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"), El("div", "surface-raised p-4"), El("p", "mt-1 text-[11px] leading-relaxed text-text-muted")], 4.5);
+probe("developer profile tile value (surface-raised)", MODES,
+  [BODY, El("div", "surface-raised card-pad"), El("dl", "mt-5 grid gap-3 sm:grid-cols-3"), El("div", "surface-raised p-3.5"), El("p", "text-sm font-medium text-text-primary")], 4.5);
+probe("developer profile tile label (surface-raised)", MODES,
+  [BODY, El("div", "surface-raised card-pad"), El("dl", "mt-5 grid gap-3 sm:grid-cols-3"), El("div", "surface-raised p-3.5"), El("p", "text-[11px] text-text-muted")], 4.5);
+probe("developer card title (surface)", MODES,
+  [BODY, El("div", "surface flex gap-4 p-5 sm:p-6"), El("h3", "card-title")], 4.5);
+probe("developer card body (surface)", MODES,
+  [BODY, El("div", "surface flex gap-4 p-5 sm:p-6"), El("p", "card-text")], 4.5);
+probe("developer gap title (surface)", MODES,
+  [BODY, El("li", "surface p-4"), El("h3", "text-sm font-semibold text-text-primary")], 4.5);
+probe("developer gap body (surface)", MODES,
+  [BODY, El("li", "surface p-4"), El("p", "mt-2 text-xs leading-relaxed text-text-secondary")], 4.5);
+probe("developer closing heading (surface-raised)", MODES,
+  [BODY, El("div", "surface-raised grid gap-8 p-8"), El("h2", "heading-3 text-text-primary")], 4.5);
+probe("developer closing body (surface-raised)", MODES,
+  [BODY, El("div", "surface-raised grid gap-8 p-8"), El("p", "mt-3 text-sm leading-relaxed text-text-secondary")], 4.5);
 
 /* Print the full paint table — the analysis the screenshots demanded. */
 test("paint report", () => {

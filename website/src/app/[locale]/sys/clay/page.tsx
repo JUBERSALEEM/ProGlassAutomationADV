@@ -29,7 +29,9 @@ const MEDIA_BODY =
   "The card answers its own width: compact under 340px, media in its own lane past 480px — the same markup in a sliver, a column, a full row.";
 
 export default async function ClayCatalogPage({ params }: PageProps) {
-  const t = await translatorFor(params);
+  /* Validates the locale (404s unknown tags) — this internal catalog renders
+     in English by design, so no translator is bound. */
+  await translatorFor(params);
   return (
     <>
       <Section aria-labelledby="clay-catalog" className="pt-10">

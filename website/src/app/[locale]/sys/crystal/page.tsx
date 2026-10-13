@@ -75,6 +75,10 @@ export default async function CrystalCatalogPage({ params }: PageProps) {
               <p className="mt-1 text-2xl font-bold text-text-primary">42</p>
               <p className="text-sm text-text-muted">{t("The assay tile")}</p>
             </div>
+            <div className="float-card p-5">
+              <p className="mono-label">.float-card · GlassCard tier=floating</p>
+              <p className="mt-2 text-sm text-text-muted">{t("The floating tier — overlaps artwork, opaque by default, glass under Crystal (Phase 2 primitive).")}</p>
+            </div>
           </div>
         </Container>
       </Section>

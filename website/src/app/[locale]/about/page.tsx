@@ -43,6 +43,7 @@ export default async function AboutPage({ params }: PageProps) {
       description={t("ProGlass Automation is desktop software for glass fabrication businesses: what it is, the problem it solves, how it is built and what it does not do.")}
     />
       <PageHero
+        variant="document"
       t={t}
         glyph={footerIconFor("/about")!}
         eyebrow={t("About")}
@@ -323,7 +324,7 @@ export default async function AboutPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("If that describes your business, see it working.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration runs on a job you recognise, from the quotation through to the cutting plan.")}</p>

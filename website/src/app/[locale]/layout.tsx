@@ -269,6 +269,18 @@ export default async function LocaleLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+        {/*
+          No-JS resilience (Phase 8). Entrance states start hidden by design —
+          `.reveal` at opacity 0, motion writing its hidden variant inline,
+          accordion panels at 0fr — and only script reveals them. Without
+          script the whole page would sit invisible, so this sheet (which only
+          ever applies when scripting is off) puts every gated element back to
+          its resting state. `!important` is required: it has to beat motion's
+          inline styles, and nothing with script enabled ever sees this block.
+        */}
+        <noscript>
+          <style>{`.reveal,.reveal-scale,.motion-reveal{opacity:1!important;transform:none!important}.accordion-panel{grid-template-rows:1fr!important}`}</style>
+        </noscript>
       </head>
       <body>
         {/*

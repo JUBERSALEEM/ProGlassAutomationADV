@@ -105,6 +105,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
       />
 
       <PageHero
+        variant="showcase"
       t={t}
         glyph={footerIconFor("/worked-example")!}
         eyebrow={t("Worked example")}
@@ -465,7 +466,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
           {/* ── Totals ─────────────────────────────────────────────── */}
           <Reveal className="mt-12">
             <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-              <div className="plate p-6 sm:p-8">
+              <div className="surface-raised p-6 sm:p-8">
                 <p className="eyebrow">{t("Quotation total")}</p>
                 <dl className="mt-5 space-y-3 text-sm">
                   <div className="flex items-baseline justify-between gap-4 border-b border-line/50 pb-3">
@@ -916,7 +917,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
           <div className="mt-10 grid gap-5 lg:grid-cols-2">
             {pricingRules.map((rule) => (
               <Reveal key={rule.id}>
-                <div className="plate h-full p-6 sm:p-7">
+                <div className="surface-raised h-full p-6 sm:p-7">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="eyebrow">{t(rule.label)}</p>
                     <p className="font-mono text-sm font-semibold text-brand-200">{t(rule.value)}</p>
@@ -1011,7 +1012,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
           */}
           <Reveal className="mt-10">
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-              <div className="plate p-6 sm:p-7">
+              <div className="surface-raised p-6 sm:p-7">
                 <p className="eyebrow">{t("The cost behind the rate")}</p>
                 <h3 className="mt-2 text-xl font-semibold text-text-primary">{t("Step 9 costs these same panels at the purchase price.")}</h3>
                 <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{t("Step 9 is the application's only profit-and-loss step, and it asks one question: is the given price above target? Revenue is what the specification bills; the glass cost is the same billable square metres at the Sheet Store purchase price; the target is the base price plus the expected margin. Every row below is a seeded stock line, and the sell column is the rate the quotation above charges — which is why the two figures reconcile rather than merely agreeing.")}</p>
@@ -1114,7 +1115,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Next steps")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <p className="eyebrow">{t("See it on your own numbers")}</p>
                 <h2 className="mt-3 text-2xl leading-tight sm:text-3xl">

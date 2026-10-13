@@ -826,8 +826,16 @@ export function applyStudioVars(studio: Studio) {
          was the last accent-deaf chip: fixed plum under any pick. Same
          twist contract the ink channels above already carry — hue only,
          luminance untouched, the contrast locks hold. Kept in rgb() form:
-         its bare-var consumers expect the wrapped value. */
-      vars["--clay-foil"] = `rgb(${twistTriplet("46 34 62", hub, 0.72)})`;
+         its bare-var consumers expect the wrapped value.
+         The base is PER MODE, like CLAY_CARD_BASE above: the foil paints
+         every bg-ink-* utility carrier in the family (§1 of the engine),
+         and the two modes' foils are opposite ends of the ramp — midnight
+         46 34 62, daylight 239 234 252 (the engine's own §0 values).
+         Twisting the midnight base in daylight used to paint every
+         utility pane dark maroon under daylight's plum ink (1.0–1.6:1,
+         the 16:54 screenshots); the locks only hold when the foil keeps
+         its own mode's luminance. */
+      vars["--clay-foil"] = `rgb(${twistTriplet(target === "dark" ? "46 34 62" : "239 234 252", hub, 0.72)})`;
     }
     /* Hardness + richness of the mould: the drop grounds at its own hue,
        DEEPER (0.78/0.38 — the pillow reads weight, not mist); the interior

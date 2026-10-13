@@ -231,7 +231,7 @@ const faq = [
             <div className="flex items-start gap-5">
               <span
                 aria-hidden="true"
-                className="grid h-16 w-16 shrink-0 place-items-center rounded-panel border-2 border-brand-400/50 bg-gradient-to-br from-brand-500/30 to-ink-950 text-xl font-semibold text-brand-100 sm:h-20 sm:w-20 sm:text-2xl"
+                className="grid h-16 w-16 shrink-0 place-items-center rounded-panel border-2 border-line-strong/60 bg-ink-900/70 text-xl font-semibold text-brand-200 sm:h-20 sm:w-20 sm:text-2xl"
               >
                 {site.developerName
                   .split(" ")
@@ -262,7 +262,7 @@ const faq = [
                 { label: t("On this project"), value: t("Everything"), note: t("Code, documents, tests, this site.") },
                 { label: t("On support"), value: t("The only tier"), note: t("Questions arrive at his inbox.") },
               ].map((item) => (
-                <div key={t(item.label)} className="stat-tile p-3.5">
+                <div key={t(item.label)} className="surface-raised p-3.5">
                   <dt className="mono-label">{t(item.label)}</dt>
                   <dd className="mt-1.5 text-base font-semibold text-text-primary">{t(item.value)}</dd>
                   <dd className="mt-1 text-[0.75rem] leading-relaxed text-text-muted">{t(item.note)}</dd>
@@ -289,7 +289,7 @@ const faq = [
               { label: t("Funding"), value: t("None"), hint: "No investors, and no sponsors so far." },
               { label: t("Formal training"), value: t("None in software"), hint: "An estimator's background instead." },
             ].map((item) => (
-              <div key={t(item.label)} className="stat-tile p-3.5">
+              <div key={t(item.label)} className="surface-raised p-3.5">
                 <dt className="mono-label">{t(item.label)}</dt>
                 <dd className="mt-1.5 text-base font-semibold text-text-primary">{t(item.value)}</dd>
                 <dd className="mt-1 text-[0.75rem] leading-relaxed text-text-muted">{t(item.hint)}</dd>
@@ -369,7 +369,7 @@ const faq = [
             <ol className="flow">
               {overthinking.points.map((point, index) => (
                 <Reveal key={point.index} as="li" delay={index * 60}>
-                  <div className="card-live flex gap-4 p-5 sm:p-6">
+                  <div className="surface flex gap-4 p-5 sm:p-6">
                     <IndexChip>{point.index}</IndexChip>
                     <div className="min-w-0">
                       <h3 className="card-title">{t(point.title)}</h3>
@@ -392,8 +392,8 @@ const faq = [
       {/* ── The dream ────────────────────────────────────────────────── */}
       <Section aria-labelledby="dream-heading">
         <Container>
-          <div className="glass-primary card-pad">
-            <div className="glass-primary-head">
+          <div className="surface-raised card-pad">
+            <div className="border-b border-line/60 pb-2">
               <div className="min-w-0">
                 <p className="eyebrow">{t("What it is for")}</p>
                 <h2 id="dream-heading" className="display-2 mt-3">
@@ -461,7 +461,7 @@ const faq = [
                       aria-hidden="true"
                       className="absolute -left-[1.9rem] top-6 h-3 w-3 rounded-full border-2 border-brand-400 bg-ink-950 sm:-left-[2.4rem]"
                     />
-                    <article className="card-live card-interactive p-5 sm:p-6">
+                    <article className="surface card-interactive p-5 sm:p-6">
                       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                         <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">{entry.tag}</span>
                         <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
@@ -519,7 +519,7 @@ const faq = [
             <ol className="flow">
               {before.map((item, index) => (
                 <Reveal key={`${t(item.title)}-${index}`} delay={index * 60}>
-                  <li className="card-live flex gap-4 p-5">
+                  <li className="surface flex gap-4 p-5">
                     <IndexChip>{item.index}</IndexChip>
                     <div className="min-w-0">
                       <h3 className="text-base font-semibold text-text-primary">{t(item.title)}</h3>
@@ -546,7 +546,7 @@ const faq = [
           <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             {consequences.map((item, index) => (
               <Reveal key={`${t(item.title)}-${index}`} delay={index * 50}>
-                <article className="card-live card-interactive flex h-full flex-col p-5">
+                <article className="surface card-interactive flex h-full flex-col p-5">
                   <span className="font-mono text-2xs text-brand-300">{item.index}</span>
                   <h3 className="mt-2 text-base font-semibold text-text-primary">{t(item.title)}</h3>
                   <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
@@ -750,12 +750,12 @@ const faq = [
             <ul className="grid gap-3 sm:grid-cols-2">
               {gaps.map((gap) => (
                 /* The gaps are the section's MAIN content cards, so they
-                   wear the standard live card, not .card-accent: a pastel
-                   accent slab is the 10% of the 70/20/10 budget, and four
-                   of them on this grid at midnight inverted the page —
-                   the "white slabs on the dark page" the 12:44 review
-                   flagged. The single closing card below keeps card-accent. */
-                <li key={t(gap.title)} className="card-live p-4">
+                   wear the standard surface, and so does every other card
+                   on this page: no pastel tiles, no accent slabs — the
+                   family's dynamic recipe (surface / surface-raised) is
+                   the only card language here, so the page reads the same
+                   in every appearance and mode. */
+                <li key={t(gap.title)} className="surface p-4">
                   <h3 className="text-sm font-semibold text-text-primary">{t(gap.title)}</h3>
                   <p className="mt-2 text-xs leading-relaxed text-text-secondary">{t(gap.body)}</p>
                 </li>
@@ -782,7 +782,7 @@ const faq = [
       {/* ── Closing ──────────────────────────────────────────────────── */}
       <Section aria-labelledby="dev-cta-heading">
         <Container>
-          <div className="card-accent grid gap-8 p-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center lg:p-10">
+          <div className="surface-raised grid gap-8 p-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center lg:p-10">
             <div>
               <h2 id="dev-cta-heading" className="display-2">
           {t("You talk to the person who writes it.")}

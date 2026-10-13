@@ -8,6 +8,8 @@ import { CadLegend } from "@/components/optimization/CadLegend";
 import { SheetGallery } from "@/components/optimization/SheetGallery";
 import type { PackMargins, PlateView } from "@/lib/guillotinePack";
 import { usePrefersReducedMotion } from "@/lib/useReveal";
+import { motion } from "motion/react";
+import { dur, ease } from "@/lib/motion";
 import { useT } from "@/i18n/provider";
 
 /**
@@ -175,6 +177,12 @@ export function PlateInspector({
             gives with its own scroller, for the same reason.
           */}
           <div className="-mx-1 overflow-x-auto px-1">
+            <motion.div
+              key={plate.plate}
+              initial={reduced ? false : { opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: dur.lift, ease: ease.out }}
+            >
             <div className="studio-stage p-1">
               <PlateCad
                 t={t}
@@ -188,6 +196,7 @@ export function PlateInspector({
                 className="block min-w-[30rem] rounded-[0.35rem]"
               />
             </div>
+            </motion.div>
           </div>
 
           {playable ? (

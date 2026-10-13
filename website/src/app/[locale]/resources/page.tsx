@@ -45,6 +45,7 @@ export default async function ResourcesPage({ params }: PageProps) {
       description={t("Guides for glass businesses: the vocabulary of an order, why a cutting plan must be cuttable, and how stock accuracy works when movements are recorded.")}
     />
       <PageHero
+        variant="document"
       t={t}
         glyph={footerIconFor("/resources")!}
         eyebrow={t("Resources")}
@@ -208,7 +209,7 @@ export default async function ResourcesPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="glass-primary flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
               <div>
                 <h2 className="display-2">{t("See how these ideas look on a real job.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("The guides explain the concepts; a demonstration shows the application applying them to your glass.")}</p>
