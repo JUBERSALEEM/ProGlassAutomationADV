@@ -289,7 +289,7 @@ export default async function OptimizationPage({ params }: PageProps) {
             lead={t("These are the defaults the engineering assumes before an operator changes anything. Every value is editable per run, and 'Load house defaults' puts them back.")}
           />
 
-          <div className="mt-10 overflow-x-auto">
+          <div className="surface-raised mt-10 overflow-x-auto p-4 sm:p-6">
             <table className="w-full min-w-[46rem] border-separate border-spacing-0 text-sm">
               <caption className="sr-only">{t("Default cutting allowances per glass thickness bucket")}</caption>
               <thead>

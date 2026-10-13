@@ -207,6 +207,22 @@ describe("tonal ladder — nesting reads as material, not shadows", () => {
     const [r = 0, g = 0] = drop.split(" ").map(Number);
     expect(g).toBeGreaterThan(r);
   });
+
+  it("daylight Clay accent tints --clay-raised and separates band-rich-h/band-deep-h from --card-face", () => {
+    document.documentElement.dataset.appearance = "clay";
+    document.documentElement.dataset.theme = "daylight";
+    applyStudioVars({ ...defaultStudio, accent: "#f97316" });
+    const raised = document.documentElement.style.getPropertyValue("--clay-raised");
+    expect(raised).not.toBe("");
+    expect(raised).not.toBe("255 255 255");
+    const [rr = 0, , rb = 0] = raised.split(" ").map(Number);
+    expect(rr).toBeGreaterThan(rb);
+    const cardFace = document.documentElement.style.getPropertyValue("--card-face");
+    const bandRich = document.documentElement.style.getPropertyValue("--band-rich-h");
+    const bandDeep = document.documentElement.style.getPropertyValue("--band-deep-h");
+    expect(bandRich).not.toBe(cardFace);
+    expect(bandDeep).not.toBe(cardFace);
+  });
 });
 
 describe("phase 2+3 — studio v2 contract", () => {

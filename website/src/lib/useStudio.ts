@@ -886,12 +886,15 @@ export function applyStudioVars(studio: Studio) {
       vars["--overlay-face"] = rot(cd[0], target === "dark" ? Math.min(cd[1] + 0.05, 0.4) : Math.min(0.82, cd[1] + 0.03), target === "dark" ? 0.26 : Math.min(0.97, cd[2] + 0.115));
     }
     if (family === "clay") {
+      if (target === "light") {
+        vars["--clay-raised"] = rot(0, Math.min(0.5, pSat * 0.62), 0.935);
+      }
       vars["--band-face"] = rot(0, Math.min(0.12, pSat * 0.2), target === "dark" ? 0.18 : 0.95);
       vars["--pool-1"] = `rgb(${rot(0, Math.min(0.55, pSat), 0.68)} / ${target === "dark" ? 0.1 : 0.18})`;
       vars["--pool-2"] = `rgb(${rot(12, Math.min(0.5, pSat), 0.74)} / ${target === "dark" ? 0.06 : 0.12})`;
       vars["--pool-3"] = `rgb(${rot(-12, Math.min(0.5, pSat), 0.76)} / ${target === "dark" ? 0.05 : 0.1})`;
-      vars["--band-rich-h"] = rot(0, target === "dark" ? Math.min(0.32, pSat * 0.5) : pSat, target === "dark" ? 0.235 : Math.max(0.75, pLight));
-      vars["--band-deep-h"] = rot(0, target === "dark" ? Math.min(0.28, pSat * 0.45) : pSat, target === "dark" ? 0.19 : Math.max(0.72, pLight - 0.03));
+      vars["--band-rich-h"] = rot(0, target === "dark" ? Math.min(0.32, pSat * 0.5) : Math.min(0.62, pSat * 0.75), target === "dark" ? 0.235 : Math.min(0.87, pLight + 0.07));
+      vars["--band-deep-h"] = rot(0, target === "dark" ? Math.min(0.28, pSat * 0.45) : Math.min(0.56, pSat * 0.68), target === "dark" ? 0.19 : Math.min(0.84, pLight + 0.04));
       vars["--band-glow-h"] = rot(0, Math.min(0.85, pSat + 0.08), target === "dark" ? 0.5 : 0.42);
     } else {
       vars["--band-face"] = rot(0, Math.min(0.3, pSat * 0.45), 0.948);

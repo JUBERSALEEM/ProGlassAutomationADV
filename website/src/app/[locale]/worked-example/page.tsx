@@ -937,7 +937,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
             `isFloored` and the switch over the size and prints what comes out.
           */}
           <Reveal className="mt-6">
-            <div className="overflow-x-auto">
+            <div className="surface overflow-x-auto p-4 sm:p-5">
               <table className="w-full min-w-[54rem] border-collapse text-sm">
                 <caption className="sr-only">{t("Two panels at the edges of the two rules: a 400 × 300 mm vent light billed at the 0.5 m² floor, and a 2400 × 1800 mm atrium lite priced at base plus 20% because it reaches 4 m².")}</caption>
                 <thead>
@@ -1018,7 +1018,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                 <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{t("Step 9 is the application's only profit-and-loss step, and it asks one question: is the given price above target? Revenue is what the specification bills; the glass cost is the same billable square metres at the Sheet Store purchase price; the target is the base price plus the expected margin. Every row below is a seeded stock line, and the sell column is the rate the quotation above charges — which is why the two figures reconcile rather than merely agreeing.")}</p>
               </div>
 
-              <div className="overflow-x-auto">
+              <div className="surface overflow-x-auto p-4 sm:p-5">
                 <table className="w-full min-w-[30rem] border-collapse text-sm">
                   <caption className="sr-only">{t("Seeded sheet stock: purchase price, selling price, and the glass references priced from each.")}</caption>
                   <thead>

@@ -200,7 +200,7 @@ function TableBlock({
   token: { header: TableCell[]; rows: TableCell[][] }; keyPrefix: string
 }) {
   return (
-    <div className="mb-6 overflow-x-auto">
+    <div className="surface mb-6 overflow-x-auto p-3 sm:p-4">
       <table className="w-full min-w-[34rem] border-collapse text-sm">
         <thead>
           <tr className="border-b border-line/60 text-left">

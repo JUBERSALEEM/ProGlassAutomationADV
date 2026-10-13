@@ -3400,19 +3400,80 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
     --cad-shadow: 0 10px 30px -22px rgb(73 48 128 / 0.55);
   }
 
-  /* The light panel a drawing sits on: the application's OptPanelCard. */
+  [data-theme="midnight"] {
+    --cad-canvas: rgb(var(--ink-900));
+    --cad-surface: rgb(var(--ink-850));
+    --cad-keyline: rgb(var(--line) / 0.65);
+    --cad-line: rgb(var(--line-strong) / 0.8);
+    --cad-bed: rgb(var(--ink-800));
+    --cad-piece: rgb(var(--ink-700));
+    --cad-piece-rotated: rgb(var(--brand-500) / 0.28);
+    --cad-ink: rgb(var(--text-1));
+    --cad-text: rgb(var(--text-1));
+    --cad-muted: rgb(var(--text-3));
+    --cad-subtle: rgb(var(--text-4));
+    --cad-trim: rgb(var(--state-info));
+    --cad-breakout: rgb(var(--state-warning));
+    --cad-accent: rgb(var(--brand-500));
+    --cad-accent-deep: rgb(var(--brand-600));
+    --cad-accent-soft: rgb(var(--brand-500) / 0.2);
+    --cad-accent-line: rgb(var(--brand-400) / 0.5);
+    --cad-offcut-bg: rgb(var(--brand-500) / 0.14);
+    --cad-offcut-line: rgb(var(--brand-400) / 0.45);
+    --cad-success-bg: rgb(var(--state-success) / 0.16);
+    --cad-success-line: rgb(var(--state-success) / 0.45);
+    --cad-success-ink: rgb(var(--state-success));
+    --cad-warning-bg: rgb(var(--state-warning) / 0.16);
+    --cad-warning-line: rgb(var(--state-warning) / 0.45);
+    --cad-warning-ink: rgb(var(--state-warning));
+    --cad-shadow: var(--shadow-panel);
+  }
+
+  [data-theme="daylight"] {
+    --cad-canvas: rgb(var(--ink-900));
+    --cad-surface: rgb(var(--ink-850));
+    --cad-keyline: rgb(var(--line) / 0.7);
+    --cad-line: rgb(var(--line-strong) / 0.85);
+    --cad-bed: rgb(var(--ink-700));
+    --cad-piece: rgb(var(--ink-800));
+    --cad-piece-rotated: rgb(var(--brand-100));
+    --cad-ink: rgb(var(--text-1));
+    --cad-text: rgb(var(--text-1));
+    --cad-muted: rgb(var(--text-3));
+    --cad-subtle: rgb(var(--text-4));
+    --cad-trim: rgb(var(--state-info));
+    --cad-breakout: rgb(var(--state-warning));
+    --cad-accent: rgb(var(--brand-500));
+    --cad-accent-deep: rgb(var(--brand-600));
+    --cad-accent-soft: rgb(var(--brand-100));
+    --cad-accent-line: rgb(var(--brand-400) / 0.45);
+    --cad-offcut-bg: rgb(var(--brand-50));
+    --cad-offcut-line: rgb(var(--brand-400) / 0.45);
+    --cad-success-bg: rgb(var(--state-success) / 0.14);
+    --cad-success-line: rgb(var(--state-success) / 0.4);
+    --cad-success-ink: rgb(var(--state-success));
+    --cad-warning-bg: rgb(var(--state-warning) / 0.16);
+    --cad-warning-line: rgb(var(--state-warning) / 0.45);
+    --cad-warning-ink: rgb(var(--state-warning));
+    --cad-shadow: var(--shadow-panel);
+  }
+
+  /* The panel a drawing sits on: the application's OptPanelCard, adapted to the active theme. */
   .studio-sheet {
     position: relative;
-    border-radius: 0.75rem;
-    border: 1px solid var(--cad-line);
+    border-radius: calc(var(--r-card) * var(--radius-scale));
+    border: var(--card-edge-width, 1px) solid var(--cad-line);
     background-color: var(--cad-surface);
+    background-image:
+      radial-gradient(120% 140% at 8% 0%, rgb(var(--brand-500) / var(--tint-mix, 0.08)) 0%, transparent 58%),
+      radial-gradient(120% 140% at 100% 100%, rgb(var(--brand-400) / calc(var(--tint-mix, 0.08) * 0.7)) 0%, transparent 62%);
     color: var(--cad-text);
     box-shadow: var(--cad-shadow);
   }
 
   /* A panel inside it — the application's OptInnerCard. */
   .studio-inset {
-    border-radius: 0.625rem;
+    border-radius: calc(0.625rem * var(--radius-scale));
     border: 1px solid var(--cad-keyline);
     background-color: var(--cad-canvas);
     color: var(--cad-text);
@@ -3420,7 +3481,7 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
 
   /* The sheet stage: the plate is drawn on this, as the app draws it. */
   .studio-stage {
-    border-radius: 0.5rem;
+    border-radius: calc(0.5rem * var(--radius-scale));
     border: 1.5px solid var(--cad-accent);
     background-color: var(--cad-bed);
   }
