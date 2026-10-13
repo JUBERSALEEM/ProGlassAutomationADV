@@ -30,3 +30,10 @@
 - Cross-check caught a P04 side effect: the regex migration replaced geometry, producing 42 malformed shadow items (`inset var(--clay-hi-2)rgb(255 255 255 / V)` — invalid CSS, browsers drop the item silently). Repaired all 42 from the 2cb8b32↔d1cd0bf diff ledger (geometry restored, color→role var): whole-file `)rgb(` syntax scan = 0. Disclosure: this class of defect passed ALL gates — the DSLs don't validate box-shadow item grammar; a syntax guard is queued (folded into P06 scanner).
 - §25 one-ring grammar: competing 3px-brand vs 2px-clay+halo focus rules unified to `--clay-focus` token (3px/offset 3px, brand-500 daylight / foil midnight) + one `:where(...):focus-visible` rule; press = transform-only (verified in btn-primary/card-interactive :active); chips exception documented at §21 door.
 - Gates: clay-paint 175/175 · contrast 87/87 · motion 12/12 · vitest 35/35 · census 522/600 · audit 0/0.
+
+
+## P06 — hard-coded color re-audit, scanner in place · completed 2026-10-13
+
+- Deliverable: scripts/color-liter-audit.mjs (repeatable; exit 1 on any unresolved item). Two guards: (1) malformed shadow-item syntax (the P05 regression class: color var glued to a bare rgb() or missing geometry); (2) every #rrggbb literal classified into token-declaration / registry-data (plates, money defaults, brushes, swatch sheets, studio picks) / documented-exceptions (print stylesheet paper grade, OG image SVG, brand specular stops) / inline dynamic styles.
+- Result on full src scan: 25 token-decl · 67 registry · 19 documented · 4 inline-dynamic · **0 unresolved** (it did catch 119 raw hexes on first pass, of which ~100 were color-quoting comments — comments are not colors; classifier strips them before classification).
+- Fresh exposures fixed along the way: none — every presentation color in the codebase already flows through tokens or is documented data.
