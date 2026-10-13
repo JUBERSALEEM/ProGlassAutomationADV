@@ -99,6 +99,13 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
   const activeFamily: AppearanceFamilyEntry =
     appearanceFamilies.find((entry) => entry.id === family) ?? appearanceFamilies[0]!;
 
+  /* Senior audit: a bench outside its family is veiled (pointer-events,
+     opacity) AND truly disabled. The veil alone stopped the mouse but not
+     the keyboard — a veiled dial still wrote invisible tokens, which is
+     the precise failure "plates/frost do nothing" reports. */
+  const clayGated = family !== "clay";
+  const glassGated = family !== "crystal";
+
   return (
     <>
       <button
@@ -111,7 +118,11 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
       >
         <span aria-hidden="true" className="flex items-center gap-1">
           <span className="h-4 w-4 rounded-full ring-2 ring-white/25" style={{ background: activeFamily.swatch }} />
-          <span className="h-4 w-4 -ml-2 rounded-full ring-2 ring-white/25" style={{ background: studio.accent ?? "#7E57CE" }} />
+          {/* The second dot is the LIVE accent: a picked plate if there is
+              one, the family's own colour if not. It used to fall back to a
+              house-violet literal — a fixed purple dot on every family,
+              asserting an accent the page does not wear. */}
+          <span className="h-4 w-4 -ml-2 rounded-full ring-2 ring-white/25" style={{ background: studio.accent ?? activeFamily.swatch }} />
         </span>
         <span>Theme &amp; colour</span>
         <span className="sr-only">{t("— open the theme studio. Current: {v1} mode, {v2} palette.", { v1: t(activeMode.label), v2: t(activeFamily.label) })}</span>
@@ -338,6 +349,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                       key={`${key}-${n}`}
                       type="button"
                       aria-pressed={studio[key] === n}
+                      disabled={clayGated}
                       onClick={() => setStudio({ [key]: n })}
                       className={cn(
                         "grid h-7 w-7 place-items-center rounded-full border-2 text-[0.68rem] font-bold transition-transform",
@@ -357,6 +369,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
             <button
               type="button"
               title={t("Copy a link carrying this whole studio — the bench rides in the URL")}
+              disabled={clayGated}
               onClick={() => {
                 const encoded = encodeStudio(studio);
                 const url = `${window.location.origin}${window.location.pathname}?studio=${encoded}`;
@@ -395,6 +408,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                   min={0.25}
                   max={3}
                   step={0.05}
+                  disabled={glassGated}
                   display={`${studio.glassFrost.toFixed(2)}×`}
                   onChange={(v) => setStudio({ glassFrost: v })}
                   hint={t("1.00 is the shipped recipe — 24px at 195% saturation, multiplied by this dial. 0.25 is nearly clear.")}
@@ -405,6 +419,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                 min={0.25}
                 max={3}
                 step={0.05}
+                disabled={glassGated}
                 display={`${studio.glassBody.toFixed(2)}×`}
                 onChange={(v) => setStudio({ glassBody: v })}
                 hint={t("1.00 keeps the family's tiers (0.55–0.92 by night, 0.82–0.99 by day). The engine never lets daylight body drop below 0.80 — text rides the fill, not the blur.")}
@@ -415,6 +430,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                 min={0}
                 max={3}
                 step={0.05}
+                disabled={glassGated}
                 display={`${studio.glassGlint.toFixed(2)}×`}
                 onChange={(v) => setStudio({ glassGlint: v })}
                 hint={t("0 reads as frosted plastic; 2.00 burns bright at the corners — the engine caps the light at 0.55 so the text field is never lifted.")}
@@ -423,6 +439,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
               {studio.glassFrost !== 1 || studio.glassBody !== 1 || studio.glassGlint !== 1 ? (
                 <button
                   type="button"
+                  disabled={glassGated}
                   onClick={() => setStudio({ glassFrost: 1, glassBody: 1, glassGlint: 1 })}
                   className="mt-2 text-[0.72rem] font-semibold text-text-faint underline-offset-2 hover:underline"
                 >

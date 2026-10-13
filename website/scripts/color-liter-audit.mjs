@@ -17,7 +17,6 @@ const files = [];
 })(SRC);
 
 const HEX = /#[0-9a-fA-F]{6}\b/g;
-const SHADOW_OK = /inset var\(--[\w-]+\)rgb\(|inset [a-z]:+var\(--/g;
 const problems = [];
 const tally = { tokenDecl: 0, accentRegistry: 0, socialOg: 0, inlineStyle: 0, cssRule: 0, cssTokenValue: 0 };
 
