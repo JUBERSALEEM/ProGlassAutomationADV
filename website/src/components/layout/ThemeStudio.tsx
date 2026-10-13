@@ -6,7 +6,6 @@ import { appearanceFamilies, themeModes, type AppearanceFamilyEntry, type ThemeM
 import { setThemeMode, useAppearance, useResolvedTheme, useThemeMode } from "@/lib/useTheme";
 import {
   bundledTypefaceKeys,
-  CLAY_PRESETS,
   installedTypefaceKeys,
   resetStudio,
   setAccent,
@@ -315,66 +314,9 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
             <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">
               {t("Six pastel plates plus the accent channels, recolored as one bench. Applies when the Clay family is active; the plum print on the plates never changes.")}
             </p>
-            <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {(Object.keys(CLAY_PRESETS) as (keyof typeof CLAY_PRESETS)[]).map((preset) => {
-                const tokens = CLAY_PRESETS[preset].tokens;
-                const dots = [tokens["--plate-1"], tokens["--plate-3"], tokens["--plate-4"], tokens["--plate-6"]];
-                return (
-                  <button
-                    key={preset}
-                    type="button"
-                    aria-pressed={studio.clayPreset === preset}
-                    onClick={() => setStudio({ clayPreset: preset })}
-                    className={cn(
-                      "flex flex-col items-center gap-1.5 rounded-card border-2 px-2 py-2 text-center transition-colors",
-                      studio.clayPreset === preset
-                        ? "border-brand-500/70 bg-brand-600/15"
-                        : "border-line-strong/60 hover:border-line-strong",
-                    )}
-                  >
-                    <span className="flex -space-x-1.5" aria-hidden="true">
-                      {dots.map((tripletValue) => (
-                        <span
-                          key={tripletValue}
-                          className="h-4 w-4 rounded-full ring-2 ring-white/40"
-                          style={{ background: `rgb(${tripletValue})` }}
-                        />
-                      ))}
-                    </span>
-                    <span className="text-[0.72rem] font-semibold text-text-primary">{t(CLAY_PRESETS[preset].label)}</span>
-                  </button>
-                );
-              })}
-            </div>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              <label className="flex items-center gap-2 rounded-card border-2 border-line-strong/70 bg-ink-900 px-2.5 py-1.5">
-                <input
-                  type="color"
-                  aria-label={t("Recolor the house plate")}
-                  value={studio.clayAccent || "#b8a6ff"}
-                  onChange={(event) => setStudio({ clayAccent: event.target.value })}
-                  className="h-8 w-10 shrink-0"
-                />
-                <span className="text-[0.72rem] font-semibold text-text-primary">{t("House plate, by hand")}</span>
-              </label>
-              <label className="flex items-center gap-2 rounded-card border-2 border-line-strong/70 bg-ink-900 px-2.5 py-1.5">
-                <input
-                  type="color"
-                  aria-label={t("Recolor the free plate")}
-                  value={studio.clayCustom || "#cec4ff"}
-                  onChange={(event) => setStudio({ clayCustom: event.target.value, clayPreset: "custom" })}
-                  className="h-8 w-10 shrink-0"
-                />
-                <span className="text-[0.72rem] font-semibold text-text-primary">{t("Free plate (.plate-custom)")}</span>
-              </label>
-            </div>
-            <button
-              type="button"
-              onClick={() => setStudio({ clayPreset: "house", clayAccent: "", clayCustom: "" })}
-              className="mt-2 text-[0.72rem] font-semibold text-text-faint underline-offset-2 hover:underline"
-            >
-              {t("Reset the bench to House")}
-            </button>
+            <p className="mt-2 text-[0.75rem] font-medium leading-relaxed text-text-muted">
+              {t("The bench is the colour plates above: pick any plate and every clay plate, face, shadow and pool re-derives hue-rotated from it — Material-You adoption, instantly. The plum ink never moves; the engine file stays untouched. Reset = Family accent above.")}
+            </p>
             <button
               type="button"
               title={t("Copy a link carrying this whole studio — the bench rides in the URL")}
@@ -406,8 +348,8 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
               <Slider
                 label={t("Frost — blur behind every pane")}
                 value={studio.glassFrost}
-                min={0.4}
-                max={1.6}
+                min={0.25}
+                max={3}
                 step={0.05}
                 display={`${studio.glassFrost.toFixed(2)}×`}
                 onChange={(v) => setStudio({ glassFrost: v })}
@@ -416,8 +358,8 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
               <Slider
                 label={t("Body — how solid the fills stand")}
                 value={studio.glassBody}
-                min={0.5}
-                max={1.5}
+                min={0.25}
+                max={3}
                 step={0.05}
                 display={`${studio.glassBody.toFixed(2)}×`}
                 onChange={(v) => setStudio({ glassBody: v })}
@@ -427,7 +369,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                 label={t("Glint — corner catch-light")}
                 value={studio.glassGlint}
                 min={0}
-                max={2}
+                max={3}
                 step={0.05}
                 display={`${studio.glassGlint.toFixed(2)}×`}
                 onChange={(v) => setStudio({ glassGlint: v })}

@@ -332,7 +332,7 @@ for (const mode of ["midnight", "daylight"]) {
    its extremes and the mid-point — and for each grid point recomputes the
    tier fills through the AST, the same arithmetic the page runs. */
 const DIAL_GRID = {
-  "--glass-body-mult": [0.5, 0.75, 1.5],
+  "--glass-body-mult": [0.25, 0.5, 0.75, 1.5, 3],
 };
 for (const lane of ["mainline", "fallback"]) {
   for (const mode of ["midnight", "daylight"]) {
@@ -404,5 +404,5 @@ test("G4·text: the engine never writes --text-/​--ink- tokens (glass is mater
 });
 
 test(`crystal contract complete: ${pass} pairs across 2 lanes × 2 modes, parsed not restated`, () => {
-  assert.ok(pass === 66, `expected 66 pairs (40 default + 24 bench-grid + 2 catch-peak), got ${pass}`);
+  assert.ok(pass === 82, `expected 82 pairs (40 default + 40 bench-grid (5 dial points) + 2 catch-peak), got ${pass}`);
 });

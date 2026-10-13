@@ -54,9 +54,11 @@ describe("glass bench — write-only-when-moved (G4 covenant 1)", () => {
 describe("glass bench — clamps (G4 covenant 2)", () => {
   it("out-of-range dials are clamped at write, so the inline var can never outrun the engine", () => {
     applyStudioVars({ ...defaultStudio, glassFrost: 99, glassBody: -4, glassGlint: 40 });
-    expect(prop("--glass-frost-mult")).toBe("1.60");
-    expect(prop("--glass-body-mult")).toBe("0.50");
-    expect(prop("--glass-glint-mult")).toBe("2.00");
+    /* dial bounds widened by decree (richness pass): frost/body 0.25–3,
+       glint 0–3 — the engine's own contract covers the extremes (87 pairs). */
+    expect(prop("--glass-frost-mult")).toBe("3.00");
+    expect(prop("--glass-body-mult")).toBe("0.25");
+    expect(prop("--glass-glint-mult")).toBe("3.00");
   });
 
   it("non-finite stored values degrade to the recipe on read (never NaN to the dom)", () => {

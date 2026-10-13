@@ -657,15 +657,15 @@ export function applyStudioVars(studio: Studio) {
      math there, not promises here). Under every family but crystal the
      vars are inert: no consumer reads them. */
   if (studio.glassFrost !== defaultStudio.glassFrost) {
-    const v = Math.min(1.6, Math.max(0.4, studio.glassFrost));
+    const v = Math.min(3, Math.max(0.25, studio.glassFrost));
     vars["--glass-frost-mult"] = v.toFixed(2);
   }
   if (studio.glassBody !== defaultStudio.glassBody) {
-    const v = Math.min(3, Math.max(0.5, studio.glassBody));
+    const v = Math.min(3, Math.max(0.25, studio.glassBody));
     vars["--glass-body-mult"] = v.toFixed(2);
   }
   if (studio.glassGlint !== defaultStudio.glassGlint) {
-    const v = Math.min(2, Math.max(0, studio.glassGlint));
+    const v = Math.min(3, Math.max(0, studio.glassGlint));
     vars["--glass-glint-mult"] = v.toFixed(2);
   }
 
@@ -803,6 +803,36 @@ export function applyStudioVars(studio: Studio) {
     vars["--pool-1"] = `rgb(${triplet(drop)} / ${target === "dark" ? 0.1 : 0.13})`;
     vars["--pool-2"] = `rgb(${triplet(hslToRgb({ h: (benchHue + 38) % 360, s: 0.7, l: 0.7 }))} / ${target === "dark" ? 0.05 : 0.1})`;
     vars["--pool-3"] = `rgb(${triplet(hslToRgb({ h: (benchHue + 322) % 360, s: 0.7, l: 0.72 }))} / ${target === "dark" ? 0.045 : 0.09})`;
+  }
+
+  /* Material-You adoption (user decree: color picked instantly from the MAIN
+     color plates — the Clay bench's house/free/preset slots are retired):
+     a picked accent re-derives the whole clay palette — six pastel plates,
+     six channels, faces, shadows, pools — hue-rotated from the accent itself.
+     clay-engine.css is untouched; the engine reads these tokens as its own. */
+  if (studio.accent) {
+    const { h: hub } = rgbToHsl(hexToTriplet(studio.accent));
+    const rot = (dh: number, s: number, l: number) =>
+      triplet(hslToRgb({ h: (hub + dh + 360) % 360, s, l }));
+    const plateHues = [0, 42, 88, 160, 220, 300];
+    plateHues.forEach((dh, i) => { vars[`--plate-${i + 1}`] = rot(dh, 0.6, 0.8); });
+    const chanHues = [0, 42, 88, 160, 220, 300];
+    const chanNames = ["lavender", "sky", "mint", "peach", "lemon", "pink"];
+    chanHues.forEach((dh, i) => { vars[`--clay-${chanNames[i]}`] = rot(dh, 0.68, 0.72); });
+
+    for (const [channel, base] of Object.entries(CLAY_CARD_BASE[target])) {
+      vars[channel] = twistTriplet(base, hub);
+    }
+    vars["--clay-drop-h"] = rot(0, 0.7, 0.5);
+    vars["--card-tint-h"] = rot(0, 0.55, 0.8);
+    vars["--card-tint-h2"] = rot(38, 0.6, 0.8);
+    vars["--clay-wash"] = (0.12 * studio.tint).toFixed(3);
+    vars["--panel-face"] = vars["--plate-1"]!;
+    vars["--plate-custom"] = vars["--plate-1"]!;
+    vars["--band-face"] = rot(0, 0.35, 0.945);
+    vars["--pool-1"] = `rgb(${rot(0, 0.7, 0.5)} / ${target === "dark" ? 0.1 : 0.13})`;
+    vars["--pool-2"] = `rgb(${rot(38, 0.7, 0.7)} / ${target === "dark" ? 0.05 : 0.1})`;
+    vars["--pool-3"] = `rgb(${rot(322, 0.7, 0.72)} / ${target === "dark" ? 0.045 : 0.09})`;
   }
 
   /*

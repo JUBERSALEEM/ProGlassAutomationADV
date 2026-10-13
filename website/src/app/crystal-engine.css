@@ -521,8 +521,8 @@
 @supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
   [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
     background-color: rgb(255 255 255 / var(--glass-lift-a));
-    backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%);
-    -webkit-backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%);
+    backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
+    -webkit-backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
   }
 }
 
@@ -540,8 +540,8 @@
   -webkit-backdrop-filter: blur(calc(12px * var(--glass-frost-mult, 1))) saturate(180%);
 }
 [data-appearance="crystal"] .eyebrow-chip {
-  backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(200%);
-  -webkit-backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(200%);
+  backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
+  -webkit-backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
 }
 [data-appearance="crystal"] table thead tr {
   backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1)));
@@ -839,6 +839,7 @@
 [data-appearance="crystal"] :is(.surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent),
 [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option):not(.decor):not(.glass-fab) {
   --glass-edge-a: min(calc(0.85 * var(--glass-glint-mult, 1)), 1);
+  --glass-sat: min(calc(150% + 55% * var(--glass-frost-mult, 1)), 350%);
   --glass-edge-light: rgb(255 255 255 / var(--glass-edge-a));
   --glass-edge-dark: rgb(2 6 14 / 0.18);
 }
@@ -847,8 +848,8 @@
 }
 @supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
   [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
-    backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%) brightness(var(--glass-bright, 1.08));
-    -webkit-backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%) brightness(var(--glass-bright, 1.08));
+    backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.08));
+    -webkit-backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.08));
   }
 }
 @media (prefers-reduced-transparency: reduce) {
@@ -878,8 +879,8 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%);
-  -webkit-backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(200%);
+  backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
+  -webkit-backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
   -webkit-mask-image: linear-gradient(180deg, black 62%, transparent 98%);
   mask-image: linear-gradient(180deg, black 62%, transparent 98%);
 }
@@ -926,8 +927,6 @@
 @supports (corner-shape: squircle) {
   [data-appearance="crystal"] :is(.surface, .surface-raised, .menu-card, .plate, .card-live, .panel-feature, .chip, .glass-row, .glass-bar, .glass-fab) {
     corner-shape: squircle;
-    border-radius: 32px;
-    border-radius: round;
   }
 }
 
