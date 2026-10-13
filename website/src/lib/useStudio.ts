@@ -814,22 +814,31 @@ export function applyStudioVars(studio: Studio) {
     const { h: hub } = rgbToHsl(hexToTriplet(studio.accent));
     const rot = (dh: number, s: number, l: number) =>
       triplet(hslToRgb({ h: (hub + dh + 360) % 360, s, l }));
-    const plateHues = [0, 42, 88, 160, 220, 300];
-    plateHues.forEach((dh, i) => { vars[`--plate-${i + 1}`] = rot(dh, 0.6, 0.8); });
+    const plateHues: Array<[number, number, number]> = [[0, 0.62, 0.8], [55, 0.58, 0.72], [110, 0.6, 0.82], [180, 0.56, 0.74], [245, 0.62, 0.8], [310, 0.58, 0.72]];
+    plateHues.forEach(([dh, s, l], i) => { vars[`--plate-${i + 1}`] = rot(dh, s, l); });
     const chanHues = [0, 42, 88, 160, 220, 300];
     const chanNames = ["lavender", "sky", "mint", "peach", "lemon", "pink"];
     chanHues.forEach((dh, i) => { vars[`--clay-${chanNames[i]}`] = rot(dh, 0.68, 0.72); });
 
+    /* LAYER SEPARATION (user decree: "main card color vs cards — both should
+       be different"): the Material-You discipline is surfaces at a WHISPER of
+       the hue (blend 0.16, luminance untouched — the contrast locks hold),
+       chroma in the plates + wallpaper. The 0.72 blend was washing every face
+       to the accent's own color — the monoculture the user saw. */
     for (const [channel, base] of Object.entries(CLAY_CARD_BASE[target])) {
-      vars[channel] = twistTriplet(base, hub);
+      vars[channel] = twistTriplet(base, hub, 0.16);
     }
-    vars["--clay-drop-h"] = rot(0, 0.7, 0.5);
-    vars["--card-tint-h"] = rot(0, 0.55, 0.8);
-    vars["--card-tint-h2"] = rot(38, 0.6, 0.8);
-    vars["--clay-wash"] = (0.12 * studio.tint).toFixed(3);
+    /* Hardness + richness of the mould: the drop grounds at its own hue,
+       DEEPER (0.78/0.38 — the pillow reads weight, not mist); the interior
+       wash deepens with the dial (0.16× — the plate's puff is felt); the
+       band pulls NEUTRAL so plates and bands never share one wash. */
+    vars["--clay-drop-h"] = rot(0, 0.78, 0.38);
+    vars["--card-tint-h"] = rot(0, 0.5, 0.82);
+    vars["--card-tint-h2"] = rot(38, 0.55, 0.82);
+    vars["--clay-wash"] = (0.16 * studio.tint).toFixed(3);
     vars["--panel-face"] = vars["--plate-1"]!;
     vars["--plate-custom"] = vars["--plate-1"]!;
-    vars["--band-face"] = rot(0, 0.35, 0.945);
+    vars["--band-face"] = rot(0, 0.22, 0.955);
     vars["--pool-1"] = `rgb(${rot(0, 0.7, 0.5)} / ${target === "dark" ? 0.1 : 0.13})`;
     vars["--pool-2"] = `rgb(${rot(38, 0.7, 0.7)} / ${target === "dark" ? 0.05 : 0.1})`;
     vars["--pool-3"] = `rgb(${rot(322, 0.7, 0.72)} / ${target === "dark" ? 0.045 : 0.09})`;
