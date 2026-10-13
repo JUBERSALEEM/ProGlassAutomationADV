@@ -697,7 +697,14 @@ export function applyStudioVars(studio: Studio) {
     const { h: hub } = rgbToHsl(hexToTriplet(studio.accent ?? FAMILY_ACCENT[family]!));
     const rot = (dh: number, s: number, l: number) =>
       triplet(hslToRgb({ h: (hub + dh + 360) % 360, s, l }));
-    const plateHues: Array<[number, number, number]> = [[0, 0.62, 0.8], [55, 0.58, 0.72], [110, 0.6, 0.82], [180, 0.56, 0.74], [245, 0.62, 0.8], [310, 0.58, 0.72]];
+    /* P14 — the bench narrows to the accent's own arc. The six offsets
+       used to span the whole hue circle (0/55/110/180/245/310), so any
+       pick painted a full rainbow — the fuchsia-on-salmon tiles and the
+       lone violet tile on the green page of the 13:17 screenshots. Six
+       tones remain (the noria keeps its carousel), all inside a ±92°
+       analogous arc of the picked hue: cousins, not confetti — the
+       reference boards work the same kind of arc. */
+    const plateHues: Array<[number, number, number]> = [[0, 0.62, 0.8], [32, 0.58, 0.72], [62, 0.6, 0.82], [92, 0.56, 0.74], [298, 0.62, 0.8], [328, 0.58, 0.72]];
     plateHues.forEach(([dh, s, l], i) => { vars[`--plate-${i + 1}`] = rot(dh, s, l); });
     const chanHues = [0, 42, 88, 160, 220, 300];
     const chanNames = ["lavender", "sky", "mint", "peach", "lemon", "pink"];
@@ -714,6 +721,33 @@ export function applyStudioVars(studio: Studio) {
        as family, not clone. */
     for (const [channel, base] of Object.entries(CLAY_CARD_BASE[target])) {
       vars[channel] = twistTriplet(base, hub, 0.72);
+    }
+    /* P14a — the verb follows the bench. --clay-coral was a house coral
+       literal (230 110 96): the "Email the developer" pill stayed coral
+       under an orange pick, a green pick, everything — the "hard coded
+       button" of the 13:17 review. Now the action hue IS the bench hue,
+       with the coral's own contract kept: white bold labels hold ≥3.2:1
+       (the house coral's documented 3.1:1 + margin). Lightness is SOLVED
+       per hue — greens and yellows sit perceptually far lighter than red
+       or blue at equal HSL-L, so one fixed recipe would wash their labels
+       out. coral-h steps with it, same relation as the house pair. */
+    {
+      const lumOf = (tp: string) => {
+        const { r, g, b } = tripletToRgb(tp);
+        const f = (c: number) => { const s = c / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; };
+        return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+      };
+      let coralL = 0.64;
+      const coralS = 0.72;
+      while (coralL > 0.36 && 1.05 / (lumOf(triplet(hslToRgb({ h: hub, s: coralS, l: coralL }))) + 0.05) < 3.2) coralL -= 0.01;
+      vars["--clay-coral"] = triplet(hslToRgb({ h: hub, s: coralS, l: coralL }));
+      vars["--clay-coral-h"] = triplet(hslToRgb({ h: hub, s: Math.min(0.85, coralS + 0.06), l: Math.max(0.3, coralL - 0.07) }));
+      /* The navy foil (utility panes, the neutral badges on the dossier)
+         was the last accent-deaf chip: fixed plum under any pick. Same
+         twist contract the ink channels above already carry — hue only,
+         luminance untouched, the contrast locks hold. Kept in rgb() form:
+         its bare-var consumers expect the wrapped value. */
+      vars["--clay-foil"] = `rgb(${twistTriplet("46 34 62", hub, 0.72)})`;
     }
     /* Hardness + richness of the mould: the drop grounds at its own hue,
        DEEPER (0.78/0.38 — the pillow reads weight, not mist); the interior
@@ -737,10 +771,17 @@ export function applyStudioVars(studio: Studio) {
       /* D1 recalibration (P02): paler steps KEEP SATURATION — hue stays,
          +0.10/+0.05 s as lightness rises; a lighter-but-pale tile read
          as "white card with blue shadow" (user screenshots 10:42).
-         Midnight dims slightly instead — plastic glare guard. */
-      vars["--card-face"] = rot(cd[0], cd[1], target === "dark" ? 0.3 : cd[2]);
-      vars["--data-face"] = rot(cd[0], Math.min(0.78, cd[1] + 0.1), target === "dark" ? 0.37 : Math.min(0.95, cd[2] + 0.055));
-      vars["--overlay-face"] = rot(cd[0], Math.min(0.72, cd[1] + 0.05), target === "dark" ? 0.26 : Math.min(0.97, cd[2] + 0.115));
+         Midnight dims slightly instead — plastic glare guard.
+         P14 recalibration: full plate saturation at L≤0.37 read as neon
+         brick on OLED (the 13:17 dossier slab and meta tiles). Midnight
+         now caps chroma at clay-wall levels (s≤0.45/0.5/0.4) and steps
+         the ladder apart in LIGHTNESS instead — overlay 0.26 < card 0.29
+         < data 0.34 — hue untouched. White value text holds ≥4.5:1 even
+         on the perceptually lightest (green) hue; daylight keeps the
+         D1 recipe unchanged. */
+      vars["--card-face"] = rot(cd[0], target === "dark" ? Math.min(cd[1], 0.45) : cd[1], target === "dark" ? 0.29 : cd[2]);
+      vars["--data-face"] = rot(cd[0], target === "dark" ? Math.min(cd[1] + 0.1, 0.5) : Math.min(0.78, cd[1] + 0.1), target === "dark" ? 0.34 : Math.min(0.95, cd[2] + 0.055));
+      vars["--overlay-face"] = rot(cd[0], target === "dark" ? Math.min(cd[1] + 0.05, 0.4) : Math.min(0.72, cd[1] + 0.05), target === "dark" ? 0.26 : Math.min(0.97, cd[2] + 0.115));
     }
     /* P10 PAPER MODE (ref: ClayDash cream / ClayHub fog): the ambient goes
        neutral paper so the plates IGNITE — band at s0.12 (a hue whisper),

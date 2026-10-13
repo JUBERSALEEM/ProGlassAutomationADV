@@ -93,3 +93,20 @@
 - Change (page, the "broken main card layer"): /developer's gaps list wore `.card-accent` ×4 — the pastel accent grammar (the deliberate 10% of the 70/20/10 budget) used as the section's MAIN content cards: four peach slabs floating on the dark page, hierarchy inverted at midnight. The list now wears `.card-live` (the same live card the five story cards wear); the single closing "You talk" card keeps card-accent as the one intentional pastel accent. Error/collaborate/sponsors/legal/home accent cards are single-use and stay.
 - New contract test (#37): midnight clay + orange pick ⇒ the band tokens are written, the lit band's red channel leads its blue (violet impossible), the ladder deep < lit < card-face holds, and white band ink keeps ≥7:1 on the lit band.
 - Gates: vitest 37/37 · clay-paint 175/175 · contrast 87/87 · motion 12/12 · color-audit 0 · census 100% · audit 0/0 · crystal-contrast green.
+
+
+## P14 — the verb joins the bench (user witness: "hard coded button… make these dynamic") · completed 2026-10-13
+
+- Witness evidence: 13:17 deployed midnight screenshots of /developer, same page under two picked accents. Rotation confirmed working (page, bands, dossier, tiles all re-hued), but four elements read wrong: the primary pill stayed house-coral in BOTH shots; the meta tiles and the whole dossier painted as saturated neon bricks (picked-midnight ladder at s0.62–0.72, L0.30–0.37); the stat-tile noria showed fuchsia-on-salmon and violet-on-green mixes (plate offsets spanning the full hue circle); the neutral badges stayed fixed navy under every accent.
+- Root cause set (four literals/stale recipes, all adoption-side — stylesheet defaults untouched, so the house look and every harness floor keep guarding the shipped paint):
+  1. `--clay-coral`/`--clay-coral-h` were constants (230 110 96 / 230 81 68) — the only button family whose hue no token could move.
+  2. D1's midnight ladder values predate OLED-picked accents: full plate chroma at L≤0.37 glows as brick.
+  3. plateHues offsets [0,55,110,180,245,310] = full-circle rainbow under any hub.
+  4. `--clay-foil` (neutral badges/utility panes) never twisted with the ink channels.
+- Changes (useStudio adoption block only):
+  • The verb takes the bench hue with its own contract preserved: white bold labels ≥3.2:1 (house coral documents 3.1:1) — lightness is SOLVED per hue (greens/yellows sit perceptually lighter; one recipe would wash their labels). coral-h steps with it.
+  • Midnight ladder recalibrated: chroma capped (s≤0.45/0.5/0.4), the three steps separate in lightness instead (overlay 0.26 < card 0.29 < data 0.34). Daylight recipe unchanged (D1 richness stays).
+  • Noria compressed to an analogous arc ±92° around the picked hue — six distinct pastel cousins, never confetti.
+  • `--clay-foil` twists with the hub at the ink channels' own contract (hue-only, luminance untouched), keeping its rgb()-wrapped form.
+- New contract test (#38, worst-hue aware): for orange/green/blue picks at midnight — coral ≠ house literal AND white ≥3.2:1; all three ladder faces hold white ≥4.5:1 and their luminance order; every plate sits within 96° of the bench hue; the foil left its navy literal.
+- Gates: vitest 38/38 · clay-paint 175/175 · contrast 87/87 (crystal) + 25/25 (clay) · motion 12/12 · color-audit 0 · census 100% · build+tsc+eslint clean.

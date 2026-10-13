@@ -8,7 +8,31 @@ const CLAY_TOKENS = [
   "--panel-face", "--band-face", "--card-face", "--data-face", "--overlay-face",
   "--clay-drop-h", "--card-tint-h", "--card-tint-h2", "--clay-wash",
   "--band-rich-h", "--band-deep-h", "--band-glow-h",
+  "--clay-coral", "--clay-coral-h", "--clay-foil",
 ];
+
+/* P14 helpers — local copies so the contract holds the numbers itself. */
+const hslOf = (tp: string) => {
+  const [r255 = 0, g255 = 0, b255 = 0] = tp.split(" ").map(Number);
+  const r = r255 / 255, g = g255 / 255, b = b255 / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+  let h = 0;
+  if (d !== 0) {
+    if (max === r) h = 60 * (((g - b) / d) % 6);
+    else if (max === g) h = 60 * ((b - r) / d + 2);
+    else h = 60 * ((r - g) / d + 4);
+  }
+  return { h: (h + 360) % 360, s, l };
+};
+const whiteCR = (tp: string) => {
+  const [r = 0, g = 0, b = 0] = tp.split(" ").map(Number);
+  const f = (c: number) => { const s = c / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; };
+  const L = 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  return 1.05 / (L + 0.05);
+};
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -142,6 +166,39 @@ describe("tonal ladder — nesting reads as material, not shadows", () => {
     const [r2 = 0, g2 = 0, b2 = 0] = rich.split(" ").map(Number);
     const L = 0.2126 * lin(r2) + 0.7152 * lin(g2) + 0.0722 * lin(b2);
     expect(1.05 / (L + 0.05)).toBeGreaterThanOrEqual(7);
+  });
+
+  it("P14 the action hue is the bench hue — coral, ladder and plates all follow, all floored", () => {
+    document.documentElement.dataset.appearance = "clay";
+    document.documentElement.dataset.theme = "midnight";
+    for (const accent of ["#f97316", "#22c55e", "#3b82f6"]) {
+      applyStudioVars({ ...defaultStudio, accent });
+      const coral = document.documentElement.style.getPropertyValue("--clay-coral");
+      /* the verb left its house literal and its white label still holds 3.2:1 */
+      expect(coral).not.toBe("");
+      expect(coral).not.toBe("230 110 96");
+      expect(whiteCR(coral)).toBeGreaterThanOrEqual(3.2);
+      /* the midnight ladder: calm clay, never neon brick — white value text ≥4.5:1 */
+      expect(whiteCR(document.documentElement.style.getPropertyValue("--card-face"))).toBeGreaterThanOrEqual(4.5);
+      expect(whiteCR(document.documentElement.style.getPropertyValue("--data-face"))).toBeGreaterThanOrEqual(4.5);
+      expect(whiteCR(document.documentElement.style.getPropertyValue("--overlay-face"))).toBeGreaterThanOrEqual(4.5);
+      /* the ladder keeps its order in luminance */
+      const lumToken = (k: string) => { const [r = 0, g = 0, b = 0] = document.documentElement.style.getPropertyValue(k).split(" ").map(Number); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+      expect(lumToken("--data-face")).toBeGreaterThan(lumToken("--card-face"));
+      expect(lumToken("--card-face")).toBeGreaterThan(lumToken("--overlay-face"));
+      /* the noria narrowed to the accent's analogous arc: no tile may sit
+         more than 96° away from the bench hue (fuchsia-on-salmon dies) */
+      const hub = hslOf(document.documentElement.style.getPropertyValue("--clay-lavender")).h; /* channel 0 rides the hub */
+      for (let i = 1; i <= 6; i++) {
+        const ph = hslOf(document.documentElement.style.getPropertyValue(`--plate-${i}`)).h;
+        const dist = Math.abs(((ph - hub + 540) % 360) - 180);
+        expect(dist).toBeLessThanOrEqual(96);
+      }
+      /* the navy foil joined the family too */
+      const foil = document.documentElement.style.getPropertyValue("--clay-foil");
+      expect(foil).not.toBe("");
+      expect(foil).not.toBe("rgb(46 34 62)");
+    }
   });
 
   it("green accent → green shadows (the mould follows the bench)", () => {
