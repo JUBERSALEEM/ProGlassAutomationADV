@@ -400,11 +400,11 @@
    body, ~4.7:1 muted; the pastel stays because it IS the family. Its
    button is the white pill the references draw on lavender. */
 [data-appearance="clay"] .glass-primary {
-  background-color: rgb(var(--clay-lavender));
+  background-color: rgb(var(--band-rich-h));
   background-image: none;
   box-shadow: var(--shadow-float),
     inset 5px 5px 10px var(--clay-hi-2),
-    inset -7px -7px 14px rgb(92 60 220 / 0.28);
+    inset -7px -7px 14px rgb(var(--band-glow-h) / 0.28);
   --text-1: var(--clay-ink);
   --text-2: 40 36 56;
   --text-3: 51 45 72;
@@ -415,7 +415,7 @@
   background-color: rgb(252 250 255);
   background-image: none;
   color: rgb(var(--brand-700));
-  box-shadow: 8px 8px 18px rgb(92 60 220 / 0.3),
+  box-shadow: 8px 8px 18px rgb(var(--band-glow-h) / 0.3),
     inset 3px 3px 6px var(--clay-lip),
     inset -4px -4px 8px rgb(var(--brand-700) / 0.2);
 }
@@ -441,7 +441,7 @@
 /* The closing band echoes the feature plate at page scale: solid lavender,
    plum ink, white pills. Midnight keeps the dark plum plate instead. */
 [data-appearance="clay"] .band-deep {
-  background-color: rgb(var(--panel-face));
+  background-color: rgb(var(--band-deep-h));
   background-image: none;
   --text-1: var(--clay-ink);
   --text-2: 40 36 56;
@@ -454,7 +454,7 @@
   background-color: rgb(252 250 255);
   background-image: none;
   color: rgb(var(--brand-700));
-  box-shadow: 8px 8px 18px rgb(92 60 220 / 0.3),
+  box-shadow: 8px 8px 18px rgb(var(--band-glow-h) / 0.3),
     inset 3px 3px 6px var(--clay-lip),
     inset -4px -4px 8px rgb(var(--brand-700) / 0.2);
 }
@@ -463,9 +463,9 @@
   background-color: rgb(var(--clay-raised));
   background-image: none;
   color: rgb(var(--brand-700));
-  box-shadow: 6px 6px 14px rgb(92 60 220 / 0.22),
+  box-shadow: 6px 6px 14px rgb(var(--band-glow-h) / 0.22),
     inset 3px 3px 6px var(--clay-lip),
-    inset -4px -4px 8px rgb(92 60 220 / 0.18);
+    inset -4px -4px 8px rgb(var(--band-glow-h) / 0.18);
 }
 
 /* Clip-text gradients die on saturated ground; on clay they re-read in the
@@ -771,7 +771,7 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
   background-color: rgb(var(--plate-4) / 0.13);
 }
 [data-appearance="clay"] .band-rich {
-  background-color: rgb(var(--clay-lavender));
+  background-color: rgb(var(--band-rich-h));
   background-image: none;
   --text-1: var(--clay-ink);
   --text-2: 40 36 56;
@@ -780,13 +780,13 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
   color: rgb(var(--text-2));
   box-shadow: var(--shadow-panel),
     inset 4px 4px 8px var(--clay-hi-2),
-    inset -6px -6px 12px rgb(92 60 220 / 0.22);
+    inset -6px -6px 12px rgb(var(--band-glow-h) / 0.22);
 }
 [data-appearance="clay"] .band-rich .btn-primary {
   border-color: transparent;
   background-color: rgb(252 250 255);
   color: rgb(var(--brand-700));
-  box-shadow: 8px 8px 18px rgb(92 60 220 / 0.3),
+  box-shadow: 8px 8px 18px rgb(var(--band-glow-h) / 0.3),
     inset 1px 1px 3px var(--clay-lip),
     inset -4px -4px 8px rgb(var(--brand-700) / 0.2);
 }
@@ -1009,7 +1009,7 @@ html[data-theme="daylight"][data-appearance="clay"] :is([class*="bg-ink-"], [cla
    with plum ink, in both bands, in both modes (the near-black
    .btn-secondary on the closing band was brand-700 text on ink-850). */
 html[data-theme="midnight"][data-appearance="clay"] .band-deep {
-  background-color: rgb(50 34 76);
+  background-color: rgb(var(--band-deep-h));
   background-image: none;
   --text-1: 255 255 255;
   --text-2: 243 240 252;
@@ -1018,7 +1018,7 @@ html[data-theme="midnight"][data-appearance="clay"] .band-deep {
   color: rgb(var(--text-2));
 }
 html[data-theme="midnight"][data-appearance="clay"] .band-rich {
-  background-color: rgb(60 42 94);
+  background-color: rgb(var(--band-rich-h));
   background-image: none;
   --text-1: 255 255 255;
   --text-2: 243 240 252;
@@ -1039,7 +1039,7 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
   color: rgb(var(--clay-ink));
   box-shadow: 8px 8px 18px rgb(18 10 38 / 0.42),
     inset 3px 3px 6px var(--clay-lip),
-    inset -4px -4px 8px rgb(140 108 255 / 0.24);
+    inset -4px -4px 8px rgb(var(--clay-drop-h) / 0.24);
 }
 
 /* §9.6 Strokes die where a corner lives. A drawn 2px edge around a rounded
@@ -1940,7 +1940,7 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
   background-color: rgb(252 250 255);
   background-image: none;
   color: rgb(var(--brand-700));
-  box-shadow: 8px 8px 18px rgb(92 60 220 / 0.3),
+  box-shadow: 8px 8px 18px rgb(var(--band-glow-h) / 0.3),
     inset 3px 3px 6px var(--clay-lip),
     inset -4px -4px 8px rgb(var(--brand-700) / 0.2);
 }
@@ -1955,7 +1955,7 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
 /* §12.3 At midnight the dream band draws from the midnight family,
    inheriting §951's recipe — plum ground, light tokens, porcelain pills. */
 html[data-theme="midnight"][data-appearance="clay"] .glass-primary {
-  background-color: rgb(50 34 76);
+  background-color: rgb(var(--band-deep-h));
   background-image: none;
   box-shadow: 12px 12px 30px rgb(10 6 24 / 0.55),
     inset 0 1.5px 0 var(--clay-hi-2),
@@ -1974,7 +1974,7 @@ html[data-theme="midnight"][data-appearance="clay"] .glass-primary :is(.btn-prim
   color: rgb(var(--clay-ink));
   box-shadow: 8px 8px 18px rgb(18 10 38 / 0.42),
     inset 5px 5px 11px var(--clay-lip),
-    inset -4px -4px 8px rgb(140 108 255 / 0.24);
+    inset -4px -4px 8px rgb(var(--clay-drop-h) / 0.24);
 }
 
 /* §12.4 The dossier plate (.panel-feature — the developer story panel on
@@ -2046,6 +2046,18 @@ html[data-theme="midnight"][data-appearance="clay"] .panel-feature {
      so the foil face never actually rendered. Theme scope keeps the two
      modes honest side by side. */
   --band-face: 239 234 252;
+  /* P13 — the zone bands' faces and mould glow, tokenised so the Studio
+     adoption block can re-hue them with the accent. Their faces used to
+     be house-violet literals no token could reach (.band-rich 60 42 94,
+     .band-deep/.glass-primary 50 34 76 at midnight; the full-saturation
+     lavender channel by day) — every picked accent stranded violet islands
+     on the page (the 12:44/12:46 screenshots). Daylight defaults resolve
+     to exactly what the literals painted; the midnight pair lives in the
+     theme block right below, so the house look is byte-stable while the
+     studio may move both. */
+  --band-rich-h: var(--clay-lavender);
+  --band-deep-h: var(--panel-face);
+  --band-glow-h: 92 60 220;
   /* §19 — the on-screen cards' face. Every CARD-class surface (.surface,
      .stat-tile, .surface-raised, .card-live, .float-card, .card-glass,
      .plate, the utility-matched rounded panes) reads this, while chrome
@@ -2071,6 +2083,10 @@ html[data-theme="midnight"][data-appearance="clay"] {
   --card-face: 62 40 94;
   --data-face: 76 50 112;
   --overlay-face: 52 32 76;
+  /* P13 midnight zone faces — the values the band literals always painted;
+     the studio's adoption block re-hues them with a picked accent. */
+  --band-rich-h: 60 42 94;
+  --band-deep-h: 50 34 76;
 }
 
 [data-appearance="clay"] {

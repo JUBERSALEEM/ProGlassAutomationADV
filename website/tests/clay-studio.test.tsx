@@ -7,6 +7,7 @@ const CLAY_TOKENS = [
   "--clay-lavender", "--clay-sky", "--clay-mint", "--clay-peach", "--clay-lemon", "--clay-pink",
   "--panel-face", "--band-face", "--card-face", "--data-face", "--overlay-face",
   "--clay-drop-h", "--card-tint-h", "--card-tint-h2", "--clay-wash",
+  "--band-rich-h", "--band-deep-h", "--band-glow-h",
 ];
 
 beforeEach(() => {
@@ -114,6 +115,33 @@ describe("tonal ladder — nesting reads as material, not shadows", () => {
     };
     /* the band is near-neutral paper; the card family keeps the hue */
     expect(pur("--card-face")).toBeGreaterThan(pur("--band-face") * 2);
+  });
+
+  it("P13 one hue family: the zone bands leave their violet literals for the accent", () => {
+    document.documentElement.dataset.appearance = "clay";
+    document.documentElement.dataset.theme = "midnight";
+    applyStudioVars({ ...defaultStudio, accent: "#f97316" });
+    const rich = document.documentElement.style.getPropertyValue("--band-rich-h");
+    const deep = document.documentElement.style.getPropertyValue("--band-deep-h");
+    const glow = document.documentElement.style.getPropertyValue("--band-glow-h");
+    expect(rich).not.toBe("");
+    expect(deep).not.toBe("");
+    expect(glow).not.toBe("");
+    const [rr = 0, , rb = 0] = rich.split(" ").map(Number);
+    /* warm accent → warm lit band; the stranded violet slab is gone */
+    expect(rr).toBeGreaterThan(rb);
+    /* the zone ladder holds: sunken below lit band below the card face */
+    const lum = (k: string) => {
+      const [r = 0, g = 0, b = 0] = document.documentElement.style.getPropertyValue(k).split(" ").map(Number);
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    expect(lum("--band-rich-h")).toBeGreaterThan(lum("--band-deep-h"));
+    expect(lum("--card-face")).toBeGreaterThan(lum("--band-rich-h"));
+    /* and the lit band still answers 7:1 to the white band ink */
+    const lin = (c: number) => { const s = c / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; };
+    const [r2 = 0, g2 = 0, b2 = 0] = rich.split(" ").map(Number);
+    const L = 0.2126 * lin(r2) + 0.7152 * lin(g2) + 0.0722 * lin(b2);
+    expect(1.05 / (L + 0.05)).toBeGreaterThanOrEqual(7);
   });
 
   it("green accent → green shadows (the mould follows the bench)", () => {

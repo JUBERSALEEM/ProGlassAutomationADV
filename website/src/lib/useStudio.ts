@@ -752,6 +752,19 @@ export function applyStudioVars(studio: Studio) {
       vars["--pool-1"] = `rgb(${rot(0, 0.35, 0.72)} / ${target === "dark" ? 0.07 : 0.09})`;
       vars["--pool-2"] = `rgb(${rot(38, 0.35, 0.78)} / ${target === "dark" ? 0.045 : 0.07})`;
       vars["--pool-3"] = `rgb(${rot(330, 0.35, 0.8)} / ${target === "dark" ? 0.04 : 0.06})`;
+      /* P13 ONE HUE FAMILY (ref: user 12:44/12:46 screenshots — violet
+         islands under an orange/green bench): the zone bands finally read
+         the adoption. Their faces used to be house-violet literals that
+         no token reached (.band-rich 60 42 94, .band-deep/glass-primary
+         50 34 76 at midnight; full-saturation --clay-lavender channel by
+         day), so every picked accent stranded violet slabs on the page.
+         Now the zones hue-rotate with the bench like cards and pools:
+         sunken deep, lit band one step under the card face at midnight,
+         paper-lit whispers by day — the purple the user asked about is
+         gone unless purple is the pick. */
+      vars["--band-rich-h"] = rot(-24, 0.3, target === "dark" ? 0.235 : 0.93);
+      vars["--band-deep-h"] = rot(-24, 0.26, target === "dark" ? 0.19 : 0.9);
+      vars["--band-glow-h"] = rot(0, 0.8, target === "dark" ? 0.5 : 0.42);
     } else {
       vars["--band-face"] = rot(-24, 0.3, 0.948);
       vars["--pool-1"] = `rgb(${rot(0, 0.7, 0.5)} / ${target === "dark" ? 0.1 : 0.13})`;

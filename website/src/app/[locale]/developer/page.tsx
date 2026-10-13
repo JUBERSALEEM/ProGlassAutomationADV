@@ -749,7 +749,13 @@ const faq = [
 
             <ul className="grid gap-3 sm:grid-cols-2">
               {gaps.map((gap) => (
-                <li key={t(gap.title)} className="card-accent p-4">
+                /* The gaps are the section's MAIN content cards, so they
+                   wear the standard live card, not .card-accent: a pastel
+                   accent slab is the 10% of the 70/20/10 budget, and four
+                   of them on this grid at midnight inverted the page —
+                   the "white slabs on the dark page" the 12:44 review
+                   flagged. The single closing card below keeps card-accent. */
+                <li key={t(gap.title)} className="card-live p-4">
                   <h3 className="text-sm font-semibold text-text-primary">{t(gap.title)}</h3>
                   <p className="mt-2 text-xs leading-relaxed text-text-secondary">{t(gap.body)}</p>
                 </li>
