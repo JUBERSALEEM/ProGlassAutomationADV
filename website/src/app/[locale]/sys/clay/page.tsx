@@ -86,13 +86,6 @@ export default async function ClayCatalogPage({ params }: PageProps) {
                 <p className="text-xs font-semibold">Plate {index + 1}</p>
               </div>
             ))}
-            <div
-              className="plate-custom flex min-h-24 flex-col justify-between rounded-card p-4"
-              style={{ "--plate-custom": "255 208 220" } as React.CSSProperties}
-            >
-              <p className="mono-label !text-[0.6rem]">.plate-custom</p>
-              <p className="text-xs font-semibold">{t("Hand set")}</p>
-            </div>
           </div>
         </Container>
       </Section>

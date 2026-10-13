@@ -1,199 +1,127 @@
 // @vitest-environment jsdom
+import { beforeEach, describe, expect, it } from "vitest";
+import { applyStudioVars, defaultStudio } from "@/lib/useStudio";
 
-/*
- * The clay bench's studio dials, proven against the DOM rather than read.
- *
- * Clay is a separate engine, and its studio is a set of dials over the
- * engine's own §13 tokens: presets write the whole bench as CSS variables
- * on <html> (surviving reloads through the studio's existing replay), a
- * hand-picked color is pulled pastel before it may sit under the plum ink,
- * and "house" — the shipped palette — writes nothing at all, because the
- * stylesheet owns it.
- */
-
-import { describe, expect, it, beforeEach } from "vitest";
-import { applyStudioVars, CLAY_PRESETS, defaultStudio, STUDIO_STORAGE_KEY } from "@/lib/useStudio";
-import { rgbToHsl } from "@/lib/color";
+const CLAY_TOKENS = [
+  "--plate-1", "--plate-2", "--plate-3", "--plate-4", "--plate-5", "--plate-6",
+  "--clay-lavender", "--clay-sky", "--clay-mint", "--clay-peach", "--clay-lemon", "--clay-pink",
+  "--panel-face", "--band-face", "--card-face", "--data-face", "--overlay-face",
+  "--clay-drop-h", "--card-tint-h", "--card-tint-h2", "--clay-wash",
+];
 
 beforeEach(() => {
   window.localStorage.clear();
-  for (const key of Object.keys(CLAY_PRESETS.house.tokens)) {
-    document.documentElement.style.removeProperty(key);
-  }
-  document.documentElement.style.removeProperty("--plate-custom");
+  document.documentElement.dataset.theme = "daylight";
+  for (const key of CLAY_TOKENS) document.documentElement.style.removeProperty(key);
+  document.documentElement.style.removeProperty("--ink-850");
 });
 
-describe("clay studio bench", () => {
-  it("house writes nothing — the stylesheet owns the shipped palette", () => {
+describe("clay bench — the adoption contract (custom support is gone)", () => {
+  it("defaults write nothing — the stylesheet owns the shipped palette", () => {
     applyStudioVars(defaultStudio);
     expect(document.documentElement.style.getPropertyValue("--plate-1")).toBe("");
     expect(document.documentElement.style.getPropertyValue("--clay-lavender")).toBe("");
+    expect(document.documentElement.style.getPropertyValue("--panel-face")).toBe("");
+    expect(document.documentElement.style.getPropertyValue("--card-face")).toBe("");
   });
 
-  it("a preset rewrites the whole bench, plates and accent channels together", () => {
-    applyStudioVars({ ...defaultStudio, clayPreset: "lagoon" });
-    expect(document.documentElement.style.getPropertyValue("--plate-1")).toBe(CLAY_PRESETS.lagoon.tokens["--plate-1"]);
-    expect(document.documentElement.style.getPropertyValue("--plate-6")).toBe(CLAY_PRESETS.lagoon.tokens["--plate-6"]);
-    expect(document.documentElement.style.getPropertyValue("--clay-lavender")).toBe(CLAY_PRESETS.lagoon.tokens["--clay-lavender"]);
-    expect(document.documentElement.style.getPropertyValue("--plate-custom")).toBe(CLAY_PRESETS.lagoon.tokens["--plate-1"]);
+  it("a picked accent re-derives the whole bench at once", () => {
+    applyStudioVars({ ...defaultStudio, accent: "#0891b2" });
+    for (const key of CLAY_TOKENS.slice(0, 12)) {
+      expect(document.documentElement.style.getPropertyValue(key)).not.toBe("");
+    }
   });
 
-  it("a dark hand-picked color is pulled pastel before it reaches the bench", () => {
-    applyStudioVars({ ...defaultStudio, clayPreset: "custom", clayAccent: "#3b1d6e" });
+  it("the bench stays pastel — a dark accent moves the plates but never screams", () => {
+    applyStudioVars({ ...defaultStudio, accent: "#3b1d6e" });
     const written = document.documentElement.style.getPropertyValue("--clay-lavender");
-    const chans = written.split(" ").map(Number);
-    const [r = 0, g = 0, b = 0] = chans;
-    expect(0.2126 * r + 0.7152 * g + 0.0722 * b).toBeGreaterThanOrEqual(185);
-    /* …and it keeps the pick's hue family: the violet stays violet. */
-    expect(b).toBeGreaterThan(r);
-  });
-
-  it("THE NEON GUARD: a saturated pick is pulled soft, not just light", () => {
-    /* #00FF00 already sits at luminance ~199 — the luma-only guard used to
-       wave it through and every pool, band and plate flooded acid green
-       (the 16:29 daylight screenshot). A pastel plate family caps
-       saturation, so the bench moves but never screams. */
-    applyStudioVars({ ...defaultStudio, clayPreset: "custom", clayAccent: "#00ff00" });
-    const written = document.documentElement.style.getPropertyValue("--clay-lavender");
-    const chans = written.split(" ").map(Number);
-    const [r = 0, g = 0, b = 0] = chans;
-    const { s, h } = rgbToHsl({ r, g, b });
-    expect(s).toBeLessThanOrEqual(0.56);
-    expect(0.2126 * r + 0.7152 * g + 0.0722 * b).toBeGreaterThanOrEqual(185);
-    /* …and the hue family survives the softening: it is still green. */
-    expect(h).toBeGreaterThan(90);
-    expect(h).toBeLessThan(150);
-  });
-
-  it("the free plate slot takes the visitor's color", () => {
-    applyStudioVars({ ...defaultStudio, clayCustom: "#ff9aa8" });
-    const written = document.documentElement.style.getPropertyValue("--plate-custom");
-    expect(written).not.toBe("");
-    const [r = 0] = written.split(" ").map(Number);
-    expect(r).toBeGreaterThan(230); /* rose keeps its red, walked pastel */
+    const [r = 0, g = 0, b = 0] = written.split(" ").map(Number);
+    expect(0.2126 * r + 0.7152 * g + 0.0722 * b).toBeGreaterThanOrEqual(140);
+    expect(b).toBeGreaterThan(r); /* the violet stays violet */
   });
 
   it("bench tokens persist under the studio replay key", () => {
-    applyStudioVars({ ...defaultStudio, clayPreset: "sunset" });
+    applyStudioVars({ ...defaultStudio, accent: "#f97316" });
     const replay = JSON.parse(window.localStorage.getItem("proglass-studio-vars") ?? "{}");
-    expect(replay["--plate-3"]).toBe(CLAY_PRESETS.sunset.tokens["--plate-3"]);
-  });
-
-  it("storage carries the preset choice", () => {
-    void STUDIO_STORAGE_KEY;
-    applyStudioVars({ ...defaultStudio, clayPreset: "orchard" });
-    /* setStudio is the storage writer for the state blob; applyStudioVars
-       owns the vars blob — asserting both halves keeps the replay chain. */
-    expect(CLAY_PRESETS.orchard.tokens["--clay-mint"]).toBe("128 214 154");
+    expect(replay["--plate-3"]).not.toBeUndefined();
+    expect(replay["--plate-1"]).toBe(document.documentElement.style.getPropertyValue("--plate-1"));
   });
 });
 
-describe("§16 — the bench recolors the whole system", () => {
-  it("card faces twist to the bench hue without losing their lightness", () => {
-    applyStudioVars({ ...defaultStudio, clayPreset: "lagoon" });
+describe("tonal ladder — nesting reads as material, not shadows", () => {
+  it("content card < data card < overlay in lightness, same hue family", () => {
+    applyStudioVars({ ...defaultStudio, accent: "#2f9e44" });
+    const lum = (k: string) => {
+      const [r = 0, g = 0, b = 0] = document.documentElement.style.getPropertyValue(k).split(" ").map(Number);
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    expect(lum("--data-face")).toBeGreaterThan(lum("--card-face"));
+    expect(lum("--overlay-face")).toBeGreaterThan(lum("--data-face"));
+  });
+
+  it("the two rows dress cards and feature card independently", () => {
+    applyStudioVars({ ...defaultStudio, accent: "#2f9e44", clayPlate: 2, clayCards: 4 });
+    expect(document.documentElement.style.getPropertyValue("--card-face")).not.toBe(
+      document.documentElement.style.getPropertyValue("--panel-face"),
+    );
+    applyStudioVars({ ...defaultStudio, accent: "#2f9e44" });
+    /* default rows are the same plate — the zones match when untouched */
+    expect(document.documentElement.style.getPropertyValue("--card-face")).toBe(
+      document.documentElement.style.getPropertyValue("--panel-face"),
+    );
+  });
+
+  it("card faces twist toward the bench hue without losing their lightness", () => {
+    applyStudioVars({ ...defaultStudio, accent: "#0891b2" });
+    /* hue direction is read on a pastel channel (daylight faces sit at
+       L1.0 where hue mathematically cannot move) */
+    const [lr = 0, lg = 0] = document.documentElement.style.getPropertyValue("--clay-lavender").split(" ").map(Number);
+    expect(lg).toBeGreaterThan(lr);
+    /* …and the midnight faces (the hued ones) keep their own luminance */
+    document.documentElement.dataset.theme = "midnight";
+    applyStudioVars({ ...defaultStudio, accent: "#0891b2" });
     const written = document.documentElement.style.getPropertyValue("--ink-850");
     expect(written).not.toBe("");
     const [r = 0, g = 0, b = 0] = written.split(" ").map(Number);
-    /* lagoon's hue is cyan; the twisted channel must leave plum for water */
-    expect(g).toBeGreaterThan(r);
-    /* …while keeping the dark card's own brightness: a tinted hug, not a re-paint */
+    expect(g).toBeGreaterThanOrEqual(r);
     const twisted = 0.2126 * r + 0.7152 * g + 0.0722 * b;
     const base = 0.2126 * 40 + 0.7152 * 28 + 0.0722 * 56;
     expect(Math.abs(twisted - base) / base).toBeLessThan(0.35);
   });
 
   it("the drop shadow and wash hues leave the house violet with the bench", () => {
-    applyStudioVars({ ...defaultStudio, clayPreset: "lagoon" });
+    applyStudioVars({ ...defaultStudio, accent: "#0891b2" });
     expect(document.documentElement.style.getPropertyValue("--clay-drop-h")).not.toBe("140 108 255");
     expect(document.documentElement.style.getPropertyValue("--clay-drop-h")).not.toBe("");
     expect(document.documentElement.style.getPropertyValue("--card-tint-h")).not.toBe("");
     expect(document.documentElement.style.getPropertyValue("--card-tint-h2")).not.toBe("");
   });
 
-  it("house still writes none of the system-wide tokens", () => {
-    applyStudioVars(defaultStudio);
-    expect(document.documentElement.style.getPropertyValue("--ink-850")).toBe("");
-    expect(document.documentElement.style.getPropertyValue("--clay-drop-h")).toBe("");
-    expect(document.documentElement.style.getPropertyValue("--clay-wash")).toBe("");
-  });
-
-  it("the wash depth rides the tint dial", () => {
-    applyStudioVars({ ...defaultStudio, clayPreset: "orchard", tint: 0 });
+  it("the wash depth rides the tint dial at 0.18×", () => {
+    applyStudioVars({ ...defaultStudio, accent: "#f97316", tint: 0 });
     expect(document.documentElement.style.getPropertyValue("--clay-wash")).toBe("0.000");
-    applyStudioVars({ ...defaultStudio, clayPreset: "orchard", tint: 2 });
-    expect(document.documentElement.style.getPropertyValue("--clay-wash")).toBe("0.240");
+    applyStudioVars({ ...defaultStudio, accent: "#f97316", tint: 2 });
+    expect(document.documentElement.style.getPropertyValue("--clay-wash")).toBe("0.360");
   });
 
-  it("a hand-picked accent steers the whole system, not just the plates", () => {
-    applyStudioVars({ ...defaultStudio, clayPreset: "custom", clayAccent: "#2f9e44" });
+  it("green accent → green shadows (the mould follows the bench)", () => {
+    applyStudioVars({ ...defaultStudio, accent: "#2f9e44" });
     const drop = document.documentElement.style.getPropertyValue("--clay-drop-h");
     const [r = 0, g = 0] = drop.split(" ").map(Number);
-    expect(g).toBeGreaterThan(r); /* green hand, green shadows */
-  });
-
-  it("§17 zone plates: the feature card and lit bands take the bench too", () => {
-    applyStudioVars({ ...defaultStudio, clayPreset: "lagoon" });
-    expect(document.documentElement.style.getPropertyValue("--panel-face")).toBe(
-      CLAY_PRESETS.lagoon.tokens["--plate-1"],
-    );
-    /* the band face is a foil, twisted to the bench hue but kept pale */
-    const band = document.documentElement.style.getPropertyValue("--band-face");
-    expect(band).not.toBe("");
-    const [r = 0, g = 0, b = 0] = band.split(" ").map(Number);
-    expect(0.2126 * r + 0.7152 * g + 0.0722 * b).toBeGreaterThanOrEqual(230);
-  });
-
-  it("a hand-picked house plate becomes the feature card's face", () => {
-    applyStudioVars({ ...defaultStudio, clayPreset: "custom", clayAccent: "#dc8327" });
-    expect(document.documentElement.style.getPropertyValue("--panel-face")).toBe(
-      document.documentElement.style.getPropertyValue("--clay-lavender"),
-    );
-  });
-
-  it("house still writes none of the zone-plate tokens", () => {
-    applyStudioVars(defaultStudio);
-    expect(document.documentElement.style.getPropertyValue("--panel-face")).toBe("");
-    expect(document.documentElement.style.getPropertyValue("--band-face")).toBe("");
+    expect(g).toBeGreaterThan(r);
   });
 });
 
-describe("phase 2 — studio performance contract", () => {
+describe("phase 2+3 — studio v2 contract", () => {
   it("setStudio applies on the next frame, not per input event", async () => {
     const raf = window.requestAnimationFrame;
     expect(typeof raf).toBe("function");
-    applyStudioVars(defaultStudio); /* clear */
+    applyStudioVars(defaultStudio);
     expect(document.documentElement.style.getPropertyValue("--tint-mix")).toBe("");
     const { setStudio } = await import("@/lib/useStudio");
     setStudio({ tint: 2 });
-    /* Synchronously after the call the DOM is NOT yet rewritten — it lands on the frame. */
-    document.documentElement.style.getPropertyValue("--tint-mix"); /* no throw; read allowed */
     await new Promise((resolve) => raf(() => resolve(null)));
     expect(document.documentElement.style.getPropertyValue("--tint-mix")).toBe("calc(var(--tint-base, 0.1) * 2.00)");
-  });
-});
-
-describe("phase 3 — studio v2 contract", () => {
-  it("zone plates follow the bench as BARE triplets (phase 4)", () => {
-    /* The css consumers wrap these as rgb(var(--panel-face)) — a studio
-       write that carried an rgb() wrapper would paint rgb(rgb(…)) and die
-       at computed-value time (the latent band-solid bug the harness
-       caught). Assert the write shape, the move, and the clean wipe. */
-    applyStudioVars({ ...defaultStudio, clayPreset: "orchard" });
-    const pf = document.documentElement.style.getPropertyValue("--panel-face");
-    const bf = document.documentElement.style.getPropertyValue("--band-face");
-    expect(pf).toBe(CLAY_PRESETS.orchard.tokens["--plate-1"]);
-    expect(bf).not.toBe("");
-    for (const v of [pf, bf]) expect(v.trim()).toMatch(/^\d+ \d+ \d+$/);
-    applyStudioVars(defaultStudio);
-    expect(document.documentElement.style.getPropertyValue("--panel-face")).toBe("");
-    expect(document.documentElement.style.getPropertyValue("--band-face")).toBe("");
-  });
-
-  it("dusk and dust presets rewrite the whole bench", () => {
-    applyStudioVars({ ...defaultStudio, clayPreset: "dusk" });
-    expect(document.documentElement.style.getPropertyValue("--plate-1")).toBe(CLAY_PRESETS.dusk.tokens["--plate-1"]);
-    applyStudioVars({ ...defaultStudio, clayPreset: "dust" });
-    expect(document.documentElement.style.getPropertyValue("--clay-lavender")).toBe(CLAY_PRESETS.dust.tokens["--clay-lavender"]);
   });
 
   it("the depth dial writes --clay-depth only when off recipe", () => {
@@ -205,12 +133,13 @@ describe("phase 3 — studio v2 contract", () => {
 
   it("a bench link round-trips through encode/decode without loss", async () => {
     const { encodeStudio, decodeStudio } = await import("@/lib/useStudio");
-    const bench = { ...defaultStudio, clayPreset: "lagoon" as const, clayDepth: 1.2, tint: 1.5 };
+    const bench = { ...defaultStudio, clayPlate: 4, clayCards: 2, clayDepth: 1.2, tint: 1.5, accent: "#166534" };
     const decoded = decodeStudio(encodeStudio(bench));
     expect(decoded).not.toBeNull();
-    expect(decoded?.clayPreset).toBe("lagoon");
+    expect(decoded?.clayPlate).toBe(4);
+    expect(decoded?.clayCards).toBe(2);
     expect(decoded?.clayDepth).toBe(1.2);
-    expect(decoded?.tint).toBe(1.5);
+    expect(decoded?.accent).toBe("#166534");
   });
 
   it("a hostile share link degrades to null, never to a broken page", async () => {

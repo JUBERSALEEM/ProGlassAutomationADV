@@ -1045,7 +1045,10 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
    flatten them; now they carry the mould and its insets. Wells (small
    radii: rounded / rounded-lg / code chips / input fields) stay pressed
    and flat on purpose, and real fields keep their pressed-in grammar. */
-[data-appearance="clay"] :is([class*="bg-ink-900"], [class*="bg-ink-850"], [class*="bg-ink-800"], [class*="bg-glass-"]):is([class*="rounded-card"], [class*="rounded-2xl"], [class*="rounded-panel"], [class*="rounded-xl"]):not(input):not(textarea):not(select) {
+[data-appearance="clay"] :is([class*="bg-ink-900"], [class*="bg-ink-850"], [class*="bg-ink-800"], [class*="bg-glass-"]):is([class*="rounded-card"], [class*="rounded-2xl"], [class*="rounded-panel"], [class*="rounded-xl"], [class*="rounded-3xl"], [class*="rounded-lg"]):not(input):not(textarea):not(select) {
+  /* §21: the door answers rounded-3xl + rounded-lg too — the utility
+     panes the shorthand leaked. Chips (rounded-md and smaller) keep
+     their ink fills so tags/badges never pose as cards. */
   background-color: rgb(var(--card-face));
   background-image: none;
   border-color: transparent;
