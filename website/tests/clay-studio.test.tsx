@@ -12,6 +12,7 @@ const CLAY_TOKENS = [
 beforeEach(() => {
   window.localStorage.clear();
   document.documentElement.dataset.theme = "daylight";
+  document.documentElement.removeAttribute("data-appearance");
   for (const key of CLAY_TOKENS) document.documentElement.style.removeProperty(key);
   document.documentElement.style.removeProperty("--ink-850");
 });
@@ -102,6 +103,17 @@ describe("tonal ladder — nesting reads as material, not shadows", () => {
     expect(document.documentElement.style.getPropertyValue("--clay-wash")).toBe("0.000");
     applyStudioVars({ ...defaultStudio, accent: "#f97316", tint: 2 });
     expect(document.documentElement.style.getPropertyValue("--clay-wash")).toBe("0.360");
+  });
+
+  it("P10 paper mode: clay ambient desaturates while the cards keep the plate", () => {
+    document.documentElement.dataset.appearance = "clay";
+    applyStudioVars({ ...defaultStudio, accent: "#166534" });
+    const pur = (k: string) => {
+      const v = document.documentElement.style.getPropertyValue(k).split(" ").map(Number);
+      return (Math.max(...v) - Math.min(...v)) / 255;
+    };
+    /* the band is near-neutral paper; the card family keeps the hue */
+    expect(pur("--card-face")).toBeGreaterThan(pur("--band-face") * 2);
   });
 
   it("green accent → green shadows (the mould follows the bench)", () => {

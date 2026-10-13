@@ -742,10 +742,22 @@ export function applyStudioVars(studio: Studio) {
       vars["--data-face"] = rot(cd[0], Math.min(0.78, cd[1] + 0.1), target === "dark" ? 0.37 : Math.min(0.95, cd[2] + 0.055));
       vars["--overlay-face"] = rot(cd[0], Math.min(0.72, cd[1] + 0.05), target === "dark" ? 0.26 : Math.min(0.97, cd[2] + 0.115));
     }
-    vars["--band-face"] = rot(-24, 0.3, 0.948);
-    vars["--pool-1"] = `rgb(${rot(0, 0.7, 0.5)} / ${target === "dark" ? 0.1 : 0.13})`;
-    vars["--pool-2"] = `rgb(${rot(38, 0.7, 0.7)} / ${target === "dark" ? 0.06 : 0.12})`;
-    vars["--pool-3"] = `rgb(${rot(330, 0.7, 0.72)} / ${target === "dark" ? 0.05 : 0.1})`;
+    /* P10 PAPER MODE (ref: ClayDash cream / ClayHub fog): the ambient goes
+       neutral paper so the plates IGNITE — band at s0.12 (a hue whisper),
+       pools desaturated + gossamer. Cards/channels/tints keep the serif
+       saturation. Crystal/glass wallpaper ("the floors breathe the accent")
+       is untouched: this branch is clay-family grammar only. */
+    if (family === "clay") {
+      vars["--band-face"] = rot(-24, 0.12, target === "dark" ? 0.18 : 0.955);
+      vars["--pool-1"] = `rgb(${rot(0, 0.35, 0.72)} / ${target === "dark" ? 0.07 : 0.09})`;
+      vars["--pool-2"] = `rgb(${rot(38, 0.35, 0.78)} / ${target === "dark" ? 0.045 : 0.07})`;
+      vars["--pool-3"] = `rgb(${rot(330, 0.35, 0.8)} / ${target === "dark" ? 0.04 : 0.06})`;
+    } else {
+      vars["--band-face"] = rot(-24, 0.3, 0.948);
+      vars["--pool-1"] = `rgb(${rot(0, 0.7, 0.5)} / ${target === "dark" ? 0.1 : 0.13})`;
+      vars["--pool-2"] = `rgb(${rot(38, 0.7, 0.7)} / ${target === "dark" ? 0.06 : 0.12})`;
+      vars["--pool-3"] = `rgb(${rot(330, 0.7, 0.72)} / ${target === "dark" ? 0.05 : 0.1})`;
+    }
   }
 
   /*

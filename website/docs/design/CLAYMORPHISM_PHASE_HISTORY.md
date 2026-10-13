@@ -60,3 +60,11 @@
 
 - Fresh end-to-end re-run (nothing reused from phase text); route/theme coverage as tabulated in CLAYMORPHISM_FINAL_AUDIT.md; all gates green; queue contained only P09 itself at audit start.
 - Action: queue file deleted after last entry (per master-program rule Part 7 §“When to delete the remaining-phase file”). Final scores 90/96/90/85/88/90/84 with criteria + limitation ledger in the final audit document. No 100/100 claimed; 100/100 marked as not-used.
+
+
+## P10 — Paper Mode (program extension, user-directed) · completed 2026-10-13
+
+- Origin: the user's reference-compare (ClayDash cream / ClayHub fog) — ambient neutrality is what makes plates ignite; our hue-carrying bands+pools ("blue inside blue") dulled the pop.
+- Change: clay-family-only ambient recalibration in the adoption block — band at s0.12 (hue whisper L~0.955/light, 0.18/midnight), wallpaper pools desaturated (s0.35, gossamer alphas); cards/channels/tints keep full saturation. Crystal & glass wallpaper keep their own grammar (family-gated: the floors still breathe the accent there).
+- New contract test (#36): clay ambient purity < card purity×2 (regression guard).
+- Gates: vitest 36/36 · clay-paint 175/175 · contrast 87/87 · motion 12/12 · color-audit 0 · census 522/600 · audit 0/0.
