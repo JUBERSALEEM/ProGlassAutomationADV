@@ -333,14 +333,14 @@
 
 [data-appearance="clay"] .surface,
 [data-appearance="clay"] .stat-tile {
-  background-color: rgb(var(--clay-card));
+  background-color: rgb(var(--card-face));
   background-image: none;
   box-shadow: var(--shadow-panel),
     inset 4px 4px 8px var(--clay-hi),
     inset -6px -6px 12px var(--clay-lo);
 }
 [data-appearance="clay"] .surface-raised {
-  background-color: rgb(var(--clay-card));
+  background-color: rgb(var(--card-face));
   background-image: none;
   box-shadow: var(--shadow-raised),
     inset 4px 4px 8px var(--clay-hi),
@@ -679,7 +679,7 @@ html[data-theme="midnight"][data-appearance="clay"] {
 [data-appearance="clay"] .card-live,
 [data-appearance="clay"] .float-card,
 [data-appearance="clay"] .card-glass {
-  background-color: rgb(var(--clay-card));
+  background-color: rgb(var(--card-face));
   background-image: none;
   box-shadow: var(--shadow-raised),
     inset 4px 4px 8px var(--clay-hi),
@@ -695,7 +695,7 @@ html[data-theme="midnight"][data-appearance="clay"] {
 }
 /* The product frame — every module preview and screenshot lives inside. */
 [data-appearance="clay"] .plate {
-  background-color: rgb(var(--clay-card));
+  background-color: rgb(var(--card-face));
   background-image: none;
   box-shadow: var(--shadow-raised),
     inset 4px 4px 8px var(--clay-hi),
@@ -802,7 +802,7 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
     inset -4px -4px 9px rgb(var(--clay-drop-h) / 0.16);
 }
 [data-appearance="clay"] .mpane__glass--lead {
-  background-color: rgb(var(--clay-card));
+  background-color: rgb(var(--card-face));
   background-image: none;
   box-shadow: var(--shadow-raised),
     inset 4px 4px 8px var(--clay-hi),
@@ -1043,7 +1043,7 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
    radii: rounded / rounded-lg / code chips / input fields) stay pressed
    and flat on purpose, and real fields keep their pressed-in grammar. */
 [data-appearance="clay"] :is([class*="bg-ink-900"], [class*="bg-ink-850"], [class*="bg-ink-800"], [class*="bg-glass-"]):is([class*="rounded-card"], [class*="rounded-2xl"], [class*="rounded-panel"], [class*="rounded-xl"]):not(input):not(textarea):not(select) {
-  background-color: rgb(var(--clay-card));
+  background-color: rgb(var(--card-face));
   background-image: none;
   border-color: transparent;
   box-shadow: var(--shadow-panel),
@@ -2007,6 +2007,14 @@ html[data-theme="midnight"][data-appearance="clay"] .panel-feature {
      so the foil face never actually rendered. Theme scope keeps the two
      modes honest side by side. */
   --band-face: 239 234 252;
+  /* §19 — the on-screen cards' face. Every CARD-class surface (.surface,
+     .stat-tile, .surface-raised, .card-live, .float-card, .card-glass,
+     .plate, the utility-matched rounded panes) reads this, while chrome
+     (nav-glass/sheet/pill, menu-card) keeps --clay-card. Default = the
+     card channel → byte-identical shipped look until the studio's cards
+     row picks a plate; then the cards soften into pastel clay while the
+     feature card (§17 --panel-face) is free to wear its own plate. */
+  --card-face: var(--clay-card);
   /* §18 — rotation noria: the stat tiles read these four pairs; a wrapper
      (.plate-set-b/.plate-set-c) re-points them so one route can ride
      plates 5/2/6/4 (or 3/1/5/2 …) while its neighbour keeps the house

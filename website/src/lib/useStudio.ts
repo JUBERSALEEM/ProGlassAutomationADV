@@ -115,6 +115,7 @@ export type Studio = {
    */
   clayDepth: number;
   /** Which plate the FEATURE card wears (1..6) — the main card is its own color. */ clayPlate: number;
+  /** Which plate the on-screen .plate cards wear (1..6). Default = same as the feature card. */ clayCards: number;
   /**
    * The crystal bench (G4) — material multipliers for the glass family.
    * 1 is "the family's own recipe". Body < 1 ghosts the fills (floor 0.45
@@ -147,6 +148,7 @@ export const defaultStudio: Studio = {
   moneyNeutral: "",
   clayPreset: "house",
   clayPlate: 1,
+  clayCards: 1,
   clayAccent: "",
   clayCustom: "",
   clayDepth: 1,
@@ -295,6 +297,7 @@ function readStored(): Studio {
     /* The clay bench: an unknown preset or a hand-edited hex must never
        reach the dom — plates would go unpainted, or worse, half-painted. */
     if (!Number.isFinite(merged.clayPlate) || merged.clayPlate < 1 || merged.clayPlate > 6) merged.clayPlate = defaultStudio.clayPlate;
+    if (!Number.isFinite(merged.clayCards) || merged.clayCards < 1 || merged.clayCards > 6) merged.clayCards = defaultStudio.clayCards;
     if (merged.clayPreset !== "custom" && !(merged.clayPreset in CLAY_PRESETS)) {
       merged.clayPreset = defaultStudio.clayPreset;
     }
@@ -813,8 +816,14 @@ export function applyStudioVars(studio: Studio) {
      a picked accent re-derives the whole clay palette — six pastel plates,
      six channels, faces, shadows, pools — hue-rotated from the accent itself.
      clay-engine.css is untouched; the engine reads these tokens as its own. */
-  if (studio.accent) {
-    const { h: hub } = rgbToHsl(hexToTriplet(studio.accent));
+  /* Bench live-ness contract: the six switches must move cards IMMEDIATELY,
+     even before a color plate is picked ΓÇö so the block runs on the family
+     accent too, and the panel/cards rows are inputs, not ornaments. The
+     plates stay Material-You (hue-rotated from the effective accent); the
+     two rows split them: --panel-face (feature cards) vs --card-face (the
+     .plate cards on screen). Default: both wear plate 1. */
+  if (studio.accent || studio.clayPlate !== 1 || studio.clayCards !== 1) {
+    const { h: hub } = rgbToHsl(hexToTriplet(studio.accent ?? FAMILY_ACCENT[family]!));
     const rot = (dh: number, s: number, l: number) =>
       triplet(hslToRgb({ h: (hub + dh + 360) % 360, s, l }));
     const plateHues: Array<[number, number, number]> = [[0, 0.62, 0.8], [55, 0.58, 0.72], [110, 0.6, 0.82], [180, 0.56, 0.74], [245, 0.62, 0.8], [310, 0.58, 0.72]];
@@ -844,6 +853,13 @@ export function applyStudioVars(studio: Studio) {
     vars["--card-tint-h2"] = rot(38, 0.55, 0.82);
     vars["--clay-wash"] = (0.16 * studio.tint).toFixed(3);
     vars["--panel-face"] = vars[`--plate-${studio.clayPlate}`] ?? vars["--plate-1"]!;
+    /* The on-screen cards: the chosen plate softened to air — it keeps the
+       plate's hue/saturation at a near-surface light, so cards read as clay
+       (pastel body) yet never fight the ink. */
+    {
+      const [cdh, cs] = plateHues[studio.clayCards - 1] ?? plateHues[0]!;
+      vars["--card-face"] = rot(cdh, cs, target === "dark" ? 0.27 : 0.93);
+    }
     vars["--plate-custom"] = vars["--plate-1"]!;
     vars["--band-face"] = rot(-24, 0.3, 0.948);
     vars["--pool-1"] = `rgb(${rot(0, 0.7, 0.5)} / ${target === "dark" ? 0.1 : 0.13})`;

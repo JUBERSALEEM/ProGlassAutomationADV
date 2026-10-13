@@ -317,26 +317,33 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
             <p className="mt-2 text-[0.75rem] font-medium leading-relaxed text-text-muted">
               {t("The bench is the colour plates above: pick any plate and every clay plate, face, shadow and pool re-derives hue-rotated from it — Material-You adoption, instantly. The plum ink never moves; the engine file stays untouched. Reset = Family accent above.")}
             </p>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="text-[0.72rem] font-semibold text-text-primary">{t("Main card wears plate:")}</span>
-              {[1, 2, 3, 4, 5, 6].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  aria-pressed={studio.clayPlate === n}
-                  onClick={() => setStudio({ clayPlate: n })}
-                  className={cn(
-                    "grid h-7 w-7 place-items-center rounded-full border-2 text-[0.68rem] font-bold transition-transform",
-                    studio.clayPlate === n
-                      ? "scale-110 border-brand-500/70 bg-brand-600/20 text-text-primary"
-                      : "border-line-strong/60 text-text-muted hover:border-line-strong",
-                  )}
-                  title={t("Feature card takes this plate")}
-                >
-                  {n}
-                </button>
+            <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+              {([
+                { key: "clayCards", label: t("Cards wear plate:") },
+                { key: "clayPlate", label: t("Main card wears plate:") },
+              ] as const).map(({ key, label }) => (
+                <span key={key} className="flex items-center gap-2">
+                  <span className="text-[0.72rem] font-semibold text-text-primary">{label}</span>
+                  {[1, 2, 3, 4, 5, 6].map((n) => (
+                    <button
+                      key={`${key}-${n}`}
+                      type="button"
+                      aria-pressed={studio[key] === n}
+                      onClick={() => setStudio({ [key]: n })}
+                      className={cn(
+                        "grid h-7 w-7 place-items-center rounded-full border-2 text-[0.68rem] font-bold transition-transform",
+                        studio[key] === n
+                          ? "scale-110 border-brand-500/70 bg-brand-600/20 text-text-primary"
+                          : "border-line-strong/60 text-text-muted hover:border-line-strong",
+                      )}
+                      title={t("Pick the plate this zone wears")}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </span>
               ))}
-              <span className="text-[0.72rem] text-text-muted">{t("— only the feature card swaps; the rest keep their own.")}</span>
+              <span className="text-[0.72rem] text-text-muted">{t("— same by default; split them to dress the cards apart.")}</span>
             </div>
             <button
               type="button"
