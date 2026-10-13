@@ -222,6 +222,15 @@ describe("tonal ladder — nesting reads as material, not shadows", () => {
     const bandDeep = document.documentElement.style.getPropertyValue("--band-deep-h");
     expect(bandRich).not.toBe(cardFace);
     expect(bandDeep).not.toBe(cardFace);
+    const ink850 = document.documentElement.style.getPropertyValue("--ink-850");
+    expect(ink850).not.toBe("255 255 255");
+    const [ir = 0, , ib = 0] = ink850.split(" ").map(Number);
+    expect(ir).toBeGreaterThan(ib);
+    const foil = document.documentElement.style.getPropertyValue("--clay-foil");
+    expect(foil).not.toBe("rgb(239 234 252)");
+    const lineStrong = document.documentElement.style.getPropertyValue("--line-strong");
+    expect(lineStrong).not.toBe("");
+    expect(lineStrong).not.toBe("188 174 216");
   });
 });
 

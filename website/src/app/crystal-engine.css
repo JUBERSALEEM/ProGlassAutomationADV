@@ -1078,3 +1078,19 @@ html.glass-econ[data-appearance="crystal"] {
     box-shadow: none;
   }
 }
+
+/* ═══ §F9 · HOVER-ONLY INK WASHES AT REST ═══════════════════════════════
+   Elements whose only bg-ink-* token is a hover:bg-ink-* or focus:bg-ink-*
+   variant stay transparent at rest in Crystal so table rows, inactive tab
+   pills, and ghost controls do not stack redundant frosted panes. */
+[data-appearance="crystal"] :is([class*="hover:bg-ink-"], [class*="focus:bg-ink-"]):not([class^="bg-ink-"]):not([class*=" bg-ink-"]):not(.surface):not(.surface-raised):not(.stat-tile):not(.plate):not(.card-live):not(.card-accent):not(.card-glass):not(.glass-primary):not(.float-card):not(.menu-card):not(.nav-pill) {
+  background-color: transparent;
+  background-image: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+[data-appearance="crystal"] :is([class*="hover:bg-ink-"], [class*="focus:bg-ink-"]):not([class^="bg-ink-"]):not([class*=" bg-ink-"]):not(.surface):not(.surface-raised):not(.stat-tile):not(.plate):not(.card-live):not(.card-accent):not(.card-glass):not(.glass-primary):not(.float-card):not(.menu-card):not(.nav-pill):hover {
+  background-color: rgb(var(--brand-500) / 0.14);
+}
+

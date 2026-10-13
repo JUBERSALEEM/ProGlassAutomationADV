@@ -161,8 +161,8 @@ export const defaultStudio: Studio = {
  * bench's hue, so every contrast lock survives the recolor untouched.
  */
 const CLAY_CARD_BASE: Record<"dark" | "light", Record<string, string>> = {
-  dark: { "--ink-950": "22 15 33", "--ink-900": "30 21 42", "--ink-850": "40 28 52", "--ink-800": "51 36 64" },
-  light: { "--ink-950": "238 232 248", "--ink-900": "247 245 251", "--ink-850": "255 255 255", "--ink-800": "250 248 253" },
+  dark: { "--ink-950": "22 15 33", "--ink-900": "30 21 42", "--ink-850": "40 28 52", "--ink-800": "51 36 64", "--ink-700": "64 46 82" },
+  light: { "--ink-950": "238 232 248", "--ink-900": "232 225 246", "--ink-850": "225 216 244", "--ink-800": "218 208 242", "--ink-700": "210 198 238" },
 };
 
 const tripletToRgb = (str: string) => {
@@ -857,6 +857,9 @@ export function applyStudioVars(studio: Studio) {
     for (const [channel, baseChannel] of Object.entries(CLAY_CARD_BASE[target])) {
       vars[channel] = twistTriplet(baseChannel, hub, 0.72 * chroma);
     }
+    vars["--line"] = twistTriplet(target === "dark" ? "38 27 82" : "214 205 233", hub, 0.72 * chroma);
+    vars["--line-soft"] = twistTriplet(target === "dark" ? "28 19 62" : "232 226 242", hub, 0.72 * chroma);
+    vars["--line-strong"] = twistTriplet(target === "dark" ? "54 40 116" : "188 174 216", hub, 0.72 * chroma);
     /* P14a — the verb follows the bench. Start at the picked plate's actual
        saturation and lightness so primary buttons match the visible plate
        directly whenever it already clears the 3.2:1 white-label floor, and
@@ -872,7 +875,7 @@ export function applyStudioVars(studio: Studio) {
       while (coralL > 0.3 && 1.05 / (lumOf(triplet(hslToRgb({ h: hub, s: coralS, l: coralL }))) + 0.05) < 3.2) coralL -= 0.01;
       vars["--clay-coral"] = triplet(hslToRgb({ h: hub, s: coralS, l: coralL }));
       vars["--clay-coral-h"] = triplet(hslToRgb({ h: hub, s: Math.min(0.92, coralS + 0.06), l: Math.max(0.08, coralL - 0.07) }));
-      vars["--clay-foil"] = `rgb(${twistTriplet(target === "dark" ? "46 34 62" : "239 234 252", hub, 0.72 * chroma)})`;
+      vars["--clay-foil"] = `rgb(${target === "dark" ? twistTriplet("46 34 62", hub, 0.72 * chroma) : rot(0, Math.min(0.82, pSat), Math.min(0.86, pLight + 0.04))})`;
     }
     vars["--clay-drop-h"] = rot(0, Math.min(0.85, pSat + 0.1), 0.35);
     vars["--card-tint-h"] = rot(0, Math.min(0.65, pSat), 0.8);
