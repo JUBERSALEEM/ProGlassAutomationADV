@@ -48,11 +48,13 @@ Source checks are not substitutes for interactive Windows acceptance. Mark runti
 | WPF Windows build and test suite | Not run: .NET SDK is not installed in this Linux sandbox | Pending |
 | Print-dialog preview and representative hardware/media smoke test | Not available in this sandbox | Pending |
 
-## Static checks recorded for this redesign
+## Phase 6 — checks completed in this sandbox
 
-- XAML parses as XML; control names are unique; original named controls, event handlers, and binding expressions are retained.
-- Static and dynamic resource references resolve against the local and application dictionaries.
-- XAML event-handler names exist in the code-behind; edited C# files pass a lightweight delimiter scan.
-- `git diff --check` passes.
+- XAML parses as XML; 37 current `x:Name` values are unique, all 34 names from the pre-redesign view remain, and all 25 original event handlers remain.
+- All 84 pre-redesign binding expressions remain; all 39 `StaticResource` and 26 `DynamicResource` keys resolve against the local/application dictionaries.
+- All XAML event-handler names exist in the code-behind. Edited C# files pass a lightweight delimiter scan, and `git show --check` reports no whitespace errors.
+- Source-level behavior checks confirmed mode-specific print buttons, rejection of sample printing when production rows exist, single synthetic sample-row printing, production printing from the source collection, read-only source rows, the A4 preview route, and the existing modal size clamp.
+- Existing sticker tests cover source-row selection/navigation, sample isolation, A4 layout/order, template presets and printer options. A new test covers inline template/printer validation. These tests are present but were **not executed**.
+- The local environment has no `dotnet`, MSBuild, or Mono; the project targets WPF `net8.0-windows`.
 
-**Release boundary:** Do not mark Phase 6 complete until Windows build/tests and the available print-preview/hardware checks above have been run. The repository's existing printing-engine plan also leaves Windows and physical-printer acceptance pending.
+**Release boundary:** Phase 6 is still pending Windows build/tests, interactive checks at minimum/default sizes and multiple DPI scales, keyboard/focus and populated/empty-row review, Windows print-dialog preview, and representative hardware/media smoke testing. The repository's existing printing-engine plan also leaves Windows and physical-printer acceptance pending.
