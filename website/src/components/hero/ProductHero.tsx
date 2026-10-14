@@ -57,7 +57,16 @@ export function ProductHero({ t }: { t: Translator }) {
           it: its left third is drawn deliberately quiet, which is where the
           headline and the buttons sit. Decorative, so it is hidden from
           assistive technology and carries no caption. */}
-      <div aria-hidden="true" className="hero-backdrop-parallax pointer-events-none absolute inset-0 overflow-hidden">
+      {/* §X: the backdrop layers used to span the hero's full height
+          (inset-0 over a section that runs copy + frame + marquee +
+          banner ≈ 2,600px on a phone) — the largest raster on the
+          page, sitting directly under the translucent frame, which is
+          the one region whose tiles starved on the device witness.
+          The artwork is now bounded to the first screens (the zone
+          the headline and the frame's head actually read against);
+          the veils inside already fade it into the page colour, and
+          the fixed liquid field carries the room below. */}
+      <div aria-hidden="true" className="hero-backdrop-parallax pointer-events-none absolute inset-x-0 top-0 h-full max-h-[180svh] overflow-hidden">
         <Image
           src={heroBackdrop.src}
           alt=""
@@ -79,7 +88,7 @@ export function ProductHero({ t }: { t: Translator }) {
           drifting on a 26 s cycle. It is what makes the top of the page read as
           a lit room rather than as a flat field, and it is drawn from the
           family's own pools so switching palette re-hues it. */}
-      <div aria-hidden="true" className="hero-backdrop-parallax pointer-events-none absolute inset-0 overflow-hidden">
+      <div aria-hidden="true" className="hero-backdrop-parallax pointer-events-none absolute inset-x-0 top-0 h-full max-h-[180svh] overflow-hidden">
         <div className="aurora-field aurora-drift">
           {/* §C9/§R — the references' ornaments live behind the hero's glass:
               two rings and one sphere, crystal-painted only. */}
@@ -124,7 +133,7 @@ export function ProductHero({ t }: { t: Translator }) {
           field: the violet pool at the upper right of the first screen, an
           ice pool low on the left, both drawn from the family's pools and
           breathing on a 32 s cycle so the ceiling of the page reads lit. */}
-      <div aria-hidden="true" className="hero-aurora-strong pointer-events-none absolute inset-0" />
+      <div aria-hidden="true" className="hero-aurora-strong pointer-events-none absolute inset-x-0 top-0 h-full max-h-[180svh]" />
 
       <div className="shell relative">
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.06fr)] lg:gap-14">

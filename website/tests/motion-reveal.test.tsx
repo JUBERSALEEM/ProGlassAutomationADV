@@ -143,19 +143,34 @@ describe("§R+§S touch budget (coarse pointers)", () => {
     expect(studio).toContain("max-h-[78vh] overflow-y-auto");
   });
 
-  it("hero residency (§W): backdrop + preview cluster promoted, banner gated, text unpromoted", () => {
-    /* §S gated every hero hint under [data-live]; the device witness
-       (Galaxy/Chrome: hero blinks ONCE on return from a deep scroll)
-       proved the first screen needs tile residency, not just honest
-       hints. Renegotiated in the open: the artwork layer and the
-       preview cluster stay promoted; the banner remains gated, and
-       the promotion never touches a text-bearing block (composited
-       text loses subpixel antialiasing). */
+  it("hero paint (§X): promotions gated, backdrop bounded, chart capped, menus filmed", () => {
+    /* The device screenshots (an empty sheet of backdrop artwork
+       showing through the unpainted preview frame, tile text sliced
+       at a straight raster edge) convicted paint weight in the one
+       region that stacks hero-unique costs: two backdrop layers
+       spanning the hero's full ~2,600px height (one a full-bleed
+       image) directly under the translucent frame, the drifting
+       liquid beneath it, §W's promoted cluster layer on top, and a
+       flex-1 chart panel ballooning into an empty glass box. §X
+       reverts the promotions, bounds the layers to the first
+       screens, caps the chart, and films the last chrome sampler.
+       (§R's thinning keeps its `.section` scoping — the audit
+       showed §H's heavy water only ever lived there.) */
     const globals = read("src/app/globals.css");
-    expect(globals).toContain(".hero-backdrop-parallax { will-change: transform; }");
-    expect(globals).toContain(".hero-field .motion-reveal.relative { will-change: transform; }");
+    expect(globals).not.toContain(".hero-backdrop-parallax { will-change: transform; }");
+    expect(globals).not.toContain("motion-reveal.relative");
     expect(globals).not.toContain(".hero-banner-parallax { will-change: transform, opacity;");
     expect(globals).toContain(".hero-field[data-live] .hero-banner-parallax");
+    const hero = read("src/components/hero/ProductHero.tsx");
+    expect(hero).not.toContain("hero-backdrop-parallax pointer-events-none absolute inset-0");
+    expect(hero).toContain("max-h-[180svh]");
+    const live = read("src/components/product/LiveSurface.tsx");
+    expect(live).not.toContain("flex flex-1 items-end");
+    expect(live).toContain("h-44 items-end");
+    const engine = read("src/app/crystal-engine.css");
+    const lane = engine.slice(engine.lastIndexOf("@media (pointer: coarse)"));
+    expect(lane).toContain(".menu-card");
+    expect(lane).toContain("box-shadow: none");
   });
 
   it("the top boundary is a wall — no overscroll flash or pull-to-refresh", () => {

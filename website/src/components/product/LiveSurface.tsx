@@ -1263,7 +1263,13 @@ function DashboardEngine({
           </table>
         </div>
       ) : (
-        <div className="flex flex-1 items-end gap-1.5 rounded-card border border-line/60 bg-ink-950/40 p-3">
+        <div className="flex h-44 items-end gap-1.5 rounded-card border border-line/60 bg-ink-950/40 p-3 sm:h-52">
+          {/* §X: this panel was `flex-1` inside an `h-full` column,
+              so whenever the frame's workspace was stretched (the
+              rail sets the row height in AppFrame) the chart ballooned
+              into a several-hundred-pixel empty glass box under the
+              tiles — dead paint area in exactly the region the device
+              witness showed failing. A chart has a size; it keeps it. */}
           <p className="sr-only">{t("Piece counts for the dashboard's selected period.")}</p>
           {bars.map((value, index) => (
             <span

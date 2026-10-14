@@ -668,3 +668,50 @@ partially reverses §S's hint-gating, on device evidence, in the open
 
 **Locked.** `tests/motion-reveal.test.tsx` §W residency guard;
 everything prior still green.
+
+### §X — the hero's own stack (*shipped*)
+
+**Witness.** Full-resolution crops of the device screenshots: the
+preview frame's whole region replaced by a dark translucent slab —
+the hero backdrop's glass-sheet stripes ghosting through it — with
+the dashboard tiles sliced mid-heading at the slab's straight
+bottom edge. Mid-page cards in the same session: painted, crisp.
+The hole was always the hero, and only the hero.
+
+**Audit (this is the round the reading finally went deep enough).**
+Every prior release treated a symptom the hero doesn't have. §H's
+expensive water only ever applied inside `.section`, so the hero's
+surfaces already wore the thin base sheen — the thinning-scoping
+theory (held for one draft of this very release) was false. What
+the hero alone stacks, from the markup up:
+
+1. **Two backdrop layers spanning the hero's full height** —
+   `absolute inset-0` over a section that runs copy + frame +
+   marquee + banner (≈2,600px on a phone), the first holding a
+   full-bleed quality-92 image. The largest raster on the page,
+   directly beneath the translucent frame.
+2. **A third hero-sized aurora layer** on top of those.
+3. **The drifting liquid field beneath the frame's clear glass** —
+   mid-page cards prove drift-under-glass is survivable at section
+   scale; over a giant image layer it means the starved region
+   never gets a quiet frame to finish rastering in. The hole
+   persists at rest, which is what the screenshots show.
+4. **§W's promoted cluster layer** (§W, reverted here): one giant
+   texture over all of the above — the wrong shape entirely.
+5. **A `flex-1` chart panel** in the dashboard preview, which
+   ballooned into a several-hundred-pixel empty glass box whenever
+   AppFrame's rail stretched the workspace — dead paint area in the
+   exact region named.
+
+**The fix.** The hero is brought down to the sections' budget
+class: both backdrop layers and the aurora bank are bounded to the
+first screens (`max-h: 180svh`; their veils already fade artwork
+into page colour, and the fixed liquid field carries the room
+below), §W's promotions are reverted (hints back under
+`[data-live]`), the chart panel keeps a chart's size (`h-44/52`),
+and the coarse lane films `.menu-card` — the last chrome sampler
+§S/§T missed. The drift stays: it is the product's motion, and the
+sections prove it affordable once the giant layers are gone.
+
+**Locked.** The §W guard is renegotiated into the §X guard above it;
+all other suites stand.

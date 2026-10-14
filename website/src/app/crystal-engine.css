@@ -1501,6 +1501,13 @@ html.glass-econ[data-appearance="crystal"] .liquid-scene span {
  *       hardware (its selector outranks this lane).
  *   3 · THE CARD WATER STAYS THINNED (§R, kept): two corner
  *       gradients, no blurred inset glows — tiles paint once.
+ *       (§X audited the scoping honestly: §H's heavy water only ever
+ *       applied inside `.section`, so the hero's surfaces already
+ *       wore this same thin sheen at base. What the hero alone
+ *       stacked was elsewhere — two hero-sized backdrop layers, one
+ *       of them a full-bleed image, under a perpetually drifting
+ *       field; §X bounds those layers in the hero's own markup
+ *       instead of thinning paint that was never heavy.)
  *   4 · Aurora banks and decor rest on touch; the one drifting disc
  *       carries the whole motion budget.
  * Fine pointers are untouched by the entire lane — a per-device
@@ -1517,6 +1524,14 @@ html.glass-econ[data-appearance="crystal"] .liquid-scene span {
   }
   [data-appearance="crystal"] .nav-pill {
     background-color: rgb(var(--ink-900) / 0.92);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  /* §X: the dropdown card is the last chrome sampler on touch — the
+     bar and pill were filmed in §S/§T, but a menu opening over the
+     page still ran a 22px blur on every scroll frame beneath it. */
+  [data-appearance="crystal"] .menu-card {
+    background-color: rgb(var(--ink-900) / 0.97);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
