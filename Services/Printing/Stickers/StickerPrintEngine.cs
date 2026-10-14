@@ -39,6 +39,10 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                 return new StickerPrintResult { Message = "Sticker print settings are missing." };
             if (!StickerTemplateStore.TryValidate(template, out string templateError))
                 return new StickerPrintResult { Message = "The selected sticker template is invalid: " + templateError };
+            if (!StickerPrinterSpecifications.TryValidateDimensions(preferences.PrinterModel,
+                    preferences.PrinterResolution, preferences.MediaHandling,
+                    template.LabelWidthMm, template.LabelHeightMm, out string printerError))
+                return new StickerPrintResult { Message = printerError };
 
             try
             {

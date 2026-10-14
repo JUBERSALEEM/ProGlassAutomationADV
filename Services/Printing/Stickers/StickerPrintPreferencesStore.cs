@@ -40,8 +40,14 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                     File.ReadAllText(path), JsonOptions) ?? new StickerPrintPreferences();
                 if (!double.IsFinite(loaded.LabelWidthMm) || loaded.LabelWidthMm < 15 || loaded.LabelWidthMm > 500)
                     loaded.LabelWidthMm = 100;
-                if (!double.IsFinite(loaded.LabelHeightMm) || loaded.LabelHeightMm < 15 || loaded.LabelHeightMm > 500)
+                if (!double.IsFinite(loaded.LabelHeightMm) || loaded.LabelHeightMm < 12.7 || loaded.LabelHeightMm > 991)
                     loaded.LabelHeightMm = 75;
+                if (!Enum.IsDefined(typeof(StickerPrinterModel), loaded.PrinterModel))
+                    loaded.PrinterModel = StickerPrinterModel.Custom;
+                if (!Enum.IsDefined(typeof(StickerPrinterResolution), loaded.PrinterResolution))
+                    loaded.PrinterResolution = StickerPrinterResolution.Dpi203;
+                if (!Enum.IsDefined(typeof(StickerMediaHandling), loaded.MediaHandling))
+                    loaded.MediaHandling = StickerMediaHandling.TearOff;
                 if (!double.IsFinite(loaded.MarginMm) || loaded.MarginMm < 0 || loaded.MarginMm > 25
                     || loaded.MarginMm * 2 >= Math.Min(loaded.LabelWidthMm, loaded.LabelHeightMm))
                     loaded.MarginMm = 2.5;

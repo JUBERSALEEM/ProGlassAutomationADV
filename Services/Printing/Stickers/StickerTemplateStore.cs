@@ -172,9 +172,11 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                 return false;
             }
             if (!IsFiniteInRange(template.LabelWidthMm, 15, 500)
-                || !IsFiniteInRange(template.LabelHeightMm, 15, 500))
+                || !IsFiniteInRange(template.LabelHeightMm,
+                    StickerPrinterSpecifications.MinimumTemplateLengthMm,
+                    StickerPrinterSpecifications.MaximumTemplateLengthMm))
             {
-                error = "Template width and height must each be between 15 and 500 mm.";
+                error = "Template width must be between 15 and 500 mm, and label length must be between 12.7 and 991 mm.";
                 return false;
             }
             if (!IsFiniteInRange(template.MarginMm, 0, 25)

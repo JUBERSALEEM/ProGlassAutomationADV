@@ -100,6 +100,73 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
         }
 
         [Fact]
+        public void ZebraZt411ProfileUsesItsPrintableWidthAndResolutionSpecificLengthRanges()
+        {
+            var standard = StickerPrinterSpecifications.GetLimits(
+                StickerPrinterModel.ZebraZt411,
+                StickerPrinterResolution.Dpi203,
+                StickerMediaHandling.TearOff);
+            Assert.Equal(25.4, standard.MinimumLabelWidthMm);
+            Assert.Equal(104, standard.MaximumPrintableWidthMm);
+            Assert.Equal(12.7, standard.MinimumLabelLengthMm);
+            Assert.Equal(991, standard.MaximumLabelLengthMm);
+            Assert.Equal(114, standard.MaximumMediaWebWidthMm);
+            Assert.True(StickerPrinterSpecifications.TryValidateDimensions(
+                StickerPrinterModel.ZebraZt411,
+                StickerPrinterResolution.Dpi203,
+                StickerMediaHandling.TearOff,
+                101.6, 152.4, out _));
+            Assert.False(StickerPrinterSpecifications.TryValidateDimensions(
+                StickerPrinterModel.ZebraZt411,
+                StickerPrinterResolution.Dpi203,
+                StickerMediaHandling.TearOff,
+                104.1, 152.4, out _));
+
+            var highResolution = StickerPrinterSpecifications.GetLimits(
+                StickerPrinterModel.ZebraZt411,
+                StickerPrinterResolution.Dpi600,
+                StickerMediaHandling.PeelOff);
+            Assert.Equal(108, highResolution.MaximumMediaWebWidthMm);
+            Assert.Equal(508, highResolution.MaximumLabelLengthMm);
+
+            var cutter = StickerPrinterSpecifications.GetLimits(
+                StickerPrinterModel.ZebraZt411,
+                StickerPrinterResolution.Dpi300,
+                StickerMediaHandling.Cutter);
+            Assert.Equal(25.4, cutter.MinimumLabelLengthMm);
+            Assert.Equal(152.4, cutter.MaximumLabelLengthMm);
+        }
+
+        [Fact]
+        public void PrinterProfileKeepsFourBySixPresetAndManualDimensionsEditable()
+        {
+            var viewModel = new StickerPrintDialogViewModel(
+                new[] { new GlassStickerLabel { WidthMm = 100, HeightMm = 50, Quantity = 1 } },
+                new StickerPrintPreferences());
+
+            viewModel.ApplyZt411FourBySixStock();
+            Assert.Equal(StickerPrinterModel.ZebraZt411, viewModel.PrinterModel);
+            Assert.Equal(101.6, viewModel.ActiveTemplate.LabelWidthMm);
+            Assert.Equal(152.4, viewModel.ActiveTemplate.LabelHeightMm);
+            Assert.True(viewModel.TryCreatePreferences(out var preferences, out _, requirePrintableRows: false));
+            Assert.Equal(StickerPrinterModel.ZebraZt411, preferences.PrinterModel);
+            Assert.Equal(101.6, preferences.LabelWidthMm);
+            Assert.Equal(152.4, preferences.LabelHeightMm);
+
+            viewModel.WidthMmText = "90";
+            viewModel.HeightMmText = "120";
+            Assert.Equal(90, viewModel.ActiveTemplate.LabelWidthMm);
+            Assert.Equal(120, viewModel.ActiveTemplate.LabelHeightMm);
+            Assert.True(viewModel.TryCreatePreferences(out preferences, out _, requirePrintableRows: false));
+            Assert.Equal(90, preferences.LabelWidthMm);
+            Assert.Equal(120, preferences.LabelHeightMm);
+
+            viewModel.WidthMmText = "110";
+            Assert.False(viewModel.TryCreatePreferences(out _, out string error, requirePrintableRows: false));
+            Assert.Contains("104 mm", error);
+        }
+
+        [Fact]
         public void EditorSupportsDuplicateLockNudgeAndDeleteActions()
         {
             var viewModel = new StickerPrintDialogViewModel(
@@ -209,7 +276,12 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
             template = StickerTemplatePresets.CreateSgu();
             template.LabelWidthMm = double.NaN;
             Assert.False(StickerTemplateStore.TryValidate(template, out string dimensionError));
-            Assert.Contains("WIDTH AND HEIGHT", dimensionError.ToUpperInvariant());
+            Assert.Contains("WIDTH MUST", dimensionError.ToUpperInvariant());
+
+            template = StickerTemplatePresets.CreateCustom("ZT411 long stock", 104, 991);
+            Assert.True(StickerTemplateStore.TryValidate(template, out string longStockError), longStockError);
+            template.LabelHeightMm = 12.6;
+            Assert.False(StickerTemplateStore.TryValidate(template, out _));
         }
 
         [Fact]

@@ -97,6 +97,9 @@ namespace ProGlassAutomation.Services.Printing.Stickers
     {
         public double LabelWidthMm { get; set; } = 100;
         public double LabelHeightMm { get; set; } = 75;
+        public StickerPrinterModel PrinterModel { get; set; } = StickerPrinterModel.Custom;
+        public StickerPrinterResolution PrinterResolution { get; set; } = StickerPrinterResolution.Dpi203;
+        public StickerMediaHandling MediaHandling { get; set; } = StickerMediaHandling.TearOff;
         public double MarginMm { get; set; } = 2.5;
         public double FontSizePt { get; set; } = 9;
         public string LastTemplateName { get; set; } = string.Empty;

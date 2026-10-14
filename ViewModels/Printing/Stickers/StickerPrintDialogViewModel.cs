@@ -18,6 +18,9 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         private string _heightMmText;
         private string _marginMmText;
         private string _fontSizePtText;
+        private StickerPrinterModel _printerModel;
+        private StickerPrinterResolution _printerResolution;
+        private StickerMediaHandling _mediaHandling;
         private bool _oneLabelPerPiece;
         private bool _showLogo;
         private bool _showCompanyName;
@@ -42,6 +45,25 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         private bool _isTemplateDirty;
         private string _statusMessage = string.Empty;
         private bool _loadingTemplate;
+
+        private readonly StickerPrinterOption<StickerPrinterModel>[] _printerModelOptions =
+        {
+            new(StickerPrinterModel.Custom, "Custom / other printer"),
+            new(StickerPrinterModel.ZebraZt411, "Zebra ZT411")
+        };
+        private readonly StickerPrinterOption<StickerPrinterResolution>[] _printerResolutionOptions =
+        {
+            new(StickerPrinterResolution.Dpi203, "203 dpi"),
+            new(StickerPrinterResolution.Dpi300, "300 dpi"),
+            new(StickerPrinterResolution.Dpi600, "600 dpi")
+        };
+        private readonly StickerPrinterOption<StickerMediaHandling>[] _mediaHandlingOptions =
+        {
+            new(StickerMediaHandling.TearOff, "Tear-off"),
+            new(StickerMediaHandling.PeelOff, "Peel-off"),
+            new(StickerMediaHandling.Rewind, "Rewind"),
+            new(StickerMediaHandling.Cutter, "Cutter + catch tray")
+        };
 
         public StickerPrintDialogViewModel(
             System.Collections.Generic.IEnumerable<GlassStickerLabel> labels,
@@ -98,6 +120,9 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             _heightMmText = Format(_activeTemplate.LabelHeightMm);
             _marginMmText = Format(_activeTemplate.MarginMm);
             _fontSizePtText = Format(_activeTemplate.DefaultFontSizePt);
+            _printerModel = settings.PrinterModel;
+            _printerResolution = settings.PrinterResolution;
+            _mediaHandling = settings.MediaHandling;
             _oneLabelPerPiece = settings.OneLabelPerPiece;
             _showLogo = settings.ShowLogo;
             _showCompanyName = settings.ShowCompanyName;
@@ -134,6 +159,9 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         public ObservableCollection<GlassStickerLabel> Items { get; }
         public ObservableCollection<StickerTemplateChoice> TemplateChoices { get; }
         public StickerTemplateKindOption[] TemplateKindOptions => _templateKindOptions;
+        public StickerPrinterOption<StickerPrinterModel>[] PrinterModelOptions => _printerModelOptions;
+        public StickerPrinterOption<StickerPrinterResolution>[] PrinterResolutionOptions => _printerResolutionOptions;
+        public StickerPrinterOption<StickerMediaHandling>[] MediaHandlingOptions => _mediaHandlingOptions;
         public StickerTextAlignment[] TextAlignments => _textAlignments;
         public StickerContentAlignment[] ContentAlignments => _contentAlignments;
         public System.Collections.Generic.IReadOnlyList<StickerTemplateField> FieldChoices => _fieldChoices;
@@ -194,6 +222,83 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             }
         }
 
+        public StickerPrinterModel PrinterModel
+        {
+            get => _printerModel;
+            set
+            {
+                StickerPrinterModel next = Enum.IsDefined(typeof(StickerPrinterModel), value)
+                    ? value : StickerPrinterModel.Custom;
+                if (_printerModel == next) return;
+                _printerModel = next;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsZt411Profile));
+                OnPropertyChanged(nameof(PrinterLimitsText));
+                OnPropertyChanged(nameof(PrinterSizeWarningText));
+                OnPropertyChanged(nameof(HasPrinterSizeWarning));
+                StatusMessage = "Printer profile changed. Save setup or print to retain the selection.";
+            }
+        }
+
+        public StickerPrinterResolution PrinterResolution
+        {
+            get => _printerResolution;
+            set
+            {
+                StickerPrinterResolution next = Enum.IsDefined(typeof(StickerPrinterResolution), value)
+                    ? value : StickerPrinterResolution.Dpi203;
+                if (_printerResolution == next) return;
+                _printerResolution = next;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PrinterLimitsText));
+                OnPropertyChanged(nameof(PrinterSizeWarningText));
+                OnPropertyChanged(nameof(HasPrinterSizeWarning));
+                StatusMessage = "Printer profile changed. Save setup or print to retain the selection.";
+            }
+        }
+
+        public StickerMediaHandling MediaHandling
+        {
+            get => _mediaHandling;
+            set
+            {
+                StickerMediaHandling next = Enum.IsDefined(typeof(StickerMediaHandling), value)
+                    ? value : StickerMediaHandling.TearOff;
+                if (_mediaHandling == next) return;
+                _mediaHandling = next;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PrinterLimitsText));
+                OnPropertyChanged(nameof(PrinterSizeWarningText));
+                OnPropertyChanged(nameof(HasPrinterSizeWarning));
+                StatusMessage = "Printer profile changed. Save setup or print to retain the selection.";
+            }
+        }
+
+        public bool IsZt411Profile => PrinterModel == StickerPrinterModel.ZebraZt411;
+        public string PrinterLimitsText => StickerPrinterSpecifications.GetLimits(
+            PrinterModel, PrinterResolution, MediaHandling).Description;
+        public string PrinterSizeWarningText
+        {
+            get
+            {
+                if (!TryParseNumber(WidthMmText, out double width)
+                    || !TryParseNumber(HeightMmText, out double height))
+                    return "Enter valid numeric width and length values.";
+                return StickerPrinterSpecifications.TryValidateDimensions(PrinterModel,
+                    PrinterResolution, MediaHandling, width, height, out string error)
+                    ? string.Empty : error;
+            }
+        }
+        public bool HasPrinterSizeWarning => !string.IsNullOrWhiteSpace(PrinterSizeWarningText);
+
+        public void ApplyZt411FourBySixStock()
+        {
+            PrinterModel = StickerPrinterModel.ZebraZt411;
+            WidthMmText = Format(101.6);
+            HeightMmText = Format(152.4);
+            StatusMessage = "Applied common 4 × 6 in stock (101.6 × 152.4 mm). Both dimensions remain manually editable.";
+        }
+
         public StickerLayoutElement? SelectedElement
         {
             get => _selectedElement;
@@ -237,7 +342,11 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             set
             {
                 if (!Set(ref _widthMmText, value ?? string.Empty)) return;
-                if (TryParseNumber(_widthMmText, out double width) && width >= 15 && width <= 500)
+                OnPropertyChanged(nameof(PrinterSizeWarningText));
+                OnPropertyChanged(nameof(HasPrinterSizeWarning));
+                if (TryParseNumber(_widthMmText, out double width)
+                    && width >= StickerPrinterSpecifications.GenericMinimumWidthMm
+                    && width <= StickerPrinterSpecifications.GenericMaximumWidthMm)
                 {
                     _activeTemplate.LabelWidthMm = width;
                     MarkTemplateDirty();
@@ -251,7 +360,11 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             set
             {
                 if (!Set(ref _heightMmText, value ?? string.Empty)) return;
-                if (TryParseNumber(_heightMmText, out double height) && height >= 15 && height <= 500)
+                OnPropertyChanged(nameof(PrinterSizeWarningText));
+                OnPropertyChanged(nameof(HasPrinterSizeWarning));
+                if (TryParseNumber(_heightMmText, out double height)
+                    && height >= StickerPrinterSpecifications.MinimumTemplateLengthMm
+                    && height <= StickerPrinterSpecifications.MaximumTemplateLengthMm)
                 {
                     _activeTemplate.LabelHeightMm = height;
                     MarkTemplateDirty();
@@ -505,14 +618,18 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         public bool TryPrepareTemplateForSave(out string error)
         {
             error = string.Empty;
-            if (!TryParseNumber(_widthMmText, out double width) || width < 15 || width > 500)
+            if (!TryParseNumber(_widthMmText, out double width)
+                || width < StickerPrinterSpecifications.GenericMinimumWidthMm
+                || width > StickerPrinterSpecifications.GenericMaximumWidthMm)
             {
                 error = "Label width must be between 15 and 500 mm.";
                 return false;
             }
-            if (!TryParseNumber(_heightMmText, out double height) || height < 15 || height > 500)
+            if (!TryParseNumber(_heightMmText, out double height)
+                || height < StickerPrinterSpecifications.MinimumTemplateLengthMm
+                || height > StickerPrinterSpecifications.MaximumTemplateLengthMm)
             {
-                error = "Label height must be between 15 and 500 mm.";
+                error = "Label length must be between 12.7 and 991 mm.";
                 return false;
             }
             if (!TryParseNumber(_marginMmText, out double margin) || margin < 0 || margin > 25
@@ -548,16 +665,23 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             preferences = new StickerPrintPreferences();
             error = string.Empty;
 
-            if (!TryParseNumber(WidthMmText, out double width) || width < 15 || width > 500)
+            if (!TryParseNumber(WidthMmText, out double width)
+                || width < StickerPrinterSpecifications.GenericMinimumWidthMm
+                || width > StickerPrinterSpecifications.GenericMaximumWidthMm)
             {
                 error = "Label width must be between 15 and 500 mm.";
                 return false;
             }
-            if (!TryParseNumber(HeightMmText, out double height) || height < 15 || height > 500)
+            if (!TryParseNumber(HeightMmText, out double height)
+                || height < StickerPrinterSpecifications.MinimumTemplateLengthMm
+                || height > StickerPrinterSpecifications.MaximumTemplateLengthMm)
             {
-                error = "Label height must be between 15 and 500 mm.";
+                error = "Label length must be between 12.7 and 991 mm.";
                 return false;
             }
+            if (!StickerPrinterSpecifications.TryValidateDimensions(PrinterModel,
+                    PrinterResolution, MediaHandling, width, height, out error))
+                return false;
             if (!TryParseNumber(MarginMmText, out double margin)
                 || margin < 0 || margin > 25 || margin * 2 >= Math.Min(width, height))
             {
@@ -593,6 +717,9 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 FontSizePt = fontSize,
                 LastTemplateName = _activeTemplate.Name,
                 LastTemplate = _activeTemplate.DeepClone(),
+                PrinterModel = PrinterModel,
+                PrinterResolution = PrinterResolution,
+                MediaHandling = MediaHandling,
                 OneLabelPerPiece = OneLabelPerPiece,
                 ShowLogo = ShowLogo,
                 ShowCompanyName = ShowCompanyName,

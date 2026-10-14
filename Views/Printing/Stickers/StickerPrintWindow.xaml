@@ -235,21 +235,72 @@
 
                     <Border Style="{StaticResource Sl.Card}" Padding="16" Margin="0,0,0,12">
                         <StackPanel>
-                            <TextBlock Text="LABEL STOCK &amp; REPEAT MODE" Style="{StaticResource StickerSectionTitle}"
+                            <TextBlock Text="PRINTER, LABEL STOCK &amp; REPEAT MODE" Style="{StaticResource StickerSectionTitle}"
                                        Margin="0,0,0,14"/>
-                            <Grid Margin="0,0,0,10">
+                            <StackPanel Margin="0,0,0,10">
+                                <TextBlock Text="Printer profile" Style="{StaticResource StickerFieldLabel}"/>
+                                <ComboBox ItemsSource="{Binding PrinterModelOptions}"
+                                          DisplayMemberPath="DisplayName" SelectedValuePath="Value"
+                                          SelectedValue="{Binding PrinterModel, Mode=TwoWay}"
+                                          Style="{StaticResource StickerCombo}"/>
+                            </StackPanel>
+                            <Grid Margin="0,0,0,9">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="Label width (mm)" Style="{StaticResource StickerFieldLabel}"/>
-                                    <TextBox Text="{Binding WidthMmText, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource StickerInput}"/>
+                                    <TextBlock Text="Printhead resolution" Style="{StaticResource StickerFieldLabel}"/>
+                                    <ComboBox ItemsSource="{Binding PrinterResolutionOptions}"
+                                              DisplayMemberPath="DisplayName" SelectedValuePath="Value"
+                                              SelectedValue="{Binding PrinterResolution, Mode=TwoWay}"
+                                              IsEnabled="{Binding IsZt411Profile}"
+                                              Style="{StaticResource StickerCombo}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Label height (mm)" Style="{StaticResource StickerFieldLabel}"/>
-                                    <TextBox Text="{Binding HeightMmText, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource StickerInput}"/>
+                                    <TextBlock Text="Media handling" Style="{StaticResource StickerFieldLabel}"/>
+                                    <ComboBox ItemsSource="{Binding MediaHandlingOptions}"
+                                              DisplayMemberPath="DisplayName" SelectedValuePath="Value"
+                                              SelectedValue="{Binding MediaHandling, Mode=TwoWay}"
+                                              IsEnabled="{Binding IsZt411Profile}"
+                                              Style="{StaticResource StickerCombo}"/>
                                 </StackPanel>
                             </Grid>
+                            <Border Background="{DynamicResource Ov.Soft}" BorderBrush="{DynamicResource Ov.Line}"
+                                    BorderThickness="1" CornerRadius="10" Padding="11,9" Margin="0,0,0,12">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding PrinterLimitsText}" FontSize="11"
+                                               Foreground="{DynamicResource Ov.Muted}" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding PrinterSizeWarningText}" FontSize="11"
+                                               Foreground="{DynamicResource Ov.Warning}" TextWrapping="Wrap" Margin="0,7,0,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasPrinterSizeWarning}" Value="False">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Custom label / print width (mm)" Style="{StaticResource StickerFieldLabel}"/>
+                                    <TextBox Text="{Binding WidthMmText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource StickerInput}"
+                                             ToolTip="Enter the sticker layout width manually. ZT411 printable width is limited to 104 mm; stock web may be wider, depending on media handling."/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Custom label height / length (mm)" Style="{StaticResource StickerFieldLabel}"/>
+                                    <TextBox Text="{Binding HeightMmText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource StickerInput}"
+                                             ToolTip="Manually enter the sticker length. ZT411 limits depend on resolution and media handling."/>
+                                </StackPanel>
+                            </Grid>
+                            <Button Content="Apply common 4 × 6 in (101.6 × 152.4 mm)"
+                                    Tag="&#xE8A7;" Click="ApplyZt411FourBySix_Click"
+                                    IsEnabled="{Binding IsZt411Profile}"
+                                    Style="{StaticResource StickerButton}" Margin="0,0,0,13"/>
                             <Grid Margin="0,0,0,14">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                 <StackPanel>

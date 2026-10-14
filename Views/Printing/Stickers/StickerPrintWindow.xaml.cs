@@ -622,6 +622,9 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             }
         }
 
+        private void ApplyZt411FourBySix_Click(object sender, RoutedEventArgs e)
+            => _viewModel.ApplyZt411FourBySixStock();
+
         private void AddText_Click(object sender, RoutedEventArgs e) => _viewModel.AddTextElement();
         private void AddField_Click(object sender, RoutedEventArgs e) => _viewModel.AddFieldElement();
         private void AddLogo_Click(object sender, RoutedEventArgs e) => _viewModel.AddLogoElement();

@@ -29,7 +29,9 @@ namespace ProGlassAutomation.Services.Printing.Stickers
             string? selectedElementId = null)
         {
             double widthDip = MmToDip(SafeRange(template.LabelWidthMm, 15, 500, 100));
-            double heightDip = MmToDip(SafeRange(template.LabelHeightMm, 15, 500, 75));
+            double heightDip = MmToDip(SafeRange(template.LabelHeightMm,
+                StickerPrinterSpecifications.MinimumTemplateLengthMm,
+                StickerPrinterSpecifications.MaximumTemplateLengthMm, 75));
             var canvas = new Canvas
             {
                 Width = widthDip,
