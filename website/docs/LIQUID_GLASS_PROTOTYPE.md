@@ -546,3 +546,33 @@ preview. If the witness phone still blanks after §S, the next
 evidence to gather is the device itself: model/GPU, Chrome version,
 and a screen recording — the code's scroll path has nothing left that
 repaints by construction.
+
+### §T — the second sampler (*shipped*)
+
+**Witness.** After §S, on the device: Crystal's top panel "tries to
+update something" — continuously, even without scrolling. Clay,
+cross-checked, is calm.
+
+**What the re-read found.** §S filmed the bar's own backdrop-filter
+in the coarse lane but missed its **§F1 pseudo-element**:
+`.nav-glass::before` carries a second, masked 24px backdrop sampling
+("progressive frost"). §S also restarted the liquid disc behind it,
+so the pseudo now re-blurred *continuously at rest* — the top panel
+repainting forever, which is precisely what the witness described.
+Clay has no §F1 rule (its bar is opaque), hence the control case
+passing. The rest of the top-panel sweep was re-verified clean in
+the same pass: `HeroField` (fine-pointer only, rAF-coalesced, no
+scroll writes), `LiveSurface`/`DashboardEngine`/`AppFrame`
+(click-driven state, no timers), `.edge-conic` (static hover ring),
+`.spot` (hover-gated), `.orb` (static gradient), `.aurora-drift`
+(transform-only, stilled on touch).
+
+**The fix.** One rule joins the coarse lane: `.nav-glass::before`
+takes `backdrop-filter: none` on touch (its pseudo has no background
+of its own, so it paints nothing; the bar keeps §S's solid film).
+Properties were already inside G6·1's allowance — no renegotiation.
+Fine pointers keep the progressive frost.
+
+**Locked.** `crystal-motion` §S·1 now counts the pseudo's film
+separately and names the miss in its failure message; the vitest
+§R+§S guard pins `.nav-glass::before` in the lane.

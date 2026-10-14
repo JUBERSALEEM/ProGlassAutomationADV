@@ -127,6 +127,10 @@ describe("§R+§S touch budget (coarse pointers)", () => {
     const engine = read("src/app/crystal-engine.css");
     const lane = engine.slice(engine.indexOf("@media (pointer: coarse)"));
     expect(lane).toContain(".nav-glass");
+    /* the §F1 progressive-frost pseudo is the bar's second sampler;
+       filming the bar without it leaves the top panel re-blurring
+       over the drifting liquid even at rest (the §S first-cut miss) */
+    expect(lane).toContain(".nav-glass::before");
     expect(lane).toContain("backdrop-filter: none");
   });
 

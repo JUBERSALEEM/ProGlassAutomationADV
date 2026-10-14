@@ -1477,14 +1477,21 @@ html.glass-econ[data-appearance="crystal"] .liquid-scene span {
  * whose tiles cannot raster inside a fling present as empty glass,
  * and the audit found where a phone's budget was still being spent:
  *
- *   1 · THE BAR SAMPLED THE PAGE. The sticky .nav-glass ran
+ *   1 · THE BAR SAMPLED THE PAGE — TWICE. The sticky .nav-glass ran
  *       backdrop-filter blur(--surface-blur = 24px × the Frost dial)
- *       + saturate over everything sliding beneath it, re-sampled on
- *       every scroll frame — the most expensive scroll-time feature
- *       on Android, and Crystal-only. On touch the bar (and the pill,
- *       where it renders) now takes solid film at the codebase's own
- *       no-backdrop fallback fills; the bar's text gets MORE legible,
- *       not less. Fine pointers keep the living glass bar untouched.
+ *       + saturate over everything sliding beneath it, and its §F1
+ *       ::before ran a second, masked 24px sampling on top. Both
+ *       re-sample on every scroll frame — the most expensive
+ *       scroll-time feature on Android, and Crystal-only (Clay's bar
+ *       is opaque; that is why Clay always scrolled clean). On touch
+ *       the bar, its §F1 pseudo and the pill (where it renders) now
+ *       take solid film at the codebase's own no-backdrop fallback
+ *       fills; the bar's text gets MORE legible, not less. Fine
+ *       pointers keep the living glass bar untouched. (The lane's
+ *       first cut filmed the bar and the pill but missed the §F1
+ *       ::before — with the liquid drifting again it re-blurred
+ *       continuously even at rest, the top panel forever "updating";
+ *       the pseudo is filmed now too.)
  *   2 · ONE DISC KEEPS DRIFTING. The drift is transform-only — cached
  *       tiles translated by the compositor; it never repaints — so
  *       §R's full stop bought little and cost the product its
@@ -1501,6 +1508,10 @@ html.glass-econ[data-appearance="crystal"] .liquid-scene span {
 @media (pointer: coarse) {
   [data-appearance="crystal"] .nav-glass {
     background-color: rgb(var(--ink-950) / 0.96);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  [data-appearance="crystal"] .nav-glass::before {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }

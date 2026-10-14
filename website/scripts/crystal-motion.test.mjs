@@ -343,18 +343,23 @@ test("§O·3 chips are tint-only glass (no backdrop sampling on chip rows)", () 
    drifting, the thinned water stays. The §O·1 census above stays
    green: the film rules carry `backdrop-filter: none`, never a blur. */
 test("§S·1 on touch the sticky bar stops sampling the page (solid film)", () => {
-  let bar = 0, pill = 0;
+  let bar = 0, pill = 0, barPseudo = 0;
   root.walkAtRules("media", (a) => {
     if (!/pointer: coarse/u.test(a.params)) return;
     a.walkRules((r) => {
       r.walkDecls("backdrop-filter", (d) => {
         if (d.value.trim() !== "none") return;
-        if (r.selector.includes(".nav-glass")) bar++;
+        if (r.selector.includes(".nav-glass::before")) barPseudo++;
+        else if (r.selector.includes(".nav-glass")) bar++;
         if (r.selector.includes(".nav-pill")) pill++;
       });
     });
   });
   assert.ok(bar >= 1, "the coarse lane lost the .nav-glass film — the bar samples the page at scroll again");
+  /* the §F1 progressive-frost pseudo is the second sampler on the same
+     bar; §S's first cut missed it and the top panel kept re-blurring
+     over the drifting liquid even at rest — it must stay filmed */
+  assert.ok(barPseudo >= 1, "the coarse lane lost the .nav-glass::before film — the §F1 sampler is repainting the top panel again");
   assert.ok(pill >= 1, "the coarse lane lost the .nav-pill film");
 });
 
