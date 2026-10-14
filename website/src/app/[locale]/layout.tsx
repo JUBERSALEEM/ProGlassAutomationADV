@@ -263,7 +263,7 @@ export default async function LocaleLayout({
       data-locale={locale}
       data-theme="midnight"
       data-theme-mode="system"
-      data-appearance="clay"
+      data-appearance="crystal"
       data-scroll-behavior="smooth"
       data-build-time={buildStamp.builtAt}
       data-build-rev={buildStamp.revision ?? ""}

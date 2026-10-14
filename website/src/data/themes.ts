@@ -138,7 +138,7 @@ export const DEFAULT_THEME_MODE: ThemeMode = "system";
  * wins over this default — the default only greets a visitor who has never
  * picked.
  */
-export const DEFAULT_APPEARANCE: AppearanceFamily = "clay";
+export const DEFAULT_APPEARANCE: AppearanceFamily = "crystal";
 
 export function isThemeMode(value: unknown): value is ThemeMode {
   return value === "light" || value === "dark" || value === "system";
@@ -173,15 +173,17 @@ var m=sg(mk);
 if(m!=="light"&&m!=="dark"&&m!=="system")m="system";
 /* Hygiene v2 — rides BEFORE the appearance resolves, so it takes effect on
    this very boot: clears the stored studio dials (an old edge/scale dial
-   could outrank the clay recipe's own corners and strokes) AND lands the
-   visitor on the Clay family once. The palette picker still switches away
-   — this just makes Clay the first thing every visitor feels, including a
-   returning one whose storage pinned an older family. */
+   could outrank the family recipe's own corners and strokes) AND lands
+   the visitor on the Crystal family once — the liquid-glass identity
+   (Phase 5 rollout, user-approved 14 Oct 2026; hygiene v3 had landed
+   everyone on Clay). The palette picker still switches away — this
+   just makes Crystal the first thing every visitor feels, including
+   a returning one whose storage pinned an older family. */
 var vk2="proglass-studio-attrs";
-var hv="proglass-hygiene-v3";
-if(sg(hv)!=="1"){sr(vk);sr(vk2);ss(ak,"clay");ss(hv,"1");}
+var hv="proglass-hygiene-v4";
+if(sg(hv)!=="1"){sr(vk);sr(vk2);ss(ak,"crystal");ss(hv,"1");}
 var a=sg(ak);
-if(a!=="studio"&&a!=="monet"&&a!=="industrial"&&a!=="crystal"&&a!=="clay")a="clay";
+if(a!=="studio"&&a!=="monet"&&a!=="industrial"&&a!=="crystal"&&a!=="clay")a="crystal";
 var d=window.matchMedia?window.matchMedia("(prefers-color-scheme: dark)").matches:true;
 var t=m==="light"?"daylight":m==="dark"?"midnight":(d?"midnight":"daylight");
 var e=document.documentElement;
