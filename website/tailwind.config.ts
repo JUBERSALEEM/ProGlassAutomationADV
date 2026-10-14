@@ -146,6 +146,10 @@ const config: Config = {
         card: "calc(1rem * var(--radius-scale, 1))",
         panel: "calc(1.25rem * var(--radius-scale, 1))",
         hero: "calc(1.5rem * var(--radius-scale, 1))",
+        /* Form wells (`rounded-input` in the crystal catalog's fields):
+           without this key Tailwind emitted nothing and the fields rendered
+           with square corners while every card around them was rounded. */
+        input: "calc(0.625rem * var(--radius-scale, 1))",
       },
       boxShadow: {
         panel: "var(--shadow-panel)",

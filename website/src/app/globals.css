@@ -306,9 +306,16 @@
        The two weights are kept apart on purpose — the app's own note says a
        bold card edge must never inflate text boxes and table gridlines — so
        `--card-hairline` is what inputs and inner rules use, and
-       `--card-edge-width` is the card's own outline. */
-    --card-radius: calc(12px * var(--radius-scale));
-    --card-radius-large: calc(16px * var(--radius-scale));
+       `--card-edge-width` is the card's own outline.
+
+       The site's base corner is one step rounder than the app's (16/20 px
+       rather than 12/16), and it is dynamic twice over — see
+       `--radius-scale` below. At the studio dial's rest position (1×):
+         Studio · Monet · Industrial   card 16 px · panel 20 px
+         Crystal (family ×1.5)         card 24 px · panel 30 px
+         Clay    (family ×2)           card 32 px · panel 40 px */
+    --card-radius: calc(16px * var(--radius-scale));
+    --card-radius-large: calc(20px * var(--radius-scale));
     --card-hairline: 1.5px;
     --card-edge-width: 2px;
 
@@ -316,11 +323,22 @@
     --card-edge: rgb(54 40 116 / 0.95);
     --card-edge-hover: rgb(158 121 229 / 0.85);
     /* Padding grows with the edge weight so a thicker stroke never crowds
-       the content — ThemeManager.ApplyCardEdgePaddingResources. */
+       the content — ThemeManager.ApplyCardEdgePaddingResources. It now also
+       grows with the corner: past a certain radius the arc itself becomes
+       the thing crowding the first line, so each token carries a radius
+       floor (the corner-safe system in the utilities layer below works the
+       same way for hand-padded cards). */
     --card-pad-base: 1.5rem;
     --card-pad-sm-base: 1rem;
-    --card-pad: calc(var(--card-pad-scale, 1) * (var(--card-pad-base) + max(0px, var(--card-edge-width) - 2px)));
-    --card-pad-sm: calc(var(--card-pad-scale, 1) * (var(--card-pad-sm-base) + max(0px, var(--card-edge-width) - 2px)));
+    --card-pad: calc(var(--card-pad-scale, 1) * max(var(--card-pad-base) + max(0px, var(--card-edge-width) - 2px), calc(var(--card-radius) * 0.52)));
+    --card-pad-sm: calc(var(--card-pad-scale, 1) * max(var(--card-pad-sm-base) + max(0px, var(--card-edge-width) - 2px), calc(var(--card-radius) * 0.44)));
+
+    /* Corner-safe caps: however round a card gets, its content never asks
+       for more than this much extra room — past it the card is a pill and
+       the geometry, not the padding, is the design. Smaller on a phone,
+       where 36 px of inset on a 360 px screen is a tenth of the card. */
+    --corner-safe-cap-inline: 2.25rem;
+    --corner-safe-cap-block: 1.5rem;
     --tint-alpha: 0.19;         /* violet wash strength         */
     --tint-alpha-2: 0.10;       /* second wash, opposite corner */
     --card-tint-2: rgb(26 197 226 / 0.10);
@@ -334,8 +352,30 @@
     --viz-scrap: rgb(242 96 164 / 0.62);
     --viz-plate: rgb(32 22 72 / 0.95);
 
-    /* Corner rounding, scaled live by the appearance studio. */
-    --radius-scale: 1;
+    /*
+     * Corner rounding — dynamic twice over, and this split is the fix for
+     * "Crystal cards do not take the corner radius". The effective scale is
+     * a product, never a single number a family and a dial fight over:
+     *
+     *   --radius-scale  =  --radius-family  ×  --radius-user
+     *
+     * `--radius-family` is the family's own roundness, declared by the
+     * family (Crystal ×1.5 and Clay ×2 in their engine files; 1 here for
+     * Studio/Monet/Industrial). `--radius-user` is the appearance studio's
+     * Corner-radius dial, written inline on <html> by `useStudio` — and
+     * only when the visitor actually moved it. The old scheme had both
+     * sides write `--radius-scale` itself, so the moment the dial moved,
+     * its inline value outranked and *erased* the family's roundness:
+     * Crystal at a 1.8× dial drew 1.8×, not 1.25 × 1.8×, and at rest the
+     * family's 1.25 only ever reached token-driven cards — the raw
+     * `rounded-*` utility cards ignored it entirely (they are re-based on
+     * this scale in the utilities layer below). Nothing may write
+     * `--radius-scale` directly any more; scripts/card-radius-guard.test.mjs
+     * holds that line.
+     */
+    --radius-family: 1;
+    --radius-user: 1;
+    --radius-scale: calc(var(--radius-family) * var(--radius-user));
 
     /* ── Motion ──────────────────────────────────────────────────────────
        The canonical duration/easing scale (Phase 2, WEBSITE_DESIGN_SYSTEM.md).
@@ -668,7 +708,7 @@
     --surface-blur-base: 26px;
     --surface-sat: 200%;
     --surface-specular-base: 0.32;
-    --card-edge: rgb(255 255 255 / 0.34);
+    --card-edge: rgb(255 255 255 / 0.48);
     --tint-alpha: 0.19;
     --tint-alpha-2: 0.08;
 
@@ -1252,6 +1292,8 @@
     :root {
       --card-pad-base: 1.15rem;
       --card-pad-sm-base: 0.85rem;
+      --corner-safe-cap-inline: 1.75rem;
+      --corner-safe-cap-block: 1.25rem;
     }
   }
 
@@ -1791,17 +1833,18 @@
      * A symmetric 1 px highlight top and bottom is a border; this is the
      * cross-section of a piece of glass.
      */
-    box-shadow: var(--shadow-panel), 0 0 0 1px var(--glass-ring),
-      inset 1px 1px 1px rgb(255 255 255 / 0.3),
-      inset -1px -1px 2px rgb(6 30 42 / 0.34),
-      inset 0 1px 0 0 var(--glass-edge-light), inset 0 -1px 0 0 var(--glass-edge-dark);
+    /* One edge (crystal §G): the border below is the only outline on a
+       Crystal pane — this stack is soft depth and blurred inner light,
+       never a ring or a 1px line. crystal-engine §C7 owns final paint. */
+    box-shadow: var(--shadow-panel),
+      inset 3px 3px 9px rgb(255 255 255 / 0.2),
+      inset -4px -4px 11px rgb(6 30 42 / 0.16);
   }
 
   [data-appearance="crystal"] .surface-raised {
-    box-shadow: var(--shadow-raised), 0 0 0 1px var(--glass-ring),
-      inset 1px 1px 1px rgb(255 255 255 / 0.32),
-      inset -1px -1px 2px rgb(6 30 42 / 0.36),
-      inset 0 1px 0 0 var(--glass-edge-light), inset 0 -1px 0 0 var(--glass-edge-dark);
+    box-shadow: var(--shadow-raised),
+      inset 3px 3px 9px rgb(255 255 255 / 0.22),
+      inset -4px -4px 11px rgb(6 30 42 / 0.18);
   }
 
   /* ── 2 · the card edge ──────────────────────────────────────────────────
@@ -1839,6 +1882,34 @@
 
   .surface-raised {
     border-radius: var(--card-radius-large);
+  }
+
+  /*
+   * Each card publishes the radius it actually drew as `--corner-radius`.
+   * The corner-safe padding floors in the utilities layer read it, so the
+   * content of a card measures its room against the corner it sits in —
+   * and because the variable is set by the same rule that draws the
+   * radius, the two can never drift apart again. Utility-rounded cards
+   * publish theirs alongside their radius in the utilities layer; a card
+   * with both a named surface and a rounding utility follows the utility,
+   * which is also the radius that wins there.
+   */
+  .surface,
+  .stat-tile,
+  .plate,
+  .card-live,
+  .menu-card,
+  .float-card,
+  .glass-rows {
+    --corner-radius: var(--card-radius);
+  }
+
+  .surface-raised,
+  .glass-primary,
+  .panel-feature,
+  .card-accent,
+  .card-glass {
+    --corner-radius: var(--card-radius-large);
   }
 
   /* ── The primary card ───────────────────────────────────────────────────
@@ -2068,8 +2139,9 @@
    */
   [data-appearance="crystal"] .card-interactive:hover,
   [data-appearance="crystal"] .card-interactive:focus-visible {
-    box-shadow: 0 0 20px 0 rgb(var(--brand-500) / 0.22), 0 0 0 1px var(--glass-ring),
-      inset 0 1px 0 0 var(--glass-edge-light), inset 0 -1px 0 0 var(--glass-edge-dark);
+    box-shadow: 0 0 20px 0 rgb(var(--brand-500) / 0.22),
+      inset 3px 3px 9px rgb(255 255 255 / 0.2),
+      inset -4px -4px 11px rgb(6 30 42 / 0.16);
   }
 
   /*
@@ -2140,7 +2212,9 @@
       linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%);
     backdrop-filter: blur(16px) saturate(170%);
     -webkit-backdrop-filter: blur(16px) saturate(170%);
-    box-shadow: inset 0 1px 0 0 var(--glass-edge-light), 0 0 0 1px var(--glass-ring);
+    box-shadow: var(--shadow-panel),
+      inset 3px 3px 9px rgb(255 255 255 / 0.2),
+      inset -4px -4px 11px rgb(6 30 42 / 0.16);
   }
 
   @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
@@ -2252,10 +2326,9 @@
   /* Crystal's rim of light, restated after the plate rule above so it is the
      plate's own shadow that gets the ring and not the other way round. */
   [data-appearance="crystal"] .plate {
-    box-shadow: var(--shadow-raised), 0 0 0 1px var(--glass-ring),
-      inset 1px 1px 1px rgb(255 255 255 / 0.3),
-      inset -1px -1px 2px rgb(6 30 42 / 0.34),
-      inset 0 1px 0 0 var(--glass-edge-light), inset 0 -1px 0 0 var(--glass-edge-dark);
+    box-shadow: var(--shadow-raised),
+      inset 3px 3px 9px rgb(255 255 255 / 0.2),
+      inset -4px -4px 11px rgb(6 30 42 / 0.16);
   }
 
   /*
@@ -2352,6 +2425,24 @@
     border-radius: 999px;
     background: rgb(var(--text-1));
     border: 3px solid rgb(var(--brand-500));
+  }
+
+  /*
+   * Live studio drags: while a studio slider is being dragged, the root
+   * carries `data-studio-live` (set by components/ui/Slider.tsx). Every
+   * tick of such a drag rewrites root custom properties, so every card's
+   * computed shadow/border changes per frame; if the cards' own
+   * transitions are allowed to animate each of those changes, the paint
+   * pipeline never catches up and the page feels hung behind the thumb.
+   * Collapsing transition durations for the duration of the gesture
+   * (the same trick `.tilt-stage` uses) makes a drag one repaint per
+   * frame and nothing more. It applies only while the attribute is
+   * present — the moment the gesture ends, motion returns.
+   */
+  html[data-studio-live] *,
+  html[data-studio-live] *::before,
+  html[data-studio-live] *::after {
+    transition-duration: 0.01ms !important;
   }
 
   /* Swatch inputs need a visible frame, not the browser's grey box. */
@@ -3341,6 +3432,216 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
     );
   }
 
+  /*
+   * Dynamic utility radii — every theme, not just Clay.
+   *
+   * Tailwind's stock `rounded-md/lg/xl/2xl/3xl` are fixed lengths, so the
+   * hundreds of hand-written utility cards (the operations dashboards'
+   * `rounded-2xl` panels above all) ignored both the family's roundness
+   * and the studio's corner dial: in Crystal they stayed at a flat 16 px
+   * while `.surface` cards around them took the family's scale. Clay had
+   * already patched four of these for itself (clay-engine §3); this is the
+   * same rebasing stated once for all families. These rules sit in the
+   * utilities layer after the generated utilities, so they win at equal
+   * specificity; Clay's unlayered copies compute the identical values from
+   * the same scale and continue to win there. Small elements keep their
+   * stock corners (`rounded`, `rounded-sm`, pills, arbitrary radii) — the
+   * rebasing starts at `md`, the smallest card-shaped step.
+   */
+  .rounded-md,
+  .rounded-lg {
+    --corner-radius: calc(0.5rem * var(--radius-scale));
+    border-radius: var(--corner-radius);
+  }
+
+  .rounded-xl {
+    --corner-radius: calc(0.75rem * var(--radius-scale));
+    border-radius: var(--corner-radius);
+  }
+
+  .rounded-2xl {
+    --corner-radius: calc(1rem * var(--radius-scale));
+    border-radius: var(--corner-radius);
+  }
+
+  .rounded-3xl {
+    --corner-radius: calc(1.5rem * var(--radius-scale));
+    border-radius: var(--corner-radius);
+  }
+
+  /* The config's own radius keys, restated so they publish their radius the
+     same way (the values are tailwind.config's, unchanged). */
+  .rounded-card {
+    --corner-radius: calc(1rem * var(--radius-scale));
+    border-radius: var(--corner-radius);
+  }
+
+  .rounded-panel {
+    --corner-radius: calc(1.25rem * var(--radius-scale));
+    border-radius: var(--corner-radius);
+  }
+
+  .rounded-hero {
+    --corner-radius: calc(1.5rem * var(--radius-scale));
+    border-radius: var(--corner-radius);
+  }
+
+  .rounded-input {
+    --corner-radius: calc(0.625rem * var(--radius-scale));
+    border-radius: var(--corner-radius);
+  }
+
+  /*
+   * ── Corner-safe content insets ────────────────────────────────────────
+   *
+   * The defect this answers: a card's text is placed by its padding, but
+   * its corner is placed by its radius — and after the radius became
+   * dynamic (family × dial, up to a 48–64 px arc), the two stopped
+   * agreeing. At the dial's far end the arc swept through the first line
+   * of left-aligned text and the text visibly spilled out of the corner.
+   *
+   * The rule, stated once here rather than in six hundred class lists:
+   * a card's inline padding is never less than 58% of the radius it
+   * actually drew (published as `--corner-radius` by the rule that drew
+   * it), capped so a near-pill card stays usable; its block padding is
+   * never less than 38%. Below the floor, padding is exactly what the
+   * markup asked for — at the studio dial's rest position almost nothing
+   * on the site changes. As the visitor rounds the corners, the content
+   * walks inward with them, in every family, on every page, because the
+   * floor is computed from the same `--radius-scale` as the radius.
+   *
+   * Scope, deliberately: named card surfaces (`.surface`, the studio
+   * sheets, the glass tiers…) at any tag, and utility-rounded structural
+   * containers (div/section/article/li/figure/aside/a/form/fieldset).
+   * Buttons, chips, inputs and inline spans keep their own geometry —
+   * their labels are centred or single-line and their radius is a pill
+   * decision, not a card corner. Flush bands inside clipped frames and
+   * the edge cells of flush tables get their own rules after these.
+   *
+   * The grouped values are Tailwind's spacing scale; a `p-*` floor is
+   * stated before the `px-*` floor that must outrank it, exactly as
+   * Tailwind orders its own utilities, and the responsive (`sm:`/`lg:`)
+   * floors repeat the same values inside their media queries so a
+   * breakpoint padding is floored, never replaced by the base one.
+   */
+
+  /* Inline floors — all-side padding first… */
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-0\.5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-0\.5) { padding-inline: max(0.125rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-1), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-1) { padding-inline: max(0.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-1\.5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-1\.5) { padding-inline: max(0.375rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-2), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-2) { padding-inline: max(0.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-2\.5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-2\.5) { padding-inline: max(0.625rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-3), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-3) { padding-inline: max(0.75rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-3\.5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-3\.5) { padding-inline: max(0.875rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-4), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-4) { padding-inline: max(1rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-5) { padding-inline: max(1.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-6), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-6) { padding-inline: max(1.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-7), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-7) { padding-inline: max(1.75rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-8), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-8) { padding-inline: max(2rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-9), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-9) { padding-inline: max(2.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-10), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-10) { padding-inline: max(2.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-12), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-12) { padding-inline: max(3rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+
+  /* …then inline-axis padding, which Tailwind ranks above all-side. */
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.px-1\.5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.px-1\.5) { padding-inline: max(0.375rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.px-2), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.px-2) { padding-inline: max(0.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.px-2\.5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.px-2\.5) { padding-inline: max(0.625rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.px-3), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.px-3) { padding-inline: max(0.75rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.px-3\.5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.px-3\.5) { padding-inline: max(0.875rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.px-4), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.px-4) { padding-inline: max(1rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.px-5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.px-5) { padding-inline: max(1.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.px-6), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.px-6) { padding-inline: max(1.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+
+  /* Single-side starts/ends keep their physical or logical meaning. */
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.ps-3, .pl-3), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.ps-3, .pl-3) { padding-inline-start: max(0.75rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.ps-4, .pl-4), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.ps-4, .pl-4) { padding-inline-start: max(1rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.ps-5, .pl-5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.ps-5, .pl-5) { padding-inline-start: max(1.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.pe-3, .pr-3), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.pe-3, .pr-3) { padding-inline-end: max(0.75rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.pe-4, .pr-4), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.pe-4, .pr-4) { padding-inline-end: max(1rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.pe-5, .pr-5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.pe-5, .pr-5) { padding-inline-end: max(1.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+
+  /* Block floors — the first and last lines against the top/bottom arcs. */
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-0\.5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-0\.5) { padding-block: max(0.125rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-1), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-1) { padding-block: max(0.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-1\.5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-1\.5) { padding-block: max(0.375rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-2), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-2) { padding-block: max(0.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-2\.5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-2\.5) { padding-block: max(0.625rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-3), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-3) { padding-block: max(0.75rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-3\.5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-3\.5) { padding-block: max(0.875rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-4), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-4) { padding-block: max(1rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-5) { padding-block: max(1.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-6), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-6) { padding-block: max(1.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-7), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-7) { padding-block: max(1.75rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-8), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-8) { padding-block: max(2rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-9), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-9) { padding-block: max(2.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-10), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-10) { padding-block: max(2.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.p-12), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.p-12) { padding-block: max(3rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.py-0\.5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.py-0\.5) { padding-block: max(0.125rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.py-1), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.py-1) { padding-block: max(0.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.py-1\.5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.py-1\.5) { padding-block: max(0.375rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.py-2), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.py-2) { padding-block: max(0.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.py-2\.5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.py-2\.5) { padding-block: max(0.625rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.py-3), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.py-3) { padding-block: max(0.75rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.py-4), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.py-4) { padding-block: max(1rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.py-5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.py-5) { padding-block: max(1.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+  :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.py-6), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.py-6) { padding-block: max(1.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+
+  /* Responsive floors: a breakpoint padding is floored at its breakpoint,
+     never silently replaced by the smaller base floor below it. */
+  @media (min-width: 40rem) {
+    :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.sm\:p-2\.5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.sm\:p-2\.5) { padding-inline: max(0.625rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); padding-block: max(0.625rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+    :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.sm\:p-4), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.sm\:p-4) { padding-inline: max(1rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); padding-block: max(1rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+    :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.sm\:p-5), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.sm\:p-5) { padding-inline: max(1.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); padding-block: max(1.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+    :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.sm\:p-6), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.sm\:p-6) { padding-inline: max(1.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); padding-block: max(1.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+    :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.sm\:p-7), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.sm\:p-7) { padding-inline: max(1.75rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); padding-block: max(1.75rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+    :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.sm\:p-8), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.sm\:p-8) { padding-inline: max(2rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); padding-block: max(2rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+    :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.sm\:p-9), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.sm\:p-9) { padding-inline: max(2.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); padding-block: max(2.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+    :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.sm\:p-10), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.sm\:p-10) { padding-inline: max(2.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); padding-block: max(2.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+    :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.sm\:p-12), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.sm\:p-12) { padding-inline: max(3rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); padding-block: max(3rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+    :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.sm\:px-3), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.sm\:px-3) { padding-inline: max(0.75rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+    :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.sm\:px-6), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.sm\:px-6) { padding-inline: max(1.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+    /* An explicit flush start at the breakpoint stays flush. */
+    :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.sm\:pl-0), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.sm\:pl-0) { padding-inline-start: 0; }
+  }
+
+  @media (min-width: 64rem) {
+    :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.lg\:p-9), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.lg\:p-9) { padding-inline: max(2.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); padding-block: max(2.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+    :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.lg\:p-10), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.lg\:p-10) { padding-inline: max(2.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); padding-block: max(2.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.38), var(--corner-safe-cap-block, 1.5rem))); }
+    :is(.surface, .surface-raised, .stat-tile, .plate, .card-live, .card-accent, .card-glass, .glass-primary, .glass-rows, .menu-card, .float-card, .panel-feature, .studio-sheet, .studio-inset):is(.lg\:px-8), :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.lg\:px-8) { padding-inline: max(2rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.58), var(--corner-safe-cap-inline, 2.25rem))); }
+  }
+
+  /*
+   * Flush bands inside clipped frames. A card that clips (`overflow-hidden`)
+   * keeps its chrome bar, caption or footer flush to its edges — the fill
+   * should be, but the words in it sit in the corner's path. Direct padded
+   * children of a clipped card therefore take a slightly stronger floor
+   * (62% — they start at the arc itself, not behind card padding), read
+   * from the parent's published radius, which they inherit. Media wells
+   * and images carry no padding classes and stay flush, as they should.
+   */
+  :is(.surface, .surface-raised, .plate, .card-live, .glass-primary, .panel-feature, .float-card, .menu-card, .glass-rows):is(.overflow-hidden) > :is(.p-2, .px-2), .plate > :is(.p-2, .px-2) { padding-inline: max(0.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.62), 2.5rem)); }
+  :is(.surface, .surface-raised, .plate, .card-live, .glass-primary, .panel-feature, .float-card, .menu-card, .glass-rows):is(.overflow-hidden) > :is(.p-2\.5, .px-2\.5), .plate > :is(.p-2\.5, .px-2\.5) { padding-inline: max(0.625rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.62), 2.5rem)); }
+  :is(.surface, .surface-raised, .plate, .card-live, .glass-primary, .panel-feature, .float-card, .menu-card, .glass-rows):is(.overflow-hidden) > :is(.p-3, .px-3), .plate > :is(.p-3, .px-3) { padding-inline: max(0.75rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.62), 2.5rem)); }
+  :is(.surface, .surface-raised, .plate, .card-live, .glass-primary, .panel-feature, .float-card, .menu-card, .glass-rows):is(.overflow-hidden) > :is(.p-3\.5, .px-3\.5), .plate > :is(.p-3\.5, .px-3\.5) { padding-inline: max(0.875rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.62), 2.5rem)); }
+  :is(.surface, .surface-raised, .plate, .card-live, .glass-primary, .panel-feature, .float-card, .menu-card, .glass-rows):is(.overflow-hidden) > :is(.p-4, .px-4), .plate > :is(.p-4, .px-4) { padding-inline: max(1rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.62), 2.5rem)); }
+  :is(.surface, .surface-raised, .plate, .card-live, .glass-primary, .panel-feature, .float-card, .menu-card, .glass-rows):is(.overflow-hidden) > :is(.p-5, .px-5), .plate > :is(.p-5, .px-5) { padding-inline: max(1.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.62), 2.5rem)); }
+  :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.overflow-hidden) > :is(.p-2, .px-2) { padding-inline: max(0.5rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.62), 2.5rem)); }
+  :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.overflow-hidden) > :is(.p-2\.5, .px-2\.5) { padding-inline: max(0.625rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.62), 2.5rem)); }
+  :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.overflow-hidden) > :is(.p-3, .px-3) { padding-inline: max(0.75rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.62), 2.5rem)); }
+  :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.overflow-hidden) > :is(.p-3\.5, .px-3\.5) { padding-inline: max(0.875rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.62), 2.5rem)); }
+  :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.overflow-hidden) > :is(.p-4, .px-4) { padding-inline: max(1rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.62), 2.5rem)); }
+  :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.overflow-hidden) > :is(.p-5, .px-5) { padding-inline: max(1.25rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.62), 2.5rem)); }
+
+  /*
+   * Flush tables. Where a table runs to a clipped card's edges (the
+   * operations dashboards), its first and last columns are the text in
+   * the corner's path — so the edge cells, and only the edge cells, take
+   * the floor. Inner columns keep the table's own rhythm untouched.
+   */
+  :is(.surface, .surface-raised, .plate, .card-live, .glass-primary, .panel-feature, .float-card, .menu-card, .glass-rows):is(.overflow-hidden) :is(th, td):first-child, .plate :is(th, td):first-child, .studio-inset :is(th, td):first-child, :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.overflow-hidden) :is(th, td):first-child { padding-inline-start: max(1rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.5), 2rem)); }
+  :is(.surface, .surface-raised, .plate, .card-live, .glass-primary, .panel-feature, .float-card, .menu-card, .glass-rows):is(.overflow-hidden) :is(th, td):last-child, .plate :is(th, td):last-child, .studio-inset :is(th, td):last-child, :is(div, section, article, li, figure, aside, a, form, fieldset):is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-card, .rounded-panel, .rounded-hero):is(.overflow-hidden) :is(th, td):last-child { padding-inline-end: max(1rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.5), 2rem)); }
+
   /* A quiet underline that grows from the leading edge on hover. */
   .link-grow {
     background-image: linear-gradient(rgb(var(--brand-400)), rgb(var(--brand-400)));
@@ -3477,7 +3778,16 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
   /* The panel a drawing sits on: the application's OptPanelCard, adapted to the active theme. */
   .studio-sheet {
     position: relative;
-    border-radius: calc(var(--r-card) * var(--radius-scale));
+    /* Was `calc(var(--r-card) * var(--radius-scale))`: `--r-card` is defined
+       nowhere, so the declaration was invalid at computed-value time and
+       `border-radius` fell back to 0 — every studio card rendered as a
+       rectangle, and (this class living in the utilities layer, after the
+       generated utilities) no `rounded-*` class applied in markup could
+       rescue it. `--card-radius` is the defined, studio-scaled token:
+       16px × --radius-scale, the scale itself being the family's own
+       roundness multiplied by the visitor's corner dial. */
+    --corner-radius: var(--card-radius);
+    border-radius: var(--card-radius);
     border: var(--card-edge-width, 1px) solid var(--cad-line);
     background-color: var(--cad-surface);
     background-image:
@@ -3489,7 +3799,13 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
 
   /* A panel inside it — the application's OptInnerCard. */
   .studio-inset {
-    border-radius: calc(0.625rem * var(--radius-scale));
+    /* A dense working well, not a reading card: it publishes its radius
+       for the corner-safe floors but caps them tighter, so a schedule
+       table inside it gains corner room without losing columns. */
+    --corner-radius: calc(0.625rem * var(--radius-scale));
+    --corner-safe-cap-inline: 1rem;
+    --corner-safe-cap-block: 0.75rem;
+    border-radius: var(--corner-radius);
     border: 1px solid var(--cad-keyline);
     background-color: var(--cad-canvas);
     color: var(--cad-text);

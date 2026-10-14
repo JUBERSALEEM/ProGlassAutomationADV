@@ -98,8 +98,11 @@
   --ink-800: 51 36 64;
   --ink-700: 66 48 80;
 
-  /* Cards sit at 24px, panels 32px — inside the spec's 24–32 band. */
-  --radius-scale: 2;
+  /* Cards sit at 32px, panels 40px at rest — one family step above the
+     site's 16/20px base, inside the spec's puffed-corner band. This is the
+     family's factor only: the studio's corner dial multiplies it through
+     `--radius-user` (see globals.css), it never replaces it. */
+  --radius-family: 2;
 
   /* Named surfaces + moulding channels (Midnight values; Daylight below). */
   --clay-card: var(--ink-850);
@@ -109,10 +112,27 @@
      soft highlight 0.12, lip 0.16; daylight keeps its shipped intensities. */
   --clay-hi-2: rgb(255 255 255 / 0.12);
   --clay-lip: rgb(255 255 255 / 0.16);
+  /* Numeric mould channels for the studio's Corner depth dial. These
+     are alphas, not colours, so a surface recipe can scale the soft
+     top-left sheen and bottom-right shade without manufacturing a line:
+     midnight starts from the same restrained whites as --clay-hi /
+     --clay-hi-2 and the dark-plum shade carried by --clay-lo. */
+  --clay-corner-sheen-alpha: 0.11;
+  --clay-corner-sheen-soft-alpha: 0.12;
+  --clay-corner-top-alpha: 0.16;
+  --clay-corner-shade-rgb: 18 10 38;
+  --clay-corner-shade-alpha: 0.62;
   --clay-lo: rgb(18 10 38 / 0.62);
   --clay-foil: rgb(46 34 62);
   --band-face: 46 34 62;
-  --clay-lift: 0.045;
+  /* Was 0.045: the utility shadows' white lift at midnight was a 4.5%
+     breath — unmeasurable. 0.10 joins the shadow tokens' 0.13–0.17. */
+  --clay-lift: 0.1;
+  /* The inner corner light (§9.12): how much white pools in a card's
+     top-left corner inside the border. Midnight cards are dark, so the
+     pool is the corner's lamp; daylight faces are light, so it runs a
+     little stronger to register against them. */
+  --clay-corner-light: 0.12;
   --clay-scrim: rgb(18 10 38 / 0.62);
   --clay-edge: rgb(var(--clay-drop-h) / 0.28);
   --clay-edge-hover: rgb(var(--clay-drop-h) / 0.5);
@@ -123,10 +143,37 @@
      (Phase 3: `--clay-depth`) scales the drop alpha only — geometry and
      the light lift stay, so cards deepen without ever floating. */
   --clay-depth: 1;
+  /* The studio's CORNER DEPTH dial (the persisted studio field is still
+     named `clayInnerEdge` for settings compatibility), 0–10. Clay has
+     no drawn card border: this dial scales only the mould at the
+     corner — the blurred top-left sheen, the blurred bottom-right
+     shade and the broad corner light. 1 is the shipped recipe and 0
+     removes the bevel while leaving the face and cast shadow in place.
+     Above 1, alphas are capped at their use sites and `--clay-corner-
+     spread` grows the blur/offset geometry instead, so the top of the
+     dial reads as deeper clay rather than a brighter outline. */
+  --clay-corner-depth: 1;
+  --clay-corner-spread: calc(1 + max(0, var(--clay-corner-depth, 1) - 1) * 0.12);
+  /* At midnight the drop hue (18 10 38) is the page ground's own colour —
+     measured ≈1.02:1 against it, the SE half of the recipe cannot
+     register after dark. The NW light lift is what moulds a dark card,
+     and at 0.07 white it measured 1.19:1: a whisper, not a pattern.
+     0.13/0.15 (1.4–1.5:1) is the measured strength at which the mould
+     reads — still far under the 0.85 xenon lamp §26.1 killed on the
+     pastel tiles, which keep their hue-keyed grammar below. */
+  /* Resting and raised altitudes carry the soft corner mould as part
+     of the token: blurred sheen from the top-left and blurred shade
+     into the bottom-right. There is deliberately no 1px inset ring and
+     no drawn perimeter — the reference pattern's boundary is the
+     meeting of face, light and shade around a large radius. */
   --shadow-panel: 12px 12px 32px rgb(18 10 38 / calc(0.68 * var(--clay-depth, 1))),
-    -10px -10px 24px rgb(255 255 255 / 0.07);
+    -10px -10px 24px rgb(255 255 255 / 0.13),
+    inset calc(4px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) calc(9px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.72, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-6px * var(--clay-corner-spread)) calc(-6px * var(--clay-corner-spread)) calc(12px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
   --shadow-raised: 16px 16px 42px rgb(18 10 38 / calc(0.74 * var(--clay-depth, 1))),
-    -14px -14px 30px rgb(255 255 255 / 0.08);
+    -14px -14px 30px rgb(255 255 255 / 0.15),
+    inset calc(5px * var(--clay-corner-spread)) calc(5px * var(--clay-corner-spread)) calc(10px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.72, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-7px * var(--clay-corner-spread)) calc(-7px * var(--clay-corner-spread)) calc(14px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
 
   /* §23 — the four-tier elevation (reference: one light, never a pile
      of per-class choreography). Light arrives top-left: every drop goes
@@ -137,7 +184,7 @@
   --clay-light-y: 1;
   --shadow-well: inset 4px 4px 10px rgb(18 10 38 / 0.35), inset -3px -3px 8px var(--clay-hi-2);
   --shadow-float: 22px 22px 52px rgb(18 10 38 / calc(0.8 * var(--clay-depth, 1))),
-    -18px -18px 36px rgb(255 255 255 / 0.09);
+    -18px -18px 36px rgb(255 255 255 / 0.17);
 
   /* Clay is solid and cheap: no translucency tier, no backdrop blur. */
   --surface-alpha: 1;
@@ -172,25 +219,53 @@
   --ink-700: 210 198 238;
   --clay-raised: 234 226 255;
   --clay-card: var(--clay-raised);
-  --clay-hi: rgb(var(--overlay-face) / 0.55);
-  --clay-hi-2: rgb(var(--overlay-face) / 0.42);
-  --clay-lip: rgb(var(--overlay-face) / 0.65);
-  --clay-lo: rgb(var(--clay-drop-h) / 0.32);
+  /* The light in the recipe is WHITE, not tinted (spec §4: 255,255,255).
+     These channels used to read `--overlay-face` — #EAE2FF, which is the
+     page ground's own colour (#EEE8F8): measured against it, the NW lift
+     in every daylight shadow token sat at ≈1.02:1 and the inset sheen on
+     the near-white faces at ≈1.03:1. The entire light half of the mould
+     was painted in the colour of the wall behind it, so on white and
+     near-white cards the claymorphism simply was not there — only a
+     one-sided drop remained. White at these alphas roughly doubles the
+     sheen's measured presence (1.15→1.31:1 on the card face) while the
+     hue-keyed drop and depth below carry the boundary. */
+  --clay-hi: rgb(255 255 255 / 0.65);
+  --clay-hi-2: rgb(255 255 255 / 0.5);
+  --clay-lip: rgb(255 255 255 / 0.85);
+  --clay-corner-sheen-alpha: 0.65;
+  --clay-corner-sheen-soft-alpha: 0.5;
+  --clay-corner-top-alpha: 0.85;
+  --clay-corner-shade-rgb: var(--clay-drop-h);
+  --clay-corner-shade-alpha: 0.38;
+  --clay-lo: rgb(var(--clay-drop-h) / 0.38);
   --clay-foil: rgb(214 205 254);
   --clay-lift: 0.35;
+  --clay-corner-light: 0.17;
   --clay-scrim: rgb(var(--clay-drop-h) / 0.3);
   --clay-edge: rgb(var(--clay-drop-h) / 0.22);
   --clay-edge-hover: rgb(var(--clay-drop-h) / 0.45);
-  --shadow-panel: 10px 10px 26px rgb(var(--clay-drop-h) / calc(0.32 * var(--clay-depth, 1))),
-    -6px -6px 18px rgb(var(--overlay-face) / 0.45);
-  --shadow-raised: 14px 14px 34px rgb(var(--clay-drop-h) / calc(0.38 * var(--clay-depth, 1))),
-    -8px -8px 22px rgb(var(--overlay-face) / 0.5);
-  --shadow-well: inset 3px 3px 8px rgb(var(--clay-drop-h) / 0.18), inset -2px -2px 6px var(--clay-lip);
-  --shadow-float: 18px 18px 44px rgb(var(--clay-drop-h) / calc(0.44 * var(--clay-depth, 1))),
-    -10px -10px 26px rgb(var(--overlay-face) / 0.55);
+  /* Drop alphas stepped up one notch with them: on a near-white ground
+     the SE drop is the only outer shadow that can register, and at 0.32
+     it measured 1.39:1 — a whisper. 0.42/0.48/0.54 is the spec's own
+     strength (rgba(H, 0.35) at rest, more at altitude), still hue-keyed,
+     never gray. The depth dial keeps scaling them as before. */
+  --shadow-panel: 10px 10px 26px rgb(var(--clay-drop-h) / calc(0.42 * var(--clay-depth, 1))),
+    -6px -6px 18px rgb(255 255 255 / 0.55),
+    inset calc(4px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) calc(9px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-6px * var(--clay-corner-spread)) calc(-6px * var(--clay-corner-spread)) calc(12px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
+  --shadow-raised: 14px 14px 34px rgb(var(--clay-drop-h) / calc(0.48 * var(--clay-depth, 1))),
+    -8px -8px 22px rgb(255 255 255 / 0.6),
+    inset calc(5px * var(--clay-corner-spread)) calc(5px * var(--clay-corner-spread)) calc(10px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-7px * var(--clay-corner-spread)) calc(-7px * var(--clay-corner-spread)) calc(14px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
+  --shadow-well: inset 3px 3px 8px rgb(var(--clay-drop-h) / 0.24), inset -2px -2px 6px var(--clay-lip);
+  --shadow-float: 18px 18px 44px rgb(var(--clay-drop-h) / calc(0.54 * var(--clay-depth, 1))),
+    -10px -10px 26px rgb(255 255 255 / 0.65);
 }
 
-/* The studio's hairline tokens follow the family color, both modes. */
+/* The studio's shared card-edge tokens are not a Clay surface colour:
+   Clay keeps them only so non-Clay studio previews and shared layout
+   maths retain their vocabulary. The Clay registry (§7.3) suppresses
+   the drawn perimeter on the surfaces themselves. */
 [data-appearance="clay"] {
   --card-edge: rgb(var(--clay-drop-h) / 0.16);
   --card-edge-hover: rgb(var(--clay-drop-h) / 0.4);
@@ -252,7 +327,7 @@
 [data-appearance="clay"] [class*="shadow-accent"],
 [data-appearance="clay"] .shadow-raised,
 [data-appearance="clay"] [class*="shadow-raised"] {
-  box-shadow: 10px 10px 28px rgb(var(--clay-drop-h) / 0.3),
+  box-shadow: 10px 10px 28px rgb(var(--clay-drop-h) / 0.36),
     -8px -8px 20px rgb(255 255 255 / var(--clay-lift));
 }
 [data-appearance="clay"] .shadow-panel,
@@ -261,7 +336,7 @@
 [data-appearance="clay"] [class*="shadow-xl"],
 [data-appearance="clay"] [class*="shadow-2xl"],
 [data-appearance="clay"] [class*="shadow-md"] {
-  box-shadow: 8px 8px 22px rgb(var(--clay-drop-h) / 0.26),
+  box-shadow: 8px 8px 22px rgb(var(--clay-drop-h) / 0.32),
     -6px -6px 16px rgb(255 255 255 / var(--clay-lift));
 }
 [data-appearance="clay"] [class*="shadow-sm"],
@@ -298,34 +373,34 @@
 [data-appearance="clay"] .stat-tile:nth-child(4n+1) {
   background-color: rgb(var(--rot-1));
   background-image: none;
-  box-shadow: 8px 8px 14px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.2),
+  box-shadow: 8px 8px 14px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.5),
-    inset 4px 4px 8px var(--clay-hi-2),
-    inset -6px -6px 12px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.25);
+    inset calc(4px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-6px * var(--clay-corner-spread)) calc(-6px * var(--clay-corner-spread)) calc(12px * var(--clay-corner-spread)) rgb(var(--rot-1h, var(--clay-drop-h)) / min(0.78, calc(0.32 * var(--clay-corner-depth, 1))));
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+2) {
   background-color: rgb(var(--rot-2));
   background-image: none;
-  box-shadow: 8px 8px 14px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.2),
+  box-shadow: 8px 8px 14px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.5),
-    inset 4px 4px 8px var(--clay-hi-2),
-    inset -6px -6px 12px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.25);
+    inset calc(4px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-6px * var(--clay-corner-spread)) calc(-6px * var(--clay-corner-spread)) calc(12px * var(--clay-corner-spread)) rgb(var(--rot-2h, var(--clay-drop-h)) / min(0.78, calc(0.32 * var(--clay-corner-depth, 1))));
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+3) {
   background-color: rgb(var(--rot-3));
   background-image: none;
-  box-shadow: 8px 8px 14px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.2),
+  box-shadow: 8px 8px 14px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.5),
-    inset 4px 4px 8px var(--clay-hi-2),
-    inset -6px -6px 12px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.25);
+    inset calc(4px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-6px * var(--clay-corner-spread)) calc(-6px * var(--clay-corner-spread)) calc(12px * var(--clay-corner-spread)) rgb(var(--rot-3h, var(--clay-drop-h)) / min(0.78, calc(0.32 * var(--clay-corner-depth, 1))));
 }
 [data-appearance="clay"] .stat-tile:nth-child(4n+4) {
   background-color: rgb(var(--rot-4));
   background-image: none;
-  box-shadow: 8px 8px 14px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.2),
+  box-shadow: 8px 8px 14px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.3),
     -7px -7px 18px rgb(255 255 255 / 0.5),
-    inset 4px 4px 8px var(--clay-hi-2),
-    inset -6px -6px 12px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.25);
+    inset calc(4px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-6px * var(--clay-corner-spread)) calc(-6px * var(--clay-corner-spread)) calc(12px * var(--clay-corner-spread)) rgb(var(--rot-4h, var(--clay-drop-h)) / min(0.78, calc(0.32 * var(--clay-corner-depth, 1))));
 }
 
 /* ═══ §26.1 (P15) — midnight kills the lamps · user witness 13:42 ═══════
@@ -339,26 +414,34 @@
    halos); the white ambient dies everywhere after dark, and the bleed
    halves. The little index/icon tiles carried the same lamp — same cure,
    and their violet inset literal moves to the P13 band-glow token
-   (accent-aware under a pick, byte-identical at house). */
+   (accent-aware under a pick, byte-identical at house).
+ *
+ * Measured correction (the "white cards read flat" sighting): the cure
+ * overshot. At drop 0.12 the hue shadow measured ≈1.17:1 against the
+ * dark page and the inset depth ≈1.06:1 against the pastel face — the
+ * tiles kept their colour but lost their mould entirely. The drop now
+ * rests at 0.26 and the depth at 0.30: the pattern is back, still
+ * hue-keyed, still no white halo — the lamp stays dead, and the clay
+ * is moulded by its own hue instead. */
 html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+1) {
-  box-shadow: 8px 8px 14px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.12),
-    inset 4px 4px 8px var(--clay-hi-2),
-    inset -6px -6px 12px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.18);
+  box-shadow: 8px 8px 14px rgb(var(--rot-1h, var(--clay-drop-h)) / 0.26),
+    inset calc(4px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-6px * var(--clay-corner-spread)) calc(-6px * var(--clay-corner-spread)) calc(12px * var(--clay-corner-spread)) rgb(var(--rot-1h, var(--clay-drop-h)) / min(0.78, calc(0.3 * var(--clay-corner-depth, 1))));
 }
 html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+2) {
-  box-shadow: 8px 8px 14px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.12),
-    inset 4px 4px 8px var(--clay-hi-2),
-    inset -6px -6px 12px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.18);
+  box-shadow: 8px 8px 14px rgb(var(--rot-2h, var(--clay-drop-h)) / 0.26),
+    inset calc(4px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-6px * var(--clay-corner-spread)) calc(-6px * var(--clay-corner-spread)) calc(12px * var(--clay-corner-spread)) rgb(var(--rot-2h, var(--clay-drop-h)) / min(0.78, calc(0.3 * var(--clay-corner-depth, 1))));
 }
 html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+3) {
-  box-shadow: 8px 8px 14px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.12),
-    inset 4px 4px 8px var(--clay-hi-2),
-    inset -6px -6px 12px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.18);
+  box-shadow: 8px 8px 14px rgb(var(--rot-3h, var(--clay-drop-h)) / 0.26),
+    inset calc(4px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-6px * var(--clay-corner-spread)) calc(-6px * var(--clay-corner-spread)) calc(12px * var(--clay-corner-spread)) rgb(var(--rot-3h, var(--clay-drop-h)) / min(0.78, calc(0.3 * var(--clay-corner-depth, 1))));
 }
 html[data-theme="midnight"][data-appearance="clay"] .stat-tile:nth-child(4n+4) {
-  box-shadow: 8px 8px 14px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.12),
-    inset 4px 4px 8px var(--clay-hi-2),
-    inset -6px -6px 12px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.18);
+  box-shadow: 8px 8px 14px rgb(var(--rot-4h, var(--clay-drop-h)) / 0.26),
+    inset calc(4px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-6px * var(--clay-corner-spread)) calc(-6px * var(--clay-corner-spread)) calc(12px * var(--clay-corner-spread)) rgb(var(--rot-4h, var(--clay-drop-h)) / min(0.78, calc(0.3 * var(--clay-corner-depth, 1))));
 }
 /* The 36-unit index/icon tiles: same lamp out after dark. */
 html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] {
@@ -385,10 +468,18 @@ html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] 
 [data-appearance="clay"] [class*="bg-brand-400/12"],
 [data-appearance="clay"] [class*="bg-brand-500/12"],
 [data-appearance="clay"] [class*="bg-brand-400/16"],
-[data-appearance="clay"] [class*="bg-brand-500/15"] {
+[data-appearance="clay"] [class*="bg-brand-500/15"],
+[data-appearance="clay"] [class*="bg-brand-600/25"] {
   background-color: rgb(var(--clay-lavender) / 0.9);
   color: rgb(var(--clay-ink));
-  border-color: rgb(var(--clay-drop-h) / 0.45);
+  /* These washes are used as small raised pills and icon tiles (for
+     example the Legal page actions and submenu glyphs). They take the
+     clay pillow — soft light/shade and no drawn perimeter — rather
+     than a saturated outline. */
+  border-color: transparent;
+  box-shadow: 3px 3px 8px rgb(var(--clay-drop-h) / 0.22),
+    inset calc(2px * var(--clay-corner-spread)) calc(2px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-3px * var(--clay-corner-spread)) calc(-3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(var(--clay-drop-h) / min(0.72, calc(0.18 * var(--clay-corner-depth, 1))));
 }
 
 
@@ -398,9 +489,7 @@ html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] 
 [data-appearance="clay"] .stat-tile {
   background-color: rgb(var(--data-face));
   background-image: none;
-  box-shadow: var(--shadow-panel),
-    inset 4px 4px 8px var(--clay-hi),
-    inset -6px -6px 12px var(--clay-lo);
+  box-shadow: var(--shadow-panel);
 }
 [data-appearance="clay"] .surface {
   background-color: rgb(var(--card-face));
@@ -408,9 +497,7 @@ html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] 
 [data-appearance="clay"] .surface-raised {
   background-color: rgb(var(--card-face));
   background-image: none;
-  box-shadow: var(--shadow-raised),
-    inset 4px 4px 8px var(--clay-hi),
-    inset -6px -6px 12px var(--clay-lo);
+  box-shadow: var(--shadow-raised);
 }
 
 /* Clay answers the finger (§5 of the spec): hover lifts two pixels, a press
@@ -425,16 +512,14 @@ html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] 
 [data-appearance="clay"] .card-interactive:hover,
 [data-appearance="clay"] .card-interactive:focus-visible {
   transform: translateY(-2px);
-  border-color: var(--clay-edge-hover);
-  box-shadow: var(--shadow-raised),
-    inset 4px 4px 8px var(--clay-hi),
-    inset -6px -6px 12px var(--clay-lo);
+  border-color: transparent;
+  box-shadow: var(--shadow-raised);
 }
 [data-appearance="clay"] .card-interactive:active {
   transform: translateY(1px) scale(0.97);
   box-shadow: 4px 4px 12px rgb(var(--clay-drop-h) / 0.3),
-    inset -3px -3px 10px var(--clay-lo),
-    inset 3px 3px 10px var(--clay-hi);
+    inset calc(-3px * var(--clay-corner-spread)) calc(-3px * var(--clay-corner-spread)) calc(10px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(10px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1))));
 }
 
 /* The feature plate — one solid saturated pastel face, plum ink, the
@@ -445,8 +530,8 @@ html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] 
   background-color: rgb(var(--band-rich-h));
   background-image: none;
   box-shadow: var(--shadow-float),
-    inset 5px 5px 10px var(--clay-hi-2),
-    inset -7px -7px 14px rgb(var(--band-glow-h) / 0.28);
+    inset calc(5px * var(--clay-corner-spread)) calc(5px * var(--clay-corner-spread)) calc(10px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-7px * var(--clay-corner-spread)) calc(-7px * var(--clay-corner-spread)) calc(14px * var(--clay-corner-spread)) rgb(var(--band-glow-h) / min(0.7, calc(0.28 * var(--clay-corner-depth, 1))));
   --text-1: var(--clay-ink);
   --text-2: 40 36 56;
   --text-3: 51 45 72;
@@ -474,10 +559,8 @@ html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] 
 [data-appearance="clay"] .nav-sheet {
   background-color: rgb(var(--clay-card));
   background-image: none;
-  border-color: var(--clay-edge);
-  box-shadow: var(--shadow-raised),
-    inset 4px 4px 8px var(--clay-hi),
-    inset -6px -6px 12px var(--clay-lo);
+  border-color: transparent;
+  box-shadow: var(--shadow-raised);
 }
 
 /* The closing band echoes the feature plate at page scale: solid lavender,
@@ -490,9 +573,7 @@ html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] 
     linear-gradient(to right, var(--wall-grid) 1px, transparent 1px),
     linear-gradient(to bottom, var(--wall-grid) 1px, transparent 1px);
   background-size: auto, auto, var(--grid-cell) var(--grid-cell), var(--grid-cell) var(--grid-cell);
-  box-shadow: var(--shadow-panel),
-    inset 4px 4px 10px var(--clay-hi-2),
-    inset -6px -6px 14px rgb(var(--band-glow-h) / 0.2);
+  box-shadow: var(--shadow-panel);
   --text-1: var(--clay-ink);
   --text-2: 40 36 56;
   --text-3: 51 45 72;
@@ -537,6 +618,17 @@ html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] 
 [data-appearance="clay"] .rounded-xl { border-radius: calc(0.75rem * var(--radius-scale)); }
 [data-appearance="clay"] .rounded-2xl { border-radius: calc(1rem * var(--radius-scale)); }
 [data-appearance="clay"] .rounded-md { border-radius: calc(0.5rem * var(--radius-scale)); }
+
+/* Corner-safe insets for Clay's bespoke cards. The global system in
+   globals.css floors Tailwind-padded cards against their published
+   radius; these five carry their padding in this file, so they state the
+   same 58% floor against their own clay radii here — at the corner dial's
+   far end their text walks inward with the arc instead of out of it. */
+[data-appearance="clay"] .hero-clay__card { padding-inline: max(clamp(24px, 5vw, 38px), min(calc(var(--clay-radius-xl) * 0.58), 2.5rem)); }
+[data-appearance="clay"] .pricing-clay__card { padding-inline: max(30px, min(calc(var(--clay-radius-xl) * 0.58), 2.5rem)); }
+[data-appearance="clay"] .testi-clay { padding-inline: max(26px, min(calc(var(--clay-radius-lg) * 0.58), 2.25rem)); }
+[data-appearance="clay"] .testi-clay__bubble { padding-inline: max(24px, min(calc(var(--clay-radius-lg) * 0.58), 2.25rem)); }
+[data-appearance="clay"] .card-grid-clay__item { padding-inline: max(24px, min(calc(var(--clay-radius-lg) * 0.58), 2.25rem)); }
 [data-appearance="clay"] .btn,
 [data-appearance="clay"] .btn-primary,
 [data-appearance="clay"] .btn-secondary,
@@ -553,15 +645,15 @@ html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] 
   border-color: transparent;
   color: rgb(255 255 255);
   box-shadow: 8px 8px 20px rgb(var(--clay-coral-h) / 0.4),
-    inset 4px 4px 8px var(--clay-hi-2),
-    inset -4px -4px 10px rgb(var(--clay-coral-h) / 0.4);
+    inset calc(4px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(10px * var(--clay-corner-spread)) rgb(var(--clay-coral-h) / min(0.78, calc(0.4 * var(--clay-corner-depth, 1))));
   transition: box-shadow 0.14s ease, transform 0.14s ease;
 }
 [data-appearance="clay"] .btn-primary:active {
   transform: scale(0.97);
   box-shadow: 4px 4px 10px rgb(var(--clay-coral-h) / 0.35),
-    inset -3px -3px 9px rgb(var(--clay-coral-h) / 0.35),
-    inset 3px 3px 6px var(--clay-hi-2)
+    inset calc(-3px * var(--clay-corner-spread)) calc(-3px * var(--clay-corner-spread)) calc(9px * var(--clay-corner-spread)) rgb(var(--clay-coral-h) / min(0.72, calc(0.35 * var(--clay-corner-depth, 1)))),
+    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1))))
 }
 
 /* The quiet option: a white sheet at quarter shadow strength. */
@@ -572,8 +664,8 @@ html[data-theme="midnight"][data-appearance="clay"] [class*="rounded-[0.6rem]"] 
   color: rgb(var(--text-2));
   border-color: transparent;
   box-shadow: 8px 8px 18px rgb(var(--clay-drop-h) / 0.22),
-    inset 5px 5px 10px var(--clay-lip),
-    inset -4px -4px 8px rgb(var(--clay-drop-h) / 0.18);
+    inset calc(5px * var(--clay-corner-spread)) calc(5px * var(--clay-corner-spread)) calc(10px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.92, calc(var(--clay-corner-top-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(var(--clay-drop-h) / min(0.72, calc(0.18 * var(--clay-corner-depth, 1))));
 }
 
 /* Fields press the other way: a well, inset shadows only, 16px. */
@@ -733,10 +825,15 @@ html[data-theme="midnight"][data-appearance="clay"] {
   -webkit-text-fill-color: rgb(var(--text-1));
 }
 
-/* §7.3 Clay is edged by light, never stroke. Globals banks a 2px edge on
-   every tier via --card-edge-width; under this family the edge colour of
-   the whole material registry goes transparent (fabric preserved: the
-   width stays, so no layout shifts). */
+/* §7.3 Clay is moulded, never outlined. The shared card system gives
+   every tier a border so the stroke-led families can draw one; in Clay
+   that perimeter colour is suppressed on the whole material registry.
+   The border width remains in the layout fabric (so suppressing the
+   colour does not shift a card), but no line is painted: the boundary
+   is the face meeting the soft cast shadow, top-left sheen and
+   bottom-right shade described in docs/CLAYMORPHISM.md §4. This is
+   the same rule the reference boards use for cards, submenu panels,
+   navigation sheets and raised buttons. */
 [data-appearance="clay"] :is(.surface, .surface-raised, .stat-tile, .glass-primary,
   .nav-glass, .nav-sheet, .band-deep, .band-solid, .band-rich, .menu-card,
   .plate, .card-live, .card-accent, .float-card, .card-glass, .panel-feature,
@@ -753,34 +850,32 @@ html[data-theme="midnight"][data-appearance="clay"] {
   background-color: rgb(var(--clay-card));
   background-image: none;
   border-color: transparent;
-  box-shadow: var(--shadow-panel),
-    inset 3px 3px 7px var(--clay-hi),
-    inset -4px -4px 8px var(--clay-lo);
+  box-shadow: var(--shadow-panel);
 }
 [data-appearance="clay"] .card-live,
 [data-appearance="clay"] .float-card,
 [data-appearance="clay"] .card-glass {
   background-color: rgb(var(--card-face));
   background-image: none;
-  box-shadow: var(--shadow-raised),
-    inset 4px 4px 8px var(--clay-hi),
-    inset -6px -6px 12px var(--clay-lo);
+  /* Corner pools at the §9.11 depth (5/9, −8/14) — these tiers used to
+     run a shallower mould than .surface, so their corners read
+     flatter beside it; the whole registry now pools at one depth. */
+  box-shadow: var(--shadow-raised);
 }
 [data-appearance="clay"] .menu-card {
   background-color: rgb(var(--overlay-face));
   background-image: none;
+  /* A menu is a card that opens — moulded like one, never outlined. */
   border-color: transparent;
   box-shadow: var(--shadow-float),
-    inset 3px 3px 7px var(--clay-hi),
-    inset -5px -5px 10px var(--clay-lo);
+    inset calc(4px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-6px * var(--clay-corner-spread)) calc(-6px * var(--clay-corner-spread)) calc(12px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
 }
 /* The product frame — every module preview and screenshot lives inside. */
 [data-appearance="clay"] .plate {
   background-color: rgb(var(--card-face));
   background-image: none;
-  box-shadow: var(--shadow-raised),
-    inset 4px 4px 8px var(--clay-hi),
-    inset -6px -6px 12px var(--clay-lo);
+  box-shadow: var(--shadow-raised);
 }
 /* The accent card was accent-FILLED glass; on clay it is a zone plate —
    it reads `--panel-face` so the bench recolours it (§17), house default
@@ -789,8 +884,8 @@ html[data-theme="midnight"][data-appearance="clay"] {
   background-color: rgb(var(--panel-face));
   background-image: none;
   box-shadow: var(--shadow-float),
-    inset 3px 3px 6px var(--clay-hi-2),
-    inset -7px -7px 14px rgb(var(--clay-drop-h) / 0.26);
+    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-7px * var(--clay-corner-spread)) calc(-7px * var(--clay-corner-spread)) calc(14px * var(--clay-corner-spread)) rgb(var(--clay-drop-h) / min(0.72, calc(0.26 * var(--clay-corner-depth, 1))));
   --text-1: var(--clay-ink);
   color: rgb(var(--text-1));
 }
@@ -855,14 +950,11 @@ html[data-theme="midnight"][data-appearance="clay"] .surface-raised.divide-y > :
   --text-4: 66 59 92;
   color: rgb(var(--text-2));
   box-shadow: var(--shadow-panel),
-    inset 4px 4px 8px var(--clay-hi-2),
-    inset -6px -6px 12px rgb(var(--band-glow-h) / 0.22);
+    inset calc(-6px * var(--clay-corner-spread)) calc(-6px * var(--clay-corner-spread)) calc(12px * var(--clay-corner-spread)) rgb(var(--band-glow-h) / min(0.7, calc(0.22 * var(--clay-corner-depth, 1))));
 }
 html[data-theme="daylight"][data-appearance="clay"] :is(.band-deep, .band-rich) :is(.surface, .surface-raised) {
   background-color: rgb(var(--card-face));
-  box-shadow: var(--shadow-raised),
-    inset 5px 5px 10px var(--clay-hi),
-    inset -8px -8px 14px var(--clay-lo);
+  box-shadow: var(--shadow-raised);
 }
 [data-appearance="clay"] .band-rich .btn-primary {
   border-color: transparent;
@@ -876,9 +968,7 @@ html[data-theme="daylight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
 [data-appearance="clay"] .panel-feature {
   background-color: rgb(var(--panel-face));
   background-image: none;
-  box-shadow: var(--shadow-panel),
-    inset 3px 3px 7px var(--clay-hi-2),
-    inset -6px -6px 12px rgb(var(--clay-drop-h) / 0.2);
+  box-shadow: var(--shadow-panel);
 }
 /* The story spine's nodes are little clay beads. */
 [data-appearance="clay"] .spine-node {
@@ -897,23 +987,19 @@ html[data-theme="daylight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
   background-image:
     radial-gradient(120% 90% at 14% 0%, rgb(var(--card-tint-h) / var(--clay-wash)) 0%, transparent 58%),
     radial-gradient(100% 80% at 88% 100%, rgb(var(--card-tint-h2) / calc(var(--clay-wash) * 0.7)) 0%, transparent 62%);
-  box-shadow: var(--shadow-raised),
-    inset 5px 5px 9px var(--clay-hi),
-    inset -8px -8px 14px var(--clay-lo);
+  box-shadow: var(--shadow-raised);
 }
 [data-appearance="clay"] .mpane__glass {
   background-color: rgb(var(--data-face));
   background-image: none;
   box-shadow: 6px 6px 16px rgb(var(--clay-drop-h) / 0.22),
-    inset -3px -3px 8px var(--clay-hi-2),
-    inset -4px -4px 9px rgb(var(--clay-drop-h) / 0.16);
+    inset calc(-3px * var(--clay-corner-spread)) calc(-3px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(9px * var(--clay-corner-spread)) rgb(var(--clay-drop-h) / min(0.72, calc(0.16 * var(--clay-corner-depth, 1))));
 }
 [data-appearance="clay"] .mpane__glass--lead {
   background-color: rgb(var(--card-face));
   background-image: none;
-  box-shadow: var(--shadow-raised),
-    inset 4px 4px 8px var(--clay-hi),
-    inset -6px -6px 12px var(--clay-lo);
+  box-shadow: var(--shadow-raised);
 }
 [data-appearance="clay"] .mpane__badge,
 [data-appearance="clay"] .mpane__stage-caption,
@@ -922,8 +1008,8 @@ html[data-theme="daylight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
   background-image: none;
   color: rgb(var(--clay-ink));
   box-shadow: 3px 3px 8px rgb(var(--clay-drop-h) / 0.3),
-    inset 3px 3px 6px var(--clay-hi-2),
-    inset -2px -2px 5px rgb(var(--band-glow-h) / 0.2);
+    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-2px * var(--clay-corner-spread)) calc(-2px * var(--clay-corner-spread)) calc(5px * var(--clay-corner-spread)) rgb(var(--band-glow-h) / min(0.7, calc(0.2 * var(--clay-corner-depth, 1))));
 }
 
 /* §7.5 The boards' saturation, on the numbers. The first rotation tinted
@@ -1135,10 +1221,12 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
     inset -4px -4px 8px rgb(var(--clay-drop-h) / 0.24);
 }
 
-/* §9.6 Strokes die where a corner lives. A drawn 2px edge around a rounded
-   card is flat-UI vocabulary — the mould's boundary is its shadow and the
-   light in its insets. Divider hairlines (border-t rules between rows,
-   never rounded) keep their violet edge. */
+/* §9.6 Strokes die where a corner lives. A rounded hand-written card
+   (the submenu destinations, Legal action pills, Resources cards and
+   similar utility surfaces) must not inherit a flat border-line. Its
+   perimeter is suppressed and its mould comes from §9.7/§9.8 or the
+   named-surface recipe. Divider hairlines between rows are not card
+   perimeters and keep the family hairline treatment in §1. */
 [data-appearance="clay"] :is([class*="border-line"], [class*="border-ink"]):is([class*="rounded"]):not([data-color-plate]) {
   border-color: transparent;
 }
@@ -1156,9 +1244,7 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
   background-color: rgb(var(--card-face));
   background-image: none;
   border-color: transparent;
-  box-shadow: var(--shadow-panel),
-    inset 3px 3px 7px var(--clay-hi),
-    inset -5px -5px 10px var(--clay-lo);
+  box-shadow: var(--shadow-panel);
 }
 
 /* §9.8 .card-interactive always carries its own altitude — a clickable
@@ -1170,8 +1256,8 @@ html[data-theme="midnight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
   background-image: none;
   box-shadow: 8px 8px 20px rgb(var(--clay-drop-h) / 0.3),
     -6px -6px 16px rgb(255 255 255 / var(--clay-lift)),
-    inset 3px 3px 7px var(--clay-hi),
-    inset -5px -5px 10px var(--clay-lo);
+    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(7px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-5px * var(--clay-corner-spread)) calc(-5px * var(--clay-corner-spread)) calc(10px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
 }
 html[data-theme="daylight"][data-appearance="clay"] :is(.band-deep, .band-rich) .card-interactive {
   background-color: rgb(var(--card-face));
@@ -1186,8 +1272,8 @@ html[data-theme="daylight"][data-appearance="clay"] :is(.band-deep, .band-rich) 
   border-color: transparent;
   background-color: rgb(var(--clay-lavender) / 0.55);
   box-shadow: 2px 3px 6px rgb(var(--clay-drop-h) / 0.22),
-    inset 0 1.5px 0 var(--clay-lip),
-    inset 0 -2px 3px rgb(var(--clay-drop-h) / 0.14);
+    inset calc(2px * var(--clay-corner-spread)) calc(2px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-2px * var(--clay-corner-spread)) calc(-3px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) rgb(var(--clay-drop-h) / min(0.72, calc(0.14 * var(--clay-corner-depth, 1))));
 }
 
 /* Midnight: the chip face returns to the wash recipe — the 0.55 pillow
@@ -1217,8 +1303,8 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
   background-color: rgb(var(--data-face));
   background-image: none;
   box-shadow: 5px 5px 12px rgb(var(--clay-drop-h) / 0.3),
-    inset 3px 3px 6px var(--clay-hi),
-    inset -4px -4px 8px var(--clay-lo);
+    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
 }
 [data-appearance="clay"] .menu-card button[class*="border-brand-400"]:not([data-color-plate]) {
   border-color: transparent;
@@ -1227,26 +1313,12 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
   background-image: none;
   color: rgb(var(--clay-ink));
   box-shadow: 5px 5px 12px rgb(var(--clay-drop-h) / 0.38),
-    inset 3px 3px 6px var(--clay-hi-2),
-    inset -4px -4px 8px rgb(var(--band-glow-h) / 0.24);
+    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(var(--band-glow-h) / min(0.7, calc(0.24 * var(--clay-corner-depth, 1))));
 }
 [data-appearance="clay"] .menu-card [class*="rounded-[0.3rem]"] {
   border-radius: 8px;
   border-color: transparent;
-}
-
-/* §9.11 The deeper mould, applied to the registry in one sweep: insets
-   grow from 4/6 to 5/8 so the NW sheen and the SE depth are visible at a
-   phone's distance, both modes. */
-[data-appearance="clay"] :is(.surface, .surface-raised, .nav-sheet) {
-  box-shadow: var(--shadow-panel),
-    inset 5px 5px 9px var(--clay-hi),
-    inset -8px -8px 14px var(--clay-lo);
-}
-[data-appearance="clay"] .surface-raised {
-  box-shadow: var(--shadow-raised),
-    inset 5px 5px 9px var(--clay-hi),
-    inset -8px -8px 14px var(--clay-lo);
 }
 
 
@@ -1268,6 +1340,8 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
   --clay-surface: rgb(var(--card-face));
   --clay-surface-raised: rgb(var(--data-face));
   --clay-surface-inset: rgb(var(--ink-900));
+  /* Legacy pack divider colour. Raised pack surfaces suppress their
+     perimeter in §22; this token remains only for internal rules. */
   --clay-border: rgb(var(--clay-drop-h) / 0.22);
   --clay-text: rgb(var(--text-1));
   --clay-text-secondary: rgb(var(--text-2));
@@ -1286,8 +1360,8 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
   --clay-shadow-inset: inset 3px 3px 8px var(--clay-lo),
     inset -2px -2px 6px var(--clay-hi-2);
   --clay-shadow-button: 6px 6px 16px rgb(var(--clay-coral-h) / 0.42),
-    inset 2px 2px 5px var(--clay-hi-2),
-    inset -3px -3px 8px rgb(var(--clay-coral-h) / 0.35);
+    inset calc(2px * var(--clay-corner-spread)) calc(2px * var(--clay-corner-spread)) calc(5px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-3px * var(--clay-corner-spread)) calc(-3px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(var(--clay-coral-h) / min(0.78, calc(0.35 * var(--clay-corner-depth, 1))));
   --clay-highlight: rgb(255 255 255 / var(--clay-lift));
   --clay-shadow-dark: rgb(18 10 38 / 0.6);
   --clay-highlight-soft: var(--clay-hi);
@@ -1303,8 +1377,8 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
   --clay-shadow-sm: 5px 5px 14px rgb(var(--clay-drop-h) / 0.22),
     -3px -3px 8px rgb(var(--overlay-face) / 0.45);
   --clay-shadow-button: 6px 6px 16px rgb(var(--clay-coral-h) / 0.4),
-    inset 3px 3px 6px var(--clay-hi-2),
-    inset -3px -3px 8px rgb(200 60 48 / 0.3);
+    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-3px * var(--clay-corner-spread)) calc(-3px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(200 60 48 / min(0.72, calc(0.3 * var(--clay-corner-depth, 1))));
 }
 
 /* §11.1 The keyframes — one timing, six motions. */
@@ -1523,7 +1597,12 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
 [data-appearance="clay"] .pricing-card--featured {
   border-color: transparent;
   background: var(--clay-surface-raised);
-  box-shadow: 0 0 0 5px var(--clay-primary-soft), var(--clay-shadow-large);
+  /* Featured means more altitude, never a ring drawn around the card.
+     The broad cast shadow deepens while the moulded corner light and
+     shade follow the Corner depth dial. */
+  box-shadow: 18px 18px 42px rgb(var(--clay-drop-h) / 0.38),
+    inset calc(5px * var(--clay-corner-spread)) calc(5px * var(--clay-corner-spread)) calc(10px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-7px * var(--clay-corner-spread)) calc(-7px * var(--clay-corner-spread)) calc(14px * var(--clay-corner-spread)) rgb(var(--clay-drop-h) / min(0.72, calc(0.24 * var(--clay-corner-depth, 1))));
   animation: clay-pricing-press 6s ease-in-out infinite;
 }
 [data-appearance="clay"] .pricing-clay__card--featured .pricing-clay__badge {
@@ -1914,8 +1993,8 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
 [data-appearance="clay"] [class*="rounded-full"]:where([class*="bg-ink-"], [class*="bg-brand-"], [class*="bg-state-"]),
 [data-appearance="clay"] [class*="rounded-md"]:where([class*="bg-state-"]) {
   box-shadow: 2px 3px 6px rgb(var(--clay-drop-h) / 0.2),
-    inset 0 1.5px 0 var(--clay-lip),
-    inset 0 -2px 3px rgb(var(--clay-drop-h) / 0.12);
+    inset calc(2px * var(--clay-corner-spread)) calc(2px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-2px * var(--clay-corner-spread)) calc(-3px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) rgb(var(--clay-drop-h) / min(0.72, calc(0.12 * var(--clay-corner-depth, 1))));
 }
 
 [data-appearance="clay"] .pricing-card--featured .chip {
@@ -2055,8 +2134,8 @@ html[data-theme="midnight"][data-appearance="clay"] .glass-primary {
   background-color: rgb(var(--band-deep-h));
   background-image: none;
   box-shadow: 12px 12px 30px rgb(10 6 24 / 0.55),
-    inset 0 1.5px 0 var(--clay-hi-2),
-    inset -6px -6px 12px rgb(16 9 36 / 0.5);
+    inset calc(5px * var(--clay-corner-spread)) calc(5px * var(--clay-corner-spread)) calc(10px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-6px * var(--clay-corner-spread)) calc(-6px * var(--clay-corner-spread)) calc(12px * var(--clay-corner-spread)) rgb(16 9 36 / min(0.78, calc(0.5 * var(--clay-corner-depth, 1))));
   --text-1: 255 255 255;
   --text-2: 243 240 252;
   --text-3: 224 218 240;
@@ -2386,9 +2465,8 @@ html[data-theme="midnight"][data-appearance="clay"] { --clay-focus: 3px solid rg
   --text-4: 66 59 92;
   color: rgb(var(--text-2));
   box-shadow: 10px 10px 24px rgb(var(--clay-drop-h) / 0.32),
-    inset 0 1.5px 0 var(--clay-lip),
-    inset 0 1.5px 0 var(--clay-hi-2),
-    inset -6px -6px 13px rgb(var(--clay-drop-h) / 0.2);
+    inset calc(4px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-6px * var(--clay-corner-spread)) calc(-6px * var(--clay-corner-spread)) calc(13px * var(--clay-corner-spread)) rgb(var(--clay-drop-h) / min(0.72, calc(0.2 * var(--clay-corner-depth, 1))));
 }
 [data-appearance="clay"] .plate-2 { --plate-face: var(--plate-2); }
 [data-appearance="clay"] .plate-3 { --plate-face: var(--plate-3); }
@@ -2404,9 +2482,8 @@ html[data-theme="midnight"][data-appearance="clay"] { --clay-focus: 3px solid rg
 [data-appearance="clay"] :is(.plate-1, .plate-2, .plate-3, .plate-4, .plate-5, .plate-6, .plate-custom).card-interactive:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-float),
-    inset 0 1.5px 0 var(--clay-lip),
-    inset 5px 5px 11px var(--clay-hi-2),
-    inset -6px -6px 13px rgb(var(--clay-drop-h) / 0.22);
+    inset calc(5px * var(--clay-corner-spread)) calc(5px * var(--clay-corner-spread)) calc(11px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-6px * var(--clay-corner-spread)) calc(-6px * var(--clay-corner-spread)) calc(13px * var(--clay-corner-spread)) rgb(var(--clay-drop-h) / min(0.72, calc(0.22 * var(--clay-corner-depth, 1))));
 }
 
 /* The midnight registry lock would nail plate inks white if a plate ever
@@ -2429,40 +2506,19 @@ html[data-theme="midnight"][data-appearance="clay"] .plate-custom {
   color: rgb(var(--text-2));
 }
 
-/* ═══ §14 · EDGES LIVE INSIDE THE CARD ═══════════════════════════════════
-   The conic rim (.edge-conic) draws a stroke OUTSIDE the face — a normal
-   outlined card wearing a gradient. Clay's edge is thickness, and thickness
-   reads from inside. The old fix did move the rim inside, but it kept a
-   closed 1.5px ring — and any CLOSED, UNIFORM ring reads as an outline,
-   not as relief, whatever its alpha. Real clay relief is directional:
-   light catches the top and left lips, the bottom and right sit in soft
-   shadow, and the two together carve a shallow channel inside the face.
-   No uniform ring survives; on hover the channel deepens instead of
-   blinking.                                                              */
-[data-appearance="clay"] .edge-conic::after {
-  inset: 0;
-  padding: 0;
-  /* No face-fill gradient here: the ::after overlaps the card's content, and
-     painting a sheen over text is how contrast dies. The channel is carved
-     by the directional insets below and by nothing else. */
-  background: none;
-  -webkit-mask: none;
-  mask: none;
-  opacity: 1;
-  transition: box-shadow 0.35s ease;
-  border-radius: inherit;
-  box-shadow:
-    inset 3px 3px 6px var(--clay-hi-2),
-    inset 1px 1px 2px var(--clay-lip),
-    inset -4px -5px 10px rgb(var(--clay-drop-h) / 0.3),
-    inset -1px -2px 4px rgb(var(--clay-drop-h) / 0.22);
-}
-[data-appearance="clay"] .edge-conic:hover::after {
-  box-shadow:
-    inset 4px 4px 8px var(--clay-hi-2),
-    inset 1px 1px 3px var(--clay-lip),
-    inset -5px -6px 12px rgb(var(--clay-drop-h) / 0.34),
-    inset -1px -2px 5px rgb(var(--clay-drop-h) / 0.26);
+/* ═══ §14 · NO SEPARATE EDGE TREATMENT FOR CONIC SURFACES ═══════════════
+   Some surfaces carry the normal families' `.edge-conic` class. In
+   Clay that class must contribute nothing: not an outer conic ring,
+   not an inner channel, and not a pseudo-element floating over the
+   content. The card underneath (`.surface`, `.surface-raised`, a stat
+   tile, a plate or a menu card) already owns the complete boundary —
+   face, coloured cast shadow, blurred top-left sheen and bottom-right
+   shade — so the conic hook is switched off cleanly. */
+[data-appearance="clay"] .edge-conic::after,
+[data-appearance="clay"] .edge-conic:hover::after,
+[data-appearance="clay"] .edge-conic:focus-within::after {
+  content: none;
+  box-shadow: none;
 }
 
 /* §13.1 The facts strip IS the bench's demo reel — in clay the four stops
@@ -2578,9 +2634,14 @@ html[data-theme="midnight"][data-appearance="clay"] .nav-pill {
    contrast gates: they are a tint, not a fill.
 */
 
-/* Every raised clay surface carries the family's two wash hues inside. */
+/* Every raised clay surface carries the family's two wash hues inside.
+   The stat tiles join the list: their faces are the family's lightest
+   (the "white cards"), and a flat pastel field with only edge shadows
+   reads as a coloured rectangle — the two-hue wash is the interior
+   pattern that makes the tile read as moulded clay at a glance. */
 [data-appearance="clay"] .surface,
 [data-appearance="clay"] .surface-raised,
+[data-appearance="clay"] .stat-tile,
 [data-appearance="clay"] .menu-card,
 [data-appearance="clay"] .card-live,
 [data-appearance="clay"] .card-glass,
@@ -2599,6 +2660,11 @@ html[data-theme="midnight"][data-appearance="clay"] .nav-pill {
 [data-appearance="clay"] [class*="bg-ink-850"][class*="rounded-card"],
 [data-appearance="clay"] [class*="bg-ink-800"][class*="rounded-panel"] {
   background-image:
+    /* Broad corner light, not a rim: white pools softly from the
+       top-left and fades well before it can read as a band or line. */
+    radial-gradient(calc(58% * var(--clay-corner-spread)) calc(48% * var(--clay-corner-spread)) at 4% 0%,
+      rgb(255 255 255 / min(0.55, calc(var(--clay-corner-light, 0.12) * var(--clay-corner-depth, 1)))) 0%,
+      transparent 55%),
     radial-gradient(130% 150% at 8% 0%,
       rgb(var(--card-tint-h) / var(--clay-wash, 0.1)) 0%,
       transparent 58%),
@@ -2660,15 +2726,16 @@ html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-r
   --cad-accent-deep: rgb(var(--brand-600));
   --cad-accent-soft: rgb(var(--clay-lavender) / 0.45);
   --cad-accent-line: rgb(var(--clay-drop-h) / 0.35);
-  border-radius: calc(var(--r-card) * var(--radius-scale));
+  /* Same fix as `.studio-sheet` in globals.css: `--r-card` was never
+     defined, so this radius computed to 0 in Clay too. `--card-radius`
+     already carries Clay's ×2 scale (12px × 2 = the family's 24px card). */
+  border-radius: var(--card-radius);
   border-color: transparent;
   background-color: rgb(var(--card-face));
   background-image:
     radial-gradient(120% 90% at 14% 0%, rgb(var(--card-tint-h) / var(--clay-wash)) 0%, transparent 58%),
     radial-gradient(100% 80% at 88% 100%, rgb(var(--card-tint-h2) / calc(var(--clay-wash) * 0.7)) 0%, transparent 62%);
-  box-shadow: var(--shadow-raised),
-    inset 5px 5px 9px var(--clay-hi),
-    inset -8px -8px 14px var(--clay-lo);
+  box-shadow: var(--shadow-raised);
 }
 [data-appearance="clay"] .studio-inset {
   border-radius: 18px;
@@ -2688,8 +2755,8 @@ html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-r
   background-color: rgb(var(--card-face));
   color: rgb(var(--text-1));
   box-shadow: 4px 4px 10px rgb(var(--clay-drop-h) / 0.22),
-    inset 2px 2px 5px var(--clay-lip),
-    inset -2px -2px 5px rgb(var(--clay-drop-h) / 0.16);
+    inset calc(2px * var(--clay-corner-spread)) calc(2px * var(--clay-corner-spread)) calc(5px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-2px * var(--clay-corner-spread)) calc(-2px * var(--clay-corner-spread)) calc(5px * var(--clay-corner-spread)) rgb(var(--clay-drop-h) / min(0.72, calc(0.16 * var(--clay-corner-depth, 1))));
 }
 [data-appearance="clay"] .studio-button:hover {
   background-color: rgb(var(--data-face));
@@ -2701,8 +2768,8 @@ html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-r
   background-color: rgb(var(--clay-coral));
   color: rgb(255 255 255);
   box-shadow: 8px 8px 20px rgb(var(--clay-coral-h) / 0.4),
-    inset 4px 4px 8px var(--clay-hi-2),
-    inset -4px -4px 10px rgb(var(--clay-coral-h) / 0.4);
+    inset calc(4px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(10px * var(--clay-corner-spread)) rgb(var(--clay-coral-h) / min(0.78, calc(0.4 * var(--clay-corner-depth, 1))));
 }
 [data-appearance="clay"] .studio-chip {
   border-radius: 999px;
@@ -2710,8 +2777,8 @@ html[data-theme="daylight"][data-appearance="clay"] .feature-plates > .surface-r
   background-color: rgb(var(--clay-lavender) / 0.55);
   color: rgb(var(--text-1));
   box-shadow: 2px 3px 6px rgb(var(--clay-drop-h) / 0.22),
-    inset 0 1.5px 0 var(--clay-lip),
-    inset 0 -2px 3px rgb(var(--clay-drop-h) / 0.14);
+    inset calc(2px * var(--clay-corner-spread)) calc(2px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-2px * var(--clay-corner-spread)) calc(-3px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) rgb(var(--clay-drop-h) / min(0.72, calc(0.14 * var(--clay-corner-depth, 1))));
 }
 html[data-theme="midnight"][data-appearance="clay"] .studio-chip {
   background-color: rgb(var(--clay-lavender) / 0.3);
@@ -2767,6 +2834,15 @@ html[data-theme="daylight"][data-appearance="clay"] .studio-inset {
   color: rgb(var(--clay-ink));
   border-color: transparent;
 }
+/* The named micro-tiles are pillows as well. Their semantic faces and
+   ink stay; only the outline and hard utility top-light are replaced
+   by the same blurred corner light/shade, at bead scale. */
+[data-appearance="clay"] :is(.badge-pill, .icon-chip, .index-chip) {
+  border-color: transparent;
+  box-shadow: 2px 3px 6px rgb(var(--clay-drop-h) / 0.2),
+    inset calc(2px * var(--clay-corner-spread)) calc(2px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-2px * var(--clay-corner-spread)) calc(-3px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) rgb(var(--clay-drop-h) / min(0.72, calc(0.14 * var(--clay-corner-depth, 1))));
+}
 html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state-warning"],
 html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state-success"],
 html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state-danger"] {
@@ -2800,8 +2876,8 @@ html[data-theme="midnight"][data-appearance="clay"] .badge-pill[class*="bg-state
   background-color: rgb(var(--data-face));
   color: rgb(var(--text-1));
   box-shadow: 4px 4px 10px rgb(var(--clay-drop-h) / 0.22),
-    inset 2px 2px 5px var(--clay-lip),
-    inset -2px -2px 5px rgb(var(--clay-drop-h) / 0.16);
+    inset calc(2px * var(--clay-corner-spread)) calc(2px * var(--clay-corner-spread)) calc(5px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-2px * var(--clay-corner-spread)) calc(-2px * var(--clay-corner-spread)) calc(5px * var(--clay-corner-spread)) rgb(var(--clay-drop-h) / min(0.72, calc(0.16 * var(--clay-corner-depth, 1))));
 }
 [data-appearance="clay"] .btn-ghost:hover {
   background-color: rgb(var(--clay-lavender) / 0.55);
@@ -2811,16 +2887,16 @@ html[data-appearance="clay"] :is(.surface, .surface-raised, .plate, .panel-featu
 html[data-appearance="clay"] :is(.surface, .surface-raised, .plate, .panel-feature, .glass-primary, .card-live, .studio-sheet, .mpane__glass--lead, [class*="bg-ink-950"][class*="rounded-2xl"], [class*="bg-ink-900"][class*="rounded-2xl"], [class*="bg-ink-950"][class*="rounded-card"], [class*="bg-ink-900"][class*="rounded-card"]) :is([class*="bg-ink-950"], [class*="bg-ink-900"], [class*="bg-ink-850"], [class*="bg-ink-800"], [class*="bg-glass-"]):is([class*="rounded-card"], [class*="rounded-2xl"], [class*="rounded-panel"], [class*="rounded-xl"], [class*="rounded-3xl"], [class*="rounded-lg"]):not(input):not(textarea):not(select):not([class*="min-h-"]):not([class*="fixed"]) {
   background-color: rgb(var(--data-face));
   box-shadow: 6px 6px 16px rgb(var(--clay-drop-h) / 0.24),
-    inset 2px 2px 5px var(--clay-hi-2),
-    inset -3px -3px 7px var(--clay-lo);
+    inset calc(2px * var(--clay-corner-spread)) calc(2px * var(--clay-corner-spread)) calc(5px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-3px * var(--clay-corner-spread)) calc(-3px * var(--clay-corner-spread)) calc(7px * var(--clay-corner-spread)) rgb(var(--clay-drop-h) / min(0.72, calc(0.18 * var(--clay-corner-depth, 1))));
 }
 
 html[data-appearance="clay"] :is(.surface, .surface-raised, .plate) :is(.surface, .surface-raised, .studio-inset, [class*="bg-ink-900"][class*="rounded-2xl"], [class*="bg-ink-950"][class*="rounded-card"], [class*="bg-ink-900"][class*="rounded-card"]) :is(.surface, .surface-raised, .card-live),
 html[data-appearance="clay"] :is(.surface, .surface-raised, .plate, .studio-sheet, [class*="bg-ink-900"][class*="rounded-2xl"]) :is(.surface, .surface-raised, .studio-inset, [class*="bg-ink-900"][class*="rounded-2xl"], [class*="bg-ink-950"][class*="rounded-card"], [class*="bg-ink-900"][class*="rounded-card"], [class*="bg-ink-950"][class*="rounded-xl"], [class*="bg-ink-900"][class*="rounded-xl"]) :is([class*="bg-ink-950"], [class*="bg-ink-900"], [class*="bg-ink-850"], [class*="bg-ink-800"], [class*="bg-glass-"]):is([class*="rounded-card"], [class*="rounded-2xl"], [class*="rounded-panel"], [class*="rounded-xl"], [class*="rounded-3xl"], [class*="rounded-lg"]):not(input):not(textarea):not(select):not([class*="min-h-"]):not([class*="fixed"]) {
   background-color: rgb(var(--card-face));
   box-shadow: 5px 5px 14px rgb(var(--clay-drop-h) / 0.22),
-    inset 2px 2px 4px var(--clay-hi-2),
-    inset -3px -3px 6px var(--clay-lo);
+    inset calc(2px * var(--clay-corner-spread)) calc(2px * var(--clay-corner-spread)) calc(4px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-3px * var(--clay-corner-spread)) calc(-3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(var(--clay-drop-h) / min(0.72, calc(0.17 * var(--clay-corner-depth, 1))));
 }
 
 html[data-appearance="clay"] :is(.surface, .surface-raised, .plate) :is(.surface, .surface-raised, [class*="bg-ink-900"][class*="rounded-xl"], [class*="bg-ink-900"][class*="rounded-2xl"]) :is(.surface, .surface-raised, [class*="bg-ink-950"][class*="rounded-xl"], [class*="bg-ink-900"][class*="rounded-xl"], [class*="bg-ink-900"][class*="rounded-2xl"]) :is(.surface, .surface-raised, [class*="bg-ink-950"], [class*="bg-ink-900"], [class*="bg-ink-850"], [class*="bg-ink-800"]):is(.surface, .surface-raised, [class*="rounded-card"], [class*="rounded-2xl"], [class*="rounded-panel"], [class*="rounded-xl"], [class*="rounded-3xl"], [class*="rounded-lg"]):not(input):not(textarea):not(select):not([class*="min-h-"]):not([class*="fixed"]) {
@@ -2868,3 +2944,18 @@ html[data-appearance="clay"] :is(.surface, .surface-raised, .plate) :is(.surface
     inset 0 -1px 0 rgb(var(--clay-drop-h) / 0.16);
 }
 
+
+/* §22 · NO DRAWN PERIMETER IN THE BESPOKE PACK EITHER
+   The §11 pack predates the corrected material invariant and several of
+   its cards declared a 1px border. Those raised shapes now obey the
+   same rule as the named registry: face + cast shadow + blurred corner
+   light/shade, never a stroke. Internal dividers and focus treatments
+   are not card perimeters and are untouched. */
+[data-appearance="clay"] :is(.navclay, .navclay__indicator, .clay-blob,
+  .hero-shard, .hero-clay__card, .pricing-clay__card, .testi-clay,
+  .testi-clay__avatar, .testi-clay__bubble, .card-grid-clay__item,
+  .card-grid-clay__icon, .clay-media-card, .clay-media-card__media,
+  .clay-media-card__tag, .clay-media-card__save, .clay-inset-panel,
+  .studio-stage) {
+  border-color: transparent;
+}

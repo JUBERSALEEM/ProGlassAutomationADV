@@ -38,7 +38,10 @@ export function ScreenshotFrame({
 }) {
   if (shot.src && shot.source !== "pending") {
     return (
-      <figure className={cn("surface-raised", className, modal && "mx-auto w-fit max-w-full")}>
+      /* `overflow-hidden` clips the flush image well (top) and caption
+         (bottom) to the frame's rounded corners — without it both paint
+         square corners over the radius and the card reads rectangular. */
+      <figure className={cn("surface-raised overflow-hidden", className, modal && "mx-auto w-fit max-w-full")}>
         {/*
           Opened large, the asset is fitted to the window.
           

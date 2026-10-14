@@ -32,6 +32,27 @@
  *
  * ═══════════════════════════════════════════════════════════════════════════ */
 
+/* ═══ §G · ONE EDGE, LIQUID DEPTH (the double-card fix + iOS Liquid pass) ═
+ *
+ * The witness (14 Oct screenshot): every Crystal card read as TWO cards —
+ * a card inside a card. The edge was being drawn up to five times on one
+ * pane: the globals border, a `0 0 0 1px` ring outside it, the §C9 masked
+ * meniscus ring just inside it, and hard 1px inset top/bottom lines in
+ * three different shadow stacks. Liquid Glass has ONE edge: the pane's
+ * own border, following its round corner (--card-radius). Everything
+ * else in this engine is now forbidden from drawing a line:
+ *   · no `0 0 0 1px` rings on panes, chips, tiles, buttons or the wallet
+ *   · no masked 1px ring pseudo (the meniscus is retired as an outline;
+ *     its light returns as a soft corner sheen that fades before it can
+ *     read as a frame)
+ *   · no zero-blur inset lines; inner light is blurred (≥3px) or a
+ *     background gradient, so it models thickness instead of tracing it
+ * Depth instead comes from the liquid stack: richer frost (28px,
+ * saturate via --glass-sat, brightness lift on fine pointers), the
+ * --glass-refract diagonal refraction band, the pointer catch light,
+ * corner washes, and one soft wide drop shadow per pane.
+ */
+
 /* ═══ §C1 · THE GLASS LIFT (G1) ════════════════════════════════════════════
  *
  * Ninety-four utility-carry sites were opaque islands on a translucent
@@ -54,9 +75,9 @@
     linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%);
   backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(160%);
   -webkit-backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(160%);
-  box-shadow: 0 0 0 1px var(--glass-ring),
-    inset 0 1px 0 0 var(--glass-edge-light),
-    inset 0 -1px 0 0 var(--glass-edge-dark);
+  box-shadow: 0 18px 40px -18px rgb(2 1 10 / 0.45),
+    inset 3px 3px 10px rgb(255 255 255 / var(--glass-spec-a, 0.12)),
+    inset -4px -4px 12px rgb(2 6 14 / 0.12);
 }
 
 [data-theme="daylight"][data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
@@ -65,9 +86,9 @@
      the fill returns (0.60 → 0.68) and the contract re-floored every
      daylight tier below in the same move. */
   background-color: rgb(255 255 255 / var(--glass-lift-a));
-  box-shadow: 0 0 0 1px var(--glass-line),
-    inset 0 1px 0 0 var(--glass-edge-light),
-    inset 0 -1px 0 0 var(--glass-edge-dark);
+  box-shadow: 0 18px 38px -18px rgb(70 40 120 / 0.28),
+    inset 3px 3px 10px rgb(255 255 255 / 0.35),
+    inset -4px -4px 12px rgb(70 40 120 / 0.08);
 }
 
 /* §C1f · The lift, blur-less: fills rise, gradients drop, text survives. */
@@ -100,8 +121,7 @@
   caret-color: rgb(var(--brand-400));
   backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(150%);
   -webkit-backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(150%);
-  box-shadow: inset 0 2px 6px rgb(6 26 38 / 0.18),
-    0 0 0 1px var(--glass-ring);
+  box-shadow: inset 0 2px 6px rgb(6 26 38 / 0.18);
 }
 
 [data-appearance="crystal"] :is(input, textarea, select)::placeholder {
@@ -166,8 +186,8 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
   border-color: var(--glass-line);
   backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(160%);
   -webkit-backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(160%);
-  box-shadow: 0 0 0 1px var(--glass-ring),
-    inset 0 1px 0 0 var(--glass-edge-light);
+  box-shadow: 3px 5px 14px -6px rgb(2 1 10 / 0.35),
+    inset 2px 2px 6px rgb(255 255 255 / 0.2);
 }
 
 [data-appearance="crystal"] .eyebrow-chip {
@@ -175,8 +195,8 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
   border-color: rgb(var(--brand-400) / 0.38);
   backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(170%);
   -webkit-backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(170%);
-  box-shadow: 0 0 0 1px var(--glass-ring),
-    inset 0 1px 0 0 var(--glass-edge-light);
+  box-shadow: 3px 5px 14px -6px rgb(2 1 10 / 0.35),
+    inset 2px 2px 6px rgb(255 255 255 / 0.2);
 }
 
 /* Table seams in glass: the header chills (tier 2), row hovers lift the
@@ -247,6 +267,14 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 }
 
 [data-appearance="crystal"] {
+  /* The liquid refraction band: light bending through the sheet reads as
+     a soft diagonal brighten, not a line — it lives in the background
+     stack (under content), tinted by the family's cyan shoulder. */
+  --glass-refract: linear-gradient(118deg,
+    transparent 32%,
+    rgb(255 255 255 / 0.07) 46%,
+    rgb(var(--glass-cyan, 103 232 249) / 0.05) 53%,
+    transparent 68%);
   /* Strength rides the family's own glint dial — a moved bench moves the
      catch, the bench's heart having nothing to prove twice. */
   --glass-catch: radial-gradient(
@@ -262,6 +290,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
   background-image:
     var(--glass-catch),
+    var(--glass-refract),
     var(--glass-frost),
     linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),
     linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%);
@@ -321,6 +350,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 @media (prefers-reduced-motion: reduce) {
   [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
     background-image:
+      var(--glass-refract),
       var(--glass-frost),
       linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),
       linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%);
@@ -464,9 +494,8 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
      wells stay close to the page (a halo per chip is noise, not depth). */
   --glass-drop:
     0 24px 55px -18px rgb(2 1 10 / 0.55),
-    0 0 0 1px var(--glass-ring),
-    inset 0 1px 0 0 var(--glass-edge-light),
-    inset 0 -1px 0 0 var(--glass-edge-dark);
+    inset 4px 4px 12px rgb(255 255 255 / 0.1),
+    inset -6px -6px 14px rgb(2 6 14 / 0.16);
 
   /* ── C · The edge at the reference's stated strength: ring 0.16 → 0.24,
      line 0.24 → 0.34. */
@@ -523,13 +552,14 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
   --glass-ring: rgb(255 255 255 / var(--glass-ring-a));
   --glass-ring-a: min(calc(0.50 * var(--glass-glint-mult, 1)), 0.62);
   --glass-line: rgb(255 255 255 / 0.60);
-  --radius-scale: 1.25;
+  /* Same Crystal family roundness as the generic block (raised from the
+     old 1.25): ×1.5 over the 16/20px base — 24px cards, 30px panels. */
+  --radius-family: 1.5;
 
   --glass-drop:
-    0 20px 45px -18px rgb(70 40 120 / 0.30),
-    0 0 0 1px var(--glass-line),
-    inset 0 1px 0 0 var(--glass-edge-light),
-    inset 0 -1px 0 0 var(--glass-edge-dark);
+    0 20px 45px -18px rgb(70 40 120 / 0.3),
+    inset 4px 4px 12px rgb(255 255 255 / 0.35),
+    inset -6px -6px 14px rgb(70 40 120 / 0.1);
 
   /* Light self-shadow hairline is already the daylight grammar; bump the
      white scrim a notch so the pattern's airy panes stay text-safe. */
@@ -580,23 +610,81 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 ):not(.fixed):not(.absolute):not(.sticky):not(.relative) {
   position: relative;
 }
-@supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
-  [data-appearance="crystal"] :is(
-    .surface, .surface-raised, .menu-card, .float-card,
-    .glass-primary, .card-accent, .panel-feature, .stat-tile
-  )::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: var(--glass-meniscus);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    pointer-events: none;
-  }
+/* §G: the masked 1px ring that used to live here is RETIRED — beside the
+   border and the old `0 0 0` ring it was the third line on every pane,
+   the "second card" in the witness screenshot. The meniscus light
+   returns as a soft corner sheen: bright at the struck corner, gone by
+   mid-face, following the same inherited radius — light, never a frame.
+   Corner-safe padding keeps text out of the corners it lights. */
+[data-appearance="crystal"] :is(
+  .surface, .surface-raised, .menu-card, .float-card,
+  .glass-primary, .card-accent, .panel-feature, .stat-tile
+)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(120% 90% at 8% 0%, rgb(255 255 255 / 0.13) 0%, transparent 46%),
+    radial-gradient(90% 80% at 96% 104%, var(--glass-relight-1, rgb(120 220 255 / 0.13)) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+/* The shared conic hover ring (.edge-conic, a normal-family treatment)
+   would draw a second outline over a Crystal pane on hover — the same
+   double-edge defect, one gesture later. In Crystal the hook is off;
+   the pane underneath already carries the family's one edge. */
+[data-appearance="crystal"] .edge-conic::after,
+[data-appearance="crystal"] .edge-conic:hover::after,
+[data-appearance="crystal"] .edge-conic:focus-within::after {
+  content: none;
+}
+
+/* ═══ §H · THE WATERY EDGE — middle sections run crystal-clear ═══════════
+ * In the page's middle (the `.section` bands between hero and footer),
+ * the one edge goes fully liquid: clear as water around the WHOLE
+ * perimeter, not just lit at the struck corner. The technique stays
+ * inside the one-edge law — the border on the round corner is still the
+ * only outline; everything added here is blurred light seated just
+ * inside it:
+ *   · a perimeter inner glow (inset, 18px blur) so all four edges read
+ *     wet, strongest where a real sheet would catch the room;
+ *   · a wider cyan caustic breathing under it (46px blur), the family's
+ *     own hue answering from the water;
+ *   · water-light pooling at the top face and both bottom corners, with
+ *     the relight fringe the meniscus used to draw as a line.
+ * Nothing here has a hard stop: at no point does a second frame exist
+ * for the eye to find. Chrome (nav, menus, the studio) sits outside
+ * `.section` and keeps the quieter clean edge. */
+[data-appearance="crystal"] .section :is(
+  .surface, .surface-raised, .menu-card, .float-card,
+  .glass-primary, .card-accent, .panel-feature, .stat-tile
+)::before {
+  background:
+    radial-gradient(135% 105% at 50% -10%, rgb(255 255 255 / 0.20) 0%, transparent 52%),
+    radial-gradient(120% 90% at 6% 0%, rgb(255 255 255 / 0.15) 0%, transparent 46%),
+    radial-gradient(60% 55% at -4% 50%, rgb(255 255 255 / 0.08) 0%, transparent 60%),
+    radial-gradient(60% 55% at 104% 50%, rgb(255 255 255 / 0.08) 0%, transparent 60%),
+    radial-gradient(90% 80% at 97% 105%, var(--glass-relight-1, rgb(120 220 255 / 0.17)) 0%, transparent 55%),
+    radial-gradient(70% 60% at 3% 96%, var(--glass-relight-2, rgb(242 96 164 / 0.10)) 0%, transparent 60%);
+  box-shadow:
+    inset 0 0 18px -4px rgb(255 255 255 / 0.30),
+    inset 0 0 46px -12px rgb(var(--glass-cyan, 103 232 249) / 0.22);
+}
+[data-theme="daylight"][data-appearance="crystal"] .section :is(
+  .surface, .surface-raised, .menu-card, .float-card,
+  .glass-primary, .card-accent, .panel-feature, .stat-tile
+)::before {
+  background:
+    radial-gradient(135% 105% at 50% -10%, rgb(255 255 255 / 0.34) 0%, transparent 52%),
+    radial-gradient(120% 90% at 6% 0%, rgb(255 255 255 / 0.26) 0%, transparent 46%),
+    radial-gradient(60% 55% at -4% 50%, rgb(255 255 255 / 0.12) 0%, transparent 60%),
+    radial-gradient(60% 55% at 104% 50%, rgb(255 255 255 / 0.12) 0%, transparent 60%),
+    radial-gradient(90% 80% at 97% 105%, var(--glass-relight-1, rgb(217 120 239 / 0.18)) 0%, transparent 55%),
+    radial-gradient(70% 60% at 3% 96%, var(--glass-relight-2, rgb(120 220 255 / 0.12)) 0%, transparent 60%);
+  box-shadow:
+    inset 0 0 18px -4px rgb(255 255 255 / 0.42),
+    inset 0 0 46px -12px rgb(var(--glass-cyan, 103 232 249) / 0.20);
 }
 
 /* ── F · §C1, retuned to the pattern: the midnight fill comes DOWN from
@@ -608,8 +696,8 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 @supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
   [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
     background-color: rgb(255 255 255 / var(--glass-lift-a));
-    backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
-    -webkit-backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
+    backdrop-filter: blur(calc(28px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
+    -webkit-backdrop-filter: blur(calc(28px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
   }
 }
 
@@ -659,7 +747,6 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
   border-radius: 999px;
   box-shadow:
     0 14px 34px -10px var(--glass-fab-glow),
-    0 0 0 1px rgb(255 255 255 / 0.16),
     inset 0 2px 3px 0 rgb(255 255 255 / 0.40),
     inset 0 -5px 8px -3px var(--glass-fab-depth);
   backdrop-filter: saturate(140%);
@@ -703,8 +790,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
   );
   box-shadow:
     0 12px 28px -10px var(--glass-fab-glow),
-    0 0 0 1px rgb(255 255 255 / 0.14),
-    inset 0 1px 2px 0 rgb(255 255 255 / 0.35),
+    inset 0 2px 3px 0 rgb(255 255 255 / 0.35),
     inset 0 -4px 8px -4px var(--glass-fab-depth);
 }
 
@@ -805,8 +891,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
     linear-gradient(155deg, rgb(var(--brand-400) / 0.30), rgb(var(--brand-600) / 0.34));
   box-shadow:
     0 6px 16px -8px rgb(var(--brand-600) / 0.55),
-    0 0 0 1px rgb(255 255 255 / 0.14),
-    inset 0 1px 0 0 rgb(255 255 255 / 0.28);
+    inset 2px 2px 5px rgb(255 255 255 / 0.22);
 }
 [data-theme="daylight"][data-appearance="crystal"] :is(span, div, a, button)[class*="bg-brand-500/1"]:not(.glass-fab):not(.btn-primary) {
   background-image:
@@ -814,8 +899,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
     linear-gradient(155deg, rgb(var(--brand-400) / 0.45), rgb(var(--brand-600) / 0.45));
   box-shadow:
     0 8px 18px -8px rgb(var(--brand-600) / 0.38),
-    0 0 0 1px rgb(255 255 255 / 0.45),
-    inset 0 1px 0 0 rgb(255 255 255 / 0.55);
+    inset 2px 2px 5px rgb(255 255 255 / 0.4);
 }
 
 /* Selected glass: one token pair = the §C13 spectrum. Covers chips, rows,
@@ -831,8 +915,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
   border-color: rgb(255 255 255 / 0.32);
   box-shadow:
     0 10px 22px -10px var(--glass-fab-glow),
-    0 0 0 1px rgb(255 255 255 / 0.16),
-    inset 0 1px 1px 0 rgb(255 255 255 / 0.35),
+    inset 0 2px 3px 0 rgb(255 255 255 / 0.35),
     inset 0 -3px 6px -4px var(--glass-fab-depth);
 }
 
@@ -854,7 +937,6 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
   margin-bottom: 0.45rem;
   box-shadow:
     0 18px 38px -12px var(--glass-fab-glow),
-    0 0 0 1px rgb(255 255 255 / 0.18),
     inset 0 2px 3px 0 rgb(255 255 255 / 0.42),
     inset 0 -5px 8px -3px var(--glass-fab-depth);
 }
@@ -879,12 +961,20 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
  */
 [data-appearance="crystal"] .glass-rows {
   background-color: rgb(var(--ink-900) / var(--glass-rows-fill, 0.34));
-  border-radius: 1rem;
-  box-shadow: 0 0 0 1px var(--glass-ring);
+  /* The dynamic card token, not a fixed 1rem: the wallet takes the same
+     24px corner (family ×1.5) and the corner dial as every other card. */
+  border-radius: var(--card-radius);
+  border: var(--card-edge-width) solid var(--card-edge);
+  box-shadow: 0 18px 40px -18px rgb(2 1 10 / 0.45);
   overflow: hidden;
 }
 [data-appearance="crystal"] .glass-row {
-  padding: 0.8rem 1.1rem;
+  /* Corner-safe like every other card (globals.css): the rows run flush
+     to the wallet's 24 px corner, so their inline padding floors at 62%
+     of the published `--corner-radius` it inherits from `.glass-rows` —
+     at the corner dial's far end the row text walks inward with the arc
+     instead of spilling out of it. */
+  padding: 0.8rem max(1.1rem, min(calc(var(--corner-radius, var(--card-radius)) * 0.62), 2.5rem));
   border-bottom: 1px solid var(--glass-line);
   background-color: rgb(var(--ink-900) / var(--glass-row-fill, 0.16));
   transition: background-color 120ms ease;
@@ -931,12 +1021,19 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
   --glass-edge-dark: rgb(2 6 14 / 0.18);
 }
 [data-appearance="crystal"] {
-  --radius-scale: 1.25;
+  /* Crystal's own roundness, enhanced: liquid glass reads at a larger
+     corner than the flat families, so the family factor is ×1.5 over the
+     site's 16/20px base — cards at 24px, panels at 30px before the
+     visitor's corner dial is multiplied in (`--radius-scale` in
+     globals.css is family × user, and the dial must never be able to
+     erase this factor the way the old single `--radius-scale: 1.25`
+     write let it). The daylight block below declares the same factor. */
+  --radius-family: 1.5;
 }
 @supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
   [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
-    backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.08));
-    -webkit-backdrop-filter: blur(calc(24px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.08));
+    backdrop-filter: blur(calc(28px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.1));
+    -webkit-backdrop-filter: blur(calc(28px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.1));
   }
 }
 @media (prefers-reduced-transparency: reduce) {
@@ -989,8 +1086,8 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
     transform: scale(0.985) translateY(1px);
     box-shadow:
       var(--glass-drop),
-      inset 0 2px 6px 0 rgb(2 6 14 / 0.18),
-      inset 0 1px 0 0 rgb(255 255 255 / 0.5);
+      inset 3px 3px 8px rgb(2 6 14 / 0.14),
+      inset -2px -2px 6px rgb(255 255 255 / 0.28);
   }
 }
 
@@ -1002,9 +1099,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 [data-appearance="crystal"] :is(.panel-feature, .menu-card, .glass-fab, .glass-bar) {
   box-shadow:
     var(--glass-drop),
-    inset 0 0 0 1px rgb(255 255 255 / 0.10),
-    inset 0 0 22px -6px rgb(255 255 255 / 0.22),
-    inset 0 1px 0 0 rgb(255 255 255 / 0.5);
+    inset 0 0 22px -6px rgb(255 255 255 / 0.18);
 }
 
 /* ═══ §F4 · SQUIRCLE — the iOS curvature, where the browser speaks it ════
@@ -1012,7 +1107,11 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
  * Progressive enhancement: engines without it keep border-radius exactly.
  */
 @supports (corner-shape: squircle) {
-  [data-appearance="crystal"] :is(.surface, .surface-raised, .menu-card, .plate, .card-live, .panel-feature, .chip, .glass-row, .glass-bar, .glass-fab) {
+  /* Extended past the first list: the studio sheets, wallet, stat tiles and
+     accent cards are cards too, and now corner at the dynamic 24px they
+     were missing — they should bend with the same iOS curvature instead of
+     mixing arc shapes across one screen. */
+  [data-appearance="crystal"] :is(.surface, .surface-raised, .menu-card, .plate, .card-live, .panel-feature, .chip, .glass-row, .glass-bar, .glass-fab, .studio-sheet, .glass-rows, .stat-tile, .float-card, .card-accent, .card-glass, .glass-primary) {
     corner-shape: squircle;
   }
 }

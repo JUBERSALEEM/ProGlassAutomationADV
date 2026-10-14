@@ -406,3 +406,54 @@ test("G4·text: the engine never writes --text-/​--ink- tokens (glass is mater
 test(`crystal contract complete: ${pass} pairs across 2 lanes × 2 modes, parsed not restated`, () => {
   assert.ok(pass === 82, `expected 82 pairs (40 default + 40 bench-grid (5 dial points) + 2 catch-peak), got ${pass}`);
 });
+
+/* ── §G · ONE EDGE (the double-card fix) ───────────────────────────────
+   Every Crystal pane used to draw its edge up to five times: the globals
+   border, a `0 0 0 1px` ring outside it, the masked meniscus ring inside
+   it, and hard 1px inset lines in three shadow stacks — the witness
+   screenshot's "card inside a card". The law now: the pane's own border
+   on its round corner is the ONLY outline; depth is soft shadow, blurred
+   inner light and background refraction. These locks keep it that way. */
+const stripComments = (text) => text.replace(/\/\*[\s\S]*?\*\//g, "");
+
+test("§G·one-edge: no 0 0 0 ring survives on crystal panes in either file", () => {
+  const engine = stripComments(engineCss);
+  const globals = stripComments(css);
+  assert.ok(!engine.includes("0 0 0 1px var(--glass-ring)"), "crystal engine regained a glass-ring outline");
+  assert.ok(!engine.includes("0 0 0 1px var(--glass-line)"), "crystal engine regained a glass-line outline");
+  assert.ok(!globals.includes("0 0 0 1px var(--glass-ring)"), "globals regained a crystal glass-ring outline");
+});
+
+test("§G·one-edge: the masked meniscus ring stays retired", () => {
+  const engine = stripComments(engineCss);
+  assert.ok(!engine.includes("mask-composite: exclude"), "the masked 1px ring pseudo returned to crystal panes");
+  assert.ok(!engine.includes("-webkit-mask-composite: xor"), "the masked 1px ring pseudo returned to crystal panes");
+});
+
+test("§G·one-edge: --glass-drop carries depth, never a line", () => {
+  const root = postcss.parse(engineCss);
+  const drops = [];
+  root.walkDecls("--glass-drop", (d) => drops.push(d.value));
+  assert.ok(drops.length >= 2, "expected the midnight + daylight --glass-drop tokens");
+  for (const value of drops) {
+    assert.ok(!value.includes("0 0 0"), `--glass-drop regained a ring: ${value}`);
+    assert.ok(!/inset 0 [-\d.]+px 0/.test(value), `--glass-drop regained a hard inset line: ${value}`);
+  }
+});
+
+test("§G·one-edge: the single border on the round corner is the card's own", () => {
+  const globals = stripComments(css);
+  assert.match(globals, /border: var\(--card-edge-width\) solid var\(--card-edge\)/, "the card-edge border (the one surviving outline) is gone");
+  const engine = stripComments(engineCss);
+  assert.match(engine, /\.glass-rows \{[^}]*border: var\(--card-edge-width\) solid var\(--card-edge\)/, "the glass wallet lost its single token edge");
+  assert.match(engine, /--glass-refract:/, "the liquid refraction band is gone");
+});
+
+test("§H·watery-edge: section cards carry the blurred perimeter glow, and it draws no line", () => {
+  const engine = stripComments(engineCss);
+  const watery = engine.match(/\[data-appearance="crystal"\] \.section :is\([\s\S]*?\)::before \{([\s\S]*?)\}/);
+  assert.ok(watery, "the §H watery edge rule is gone");
+  assert.match(watery[1], /inset 0 0 18px -4px rgb\(255 255 255/, "the perimeter water glow is gone");
+  assert.match(watery[1], /inset 0 0 46px/, "the cyan caustic under-glow is gone");
+  assert.ok(!/0 0 0|mask|padding:/.test(watery[1]), "the watery edge regained a hard frame");
+});

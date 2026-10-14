@@ -151,7 +151,14 @@ export function AppFrame({
   tall?: boolean;
 }) {
   return (
-    <figure className={cn("surface-raised", className)}>
+    /* `overflow-hidden` is load-bearing, not cosmetic: the chrome bar above,
+       the rail/workspace row and the caption below are flush, square-cornered
+       fills, so without a clip they paint straight over this figure's rounded
+       corners and the whole window reads as a rectangle. (The same fix, in
+       the other direction, is why ModuleShowcase's figure already carries
+       it.) Nothing inside needs to escape the frame — the previews keep
+       their own scroll wells — so clipping costs nothing. */
+    <figure className={cn("surface-raised overflow-hidden", className)}>
       {/* ── Window chrome ─────────────────────────────────────────── */}
       <div className="app-chrome flex items-center justify-between gap-3 border-b border-line/70 bg-ink-900/85 px-3 py-2 sm:px-4">
         <div className="flex items-center gap-2.5">

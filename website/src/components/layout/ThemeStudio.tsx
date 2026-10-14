@@ -106,6 +106,31 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
   const clayGated = family !== "clay";
   const glassGated = family !== "crystal";
 
+  /* The Clay-paused edge controls must ANSWER, not freeze (the "Border
+     line button is unresponsive" fix). A hard `disabled` + a
+     pointer-events veil made the control indistinguishable from a hung
+     UI: no movement, no click, no explanation. The gate itself stays —
+     Clay never writes a border line — but touching the paused control
+     now responds immediately: it says why, then takes the visitor to
+     the dial that replaces it (Corner depth, highlighted). */
+  const [edgePausedNotice, setEdgePausedNotice] = useState(false);
+  const [cornerDepthHot, setCornerDepthHot] = useState(false);
+  const cornerDepthRef = useRef<HTMLDivElement | null>(null);
+  const cornerDepthHotTimer = useRef<number | null>(null);
+  const explainClayEdge = () => {
+    setEdgePausedNotice(true);
+    setCornerDepthHot(true);
+    if (cornerDepthHotTimer.current) window.clearTimeout(cornerDepthHotTimer.current);
+    cornerDepthHotTimer.current = window.setTimeout(() => setCornerDepthHot(false), 2200);
+    requestAnimationFrame(() => {
+      const box = cornerDepthRef.current;
+      if (!box) return;
+      box.scrollIntoView?.({ behavior: "smooth", block: "center" });
+      const input = box.querySelector('input[type="range"]');
+      if (input instanceof HTMLInputElement && !input.disabled) input.focus({ preventScroll: true });
+    });
+  };
+
   return (
     <>
       <button
@@ -475,17 +500,34 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
           <fieldset className="mt-4">
             <legend className="mono-label">{t("Clay depth")}</legend>
             <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">
-              {t("How hard the shadows press. 1.00 is the shipped recipe; geometry and the light lift never move, so cards deepen without floating.")}
+              {t("Two different kinds of depth: the cast shadow under a card, and the moulded light-and-shade inside its rounded corner. Clay draws no border line, so neither dial is an outline control.")}
             </p>
-            <Slider
-              label={t("Shadow depth")}
-              value={studio.clayDepth}
-              min={0.7}
-              max={1.35}
-              step={0.05}
-              display={`${studio.clayDepth.toFixed(2)}×`}
-              onChange={(value) => setStudio({ clayDepth: value })}
-            />
+            <div className={family === "clay" ? "mt-3 grid gap-3" : "pointer-events-none mt-3 grid select-none gap-3 opacity-50 saturate-[0.6]"}>
+              <Slider
+                label={t("Shadow depth")}
+                value={studio.clayDepth}
+                min={0.7}
+                max={1.35}
+                step={0.05}
+                disabled={clayGated}
+                display={`${studio.clayDepth.toFixed(2)}×`}
+                onChange={(value) => setStudio({ clayDepth: value })}
+                hint={t("The coloured shadow cast below and to the right. 1.00 is the shipped recipe.")}
+              />
+              <div ref={cornerDepthRef} className={cn("rounded-card", cornerDepthHot && "ring-2 ring-brand-400/80")}>
+                <Slider
+                  label={t("Corner depth")}
+                  value={studio.clayInnerEdge}
+                  min={0}
+                  max={10}
+                  step={0.1}
+                  disabled={clayGated}
+                  display={`${studio.clayInnerEdge.toFixed(2)}×`}
+                  onChange={(value) => setStudio({ clayInnerEdge: value })}
+                  hint={t("The soft bevel inside every rounded corner: white light from the top-left and the surface's own shade pooling bottom-right. 0 removes the bevel; 1.00 is the shipped mould; higher values widen and deepen the corner shading. No border is drawn at any value.")}
+                />
+              </div>
+            </div>
           </fieldset>
 
           {/* ── Typeface ──────────────────────────────────────────────── */}
@@ -670,33 +712,50 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
             <div className="rounded-card border-2 border-line-strong/60 bg-ink-950/40 p-3">
               <p className="text-[0.75rem] font-bold uppercase tracking-[0.14em] text-text-secondary">{t("Card edge")}</p>
               <p className="mt-1 text-[0.6875rem] leading-relaxed text-text-muted">
-                {t("The border line on every card, the corner it turns on, and the padding that follows it.")}
+                {family === "clay"
+                  ? t("Clay cards do not draw this line. Their boundary is the moulded corner itself, so the line and colour controls pause while Clay is active; Corner radius still applies, and Corner depth below controls the clay bevel.")
+                  : t("The border line on every card, the corner it turns on, and the padding that follows it.")}
               </p>
+              {family === "clay" && edgePausedNotice ? (
+                <p role="status" className="mt-2 rounded-card bg-brand-500/15 px-3 py-2 text-[0.6875rem] font-semibold leading-relaxed text-text-primary">
+                  {t("That control is paused in Clay, not broken: clay cards draw no border line. Corner depth — highlighted for you below — is the dial that shapes the clay edge.")}
+                </p>
+              ) : null}
 
               <div className="mt-3 space-y-3.5">
-                <Slider
-                  label={t("Border line")}
-                  value={studio.edge}
-                  min={1}
-                  max={10}
-                  step={0.25}
-                  display={edgeReadout(studio.edge)}
-                  onChange={(value) => setStudio({ edge: value })}
-                  hint={t("1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with; the dial runs to 10 px for plate-strength borders.")}
-                />
+                <div
+                  onPointerDownCapture={family === "clay" ? (event) => { event.preventDefault(); explainClayEdge(); } : undefined}
+                  onKeyDownCapture={family === "clay" ? (event) => { if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"].includes(event.key)) { event.preventDefault(); explainClayEdge(); } } : undefined}
+                >
+                  <Slider
+                    label={t("Border line")}
+                    value={studio.edge}
+                    min={1}
+                    max={10}
+                    step={0.25}
+                    display={edgeReadout(studio.edge)}
+                    onChange={(value) => setStudio({ edge: value })}
+                    hint={family === "clay"
+                      ? t("Paused in Clay — touch it and it takes you to Corner depth, the dial that replaces it.")
+                      : t("1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with; the dial runs to 10 px for plate-strength borders.")}
+                  />
+                </div>
                 <Slider
                   label={t("Corner radius")}
                   value={studio.radius}
                   min={0.3}
-                  max={1.8}
+                  max={2}
                   step={0.05}
                   display={`${studio.radius.toFixed(2)}×`}
                   onChange={(value) => setStudio({ radius: value })}
-                  hint={t("Scales the 12 px card radius, exactly as the radius setting scales it in the application.")}
+                  hint={t("Multiplies your family's own roundness — Crystal and Clay start rounder — the way the radius setting scales it in the application.")}
                 />
               </div>
 
-              <div className="mt-3.5">
+              <div
+                className={family === "clay" ? "mt-3.5 opacity-70 saturate-[0.7]" : "mt-3.5"}
+                onClickCapture={family === "clay" ? (event) => { event.preventDefault(); event.stopPropagation(); explainClayEdge(); } : undefined}
+              >
                 <p className="mono-label mb-2">{t("Edge colour")}</p>
                 <div className="flex flex-wrap items-center gap-1.5">
                   {[
@@ -714,6 +773,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                       type="button"
                       data-color-plate="true"
                       aria-pressed={studio.edgeColor === (plate.hex ?? "")}
+                      aria-disabled={family === "clay"}
                       aria-label={t(plate.name)}
                       title={t(plate.name)}
                       onClick={() => setStudio({ edgeColor: plate.hex ?? "" })}
@@ -733,6 +793,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                   <input
                     type="color"
                     value={studio.edgeColor || "#8B7CF0"}
+                    aria-disabled={family === "clay"}
                     aria-label={t("Pick a custom edge colour")}
                     onChange={(event) => setStudio({ edgeColor: event.target.value })}
                     className="h-7 w-9 shrink-0"
@@ -748,8 +809,14 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                   aria-hidden="true"
                   className="grid h-10 w-16 shrink-0 place-items-center bg-ink-900"
                   style={{
-                    border: `${studio.edge}px solid var(--card-edge)`,
-                    borderRadius: `calc(12px * ${studio.radius})`,
+                    border: family === "clay" ? "2px solid transparent" : `${studio.edge}px solid var(--card-edge)`,
+                    boxShadow: family === "clay"
+                      ? "6px 6px 14px rgb(var(--clay-drop-h) / 0.25), inset 3px 3px 6px rgb(255 255 255 / 0.55), inset -4px -4px 8px rgb(var(--clay-drop-h) / 0.35)"
+                      : undefined,
+                    /* Mirrors the real card corner: the site's 16px base,
+                       the active family's factor (set on <html> by its
+                       engine file), and this dial — never the dial alone. */
+                    borderRadius: `calc(16px * var(--radius-family, 1) * ${studio.radius})`,
                   }}
                 />
                 <div className="min-w-0">
@@ -757,11 +824,13 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                     {edgeReadout(studio.edge)} · {studio.radius.toFixed(2)}× radius
                   </p>
                   <p className="mt-0.5 text-xs leading-relaxed text-text-muted">
-                    {studio.edge <= 1.5
-                      ? "The subtle hairline the application uses for inputs and gridlines."
-                      : studio.edge <= 2
-                        ? "The defined card edge the application ships as its default."
-                        : "A bold industrial edge — padding follows it, so content is never crowded."}
+                    {family === "clay"
+                      ? t("Shown as clay actually renders: a soft corner, not a stroke.")
+                      : studio.edge <= 1.5
+                        ? "The subtle hairline the application uses for inputs and gridlines."
+                        : studio.edge <= 2
+                          ? "The defined card edge the application ships as its default."
+                          : "A bold industrial edge — padding follows it, so content is never crowded."}
                   </p>
                 </div>
               </div>

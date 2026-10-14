@@ -103,6 +103,17 @@ export type Studio = {
    * floating, and text-contrast pairs don't move at all.
    */
   clayDepth: number;
+  /**
+   * The Clay corner-depth dial. The persisted field keeps its original
+   * `clayInnerEdge` name so existing saved studio settings migrate
+   * without a schema break, but the material meaning is different:
+   * Clay draws no card border, so this scales the blurred top-left
+   * sheen, bottom-right shade and broad corner light that make the
+   * rounded corner read as moulded clay. 1 = the shipped recipe,
+   * 0 = no bevel, 10 = the deepest studio setting (alphas are capped
+   * in the engine and the shadow geometry grows instead of clipping).
+   */
+  clayInnerEdge: number;
   /** Which plate the FEATURE card wears (1..6) — the main card is its own color. */ clayPlate: number;
   /** Which plate the on-screen .plate cards wear (1..6). Default = same as the feature card. */ clayCards: number;
   /**
@@ -138,6 +149,7 @@ export const defaultStudio: Studio = {
   clayPlate: 1,
   clayCards: 1,
   clayDepth: 1,
+  clayInnerEdge: 1,
   glassFrost: 1,
   glassBody: 1,
   glassGlint: 1,
@@ -278,10 +290,11 @@ export function normalizeStudio(raw: Partial<Studio> | null | undefined): Studio
   merged.brightness = finite(merged.brightness, -0.09, 0.09, 0);
   merged.vividness = finite(merged.vividness, -0.16, 0.16, 0);
   merged.tint = finite(merged.tint, 0, 3, 1);
-  merged.radius = finite(merged.radius, 0.3, 1.8, 1);
+  merged.radius = finite(merged.radius, 0.3, 2.0, 1);
   merged.edge = finite(merged.edge, 1, 10, 2);
   merged.uiScale = finite(merged.uiScale, 0.9, 1.15, 1);
   merged.clayDepth = finite(merged.clayDepth, 0.5, 2, 1);
+  merged.clayInnerEdge = finite(merged.clayInnerEdge, 0, 10, 1);
   merged.glassFrost = finite(merged.glassFrost, 0.25, 3, 1);
   merged.glassBody = finite(merged.glassBody, 0.25, 3, 1);
   merged.glassGlint = finite(merged.glassGlint, 0, 3, 1);
@@ -704,7 +717,16 @@ export function applyStudioVars(studio: Studio) {
     vars["--glass-glint-mult"] = finite(studio.glassGlint, 0, 3, 1).toFixed(2);
   }
 
-  if (studio.radius !== defaultStudio.radius) vars["--radius-scale"] = String(finite(studio.radius, 0.3, 1.8, 1));
+  /*
+   * The corner dial writes ONLY the visitor's factor (`--radius-user`).
+   * The effective `--radius-scale` is family × user, computed in
+   * globals.css — writing `--radius-scale` itself here (the old behaviour)
+   * put an inline value over the family's own roundness, so moving the
+   * dial silently erased Crystal's ×1.5 and Clay's ×2 the moment it was
+   * touched. A stored inline `--radius-scale` from an older build is
+   * removed by the not-overridden cleanup below on the next apply.
+   */
+  if (studio.radius !== defaultStudio.radius) vars["--radius-user"] = String(finite(studio.radius, 0.3, 2.0, 1));
 
   /*
    * The card edge — the application's "Define Card Edges" setting.
@@ -934,6 +956,14 @@ export function applyStudioVars(studio: Studio) {
     vars["--clay-depth"] = finite(studio.clayDepth, 0.5, 2, 1).toFixed(2);
   }
 
+  /* The corner-depth dial rides beside it, same discipline: written
+     only off default and clamped to the slider's own 0–10. It writes
+     `--clay-corner-depth`, never a border token. At 0 the bevel's
+     light/shade scale away; the card face and cast shadow remain. */
+  if (studio.clayInnerEdge !== defaultStudio.clayInnerEdge) {
+    vars["--clay-corner-depth"] = finite(studio.clayInnerEdge, 0, 10, 1).toFixed(2);
+  }
+
   // Tokens that were not overridden must return to the stylesheet's value, so
   // the previous run's variables are cleared before the new set is written.
   //
@@ -1024,12 +1054,32 @@ export function setStudio(patch: Partial<Studio>) {
      Direct applicators — boot, family/mode switches, observer passes —
      keep applyStudioVars() synchronous: one deliberate action, one apply. */
   scheduleApply(next);
+  /* Persistence used to be a synchronous localStorage write on EVERY
+     call — every tick of every drag paid a storage serialisation on the
+     main thread, on top of the token apply that was already coalesced.
+     It is now throttled: a deliberate single change (a click, a preset)
+     still lands immediately, while a drag pays at most one write per
+     150 ms plus a trailing write of the final state on the next frame
+     (see scheduleApply), so nothing a visitor settles on is ever lost. */
+  const now = performance.now();
+  if (now - lastPersistAt > 150) {
+    persistStudio(next);
+  } else {
+    persistDirty = true;
+  }
+  emit();
+}
+
+let lastPersistAt = 0;
+let persistDirty = false;
+function persistStudio(studio: Studio) {
   try {
-    window.localStorage.setItem(STUDIO_STORAGE_KEY, JSON.stringify(next));
+    window.localStorage.setItem(STUDIO_STORAGE_KEY, JSON.stringify(studio));
+    lastPersistAt = performance.now();
+    persistDirty = false;
   } catch {
     /* Storage may be unavailable. */
   }
-  emit();
 }
 
 let applyFrame = 0;
@@ -1037,11 +1087,13 @@ function scheduleApply(studio: Studio) {
   if (applyFrame) return;
   if (typeof requestAnimationFrame !== "function") {
     applyStudioVars(studio);
+    persistStudio(studio);
     return;
   }
   applyFrame = requestAnimationFrame(() => {
     applyFrame = 0;
     applyStudioVars(read());
+    if (persistDirty) persistStudio(read());
   });
 }
 

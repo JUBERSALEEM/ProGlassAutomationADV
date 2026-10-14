@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { accentPresets, appearanceFamilies, themeModes } from "@/data/themes";
 import { setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
@@ -35,6 +36,30 @@ export function AppearancePreview() {
   const mode = useThemeMode();
   const family = useAppearance();
   const studio = useStudio();
+
+  /* The Clay-paused edge controls must ANSWER, not freeze (the "Border
+     line button is unresponsive" fix): hard-disabled buttons and a
+     pointer-events veil read exactly like a hung UI. In Clay the gate
+     stays — no border token is ever written — but touching a paused
+     preset or the paused dial explains itself and takes the visitor to
+     Corner depth, the dial that replaces it. */
+  const [edgePausedNotice, setEdgePausedNotice] = useState(false);
+  const [cornerDepthHot, setCornerDepthHot] = useState(false);
+  const cornerDepthRef = useRef<HTMLDivElement | null>(null);
+  const cornerDepthHotTimer = useRef<number | null>(null);
+  const explainClayEdge = () => {
+    setEdgePausedNotice(true);
+    setCornerDepthHot(true);
+    if (cornerDepthHotTimer.current) window.clearTimeout(cornerDepthHotTimer.current);
+    cornerDepthHotTimer.current = window.setTimeout(() => setCornerDepthHot(false), 2200);
+    requestAnimationFrame(() => {
+      const box = cornerDepthRef.current;
+      if (!box) return;
+      box.scrollIntoView?.({ behavior: "smooth", block: "center" });
+      const input = box.querySelector('input[type="range"]');
+      if (input instanceof HTMLInputElement && !input.disabled) input.focus({ preventScroll: true });
+    });
+  };
 
   const activeFamily = appearanceFamilies.find((entry) => entry.id === family) ?? appearanceFamilies[0]!;
 
@@ -123,21 +148,27 @@ export function AppearancePreview() {
       </div>
 
       {/* ── Card edge and corner ─────────────────────────────────────── */}
-      <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-text-secondary">{t("Card edge")}<span className="font-medium normal-case tracking-normal text-text-muted">{t("— the border line and the corner")}</span>
+      <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-text-secondary">
+        {family === "clay" ? (
+          <>{t("Clay corner")}<span className="font-medium normal-case tracking-normal text-text-muted">{t("— light and shade, no border line")}</span></>
+        ) : (
+          <>{t("Card edge")}<span className="font-medium normal-case tracking-normal text-text-muted">{t("— the border line and the corner")}</span></>
+        )}
       </p>
       {/*
         The product sets these together in SETTINGS: CardEdgeThickness for the
         border line, CardCornerRadius for the corner it turns on, and the card
         padding follows the edge so a bolder line never crowds its contents.
-        Both dials write the same `--card-edge-width` / `--radius-scale` the
-        docked studio writes, and everything drawn with `.surface` — including
+        Both dials write the same `--card-edge-width` / `--radius-user` the
+        docked studio writes (the family factor multiplies in, it is never
+        overwritten), and everything drawn with `.surface` — including
         the card samples below — repaints as they move.
       */}
       {/* Preset plates, because every other choice in this panel is a plate you
           press. Four weights the application's settings describe: the 1.5 px
           hairline its inputs carry, the 2 px card edge it ships with, and two
           heavier edges for high-DPI or accessibility setups. */}
-      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className={family === "clay" ? "mt-2 grid grid-cols-2 gap-2 opacity-70 saturate-[0.7] sm:grid-cols-4" : "mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4"}>
         {EDGE_PRESETS.map((preset) => {
           const active = Math.abs(studio.edge - preset.edge) < 0.001;
           return (
@@ -145,7 +176,8 @@ export function AppearancePreview() {
               key={t(preset.label)}
               type="button"
               aria-pressed={active}
-              onClick={() => setStudio({ edge: preset.edge })}
+              aria-disabled={family === "clay"}
+              onClick={() => (family === "clay" ? explainClayEdge() : setStudio({ edge: preset.edge }))}
               title={t(preset.note)}
               className={cn(
                 "flex flex-col items-center gap-1.5 rounded-card border-2 px-2 py-2.5 text-[0.75rem] font-bold transition-colors",
@@ -165,27 +197,54 @@ export function AppearancePreview() {
         })}
       </div>
 
+      {family === "clay" && edgePausedNotice ? (
+        <p role="status" className="mt-3 rounded-card bg-brand-500/15 px-3 py-2 text-[0.6875rem] font-semibold leading-relaxed text-text-primary">
+          {t("That control is paused in Clay, not broken: clay cards draw no border line. Corner depth — highlighted for you below — is the dial that shapes the clay edge.")}
+        </p>
+      ) : null}
+
       <div className="mt-3 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-start">
         <div className="space-y-3.5">
-          <Slider
-            label={t("Card edge")}
-            value={studio.edge}
-            min={1}
-            max={4}
-            step={0.25}
-            display={edgeReadout(studio.edge)}
-            onChange={(value) => setStudio({ edge: value })}
-            hint={t("1.5 px is the hairline the app uses for inputs; 2 px is the defined card edge it ships with.")}
-          />
+          <div
+            onPointerDownCapture={family === "clay" ? (event) => { event.preventDefault(); explainClayEdge(); } : undefined}
+            onKeyDownCapture={family === "clay" ? (event) => { if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"].includes(event.key)) { event.preventDefault(); explainClayEdge(); } } : undefined}
+          >
+            <Slider
+              label={t("Card edge")}
+              value={studio.edge}
+              min={1}
+              max={4}
+              step={0.25}
+              display={edgeReadout(studio.edge)}
+              onChange={(value) => setStudio({ edge: value })}
+              hint={family === "clay"
+                ? t("Paused in Clay — touch it and it takes you to Corner depth, the dial that replaces it.")
+                : t("1.5 px is the hairline the app uses for inputs; 2 px is the defined card edge it ships with.")}
+            />
+          </div>
+          {family === "clay" ? (
+            <div ref={cornerDepthRef} className={cn("rounded-card", cornerDepthHot && "ring-2 ring-brand-400/80")}>
+            <Slider
+              label={t("Corner depth")}
+              value={studio.clayInnerEdge}
+              min={0}
+              max={10}
+              step={0.1}
+              display={`${studio.clayInnerEdge.toFixed(2)}×`}
+              onChange={(value) => setStudio({ clayInnerEdge: value })}
+              hint={t("Soft light from the top-left and shade pooling bottom-right inside the rounded corner. No border is drawn.")}
+            />
+            </div>
+          ) : null}
           <Slider
             label={t("Corner radius")}
             value={studio.radius}
             min={0.3}
-            max={1.8}
+            max={2}
             step={0.05}
             display={`${studio.radius.toFixed(2)}×`}
             onChange={(value) => setStudio({ radius: value })}
-            hint={t("Scales the 12 px card radius, the way the radius slider scales it in the app.")}
+            hint={t("Multiplies your family's own roundness, the way the radius slider scales it in the app.")}
           />
         </div>
 
@@ -205,7 +264,9 @@ export function AppearancePreview() {
             </div>
           ))}
           <p className="col-span-3 text-[0.6875rem] leading-snug text-text-muted">
-            {t("Live cards, not a picture: every `.surface` on the page takes this edge and this corner as you move the dials.")}
+            {family === "clay"
+              ? t("Live cards, not a picture: every clay surface takes this corner depth and radius as you move the dials — with no drawn edge.")
+              : t("Live cards, not a picture: every `.surface` on the page takes this edge and this corner as you move the dials.")}
           </p>
         </div>
       </div>

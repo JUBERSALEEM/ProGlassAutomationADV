@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 /**
  * The studio's slider.
  *
@@ -42,6 +44,33 @@ export function Slider({
    */
   disabled?: boolean;
 }) {
+  /*
+   * Drag responsiveness (the "slider feels stuck / the UI hangs" fix).
+   *
+   * This is a controlled input whose every tick re-renders the studio and
+   * re-applies the whole token set to <html>, which makes the browser
+   * recalculate styles and repaint every card on the page. If the thumb
+   * waits for that round-trip before it may move, any frame that runs
+   * long makes the handle stutter or appear frozen under the pointer.
+   * The thumb therefore tracks the pointer OPTIMISTICALLY: it renders
+   * from local state the instant the browser reports a value, and the
+   * parent state (which follows synchronously through the store) takes
+   * over again when the gesture ends.
+   *
+   * While a gesture is live the root carries `data-studio-live`, and
+   * globals.css collapses transition durations under it — otherwise
+   * every card's box-shadow transition animates continuously through
+   * the drag and the paint never settles.
+   */
+  const [dragValue, setDragValue] = useState<number | null>(null);
+  const shown = dragValue ?? value;
+  const beginLive = () => {
+    document.documentElement.setAttribute("data-studio-live", "");
+  };
+  const endLive = () => {
+    document.documentElement.removeAttribute("data-studio-live");
+    setDragValue(null);
+  };
   return (
     <label className="block">
       <span className="flex items-baseline justify-between gap-3">
@@ -53,10 +82,18 @@ export function Slider({
         min={min}
         max={max}
         step={step}
-        value={value}
+        value={shown}
         aria-label={label}
         disabled={disabled}
-        onChange={(event) => onChange(Number(event.target.value))}
+        onPointerDown={beginLive}
+        onChange={(event) => {
+          beginLive();
+          const next = Number(event.target.value);
+          setDragValue(next);
+          onChange(next);
+        }}
+        onPointerUp={endLive}
+        onBlur={endLive}
         className="mt-1"
       />
       {hint ? <span className="mt-1 block text-[0.6875rem] leading-snug text-text-muted">{hint}</span> : null}

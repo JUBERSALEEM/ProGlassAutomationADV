@@ -568,3 +568,23 @@ describe("P20 · live Chrome, GlassBlue plate, Frost IACVT guard & Chat bubble",
     expect(gold.getAttribute("data-color-plate")).toBe("true");
   });
 });
+
+describe("P20 · the Clay-paused card edge answers, not freeze", () => {
+  it("Border line is not hard-disabled in Clay; touching it explains and hands over to Corner depth", async () => {
+    const user = userEvent.setup();
+    render(<ThemeStudio />);
+    const panel = await openStudio(user); // clay per beforeEach
+    const borderLine = within(panel).getByRole("slider", { name: /border line/i }) as HTMLInputElement;
+    /* The freeze this locks out: a hard `disabled` + pointer-events veil
+       made the control indistinguishable from a hung UI. */
+    expect(borderLine.disabled).toBe(false);
+    fireEvent.pointerDown(borderLine);
+    expect(await within(panel).findByText(/paused in Clay, not broken/i)).toBeTruthy();
+    const cornerDepth = within(panel).getByRole("slider", { name: /corner depth/i }) as HTMLInputElement;
+    expect(cornerDepth.disabled).toBe(false);
+    await settle();
+    expect(document.activeElement).toBe(cornerDepth);
+    /* And the pause is real: no border token was written under Clay. */
+    expect(inline("--card-edge-width")).toBe("");
+  });
+});
