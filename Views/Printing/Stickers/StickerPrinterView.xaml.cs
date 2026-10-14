@@ -34,6 +34,7 @@ namespace ProGlassAutomation.Views.Printing.Stickers
         private Point _resizeStartPoint;
         private bool _isResizing;
         private bool _showSheetPreview;
+        private bool _isSelectingStudioTab;
         private long _previewSheetPageIndex;
         private long _previewSheetPageCount;
         private bool _ignoreTemplateSelectionChange = true;
@@ -54,7 +55,6 @@ namespace ProGlassAutomation.Views.Printing.Stickers
         {
             InitializeComponent();
             DataContextChanged += OnDataContextChanged;
-            StickerItemsGrid.SelectionChanged += (_, _) => RefreshPreview();
             Loaded += (_, _) =>
             {
                 _ignoreTemplateSelectionChange = false;
@@ -98,23 +98,28 @@ namespace ProGlassAutomation.Views.Printing.Stickers
         private void ConfigureStudioMode()
         {
             if (_viewModel == null) return;
+
             DesignOnlyBanner.Visibility = _designOnly ? Visibility.Visible : Visibility.Collapsed;
             PrintButton.Visibility = _designOnly ? Visibility.Collapsed : Visibility.Visible;
             PrintSampleButton.Visibility = _designOnly ? Visibility.Visible : Visibility.Collapsed;
             CloseButton.Visibility = _designOnly ? Visibility.Collapsed : Visibility.Visible;
-            PreviewExplanation.Text = _designOnly
-                ? "Template-specific sample values only. Select the glass-size field to edit sample width/height. Print sample sends one test label and never uses PI/job data; use Step 5 or Optimization for production."
-                : "Click to select; drag to move. Selected objects show resize handles. Delete removes the selected object; arrow keys nudge it by 1 mm.";
-            SourceLabelsHeader.Text = _designOnly ? "SAMPLE DATA · NO SOURCE ROWS" : "REAL SOURCE ROWS";
+
+            StudioHeaderTitle.Text = _designOnly ? "Label layout workspace" : "Production sticker run";
+            StudioHeaderSubtitle.Text = _designOnly
+                ? "Build reusable glass labels with test-only sample data."
+                : "Review the source batch, preview the label, and print when ready.";
+            SourceLabelsHeader.Text = _designOnly
+                ? "Test sample only · no source rows" : "Production source rows";
             SourceEmptyState.Text = _designOnly
-                ? "No production rows are loaded. This standalone studio can preview and print clearly marked test data without Step 5 or a PI/job."
-                : "No source rows are attached. Open Sticker Printer Studio for a sample, or load real panes from Step 5 or Optimization.";
-            PreviewCountBadge.Text = _designOnly ? SamplePreviewBadgeText() : _viewModel.EstimatedPrintPlanSummaryText;
+                ? "No production rows are loaded. This workspace previews and prints clearly marked test data without Step 5 or a PI/job."
+                : "No source rows are attached. Open the standalone Sticker Printer Studio for a sample, or load real panes from Step 5 or Optimization.";
+
             bool hasSourceRows = _viewModel.Items.Count > 0;
             StickerItemsGrid.Visibility = hasSourceRows ? Visibility.Visible : Visibility.Collapsed;
             SourceEmptyState.Visibility = hasSourceRows ? Visibility.Collapsed : Visibility.Visible;
             if (_designOnly && string.IsNullOrWhiteSpace(_viewModel.StatusMessage))
                 _viewModel.StatusMessage = "Standalone sample mode. Print sample uses test-only values; production data remains in Step 5 and Optimization.";
+
             UpdateA4SheetUi();
             SelectStudioTab(_viewModel.SelectedStudioTabIndex);
         }
@@ -146,6 +151,13 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             if (e.PropertyName == nameof(StickerPrintDialogViewModel.SheetLayoutSummaryText))
             {
                 if (_showSheetPreview) RefreshPreview();
+                return;
+            }
+            if (e.PropertyName == nameof(StickerPrintDialogViewModel.SourceRowPositionText)
+                || e.PropertyName == nameof(StickerPrintDialogViewModel.CanSelectPreviousSourceRow)
+                || e.PropertyName == nameof(StickerPrintDialogViewModel.CanSelectNextSourceRow))
+            {
+                UpdatePreviewNavigation();
                 return;
             }
             if (e.PropertyName == nameof(StickerPrintDialogViewModel.EstimatedPrintPlanSummaryText))
@@ -183,14 +195,13 @@ namespace ProGlassAutomation.Views.Printing.Stickers
 
         private void StudioTab_Checked(object sender, RoutedEventArgs e)
         {
-            if (_viewModel == null || sender is not RadioButton selected) return;
+            if (_viewModel == null || _isSelectingStudioTab || sender is not RadioButton selected) return;
             int index = ReferenceEquals(selected, DesignTabButton) ? 0
                 : ReferenceEquals(selected, TemplatesTabButton) ? 1
                 : ReferenceEquals(selected, PrinterTabButton) ? 2
                 : ReferenceEquals(selected, SourceTabButton) ? 3 : -1;
             if (index < 0) return;
             _viewModel.SelectedStudioTabIndex = index;
-            UpdateStudioTabVisibility();
         }
 
         private void SelectStudioTab(int index)
@@ -204,7 +215,15 @@ namespace ProGlassAutomation.Views.Printing.Stickers
                 3 => SourceTabButton,
                 _ => DesignTabButton
             };
-            if (!target.IsChecked.GetValueOrDefault()) target.IsChecked = true;
+            _isSelectingStudioTab = true;
+            try
+            {
+                if (!target.IsChecked.GetValueOrDefault()) target.IsChecked = true;
+            }
+            finally
+            {
+                _isSelectingStudioTab = false;
+            }
             UpdateStudioTabVisibility();
         }
 
@@ -213,6 +232,7 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             if (_viewModel == null) return;
             int index = Math.Clamp(_viewModel.SelectedStudioTabIndex, 0, 3);
             bool showSources = index == 3;
+            if (index != 0) CancelElementDrag();
             DesignWorkspace.Visibility = showSources ? Visibility.Collapsed : Visibility.Visible;
             SourceWorkspace.Visibility = showSources ? Visibility.Visible : Visibility.Collapsed;
             TemplateSettingsCard.Visibility = index == 1 ? Visibility.Visible : Visibility.Collapsed;
@@ -220,6 +240,18 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             DesignElementsCard.Visibility = index == 0 ? Visibility.Visible : Visibility.Collapsed;
             SelectedElementCard.Visibility = index == 0 && _viewModel.HasSelectedElement
                 ? Visibility.Visible : Visibility.Collapsed;
+
+            // Source review needs more width for the read-only table; the preview
+            // remains visible and follows the currently selected source row.
+            WorkspaceGrid.ColumnDefinitions[0].Width = showSources
+                ? new GridLength(1.65, GridUnitType.Star)
+                : new GridLength(1.15, GridUnitType.Star);
+            WorkspaceGrid.ColumnDefinitions[2].Width = showSources
+                ? new GridLength(0.9, GridUnitType.Star)
+                : new GridLength(1, GridUnitType.Star);
+
+            UpdateSampleSizeEditorVisibility();
+            RefreshPreview();
         }
 
         private void UpdateA4SheetUi()
@@ -281,8 +313,8 @@ namespace ProGlassAutomation.Views.Printing.Stickers
         {
             if (_viewModel == null) return;
             PreviewHeading.Text = _showSheetPreview && _viewModel.IsA4SheetLayout
-                ? "ESTIMATED A4 SHEET PREVIEW"
-                : _viewModel.IsSamplePreview ? "TEMPLATE SAMPLE PREVIEW" : "SOURCE ROW PREVIEW";
+                ? "A4 sheet preview"
+                : _viewModel.IsSamplePreview ? "Sample label preview" : "Production label preview";
         }
 
         private void UpdatePreviewNavigation()
@@ -370,10 +402,23 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             };
         }
 
-        private static TextBlock CreatePreviewMessage(string message) => new()
+        private Brush ResolveStudioBrush(string resourceKey, Brush fallback)
+            => TryFindResource(resourceKey) as Brush ?? fallback;
+
+        private void ApplyEditorOutline(Border border, bool selected)
+        {
+            string resourceKey = selected ? "Ov.Accent" : "Ov.Line";
+            if (TryFindResource(resourceKey) is Brush)
+                border.SetResourceReference(Border.BorderBrushProperty, resourceKey);
+            else
+                border.BorderBrush = selected ? SystemColors.HighlightBrush : SystemColors.ControlDarkBrush;
+            border.BorderThickness = new Thickness(selected ? 1.5 : 0.6);
+        }
+
+        private TextBlock CreatePreviewMessage(string message) => new()
         {
             Text = message,
-            Foreground = Brushes.Gray,
+            Foreground = ResolveStudioBrush("Ov.Muted", SystemColors.GrayTextBrush),
             TextWrapping = TextWrapping.Wrap,
             TextAlignment = TextAlignment.Center,
             HorizontalAlignment = HorizontalAlignment.Center,
@@ -389,14 +434,16 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             PreviewCountBadge.Text = _designOnly
                 ? SamplePreviewBadgeText()
                 : _viewModel.EstimatedPrintPlanSummaryText;
-            bool restoreCanvasFocus = _editorCanvas?.IsKeyboardFocusWithin == true;
+
+            bool canEditLayout = _viewModel.SelectedStudioTabIndex == 0;
+            bool restoreCanvasFocus = canEditLayout && _editorCanvas?.IsKeyboardFocusWithin == true;
             if (_showSheetPreview && _viewModel.IsA4SheetLayout)
             {
                 RemoveResizeThumbs();
                 _editorCanvas = null;
                 PreviewExplanation.Text = _designOnly
-                    ? "A4 sheet preview of one placeholder sample label. No production data is used."
-                    : "Estimated A4 sheet preview. Stickers are shown at true relative size; final capacity uses the selected printer's imageable area.";
+                    ? "A4 preview of one placeholder sample. No production data is used."
+                    : "Estimated A4 preview at the designed sticker size. Final sheet capacity uses the selected printer's imageable area.";
                 PreviewHost.Content = CreateA4SheetPreview();
                 UpdatePreviewNavigation();
                 return;
@@ -404,8 +451,13 @@ namespace ProGlassAutomation.Views.Printing.Stickers
 
             UpdatePreviewNavigation();
             PreviewExplanation.Text = _designOnly
-                ? "Template-specific sample values only. Select the glass-size field to edit sample width/height. Print sample sends one test label and never uses PI/job data; use Step 5 or Optimization for production."
-                : "Click to select; drag to move. Selected objects show resize handles. Delete removes the selected object; arrow keys nudge it by 1 mm.";
+                ? canEditLayout
+                    ? "Sample values only. Select the glass-size field to edit preview dimensions. Print sample sends one test label and never uses PI/job data."
+                    : "Test-only sample preview. Switch to Design to edit the layout or sample dimensions; production data is never used here."
+                : canEditLayout
+                    ? "Select, drag, or resize an object. Arrow keys move it by 1 mm; Shift + arrows move it by 5 mm."
+                    : "Read-only preview. Switch to Design to edit the layout, or open Source rows to inspect production values.";
+
             var label = _viewModel.SelectedLabel;
             if (label == null)
             {
@@ -414,29 +466,43 @@ namespace ProGlassAutomation.Views.Printing.Stickers
                 PreviewHost.Content = new TextBlock
                 {
                     Text = "No valid source row is selected. Select a row to inspect its source values.",
-                    Foreground = Brushes.Gray,
+                    Foreground = ResolveStudioBrush("Ov.Muted", SystemColors.GrayTextBrush),
+                    TextWrapping = TextWrapping.Wrap,
+                    TextAlignment = TextAlignment.Center,
                     HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(16)
                 };
                 return;
             }
 
             RemoveResizeThumbs();
             int quantity = _viewModel.OneLabelPerPiece ? 1 : label.Quantity;
+            Brush selectionBrush = ResolveStudioBrush("Ov.Accent", SystemColors.HighlightBrush);
+            Brush outlineBrush = ResolveStudioBrush("Ov.Line", SystemColors.ControlDarkBrush);
             var canvas = StickerLabelVisualFactory.CreateTemplateCanvas(
                 label,
                 _viewModel.ActiveTemplate,
                 quantity,
-                editorMode: true,
-                selectedElementId: _viewModel.SelectedElement?.Id);
-            _editorCanvas = canvas;
-            canvas.PreviewKeyDown += EditorCanvas_PreviewKeyDown;
-            canvas.MouseLeftButtonDown += EditorCanvas_MouseLeftButtonDown;
-            foreach (var border in canvas.Children.OfType<Border>())
+                editorMode: canEditLayout,
+                selectedElementId: canEditLayout ? _viewModel.SelectedElement?.Id : null,
+                editorSelectionBrush: selectionBrush,
+                editorOutlineBrush: outlineBrush);
+            _editorCanvas = canEditLayout ? canvas : null;
+            if (canEditLayout)
             {
-                border.MouseLeftButtonDown += EditorElement_MouseLeftButtonDown;
-                border.MouseMove += EditorElement_MouseMove;
-                border.MouseLeftButtonUp += EditorElement_MouseLeftButtonUp;
+                canvas.PreviewKeyDown += EditorCanvas_PreviewKeyDown;
+                canvas.MouseLeftButtonDown += EditorCanvas_MouseLeftButtonDown;
+                foreach (var border in canvas.Children.OfType<Border>())
+                {
+                    border.MouseLeftButtonDown += EditorElement_MouseLeftButtonDown;
+                    border.MouseMove += EditorElement_MouseMove;
+                    border.MouseLeftButtonUp += EditorElement_MouseLeftButtonUp;
+                    border.LostMouseCapture += EditorElement_LostMouseCapture;
+                    bool selected = border.Tag is StickerLayoutElement element
+                        && ReferenceEquals(element, _viewModel.SelectedElement);
+                    ApplyEditorOutline(border, selected);
+                }
             }
 
             PreviewHost.Content = new Viewbox
@@ -446,7 +512,7 @@ namespace ProGlassAutomation.Views.Printing.Stickers
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 VerticalAlignment = VerticalAlignment.Stretch
             };
-            AddResizeThumbs();
+            if (canEditLayout) AddResizeThumbs();
             if (restoreCanvasFocus)
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
@@ -460,26 +526,26 @@ namespace ProGlassAutomation.Views.Printing.Stickers
         private void UpdateSampleSizeEditorVisibility()
         {
             if (_viewModel == null) return;
-            SampleSizeEditorPanel.Visibility = _viewModel.CanEditSampleDimensions && !_showSheetPreview
-                ? Visibility.Visible : Visibility.Collapsed;
+            bool editableSample = _viewModel.SelectedStudioTabIndex == 0
+                && _viewModel.CanEditSampleDimensions && !_showSheetPreview;
+            SampleSizeEditorPanel.Visibility = editableSample ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void UpdateSelectionOutlines()
         {
             if (_viewModel == null) return;
-            SelectedElementCard.Visibility = _viewModel.SelectedStudioTabIndex == 0
-                && _viewModel.HasSelectedElement ? Visibility.Visible : Visibility.Collapsed;
+            bool designTabActive = _viewModel.SelectedStudioTabIndex == 0;
+            SelectedElementCard.Visibility = designTabActive && _viewModel.HasSelectedElement
+                ? Visibility.Visible : Visibility.Collapsed;
             UpdateSampleSizeEditorVisibility();
-            if (_editorCanvas == null) return;
+            if (!designTabActive || _editorCanvas == null) return;
+
             RemoveResizeThumbs();
             foreach (var border in _editorCanvas.Children.OfType<Border>())
             {
                 bool selected = border.Tag is StickerLayoutElement element
                     && ReferenceEquals(element, _viewModel.SelectedElement);
-                border.BorderBrush = selected
-                    ? Brushes.DodgerBlue
-                    : new SolidColorBrush(Color.FromArgb(72, 52, 64, 84));
-                border.BorderThickness = new Thickness(selected ? 1.5 : 0.6);
+                ApplyEditorOutline(border, selected);
                 if (border.Tag is StickerLayoutElement item)
                     border.Cursor = item.IsLocked ? Cursors.Arrow : Cursors.SizeAll;
             }
@@ -668,8 +734,28 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             _dragStartTop = Canvas.GetTop(border);
             if (double.IsNaN(_dragStartLeft)) _dragStartLeft = 0;
             if (double.IsNaN(_dragStartTop)) _dragStartTop = 0;
-            border.CaptureMouse();
+            if (!border.CaptureMouse())
+            {
+                _dragElement = null;
+                _dragBorder = null;
+            }
             e.Handled = true;
+        }
+
+        private void CancelElementDrag()
+        {
+            if (_dragBorder is not { } border) return;
+            _dragBorder = null;
+            _dragElement = null;
+            if (border.IsMouseCaptured) border.ReleaseMouseCapture();
+        }
+
+        private void EditorElement_LostMouseCapture(object sender, MouseEventArgs e)
+        {
+            if (_dragBorder == null || !ReferenceEquals(sender, _dragBorder)) return;
+            _dragBorder = null;
+            _dragElement = null;
+            if (IsLoaded) RefreshPreview();
         }
 
         private void EditorElement_MouseMove(object sender, MouseEventArgs e)
@@ -703,7 +789,15 @@ namespace ProGlassAutomation.Views.Printing.Stickers
 
         private void StickerPrinterView_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key != Key.Delete || _viewModel == null) return;
+            if (_viewModel == null) return;
+            if (e.Key == Key.Escape && _dragBorder != null)
+            {
+                CancelElementDrag();
+                RefreshPreview();
+                e.Handled = true;
+                return;
+            }
+            if (e.Key != Key.Delete || _viewModel.SelectedStudioTabIndex != 0) return;
             bool canvasFocused = _editorCanvas?.IsKeyboardFocusWithin == true;
             bool layerListFocused = TemplateElementsList.IsKeyboardFocusWithin;
             if (!canvasFocused && !layerListFocused) return;
@@ -716,7 +810,7 @@ namespace ProGlassAutomation.Views.Printing.Stickers
 
         private void EditorCanvas_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (_viewModel == null) return;
+            if (_viewModel == null || _viewModel.SelectedStudioTabIndex != 0) return;
             double step = (Keyboard.Modifiers & ModifierKeys.Shift) != 0 ? 5 : 1;
             switch (e.Key)
             {

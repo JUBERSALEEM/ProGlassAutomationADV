@@ -26,7 +26,9 @@ namespace ProGlassAutomation.Services.Printing.Stickers
             StickerLayoutTemplate template,
             int? displayQuantity = null,
             bool editorMode = false,
-            string? selectedElementId = null)
+            string? selectedElementId = null,
+            Brush? editorSelectionBrush = null,
+            Brush? editorOutlineBrush = null)
         {
             double widthDip = MmToDip(SafeRange(template.LabelWidthMm, 15, 500, 100));
             double heightDip = MmToDip(SafeRange(template.LabelHeightMm,
@@ -46,7 +48,8 @@ namespace ProGlassAutomation.Services.Printing.Stickers
             {
                 if (element == null || !element.IsVisible) continue;
                 var visual = CreateTemplateElement(label, element, displayQuantity, editorMode,
-                    string.Equals(element.Id, selectedElementId, StringComparison.Ordinal));
+                    string.Equals(element.Id, selectedElementId, StringComparison.Ordinal),
+                    editorSelectionBrush, editorOutlineBrush);
                 if (visual == null) continue;
                 Canvas.SetLeft(visual, MmToDip(SafeRange(element.Xmm, -500, 1000, 0)));
                 Canvas.SetTop(visual, MmToDip(SafeRange(element.Ymm, -500, 1000, 0)));
@@ -87,7 +90,8 @@ namespace ProGlassAutomation.Services.Printing.Stickers
         }
 
         private static FrameworkElement? CreateTemplateElement(GlassStickerLabel label,
-            StickerLayoutElement element, int? displayQuantity, bool editorMode, bool selected)
+            StickerLayoutElement element, int? displayQuantity, bool editorMode, bool selected,
+            Brush? editorSelectionBrush, Brush? editorOutlineBrush)
         {
             UIElement? content = null;
             string dynamicValue = string.Empty;
@@ -167,8 +171,8 @@ namespace ProGlassAutomation.Services.Printing.Stickers
             if (editorMode)
             {
                 border.BorderBrush = selected
-                    ? Brushes.DodgerBlue
-                    : new SolidColorBrush(Color.FromArgb(72, 52, 64, 84));
+                    ? editorSelectionBrush ?? SystemColors.HighlightBrush
+                    : editorOutlineBrush ?? SystemColors.ControlDarkBrush;
                 border.BorderThickness = new Thickness(selected ? 1.5 : 0.6);
                 border.Cursor = element.IsLocked ? System.Windows.Input.Cursors.Arrow : System.Windows.Input.Cursors.SizeAll;
                 border.ToolTip = element.IsLocked ? element.DisplayName + " (locked)" : element.DisplayName;

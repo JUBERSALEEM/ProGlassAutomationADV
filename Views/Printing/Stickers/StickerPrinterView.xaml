@@ -16,43 +16,79 @@
                 <ResourceDictionary Source="../../Shared/Lists/StudioListResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
+            <Style x:Key="StickerPanelCard" TargetType="Border" BasedOn="{StaticResource Sl.Card}">
+                <Setter Property="Background" Value="{DynamicResource Appearance.StudioFace}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Appearance.StudioEdge}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="Padding" Value="16"/>
+            </Style>
+            <Style x:Key="StickerHeaderCard" TargetType="Border" BasedOn="{StaticResource StickerPanelCard}">
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="Padding" Value="16,12"/>
+            </Style>
             <Style x:Key="StickerFieldLabel" TargetType="TextBlock" BasedOn="{StaticResource Sl.Label}">
-                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.Label}"/>
+                <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
                 <Setter Property="Foreground" Value="{DynamicResource Ov.Muted}"/>
                 <Setter Property="Margin" Value="0,0,0,5"/>
                 <Setter Property="TextWrapping" Value="Wrap"/>
             </Style>
             <Style x:Key="StickerSectionTitle" TargetType="TextBlock" BasedOn="{StaticResource Ov.CardTitle}">
-                <Setter Property="FontSize" Value="15"/>
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.H3}"/>
+                <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
                 <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
                 <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+            <Style x:Key="StickerPageTitle" TargetType="TextBlock" BasedOn="{StaticResource Ov.Text}">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.H1}"/>
+                <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            </Style>
+            <Style x:Key="StickerHeaderSubtitle" TargetType="TextBlock" BasedOn="{StaticResource Ov.Meta}">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
+                <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+                <Setter Property="Margin" Value="0,3,0,0"/>
             </Style>
             <Style x:Key="StickerInput" TargetType="TextBox" BasedOn="{StaticResource Sl.Input}">
                 <Setter Property="MinHeight" Value="40"/>
                 <Setter Property="Padding" Value="10,6"/>
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.Input}"/>
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
             </Style>
             <Style x:Key="StickerCombo" TargetType="ComboBox" BasedOn="{StaticResource Sl.Combo}">
                 <Setter Property="MinHeight" Value="40"/>
                 <Setter Property="Padding" Value="9,5"/>
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.Input}"/>
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
             </Style>
             <Style x:Key="StickerButton" TargetType="Button" BasedOn="{StaticResource Sl.Button}">
                 <Setter Property="MinHeight" Value="40"/>
-                <Setter Property="Padding" Value="10,7"/>
+                <Setter Property="Padding" Value="12,8"/>
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.Button}"/>
                 <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                <Setter Property="FocusVisualStyle" Value="{StaticResource Ov.Focus}"/>
             </Style>
             <Style x:Key="StickerPrimaryButton" TargetType="Button" BasedOn="{StaticResource Sl.PrimaryButton}">
                 <Setter Property="MinHeight" Value="42"/>
                 <Setter Property="Padding" Value="16,8"/>
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.Button}"/>
+                <Setter Property="FocusVisualStyle" Value="{StaticResource Ov.Focus}"/>
             </Style>
             <Style x:Key="StickerCheckBox" TargetType="CheckBox">
                 <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
-                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
                 <Setter Property="Padding" Value="2"/>
+                <Setter Property="MinHeight" Value="36"/>
             </Style>
             <Style x:Key="StickerGridCellText" TargetType="TextBlock" BasedOn="{StaticResource Sl.CellText}">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.DataGrid}"/>
+                <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
                 <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
                 <Setter Property="TextWrapping" Value="NoWrap"/>
                 <Setter Property="Margin" Value="4,3"/>
@@ -76,36 +112,45 @@
                 </Setter>
             </Style>
             <Style x:Key="StickerStudioTab" TargetType="RadioButton">
-                <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
-                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="Foreground" Value="{DynamicResource Ov.Muted}"/>
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.Tab}"/>
+                <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
                 <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="Margin" Value="0,0,8,0"/>
+                <Setter Property="FocusVisualStyle" Value="{StaticResource Ov.Focus}"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="RadioButton">
-                            <Border x:Name="TabChrome" Background="{DynamicResource Ov.Surface}"
-                                    BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1"
-                                    CornerRadius="12" Padding="13,9" SnapsToDevicePixels="True">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{TemplateBinding Tag}" FontFamily="Segoe MDL2 Assets"
-                                               FontSize="14" Foreground="{TemplateBinding Foreground}"
-                                               VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <Border x:Name="TabChrome" Background="Transparent"
+                                    BorderBrush="Transparent" BorderThickness="0,0,0,2"
+                                    Padding="14,9" MinHeight="44" SnapsToDevicePixels="True">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource Sl.TagGlyph}}"
+                                               FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.H3}"
+                                               Foreground="{TemplateBinding Foreground}"
+                                               VerticalAlignment="Center" Margin="0,0,8,0"
+                                               IsHitTestVisible="False" Focusable="False"
+                                               AutomationProperties.AccessibilityView="Raw"/>
                                     <ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="True"/>
                                 </StackPanel>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="TabChrome" Property="Background" Value="{DynamicResource Ov.Soft}"/>
-                                    <Setter TargetName="TabChrome" Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
+                                    <Setter TargetName="TabChrome" Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
                                 </Trigger>
                                 <Trigger Property="IsChecked" Value="True">
-                                    <Setter TargetName="TabChrome" Property="Background" Value="{DynamicResource Ov.Accent}"/>
+                                    <Setter TargetName="TabChrome" Property="Background" Value="{DynamicResource Ov.Surface}"/>
                                     <Setter TargetName="TabChrome" Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
-                                    <Setter Property="Foreground" Value="{DynamicResource Ov.OnAccent}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Accent}"/>
                                 </Trigger>
                                 <Trigger Property="IsKeyboardFocused" Value="True">
-                                    <Setter TargetName="TabChrome" Property="BorderThickness" Value="2"/>
+                                    <Setter TargetName="TabChrome" Property="BorderThickness" Value="0,0,0,3"/>
+                                    <Setter TargetName="TabChrome" Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="TabChrome" Property="Opacity" Value="0.5"/>
+                                    <Setter Property="Cursor" Value="Arrow"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -114,72 +159,83 @@
             </Style>
             <DataTemplate x:Key="StickerDisplayNameOptionTemplate">
                 <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource Ov.Ink}"
-                           TextTrimming="CharacterEllipsis"/>
+                           FontFamily="{DynamicResource AppFontFamily}"
+                           FontSize="{DynamicResource FontSize.Body}" TextTrimming="CharacterEllipsis"/>
             </DataTemplate>
             <DataTemplate x:Key="StickerTemplateChoiceTemplate">
-                <Grid MinWidth="240" Margin="2,3">
+                <Grid MinWidth="220" Margin="2,4">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="{Binding TemplateName}" FontSize="12" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource Ov.Ink}" TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Text="{Binding KindDisplayName}" FontSize="10"
+                        <TextBlock Text="{Binding TemplateName}" FontSize="{DynamicResource FontSize.Body}"
+                                   FontFamily="{DynamicResource AppFontFamily}"
+                                   FontWeight="SemiBold" Foreground="{DynamicResource Ov.Ink}"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding KindDisplayName}" FontSize="{DynamicResource FontSize.BodySmall}"
+                                   FontFamily="{DynamicResource AppFontFamily}"
                                    Foreground="{DynamicResource Ov.Muted}" Margin="0,2,0,0"/>
                     </StackPanel>
                     <Border Grid.Column="1" Background="{DynamicResource Ov.Soft}"
                             BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1"
-                            CornerRadius="8" Padding="8,3" Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding SourceLabel}" FontSize="9" FontWeight="Bold"
-                                   Foreground="{DynamicResource Ov.Accent}"/>
+                            CornerRadius="8" Padding="8,4" Margin="8,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding SourceLabel}" FontSize="{DynamicResource FontSize.Caption}"
+                                   FontFamily="{DynamicResource AppFontFamily}"
+                                   FontWeight="SemiBold" Foreground="{DynamicResource Ov.Accent}"/>
                     </Border>
                 </Grid>
             </DataTemplate>
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Margin="16,12,16,16">
+    <Grid Margin="16,12,16,14">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="*" MinHeight="250"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Indigo Bento identity card; the same visual language as Optimization. -->
-        <Border Grid.Row="0" Style="{StaticResource Sl.Hero}" Padding="16,13" Margin="0,0,0,10">
+        <!-- Compact identity and document state; the label itself remains the visual focus. -->
+        <Border Grid.Row="0" Style="{StaticResource StickerHeaderCard}" Margin="0,0,0,10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Border Width="42" Height="42" CornerRadius="13" Background="#33FFFFFF" VerticalAlignment="Center">
-                    <TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="20"
-                               Foreground="{DynamicResource Ov.OnAccent}"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Border Width="40" Height="40" CornerRadius="12"
+                        Background="{DynamicResource Ov.Soft}" BorderBrush="{DynamicResource Ov.Line}"
+                        BorderThickness="1" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Icon}"
+                               Foreground="{DynamicResource Ov.Accent}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               IsHitTestVisible="False" Focusable="False"
+                               AutomationProperties.AccessibilityView="Raw"/>
                 </Border>
                 <StackPanel Grid.Column="1" Margin="13,0,12,0" VerticalAlignment="Center">
-                    <TextBlock Text="STICKER PRINTER STUDIO" FontSize="18" FontWeight="SemiBold"
-                               Foreground="{DynamicResource Ov.OnAccent}"/>
-                    <TextBlock Text="Design once, reuse from Step 5 and Optimization. Layouts store fields—not customer or invoice data."
-                               FontSize="11" Foreground="{DynamicResource Ov.OnAccentMuted}"
-                               TextWrapping="Wrap" Margin="0,3,0,0"/>
+                    <TextBlock x:Name="StudioHeaderTitle" Text="Label layout workspace"
+                               Style="{StaticResource StickerPageTitle}"/>
+                    <TextBlock x:Name="StudioHeaderSubtitle"
+                               Text="Build reusable glass labels and preview every change."
+                               Style="{StaticResource StickerHeaderSubtitle}"/>
                 </StackPanel>
-                <Border Grid.Column="2" Background="#26FFFFFF" CornerRadius="11" Padding="11,7"
-                        VerticalAlignment="Center" MaxWidth="250">
+                <Border Grid.Column="2" Background="{DynamicResource Ov.Soft}"
+                        BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1"
+                        CornerRadius="12" Padding="12,8" VerticalAlignment="Center" MaxWidth="250">
                     <StackPanel>
-                        <TextBlock Text="ACTIVE LAYOUT" FontSize="9" FontWeight="Bold"
-                                   Foreground="{DynamicResource Ov.OnAccentMuted}"/>
-                        <TextBlock Text="{Binding TemplateNameText}" FontSize="12" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource Ov.OnAccent}" TextTrimming="CharacterEllipsis"/>
-                        <TextBlock FontSize="10" FontWeight="SemiBold">
+                        <TextBlock Text="Current layout" FontSize="{DynamicResource FontSize.Label}"
+                                   FontWeight="SemiBold" Foreground="{DynamicResource Ov.Muted}"/>
+                        <TextBlock Text="{Binding TemplateNameText}" FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="SemiBold" Foreground="{DynamicResource Ov.Ink}"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock FontSize="{DynamicResource FontSize.Caption}" FontWeight="SemiBold">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
-                                    <Setter Property="Text" Value="Saved layout"/>
-                                    <Setter Property="Foreground" Value="{DynamicResource Ov.OnAccentMuted}"/>
+                                    <Setter Property="Text" Value="Saved"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Success}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsTemplateDirty}" Value="True">
                                             <Setter Property="Text" Value="Unsaved layout changes"/>
-                                            <Setter Property="Foreground" Value="#FFFFD9A8"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Warning}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -190,53 +246,57 @@
             </Grid>
         </Border>
 
-        <!-- Capsule rail mirrors the Optimization workspace navigation. -->
-        <Border Grid.Row="1" Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,0,9">
+        <!-- A restrained, keyboard-operable workspace rail replaces the large capsule tabs. -->
+        <Border Grid.Row="1" Background="Transparent" BorderThickness="0" Padding="0"
+                Margin="0,0,0,2">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
                           CanContentScroll="False" Focusable="False">
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" KeyboardNavigation.TabNavigation="Once">
                     <RadioButton x:Name="DesignTabButton" GroupName="StickerStudioTabs" Tag="&#xE70F;"
-                                 Content="DESIGN" IsChecked="True" Style="{StaticResource StickerStudioTab}"
-                                 Checked="StudioTab_Checked" ToolTip="Add common fields, drag objects on the label and edit the selected object."/>
+                                 Content="Design" IsChecked="True" Style="{StaticResource StickerStudioTab}"
+                                 Checked="StudioTab_Checked" ToolTip="Edit fields and objects on the sticker layout."
+                                 AutomationProperties.Name="Design"/>
                     <RadioButton x:Name="TemplatesTabButton" GroupName="StickerStudioTabs" Tag="&#xE8B7;"
-                                 Content="TEMPLATES" Style="{StaticResource StickerStudioTab}"
-                                 Checked="StudioTab_Checked" ToolTip="Choose SGU, DGU, Proforma/Job or saved layouts; import, export and name templates."/>
+                                 Content="Templates" Style="{StaticResource StickerStudioTab}"
+                                 Checked="StudioTab_Checked" ToolTip="Choose, create, open, save, or export a reusable layout."
+                                 AutomationProperties.Name="Templates"/>
                     <RadioButton x:Name="PrinterTabButton" GroupName="StickerStudioTabs" Tag="&#xE749;"
-                                 Content="PRINTER SETUP" Style="{StaticResource StickerStudioTab}"
-                                 Checked="StudioTab_Checked" ToolTip="Set label dimensions, ZT411 profile, resolution, media handling and repeat mode."/>
+                                 Content="Printer setup" Style="{StaticResource StickerStudioTab}"
+                                 Checked="StudioTab_Checked" ToolTip="Configure stock dimensions, output layout, resolution, and media handling."
+                                 AutomationProperties.Name="Printer setup"/>
                     <RadioButton x:Name="SourceTabButton" GroupName="StickerStudioTabs" Tag="&#xE8A7;"
-                                 Content="SOURCE ROWS" Style="{StaticResource StickerStudioTab}"
+                                 Content="Source rows" Style="{StaticResource StickerStudioTab}"
                                  Checked="StudioTab_Checked" Margin="0"
-                                 ToolTip="Review the source panes that will be printed in Step 5 or Optimization."/>
+                                 ToolTip="Review read-only production rows and inspect the selected label preview."
+                                 AutomationProperties.Name="Source rows"/>
                 </StackPanel>
             </ScrollViewer>
         </Border>
 
-        <!-- Tabs keep the busy workflow focused while preserving a live label canvas. -->
-        <Grid Grid.Row="2">
-            <Grid x:Name="DesignWorkspace">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*" MinWidth="230"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="3*" MinWidth="250"/>
-                </Grid.ColumnDefinitions>
+        <!-- Stable split workspace: contextual controls on the left, live preview on the right. -->
+        <Grid x:Name="WorkspaceGrid" Grid.Row="2" Margin="0,10,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.15*" MinWidth="310"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="1*" MinWidth="278"/>
+            </Grid.ColumnDefinitions>
 
-                <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled" Padding="0,0,4,0">
-                    <StackPanel>
-                        <!-- Template setup tab -->
-                        <Border x:Name="TemplateSettingsCard" Style="{StaticResource Sl.Card}" Padding="14" Margin="0,0,0,12" Visibility="Collapsed">
+            <ScrollViewer x:Name="DesignWorkspace" Grid.Column="0"
+                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          Padding="0,0,5,0" Focusable="False">
+                <StackPanel KeyboardNavigation.TabNavigation="Continue">
+                    <Border x:Name="TemplateSettingsCard" Style="{StaticResource StickerPanelCard}" Padding="16" Margin="0,0,0,12" Visibility="Collapsed">
                             <StackPanel>
                                 <Grid Margin="0,0,0,12">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="TEMPLATE LIBRARY" Style="{StaticResource StickerSectionTitle}"/>
-                                        <TextBlock Text="Select a preset or reusable layout" FontSize="11"
+                                        <TextBlock Text="Template library" Style="{StaticResource StickerSectionTitle}"/>
+                                        <TextBlock Text="Choose a preset or reusable layout" FontSize="{DynamicResource FontSize.Label}"
                                                    Foreground="{DynamicResource Ov.Muted}" Margin="0,3,0,0"/>
                                     </StackPanel>
                                     <Border Grid.Column="1" Background="{DynamicResource Ov.SuccessSoft}"
                                             CornerRadius="8" Padding="9,5" VerticalAlignment="Center">
-                                        <TextBlock FontSize="10" FontWeight="SemiBold">
+                                        <TextBlock FontSize="{DynamicResource FontSize.Caption}" FontWeight="SemiBold">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Text" Value="Saved"/>
@@ -256,28 +316,26 @@
                                           SelectedItem="{Binding SelectedTemplateChoice, Mode=OneWay}"
                                           ItemTemplate="{StaticResource StickerTemplateChoiceTemplate}"
                                           SelectionChanged="TemplateCombo_SelectionChanged"
-                                          Style="{StaticResource StickerCombo}" Margin="0,0,0,10"/>
+                                          Style="{StaticResource StickerCombo}" Margin="0,0,0,10"
+                                          AutomationProperties.Name="Sticker template"/>
                                 <Grid Margin="0,0,0,10">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                     <Button Content="New custom" Tag="&#xE710;" Click="NewTemplate_Click" Style="{StaticResource StickerButton}"/>
                                     <Button Grid.Column="2" Content="Open .pgsticker" Tag="&#xE8E5;"
                                             Click="OpenTemplate_Click" Style="{StaticResource StickerButton}"/>
                                 </Grid>
-                                <Grid Margin="0,0,0,12">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                    <Button Content="Save to library" Tag="&#xE74E;" Click="SaveTemplate_Click"
-                                            Style="{StaticResource StickerPrimaryButton}"/>
-                                    <Button Grid.Column="2" Content="Export file…" Tag="&#xE74D;"
-                                            Click="ExportTemplate_Click" Style="{StaticResource StickerButton}"/>
-                                </Grid>
+                                <Button Content="Export file…" Tag="&#xE74D;" Click="ExportTemplate_Click"
+                                        Style="{StaticResource StickerButton}" HorizontalAlignment="Left"
+                                        MinWidth="180" Margin="0,0,0,12"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
                                     <StackPanel>
                                         <TextBlock Text="Template name" Style="{StaticResource StickerFieldLabel}"/>
-                                        <TextBox Text="{Binding TemplateNameText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StickerInput}"/>
+                                        <TextBox Text="{Binding TemplateNameText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StickerInput}"
+                                                 AutomationProperties.Name="Template name"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Style family" Style="{StaticResource StickerFieldLabel}"/>
+                                        <TextBlock Text="Template type" Style="{StaticResource StickerFieldLabel}"/>
                                         <ComboBox ItemsSource="{Binding TemplateKindOptions}"
                                                   ItemTemplate="{StaticResource StickerDisplayNameOptionTemplate}"
                                                   SelectedValuePath="Value" SelectedValue="{Binding TemplateKind, Mode=TwoWay}"
@@ -291,32 +349,33 @@
                                              ToolTip="Enter #RRGGBB or #AARRGGBB."/>
                                 </StackPanel>
                                 <TextBlock Text="Presets and saved templates contain layout only. Customer, invoice and pane values are filled from each source row when printing."
-                                           FontSize="11" Foreground="{DynamicResource Ov.Muted}"
+                                           FontSize="{DynamicResource FontSize.Label}" Foreground="{DynamicResource Ov.Muted}"
                                            TextWrapping="Wrap" Margin="0,10,0,0"/>
                             </StackPanel>
                         </Border>
 
-                        <!-- Printer setup tab -->
-                        <Border x:Name="PrinterSettingsCard" Style="{StaticResource Sl.Card}" Padding="14" Margin="0,0,0,12" Visibility="Collapsed">
+                    <Border x:Name="PrinterSettingsCard" Style="{StaticResource StickerPanelCard}" Padding="16" Margin="0,0,0,12" Visibility="Collapsed">
                             <StackPanel>
-                                <TextBlock Text="PRINTER PROFILE" Style="{StaticResource StickerSectionTitle}" Margin="0,0,0,12"/>
+                                <TextBlock Text="Printer and stock setup" Style="{StaticResource StickerSectionTitle}" Margin="0,0,0,12"/>
                                 <TextBlock Text="Printer model" Style="{StaticResource StickerFieldLabel}"/>
                                 <ComboBox ItemsSource="{Binding PrinterModelOptions}"
                                           ItemTemplate="{StaticResource StickerDisplayNameOptionTemplate}"
                                           SelectedValuePath="Value" SelectedValue="{Binding PrinterModel, Mode=TwoWay}"
-                                          Style="{StaticResource StickerCombo}" Margin="0,0,0,12"/>
+                                          Style="{StaticResource StickerCombo}" Margin="0,0,0,12"
+                                          AutomationProperties.Name="Printer model"/>
                                 <TextBlock Text="Page layout" Style="{StaticResource StickerFieldLabel}"/>
                                 <ComboBox ItemsSource="{Binding OutputLayoutOptions}"
                                           ItemTemplate="{StaticResource StickerDisplayNameOptionTemplate}"
                                           SelectedValuePath="Value" SelectedValue="{Binding OutputLayoutMode, Mode=TwoWay}"
-                                          Style="{StaticResource StickerCombo}" Margin="0,0,0,10"/>
+                                          Style="{StaticResource StickerCombo}" Margin="0,0,0,10"
+                                          AutomationProperties.Name="Sticker page layout"/>
                                 <Border x:Name="SheetLayoutSettingsPanel" Background="{DynamicResource Ov.Soft}"
                                         BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1"
                                         CornerRadius="10" Padding="11,9" Margin="0,0,0,12" Visibility="Collapsed">
                                     <StackPanel>
-                                        <TextBlock Text="A4 MULTI-UP SHEET" FontSize="10" FontWeight="Bold"
+                                        <TextBlock Text="A4 sheet layout" FontSize="{DynamicResource FontSize.Label}" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource Ov.Accent}"/>
-                                        <TextBlock Text="{Binding SheetLayoutSummaryText}" FontSize="11"
+                                        <TextBlock Text="{Binding SheetLayoutSummaryText}" FontSize="{DynamicResource FontSize.Label}"
                                                    Foreground="{DynamicResource Ov.Ink}" TextWrapping="Wrap" Margin="0,4,0,8"/>
                                         <Grid>
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
@@ -332,7 +391,7 @@
                                             </StackPanel>
                                         </Grid>
                                         <TextBlock Text="The app keeps each sticker at its designed size and respects printer margins. Disable any Fit to page or scaling option in the printer driver."
-                                                   FontSize="10" Foreground="{DynamicResource Ov.Muted}"
+                                                   FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource Ov.Muted}"
                                                    TextWrapping="Wrap" Margin="0,7,0,0"/>
                                     </StackPanel>
                                 </Border>
@@ -343,34 +402,24 @@
                                         <ComboBox ItemsSource="{Binding PrinterResolutionOptions}"
                                                   ItemTemplate="{StaticResource StickerDisplayNameOptionTemplate}"
                                                   SelectedValuePath="Value" SelectedValue="{Binding PrinterResolution, Mode=TwoWay}"
-                                                  IsEnabled="{Binding IsZt411Profile}" Style="{StaticResource StickerCombo}"/>
+                                                  IsEnabled="{Binding IsZt411Profile}" Style="{StaticResource StickerCombo}"
+                                                  AutomationProperties.Name="Printer resolution"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Media handling" Style="{StaticResource StickerFieldLabel}"/>
                                         <ComboBox ItemsSource="{Binding MediaHandlingOptions}"
                                                   ItemTemplate="{StaticResource StickerDisplayNameOptionTemplate}"
                                                   SelectedValuePath="Value" SelectedValue="{Binding MediaHandling, Mode=TwoWay}"
-                                                  IsEnabled="{Binding IsZt411Profile}" Style="{StaticResource StickerCombo}"/>
+                                                  IsEnabled="{Binding IsZt411Profile}" Style="{StaticResource StickerCombo}"
+                                                  AutomationProperties.Name="Printer media handling"/>
                                     </StackPanel>
                                 </Grid>
                                 <Border Background="{DynamicResource Ov.Soft}" BorderBrush="{DynamicResource Ov.Line}"
-                                        BorderThickness="1" CornerRadius="10" Padding="11,9" Margin="0,0,0,12">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding PrinterLimitsText}" FontSize="11"
-                                                   Foreground="{DynamicResource Ov.Muted}" TextWrapping="Wrap"/>
-                                        <TextBlock Text="{Binding PrinterSizeWarningText}" FontSize="11"
-                                                   Foreground="{DynamicResource Ov.Warning}" TextWrapping="Wrap" Margin="0,7,0,0">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding HasPrinterSizeWarning}" Value="False">
-                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </StackPanel>
+                                        BorderThickness="1" CornerRadius="10" Padding="11,9" Margin="0,0,0,10">
+                                    <TextBlock Text="{Binding PrinterLimitsText}"
+                                               FontFamily="{DynamicResource AppFontFamily}"
+                                               FontSize="{DynamicResource FontSize.Label}"
+                                               Foreground="{DynamicResource Ov.Muted}" TextWrapping="Wrap"/>
                                 </Border>
                                 <Grid Margin="0,0,0,8">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
@@ -378,15 +427,36 @@
                                         <TextBlock Text="Printable width (mm)" Style="{StaticResource StickerFieldLabel}"/>
                                         <TextBox Text="{Binding WidthMmText, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource StickerInput}"
+                                                 AutomationProperties.Name="Printable label width in millimetres"
                                                  ToolTip="ZT411 print width is limited to 104 mm; stock web may be wider depending on handling."/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Label length (mm)" Style="{StaticResource StickerFieldLabel}"/>
                                         <TextBox Text="{Binding HeightMmText, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource StickerInput}"
+                                                 AutomationProperties.Name="Label length in millimetres"
                                                  ToolTip="Length limits depend on ZT411 resolution and media handling."/>
                                     </StackPanel>
                                 </Grid>
+                                <Border Background="{DynamicResource Ov.WarningSoft}"
+                                        BorderBrush="{DynamicResource Ov.Warning}" BorderThickness="1"
+                                        CornerRadius="10" Padding="11,9" Margin="0,0,0,12">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasPrinterSizeWarning}" Value="False">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding PrinterSizeWarningText}"
+                                               FontFamily="{DynamicResource AppFontFamily}"
+                                               FontSize="{DynamicResource FontSize.Label}"
+                                               Foreground="{DynamicResource Ov.Warning}" TextWrapping="Wrap"
+                                               AutomationProperties.Name="Printer size warning"
+                                               AutomationProperties.LiveSetting="Polite"/>
+                                </Border>
                                 <Button Content="Apply common 4 × 6 in (101.6 × 152.4 mm)" Tag="&#xE8A7;"
                                         Click="ApplyZt411FourBySix_Click" IsEnabled="{Binding IsZt411Profile}"
                                         Style="{StaticResource StickerButton}" Margin="0,0,0,12"/>
@@ -408,29 +478,28 @@
                                                   IsChecked="{Binding OneLabelPerPiece}"
                                                   Style="{StaticResource StickerCheckBox}"/>
                                         <TextBlock Text="Turn off to print one label per source row and show its total quantity. The Windows driver still controls darkness, speed and calibration."
-                                                   FontSize="11" Foreground="{DynamicResource Ov.Muted}"
+                                                   FontSize="{DynamicResource FontSize.Label}" Foreground="{DynamicResource Ov.Muted}"
                                                    TextWrapping="Wrap" Margin="24,4,0,0"/>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
                         </Border>
 
-                        <!-- Design tools: common fields first, then layer list and inspector. -->
-                        <Border x:Name="DesignElementsCard" Style="{StaticResource Sl.Card}" Padding="14" Margin="0,0,0,12" Visibility="Collapsed">
+                    <Border x:Name="DesignElementsCard" Style="{StaticResource StickerPanelCard}" Padding="16" Margin="0,0,0,12" Visibility="Collapsed">
                             <StackPanel>
                                 <Grid Margin="0,0,0,8">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="ADD TO LABEL" Style="{StaticResource StickerSectionTitle}"/>
-                                        <TextBlock Text="Choose a field, then drag its selected object on the canvas." FontSize="11"
+                                        <TextBlock Text="Add content to the label" Style="{StaticResource StickerSectionTitle}"/>
+                                        <TextBlock Text="Add source fields or simple objects, then arrange them in the preview." FontSize="{DynamicResource FontSize.Label}"
                                                    Foreground="{DynamicResource Ov.Muted}" Margin="0,3,0,0"/>
                                     </StackPanel>
                                     <Border Grid.Column="1" Background="{DynamicResource Ov.Soft}" CornerRadius="8" Padding="9,5">
                                         <TextBlock Text="{Binding TemplateElements.Count, StringFormat='{}{0} objects'}"
-                                                   FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource Ov.Accent}"/>
+                                                   FontSize="{DynamicResource FontSize.Caption}" FontWeight="SemiBold" Foreground="{DynamicResource Ov.Accent}"/>
                                     </Border>
                                 </Grid>
-                                <TextBlock Text="COMMON FIELDS" Style="{StaticResource StickerFieldLabel}" Margin="0,4,0,6"/>
+                                <TextBlock Text="Common production fields" Style="{StaticResource StickerFieldLabel}" Margin="0,4,0,6"/>
                                 <WrapPanel Margin="0,0,0,6">
                                     <Button Content="Company" CommandParameter="CompanyName" Tag="&#xE77B;"
                                             Click="AddCommonField_Click" Style="{StaticResource StickerButton}" Margin="0,0,6,6"/>
@@ -466,7 +535,7 @@
                                     <Button Content="+ Box" Tag="&#xE8A5;" Click="AddBox_Click" Style="{StaticResource StickerButton}" Margin="0,0,5,0"/>
                                     <Button Content="+ Line" Tag="&#xE8A3;" Click="AddLine_Click" Style="{StaticResource StickerButton}"/>
                                 </UniformGrid>
-                                <TextBlock Text="LAYERS" Style="{StaticResource StickerFieldLabel}" Margin="0,4,0,6"/>
+                                <TextBlock Text="Layers" Style="{StaticResource StickerFieldLabel}" Margin="0,4,0,6"/>
                                 <ListBox x:Name="TemplateElementsList" ItemsSource="{Binding TemplateElements}"
                                          SelectedItem="{Binding SelectedElement, Mode=TwoWay}"
                                          DisplayMemberPath="DisplayName" Height="116"
@@ -486,17 +555,17 @@
                             </StackPanel>
                         </Border>
 
-                        <Border x:Name="SelectedElementCard" Style="{StaticResource Sl.Card}" Padding="14" Margin="0,0,0,12" Visibility="Collapsed">
+                        <Border x:Name="SelectedElementCard" Style="{StaticResource StickerPanelCard}" Padding="16" Margin="0,0,0,12" Visibility="Collapsed">
                             <StackPanel IsEnabled="{Binding HasSelectedElement}">
                                 <Grid Margin="0,0,0,12">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="SELECTED OBJECT" Style="{StaticResource StickerSectionTitle}"/>
-                                        <TextBlock Text="Click an object on the label to select it; drag to move. Delete removes the selected object." FontSize="11"
+                                        <TextBlock Text="Selected object" Style="{StaticResource StickerSectionTitle}"/>
+                                        <TextBlock Text="Select an item in the preview or layer list to edit its content and placement." FontSize="{DynamicResource FontSize.Label}"
                                                    Foreground="{DynamicResource Ov.Muted}" Margin="0,3,0,0" TextWrapping="Wrap"/>
                                     </StackPanel>
                                     <Border Grid.Column="1" Background="{DynamicResource Ov.Soft}" CornerRadius="8" Padding="9,5" VerticalAlignment="Top">
-                                        <TextBlock Text="{Binding SelectedElement.Kind}" FontSize="10" FontWeight="SemiBold"
+                                        <TextBlock Text="{Binding SelectedElement.Kind}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource Ov.Accent}"/>
                                     </Border>
                                 </Grid>
@@ -551,7 +620,7 @@
                                     </StackPanel>
                                 </UniformGrid>
                                 <TextBlock Text="Drag a selected object's handles to resize. Arrow keys nudge by 1 mm; Shift + arrows move by 5 mm."
-                                           FontSize="11" Foreground="{DynamicResource Ov.Muted}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                           FontSize="{DynamicResource FontSize.Label}" Foreground="{DynamicResource Ov.Muted}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                 <UniformGrid Columns="3" Margin="0,0,0,8">
                                     <StackPanel Margin="0,0,5,0">
                                         <TextBlock Text="Font size (pt)" Style="{StaticResource StickerFieldLabel}"/>
@@ -625,178 +694,206 @@
                                 </Expander>
                             </StackPanel>
                         </Border>
-                    </StackPanel>
-                </ScrollViewer>
+                </StackPanel>
+            </ScrollViewer>
 
-                <!-- Live preview remains in view while changing template or printer settings. -->
-                <Border Grid.Column="2" Style="{StaticResource Sl.Card}" Padding="14">
-                    <Grid>
-                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Margin="0,0,0,10">
-                            <Border x:Name="DesignOnlyBanner" Visibility="Collapsed"
-                                    Background="{DynamicResource Ov.WarningSoft}" BorderBrush="{DynamicResource Ov.Warning}"
-                                    BorderThickness="1" CornerRadius="10" Padding="10,8" Margin="0,0,0,8">
-                                <TextBlock Text="TEST DATA ONLY — no PI, job or Step 5 selection is needed. ‘Print sample’ sends one test print using synthetic values; use Step 5 or Optimization for production stickers."
-                                           FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Ov.Warning}" TextWrapping="Wrap"/>
-                            </Border>
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <StackPanel>
-                                    <TextBlock x:Name="PreviewHeading" Text="LIVE LABEL PREVIEW" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource Ov.Muted}"/>
-                                    <TextBlock x:Name="PreviewTemplateName" Text="{Binding TemplateNameText}"
-                                               Style="{StaticResource StickerSectionTitle}" Margin="0,3,0,0"/>
-                                </StackPanel>
-                                <Border Grid.Column="1" Background="{DynamicResource Ov.Soft}"
-                                        BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1"
-                                        CornerRadius="10" Padding="10,6" VerticalAlignment="Center" Margin="0,0,8,0">
-                                    <TextBlock x:Name="PreviewCountBadge" Text="DESIGN ONLY"
-                                               FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Ov.Accent}"
-                                               TextTrimming="CharacterEllipsis" MaxWidth="220"/>
-                                </Border>
-                                <Button x:Name="SheetPreviewButton" Grid.Column="2" Content="Show A4 sheet"
-                                        Click="SheetPreview_Click" Style="{StaticResource StickerButton}"
-                                        MinHeight="34" Padding="10,5" VerticalAlignment="Center" Visibility="Collapsed"
-                                        ToolTip="Preview the A4 layout. Use Previous/Next to review each sheet or source row."/>
-                            </Grid>
-                            <Grid x:Name="PreviewNavigationPanel" Margin="0,8,0,0" Visibility="Collapsed">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <TextBlock x:Name="PreviewPositionText" Text="Source row 1 of 1"
-                                           FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource Ov.Muted}"
-                                           VerticalAlignment="Center"/>
-                                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                    <Button x:Name="PreviousPreviewButton" Content="‹ Previous" Click="PreviousPreview_Click"
-                                            Style="{StaticResource StickerButton}" MinHeight="32" Padding="9,4"
-                                            Margin="0,0,6,0"/>
-                                    <Button x:Name="NextPreviewButton" Content="Next ›" Click="NextPreview_Click"
-                                            Style="{StaticResource StickerButton}" MinHeight="32" Padding="9,4"/>
-                                </StackPanel>
-                            </Grid>
-                            <Border x:Name="SampleSizeEditorPanel" Margin="0,8,0,0" Padding="10,8"
-                                    Background="{DynamicResource Ov.Soft}" BorderBrush="{DynamicResource Ov.Line}"
-                                    BorderThickness="1" CornerRadius="10" Visibility="Collapsed">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <StackPanel Grid.Row="0" Margin="0,0,0,6">
-                                        <TextBlock Text="EDIT SAMPLE GLASS SIZE" FontSize="9" FontWeight="Bold"
-                                                   Foreground="{DynamicResource Ov.Accent}"/>
-                                        <TextBlock Text="Preview-only values; saved templates and printer stock stay unchanged."
-                                                   FontSize="10" Foreground="{DynamicResource Ov.Muted}"
-                                                   TextWrapping="Wrap" Margin="0,2,0,0"/>
-                                    </StackPanel>
-                                    <Grid Grid.Row="1">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="10"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock Text="Glass width (mm)" Style="{StaticResource StickerFieldLabel}"/>
-                                            <TextBox Text="{Binding SampleWidthMmText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                     Style="{StaticResource StickerInput}"
-                                                     ToolTip="Enter a whole-number sample width from 1 to 10,000 mm."/>
-                                        </StackPanel>
-                                        <StackPanel Grid.Column="2">
-                                            <TextBlock Text="Glass height (mm)" Style="{StaticResource StickerFieldLabel}"/>
-                                            <TextBox Text="{Binding SampleHeightMmText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                     Style="{StaticResource StickerInput}"
-                                                     ToolTip="Enter a whole-number sample height from 1 to 10,000 mm."/>
-                                        </StackPanel>
-                                    </Grid>
-                                    <TextBlock Grid.Row="2" Text="{Binding SampleDimensionsWarningText}"
-                                               FontSize="10" Foreground="{DynamicResource Ov.Warning}"
-                                               TextWrapping="Wrap" Margin="0,5,0,0">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding SampleDimensionsWarningText}" Value="">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </Grid>
-                            </Border>
-                        </StackPanel>
-                        <Border x:Name="PreviewSurface" Grid.Row="1" Background="{DynamicResource Ov.Soft}"
-                                BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1" CornerRadius="14" Padding="14">
-                            <ContentControl x:Name="PreviewHost"/>
-                        </Border>
-                        <TextBlock x:Name="PreviewExplanation" Grid.Row="2"
-                                   Text="Click to select; drag to move. Selected objects show resize handles. Delete removes the selected object; arrow keys nudge it by 1 mm."
-                                   FontSize="11" Foreground="{DynamicResource Ov.Muted}" Margin="2,8,2,0" TextWrapping="Wrap"/>
-                    </Grid>
-                </Border>
-            </Grid>
+            <Border Grid.Column="1" Background="{DynamicResource Ov.Line}"
+                    Width="1" HorizontalAlignment="Center" Margin="0,12" IsHitTestVisible="False"/>
 
-            <!-- Source rows get a dedicated full-width review tab, not a cramped preview sub-row. -->
-            <Border x:Name="SourceWorkspace" Style="{StaticResource Sl.Card}" Padding="14" Visibility="Collapsed">
+            <!-- Source review keeps the same preview available for every selected row. -->
+            <Border x:Name="SourceWorkspace" Grid.Column="0" Style="{StaticResource StickerPanelCard}" Padding="16" Visibility="Collapsed">
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                     <Grid Grid.Row="0" Margin="0,0,0,10">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock Text="SOURCE LABELS" Style="{StaticResource StickerSectionTitle}"/>
+                            <TextBlock Text="Source labels" Style="{StaticResource StickerSectionTitle}"/>
                             <TextBlock Text="Check order, customer, glass type, pane side, size, quantity and references before printing."
-                                       FontSize="11" Foreground="{DynamicResource Ov.Muted}" Margin="0,3,0,0"/>
+                                       FontSize="{DynamicResource FontSize.Label}" Foreground="{DynamicResource Ov.Muted}" Margin="0,3,0,0"/>
                         </StackPanel>
-                        <TextBlock x:Name="SourceLabelsHeader" Grid.Column="1" Text="REAL SOURCE ROWS"
-                                   FontSize="9" FontWeight="Bold" Foreground="{DynamicResource Ov.Accent}"
+                        <TextBlock x:Name="SourceLabelsHeader" Grid.Column="1" Text="Production source rows"
+                                   FontSize="{DynamicResource FontSize.Label}" FontWeight="SemiBold" Foreground="{DynamicResource Ov.Accent}"
                                    VerticalAlignment="Center" Margin="12,0,0,0"/>
                     </Grid>
                     <Grid Grid.Row="1">
                         <TextBlock x:Name="SourceEmptyState" Text="No production rows are loaded. The standalone studio can preview and print clearly marked test data without Step 5 or a PI/job."
                                    HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
-                                   TextWrapping="Wrap" MaxWidth="420" FontSize="13" Foreground="{DynamicResource Ov.Muted}"
+                                   TextWrapping="Wrap" MaxWidth="420" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource Ov.Muted}"
                                    Visibility="Collapsed"/>
                         <DataGrid x:Name="StickerItemsGrid" ItemsSource="{Binding Items}"
                                   SelectedItem="{Binding SelectedLabel, Mode=TwoWay}"
                                   Style="{StaticResource Sl.DataGrid}" ColumnHeaderStyle="{StaticResource Sl.DataGridHeader}"
                                   AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
                                   IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                                  SelectionMode="Single" SelectionUnit="FullRow" FontSize="12"
-                                  RowHeaderWidth="0" BorderThickness="0" MinRowHeight="42" RowHeight="44">
+                                  SelectionMode="Single" SelectionUnit="FullRow" FontSize="{DynamicResource FontSize.DataGrid}"
+                                  RowHeaderWidth="0" BorderThickness="0" MinRowHeight="42" RowHeight="44"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  AutomationProperties.Name="Production sticker source rows">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="ORDER / PI" Binding="{Binding OrderDisplay}" Width="1.1*" ElementStyle="{StaticResource StickerGridCellText}"/>
-                                <DataGridTextColumn Header="CUSTOMER" Binding="{Binding CustomerCompanyName}" Width="1.1*" ElementStyle="{StaticResource StickerGridCellText}"/>
-                                <DataGridTextColumn Header="TYPE" Binding="{Binding GlassType}" Width="0.6*" ElementStyle="{StaticResource StickerGridCellTextCenter}"/>
-                                <DataGridTextColumn Header="GLASS" Binding="{Binding GlassName}" Width="1.3*" ElementStyle="{StaticResource StickerGridCellText}"/>
-                                <DataGridTextColumn Header="WIDTH (MM)" Binding="{Binding WidthMm}" Width="96" ElementStyle="{StaticResource StickerGridCellTextCenter}"/>
-                                <DataGridTextColumn Header="HEIGHT (MM)" Binding="{Binding HeightMm}" Width="100" ElementStyle="{StaticResource StickerGridCellTextCenter}"/>
-                                <DataGridTextColumn Header="SIDE" Binding="{Binding PanePosition}" Width="0.7*" ElementStyle="{StaticResource StickerGridCellText}"/>
-                                <DataGridTextColumn Header="SOURCE QTY" Binding="{Binding Quantity}" Width="78" ElementStyle="{StaticResource StickerGridCellTextCenter}"/>
-                                <DataGridTextColumn Header="REF" Binding="{Binding Reference}" Width="1*" ElementStyle="{StaticResource StickerGridCellText}"/>
-                                <DataGridTextColumn Header="GLASS REF" Binding="{Binding GlassReference}" Width="1*" ElementStyle="{StaticResource StickerGridCellText}"/>
+                                <DataGridTextColumn Header="Order / PI" Binding="{Binding OrderDisplay}" Width="1.1*" ElementStyle="{StaticResource StickerGridCellText}"/>
+                                <DataGridTextColumn Header="Customer" Binding="{Binding CustomerCompanyName}" Width="1.1*" ElementStyle="{StaticResource StickerGridCellText}"/>
+                                <DataGridTextColumn Header="Type" Binding="{Binding GlassType}" Width="0.6*" ElementStyle="{StaticResource StickerGridCellTextCenter}"/>
+                                <DataGridTextColumn Header="Glass" Binding="{Binding GlassName}" Width="1.3*" ElementStyle="{StaticResource StickerGridCellText}"/>
+                                <DataGridTextColumn Header="Width (mm)" Binding="{Binding WidthMm}" Width="96" ElementStyle="{StaticResource StickerGridCellTextCenter}"/>
+                                <DataGridTextColumn Header="Height (mm)" Binding="{Binding HeightMm}" Width="100" ElementStyle="{StaticResource StickerGridCellTextCenter}"/>
+                                <DataGridTextColumn Header="Side" Binding="{Binding PanePosition}" Width="0.7*" ElementStyle="{StaticResource StickerGridCellText}"/>
+                                <DataGridTextColumn Header="Source qty" Binding="{Binding Quantity}" Width="78" ElementStyle="{StaticResource StickerGridCellTextCenter}"/>
+                                <DataGridTextColumn Header="Ref" Binding="{Binding Reference}" Width="1*" ElementStyle="{StaticResource StickerGridCellText}"/>
+                                <DataGridTextColumn Header="Glass ref" Binding="{Binding GlassReference}" Width="1*" ElementStyle="{StaticResource StickerGridCellText}"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
                 </Grid>
             </Border>
+
+            <!-- The preview is a peer workspace, not a hidden child of the Design tab. -->
+            <Border Grid.Column="2" Style="{StaticResource StickerPanelCard}" Padding="14,14,14,12">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*" MinHeight="150"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                        <Border x:Name="DesignOnlyBanner" Visibility="Collapsed"
+                                Background="{DynamicResource Ov.WarningSoft}" BorderBrush="{DynamicResource Ov.Warning}"
+                                BorderThickness="1" CornerRadius="10" Padding="10,8" Margin="0,0,0,10">
+                            <TextBlock Text="TEST DATA ONLY — no PI, job or Step 5 selection is needed. ‘Print sample’ uses synthetic values; use Step 5 or Optimization for production stickers."
+                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource Ov.Warning}" TextWrapping="Wrap"/>
+                        </Border>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="PreviewHeading" Text="Label preview"
+                                           FontSize="{DynamicResource FontSize.Title}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Ov.Ink}"/>
+                                <TextBlock x:Name="PreviewTemplateName" Text="{Binding TemplateNameText}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           Foreground="{DynamicResource Ov.Muted}" Margin="0,2,0,0"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                            <Button x:Name="SheetPreviewButton" Grid.Column="1" Content="Show A4 sheet"
+                                    Click="SheetPreview_Click" Style="{StaticResource StickerButton}"
+                                    MinHeight="36" Padding="10,5" VerticalAlignment="Center" Visibility="Collapsed"
+                                    ToolTip="Preview the A4 layout. Use Previous and Next to review each sheet or source row."/>
+                        </Grid>
+                        <Border Background="{DynamicResource Ov.Soft}" BorderBrush="{DynamicResource Ov.Line}"
+                                BorderThickness="1" CornerRadius="9" Padding="9,6" Margin="0,0,0,8">
+                            <TextBlock x:Name="PreviewCountBadge" Text="Design sample"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource Ov.Accent}" TextWrapping="Wrap"
+                                       AutomationProperties.Name="Estimated sticker print plan"/>
+                        </Border>
+                        <Grid x:Name="PreviewNavigationPanel" Margin="0,0,0,2" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock x:Name="PreviewPositionText" Text="Source row 1 of 1"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource Ov.Muted}" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button x:Name="PreviousPreviewButton" Content="‹ Previous" Click="PreviousPreview_Click"
+                                        Style="{StaticResource StickerButton}" MinHeight="34" Padding="9,4"
+                                        Margin="0,0,6,0"/>
+                                <Button x:Name="NextPreviewButton" Content="Next ›" Click="NextPreview_Click"
+                                        Style="{StaticResource StickerButton}" MinHeight="34" Padding="9,4"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+
+                    <Border x:Name="PreviewSurface" Grid.Row="1" Background="{DynamicResource Ov.Soft}"
+                            BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1"
+                            CornerRadius="14" Padding="12" MinHeight="150">
+                        <ContentControl x:Name="PreviewHost" AutomationProperties.Name="Rendered sticker preview"/>
+                    </Border>
+
+                    <StackPanel Grid.Row="2" Margin="0,10,0,0">
+                        <Border x:Name="SampleSizeEditorPanel" Margin="0,0,0,8" Padding="10,9"
+                                Background="{DynamicResource Ov.Soft}" BorderBrush="{DynamicResource Ov.Line}"
+                                BorderThickness="1" CornerRadius="10" Visibility="Collapsed">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Margin="0,0,0,7">
+                                    <TextBlock Text="Sample glass size" FontSize="{DynamicResource FontSize.Label}"
+                                               FontWeight="SemiBold" Foreground="{DynamicResource Ov.Accent}"/>
+                                    <TextBlock Text="Preview-only values; saved templates and printer stock stay unchanged."
+                                               FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource Ov.Muted}"
+                                               TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Glass width (mm)" Style="{StaticResource StickerFieldLabel}"/>
+                                        <TextBox Text="{Binding SampleWidthMmText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                 Style="{StaticResource StickerInput}"
+                                                 ToolTip="Enter a whole-number sample width from 1 to 10,000 mm."
+                                                 AutomationProperties.Name="Sample glass width in millimetres"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Glass height (mm)" Style="{StaticResource StickerFieldLabel}"/>
+                                        <TextBox Text="{Binding SampleHeightMmText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                 Style="{StaticResource StickerInput}"
+                                                 ToolTip="Enter a whole-number sample height from 1 to 10,000 mm."
+                                                 AutomationProperties.Name="Sample glass height in millimetres"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Grid.Row="2" Text="{Binding SampleDimensionsWarningText}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource Ov.Warning}"
+                                           TextWrapping="Wrap" Margin="0,6,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SampleDimensionsWarningText}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+                        <TextBlock x:Name="PreviewExplanation"
+                                   Text="Select an object on the label to inspect or edit it."
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   Foreground="{DynamicResource Ov.Muted}" Margin="2,0,2,0"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
         </Grid>
 
-        <!-- Actions stay aligned at the bottom; unavailable actions disappear in design-only mode. -->
-        <Border Grid.Row="3" Style="{StaticResource Sl.Card}" Padding="10,8" Margin="0,10,0,0">
+        <!-- Status and actions stay anchored; print mode is identified by the active button. -->
+        <Border Grid.Row="3" Style="{StaticResource StickerPanelCard}" Padding="12,9">
             <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding StatusMessage}" FontSize="11" Foreground="{DynamicResource Ov.Muted}"
-                           TextWrapping="Wrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
-                           Margin="3,0,12,0"/>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Width="9" Height="9" CornerRadius="5" Background="{DynamicResource Ov.Accent}"
+                        VerticalAlignment="Center" Margin="2,0,10,0" IsHitTestVisible="False"/>
+                <TextBlock Grid.Column="1" Text="{Binding StatusMessage}"
+                           FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource Ov.Ink}"
+                           TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"
+                           ToolTip="{Binding StatusMessage}" AutomationProperties.LiveSetting="Polite"/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="Save layout" Tag="&#xE74E;" Click="SaveTemplate_Click"
-                            Style="{StaticResource StickerPrimaryButton}" Margin="0,0,7,0"/>
-                    <Button Content="Save setup" Tag="&#xE74E;" Click="SaveSettings_Click"
-                            Style="{StaticResource StickerButton}" Margin="0,0,7,0"/>
+                            Style="{StaticResource StickerButton}" Margin="0,0,6,0"
+                            ToolTip="Save this reusable label layout to the local library."/>
+                    <Button Content="Save setup" Tag="&#xE713;" Click="SaveSettings_Click"
+                            Style="{StaticResource StickerButton}" Margin="0,0,6,0"
+                            ToolTip="Save printer settings and the last-used layout for this Windows user."/>
                     <Button x:Name="PrintButton" Content="Print stickers" Tag="&#xE749;"
                             Click="Print_Click" IsDefault="True"
-                            Style="{StaticResource StickerPrimaryButton}" Margin="0,0,7,0"/>
+                            Style="{StaticResource StickerPrimaryButton}" Margin="0,0,6,0"/>
                     <Button x:Name="PrintSampleButton" Content="Print sample" Tag="&#xE749;"
                             Click="PrintSample_Click" Visibility="Collapsed"
                             ToolTip="Print one test sticker using synthetic sample values. No PI/job or Step 5 data is used."
-                            Style="{StaticResource StickerPrimaryButton}" Margin="0,0,7,0"/>
+                            Style="{StaticResource StickerPrimaryButton}" Margin="0,0,6,0"/>
                     <Button x:Name="CloseButton" Content="Close" Tag="&#xE8BB;" Click="Close_Click"
                             IsCancel="True" Style="{StaticResource StickerButton}"/>
                 </StackPanel>
