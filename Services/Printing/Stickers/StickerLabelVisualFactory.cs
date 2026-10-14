@@ -98,11 +98,9 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                         ? ResolveFieldValue(label, element.FieldKey, displayQuantity)
                         : ResolveInlineTokens(label, element.Text, displayQuantity);
                     bool missingData = element.HideWhenEmpty && string.IsNullOrWhiteSpace(dynamicValue);
-                    if (missingData && !editorMode) return null;
-                    if (missingData)
-                        dynamicValue = string.IsNullOrWhiteSpace(element.FieldKey)
-                            ? (string.IsNullOrWhiteSpace(element.Text) ? "[" + element.Name + "]" : element.Text)
-                            : "[" + element.FieldKey + "]";
+                    // Keep editor and print previews faithful: an empty source field
+                    // is omitted rather than shown as a literal [FieldName] token.
+                    if (missingData) return null;
                     string displayText = string.IsNullOrWhiteSpace(element.FieldKey)
                         ? dynamicValue
                         : element.Prefix + dynamicValue + element.Suffix;
@@ -112,7 +110,7 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                         FontSize = SafeRange(element.FontSizePt, 3, 72, 9) * 96.0 / 72.0,
                         FontWeight = element.Bold ? FontWeights.Bold : FontWeights.Normal,
                         FontStyle = element.Italic ? FontStyles.Italic : FontStyles.Normal,
-                        Foreground = missingData ? Brushes.Gray : ParseBrush(element.Foreground, Brushes.Black),
+                        Foreground = ParseBrush(element.Foreground, Brushes.Black),
                         TextWrapping = TextWrapping.Wrap,
                         TextAlignment = ToTextAlignment(element.TextAlignment),
                         VerticalAlignment = ToVerticalAlignment(element.ContentAlignment),
@@ -124,11 +122,13 @@ namespace ProGlassAutomation.Services.Printing.Stickers
 
                 case StickerTemplateElementKind.Logo:
                     var logo = ResolveLogo(label.Company);
-                    if (logo == null && !editorMode) return null;
+                    bool isSampleData = (label.Source ?? string.Empty)
+                        .Contains("DESIGN SAMPLE", StringComparison.OrdinalIgnoreCase);
+                    if (logo == null && !isSampleData) return null;
                     content = logo == null
                         ? new TextBlock
                         {
-                            Text = "COMPANY LOGO",
+                            Text = "SAMPLE LOGO",
                             Foreground = Brushes.Gray,
                             FontSize = 7,
                             HorizontalAlignment = HorizontalAlignment.Center,

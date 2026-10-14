@@ -40,7 +40,8 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         private bool _showReference;
         private bool _showPanePosition;
         private GlassStickerLabel? _selectedLabel;
-        private readonly GlassStickerLabel? _previewLabel;
+        private GlassStickerLabel? _previewLabel;
+        private int _selectedSourceRowIndex = -1;
         private StickerLayoutTemplate _activeTemplate = new();
         private StickerTemplateChoice? _selectedTemplateChoice;
         private StickerLayoutElement? _selectedElement;
@@ -89,8 +90,6 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             bool hasLegacySettings = settings.LastTemplate == null
                 && (settings.HasPersistedSettings || !string.IsNullOrWhiteSpace(settings.LastTemplateName));
             Items = new ObservableCollection<GlassStickerLabel>(labels ?? Array.Empty<GlassStickerLabel>());
-            _previewLabel = previewLabel;
-            _selectedLabel = Items.FirstOrDefault() ?? _previewLabel;
 
             TemplateChoices = new ObservableCollection<StickerTemplateChoice>();
             foreach (var preset in StickerTemplatePresets.All)
@@ -130,6 +129,12 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                     ApplyLegacyFieldVisibility(settings);
                 }
             }
+
+            _previewLabel = Items.Count == 0
+                ? previewLabel ?? StickerTemplateSampleFactory.Create(_activeTemplate.Kind)
+                : null;
+            _selectedLabel = Items.FirstOrDefault() ?? _previewLabel;
+            _selectedSourceRowIndex = Items.Count == 0 ? -1 : 0;
 
             _widthMmText = Format(_activeTemplate.LabelWidthMm);
             _heightMmText = Format(_activeTemplate.LabelHeightMm);
@@ -192,6 +197,17 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         public System.Collections.Generic.IReadOnlyList<StickerTemplateField> FieldChoices => _fieldChoices;
         public ObservableCollection<StickerLayoutElement> TemplateElements => _activeTemplate.Elements;
         public StickerLayoutTemplate ActiveTemplate => _activeTemplate;
+        public bool IsSamplePreview => Items.Count == 0;
+        public bool CanNavigateSourceRows => Items.Count > 1;
+        public bool CanSelectPreviousSourceRow => CanNavigateSourceRows && _selectedSourceRowIndex > 0;
+        public bool CanSelectNextSourceRow => CanNavigateSourceRows
+            && _selectedSourceRowIndex >= 0 && _selectedSourceRowIndex < Items.Count - 1;
+        public string SourceRowPositionText => Items.Count == 0
+            ? TemplateKind.ToString().ToUpperInvariant() + " DESIGN SAMPLE"
+            : _selectedSourceRowIndex < 0
+                ? "No source row selected"
+                : "Source row " + (_selectedSourceRowIndex + 1).ToString("N0", CultureInfo.CurrentCulture)
+                    + " of " + Items.Count.ToString("N0", CultureInfo.CurrentCulture);
 
         public StickerTemplateChoice? SelectedTemplateChoice
         {
@@ -227,9 +243,11 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             get => _activeTemplate.Kind;
             set
             {
-                if (_activeTemplate.Kind == value) return;
+                if (!Enum.IsDefined(typeof(StickerTemplateKind), value)
+                    || _activeTemplate.Kind == value) return;
                 _activeTemplate.Kind = value;
                 OnPropertyChanged();
+                UpdateSamplePreviewForTemplate();
                 MarkTemplateDirty();
             }
         }
@@ -442,13 +460,36 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
 
         public GlassStickerLabel? SelectedLabel
         {
-            get => _selectedLabel;
+            get => _selectedLabel ?? _previewLabel;
             set
             {
                 if (value == null && Items.Count == 0 && _previewLabel != null)
                     value = _previewLabel;
-                Set(ref _selectedLabel, value, notifyBatch: false);
+                if (ReferenceEquals(_selectedLabel, value)) return;
+
+                _selectedLabel = value;
+                OnPropertyChanged();
+                int nextIndex = value == null ? -1 : Items.IndexOf(value);
+                if (_selectedSourceRowIndex != nextIndex)
+                {
+                    _selectedSourceRowIndex = nextIndex;
+                    OnPropertyChanged(nameof(SourceRowPositionText));
+                    OnPropertyChanged(nameof(CanSelectPreviousSourceRow));
+                    OnPropertyChanged(nameof(CanSelectNextSourceRow));
+                }
             }
+        }
+
+        public void SelectPreviousSourceRow()
+        {
+            if (CanSelectPreviousSourceRow)
+                SelectedLabel = Items[_selectedSourceRowIndex - 1];
+        }
+
+        public void SelectNextSourceRow()
+        {
+            if (CanSelectNextSourceRow)
+                SelectedLabel = Items[_selectedSourceRowIndex + 1];
         }
 
         public string WidthMmText
@@ -924,6 +965,16 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             return true;
         }
 
+        private void UpdateSamplePreviewForTemplate()
+        {
+            if (Items.Count > 0) return;
+
+            _previewLabel = StickerTemplateSampleFactory.Create(_activeTemplate.Kind);
+            _selectedLabel = _previewLabel;
+            OnPropertyChanged(nameof(SelectedLabel));
+            OnPropertyChanged(nameof(SourceRowPositionText));
+        }
+
         private void ReplaceActiveTemplate(StickerLayoutTemplate template,
             StickerTemplateChoice? choice, bool markDirty)
         {
@@ -938,6 +989,10 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             _fontSizePtText = Format(_activeTemplate.DefaultFontSizePt);
             _selectedTemplateChoice = choice;
             _selectedTemplateChoice?.UpdateTemplateName(_activeTemplate.Name);
+            if (Items.Count == 0)
+                UpdateSamplePreviewForTemplate();
+            else if (_selectedLabel != null)
+                _selectedSourceRowIndex = Items.IndexOf(_selectedLabel);
             AttachTemplateEvents();
             _loadingTemplate = false;
             OnPropertyChanged(nameof(ActiveTemplate));

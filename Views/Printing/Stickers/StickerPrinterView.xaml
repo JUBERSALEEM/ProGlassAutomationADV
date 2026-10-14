@@ -627,7 +627,7 @@
                             <Border x:Name="DesignOnlyBanner" Visibility="Collapsed"
                                     Background="{DynamicResource Ov.WarningSoft}" BorderBrush="{DynamicResource Ov.Warning}"
                                     BorderThickness="1" CornerRadius="10" Padding="10,8" Margin="0,0,0,8">
-                                <TextBlock Text="DESIGN-ONLY PREVIEW — sample values are placeholders. Print real source rows from Step 5 or Optimization."
+                                <TextBlock Text="TEST DATA ONLY — no PI, job or Step 5 selection is needed. ‘Print sample’ sends one test print using synthetic values; use Step 5 or Optimization for production stickers."
                                            FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Ov.Warning}" TextWrapping="Wrap"/>
                             </Border>
                             <Grid>
@@ -647,7 +647,20 @@
                                 <Button x:Name="SheetPreviewButton" Grid.Column="2" Content="Show A4 sheet"
                                         Click="SheetPreview_Click" Style="{StaticResource StickerButton}"
                                         MinHeight="34" Padding="10,5" VerticalAlignment="Center" Visibility="Collapsed"
-                                        ToolTip="Preview the first A4 sheet with the current label design and print order."/>
+                                        ToolTip="Preview the A4 layout. Use Previous/Next to review each sheet or source row."/>
+                            </Grid>
+                            <Grid x:Name="PreviewNavigationPanel" Margin="0,8,0,0" Visibility="Collapsed">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <TextBlock x:Name="PreviewPositionText" Text="Source row 1 of 1"
+                                           FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource Ov.Muted}"
+                                           VerticalAlignment="Center"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button x:Name="PreviousPreviewButton" Content="‹ Previous" Click="PreviousPreview_Click"
+                                            Style="{StaticResource StickerButton}" MinHeight="32" Padding="9,4"
+                                            Margin="0,0,6,0"/>
+                                    <Button x:Name="NextPreviewButton" Content="Next ›" Click="NextPreview_Click"
+                                            Style="{StaticResource StickerButton}" MinHeight="32" Padding="9,4"/>
+                                </StackPanel>
                             </Grid>
                         </StackPanel>
                         <Border x:Name="PreviewSurface" Grid.Row="1" Background="{DynamicResource Ov.Soft}"
@@ -677,7 +690,7 @@
                                    VerticalAlignment="Center" Margin="12,0,0,0"/>
                     </Grid>
                     <Grid Grid.Row="1">
-                        <TextBlock x:Name="SourceEmptyState" Text="No source rows are attached to the design studio. Use Step 5 or Optimization to print real glass panes."
+                        <TextBlock x:Name="SourceEmptyState" Text="No production rows are loaded. The standalone studio can preview and print clearly marked test data without Step 5 or a PI/job."
                                    HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
                                    TextWrapping="Wrap" MaxWidth="420" FontSize="13" Foreground="{DynamicResource Ov.Muted}"
                                    Visibility="Collapsed"/>
@@ -687,13 +700,14 @@
                                   AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
                                   IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                                   SelectionMode="Single" SelectionUnit="FullRow" FontSize="12"
-                                  RowHeaderWidth="0" BorderThickness="0">
+                                  RowHeaderWidth="0" BorderThickness="0" MinRowHeight="42" RowHeight="44">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="ORDER / PI" Binding="{Binding OrderDisplay}" Width="1.1*" ElementStyle="{StaticResource StickerGridCellText}"/>
                                 <DataGridTextColumn Header="CUSTOMER" Binding="{Binding CustomerCompanyName}" Width="1.1*" ElementStyle="{StaticResource StickerGridCellText}"/>
                                 <DataGridTextColumn Header="TYPE" Binding="{Binding GlassType}" Width="0.6*" ElementStyle="{StaticResource StickerGridCellTextCenter}"/>
                                 <DataGridTextColumn Header="GLASS" Binding="{Binding GlassName}" Width="1.3*" ElementStyle="{StaticResource StickerGridCellText}"/>
-                                <DataGridTextColumn Header="SIZE" Binding="{Binding SizeText}" Width="0.9*" ElementStyle="{StaticResource StickerGridCellTextCenter}"/>
+                                <DataGridTextColumn Header="WIDTH (MM)" Binding="{Binding WidthMm}" Width="96" ElementStyle="{StaticResource StickerGridCellTextCenter}"/>
+                                <DataGridTextColumn Header="HEIGHT (MM)" Binding="{Binding HeightMm}" Width="100" ElementStyle="{StaticResource StickerGridCellTextCenter}"/>
                                 <DataGridTextColumn Header="SIDE" Binding="{Binding PanePosition}" Width="0.7*" ElementStyle="{StaticResource StickerGridCellText}"/>
                                 <DataGridTextColumn Header="SOURCE QTY" Binding="{Binding Quantity}" Width="78" ElementStyle="{StaticResource StickerGridCellTextCenter}"/>
                                 <DataGridTextColumn Header="REF" Binding="{Binding Reference}" Width="1*" ElementStyle="{StaticResource StickerGridCellText}"/>
@@ -719,6 +733,10 @@
                             Style="{StaticResource StickerButton}" Margin="0,0,7,0"/>
                     <Button x:Name="PrintButton" Content="Print stickers" Tag="&#xE749;"
                             Click="Print_Click" IsDefault="True"
+                            Style="{StaticResource StickerPrimaryButton}" Margin="0,0,7,0"/>
+                    <Button x:Name="PrintSampleButton" Content="Print sample" Tag="&#xE749;"
+                            Click="PrintSample_Click" Visibility="Collapsed"
+                            ToolTip="Print one test sticker using synthetic sample values. No PI/job or Step 5 data is used."
                             Style="{StaticResource StickerPrimaryButton}" Margin="0,0,7,0"/>
                     <Button x:Name="CloseButton" Content="Close" Tag="&#xE8BB;" Click="Close_Click"
                             IsCancel="True" Style="{StaticResource StickerButton}"/>

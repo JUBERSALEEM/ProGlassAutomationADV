@@ -34,6 +34,8 @@ namespace ProGlassAutomation.Views.Printing.Stickers
         private Point _resizeStartPoint;
         private bool _isResizing;
         private bool _showSheetPreview;
+        private long _previewSheetPageIndex;
+        private long _previewSheetPageCount;
         private bool _ignoreTemplateSelectionChange = true;
 
         private static readonly (StickerResizeEdges Edges, Cursor Cursor, double Width, double Height)[] ResizeHandleDefinitions =
@@ -71,8 +73,7 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             _documentName = string.IsNullOrWhiteSpace(documentName)
                 ? "ProGlass Glass Stickers" : documentName;
             var settings = StickerPrintPreferencesStore.Load();
-            var preview = designOnly ? StickerPrinterViewModel.CreateDesignerPreviewLabel() : null;
-            DataContext = new StickerPrintDialogViewModel(labels, settings, preview);
+            DataContext = new StickerPrintDialogViewModel(labels, settings);
             ConfigureStudioMode();
         }
 
@@ -99,17 +100,21 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             if (_viewModel == null) return;
             DesignOnlyBanner.Visibility = _designOnly ? Visibility.Visible : Visibility.Collapsed;
             PrintButton.Visibility = _designOnly ? Visibility.Collapsed : Visibility.Visible;
+            PrintSampleButton.Visibility = _designOnly ? Visibility.Visible : Visibility.Collapsed;
             CloseButton.Visibility = _designOnly ? Visibility.Collapsed : Visibility.Visible;
             PreviewExplanation.Text = _designOnly
-                ? "Sample values are for layout positioning only. Save the layout, then print real source rows from Step 5 or Optimization."
+                ? "Template-specific sample values only. Print sample sends one test label and never uses PI/job data; use Step 5 or Optimization for production."
                 : "Click to select; drag to move. Selected objects show resize handles. Delete removes the selected object; arrow keys nudge it by 1 mm.";
-            SourceLabelsHeader.Text = _designOnly ? "DESIGN-ONLY · NO SOURCE ROWS" : "REAL SOURCE ROWS";
-            PreviewCountBadge.Text = _designOnly ? "DESIGN ONLY" : _viewModel.EstimatedPrintPlanSummaryText;
+            SourceLabelsHeader.Text = _designOnly ? "SAMPLE DATA · NO SOURCE ROWS" : "REAL SOURCE ROWS";
+            SourceEmptyState.Text = _designOnly
+                ? "No production rows are loaded. This standalone studio can preview and print clearly marked test data without Step 5 or a PI/job."
+                : "No source rows are attached. Open Sticker Printer Studio for a sample, or load real panes from Step 5 or Optimization.";
+            PreviewCountBadge.Text = _designOnly ? SamplePreviewBadgeText() : _viewModel.EstimatedPrintPlanSummaryText;
             bool hasSourceRows = _viewModel.Items.Count > 0;
             StickerItemsGrid.Visibility = hasSourceRows ? Visibility.Visible : Visibility.Collapsed;
             SourceEmptyState.Visibility = hasSourceRows ? Visibility.Collapsed : Visibility.Visible;
             if (_designOnly && string.IsNullOrWhiteSpace(_viewModel.StatusMessage))
-                _viewModel.StatusMessage = "Template library mode. Saved layouts are available to Step 5 and Optimization.";
+                _viewModel.StatusMessage = "Standalone sample mode. Print sample uses test-only values; production data remains in Step 5 and Optimization.";
             UpdateA4SheetUi();
             SelectStudioTab(_viewModel.SelectedStudioTabIndex);
         }
@@ -219,27 +224,109 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             bool sheetMode = _viewModel.IsA4SheetLayout;
             SheetLayoutSettingsPanel.Visibility = sheetMode ? Visibility.Visible : Visibility.Collapsed;
             SheetPreviewButton.Visibility = sheetMode ? Visibility.Visible : Visibility.Collapsed;
-            if (!sheetMode) _showSheetPreview = false;
+            if (!sheetMode)
+            {
+                _showSheetPreview = false;
+                _previewSheetPageIndex = 0;
+                _previewSheetPageCount = 0;
+            }
             SheetPreviewButton.Content = _showSheetPreview ? "Show label" : "Show A4 sheet";
-            PreviewHeading.Text = _showSheetPreview ? "ESTIMATED A4 SHEET PREVIEW" : "LIVE LABEL PREVIEW";
+            UpdatePreviewHeading();
+            UpdatePreviewNavigation();
             if (!_designOnly) PreviewCountBadge.Text = _viewModel.EstimatedPrintPlanSummaryText;
+            else PreviewCountBadge.Text = SamplePreviewBadgeText();
         }
 
         private void SheetPreview_Click(object sender, RoutedEventArgs e)
         {
             if (_viewModel == null || !_viewModel.IsA4SheetLayout) return;
             _showSheetPreview = !_showSheetPreview;
+            if (_showSheetPreview) _previewSheetPageIndex = 0;
             SheetPreviewButton.Content = _showSheetPreview ? "Show label" : "Show A4 sheet";
-            PreviewHeading.Text = _showSheetPreview ? "ESTIMATED A4 SHEET PREVIEW" : "LIVE LABEL PREVIEW";
+            UpdatePreviewHeading();
             RefreshPreview();
+        }
+
+        private void PreviousPreview_Click(object sender, RoutedEventArgs e)
+        {
+            if (_showSheetPreview && _viewModel.IsA4SheetLayout)
+            {
+                if (_previewSheetPageIndex <= 0) return;
+                _previewSheetPageIndex--;
+                RefreshPreview();
+                return;
+            }
+
+            _viewModel.SelectPreviousSourceRow();
+        }
+
+        private void NextPreview_Click(object sender, RoutedEventArgs e)
+        {
+            if (_showSheetPreview && _viewModel.IsA4SheetLayout)
+            {
+                if (_previewSheetPageIndex >= _previewSheetPageCount - 1) return;
+                _previewSheetPageIndex++;
+                RefreshPreview();
+                return;
+            }
+
+            _viewModel.SelectNextSourceRow();
+        }
+
+        private void UpdatePreviewHeading()
+        {
+            if (_viewModel == null) return;
+            PreviewHeading.Text = _showSheetPreview && _viewModel.IsA4SheetLayout
+                ? "ESTIMATED A4 SHEET PREVIEW"
+                : _viewModel.IsSamplePreview ? "TEMPLATE SAMPLE PREVIEW" : "SOURCE ROW PREVIEW";
+        }
+
+        private void UpdatePreviewNavigation()
+        {
+            if (_viewModel == null) return;
+
+            bool sheetNavigation = _showSheetPreview && _viewModel.IsA4SheetLayout;
+            long itemCount = sheetNavigation ? _previewSheetPageCount : _viewModel.Items.Count;
+            bool canNavigate = itemCount > 1;
+            PreviewNavigationPanel.Visibility = canNavigate ? Visibility.Visible : Visibility.Collapsed;
+            if (!canNavigate) return;
+
+            if (sheetNavigation)
+            {
+                _previewSheetPageIndex = Math.Clamp(_previewSheetPageIndex, 0, itemCount - 1);
+                PreviewPositionText.Text = "A4 sheet "
+                    + (_previewSheetPageIndex + 1).ToString("N0", System.Globalization.CultureInfo.CurrentCulture)
+                    + " of " + itemCount.ToString("N0", System.Globalization.CultureInfo.CurrentCulture);
+                PreviousPreviewButton.IsEnabled = _previewSheetPageIndex > 0;
+                NextPreviewButton.IsEnabled = _previewSheetPageIndex < itemCount - 1;
+            }
+            else
+            {
+                PreviewPositionText.Text = _viewModel.SourceRowPositionText;
+                PreviousPreviewButton.IsEnabled = _viewModel.CanSelectPreviousSourceRow;
+                NextPreviewButton.IsEnabled = _viewModel.CanSelectNextSourceRow;
+            }
+        }
+
+        private string SamplePreviewBadgeText()
+        {
+            string kind = _viewModel.TemplateKind switch
+            {
+                StickerTemplateKind.Sgu => "SGU",
+                StickerTemplateKind.Dgu => "DGU",
+                StickerTemplateKind.ProformaInvoice => "PROFORMA / JOB",
+                _ => "CUSTOM"
+            };
+            return "SAMPLE · " + kind;
         }
 
         private Window? FindOwnerWindow() => Window.GetWindow(this);
 
         private UIElement CreateA4SheetPreview()
         {
+            _previewSheetPageCount = 0;
             if (!_viewModel.TryCreatePreferences(out var preferences, out string preferenceError,
-                    requirePrintableRows: false))
+                    requirePrintableRows: !_designOnly))
                 return CreatePreviewMessage(preferenceError);
 
             if (!StickerSheetLayoutPlanner.TryCreateNominalA4Plan(
@@ -252,21 +339,22 @@ namespace ProGlassAutomation.Views.Printing.Stickers
                 return CreatePreviewMessage(planError);
 
             var rows = _viewModel.Items.ToList();
-            if (_designOnly && rows.Count == 0)
+            if (rows.Count == 0 && _viewModel.SelectedLabel is { } sample)
             {
-                var sample = _viewModel.SelectedLabel ?? StickerPrinterViewModel.CreateDesignerPreviewLabel();
-                var repeatedSample = StickerLabelSequence.CopyWithPrintedQuantity(sample, 1);
-                repeatedSample.Quantity = plan.LabelsPerSheet;
-                rows.Add(repeatedSample);
+                var sampleRow = StickerLabelSequence.CopyWithPrintedQuantity(sample, 1);
+                sampleRow.Quantity = 1;
+                rows.Add(sampleRow);
                 preferences.OneLabelPerPiece = true;
             }
 
             var paginator = new StickerSheetDocumentPaginator(
                 rows, preferences, _viewModel.ActiveTemplate, plan);
-            if (paginator.PageCountLong <= 0)
+            _previewSheetPageCount = paginator.PageCountLong;
+            if (_previewSheetPageCount <= 0)
                 return CreatePreviewMessage("No valid source labels are available to preview on the A4 sheet.");
 
-            var page = paginator.GetPage(0).Visual as UIElement;
+            _previewSheetPageIndex = Math.Clamp(_previewSheetPageIndex, 0, _previewSheetPageCount - 1);
+            var page = paginator.GetPage(checked((int)_previewSheetPageIndex)).Visual as UIElement;
             if (page == null)
                 return CreatePreviewMessage("The A4 sheet preview could not be rendered.");
             return new Viewbox
@@ -292,18 +380,26 @@ namespace ProGlassAutomation.Views.Printing.Stickers
         private void RefreshPreview()
         {
             if (_viewModel == null) return;
+            UpdatePreviewHeading();
+            PreviewCountBadge.Text = _designOnly
+                ? SamplePreviewBadgeText()
+                : _viewModel.EstimatedPrintPlanSummaryText;
             bool restoreCanvasFocus = _editorCanvas?.IsKeyboardFocusWithin == true;
             if (_showSheetPreview && _viewModel.IsA4SheetLayout)
             {
                 RemoveResizeThumbs();
                 _editorCanvas = null;
-                PreviewExplanation.Text = "Estimated A4 sheet preview. Stickers are shown at their true relative sizes; final capacity uses the selected printer's imageable area.";
+                PreviewExplanation.Text = _designOnly
+                    ? "A4 sheet preview of one placeholder sample label. No production data is used."
+                    : "Estimated A4 sheet preview. Stickers are shown at true relative size; final capacity uses the selected printer's imageable area.";
                 PreviewHost.Content = CreateA4SheetPreview();
+                UpdatePreviewNavigation();
                 return;
             }
 
+            UpdatePreviewNavigation();
             PreviewExplanation.Text = _designOnly
-                ? "Sample values are for layout positioning only. Save the layout, then print real source rows from Step 5 or Optimization."
+                ? "Template-specific sample values only. Print sample sends one test label and never uses PI/job data; use Step 5 or Optimization for production."
                 : "Click to select; drag to move. Selected objects show resize handles. Delete removes the selected object; arrow keys nudge it by 1 mm.";
             var label = _viewModel.SelectedLabel;
             if (label == null)
@@ -312,7 +408,7 @@ namespace ProGlassAutomation.Views.Printing.Stickers
                 _editorCanvas = null;
                 PreviewHost.Content = new TextBlock
                 {
-                    Text = "No printable source rows.",
+                    Text = "No valid source row is selected. Select a row to inspect its source values.",
                     Foreground = Brushes.Gray,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center
@@ -738,7 +834,7 @@ namespace ProGlassAutomation.Views.Printing.Stickers
         {
             if (_designOnly)
             {
-                _viewModel.StatusMessage = "Printing is disabled in the standalone template library. Use Step 5 or Optimization to print real source rows.";
+                PrintSample_Click(sender, e);
                 return;
             }
             if (!_viewModel.TryCreatePreferences(out var preferences, out string error))
@@ -773,6 +869,72 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             if (!result.Succeeded && !result.Cancelled)
             {
                 MessageBox.Show(FindOwnerWindow(), result.Message, "Sticker print failed",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            if (!string.IsNullOrWhiteSpace(saveError))
+                _viewModel.StatusMessage = result.Message + " Setup could not be saved: " + saveError;
+        }
+
+        private void PrintSample_Click(object sender, RoutedEventArgs e)
+        {
+            if (!_designOnly || _viewModel.Items.Count > 0)
+            {
+                _viewModel.StatusMessage = "Sample printing is available only in the standalone, no-source design studio.";
+                return;
+            }
+            if (_viewModel.SelectedLabel is not { } sample
+                || !StickerLabelSequence.IsPrintable(sample))
+            {
+                _viewModel.StatusMessage = "The selected template has no valid sample label to print.";
+                return;
+            }
+            if (!_viewModel.TryCreatePreferences(out var preferences, out string validationError,
+                    requirePrintableRows: false))
+            {
+                _viewModel.StatusMessage = validationError;
+                MessageBox.Show(FindOwnerWindow(), validationError, "Check sticker setup",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            string confirmation = "This sends one standalone test-print job using the synthetic SAMPLE data shown in the preview. "
+                + "The active template controls the label content; no PI, job, customer, Step 5 or Optimization rows are read.\n\n"
+                + (preferences.OutputLayoutMode == StickerOutputLayoutMode.OneLabelPerPage
+                    || (preferences.OutputLayoutMode == StickerOutputLayoutMode.PrinterDefault
+                        && preferences.PrinterModel == StickerPrinterModel.ZebraZt411)
+                    ? "One-label-per-page mode will send one custom-size label page."
+                    : "A4 sheet mode will send one sheet with the sample in the first position.")
+                + "\n\nConfirm that test stock is loaded and continue?";
+            if (MessageBox.Show(FindOwnerWindow(), confirmation, "Print test sticker",
+                    MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No)
+                != MessageBoxResult.Yes)
+            {
+                _viewModel.StatusMessage = "Sample printing cancelled. No production records were used.";
+                return;
+            }
+
+            string saveError = string.Empty;
+            if (StickerPrintPreferencesStore.TrySave(preferences, out saveError))
+            {
+                _viewModel.MarkTemplatePersisted();
+                _viewModel.StatusMessage = "Sending one test print with synthetic sample values…";
+            }
+            else
+                _viewModel.StatusMessage = saveError;
+
+            var sampleRow = StickerLabelSequence.CopyWithPrintedQuantity(sample, 1);
+            sampleRow.Quantity = 1;
+            sampleRow.PrintedQuantity = 1;
+            var result = StickerPrintEngine.Print(
+                new[] { sampleRow },
+                preferences,
+                _viewModel.ActiveTemplate,
+                _documentName + " — SAMPLE TEST ONLY",
+                FindOwnerWindow());
+            _viewModel.StatusMessage = result.Message;
+            if (!result.Succeeded && !result.Cancelled)
+            {
+                MessageBox.Show(FindOwnerWindow(), result.Message, "Sample sticker print failed",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
             if (!string.IsNullOrWhiteSpace(saveError))

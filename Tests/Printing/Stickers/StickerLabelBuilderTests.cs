@@ -1,3 +1,4 @@
+using System.Linq;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Printing.Stickers;
 using ProGlassAutomation.ViewModels.Printing.Stickers;
@@ -49,6 +50,53 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
             Assert.Equal("bG9nby1zbmFwc2hvdA==", label.Company.LogoBase64);
             Assert.Contains("SNLX D GREY CHROMA", label.GlassName.ToUpperInvariant());
             Assert.Equal("PANE-REF-4", label.GlassReference);
+        }
+
+        [Fact]
+        public void Step5RowsRemainThePreviewSourceWhenTheProformaJobTemplateIsSelected()
+        {
+            var invoice = CreateInvoice("PI-900", "REAL STEP5 CUSTOMER");
+            invoice.SpecGroups.Add(new SpecGroupSnapshot
+            {
+                GroupNumber = 1,
+                SelectedGlassType = "SGU",
+                SelectedSpecName = "6mm clear",
+                ItemRows =
+                {
+                    new GlassItemRowSnapshot
+                    {
+                        SerialNumber = 1,
+                        GlassRef = "STEP5-GLASS-01",
+                        W1 = 640,
+                        H1 = 420,
+                        Qty = 1
+                    }
+                }
+            });
+
+            var labels = GlassStickerLabelBuilder.FromStep5(invoice.SpecGroups, invoice);
+            var viewModel = new StickerPrintDialogViewModel(labels, new StickerPrintPreferences());
+
+            Assert.False(viewModel.IsSamplePreview);
+            var sourceRow = Assert.Single(labels);
+            Assert.Same(sourceRow, viewModel.SelectedLabel);
+            Assert.Equal("PI-900", sourceRow.OrderDisplay);
+            Assert.Equal("REAL STEP5 CUSTOMER", sourceRow.CustomerCompanyName);
+            Assert.Equal("STEP5-GLASS-01", sourceRow.GlassReference);
+            Assert.Equal(640, sourceRow.WidthMm);
+            Assert.Equal(420, sourceRow.HeightMm);
+
+            viewModel.SelectTemplateChoice(viewModel.TemplateChoices.First(choice =>
+                choice.Template.Kind == StickerTemplateKind.ProformaInvoice));
+            Assert.Same(sourceRow, viewModel.SelectedLabel);
+            Assert.Equal("PI-900", StickerLabelVisualFactory.ResolveFieldValue(
+                viewModel.SelectedLabel!, "OrderDisplay"));
+            Assert.Equal("REAL STEP5 CUSTOMER", StickerLabelVisualFactory.ResolveFieldValue(
+                viewModel.SelectedLabel!, "CustomerCompanyName"));
+            Assert.Equal("640", StickerLabelVisualFactory.ResolveFieldValue(
+                viewModel.SelectedLabel!, "WidthMm"));
+            Assert.Equal("420", StickerLabelVisualFactory.ResolveFieldValue(
+                viewModel.SelectedLabel!, "HeightMm"));
         }
 
         [Fact]

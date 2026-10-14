@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Windows.Controls;
 using ProGlassAutomation.Services.Printing.Stickers;
 using ProGlassAutomation.ViewModels.Printing.Stickers;
 using Xunit;
@@ -257,28 +258,98 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
         }
 
         [Fact]
-        public void StandaloneDesignerCanPersistAReusableLayoutWithoutPrintRows()
+        public void StandaloneDesignerUsesTemplateSpecificSampleAndPersistsWithoutPrintRows()
         {
-            var previewLabel = new GlassStickerLabel
-            {
-                OrderNumber = "SAMPLE ONLY",
-                GlassName = "PREVIEW",
-                WidthMm = 100,
-                HeightMm = 50,
-                Quantity = 1
-            };
             var viewModel = new StickerPrintDialogViewModel(
-                Array.Empty<GlassStickerLabel>(), new StickerPrintPreferences(), previewLabel);
+                Array.Empty<GlassStickerLabel>(), new StickerPrintPreferences());
 
             Assert.Empty(viewModel.Items);
-            Assert.Same(previewLabel, viewModel.SelectedLabel);
+            Assert.True(viewModel.IsSamplePreview);
+            Assert.Equal(StickerTemplateKind.Sgu, viewModel.TemplateKind);
+            Assert.Equal("SGU", viewModel.SelectedLabel!.GlassType);
+            Assert.StartsWith("SAMPLE", viewModel.SelectedLabel.GlassName);
             viewModel.SelectedLabel = null;
-            Assert.Same(previewLabel, viewModel.SelectedLabel);
+            Assert.Equal("SGU", viewModel.SelectedLabel!.GlassType);
+            viewModel.TemplateKind = StickerTemplateKind.Dgu;
+            Assert.Equal("DGU", viewModel.SelectedLabel!.GlassType);
+            viewModel.TemplateKind = StickerTemplateKind.Sgu;
+            Assert.Equal("SGU", viewModel.SelectedLabel!.GlassType);
             Assert.Equal(0, viewModel.EstimatedLabelCount);
             Assert.False(viewModel.TryCreatePreferences(out _, out _));
             Assert.True(viewModel.TryCreatePreferences(out var preferences, out _, requirePrintableRows: false));
             Assert.NotNull(preferences.LastTemplate);
             Assert.Equal(viewModel.ActiveTemplate.Name, preferences.LastTemplateName);
+
+            viewModel.SelectTemplateChoice(viewModel.TemplateChoices.First(choice =>
+                choice.Template.Kind == StickerTemplateKind.Dgu));
+            Assert.Equal("DGU", viewModel.SelectedLabel!.GlassType);
+            Assert.StartsWith("SAMPLE", viewModel.SelectedLabel.GlassName);
+
+            viewModel.SelectTemplateChoice(viewModel.TemplateChoices.First(choice =>
+                choice.Template.Kind == StickerTemplateKind.ProformaInvoice));
+            var proformaSample = viewModel.SelectedLabel!;
+            Assert.Equal("DGU", proformaSample.GlassType);
+            Assert.Equal("SAMPLE-JOB-001", proformaSample.JobOrderNumber);
+            Assert.Equal("SAMPLE-PI-001", proformaSample.ProformaNumber);
+            Assert.Contains("SAMPLE-JOB-001 / SAMPLE-PI-001", proformaSample.OrderDisplay);
+            Assert.Equal("SAMPLE COMPANY TELEPHONE", proformaSample.Company.Telephone);
+            Assert.Equal("SAMPLE REPRESENTATIVE MOBILE", proformaSample.Company.RepresentativeMobile);
+            Assert.All(viewModel.ActiveTemplate.Elements.Where(element =>
+                    element.Kind == StickerTemplateElementKind.Text
+                    && !string.IsNullOrWhiteSpace(element.FieldKey)),
+                element => Assert.False(string.IsNullOrWhiteSpace(
+                    StickerLabelVisualFactory.ResolveFieldValue(proformaSample, element.FieldKey))));
+        }
+
+        [Fact]
+        public void PreviewNavigationFollowsTheSelectedRealSourceRowAcrossTemplateChanges()
+        {
+            var first = new GlassStickerLabel
+            {
+                OrderNumber = "PI-REAL-001",
+                CustomerCompanyName = "REAL CUSTOMER",
+                GlassName = "6 mm clear",
+                GlassType = "SGU",
+                WidthMm = 700,
+                HeightMm = 450,
+                Quantity = 1
+            };
+            var second = new GlassStickerLabel
+            {
+                OrderNumber = "PI-REAL-002",
+                CustomerCompanyName = "REAL CUSTOMER",
+                GlassName = "6 mm low-e / spacer / 6 mm clear",
+                GlassType = "DGU",
+                WidthMm = 900,
+                HeightMm = 600,
+                Quantity = 2
+            };
+            var viewModel = new StickerPrintDialogViewModel(
+                new[] { first, second }, new StickerPrintPreferences());
+
+            Assert.False(viewModel.IsSamplePreview);
+            Assert.Same(first, viewModel.SelectedLabel);
+            Assert.True(viewModel.CanNavigateSourceRows);
+            Assert.False(viewModel.CanSelectPreviousSourceRow);
+            Assert.True(viewModel.CanSelectNextSourceRow);
+
+            viewModel.SelectNextSourceRow();
+            Assert.Same(second, viewModel.SelectedLabel);
+            Assert.Equal("Source row 2 of 2", viewModel.SourceRowPositionText);
+            Assert.False(viewModel.CanSelectNextSourceRow);
+
+            viewModel.SelectTemplateChoice(viewModel.TemplateChoices.First(choice =>
+                choice.Template.Kind == StickerTemplateKind.Dgu));
+            var selectedRealRow = viewModel.SelectedLabel!;
+            Assert.Same(second, selectedRealRow);
+            Assert.Equal("PI-REAL-002", StickerLabelVisualFactory.ResolveFieldValue(
+                selectedRealRow, "OrderNumber"));
+            Assert.Equal("DGU", StickerLabelVisualFactory.ResolveFieldValue(
+                selectedRealRow, "GlassType"));
+            Assert.Equal("900", StickerLabelVisualFactory.ResolveFieldValue(
+                selectedRealRow, "WidthMm"));
+            Assert.Equal("600", StickerLabelVisualFactory.ResolveFieldValue(
+                selectedRealRow, "HeightMm"));
         }
 
         [Fact]
@@ -365,6 +436,52 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
             Assert.Equal("Inner", StickerLabelVisualFactory.ResolveFieldValue(label, "PanePosition"));
             Assert.Equal("1", StickerLabelVisualFactory.ResolveFieldValue(label, "Quantity"));
             Assert.Equal("4", StickerLabelVisualFactory.ResolveFieldValue(label, "Quantity", 4));
+        }
+
+        [Fact]
+        public void EditorPreviewOmitsMissingDataInsteadOfShowingLiteralFieldTokens()
+        {
+            var template = StickerTemplatePresets.CreateSgu();
+            var customerElement = template.Elements.First(element =>
+                element.FieldKey == "CustomerCompanyName");
+            var row = new GlassStickerLabel
+            {
+                GlassType = "SGU",
+                GlassName = "6 mm clear",
+                WidthMm = 700,
+                HeightMm = 450,
+                Quantity = 1
+            };
+
+            var canvas = StickerLabelVisualFactory.CreateTemplateCanvas(
+                row, template, editorMode: true);
+
+            Assert.DoesNotContain(canvas.Children.OfType<Border>(), border =>
+                ReferenceEquals(border.Tag, customerElement));
+            Assert.DoesNotContain(canvas.Children.OfType<Border>(), border =>
+                border.Child is TextBlock text && text.Text == "[CustomerCompanyName]");
+        }
+
+        [Fact]
+        public void OnlySyntheticSampleRowsShowTheSampleLogoPlaceholder()
+        {
+            var template = StickerTemplatePresets.CreateDgu();
+            var sample = StickerTemplateSampleFactory.Create(StickerTemplateKind.Dgu);
+            var sampleCanvas = StickerLabelVisualFactory.CreateTemplateCanvas(sample, template);
+            Assert.Contains(sampleCanvas.Children.OfType<Border>(), border =>
+                border.Child is TextBlock text && text.Text == "SAMPLE LOGO");
+
+            var realRow = new GlassStickerLabel
+            {
+                Source = "Proforma Invoice Step 5",
+                WidthMm = 700,
+                HeightMm = 450,
+                Quantity = 1
+            };
+            var productionCanvas = StickerLabelVisualFactory.CreateTemplateCanvas(
+                realRow, template, editorMode: true);
+            Assert.DoesNotContain(productionCanvas.Children.OfType<Border>(), border =>
+                border.Child is TextBlock text && text.Text == "SAMPLE LOGO");
         }
     }
 }
