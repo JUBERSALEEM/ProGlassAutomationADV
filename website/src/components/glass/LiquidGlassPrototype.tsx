@@ -150,7 +150,7 @@ export function LiquidGlassPrototype() {
           ))}
           <button
             type="button"
-            className="lgx-iconbtn lgx-glass lgx-gloss ms-1"
+            className="lgx-iconbtn lgx-glass lgx-glass-flat lgx-gloss ms-1"
             aria-pressed={mode === "light"}
             aria-label="Toggle light and dark scene"
             title="Toggle light / dark scene"
@@ -246,7 +246,7 @@ export function LiquidGlassPrototype() {
               </div>
               <button
                 type="button"
-                className="lgx-iconbtn lgx-glass lgx-gloss shrink-0"
+                className="lgx-iconbtn lgx-glass lgx-glass-flat lgx-gloss shrink-0"
                 aria-expanded={panelOpen}
                 aria-controls="lgx-panel-body"
                 aria-label={panelOpen ? "Dismiss panel" : "Open panel"}
@@ -268,7 +268,7 @@ export function LiquidGlassPrototype() {
                   className="overflow-hidden"
                 >
                   <div className="px-4 pb-5 sm:px-5">
-                    <div className="lgx-pillswitch lgx-glass" role="tablist" aria-label="Panel sections">
+                    <div className="lgx-pillswitch lgx-glass lgx-glass-flat" role="tablist" aria-label="Panel sections">
                       {NAV.slice(0, 3).map((item) => (
                         <button
                           key={item.id}
@@ -338,7 +338,7 @@ export function LiquidGlassPrototype() {
                 aria-label="Draggable distortion lens demonstrating simulated optical refraction"
               >
                 <div className="lgx-lens-core">
-                  <div className="lgx-lens-swatch" style={{ filter: "url(#lgx-distort)" }} aria-hidden="true" />
+                  <div className="lgx-lens-swatch" style={{ filter: distortion > 0 ? "url(#lgx-distort)" : "none" }} aria-hidden="true" />
                 </div>
               </motion.div>
             </div>

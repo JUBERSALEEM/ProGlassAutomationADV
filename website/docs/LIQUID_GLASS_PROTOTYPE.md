@@ -81,6 +81,23 @@ coordinated light/dark pairing.
       into the Crystal engine family-by-family, one surface class at a
       time, each behind its contract tests. **Do not start without
       explicit user approval.**
+- [x] **Phase 6 — Production refinement (master execution pass).**
+      Baseline-first performance work, recorded in
+      `docs/LIQUID_GLASS_PERFORMANCE_AUDIT.md`: idle orb animation
+      removed (no continuous decorative loops), permanent
+      `will-change` removed, nested backdrop blurs flattened
+      (`.lgx-glass-flat` on in-pane controls), material tokenised
+      (`--lgx-blur/-sheen/-inner-glow` + mode overrides) with
+      guaranteed full-surface frost behind content, SVG filter skipped
+      at Distortion 0, mobile nav given a scrollable lane. Verified:
+      interaction suite 7/7, full vitest 76/76, build, renders
+      (dark/light/states). Mobile geometry measured in-engine at
+      390 px: `scrollWidth 380 ≤ innerWidth 390`, nav scrolls
+      internally (308/455) — no page overflow.
+- **Rollout gate: BLOCKED** (see audit §6) — pending real-browser
+  frame/LCP/INP evidence and an eyeball pass on frost/gloss/press in a
+  GPU browser. Print-path renders flatten `backdrop-filter` and are
+  not accepted as proof of blur quality.
 
 ## Differences log (prototype vs references)
 

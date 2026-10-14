@@ -20,8 +20,17 @@
  * ═══════════════════════════════════════════════════════════════════════════ */
 
 .lgx {
+  /* ── Material tokens (Phase R2) ─────────────────────────────────────
+     One vocabulary for every .lgx surface; the lab dials rewrite two
+     of them live (--lgx-frost via the Frost slider, --lgx-clarity via
+     Clarity). Light/dark scenes override the same names. Performance
+     fallbacks (flat variant, forced-colors) also speak tokens, so a
+     fallback is the same material with the expensive channel off. */
   --lgx-frost: 16px;
+  --lgx-blur: var(--lgx-frost);
   --lgx-clarity: 0.55;
+  --lgx-sheen: 0.16;
+  --lgx-inner-glow: rgb(255 255 255 / 0.06);
   --lgx-ink: rgb(248 247 255);
   --lgx-ink-2: rgb(205 200 235 / 0.82);
   --lgx-edge: rgb(255 255 255 / 0.42);
@@ -37,6 +46,8 @@
 }
 
 .lgx[data-mode="light"] {
+  --lgx-sheen: 0.38;
+  --lgx-inner-glow: rgb(255 255 255 / 0.22);
   --lgx-ink: rgb(24 16 54);
   --lgx-ink-2: rgb(52 40 96 / 0.78);
   --lgx-edge: rgb(255 255 255 / 0.75);
@@ -74,7 +85,6 @@
   z-index: -2;
   border-radius: 9999px;
   filter: blur(2px);
-  animation: lgx-drift 11s ease-in-out infinite alternate;
 }
 .lgx-orb-a { width: 320px; height: 320px; top: -110px; right: 6%; background: radial-gradient(circle at 32% 30%, rgb(190 140 255 / 0.68), rgb(110 60 220 / 0.30) 62%, transparent 72%); }
 .lgx-orb-b { width: 230px; height: 230px; bottom: -70px; left: 4%; background: radial-gradient(circle at 34% 30%, rgb(255 120 225 / 0.75), rgb(200 40 170 / 0.30) 62%, transparent 72%); animation-delay: -4s; }
@@ -88,24 +98,31 @@
   border: 26px solid rgb(64 224 208 / 0.20);
   transform: rotate(18deg);
 }
-@keyframes lgx-drift {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to { transform: translate3d(0, 22px, 0) scale(1.05); }
-}
-
 /* ── The material ─────────────────────────────────────────────────────── */
 .lgx-glass {
   position: relative;
+  /* Full-surface frost: sheen (top reflection) + tint gradient diffuse
+     over 100% of the card; the backdrop blur seats behind the content,
+     so text/icons/controls stay razor sharp. */
   background:
+    linear-gradient(180deg, rgb(255 255 255 / var(--lgx-sheen)) 0%, transparent 30%),
     linear-gradient(135deg, var(--lgx-fill-hi), var(--lgx-fill-lo) 46%, rgb(255 255 255 / 0.03));
-  -webkit-backdrop-filter: blur(var(--lgx-frost)) saturate(165%);
-  backdrop-filter: blur(var(--lgx-frost)) saturate(165%);
+  -webkit-backdrop-filter: blur(var(--lgx-blur)) saturate(165%);
+  backdrop-filter: blur(var(--lgx-blur)) saturate(165%);
   border: 1px solid var(--lgx-edge);
   box-shadow:
     var(--lgx-shadow),
     inset 0 1px 0 rgb(255 255 255 / 0.45),
     inset 0 -1px 0 rgb(255 255 255 / 0.07),
-    inset 1px 0 0 rgb(255 255 255 / 0.10);
+    inset 1px 0 0 rgb(255 255 255 / 0.10),
+    inset 0 0 42px -18px var(--lgx-inner-glow);
+}
+/* Nested glass (a chip inside a pane) keeps the material's fill, edge
+   and sheen but skips the second backdrop blur — the parent pane has
+   already frosted that backdrop region (R1·P3). */
+.lgx-glass-flat {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 /* Pointer gloss: rides --lgx-px/--lgx-py written by the component's
    pointer handler (style property only). Far outside the box at rest. */
@@ -129,6 +146,13 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  max-width: calc(100vw - 2.5rem);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.lgx-nav::-webkit-scrollbar { display: none; }
+@media (max-width: 640px) {
+  .lgx-navlink { padding: 0.45rem 0.7rem; font-size: 0.8rem; white-space: nowrap; }
 }
 .lgx-navlink {
   position: relative;
@@ -163,7 +187,6 @@
   font-size: 0.9rem;
   font-weight: 650;
   color: var(--lgx-ink);
-  will-change: transform;
 }
 .lgx-btn-primary {
   background: linear-gradient(135deg, rgb(139 92 246 / 0.85), rgb(217 70 190 / 0.75));
@@ -265,7 +288,6 @@
 
 /* ── Motion & capability gates ────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .lgx-orb { animation: none; }
   .lgx-gloss::before { transition: none; }
 }
 @media (forced-colors: active) {
