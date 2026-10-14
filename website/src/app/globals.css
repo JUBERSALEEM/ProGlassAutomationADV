@@ -4544,11 +4544,19 @@ body {
 }
 
 /* Parallax of the two big planes, scroll-linked via --sy.
-   §S: the will-change hints live under [data-live] with the transforms
-   they describe — [data-live] is fine-pointer-only, so a phone holds
-   no promoted hero layers for parallax that never runs there. */
+   §S/§W: the hints are split by what each layer is FOR. The banner's
+   hints live under [data-live] with the transforms they describe
+   (fine pointers only; on a phone the banner sits below the fold and
+   its band repaints like any below-fold band). The backdrop is
+   promoted at every pointer — not for parallax, but for TILE
+   RESIDENCY: the device witness (Galaxy, Chrome) reported the hero
+   blinking ONCE on return from a deep scroll, its evicted raster
+   popping back over the still-painted liquid while thirteen heavy
+   sections below had filled the tile budget. One retained
+   full-screen layer of artwork (no text inside it) is the bounded
+   price of the first screen never blinking. */
+.hero-backdrop-parallax { will-change: transform; }
 .hero-field[data-live] .hero-backdrop-parallax {
-  will-change: transform;
   transform: translateY(calc(var(--sy, 0) * -16px));
 }
 .hero-banner-parallax { transition: none; }
@@ -4556,6 +4564,14 @@ body {
   will-change: transform, opacity;
   transform: translateY(calc(var(--sy, 0) * -24px)) scale(calc(1.012 - var(--sy, 0) * 0.012));
 }
+
+/* §W: the preview cluster — the app frame and its floating cards —
+   rides ONE retained layer for the residency reason above. Scoped to
+   the cluster's wrapper (the only `.motion-reveal.relative` in the
+   field); the headline blocks stay unpromoted, because a composited
+   text layer loses subpixel antialiasing and the hero's words must
+   stay crisp. */
+.hero-field .motion-reveal.relative { will-change: transform; }
 
 /* Aurora v2: the second light bank. */
 .hero-aurora-strong {

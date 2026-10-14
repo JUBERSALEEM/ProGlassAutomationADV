@@ -143,11 +143,18 @@ describe("§R+§S touch budget (coarse pointers)", () => {
     expect(studio).toContain("max-h-[78vh] overflow-y-auto");
   });
 
-  it("hero will-change hints live only where the motion can run", () => {
+  it("hero residency (§W): backdrop + preview cluster promoted, banner gated, text unpromoted", () => {
+    /* §S gated every hero hint under [data-live]; the device witness
+       (Galaxy/Chrome: hero blinks ONCE on return from a deep scroll)
+       proved the first screen needs tile residency, not just honest
+       hints. Renegotiated in the open: the artwork layer and the
+       preview cluster stay promoted; the banner remains gated, and
+       the promotion never touches a text-bearing block (composited
+       text loses subpixel antialiasing). */
     const globals = read("src/app/globals.css");
-    expect(globals).not.toContain(".hero-backdrop-parallax { will-change: transform; }");
+    expect(globals).toContain(".hero-backdrop-parallax { will-change: transform; }");
+    expect(globals).toContain(".hero-field .motion-reveal.relative { will-change: transform; }");
     expect(globals).not.toContain(".hero-banner-parallax { will-change: transform, opacity;");
-    expect(globals).toContain(".hero-field[data-live] .hero-backdrop-parallax");
     expect(globals).toContain(".hero-field[data-live] .hero-banner-parallax");
   });
 

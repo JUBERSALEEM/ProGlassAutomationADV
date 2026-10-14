@@ -638,3 +638,33 @@ boundary gesture, no continuous sampler on touch remains. The next
 evidence must come from the device (what exactly flashes, once or
 repeatedly, which handset) — the witness will be asked rather than
 another patch shipped blind.
+
+### §W — tile residency for the first screen (*shipped*)
+
+**Witness (device evidence, asked and answered).** Galaxy, Chrome.
+The flash is **hero-only**, **once**, **on arrival at the top**. The
+whole page never blanks, the bar never flashes, nothing shimmers at
+rest. That signature acquits §S–§V's targets and convicts one
+mechanism: the hero's raster is evicted while thirteen heavy
+sections below fill the tile budget on the way down, and pops back
+in a single visible step on return — over the still-painted liquid,
+which is why it reads as a blink of the preview cards specifically.
+
+**Also closed in this pass.** `MotionReveal` is `once: true` and the
+hero is mount-triggered — it cannot replay on re-entry. No service
+worker exists; builds reach the device fresh (per-commit CSS chunk
+stamps). `useReveal` one-shot, verified again.
+
+**The fix.** Residency, budgeted to two layers and no text:
+`.hero-backdrop-parallax` is promoted at every pointer again
+(artwork only), and the preview cluster — `.hero-field
+.motion-reveal.relative`, the app frame and its floating cards —
+rides one retained layer. The banner stays gated under `[data-live]`
+(below the fold on phones), the shards stay gated with their
+transforms, and no headline block is promoted: composited text
+loses subpixel antialiasing, and the hero's words stay crisp. This
+partially reverses §S's hint-gating, on device evidence, in the open
+(the vitest guard is renegotiated above its replacement, as before).
+
+**Locked.** `tests/motion-reveal.test.tsx` §W residency guard;
+everything prior still green.
