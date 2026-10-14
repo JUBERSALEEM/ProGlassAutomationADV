@@ -261,4 +261,28 @@ describe("desktop top-panel menus", () => {
       lightMeta.remove();
     }
   });
+
+  /* §U — the top-boundary flash: in Crystal the bar wears its glass in
+     BOTH scroll states, so crossing 12px can never crossfade (or pop)
+     the bar's material over the hero; the opaque families keep the
+     two-state bar the design gave them. */
+  it("in Crystal the bar wears nav-glass at rest — continuous at the top", () => {
+    document.documentElement.setAttribute("data-appearance", "crystal");
+    try {
+      render(<Navbar />);
+      expect(document.querySelector("header")?.className).toContain("nav-glass");
+    } finally {
+      document.documentElement.removeAttribute("data-appearance");
+    }
+  });
+
+  it("outside Crystal the bar still starts transparent at rest", () => {
+    document.documentElement.setAttribute("data-appearance", "clay");
+    try {
+      render(<Navbar />);
+      expect(document.querySelector("header")?.className).not.toContain("nav-glass");
+    } finally {
+      document.documentElement.removeAttribute("data-appearance");
+    }
+  });
 });

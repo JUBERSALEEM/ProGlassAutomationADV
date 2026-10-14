@@ -15,6 +15,7 @@ import { LanguageMenu, LanguageMenuBlock } from "@/components/layout/LanguageMen
 import { BuildStampChip, BuildStampPill, BuildStampRow } from "@/components/layout/BuildStamp";
 import { Logo } from "@/components/brand/Logo";
 import { useT } from "@/i18n/provider";
+import { useAppearance } from "@/lib/useTheme";
 import { hrefIn, localeOfPath, pathWithoutLocale } from "@/i18n/core";
 
 type NavChild = { label: string; href: string; description?: string };
@@ -140,6 +141,11 @@ function NavGlyph({ path }: { path?: string }) {
 
 export function Navbar() {
   const t = useT();
+  /* The family decides one thing here: whether the bar's material is
+     continuous (Crystal, §U) or two-stated (the opaque families). It
+     comes from the DOM-attribute store, so server and client agree
+     from the first render — no state-in-effect, no flip. */
+  const family = useAppearance();
   const pathname = usePathname();
   /*
    * `usePathname` returns the URL as the browser speaks it, and every route
@@ -385,7 +391,7 @@ export function Navbar() {
       className={cn(
         // `no-print`: a fixed bar that repeats on every printed sheet is waste.
         "no-print fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-industrial",
-        scrolled
+        scrolled || family === "crystal"
           /*
            * The bar is opaque in the three opaque families — a blurred,
            * 65%-opaque bar puts the navigation, the most-read text on the site,
@@ -396,7 +402,17 @@ export function Navbar() {
            * Crystal is the exception, and it is decided in CSS (`.nav-glass`)
            * rather than here: the family whose whole language is a floating
            * sheet of glass cannot have a solid slab of ink across the top of
-           * it. The bar itself still ships the same two states.
+           * it.
+           *
+           * §U: in Crystal the bar wears that sheet in BOTH states. The
+           * two-state swap — transparent ↔ film under this header's
+           * `transition-all` — crossfaded the bar's entire material at
+           * the 12px boundary: a visible flash on every arrival at the
+           * top and every departure from it, worst on touch, where the
+           * scrolled state is a near-opaque film (§S). A floating sheet
+           * of glass does not pop into existence twelve pixels into the
+           * page, so in Crystal the scroll flip is a no-op for the bar.
+           * The opaque families keep their two states untouched.
            */
           ? "nav-glass"
           : "border-b border-transparent bg-transparent",

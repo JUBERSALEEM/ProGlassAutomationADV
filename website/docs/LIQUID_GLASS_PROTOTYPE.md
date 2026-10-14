@@ -576,3 +576,37 @@ Fine pointers keep the progressive frost.
 **Locked.** `crystal-motion` §S·1 now counts the pseudo's film
 separately and names the miss in its failure message; the vitest
 §R+§S guard pins `.nav-glass::before` in the lane.
+
+### §U — the top-boundary flash (*shipped*)
+
+**Witness.** After §T: "still, as soon [as I] scroll getting to top,
+flashing still."
+
+**What the re-read found.** The remaining flash lives exactly at the
+boundary the witness named. The header carries
+`transition-all duration-300`, and its material is a scroll-state
+ternary: `scrolled (scrollY > 12)` → `.nav-glass`, else transparent.
+Every arrival at the top (and every departure) therefore crossfaded
+the bar's *entire material* for 300ms — in Crystal, post-§S,
+transparent ↔ near-opaque film; on fine pointers, transparent ↔ a
+24px backdrop blur also animating inside `transition-all`. Clay
+rides the same flip, but its two states read near-identically
+(opaque bar both ways), which is why the cross-check passed there.
+The same pass re-exonerated the other top-boundary candidates:
+`useReveal` is strictly one-shot ("applied once, never removed"),
+the route shell settles at navigation, and the reveals at the hero
+never re-hide.
+
+**The fix.** One condition in `Navbar`: in Crystal the header takes
+`nav-glass` in both states (`scrolled || family === "crystal"`).
+The family's own logic — a floating sheet of glass cannot have a
+solid slab across the top, and cannot pop into existence 12px into
+the page either — now holds continuously: the bar's material never
+swaps at the boundary, so there is nothing to flash. Family comes
+from `useAppearance` (the DOM-attribute store), so server and
+client agree from the first render. The opaque families keep their
+two states untouched, and the scroll listener/re-render are
+unchanged (in Crystal the flip now produces identical output).
+
+**Locked.** Two DOM tests in `tests/navbar.test.tsx`: Crystal wears
+`nav-glass` at rest; Clay still starts transparent.
