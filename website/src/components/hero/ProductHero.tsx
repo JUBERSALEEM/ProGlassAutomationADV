@@ -83,9 +83,9 @@ export function ProductHero({ t }: { t: Translator }) {
         <div className="aurora-field aurora-drift">
           {/* §C9/§R — the references' ornaments live behind the hero's glass:
               two rings and one sphere, crystal-painted only. */}
-          <span className="decor decor-ring" style={{ right: "9%", top: "12%", width: 180, height: 180 }} />
-          <span className="decor decor-ring" style={{ left: "6%", bottom: "18%", width: 120, height: 120 }} />
-          <span className="glass-sphere" data-chill-target style={{ position: "absolute", right: "26%", top: "30%", width: 260, height: 260 }} />
+          <span className="decor decor-ring max-lg:hidden" style={{ right: "9%", top: "12%", width: 180, height: 180 }} />
+          <span className="decor decor-ring max-lg:hidden" style={{ left: "6%", bottom: "18%", width: 120, height: 120 }} />
+          <span className="glass-sphere max-lg:hidden" data-chill-target style={{ position: "absolute", right: "26%", top: "30%", width: 260, height: 260 }} />
         </div>
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-400/60 to-transparent" />
       </div>
@@ -206,7 +206,7 @@ export function ProductHero({ t }: { t: Translator }) {
           </div>
 
           {/* ── Layered product presentation ───────────────────────── */}
-          <MotionReveal immediate delay={120} variant="scale" className="relative">
+          <MotionReveal immediate delay={120} className="relative">
             <div aria-hidden="true" className="pointer-events-none absolute -inset-8 -z-10">
               <span
                 className="orb orb-wide left-1/2 top-1/2 h-[26rem] w-[34rem] -translate-x-1/2 -translate-y-1/2"

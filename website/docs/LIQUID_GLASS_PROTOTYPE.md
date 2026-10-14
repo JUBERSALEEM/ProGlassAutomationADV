@@ -409,3 +409,38 @@ deletions (stir file absent, no scroll listeners writing styles, no
 root dataset flips), §M·stability pins the rest gate's absence.
 Structural proof as always; perceived smoothness remains the
 live-preview judgement.
+
+### §Q — the top-panel rebuild (*shipped*)
+
+**Witness.** Two phone screenshots, seven seconds apart: at rest the
+hero's app preview renders (its stat tiles crushed into 90px cylinders
+with word-per-line text); after a short scroll the same frame shows
+its header and tab strip over a vast empty field containing one stray
+glass sphere — the "two cards"/empty-page complaint, located at last
+in the top panel itself.
+
+**What the code said.** (1) The frame's rail (`hidden sm:flex`, 176px)
+and the dashboard's `sm:grid-cols-4` tiles were composed for desktop
+widths and simply crushed inside a phone-width frame. (2) The inline
+frame's height chain — AppFrame `min-h` body → LiveSurface `h-full` →
+DashboardEngine `h-full min-h-0` → a `flex-1 overflow-auto` rows well —
+depended on percentage-height fallbacks through an auto-height parent;
+the pattern is sound in the fixed-height lightbox it was drawn for and
+fragile everywhere else. (3) The hero's decor sphere/rings were placed
+for the wide composition but rendered at every width, so on a phone
+they float alone in empty hero background (the lone circle in the
+screenshot). (4) The frame's entrance scaled the heaviest subtree on
+the page. (5) `MotionReveal` — unlike the CSS reveal lane — had no
+failsafe: a delayed observer callback strands SSR content at opacity 0.
+
+**The rebuild.** Rail yields below `md`; summary tiles hold two
+readable columns until `lg`; the inline dashboard path drops the
+`h-full`/`flex-1` chain for natural flow with a visibly bounded rows
+well (`max-h-[22rem] overflow-auto`, the pattern the optimizer surface
+already used); decor sphere/rings join the materials cloud's existing
+rule (`max-lg:hidden` — decor for the wide composition only); the
+frame reveal rises instead of scaling; `MotionReveal` gains the CSS
+lane's 1.6s near-viewport failsafe. The background animation section
+itself (backdrop artwork, aurora banks, liquid drift) is unchanged in
+kind — it is still transform-only — it simply can no longer be
+*exposed* as empty space by stray ornaments.

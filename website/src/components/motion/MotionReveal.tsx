@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { dur, ease, revealScaleVariants, revealVariants } from "@/lib/motion";
@@ -20,6 +21,12 @@ import { cn } from "@/lib/cn";
  * required for the entrance to resolve. Durations are short and content is
  * never gated behind interaction; the CSS `Reveal` remains the default for
  * plain reveals precisely because it degrades without a library runtime.
+ *
+ * §Q failsafe (the CSS lane's contract, brought to this lane): if the
+ * observer-driven entrance has not fired within 1.6s of mount while the
+ * block sits near the viewport, the reveal is forced. A loaded main
+ * thread must never strand server-rendered content at opacity 0 — the
+ * "cards appear when I stop scrolling" witness was this gap.
  */
 export function MotionReveal({
   children,
@@ -46,6 +53,23 @@ export function MotionReveal({
   immediate?: boolean;
 }) {
   const reduced = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const [forced, setForced] = useState(false);
+
+  useEffect(() => {
+    if (immediate || reduced || variant === "none") return;
+    const timer = window.setTimeout(() => {
+      const el = ref.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      /* Near-viewport bound, the useReveal failsafe's own: at or above
+         1.5 viewport heights out, or already scrolled partly past. */
+      if (rect.top < window.innerHeight * 1.5 && rect.bottom > -window.innerHeight * 0.5) {
+        setForced(true);
+      }
+    }, 1600);
+    return () => window.clearTimeout(timer);
+  }, [immediate, reduced, variant]);
 
   if (reduced || variant === "none") {
     return (
@@ -55,7 +79,7 @@ export function MotionReveal({
     );
   }
 
-  const trigger = immediate
+  const trigger = immediate || forced
     ? { animate: "visible" as const }
     : {
         whileInView: "visible" as const,
@@ -64,6 +88,7 @@ export function MotionReveal({
 
   return (
     <motion.div
+      ref={ref}
       id={id}
       className={cn("motion-reveal", className)}
       variants={variant === "scale" ? revealScaleVariants : revealVariants}

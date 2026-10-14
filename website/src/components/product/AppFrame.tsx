@@ -179,7 +179,7 @@ export function AppFrame({
         {!compact ? (
           <nav
             aria-hidden="true"
-            className="app-rail hidden w-44 shrink-0 flex-col gap-2 border-r border-line/60 bg-ink-950/70 p-2.5 sm:flex"
+            className="app-rail hidden w-44 shrink-0 flex-col gap-2 border-r border-line/60 bg-ink-950/70 p-2.5 md:flex"
           >
             {realRail.map((group) => (
               <div key={t(group.label)} className="space-y-0.5">

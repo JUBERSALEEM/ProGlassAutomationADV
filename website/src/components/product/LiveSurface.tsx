@@ -72,7 +72,7 @@ export function LiveSurface({
   const view = views[safeIndex];
 
   return (
-    <div className={cn("flex h-full flex-col", className)}>
+    <div className={cn("flex flex-col", className)}>
         {/* ── Tabs ─────────────────────────────────────────────────────── */}
         {views.length > 1 && demo.kind !== "wizard" ? (
           <div role="tablist" aria-label={`${name} views`} className="flex flex-wrap gap-1.5 border-b border-line/50 pb-2.5">
@@ -100,7 +100,7 @@ export function LiveSurface({
         ) : null}
 
         {/* ── Engine ───────────────────────────────────────────────────── */}
-        <div className="min-h-0 flex-1 pt-3">
+        <div className="pt-3">
           {demo.kind === "log" ? (
             <LogSurface compact={compact} />
           ) : demo.kind === "optimizer" ? (
@@ -969,7 +969,7 @@ function WizardEngine({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3">
+    <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SampleTag />
         <p className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-brand-300">
@@ -1232,7 +1232,7 @@ function DashboardEngine({
         </div>
       ) : null}
 
-      <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <dl className="grid grid-cols-2 gap-2 lg:grid-cols-4">
         {summary.map((item, index) => (
           <div key={`${t(item.label)}-${index}`} className="surface-raised p-2.5">
             <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t(item.label)}</dt>
@@ -1242,7 +1242,7 @@ function DashboardEngine({
       </dl>
 
       {rows.length > 0 ? (
-        <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-line/60 bg-ink-950/40">
+        <div className="max-h-[22rem] overflow-auto rounded-xl border border-line/60 bg-ink-950/40">
           <table className="w-full border-collapse text-left">
             <caption className="sr-only">
               {t.template`${view?.label ?? "Dashboard"} — the module's own panels and figures.`}
