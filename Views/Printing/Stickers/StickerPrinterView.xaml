@@ -193,8 +193,7 @@
                                                FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.H3}"
                                                Foreground="{TemplateBinding Foreground}"
                                                VerticalAlignment="Center" Margin="0,0,8,0"
-                                               IsHitTestVisible="False" Focusable="False"
-                                               AutomationProperties.AccessibilityView="Raw"/>
+                                               IsHitTestVisible="False" Focusable="False"/>
                                     <ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="True"/>
                                 </StackPanel>
                             </Border>
@@ -272,8 +271,7 @@
                     <TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Icon}"
                                Foreground="{DynamicResource Ov.Accent}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"
-                               IsHitTestVisible="False" Focusable="False"
-                               AutomationProperties.AccessibilityView="Raw"/>
+                               IsHitTestVisible="False" Focusable="False"/>
                 </Border>
                 <StackPanel Grid.Column="1" Margin="13,0,12,0" VerticalAlignment="Center">
                     <TextBlock x:Name="StudioHeaderTitle" Text="Label layout workspace"
