@@ -705,7 +705,7 @@
     --surface-alpha-base: 0.55;
     --surface-alpha-base-2: 0.72;
     --surface-alpha-base-3: 0.92;
-    --surface-blur-base: 18px;
+    --surface-blur-base: 12px;
     --surface-sat: 200%;
     --surface-specular-base: 0.32;
     --card-edge: rgb(255 255 255 / 0.48);
@@ -858,7 +858,7 @@
     --surface-alpha-base: 0.82;
     --surface-alpha-base-2: 0.9;
     --surface-alpha-base-3: 0.99;
-    --surface-blur-base: 20px;
+    --surface-blur-base: 16px;
     --surface-sat: 185%;
     /* A sheet on a white desk reads almost entirely by its corners: the
        catch-light is the strongest dial in this reading, and the fill is the

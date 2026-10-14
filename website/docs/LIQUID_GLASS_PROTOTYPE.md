@@ -232,6 +232,43 @@ the liquid's motion is verified by construction + compiled-CSS and
 contract evidence, not by an eyeball render. The user's live-preview
 pass is the visual verdict.
 
+### Addendum 2 — §M stability, clear centre, professional wallpaper
+
+Second witness, sharper: "UI coming going like crashing", fog still in
+card centres, wallpaper "ugly pattern". Root causes, all structural:
+
+1. **The crash-feel was a frame-budget collapse, and §L caused it.**
+   The liquid blobs carried `filter: blur(48px)` on 64vmax layers
+   behind hundreds of backdrop-filtered panes. Against a static wall
+   the compositor caches pane blurs; a perpetually moving backdrop
+   invalidates every pane's blur every frame. §M: blobs defiltered
+   (gradients are pre-feathered), will-change removed, drift parks
+   while scrolling ([data-liquid-rest] from glassScroll's own loop),
+   economy lane stills it, phones drop the third blob — and every
+   blur radius dropped (registry 26/28 → 12/16px, utility 28 → 12px),
+   which is also the clarity fix below. Blur cost falls roughly with
+   the square of the radius.
+   *Process note, on the record: two of the previous pass's blur edits
+   silently failed to land (engine bases stayed 26/28px, utility stayed
+   28px) while their neighbours landed — grep-verification after every
+   edit is now the working rule, and this pass re-verified each value
+   in source AND compiled CSS.*
+2. **Centre fog evicted.** §H painted a face-wide top pool and a
+   centre band (120% 55% at 50%) in every section card. Both gone;
+   all water light is corner-confined, perimeter inset glow kept —
+   the centre of a pane is clear glass over the liquid, glass
+   character at the edges, as directed. Refract band narrowed/dimmed.
+3. **Wallpaper: pattern → room.** Crystal replaces the shared
+   13-layer wallpaper (etched grid + grain + sweep + pools) with
+   lamp + floor + vignette in the family's own tokens, grid retired.
+   Colour and motion come from the liquid; the wall is light.
+
+Guards: crystal-contrast 99/99 (§M tests added), crystal-motion
+17/17, clay-paint 249/249, clay 100%, vitest 78/78, pointer guard
+clean. Same honest limit: no GPU browser in this sandbox — frame
+behaviour is engineered and contract-verified, not measured. The
+live preview remains the verdict.
+
 ### Unresolved / awaiting user
 - Eyeball pass on the live preview for gloss, press feel, frost blur
   and lens drag — the parts stills cannot prove.

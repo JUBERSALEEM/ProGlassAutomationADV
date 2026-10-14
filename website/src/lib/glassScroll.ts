@@ -64,6 +64,19 @@ export function initGlassScroll(): () => void {
     }
   };
 
+  /* §M — while this loop runs (a scroll is being stirred through), the
+     §L liquid drift parks via [data-liquid-rest]: panes repaint for the
+     scroll anyway, and two motion systems compositing over the same
+     backdrop-filter stack at once is how a page starts to flicker. The
+     attribute is written once per stir, never per frame. */
+  let liquidRested = false;
+  const restLiquid = (rest: boolean) => {
+    if (rest === liquidRested) return;
+    liquidRested = rest;
+    if (rest) root.dataset.liquidRest = "1";
+    else delete root.dataset.liquidRest;
+  };
+
   const clear = () => {
     surge = 0;
     drift = 0;
@@ -71,6 +84,7 @@ export function initGlassScroll(): () => void {
     writtenDrift = -2;
     root.style.removeProperty("--glass-surge");
     root.style.removeProperty("--glass-drift");
+    restLiquid(false);
   };
 
   const frame = () => {
@@ -95,8 +109,10 @@ export function initGlassScroll(): () => void {
       surge = 0;
       drift = 0;
       write();
+      restLiquid(false);
       return;
     }
+    restLiquid(true);
     write();
     raf = window.requestAnimationFrame(frame);
   };

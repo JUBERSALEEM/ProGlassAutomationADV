@@ -270,11 +270,14 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
   /* The liquid refraction band: light bending through the sheet reads as
      a soft diagonal brighten, not a line — it lives in the background
      stack (under content), tinted by the family's cyan shoulder. */
+  /* §M: narrowed and dimmed — a 36%-wide sheen band through the pane's
+     middle read as fog across the centre; the refraction whisper now
+     hugs its diagonal and lets the centre stay clear. */
   --glass-refract: linear-gradient(118deg,
-    transparent 32%,
-    rgb(255 255 255 / 0.07) 46%,
-    rgb(var(--glass-cyan, 103 232 249) / 0.05) 53%,
-    transparent 68%);
+    transparent 43%,
+    rgb(255 255 255 / 0.045) 49.5%,
+    rgb(var(--glass-cyan, 103 232 249) / 0.035) 52%,
+    transparent 59%);
   /* Strength rides the family's own glint dial — a moved bench moves the
      catch, the bench's heart having nothing to prove twice. */
   --glass-catch: radial-gradient(
@@ -396,7 +399,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
      block in globals.css declares the same numbers as `-base`; this engine
      is unlayered, so ITS aliases would beat the @supports fallback raise —
      which is why the base is plumbed through the engine, fallback aware. */
-  --surface-blur-base: 26px;
+  --surface-blur-base: 12px;
   --surface-specular-base: 0.32;
   --surface-alpha-base: 0.55;
   --surface-alpha-base-2: 0.72;
@@ -418,7 +421,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 }
 
 [data-theme="daylight"][data-appearance="crystal"] {
-  --surface-blur-base: 28px;
+  --surface-blur-base: 16px;
   --surface-specular-base: 0.34;
   /* §C8 (user-signed, the 100/100 pass): daylight tier bases and the floor
      renegotiated — 0.82/0.90/0.99 → 0.74/0.82/0.96, clamp floor 0.80 → 0.68.
@@ -705,12 +708,16 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
   .surface, .surface-raised, .menu-card, .float-card,
   .glass-primary, .card-accent, .panel-feature, .stat-tile
 )::before {
+  /* §M clear centre: the old stack painted a face-wide top pool and a
+     literal band through the middle (120% 55% at 50%) — fog in the
+     centre of every card. All light is now confined to the corners it
+     belongs to; the middle of the pane is clear glass over the liquid,
+     and the perimeter glow below (inset shadows) carries the wet edge. */
   background:
-    radial-gradient(135% 105% at calc(50% + var(--glass-flow, 0) * 24%) calc(-10% + (var(--glass-flow, 0) + 1) * 9%), rgb(255 255 255 / calc(0.20 + var(--glass-surge, 0) * 0.20)) 0%, transparent 52%),
-    radial-gradient(120% 90% at 6% 0%, rgb(255 255 255 / 0.15) 0%, transparent 46%),
-    radial-gradient(60% 55% at -4% calc(50% + var(--glass-drift, 0) * 16%), rgb(255 255 255 / 0.08) 0%, transparent 60%),
-    radial-gradient(60% 55% at 104% calc(50% + var(--glass-drift, 0) * 16%), rgb(255 255 255 / 0.08) 0%, transparent 60%),
-    radial-gradient(120% 55% at 50% calc((var(--glass-flow, 0) + 1) * 50%), rgb(255 255 255 / calc(0.05 + var(--glass-surge, 0) * 0.10)) 0%, transparent 62%),
+    radial-gradient(64% 58% at calc(4% + var(--glass-flow, 0) * 8%) -8%, rgb(255 255 255 / calc(0.16 + var(--glass-surge, 0) * 0.16)) 0%, transparent 52%),
+    radial-gradient(64% 58% at calc(96% - var(--glass-flow, 0) * 8%) -8%, rgb(255 255 255 / calc(0.12 + var(--glass-surge, 0) * 0.12)) 0%, transparent 52%),
+    radial-gradient(52% 48% at -6% calc(96% + var(--glass-drift, 0) * 6%), rgb(255 255 255 / 0.07) 0%, transparent 58%),
+    radial-gradient(52% 48% at 106% calc(96% - var(--glass-drift, 0) * 6%), rgb(255 255 255 / 0.07) 0%, transparent 58%),
     radial-gradient(90% 80% at 97% 105%, var(--glass-relight-1, rgb(120 220 255 / 0.17)) 0%, transparent 55%),
     radial-gradient(70% 60% at 3% 96%, var(--glass-relight-2, rgb(242 96 164 / 0.10)) 0%, transparent 60%);
   box-shadow:
@@ -721,12 +728,12 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
   .surface, .surface-raised, .menu-card, .float-card,
   .glass-primary, .card-accent, .panel-feature, .stat-tile
 )::before {
+  /* §M clear centre, daylight read: corner-confined like midnight. */
   background:
-    radial-gradient(135% 105% at calc(50% + var(--glass-flow, 0) * 24%) calc(-10% + (var(--glass-flow, 0) + 1) * 9%), rgb(255 255 255 / calc(0.34 + var(--glass-surge, 0) * 0.18)) 0%, transparent 52%),
-    radial-gradient(120% 90% at 6% 0%, rgb(255 255 255 / 0.26) 0%, transparent 46%),
-    radial-gradient(60% 55% at -4% calc(50% + var(--glass-drift, 0) * 16%), rgb(255 255 255 / 0.12) 0%, transparent 60%),
-    radial-gradient(60% 55% at 104% calc(50% + var(--glass-drift, 0) * 16%), rgb(255 255 255 / 0.12) 0%, transparent 60%),
-    radial-gradient(120% 55% at 50% calc((var(--glass-flow, 0) + 1) * 50%), rgb(255 255 255 / calc(0.10 + var(--glass-surge, 0) * 0.12)) 0%, transparent 62%),
+    radial-gradient(64% 58% at calc(4% + var(--glass-flow, 0) * 8%) -8%, rgb(255 255 255 / calc(0.26 + var(--glass-surge, 0) * 0.14)) 0%, transparent 52%),
+    radial-gradient(64% 58% at calc(96% - var(--glass-flow, 0) * 8%) -8%, rgb(255 255 255 / calc(0.20 + var(--glass-surge, 0) * 0.10)) 0%, transparent 52%),
+    radial-gradient(52% 48% at -6% calc(96% + var(--glass-drift, 0) * 6%), rgb(255 255 255 / 0.11) 0%, transparent 58%),
+    radial-gradient(52% 48% at 106% calc(96% - var(--glass-drift, 0) * 6%), rgb(255 255 255 / 0.11) 0%, transparent 58%),
     radial-gradient(90% 80% at 97% 105%, var(--glass-relight-1, rgb(217 120 239 / 0.18)) 0%, transparent 55%),
     radial-gradient(70% 60% at 3% 96%, var(--glass-relight-2, rgb(120 220 255 / 0.12)) 0%, transparent 60%);
   box-shadow:
@@ -800,8 +807,8 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 @supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
   [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
     background-color: rgb(255 255 255 / var(--glass-lift-a));
-    backdrop-filter: blur(calc(28px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
-    -webkit-backdrop-filter: blur(calc(28px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
+    backdrop-filter: blur(calc(12px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
+    -webkit-backdrop-filter: blur(calc(12px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
   }
 }
 
@@ -1344,8 +1351,12 @@ html.glass-econ[data-appearance="crystal"] {
 [data-appearance="crystal"] .liquid-scene span {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(48px);
-  will-change: transform;
+  /* §M: NO filter and NO will-change here. The radial gradients are
+     already feathered to transparent — a 48px filter on a 64vmax disc
+     only forced three giant re-rasters, and behind hundreds of
+     backdrop-filtered panes the moving backdrop already invalidates
+     every pane's blur each frame. The scene must be the cheapest
+     layer on the page: three plain gradient discs, transform-only. */
 }
 
 [data-appearance="crystal"] .liquid-scene span:nth-child(1) {
@@ -1404,3 +1415,47 @@ html.glass-econ[data-appearance="crystal"] {
   }
 }
 
+
+/* ═══ §M · STABILITY + THE CLEAR CENTRE (the crash/fog witness) ═════════
+ * Three corrections, one root: the liquid is only affordable if every
+ * layer it touches stays cheap, and it only reads as crystal if the
+ * glass character lives at the perimeter.
+ *
+ * 1 · THE WALLPAPER BECOMES A ROOM. The shared 13-layer wallpaper
+ *     (etched grid, grain tile, sweep, six pools) is a PATTERN — busy,
+ *     high-frequency, and the most expensive possible thing to sit
+ *     behind backdrop-filter (fine detail is what blur kernels charge
+ *     for). Crystal replaces it with light: one crown lamp, one floor
+ *     glow, one vignette — the tokens still follow the family/accent,
+ *     so the room stays theme-true — while the liquid blobs carry the
+ *     colour and the motion. The etched grid retires in Crystal.
+ * 2 · THE LIQUID RESTS WHILE YOU SCROLL. glassScroll's rAF already
+ *     runs while the water is stirred; it now parks the drift with
+ *     [data-liquid-rest] for exactly that window — during a scroll the
+ *     panes repaint anyway, and two motion systems fighting over the
+ *     same frames is how a page starts to flicker. The §F6 economy
+ *     lane (weak devices) stills the drift outright.
+ * 3 · SMALL SCREENS GET TWO BLOBS. The third disc is garnish; a phone
+ *     GPU keeps the brand + cyan pair.
+ */
+[data-appearance="crystal"] body::before {
+  display: none;
+}
+[data-appearance="crystal"] body::after {
+  background-image:
+    radial-gradient(1120px 520px at 50% -18%, var(--wall-lamp), transparent 60%),
+    radial-gradient(1400px 620px at 50% 112%, var(--wall-floor), transparent 64%),
+    radial-gradient(150% 120% at 50% 0%, transparent 34%, var(--wall-vignette) 100%);
+  background-repeat: no-repeat;
+}
+[data-appearance="crystal"][data-liquid-rest="1"] .liquid-scene span {
+  animation-play-state: paused;
+}
+html.glass-econ[data-appearance="crystal"] .liquid-scene span {
+  animation: none;
+}
+@media (max-width: 820px) {
+  [data-appearance="crystal"] .liquid-scene span:nth-child(3) {
+    display: none;
+  }
+}

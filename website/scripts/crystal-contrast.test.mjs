@@ -509,3 +509,23 @@ test("§L·palette-fidelity: the Black plate is a true neutral, not a navy", () 
   const [r, g, b] = [0, 2, 4].map((i) => Number.parseInt(black[1].slice(i, i + 2), 16));
   assert.ok(Math.abs(b - r) <= 4 && Math.abs(g - r) <= 4, `Black #${black[1]} still leans blue (r${r} g${g} b${b}) — applied as navy`);
 });
+
+test("§M·clear-centre: no light layer paints the middle of a section pane", () => {
+  const engine = stripComments(engineCss);
+  const watery = engine.match(/\[data-appearance="crystal"\] \.section :is\([\s\S]*?\)::before \{([\s\S]*?)\}/);
+  assert.ok(watery, "the §H watery edge rule is gone");
+  assert.ok(!/120% 55% at 50%/.test(watery[1]), "the centre fog band is back in the §H stack");
+  assert.ok(!/135% 105%/.test(watery[1]), "the face-wide top pool is back in the §H stack");
+});
+
+test("§M·stability: the liquid is defiltered, restable, and the wallpaper is a room", () => {
+  const engine = stripComments(engineCss);
+  const spans = engine.match(/\[data-appearance="crystal"\] \.liquid-scene span \{([\s\S]*?)\}/);
+  assert.ok(spans, "the liquid span rule is gone");
+  assert.ok(!/filter:|will-change/.test(spans[1]), "the blobs regained a filter/will-change — giant re-rasters behind every pane");
+  assert.match(engine, /\[data-appearance="crystal"\]\[data-liquid-rest="1"\] \.liquid-scene span \{\n  animation-play-state: paused;/, "the scroll-rest gate is gone");
+  assert.match(engine, /html\.glass-econ\[data-appearance="crystal"\] \.liquid-scene span \{\n  animation: none;/, "the economy lane no longer stills the liquid");
+  assert.match(engine, /\[data-appearance="crystal"\] body::before \{\n  display: none;/, "the etched grid is back behind Crystal");
+  const wall = engine.match(/\[data-appearance="crystal"\] body::after \{([\s\S]*?)\}/);
+  assert.ok(wall && wall[1].includes("var(--wall-lamp)") && !/url\(|wall-grid/.test(wall[1]), "Crystal's wallpaper is a pattern again, not a room");
+});
