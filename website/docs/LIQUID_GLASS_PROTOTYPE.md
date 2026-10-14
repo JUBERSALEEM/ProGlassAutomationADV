@@ -201,5 +201,10 @@ Observed on real Chromium renders of `/en-US/sys/liquid-glass`
 ### Unresolved / awaiting user
 - Eyeball pass on the live preview for gloss, press feel, frost blur
   and lens drag — the parts stills cannot prove.
-- Phase 5 (site-wide rollout) is **not started** and stays gated on
-  explicit user approval of this prototype.
+- ~~Phase 5 (site-wide rollout) is **not started** and stays gated on
+  explicit user approval of this prototype.~~ **Superseded 14 Oct
+  2026:** the user approved the rollout; Phase 5 shipped scoped
+  (route motion, Crystal §I sheen, spring menus — see checklist
+  above, commit `32c5dbc`). Still awaiting the user: the
+  default-appearance-family decision (Clay remains the default;
+  switching to Crystal/Liquid is a brand call, not taken silently).
