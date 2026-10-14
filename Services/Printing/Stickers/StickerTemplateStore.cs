@@ -233,7 +233,7 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                 error = "A template can contain at most 100 elements.";
                 return false;
             }
-            if (!IsColor(template.Background))
+            if (!IsValidColor(template.Background))
             {
                 error = "Template background must be a #RRGGBB or #AARRGGBB color.";
                 return false;
@@ -288,8 +288,8 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                     error = "An element has an invalid position, size, font, rotation or opacity.";
                     return false;
                 }
-                if (!IsColor(element.Foreground) || !IsColor(element.Background)
-                    || !IsColor(element.BorderColor))
+                if (!IsValidColor(element.Foreground) || !IsValidColor(element.Background)
+                    || !IsValidColor(element.BorderColor))
                 {
                     error = "Element colors must be #RRGGBB or #AARRGGBB values.";
                     return false;
@@ -325,7 +325,7 @@ namespace ProGlassAutomation.Services.Printing.Stickers
         private static bool IsFiniteInRange(double value, double minimum, double maximum) =>
             double.IsFinite(value) && value >= minimum && value <= maximum;
 
-        private static bool IsColor(string value) =>
+        public static bool IsValidColor(string? value) =>
             !string.IsNullOrWhiteSpace(value)
             && Regex.IsMatch(value, @"^#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$");
     }

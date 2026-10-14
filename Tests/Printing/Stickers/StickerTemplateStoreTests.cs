@@ -240,6 +240,36 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
         }
 
         [Fact]
+        public void TemplateAndPrinterFieldsExposeInlineRecoveryMessages()
+        {
+            var viewModel = new StickerPrintDialogViewModel(
+                Array.Empty<GlassStickerLabel>(), new StickerPrintPreferences());
+
+            viewModel.TemplateNameText = " ";
+            Assert.Contains("layout name", viewModel.TemplateNameValidationText);
+            viewModel.TemplateNameText = new string('L', 101);
+            Assert.Contains("100 characters", viewModel.TemplateNameValidationText);
+            viewModel.TemplateNameText = "Workshop label";
+            Assert.Equal(string.Empty, viewModel.TemplateNameValidationText);
+
+            viewModel.TemplateBackgroundText = "purple";
+            Assert.Contains("#FFFFFF", viewModel.TemplateBackgroundValidationText);
+            viewModel.TemplateBackgroundText = "#AABBCC";
+            Assert.Equal(string.Empty, viewModel.TemplateBackgroundValidationText);
+            Assert.True(StickerTemplateStore.IsValidColor("#AABBCCDD"));
+            Assert.False(StickerTemplateStore.IsValidColor("#ABC"));
+
+            viewModel.MarginMmText = "26";
+            Assert.Contains("0 to 25 mm", viewModel.MarginMmValidationText);
+            viewModel.MarginMmText = "10";
+            Assert.Equal(string.Empty, viewModel.MarginMmValidationText);
+            viewModel.FontSizePtText = "2";
+            Assert.Contains("3 to 72 pt", viewModel.FontSizePtValidationText);
+            viewModel.FontSizePtText = "12";
+            Assert.Equal(string.Empty, viewModel.FontSizePtValidationText);
+        }
+
+        [Fact]
         public void EditorSupportsDuplicateLockNudgeAndDeleteActions()
         {
             var viewModel = new StickerPrintDialogViewModel(

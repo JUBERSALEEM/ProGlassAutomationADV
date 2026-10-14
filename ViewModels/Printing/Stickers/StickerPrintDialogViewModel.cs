@@ -278,9 +278,16 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 _activeTemplate.Name = next;
                 _selectedTemplateChoice?.UpdateTemplateName(next);
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(TemplateNameValidationText));
                 MarkTemplateDirty();
             }
         }
+
+        public string TemplateNameValidationText => string.IsNullOrWhiteSpace(TemplateNameText)
+            ? "Enter a layout name before saving."
+            : TemplateNameText.Length > 100
+                ? "Keep the layout name to 100 characters or fewer."
+                : string.Empty;
 
         public StickerTemplateKind TemplateKind
         {
@@ -305,9 +312,14 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 if (_activeTemplate.Background == next) return;
                 _activeTemplate.Background = next;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(TemplateBackgroundValidationText));
                 MarkTemplateDirty();
             }
         }
+
+        public string TemplateBackgroundValidationText => StickerTemplateStore.IsValidColor(TemplateBackgroundText)
+            ? string.Empty
+            : "Use a hex color such as #FFFFFF or #FFFFFFFF.";
 
         public StickerPrinterModel PrinterModel
         {
@@ -545,6 +557,7 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 if (!Set(ref _widthMmText, value ?? string.Empty)) return;
                 OnPropertyChanged(nameof(PrinterSizeWarningText));
                 OnPropertyChanged(nameof(HasPrinterSizeWarning));
+                OnPropertyChanged(nameof(MarginMmValidationText));
                 NotifySheetLayoutChanged();
                 if (TryParseNumber(_widthMmText, out double width)
                     && width >= StickerPrinterSpecifications.GenericMinimumWidthMm
@@ -564,6 +577,7 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 if (!Set(ref _heightMmText, value ?? string.Empty)) return;
                 OnPropertyChanged(nameof(PrinterSizeWarningText));
                 OnPropertyChanged(nameof(HasPrinterSizeWarning));
+                OnPropertyChanged(nameof(MarginMmValidationText));
                 NotifySheetLayoutChanged();
                 if (TryParseNumber(_heightMmText, out double height)
                     && height >= StickerPrinterSpecifications.MinimumTemplateLengthMm
@@ -581,6 +595,7 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             set
             {
                 if (!Set(ref _marginMmText, value ?? string.Empty)) return;
+                OnPropertyChanged(nameof(MarginMmValidationText));
                 if (TryParseNumber(_marginMmText, out double margin) && margin >= 0 && margin <= 25
                     && margin * 2 < Math.Min(_activeTemplate.LabelWidthMm, _activeTemplate.LabelHeightMm))
                 {
@@ -596,6 +611,7 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             set
             {
                 if (!Set(ref _fontSizePtText, value ?? string.Empty)) return;
+                OnPropertyChanged(nameof(FontSizePtValidationText));
                 if (TryParseNumber(_fontSizePtText, out double size) && size >= 3 && size <= 72)
                 {
                     _activeTemplate.DefaultFontSizePt = size;
@@ -603,6 +619,26 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 }
             }
         }
+
+        public string MarginMmValidationText
+        {
+            get
+            {
+                if (!TryParseNumber(MarginMmText, out double margin) || margin < 0 || margin > 25)
+                    return "Use a default inset from 0 to 25 mm.";
+                if (!TryParseNumber(WidthMmText, out double width)
+                    || !TryParseNumber(HeightMmText, out double height))
+                    return string.Empty; // The dimension warning is shown beside the label-size fields.
+                return margin * 2 < Math.Min(width, height)
+                    ? string.Empty
+                    : "Reduce the inset so printable space remains inside the label.";
+            }
+        }
+
+        public string FontSizePtValidationText =>
+            TryParseNumber(FontSizePtText, out double size) && size >= 3 && size <= 72
+                ? string.Empty
+                : "Use a font size from 3 to 72 pt.";
 
         public bool OneLabelPerPiece
         {
@@ -1076,8 +1112,10 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             OnPropertyChanged(nameof(ActiveTemplate));
             OnPropertyChanged(nameof(TemplateElements));
             OnPropertyChanged(nameof(TemplateNameText));
+            OnPropertyChanged(nameof(TemplateNameValidationText));
             OnPropertyChanged(nameof(TemplateKind));
             OnPropertyChanged(nameof(TemplateBackgroundText));
+            OnPropertyChanged(nameof(TemplateBackgroundValidationText));
             OnPropertyChanged(nameof(SelectedTemplateChoice));
             OnPropertyChanged(nameof(SelectedElement));
             OnPropertyChanged(nameof(HasSelectedElement));
@@ -1086,7 +1124,9 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             OnPropertyChanged(nameof(WidthMmText));
             OnPropertyChanged(nameof(HeightMmText));
             OnPropertyChanged(nameof(MarginMmText));
+            OnPropertyChanged(nameof(MarginMmValidationText));
             OnPropertyChanged(nameof(FontSizePtText));
+            OnPropertyChanged(nameof(FontSizePtValidationText));
             NotifySheetLayoutChanged();
             if (markDirty) MarkTemplateDirty();
             else IsTemplateDirty = false;

@@ -53,6 +53,70 @@
                 <Setter Property="TextWrapping" Value="Wrap"/>
                 <Setter Property="Margin" Value="0,3,0,0"/>
             </Style>
+            <Style x:Key="StickerSubsectionTitle" TargetType="TextBlock" BasedOn="{StaticResource Ov.Meta}">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
+                <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+                <Setter Property="Margin" Value="0,4,0,6"/>
+            </Style>
+            <Style x:Key="StickerStatusText" TargetType="TextBlock" BasedOn="{StaticResource Ov.Text}">
+                <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
+                <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+            </Style>
+            <Style x:Key="StickerValidationText" TargetType="TextBlock" BasedOn="{StaticResource Ov.Meta}">
+                <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Foreground" Value="{DynamicResource Ov.Warning}"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+            </Style>
+            <Style x:Key="StickerSampleValidationText" TargetType="TextBlock"
+                   BasedOn="{StaticResource StickerValidationText}">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding SampleDimensionsWarningText}" Value="">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            <Style x:Key="StickerTemplateNameValidationText" TargetType="TextBlock"
+                   BasedOn="{StaticResource StickerValidationText}">
+                <Setter Property="Margin" Value="0,4,0,0"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding TemplateNameValidationText}" Value="">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            <Style x:Key="StickerTemplateBackgroundValidationText" TargetType="TextBlock"
+                   BasedOn="{StaticResource StickerValidationText}">
+                <Setter Property="Margin" Value="0,4,0,0"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding TemplateBackgroundValidationText}" Value="">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            <Style x:Key="StickerMarginValidationText" TargetType="TextBlock"
+                   BasedOn="{StaticResource StickerValidationText}">
+                <Setter Property="Margin" Value="0,4,0,0"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding MarginMmValidationText}" Value="">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            <Style x:Key="StickerFontSizeValidationText" TargetType="TextBlock"
+                   BasedOn="{StaticResource StickerValidationText}">
+                <Setter Property="Margin" Value="0,4,0,0"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding FontSizePtValidationText}" Value="">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
             <Style x:Key="StickerInput" TargetType="TextBox" BasedOn="{StaticResource Sl.Input}">
                 <Setter Property="MinHeight" Value="40"/>
                 <Setter Property="Padding" Value="10,6"/>
@@ -331,8 +395,14 @@
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
                                     <StackPanel>
                                         <TextBlock Text="Template name" Style="{StaticResource StickerFieldLabel}"/>
-                                        <TextBox Text="{Binding TemplateNameText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StickerInput}"
-                                                 AutomationProperties.Name="Template name"/>
+                                        <TextBox Text="{Binding TemplateNameText, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource StickerInput}" MaxLength="100"
+                                                 AutomationProperties.Name="Template name"
+                                                 AutomationProperties.HelpText="Required; maximum 100 characters."/>
+                                        <TextBlock Text="{Binding TemplateNameValidationText}"
+                                                   Style="{StaticResource StickerTemplateNameValidationText}"
+                                                   AutomationProperties.Name="Template name validation"
+                                                   AutomationProperties.LiveSetting="Polite"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Template type" Style="{StaticResource StickerFieldLabel}"/>
@@ -346,7 +416,12 @@
                                     <TextBlock Text="Label background" Style="{StaticResource StickerFieldLabel}"/>
                                     <TextBox Text="{Binding TemplateBackgroundText, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource StickerInput}"
-                                             ToolTip="Enter #RRGGBB or #AARRGGBB."/>
+                                             ToolTip="Enter #RRGGBB or #AARRGGBB."
+                                             AutomationProperties.Name="Label background color"/>
+                                    <TextBlock Text="{Binding TemplateBackgroundValidationText}"
+                                               Style="{StaticResource StickerTemplateBackgroundValidationText}"
+                                               AutomationProperties.Name="Label background validation"
+                                               AutomationProperties.LiveSetting="Polite"/>
                                 </StackPanel>
                                 <TextBlock Text="Presets and saved templates contain layout only. Customer, invoice and pane values are filled from each source row when printing."
                                            FontSize="{DynamicResource FontSize.Label}" Foreground="{DynamicResource Ov.Muted}"
@@ -375,8 +450,12 @@
                                     <StackPanel>
                                         <TextBlock Text="A4 sheet layout" FontSize="{DynamicResource FontSize.Label}" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource Ov.Accent}"/>
-                                        <TextBlock Text="{Binding SheetLayoutSummaryText}" FontSize="{DynamicResource FontSize.Label}"
-                                                   Foreground="{DynamicResource Ov.Ink}" TextWrapping="Wrap" Margin="0,4,0,8"/>
+                                        <TextBlock Text="{Binding SheetLayoutSummaryText}"
+                                                   FontSize="{DynamicResource FontSize.Label}"
+                                                   Foreground="{DynamicResource Ov.Ink}"
+                                                   TextWrapping="Wrap" Margin="0,4,0,8"
+                                                   AutomationProperties.Name="A4 sheet layout estimate and validation"
+                                                   AutomationProperties.LiveSetting="Polite"/>
                                         <Grid>
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                             <StackPanel>
@@ -451,9 +530,7 @@
                                         </Style>
                                     </Border.Style>
                                     <TextBlock Text="{Binding PrinterSizeWarningText}"
-                                               FontFamily="{DynamicResource AppFontFamily}"
-                                               FontSize="{DynamicResource FontSize.Label}"
-                                               Foreground="{DynamicResource Ov.Warning}" TextWrapping="Wrap"
+                                               Style="{StaticResource StickerValidationText}"
                                                AutomationProperties.Name="Printer size warning"
                                                AutomationProperties.LiveSetting="Polite"/>
                                 </Border>
@@ -464,11 +541,23 @@
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                     <StackPanel>
                                         <TextBlock Text="Default inset (mm)" Style="{StaticResource StickerFieldLabel}"/>
-                                        <TextBox Text="{Binding MarginMmText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StickerInput}"/>
+                                        <TextBox Text="{Binding MarginMmText, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource StickerInput}"
+                                                 AutomationProperties.Name="Default label inset in millimetres"/>
+                                        <TextBlock Text="{Binding MarginMmValidationText}"
+                                                   Style="{StaticResource StickerMarginValidationText}"
+                                                   AutomationProperties.Name="Default inset validation"
+                                                   AutomationProperties.LiveSetting="Polite"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="New text size (pt)" Style="{StaticResource StickerFieldLabel}"/>
-                                        <TextBox Text="{Binding FontSizePtText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StickerInput}"/>
+                                        <TextBox Text="{Binding FontSizePtText, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource StickerInput}"
+                                                 AutomationProperties.Name="Default text size in points"/>
+                                        <TextBlock Text="{Binding FontSizePtValidationText}"
+                                                   Style="{StaticResource StickerFontSizeValidationText}"
+                                                   AutomationProperties.Name="Default text size validation"
+                                                   AutomationProperties.LiveSetting="Polite"/>
                                     </StackPanel>
                                 </Grid>
                                 <Border Background="{DynamicResource Ov.Soft}" BorderBrush="{DynamicResource Ov.Line}"
@@ -499,7 +588,7 @@
                                                    FontSize="{DynamicResource FontSize.Caption}" FontWeight="SemiBold" Foreground="{DynamicResource Ov.Accent}"/>
                                     </Border>
                                 </Grid>
-                                <TextBlock Text="Common production fields" Style="{StaticResource StickerFieldLabel}" Margin="0,4,0,6"/>
+                                <TextBlock Text="Common production fields" Style="{StaticResource StickerSubsectionTitle}"/>
                                 <WrapPanel Margin="0,0,0,6">
                                     <Button Content="Company" CommandParameter="CompanyName" Tag="&#xE77B;"
                                             Click="AddCommonField_Click" Style="{StaticResource StickerButton}" Margin="0,0,6,6"/>
@@ -520,22 +609,25 @@
                                     <Button Content="Reference" CommandParameter="Reference" Tag="&#xE8D4;"
                                             Click="AddCommonField_Click" Style="{StaticResource StickerButton}" Margin="0,0,6,6"/>
                                 </WrapPanel>
+                                <TextBlock Text="More production fields" Style="{StaticResource StickerSubsectionTitle}"/>
                                 <Grid Margin="0,0,0,7">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                     <ComboBox x:Name="FieldPicker" ItemsSource="{Binding FieldChoices}"
                                               DisplayMemberPath="Label" SelectedValuePath="Key"
                                               SelectedValue="{Binding NewFieldKey, Mode=TwoWay}"
-                                              Style="{StaticResource StickerCombo}" ToolTip="More source fields"/>
+                                              Style="{StaticResource StickerCombo}" ToolTip="More source fields"
+                                              AutomationProperties.Name="Choose a production field to add"/>
                                     <Button Grid.Column="2" Content="Add field" Tag="&#xE710;" Click="AddField_Click"
                                             Style="{StaticResource StickerButton}"/>
                                 </Grid>
+                                <TextBlock Text="Add simple objects" Style="{StaticResource StickerSubsectionTitle}"/>
                                 <UniformGrid Columns="4" Margin="0,0,0,8">
                                     <Button Content="+ Text" Tag="&#xE8D2;" Click="AddText_Click" Style="{StaticResource StickerButton}" Margin="0,0,5,0"/>
                                     <Button Content="+ Logo" Tag="&#xE8B9;" Click="AddLogo_Click" Style="{StaticResource StickerButton}" Margin="0,0,5,0"/>
                                     <Button Content="+ Box" Tag="&#xE8A5;" Click="AddBox_Click" Style="{StaticResource StickerButton}" Margin="0,0,5,0"/>
                                     <Button Content="+ Line" Tag="&#xE8A3;" Click="AddLine_Click" Style="{StaticResource StickerButton}"/>
                                 </UniformGrid>
-                                <TextBlock Text="Layers" Style="{StaticResource StickerFieldLabel}" Margin="0,4,0,6"/>
+                                <TextBlock Text="Layers" Style="{StaticResource StickerSubsectionTitle}"/>
                                 <ListBox x:Name="TemplateElementsList" ItemsSource="{Binding TemplateElements}"
                                          SelectedItem="{Binding SelectedElement, Mode=TwoWay}"
                                          DisplayMemberPath="DisplayName" Height="116"
@@ -597,6 +689,7 @@
                                         <TextBox Text="{Binding SelectedElement.Suffix, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StickerInput}"/>
                                     </StackPanel>
                                 </Grid>
+                                <TextBlock Text="Position and size" Style="{StaticResource StickerSubsectionTitle}"/>
                                 <UniformGrid Columns="2" Margin="0,0,0,8">
                                     <StackPanel Margin="0,0,5,0">
                                         <TextBlock Text="X position (mm)" Style="{StaticResource StickerFieldLabel}"/>
@@ -619,8 +712,9 @@
                                         <TextBox Text="{Binding SelectedElement.HeightMm, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Style="{StaticResource StickerInput}"/>
                                     </StackPanel>
                                 </UniformGrid>
-                                <TextBlock Text="Drag a selected object's handles to resize. Arrow keys nudge by 1 mm; Shift + arrows move by 5 mm."
+                                <TextBlock Text="Drag the handles to resize. Arrow keys move by 1 mm; Shift + arrows move by 5 mm."
                                            FontSize="{DynamicResource FontSize.Label}" Foreground="{DynamicResource Ov.Muted}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <TextBlock Text="Appearance and text style" Style="{StaticResource StickerSubsectionTitle}"/>
                                 <UniformGrid Columns="3" Margin="0,0,0,8">
                                     <StackPanel Margin="0,0,5,0">
                                         <TextBlock Text="Font size (pt)" Style="{StaticResource StickerFieldLabel}"/>
@@ -842,18 +936,10 @@
                                     </StackPanel>
                                 </Grid>
                                 <TextBlock Grid.Row="2" Text="{Binding SampleDimensionsWarningText}"
-                                           FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource Ov.Warning}"
-                                           TextWrapping="Wrap" Margin="0,6,0,0">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding SampleDimensionsWarningText}" Value="">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                                           Style="{StaticResource StickerSampleValidationText}"
+                                           Margin="0,6,0,0"
+                                           AutomationProperties.Name="Sample size validation message"
+                                           AutomationProperties.LiveSetting="Polite"/>
                             </Grid>
                         </Border>
                         <TextBlock x:Name="PreviewExplanation"
@@ -877,9 +963,10 @@
                 <Border Width="9" Height="9" CornerRadius="5" Background="{DynamicResource Ov.Accent}"
                         VerticalAlignment="Center" Margin="2,0,10,0" IsHitTestVisible="False"/>
                 <TextBlock Grid.Column="1" Text="{Binding StatusMessage}"
-                           FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource Ov.Ink}"
-                           TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"
-                           ToolTip="{Binding StatusMessage}" AutomationProperties.LiveSetting="Polite"/>
+                           Style="{StaticResource StickerStatusText}"
+                           VerticalAlignment="Center" Margin="0,0,12,0"
+                           ToolTip="{Binding StatusMessage}" AutomationProperties.Name="Sticker workflow status"
+                           AutomationProperties.LiveSetting="Polite"/>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="Save layout" Tag="&#xE74E;" Click="SaveTemplate_Click"
                             Style="{StaticResource StickerButton}" Margin="0,0,6,0"

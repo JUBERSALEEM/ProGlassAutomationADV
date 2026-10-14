@@ -178,7 +178,13 @@ namespace ProGlassAutomation.Views.Printing.Stickers
                 || e.PropertyName == nameof(StickerPrintDialogViewModel.IsTemplateDirty)
                 || e.PropertyName == nameof(StickerPrintDialogViewModel.SampleWidthMmText)
                 || e.PropertyName == nameof(StickerPrintDialogViewModel.SampleHeightMmText)
-                || e.PropertyName == nameof(StickerPrintDialogViewModel.SampleDimensionsWarningText))
+                || e.PropertyName == nameof(StickerPrintDialogViewModel.SampleDimensionsWarningText)
+                || e.PropertyName == nameof(StickerPrintDialogViewModel.PrinterSizeWarningText)
+                || e.PropertyName == nameof(StickerPrintDialogViewModel.HasPrinterSizeWarning)
+                || e.PropertyName == nameof(StickerPrintDialogViewModel.TemplateNameValidationText)
+                || e.PropertyName == nameof(StickerPrintDialogViewModel.TemplateBackgroundValidationText)
+                || e.PropertyName == nameof(StickerPrintDialogViewModel.MarginMmValidationText)
+                || e.PropertyName == nameof(StickerPrintDialogViewModel.FontSizePtValidationText))
                 return;
             RefreshPreview();
         }
