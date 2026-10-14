@@ -655,36 +655,113 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
  *     the relight fringe the meniscus used to draw as a line.
  * Nothing here has a hard stop: at no point does a second frame exist
  * for the eye to find. Chrome (nav, menus, the studio) sits outside
- * `.section` and keeps the quieter clean edge. */
+ * `.section` and keeps the quieter clean edge.
+ *
+ * §H2 · THE WATER MOVES (the iOS showcase behaviour). Three registered
+ * channels stir the still water above, and every one of them is light,
+ * never geometry — the pane never translates, so text never swims:
+ *   · --glass-flow (-1 → 1) rides each card's own view() timeline: as a
+ *     card traverses the viewport the top pool slides across the face
+ *     and a soft ripple band sweeps top→bottom through the pane, the
+ *     way light crosses real liquid glass while you scroll;
+ *   · --glass-surge (0 → 1) is scroll VELOCITY, written on <html> by
+ *     lib/glassScroll.ts (one passive listener, one rAF loop that only
+ *     runs while the water is disturbed): a flick stirs every visible
+ *     pane — glow and caustic brighten with the flick's energy;
+ *   · --glass-drift (-1 → 1) is the signed lean of that flick: the side
+ *     pools slide toward the trailing edge, then settle back as the
+ *     surge decays — the slosh-and-settle of the showcase videos.
+ * Engines without scroll-driven animations keep flow at 0 and still get
+ * the surge/drift slosh from the listener; reduced motion freezes all
+ * three channels at rest (the paint below falls back to §H stills). */
 [data-appearance="crystal"] .section :is(
   .surface, .surface-raised, .menu-card, .float-card,
   .glass-primary, .card-accent, .panel-feature, .stat-tile
 )::before {
   background:
-    radial-gradient(135% 105% at 50% -10%, rgb(255 255 255 / 0.20) 0%, transparent 52%),
+    radial-gradient(135% 105% at calc(50% + var(--glass-flow, 0) * 24%) calc(-10% + (var(--glass-flow, 0) + 1) * 9%), rgb(255 255 255 / calc(0.20 + var(--glass-surge, 0) * 0.20)) 0%, transparent 52%),
     radial-gradient(120% 90% at 6% 0%, rgb(255 255 255 / 0.15) 0%, transparent 46%),
-    radial-gradient(60% 55% at -4% 50%, rgb(255 255 255 / 0.08) 0%, transparent 60%),
-    radial-gradient(60% 55% at 104% 50%, rgb(255 255 255 / 0.08) 0%, transparent 60%),
+    radial-gradient(60% 55% at -4% calc(50% + var(--glass-drift, 0) * 16%), rgb(255 255 255 / 0.08) 0%, transparent 60%),
+    radial-gradient(60% 55% at 104% calc(50% + var(--glass-drift, 0) * 16%), rgb(255 255 255 / 0.08) 0%, transparent 60%),
+    radial-gradient(120% 55% at 50% calc((var(--glass-flow, 0) + 1) * 50%), rgb(255 255 255 / calc(0.05 + var(--glass-surge, 0) * 0.10)) 0%, transparent 62%),
     radial-gradient(90% 80% at 97% 105%, var(--glass-relight-1, rgb(120 220 255 / 0.17)) 0%, transparent 55%),
     radial-gradient(70% 60% at 3% 96%, var(--glass-relight-2, rgb(242 96 164 / 0.10)) 0%, transparent 60%);
   box-shadow:
-    inset 0 0 18px -4px rgb(255 255 255 / 0.30),
-    inset 0 0 46px -12px rgb(var(--glass-cyan, 103 232 249) / 0.22);
+    inset 0 0 18px -4px rgb(255 255 255 / calc(0.30 + var(--glass-surge, 0) * 0.28)),
+    inset 0 0 46px -12px rgb(var(--glass-cyan, 103 232 249) / calc(0.22 + var(--glass-surge, 0) * 0.26));
 }
 [data-theme="daylight"][data-appearance="crystal"] .section :is(
   .surface, .surface-raised, .menu-card, .float-card,
   .glass-primary, .card-accent, .panel-feature, .stat-tile
 )::before {
   background:
-    radial-gradient(135% 105% at 50% -10%, rgb(255 255 255 / 0.34) 0%, transparent 52%),
+    radial-gradient(135% 105% at calc(50% + var(--glass-flow, 0) * 24%) calc(-10% + (var(--glass-flow, 0) + 1) * 9%), rgb(255 255 255 / calc(0.34 + var(--glass-surge, 0) * 0.18)) 0%, transparent 52%),
     radial-gradient(120% 90% at 6% 0%, rgb(255 255 255 / 0.26) 0%, transparent 46%),
-    radial-gradient(60% 55% at -4% 50%, rgb(255 255 255 / 0.12) 0%, transparent 60%),
-    radial-gradient(60% 55% at 104% 50%, rgb(255 255 255 / 0.12) 0%, transparent 60%),
+    radial-gradient(60% 55% at -4% calc(50% + var(--glass-drift, 0) * 16%), rgb(255 255 255 / 0.12) 0%, transparent 60%),
+    radial-gradient(60% 55% at 104% calc(50% + var(--glass-drift, 0) * 16%), rgb(255 255 255 / 0.12) 0%, transparent 60%),
+    radial-gradient(120% 55% at 50% calc((var(--glass-flow, 0) + 1) * 50%), rgb(255 255 255 / calc(0.10 + var(--glass-surge, 0) * 0.12)) 0%, transparent 62%),
     radial-gradient(90% 80% at 97% 105%, var(--glass-relight-1, rgb(217 120 239 / 0.18)) 0%, transparent 55%),
     radial-gradient(70% 60% at 3% 96%, var(--glass-relight-2, rgb(120 220 255 / 0.12)) 0%, transparent 60%);
   box-shadow:
-    inset 0 0 18px -4px rgb(255 255 255 / 0.42),
-    inset 0 0 46px -12px rgb(var(--glass-cyan, 103 232 249) / 0.20);
+    inset 0 0 18px -4px rgb(255 255 255 / calc(0.42 + var(--glass-surge, 0) * 0.22)),
+    inset 0 0 46px -12px rgb(var(--glass-cyan, 103 232 249) / calc(0.20 + var(--glass-surge, 0) * 0.24));
+}
+
+/* ── §H2 · the stir: registered channels + the per-card view() ride ────
+   Registration is what lets the channels interpolate instead of snap
+   (the §C5 --mx/--my precedent). inherits: true on purpose: the card
+   animates --glass-flow, and its ::before water layer — a child of the
+   card for inheritance — must receive the animated value. */
+@property --glass-flow {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --glass-surge {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --glass-drift {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@keyframes glass-flow {
+  from { --glass-flow: -1; }
+  to { --glass-flow: 1; }
+}
+
+/* The ride itself: each card's water crosses the pane as the card
+   crosses the viewport (cover = entry → contain → exit). Behind the
+   same @supports gate as the §C5 view-chill; engines without scroll
+   timelines read none of this and keep the still water + JS slosh. */
+@supports (animation-timeline: view()) {
+  [data-appearance="crystal"] .section :is(
+    .surface, .surface-raised, .menu-card, .float-card,
+    .glass-primary, .card-accent, .panel-feature, .stat-tile
+  ) {
+    animation-name: glass-flow;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
+    animation-fill-mode: both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 100%;
+  }
+}
+
+/* Reduced motion: the water rests. The flow animation is refused, and
+   glassScroll.ts never writes surge/drift under reduce, so every
+   channel sits at its initial value and §H paints its still form. */
+@media (prefers-reduced-motion: reduce) {
+  [data-appearance="crystal"] .section :is(
+    .surface, .surface-raised, .menu-card, .float-card,
+    .glass-primary, .card-accent, .panel-feature, .stat-tile
+  ) {
+    animation: none !important;
+  }
 }
 
 /* ── F · §C1, retuned to the pattern: the midnight fill comes DOWN from

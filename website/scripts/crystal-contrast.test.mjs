@@ -457,3 +457,16 @@ test("§H·watery-edge: section cards carry the blurred perimeter glow, and it d
   assert.match(watery[1], /inset 0 0 46px/, "the cyan caustic under-glow is gone");
   assert.ok(!/0 0 0|mask|padding:/.test(watery[1]), "the watery edge regained a hard frame");
 });
+
+test("§H2·living-water: the water layer is stirred by flow, surge and drift — light only", () => {
+  const engine = stripComments(engineCss);
+  const watery = engine.match(/\[data-appearance="crystal"\] \.section :is\([\s\S]*?\)::before \{([\s\S]*?)\}/);
+  assert.ok(watery, "the §H watery edge rule is gone");
+  for (const channel of ["--glass-flow", "--glass-surge", "--glass-drift"]) {
+    assert.ok(watery[1].includes(`var(${channel}`), `the water layer no longer reads ${channel}`);
+  }
+  assert.ok(!/transform|translate/.test(watery[1]), "the water moved geometry — text would swim");
+  for (const channel of ["--glass-flow", "--glass-surge", "--glass-drift"]) {
+    assert.match(engine, new RegExp(`@property ${channel} \\{`), `${channel} is not registered — it would snap, not flow`);
+  }
+});

@@ -175,3 +175,66 @@ test("G5·9 @property registers the coords (no discrete snap animating from outs
   assert.ok(mx && my, "--mx/--my not registered — var(--mx) percentages, animated by the paint, would snap");
   assert.ok(chill, "--glass-chill not registered — view() cannot animate an unregistered var");
 });
+
+/* ── G7 · §H2 living water: the scroll stir, audited as source ───────── */
+const scroll = readFileSync(
+  fileURLToPath(new URL("../src/lib/glassScroll.ts", import.meta.url)),
+  "utf8",
+);
+const glassLifeComponent = readFileSync(
+  fileURLToPath(new URL("../src/components/glass/GlassLife.tsx", import.meta.url)),
+  "utf8",
+);
+
+test("G7·1 the stir is mounted once, beside the catch light", () => {
+  assert.ok(glassLifeComponent.includes("initGlassScroll"), "GlassLife no longer mounts the scroll stir");
+  assert.ok(glassLifeComponent.includes("initGlassLife"), "GlassLife lost the catch-light mount");
+});
+
+test("G7·2 one passive scroll listener, rAF loop, root style props only", () => {
+  assert.equal(scroll.match(/addEventListener\("scroll"/gu)?.length ?? 0, 1, "more than one scroll listener");
+  assert.ok(scroll.includes('{ passive: true }'), "scroll listener is not passive — it can block the scroll it animates");
+  assert.ok(scroll.includes("requestAnimationFrame"), "stir is not rAF-coalesced");
+  assert.ok(scroll.includes('setProperty("--glass-surge"'), "stir does not write --glass-surge");
+  assert.ok(scroll.includes('setProperty("--glass-drift"'), "stir does not write --glass-drift");
+  for (const bad of ["useState", "setState", "innerHTML", "className ="]) {
+    assert.ok(!scroll.includes(bad), `stir touches ${bad} — pointer-guard territory`);
+  }
+});
+
+test("G7·3 the stir is gated: crystal-only, reduced-motion, economy lane", () => {
+  assert.ok(scroll.includes('dataset.appearance') && scroll.includes('"crystal"'), "stir is not crystal-gated");
+  assert.ok(scroll.includes("(prefers-reduced-motion: reduce)"), "stir is not motion-gated");
+  assert.ok(scroll.includes("glass-econ"), "stir ignores the §F6 economy lane");
+  assert.ok(scroll.includes('removeProperty("--glass-surge"'), "stir never clears its channels");
+});
+
+test("G7·4 the flow ride lives behind @supports (animation-timeline: view()) and dies under reduce", () => {
+  let ride = 0;
+  root.walkAtRules("supports", (a) => {
+    if (!/animation-timeline:\s*view\(\)/u.test(a.params)) return;
+    a.walkRules((r) => {
+      if (!r.selector.includes(".section") || !r.selector.includes(".surface")) return;
+      r.walkDecls("animation-timeline", (d) => { if (/view\(\)/u.test(d.value)) ride++; });
+      r.walkDecls("animation-name", (d) => { assert.ok(/glass-flow/u.test(d.value), `section ride animates something else: ${d.value}`); });
+    });
+  });
+  assert.ok(ride >= 1, "no .section card rides the view() flow timeline");
+  let killed = false;
+  root.walkAtRules("media", (a) => {
+    if (!/prefers-reduced-motion/u.test(a.params)) return;
+    a.walkRules((r) => {
+      if (!r.selector.includes(".section")) return;
+      r.walkDecls("animation", (d) => { if (/none/u.test(d.value)) killed = true; });
+    });
+  });
+  assert.ok(killed, "the flow ride survives reduced-motion");
+});
+
+test("G7·5 the three water channels are registered <number>s (no discrete snaps)", () => {
+  const registered = new Set();
+  root.walkAtRules("property", (a) => registered.add(a.params.trim()));
+  for (const channel of ["--glass-flow", "--glass-surge", "--glass-drift"]) {
+    assert.ok(registered.has(channel), `${channel} not registered — the water would snap, not flow`);
+  }
+});
