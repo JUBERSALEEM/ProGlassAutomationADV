@@ -515,7 +515,12 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
      (§C1, below), the scrim stiffens from 0.34 → 0.42 to hold the text
      field exactly where the contract measured it. */
   --glass-lift-a: calc(0.05 * var(--glass-body-mult, 1));
-  --glass-scrim: rgb(6 26 38 / 0.30);
+  /* §L retune: the old scrim was deep TEAL (6 26 38) — under midnight text
+     it lent every applied colour a blue-green cast (the "black reads dark
+     blue" witness). Neutral deep now, and stronger (0.30 → 0.38), because
+     the living liquid behind the pane is brighter than the old still
+     pools were; the scrim is still the layer that carries the text. */
+  --glass-scrim: rgb(4 6 14 / 0.38);
 
   /* ── E · Saturation behind EVERY pane goes to the pattern's 180%. */
   --glass-sat: 195%;
@@ -618,6 +623,19 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 ):not(.fixed):not(.absolute):not(.sticky):not(.relative) {
   position: relative;
 }
+/* §J · TEXT ON TOP (the "texts look blurred / under the effect" witness).
+   The pane's ::before water layer is positioned, and positioned boxes
+   paint ABOVE non-positioned text in the same stacking context — so the
+   moving white washes (up to 0.40 alpha with surge) were literally over
+   the words. Panes now isolate, and the water layer takes z-index: -1:
+   above the pane's own glass fill (it is light ON the glass), below
+   every letter. Text is content; content stays on top. */
+[data-appearance="crystal"] :is(
+  .surface, .surface-raised, .menu-card, .float-card,
+  .glass-primary, .card-accent, .panel-feature, .stat-tile
+) {
+  isolation: isolate;
+}
 /* §G: the masked 1px ring that used to live here is RETIRED — beside the
    border and the old `0 0 0` ring it was the third line on every pane,
    the "second card" in the witness screenshot. The meniscus light
@@ -631,6 +649,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: -1;
   border-radius: inherit;
   background:
     radial-gradient(120% 90% at 8% 0%, rgb(255 255 255 / 0.13) 0%, transparent 46%),
@@ -1277,5 +1296,111 @@ html.glass-econ[data-appearance="crystal"] {
 }
 [data-appearance="crystal"] :is([class*="hover:bg-ink-"], [class*="focus:bg-ink-"]):not([class^="bg-ink-"]):not([class*=" bg-ink-"]):not(.surface):not(.surface-raised):not(.stat-tile):not(.plate):not(.card-live):not(.card-accent):not(.card-glass):not(.glass-primary):not(.float-card):not(.menu-card):not(.nav-pill):hover {
   background-color: rgb(var(--brand-500) / 0.14);
+}
+
+/* ═══ §L · LIVING LIQUID — colour that MOVES inside clear glass ══════════
+ * The standing witness against every previous pass: "still the old
+ * frosted pattern — I asked for colour moving in a crystal-clear bottle,
+ * like the videos." They were right: the room behind the panes was a
+ * STATIC 13-layer wallpaper, and 26–28px of frost blurred it into soup.
+ * Nothing on the page actually moved unless the visitor scrolled.
+ *
+ * The bottle model, taken literally:
+ *   · THE LIQUID — three vast accent-hued blobs (brand, cyan, rose — the
+ *     same channels the accent picker writes, so a picked plate re-hues
+ *     the liquid itself) drift on slow independent orbits behind
+ *     everything, forever. This is the moving colour from the reference
+ *     videos; it is one fixed layer of three composited transforms, not
+ *     per-card work.
+ *   · THE GLASS — the panes went crystal-clearer in the same pass
+ *     (frost 26/28px → 18/20px registry, 28px → 16px utility lift), so
+ *     the liquid reads THROUGH the pane, bent by each pane's own blur
+ *     and saturation — the bottle wall over moving colour.
+ *   · THE TEXT — never in the liquid. §J seats the water layer under
+ *     the words, and the neutral scrim (§L retune above) carries the
+ *     text field over the brighter room.
+ * Motion law: transform-only keyframes on three fixed discs (the
+ * compositor never repaints the wallpaper for them), will-change on
+ * exactly those three layers, and prefers-reduced-motion stills the
+ * liquid to a coloured room. The midnight wall also goes neutral-deep
+ * under Crystal: the old violet bath (ink-950 #080516) tinted every
+ * applied colour toward blue — a picked black read navy through it.
+ * The pools and aurora above the wall still carry the colour; the
+ * wall itself stops voting. */
+[data-theme="midnight"][data-appearance="crystal"] body {
+  background-color: rgb(6 6 11);
+}
+
+[data-appearance="crystal"] .liquid-scene {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+
+[data-appearance="crystal"] .liquid-scene span {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(48px);
+  will-change: transform;
+}
+
+[data-appearance="crystal"] .liquid-scene span:nth-child(1) {
+  width: 64vmax;
+  height: 64vmax;
+  left: -16vmax;
+  top: -20vmax;
+  background: radial-gradient(circle at 38% 38%, rgb(var(--brand-500, 124 58 237) / 0.55) 0%, rgb(var(--brand-500, 124 58 237) / 0) 62%);
+  animation: liquid-drift-a 42s ease-in-out -9s infinite alternate;
+}
+
+[data-appearance="crystal"] .liquid-scene span:nth-child(2) {
+  width: 54vmax;
+  height: 54vmax;
+  right: -14vmax;
+  top: 4%;
+  background: radial-gradient(circle at 42% 42%, rgb(var(--glass-cyan, 103 232 249) / 0.45) 0%, rgb(var(--glass-cyan, 103 232 249) / 0) 62%);
+  animation: liquid-drift-b 55s ease-in-out -23s infinite alternate;
+}
+
+[data-appearance="crystal"] .liquid-scene span:nth-child(3) {
+  width: 58vmax;
+  height: 58vmax;
+  left: 24%;
+  bottom: -24vmax;
+  background: radial-gradient(circle at 40% 40%, rgb(var(--glass-rose, 244 114 182) / 0.40) 0%, rgb(var(--glass-rose, 244 114 182) / 0) 62%);
+  animation: liquid-drift-c 66s ease-in-out -31s infinite alternate;
+}
+
+@keyframes liquid-drift-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(17vw, 10vh, 0) scale(1.22); }
+}
+
+@keyframes liquid-drift-b {
+  from { transform: translate3d(0, 0, 0) scale(1.14); }
+  to { transform: translate3d(-14vw, 13vh, 0) scale(0.94); }
+}
+
+@keyframes liquid-drift-c {
+  from { transform: translate3d(0, 0, 0) scale(0.96); }
+  to { transform: translate3d(11vw, -11vh, 0) scale(1.26); }
+}
+
+/* Daylight reads the same liquid through brighter glass — quieter, or
+   the room shouts through the 0.74 fill. */
+[data-theme="daylight"][data-appearance="crystal"] .liquid-scene span {
+  opacity: 0.55;
+}
+
+/* The gate, as always: reduced motion stills the liquid. The room
+   keeps its colour; nothing drifts. */
+@media (prefers-reduced-motion: reduce) {
+  [data-appearance="crystal"] .liquid-scene span {
+    animation: none;
+  }
 }
 

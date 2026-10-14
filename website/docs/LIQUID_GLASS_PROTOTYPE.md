@@ -198,6 +198,40 @@ Observed on real Chromium renders of `/en-US/sys/liquid-glass`
 - Routes spot-checked after final build: `/en-US`, `/sys/liquid-glass`,
   `/sys/crystal`, `/sys/clay` all 200.
 
+### Addendum — §L Living Liquid + §J text-on-top (user witness, same day)
+
+The user rejected the shipped Crystal as "still the old frosted pattern"
+and named four defects; all four traced to code, all fixed at engine
+level (commit follows this note):
+
+1. **No living liquid.** The room behind the panes was a static
+   wallpaper; frost blurred it into soup and nothing moved without
+   scrolling. §L adds the liquid: three accent-hued blobs (brand/cyan/
+   rose — a picked plate re-hues them) drifting on 42/55/66s orbits
+   behind the wallpaper (`.liquid-scene`, layout-rendered, `display:none`
+   outside Crystal), and the panes went clearer (frost 26/28 → 18/20px,
+   utility lift 28 → 16px) so the moving colour reads through the
+   glass. Reduced motion stills it.
+2. **Text under the effect.** The pane `::before` water layer is
+   positioned; positioned boxes paint above non-positioned text, so
+   washes up to 0.40 alpha sat ON the words. §J: panes `isolation:
+   isolate`, water `z-index: -1` — above the glass fill, below every
+   letter.
+3. **Black reads dark blue (+ every plate shifted).** Three causes:
+   the Black preset was literally #111827 (slate blue); the midnight
+   scrim was deep TEAL (6 26 38); the midnight wall was a violet bath.
+   Black is now #0C0C0F, the scrim neutral `rgb(4 6 14 / 0.38)` (also
+   stronger for text over the brighter liquid room), and Crystal's
+   midnight wall is neutral-deep — pools/aurora still carry colour.
+4. **Invisible text.** Same §J fix, plus the stronger neutral scrim;
+   the crystal-contrast harness re-verified (97/97 incl. new §J/§L/
+   palette guards).
+
+Honest limit, unchanged: no GPU browser exists in this sandbox, so
+the liquid's motion is verified by construction + compiled-CSS and
+contract evidence, not by an eyeball render. The user's live-preview
+pass is the visual verdict.
+
 ### Unresolved / awaiting user
 - Eyeball pass on the live preview for gloss, press feel, frost blur
   and lens drag — the parts stills cannot prove.

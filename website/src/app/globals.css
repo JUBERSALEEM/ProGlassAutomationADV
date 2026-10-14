@@ -705,7 +705,7 @@
     --surface-alpha-base: 0.55;
     --surface-alpha-base-2: 0.72;
     --surface-alpha-base-3: 0.92;
-    --surface-blur-base: 26px;
+    --surface-blur-base: 18px;
     --surface-sat: 200%;
     --surface-specular-base: 0.32;
     --card-edge: rgb(255 255 255 / 0.48);
@@ -858,7 +858,7 @@
     --surface-alpha-base: 0.82;
     --surface-alpha-base-2: 0.9;
     --surface-alpha-base-3: 0.99;
-    --surface-blur-base: 28px;
+    --surface-blur-base: 20px;
     --surface-sat: 185%;
     /* A sheet on a white desk reads almost entirely by its corners: the
        catch-light is the strongest dial in this reading, and the fill is the
@@ -1147,6 +1147,15 @@
    * mask to fade out — a repeating gradient cannot be masked in place, and an
    * unmasked grid draws a line straight through running text.
    */
+  /*
+   * The living-liquid scene node (rendered once by the locale layout).
+   * Inert chrome: hidden here, and only the Crystal engine (§L) ever
+   * displays it — every other family pays one empty fixed node for it.
+   */
+  .liquid-scene {
+    display: none;
+  }
+
   body::after {
     content: "";
     position: fixed;

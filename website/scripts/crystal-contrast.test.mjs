@@ -477,3 +477,35 @@ test("§I·liquid-promotion: the registry carries the full-surface sheen, catch 
   const stack = engine.match(/background-image:\s*var\(--glass-catch\),\s*var\(--glass-sheen\),/);
   assert.ok(stack, "the sheen is not seated under the catch light in the registry stack");
 });
+
+test("§J·text-on-top: the water layer sits under the words, never over them", () => {
+  const engine = stripComments(engineCss);
+  const before = engine.match(/\.glass-primary, \.card-accent, \.panel-feature, \.stat-tile\n\)::before \{([\s\S]*?)\}/);
+  assert.ok(before, "the §C9 pane ::before rule is gone");
+  assert.match(before[1], /z-index:\s*-1/, "the water layer lost its seat under the text — washes paint over words again");
+  assert.match(engine, /\.stat-tile\n\) \{\n  isolation: isolate;/, "panes no longer isolate — a child's z-index can escape the pane again");
+});
+
+test("§L·living-liquid: moving colour behind the panes, gated for reduced motion", () => {
+  const engine = stripComments(engineCss);
+  assert.match(engine, /\[data-appearance="crystal"\] \.liquid-scene \{[^}]*position: fixed;/, "the liquid scene is not a fixed room layer");
+  assert.match(engine, /z-index: -3;/, "the liquid does not sit behind the wallpaper");
+  for (const kf of ["liquid-drift-a", "liquid-drift-b", "liquid-drift-c"]) {
+    assert.match(engine, new RegExp(`@keyframes ${kf} \\{`), `${kf} is gone — the liquid froze`);
+    assert.match(engine, new RegExp(`animation: ${kf} \\d+s ease-in-out -\\d+s infinite alternate;`), `${kf} no longer drifts`);
+  }
+  const gate = engine.match(/@media \(prefers-reduced-motion: reduce\) \{\n  \[data-appearance="crystal"\] \.liquid-scene span \{\n    animation: none;/);
+  assert.ok(gate, "reduced motion no longer stills the liquid");
+  assert.match(engine, /--glass-scrim: rgb\(4 6 14 \/ 0\.38\);/, "the midnight scrim lost its neutral, stronger mix (teal cast / text floor)");
+});
+
+test("§L·palette-fidelity: the Black plate is a true neutral, not a navy", () => {
+  const themes = readFileSync(
+    fileURLToPath(new URL("../src/data/themes.ts", import.meta.url)),
+    "utf8",
+  );
+  const black = /\{ key: "Black", name: "Black", hex: "#([0-9A-Fa-f]{6})" \}/.exec(themes);
+  assert.ok(black, "the Black accent preset is missing");
+  const [r, g, b] = [0, 2, 4].map((i) => Number.parseInt(black[1].slice(i, i + 2), 16));
+  assert.ok(Math.abs(b - r) <= 4 && Math.abs(g - r) <= 4, `Black #${black[1]} still leans blue (r${r} g${g} b${b}) — applied as navy`);
+});

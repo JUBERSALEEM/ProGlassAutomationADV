@@ -123,7 +123,9 @@ export const accentPresets: { key: string; name: string; hex: string | null }[] 
   { key: "Magenta", name: "Magenta", hex: "#EC4899" },
   { key: "Tangerine", name: "Tangerine", hex: "#FB923C" },
   { key: "Slate", name: "Slate", hex: "#475569" },
-  { key: "Black", name: "Black", hex: "#111827" },
+  /* Was #111827 — a dark slate BLUE (b=39 over r=17), so the "Black" plate
+     applied as navy everywhere. True neutral black now. */
+  { key: "Black", name: "Black", hex: "#0C0C0F" },
   { key: "Custom", name: "Custom", hex: null },
 ];
 

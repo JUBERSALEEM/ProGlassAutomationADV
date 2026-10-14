@@ -288,6 +288,18 @@ export default async function LocaleLayout({
       </head>
       <body suppressHydrationWarning>
         {/*
+          The living-liquid scene (crystal-engine §L): three accent-hued
+          blobs that drift forever behind the wallpaper, so Crystal panes
+          refract moving colour like liquid in a clear bottle. Pure DOM —
+          globals.css keeps it display:none and the Crystal engine alone
+          switches it on, so every other family pays exactly nothing.
+        */}
+        <div className="liquid-scene" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+        {/*
           One shared gradient sheet for every SVG on the page — see SvgDefs.
           It has to be inside <body>: it is a rendered element, and a
           `display:none` sheet would stop resolving in some engines.
