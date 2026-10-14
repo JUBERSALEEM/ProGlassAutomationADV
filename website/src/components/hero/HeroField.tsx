@@ -14,16 +14,21 @@ import { cn } from "@/lib/cn";
  *   `--hx / --hy`   where the pointer is, normalized to the hero. Feeds the
  *                    material shards' parallax — the closer a shard's `--d`
  *                    sits to 3, the nearer it flies and the further it drifts.
- *   `--sy`          scroll progress of the first viewport (0 → 1), feeding the
- *                    backdrop drift and the banner's lift-away.
  *
  * Discipline, same as every interactive leaf on this site: the listeners go
  * up only for fine pointers with motion allowed (checked live on every
  * event batch, not once at mount), and the `data-live` attribute the CSS
  * gates everything behind is never set otherwise — a phone, a screen reader
  * or a `prefers-reduced-motion` visitor receives the hero exactly as the
- * server rendered it: complete, still, and correct. Scroll work runs in one
- * rAF-coalesced passive listener that never writes layout.
+ * server rendered it: complete, still, and correct. Pointer writes are
+ * rAF-coalesced (the pointer-guard pattern).
+ *
+ * §P: this field used to also write `--sy` (first-viewport scroll
+ * progress) from a scroll listener, lifting the banner away per scroll
+ * frame. Scroll writes NOTHING now — a scroll-coupled style write on the
+ * heaviest subtree of the top panel is precisely the flash class the
+ * stability doctrine abolished. The banner parallax reads --sy at its
+ * resting 0; the shards keep their pointer parallax and CSS float.
  */
 export function HeroField({ children, className }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLElement | null>(null);
@@ -47,26 +52,11 @@ export function HeroField({ children, className }: { children: ReactNode; classN
     };
     mq.addEventListener("change", mqHandler);
 
-    const onScroll = () => {
-      if (reduced.current) return;
-      cancelAnimationFrame(rafId.current);
-      rafId.current = requestAnimationFrame(() => {
-        const el = ref.current;
-        if (!el) return;
-        const y = window.scrollY;
-        const span = window.innerHeight * 1.25;
-        el.style.setProperty("--sy", String(Math.min(1, Math.max(0, y / span)).toFixed(4)));
-      });
-    };
-
     /* The gate the CSS keys on, set imperative: setting it through state
        would trade one attribute for a whole second render pass on every
        page load. */
     gate?.setAttribute("data-live", "");
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", onScroll);
       mq.removeEventListener("change", mqHandler);
       cancelAnimationFrame(rafId.current);
       gate?.removeAttribute("data-live");
@@ -78,8 +68,15 @@ export function HeroField({ children, className }: { children: ReactNode; classN
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
-    el.style.setProperty("--hx", ((e.clientX - r.left) / r.width).toFixed(4));
-    el.style.setProperty("--hy", ((e.clientY - r.top) / r.height).toFixed(4));
+    const hx = ((e.clientX - r.left) / r.width).toFixed(4);
+    const hy = ((e.clientY - r.top) / r.height).toFixed(4);
+    /* rAF-coalesced (pointer-guard pattern): one write pair per frame,
+       never one per pointer event. */
+    cancelAnimationFrame(rafId.current);
+    rafId.current = requestAnimationFrame(() => {
+      el.style.setProperty("--hx", hx);
+      el.style.setProperty("--hy", hy);
+    });
   };
 
   return (

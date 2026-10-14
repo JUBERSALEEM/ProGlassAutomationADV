@@ -523,7 +523,12 @@ test("§M·stability: the liquid is defiltered, restable, and the wallpaper is a
   const spans = engine.match(/\[data-appearance="crystal"\] \.liquid-scene span \{([\s\S]*?)\}/);
   assert.ok(spans, "the liquid span rule is gone");
   assert.ok(!/filter:|will-change/.test(spans[1]), "the blobs regained a filter/will-change — giant re-rasters behind every pane");
-  assert.match(engine, /\[data-appearance="crystal"\]\[data-liquid-rest="1"\] \.liquid-scene span \{\n  animation-play-state: paused;/, "the scroll-rest gate is gone");
+  /* §P renegotiated: the scroll-rest gate is RETIRED, not lost. Its writers
+     (scroll stir + idle watchdog) were the scroll-coupled repaint engine
+     behind the flashing-cards witness; the drift is transform-only
+     compositor work and needs no parking now that panes do not sample
+     the backdrop (§O). Pin its absence so it cannot creep back. */
+  assert.ok(!engine.includes('data-liquid-rest="1"'), "the scroll-rest gate is back — §P retired it with its writers");
   assert.match(engine, /html\.glass-econ\[data-appearance="crystal"\] \.liquid-scene span \{\n  animation: none;/, "the economy lane no longer stills the liquid");
   assert.match(engine, /\[data-appearance="crystal"\] body::before \{\n  display: none;/, "the etched grid is back behind Crystal");
   const wall = engine.match(/\[data-appearance="crystal"\] body::after \{([\s\S]*?)\}/);

@@ -361,3 +361,51 @@ the suite if any non-chrome selector ever declares `blur()` again.
 **Honest limit.** Structural proof that panes no longer *can* blank
 from a dropped backdrop tile; the perceived flash-stability on a real
 GPU remains a live-preview judgement, as always in this audit.
+
+### §P — stability doctrine: scroll writes nothing (*shipped*)
+
+**Witness.** After §O, cards still flashed/blanked *the moment the page
+scrolled*, in both modes, Crystal only; the on-page theme/colour cards
+read as empty pages. Clay — same layout, same reveals — scrolled clean.
+
+**The half §O missed.** §O removed backdrop *sampling* but left the
+scroll-coupled *writer*: `lib/glassScroll.ts` ran a rAF loop for every
+scroll (plus a ~1.5s decay tail), writing `--glass-surge` /
+`--glass-drift` onto `<html>` per frame. Both are inherited registered
+properties consumed by every pane's §H water layer (six gradients + two
+inset glows), so every scroll frame restyled and repainted every
+visible pane — starving raster and delaying the reveal observer, which
+is why cards presented blank and then popped. Two root-attribute
+systems compounded it: the stir's and the §N watchdog's
+`[data-liquid-rest]` flips at scroll boundaries restyled the whole
+document twice per gesture. In the hero, `HeroField` wrote `--sy` per
+scroll frame into the heaviest subtree on the page (the banner
+parallax), and `.hero-aurora-strong` re-ran a 42px blur per frame
+forever.
+
+**Doctrine.** *Scroll writes nothing; no interaction restyles the
+document.* Motion is transform/opacity on bounded compositor layers
+(the liquid drift, shard floats, the one-card pointer catch light), or
+it does not move. Concretely: `glassScroll.ts` deleted (channels rest
+at their registered 0 — still water); the §N idle watchdog deleted
+(the drift is transform-only on three fixed spans and needs no parking
+once panes do not sample the backdrop); the `[data-liquid-rest]` gate
+retired from the engine; `HeroField`'s scroll listener removed (its
+pointer parallax remains, now rAF-coalesced); the aurora's per-frame
+filter removed (its gradients were already soft).
+
+**Framer Motion audit (asked for explicitly).** `MotionReveal` is
+one-shot (`viewport.once`) and mount-triggered above the fold;
+`ModuleBrowser` layout animations are interaction-triggered (tab/filter
+changes), not scroll; the route shell animates on navigation only. No
+Framer surface re-runs on scroll — the scroll painters were the
+hand-rolled writers above, and they are gone. The two remaining scroll
+listeners app-wide (`Navbar`'s 12px scrolled flag, which flips at most
+twice per gesture, and `ProductSlider`'s element-local handler) are
+family-independent and were exonerated by the Clay control case.
+
+**Locked.** G7·1–G7·3 and §N·2 renegotiated in the open to pin the
+deletions (stir file absent, no scroll listeners writing styles, no
+root dataset flips), §M·stability pins the rest gate's absence.
+Structural proof as always; perceived smoothness remains the
+live-preview judgement.

@@ -1430,9 +1430,10 @@ html.glass-econ[data-appearance="crystal"] {
     radial-gradient(150% 120% at 50% 0%, transparent 34%, var(--wall-vignette) 100%);
   background-repeat: no-repeat;
 }
-[data-appearance="crystal"][data-liquid-rest="1"] .liquid-scene span {
-  animation-play-state: paused;
-}
+/* §P: the [data-liquid-rest] pause gate is RETIRED with its writers
+   (the §H2 scroll stir and the §N idle watchdog, both deleted). The
+   drift is pure transform animation on three fixed spans — compositor
+   work that needs no parking now that no pane samples the backdrop. */
 html.glass-econ[data-appearance="crystal"] .liquid-scene span {
   animation: none;
 }

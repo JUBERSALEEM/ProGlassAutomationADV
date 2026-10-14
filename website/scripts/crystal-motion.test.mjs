@@ -185,37 +185,48 @@ test("G5·9 @property registers the coords (no discrete snap animating from outs
   assert.ok(chill, "--glass-chill not registered — §O keeps the token registered, resting at 0, so no reader ever sees an unregistered-var fallback snap");
 });
 
-/* ── G7 · §H2 living water: the scroll stir, audited as source ───────── */
-const scroll = readFileSync(
-  fileURLToPath(new URL("../src/lib/glassScroll.ts", import.meta.url)),
-  "utf8",
-);
+/* ── G7 · §H2 living water: the scroll stir, RETIRED by §P ───────────
+   The §H2-era G7·1–G7·3 pinned the stir's virtues (one listener, gated,
+   self-parking). The §P witness overturned them: cards flashed and
+   blanked EXACTLY on scroll, in both modes, Crystal-only, while Clay —
+   which has no scroll writer at all — scrolled clean. A per-frame
+   inherited-property write on <html> forces style + paint of every
+   pane's water layer per scroll frame, starving raster and the reveal
+   observer together. The stir module is deleted; these tests now pin
+   the deletion so the pattern cannot creep back in as a "small" idea. */
+import { existsSync } from "node:fs";
 const glassLifeComponent = readFileSync(
   fileURLToPath(new URL("../src/components/glass/GlassLife.tsx", import.meta.url)),
   "utf8",
 );
+const heroField = readFileSync(
+  fileURLToPath(new URL("../src/components/hero/HeroField.tsx", import.meta.url)),
+  "utf8",
+);
 
-test("G7·1 the stir is mounted once, beside the catch light", () => {
-  assert.ok(glassLifeComponent.includes("initGlassScroll"), "GlassLife no longer mounts the scroll stir");
+test("G7·1 (§P) the scroll stir is deleted and never mounted", () => {
+  assert.equal(
+    existsSync(fileURLToPath(new URL("../src/lib/glassScroll.ts", import.meta.url))),
+    false,
+    "glassScroll.ts is back — §P deleted the scroll stir; scroll writes nothing",
+  );
+  assert.ok(!glassLifeComponent.includes("initGlassScroll"), "GlassLife mounts the stir again");
   assert.ok(glassLifeComponent.includes("initGlassLife"), "GlassLife lost the catch-light mount");
 });
 
-test("G7·2 one passive scroll listener, rAF loop, root style props only", () => {
-  assert.equal(scroll.match(/addEventListener\("scroll"/gu)?.length ?? 0, 1, "more than one scroll listener");
-  assert.ok(scroll.includes('{ passive: true }'), "scroll listener is not passive — it can block the scroll it animates");
-  assert.ok(scroll.includes("requestAnimationFrame"), "stir is not rAF-coalesced");
-  assert.ok(scroll.includes('setProperty("--glass-surge"'), "stir does not write --glass-surge");
-  assert.ok(scroll.includes('setProperty("--glass-drift"'), "stir does not write --glass-drift");
-  for (const bad of ["useState", "setState", "innerHTML", "className ="]) {
-    assert.ok(!scroll.includes(bad), `stir touches ${bad} — pointer-guard territory`);
+test("G7·2 (§P) no scroll listener writes styles in the living-glass layer or the hero field", () => {
+  for (const [name, src] of [["GlassLife", glassLifeComponent], ["HeroField", heroField]]) {
+    assert.ok(!src.includes('addEventListener("scroll"'), `${name} listens to scroll again — scroll writes nothing`);
+    assert.ok(!src.includes('"--glass-surge"') && !src.includes('"--glass-drift"'), `${name} writes the water channels again`);
   }
+  assert.ok(!heroField.includes('"--sy"'), "HeroField writes --sy again — the banner parallax is scroll-coupled again");
 });
 
-test("G7·3 the stir is gated: crystal-only, reduced-motion, economy lane", () => {
-  assert.ok(scroll.includes('dataset.appearance') && scroll.includes('"crystal"'), "stir is not crystal-gated");
-  assert.ok(scroll.includes("(prefers-reduced-motion: reduce)"), "stir is not motion-gated");
-  assert.ok(scroll.includes("glass-econ"), "stir ignores the §F6 economy lane");
-  assert.ok(scroll.includes('removeProperty("--glass-surge"'), "stir never clears its channels");
+test("G7·3 (§P) nothing restyles the document on interaction: no root data flips in GlassLife", () => {
+  assert.ok(!glassLifeComponent.includes("liquidRest"), "the idle watchdog's root attribute flips are back");
+  assert.ok(!glassLifeComponent.includes("dataset."), "GlassLife writes root dataset attributes again");
+  /* the catch light's own module still scopes its writes to the hovered card */
+  assert.ok(life.includes("closest"), "the catch light lost its per-card scoping");
 });
 
 test("G7·4 (§O) the per-card flow ride is RETIRED; the water still reads its resting token", () => {
@@ -261,10 +272,13 @@ test("§N·1 small carriers dropped backdrop-filter (superseded and extended by 
   assert.ok(austerity >= 2, "the utility-carrier austerity lanes are gone — the backdrop census is back");
 });
 
-test("§N·2 the liquid rests on activity, resumes on idle (GlassLife watchdog)", () => {
-  assert.ok(glassLifeComponent.includes('rootEl.dataset.liquidRest = "1"'), "watchdog never parks the liquid");
-  assert.ok(glassLifeComponent.includes("delete rootEl.dataset.liquidRest"), "watchdog never resumes the liquid");
-  assert.ok(glassLifeComponent.includes('"pointermove"'), "watchdog ignores pointer activity");
+test("§N·2 (§P renegotiated) the idle watchdog is retired; the drift is compositor-only", () => {
+  /* the watchdog existed to protect backdrop-filter panes from a moving
+     backdrop; §O removed the panes' backdrop sampling, and §P removed
+     the watchdog's document-wide restyle flips with it */
+  assert.ok(!glassLifeComponent.includes("liquidRest"), "the watchdog is back");
+  /* the drift survives as pure transform keyframes on fixed spans */
+  assert.ok(/@keyframes liquid-drift-a \{[\s\S]*?transform: translate3d/u.test(engine), "the liquid drift lost its transform-only keyframes");
 });
 
 test("§N·3 reveal can never strand a near-viewport card at opacity 0", () => {

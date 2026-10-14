@@ -4549,8 +4549,11 @@ body {
     radial-gradient(42% 30% at 80% 14%, rgb(var(--brand-500) / 0.38), transparent 62%),
     radial-gradient(34% 40% at 10% 74%, rgb(var(--brand-400) / 0.26), transparent 64%),
     radial-gradient(24% 18% at 58% 40%, rgb(var(--brand-300) / 0.10), transparent 70%);
-  filter: blur(42px) saturate(1.2);
+  /* §P: no filter on an infinitely-animating element — a filtered layer
+     re-runs its blur per frame in the top panel. The gradients are
+     already soft-edged; the blur bought nothing and taxed the hero. */
   animation: aurora-drift-2 32s ease-in-out infinite alternate;
+  will-change: transform;
 }
 @keyframes aurora-drift-2 {
   from { transform: translate3d(-3%, -2%, 0) scale(1.02); }
