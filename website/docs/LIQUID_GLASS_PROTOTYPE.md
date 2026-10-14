@@ -473,3 +473,76 @@ redesign. The studio's frosted shell and its scroller are now
 different boxes, and the scroller fades (opacity) instead of scaling.
 G6·1 renegotiated in the open to allow exactly the lane's three
 properties beside the two dials.
+
+### §S — the touch budget (*shipped*)
+
+**Witness.** The owner, on the device, after §R: "still not fixed
+properly" — with a process correction this project takes seriously:
+stop patching symptoms; read the real code; find the proper issues.
+
+**The audit.** The whole paint-critical path read end to end, not
+grepped: `crystal-engine.css` (1510 lines), the paint regions of
+`globals.css` (wallpaper, surface registry, nav, reveal utilities,
+hero tail), `[locale]/layout.tsx` + `template.tsx`, `Navbar.tsx`,
+`ThemeStudio.tsx`, `Reveal.tsx`/`useReveal.ts`,
+`MotionReveal.tsx`, `LiveSurface.tsx`, `AppFrame.tsx`, `GlassLife.tsx`
++ `lib/glassLife.ts`, `lib/useStudio.ts` (observer region),
+`SupportBubble.tsx`, `Container.tsx`.
+
+**Exonerated — recorded so nobody re-investigates them.** No CSS rule
+hides Crystal content (no `opacity: 0` on content anywhere; panes are
+explicitly unblurred). `.reveal` releases `will-change` at
+`.is-visible` (documented in place). The wallpaper carries no
+`will-change`. `glassLife` writes nothing on a coarse pointer
+(fine-pointer gate verified). The studio, sheets and support panel
+render their content unconditionally — no JS can empty them.
+`useStudio`'s observer watches theme attributes only. The route shell
+settles in 320ms. §P's doctrine — scroll writes nothing — held
+everywhere the audit looked.
+
+**What was actually still spending the frame at scroll.**
+1. **The sticky bar sampled the page.** `[data-appearance=crystal]
+   .nav-glass` ran `backdrop-filter: blur(var(--surface-blur))
+   saturate(...)` — 24px × the studio Frost dial — over everything
+   sliding beneath the fixed bar, re-sampled every scroll frame; the
+   pill carried a second 22px sampling where it renders. Backdrop
+   re-sampling mid-fling is the most expensive scroll-time feature on
+   Android Chrome, it is Crystal-only, and §O's "bounded chrome"
+   exemption never priced its scroll cost. This — not the transform
+   drift — is the remaining scroll-coupled painter.
+2. **§R's full stop of the liquid bought little**: the drift is
+   transform-only (cached tiles, compositor-translated; it never
+   repaints), so stilling it freed almost no raster budget while
+   costing the product its defining motion.
+3. **The studio faded its content inside the scroller** (§R
+   structure): the shell could present before its content painted.
+4. Hero `will-change` hints stood on layers whose transforms only run
+   under `[data-live]` (fine pointers) — phones promoted layers for
+   motion that can never run there.
+
+**The budget (all in the `@media (pointer: coarse)` lane + one JSX
+class move).** The bar and pill take solid film at the codebase's own
+no-backdrop fallback fills (`ink-950/0.96`, `ink-900/0.92`) — bar
+text gets more legible, not less; fine pointers keep the glass bar.
+The brand disc (`span 1`, its shipped 20s transform drift) drifts
+again on touch; discs 2–3 rest as still pools; `html.glass-econ`
+still stills everything on weak hardware (its selector outranks the
+lane). §R's thinned card water is kept. The studio's entrance fade
+moved from the scroller to the shell, so panel and content paint as
+one composited surface from frame 0; the scroller never animates.
+Hero hints now live under `[data-live]` with the transforms they
+describe. Fine-pointer behaviour is unchanged everywhere.
+
+**Locked.** `crystal-motion` §S·1/§S·2 (bar film; drifting disc,
+transform-only), `tests/motion-reveal.test.tsx` §R+§S block (lane
+shape, studio entrance, hero hints — §R's two guards renegotiated in
+the open above their replacements). All prior suites green.
+
+**Honest limits.** No GPU browser exists in the sandbox, so nothing
+here is device-proven; the proof is structural (the scroll path now
+contains no per-frame painter at all on touch: static card tiles, one
+compositor-translated gradient disc, a solid bar) plus the live
+preview. If the witness phone still blanks after §S, the next
+evidence to gather is the device itself: model/GPU, Chrome version,
+and a screen recording — the code's scroll path has nothing left that
+repaints by construction.

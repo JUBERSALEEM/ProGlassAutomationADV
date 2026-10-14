@@ -4499,7 +4499,9 @@ body {
   opacity: 0.92;
   pointer-events: none;
   transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.5s;
-  will-change: transform;
+  /* §S: no standing will-change — the shard transforms only run under
+     [data-live] (fine pointers), so the hint lives there too. A phone
+     never promotes layers for motion that cannot run. */
   filter: drop-shadow(0 22px 34px rgb(0 0 0 / 0.55));
 }
 .hero-shard img {
@@ -4516,6 +4518,7 @@ body {
 .hero-shard-4 { top: 16%; inset-inline-end: 26%; width: 64px; opacity: 0.72; }
 
 .hero-field[data-live] .hero-shard {
+  will-change: transform;
   transform: translate3d(
     calc((var(--hx, 0.5) - 0.5) * var(--d, 1) * 30px),
     calc((var(--hy, 0.5) - 0.5) * var(--d, 1) * 24px),
@@ -4533,13 +4536,17 @@ body {
   to { transform: translateY(8px) rotate(0.8deg); }
 }
 
-/* Parallax of the two big planes, scroll-linked via --sy. */
-.hero-backdrop-parallax { will-change: transform; }
+/* Parallax of the two big planes, scroll-linked via --sy.
+   §S: the will-change hints live under [data-live] with the transforms
+   they describe — [data-live] is fine-pointer-only, so a phone holds
+   no promoted hero layers for parallax that never runs there. */
 .hero-field[data-live] .hero-backdrop-parallax {
+  will-change: transform;
   transform: translateY(calc(var(--sy, 0) * -16px));
 }
-.hero-banner-parallax { will-change: transform, opacity; transition: none; }
+.hero-banner-parallax { transition: none; }
 .hero-field[data-live] .hero-banner-parallax {
+  will-change: transform, opacity;
   transform: translateY(calc(var(--sy, 0) * -24px)) scale(calc(1.012 - var(--sy, 0) * 0.012));
 }
 

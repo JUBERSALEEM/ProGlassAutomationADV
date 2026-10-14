@@ -137,7 +137,7 @@ test("G5·8 one listener, rAF-coalesced, style props only — the pointer-guard 
 
 
 /* ── G6 · the coarse-pointer mitigation, audited from the engine ─────── */
-test("G6·1 the coarse-pointer blocks exist, crystal-scoped: dials + the §R stability lane only", () => {
+test("G6·1 the coarse-pointer blocks exist, crystal-scoped: dials + the §R lane + the §S bar film only", () => {
   let inMedia = 0;
   const decls = [];
   root.walkAtRules("media", (a) => {
@@ -149,12 +149,16 @@ test("G6·1 the coarse-pointer blocks exist, crystal-scoped: dials + the §R sta
   /* §F6 wrote the dial half (frost, brightness). §R — the checkerboard
      witness — extended the lane in the open: on coarse pointers the
      liquid stills (animation), the card water thins to the corner sheen
-     (background) and its blurred inset glows go (box-shadow). Those
-     three properties and the two dials are the WHOLE allowance; the
-     lane must never grow into a second design system. */
-  const ALLOWED = new Set(["--glass-frost-mult", "--glass-bright", "animation", "background", "box-shadow"]);
+     (background) and its blurred inset glows go (box-shadow). §S — the
+     full-audit release — extends it once more, again in the open: the
+     sticky bar's backdrop sampling was the last scroll-coupled
+     painter, so on touch the bar takes solid film (background-color at
+     the no-backdrop fallback fill; backdrop-filter: none on both
+     vendor lines). The allowance is exactly the dials + those two
+     lanes; the lane must never grow into a second design system. */
+  const ALLOWED = new Set(["--glass-frost-mult", "--glass-bright", "animation", "background", "box-shadow", "background-color", "backdrop-filter", "-webkit-backdrop-filter"]);
   assert.ok(decls.includes("--glass-frost-mult") && ALLOWED.isSupersetOf(new Set(decls)), `coarse lane touches its allowance only, got ${decls.join(", ")}`);
-  assert.ok(decls.includes("animation"), "the §R stills are gone from the coarse lane — the liquid moves behind flings again");
+  assert.ok(decls.includes("animation"), "the coarse lane lost its animation control — §R's stills and §S's one-disc drift both ride it");
 });
 
 test("G6·2 the radius step rests at 0.6 — strong enough to matter, small enough to stay glass", () => {
@@ -327,4 +331,41 @@ test("§O·3 chips are tint-only glass (no backdrop sampling on chip rows)", () 
     r.walkDecls("backdrop-filter", (d) => { if (/blur\(/u.test(d.value)) chipBlur++; });
   });
   assert.equal(chipBlur, 0, "a chip regained backdrop blur");
+});
+
+/* ── §S · the touch budget (the full-audit release) ───────────────────
+   §R stilled the liquid on coarse pointers and the witness STILL
+   failed; the audit (docs/LIQUID_GLASS_PROTOTYPE.md §S) read the whole
+   paint path and found the remaining scroll-coupled spend: the sticky
+   bar sampling the page through backdrop-filter on every scroll frame
+   (24px × the Frost dial, Crystal-only). These locks pin the budget:
+   the bar is solid film on touch, ONE transform-only disc keeps
+   drifting, the thinned water stays. The §O·1 census above stays
+   green: the film rules carry `backdrop-filter: none`, never a blur. */
+test("§S·1 on touch the sticky bar stops sampling the page (solid film)", () => {
+  let bar = 0, pill = 0;
+  root.walkAtRules("media", (a) => {
+    if (!/pointer: coarse/u.test(a.params)) return;
+    a.walkRules((r) => {
+      r.walkDecls("backdrop-filter", (d) => {
+        if (d.value.trim() !== "none") return;
+        if (r.selector.includes(".nav-glass")) bar++;
+        if (r.selector.includes(".nav-pill")) pill++;
+      });
+    });
+  });
+  assert.ok(bar >= 1, "the coarse lane lost the .nav-glass film — the bar samples the page at scroll again");
+  assert.ok(pill >= 1, "the coarse lane lost the .nav-pill film");
+});
+
+test("§S·2 one liquid disc still drifts on touch — transform-only", () => {
+  const lane = engine.slice(engine.indexOf("@media (pointer: coarse)"));
+  assert.ok(
+    /span:nth-child\(1\)\s*\{\s*animation: liquid-drift-a 20s/u.test(lane),
+    "the brand disc no longer drifts on touch — the liquid is a photograph again",
+  );
+  assert.ok(
+    /@keyframes liquid-drift-a \{[\s\S]*?transform: translate3d/u.test(engine),
+    "drift-a is no longer transform-only — the disc would repaint, not composite",
+  );
 });

@@ -98,26 +98,52 @@ describe("§Q top panel (hero frame rebuild)", () => {
 });
 
 /**
- * §R · the coarse-pointer stability lane + studio paint stack: the
- * liquid and the card water rest on touch devices (tiles paint once
- * instead of chasing a fling), and the studio's frosted shell never
- * shares a box with its scroller.
+ * §R+§S · the touch budget + studio paint stack.
+ *
+ * §R stilled the liquid on touch and the witness still failed; the §S
+ * audit (full read of the paint path) found the real scroll-coupled
+ * spend — the sticky bar's backdrop sampling — and corrected two §R
+ * positions OPENLY: the transform-only brand disc drifts again (it
+ * never repainted; stilling it bought nothing), and the studio's
+ * entrance fade rides the SHELL so panel and content paint as one
+ * surface from frame 0 (fading the content inside the scroller is
+ * what let the shell present empty). The §R separations that were
+ * right stand: backdrop-filter never shares a box with the scroller,
+ * and the card water stays thinned on touch.
  */
-describe("§R stability lane (coarse pointers)", () => {
+describe("§R+§S touch budget (coarse pointers)", () => {
   const read = (rel: string) => readFileSync(resolve(process.cwd(), rel), "utf8");
 
-  it("the engine carries the coarse lane: liquid stills, water thins", () => {
+  it("the engine carries the touch budget: water thins, one disc drifts", () => {
     const engine = read("src/app/crystal-engine.css");
     const lane = engine.slice(engine.indexOf("@media (pointer: coarse)"));
     expect(lane).toContain(".liquid-scene span");
     expect(lane).toContain("animation: none");
     expect(lane).toContain("box-shadow: none");
+    expect(lane).toContain("liquid-drift-a 20s");
   });
 
-  it("the studio shell and its scroller are different boxes", () => {
+  it("the sticky bar is solid film on touch — it never samples the page", () => {
+    const engine = read("src/app/crystal-engine.css");
+    const lane = engine.slice(engine.indexOf("@media (pointer: coarse)"));
+    expect(lane).toContain(".nav-glass");
+    expect(lane).toContain("backdrop-filter: none");
+  });
+
+  it("the studio entrance fades the shell; the scroller never animates", () => {
     const studio = read("src/components/layout/ThemeStudio.tsx");
     expect(studio).not.toContain("menu-card animate-scale-in fixed");
     expect(studio).not.toContain("overflow-y-auto rounded-panel");
-    expect(studio).toContain("animate-fade-in max-h-[78vh] overflow-y-auto");
+    expect(studio).not.toContain("animate-fade-in max-h-[78vh]");
+    expect(studio).toContain("menu-card animate-fade-in fixed inset-x-3");
+    expect(studio).toContain("max-h-[78vh] overflow-y-auto");
+  });
+
+  it("hero will-change hints live only where the motion can run", () => {
+    const globals = read("src/app/globals.css");
+    expect(globals).not.toContain(".hero-backdrop-parallax { will-change: transform; }");
+    expect(globals).not.toContain(".hero-banner-parallax { will-change: transform, opacity;");
+    expect(globals).toContain(".hero-field[data-live] .hero-backdrop-parallax");
+    expect(globals).toContain(".hero-field[data-live] .hero-banner-parallax");
   });
 });

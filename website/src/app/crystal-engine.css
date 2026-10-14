@@ -1466,32 +1466,58 @@ html.glass-econ[data-appearance="crystal"] .liquid-scene span {
   }
 }
 
-/* ═══ §R · THE COARSE-POINTER STABILITY LANE (the checkerboard witness) ══
- * The phone screenshots, read together: at rest every card paints; during
- * and just after a scroll, whole regions present as raw background — the
- * hero artwork showing through tiles the rasteriser had not reached yet.
- * Android Chrome checkerboards when tile raster cannot keep up with a
- * fling, and Crystal's tiles were still expensive after §O/§P/§Q: a
- * fixed liquid in continuous transform animation repainting behind the
- * page, six-gradient water stacks with two blurred inset glows on every
- * section card, aurora banks breathing over the first screen. Clay's
- * flat stacks sail through the same scroll — the control case again.
+/* ═══ §S · THE TOUCH BUDGET (the full-audit release) ═════════════════
+ * §R stilled the liquid on touch and the witness STILL failed, so this
+ * release follows a full read of the paint path (engine, globals,
+ * layout, hero, studio, nav — the audit is recorded in docs §S). What
+ * the audit proved: nothing in the CSS or JS hides Crystal content —
+ * no opacity gate strands a card (§N/§Q failsafes verified), no scroll
+ * writer exists (§P's doctrine held), the studio and sheets render
+ * unconditionally. The failure is a frame-budget failure: regions
+ * whose tiles cannot raster inside a fling present as empty glass,
+ * and the audit found where a phone's budget was still being spent:
  *
- * The lane: on coarse pointers the liquid holds still (its colour pools
- * still read as liquid through the clear panes — they simply stop
- * moving), the card water reduces to the §C1 corner sheen (two soft
- * gradients, no blurred inset glows), and the aurora banks rest. Tiles
- * then paint ONCE and cache; raster keeps up with the fling because
- * there is almost nothing left to rasterise. Fine pointers keep the
- * full living liquid untouched — this is a per-device budget, not a
- * redesign. (html.glass-econ still applies on top for weak hardware.) */
+ *   1 · THE BAR SAMPLED THE PAGE. The sticky .nav-glass ran
+ *       backdrop-filter blur(--surface-blur = 24px × the Frost dial)
+ *       + saturate over everything sliding beneath it, re-sampled on
+ *       every scroll frame — the most expensive scroll-time feature
+ *       on Android, and Crystal-only. On touch the bar (and the pill,
+ *       where it renders) now takes solid film at the codebase's own
+ *       no-backdrop fallback fills; the bar's text gets MORE legible,
+ *       not less. Fine pointers keep the living glass bar untouched.
+ *   2 · ONE DISC KEEPS DRIFTING. The drift is transform-only — cached
+ *       tiles translated by the compositor; it never repaints — so
+ *       §R's full stop bought little and cost the product its
+ *       defining motion. The brand disc (span 1, its shipped 20s
+ *       drift) keeps moving on touch; discs 2–3 rest as still colour
+ *       pools, and html.glass-econ still stills everything on weak
+ *       hardware (its selector outranks this lane).
+ *   3 · THE CARD WATER STAYS THINNED (§R, kept): two corner
+ *       gradients, no blurred inset glows — tiles paint once.
+ *   4 · Aurora banks and decor rest on touch; the one drifting disc
+ *       carries the whole motion budget.
+ * Fine pointers are untouched by the entire lane — a per-device
+ * budget, not a redesign. */
 @media (pointer: coarse) {
+  [data-appearance="crystal"] .nav-glass {
+    background-color: rgb(var(--ink-950) / 0.96);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  [data-appearance="crystal"] .nav-pill {
+    background-color: rgb(var(--ink-900) / 0.92);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
   [data-appearance="crystal"] .liquid-scene span,
   [data-appearance="crystal"] .aurora-drift,
   [data-appearance="crystal"] .hero-aurora-strong,
   [data-appearance="crystal"] .aurora-field .decor-orb,
   [data-appearance="crystal"] .aurora-field .glass-sphere {
     animation: none;
+  }
+  [data-appearance="crystal"] .liquid-scene span:nth-child(1) {
+    animation: liquid-drift-a 20s ease-in-out -9s infinite alternate;
   }
   [data-appearance="crystal"] .section :is(
     .surface, .surface-raised, .menu-card, .float-card,
