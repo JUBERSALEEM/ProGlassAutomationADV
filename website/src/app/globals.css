@@ -1814,14 +1814,28 @@
    * blur, and skipping it keeps every live preview of the application sharp and
    * uncomposited.
    */
+  /*
+   * §O CLEAR-PANE DOCTRINE (supersedes the trade described above, on
+   * hard witness evidence): Crystal content panes no longer sample the
+   * backdrop at all. Hundreds of backdrop-filtered surfaces over a
+   * living, moving backdrop made the compositor re-blur every pane
+   * every frame — and on real GPUs those layers thrash and flash
+   * blank (the repeated "cards disappearing" witness, Crystal-only).
+   * The panes are crystal-CLEAR instead: translucent fill + scrim +
+   * corner light over the liquid, which is also the bottle the user
+   * kept asking for — at 9-10px the old blur only ever showed as
+   * coloured haze, and a tinted clear pane reads the same while never
+   * blanking. Backdrop blur survives ONLY on bounded chrome: the nav
+   * (above), menus, and the studio sheets.
+   */
   [data-appearance="crystal"] .surface,
   [data-appearance="crystal"] .surface-raised,
   [data-appearance="crystal"] .stat-tile,
   [data-appearance="crystal"] .plate,
   [data-appearance="crystal"] .card-accent,
   [data-appearance="crystal"] .glass-primary {
-    backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-sat));
-    -webkit-backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-sat));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   /* Crystal's outer luminous hairline: the rim of light where the sheet's
@@ -2219,8 +2233,8 @@
       linear-gradient(180deg, var(--glass-hi) 0%, transparent 40%),
       linear-gradient(135deg, var(--glass-sheen) 0%, transparent 50%),
       linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%);
-    backdrop-filter: blur(16px) saturate(170%);
-    -webkit-backdrop-filter: blur(16px) saturate(170%);
+    backdrop-filter: none; /* §O clear-pane */
+    -webkit-backdrop-filter: none;
     box-shadow: var(--shadow-panel),
       inset 3px 3px 9px rgb(255 255 255 / 0.2),
       inset -4px -4px 11px rgb(6 30 42 / 0.16);
@@ -2372,8 +2386,8 @@
     background-color: rgb(var(--ink-900) / 0.5);
     border-top-color: var(--glass-ring);
     border-bottom-color: var(--glass-ring);
-    backdrop-filter: blur(18px) saturate(170%);
-    -webkit-backdrop-filter: blur(18px) saturate(170%);
+    backdrop-filter: none; /* §O clear-pane: the band tints, the liquid moves behind it */
+    -webkit-backdrop-filter: none;
   }
 
   @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {

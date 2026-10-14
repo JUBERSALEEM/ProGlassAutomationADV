@@ -73,8 +73,8 @@
     var(--glass-frost),
     linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),
     linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%);
-  backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(160%);
-  -webkit-backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(160%);
+  /* §O: no backdrop sampling on content carriers — see the doctrine at
+     the §F retune below. (Chrome re-adds its blur explicitly there.) */
   box-shadow: 0 18px 40px -18px rgb(2 1 10 / 0.45),
     inset 3px 3px 10px rgb(255 255 255 / var(--glass-spec-a, 0.12)),
     inset -4px -4px 12px rgb(2 6 14 / 0.12);
@@ -184,8 +184,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 [data-appearance="crystal"] .chip {
   background-color: rgb(var(--ink-800) / var(--surface-alpha-2));
   border-color: var(--glass-line);
-  backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(160%);
-  -webkit-backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(160%);
+  /* §O: chips are tint, not glass — no backdrop sampling. */
   box-shadow: 3px 5px 14px -6px rgb(2 1 10 / 0.35),
     inset 2px 2px 6px rgb(255 255 255 / 0.2);
 }
@@ -193,8 +192,9 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 [data-appearance="crystal"] .eyebrow-chip {
   background-color: rgb(var(--brand-500) / 0.16);
   border-color: rgb(var(--brand-400) / 0.38);
-  backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(170%);
-  -webkit-backdrop-filter: blur(calc(8px * var(--glass-frost-mult, 1))) saturate(170%);
+  /* §O: tint-only, like .chip — the chip census scaled with sections */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   box-shadow: 3px 5px 14px -6px rgb(2 1 10 / 0.35),
     inset 2px 2px 6px rgb(255 255 255 / 0.2);
 }
@@ -329,29 +329,12 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
   initial-value: 0;
 }
 
-@keyframes glass-chill {
-  to { --glass-chill: 0.45; }
-}
-
-@supports (animation-timeline: view()) {
-  [data-appearance="crystal"] .section {
-    --glass-chill: 0;
-    animation-name: glass-chill;
-    animation-duration: 1s;
-    animation-timing-function: linear;
-    animation-iteration-count: 1;
-    animation-fill-mode: both;
-    animation-timeline: view();
-    animation-range: exit 0% exit 100%;
-    transition-property: none;
-  }
-  [data-appearance="crystal"][data-theme="midnight"] .section {
-    box-shadow: inset 0 0 140px rgb(var(--ink-950, 5 4 12) / var(--glass-chill));
-  }
-  [data-appearance="crystal"][data-theme="daylight"] .section {
-    box-shadow: inset 0 0 140px rgb(var(--brand-100, 214 232 255) / var(--glass-chill));
-  }
-}
+/* §O: the view-chill ride is RETIRED. A registered custom property
+   animating on every .section repainted a 140px inset shadow across
+   full-width bands on the main thread for the whole scroll — the
+   always-on repaint class behind the lag/flicker witness. The token
+   stays registered (resting at 0) so the §C5 gate's vocabulary is
+   unchanged; nothing animates it now. */
 
 /* ── The gate that was missing: motion off = motion OFF ────────────────
    The catch light is JS-written but its paint is engine-owned, so the
@@ -771,20 +754,12 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
    crosses the viewport (cover = entry → contain → exit). Behind the
    same @supports gate as the §C5 view-chill; engines without scroll
    timelines read none of this and keep the still water + JS slosh. */
-@supports (animation-timeline: view()) {
-  [data-appearance="crystal"] .section :is(
-    .surface, .surface-raised, .menu-card, .float-card,
-    .glass-primary, .card-accent, .panel-feature, .stat-tile
-  ) {
-    animation-name: glass-flow;
-    animation-duration: 1s;
-    animation-timing-function: linear;
-    animation-iteration-count: 1;
-    animation-fill-mode: both;
-    animation-timeline: view();
-    animation-range: cover 0% cover 100%;
-  }
-}
+/* §O: the per-card view() flow ride is RETIRED (same doctrine as the
+   chill above): an inherited registered property animating on every
+   card forced style+paint of every visible pane on every scroll
+   frame. --glass-flow stays registered and read by the water layer,
+   resting at 0; the JS surge/drift slosh (bounded, self-parking)
+   remains the water's motion. */
 
 /* Reduced motion: the water rests. The flow animation is refused, and
    glassScroll.ts never writes surge/drift under reduce, so every
@@ -807,8 +782,17 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 @supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
   [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
     background-color: rgb(255 255 255 / var(--glass-lift-a));
-    backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
-    -webkit-backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
+    /* §O: content panes stay clear (no backdrop sampling — the fill +
+       scrim + corner light above is the whole material now). */
+  }
+
+  /* §O · the bounded chrome set keeps REAL frosted glass: the nav, its
+     sheets and menus, and the studio — a handful of surfaces per view,
+     which a compositor can hold without thrashing. This is the only
+     backdrop blur a content page pays for. */
+  [data-appearance="crystal"] :is(.nav-pill, .nav-sheet, .menu-card, .studio-sheet) {
+    backdrop-filter: blur(calc(14px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
+    -webkit-backdrop-filter: blur(calc(14px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
   }
 }
 
@@ -822,12 +806,12 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 /* §C3 the named surfaces: chips get presence (12px/180%), the eyebrow gets
    the brand chip's extra glow (10px/200%), the thead chills (10px). */
 [data-appearance="crystal"] .chip {
-  backdrop-filter: blur(calc(12px * var(--glass-frost-mult, 1))) saturate(180%);
-  -webkit-backdrop-filter: blur(calc(12px * var(--glass-frost-mult, 1))) saturate(180%);
+  /* §O: was 12px backdrop blur; chips are the census, not the glass. */
 }
 [data-appearance="crystal"] .eyebrow-chip {
-  backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
-  -webkit-backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
+  /* §O: tint-only (kept in step with §C1) */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 [data-appearance="crystal"] table thead tr {
   backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1)));
@@ -1141,12 +1125,10 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
      write let it). The daylight block below declares the same factor. */
   --radius-family: 1.5;
 }
-@supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
-  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
-    backdrop-filter: blur(calc(28px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.1));
-    -webkit-backdrop-filter: blur(calc(28px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.1));
-  }
-}
+/* §O: the 28px+saturate+brightness escalation that used to sit here is
+   RETIRED — being last in the cascade it silently overrode every
+   smaller radius the engine declared, which is why the fog survived
+   two "verified" radius cuts. Content carriers take no backdrop now. */
 @media (prefers-reduced-transparency: reduce) {
   [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .menu-card, .plate, .card-live, .card-glass, .panel-feature):not(option) {
     backdrop-filter: none;

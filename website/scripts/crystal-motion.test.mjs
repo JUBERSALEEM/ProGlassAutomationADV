@@ -55,24 +55,33 @@ test("G5·3 the blurl-less lane drops the gradients (§C1f parallel — no catch
   assert.ok(lane >= 1, "fallback lane never resets background-image — it would paint the G5 gradient pack without blur backing");
 });
 
-test("G5·4 view-chill exists ONLY behind @supports (animation-timeline: view())", () => {
-  let inSupports = 0, outside = 0;
-  const scan = (node, guarded) => {
+/* §O RENEGOTIATED (the witness-driven repair; the §H2-era G5·4/G7·4 pinned
+   these rides as virtues). The deep-read verdict: two registered custom
+   properties animating on EVERY card/section against scroll timelines
+   repainted every visible pane on every scroll frame (main-thread style,
+   then paint of the 140px chill shadows and the 4-layer water), and that
+   always-on churn — stacked on hundreds of backdrop-filter passes — is
+   the lag/flicker class the user reported, repeatedly, across §H2–§N.
+   The rides are retired: the DOCTRINE test now pins their ABSENCE so a
+   future "living glass" idea must argue its way back in with measured
+   frame data, not vibes. */
+test("G5·4 (§O) the view-chill ride is RETIRED: no scroll-driven animation anywhere in the engine", () => {
+  let animated = 0;
+  const scan = (node) => {
     node.each((child) => {
       if (child.type === "atrule") {
-        const g = guarded || /animation-timeline:\s*view\(\)/u.test(child.params);
-        scan(child, g);
+        assert.ok(!/animation-timeline:\s*view\(\)/u.test(child.params), "a view() @supports guard reappeared — §O retired scroll-driven property rides");
+        scan(child);
         return;
       }
       if (child.type !== "rule") return;
-      child.walkDecls(/^animation-(timeline|range)$/u, () => {
-        if (guarded) inSupports++; else outside++;
-      });
+      child.walkDecls(/^animation-(timeline|range)$/u, () => { animated++; });
     });
   };
-  scan(root, false);
-  assert.ok(inSupports >= 2, "chill animation not wired behind the @supports guard");
-  assert.equal(outside, 0, "a scroll-driven animation escaped the @supports guard");
+  scan(root);
+  assert.equal(animated, 0, "a scroll-driven animation declaration reappeared in the engine");
+  /* the token itself survives, resting at 0, so §C5 vocabulary is stable */
+  assert.ok(/@property --glass-chill/u.test(engine), "--glass-chill registration dropped — the resting token must stay readable");
 });
 
 test("G5·5 reduced-motion: the block covers the catch AND the chill (the gate G5 was told to bring)", () => {
@@ -173,7 +182,7 @@ test("G5·9 @property registers the coords (no discrete snap animating from outs
     if (a.params === "--glass-chill") chill = true;
   });
   assert.ok(mx && my, "--mx/--my not registered — var(--mx) percentages, animated by the paint, would snap");
-  assert.ok(chill, "--glass-chill not registered — view() cannot animate an unregistered var");
+  assert.ok(chill, "--glass-chill not registered — §O keeps the token registered, resting at 0, so no reader ever sees an unregistered-var fallback snap");
 });
 
 /* ── G7 · §H2 living water: the scroll stir, audited as source ───────── */
@@ -209,17 +218,15 @@ test("G7·3 the stir is gated: crystal-only, reduced-motion, economy lane", () =
   assert.ok(scroll.includes('removeProperty("--glass-surge"'), "stir never clears its channels");
 });
 
-test("G7·4 the flow ride lives behind @supports (animation-timeline: view()) and dies under reduce", () => {
-  let ride = 0;
-  root.walkAtRules("supports", (a) => {
-    if (!/animation-timeline:\s*view\(\)/u.test(a.params)) return;
-    a.walkRules((r) => {
-      if (!r.selector.includes(".section") || !r.selector.includes(".surface")) return;
-      r.walkDecls("animation-timeline", (d) => { if (/view\(\)/u.test(d.value)) ride++; });
-      r.walkDecls("animation-name", (d) => { assert.ok(/glass-flow/u.test(d.value), `section ride animates something else: ${d.value}`); });
-    });
-  });
-  assert.ok(ride >= 1, "no .section card rides the view() flow timeline");
+test("G7·4 (§O) the per-card flow ride is RETIRED; the water still reads its resting token", () => {
+  /* no card may ride a scroll timeline again (see the G5·4 header) */
+  assert.ok(!/animation-timeline:\s*view\(\)/u.test(engine), "a view() timeline reappeared — §O retired scroll-driven property rides");
+  /* the §H water layer still consumes --glass-flow at its rest value 0,
+     so the retired ride leaves still water, not a broken gradient */
+  let readsFlow = false;
+  root.walkDecls((d) => { if (/var\(--glass-flow/u.test(d.value)) readsFlow = true; });
+  assert.ok(readsFlow, "--glass-flow has no reader left — the water lost its flow channel entirely");
+  /* reduced-motion still silences card animations outright */
   let killed = false;
   root.walkAtRules("media", (a) => {
     if (!/prefers-reduced-motion/u.test(a.params)) return;
@@ -228,7 +235,7 @@ test("G7·4 the flow ride lives behind @supports (animation-timeline: view()) an
       r.walkDecls("animation", (d) => { if (/none/u.test(d.value)) killed = true; });
     });
   });
-  assert.ok(killed, "the flow ride survives reduced-motion");
+  assert.ok(killed, "reduced-motion no longer silences card animations");
 });
 
 test("G7·5 the three water channels are registered <number>s (no discrete snaps)", () => {
@@ -245,7 +252,7 @@ const reveal = readFileSync(
   "utf8",
 );
 
-test("§N·1 small carriers dropped backdrop-filter; panes kept it", () => {
+test("§N·1 small carriers dropped backdrop-filter (superseded and extended by §O below)", () => {
   let austerity = 0;
   root.walkRules((r) => {
     if (!r.selector.includes('bg-ink-') || !r.selector.includes('.card-accent')) return;
@@ -263,4 +270,41 @@ test("§N·2 the liquid rests on activity, resumes on idle (GlassLife watchdog)"
 test("§N·3 reveal can never strand a near-viewport card at opacity 0", () => {
   assert.ok(reveal.includes("failsafe"), "the reveal failsafe is gone");
   assert.ok(reveal.includes("window.innerHeight * 1.5"), "the failsafe lost its near-viewport bound");
+});
+
+/* ── §O · the clear-pane doctrine (the deep-read verdict, audited) ─────
+   Content panes do NOT sample the backdrop at all: translucent fill +
+   scrim + corner light renders the moving liquid through them, sharper
+   than any blur, and a pane that never depends on a backdrop tile can
+   never flash blank when the compositor thrashes. Backdrop blur survives
+   only on bounded chrome (nav, menus, sheets, the studio) whose count
+   does not scale with page content. These locks keep the census dead. */
+test("§O·1 panes never sample the backdrop: every blur() in the engine sits on bounded chrome", () => {
+  const CHROME = /(nav-pill|nav-sheet|menu-card|studio-sheet|nav-glass|glass-bar|eyebrow-chip|thead|input|textarea|select)/u;
+  const offenders = [];
+  root.walkRules((r) => {
+    r.walkDecls("backdrop-filter", (d) => {
+      if (!/blur\(/u.test(d.value)) return;
+      if (!CHROME.test(r.selector)) offenders.push(`${r.selector} → ${d.value}`);
+    });
+  });
+  assert.deepEqual(offenders, [], "a content pane regained backdrop blur — the flashing-card class is back");
+});
+
+test("§O·2 the chrome keeps its frost (blur survives where the census cannot scale)", () => {
+  let chrome = 0;
+  root.walkRules((r) => {
+    if (!r.selector.includes(".nav-pill") || !r.selector.includes(".menu-card")) return;
+    r.walkDecls("backdrop-filter", (d) => { if (/blur\(calc\(14px/u.test(d.value)) chrome++; });
+  });
+  assert.ok(chrome >= 1, "the chrome frost rule is gone — menus/nav lost the true material");
+});
+
+test("§O·3 chips are tint-only glass (no backdrop sampling on chip rows)", () => {
+  let chipBlur = 0;
+  root.walkRules((r) => {
+    if (!/(^|,)\s*\[data-appearance="crystal"\][^{]*\.chip\b/u.test(r.selector)) return;
+    r.walkDecls("backdrop-filter", (d) => { if (/blur\(/u.test(d.value)) chipBlur++; });
+  });
+  assert.equal(chipBlur, 0, "a chip regained backdrop blur");
 });

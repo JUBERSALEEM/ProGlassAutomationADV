@@ -310,3 +310,54 @@ the live preview remains the visual verdict.
   above, commit `32c5dbc`). Still awaiting the user: the
   default-appearance-family decision (Clay remains the default;
   switching to Crystal/Liquid is a brand call, not taken silently).
+
+### §O — the flash root cause and the clear-pane doctrine (*shipped*)
+
+**Witness.** After `32a7166`, Crystal still flashed on the live preview:
+colour cards blinked visible↔invisible, whole cards went blank, the top
+panel flashed — "the theme completely breaking." The user demanded a
+deep-read root-cause analysis instead of another blind patch.
+
+**Deep read (code, not vibes).**
+1. **Not a writer fight.** `useTheme.ts` has exactly one DOM writer
+   (`writeDom`, boot/guard/studio all converge on it); `useStudio.ts`'s
+   MutationObserver only re-applies `data-glass-vars` through rAF and
+   writes no attributes. Nothing oscillates `data-appearance`.
+2. **The real mechanism is compositing load.** Hundreds of
+   `backdrop-filter` surfaces sample a *moving* backdrop; Chromium
+   thrashes/drops those layers under sustained repaint pressure, and a
+   dropped backing tile renders as a blank or flashing pane — exactly
+   the witnessed symptom, Crystal-only, worse while scrolling/interacting.
+3. **A hidden saboteur defeated every radius cut since §F.** A second
+   `@supports` escalation block deep in the engine (~L1153 pre-§O)
+   applied `blur(28px) saturate brightness` to the *entire* carrier list
+   later in the cascade at equal specificity, silently overriding the
+   §M/§N "blur 9/10px" readings. Greps kept finding the small number and
+   reporting victory while the browser ran 28px over ~500 panes.
+
+**The doctrine (§O).** *Content panes do not sample the backdrop at all.*
+A pane is a crystal-clear bottle: translucent fill + scrim + corner
+light, with the moving liquid *seen through* it un-blurred — sharper
+than frost, and structurally unable to blank when the compositor drops
+a backdrop tile, because there is no backdrop tile. Backdrop blur
+survives only on **bounded chrome** whose count does not scale with
+page content: `.nav-pill`, `.nav-sheet`, `.menu-card`, `.studio-sheet`
+(14px), `.glass-bar` (16px), `.nav-glass::before` (24px), table `thead`
+(10px), form fields (14px carved wells). Chips (`.chip`, `.eyebrow-chip`)
+are tint-only. The 28px escalation block is deleted. The @supports-not
+(no-backdrop) lane is untouched — panes were already opaque there, and
+now the mainline matches its legibility.
+
+**The other always-on repaint engine went too.** The `view()` rides —
+`--glass-chill` frosting every `.section` edge and `--glass-flow`
+crossing every card — animated two registered custom properties on
+every card/section against scroll, forcing style+paint of every
+visible pane per scroll frame. Both are retired (tokens stay
+registered, resting at 0; the JS surge/drift slosh, which self-parks,
+remains the water's motion). `G5·4`/`G7·4` were renegotiated in the
+open to pin the rides' *absence*, and a new `§O·1` census test fails
+the suite if any non-chrome selector ever declares `blur()` again.
+
+**Honest limit.** Structural proof that panes no longer *can* blank
+from a dropped backdrop tile; the perceived flash-stability on a real
+GPU remains a live-preview judgement, as always in this audit.
