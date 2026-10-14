@@ -470,3 +470,10 @@ test("§H2·living-water: the water layer is stirred by flow, surge and drift �
     assert.match(engine, new RegExp(`@property ${channel} \\{`), `${channel} is not registered — it would snap, not flow`);
   }
 });
+
+test("§I·liquid-promotion: the registry carries the full-surface sheen, catch still on top", () => {
+  const engine = stripComments(engineCss);
+  assert.match(engine, /--glass-sheen: linear-gradient/, "the §I sheen token is gone");
+  const stack = engine.match(/background-image:\s*var\(--glass-catch\),\s*var\(--glass-sheen\),/);
+  assert.ok(stack, "the sheen is not seated under the catch light in the registry stack");
+});

@@ -76,11 +76,33 @@ coordinated light/dark pairing.
       Production build, full existing test suites, route inventory
       unchanged, no new runtime cost on production pages (prototype CSS
       loads only on the prototype route).
-- [ ] **Phase 5 — Site-wide rollout (GATED, not started).** Only after
-      the user validates the prototype: promote the `.lgx` grammar
-      into the Crystal engine family-by-family, one surface class at a
-      time, each behind its contract tests. **Do not start without
-      explicit user approval.**
+- [x] **Phase 5 — Site-wide rollout (APPROVED by user 14 Oct 2026,
+      scoped promotion shipped).** The user approved applying the
+      prototype grammar site-wide ("apply and upgrade it … full of
+      motion framer etc"). Promoted, each behind contract tests:
+      (1) **Framer Motion route-entry shell** — new
+      `src/app/[locale]/template.tsx` (`.route-shell`, opacity/y
+      entrance, reduced-motion renders children bare, noscript
+      force-visible rule; guarded by `tests/route-template.test.tsx`);
+      (2) **Crystal §I liquid promotion** — full-surface
+      `--glass-sheen` reflection layer added under the catch light in
+      the Crystal material stack (guarded by crystal-contrast
+      "§I·liquid-promotion", 94/94); (3) **spring menu entrances** —
+      shared `scale-in` retimed to a spring-out cubic-bezier.
+      Deliberately NOT churned: the Navbar's hand-rolled sliding
+      indicator (test-locked, works), the global Button (server
+      component; CSS press physics already shipped — converting it
+      would client-boundary every page), FeaturesShowcase's bespoke
+      tab system, and the prototype's distortion lens (decorative,
+      cost unjustified site-wide). NOT decided here: switching the
+      default appearance family (first-run stays Clay) — a brand
+      decision for the user, not a silent default. Verification:
+      vitest 78/78, testcrystal 94/94, crystal-motion 17/17,
+      clay-paint 249/249, test:clay 100%, tsc/lint/pointer-guard
+      clean, production build OK, all key routes 200. Pixel renders
+      unavailable this pass (sandbox wiped the Qt render rig and its
+      system libraries); entrance/sheen verified by SSR output,
+      compiled-CSS contracts and unit tests instead.
 - [x] **Phase 6 — Production refinement (master execution pass).**
       Baseline-first performance work, recorded in
       `docs/LIQUID_GLASS_PERFORMANCE_AUDIT.md`: idle orb animation
@@ -94,10 +116,11 @@ coordinated light/dark pairing.
       (dark/light/states). Mobile geometry measured in-engine at
       390 px: `scrollWidth 380 ≤ innerWidth 390`, nav scrolls
       internally (308/455) — no page overflow.
-- **Rollout gate: BLOCKED** (see audit §6) — pending real-browser
-  frame/LCP/INP evidence and an eyeball pass on frost/gloss/press in a
-  GPU browser. Print-path renders flatten `backdrop-filter` and are
-  not accepted as proof of blur quality.
+- **Rollout gate: OPENED BY USER (14 Oct 2026)** for the scoped
+  Phase 5 promotion above (see audit §6). Still open items: a
+  real-browser eyeball pass on frost/gloss/press physics, and the
+  default-family decision. Print-path renders flatten
+  `backdrop-filter` and are not accepted as proof of blur quality.
 
 ## Differences log (prototype vs references)
 

@@ -283,6 +283,12 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
     rgb(var(--glass-cyan, 103 232 249) / calc(var(--surface-specular, 0.32) * 0.2)) 38%,
     transparent 72%
   );
+  /* §I · LIQUID PROMOTION (Phase 5): the prototype's full-surface sheen,
+     promoted from .lgx. A static reflection wash across the whole pane —
+     light, not a line; it sits under the catch light and above the
+     refraction band, and the reduced-motion stack carries it too (it is
+     paint, not motion). */
+  --glass-sheen: linear-gradient(180deg, rgb(255 255 255 / 0.055) 0%, transparent 30%);
 }
 
 /* The lift carries the light: every utility carrier (chips, wells, code,
@@ -290,6 +296,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
   background-image:
     var(--glass-catch),
+    var(--glass-sheen),
     var(--glass-refract),
     var(--glass-frost),
     linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),
@@ -350,6 +357,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 @media (prefers-reduced-motion: reduce) {
   [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
     background-image:
+      var(--glass-sheen),
       var(--glass-refract),
       var(--glass-frost),
       linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),

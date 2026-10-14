@@ -138,18 +138,28 @@ recorded.
 
 ## 6. Rollout gate (master Phase 10) — status
 
-**Decision: BLOCKED.** Blocking items, honestly stated:
+**Decision: OPENED BY USER (14 Oct 2026)** for a scoped promotion.
+The user reviewed the refined prototype and directed: "apply and
+upgrade it, proceed to phase 5 and others, make it professional,
+full of motion framer etc." Shipped in that pass (see the prototype
+checklist, Phase 5): Framer Motion route-entry shell on all locale
+routes, Crystal §I full-surface sheen promotion, spring menu
+entrances — each behind contract tests, full regression green.
+
+Still open, honestly stated:
 
 1. No real-browser frame-pacing or LCP/INP evidence exists yet
-   (tooling absent in this environment — §4).
+   (tooling absent in this environment — §4). The promoted pieces
+   add no new backdrop filters and no idle animation, so the §2.1
+   Crystal surface-count liability is unchanged, not multiplied.
 2. Backdrop-filter fidelity (frost diffusion, gloss, press physics)
-   has not been eyeballed in a GPU browser; print-path renders flatten
-   `backdrop-filter` and are not accepted as proof.
-3. Crystal surface-count liability (§2.1) must be understood before
-   any rollout multiplies blurred surfaces further.
+   has not been eyeballed in a GPU browser; print-path renders
+   flatten `backdrop-filter` and are not accepted as proof.
+3. Switching the DEFAULT appearance family from Clay to
+   Crystal/Liquid remains a separate brand decision for the user —
+   not taken silently in this pass.
 
 Unblocked and verified: prototype responsiveness by construction,
-full-card frost implementation, interaction suite, build + regression.
-Rollout begins only after the user validates the live preview in a
-real browser and the gate items above are closed or explicitly
-accepted in writing in this document.
+full-card frost implementation, interaction suite, build +
+regression (vitest 78/78, testcrystal 94/94, crystal-motion 17/17,
+clay-paint 249/249, clay coverage 100%, tsc/lint/guards clean).

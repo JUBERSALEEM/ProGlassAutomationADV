@@ -239,7 +239,7 @@ const config: Config = {
       animation: {
         "reveal-up": "reveal-up 0.7s cubic-bezier(0.16,1,0.3,1) both",
         "fade-in": "fade-in 0.5s ease-out both",
-        "scale-in": "scale-in 0.55s cubic-bezier(0.16,1,0.3,1) both",
+        "scale-in": "scale-in 0.45s cubic-bezier(0.34,1.25,0.4,1) both",
         "sweep-x": "sweep-x 2.6s cubic-bezier(0.4,0,0.2,1) infinite",
         "drift-slow": "drift-slow 12s ease-in-out infinite",
         "pulse-soft": "pulse-soft 5s ease-in-out infinite",
