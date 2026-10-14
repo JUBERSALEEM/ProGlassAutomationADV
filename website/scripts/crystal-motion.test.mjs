@@ -238,3 +238,29 @@ test("G7·5 the three water channels are registered <number>s (no discrete snaps
     assert.ok(registered.has(channel), `${channel} not registered — the water would snap, not flow`);
   }
 });
+
+/* ── §N · the lag witness: austerity, idle-only liquid, reveal failsafe ── */
+const reveal = readFileSync(
+  fileURLToPath(new URL("../src/lib/useReveal.ts", import.meta.url)),
+  "utf8",
+);
+
+test("§N·1 small carriers dropped backdrop-filter; panes kept it", () => {
+  let austerity = 0;
+  root.walkRules((r) => {
+    if (!r.selector.includes('bg-ink-') || !r.selector.includes('.card-accent')) return;
+    r.walkDecls("backdrop-filter", (d) => { if (d.value.trim() === "none") austerity++; });
+  });
+  assert.ok(austerity >= 2, "the utility-carrier austerity lanes are gone — the backdrop census is back");
+});
+
+test("§N·2 the liquid rests on activity, resumes on idle (GlassLife watchdog)", () => {
+  assert.ok(glassLifeComponent.includes('rootEl.dataset.liquidRest = "1"'), "watchdog never parks the liquid");
+  assert.ok(glassLifeComponent.includes("delete rootEl.dataset.liquidRest"), "watchdog never resumes the liquid");
+  assert.ok(glassLifeComponent.includes('"pointermove"'), "watchdog ignores pointer activity");
+});
+
+test("§N·3 reveal can never strand a near-viewport card at opacity 0", () => {
+  assert.ok(reveal.includes("failsafe"), "the reveal failsafe is gone");
+  assert.ok(reveal.includes("window.innerHeight * 1.5"), "the failsafe lost its near-viewport bound");
+});

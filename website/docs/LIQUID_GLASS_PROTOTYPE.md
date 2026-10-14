@@ -269,6 +269,37 @@ clean. Same honest limit: no GPU browser in this sandbox — frame
 behaviour is engineered and contract-verified, not measured. The
 live preview remains the verdict.
 
+### Addendum 3 — §N the lag witness: austerity, idle liquid, reveal failsafe
+
+Third witness: still lagging, cards disappearing, full-card fog. The
+cross-check (motion systems read as one budget, not per-feature):
+
+1. **Disappearing cards were the reveal system, not the glass.**
+   `.reveal` cards start at opacity 0 and wait on one shared
+   IntersectionObserver with NO failsafe; on a starved main thread the
+   callback trails the scroll and cards sit invisible. useReveal now
+   force-shows any in/near-viewport card still hidden after 1.6s.
+2. **Lag was a stack of always-on repaint systems**: moving backdrop
+   under ~500 backdrop-filters (re-blur per frame), per-card view()
+   custom-property rides, scroll surge writes, pointer catch reads.
+   §N: (a) small utility carriers — the census majority — drop
+   backdrop-filter for an honest tint (at chip size blur ≡ tint);
+   panes keep real glass; (b) the liquid now flows ONLY while the
+   page is idle (GlassLife watchdog parks it on any scroll/pointer
+   activity, resumes after 1.6s idle) — motion never competes with
+   interaction for frames; (c) blur 12→10/9px, saturation 205→175%.
+3. **Full-card fog**: daylight renegotiated (user-signed, harness
+   re-proven): fill 0.74→0.62 (floor 0.68→0.55), lift 0.18→0.12,
+   scrim 0.18→0.30 — the scrim, not the milk, carries the text; every
+   daylight reading pair still clears its floor in the harness.
+   Midnight registry blur → 9px; specular softened 0.32→0.26 (the
+   pointer catch was a fog circle following the mouse).
+
+Guards: crystal-contrast 99/99, crystal-motion 20/20 (§N tests),
+clay-paint 249/249, clay 100%, vitest 78/78. Still no GPU browser in
+this sandbox: frame behaviour is engineered + source-audited, and
+the live preview remains the visual verdict.
+
 ### Unresolved / awaiting user
 - Eyeball pass on the live preview for gloss, press feel, frost blur
   and lens drag — the parts stills cannot prove.

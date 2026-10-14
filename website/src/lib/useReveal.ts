@@ -96,7 +96,19 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(options?: Reve
     bucket.targets.add(node);
     bucket.observer.observe(node);
 
+    /* §N failsafe — content must never strand at opacity: 0. The observer
+       is one-shot and normally instant, but on a jank-starved main thread
+       its callback can trail the scroll by seconds, which reads as
+       "cards disappearing". If a card is in (or near) the viewport and
+       still hidden 1.6s after mount, it is simply shown; below-fold
+       cards keep waiting for their scroll entrance as designed. */
+    const failsafe = window.setTimeout(() => {
+      const rect = node.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 1.5 && rect.bottom > 0) revealNow(node);
+    }, 1600);
+
     return () => {
+      window.clearTimeout(failsafe);
       bucket.targets.delete(node);
       bucket.observer.unobserve(node);
       if (bucket.targets.size === 0) {

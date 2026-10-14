@@ -22,7 +22,42 @@ export function GlassLife() {
     if (weak) document.documentElement.classList.add("glass-econ");
     const stopLife = initGlassLife();
     const stopScroll = initGlassScroll();
+
+    /* §N — the liquid flows only while the page is IDLE. Any scroll or
+       pointer activity parks the drift instantly ([data-liquid-rest],
+       the gate crystal-engine §M already reads); 1.6s after the last
+       activity it resumes. Rationale: a moving backdrop forces every
+       backdrop-filtered pane to re-blur per frame, so motion must never
+       compete with interaction for the frame budget — the liquid is
+       the reward for reading, not a tax on scrolling. The glassScroll
+       stir writes the same attribute while scrolling; both writers
+       only ever SET it on activity and clear it on their own settle,
+       so the worst interleaving is one resumed frame mid-scroll. */
+    const rootEl = document.documentElement;
+    let idleTimer = 0;
+    let rested = false;
+    const onActivity = () => {
+      if (!rested) {
+        rested = true;
+        rootEl.dataset.liquidRest = "1";
+      }
+      window.clearTimeout(idleTimer);
+      idleTimer = window.setTimeout(() => {
+        rested = false;
+        delete rootEl.dataset.liquidRest;
+      }, 1600);
+    };
+    const activityEvents = ["scroll", "pointermove", "pointerdown", "wheel", "touchmove"] as const;
+    for (const name of activityEvents) {
+      window.addEventListener(name, onActivity, { passive: true });
+    }
+
     return () => {
+      for (const name of activityEvents) {
+        window.removeEventListener(name, onActivity);
+      }
+      window.clearTimeout(idleTimer);
+      delete rootEl.dataset.liquidRest;
       stopScroll();
       stopLife();
     };

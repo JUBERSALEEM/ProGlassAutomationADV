@@ -705,9 +705,9 @@
     --surface-alpha-base: 0.55;
     --surface-alpha-base-2: 0.72;
     --surface-alpha-base-3: 0.92;
-    --surface-blur-base: 12px;
+    --surface-blur-base: 9px;
     --surface-sat: 200%;
-    --surface-specular-base: 0.32;
+    --surface-specular-base: 0.26;
     --card-edge: rgb(255 255 255 / 0.48);
     --tint-alpha: 0.19;
     --tint-alpha-2: 0.08;
@@ -855,8 +855,8 @@
      * the text (≥ 0.8), and the blur where it works is frosting, never the
      * load-bearing layer.
      */
-    --surface-alpha-base: 0.82;
-    --surface-alpha-base-2: 0.9;
+    --surface-alpha-base: 0.70;
+    --surface-alpha-base-2: 0.78;
     --surface-alpha-base-3: 0.99;
     --surface-blur-base: 16px;
     --surface-sat: 185%;
@@ -864,7 +864,7 @@
        catch-light is the strongest dial in this reading, and the fill is the
        weakest. The scrim is what holds the text up — on paper the legibility
        wash runs light, and it is the only layer here that is not glass. */
-    --surface-specular-base: 0.34;
+    --surface-specular-base: 0.28;
     --card-edge: rgb(255 255 255 / 0.92);
     --glass-hi: rgb(255 255 255 / 0.5);
     --glass-lo: rgb(8 74 96 / 0.12);

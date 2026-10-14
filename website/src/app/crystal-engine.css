@@ -399,8 +399,8 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
      block in globals.css declares the same numbers as `-base`; this engine
      is unlayered, so ITS aliases would beat the @supports fallback raise —
      which is why the base is plumbed through the engine, fallback aware. */
-  --surface-blur-base: 12px;
-  --surface-specular-base: 0.32;
+  --surface-blur-base: 9px;
+  --surface-specular-base: 0.26;
   --surface-alpha-base: 0.55;
   --surface-alpha-base-2: 0.72;
   --surface-alpha-base-3: 0.92;
@@ -422,18 +422,18 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 
 [data-theme="daylight"][data-appearance="crystal"] {
   --surface-blur-base: 16px;
-  --surface-specular-base: 0.34;
+  --surface-specular-base: 0.28;
   /* §C8 (user-signed, the 100/100 pass): daylight tier bases and the floor
      renegotiated — 0.82/0.90/0.99 → 0.74/0.82/0.96, clamp floor 0.80 → 0.68.
      Text rides the FILL + scrim composite either way; the contract asserts
      the composite, not the floor constant. */
-  --surface-alpha-base: 0.74;
+  --surface-alpha-base: 0.62;
   --surface-alpha-base-2: 0.82;
   --surface-alpha-base-3: 0.96;
 
   --surface-specular: min(calc(var(--surface-specular-base) * var(--glass-glint-mult, 1)), 0.55);
-  --surface-alpha: clamp(0.68, calc(var(--surface-alpha-base) * var(--glass-body-mult, 1)), 0.98);
-  --surface-alpha-2: clamp(0.68, calc(var(--surface-alpha-base-2) * var(--glass-body-mult, 1)), 0.99);
+  --surface-alpha: clamp(0.55, calc(var(--surface-alpha-base) * var(--glass-body-mult, 1)), 0.98);
+  --surface-alpha-2: clamp(0.60, calc(var(--surface-alpha-base-2) * var(--glass-body-mult, 1)), 0.99);
   --surface-alpha-3: clamp(0.68, calc(var(--surface-alpha-base-3) * var(--glass-body-mult, 1)), 1);
 }
 
@@ -526,7 +526,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
   --glass-scrim: rgb(4 6 14 / 0.38);
 
   /* ── E · Saturation behind EVERY pane goes to the pattern's 180%. */
-  --glass-sat: 195%;
+  --glass-sat: 175%;
 
   /* ── G · P16/P17/P18, the meniscus: the RIM sells liquid, not the blur —
      key light strikes the top-left curve, dies at the under-edge, and a
@@ -581,8 +581,8 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
      white scrim a notch so the pattern's airy panes stay text-safe. */
   /* §C8: the scrim catches what §C1's daylight fill returned (0.86→0.74):
      0.60 → 0.68. The light text field the contract computed is unchanged. */
-  --glass-lift-a: calc(0.18 * var(--glass-body-mult, 1));
-  --glass-scrim: rgb(255 255 255 / 0.18);
+  --glass-lift-a: calc(0.12 * var(--glass-body-mult, 1));
+  --glass-scrim: rgb(255 255 255 / 0.30);
 
   /* P16/P17/P18 daylight meniscus: brighter strike, rose relight with the
      cyan fringe at the corner (the Jack White tile's chromatic edge).
@@ -807,8 +807,8 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 @supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
   [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"], .surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent):not(option):not(.decor):not(.glass-fab) {
     background-color: rgb(255 255 255 / var(--glass-lift-a));
-    backdrop-filter: blur(calc(12px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
-    -webkit-backdrop-filter: blur(calc(12px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
+    backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
+    -webkit-backdrop-filter: blur(calc(10px * var(--glass-frost-mult, 1))) saturate(var(--glass-sat, 200%));
   }
 }
 
@@ -1127,7 +1127,7 @@ html[data-theme="midnight"][data-appearance="crystal"] .stat-tile {
 [data-appearance="crystal"] :is(.surface, .surface-raised, .stat-tile, .nav-sheet, .menu-card, .plate, .float-card, .card-live, .card-glass, .nav-pill, .panel-feature, .card-accent),
 [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option):not(.decor):not(.glass-fab) {
   --glass-edge-a: min(calc(0.85 * var(--glass-glint-mult, 1)), 1);
-  --glass-sat: min(calc(150% + 55% * var(--glass-frost-mult, 1)), 350%);
+  --glass-sat: min(calc(140% + 35% * var(--glass-frost-mult, 1)), 260%);
   --glass-edge-light: rgb(255 255 255 / var(--glass-edge-a));
   --glass-edge-dark: rgb(2 6 14 / 0.18);
 }
@@ -1457,5 +1457,28 @@ html.glass-econ[data-appearance="crystal"] .liquid-scene span {
 @media (max-width: 820px) {
   [data-appearance="crystal"] .liquid-scene span:nth-child(3) {
     display: none;
+  }
+}
+
+/* ═══ §N · BACKDROP AUSTERITY + IDLE-ONLY LIQUID (the lag witness) ══════
+ * The backdrop census was the lag: hundreds of small utility carriers
+ * (bg-ink/bg-white chips, wells, inline code) each running their own
+ * backdrop-filter. At 10–40px tall, a 10px blur is indistinguishable
+ * from tint — the blur was pure tax. Panes (the §C9 registry) keep
+ * real glass; small carriers now take an honest tinted fill instead.
+ * Paired with §M's defiltered liquid and the GlassLife idle watchdog
+ * (drift only while the page is idle), the frame budget goes back to
+ * the content. Text fields keep their carved-well blur (§C2 outranks
+ * this on specificity where it matters — and there are few of them). */
+@supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  [data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option):not(input):not(textarea):not(select):not(.decor):not(.glass-fab):not(.surface):not(.surface-raised):not(.stat-tile):not(.nav-sheet):not(.menu-card):not(.plate):not(.float-card):not(.card-live):not(.card-glass):not(.nav-pill):not(.panel-feature):not(.card-accent) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  [data-theme="midnight"][data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option):not(input):not(textarea):not(select):not(.decor):not(.glass-fab):not(.surface):not(.surface-raised):not(.stat-tile):not(.nav-sheet):not(.menu-card):not(.plate):not(.float-card):not(.card-live):not(.card-glass):not(.nav-pill):not(.panel-feature):not(.card-accent) {
+    background-color: rgb(var(--ink-900) / 0.52);
+  }
+  [data-theme="daylight"][data-appearance="crystal"] :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):not(option):not(input):not(textarea):not(select):not(.decor):not(.glass-fab):not(.surface):not(.surface-raised):not(.stat-tile):not(.nav-sheet):not(.menu-card):not(.plate):not(.float-card):not(.card-live):not(.card-glass):not(.nav-pill):not(.panel-feature):not(.card-accent) {
+    background-color: rgb(255 255 255 / 0.5);
   }
 }
