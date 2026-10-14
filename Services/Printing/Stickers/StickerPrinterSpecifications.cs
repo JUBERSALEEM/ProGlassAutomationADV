@@ -42,6 +42,10 @@ namespace ProGlassAutomation.Services.Printing.Stickers
 
         public TValue Value { get; }
         public string DisplayName { get; }
+
+        // Keep default ComboBox rendering human-readable even if a caller uses
+        // this option without an explicit DisplayMemberPath or item template.
+        public override string ToString() => DisplayName;
     }
 
     public readonly record struct StickerPrinterLimits(

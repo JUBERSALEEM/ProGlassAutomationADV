@@ -226,6 +226,7 @@
                         <TextBlock Style="{StaticResource Field.Label}" Text="Telephone"/>
                         <TextBox Text="{Binding CompanyTelephone, UpdateSourceTrigger=PropertyChanged}"
                                  MaxLength="40"
+                                 ToolTip="Official company telephone; kept separate from the representative mobile."
                                  AutomationProperties.AutomationId="ProformaInvoice.CompanyTelephone"
                                  AutomationProperties.Name="Company telephone"
                                  Style="{StaticResource TextBoxStyle}"/>

@@ -51,6 +51,21 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
         }
 
         [Fact]
+        public void PrinterAndTemplateKindOptionsHaveHumanReadableFallbackText()
+        {
+            Assert.Equal("Zebra ZT411", new StickerPrinterOption<StickerPrinterModel>(
+                StickerPrinterModel.ZebraZt411, "Zebra ZT411").ToString());
+            Assert.Equal("A4 sheet", new StickerPrinterOption<StickerOutputLayoutMode>(
+                StickerOutputLayoutMode.A4Sheet, "A4 sheet").ToString());
+            Assert.Equal("300 dpi", new StickerPrinterOption<StickerPrinterResolution>(
+                StickerPrinterResolution.Dpi300, "300 dpi").ToString());
+            Assert.Equal("Peel-off", new StickerPrinterOption<StickerMediaHandling>(
+                StickerMediaHandling.PeelOff, "Peel-off").ToString());
+            Assert.Equal("SGU · Single glass", new StickerTemplateKindOption(
+                StickerTemplateKind.Sgu, "SGU · Single glass").ToString());
+        }
+
+        [Fact]
         public void SavingDifferentTemplatesWithTheSameNameDoesNotOverwriteTheLibraryEntry()
         {
             string uniqueName = "Collision test " + Guid.NewGuid().ToString("N");
@@ -299,6 +314,79 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
                     && !string.IsNullOrWhiteSpace(element.FieldKey)),
                 element => Assert.False(string.IsNullOrWhiteSpace(
                     StickerLabelVisualFactory.ResolveFieldValue(proformaSample, element.FieldKey))));
+        }
+
+        [Fact]
+        public void SampleGlassDimensionsUpdatePreviewFieldsWithoutChangingTemplateOrSourceData()
+        {
+            var viewModel = new StickerPrintDialogViewModel(
+                Array.Empty<GlassStickerLabel>(), new StickerPrintPreferences());
+            var sample = viewModel.SelectedLabel!;
+            var sizeField = viewModel.ActiveTemplate.Elements.First(element => element.FieldKey == "SizeText");
+            double templateWidth = viewModel.ActiveTemplate.LabelWidthMm;
+            double templateHeight = viewModel.ActiveTemplate.LabelHeightMm;
+
+            viewModel.SelectedElement = sizeField;
+            Assert.True(viewModel.CanEditSampleDimensions);
+            Assert.Equal("700", viewModel.SampleWidthMmText);
+            Assert.Equal("450", viewModel.SampleHeightMmText);
+
+            viewModel.SampleWidthMmText = "820";
+            viewModel.SampleHeightMmText = "515";
+
+            Assert.Equal(820, viewModel.SelectedLabel!.WidthMm);
+            Assert.Equal(515, viewModel.SelectedLabel.HeightMm);
+            Assert.Equal("820", StickerLabelVisualFactory.ResolveFieldValue(sample, "WidthMm"));
+            Assert.Equal("515", StickerLabelVisualFactory.ResolveFieldValue(sample, "HeightMm"));
+            Assert.Equal("820 × 515 mm", StickerLabelVisualFactory.ResolveFieldValue(sample, "SizeText"));
+            Assert.Equal(templateWidth, viewModel.ActiveTemplate.LabelWidthMm);
+            Assert.Equal(templateHeight, viewModel.ActiveTemplate.LabelHeightMm);
+            Assert.False(viewModel.IsTemplateDirty);
+
+            viewModel.SelectedElement = viewModel.ActiveTemplate.Elements.First(element =>
+                element.FieldKey == "CompanyName");
+            Assert.False(viewModel.CanEditSampleDimensions);
+        }
+
+        [Fact]
+        public void SampleDimensionsRejectInvalidInputAndNeverEditProductionRows()
+        {
+            var sampleViewModel = new StickerPrintDialogViewModel(
+                Array.Empty<GlassStickerLabel>(), new StickerPrintPreferences());
+            sampleViewModel.SelectedElement = sampleViewModel.ActiveTemplate.Elements.First(element =>
+                element.FieldKey == "SizeText");
+            sampleViewModel.SampleWidthMmText = "0";
+            Assert.Equal(700, sampleViewModel.SelectedLabel!.WidthMm);
+            Assert.Contains("whole number", sampleViewModel.SampleDimensionsWarningText);
+
+            sampleViewModel.SampleWidthMmText = "805";
+            Assert.Equal(805, sampleViewModel.SelectedLabel!.WidthMm);
+            Assert.Equal(string.Empty, sampleViewModel.SampleDimensionsWarningText);
+
+            var sourceRow = new GlassStickerLabel
+            {
+                WidthMm = 740,
+                HeightMm = 460,
+                Quantity = 1
+            };
+            var productionViewModel = new StickerPrintDialogViewModel(
+                new[] { sourceRow }, new StickerPrintPreferences());
+            productionViewModel.SelectedElement = productionViewModel.ActiveTemplate.Elements.First(element =>
+                element.FieldKey == "SizeText");
+            Assert.False(productionViewModel.CanEditSampleDimensions);
+            productionViewModel.SampleWidthMmText = "999";
+            Assert.Equal(740, sourceRow.WidthMm);
+            Assert.Equal(740, productionViewModel.SelectedLabel!.WidthMm);
+            Assert.Equal(string.Empty, productionViewModel.SampleWidthMmText);
+
+            var suppliedSample = new GlassStickerLabel { WidthMm = 760, HeightMm = 480, Quantity = 1 };
+            var isolatedSampleViewModel = new StickerPrintDialogViewModel(
+                Array.Empty<GlassStickerLabel>(), new StickerPrintPreferences(), suppliedSample);
+            isolatedSampleViewModel.SelectedElement = isolatedSampleViewModel.ActiveTemplate.Elements.First(element =>
+                element.FieldKey == "SizeText");
+            isolatedSampleViewModel.SampleWidthMmText = "900";
+            Assert.Equal(760, suppliedSample.WidthMm);
+            Assert.NotSame(suppliedSample, isolatedSampleViewModel.SelectedLabel);
         }
 
         [Fact]

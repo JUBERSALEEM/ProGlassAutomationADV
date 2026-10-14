@@ -112,6 +112,10 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <DataTemplate x:Key="StickerDisplayNameOptionTemplate">
+                <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource Ov.Ink}"
+                           TextTrimming="CharacterEllipsis"/>
+            </DataTemplate>
             <DataTemplate x:Key="StickerTemplateChoiceTemplate">
                 <Grid MinWidth="240" Margin="2,3">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
@@ -274,7 +278,8 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Style family" Style="{StaticResource StickerFieldLabel}"/>
-                                        <ComboBox ItemsSource="{Binding TemplateKindOptions}" DisplayMemberPath="DisplayName"
+                                        <ComboBox ItemsSource="{Binding TemplateKindOptions}"
+                                                  ItemTemplate="{StaticResource StickerDisplayNameOptionTemplate}"
                                                   SelectedValuePath="Value" SelectedValue="{Binding TemplateKind, Mode=TwoWay}"
                                                   Style="{StaticResource StickerCombo}"/>
                                     </StackPanel>
@@ -296,11 +301,13 @@
                             <StackPanel>
                                 <TextBlock Text="PRINTER PROFILE" Style="{StaticResource StickerSectionTitle}" Margin="0,0,0,12"/>
                                 <TextBlock Text="Printer model" Style="{StaticResource StickerFieldLabel}"/>
-                                <ComboBox ItemsSource="{Binding PrinterModelOptions}" DisplayMemberPath="DisplayName"
+                                <ComboBox ItemsSource="{Binding PrinterModelOptions}"
+                                          ItemTemplate="{StaticResource StickerDisplayNameOptionTemplate}"
                                           SelectedValuePath="Value" SelectedValue="{Binding PrinterModel, Mode=TwoWay}"
                                           Style="{StaticResource StickerCombo}" Margin="0,0,0,12"/>
                                 <TextBlock Text="Page layout" Style="{StaticResource StickerFieldLabel}"/>
-                                <ComboBox ItemsSource="{Binding OutputLayoutOptions}" DisplayMemberPath="DisplayName"
+                                <ComboBox ItemsSource="{Binding OutputLayoutOptions}"
+                                          ItemTemplate="{StaticResource StickerDisplayNameOptionTemplate}"
                                           SelectedValuePath="Value" SelectedValue="{Binding OutputLayoutMode, Mode=TwoWay}"
                                           Style="{StaticResource StickerCombo}" Margin="0,0,0,10"/>
                                 <Border x:Name="SheetLayoutSettingsPanel" Background="{DynamicResource Ov.Soft}"
@@ -333,13 +340,15 @@
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                     <StackPanel>
                                         <TextBlock Text="Resolution" Style="{StaticResource StickerFieldLabel}"/>
-                                        <ComboBox ItemsSource="{Binding PrinterResolutionOptions}" DisplayMemberPath="DisplayName"
+                                        <ComboBox ItemsSource="{Binding PrinterResolutionOptions}"
+                                                  ItemTemplate="{StaticResource StickerDisplayNameOptionTemplate}"
                                                   SelectedValuePath="Value" SelectedValue="{Binding PrinterResolution, Mode=TwoWay}"
                                                   IsEnabled="{Binding IsZt411Profile}" Style="{StaticResource StickerCombo}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Media handling" Style="{StaticResource StickerFieldLabel}"/>
-                                        <ComboBox ItemsSource="{Binding MediaHandlingOptions}" DisplayMemberPath="DisplayName"
+                                        <ComboBox ItemsSource="{Binding MediaHandlingOptions}"
+                                                  ItemTemplate="{StaticResource StickerDisplayNameOptionTemplate}"
                                                   SelectedValuePath="Value" SelectedValue="{Binding MediaHandling, Mode=TwoWay}"
                                                   IsEnabled="{Binding IsZt411Profile}" Style="{StaticResource StickerCombo}"/>
                                     </StackPanel>
@@ -662,6 +671,56 @@
                                             Style="{StaticResource StickerButton}" MinHeight="32" Padding="9,4"/>
                                 </StackPanel>
                             </Grid>
+                            <Border x:Name="SampleSizeEditorPanel" Margin="0,8,0,0" Padding="10,8"
+                                    Background="{DynamicResource Ov.Soft}" BorderBrush="{DynamicResource Ov.Line}"
+                                    BorderThickness="1" CornerRadius="10" Visibility="Collapsed">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0" Margin="0,0,0,6">
+                                        <TextBlock Text="EDIT SAMPLE GLASS SIZE" FontSize="9" FontWeight="Bold"
+                                                   Foreground="{DynamicResource Ov.Accent}"/>
+                                        <TextBlock Text="Preview-only values; saved templates and printer stock stay unchanged."
+                                                   FontSize="10" Foreground="{DynamicResource Ov.Muted}"
+                                                   TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="10"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Glass width (mm)" Style="{StaticResource StickerFieldLabel}"/>
+                                            <TextBox Text="{Binding SampleWidthMmText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                     Style="{StaticResource StickerInput}"
+                                                     ToolTip="Enter a whole-number sample width from 1 to 10,000 mm."/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Glass height (mm)" Style="{StaticResource StickerFieldLabel}"/>
+                                            <TextBox Text="{Binding SampleHeightMmText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                     Style="{StaticResource StickerInput}"
+                                                     ToolTip="Enter a whole-number sample height from 1 to 10,000 mm."/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <TextBlock Grid.Row="2" Text="{Binding SampleDimensionsWarningText}"
+                                               FontSize="10" Foreground="{DynamicResource Ov.Warning}"
+                                               TextWrapping="Wrap" Margin="0,5,0,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SampleDimensionsWarningText}" Value="">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Border>
                         </StackPanel>
                         <Border x:Name="PreviewSurface" Grid.Row="1" Background="{DynamicResource Ov.Soft}"
                                 BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1" CornerRadius="14" Padding="14">

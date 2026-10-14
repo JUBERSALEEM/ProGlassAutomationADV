@@ -13,6 +13,8 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
     public class StickerPrintDialogViewModel : ViewModelBase
     {
         public const long MaximumBatchSize = StickerPrintEngine.MaximumBatchSize;
+        private const int MinimumSampleDimensionMm = 1;
+        private const int MaximumSampleDimensionMm = 10_000;
 
         private string _widthMmText;
         private string _heightMmText;
@@ -20,6 +22,10 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         private string _sheetMarginMmText;
         private string _sheetGapMmText;
         private string _fontSizePtText;
+        private string _sampleWidthMmText = string.Empty;
+        private string _sampleHeightMmText = string.Empty;
+        private string _sampleWidthValidationMessage = string.Empty;
+        private string _sampleHeightValidationMessage = string.Empty;
         private StickerPrinterModel _printerModel;
         private StickerOutputLayoutMode _outputLayoutMode;
         private StickerPrinterResolution _printerResolution;
@@ -131,10 +137,14 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             }
 
             _previewLabel = Items.Count == 0
-                ? previewLabel ?? StickerTemplateSampleFactory.Create(_activeTemplate.Kind)
+                ? previewLabel == null
+                    ? StickerTemplateSampleFactory.Create(_activeTemplate.Kind)
+                    : StickerLabelSequence.CopyWithPrintedQuantity(previewLabel, previewLabel.PrintedQuantity)
                 : null;
             _selectedLabel = Items.FirstOrDefault() ?? _previewLabel;
             _selectedSourceRowIndex = Items.Count == 0 ? -1 : 0;
+            _sampleWidthMmText = _previewLabel?.WidthMm.ToString(CultureInfo.CurrentCulture) ?? string.Empty;
+            _sampleHeightMmText = _previewLabel?.HeightMm.ToString(CultureInfo.CurrentCulture) ?? string.Empty;
 
             _widthMmText = Format(_activeTemplate.LabelWidthMm);
             _heightMmText = Format(_activeTemplate.LabelHeightMm);
@@ -198,6 +208,14 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         public ObservableCollection<StickerLayoutElement> TemplateElements => _activeTemplate.Elements;
         public StickerLayoutTemplate ActiveTemplate => _activeTemplate;
         public bool IsSamplePreview => Items.Count == 0;
+        /// <summary>
+        /// Sample glass dimensions are editable only when the preview selection
+        /// is one of the live width/height fields on a test-only sample label.
+        /// The production source collection is never an edit target.
+        /// </summary>
+        public bool CanEditSampleDimensions => IsSamplePreview
+            && SelectedElement is { Kind: StickerTemplateElementKind.Text } element
+            && IsSampleDimensionField(element.FieldKey);
         public bool CanNavigateSourceRows => Items.Count > 1;
         public bool CanSelectPreviousSourceRow => CanNavigateSourceRows && _selectedSourceRowIndex > 0;
         public bool CanSelectNextSourceRow => CanNavigateSourceRows
@@ -208,6 +226,32 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 ? "No source row selected"
                 : "Source row " + (_selectedSourceRowIndex + 1).ToString("N0", CultureInfo.CurrentCulture)
                     + " of " + Items.Count.ToString("N0", CultureInfo.CurrentCulture);
+
+        public string SampleWidthMmText
+        {
+            get => _sampleWidthMmText;
+            set
+            {
+                if (!IsSamplePreview || !Set(ref _sampleWidthMmText, value ?? string.Empty, notifyBatch: false))
+                    return;
+                UpdateSampleDimension(value ?? string.Empty, isWidth: true);
+            }
+        }
+
+        public string SampleHeightMmText
+        {
+            get => _sampleHeightMmText;
+            set
+            {
+                if (!IsSamplePreview || !Set(ref _sampleHeightMmText, value ?? string.Empty, notifyBatch: false))
+                    return;
+                UpdateSampleDimension(value ?? string.Empty, isWidth: false);
+            }
+        }
+
+        public string SampleDimensionsWarningText => string.Join(" ",
+            new[] { _sampleWidthValidationMessage, _sampleHeightValidationMessage }
+                .Where(message => !string.IsNullOrWhiteSpace(message)));
 
         public StickerTemplateChoice? SelectedTemplateChoice
         {
@@ -435,6 +479,7 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasSelectedElement));
                 OnPropertyChanged(nameof(CanMoveSelectedElement));
+                OnPropertyChanged(nameof(CanEditSampleDimensions));
             }
         }
 
@@ -965,13 +1010,46 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             return true;
         }
 
+        private void UpdateSampleDimension(string text, bool isWidth)
+        {
+            bool isValid = TryParseSampleDimension(text, out int dimension);
+            string validationMessage = isValid
+                ? string.Empty
+                : (isWidth ? "Glass width" : "Glass height")
+                    + " must be a whole number between 1 and 10,000 mm.";
+            if (isWidth)
+                _sampleWidthValidationMessage = validationMessage;
+            else
+                _sampleHeightValidationMessage = validationMessage;
+            OnPropertyChanged(nameof(SampleDimensionsWarningText));
+
+            if (!isValid || _previewLabel == null) return;
+            int current = isWidth ? _previewLabel.WidthMm : _previewLabel.HeightMm;
+            if (current == dimension) return;
+
+            if (isWidth) _previewLabel.WidthMm = dimension;
+            else _previewLabel.HeightMm = dimension;
+            // This refreshes the selected sample's rendered WidthMm, HeightMm
+            // and SizeText fields. It deliberately does not dirty or resize the
+            // saved sticker template and cannot reach production source rows.
+            OnPropertyChanged(nameof(SelectedLabel));
+        }
+
         private void UpdateSamplePreviewForTemplate()
         {
             if (Items.Count > 0) return;
 
             _previewLabel = StickerTemplateSampleFactory.Create(_activeTemplate.Kind);
             _selectedLabel = _previewLabel;
+            _sampleWidthMmText = _previewLabel.WidthMm.ToString(CultureInfo.CurrentCulture);
+            _sampleHeightMmText = _previewLabel.HeightMm.ToString(CultureInfo.CurrentCulture);
+            _sampleWidthValidationMessage = string.Empty;
+            _sampleHeightValidationMessage = string.Empty;
             OnPropertyChanged(nameof(SelectedLabel));
+            OnPropertyChanged(nameof(SampleWidthMmText));
+            OnPropertyChanged(nameof(SampleHeightMmText));
+            OnPropertyChanged(nameof(SampleDimensionsWarningText));
+            OnPropertyChanged(nameof(CanEditSampleDimensions));
             OnPropertyChanged(nameof(SourceRowPositionText));
         }
 
@@ -1004,6 +1082,7 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             OnPropertyChanged(nameof(SelectedElement));
             OnPropertyChanged(nameof(HasSelectedElement));
             OnPropertyChanged(nameof(CanMoveSelectedElement));
+            OnPropertyChanged(nameof(CanEditSampleDimensions));
             OnPropertyChanged(nameof(WidthMmText));
             OnPropertyChanged(nameof(HeightMmText));
             OnPropertyChanged(nameof(MarginMmText));
@@ -1103,8 +1182,13 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
 
         private void OnTemplateElementChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (ReferenceEquals(sender, SelectedElement) && e.PropertyName == nameof(StickerLayoutElement.IsLocked))
-                OnPropertyChanged(nameof(CanMoveSelectedElement));
+            if (ReferenceEquals(sender, SelectedElement))
+            {
+                if (e.PropertyName == nameof(StickerLayoutElement.IsLocked))
+                    OnPropertyChanged(nameof(CanMoveSelectedElement));
+                if (e.PropertyName == nameof(StickerLayoutElement.FieldKey))
+                    OnPropertyChanged(nameof(CanEditSampleDimensions));
+            }
             OnPropertyChanged(nameof(EditorRevision));
             if (!_loadingTemplate) MarkTemplateDirty();
         }
@@ -1116,6 +1200,19 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             IsTemplateDirty = true;
             OnPropertyChanged(nameof(ActiveTemplate));
             OnPropertyChanged(nameof(EditorRevision));
+        }
+
+        private static bool IsSampleDimensionField(string? fieldKey) =>
+            string.Equals(fieldKey, "SizeText", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(fieldKey, "WidthMm", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(fieldKey, "HeightMm", StringComparison.OrdinalIgnoreCase);
+
+        private static bool TryParseSampleDimension(string text, out int dimension)
+        {
+            bool parsed = int.TryParse(text, NumberStyles.Integer, CultureInfo.CurrentCulture, out dimension)
+                || int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out dimension);
+            return parsed && dimension >= MinimumSampleDimensionMm
+                && dimension <= MaximumSampleDimensionMm;
         }
 
         private static bool TryParseNumber(string text, out double value)

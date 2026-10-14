@@ -222,6 +222,8 @@ namespace ProGlassAutomation.Services.Printing.Stickers
 
         public StickerTemplateKind Value { get; }
         public string DisplayName { get; }
+
+        public override string ToString() => DisplayName;
     }
 
     public sealed class StickerTemplateChoice : INotifyPropertyChanged

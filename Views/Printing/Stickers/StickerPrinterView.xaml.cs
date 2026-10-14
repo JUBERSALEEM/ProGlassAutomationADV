@@ -103,7 +103,7 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             PrintSampleButton.Visibility = _designOnly ? Visibility.Visible : Visibility.Collapsed;
             CloseButton.Visibility = _designOnly ? Visibility.Collapsed : Visibility.Visible;
             PreviewExplanation.Text = _designOnly
-                ? "Template-specific sample values only. Print sample sends one test label and never uses PI/job data; use Step 5 or Optimization for production."
+                ? "Template-specific sample values only. Select the glass-size field to edit sample width/height. Print sample sends one test label and never uses PI/job data; use Step 5 or Optimization for production."
                 : "Click to select; drag to move. Selected objects show resize handles. Delete removes the selected object; arrow keys nudge it by 1 mm.";
             SourceLabelsHeader.Text = _designOnly ? "SAMPLE DATA · NO SOURCE ROWS" : "REAL SOURCE ROWS";
             SourceEmptyState.Text = _designOnly
@@ -156,13 +156,17 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             if (_isResizing && e.PropertyName == nameof(StickerPrintDialogViewModel.EditorRevision))
                 return;
             if (e.PropertyName == nameof(StickerPrintDialogViewModel.SelectedElement)
-                || e.PropertyName == nameof(StickerPrintDialogViewModel.HasSelectedElement))
+                || e.PropertyName == nameof(StickerPrintDialogViewModel.HasSelectedElement)
+                || e.PropertyName == nameof(StickerPrintDialogViewModel.CanEditSampleDimensions))
             {
                 UpdateSelectionOutlines();
                 return;
             }
             if (e.PropertyName == nameof(StickerPrintDialogViewModel.StatusMessage)
-                || e.PropertyName == nameof(StickerPrintDialogViewModel.IsTemplateDirty))
+                || e.PropertyName == nameof(StickerPrintDialogViewModel.IsTemplateDirty)
+                || e.PropertyName == nameof(StickerPrintDialogViewModel.SampleWidthMmText)
+                || e.PropertyName == nameof(StickerPrintDialogViewModel.SampleHeightMmText)
+                || e.PropertyName == nameof(StickerPrintDialogViewModel.SampleDimensionsWarningText))
                 return;
             RefreshPreview();
         }
@@ -381,6 +385,7 @@ namespace ProGlassAutomation.Views.Printing.Stickers
         {
             if (_viewModel == null) return;
             UpdatePreviewHeading();
+            UpdateSampleSizeEditorVisibility();
             PreviewCountBadge.Text = _designOnly
                 ? SamplePreviewBadgeText()
                 : _viewModel.EstimatedPrintPlanSummaryText;
@@ -399,7 +404,7 @@ namespace ProGlassAutomation.Views.Printing.Stickers
 
             UpdatePreviewNavigation();
             PreviewExplanation.Text = _designOnly
-                ? "Template-specific sample values only. Print sample sends one test label and never uses PI/job data; use Step 5 or Optimization for production."
+                ? "Template-specific sample values only. Select the glass-size field to edit sample width/height. Print sample sends one test label and never uses PI/job data; use Step 5 or Optimization for production."
                 : "Click to select; drag to move. Selected objects show resize handles. Delete removes the selected object; arrow keys nudge it by 1 mm.";
             var label = _viewModel.SelectedLabel;
             if (label == null)
@@ -452,11 +457,19 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             }
         }
 
+        private void UpdateSampleSizeEditorVisibility()
+        {
+            if (_viewModel == null) return;
+            SampleSizeEditorPanel.Visibility = _viewModel.CanEditSampleDimensions && !_showSheetPreview
+                ? Visibility.Visible : Visibility.Collapsed;
+        }
+
         private void UpdateSelectionOutlines()
         {
             if (_viewModel == null) return;
             SelectedElementCard.Visibility = _viewModel.SelectedStudioTabIndex == 0
                 && _viewModel.HasSelectedElement ? Visibility.Visible : Visibility.Collapsed;
+            UpdateSampleSizeEditorVisibility();
             if (_editorCanvas == null) return;
             RemoveResizeThumbs();
             foreach (var border in _editorCanvas.Children.OfType<Border>())
@@ -880,6 +893,15 @@ namespace ProGlassAutomation.Views.Printing.Stickers
             if (!_designOnly || _viewModel.Items.Count > 0)
             {
                 _viewModel.StatusMessage = "Sample printing is available only in the standalone, no-source design studio.";
+                return;
+            }
+            if (!string.IsNullOrWhiteSpace(_viewModel.SampleDimensionsWarningText))
+            {
+                string dimensionError = "Correct the sample glass dimensions before printing. "
+                    + _viewModel.SampleDimensionsWarningText;
+                _viewModel.StatusMessage = dimensionError;
+                MessageBox.Show(FindOwnerWindow(), dimensionError, "Check sample dimensions",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             if (_viewModel.SelectedLabel is not { } sample
