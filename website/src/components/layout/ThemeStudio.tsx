@@ -159,8 +159,15 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
           id="theme-studio"
           role="dialog"
           aria-label={t("Theme and colour")}
-          className="no-print menu-card animate-scale-in fixed inset-x-3 bottom-20 z-50 max-h-[78vh] overflow-y-auto rounded-panel p-4 shadow-raised sm:inset-x-auto sm:right-5 sm:w-[24rem] sm:p-5"
+          className="no-print menu-card fixed inset-x-3 bottom-20 z-50 rounded-panel shadow-raised sm:inset-x-auto sm:right-5 sm:w-[24rem]"
         >
+          {/* §R: the frosted shell and the scroller are different boxes.
+              backdrop-filter + overflow-y-auto + a transform entrance on
+              ONE element is the most fragile paint stack on the page —
+              on the witness phone the sheet opened as an empty frosted
+              slab. The shell carries the material; the inner box scrolls
+              and fades (opacity only). */}
+          <div className="animate-fade-in max-h-[78vh] overflow-y-auto p-4 sm:p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="eyebrow">Theme &amp; colour</p>
@@ -886,6 +893,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
             <p className="text-right font-mono text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-text-muted">
               Saved · {t(activeMode.label)} · {t(activeFamily.label)}
             </p>
+          </div>
           </div>
         </div>
       ) : null}

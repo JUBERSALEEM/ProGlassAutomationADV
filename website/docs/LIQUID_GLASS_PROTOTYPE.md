@@ -444,3 +444,32 @@ lane's 1.6s near-viewport failsafe. The background animation section
 itself (backdrop artwork, aurora banks, liquid drift) is unchanged in
 kind — it is still transform-only — it simply can no longer be
 *exposed* as empty space by stray ornaments.
+
+### §R — the coarse-pointer stability lane (*shipped*)
+
+**Witness.** Two more phone screenshots: at rest the hero preview
+paints fully; after a short scroll, whole regions present as raw
+background — the hero artwork showing through tiles the rasteriser had
+not reached. The theme studio, opened, presented as an empty frosted
+slab over the hero.
+
+**Verdict.** Tile-raster starvation (checkerboarding) on the device:
+Crystal's tiles were still paint-expensive after §O/§P/§Q — a fixed
+liquid in continuous transform animation behind the page, six-gradient
+water stacks with blurred inset glows on every section card, aurora
+banks breathing over the first screen. Clay's flat stacks sail through
+the same fling; the control case convicts the paint weight, not the
+layout. Separately, the studio panel stacked backdrop-filter,
+`overflow-y-auto` and a transform entrance on one box — the most
+fragile paint combination on the page.
+
+**The lane.** `@media (pointer: coarse)` at the engine's tail: the
+liquid holds still (its pools still read as colour through the clear
+panes), card water reduces to the §C1 two-gradient corner sheen with
+no inset glows, aurora banks rest. Tiles paint once and cache; the
+rasteriser keeps up because there is little left to rasterise. Fine
+pointers keep the full living liquid — this is a device budget, not a
+redesign. The studio's frosted shell and its scroller are now
+different boxes, and the scroller fades (opacity) instead of scaling.
+G6·1 renegotiated in the open to allow exactly the lane's three
+properties beside the two dials.

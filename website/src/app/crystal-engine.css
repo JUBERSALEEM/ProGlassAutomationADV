@@ -1465,3 +1465,45 @@ html.glass-econ[data-appearance="crystal"] .liquid-scene span {
     background-color: rgb(255 255 255 / 0.5);
   }
 }
+
+/* ═══ §R · THE COARSE-POINTER STABILITY LANE (the checkerboard witness) ══
+ * The phone screenshots, read together: at rest every card paints; during
+ * and just after a scroll, whole regions present as raw background — the
+ * hero artwork showing through tiles the rasteriser had not reached yet.
+ * Android Chrome checkerboards when tile raster cannot keep up with a
+ * fling, and Crystal's tiles were still expensive after §O/§P/§Q: a
+ * fixed liquid in continuous transform animation repainting behind the
+ * page, six-gradient water stacks with two blurred inset glows on every
+ * section card, aurora banks breathing over the first screen. Clay's
+ * flat stacks sail through the same scroll — the control case again.
+ *
+ * The lane: on coarse pointers the liquid holds still (its colour pools
+ * still read as liquid through the clear panes — they simply stop
+ * moving), the card water reduces to the §C1 corner sheen (two soft
+ * gradients, no blurred inset glows), and the aurora banks rest. Tiles
+ * then paint ONCE and cache; raster keeps up with the fling because
+ * there is almost nothing left to rasterise. Fine pointers keep the
+ * full living liquid untouched — this is a per-device budget, not a
+ * redesign. (html.glass-econ still applies on top for weak hardware.) */
+@media (pointer: coarse) {
+  [data-appearance="crystal"] .liquid-scene span,
+  [data-appearance="crystal"] .aurora-drift,
+  [data-appearance="crystal"] .hero-aurora-strong,
+  [data-appearance="crystal"] .aurora-field .decor-orb,
+  [data-appearance="crystal"] .aurora-field .glass-sphere {
+    animation: none;
+  }
+  [data-appearance="crystal"] .section :is(
+    .surface, .surface-raised, .menu-card, .float-card,
+    .glass-primary, .card-accent, .panel-feature, .stat-tile
+  )::before,
+  [data-theme="daylight"][data-appearance="crystal"] .section :is(
+    .surface, .surface-raised, .menu-card, .float-card,
+    .glass-primary, .card-accent, .panel-feature, .stat-tile
+  )::before {
+    background:
+      radial-gradient(120% 90% at 8% 0%, rgb(255 255 255 / 0.13) 0%, transparent 46%),
+      radial-gradient(90% 80% at 96% 104%, var(--glass-relight-1, rgb(120 220 255 / 0.13)) 0%, transparent 55%);
+    box-shadow: none;
+  }
+}

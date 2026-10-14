@@ -96,3 +96,28 @@ describe("§Q top panel (hero frame rebuild)", () => {
     expect(src).toContain("}, 1600);");
   });
 });
+
+/**
+ * §R · the coarse-pointer stability lane + studio paint stack: the
+ * liquid and the card water rest on touch devices (tiles paint once
+ * instead of chasing a fling), and the studio's frosted shell never
+ * shares a box with its scroller.
+ */
+describe("§R stability lane (coarse pointers)", () => {
+  const read = (rel: string) => readFileSync(resolve(process.cwd(), rel), "utf8");
+
+  it("the engine carries the coarse lane: liquid stills, water thins", () => {
+    const engine = read("src/app/crystal-engine.css");
+    const lane = engine.slice(engine.indexOf("@media (pointer: coarse)"));
+    expect(lane).toContain(".liquid-scene span");
+    expect(lane).toContain("animation: none");
+    expect(lane).toContain("box-shadow: none");
+  });
+
+  it("the studio shell and its scroller are different boxes", () => {
+    const studio = read("src/components/layout/ThemeStudio.tsx");
+    expect(studio).not.toContain("menu-card animate-scale-in fixed");
+    expect(studio).not.toContain("overflow-y-auto rounded-panel");
+    expect(studio).toContain("animate-fade-in max-h-[78vh] overflow-y-auto");
+  });
+});

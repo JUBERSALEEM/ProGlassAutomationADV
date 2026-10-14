@@ -137,7 +137,7 @@ test("G5·8 one listener, rAF-coalesced, style props only — the pointer-guard 
 
 
 /* ── G6 · the coarse-pointer mitigation, audited from the engine ─────── */
-test("G6·1 the coarse-pointer block exists, crystal-scoped, and touches ONLY the frost dial", () => {
+test("G6·1 the coarse-pointer blocks exist, crystal-scoped: dials + the §R stability lane only", () => {
   let inMedia = 0;
   const decls = [];
   root.walkAtRules("media", (a) => {
@@ -146,9 +146,15 @@ test("G6·1 the coarse-pointer block exists, crystal-scoped, and touches ONLY th
     a.walkDecls((d) => decls.push(d.prop));
   });
   assert.ok(inMedia >= 1, "no (pointer: coarse) mitigation block in the engine");
-  /* §F6 evolution: coarse blocks may touch the crystal DIAL SET (frost and
-   the liquid brightness) — never properties. Dials, not declarations. */
-  assert.ok(decls.includes("--glass-frost-mult") && new Set(["--glass-frost-mult", "--glass-bright"]).isSupersetOf(new Set(decls)), `coarse block touches the dial set only, got ${decls.join(", ")}`);
+  /* §F6 wrote the dial half (frost, brightness). §R — the checkerboard
+     witness — extended the lane in the open: on coarse pointers the
+     liquid stills (animation), the card water thins to the corner sheen
+     (background) and its blurred inset glows go (box-shadow). Those
+     three properties and the two dials are the WHOLE allowance; the
+     lane must never grow into a second design system. */
+  const ALLOWED = new Set(["--glass-frost-mult", "--glass-bright", "animation", "background", "box-shadow"]);
+  assert.ok(decls.includes("--glass-frost-mult") && ALLOWED.isSupersetOf(new Set(decls)), `coarse lane touches its allowance only, got ${decls.join(", ")}`);
+  assert.ok(decls.includes("animation"), "the §R stills are gone from the coarse lane — the liquid moves behind flings again");
 });
 
 test("G6·2 the radius step rests at 0.6 — strong enough to matter, small enough to stay glass", () => {
