@@ -1074,7 +1074,14 @@
 
   html {
     scroll-behavior: smooth;
-  
+
+    /* §V: the top boundary is a wall, not a trampoline. Without this,
+       Chrome/Android answers a fling into scrollY=0 with the overscroll
+       stretch, and a continued pull with pull-to-refresh — a full page
+       reload: both read as a flash at the exact moment the visitor
+       arrives back at the top. An app-like page owns its boundaries. */
+    overscroll-behavior: none;
+
   /* Anchor targets must clear the sticky header. */
     scroll-padding-top: calc(var(--nav-height) + 1.5rem);
     -webkit-text-size-adjust: 100%;

@@ -150,4 +150,9 @@ describe("§R+§S touch budget (coarse pointers)", () => {
     expect(globals).toContain(".hero-field[data-live] .hero-backdrop-parallax");
     expect(globals).toContain(".hero-field[data-live] .hero-banner-parallax");
   });
+
+  it("the top boundary is a wall — no overscroll flash or pull-to-refresh", () => {
+    const globals = read("src/app/globals.css");
+    expect(globals).toContain("overscroll-behavior: none");
+  });
 });

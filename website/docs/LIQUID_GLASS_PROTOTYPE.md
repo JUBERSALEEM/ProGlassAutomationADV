@@ -610,3 +610,31 @@ unchanged (in Crystal the flip now produces identical output).
 
 **Locked.** Two DOM tests in `tests/navbar.test.tsx`: Crystal wears
 `nav-glass` at rest; Clay still starts transparent.
+
+### §V — the boundary itself (*shipped*)
+
+**Witness.** After §U: "still."
+
+**What the re-check found.** Every component-level suspect at the
+top has now been read and cleared (§S–§U), and there is no service
+worker (nothing in `public/`, no registration) — the witness's phone
+receives fresh builds, stamped per commit in the CSS chunk URLs.
+What was still missing is document-level: **no `overscroll-behavior`
+anywhere**. Chrome/Android therefore answers a fling into
+`scrollY = 0` with the overscroll stretch, and a continued pull with
+pull-to-refresh — a full page reload. Both read as a flash at the
+exact moment of arriving back at the top, in every family; the
+Crystal page just makes it loudest (liquid + glass over the reload
+fade). 
+
+**The fix.** `overscroll-behavior: none` on `html` in the base
+layer. The top is a wall: no stretch, no glow, no reload. Family-
+independent, one declaration, guarded in
+`tests/motion-reveal.test.tsx`.
+
+**Standing caveat.** If flashing persists after §V, the code-level
+scroll path is exhausted: no scroll writer, no re-hiding reveal, no
+boundary gesture, no continuous sampler on touch remains. The next
+evidence must come from the device (what exactly flashes, once or
+repeatedly, which handset) — the witness will be asked rather than
+another patch shipped blind.
