@@ -1,0 +1,273 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+ * LIQUID GLASS PROTOTYPE — scoped material (.lgx)
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * The Phase-1 prototype for the Liquid Glass redesign track (see
+ * docs/LIQUID_GLASS_PROTOTYPE.md). EVERY selector below is rooted at
+ * `.lgx`, the prototype stage's own class: no production surface can
+ * inherit these rules, and this sheet is imported only by the prototype
+ * route, so no other page pays a byte for it.
+ *
+ * Material grammar, distilled from the two references:
+ *   near-clear panes over a sculptural/vibrant backdrop · a thin
+ *   luminous edge that is light, not a stroke · layered transparency
+ *   tiers · pointer gloss · pill switches with sliding indicators ·
+ *   circular glass icon buttons · selected rows raised as glass pills.
+ *
+ * The material is driven by three lab dials so it can be validated, not
+ * just admired: --lgx-frost (backdrop blur), --lgx-clarity (fill alpha),
+ * and the SVG displacement intensity (attribute-side, in the component).
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+.lgx {
+  --lgx-frost: 16px;
+  --lgx-clarity: 0.55;
+  --lgx-ink: rgb(248 247 255);
+  --lgx-ink-2: rgb(205 200 235 / 0.82);
+  --lgx-edge: rgb(255 255 255 / 0.42);
+  --lgx-fill-hi: rgb(255 255 255 / calc(0.20 * var(--lgx-clarity) + 0.07));
+  --lgx-fill-lo: rgb(255 255 255 / calc(0.08 * var(--lgx-clarity) + 0.02));
+  --lgx-shadow: 0 24px 60px -18px rgb(2 0 16 / 0.55);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 2rem;
+  color: var(--lgx-ink);
+  background: linear-gradient(150deg, #150b33 0%, #1d0f42 46%, #0a0618 100%);
+}
+
+.lgx[data-mode="light"] {
+  --lgx-ink: rgb(24 16 54);
+  --lgx-ink-2: rgb(52 40 96 / 0.78);
+  --lgx-edge: rgb(255 255 255 / 0.75);
+  --lgx-fill-hi: rgb(255 255 255 / calc(0.55 * var(--lgx-clarity) + 0.18));
+  --lgx-fill-lo: rgb(255 255 255 / calc(0.30 * var(--lgx-clarity) + 0.10));
+  --lgx-shadow: 0 24px 60px -22px rgb(88 60 160 / 0.38);
+  background: linear-gradient(150deg, #efeaff 0%, #e2d9fb 48%, #cfc2f2 100%);
+}
+
+/* Site heading rules set their own colour and beat inheritance; inside
+   the stage, headings speak the scene's ink in both modes. */
+.lgx :is(h1, h2, h3, h4) { color: var(--lgx-ink); }
+
+/* ── Backdrop: sculptural folds + vibrant geometry (the references'
+   stage). Pure gradient paint: no image assets, no canvas. ─────────── */
+.lgx-folds {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  background:
+    radial-gradient(120% 90% at 12% -10%, rgb(255 255 255 / 0.20), transparent 55%),
+    radial-gradient(90% 120% at 88% 8%, rgb(249 51 216 / 0.20), transparent 55%),
+    radial-gradient(110% 100% at 78% 96%, rgb(214 145 38 / 0.16), transparent 55%),
+    radial-gradient(80% 90% at 18% 100%, rgb(38 198 218 / 0.18), transparent 55%);
+}
+.lgx[data-mode="light"] .lgx-folds {
+  background:
+    radial-gradient(120% 90% at 12% -10%, rgb(255 255 255 / 0.85), transparent 55%),
+    radial-gradient(90% 120% at 88% 8%, rgb(249 51 216 / 0.16), transparent 55%),
+    radial-gradient(110% 100% at 78% 96%, rgb(214 145 38 / 0.14), transparent 55%),
+    radial-gradient(80% 90% at 18% 100%, rgb(38 198 218 / 0.16), transparent 55%);
+}
+.lgx-orb {
+  position: absolute;
+  z-index: -2;
+  border-radius: 9999px;
+  filter: blur(2px);
+  animation: lgx-drift 11s ease-in-out infinite alternate;
+}
+.lgx-orb-a { width: 320px; height: 320px; top: -110px; right: 6%; background: radial-gradient(circle at 32% 30%, rgb(190 140 255 / 0.68), rgb(110 60 220 / 0.30) 62%, transparent 72%); }
+.lgx-orb-b { width: 230px; height: 230px; bottom: -70px; left: 4%; background: radial-gradient(circle at 34% 30%, rgb(255 120 225 / 0.75), rgb(200 40 170 / 0.30) 62%, transparent 72%); animation-delay: -4s; }
+.lgx-orb-c { width: 150px; height: 150px; top: 44%; left: 44%; background: radial-gradient(circle at 34% 30%, rgb(255 196 92 / 0.8), rgb(214 145 38 / 0.30) 62%, transparent 72%); animation-delay: -7s; }
+.lgx-ring {
+  position: absolute;
+  z-index: -2;
+  width: 190px; height: 190px;
+  top: 18%; left: -50px;
+  border-radius: 9999px;
+  border: 26px solid rgb(64 224 208 / 0.20);
+  transform: rotate(18deg);
+}
+@keyframes lgx-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(0, 22px, 0) scale(1.05); }
+}
+
+/* ── The material ─────────────────────────────────────────────────────── */
+.lgx-glass {
+  position: relative;
+  background:
+    linear-gradient(135deg, var(--lgx-fill-hi), var(--lgx-fill-lo) 46%, rgb(255 255 255 / 0.03));
+  -webkit-backdrop-filter: blur(var(--lgx-frost)) saturate(165%);
+  backdrop-filter: blur(var(--lgx-frost)) saturate(165%);
+  border: 1px solid var(--lgx-edge);
+  box-shadow:
+    var(--lgx-shadow),
+    inset 0 1px 0 rgb(255 255 255 / 0.45),
+    inset 0 -1px 0 rgb(255 255 255 / 0.07),
+    inset 1px 0 0 rgb(255 255 255 / 0.10);
+}
+/* Pointer gloss: rides --lgx-px/--lgx-py written by the component's
+   pointer handler (style property only). Far outside the box at rest. */
+.lgx-gloss::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(240px circle at var(--lgx-px, -30%) var(--lgx-py, -30%),
+    rgb(255 255 255 / 0.28), rgb(255 255 255 / 0.06) 42%, transparent 70%);
+  opacity: var(--lgx-gloss, 0);
+  transition: opacity 240ms ease;
+}
+.lgx-gloss:hover::before, .lgx-gloss:focus-visible::before { --lgx-gloss: 1; }
+
+/* ── Floating navigation ──────────────────────────────────────────────── */
+.lgx-nav {
+  border-radius: 9999px;
+  padding: 0.45rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.lgx-navlink {
+  position: relative;
+  border-radius: 9999px;
+  padding: 0.5rem 0.95rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--lgx-ink-2);
+  transition: color 200ms ease;
+}
+.lgx-navlink[data-active="true"] { color: var(--lgx-ink); }
+.lgx-navlink:focus-visible, .lgx-btn:focus-visible, .lgx-iconbtn:focus-visible,
+.lgx-tile:focus-visible, .lgx-row:focus-visible, .lgx-input:focus-visible {
+  outline: 2px solid rgb(64 224 208 / 0.9);
+  outline-offset: 2px;
+}
+.lgx-indicator {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.34), rgb(255 255 255 / 0.12));
+  border: 1px solid rgb(255 255 255 / 0.35);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.5), 0 6px 18px -8px rgb(10 4 30 / 0.5);
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+.lgx-btn {
+  position: relative;
+  overflow: hidden;
+  border-radius: 9999px;
+  padding: 0.7rem 1.4rem;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--lgx-ink);
+  will-change: transform;
+}
+.lgx-btn-primary {
+  background: linear-gradient(135deg, rgb(139 92 246 / 0.85), rgb(217 70 190 / 0.75));
+  border: 1px solid rgb(255 255 255 / 0.45);
+  box-shadow: 0 14px 34px -12px rgb(160 60 220 / 0.65), inset 0 1px 0 rgb(255 255 255 / 0.55), inset 0 -8px 16px -10px rgb(60 0 90 / 0.55);
+  color: #fff;
+}
+.lgx-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 9999px;
+  color: var(--lgx-ink);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* The layered-sheets demo: absolute placement must survive .lgx-glass's
+   relative anchor (the gloss pseudo needs it), so sheets re-declare it. */
+.lgx-sheet { position: absolute; }
+
+/* ── Panel, tiles, rows ───────────────────────────────────────────────── */
+.lgx-panel { border-radius: 1.75rem; overflow: hidden; }
+.lgx-panel-collapsed { border-radius: 9999px; }
+.lgx-tile {
+  border-radius: 1.25rem;
+  padding: 1rem;
+  text-align: start;
+  width: 100%;
+  color: var(--lgx-ink);
+}
+.lgx-tile[data-selected="true"] {
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.30), rgb(255 255 255 / 0.10));
+}
+.lgx-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  border-radius: 1rem;
+  padding: 0.65rem 0.9rem;
+  color: var(--lgx-ink);
+  text-align: start;
+}
+.lgx-row[data-selected="true"] {
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.28), rgb(255 255 255 / 0.09));
+  border: 1px solid rgb(255 255 255 / 0.30);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.45), 0 10px 24px -14px rgb(8 2 24 / 0.6);
+}
+.lgx-pillswitch {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.3rem;
+  border-radius: 9999px;
+}
+.lgx-input { accent-color: rgb(168 110 255); width: 100%; }
+
+/* ── Distortion lens: the SVG-displaced layer lives on the swatch copy
+   only; copy under it stays unfiltered and legible by construction. ── */
+.lgx-lens {
+  position: absolute;
+  width: 148px;
+  height: 148px;
+  border-radius: 9999px;
+  cursor: grab;
+  touch-action: none;
+  z-index: 5;
+}
+.lgx-lens:active { cursor: grabbing; }
+.lgx-lens-core {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.55);
+  box-shadow: inset 0 2px 6px rgb(255 255 255 / 0.55), inset 0 -10px 22px -10px rgb(30 10 70 / 0.45), 0 18px 38px -14px rgb(4 0 18 / 0.6);
+}
+.lgx-lens-swatch {
+  position: absolute;
+  inset: -30%;
+  background:
+    radial-gradient(circle at 30% 30%, rgb(190 140 255 / 0.95), transparent 55%),
+    radial-gradient(circle at 72% 40%, rgb(249 51 216 / 0.85), transparent 55%),
+    radial-gradient(circle at 46% 78%, rgb(255 196 92 / 0.9), transparent 55%),
+    radial-gradient(circle at 80% 82%, rgb(64 224 208 / 0.85), transparent 55%),
+    linear-gradient(140deg, #2a1660, #120826);
+}
+
+.lgx-kbd {
+  font-size: 0.68rem;
+  border-radius: 0.375rem;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--lgx-edge);
+  background: rgb(255 255 255 / 0.10);
+}
+
+/* ── Motion & capability gates ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .lgx-orb { animation: none; }
+  .lgx-gloss::before { transition: none; }
+}
+@media (forced-colors: active) {
+  .lgx-glass, .lgx-tile, .lgx-row, .lgx-btn { border: 1px solid CanvasText; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
