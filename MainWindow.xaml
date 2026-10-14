@@ -78,6 +78,7 @@
         xmlns:vmJobProfit="clr-namespace:ProGlassAutomation.ViewModels.JobProfitability"
         xmlns:vmDiagnostics="clr-namespace:ProGlassAutomation.ViewModels.Diagnostics"
         xmlns:vmVatSubmission="clr-namespace:ProGlassAutomation.ViewModels.Reports.VatSubmission"
+        xmlns:vmStickers="clr-namespace:ProGlassAutomation.ViewModels.Printing.Stickers"
         xmlns:viewsDashboard="clr-namespace:ProGlassAutomation.Views.Dashboard"
         xmlns:viewsProforma="clr-namespace:ProGlassAutomation.Views.ProformaInvoice"
         xmlns:viewsAbout="clr-namespace:ProGlassAutomation.Views.About"
@@ -104,6 +105,7 @@
         xmlns:viewsJobProfit="clr-namespace:ProGlassAutomation.Views.JobProfitability"
         xmlns:viewsDiagnostics="clr-namespace:ProGlassAutomation.Views.Diagnostics"
         xmlns:viewsVatSubmission="clr-namespace:ProGlassAutomation.Views.Reports.VatSubmission"
+        xmlns:viewsStickers="clr-namespace:ProGlassAutomation.Views.Printing.Stickers"
         Title="{DynamicResource Shell.AppTitle}"
         Height="820" Width="1280"
         MinHeight="480" MinWidth="800"
@@ -123,7 +125,7 @@
         SnapsToDevicePixels="True">
 
     <!-- ═══════════════════════════════════════════════════════════════
-         MODULE DATA TEMPLATES (zero regression — all 31 preserved)
+         MODULE DATA TEMPLATES (existing routes preserved; Sticker Printer added)
     ═══════════════════════════════════════════════════════════════ -->
     <Window.Resources>
         <DataTemplate DataType="{x:Type vmDashboard:DashboardViewModel}">
@@ -221,6 +223,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmDiagnostics:DiagnosticsViewModel}">
             <viewsDiagnostics:DiagnosticsView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmStickers:StickerPrinterViewModel}">
+            <viewsStickers:StickerPrinterView/>
         </DataTemplate>
     </Window.Resources>
 
@@ -673,12 +678,13 @@
                                         Command="{Binding NavigateCommand}"
                                         CommandParameter="Specifications"/>
 
-                                <!-- Standalone reusable sticker template library -->
+                                <!-- First-class reusable sticker studio module -->
                                 <Button Style="{StaticResource PgSidebarItemStyle}"
                                         Content="Sticker Printer"
                                         Tag="&#xE749;"
                                         ToolTip="Create, edit and save reusable sticker layouts"
-                                        Click="OpenStickerDesigner_Click"/>
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="StickerPrinter"/>
 
                                 <!-- SALES & ORDERS (EXPANDED with one chevron) -->
                                 <StackPanel x:Name="SalesGroupHost" Margin="0,4,0,0">

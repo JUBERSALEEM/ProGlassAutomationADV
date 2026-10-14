@@ -19,6 +19,7 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
+             PreviewKeyDown="OnPreviewKeyDown"
              Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}"
              Background="Transparent">
 

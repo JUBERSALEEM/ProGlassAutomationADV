@@ -10,7 +10,8 @@ namespace ProGlassAutomation.Services.Printing.Stickers
         public static void Show(Window? owner, IReadOnlyList<GlassStickerLabel>? labels, string documentName)
         {
             var valid = (labels ?? new List<GlassStickerLabel>())
-                .Where(l => l != null && l.WidthMm > 0 && l.HeightMm > 0 && l.Quantity > 0)
+                .Where(l => l != null && double.IsFinite(l.WidthMm) && double.IsFinite(l.HeightMm)
+                    && l.WidthMm > 0 && l.HeightMm > 0 && l.Quantity > 0)
                 .ToList();
             if (valid.Count == 0)
             {

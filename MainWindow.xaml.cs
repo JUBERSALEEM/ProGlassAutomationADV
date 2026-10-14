@@ -325,6 +325,12 @@ namespace ProGlassAutomation
         {
             try
             {
+                if (!ConfirmStickerDesignerClose())
+                {
+                    e.Cancel = true;
+                    return;
+                }
+
                 if (!Services.Safety.CriticalOperationTracker.IsBusy)
                     return;
 
@@ -369,6 +375,59 @@ namespace ProGlassAutomation
                 // Allow close on error
                 ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainWindow] Shutdown audit/cleanup failed: " + ex.Message);
             }
+        }
+
+        private bool ConfirmStickerDesignerClose()
+        {
+            if (DataContext is not MainViewModel main) return true;
+            var sticker = main.ExistingStickerPrinterVM;
+            if (sticker == null || !sticker.IsTemplateDirty) return true;
+
+            var answer = Prompts.Show(
+                "The Sticker Printer Studio has unsaved layout edits. Save the template to your local library before closing?\n\n" +
+                "Yes = save and close; No = close without saving; Cancel = keep ProGlass open.",
+                "Unsaved sticker template",
+                MessageBoxButton.YesNoCancel,
+                MessageBoxImage.Warning,
+                MessageBoxResult.Cancel);
+            if (answer == MessageBoxResult.Cancel) return false;
+            if (answer == MessageBoxResult.No) return true;
+
+            if (!sticker.TrySaveActiveTemplateToLibrary(out string path, out string error))
+            {
+                Prompts.Show(error, "Could not save sticker template",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (sticker.TryCreatePreferences(out var preferences, out string validationError,
+                    requirePrintableRows: false))
+            {
+                if (!Services.Printing.Stickers.StickerPrintPreferencesStore.TrySave(
+                        preferences, out string saveError))
+                    Prompts.Show(
+                        "The template was saved to the local library, but the last-used printer setup could not be saved." +
+                        Environment.NewLine + Environment.NewLine + saveError,
+                        "Printer setup not saved",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            else
+            {
+                Prompts.Show(
+                    "The template was saved to the local library, but the last-used printer setup could not be updated: " +
+                    validationError,
+                    "Printer setup not saved",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+
+            Services.Logging.AppLogService.Info(
+                "Saved sticker template before application shutdown: " + path,
+                new Services.Logging.LogContext
+                {
+                    Module = "StickerPrinter",
+                    Operation = "SaveTemplateOnShutdown"
+                });
+            return true;
         }
 
         // ── top-bar dropdowns (click-only — no hover open/close) ───────────

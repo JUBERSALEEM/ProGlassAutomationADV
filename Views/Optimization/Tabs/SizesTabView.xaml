@@ -36,15 +36,8 @@
                     <Border Background="{DynamicResource SurfaceSecondaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                             CornerRadius="10" Padding="16,12" Margin="0,0,0,18">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+                        <WrapPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,8">
                                 <Border Width="28" Height="28" CornerRadius="6"
                                         Background="{DynamicResource TintIndigoBrush}"
                                         BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
@@ -56,24 +49,25 @@
                                 <TextBlock Text="CUTTING GROUP" Style="{StaticResource OptPanelTitle}" VerticalAlignment="Center"/>
                             </StackPanel>
 
-                            <ComboBox Grid.Column="1" MinWidth="340" ItemsSource="{Binding CuttingGroups}"
+                            <ComboBox MinWidth="280" MaxWidth="460" ItemsSource="{Binding CuttingGroups}"
                                       SelectedItem="{Binding SelectedCuttingGroup}"
                                       Style="{StaticResource OptComboStyle}"
+                                      Margin="0,0,12,8" VerticalAlignment="Center"
                                       ToolTip="Optimize one pane group at a time against its stock rack"/>
 
-                            <Button Grid.Column="2" Content="Manual Cut List →"
+                            <Button Content="Manual Cut List →"
                                     Command="{Binding OpenCutListTabCommand}"
                                     Style="{StaticResource OptOutlinedButton}"
-                                    Height="36" Margin="14,0,0,0" VerticalAlignment="Center"
+                                    Height="36" Margin="0,0,12,8" VerticalAlignment="Center"
                                     ToolTip="Type or paste an ad-hoc cut list without a proforma invoice"/>
 
-                            <Border Grid.Column="3" Background="{DynamicResource TintIndigoBrush}"
+                            <Border Background="{DynamicResource TintIndigoBrush}"
                                     BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
-                                    CornerRadius="6" Padding="12,5" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    CornerRadius="6" Padding="12,5" VerticalAlignment="Center" Margin="0,0,0,8">
                                 <TextBlock Text="{Binding PieceSummary}" FontSize="12"
                                            FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                             </Border>
-                        </Grid>
+                        </WrapPanel>
                     </Border>
 
                     <!-- ══ 2. MERGED GLASS SPECIFICATION GROUPS ══ -->

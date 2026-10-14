@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -131,15 +132,52 @@ namespace ProGlassAutomation.Services.Printing.Stickers
         {
             path = string.Empty;
             error = string.Empty;
-            string safeName = SanitizeFileName(template?.Name ?? string.Empty);
-            if (string.IsNullOrWhiteSpace(safeName)) safeName = "Custom sticker";
-            path = Path.Combine(LibraryDirectory, safeName + FileExtension);
-            if (!TrySaveFile(path, template, out error))
+            if (template == null)
             {
-                path = string.Empty;
+                error = "No sticker template was supplied.";
                 return false;
             }
-            return true;
+
+            string safeName = SanitizeFileName(template.Name ?? string.Empty);
+            if (string.IsNullOrWhiteSpace(safeName)) safeName = "Custom sticker";
+
+            try
+            {
+                Directory.CreateDirectory(LibraryDirectory);
+                string candidate = Path.Combine(LibraryDirectory, safeName + FileExtension);
+                int suffix = 2;
+                while (File.Exists(candidate))
+                {
+                    // Re-saving the same saved layout updates its existing file.
+                    // A different layout with the same display name gets its own
+                    // file instead of silently overwriting somebody else's work.
+                    if (TryLoadFile(candidate, out var existing, out _)
+                        && existing != null
+                        && !string.IsNullOrWhiteSpace(template.TemplateId)
+                        && string.Equals(existing.TemplateId, template.TemplateId,
+                            StringComparison.OrdinalIgnoreCase))
+                        break;
+
+                    candidate = Path.Combine(LibraryDirectory,
+                        safeName + " (" + suffix.ToString(CultureInfo.InvariantCulture) + ")" + FileExtension);
+                    suffix++;
+                    if (suffix > 1000)
+                    {
+                        error = "Could not find an unused filename in the local sticker template library.";
+                        return false;
+                    }
+                }
+
+                if (!TrySaveFile(candidate, template, out error)) return false;
+                path = candidate;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                error = "Could not save the sticker template to the local library: " + ex.Message;
+                AppLogService.Warning("[StickerTemplate] " + error);
+                return false;
+            }
         }
 
         public static bool TryValidate(StickerLayoutTemplate? template, out string error)

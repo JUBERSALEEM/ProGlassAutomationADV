@@ -1,4 +1,5 @@
 using System.Windows.Controls;
+using System.Windows.Input;
 using ProGlassAutomation.ViewModels.Optimization;
 
 namespace ProGlassAutomation.Views.Optimization.Tabs
@@ -35,6 +36,23 @@ namespace ProGlassAutomation.Views.Optimization.Tabs
         }
 
         private void OnSheetStageSizeChanged(object sender, System.Windows.SizeChangedEventArgs e) => ApplySheetFit();
+
+        private void OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (DataContext is not OptimizationViewModel vm || !vm.IsSingleSheetMode
+                || Keyboard.Modifiers != ModifierKeys.None)
+                return;
+
+            System.Windows.Input.ICommand? command = e.Key switch
+            {
+                Key.Left => vm.SelectPreviousSheetCommand,
+                Key.Right => vm.SelectNextSheetCommand,
+                _ => null
+            };
+            if (command?.CanExecute(null) != true) return;
+            command.Execute(null);
+            e.Handled = true;
+        }
 
         /// <summary>
         /// Fit the plate AND its dimension callouts into the stage.

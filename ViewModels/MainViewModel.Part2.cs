@@ -260,6 +260,7 @@ namespace ProGlassAutomation.ViewModels
                     }
                     break;
                 case "Specifications": CurrentViewModel = SpecificationsVM; break;
+                case "StickerPrinter": CurrentViewModel = StickerPrinterVM; break;
                 case "ProformaInvoice": CurrentViewModel = ProformaInvoiceVM; break;
                 case "JobOrder": CurrentViewModel = JobOrderVM; break;
                 case "DocumentRegister":

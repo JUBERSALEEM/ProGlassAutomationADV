@@ -50,6 +50,63 @@ namespace ProGlassAutomation.Tests.Printing.Stickers
         }
 
         [Fact]
+        public void SavingDifferentTemplatesWithTheSameNameDoesNotOverwriteTheLibraryEntry()
+        {
+            string uniqueName = "Collision test " + Guid.NewGuid().ToString("N");
+            string firstPath = string.Empty;
+            string secondPath = string.Empty;
+            try
+            {
+                var first = StickerTemplatePresets.CreateCustom(uniqueName);
+                var second = StickerTemplatePresets.CreateCustom(uniqueName);
+
+                Assert.True(StickerTemplateStore.TrySaveToLibrary(first, out firstPath, out string firstError), firstError);
+                Assert.True(StickerTemplateStore.TrySaveToLibrary(second, out secondPath, out string secondError), secondError);
+
+                Assert.NotEqual(firstPath, secondPath);
+                Assert.Contains("(2)", Path.GetFileName(secondPath));
+                Assert.True(StickerTemplateStore.TryLoadFile(firstPath, out var restored, out string loadError), loadError);
+                Assert.Equal(first.TemplateId, restored!.TemplateId);
+
+                first.LabelWidthMm = 101;
+                Assert.True(StickerTemplateStore.TrySaveToLibrary(first, out string updatedPath, out string updateError), updateError);
+                Assert.Equal(firstPath, updatedPath);
+                Assert.True(StickerTemplateStore.TryLoadFile(firstPath, out restored, out loadError), loadError);
+                Assert.Equal(101, restored!.LabelWidthMm);
+            }
+            finally
+            {
+                if (File.Exists(firstPath)) File.Delete(firstPath);
+                if (File.Exists(secondPath)) File.Delete(secondPath);
+            }
+        }
+
+        [Fact]
+        public void PrintEnginePreflightCountsOnlyValidRowsAndRejectsBatchesOverTheLimit()
+        {
+            var labels = new[]
+            {
+                new GlassStickerLabel { WidthMm = 100, HeightMm = 50, Quantity = 50_000 },
+                new GlassStickerLabel { WidthMm = 0, HeightMm = 50, Quantity = 10 },
+                new GlassStickerLabel { WidthMm = double.NaN, HeightMm = 50, Quantity = 10 },
+                new GlassStickerLabel { WidthMm = 100, HeightMm = double.PositiveInfinity, Quantity = 10 },
+                new GlassStickerLabel { WidthMm = 100, HeightMm = 50, Quantity = 1 }
+            };
+
+            Assert.False(StickerPrintEngine.TryValidateBatch(labels, true, out long oversizedCount, out string error));
+            Assert.Equal(50_001, oversizedCount);
+            Assert.Contains("50,000", error);
+
+            Assert.True(StickerPrintEngine.TryValidateBatch(labels, false, out long rowCount, out _));
+            Assert.Equal(2, rowCount);
+
+            Assert.False(StickerPrintEngine.TryValidateBatch(
+                new[] { new GlassStickerLabel { WidthMm = 0, HeightMm = 50, Quantity = 1 } },
+                true, out long emptyCount, out _));
+            Assert.Equal(0, emptyCount);
+        }
+
+        [Fact]
         public void CanvasResizeKeepsTheOppositeEdgesAnchoredAndClampsToLabel()
         {
             var template = StickerTemplatePresets.CreateCustom("Resize test", 100, 50);

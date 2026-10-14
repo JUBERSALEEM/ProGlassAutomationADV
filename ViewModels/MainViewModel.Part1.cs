@@ -18,6 +18,7 @@ using ProGlassAutomation.ViewModels.JobOrder;
 using ProGlassAutomation.ViewModels.Inquiry;
 using ProGlassAutomation.ViewModels.JobProfitability;
 using ProGlassAutomation.ViewModels.Optimization;
+using ProGlassAutomation.ViewModels.Printing.Stickers;
 using ProGlassAutomation.ViewModels.ProformaInvoice;
 using ProGlassAutomation.ViewModels.Production;
 using ProGlassAutomation.ViewModels.Reports;
@@ -160,6 +161,9 @@ namespace ProGlassAutomation.ViewModels
 
         private OptimizationViewModel? _lazyOptimizationVM;
         public OptimizationViewModel OptimizationVM => _lazyOptimizationVM ??= ResolveOrNew<OptimizationViewModel>();
+        private StickerPrinterViewModel? _lazyStickerPrinterVM;
+        public StickerPrinterViewModel StickerPrinterVM => _lazyStickerPrinterVM ??= ResolveOrNew<StickerPrinterViewModel>();
+        public StickerPrinterViewModel? ExistingStickerPrinterVM => _lazyStickerPrinterVM;
         private CuttingViewModel? _lazyCuttingVM;
         public CuttingViewModel CuttingVM => _lazyCuttingVM ??= WireProductionCrossNav(ResolveOrNew<CuttingViewModel>());
         private CuttingWorkCenterViewModel? _lazyCuttingWorkCenterVM;
@@ -411,6 +415,7 @@ namespace ProGlassAutomation.ViewModels
                 if (_currentViewModel is TaxInvoiceViewModel) return "Tax Invoice Accounting";
                 if (_currentViewModel is SheetStoreViewModel) return "Sheet Store Warehouse";
                 if (_currentViewModel is ProGlassAutomation.ViewModels.Specifications.SpecificationsCenterViewModel) return "Glass Specifications";
+                if (_currentViewModel is StickerPrinterViewModel) return "Sticker Printer Studio";
                 if (_currentViewModel is OptimizationViewModel) return "Glass Cutting Optimization";
                 if (_currentViewModel is ProductionControlCenterViewModel || _currentViewModel is ProductionStageViewModelBase) return "Factory Floor Control";
                 if (_currentViewModel is SalesReportViewModel) return "Executive Reports & Analytics";
@@ -450,6 +455,7 @@ namespace ProGlassAutomation.ViewModels
                 if (_currentViewModel is TaxInvoiceViewModel) return "FTA VAT 5% compliant invoicing, settlements & ledger";
                 if (_currentViewModel is SheetStoreViewModel) return "Raw glass inventory, stock replenishment & yield analysis";
                 if (_currentViewModel is ProGlassAutomation.ViewModels.Specifications.SpecificationsCenterViewModel) return "Technical glass definitions, tints & processing rules";
+                if (_currentViewModel is StickerPrinterViewModel) return "Design reusable glass-label layouts, common fields and printer profiles";
                 if (_currentViewModel is OptimizationViewModel) return "2D Nesting algorithms, scrap minimization & sheet yield";
                 if (_currentViewModel is ProductionControlCenterViewModel || _currentViewModel is ProductionStageViewModelBase) return "Work center scheduling, tempering furnaces & autoclave lines";
                 if (_currentViewModel is SalesReportViewModel) return "Executive summaries, order book analysis & financial statements";

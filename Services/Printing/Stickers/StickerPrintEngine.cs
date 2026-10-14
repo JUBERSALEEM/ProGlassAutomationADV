@@ -21,6 +21,51 @@ namespace ProGlassAutomation.Services.Printing.Stickers
     /// </summary>
     public static class StickerPrintEngine
     {
+        public const int MaximumBatchSize = 50_000;
+
+        /// <summary>
+        /// Shared preflight for the UI and print engine. It counts only valid
+        /// source rows and rejects oversized jobs before a PrintDialog or
+        /// paginator is created.
+        /// </summary>
+        public static bool TryValidateBatch(
+            IReadOnlyList<GlassStickerLabel>? labels,
+            bool oneLabelPerPiece,
+            out long labelCount,
+            out string error)
+        {
+            labelCount = 0;
+            error = string.Empty;
+            if (labels == null || labels.Count == 0)
+            {
+                error = "There are no glass stickers to print.";
+                return false;
+            }
+
+            foreach (var label in labels)
+            {
+                if (label == null || !double.IsFinite(label.WidthMm) || !double.IsFinite(label.HeightMm)
+                    || label.WidthMm <= 0 || label.HeightMm <= 0 || label.Quantity <= 0)
+                    continue;
+
+                long rowCount = oneLabelPerPiece ? label.Quantity : 1;
+                if (rowCount > MaximumBatchSize - labelCount)
+                {
+                    labelCount += rowCount;
+                    error = "This batch exceeds 50,000 labels. Filter or split the source job before printing.";
+                    return false;
+                }
+                labelCount += rowCount;
+            }
+
+            if (labelCount == 0)
+            {
+                error = "There are no valid glass pane labels to print.";
+                return false;
+            }
+            return true;
+        }
+
         public static StickerPrintResult Print(
             IReadOnlyList<GlassStickerLabel> labels,
             StickerPrintPreferences preferences,
@@ -33,10 +78,10 @@ namespace ProGlassAutomation.Services.Printing.Stickers
             StickerLayoutTemplate template,
             string documentName)
         {
-            if (labels == null || labels.Count == 0)
-                return new StickerPrintResult { Message = "There are no glass stickers to print." };
             if (preferences == null)
                 return new StickerPrintResult { Message = "Sticker print settings are missing." };
+            if (!TryValidateBatch(labels, preferences.OneLabelPerPiece, out _, out string batchError))
+                return new StickerPrintResult { Message = batchError };
             if (!StickerTemplateStore.TryValidate(template, out string templateError))
                 return new StickerPrintResult { Message = "The selected sticker template is invalid: " + templateError };
             if (!StickerPrinterSpecifications.TryValidateDimensions(preferences.PrinterModel,

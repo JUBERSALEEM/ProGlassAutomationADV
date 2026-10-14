@@ -10,9 +10,9 @@ using ProGlassAutomation.ViewModels;
 
 namespace ProGlassAutomation.ViewModels.Printing.Stickers
 {
-    public sealed class StickerPrintDialogViewModel : ViewModelBase
+    public class StickerPrintDialogViewModel : ViewModelBase
     {
-        public const long MaximumBatchSize = 50_000;
+        public const long MaximumBatchSize = StickerPrintEngine.MaximumBatchSize;
 
         private string _widthMmText;
         private string _heightMmText;
@@ -45,6 +45,7 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         private bool _isTemplateDirty;
         private string _statusMessage = string.Empty;
         private bool _loadingTemplate;
+        private int _selectedStudioTabIndex;
 
         private readonly StickerPrinterOption<StickerPrinterModel>[] _printerModelOptions =
         {
@@ -314,6 +315,13 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
 
         public bool HasSelectedElement => SelectedElement != null;
         public bool CanMoveSelectedElement => SelectedElement != null && !SelectedElement.IsLocked;
+
+        /// <summary>Active studio workspace tab. This is UI state only; it is not part of the saved template.</summary>
+        public int SelectedStudioTabIndex
+        {
+            get => _selectedStudioTabIndex;
+            set => Set(ref _selectedStudioTabIndex, Math.Clamp(value, 0, 3), notifyBatch: false);
+        }
         public string NewFieldKey
         {
             get => _newFieldKey;
@@ -494,7 +502,10 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 Kind = StickerTemplateElementKind.Text,
                 FieldKey = field.Key,
                 Xmm = _activeTemplate.MarginMm,
-                Ymm = _activeTemplate.MarginMm + (TemplateElements.Count * 7),
+                Ymm = Math.Clamp(_activeTemplate.MarginMm + (TemplateElements.Count * 7),
+                    _activeTemplate.MarginMm,
+                    Math.Max(_activeTemplate.MarginMm,
+                        _activeTemplate.LabelHeightMm - _activeTemplate.MarginMm - 7)),
                 WidthMm = Math.Max(12, _activeTemplate.LabelWidthMm - (_activeTemplate.MarginMm * 2)),
                 HeightMm = 7,
                 FontSizePt = _activeTemplate.DefaultFontSizePt,
