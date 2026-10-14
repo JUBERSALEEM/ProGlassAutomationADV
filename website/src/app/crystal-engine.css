@@ -1365,7 +1365,7 @@ html.glass-econ[data-appearance="crystal"] {
   left: -16vmax;
   top: -20vmax;
   background: radial-gradient(circle at 38% 38%, rgb(var(--brand-500, 124 58 237) / 0.55) 0%, rgb(var(--brand-500, 124 58 237) / 0) 62%);
-  animation: liquid-drift-a 42s ease-in-out -9s infinite alternate;
+  animation: liquid-drift-a 20s ease-in-out -9s infinite alternate;
 }
 
 [data-appearance="crystal"] .liquid-scene span:nth-child(2) {
@@ -1374,7 +1374,7 @@ html.glass-econ[data-appearance="crystal"] {
   right: -14vmax;
   top: 4%;
   background: radial-gradient(circle at 42% 42%, rgb(var(--glass-cyan, 103 232 249) / 0.45) 0%, rgb(var(--glass-cyan, 103 232 249) / 0) 62%);
-  animation: liquid-drift-b 55s ease-in-out -23s infinite alternate;
+  animation: liquid-drift-b 28s ease-in-out -23s infinite alternate;
 }
 
 [data-appearance="crystal"] .liquid-scene span:nth-child(3) {
@@ -1383,7 +1383,7 @@ html.glass-econ[data-appearance="crystal"] {
   left: 24%;
   bottom: -24vmax;
   background: radial-gradient(circle at 40% 40%, rgb(var(--glass-rose, 244 114 182) / 0.40) 0%, rgb(var(--glass-rose, 244 114 182) / 0) 62%);
-  animation: liquid-drift-c 66s ease-in-out -31s infinite alternate;
+  animation: liquid-drift-c 36s ease-in-out -31s infinite alternate;
 }
 
 @keyframes liquid-drift-a {

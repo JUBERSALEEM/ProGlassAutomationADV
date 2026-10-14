@@ -45,7 +45,7 @@ export function GlassLife() {
       idleTimer = window.setTimeout(() => {
         rested = false;
         delete rootEl.dataset.liquidRest;
-      }, 1600);
+      }, 1000);
     };
     const activityEvents = ["scroll", "pointermove", "pointerdown", "wheel", "touchmove"] as const;
     for (const name of activityEvents) {

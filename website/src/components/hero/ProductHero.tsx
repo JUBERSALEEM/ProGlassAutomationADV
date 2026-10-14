@@ -134,7 +134,7 @@ export function ProductHero({ t }: { t: Translator }) {
                 with a bare eyebrow label says nothing about who is behind the
                 claim; this one names the author in the first line a visitor
                 reads, and links to the story that follows it. */}
-            <MotionReveal>
+            <MotionReveal immediate>
               <div className="mb-7 flex flex-wrap items-center gap-x-4 gap-y-3 max-lg:justify-center">
                 <span className="flex items-center gap-2.5">
                   <GlassCubeEmblem size={26} className="h-6 w-6" />
@@ -152,7 +152,7 @@ export function ProductHero({ t }: { t: Translator }) {
               </div>
             </MotionReveal>
 
-            <MotionReveal delay={60}>
+            <MotionReveal immediate delay={60}>
               <p className="mb-5 flex flex-wrap items-center gap-x-2.5 gap-y-2 text-xs leading-relaxed text-text-muted max-lg:justify-center">
                 <span aria-hidden="true" className="h-1.5 w-1.5 rotate-45 bg-brand-400" />
                 <span>
@@ -170,7 +170,7 @@ export function ProductHero({ t }: { t: Translator }) {
               </p>
             </MotionReveal>
 
-            <MotionReveal delay={110}>
+            <MotionReveal immediate delay={110}>
               <h1 className="display-hero">
                 {t("Glass business management,")}
                 <span className="text-gradient-rich block">{t("built around your workflow.")}</span>
@@ -179,21 +179,21 @@ export function ProductHero({ t }: { t: Translator }) {
 
             {/* The application's own descriptor, from the keyline it prints
                 under its wordmark on the splash screen. */}
-            <MotionReveal delay={160}>
+            <MotionReveal immediate delay={160}>
               <BrandKeyline
                 label={t("Glass cutting automation suite")}
                 className="mt-7 justify-start max-lg:justify-center"
               />
             </MotionReveal>
 
-            <MotionReveal delay={200}>
+            <MotionReveal immediate delay={200}>
               <p className="lede-lg mt-7 max-w-xl max-lg:mx-auto">
                 {t("A Windows desktop application for glass fabrication: price the job, cut the stock, track what left the")}{" "}
                 {t("yard, and invoice it — without re-keying the same glass twice.")}
               </p>
             </MotionReveal>
 
-            <MotionReveal delay={250}>
+            <MotionReveal immediate delay={250}>
               <div className="mt-9 flex flex-wrap items-center gap-3 max-lg:justify-center">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
                   {t("Request a Demo")}
@@ -206,7 +206,7 @@ export function ProductHero({ t }: { t: Translator }) {
           </div>
 
           {/* ── Layered product presentation ───────────────────────── */}
-          <MotionReveal delay={120} variant="scale" className="relative">
+          <MotionReveal immediate delay={120} variant="scale" className="relative">
             <div aria-hidden="true" className="pointer-events-none absolute -inset-8 -z-10">
               <span
                 className="orb orb-wide left-1/2 top-1/2 h-[26rem] w-[34rem] -translate-x-1/2 -translate-y-1/2"

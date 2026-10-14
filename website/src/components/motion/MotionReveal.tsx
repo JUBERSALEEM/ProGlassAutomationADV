@@ -27,6 +27,7 @@ export function MotionReveal({
   className,
   variant = "up",
   id,
+  immediate = false,
 }: {
   children: ReactNode;
   /** Stagger delay in ms (same unit/call-sites as the CSS `Reveal`). */
@@ -34,6 +35,15 @@ export function MotionReveal({
   className?: string;
   variant?: "up" | "scale" | "none";
   id?: string;
+  /**
+   * Above-the-fold content (the hero rule): play on mount instead of
+   * waiting for the scroll observer. `whileInView` gates first paint on
+   * an IntersectionObserver callback after hydration — on a heavy page
+   * that strands the hero invisible, then pops it (the "cards
+   * disappearing" witness). Mount-triggered entrances resolve the
+   * moment React hydrates, in stagger order, every time.
+   */
+  immediate?: boolean;
 }) {
   const reduced = useReducedMotion();
 
@@ -45,14 +55,20 @@ export function MotionReveal({
     );
   }
 
+  const trigger = immediate
+    ? { animate: "visible" as const }
+    : {
+        whileInView: "visible" as const,
+        viewport: { once: true, amount: 0.12 },
+      };
+
   return (
     <motion.div
       id={id}
       className={cn("motion-reveal", className)}
       variants={variant === "scale" ? revealScaleVariants : revealVariants}
       initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.12 }}
+      {...trigger}
       transition={{
         duration: variant === "scale" ? dur.revealScale : dur.reveal,
         ease: ease.out,
