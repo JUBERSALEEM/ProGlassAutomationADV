@@ -299,6 +299,36 @@
                                 <ComboBox ItemsSource="{Binding PrinterModelOptions}" DisplayMemberPath="DisplayName"
                                           SelectedValuePath="Value" SelectedValue="{Binding PrinterModel, Mode=TwoWay}"
                                           Style="{StaticResource StickerCombo}" Margin="0,0,0,12"/>
+                                <TextBlock Text="Page layout" Style="{StaticResource StickerFieldLabel}"/>
+                                <ComboBox ItemsSource="{Binding OutputLayoutOptions}" DisplayMemberPath="DisplayName"
+                                          SelectedValuePath="Value" SelectedValue="{Binding OutputLayoutMode, Mode=TwoWay}"
+                                          Style="{StaticResource StickerCombo}" Margin="0,0,0,10"/>
+                                <Border x:Name="SheetLayoutSettingsPanel" Background="{DynamicResource Ov.Soft}"
+                                        BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1"
+                                        CornerRadius="10" Padding="11,9" Margin="0,0,0,12" Visibility="Collapsed">
+                                    <StackPanel>
+                                        <TextBlock Text="A4 MULTI-UP SHEET" FontSize="10" FontWeight="Bold"
+                                                   Foreground="{DynamicResource Ov.Accent}"/>
+                                        <TextBlock Text="{Binding SheetLayoutSummaryText}" FontSize="11"
+                                                   Foreground="{DynamicResource Ov.Ink}" TextWrapping="Wrap" Margin="0,4,0,8"/>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="Sheet inset (mm)" Style="{StaticResource StickerFieldLabel}"/>
+                                                <TextBox Text="{Binding SheetMarginMmText, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource StickerInput}"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="Sticker gap (mm)" Style="{StaticResource StickerFieldLabel}"/>
+                                                <TextBox Text="{Binding SheetGapMmText, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource StickerInput}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <TextBlock Text="The app keeps each sticker at its designed size and respects printer margins. Disable any Fit to page or scaling option in the printer driver."
+                                                   FontSize="10" Foreground="{DynamicResource Ov.Muted}"
+                                                   TextWrapping="Wrap" Margin="0,7,0,0"/>
+                                    </StackPanel>
+                                </Border>
                                 <Grid Margin="0,0,0,10">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                     <StackPanel>
@@ -601,18 +631,23 @@
                                            FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Ov.Warning}" TextWrapping="Wrap"/>
                             </Border>
                             <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="LIVE LABEL PREVIEW" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource Ov.Muted}"/>
+                                    <TextBlock x:Name="PreviewHeading" Text="LIVE LABEL PREVIEW" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource Ov.Muted}"/>
                                     <TextBlock x:Name="PreviewTemplateName" Text="{Binding TemplateNameText}"
                                                Style="{StaticResource StickerSectionTitle}" Margin="0,3,0,0"/>
                                 </StackPanel>
                                 <Border Grid.Column="1" Background="{DynamicResource Ov.Soft}"
                                         BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1"
-                                        CornerRadius="10" Padding="10,6" VerticalAlignment="Center">
+                                        CornerRadius="10" Padding="10,6" VerticalAlignment="Center" Margin="0,0,8,0">
                                     <TextBlock x:Name="PreviewCountBadge" Text="DESIGN ONLY"
-                                               FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Ov.Accent}"/>
+                                               FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Ov.Accent}"
+                                               TextTrimming="CharacterEllipsis" MaxWidth="220"/>
                                 </Border>
+                                <Button x:Name="SheetPreviewButton" Grid.Column="2" Content="Show A4 sheet"
+                                        Click="SheetPreview_Click" Style="{StaticResource StickerButton}"
+                                        MinHeight="34" Padding="10,5" VerticalAlignment="Center" Visibility="Collapsed"
+                                        ToolTip="Preview the first A4 sheet with the current label design and print order."/>
                             </Grid>
                         </StackPanel>
                         <Border x:Name="PreviewSurface" Grid.Row="1" Background="{DynamicResource Ov.Soft}"

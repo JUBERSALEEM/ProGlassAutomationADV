@@ -27,7 +27,7 @@ The sample's `0.41` is not mapped: its meaning is not established by the current
 2. **Canonical label mapping** — Step 5 and Optimization pane rows map to the same sticker model without changing production or cutting data.
 3. **Reusable editor** — `StickerPrinterView` is hosted directly by the main shell with a design-only `StickerPrinterViewModel`; `StickerPrintWindow` is a thin modal host around the same view for source-row printing. This keeps template behavior and preview rendering consistent.
 4. **Local persistence** — named `.pgsticker` templates and printer preferences live under the current Windows user's local application data. Exported templates contain layout metadata and field keys, not invoice or customer values.
-5. **Print path** — `StickerPrintEngine` uses WPF `PrintDialog` and a custom-media paginator, not the A4/A3 business-document PDF layout. The engine repeats the batch preflight independently of dialog validation.
+5. **Print path** — `StickerPrintEngine` uses WPF `PrintDialog` with two distinct output contracts, not the A4/A3 business-document PDF layout: one custom-media page per sticker for roll/thermal printing, or a true-size A4 multi-up sheet for standard printers. The sheet paginator uses the selected queue's reported imageable area, configured inset/gap, row-major source order, and a print-time layout confirmation. The engine repeats the batch preflight independently of dialog validation.
 
 ## Phases and status
 
@@ -50,12 +50,13 @@ The sample's `0.41` is not mapped: its meaning is not established by the current
 - Add print-engine preflight for the 50,000-label ceiling and ignore invalid/non-finite source dimensions before a dialog or paginator is created.
 - Confirm unsaved studio edits on modal close and on application shutdown; saving also attempts to persist the last-used setup.
 
-### Phase 3 — production hardening and optional outputs — pending
+### Phase 3 — production hardening and optional outputs — partially implemented; Windows acceptance remains pending
 
+- Implement A4 multi-up output for standard printers with automatic portrait/landscape capacity selection, adjustable sheet inset and inter-label gap, exact-size labels, imageable-area clipping, an A4 sheet preview, and an exact print-time sheet/page confirmation. `PrinterDefault` resolves to A4 sheets for the Custom/other profile and preserves one custom-media label per page for the Zebra ZT411; either mode can be explicitly selected where supported.
 - Build and run the WPF test suite on Windows; complete acceptance with the real printer driver and representative label stock.
-- Validate custom media, orientation, scaling, printer DPI, peel/rewind/cutter behavior, long labels and large batches on target hardware.
-- Add per-company branding presets, validated barcode/QR fields, multi-up sheets and configurable reprints only when the source identifier and workflow are defined.
-- Consider custom-page PDF output and print-job audit/reprint history if operators require them.
+- Validate custom media, A4 media selection, orientation, scaling, printer DPI, peel/rewind/cutter behavior, long labels and large batches on target hardware.
+- Add die-cut/Avery-style sheet-stock profiles with configurable pitch and cut guides only when the target stock and registration tolerances are defined.
+- Consider per-company branding presets, validated barcode/QR fields, configurable reprints, custom-page PDF output and print-job audit/reprint history if operators require them.
 - Localize studio strings after the workflow and copy stabilize.
 
 ## UX / technical review notes
@@ -64,6 +65,8 @@ The sample's `0.41` is not mapped: its meaning is not established by the current
 - The studio keeps the live preview visible while its left-side cards change with the selected tab. A selected-element inspector is hidden until an object is selected; keyboard focus is restored to the preview after canvas refreshes. The modal wrapper clamps its size to the desktop work area so bottom actions stay reachable on smaller displays.
 - The Optimization Sizes toolbar now wraps instead of clipping its fixed-width controls at narrow content widths. The 2D sheet view's Left/Right Arrow tooltip is backed by a real single-sheet key handler; its schedule retains horizontal scrolling for the full-width matrix.
 - Template name collisions, invalid/non-finite batch dimensions and missing print-engine caps are handled at the persistence/engine boundary, not only in the UI.
+- Root cause of the reported 12-page output: the original paginator treated one sticker as one document page and the print engine requested the sticker's own dimensions as page media. A normal A4 printer therefore received twelve individual custom-size pages instead of a sheet layout.
+- The standard-printer sheet path never shrinks a label to fill paper: it packs labels at their designed millimetre dimensions, centres a row-major grid inside the overlap of the requested inset and the driver-reported imageable region, and paginates overflow onto further A4 sheets. If the driver cannot report imageable bounds, it uses a conservative 10 mm fallback and discloses that in the confirmation. Thermal/roll output remains one physical label per custom page.
 
 ## Acceptance checks
 
@@ -77,6 +80,7 @@ The sample's `0.41` is not mapped: its meaning is not established by the current
 8. Same-name template saves do not overwrite a different template ID; exported/imported `.pgsticker` files round-trip layout without customer data.
 9. A batch above 50,000 labels is rejected before `PrintDialog`; invalid or non-finite source dimensions are excluded.
 10. Changing label width/height changes the preview aspect and requested media size; saved preferences reload on the next launch.
+11. Twelve small stickers whose dimensions fit the A4 grid occupy one sheet; larger batches paginate in source order. Print confirmation reports the driver-specific rows, columns, orientation and page count; sticker dimensions remain unscaled, and the ZT411 path remains one label per custom-media page.
 
 ## Verification boundary
 

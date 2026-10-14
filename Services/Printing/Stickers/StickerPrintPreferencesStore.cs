@@ -44,6 +44,8 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                     loaded.LabelHeightMm = 75;
                 if (!Enum.IsDefined(typeof(StickerPrinterModel), loaded.PrinterModel))
                     loaded.PrinterModel = StickerPrinterModel.Custom;
+                if (!Enum.IsDefined(typeof(StickerOutputLayoutMode), loaded.OutputLayoutMode))
+                    loaded.OutputLayoutMode = StickerOutputLayoutMode.PrinterDefault;
                 if (!Enum.IsDefined(typeof(StickerPrinterResolution), loaded.PrinterResolution))
                     loaded.PrinterResolution = StickerPrinterResolution.Dpi203;
                 if (!Enum.IsDefined(typeof(StickerMediaHandling), loaded.MediaHandling))
@@ -51,6 +53,10 @@ namespace ProGlassAutomation.Services.Printing.Stickers
                 if (!double.IsFinite(loaded.MarginMm) || loaded.MarginMm < 0 || loaded.MarginMm > 25
                     || loaded.MarginMm * 2 >= Math.Min(loaded.LabelWidthMm, loaded.LabelHeightMm))
                     loaded.MarginMm = 2.5;
+                if (!double.IsFinite(loaded.SheetMarginMm) || loaded.SheetMarginMm < 0 || loaded.SheetMarginMm > 25)
+                    loaded.SheetMarginMm = StickerSheetLayoutPlanner.DefaultSheetMarginMm;
+                if (!double.IsFinite(loaded.SheetGapMm) || loaded.SheetGapMm < 0 || loaded.SheetGapMm > 25)
+                    loaded.SheetGapMm = StickerSheetLayoutPlanner.DefaultStickerGapMm;
                 if (!double.IsFinite(loaded.FontSizePt) || loaded.FontSizePt < 5 || loaded.FontSizePt > 30)
                     loaded.FontSizePt = 9;
                 loaded.HasPersistedSettings = true;

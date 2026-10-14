@@ -9,6 +9,14 @@ namespace ProGlassAutomation.Services.Printing.Stickers
         ZebraZt411 = 1
     }
 
+    public enum StickerOutputLayoutMode
+    {
+        /// <summary>Use A4 multi-up for a standard/custom printer and one custom-media label for the ZT411 profile.</summary>
+        PrinterDefault = 0,
+        OneLabelPerPage = 1,
+        A4Sheet = 2
+    }
+
     public enum StickerPrinterResolution
     {
         Dpi203 = 203,

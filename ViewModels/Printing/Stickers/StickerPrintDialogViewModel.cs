@@ -17,8 +17,11 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         private string _widthMmText;
         private string _heightMmText;
         private string _marginMmText;
+        private string _sheetMarginMmText;
+        private string _sheetGapMmText;
         private string _fontSizePtText;
         private StickerPrinterModel _printerModel;
+        private StickerOutputLayoutMode _outputLayoutMode;
         private StickerPrinterResolution _printerResolution;
         private StickerMediaHandling _mediaHandling;
         private bool _oneLabelPerPiece;
@@ -64,6 +67,17 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             new(StickerMediaHandling.PeelOff, "Peel-off"),
             new(StickerMediaHandling.Rewind, "Rewind"),
             new(StickerMediaHandling.Cutter, "Cutter + catch tray")
+        };
+        private readonly StickerPrinterOption<StickerOutputLayoutMode>[] _standardPrinterLayoutOptions =
+        {
+            new(StickerOutputLayoutMode.PrinterDefault, "Automatic · A4 sheet for standard printers"),
+            new(StickerOutputLayoutMode.A4Sheet, "A4 sheet · arrange multiple stickers per page"),
+            new(StickerOutputLayoutMode.OneLabelPerPage, "One sticker per page · roll / custom stock")
+        };
+        private readonly StickerPrinterOption<StickerOutputLayoutMode>[] _zt411LayoutOptions =
+        {
+            new(StickerOutputLayoutMode.PrinterDefault, "Automatic · one custom-size label per page"),
+            new(StickerOutputLayoutMode.OneLabelPerPage, "One sticker per page · roll / custom stock")
         };
 
         public StickerPrintDialogViewModel(
@@ -120,8 +134,16 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             _widthMmText = Format(_activeTemplate.LabelWidthMm);
             _heightMmText = Format(_activeTemplate.LabelHeightMm);
             _marginMmText = Format(_activeTemplate.MarginMm);
+            _sheetMarginMmText = Format(settings.SheetMarginMm);
+            _sheetGapMmText = Format(settings.SheetGapMm);
             _fontSizePtText = Format(_activeTemplate.DefaultFontSizePt);
-            _printerModel = settings.PrinterModel;
+            _printerModel = Enum.IsDefined(typeof(StickerPrinterModel), settings.PrinterModel)
+                ? settings.PrinterModel : StickerPrinterModel.Custom;
+            _outputLayoutMode = Enum.IsDefined(typeof(StickerOutputLayoutMode), settings.OutputLayoutMode)
+                ? settings.OutputLayoutMode : StickerOutputLayoutMode.PrinterDefault;
+            if (_printerModel == StickerPrinterModel.ZebraZt411
+                && _outputLayoutMode == StickerOutputLayoutMode.A4Sheet)
+                _outputLayoutMode = StickerOutputLayoutMode.PrinterDefault;
             _printerResolution = settings.PrinterResolution;
             _mediaHandling = settings.MediaHandling;
             _oneLabelPerPiece = settings.OneLabelPerPiece;
@@ -163,6 +185,8 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
         public StickerPrinterOption<StickerPrinterModel>[] PrinterModelOptions => _printerModelOptions;
         public StickerPrinterOption<StickerPrinterResolution>[] PrinterResolutionOptions => _printerResolutionOptions;
         public StickerPrinterOption<StickerMediaHandling>[] MediaHandlingOptions => _mediaHandlingOptions;
+        public StickerPrinterOption<StickerOutputLayoutMode>[] OutputLayoutOptions => IsZt411Profile
+            ? _zt411LayoutOptions : _standardPrinterLayoutOptions;
         public StickerTextAlignment[] TextAlignments => _textAlignments;
         public StickerContentAlignment[] ContentAlignments => _contentAlignments;
         public System.Collections.Generic.IReadOnlyList<StickerTemplateField> FieldChoices => _fieldChoices;
@@ -232,12 +256,95 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                     ? value : StickerPrinterModel.Custom;
                 if (_printerModel == next) return;
                 _printerModel = next;
+                if (next == StickerPrinterModel.ZebraZt411
+                    && _outputLayoutMode == StickerOutputLayoutMode.A4Sheet)
+                {
+                    _outputLayoutMode = StickerOutputLayoutMode.PrinterDefault;
+                    OnPropertyChanged(nameof(OutputLayoutMode));
+                }
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsZt411Profile));
+                OnPropertyChanged(nameof(OutputLayoutOptions));
                 OnPropertyChanged(nameof(PrinterLimitsText));
                 OnPropertyChanged(nameof(PrinterSizeWarningText));
                 OnPropertyChanged(nameof(HasPrinterSizeWarning));
+                NotifySheetLayoutChanged();
                 StatusMessage = "Printer profile changed. Save setup or print to retain the selection.";
+            }
+        }
+
+        public StickerOutputLayoutMode OutputLayoutMode
+        {
+            get => _outputLayoutMode;
+            set
+            {
+                StickerOutputLayoutMode next = Enum.IsDefined(typeof(StickerOutputLayoutMode), value)
+                    ? value : StickerOutputLayoutMode.PrinterDefault;
+                if (IsZt411Profile && next == StickerOutputLayoutMode.A4Sheet)
+                    next = StickerOutputLayoutMode.PrinterDefault;
+                if (_outputLayoutMode == next) return;
+                _outputLayoutMode = next;
+                OnPropertyChanged();
+                NotifySheetLayoutChanged();
+                StatusMessage = "Page layout changed. Review the sheet estimate, then save setup or print.";
+            }
+        }
+
+        public bool IsA4SheetLayout => OutputLayoutMode == StickerOutputLayoutMode.A4Sheet
+            || (OutputLayoutMode == StickerOutputLayoutMode.PrinterDefault && !IsZt411Profile);
+
+        public string SheetMarginMmText
+        {
+            get => _sheetMarginMmText;
+            set
+            {
+                if (!Set(ref _sheetMarginMmText, value ?? string.Empty, notifyBatch: false)) return;
+                NotifySheetLayoutChanged();
+            }
+        }
+
+        public string SheetGapMmText
+        {
+            get => _sheetGapMmText;
+            set
+            {
+                if (!Set(ref _sheetGapMmText, value ?? string.Empty, notifyBatch: false)) return;
+                NotifySheetLayoutChanged();
+            }
+        }
+
+        public string SheetLayoutSummaryText
+        {
+            get
+            {
+                if (!IsA4SheetLayout)
+                    return "One physical sticker is placed on each custom-size page. This is the recommended mode for the ZT411 and roll stock.";
+                if (!TryGetNominalSheetPlan(out var plan, out string error)) return error;
+                long labels = EstimatedLabelCount;
+                string batchEstimate = Items.Count == 0
+                    ? "Design-only: no source rows are attached; "
+                    : labels == 0
+                        ? "No valid source labels; "
+                        : labels.ToString("N0", CultureInfo.CurrentCulture) + " label(s) ≈ "
+                            + plan.PageCountFor(labels).ToString("N0", CultureInfo.CurrentCulture) + " A4 sheet(s); ";
+                return "A4 estimate: " + plan.Columns + " columns × " + plan.Rows + " rows ("
+                    + plan.LabelsPerSheet + " stickers per sheet); " + batchEstimate
+                    + plan.Orientation.ToString().ToLowerInvariant()
+                    + ". Actual capacity is recalculated from the selected printer's imageable area.";
+            }
+        }
+
+        public string EstimatedPrintPlanSummaryText
+        {
+            get
+            {
+                long labels = EstimatedLabelCount;
+                if (!IsA4SheetLayout)
+                    return labels.ToString("N0", CultureInfo.CurrentCulture) + " sticker(s) · one custom-size page each";
+                if (!TryGetNominalSheetPlan(out var plan, out _))
+                    return labels.ToString("N0", CultureInfo.CurrentCulture) + " sticker(s) · A4 layout needs attention";
+                return labels.ToString("N0", CultureInfo.CurrentCulture) + " sticker(s) · about "
+                    + plan.PageCountFor(labels).ToString("N0", CultureInfo.CurrentCulture) + " A4 sheet(s)";
             }
         }
 
@@ -352,6 +459,7 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 if (!Set(ref _widthMmText, value ?? string.Empty)) return;
                 OnPropertyChanged(nameof(PrinterSizeWarningText));
                 OnPropertyChanged(nameof(HasPrinterSizeWarning));
+                NotifySheetLayoutChanged();
                 if (TryParseNumber(_widthMmText, out double width)
                     && width >= StickerPrinterSpecifications.GenericMinimumWidthMm
                     && width <= StickerPrinterSpecifications.GenericMaximumWidthMm)
@@ -370,6 +478,7 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 if (!Set(ref _heightMmText, value ?? string.Empty)) return;
                 OnPropertyChanged(nameof(PrinterSizeWarningText));
                 OnPropertyChanged(nameof(HasPrinterSizeWarning));
+                NotifySheetLayoutChanged();
                 if (TryParseNumber(_heightMmText, out double height)
                     && height >= StickerPrinterSpecifications.MinimumTemplateLengthMm
                     && height <= StickerPrinterSpecifications.MaximumTemplateLengthMm)
@@ -409,7 +518,15 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             }
         }
 
-        public bool OneLabelPerPiece { get => _oneLabelPerPiece; set => Set(ref _oneLabelPerPiece, value); }
+        public bool OneLabelPerPiece
+        {
+            get => _oneLabelPerPiece;
+            set
+            {
+                if (!Set(ref _oneLabelPerPiece, value)) return;
+                NotifySheetLayoutChanged();
+            }
+        }
         public bool ShowLogo { get => _showLogo; set => Set(ref _showLogo, value); }
         public bool ShowCompanyName { get => _showCompanyName; set => Set(ref _showCompanyName, value); }
         public bool ShowAddress { get => _showAddress; set => Set(ref _showAddress, value); }
@@ -449,13 +566,55 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 long count = 0;
                 foreach (var row in Items)
                 {
-                    if (row == null || row.WidthMm <= 0 || row.HeightMm <= 0 || row.Quantity <= 0)
+                    if (row == null || !double.IsFinite(row.WidthMm) || !double.IsFinite(row.HeightMm)
+                        || row.WidthMm <= 0 || row.HeightMm <= 0 || row.Quantity <= 0)
                         continue;
                     count += OneLabelPerPiece ? row.Quantity : 1;
                     if (count > MaximumBatchSize) return count;
                 }
                 return count;
             }
+        }
+
+        public long EstimatedA4SheetCount
+        {
+            get
+            {
+                if (!IsA4SheetLayout || !TryGetNominalSheetPlan(out var plan, out _)) return 0;
+                return plan.PageCountFor(EstimatedLabelCount);
+            }
+        }
+
+        private bool TryGetNominalSheetPlan(out StickerSheetLayoutPlan plan, out string error)
+        {
+            plan = default;
+            error = string.Empty;
+            if (!TryParseNumber(WidthMmText, out double width)
+                || !TryParseNumber(HeightMmText, out double height))
+            {
+                error = "Enter valid sticker dimensions to estimate an A4 layout.";
+                return false;
+            }
+            if (!TryParseNumber(SheetMarginMmText, out double margin) || margin < 0 || margin > 25)
+            {
+                error = "A4 sheet inset must be between 0 and 25 mm.";
+                return false;
+            }
+            if (!TryParseNumber(SheetGapMmText, out double gap) || gap < 0 || gap > 25)
+            {
+                error = "Sticker gap must be between 0 and 25 mm.";
+                return false;
+            }
+            return StickerSheetLayoutPlanner.TryCreateNominalA4Plan(
+                width, height, margin, gap, out plan, out error);
+        }
+
+        private void NotifySheetLayoutChanged()
+        {
+            OnPropertyChanged(nameof(IsA4SheetLayout));
+            OnPropertyChanged(nameof(SheetLayoutSummaryText));
+            OnPropertyChanged(nameof(EstimatedPrintPlanSummaryText));
+            OnPropertyChanged(nameof(EstimatedA4SheetCount));
         }
 
         public void CreateNewTemplate()
@@ -699,6 +858,18 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 error = "Margin must be between 0 and 25 mm and leave printable space.";
                 return false;
             }
+            if (!TryParseNumber(SheetMarginMmText, out double sheetMargin) || sheetMargin < 0 || sheetMargin > 25)
+            {
+                error = "A4 sheet inset must be between 0 and 25 mm.";
+                return false;
+            }
+            if (!TryParseNumber(SheetGapMmText, out double sheetGap) || sheetGap < 0 || sheetGap > 25)
+            {
+                error = "Sticker gap must be between 0 and 25 mm.";
+                return false;
+            }
+            if (IsA4SheetLayout && !TryGetNominalSheetPlan(out _, out error))
+                return false;
             if (!TryParseNumber(FontSizePtText, out double fontSize) || fontSize < 3 || fontSize > 72)
             {
                 error = "Default font size must be between 3 and 72 pt.";
@@ -729,8 +900,11 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
                 LastTemplateName = _activeTemplate.Name,
                 LastTemplate = _activeTemplate.DeepClone(),
                 PrinterModel = PrinterModel,
+                OutputLayoutMode = OutputLayoutMode,
                 PrinterResolution = PrinterResolution,
                 MediaHandling = MediaHandling,
+                SheetMarginMm = sheetMargin,
+                SheetGapMm = sheetGap,
                 OneLabelPerPiece = OneLabelPerPiece,
                 ShowLogo = ShowLogo,
                 ShowCompanyName = ShowCompanyName,
@@ -779,6 +953,7 @@ namespace ProGlassAutomation.ViewModels.Printing.Stickers
             OnPropertyChanged(nameof(HeightMmText));
             OnPropertyChanged(nameof(MarginMmText));
             OnPropertyChanged(nameof(FontSizePtText));
+            NotifySheetLayoutChanged();
             if (markDirty) MarkTemplateDirty();
             else IsTemplateDirty = false;
         }

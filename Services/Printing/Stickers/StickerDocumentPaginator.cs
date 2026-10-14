@@ -6,13 +6,12 @@ using System.Windows.Documents;
 
 namespace ProGlassAutomation.Services.Printing.Stickers
 {
-    /// <summary>Creates one custom-media WPF document page per sticker without building a large FixedDocument.</summary>
+    /// <summary>Creates one custom-media WPF document page per physical sticker.</summary>
     public sealed class StickerDocumentPaginator : DocumentPaginator
     {
-        private readonly IReadOnlyList<GlassStickerLabel> _rows;
         private readonly StickerPrintPreferences _preferences;
         private readonly StickerLayoutTemplate _template;
-        private readonly long[] _pageEnds;
+        private readonly StickerLabelSequence _sequence;
         private Size _pageSize;
 
         public StickerDocumentPaginator(
@@ -27,26 +26,15 @@ namespace ProGlassAutomation.Services.Printing.Stickers
             StickerPrintPreferences preferences,
             StickerLayoutTemplate template)
         {
-            _rows = rows ?? Array.Empty<GlassStickerLabel>();
             _preferences = preferences ?? throw new ArgumentNullException(nameof(preferences));
             _template = template?.DeepClone() ?? StickerTemplatePresets.CreateSgu();
+            _sequence = new StickerLabelSequence(rows, preferences.OneLabelPerPiece);
             _pageSize = new Size(
                 StickerLabelVisualFactory.MmToDip(_template.LabelWidthMm),
                 StickerLabelVisualFactory.MmToDip(_template.LabelHeightMm));
-
-            _pageEnds = new long[_rows.Count];
-            long count = 0;
-            for (int i = 0; i < _rows.Count; i++)
-            {
-                var row = _rows[i];
-                if (row != null && row.WidthMm > 0 && row.HeightMm > 0 && row.Quantity > 0)
-                    count += preferences.OneLabelPerPiece ? row.Quantity : 1;
-                _pageEnds[i] = count;
-            }
-            PageCountLong = count;
         }
 
-        public long PageCountLong { get; }
+        public long PageCountLong => _sequence.Count;
         public override int PageCount => checked((int)PageCountLong);
         public override bool IsPageCountValid => true;
         public override IDocumentPaginatorSource Source => null!;
@@ -67,14 +55,11 @@ namespace ProGlassAutomation.Services.Printing.Stickers
             if (pageNumber < 0 || pageNumber >= PageCount)
                 throw new ArgumentOutOfRangeException(nameof(pageNumber));
 
-            var (source, printedQuantity) = FindRow(pageNumber);
-            // Return the actual label canvas as the page visual. PrintDialog's
-            // XPS writer wraps paginator visuals in its own FixedPage; returning
-            // a FixedPage here nests one FixedPage inside another and throws
-            // "FixedPage cannot contain another FixedPage" at print time.
-            var label = CloneWithPrintedQuantity(source, printedQuantity);
+            var instance = _sequence.GetOneBased(pageNumber + 1L);
+            var label = StickerLabelSequence.CopyWithPrintedQuantity(
+                instance.Source, instance.PrintedQuantity);
             var page = StickerLabelVisualFactory.CreateTemplateCanvas(
-                label, _template, printedQuantity);
+                label, _template, instance.PrintedQuantity);
             page.Width = PageSize.Width;
             page.Height = PageSize.Height;
             page.Measure(PageSize);
@@ -83,50 +68,6 @@ namespace ProGlassAutomation.Services.Printing.Stickers
 
             var bounds = new Rect(0, 0, PageSize.Width, PageSize.Height);
             return new DocumentPage(page, PageSize, bounds, bounds);
-        }
-
-        private (GlassStickerLabel Label, int PrintedQuantity) FindRow(int pageNumber)
-        {
-            long target = pageNumber + 1L;
-            int low = 0;
-            int high = _pageEnds.Length - 1;
-            while (low <= high)
-            {
-                int mid = low + ((high - low) / 2);
-                if (_pageEnds[mid] < target) low = mid + 1;
-                else high = mid - 1;
-            }
-
-            if (low >= _rows.Count)
-                throw new InvalidOperationException("The sticker page could not be mapped to a source row.");
-
-            var row = _rows[low];
-            int printedQuantity = _preferences.OneLabelPerPiece ? 1 : row.Quantity;
-            return (row, printedQuantity);
-        }
-
-        private static GlassStickerLabel CloneWithPrintedQuantity(GlassStickerLabel source, int printedQuantity)
-        {
-            return new GlassStickerLabel
-            {
-                Company = source.Company,
-                OrderNumber = source.OrderNumber,
-                JobOrderNumber = source.JobOrderNumber,
-                ProformaNumber = source.ProformaNumber,
-                CustomerCompanyName = source.CustomerCompanyName,
-                GlassName = source.GlassName,
-                GlassType = source.GlassType,
-                GlassReference = source.GlassReference,
-                WidthMm = source.WidthMm,
-                HeightMm = source.HeightMm,
-                Quantity = source.Quantity,
-                PrintedQuantity = printedQuantity,
-                Reference = source.Reference,
-                PanePosition = source.PanePosition,
-                Source = source.Source,
-                SpecGroupNumber = source.SpecGroupNumber,
-                SerialNumber = source.SerialNumber
-            };
         }
     }
 }
