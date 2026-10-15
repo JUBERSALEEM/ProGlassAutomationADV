@@ -25,7 +25,12 @@
     color-scheme: dark;
 
     --shell-max: 84rem;
-    --nav-height: 4.25rem;
+    /* §AD: slimmed from 4.25rem to the reference bar's proportions —
+       a compact floating pill (logo line, one filled active pill,
+       compact CTA), not a tall band. Every consumer (header row,
+       main offset, dropdown/sheet ceilings, scroll padding) reads
+       this token, so the whole top moves together. */
+    --nav-height: 3.5rem;
 
     /* ── Surfaces: violet, never neutral black ─────────────────────────── */
     --ink-950: 8 5 22;      /* page background            #080516 */

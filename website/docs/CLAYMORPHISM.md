@@ -165,3 +165,12 @@ text-heavy or high-density.
   stylesheet, not eyeballed. Side effect, disclosed: theme-studio
   option buttons inside the bar were victims of the same §15 strip
   and now receive the §9.7 sweep's card mould.
+- §AD (slim top bar, per the reference pill the user supplied):
+  `--nav-height` 4.25rem → 3.5rem globally (the token drives the
+  header row, the main offset, dropdown/sheet ceilings and scroll
+  padding, so the whole top slims together); in Clay the pill pads
+  4px at a 4px gap and the item cards take 3px block padding — a
+  ~38px bar holding ~30px item pills, with the measured mould
+  alphas (face step, 0.5 drop, 0.13 midnight NW lift) unchanged.
+  The separate-cards grammar from §AC stays; only the air and the
+  shadow scale shrink.

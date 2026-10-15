@@ -851,13 +851,12 @@ html[data-theme="midnight"][data-appearance="clay"] {
   background-image: none;
   border-color: transparent;
   box-shadow: var(--shadow-panel);
-  /* §AC: the panel is sized for puffy contents, not bare text — the
-     markup's p-1/gap-0.5 crams moulded items edge-to-edge, so the
-     panel reads undersized for the cards it now holds (the pack's own
-     nav vocabulary pads 10px/5px). The pill hugs the row as before;
-     it just gives the cards inside it room to be cards. */
-  padding: 6px;
-  gap: 5px;
+  /* §AC sized the panel for puffy contents (6px/5px); §AD slims it
+     to the reference bar's proportions — a compact pill the cards
+     sit in at a 4px rhythm. The cards keep their measured mould
+     (§11.10); only the air around them shrinks. */
+  padding: 4px;
+  gap: 4px;
 }
 [data-appearance="clay"] .card-live,
 [data-appearance="clay"] .float-card,
@@ -2053,6 +2052,12 @@ html[data-appearance="clay"] .menu-card ul > li > button[aria-selected][class*="
 }
 [data-appearance="clay"] .nav-pill :is(a, button) {
   border-radius: 999px;
+  /* §AD: the reference bar's item height — 3px block padding puts
+     the item pill at ~30px inside the ~38px bar, where the markup's
+     py-1.5 made a 36px item in a 48px panel. The mould below is
+     scaled to the slimmer pill; its alphas (the measured part) do
+     not change. */
+  padding-block: 3px;
   /* One ladder step off the pill (--menu-face), never the pill's own
      tone: a card the same colour as its panel separates by shadow
      alone, and at midnight the small shadow's NW lift is 0.06 — the
@@ -2062,8 +2067,8 @@ html[data-appearance="clay"] .menu-card ul > li > button[aria-selected][class*="
      1.3× the mode's lift channel (0.13 midnight / 0.46 daylight). */
   background-color: rgb(var(--menu-face));
   background-image: none;
-  box-shadow: 5px 5px 12px rgb(var(--clay-drop-h) / 0.5),
-    -5px -5px 12px rgb(255 255 255 / calc(var(--clay-lift) * 1.3)),
+  box-shadow: 4px 4px 10px rgb(var(--clay-drop-h) / 0.5),
+    -4px -4px 10px rgb(255 255 255 / calc(var(--clay-lift) * 1.3)),
     inset 2px 2px 5px var(--clay-hi),
     inset -3px -3px 6px var(--clay-lo);
   transition:
@@ -2707,15 +2712,16 @@ html[data-theme="midnight"][data-appearance="clay"] .plate-custom {
 [data-appearance="clay"] .nav-pill {
   position: relative;
   isolation: isolate;
-  /* 5px, not the flat segment's 2px: moulded item cards cast
-     shadows that need the rhythm §AC measured for the bar. */
-  gap: 5px;
+  /* 4px (§AD slim): moulded item cards cast shadows that need a
+     rhythm, but the bar's total height follows the reference —
+     compact pill, not a tall segment. */
+  gap: 4px;
   border-radius: 999px;
   background-color: rgb(var(--overlay-face));
   background-image: none;
   border-color: transparent;
   box-shadow:
-    8px 8px 18px rgb(var(--clay-drop-h) / 0.3),
+    6px 6px 14px rgb(var(--clay-drop-h) / 0.3),
     inset 2px 2px 5px var(--clay-lip),
     inset -3px -3px 7px rgb(var(--clay-drop-h) / 0.18);
   --nav-item: 69 62 94;
@@ -2724,7 +2730,7 @@ html[data-theme="midnight"][data-appearance="clay"] .plate-custom {
 html[data-theme="midnight"][data-appearance="clay"] .nav-pill {
   background-color: rgb(var(--ink-900));
   box-shadow:
-    8px 8px 18px rgb(6 3 16 / 0.55),
+    6px 6px 14px rgb(6 3 16 / 0.55),
     inset 2px 2px 5px var(--clay-hi-2),
     inset -3px -3px 7px rgb(4 2 10 / 0.5);
   --nav-item: 201 192 228;
