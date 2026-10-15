@@ -62,7 +62,7 @@ export default async function ContactPage({ params }: PageProps) {
 
       <Section aria-labelledby="form-heading">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="form-heading"
@@ -138,7 +138,7 @@ export default async function ContactPage({ params }: PageProps) {
               title={t("What a demonstration runs through.")}
               lead={t("A demonstration runs on the current release build of ProGlass Automation, shown on a screen share. It is the software working, not a slide deck about software.")}
             />
-            <div className="mt-10 grid gap-5 lg:grid-cols-3">
+            <div className="mt-8 grid gap-5 lg:grid-cols-3">
               {[
                 {
                   title: t("From quotation to cutting list"),

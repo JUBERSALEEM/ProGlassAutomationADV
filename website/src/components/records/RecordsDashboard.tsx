@@ -528,7 +528,7 @@ export function RecordsDashboard() {
 
   if (authChecking) {
     return (
-      <div className="min-h-screen bg-ink-950 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-ink-950 flex items-center justify-center p-5">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 rounded-full border-2 border-brand-400 border-t-transparent animate-spin" />
           <span className="text-xs font-mono text-text-muted">Verifying operator credentials...</span>
@@ -540,7 +540,7 @@ export function RecordsDashboard() {
   if (isAuthRequired) {
     return (
       <div className="min-h-screen bg-ink-950 flex flex-col justify-center items-center py-20 px-4">
-        <div className="w-full max-w-md rounded-panel border border-line-strong/80 bg-ink-900 p-8 text-center shadow-raised">
+        <div className="w-full max-w-md rounded-panel border border-line-strong/80 bg-ink-900 p-6 text-center shadow-raised">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-400/40 bg-brand-500/10 text-brand-300">
             <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
@@ -551,7 +551,7 @@ export function RecordsDashboard() {
               />
             </svg>
           </div>
-          <div className="mt-4 flex items-center justify-center gap-2">
+          <div className="mt-3.5 flex items-center justify-center gap-2">
             <Badge tone="warning" className="text-2xs font-mono">Restricted Access</Badge>
             <span className="text-2xs text-text-faint font-mono">Authentication Required</span>
           </div>
@@ -561,7 +561,7 @@ export function RecordsDashboard() {
           <p className="mt-2 text-xs leading-relaxed text-text-muted">
             Live operational records, factory transactions, and Excel Sync aggregation are restricted to registered operators and authorized staff.
           </p>
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="mt-5 flex flex-col gap-3">
             <Link
               href={`/reports/login?redirect=${encodeURIComponent(pathname)}`}
               className="flex h-11 items-center justify-center rounded-xl bg-brand-400 px-5 text-sm font-semibold text-accent-ink transition-colors hover:bg-brand-300"
@@ -598,10 +598,10 @@ export function RecordsDashboard() {
         isCurrentSourceScoped={data?.isCurrentSourceScoped}
       />
 
-      <div className="shell mt-6 space-y-6">
+      <div className="shell mt-5 space-y-4">
         {/* Error message banner */}
         {error && (
-          <div className="rounded-2xl border border-state-danger/50 bg-state-danger/10 p-4 text-xs text-state-danger flex items-center justify-between">
+          <div className="rounded-2xl border border-state-danger/50 bg-state-danger/10 p-3.5 text-xs text-state-danger flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="font-bold">Error:</span>
               <span>{error}</span>
@@ -639,7 +639,7 @@ export function RecordsDashboard() {
         {/* Proforma → Job Order is the next hand-off in the document chain.
             The destination API owns the strict Confirmed gate and this link
             carries the operator's active workbook and filters across. */}
-        <div className="flex flex-col gap-3 rounded-2xl border border-brand-400/25 bg-brand-500/[0.06] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-2xl border border-brand-400/25 bg-brand-500/[0.06] px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <span className="eyebrow text-brand-300">Next: Job Order</span>

@@ -107,7 +107,7 @@ export default async function ResourcesPage({ params }: PageProps) {
             lead={t("Each guide explains the concept, then says what the application does about it — separately, so you can read the explanation whether or not you ever use the software.")}
           />
 
-          <div className="mt-12 space-y-8">
+          <div className="mt-8 space-y-8">
             {guides.map((guide, index) => (
               /* The glyph names the guide's subject in the same hand the rail
                  names its modules: vocabulary is a book, the cutting guide is
@@ -139,7 +139,7 @@ export default async function ResourcesPage({ params }: PageProps) {
                   </div>
                 </header>
 
-                <div className="mt-7 grid gap-6 border-t border-line/60 pt-7 lg:grid-cols-2">
+                <div className="mt-7 grid gap-5 border-t border-line/60 pt-7 lg:grid-cols-2">
                   {guide.sections.map((section) => (
                     <div key={section.heading}>
                       <h4 className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">

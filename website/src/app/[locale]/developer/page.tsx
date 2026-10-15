@@ -226,7 +226,7 @@ const faq = [
           employer and no years-of-experience figure, because none of those are
           established anywhere.
         */}
-        <div className="surface-raised grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:gap-12 card-pad">
+        <div className="surface-raised grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:gap-10 card-pad">
           <div>
             <div className="flex items-start gap-5">
               <span
@@ -313,7 +313,7 @@ const faq = [
             lead={t("An estimator who could not find software that knew what an SGU air space was, and wrote one instead. The order below is the order it happened in — the last entry is the part still being decided.")}
           />
 
-          <ol className="mt-12 grid gap-5 lg:grid-cols-2">
+          <ol className="mt-8 grid gap-5 lg:grid-cols-2">
             {journey.map((phase, index) => {
               /* The open phase is the last one and has no proof to cite, so it
                  is the one card drawn with an accent edge rather than
@@ -353,7 +353,7 @@ const faq = [
       {/* ── When overthinking is used in success ───────────────────────── */}
       <Section tone="raised" aria-labelledby="overthinking-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.25fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.25fr)] lg:gap-10">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <SectionHeading
                 id="overthinking-heading"
@@ -428,7 +428,7 @@ const faq = [
       {/* ── The working history, from the repository's own documents ──── */}
       <Section aria-labelledby="history-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.5fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.5fr)] lg:gap-10">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <SectionHeading
                 id="history-heading"
@@ -505,7 +505,7 @@ const faq = [
       {/* ── How it started ───────────────────────────────────────────── */}
       <Section aria-labelledby="start-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.35fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.35fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="start-heading"
@@ -543,7 +543,7 @@ const faq = [
             lead={t("A trained engineer would have started from the data model. This started from the working day, and it shows in decisions that are unusual for business software — and deliberate.")}
           />
 
-          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             {consequences.map((item, index) => (
               <Reveal key={`${t(item.title)}-${index}`} delay={index * 50}>
                 <article className="surface card-interactive flex h-full flex-col p-5">
@@ -567,7 +567,7 @@ const faq = [
             lead={t("These are not aspirations written on a wall. Each is enforced somewhere in the build, which is why they have survived at this size — and why a solo author can still answer for the result.")}
           />
 
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
+          <div className="mt-8 grid gap-4 lg:grid-cols-3">
             {principles.map((item, index) => (
               <Reveal key={`${t(item.title)}-${index}`} delay={index * 60}>
                 <article className="surface h-full card-pad-sm">
@@ -600,7 +600,7 @@ const faq = [
       {/* ── Stack ────────────────────────────────────────────────────── */}
       <Section tone="sunken" aria-labelledby="stack-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:gap-10">
             <SectionHeading
               id="stack-heading"
               eyebrow={t("Technology")}
@@ -729,7 +729,7 @@ const faq = [
       {/* ── What is still missing ────────────────────────────────────── */}
       <Section aria-labelledby="gaps-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-center lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-center lg:gap-10">
             <div>
               <SectionHeading
                 id="gaps-heading"

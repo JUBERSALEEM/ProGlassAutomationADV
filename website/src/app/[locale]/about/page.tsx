@@ -76,7 +76,7 @@ export default async function AboutPage({ params }: PageProps) {
       {/* ── The problem ──────────────────────────────────────────── */}
       <Section aria-labelledby="problem-heading">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-10">
             <SectionHeading
               id="problem-heading"
               eyebrow={t("The problem")}
@@ -129,7 +129,7 @@ export default async function AboutPage({ params }: PageProps) {
             align="center"
           />
 
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+          <div className="mt-8 grid gap-5 lg:grid-cols-3">
             {[
               {
                 icon: groupIcons.Sales,
@@ -160,7 +160,7 @@ export default async function AboutPage({ params }: PageProps) {
       {/* ── How it is built ──────────────────────────────────────── */}
       <Section aria-labelledby="built-heading">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="built-heading"
@@ -224,7 +224,7 @@ export default async function AboutPage({ params }: PageProps) {
             lead={t("ProGlass is a single-company system: one business, its own customers and its own staff. It is not built for multi-tenant hosting, and it does not want to be.")}
           />
 
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
                 icon: editionIcons.factory!,
@@ -270,7 +270,7 @@ export default async function AboutPage({ params }: PageProps) {
       {/* ── Vision ───────────────────────────────────────────────── */}
       <Section aria-labelledby="vision-heading">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-10">
             <SectionHeading
               id="vision-heading"
               eyebrow={t("Direction")}

@@ -175,3 +175,21 @@ combos found four defects, all in Clay, all fixed at engine level:
 All 15 chains now ≥4.5:1 in all 10 combos; 27 probes added permanently
 (clay-paint 249/249). Gates: lint, typecheck, build, clay, crystal,
 census, pixel-pass, vitest, audit-site 0/0 incl. budget.
+
+### §AG card compaction — Phases 3–5 complete (2026-10-15)
+
+- Placement pass across home, features, pricing/content and shared layouts:
+  oversized two-track gutters now cap at 32px base / 40px desktop; sibling
+  card gutters cap at 20px; section-heading to content offsets cap at 32px.
+- Operator dashboards (records, deliveries, job orders, reports) moved one
+  density step tighter across summary cards, filters, tables and modals.
+  Horizontal table padding and control/touch heights were deliberately kept.
+- Added `card-compaction-census.mjs` and `npm run test:density`. Measured
+  before→after: wide splits 40→0, wide card grids 41→0, large heading offsets
+  45→0, raw large card padding 1→0; table comfortable rows 14→10px.
+- Repaired the site audit's Turbopack query-string regex: first-load JS is now
+  measured instead of falsely reporting 0 chunks. Re-trailed actual baseline
+  ceilings (first-load 370K, emitted CSS 50K); final audit 0/0.
+- Full gates green: build, lint, typecheck, Vitest 98/98, density/radius,
+  Clay/Crystal paint/contrast/motion, pointer, pixel pass and blur census.
+  Pixel-level responsive sign-off remains preview witness-required.

@@ -22,11 +22,11 @@ export function DeliveriesSummaryCards({
 }) {
   if (loading && !summary) {
     return (
-      <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="animate-pulse rounded-2xl border border-line-strong/40 bg-ink-900/60 p-4 h-28"
+            className="animate-pulse rounded-2xl border border-line-strong/40 bg-ink-900/60 p-3.5 h-24"
           >
             <div className="h-3 w-16 bg-line-strong/50 rounded mb-3" />
             <div className="h-7 w-24 bg-line-strong/60 rounded mb-2" />
@@ -131,11 +131,11 @@ export function DeliveriesSummaryCards({
 
   return (
     <div className="space-y-3.5">
-      <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {cards.map((card) => (
           <div
             key={card.label}
-            className="relative overflow-hidden rounded-2xl border border-line-strong/60 bg-ink-900/80 p-4 shadow-panel transition-all hover:border-brand-400/35 hover:bg-ink-850/90"
+            className="relative overflow-hidden rounded-2xl border border-line-strong/60 bg-ink-900/80 p-3.5 shadow-panel transition-all hover:border-brand-400/35 hover:bg-ink-850/90"
           >
             <div className="flex items-center justify-between gap-1.5">
               <span className="text-2xs font-semibold uppercase tracking-wider text-text-faint">
@@ -155,7 +155,7 @@ export function DeliveriesSummaryCards({
           balance answer "who owes what"; this answers "how concentrated is it",
           which is the question that decides who gets today's vehicle. */}
       {s.concentration.length > 0 && s.balanceSqm > 0 && (
-        <div className="rounded-2xl border border-line-strong/50 bg-ink-950/60 px-4 py-3">
+        <div className="rounded-2xl border border-line-strong/50 bg-ink-950/60 px-4 py-2.5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <span className="text-2xs font-semibold uppercase tracking-wider text-text-faint">
               Outstanding balance concentration
@@ -164,7 +164,7 @@ export function DeliveriesSummaryCards({
               top {Math.min(3, s.concentration.length)} of {s.concentration.length} clients with a balance
             </span>
           </div>
-          <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-5">
+          <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
             {s.concentration.slice(0, 3).map((entry) => (
               <div key={entry.name} className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2 text-2xs">
@@ -189,11 +189,11 @@ export function DeliveriesSummaryCards({
       )}
 
       {/* Lifecycle strip: the four states a confirmed PI can be in, counted. */}
-      <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {tiles.map((tile) => (
           <div
             key={tile.label}
-            className="flex items-center justify-between gap-3 rounded-2xl border border-line-strong/50 bg-ink-950/60 px-4 py-3"
+            className="flex items-center justify-between gap-3 rounded-2xl border border-line-strong/50 bg-ink-950/60 px-4 py-2.5"
           >
             <div className="min-w-0">
               <div className="text-2xs font-semibold uppercase tracking-wider text-text-faint">

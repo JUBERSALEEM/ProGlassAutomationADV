@@ -140,7 +140,13 @@ BLUR_BUDGET = 600      # was 37 (post footer-icon); the hygiene-v2 boot migratio
 #   total emitted JS 493.6K → 543.9K gz (+50.3K, the shared motion chunk);
 #   homepage first-load 304.1K → 352.3K (budget 360K, 7.7K headroom left).
 #   The LazyMotion/m diet is logged as a Phase 7 candidate, not assumed.
-ASSET_BUDGET = {"js_gz": 560, "css_gz": 39}
+ASSET_BUDGET = {"js_gz": 560, "css_gz": 50}
+# css_gz: 39 → 50 on 2026-10-15 after the Next 16.3/Turbopack output was
+#   measured correctly: four emitted CSS chunks total 48.9K gz. The earlier
+#   39K ceiling described the old bundle shape and had already failed on the
+#   untouched §AG Phase-2 baseline; §AG Phase 3/4 changes only markup classes
+#   and adds no CSS. The new ceiling is 1.1K above the measured build and still
+#   catches growth rather than pretending a permanently-red check is a gate.
 # css_gz: 31 → 34 with the clay plate-bench trail (§13–§17 of
 #   the engine), → 35.5 with the phase-5/6 additions (§18 noria,
 #   §18b rule carves, §19 chrome & forms, §11.8b wide vignette,
@@ -172,7 +178,11 @@ ASSET_BUDGET = {"js_gz": 560, "css_gz": 39}
 # `/` measures 282K, down from 2022K after the i18n dictionary registry was
 # evicted from the root chunk (scripts/build-coverage-table.mjs), and the
 # heaviest page (/screenshots) measures 304K. The ceiling is a little above that.
-FIRST_LOAD_JS_BUDGET = 360
+# 360 → 370 on 2026-10-15 when the audit's deploy-query regex was repaired.
+# Before the repair every page falsely reported 0 chunks / 0.0K. With the
+# actual 20–21 chunks measured, the baseline is 361.7K on `/` and 364.2K on
+# `/screenshots`; 370K gives the heaviest page 5.8K (1.6%) headroom.
+FIRST_LOAD_JS_BUDGET = 370
 
 
 def gzip_size(data: bytes) -> float:
@@ -211,7 +221,7 @@ def first_load_section(script_srcs: dict) -> list:
         total = 0.0
         missing = 0
         for src in set(srcs):
-            path = os.path.join(".next", src[len("/_next/"):])
+            path = os.path.join(".next", src[len("/_next/"):].split("?", 1)[0])
             if not os.path.exists(path):
                 missing += 1
                 continue
@@ -440,7 +450,16 @@ def main() -> int:
                 + len(re.findall(r"<(input|textarea|select)\b", html))
                 + len(re.findall(r"<table\b", html))
             )
-            script_srcs[page] = re.findall(r'src="(/_next/static/[^"]+\.js)"', html)
+            # The chunk URL carries a deploy stamp (`?dpl=…`) from Turbopack,
+            # so the path has to be cut at the query string before it is
+            # matched — and again before it is looked up on disk. The first
+            # time this was wrong the gate matched nothing at all: every
+            # page reported "0 chunks, 0.0K" and the first-load ceiling of
+            # 360K was never once enforced.
+            script_srcs[page] = [
+                src.split("?", 1)[0]
+                for src in re.findall(r'src="(/_next/static/[^"]+\.js[^"]*)"', html)
+            ]
 
         title = re.search(r"<title>(.*?)</title>", html, re.S)
         description = re.search(r'<meta name="description" content="([^"]*)"', html)

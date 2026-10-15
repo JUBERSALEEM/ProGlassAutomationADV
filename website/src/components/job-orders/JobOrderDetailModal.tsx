@@ -184,9 +184,9 @@ export function JobOrderDetailModal({ row, authToken, productionTrackingAvailabl
   const completedStages = production?.stages.filter((stage) => stage.status === "Completed").length ?? 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/85 p-4 animate-fade-in" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy && !savingStage) onClose(); }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/85 p-3.5 animate-fade-in" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy && !savingStage) onClose(); }}>
       <section role="dialog" aria-modal="true" aria-labelledby="job-order-detail-title" className="relative flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-line-strong/80 bg-ink-900 shadow-raised">
-        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-line-strong/60 p-5 sm:p-6">
+        <div className="flex shrink-0 items-start justify-between gap-3.5 border-b border-line-strong/60 p-4 sm:p-5">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <span className="eyebrow text-brand-300">Production release · confirmed PI</span>
@@ -199,7 +199,7 @@ export function JobOrderDetailModal({ row, authToken, productionTrackingAvailabl
           <button type="button" onClick={onClose} disabled={busy || Boolean(savingStage)} aria-label="Close Job Order details" className="shrink-0 rounded-lg border border-line-strong p-1.5 text-text-faint transition-colors hover:bg-ink-850 hover:text-text-primary disabled:opacity-50">✕</button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6">
+        <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
           <div className="grid grid-cols-2 gap-x-5 gap-y-4 sm:grid-cols-3 lg:grid-cols-4">
             {values.map(([label, value, mono]) => (
               <div key={label} className="min-w-0">
@@ -209,7 +209,7 @@ export function JobOrderDetailModal({ row, authToken, productionTrackingAvailabl
             ))}
           </div>
 
-          <div className="mt-6 rounded-2xl border border-brand-400/25 bg-brand-400/5 p-4">
+          <div className="mt-5 rounded-2xl border border-brand-400/25 bg-brand-400/5 p-3.5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h3 className="text-sm font-bold text-text-primary">Production routing & progress</h3>
@@ -227,13 +227,13 @@ export function JobOrderDetailModal({ row, authToken, productionTrackingAvailabl
 
             {!production && (
               <>
-                <div className="mt-4 rounded-xl border border-state-warning/30 bg-state-warning/10 p-3 text-2xs leading-relaxed text-state-warning">
+                <div className="mt-3.5 rounded-xl border border-state-warning/30 bg-state-warning/10 p-3 text-2xs leading-relaxed text-state-warning">
                   <strong>Summary-based route — verify before release.</strong> Supabase public.records does not contain pane treatment or all processing charges. Pane counts are estimated from type and quantity; add missing stages and correct any quantities before confirming.
                   {routePreview?.build_types.length ? <p className="mt-1.5 font-semibold">Detected build families: {routePreview.build_types.join(", ")}</p> : null}
                   {!productionTrackingAvailable && <p className="mt-1.5 font-semibold">Release is unavailable until the live Supabase tracking schema and required source-data scope are ready.</p>}
                   {routePreview?.warnings.map((warning) => <p key={warning} className="mt-1.5">{warning}</p>)}
                 </div>
-                <div className="mt-4 overflow-x-auto rounded-xl border border-line-strong/60">
+                <div className="mt-3.5 overflow-x-auto rounded-xl border border-line-strong/60">
                   <table className="w-full min-w-[620px] text-left text-xs">
                     <thead className="bg-ink-950/80 text-3xs font-semibold uppercase tracking-wider text-text-faint">
                       <tr><th className="px-3 py-2.5">Stage</th><th className="px-3 py-2.5">Planned quantity</th><th className="px-3 py-2.5">Unit</th><th className="w-20 px-3 py-2.5 text-right">Action</th></tr>
@@ -254,7 +254,7 @@ export function JobOrderDetailModal({ row, authToken, productionTrackingAvailabl
                           </td>
                         </tr>
                       ))}
-                      {draftStages.length === 0 && <tr><td colSpan={4} className="px-3 py-6 text-center text-2xs text-text-muted">No route could be inferred. Add Cutting, enter its pane quantity, then add the required downstream stages.</td></tr>}
+                      {draftStages.length === 0 && <tr><td colSpan={4} className="px-3 py-5 text-center text-2xs text-text-muted">No route could be inferred. Add Cutting, enter its pane quantity, then add the required downstream stages.</td></tr>}
                     </tbody>
                   </table>
                 </div>
@@ -269,7 +269,7 @@ export function JobOrderDetailModal({ row, authToken, productionTrackingAvailabl
                   <button type="button" onClick={addPlanStage} disabled={!newStage} className="rounded-lg border border-line-strong px-3 py-2 text-xs font-semibold text-text-secondary hover:border-brand-400 hover:text-brand-200 disabled:opacity-40">Add stage</button>
                 </div>
                 <p className="mt-2 text-3xs text-text-faint">Pane, piece and finished-unit counts are whole numbers; linear metres may use 0.001 precision.</p>
-                <label className="mt-4 flex items-start gap-2.5 rounded-xl border border-line-strong/70 bg-ink-950/50 p-3 text-2xs leading-relaxed text-text-secondary">
+                <label className="mt-3.5 flex items-start gap-2.5 rounded-xl border border-line-strong/70 bg-ink-950/50 p-3 text-2xs leading-relaxed text-text-secondary">
                   <input type="checkbox" checked={routeReviewed} onChange={(event) => setRouteReviewed(event.target.checked)} className="mt-0.5 accent-brand-400" />
                   <span>I reviewed the PI summary, build type, pane-based cutting quantity and required processing stages. I confirm this route for production.</span>
                 </label>
@@ -277,7 +277,7 @@ export function JobOrderDetailModal({ row, authToken, productionTrackingAvailabl
             )}
 
             {production && (
-              <div className="mt-4 overflow-x-auto rounded-xl border border-line-strong/60">
+              <div className="mt-3.5 overflow-x-auto rounded-xl border border-line-strong/60">
                 <table className="w-full min-w-[680px] text-left text-xs">
                   <thead className="bg-ink-950/80 text-3xs font-semibold uppercase tracking-wider text-text-faint">
                     <tr><th className="px-3 py-2.5">Production stage</th><th className="px-3 py-2.5 text-right">Planned</th><th className="px-3 py-2.5">Completed</th><th className="px-3 py-2.5">Balance</th><th className="px-3 py-2.5">Status</th><th className="px-3 py-2.5 text-right">Save</th></tr>
@@ -298,16 +298,16 @@ export function JobOrderDetailModal({ row, authToken, productionTrackingAvailabl
                         </tr>
                       );
                     })}
-                    {production.stages.length === 0 && <tr><td colSpan={6} className="px-3 py-6 text-center text-2xs text-text-muted">No production stages are attached to this release.</td></tr>}
+                    {production.stages.length === 0 && <tr><td colSpan={6} className="px-3 py-5 text-center text-2xs text-text-muted">No production stages are attached to this release.</td></tr>}
                   </tbody>
                 </table>
               </div>
             )}
           </div>
 
-          {error && <div role="alert" className="mt-4 rounded-xl border border-state-danger/50 bg-state-danger/10 px-3.5 py-3 text-xs text-state-danger">{error}</div>}
+          {error && <div role="alert" className="mt-3.5 rounded-xl border border-state-danger/50 bg-state-danger/10 px-3.5 py-2.5 text-xs text-state-danger">{error}</div>}
 
-          <div className="mt-5 flex flex-wrap items-center gap-2">
+          <div className="mt-4 flex flex-wrap items-center gap-2">
             <LocaleLink href={confirmedProformaHrefForJobOrder(row.pi_number, row.source_file)} className="inline-flex h-9 items-center justify-center rounded-xl border border-line-strong/80 bg-ink-850/80 px-3.5 text-xs font-semibold text-text-muted transition-colors hover:border-brand-400 hover:text-brand-200">
               Open Proforma Records
             </LocaleLink>
@@ -321,7 +321,7 @@ export function JobOrderDetailModal({ row, authToken, productionTrackingAvailabl
           </div>
         </div>
 
-        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-line-strong/60 bg-ink-950/50 px-5 py-4 sm:px-6">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-line-strong/60 bg-ink-950/50 px-5 py-3.5 sm:px-6">
           <span className="text-3xs text-text-faint">Source PI stays Confirmed and immutable in Excel Sync.</span>
           <div className="flex gap-2">
             {!production && (

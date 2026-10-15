@@ -110,7 +110,7 @@ export default async function OptimizationPage({ params }: PageProps) {
       {/* ── Why a guillotine model ───────────────────────────────── */}
       <Section aria-labelledby="model-heading">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-10">
             <SectionHeading
               id="model-heading"
               eyebrow={t("The model")}
@@ -216,7 +216,7 @@ export default async function OptimizationPage({ params }: PageProps) {
             title={t("Two formats the engine writes today — and three it names honestly.")}
             lead={t("The rule is in the application's own export code: formats that are documented are implemented; formats that are not are declared, shown, and say exactly what finishes them — one sample file from the machine that will read them. Nothing writes a file it cannot stand behind.")}
           />
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {[
               {
                 key: "dxf",
@@ -290,7 +290,7 @@ export default async function OptimizationPage({ params }: PageProps) {
             lead={t("These are the defaults the engineering assumes before an operator changes anything. Every value is editable per run, and 'Load house defaults' puts them back.")}
           />
 
-          <div className="surface-raised mt-10 overflow-x-auto card-pad-sm">
+          <div className="surface-raised mt-8 overflow-x-auto card-pad-sm">
             <table className="w-full min-w-[46rem] border-separate border-spacing-0 text-sm">
               <caption className="sr-only">{t("Default cutting allowances per glass thickness bucket")}</caption>
               <thead>
@@ -336,7 +336,7 @@ export default async function OptimizationPage({ params }: PageProps) {
             lead={t("The strategy family decides which placement portfolios get tried. Effort decides how hard the engine searches inside that family — time budget, shuffles and consolidation sweeps. Changing one does not silently change the other.")}
           />
 
-          <div className="mt-10">
+          <div className="mt-8">
             <StrategyPicker />
           </div>
         </Container>
@@ -352,7 +352,7 @@ export default async function OptimizationPage({ params }: PageProps) {
             lead={t("A two-stage guillotine is faster to run and easier to jig. A free guillotine packs tighter. The engine lets you choose how deep the cut tree may go, and refuses trim cuts on laminated stock outright.")}
           />
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {cutComplexities.map((item, index) => (
               <Reveal key={`${t(item.name)}-${index}`} delay={index * 50} className="surface flex flex-col p-5">
                 <IndexChip className="h-7 w-7 text-[0.75rem]">{String(index + 1).padStart(2, "0")}</IndexChip>
@@ -383,7 +383,7 @@ export default async function OptimizationPage({ params }: PageProps) {
             lead={t("Two oracles run over every result and check different things. A plan that fails either one is still displayed so it can be inspected — but it is never exported to a cut file and never fed to production work.")}
           />
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+          <div className="mt-8 grid gap-5 lg:grid-cols-2">
             {verificationOracles.map((oracle, index) => (
               <Reveal key={`${t(oracle.name)}-${index}`} delay={index * 70} className="surface-raised card-pad-sm">
                 <p className="eyebrow">{t(oracle.evidence)}</p>
@@ -435,7 +435,7 @@ export default async function OptimizationPage({ params }: PageProps) {
             lead={t("Confirmed orders are pulled into a batch, stock racks are chosen, the plan is produced, inspected in 2D, summarised, and exported. The tab names below are the labels on the screen.")}
           />
 
-          <Reveal delay={80} className="mt-10">
+          <Reveal delay={80} className="mt-8">
             <ProductSlider
               ariaLabel="Optimization workspace tabs"
               slides={tabShots.map((shot) => ({
@@ -475,7 +475,7 @@ export default async function OptimizationPage({ params }: PageProps) {
       {/* ── Export / report ──────────────────────────────────────── */}
       <Section tone="sunken" aria-labelledby="export-heading">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="export-heading"
@@ -557,7 +557,7 @@ export default async function OptimizationPage({ params }: PageProps) {
       {/* ── Technical detail ─────────────────────────────────────── */}
       <Section aria-labelledby="technical-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-14">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-10">
             <SectionHeading
               id="technical-heading"
               eyebrow={t("Technical detail")}

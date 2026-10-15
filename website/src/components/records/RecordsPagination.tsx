@@ -47,9 +47,9 @@ export function RecordsPagination({
   };
 
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-line-strong/60 bg-ink-950/70 p-4 rounded-2xl">
+    <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between border-t border-line-strong/60 bg-ink-950/70 p-3.5 rounded-2xl">
       {/* Left: Summary statement & Page Size selector */}
-      <div className="flex flex-wrap items-center gap-4 text-xs text-text-muted">
+      <div className="flex flex-wrap items-center gap-3.5 text-xs text-text-muted">
         <div>
           Showing <span className="font-mono font-semibold text-text-primary">{startEntry.toLocaleString()}</span> to{" "}
           <span className="font-mono font-semibold text-text-primary">{endEntry.toLocaleString()}</span> of{" "}

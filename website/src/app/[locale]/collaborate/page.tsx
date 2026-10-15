@@ -135,7 +135,7 @@ export default async function CollaboratePage({ params }: PageProps) {
       {/* ── The reason, stated first ─────────────────────────────────── */}
       <Section aria-labelledby="why-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="why-heading"
@@ -203,7 +203,7 @@ export default async function CollaboratePage({ params }: PageProps) {
               <Badge tone="warning">{t("Not built yet")}</Badge>
             </div>
 
-            <div className="grid gap-8 pt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
+            <div className="grid gap-8 pt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
               <div>
                 <p className="text-sm leading-relaxed text-text-secondary">
                   {t(
@@ -303,7 +303,7 @@ export default async function CollaboratePage({ params }: PageProps) {
             align="center"
           />
 
-          <ul className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <ul className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {collaboratorRoles.map((role, index) => (
               <Reveal key={role.id} as="li" delay={Math.min(index, 5) * 55} id={role.id}>
                 <article className="surface-raised card-interactive flex h-full flex-col card-pad-sm">
@@ -354,7 +354,7 @@ export default async function CollaboratePage({ params }: PageProps) {
             )}
           />
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-12">
+          <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-10">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
               {whatYouGet.map((item, index) => (
                 <Reveal key={t(item.title)} delay={index * 55}>
@@ -391,7 +391,7 @@ export default async function CollaboratePage({ params }: PageProps) {
       {/* ── How it starts ────────────────────────────────────────────── */}
       <Section aria-labelledby="start-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)] lg:gap-10">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <SectionHeading
                 id="start-heading"

@@ -38,7 +38,7 @@ export default function Loading() {
           <div className="h-4 w-5/6 animate-pulse rounded-full bg-ink-850" />
         </div>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-14 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {[0, 1, 2, 3, 4, 5].map((key) => (
             <div key={key} className="surface h-56 animate-pulse" />
           ))}

@@ -20,7 +20,7 @@ import { MovementStatusChip, MovementTypeChip } from "./DeliveryAtoms";
 export function MovementLedger({ row, compact = false }: { row: DeliveryRow; compact?: boolean }) {
   if (row.movements.length === 0) {
     return (
-      <div className="rounded-xl border border-line-strong/50 bg-ink-900/70 px-4 py-3 text-xs text-text-muted">
+      <div className="rounded-xl border border-line-strong/50 bg-ink-900/70 px-4 py-2.5 text-xs text-text-muted">
         <span className="font-semibold text-text-primary">No deliveries recorded against this PI.</span>{" "}
         {row.ordered_qty > 0 ? (
           <>

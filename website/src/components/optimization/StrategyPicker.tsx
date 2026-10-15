@@ -30,7 +30,7 @@ export function StrategyPicker() {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid gap-5 lg:grid-cols-2">
       {/* ── Search stage ─────────────────────────────────────────── */}
       <div className="surface-raised flex flex-col card-pad-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">

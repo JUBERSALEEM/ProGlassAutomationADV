@@ -97,7 +97,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
             lead={t("Every arrow is a conversion of the previous record with full audit traceability. Nothing downstream invents data that the upstream record did not carry.")}
           />
 
-          <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-14">
+          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-10">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <div className="surface p-5">
                 <p className="eyebrow mb-4">{t("At a glance")}</p>
@@ -153,7 +153,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
             title={t("One opt-in bridge from the shop's machine to this website.")}
             lead={t("ProGlass stays the source of truth and keeps working with the cable unplugged. When a shop switches Records Sync on, a background pass publishes finished documents into the cloud table this website reads — and until it is switched on, nothing leaves the machine at all.")}
           />
-          <div className="mt-12 grid items-stretch gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)]">
+          <div className="mt-8 grid items-stretch gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)]">
             <div className="surface p-5">
               <p className="eyebrow">{t("On the shop's machine")}</p>
               <h3 className="mt-2 text-base font-semibold text-text-primary">{t("ProGlass Automation")}</h3>
@@ -248,7 +248,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
             lead={t("The left column is how a glass job is usually run on paper and in spreadsheets. The right column is what this application does for that same step. Both columns describe the step honestly — there is no time saved or percentage gained in this table, because nothing in the software measures either.")}
           />
 
-          <div className="mt-12 space-y-4">
+          <div className="mt-8 space-y-4">
             {beforeAfter.map((row, index) => (
               <Reveal key={row.id} delay={Math.min(index, 5) * 45}>
                 <article className="surface overflow-hidden">
@@ -300,7 +300,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
       {/* ── Where the assistant fits ─────────────────────────────── */}
       <Section tone="raised" aria-labelledby="assistant-heading">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="assistant-heading"
@@ -383,7 +383,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
             lead={t("Four moments that between them cover most of what a glass business does with it. The screens named are the ones the navigation rail opens.")}
           />
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+          <div className="mt-8 grid gap-5 lg:grid-cols-2">
             {[
               {
                 time: "Morning",

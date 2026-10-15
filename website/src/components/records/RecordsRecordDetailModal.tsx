@@ -36,13 +36,13 @@ export function RecordsRecordDetailModal({ record, onClose }: RecordsRecordDetai
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-950/80 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 bg-ink-950/80 backdrop-blur-sm animate-fade-in">
       <div
-        className="relative w-full max-w-2xl rounded-2xl border border-line-strong/80 bg-ink-900 p-6 shadow-raised overflow-hidden"
+        className="relative w-full max-w-2xl rounded-2xl border border-line-strong/80 bg-ink-900 p-5 shadow-raised overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between border-b border-line-strong/60 pb-4">
+        <div className="flex items-start justify-between border-b border-line-strong/60 pb-3.5">
           <div>
             <div className="flex items-center gap-2">
               <span className="eyebrow text-brand-300">Record Inspection</span>
@@ -68,7 +68,7 @@ export function RecordsRecordDetailModal({ record, onClose }: RecordsRecordDetai
         </div>
 
         {/* Content Grid */}
-        <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto pr-1">
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3.5 max-h-[60vh] overflow-y-auto pr-1">
           <DetailField label="Date" value={formatDateDDMMYYYY(record.date)} mono />
           <DetailField label="Salesman" value={record.salesman} />
           <DetailField label="Prepared By" value={record.prepared_by} />
@@ -115,7 +115,7 @@ export function RecordsRecordDetailModal({ record, onClose }: RecordsRecordDetai
         </div>
 
         {/* Footer Actions */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line-strong/60 pt-4">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line-strong/60 pt-3.5">
           <Button variant="secondary" size="sm" onClick={handleCopyJson}>
             {copied ? "✓ Copied JSON" : "Copy Raw JSON"}
           </Button>

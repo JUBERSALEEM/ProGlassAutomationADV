@@ -96,7 +96,7 @@ export default async function ClayCatalogPage({ params }: PageProps) {
       <Section aria-labelledby="cat-noria" className="!py-6">
         <Container>
           <h2 id="cat-noria" className="card-title mb-4">Stat rotation + noria</h2>
-          <div className="grid gap-6 xl:grid-cols-2">
+          <div className="grid gap-5 xl:grid-cols-2">
             <div>
               <p className="mb-2 text-xs font-semibold text-text-faint">Default grid — house order (1 → 4)</p>
               <dl className="grid grid-cols-2 gap-3">
