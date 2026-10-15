@@ -576,12 +576,16 @@ test("§M·stability: the liquid is defiltered, restable, and the wallpaper is a
   const spans = engine.match(/\[data-appearance="crystal"\] \.liquid-scene span \{([\s\S]*?)\}/);
   assert.ok(spans, "the liquid span rule is gone");
   assert.ok(!/filter:|will-change/.test(spans[1]), "the blobs regained a filter/will-change — giant re-rasters behind every pane");
-  /* §P renegotiated: the scroll-rest gate is RETIRED, not lost. Its writers
-     (scroll stir + idle watchdog) were the scroll-coupled repaint engine
-     behind the flashing-cards witness; the drift is transform-only
-     compositor work and needs no parking now that panes do not sample
-     the backdrop (§O). Pin its absence so it cannot creep back. */
-  assert.ok(!engine.includes('data-liquid-rest="1"'), "the scroll-rest gate is back — §P retired it with its writers");
+  /* §P renegotiated TWICE, honestly. First: the <html>-level scroll-rest
+     gate stayed retired — its writers (scroll stir + idle watchdog) were
+     the scroll-coupled repaint engine behind the flashing-cards witness.
+     §Z: a namesake gate returns on the SCENE ELEMENT ONLY, because the
+     drift itself (visible through 0.05-lift midnight panes) makes a
+     scrolling page swim — the scroll-splash witness. Pin the shape:
+     the html restyle class can never return; the scene-scoped
+     play-state gate must stand. */
+  assert.ok(!/html\[data-liquid-rest/.test(engine), "the <html>-level scroll-rest gate is back — §P retired that document restyle");
+  assert.match(engine, /\.liquid-scene\[data-liquid-rest="1"\] span \{\s*animation-play-state: paused;/, "the §Z scene-scoped scroll rest is gone — the liquid swims through the panes mid-scroll again");
   assert.match(engine, /html\.glass-econ\[data-appearance="crystal"\] \.liquid-scene span \{\n  animation: none;/, "the economy lane no longer stills the liquid");
   assert.match(engine, /\[data-appearance="crystal"\] body::before \{\n  display: none;/, "the etched grid is back behind Crystal");
   const wall = engine.match(/\[data-appearance="crystal"\] body::after \{([\s\S]*?)\}/);

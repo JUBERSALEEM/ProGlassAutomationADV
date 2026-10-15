@@ -224,12 +224,22 @@ test("G7·1 (§P) the scroll stir is deleted and never mounted", () => {
   assert.ok(glassLifeComponent.includes("initGlassLife"), "GlassLife lost the catch-light mount");
 });
 
-test("G7·2 (§P) no scroll listener writes styles in the living-glass layer or the hero field", () => {
+test("G7·2 (§P, §Z-renegotiated) scroll writes no styles; the one listener parks the liquid on its own element", () => {
+  /* §P banned per-frame style writes and root restyles from scroll
+     (the stir + watchdog). §Z re-admits a listener of exactly one
+     shape — it toggles data-liquid-rest on the .liquid-scene element
+     itself, at most twice per gesture, so the drift pauses while the
+     page moves (the scroll-splash witness). Anything broader stays
+     banned: channel writes, inline style writes, HeroField scroll
+     coupling. Renegotiated in the open, like G6·1 and §W before it. */
+  assert.ok(!heroField.includes('addEventListener("scroll"'), "HeroField listens to scroll again — scroll writes nothing");
   for (const [name, src] of [["GlassLife", glassLifeComponent], ["HeroField", heroField]]) {
-    assert.ok(!src.includes('addEventListener("scroll"'), `${name} listens to scroll again — scroll writes nothing`);
     assert.ok(!src.includes('"--glass-surge"') && !src.includes('"--glass-drift"'), `${name} writes the water channels again`);
   }
   assert.ok(!heroField.includes('"--sy"'), "HeroField writes --sy again — the banner parallax is scroll-coupled again");
+  assert.ok(glassLifeComponent.includes('querySelector(".liquid-scene")'), "the §Z rest lost its scene scoping — the toggle must land on the scene, never the root");
+  assert.ok(glassLifeComponent.includes('setAttribute("data-liquid-rest", "1")'), "the §Z rest toggle is gone");
+  assert.ok(!glassLifeComponent.includes("setProperty"), "GlassLife writes inline styles — style writes live in glassLife.ts, scoped to the hovered card");
 });
 
 test("G7·3 (§P) nothing restyles the document on interaction: no root data flips in GlassLife", () => {

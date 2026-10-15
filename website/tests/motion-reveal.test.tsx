@@ -143,6 +143,30 @@ describe("§R+§S touch budget (coarse pointers)", () => {
     expect(studio).toContain("max-h-[78vh] overflow-y-auto");
   });
 
+  it("scroll rest (§Z): the liquid parks while scrolling; engine samplers filmed on touch", () => {
+    /* Midnight panes sit at a 0.05 lift, so the drifting disc shows
+       through every card — while the page scrolls, the colour swims
+       behind the glass the whole way down (the splash witness). §Z
+       parks the drift during scroll (resume 900ms after settle) via
+       ONE attribute on the .liquid-scene element — never <html>,
+       never per frame (§P's ban stands) — and films the three
+       backdrop samplers the §S census missed because they live in
+       the engine: table heads, form wells, the studio sheet. */
+    const engine = read("src/app/crystal-engine.css");
+    expect(engine).toContain('.liquid-scene[data-liquid-rest="1"] span');
+    expect(engine).toContain("animation-play-state: paused");
+    expect(engine).not.toContain("html[data-liquid-rest");
+    const lane = engine.slice(engine.lastIndexOf("@media (pointer: coarse)"));
+    expect(lane).toContain("table thead tr");
+    expect(lane).toContain(":is(input, textarea, select)");
+    expect(lane).toContain(".studio-sheet");
+    const life = read("src/components/glass/GlassLife.tsx");
+    expect(life).toContain('setAttribute("data-liquid-rest", "1")');
+    expect(life).toContain("removeAttribute(\"data-liquid-rest\")");
+    expect(life).toContain("{ passive: true }");
+    expect(life).toContain("900");
+  });
+
   it("small accent text (§Y): no sub-floor opacity modifiers on tiny labels", () => {
     /* Measured over the liquid's disc cores, brand-400 at /60–/70 and
        the state hues at /80 land at 2–3.5:1 — the murk the witness

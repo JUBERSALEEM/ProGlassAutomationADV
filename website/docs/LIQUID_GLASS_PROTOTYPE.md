@@ -751,3 +751,39 @@ dark; a dark halo would smudge it).
 parsed disc cores (bare text-3; haloed text-4 and brand-300; the
 lamp stack included) plus a halo-presence lock; a vitest guard
 keeps the sub-floor classes from returning. 93 pairs total.
+
+### §Z — scroll-splash: the liquid rests while you scroll (*shipped*)
+
+**Witness.** Crystal, dark mode: "page splashing while scrolling —
+scroll transition should be smooth."
+
+**Audit.** The full paint path was re-read (engine end to end,
+globals, layout, GlassLife, Navbar). The §P acquittals all hold:
+no scroll writer, no root restyle, panes sample no backdrop, the
+bar flips nothing in Crystal. What remains is motion, not
+repaint: midnight panes sit at a **0.05 lift**, so the drifting
+liquid disc is visible *through every card* — and while the page
+scrolls, that colour swims behind the glass the whole way down.
+The page never reads still; on the dark wall it reads as splash.
+(Clay's panes are opaque, which is why Clay always scrolled clean.)
+Second finding: three backdrop samplers the §S touch census never
+filmed, because it scanned globals and these live in the engine —
+blurred `thead tr`, form wells at `blur(14px) saturate(180%)`, and
+the §O chrome set's `.studio-sheet`. Each re-samples its backdrop
+per scroll frame where present (tables, filter panels).
+
+**The fix.** (1) **The liquid rests while the visitor scrolls**,
+resuming 900ms after the last scroll event. The implementation is
+deliberately not the retired §P gate: GlassLife writes
+`data-liquid-rest` on the `.liquid-scene` element itself, at most
+twice per gesture (first event, settle timeout) — the restyle
+touches three spans' `animation-play-state`; no `<html>`
+attribute, no inherited property, no pane ever recomputes. At
+rest the room lives exactly as before. (2) The three stragglers
+join the coarse film lane (solid fills they already nearly had;
+the studio sheet keeps its `--cad-surface` canvas — only its blur
+is retired). Fine pointers keep all frost.
+
+**Locked.** The §M lock is renegotiated in the open (html-level
+gate pinned absent forever; scene-scoped gate pinned present);
+a vitest §Z guard covers the lane films and the GlassLife wiring.
