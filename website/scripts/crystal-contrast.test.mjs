@@ -326,6 +326,59 @@ for (const mode of ["midnight", "daylight"]) {
     [...buildFill("mainline", mode, "--surface-alpha"), catchPeak], 4.5);
 }
 
+/* ── §Y · text over living glass (the 10–20% witness) ────────────────
+   The pairs above measure text on panes. The failing slice never
+   sits on a pane: eyebrows, mono labels and hero bylines sit directly
+   on the wallpaper, whose cores are parsed here from the engine's
+   own disc declarations (colours from the token sheets, alphas from
+   the nth-child rules) — the brightest points the liquid can put
+   behind a word. Floors: bare text-3 must pass unaided; text-4 and
+   the label accent (solid brand-300, the rung the components were
+   raised to) must pass under the §Y halo, modelled as the halo's own
+   first shadow (scrim at 0.60) composited behind the glyphs. */
+const discLayer = (n, varName, tokenSheet, token) => {
+  const m = new RegExp(`nth-child\\(${n}\\) \\{[\\s\\S]*?var\\(--${varName}[^)]*\\) / (0\\.\\d+)\\)`).exec(engineCss);
+  assert.ok(m, `§Y: disc ${n} alpha not found in the engine`);
+  return [...triplet(tokenSheet[token], `§Y ${token}`), Number(m[1])];
+};
+const ratioForFg = (fg, layers) => {
+  let bg = triplet(modeSheet.midnight["--ink-950"], "midnight --ink-950");
+  for (const layer of layers) bg = composite(layer, bg);
+  return cr(fg, bg);
+};
+const pairY = (label, fg, layers) => {
+  const r = ratioForFg(fg, layers);
+  test(`§Y · midnight · crystal ${label} — ${r.toFixed(2)}:1 ≥ 4.5:1`, () => {
+    assert.ok(r >= 4.5, `§Y midnight crystal ${label}: ${r.toFixed(2)}:1 below 4.5:1`);
+  });
+  pass++;
+};
+{
+  const famMid = sheet("mainline", "midnight");
+  const disc1 = discLayer(1, "brand-500", famMid, "--brand-500");
+  const disc2 = discLayer(2, "glass-cyan", modeSheet.midnight, "--glass-cyan");
+  const disc3 = discLayer(3, "glass-rose", modeSheet.midnight, "--glass-rose");
+  const lamp = rgba(famMid["--wall-lamp"], "midnight crystal --wall-lamp");
+  const halo = [4, 6, 14, 0.6];
+  const text3 = triplet(modeSheet.midnight["--text-3"], "midnight --text-3");
+  const text4 = triplet(modeSheet.midnight["--text-4"], "midnight --text-4");
+  const brand300 = triplet(famMid["--brand-300"], "crystal midnight --brand-300");
+  for (const [name, disc] of [["disc-1", disc1], ["disc-2", disc2], ["disc-3", disc3]]) {
+    pairY(`on-wallpaper ${name} core / muted (text-3, bare)`, text3, [disc]);
+    pairY(`on-wallpaper ${name} core / faint label (text-4, haloed)`, text4, [disc, halo]);
+    pairY(`on-wallpaper ${name} core / accent label (brand-300, haloed)`, brand300, [disc, halo]);
+  }
+  pairY("on-wallpaper disc-1 + lamp / faint label (text-4, haloed)", text4, [disc1, lamp, halo]);
+  pairY("on-wallpaper disc-1 + lamp / accent label (brand-300, haloed)", brand300, [disc1, lamp, halo]);
+}
+
+test("§Y·halo: bare labels and the hero field wear the scrim halo, gradient text exempt", () => {
+  const engine = stripComments(engineCss);
+  assert.match(engine, /\[data-theme="midnight"\]\[data-appearance="crystal"\] :is\(\.mono-label, \.eyebrow\) \{\s*text-shadow: 0 1px 10px rgb\(4 6 14 \/ 0\.6\)/, "the label halo is gone — small text washes out over the liquid again");
+  assert.match(engine, /\[data-theme="midnight"\]\[data-appearance="crystal"\] \.hero-field \{\s*text-shadow: 0 1px 12px rgb\(4 6 14 \/ 0\.55\)/, "the hero field halo is gone");
+  assert.match(engine, /\.hero-field :is\(\.text-gradient, \.text-gradient-rich\) \{\s*text-shadow: none;/, "gradient display text lost its halo exemption — shadows would print through the fill");
+});
+
 /* ── G4 · the bench under voltage ──────────────────────────────────── */
 /* The shipped default is the m = 1 case (proved above). The bench's whole
    danger is every OTHER point, so the contract sweeps the body dial across
@@ -404,7 +457,7 @@ test("G4·text: the engine never writes --text-/​--ink- tokens (glass is mater
 });
 
 test(`crystal contract complete: ${pass} pairs across 2 lanes × 2 modes, parsed not restated`, () => {
-  assert.ok(pass === 82, `expected 82 pairs (40 default + 40 bench-grid (5 dial points) + 2 catch-peak), got ${pass}`);
+  assert.ok(pass === 93, `expected 93 pairs (40 default + 40 bench-grid (5 dial points) + 2 catch-peak + 11 §Y on-wallpaper), got ${pass}`);
 });
 
 /* ── §G · ONE EDGE (the double-card fix) ───────────────────────────────

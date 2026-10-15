@@ -143,6 +143,33 @@ describe("§R+§S touch budget (coarse pointers)", () => {
     expect(studio).toContain("max-h-[78vh] overflow-y-auto");
   });
 
+  it("small accent text (§Y): no sub-floor opacity modifiers on tiny labels", () => {
+    /* Measured over the liquid's disc cores, brand-400 at /60–/70 and
+       the state hues at /80 land at 2–3.5:1 — the murk the witness
+       reported. The pattern now: tiny accent labels take solid
+       brand-300 (or the solid state hue); translucency is for fills,
+       never for words. */
+    const files = [
+      "src/components/deliveries/DeliveriesSummaryCards.tsx",
+      "src/components/deliveries/DeliveriesBreakdowns.tsx",
+      "src/components/job-orders/JobOrdersSummaryCards.tsx",
+      "src/components/records/RecordsSummaryCards.tsx",
+      "src/components/records/RecordsBreakdowns.tsx",
+      "src/app/[locale]/how-it-works/page.tsx",
+      "src/components/home/StatusFlows.tsx",
+    ];
+    for (const f of files) {
+      const src = read(f);
+      expect(src, f).not.toContain("text-brand-400/60");
+      expect(src, f).not.toContain("text-brand-400/70");
+      expect(src, f).not.toContain("text-state-warning/80");
+      expect(src, f).not.toContain("text-state-success/80");
+    }
+    expect(read("src/components/deliveries/DeliveriesSummaryCards.tsx")).toContain(
+      "text-brand-300",
+    );
+  });
+
   it("hero paint (§X): promotions gated, backdrop bounded, chart capped, menus filmed", () => {
     /* The device screenshots (an empty sheet of backdrop artwork
        showing through the unpainted preview frame, tile text sliced

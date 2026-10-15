@@ -141,7 +141,7 @@ export function DeliveriesSummaryCards({
               <span className="text-2xs font-semibold uppercase tracking-wider text-text-faint">
                 {card.label}
               </span>
-              <span className="font-mono text-3xs uppercase text-brand-400/60">{card.tag}</span>
+              <span className="font-mono text-3xs uppercase text-brand-300">{card.tag}</span>
             </div>
             <div className={`mt-2 font-mono text-xl font-bold tracking-tight sm:text-2xl ${card.accent}`}>
               {card.value}

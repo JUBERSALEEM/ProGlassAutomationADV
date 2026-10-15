@@ -121,7 +121,7 @@ function BreakdownCard({
       <div>
         <div className="flex items-baseline justify-between gap-2 border-b border-line/60 pb-2.5">
           <h3 className="card-title text-sm font-bold text-text-primary">{title}</h3>
-          <span className="font-mono text-3xs text-brand-400/70">{subtitle}</span>
+          <span className="font-mono text-3xs text-brand-300">{subtitle}</span>
         </div>
 
         {displayItems.length === 0 ? (

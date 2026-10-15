@@ -90,7 +90,7 @@ export function RecordsSummaryCards({ summary, loading }: RecordsSummaryCardsPro
             <span className="text-2xs font-semibold uppercase tracking-wider text-text-faint">
               {card.label}
             </span>
-            <span className="font-mono text-3xs text-brand-400/60 uppercase">
+            <span className="font-mono text-3xs text-brand-300 uppercase">
               {card.tag}
             </span>
           </div>

@@ -715,3 +715,39 @@ sections prove it affordable once the giant layers are gone.
 
 **Locked.** The §W guard is renegotiated into the §X guard above it;
 all other suites stand.
+
+### §Y — text over living glass (*shipped*)
+
+**Witness.** In Crystal's dark mode a slice of the small text —
+card tags, breakdown subtitles, state labels — reads as murk,
+worst where the liquid drifts behind it. "Black or other colour,
+not adaptable in dark mode."
+
+**Audit.** The contrast contract measured text on panes (page +
+fill + scrim) and everything passed — because the failing text is
+never on a pane, or carries an opacity modifier the measurement
+never modelled. Measured honestly, over the wallpaper's own disc
+cores (brand-500 at 0.55, glass-cyan at 0.45, rose at 0.40,
+composited over the page; brighter still where the wall lamp
+stacks): text-4 solid is 4.1:1 at the cyan core, the family's
+brand-400 cyan is 3.6:1, and the modifiers actually in the
+components — `text-brand-400/60`, `/70`, `text-state-*/80` on
+10–11px mono labels — land at 2–3.5:1. Translucency is where text
+dies; the token block's own doctrine said so, and the surviving
+modifiers were violations of it.
+
+**The fix.** (1) Every sub-floor tiny label climbs the ladder:
+summary-card tags and breakdown subtitles take solid brand-300
+(5.6:1 at the worst core); the how-it-works state labels take their
+solid hues. (2) Bare labels get the scrim the panes always had,
+worn as a halo: in Midnight Crystal, `.mono-label`/`.eyebrow` and
+the whole `.hero-field` carry a soft scrim-coloured text shadow,
+so a disc can drift behind the words without washing through them.
+Gradient-clipped display text is exempt — a shadow would print
+through its transparent fill. Daylight is untouched (its ink is
+dark; a dark halo would smudge it).
+
+**Locked.** `crystal-contrast` gains 11 §Y pairs measured over the
+parsed disc cores (bare text-3; haloed text-4 and brand-300; the
+lamp stack included) plus a halo-presence lock; a vitest guard
+keeps the sub-floor classes from returning. 93 pairs total.

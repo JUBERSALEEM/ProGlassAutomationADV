@@ -265,12 +265,12 @@ export default async function HowItWorksPage({ params }: PageProps) {
                     </div>
 
                     <div className="bg-ink-950/40 px-5 py-5 sm:px-6">
-                      <p className="mono-label text-state-warning/80">{t("On paper and in spreadsheets")}</p>
+                      <p className="mono-label text-state-warning">{t("On paper and in spreadsheets")}</p>
                       <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(row.before)}</p>
                     </div>
 
                     <div className="bg-ink-900/60 px-5 py-5 sm:px-6">
-                      <p className="mono-label text-state-success/80">{t("In ProGlass Automation")}</p>
+                      <p className="mono-label text-state-success">{t("In ProGlass Automation")}</p>
                       <p className="mt-3 text-sm leading-relaxed text-text-secondary">{t(row.after)}</p>
                     </div>
                   </div>
@@ -331,7 +331,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
                 </div>
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
                   <div>
-                    <p className="mono-label mb-2.5 text-state-success/80">{t("Can read")}</p>
+                    <p className="mono-label mb-2.5 text-state-success">{t("Can read")}</p>
                     <ul className="space-y-2">
                       {[
                         "Inquiries, proformas, job orders",
@@ -350,7 +350,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
                     </ul>
                   </div>
                   <div>
-                    <p className="mono-label mb-2.5 text-state-warning/80">{t("Cannot")}</p>
+                    <p className="mono-label mb-2.5 text-state-warning">{t("Cannot")}</p>
                     <ul className="space-y-2">
                       {[
                         "Write documents or change prices",

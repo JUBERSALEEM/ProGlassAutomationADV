@@ -55,7 +55,7 @@ export function StatusFlows({ t, className }: { t: Translator; className?: strin
               {flow.members.map((member, index) => (
                 <li key={member} className="flex items-center gap-1.5">
                   {index > 0 ? (
-                    <span aria-hidden="true" className="text-brand-400/70 font-mono text-2xs">
+                    <span aria-hidden="true" className="text-brand-300 font-mono text-2xs">
                       →
                     </span>
                   ) : null}

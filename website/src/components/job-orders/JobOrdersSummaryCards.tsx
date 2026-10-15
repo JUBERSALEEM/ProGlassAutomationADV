@@ -41,7 +41,7 @@ export function JobOrdersSummaryCards({ summary, loading }: Props) {
         <div key={card.label} className="relative overflow-hidden rounded-2xl border border-line-strong/60 bg-ink-900/80 p-4 shadow-panel transition-colors hover:border-brand-400/35 hover:bg-ink-850/90">
           <div className="flex items-center justify-between gap-1.5">
             <span className="text-2xs font-semibold uppercase tracking-wider text-text-faint">{card.label}</span>
-            <span className="font-mono text-3xs uppercase text-brand-400/60">{card.tag}</span>
+            <span className="font-mono text-3xs uppercase text-brand-300">{card.tag}</span>
           </div>
           <div className={`mt-2 font-mono text-xl font-bold tracking-tight sm:text-2xl ${card.tone}`}>{card.value}</div>
           <div className="mt-1 truncate text-3xs text-text-muted">{card.note}</div>
