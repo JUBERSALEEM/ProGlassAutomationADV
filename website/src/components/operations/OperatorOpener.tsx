@@ -41,7 +41,7 @@ export function OperatorOpener({
   return (
     <header className={cn("band-rich relative border-b border-line-strong/50", className)}>
       <span aria-hidden="true" className="rule-rich absolute inset-x-0 top-0" />
-      <div className="shell flex flex-col gap-6 py-8 lg:flex-row lg:items-end lg:justify-between lg:py-10">
+      <div className="shell flex flex-col gap-5 py-8 lg:flex-row lg:items-end lg:justify-between lg:py-10">
         <div className="max-w-2xl">
           <p className="eyebrow-chip mb-4">{t(eyebrow)}</p>
           <h1 className="display-3">{t(title)}</h1>

@@ -10,11 +10,11 @@ type RecordsSummaryCardsProps = {
 export function RecordsSummaryCards({ summary, loading }: RecordsSummaryCardsProps) {
   if (loading && !summary) {
     return (
-      <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="animate-pulse rounded-2xl border border-line-strong/40 bg-ink-900/60 p-4 h-28"
+            className="animate-pulse rounded-2xl border border-line-strong/40 bg-ink-900/60 p-3.5 h-24"
           >
             <div className="h-3 w-16 bg-line-strong/50 rounded mb-3" />
             <div className="h-7 w-24 bg-line-strong/60 rounded mb-2" />
@@ -80,11 +80,11 @@ export function RecordsSummaryCards({ summary, loading }: RecordsSummaryCardsPro
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
       {cards.map((card) => (
         <div
           key={card.label}
-          className="relative overflow-hidden rounded-2xl border border-line-strong/60 bg-ink-900/80 p-4 transition-all hover:border-brand-400/35 hover:bg-ink-850/90 shadow-panel"
+          className="relative overflow-hidden rounded-2xl border border-line-strong/60 bg-ink-900/80 p-3.5 transition-all hover:border-brand-400/35 hover:bg-ink-850/90 shadow-panel"
         >
           <div className="flex items-center justify-between gap-1.5">
             <span className="text-2xs font-semibold uppercase tracking-wider text-text-faint">

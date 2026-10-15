@@ -298,7 +298,7 @@ export function DeliveriesDashboard() {
 
   if (authChecking) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-ink-950 p-6">
+      <div className="flex min-h-screen items-center justify-center bg-ink-950 p-5">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-400 border-t-transparent" />
           <span className="font-mono text-xs text-text-muted">Verifying operator credentials...</span>
@@ -310,7 +310,7 @@ export function DeliveriesDashboard() {
   if (isAuthRequired) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-ink-950 px-4 py-20">
-        <div className="w-full max-w-md rounded-panel border border-line-strong/80 bg-ink-900 p-8 text-center shadow-raised">
+        <div className="w-full max-w-md rounded-panel border border-line-strong/80 bg-ink-900 p-6 text-center shadow-raised">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-400/40 bg-brand-500/10 text-brand-300">
             <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
@@ -321,7 +321,7 @@ export function DeliveriesDashboard() {
               />
             </svg>
           </div>
-          <div className="mt-4 flex items-center justify-center gap-2">
+          <div className="mt-3.5 flex items-center justify-center gap-2">
             <Badge tone="warning" className="font-mono text-2xs">
               Restricted Access
             </Badge>
@@ -334,7 +334,7 @@ export function DeliveriesDashboard() {
             Dispatch records, delivery balances and customer movements are operational data and are
             restricted to registered operators and authorized staff.
           </p>
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="mt-5 flex flex-col gap-3">
             <LocaleLink
               href={`/reports/login?redirect=${encodeURIComponent(pathname)}`}
               className="flex h-11 items-center justify-center rounded-xl bg-brand-400 px-5 text-sm font-semibold text-accent-ink transition-colors hover:bg-brand-300"
@@ -374,9 +374,9 @@ export function DeliveriesDashboard() {
         isCurrentSourceScoped={data?.isCurrentSourceScoped}
       />
 
-      <div className="shell mt-6 space-y-6">
+      <div className="shell mt-5 space-y-4">
         {error && (
-          <div className="flex items-center justify-between rounded-2xl border border-state-danger/50 bg-state-danger/10 p-4 text-xs text-state-danger">
+          <div className="flex items-center justify-between rounded-2xl border border-state-danger/50 bg-state-danger/10 p-3.5 text-xs text-state-danger">
             <div className="flex items-center gap-2">
               <span className="font-bold">Error:</span>
               <span>{error}</span>

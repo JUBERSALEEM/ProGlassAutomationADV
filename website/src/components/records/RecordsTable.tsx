@@ -28,11 +28,11 @@ export function RecordsTable({
   onResetFilters,
 }: RecordsTableProps) {
   const isCompact = density === "compact";
-  const cellPy = isCompact ? "py-2" : "py-3.5";
+  const cellPy = isCompact ? "py-1.5" : "py-2.5";
 
   if (loading && records.length === 0) {
     return (
-      <div className="overflow-hidden rounded-2xl border border-line-strong/60 bg-ink-900/80 p-4 shadow-panel">
+      <div className="overflow-hidden rounded-2xl border border-line-strong/60 bg-ink-900/80 p-3.5 shadow-panel">
         <div className="space-y-2.5">
           {Array.from({ length: 8 }).map((_, i) => (
             <div
@@ -73,17 +73,17 @@ export function RecordsTable({
             <tr className="border-b border-line-strong/80 bg-ink-950/90 text-3xs font-semibold uppercase tracking-wider text-text-faint select-none">
               <SortHeader label="Date" field="date" currentSort={sort} onSort={onSortChange} className="pl-4" />
               <SortHeader label="PI Number" field="pi_number" currentSort={sort} onSort={onSortChange} />
-              <th className="px-3 py-3 font-semibold">Customer Ref</th>
+              <th className="px-3 py-2.5 font-semibold">Customer Ref</th>
               <SortHeader label="Company" field="company" currentSort={sort} onSort={onSortChange} />
               <SortHeader label="Salesman" field="salesman" currentSort={sort} onSort={onSortChange} />
               <SortHeader label="Prepared By" field="prepared_by" currentSort={sort} onSort={onSortChange} />
-              <th className="px-3 py-3 font-semibold">Type of Work</th>
+              <th className="px-3 py-2.5 font-semibold">Type of Work</th>
               <SortHeader label="Qty" field="qty" currentSort={sort} onSort={onSortChange} align="right" />
               <SortHeader label="SQM" field="sqm" currentSort={sort} onSort={onSortChange} align="right" />
               <SortHeader label="Status" field="status" currentSort={sort} onSort={onSortChange} />
-              <th className="px-3 py-3 font-semibold">PI Status</th>
-              <th className="px-3 py-3 font-semibold">Zoho</th>
-              <th className="px-4 py-3 font-semibold text-right pr-4">Details</th>
+              <th className="px-3 py-2.5 font-semibold">PI Status</th>
+              <th className="px-3 py-2.5 font-semibold">Zoho</th>
+              <th className="px-4 py-2.5 font-semibold text-right pr-4">Details</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line/40">

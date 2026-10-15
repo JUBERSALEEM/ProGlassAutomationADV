@@ -108,8 +108,8 @@ export function PageHero({
         <div
           className={
             centred || showcase
-              ? "grid gap-10"
-              : "grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-end lg:gap-14"
+              ? "grid gap-8"
+              : "grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-end lg:gap-10"
           }
         >
           <div className={centred ? "mx-auto max-w-3xl text-center" : showcase ? "max-w-3xl" : undefined}>

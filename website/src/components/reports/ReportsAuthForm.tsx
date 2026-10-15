@@ -252,7 +252,7 @@ export function ReportsAuthForm() {
             <Logo size={42} />
           </Link>
 
-          <div className="mt-4 flex items-center gap-2">
+          <div className="mt-3.5 flex items-center gap-2">
             <span className="eyebrow text-brand-300">{t("Operations Suite")}</span>
             <span className="text-text-faint">/</span>
             <span className="eyebrow text-text-muted">{t("Reports Access")}</span>
@@ -272,7 +272,7 @@ export function ReportsAuthForm() {
         {error && (
           <div
             role="alert"
-            className="mt-5 rounded-xl border border-state-danger/40 bg-state-danger/10 p-3 text-xs text-state-danger leading-relaxed flex items-start gap-2"
+            className="mt-4 rounded-xl border border-state-danger/40 bg-state-danger/10 p-3 text-xs text-state-danger leading-relaxed flex items-start gap-2"
           >
             <span aria-hidden="true" className="shrink-0 font-bold">!</span>
             <span>{error}</span>
@@ -282,7 +282,7 @@ export function ReportsAuthForm() {
         {notice && (
           <div
             role="status"
-            className="mt-5 rounded-xl border border-state-success/40 bg-state-success/10 p-3 text-xs text-state-success leading-relaxed flex items-start gap-2"
+            className="mt-4 rounded-xl border border-state-success/40 bg-state-success/10 p-3 text-xs text-state-success leading-relaxed flex items-start gap-2"
           >
             <span aria-hidden="true" className="shrink-0 font-bold">✓</span>
             <span>{notice}</span>
@@ -290,14 +290,14 @@ export function ReportsAuthForm() {
         )}
 
         {!configured && (
-          <div className="mt-5 rounded-xl border border-state-warning/40 bg-state-warning/10 p-3 text-2xs text-state-warning leading-relaxed">
+          <div className="mt-4 rounded-xl border border-state-warning/40 bg-state-warning/10 p-3 text-2xs text-state-warning leading-relaxed">
             {t("Note: Supabase URL/key not configured in local environment. In production, registered users authenticate against Supabase Auth.")}
           </div>
         )}
 
         {/* STEP A: Email Address Submission */}
         {step === "email" ? (
-          <form onSubmit={handleSendOtp} className="mt-6 space-y-4">
+          <form onSubmit={handleSendOtp} className="mt-5 space-y-3.5">
             <div>
               <label
                 htmlFor="reports-email"
@@ -331,7 +331,7 @@ export function ReportsAuthForm() {
           </form>
         ) : (
           /* STEP B: 6-Digit OTP Verification */
-          <form onSubmit={handleVerifyOtp} className="mt-6 space-y-4">
+          <form onSubmit={handleVerifyOtp} className="mt-5 space-y-3.5">
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label
@@ -366,7 +366,7 @@ export function ReportsAuthForm() {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                 placeholder="123456"
-                className="w-full text-center tracking-[0.35em] font-mono text-xl sm:text-2xl font-bold rounded-xl border border-line-strong/80 bg-ink-950/80 px-3.5 py-3 text-brand-100 placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400 transition-colors"
+                className="w-full text-center tracking-[0.35em] font-mono text-xl sm:text-2xl font-bold rounded-xl border border-line-strong/80 bg-ink-950/80 px-3.5 py-2.5 text-brand-100 placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400 transition-colors"
               />
               <p className="mt-1.5 text-center text-3xs text-text-faint">
                 {t("Enter the 6-digit numeric code from your inbox")}
@@ -407,7 +407,7 @@ export function ReportsAuthForm() {
         )}
 
         {/* Security Scope Footer */}
-        <div className="mt-7 pt-5 border-t border-line/50 text-center space-y-2">
+        <div className="mt-7 pt-4 border-t border-line/50 text-center space-y-2">
           <div className="flex items-center justify-center gap-2">
             <Badge tone="neutral" className="font-mono text-2xs">
               {t("RLS Protected")}

@@ -98,7 +98,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             lead={t("Every navigation target in the product, in the nine groups the sidebar actually draws, filterable by group and searchable by capability. Nothing here has been re-worded for the website.")}
           />
 
-          <div className="mt-10">
+          <div className="mt-8">
             <ModuleBrowser />
           </div>
 
@@ -126,7 +126,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             title={t("Six modules that carry the business.")}
             lead={t("If you only read part of this page, these are the ones that decide whether the software fits: estimation, optimization, stock, dispatch, margin and reporting.")}
           />
-          <div className="mt-14">
+          <div className="mt-8">
             <ModuleShowcase
       t={t} modules={showcase} />
           </div>
@@ -156,7 +156,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             lead={t("The specification grid the quotation is priced from, and the profit-and-loss step that asks whether the price is good enough. Everything below is live: the grid prices as you type, and the profit-and-loss screen reads those same rows.")}
           />
 
-          <Reveal className="mt-10">
+          <Reveal className="mt-8">
             <AppFrame
       t={t}
               title={t("Proforma Invoice — Step 5 · Specification")}
@@ -234,7 +234,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             lead={t("Two services, deliberately not one. The application log records what happened — startup, licence, seeding, production, errors — and the audit trail records the business events, with the before and after of every field. The correlation ID on a traceable entry follows one operation from the inquiry to the statement, across modules and across days.")}
           />
 
-          <Reveal className="mt-10">
+          <Reveal className="mt-8">
             <AppFrame
       t={t}
               title={t("Logs & Activity — Diagnostics")}
@@ -304,7 +304,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             lead={t("Production runs exclusively from job orders, and a job order only exists for a confirmed proforma — a draft never reaches the floor. From there the job is distributed across the eight stages: every piece enters at Cutting, and only the pieces a station completes arrive at the next one. A station cannot record work it never received.")}
           />
 
-          <Reveal className="mt-10">
+          <Reveal className="mt-8">
             <AppFrame
       t={t}
               title={t("Production — stage queue")}
@@ -431,7 +431,7 @@ export default async function FeaturesPage({ params }: PageProps) {
       {/* ── What it is not ───────────────────────────────────────── */}
       <Section tone="sunken" aria-labelledby="not-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-14">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-10">
             <SectionHeading
               id="not-heading"
               eyebrow={t("Scope")}

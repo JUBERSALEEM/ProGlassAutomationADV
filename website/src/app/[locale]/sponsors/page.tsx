@@ -83,7 +83,7 @@ export default async function SponsorsPage({ params }: PageProps) {
       {/* ── Why this page exists ─────────────────────────────────── */}
       <Section aria-labelledby="why-heading">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="why-heading"
@@ -142,7 +142,7 @@ export default async function SponsorsPage({ params }: PageProps) {
             align="center"
           />
 
-          <ul className="mt-12 grid gap-5 lg:grid-cols-2">
+          <ul className="mt-8 grid gap-5 lg:grid-cols-2">
             {sponsorNeeds.map((need, index) => (
               <Reveal key={need.id} as="li" delay={Math.min(index, 6) * 55}>
                 <article className="surface card-interactive flex h-full flex-col card-pad-sm">
@@ -180,7 +180,7 @@ export default async function SponsorsPage({ params }: PageProps) {
       {/* ── How support works ────────────────────────────────────── */}
       <Section aria-labelledby="how-heading">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="how-heading"
@@ -284,7 +284,7 @@ export default async function SponsorsPage({ params }: PageProps) {
             lead={t("If an answer here is thinner than you would like, that is usually because the honest answer is still being worked out — not because it is being avoided.")}
             align="center"
           />
-          <div className="mx-auto mt-10 max-w-3xl">
+          <div className="mx-auto mt-8 max-w-3xl">
             <Accordion items={sponsorFaq} defaultOpen={0} />
           </div>
         </Container>

@@ -61,7 +61,7 @@ export function DeveloperStory({ t }: { t: Translator }) {
       </div>
 
       <div className="shell relative py-16 sm:py-20 lg:py-24">
-        <div className="grid items-start gap-12 text-center lg:grid-cols-[minmax(0,1.06fr)_minmax(0,1fr)] lg:gap-16 lg:text-left">
+        <div className="grid items-start gap-8 text-center lg:grid-cols-[minmax(0,1.06fr)_minmax(0,1fr)] lg:gap-10 lg:text-left">
           {/* ── The story ─────────────────────────────────────────────── */}
           <div>
             <Reveal>

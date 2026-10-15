@@ -121,7 +121,7 @@ export default async function BlogPage({ params }: PageProps) {
             lead={t("The blog architecture is in place for regular writing: each note is a data entry with its own page, sitemap entry and metadata. New notes are added rather than retro-fitted.")}
           />
 
-          <ul className="mt-10 grid gap-5 lg:grid-cols-2">
+          <ul className="mt-8 grid gap-5 lg:grid-cols-2">
             {rest.map((post, index) => (
               <Reveal key={post.slug} as="li" delay={index * 60}>
                 <Link

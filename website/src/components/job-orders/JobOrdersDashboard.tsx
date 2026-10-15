@@ -47,13 +47,13 @@ function validSortField(value: string | null): JobOrderSortField {
 function AccessGate({ pathname }: { pathname: string }) {
   return (
     <div className="min-h-screen bg-ink-950 px-4 py-20 text-text-primary">
-      <div className="mx-auto w-full max-w-md rounded-panel border border-line-strong/80 bg-ink-900 p-8 text-center shadow-raised">
+      <div className="mx-auto w-full max-w-md rounded-panel border border-line-strong/80 bg-ink-900 p-6 text-center shadow-raised">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-400/40 bg-brand-500/10 text-brand-300">
           <svg aria-hidden="true" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
         </div>
-        <div className="mt-4 flex items-center justify-center gap-2">
+        <div className="mt-3.5 flex items-center justify-center gap-2">
           <Badge tone="warning">Restricted access</Badge>
           <span className="font-mono text-2xs text-text-faint">Authentication required</span>
         </div>
@@ -61,7 +61,7 @@ function AccessGate({ pathname }: { pathname: string }) {
         <p className="mt-2 text-xs leading-relaxed text-text-muted">
           Confirmed proforma records are restricted to registered operators and authorized staff.
         </p>
-        <div className="mt-6 flex flex-col gap-3">
+        <div className="mt-5 flex flex-col gap-3">
           <LocaleLink href={`/reports/login?redirect=${encodeURIComponent(pathname)}`} className="flex h-11 items-center justify-center rounded-xl bg-brand-400 px-5 text-sm font-semibold text-accent-ink transition-colors hover:bg-brand-300">
             Sign in to view Job Orders
           </LocaleLink>
@@ -76,7 +76,7 @@ function AccessGate({ pathname }: { pathname: string }) {
 
 function LoadingScreen() {
   return (
-    <div className="flex min-h-[55vh] items-center justify-center bg-ink-950 p-6 text-text-primary">
+    <div className="flex min-h-[55vh] items-center justify-center bg-ink-950 p-5 text-text-primary">
       <div className="flex flex-col items-center gap-3">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-400 border-t-transparent" />
         <span className="font-mono text-xs text-text-muted">Verifying operator credentials…</span>
@@ -280,9 +280,9 @@ export function JobOrdersDashboard() {
         isCurrentSourceScoped={data?.isCurrentSourceScoped}
       />
 
-      <main className="shell mt-6 space-y-6">
+      <main className="shell mt-5 space-y-4">
         {error && (
-          <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-state-danger/50 bg-state-danger/10 p-4 text-xs text-state-danger">
+          <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-state-danger/50 bg-state-danger/10 p-3.5 text-xs text-state-danger">
             <p><strong className="mr-1">Error:</strong>{error}</p>
             <button type="button" onClick={handleRefresh} className="rounded-lg border border-state-danger/40 px-3 py-1 font-semibold uppercase tracking-wider hover:bg-state-danger/20">Retry</button>
           </div>
@@ -304,8 +304,8 @@ export function JobOrdersDashboard() {
 
         <JobOrdersSummaryCards summary={data?.summary ?? null} loading={loading} />
 
-        <section aria-label="Filter Job Orders" className="rounded-2xl border border-line-strong/60 bg-ink-900/80 p-4 shadow-panel sm:p-5">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-end">
+        <section aria-label="Filter Job Orders" className="rounded-2xl border border-line-strong/60 bg-ink-900/80 p-3.5 shadow-panel sm:p-4">
+          <div className="flex flex-col gap-3.5 xl:flex-row xl:items-end">
             <form onSubmit={handleSearchSubmit} className="min-w-0 flex-1">
               <label htmlFor="job-order-search" className="mb-1.5 block text-3xs font-semibold uppercase tracking-wider text-text-faint">Search confirmed PIs</label>
               <div className="flex gap-2">
@@ -335,7 +335,7 @@ export function JobOrdersDashboard() {
             </label>
           </div>
           {filters.datePreset === "custom" && (
-            <div className="mt-4 flex flex-wrap gap-3">
+            <div className="mt-3.5 flex flex-wrap gap-3">
               <label className="text-3xs font-semibold uppercase tracking-wider text-text-faint">From
                 <input type="date" value={filters.dateFrom} onChange={(event) => handleFilterChange({ dateFrom: event.target.value })} className="ml-2 rounded-lg border border-line-strong/70 bg-ink-950/80 px-2.5 py-1.5 font-mono text-xs text-text-primary focus:border-brand-400 focus:outline-none" />
               </label>
@@ -344,7 +344,7 @@ export function JobOrdersDashboard() {
               </label>
             </div>
           )}
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line-strong/50 pt-3">
+          <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2 border-t border-line-strong/50 pt-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge tone="success">Status locked: Confirmed</Badge>
               {filters.preparedBy && <Badge tone="neutral">Prepared by: {filters.preparedBy}</Badge>}

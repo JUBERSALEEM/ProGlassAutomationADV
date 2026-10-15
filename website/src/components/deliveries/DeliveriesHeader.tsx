@@ -54,8 +54,8 @@ export function DeliveriesHeader({
 
   return (
     <header className="relative border-b border-line-strong/60 bg-ink-950/90">
-      <div className="shell py-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="shell py-4">
+        <div className="flex flex-col gap-3.5 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2.5">
               <span className="eyebrow text-brand-300">Operations Suite</span>

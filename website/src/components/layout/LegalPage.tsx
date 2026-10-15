@@ -105,7 +105,7 @@ export function LegalPage({
             {footer ? (
               <div className="mt-12 border-t border-line/60 pt-8">{footer}</div>
             ) : (
-            <div className="surface-raised mt-12 p-7">
+              <div className="surface-raised mt-8 card-pad">
               <h2 className="text-lg font-semibold text-text-primary sm:text-xl">
                 {t("Read something more concrete next.")}
               </h2>

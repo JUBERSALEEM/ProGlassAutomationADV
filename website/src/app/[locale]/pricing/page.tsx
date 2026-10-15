@@ -79,7 +79,7 @@ export default async function PricingPage({ params }: PageProps) {
       <Section aria-label={t("How pricing works")}>
         <Container>
           <Reveal>
-            <div className="surface-raised grid gap-6 sm:grid-cols-3 card-pad">
+            <div className="surface-raised grid gap-5 sm:grid-cols-3 card-pad">
               <div className="sm:col-span-2">
                 <h2 className="display-3">{t("There is no price on this page, and that is deliberate.")}</h2>
                 <p className="mt-4 text-sm leading-relaxed text-text-muted">{t("ProGlass is sold to glass businesses with different shapes: a single estimator, a five-person office, or a factory running eight production stages. What you need ranges from the proforma wizard alone to the full chain plus the cutting-optimization engine. Quoting one number for all of those would mean either overcharging the first or underdelivering the last.")}</p>
@@ -128,7 +128,7 @@ export default async function PricingPage({ params }: PageProps) {
             lead={t("The application compares editions by order, not by name, so a stored licence keeps its meaning as new tiers are appended. The descriptions below are the definitions written on the edition enum itself.")}
           />
 
-          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {editions.map((edition, index) => (
               <Reveal
                 key={edition.id}
@@ -198,7 +198,7 @@ export default async function PricingPage({ params }: PageProps) {
             lead={t("This is the same map the navigation rail consults. A module that is not in this table is open in every edition, and that is written down explicitly rather than left implied.")}
           />
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+          <div className="mt-8 grid gap-5 lg:grid-cols-2">
             <div className="flow">
               {licenceGates.map((gate) => (
                 <Reveal key={t(gate.group)} className="surface-raised card-pad-sm">
@@ -261,7 +261,7 @@ export default async function PricingPage({ params }: PageProps) {
             lead={t("No server, no database administrator and no browser. A small office can point several workstations at a shared database file on the local network.")}
           />
 
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { title: t("Operating system"), detail: t("Windows 10 or Windows 11, 64-bit.") },
               { title: t("Runtime"), detail: t(".NET 8 desktop runtime, installed with the application.") },
@@ -286,7 +286,7 @@ export default async function PricingPage({ params }: PageProps) {
             lead={t("The answers below are limited to what the application actually implements.")}
             align="center"
           />
-          <div className="mx-auto mt-10 max-w-3xl">
+          <div className="mx-auto mt-8 max-w-3xl">
             <Accordion
               items={faq
                 .filter((item) => item.group !== "Product")

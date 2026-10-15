@@ -96,9 +96,9 @@ export function DeliveriesFilterPanel({
   ].filter(Boolean).length;
 
   return (
-    <div className="rounded-2xl border border-line-strong/60 bg-ink-900/80 p-4 shadow-panel sm:p-5">
+    <div className="rounded-2xl border border-line-strong/60 bg-ink-900/80 p-3.5 shadow-panel sm:p-4">
       {/* Row 1: search + date presets + the outstanding-balance switch */}
-      <div className="flex flex-col gap-3.5 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="relative min-w-[280px] flex-1">
           <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-text-faint">
             <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -157,7 +157,7 @@ export function DeliveriesFilterPanel({
       </div>
 
       {filters.datePreset === "custom" && (
-        <div className="mt-3.5 flex flex-wrap items-center gap-3 border-t border-line/60 pt-3.5 text-xs text-text-muted">
+        <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-line/60 pt-3 text-xs text-text-muted">
           <span className="font-mono text-2xs uppercase text-text-faint">
             Order date range:
           </span>
@@ -183,7 +183,7 @@ export function DeliveriesFilterPanel({
       )}
 
       {/* Row 2: the dropdowns */}
-      <div className="mt-4 grid grid-cols-2 gap-2.5 border-t border-line/60 pt-4 sm:grid-cols-4 lg:grid-cols-7">
+      <div className="mt-3.5 grid grid-cols-2 gap-2.5 border-t border-line/60 pt-3.5 sm:grid-cols-4 lg:grid-cols-7">
         <div>
           <label className="mb-1 block text-3xs font-semibold uppercase tracking-wider text-text-faint">
             Delivery status
@@ -343,7 +343,7 @@ export function DeliveriesFilterPanel({
       </div>
 
       {/* Row 3: outstanding-balance switch + active filter pills */}
-      <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2.5 border-t border-line/40 pt-3 text-xs">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2.5 border-t border-line/40 pt-3 text-xs">
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"

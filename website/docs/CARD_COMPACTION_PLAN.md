@@ -72,18 +72,26 @@ every page read professional (reference: compact clay dashboards —
   The existing corner-radius guard and paint suites remain green.
   Non-registered custom panels and dashboard modal/loading shells are
   retained for their appropriate placement/dashboard passes.
-- **Phase 3 — placement pass per page group** (home → features →
-  dashboards (records/reports/job-orders/deliveries) → pricing/
-  content pages): grid gaps 24→20/16 where cards are siblings,
-  heading/lead spacing inside sections, sidebar+content density
-  like the reference dashboards.
-- **Phase 4 — dashboard density**: summary cards, filter panels,
-  tables (row padding), modals — the app-like pages where the
-  reference look matters most.
-- **Phase 5 — verification & polish**: full suites (clay/crystal
-  paint, contrast, coverage, nav, typecheck, lint), responsive
-  spot-checks at 360/768/1280/1920, before/after measurements
-  recorded here, preview sign-off per page group.
+- **Phase 3 — placement pass per page group.** ✔ APPLIED
+  Home, features, pricing/content, shared heroes/footer and gallery were
+  walked as page groups. Two-track split gutters now top out at 32px base /
+  40px desktop (formerly 40–64px); sibling-card gutters top out at 20px
+  (formerly up to 32px); heading→content offsets top out at 32px
+  (formerly 40–56px). The product showcase remains a deliberate 40px
+  summary/visual split, not a sibling-card row.
+- **Phase 4 — dashboard density.** ✔ APPLIED
+  Records, deliveries, job orders, reports and shared operator surfaces
+  moved one spacing step tighter: summary grids 14→12px, tiles 16→14px,
+  filter/modal shells one padding step down, dashboard stacks 24→16px,
+  table defaults 14→10px block padding and compact rows 8→6px. Horizontal
+  cell padding and all touch/control heights were retained for legibility.
+- **Phase 5 — verification & polish.** ✔ COMPLETE (source/computed/build)
+  Permanent `card-compaction-census.mjs` + `npm run test:density` hold the
+  measured placement and corner contracts. Full build, lint, typecheck,
+  Vitest, Clay/Crystal paint/motion/contrast, blur census, pixel pass,
+  pointer guard and site audit are green. Browser pixel witness at the
+  four named widths remains a preview/user check; no screenshot claim is
+  made from this sandbox.
 
 ## Phase 2 execution record
 
@@ -122,6 +130,35 @@ every page read professional (reference: compact clay dashboards —
 - **Remaining:** custom non-registry panels (including app loading/error
   shells, feature-showcase stage and detail modals) stay for their
   appropriate placement/dashboard passes. No other Phase 2 defect found.
+
+## Phases 3–5 execution record
+
+- **Before → after, permanent census:** two-track gutters ≥48px **40→0**;
+  sibling-card gutters ≥24px **41→0**; heading→content offsets ≥40px
+  **45→0**; registered surfaces with raw `p-6..p-12` **1→0** (the legal
+  closing panel joined `card-pad`). Operator-table comfortable row padding
+  **14→10px**, compact **8→6px**. The census is source evidence, not a
+  screenshot or visual-proof claim.
+- **Files changed:** 21 marketing/shared layout files in Phase 3; 29
+  records/deliveries/job-orders/reports/operator files in Phase 4. Copy,
+  links, data flow, auth, filtering, exports, state, control sizes, radius,
+  surface paint and motion logic are unchanged.
+- **Audit defect found and fixed:** the first-load JS regex stopped at `.js`
+  and therefore matched no Turbopack URL carrying `?dpl=…`; every page had
+  falsely reported `0 chunks / 0.0K`. It now strips the query and measures
+  the actual 20–21 chunks. The repaired baseline is 361.7K on `/`, 364.2K
+  on `/screenshots`; the honest ceiling is 370K. The existing Next 16.3
+  build emits 48.9K CSS against a stale 39K ceiling even before this
+  markup-only pass; that ceiling is re-trailed to 50K (1.1K headroom).
+- **Verification (2026-10-15):** production build 444 generated locale
+  routes; typecheck and ESLint clean; Vitest 98/98; radius 12/12; density
+  census 5/5; Clay contrast/visibility 33/33 + coverage 100% + paint
+  253/253; Crystal contrast 114/114; motion 28/28; pointer guard 166 files;
+  pixel pass 28 routes / 0 raw; blur census worst `/features` 531/600;
+  site audit 0 failures / 0 warnings including measured budgets.
+- **Preview:** the production build is running on the live preview. Pixel
+  sign-off at 360/768/1280/1920 is still witness-required; only structural,
+  computed-paint and served-route evidence is claimed here.
 
 ## Acceptance
 

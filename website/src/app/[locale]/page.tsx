@@ -128,7 +128,7 @@ export default async function HomePage({ params }: PageProps) {
       {/* ═══ 02 · What ProGlass is ═══════════════════════════════════ */}
       <Section tone="raised" id="what" aria-labelledby="what-heading">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="what-heading"
@@ -147,7 +147,7 @@ export default async function HomePage({ params }: PageProps) {
               </Reveal>
             </div>
 
-            <Reveal delay={80} className="grid gap-6 sm:grid-cols-2">
+            <Reveal delay={80} className="grid gap-5 sm:grid-cols-2">
               {[
                 /* One role, one mark — the same glyph the rail already uses for
                    the module that role lives in. */
@@ -193,7 +193,7 @@ export default async function HomePage({ params }: PageProps) {
             lead={t("The application stores documents, not summaries. A quotation becomes a job order becomes a delivery becomes an invoice — and each step keeps the audit record of the one before it.")}
           />
 
-          <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-14">
+          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-10">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <ChainDiagram t={t} />
               <p className="mt-6 text-xs leading-relaxed text-text-faint font-medium">{t("Status vocabularies and handoff guarantees are taken from the application's own workflow documentation and the transition code that enforces them.")}</p>
@@ -269,7 +269,7 @@ export default async function HomePage({ params }: PageProps) {
       */}
       <Section aria-labelledby="worked-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="worked-heading"
@@ -346,7 +346,7 @@ export default async function HomePage({ params }: PageProps) {
             lead={t("Four build-ups, priced against the sheet costs and rates you actually buy at. Each one carries thickness, colour, treatment and processing per pane rather than assuming a single panel for the whole quotation.")}
           />
 
-          <Reveal delay={80} className="mt-10">
+          <Reveal delay={80} className="mt-8">
             <ProductSlider
               ariaLabel="Glass build-up calculators"
               slides={sliderShots.map((shot) => ({
@@ -378,7 +378,7 @@ export default async function HomePage({ params }: PageProps) {
       {/* ═══ 06 · Proforma ═══════════════════════════════════════════ */}
       <Section tone="raised" aria-labelledby="proforma-heading">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="proforma-heading"
@@ -560,7 +560,7 @@ export default async function HomePage({ params }: PageProps) {
             title={t("The parts of the job this application holds.")}
             lead={t.template`Four of the ${modules.length} navigation targets are shown here in depth. Each exists in the rail with the label shown — nothing on this page is a planned feature presented as a shipped one.`}
           />
-          <div className="mt-14">
+          <div className="mt-8">
             <ModuleShowcase
       t={t} modules={heroModules} />
           </div>
@@ -587,7 +587,7 @@ export default async function HomePage({ params }: PageProps) {
             title={t.template`Nine rail groups, ${modules.length} rooms of the same building.`}
             lead={t("The application is organized exactly as its sidebar is: nine groups, from Main to System, hold every module the catalogue lists. Walk them here, then open one in the catalogue itself — every card there keeps the app's own navigation label and the file that backs the claim.")}
           />
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {moduleGroups.map((group, index) => {
               const list = modulesByGroup(group);
               return (
@@ -631,7 +631,7 @@ export default async function HomePage({ params }: PageProps) {
       {/* ═══ 08c · Appearance ═════════════════════════════════════════ */}
       <Section tone="sunken" aria-labelledby="appearance-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:items-center lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:items-center lg:gap-10">
             <div>
               <SectionHeading
                 id="appearance-heading"
@@ -663,7 +663,7 @@ export default async function HomePage({ params }: PageProps) {
         <Container>
           <Reveal>
             <div className="surface-raised card-pad">
-              <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-center lg:gap-12">
+              <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-center lg:gap-10">
                 <div>
                   <p className="eyebrow max-lg:text-center">{t("Open to help")}</p>
                   <h2 id="sponsors-heading" className="display-2 mt-3 max-lg:text-center">{t("One developer, and room for a few more hands.")}</h2>
@@ -708,7 +708,7 @@ export default async function HomePage({ params }: PageProps) {
             lead={t("There is no cloud account, no tenant and no subscription dashboard. The application runs on one Windows PC, or on a handful that share a database file across the office.")}
           />
 
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+          <div className="mt-8 grid gap-5 lg:grid-cols-3">
             {featureGroups
               .filter((group) => ["platform", "money", "documents"].includes(group.id))
               .map((group, index) => (
@@ -759,7 +759,7 @@ export default async function HomePage({ params }: PageProps) {
       {/* ═══ 11 · About the build ════════════════════════════════════ */}
       <Section aria-labelledby="about-heading">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-10">
             <SectionHeading
               id="about-heading"
               eyebrow={t("About ProGlass")}
@@ -805,7 +805,7 @@ export default async function HomePage({ params }: PageProps) {
 
       <Section tone="raised" aria-labelledby="faq-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-14">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-10">
             <SectionHeading
               id="faq-heading"
               eyebrow={t("Questions")}

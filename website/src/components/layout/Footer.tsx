@@ -121,7 +121,7 @@ export function Footer({ t }: { t: Translator }) {
       <span aria-hidden="true" className="rule-rich absolute inset-x-0 -top-px" />
 
       <div className="shell relative py-16 lg:py-20">
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_2.6fr]">
+        <div className="grid gap-8 lg:grid-cols-[1.4fr_2.6fr]">
           <div className="max-w-sm">
             <Logo size={34} />
             <p className="mt-5 text-sm leading-relaxed text-text-muted">
@@ -176,7 +176,7 @@ export function Footer({ t }: { t: Translator }) {
             </dl>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-4">
             <Column title={t("Product")} links={nav.footer.product} t={t} />
             <Column title={t("Company")} links={nav.footer.company} t={t} />
             <Column title={t("Resources")} links={nav.footer.resources} t={t} />

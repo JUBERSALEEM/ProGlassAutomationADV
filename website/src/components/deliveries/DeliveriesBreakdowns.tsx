@@ -38,14 +38,14 @@ export function DeliveriesBreakdowns({
 }) {
   if (loading && !breakdowns) {
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="animate-pulse rounded-2xl border border-line-strong/40 bg-ink-900/60 p-4 h-64"
+            className="animate-pulse rounded-2xl border border-line-strong/40 bg-ink-900/60 p-3.5 h-64"
           >
             <div className="h-4 w-28 bg-line-strong/60 rounded mb-4" />
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               <div className="h-3 w-full bg-line-strong/40 rounded" />
               <div className="h-3 w-4/5 bg-line-strong/40 rounded" />
               <div className="h-3 w-3/4 bg-line-strong/40 rounded" />
@@ -64,7 +64,7 @@ export function DeliveriesBreakdowns({
   };
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
       <BreakdownCard
         title="Company"
         subtitle="Outstanding m²"
@@ -120,7 +120,7 @@ function BreakdownCard({
   const largest = Math.max(1, ...displayItems.map((item) => item.balanceSqm));
 
   return (
-    <div className="flex flex-col justify-between rounded-2xl border border-line-strong/60 bg-ink-900/80 p-4 shadow-panel">
+    <div className="flex flex-col justify-between rounded-2xl border border-line-strong/60 bg-ink-900/80 p-3.5 shadow-panel">
       <div>
         <div className="flex items-baseline justify-between gap-2 border-b border-line/60 pb-2.5">
           <h3 className="card-title text-sm font-bold text-text-primary">{title}</h3>
@@ -128,7 +128,7 @@ function BreakdownCard({
         </div>
 
         {displayItems.length === 0 ? (
-          <p className="py-6 text-center text-xs text-text-faint">No PIs matching filters</p>
+          <p className="py-5 text-center text-xs text-text-faint">No PIs matching filters</p>
         ) : (
           <div className="mt-3 space-y-2.5">
             {displayItems.map((item) => {

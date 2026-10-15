@@ -64,12 +64,12 @@ export function DeliveriesDetailModal({
   };
 
   return (
-    <div className="animate-fade-in fixed inset-0 z-50 flex items-center justify-center bg-ink-950/85 p-4">
+    <div className="animate-fade-in fixed inset-0 z-50 flex items-center justify-center bg-ink-950/85 p-3.5">
       <div
-        className="relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-line-strong/80 bg-ink-900 p-6 shadow-raised"
+        className="relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-line-strong/80 bg-ink-900 p-5 shadow-raised"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line-strong/60 pb-4">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line-strong/60 pb-3.5">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <span className="eyebrow text-brand-300">PI Delivery Ledger</span>
@@ -100,7 +100,7 @@ export function DeliveriesDetailModal({
         </div>
 
         {/* Obligation vs delivered vs balance, stated once and plainly. */}
-        <div className="mt-5 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Metric label="Ordered" value={`${row.ordered_qty.toLocaleString()} pcs`} sub={`${row.ordered_sqm.toFixed(2)} m²`} />
           <Metric
             label="Delivered"
@@ -121,11 +121,11 @@ export function DeliveriesDetailModal({
           />
         </div>
 
-        <div className="mt-4 rounded-xl border border-line-strong/50 bg-ink-950/50 px-4 py-3">
+        <div className="mt-3.5 rounded-xl border border-line-strong/50 bg-ink-950/50 px-4 py-2.5">
           <DeliveryProgress progressPct={row.progress_pct} lifecycle={row.delivery_status} />
         </div>
 
-        <div className="mt-5 grid grid-cols-1 gap-3 text-xs sm:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-3 text-xs sm:grid-cols-3">
           <DetailField label="Salesman" value={row.salesman || "—"} />
           <DetailField label="Prepared By" value={row.prepared_by || "—"} />
           <DetailField label="Type of Work" value={row.type_of_work || "—"} />
@@ -137,11 +137,11 @@ export function DeliveriesDetailModal({
           <DetailField label="Zoho" value={row.zoho_status || "—"} />
         </div>
 
-        <div className="mt-5">
+        <div className="mt-4">
           <MovementLedger row={row} />
         </div>
 
-        <div className="mt-5 border-t border-line-strong/60 pt-4">
+        <div className="mt-4 border-t border-line-strong/60 pt-3.5">
           <span className="eyebrow text-text-faint">Provenance</span>
           <div className="mt-2 grid grid-cols-1 gap-3 text-xs sm:grid-cols-3">
             <DetailField label="Source File" value={row.source_file || "—"} mono />
@@ -158,7 +158,7 @@ export function DeliveriesDetailModal({
           </div>
         </div>
 
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line-strong/60 pt-4">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line-strong/60 pt-3.5">
           <Button variant="secondary" size="sm" onClick={handleCopy}>
             {copied ? "✓ Copied JSON" : "Copy Raw JSON"}
           </Button>
@@ -192,7 +192,7 @@ function Metric({
   tone?: string;
 }) {
   return (
-    <div className="rounded-xl border border-line-strong/50 bg-ink-950/60 px-3.5 py-3">
+    <div className="rounded-xl border border-line-strong/50 bg-ink-950/60 px-3.5 py-2.5">
       <span className="block text-3xs font-semibold uppercase tracking-wider text-text-faint">
         {label}
       </span>

@@ -73,9 +73,9 @@ export function RecordsFilterPanel({
   ].filter(Boolean).length;
 
   return (
-    <div className="rounded-2xl border border-line-strong/60 bg-ink-900/80 p-4 sm:p-5 shadow-panel">
+    <div className="rounded-2xl border border-line-strong/60 bg-ink-900/80 p-3.5 sm:p-4 shadow-panel">
       {/* Top row: Search input + Date Presets */}
-      <div className="flex flex-col gap-3.5 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         {/* Search Field */}
         <div className="relative flex-1 min-w-[280px]">
           <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-text-faint">
@@ -134,7 +134,7 @@ export function RecordsFilterPanel({
 
       {/* Custom Date Inputs (when custom range is active or toggled) */}
       {filters.datePreset === "custom" && (
-        <div className="mt-3.5 flex flex-wrap items-center gap-3 border-t border-line/60 pt-3.5 text-xs text-text-muted">
+        <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-line/60 pt-3 text-xs text-text-muted">
           <span className="font-mono text-2xs uppercase text-text-faint">Custom Date Range:</span>
           <div className="flex items-center gap-2">
             <label className="text-3xs uppercase text-text-faint">From:</label>
@@ -158,7 +158,7 @@ export function RecordsFilterPanel({
       )}
 
       {/* Filter dropdowns row */}
-      <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4 lg:grid-cols-8 border-t border-line/60 pt-4">
+      <div className="mt-3.5 grid grid-cols-2 gap-2.5 sm:grid-cols-4 lg:grid-cols-8 border-t border-line/60 pt-3.5">
         {/* Attached Excel File Dropdown */}
         <div>
           <label className="block text-3xs font-semibold uppercase tracking-wider text-text-faint mb-1">
@@ -341,7 +341,7 @@ export function RecordsFilterPanel({
       </div>
 
       {/* Active filters pill bar + Clear button */}
-      <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-line/40 text-xs">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-line/40 text-xs">
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="text-3xs uppercase font-mono text-text-faint">
             Matches: <strong className="text-text-primary">{totalFiltered.toLocaleString()}</strong> rows

@@ -39,7 +39,7 @@ export function DeliveriesTable({
 }: DeliveriesTableProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const isCompact = density === "compact";
-  const cellPy = isCompact ? "py-2" : "py-3.5";
+  const cellPy = isCompact ? "py-1.5" : "py-2.5";
 
   const toggle = (pi: string) => {
     setExpanded((previous) => {
@@ -52,7 +52,7 @@ export function DeliveriesTable({
 
   if (loading && rows.length === 0) {
     return (
-      <div className="overflow-hidden rounded-2xl border border-line-strong/60 bg-ink-900/80 p-4 shadow-panel">
+      <div className="overflow-hidden rounded-2xl border border-line-strong/60 bg-ink-900/80 p-3.5 shadow-panel">
         <div className="space-y-2.5">
           {Array.from({ length: 8 }).map((_, index) => (
             <div
@@ -90,10 +90,10 @@ export function DeliveriesTable({
         <table className="w-full border-collapse text-left text-xs">
           <thead>
             <tr className="select-none border-b border-line-strong/80 bg-ink-950/90 text-3xs font-semibold uppercase tracking-wider text-text-faint">
-              <th className="w-8 pl-3 py-3" aria-label="Expand" />
+              <th className="w-8 pl-3 py-2.5" aria-label="Expand" />
               <SortHeader label="PI Number" field="pi_number" currentSort={sort} onSort={onSortChange} />
               <SortHeader label="Company" field="company" currentSort={sort} onSort={onSortChange} />
-              <th className="px-3 py-3 font-semibold">Customer Ref</th>
+              <th className="px-3 py-2.5 font-semibold">Customer Ref</th>
               <SortHeader label="Order Date" field="order_date" currentSort={sort} onSort={onSortChange} />
               <SortHeader label="Ordered" field="ordered_qty" currentSort={sort} onSort={onSortChange} align="right" />
               <SortHeader label="Delivered" field="delivered_qty" currentSort={sort} onSort={onSortChange} align="right" />
@@ -107,7 +107,7 @@ export function DeliveriesTable({
                 onSort={onSortChange}
               />
               <SortHeader label="Stage" field="delivery_status" currentSort={sort} onSort={onSortChange} />
-              <th className="py-3 pl-3 pr-4 text-right font-semibold">Actions</th>
+              <th className="py-2.5 pl-3 pr-4 text-right font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line/40">
@@ -247,7 +247,7 @@ export function DeliveriesTable({
 
                   {isOpen && (
                     <tr className="bg-ink-950/60">
-                      <td colSpan={13} className="px-3 pb-4 pt-2">
+                      <td colSpan={13} className="px-3 pb-3.5 pt-2">
                         <MovementLedger row={row} compact />
                       </td>
                     </tr>
