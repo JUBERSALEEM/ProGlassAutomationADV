@@ -56,10 +56,22 @@ every page read professional (reference: compact clay dashboards —
   summary cards) and every section on all pages; corner-safe
   floors still guarantee content clears the corner curve in
   Crystal (24px radius) and Clay (32/40px).
-- **Phase 2 — shared-pattern normalization.** Extract the repeated
-  CTA banner + repeated `p-8` feature panels into the existing
-  primitives (Glass/SectionHeading), migrating raw `p-8`→`card-pad`,
-  `p-6`→`card-pad-sm` on registered cards page-group by page-group.
+- **Phase 2 — shared-pattern normalization.** ✔ APPLIED
+  `CallToActionCard` is a server-only shell composed from `GlassCard`;
+  twelve route-specific closing CTAs now share its family-aware
+  surface, `card-pad`, and 20px vertical rhythm while retaining
+  route-owned copy, links, IDs, and surrounding Reveal/Section markup.
+  A code-aware migration moved 63 registered card surfaces off raw
+  `p-6` / `p-8` utility padding: simple cards use `card-pad-sm`,
+  fuller/responsive panels use `card-pad`. Responsive p-6→p-7/8 and
+  p-8→p-10/12 cases resolve to the full card token, avoiding an
+  unintended extra-small treatment. The pricing edition's conditional
+  class strings were checked and migrated separately.
+  Before → after: 63 registered surfaces with raw p-6/p-8 → 0;
+  69 `card-pad`/`card-pad-sm` class occurrences; 12 CTA component uses.
+  The existing corner-radius guard and paint suites remain green.
+  Non-registered custom panels and dashboard modal/loading shells are
+  retained for their appropriate placement/dashboard passes.
 - **Phase 3 — placement pass per page group** (home → features →
   dashboards (records/reports/job-orders/deliveries) → pricing/
   content pages): grid gaps 24→20/16 where cards are siblings,
@@ -72,6 +84,40 @@ every page read professional (reference: compact clay dashboards —
   paint, contrast, coverage, nav, typecheck, lint), responsive
   spot-checks at 360/768/1280/1920, before/after measurements
   recorded here, preview sign-off per page group.
+
+## Phase 2 execution record
+
+- **Root cause:** the global pad variables only affect callers of the
+  `card-pad` classes. Registered cards with utility padding were held at
+  the utility's 24–48px values by the corner-safe override; the repeated
+  CTA shell independently carried 32–40px padding and a 24px vertical gap.
+- **Files changed:** 22 existing route/component files plus the new
+  `src/components/ui/CallToActionCard.tsx`. Twelve public route CTAs now
+  use the shared shell; all 63 registered-surface p-6/p-8 cases use the
+  padding token appropriate to their content hierarchy. No route copy,
+  href, section label, CTA heading ID, or reveal wrapper changed.
+- **Before → after:** registered surface class census, raw p-6/p-8: 63 → 0.
+  Token class census after migration: 69 direct registered-surface
+  className occurrences (the `GlassCard` primitive also adds its token
+  internally). CTA
+  shell gap: 24px → 20px. Compiled CSS contains
+  `.card-pad{padding:var(--card-pad)}` and
+  `.card-pad-sm{padding:var(--card-pad-sm)}`; the tokens retain their
+  responsive radius floors. This is computed/structural evidence, not a
+  visual or pixel-proof claim.
+- **Verification:** production build generated 444 locale/static pages;
+  typecheck and ESLint clean; Clay paint 253/253; Clay contrast/visibility
+  33/33 + coverage 100%; Crystal contrast 114/114; motion 28/28; navbar
+  98/98; radius guard 12/12; pointer guard scans 166 files clean.
+- **Preview:** production server refreshed; all 26 checked route paths
+  return HTTP 200, including home, all public content routes, records /
+  reports logins, and the three `/sys/*` benches. Server-rendered HTML
+  for the About closing CTA confirms `surface-raised card-pad text-center`
+  and the shared `gap-5` body class. No pixel-level browser proof is
+  claimed.
+- **Remaining:** custom non-registry panels (including app loading/error
+  shells, feature-showcase stage and detail modals) stay for their
+  appropriate placement/dashboard passes. No other Phase 2 defect found.
 
 ## Acceptance
 

@@ -6,6 +6,7 @@ import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
+import { CallToActionCard } from "@/components/ui/CallToActionCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
 import { AppFrame } from "@/components/product/AppFrame";
@@ -289,7 +290,7 @@ export default async function OptimizationPage({ params }: PageProps) {
             lead={t("These are the defaults the engineering assumes before an operator changes anything. Every value is editable per run, and 'Load house defaults' puts them back.")}
           />
 
-          <div className="surface-raised mt-10 overflow-x-auto p-4 sm:p-6">
+          <div className="surface-raised mt-10 overflow-x-auto card-pad-sm">
             <table className="w-full min-w-[46rem] border-separate border-spacing-0 text-sm">
               <caption className="sr-only">{t("Default cutting allowances per glass thickness bucket")}</caption>
               <thead>
@@ -384,7 +385,7 @@ export default async function OptimizationPage({ params }: PageProps) {
 
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
             {verificationOracles.map((oracle, index) => (
-              <Reveal key={`${t(oracle.name)}-${index}`} delay={index * 70} className="surface-raised p-6">
+              <Reveal key={`${t(oracle.name)}-${index}`} delay={index * 70} className="surface-raised card-pad-sm">
                 <p className="eyebrow">{t(oracle.evidence)}</p>
                 <h3 className="mt-3 text-base font-semibold text-text-primary">{t(oracle.name)} check</h3>
                 <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(oracle.checks)}</p>
@@ -394,7 +395,7 @@ export default async function OptimizationPage({ params }: PageProps) {
 
           <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
             <Reveal>
-              <div className="surface-raised p-6">
+              <div className="surface-raised card-pad-sm">
                 <h3 className="text-base font-semibold text-text-primary">{t("What a run reports")}</h3>
                 <dl className="mt-5 divide-y divide-line/60">
                   {optimizationResultFields.map((field) => (
@@ -408,7 +409,7 @@ export default async function OptimizationPage({ params }: PageProps) {
             </Reveal>
 
             <Reveal delay={80}>
-              <div className="surface-raised p-6">
+              <div className="surface-raised card-pad-sm">
                 <h3 className="text-base font-semibold text-text-primary">{t("Four claims this engine does not make")}</h3>
                 <ul className="mt-5 space-y-3.5">
                   {engineHonestyNotes.map((note) => (
@@ -598,7 +599,7 @@ export default async function OptimizationPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <CallToActionCard>
               <div>
                 <h2 className="display-2">{t("Send us a cutting list.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration is most useful when it runs on your glass, your sheet sizes and your margins — not on a sample project. Bring a job you recognise.")}</p>
@@ -611,7 +612,7 @@ export default async function OptimizationPage({ params }: PageProps) {
           {t("Module detail")}
         </ButtonLink>
               </div>
-            </div>
+            </CallToActionCard>
           </Reveal>
         </Container>
       </Section>
@@ -622,7 +623,7 @@ export default async function OptimizationPage({ params }: PageProps) {
 
 function EnginePipeline({ t }: { t: Translator }) {
   return (
-    <div className="surface-raised sticky top-28 p-6">
+    <div className="surface-raised sticky top-28 card-pad-sm">
       <p className="mono-label">{t("How a run is produced")}</p>
       <ol className="mt-5">
         {enginePipeline.map((stage, index) => (

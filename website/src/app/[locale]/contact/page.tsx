@@ -4,6 +4,7 @@ import { PageHero } from "@/components/layout/PageHero";
 import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
+import { CallToActionCard } from "@/components/ui/CallToActionCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { DemoRequestForm } from "@/components/forms/DemoRequestForm";
 import { site } from "@/lib/site";
@@ -75,7 +76,7 @@ export default async function ContactPage({ params }: PageProps) {
             </div>
 
             <Reveal delay={80} className="space-y-5">
-              <div className="surface-raised p-6">
+              <div className="surface-raised card-pad-sm">
                 <p className="eyebrow mb-4">{t("What helps us prepare")}</p>
                 <ul className="space-y-3.5">
                   {[
@@ -104,7 +105,7 @@ export default async function ContactPage({ params }: PageProps) {
                 </ul>
               </div>
 
-              <div className="surface p-6">
+              <div className="surface card-pad-sm">
                 <p className="eyebrow mb-4">{t("Prefer email?")}</p>
                 <p className="text-sm leading-relaxed text-text-muted">{t("Write directly and include the same details. The address reaches the developer, not a queue.")}</p>
                 <a
@@ -124,7 +125,7 @@ export default async function ContactPage({ params }: PageProps) {
                 </a>
               </div>
 
-              <div className="surface p-6">
+              <div className="surface card-pad-sm">
                 <p className="eyebrow mb-3">{t("Before you ask")}</p>
                 <p className="text-sm leading-relaxed text-text-muted">{t("This website is not an application. There is no account to create, no online trial to start and no dashboard to log in to. ProGlass Automation is Windows software that you install and activate offline — the trial starts on your machine, not in a browser.")}</p>
               </div>
@@ -152,7 +153,7 @@ export default async function ContactPage({ params }: PageProps) {
                   detail: t("No online demo account and no sales presentation: the person answering is the person who wrote the application. If a particular part of the system matters to your business — records synchronization between a head office and a branch, or one of the reports — name it in the request, and that is where the demonstration starts."),
                 },
               ].map((item) => (
-                <div key={item.title} className="surface-raised p-6">
+                <div key={item.title} className="surface-raised card-pad-sm">
                   <p className="text-sm font-semibold text-text-primary">{item.title}</p>
                   <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{item.detail}</p>
                 </div>
@@ -166,7 +167,7 @@ export default async function ContactPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Next step")}>
         <Container>
           <Reveal>
-            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <CallToActionCard>
               <div>
                 <h2 className="display-2">{t("While you wait for a reply.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("The interface tour shows the screens a demonstration runs through, and the optimization page explains what the cutting engine does with a real cutting list.")}</p>
@@ -179,7 +180,7 @@ export default async function ContactPage({ params }: PageProps) {
           {t("The optimization engine")}
         </ButtonLink>
               </div>
-            </div>
+            </CallToActionCard>
           </Reveal>
         </Container>
       </Section>

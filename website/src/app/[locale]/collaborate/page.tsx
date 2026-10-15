@@ -6,6 +6,7 @@ import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge, IconChip, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
+import { CallToActionCard } from "@/components/ui/CallToActionCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
 import {
@@ -159,7 +160,7 @@ export default async function CollaboratePage({ params }: PageProps) {
             </div>
 
             <Reveal delay={80} className="flow">
-              <div className="surface-raised p-6 sm:p-7">
+              <div className="surface-raised card-pad">
                 <p className="eyebrow">{t("What would change the trajectory")}</p>
                 <ul className="mt-4 space-y-3.5">
                   {[
@@ -305,7 +306,7 @@ export default async function CollaboratePage({ params }: PageProps) {
           <ul className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {collaboratorRoles.map((role, index) => (
               <Reveal key={role.id} as="li" delay={Math.min(index, 5) * 55} id={role.id}>
-                <article className="surface-raised card-interactive flex h-full flex-col p-6">
+                <article className="surface-raised card-interactive flex h-full flex-col card-pad-sm">
                   <div className="flex items-center gap-3">
                     <IconChip path={roleIcons[role.id] ?? roleIcons.fabricator!} className="h-8 w-8" />
                     <h3 className="card-title">{t(role.title)}</h3>
@@ -448,7 +449,7 @@ export default async function CollaboratePage({ params }: PageProps) {
       {/* ── Closing ──────────────────────────────────────────────────── */}
       <Section aria-labelledby="collab-cta-heading">
         <Container>
-          <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+          <CallToActionCard>
             <div>
               <h2 id="collab-cta-heading" className="display-2">
                 {t("One conversation is the whole ask.")}
@@ -471,7 +472,7 @@ export default async function CollaboratePage({ params }: PageProps) {
                 {t("Support the build")}
               </ButtonLink>
             </div>
-          </div>
+          </CallToActionCard>
         </Container>
       </Section>
     </>

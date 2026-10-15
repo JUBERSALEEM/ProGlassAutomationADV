@@ -5,6 +5,7 @@ import { PageHero } from "@/components/layout/PageHero";
 import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
+import { CallToActionCard } from "@/components/ui/CallToActionCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { StatCounter } from "@/components/ui/Stat";
 import { IconChip, IndexChip } from "@/components/ui/Badge";
@@ -146,7 +147,7 @@ export default async function AboutPage({ params }: PageProps) {
                 body: t("Real grid geometry crosses from quotation to job order — sheet selections and air-spacer gaps included — so the panel that was priced is the panel that gets built."),
               },
             ].map((pillar, index) => (
-              <Reveal key={`${t(pillar.title)}-${index}`} delay={index * 70} className="surface-raised p-6">
+              <Reveal key={`${t(pillar.title)}-${index}`} delay={index * 70} className="surface-raised card-pad-sm">
                 <IconChip path={pillar.icon} className="mb-4" />
                 <h3 className="text-lg font-semibold text-text-primary">{t(pillar.title)}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(pillar.body)}</p>
@@ -196,7 +197,7 @@ export default async function AboutPage({ params }: PageProps) {
                 <StatCounter value={site.locales} label="Languages" hint={t("Adding one needs no C# change.")} />
               </div>
 
-              <div className="surface mt-4 p-6">
+              <div className="surface mt-4 card-pad-sm">
                 <p className="eyebrow mb-3">{t("The discipline that matters most")}</p>
                 <p className="text-sm leading-relaxed text-text-muted">
                   {t("Shipped code contains no")}{" "}
@@ -303,7 +304,7 @@ export default async function AboutPage({ params }: PageProps) {
             </SectionHeading>
 
             <Reveal delay={80} className="flow">
-              <Link href="/developer" className="surface-raised group block p-6 transition-colors duration-300 hover:border-brand-400/40">
+              <Link href="/developer" className="surface-raised group block transition-colors duration-300 hover:border-brand-400/40 card-pad-sm">
                 <p className="eyebrow">{t("Next")}</p>
                 <h3 className="mt-3 text-lg font-semibold text-text-primary">{t("The person building it")}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-text-muted">{t("ProGlass Automation is developed by {v1}. The developer page covers the build, the technology and the thinking behind it.", { v1: site.developerName })}</p>
@@ -311,7 +312,7 @@ export default async function AboutPage({ params }: PageProps) {
                 </span>
               </Link>
 
-              <div className="surface p-6">
+              <div className="surface card-pad-sm">
                 <p className="eyebrow mb-3">{t("A note on honesty")}</p>
                 <p className="text-sm leading-relaxed text-text-muted">{t("This website contains no customer count, no award, no certification and no percentage improvement claim, because the repository contains none of those things. Where a screen capture does not yet exist, the page says so instead of showing an illustration labelled as a screenshot.")}</p>
               </div>
@@ -324,7 +325,7 @@ export default async function AboutPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <CallToActionCard>
               <div>
                 <h2 className="display-2">{t("If that describes your business, see it working.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration runs on a job you recognise, from the quotation through to the cutting plan.")}</p>
@@ -337,7 +338,7 @@ export default async function AboutPage({ params }: PageProps) {
           {t("The engine")}
         </ButtonLink>
               </div>
-            </div>
+            </CallToActionCard>
           </Reveal>
         </Container>
       </Section>

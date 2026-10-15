@@ -6,6 +6,7 @@ import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
+import { CallToActionCard } from "@/components/ui/CallToActionCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
 import { editions, licenceFacts, licenceGates, openModules } from "@/data/editions";
@@ -78,7 +79,7 @@ export default async function PricingPage({ params }: PageProps) {
       <Section aria-label={t("How pricing works")}>
         <Container>
           <Reveal>
-            <div className="surface-raised grid gap-6 p-6 sm:grid-cols-3 sm:p-8">
+            <div className="surface-raised grid gap-6 sm:grid-cols-3 card-pad">
               <div className="sm:col-span-2">
                 <h2 className="display-3">{t("There is no price on this page, and that is deliberate.")}</h2>
                 <p className="mt-4 text-sm leading-relaxed text-text-muted">{t("ProGlass is sold to glass businesses with different shapes: a single estimator, a five-person office, or a factory running eight production stages. What you need ranges from the proforma wizard alone to the full chain plus the cutting-optimization engine. Quoting one number for all of those would mean either overcharging the first or underdelivering the last.")}</p>
@@ -134,8 +135,8 @@ export default async function PricingPage({ params }: PageProps) {
                 delay={index * 60}
                 className={
                   edition.featured
-                    ? "pricing-card--featured surface-raised relative flex flex-col border-brand-400/40 p-6 shadow-glow"
-                    : "pricing-card--basic surface relative flex flex-col p-6"
+                    ? "pricing-card--featured surface-raised relative flex flex-col border-brand-400/40 card-pad-sm shadow-glow"
+                    : "pricing-card--basic surface relative flex flex-col card-pad-sm"
                 }
               >
                 {edition.featured ? (
@@ -200,7 +201,7 @@ export default async function PricingPage({ params }: PageProps) {
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
             <div className="flow">
               {licenceGates.map((gate) => (
-                <Reveal key={t(gate.group)} className="surface-raised p-6">
+                <Reveal key={t(gate.group)} className="surface-raised card-pad-sm">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <h3 className="text-base font-semibold text-text-primary">{t(gate.group)}</h3>
                     <Badge tone="accent">{gate.minimumEdition} and above</Badge>
@@ -220,7 +221,7 @@ export default async function PricingPage({ params }: PageProps) {
               ))}
             </div>
 
-            <Reveal delay={80} className="surface p-6">
+            <Reveal delay={80} className="surface card-pad-sm">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h3 className="text-base font-semibold text-text-primary">{t("Open in every edition")}</h3>
                 <Badge tone="success">{t("No gate")}</Badge>
@@ -300,7 +301,7 @@ export default async function PricingPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Worked example")}>
         <Container>
           <Reveal>
-            <div className="surface flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+            <div className="surface flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between card-pad">
               <div>
                 <p className="eyebrow">{t("Before you ask for a number")}</p>
                 <p className="mt-3 max-w-3xl text-sm leading-relaxed text-text-secondary">
@@ -323,7 +324,7 @@ export default async function PricingPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request pricing")}>
         <Container>
           <Reveal>
-            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <CallToActionCard>
               <div>
                 <h2 className="display-2">{t("Tell us what you need, and get a number.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("How many people, which modules, and whether the cutting table is part of it. Every request is answered by a person.")}</p>
@@ -336,7 +337,7 @@ export default async function PricingPage({ params }: PageProps) {
           {t("What is included")}
         </ButtonLink>
               </div>
-            </div>
+            </CallToActionCard>
           </Reveal>
         </Container>
       </Section>

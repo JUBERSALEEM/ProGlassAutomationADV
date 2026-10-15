@@ -7,6 +7,7 @@ import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge, IconChip } from "@/components/ui/Badge";
 import { footerLinkIcons } from "@/data/footerIcons";
 import { Reveal } from "@/components/ui/Reveal";
+import { CallToActionCard } from "@/components/ui/CallToActionCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { allPosts } from "@/lib/posts";
 import { RouteSchema } from "@/components/seo/RouteSchema";
@@ -86,7 +87,7 @@ export default async function BlogPage({ params }: PageProps) {
             <Reveal delay={80} className="mt-8">
               <Link
                 href={`/blog/${lead.slug}`}
-                className="surface-raised group block p-6 transition-colors duration-300 hover:border-brand-400/40 sm:p-8"
+                className="surface-raised group block transition-colors duration-300 hover:border-brand-400/40 card-pad"
               >
                 <div className="flex flex-wrap items-center gap-3">
                   <Badge tone="accent">{t(lead.category)}</Badge>
@@ -125,7 +126,7 @@ export default async function BlogPage({ params }: PageProps) {
               <Reveal key={post.slug} as="li" delay={index * 60}>
                 <Link
                   href={`/blog/${post.slug}`}
-                  className="surface group flex h-full flex-col p-6 transition-colors duration-300 hover:border-brand-400/40"
+                  className="surface group flex h-full flex-col transition-colors duration-300 hover:border-brand-400/40 card-pad-sm"
                 >
                   <div className="flex flex-wrap items-center gap-3">
                     <IconChip path={footerLinkIcons["/blog"]!} className="h-7 w-7" />
@@ -163,7 +164,7 @@ export default async function BlogPage({ params }: PageProps) {
       <Section aria-label={t("Explore the product")}>
         <Container>
           <Reveal>
-            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <CallToActionCard>
               <div>
                 <h2 className="display-2">{t("Reading about it is not the same as seeing it.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
@@ -178,7 +179,7 @@ export default async function BlogPage({ params }: PageProps) {
           {t("See screenshots")}
         </ButtonLink>
               </div>
-            </div>
+            </CallToActionCard>
           </Reveal>
         </Container>
       </Section>

@@ -6,6 +6,7 @@ import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
+import { CallToActionCard } from "@/components/ui/CallToActionCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
 import { StatBadge, StatCounter } from "@/components/ui/Stat";
@@ -121,7 +122,7 @@ export default async function SponsorsPage({ params }: PageProps) {
                 />
               </div>
 
-              <div className="surface-raised mt-4 p-6">
+              <div className="surface-raised mt-4 card-pad-sm">
                 <p className="eyebrow">{t("The rule this page keeps")}</p>
                 <p className="mt-3 text-sm leading-relaxed text-text-secondary">{t("Sponsorship funds work. It does not buy a roadmap position, a feature nobody needs, or a claim on the website that the software cannot demonstrate.")}</p>
               </div>
@@ -144,7 +145,7 @@ export default async function SponsorsPage({ params }: PageProps) {
           <ul className="mt-12 grid gap-5 lg:grid-cols-2">
             {sponsorNeeds.map((need, index) => (
               <Reveal key={need.id} as="li" delay={Math.min(index, 6) * 55}>
-                <article className="surface card-interactive flex h-full flex-col p-6">
+                <article className="surface card-interactive flex h-full flex-col card-pad-sm">
                   <div className="flex items-start justify-between gap-4">
                     <span
                       aria-hidden="true"
@@ -227,7 +228,7 @@ export default async function SponsorsPage({ params }: PageProps) {
 
             <Reveal delay={80}>
               <div className="flow">
-                <div className="surface-raised p-6 sm:p-7">
+                <div className="surface-raised card-pad">
                   <p className="eyebrow">{t("Where to write")}</p>
                   <h3 className="mt-3 text-lg font-semibold text-text-primary">{t("One address, read by the person who writes the code.")}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-text-muted">{t("There is no sales team and no support queue between you and the developer. Mention “sponsorship” or the specific gap you are interested in, and the reply will come from {v1}.", { v1: site.developerName })}</p>
@@ -251,7 +252,7 @@ export default async function SponsorsPage({ params }: PageProps) {
                   </div>
                 </div>
 
-                <div className="surface p-6">
+                <div className="surface card-pad-sm">
                   <p className="eyebrow">{t("What is definitely not on offer")}</p>
                   <ul className="mt-3 space-y-2.5">
                     {[
@@ -293,7 +294,7 @@ export default async function SponsorsPage({ params }: PageProps) {
       <Section aria-label={t("Support the project")}>
         <Container>
           <Reveal>
-            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <CallToActionCard>
               <div>
                 <h2 className="display-2">{t("Back the build, or join it.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("Funding, a developer with spare capacity, a cutting table that can be tested against, or a translation that deserves a native speaker — all four move this product forward.")}</p>
@@ -306,7 +307,7 @@ export default async function SponsorsPage({ params }: PageProps) {
           {t("How licensing works")}
         </ButtonLink>
               </div>
-            </div>
+            </CallToActionCard>
           </Reveal>
         </Container>
       </Section>

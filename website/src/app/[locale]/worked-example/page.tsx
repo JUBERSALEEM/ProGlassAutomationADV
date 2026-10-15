@@ -8,6 +8,7 @@ import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { cn as cnCell } from "@/lib/cn";
 import { Reveal } from "@/components/ui/Reveal";
+import { CallToActionCard } from "@/components/ui/CallToActionCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { OptimizationRunGate } from "@/components/optimization/OptimizationRunGate";
 import { PlateInspector } from "@/components/optimization/PlateInspector";
@@ -466,7 +467,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
           {/* ── Totals ─────────────────────────────────────────────── */}
           <Reveal className="mt-12">
             <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-              <div className="surface-raised p-6 sm:p-8">
+              <div className="surface-raised card-pad">
                 <p className="eyebrow">{t("Quotation total")}</p>
                 <dl className="mt-5 space-y-3 text-sm">
                   <div className="flex items-baseline justify-between gap-4 border-b border-line/50 pb-3">
@@ -500,7 +501,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
               </div>
 
               <div className="space-y-4">
-                <div className="surface p-6">
+                <div className="surface card-pad-sm">
                   <p className="eyebrow">{t("What the figures say")}</p>
                   <ul className="mt-4 space-y-3 text-sm leading-relaxed text-text-muted">
                     <li className="flex gap-3">
@@ -536,7 +537,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                   </ul>
                 </div>
 
-                <div className="surface p-6">
+                <div className="surface card-pad-sm">
                   <p className="eyebrow">{t("Built up, not guessed at")}</p>
                   <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("Every rate above matches the sell price of the sheet that glass comes from — 6 mm clear tempered at 150, 8 mm at 185, 10 mm at 210, 12 mm at 245, tinted at 175 and 195, and the Double-glazed unit at 260. That consistency is the point of the sample dataset: the stock in the store, the rate on the quotation and the value on the invoice are the same underlying job data.")}</p>
                 </div>
@@ -627,7 +628,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
 
             <Reveal delay={80}>
               <div className="space-y-4">
-                <div className="surface p-6">
+                <div className="surface card-pad-sm">
                   <p className="eyebrow">{t("What was invoiced")}</p>
                   <dl className="mt-4 space-y-3 text-sm">
                     <div className="flex items-baseline justify-between gap-4 border-b border-line/50 pb-3">
@@ -663,7 +664,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                   </p>
                 </div>
 
-                <div className="surface p-6">
+                <div className="surface card-pad-sm">
                   <p className="eyebrow">{t("Why the balance matters")}</p>
                   <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("A part delivery is where paper systems lose track. Because the delivery note records {v1} delivered against {v2} ordered, the outstanding {v3} pieces stay visible on the job rather than being re-typed from memory — and the invoice for Batch 2 will be raised from Batch 2's own dispatch, not from the original order.", { v1: deliveredTotals.pieces, v2: quotationTotals.pieces, v3: balancePieces })}</p>
                   <p className="mt-4">
@@ -868,7 +869,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
 
             <Reveal delay={80}>
               <div className="space-y-4">
-                <div className="surface p-6">
+                <div className="surface card-pad-sm">
                   <p className="eyebrow">{t("One item is already low")}</p>
                   {reorderAlerts.map((item) => (
                     <p key={item.partNumber} className="mt-3 text-sm leading-relaxed text-text-muted">
@@ -888,7 +889,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                   <p className="mt-4 text-sm leading-relaxed text-text-muted">{t("The other nine are above their reorder level, so only this one raises a flag — which is what a store report is for.")}</p>
                 </div>
 
-                <div className="surface p-6">
+                <div className="surface card-pad-sm">
                   <p className="eyebrow">{t("Buy and sell, side by side")}</p>
                   <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("Every sheet and consumable carries a purchase price and a sell price. The quotation's rates come from the sell side and the margin a job made is read from the job's own recorded costs — which is why job profitability is a report on real charges rather than a spreadsheet reconstruction.")}</p>
                   <p className="mt-4">
@@ -917,7 +918,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
           <div className="mt-10 grid gap-5 lg:grid-cols-2">
             {pricingRules.map((rule) => (
               <Reveal key={rule.id}>
-                <div className="surface-raised h-full p-6 sm:p-7">
+                <div className="surface-raised h-full card-pad">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="eyebrow">{t(rule.label)}</p>
                     <p className="font-mono text-sm font-semibold text-brand-200">{t(rule.value)}</p>
@@ -1012,7 +1013,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
           */}
           <Reveal className="mt-10">
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-              <div className="surface-raised p-6 sm:p-7">
+              <div className="surface-raised card-pad">
                 <p className="eyebrow">{t("The cost behind the rate")}</p>
                 <h3 className="mt-2 text-xl font-semibold text-text-primary">{t("Step 9 costs these same panels at the purchase price.")}</h3>
                 <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{t("Step 9 is the application's only profit-and-loss step, and it asks one question: is the given price above target? Revenue is what the specification bills; the glass cost is the same billable square metres at the Sheet Store purchase price; the target is the base price plus the expected margin. Every row below is a seeded stock line, and the sell column is the rate the quotation above charges — which is why the two figures reconcile rather than merely agreeing.")}</p>
@@ -1115,7 +1116,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Next steps")}>
         <Container>
           <Reveal>
-            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <CallToActionCard>
               <div>
                 <p className="eyebrow">{t("See it on your own numbers")}</p>
                 <h2 className="mt-3 text-2xl leading-tight sm:text-3xl">
@@ -1131,7 +1132,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
           {t("See the screens")}
         </ButtonLink>
               </div>
-            </div>
+            </CallToActionCard>
           </Reveal>
         </Container>
       </Section>

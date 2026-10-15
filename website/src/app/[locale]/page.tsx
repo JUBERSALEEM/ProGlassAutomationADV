@@ -662,7 +662,7 @@ export default async function HomePage({ params }: PageProps) {
       <Section aria-labelledby="sponsors-heading">
         <Container>
           <Reveal>
-            <div className="surface-raised p-8 sm:p-10">
+            <div className="surface-raised card-pad">
               <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-center lg:gap-12">
                 <div>
                   <p className="eyebrow max-lg:text-center">{t("Open to help")}</p>
@@ -712,7 +712,7 @@ export default async function HomePage({ params }: PageProps) {
             {featureGroups
               .filter((group) => ["platform", "money", "documents"].includes(group.id))
               .map((group, index) => (
-                <Reveal key={group.id} delay={index * 70} className="surface-raised card-interactive flex flex-col p-6">
+                <Reveal key={group.id} delay={index * 70} className="surface-raised card-interactive flex flex-col card-pad-sm">
                   <h3 className="text-lg font-semibold text-text-primary">{t(group.title)}</h3>
                   <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(group.lead)}</p>
                   <ul className="mt-5 space-y-3 border-t border-line/60 pt-5">
@@ -826,7 +826,7 @@ export default async function HomePage({ params }: PageProps) {
       <Section aria-labelledby="cta-heading">
         <Container>
           <Reveal>
-            <div className="surface-raised edge-conic relative overflow-hidden p-8 sm:p-12">
+            <div className="surface-raised edge-conic relative overflow-hidden card-pad">
               <div aria-hidden="true" className="pointer-events-none absolute inset-0">
                 <div className="aurora-field aurora-drift" />
               </div>

@@ -194,7 +194,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 <Reveal key={other.slug} as="li" delay={index * 60}>
                   <Link
                     href={`/blog/${other.slug}`}
-                    className="surface group flex h-full flex-col p-6 transition-colors duration-300 hover:border-brand-400/40"
+                    className="surface group flex h-full flex-col transition-colors duration-300 hover:border-brand-400/40 card-pad-sm"
                   >
                     <div className="flex items-center gap-3">
                       <Badge>{t(other.category)}</Badge>

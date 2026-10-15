@@ -5,6 +5,7 @@ import { PageHero } from "@/components/layout/PageHero";
 import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
+import { CallToActionCard } from "@/components/ui/CallToActionCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ModuleShowcase } from "@/components/product/ModuleShowcase";
 import { AppFrame } from "@/components/product/AppFrame";
@@ -101,7 +102,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             <ModuleBrowser />
           </div>
 
-          <div className="surface mt-8 flex flex-col items-center gap-4 p-6 text-center">
+          <div className="surface mt-8 flex flex-col items-center gap-4 text-center card-pad-sm">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
 {t("A feature list only means something once a job runs through it. The")}{" "}
               <Link href="/worked-example" className="link-underline text-brand-200">
@@ -184,7 +185,7 @@ export default async function FeaturesPage({ params }: PageProps) {
           <div className="mt-6 grid gap-5 lg:grid-cols-2">
             {pricingRules.map((rule, index) => (
               <Reveal key={rule.id} delay={index * 60}>
-                <div className="surface-raised h-full p-6">
+                <div className="surface-raised h-full card-pad-sm">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="eyebrow">{t(rule.label)}</p>
                     <p className="font-mono text-sm font-semibold text-brand-200">{t(rule.value)}</p>
@@ -258,7 +259,7 @@ export default async function FeaturesPage({ params }: PageProps) {
           <div className="mt-6 grid gap-5 lg:grid-cols-3">
             {logFacts.map((fact, index) => (
               <Reveal key={fact.id} delay={index * 60}>
-                <div className="surface-raised h-full p-6">
+                <div className="surface-raised h-full card-pad-sm">
                   <p className="eyebrow">{t(fact.label)}</p>
                   <h3 className="mt-3 text-lg font-semibold text-text-primary">{t(fact.headline)}</h3>
                   <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{t(fact.body)}</p>
@@ -321,7 +322,7 @@ export default async function FeaturesPage({ params }: PageProps) {
 
           <div className="mt-6 grid gap-5 lg:grid-cols-2">
             <Reveal>
-              <div className="surface-raised h-full p-6">
+              <div className="surface-raised h-full card-pad-sm">
                 <p className="eyebrow">{t("Routing by build family")}</p>
                 <ul className="mt-4 space-y-3">
                   {stageRoutes.map((route) => (
@@ -339,7 +340,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             </Reveal>
 
             <Reveal delay={60}>
-              <div className="surface-raised h-full p-6">
+              <div className="surface-raised h-full card-pad-sm">
                 <p className="eyebrow">{t("Step 6 charges that raise floor work")}</p>
                 <table className="mt-4 w-full border-collapse text-left">
                   <caption className="sr-only">{t("Production charges and the stage each one arrives at.")}</caption>
@@ -473,7 +474,7 @@ export default async function FeaturesPage({ params }: PageProps) {
       <Section aria-label={t("Next steps")}>
         <Container>
           <Reveal>
-            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <CallToActionCard>
               <div>
                 <h2 className="display-2">{t("Want the same walkthrough on your own data?")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration uses a real job: a multi-section quotation, its cutting list and the delivery behind it.")}</p>
@@ -486,7 +487,7 @@ export default async function FeaturesPage({ params }: PageProps) {
           {t("How it works")}
         </ButtonLink>
               </div>
-            </div>
+            </CallToActionCard>
           </Reveal>
         </Container>
       </Section>

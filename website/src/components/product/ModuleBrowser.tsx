@@ -153,7 +153,7 @@ export function ModuleBrowser() {
         })}
 
         {visible.length === 0 ? (
-          <div className="surface p-8 text-center">
+          <div className="surface text-center card-pad">
             <p className="text-sm text-text-muted">{t("No module matches that search. The application has {v1} navigation targets; clear the search or pick another group.", { v1: modules.length })}</p>
           </div>
         ) : null}

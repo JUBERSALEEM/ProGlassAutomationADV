@@ -119,7 +119,7 @@ export function DeveloperStory({ t }: { t: Translator }) {
 
           {/* ── The record ────────────────────────────────────────────── */}
           <Reveal delay={120} variant="scale">
-            <Spotlight className="surface-raised edge-conic p-6 sm:p-8">
+            <Spotlight className="surface-raised edge-conic card-pad">
               {/* The emblem, the name, and the descriptor the application
                   prints under its own wordmark on the splash screen. */}
               <div className="flex items-center gap-5">

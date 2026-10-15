@@ -119,7 +119,7 @@ export function DemoRequestForm() {
 
   if (status === "success") {
     return (
-      <div className="surface-raised p-8" role="status">
+      <div className="surface-raised card-pad" role="status">
         <span
           aria-hidden="true"
           className="grid h-11 w-11 place-items-center rounded-xl border border-state-success/40 bg-state-success/10 text-state-success"
@@ -145,7 +145,7 @@ export function DemoRequestForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="surface-raised p-6 sm:p-8">
+    <form onSubmit={onSubmit} noValidate className="surface-raised card-pad">
       {/*
         Honeypot. A field a human cannot reach — off-screen rather than
         `display:none`, because the simplest bots skip hidden inputs — and

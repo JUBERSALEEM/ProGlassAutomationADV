@@ -159,7 +159,7 @@ export default async function ClayCatalogPage({ params }: PageProps) {
       <Section aria-labelledby="cat-wells" className="!py-6">
         <Container>
           <h2 id="cat-wells" className="card-title mb-4">Wells and controls</h2>
-          <div className="surface max-w-2xl space-y-4 p-6">
+          <div className="surface max-w-2xl space-y-4 card-pad-sm">
             <label className="block">
               <span className="mono-label">Search (pressed well)</span>
               <input
@@ -227,7 +227,7 @@ export default async function ClayCatalogPage({ params }: PageProps) {
       <Section aria-labelledby="cat-rules" className="!py-6">
         <Container>
           <h2 id="cat-rules" className="card-title mb-4">Rule carves</h2>
-          <div className="surface max-w-2xl space-y-4 p-6">
+          <div className="surface max-w-2xl space-y-4 card-pad-sm">
             <p className="text-sm text-text-muted">A pressed .rule-plate between two paragraphs:</p>
             <span className="rule-plate" aria-hidden="true" />
             <p className="text-sm text-text-muted">The floor below the carve is lit; the room above is shaded.</p>

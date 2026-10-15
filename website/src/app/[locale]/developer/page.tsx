@@ -226,7 +226,7 @@ const faq = [
           employer and no years-of-experience figure, because none of those are
           established anywhere.
         */}
-        <div className="surface-raised grid gap-8 p-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:gap-12 lg:p-9">
+        <div className="surface-raised grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:gap-12 card-pad">
           <div>
             <div className="flex items-start gap-5">
               <span
@@ -369,7 +369,7 @@ const faq = [
             <ol className="flow">
               {overthinking.points.map((point, index) => (
                 <Reveal key={point.index} as="li" delay={index * 60}>
-                  <div className="surface flex gap-4 p-5 sm:p-6">
+                  <div className="surface flex gap-4 card-pad">
                     <IndexChip>{point.index}</IndexChip>
                     <div className="min-w-0">
                       <h3 className="card-title">{t(point.title)}</h3>
@@ -461,7 +461,7 @@ const faq = [
                       aria-hidden="true"
                       className="absolute -left-[1.9rem] top-6 h-3 w-3 rounded-full border-2 border-brand-400 bg-ink-950 sm:-left-[2.4rem]"
                     />
-                    <article className="surface card-interactive p-5 sm:p-6">
+                    <article className="surface card-interactive card-pad">
                       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                         <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">{entry.tag}</span>
                         <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-muted">
@@ -570,7 +570,7 @@ const faq = [
           <div className="mt-10 grid gap-4 lg:grid-cols-3">
             {principles.map((item, index) => (
               <Reveal key={`${t(item.title)}-${index}`} delay={index * 60}>
-                <article className="surface h-full p-6">
+                <article className="surface h-full card-pad-sm">
                   <div className="flex items-center gap-3">
                     <IndexChip>{item.index}</IndexChip>
                     <h3 className="text-base font-semibold text-text-primary">{t(item.title)}</h3>
@@ -782,7 +782,7 @@ const faq = [
       {/* ── Closing ──────────────────────────────────────────────────── */}
       <Section aria-labelledby="dev-cta-heading">
         <Container>
-          <div className="surface-raised grid gap-8 p-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center lg:p-10">
+          <div className="surface-raised grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center card-pad">
             <div>
               <h2 id="dev-cta-heading" className="display-2">
           {t("You talk to the person who writes it.")}

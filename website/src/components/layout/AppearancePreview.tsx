@@ -64,7 +64,7 @@ export function AppearancePreview() {
   const activeFamily = appearanceFamilies.find((entry) => entry.id === family) ?? appearanceFamilies[0]!;
 
   return (
-    <div className="surface-raised p-5 sm:p-6">
+    <div className="surface-raised card-pad">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="eyebrow">{t("Try it on this page")}</p>
         <p className="font-mono text-2xs font-semibold uppercase tracking-[0.14em] text-text-muted">

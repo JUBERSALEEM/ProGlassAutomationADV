@@ -32,7 +32,7 @@ export function StrategyPicker() {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       {/* ── Search stage ─────────────────────────────────────────── */}
-      <div className="surface-raised flex flex-col p-6">
+      <div className="surface-raised flex flex-col card-pad-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-base font-semibold text-text-primary">{t("Search stage")}</h3>
           <Badge tone="accent">{t("Optimize effort 1–5")}</Badge>
@@ -109,7 +109,7 @@ export function StrategyPicker() {
       </div>
 
       {/* ── Plate pattern ────────────────────────────────────────── */}
-      <div className="surface-raised flex flex-col p-6">
+      <div className="surface-raised flex flex-col card-pad-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-base font-semibold text-text-primary">{t("Plate pattern")}</h3>
           <Badge>{t("Six tie-breaks")}</Badge>

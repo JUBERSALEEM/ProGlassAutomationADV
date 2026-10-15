@@ -34,7 +34,7 @@ export default function RouteError({
   return (
     <Section aria-labelledby="error-heading" className="pt-28">
       <Container>
-        <div className="surface-raised max-w-3xl p-8 sm:p-10">
+        <div className="surface-raised max-w-3xl card-pad">
           <p className="eyebrow">{t("Something broke on this page")}</p>
           <h1 id="error-heading" className="display-1 mt-3">
           {t("This page could not finish loading.")}

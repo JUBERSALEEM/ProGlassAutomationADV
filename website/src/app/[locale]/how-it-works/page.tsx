@@ -7,6 +7,7 @@ import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
+import { CallToActionCard } from "@/components/ui/CallToActionCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ChainStrip, WorkflowRail } from "@/components/product/WorkflowRail";
 import { AppFrame } from "@/components/product/AppFrame";
@@ -281,7 +282,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
 
           <p className="mt-6 max-w-4xl text-xs leading-relaxed text-text-faint font-medium">{t("The left-hand descriptions are general practice, not a claim about any particular business, and no figures are quoted for it. The right-hand column is limited to behaviour that exists in the application.")}</p>
 
-          <div className="surface mt-6 flex flex-col items-center gap-4 p-6 text-center">
+          <div className="surface mt-6 flex flex-col items-center gap-4 text-center card-pad-sm">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
 {t("For the numbers rather than the description, the")}{" "}
               <Link href="/worked-example" className="link-underline text-brand-200">
@@ -324,7 +325,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
             </div>
 
             <Reveal delay={80}>
-              <div className="surface-raised p-6">
+              <div className="surface-raised card-pad-sm">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-base font-semibold text-text-primary">{t("What it can and cannot touch")}</h3>
                   <Badge tone="success">{t("Read-heavy by design")}</Badge>
@@ -460,7 +461,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <CallToActionCard>
               <div>
                 <h2 className="display-2">{t("Walk the chain on your own job.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("We will take one real quotation from inquiry through to statement, including the cutting plan and the margin it produced.")}</p>
@@ -473,7 +474,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
           {t("See the screens")}
         </ButtonLink>
               </div>
-            </div>
+            </CallToActionCard>
           </Reveal>
         </Container>
       </Section>

@@ -5,6 +5,7 @@ import { PageHero } from "@/components/layout/PageHero";
 import { footerIconFor } from "@/data/footerIcons";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
+import { CallToActionCard } from "@/components/ui/CallToActionCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { GlassCard, GlassMetric, GlassMetricRow } from "@/components/ui/Glass";
 import { ProductShowcaseViewer } from "@/components/gallery/ProductShowcaseViewer";
@@ -150,7 +151,7 @@ export default async function ScreenshotsPage({ params }: PageProps) {
             <ProductShowcaseViewer />
           </div>
 
-          <div className="surface mt-10 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="surface mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between card-pad-sm">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
               {t(
                 "The previews above display live modular workflows with sample parameters. To see how a real 22-line commercial glazing contract processes end-to-end through every module,",
@@ -171,7 +172,7 @@ export default async function ScreenshotsPage({ params }: PageProps) {
       <Section aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <CallToActionCard>
               <div>
                 <h2 className="display-2">{t("The best screenshot is your own data.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
@@ -188,7 +189,7 @@ export default async function ScreenshotsPage({ params }: PageProps) {
                   {t("Optimization detail")}
                 </ButtonLink>
               </div>
-            </div>
+            </CallToActionCard>
           </Reveal>
         </Container>
       </Section>

@@ -8,6 +8,7 @@ import { Badge, IconChip } from "@/components/ui/Badge";
 import { groupIcons } from "@/data/groupIcons";
 import { navIcons } from "@/data/navIcons";
 import { Reveal } from "@/components/ui/Reveal";
+import { CallToActionCard } from "@/components/ui/CallToActionCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { guides, resourceCategories } from "@/data/resources";
 import { allPosts } from "@/lib/posts";
@@ -112,7 +113,7 @@ export default async function ResourcesPage({ params }: PageProps) {
                  names its modules: vocabulary is a book, the cutting guide is
                  optimization's arrow, quoting is the sales document, and stock
                  is the inventory stack. */
-              <Reveal key={guide.id} id={guide.id} delay={index * 60} as="article" className="surface-raised p-6 sm:p-8">
+              <Reveal key={guide.id} id={guide.id} delay={index * 60} as="article" className="surface-raised card-pad">
                 <IconChip
                   path={
                     guide.id === "cutting-optimization-basics"
@@ -184,7 +185,7 @@ export default async function ResourcesPage({ params }: PageProps) {
               <Reveal key={post.slug} as="li" delay={index * 60}>
                 <Link
                   href={`/blog/${post.slug}`}
-                  className="surface group flex h-full flex-col p-6 transition-colors duration-300 hover:border-brand-400/40"
+                  className="surface group flex h-full flex-col transition-colors duration-300 hover:border-brand-400/40 card-pad-sm"
                 >
                   <div className="flex items-center gap-3">
                     <Badge>{t(post.category)}</Badge>
@@ -209,7 +210,7 @@ export default async function ResourcesPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="surface-raised flex flex-col items-center gap-6 p-8 text-center sm:p-10">
+            <CallToActionCard>
               <div>
                 <h2 className="display-2">{t("See how these ideas look on a real job.")}</h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("The guides explain the concepts; a demonstration shows the application applying them to your glass.")}</p>
@@ -222,7 +223,7 @@ export default async function ResourcesPage({ params }: PageProps) {
           {t("The engine")}
         </ButtonLink>
               </div>
-            </div>
+            </CallToActionCard>
           </Reveal>
         </Container>
       </Section>
