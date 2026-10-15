@@ -851,6 +851,13 @@ html[data-theme="midnight"][data-appearance="clay"] {
   background-image: none;
   border-color: transparent;
   box-shadow: var(--shadow-panel);
+  /* §AC: the panel is sized for puffy contents, not bare text — the
+     markup's p-1/gap-0.5 crams moulded items edge-to-edge, so the
+     panel reads undersized for the cards it now holds (the pack's own
+     nav vocabulary pads 10px/5px). The pill hugs the row as before;
+     it just gives the cards inside it room to be cards. */
+  padding: 6px;
+  gap: 5px;
 }
 [data-appearance="clay"] .card-live,
 [data-appearance="clay"] .float-card,
@@ -1319,6 +1326,63 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
 [data-appearance="clay"] .menu-card [class*="rounded-[0.3rem]"] {
   border-radius: 8px;
   border-color: transparent;
+}
+
+/* §AC · Menu LINKS are cards too. §9.10 moulded the studio's option
+   BUTTONS, but the navigation's destinations are links wearing the
+   utility foil (`bg-ink-900/70` + a border utility): the foil sweep
+   flattened them to lavender film with a tinted edge, so a Clay menu
+   was a moulded panel holding flat, outlined rows — the "no separate
+   cards in the menus" witness. Links in menus and in the nav sheet
+   now take the same small-card recipe as §9.10's buttons: data face,
+   corner sheen and shade, cast shadow, no line. Hover raises to the
+   overlay face (the old lavender wash would lose the cascade to this
+   recipe, so the raise is stated here instead). */
+[data-appearance="clay"] :is(.menu-card, .nav-sheet) a[class*="bg-ink-"] {
+  border-color: transparent;
+  border-radius: 16px;
+  background-color: rgb(var(--data-face));
+  background-image: none;
+  box-shadow: 5px 5px 12px rgb(var(--clay-drop-h) / 0.3),
+    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
+}
+[data-appearance="clay"] :is(.menu-card, .nav-sheet) a[class*="bg-ink-"]:is(:hover, :focus-visible) {
+  border-color: transparent;
+  background-color: rgb(var(--overlay-face));
+  transform: translateY(-1px);
+  box-shadow: 6px 7px 14px rgb(var(--clay-drop-h) / 0.34),
+    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
+}
+
+/* §AC · The language menu's rows are buttons whose only fill was a
+   hover wash — the same flat-row defect in the bar's other menu.
+   They mould like the links above; the chosen language takes the
+   family's pressed lavender (§9.10's selected grammar), so the
+   current row reads pressed among its raised siblings. §9.10's
+   bordered studio buttons outrank this where both match. */
+[data-appearance="clay"] .menu-card button[class*="hover:bg-ink-"] {
+  border-color: transparent;
+  border-radius: 16px;
+  background-color: rgb(var(--data-face));
+  background-image: none;
+  box-shadow: 5px 5px 12px rgb(var(--clay-drop-h) / 0.3),
+    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
+}
+[data-appearance="clay"] .menu-card button[class*="hover:bg-ink-"]:is(:hover, :focus-visible) {
+  background-color: rgb(var(--overlay-face));
+  transform: translateY(-1px);
+}
+[data-appearance="clay"] .menu-card button[aria-selected="true"] {
+  border-color: transparent;
+  background-color: rgb(var(--clay-lavender));
+  background-image: none;
+  color: rgb(var(--clay-ink));
+  box-shadow: 5px 5px 12px rgb(var(--clay-drop-h) / 0.38),
+    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
+    inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(var(--band-glow-h) / min(0.7, calc(0.24 * var(--clay-corner-depth, 1))));
 }
 
 
@@ -1932,8 +1996,34 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
    one under the hand, and the current route / open trigger carries the
    lavender pressed pill — the indicator that answers the visitor instead
    of cycling on a timer. */
+/* §AC: every item is a card at REST, not only under the hand. The bar
+   used to mould an item only on hover (and press the current one), so
+   the panel read as bare words on a slab — in a family whose whole
+   language is separate moulded cards. Each item now rests as a small
+   clay pill on the panel's own tone: soft cast shadow, top-left
+   sheen, bottom-right shade, no line (the §7.4 doctrine). Hover raises
+   it to the raised face; the current/open item keeps the lavender
+   press below. The sliding indicator retires in the bar: with every
+   item carrying its own mould, the travelling pill would paint a
+   second card behind whichever item it visits. (The demo .navclay
+   keeps its indicator — it has no per-item moulds to duplicate.) */
+[data-appearance="clay"] .nav-pill .navclay__indicator {
+  display: none;
+}
+/* The dropdown panel, sized for the cards it now holds: the markup's
+   p-2 (8px) was measured for flat rows; moulded item cards need the
+   panel's own inset to match their cast shadows, or the first and
+   last cards sit clipped against the panel's curve. */
+[data-appearance="clay"] .nav-pill .menu-card {
+  padding: 10px;
+}
 [data-appearance="clay"] .nav-pill :is(a, button) {
   border-radius: 999px;
+  background-color: rgb(var(--clay-card));
+  background-image: none;
+  box-shadow: var(--clay-shadow-sm),
+    inset 2px 2px 5px var(--clay-hi),
+    inset -3px -3px 6px var(--clay-lo);
   transition:
     transform 0.18s var(--clay-ease),
     box-shadow 0.18s var(--clay-ease),

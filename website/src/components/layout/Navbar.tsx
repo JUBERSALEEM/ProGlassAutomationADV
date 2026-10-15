@@ -581,8 +581,21 @@ export function Navbar() {
                    * glyph, titled, described, with the same edge, radius and
                    * accent-on-hover treatment as every other card on the site —
                    * the mark is the one the footer and the banner already use.
+                   *
+                   * The panel is sized to its contents (§AC): one fixed
+                   * 22rem used to serve both the eight-destination Product
+                   * menu and the three-destination Resources menu, so the
+                   * short menu read as an oversized empty slab and the long
+                   * one as a cramped column. Short menus take 19rem, long
+                   * ones 22rem, and neither may run past the viewport edge
+                   * when its trigger sits near one.
                    */
-                  <div className="absolute left-1/2 top-full max-h-[calc(100vh-var(--nav-height))] w-[22rem] -translate-x-1/2 overflow-y-auto overscroll-contain pt-3">
+                  <div
+                    className={cn(
+                      "absolute left-1/2 top-full max-h-[calc(100vh-var(--nav-height))] max-w-[calc(100vw-1.5rem)] -translate-x-1/2 overflow-y-auto overscroll-contain pt-3",
+                      entry.children.length > 4 ? "w-[22rem]" : "w-[19rem]",
+                    )}
+                  >
                     <div className="menu-card animate-scale-in rounded-panel p-2 shadow-raised">
                       <p className="mono-label px-2.5 pb-2 pt-1">{t(entry.label)}</p>
                       <ul className="space-y-1.5">

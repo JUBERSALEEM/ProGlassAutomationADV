@@ -185,7 +185,7 @@ export function LanguageMenu({ compact = false }: { compact?: boolean }) {
           role="listbox"
           aria-label={t("Language")}
           className={cn(
-            "absolute z-50 mt-2 max-h-[70vh] w-[19rem] overflow-y-auto rounded-panel border-2 border-line-strong/60 bg-ink-900/98 p-2 shadow-2xl",
+            "menu-card absolute z-50 mt-2 max-h-[70vh] w-[19rem] overflow-y-auto rounded-panel border-2 border-line-strong/60 bg-ink-900/98 p-2 shadow-2xl",
             compact ? "end-0" : "end-0",
           )}
         >

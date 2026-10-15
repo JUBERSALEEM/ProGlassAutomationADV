@@ -132,3 +132,14 @@ text-heavy or high-density.
   `[data-appearance="clay"]` re-roots `--font-sans`.
 - The old hard `7px 9px 0 0` offset plate was deleted — pressed-paper
   vocabulary, the reason the family read brutalist, not clay.
+- §AC (top panel & menus): every nav item is a resting clay pill-card
+  (soft cast shadow + sheen/shade, no line), so the bar and its menus
+  never read as bare text or flat rows; the sliding indicator retires
+  inside the bar (each item carries its own mould — the demo `.navclay`
+  keeps its indicator). Menu and sheet links, and the language menu's
+  rows, take the §9.10 small-card recipe (the studio buttons had it;
+  the links were the omission); the current language reads pressed in
+  lavender. Panel sizing is content-fit: the dropdown wrapper takes
+  19rem for short menus and 22rem for long ones with a viewport guard,
+  the Clay pill pads 6px/5px, and the dropdown panel insets 10px so
+  the first/last item cards clear the panel's curve.
