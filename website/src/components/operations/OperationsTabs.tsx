@@ -3,8 +3,8 @@
 /**
  * The visible document hand-off chain shared by the operations pages.
  *
- * The first three steps have live website views: confirmed proformas, the
- * read-only Job Order queue, and the delivery ledger. Tax Invoice and Statement
+ * The first four steps have live website views: the read-only inquiry register,
+ * confirmed proformas, the Job Order queue, and the delivery ledger. Tax Invoice and Statement
  * are the next product modules in the chain; until their live dashboards exist,
  * their links deliberately lead to the product overview rather than a fake
  * operational screen.
@@ -24,6 +24,7 @@ import { groupIcons } from "@/data/groupIcons";
  * footer and the rail hand out for those subjects — one chain, one hand.
  */
 const STEPS = [
+  { href: "/inquiries", match: "/inquiries", label: "Inquiry", hint: "Documents", icon: groupIcons.Sales },
   { href: "/reports?status=Confirmed", match: "/reports", label: "Proforma Invoice", hint: "Confirmed", icon: groupIcons.Sales },
   { href: "/job-orders", match: "/job-orders", label: "Job Order", hint: "Hand-off", icon: footerLinkIcons["/job-orders"]! },
   { href: "/deliveries", match: "/deliveries", label: "Delivery Note", hint: "Dispatch", icon: footerLinkIcons["/deliveries"]! },
