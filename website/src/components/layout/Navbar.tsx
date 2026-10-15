@@ -260,7 +260,17 @@ export function Navbar() {
   const settleIndicator = () => {
     const list = navListRef.current;
     if (!list) return;
-    moveIndicator(list.querySelector<HTMLElement>('[aria-current="page"], [aria-expanded="true"]'));
+    /* Resting place, in order: the open menu's trigger, the current
+       page's own link, then a menu trigger whose child is current
+       (Product while on /features). Plain links carry aria-current
+       and menu triggers carry data-nav-active, so the pill rests
+       under every kind of entry the same way (§AE — one pattern
+       for Home, About, Product, Resources alike). */
+    moveIndicator(
+      list.querySelector<HTMLElement>('[aria-expanded="true"]') ??
+        list.querySelector<HTMLElement>('[aria-current="page"]') ??
+        list.querySelector<HTMLElement>('[data-nav-active="true"]'),
+    );
   };
   useEffect(() => {
     /* Route changes re-seat the pill; fonts and the tier ladder can move
@@ -536,6 +546,7 @@ export function Navbar() {
                   type="button"
                   aria-expanded={open}
                   aria-haspopup="true"
+                  data-nav-active={active ? "true" : undefined}
                   onClick={() => {
                     cancelClose();
                     if (open && pinnedMenu.current === entry.label) {

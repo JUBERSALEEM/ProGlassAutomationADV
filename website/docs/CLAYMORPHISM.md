@@ -174,3 +174,18 @@ text-heavy or high-density.
   alphas (face step, 0.5 drop, 0.13 midnight NW lift) unchanged.
   The separate-cards grammar from §AC stays; only the air and the
   shadow scale shrink.
+- §AE (one moving highlight, user decree): the bar's per-item
+  resting cards and the static full-width lavender current-card are
+  stood down. The highlight is now a single compact sliding pill
+  (`.navclay__indicator`, house lavender) that hugs icon + label —
+  items rest flat/transparent at 3px × 8px padding (~30px tall,
+  the bar's inner height) — and visibly travels left-to-right
+  between entries like an iOS switch, resting on the current
+  entry. Plain links and menu triggers settle it identically:
+  `Navbar.settleIndicator` now also rests on a trigger whose child
+  is current (`data-nav-active`), so Product/Resources share Home/
+  About's pattern (previously the pill had no resting target on
+  menu pages, and those triggers kept a mismatched static fill).
+  Dropdown and sheet destination cards keep their §AC moulds; the
+  paint bench now measures the pill's plate against the bar face
+  (≥1.25:1) instead of a per-item card.

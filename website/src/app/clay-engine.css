@@ -2039,10 +2039,15 @@ html[data-appearance="clay"] .menu-card ul > li > button[aria-selected][class*="
    midnight NW lift is 0.06 — below the strength this engine's own
    tokens measure as the point where a mould reads (0.13). The
    items now rest one ladder step off the panel (--menu-face) with
-   the measured outer shadow pair, like the menu cards below. */
-[data-appearance="clay"] .nav-pill .navclay__indicator {
-  display: none;
-}
+   the measured outer shadow pair, like the menu cards below.
+   §AE (user decree): the resting cards are stood down and the
+   sliding pill returns as the ONE highlight — a compact card that
+   hugs icon + label and visibly travels from item to item (the iOS
+   switch pattern), resting on the current entry. A static
+   full-card highlight plus per-item cards is not what was asked;
+   the pill (§15) is measured in the bar by Navbar.moveIndicator.
+   The menu/sheet destination cards further below are unaffected —
+   they keep their own separate moulds. */
 /* The dropdown panel, sized for the cards it now holds: the markup's
    p-2 (8px) was measured for flat rows; moulded item cards need the
    panel's own inset to match their cast shadows, or the first and
@@ -2050,27 +2055,21 @@ html[data-appearance="clay"] .menu-card ul > li > button[aria-selected][class*="
 [data-appearance="clay"] .nav-pill .menu-card {
   padding: 10px;
 }
-[data-appearance="clay"] .nav-pill :is(a, button) {
+/* §AE item grammar — only the bar's own entries: direct links and
+   the menu triggers inside their wrappers (menu destination cards
+   are deeper descendants and keep their §AC rules). Items rest
+   FLAT and transparent so the sliding pill (§15) can travel behind
+   them; their box is the pill's target, so it is kept compact —
+   3px block / 8px inline padding hugs icon + label at ~30px tall,
+   with no side accent bar: the moving card is the whole pattern. */
+[data-appearance="clay"] .nav-pill > :is(a, button),
+[data-appearance="clay"] .nav-pill > div > button {
   border-radius: 999px;
-  /* §AD: the reference bar's item height — 3px block padding puts
-     the item pill at ~30px inside the ~38px bar, where the markup's
-     py-1.5 made a 36px item in a 48px panel. The mould below is
-     scaled to the slimmer pill; its alphas (the measured part) do
-     not change. */
   padding-block: 3px;
-  /* One ladder step off the pill (--menu-face), never the pill's own
-     tone: a card the same colour as its panel separates by shadow
-     alone, and at midnight the small shadow's NW lift is 0.06 — the
-     engine's own measured whisper (see the --clay-lift note: the
-     mould reads at 0.13+). The pair below is the panel tokens'
-     outer mould at item scale: SE drop at half strength, NW lift at
-     1.3× the mode's lift channel (0.13 midnight / 0.46 daylight). */
-  background-color: rgb(var(--menu-face));
+  padding-inline: 8px;
+  background-color: transparent;
   background-image: none;
-  box-shadow: 4px 4px 10px rgb(var(--clay-drop-h) / 0.5),
-    -4px -4px 10px rgb(255 255 255 / calc(var(--clay-lift) * 1.3)),
-    inset 2px 2px 5px var(--clay-hi),
-    inset -3px -3px 6px var(--clay-lo);
+  box-shadow: none;
   transition:
     transform 0.18s var(--clay-ease),
     box-shadow 0.18s var(--clay-ease),
@@ -2078,30 +2077,30 @@ html[data-appearance="clay"] .menu-card ul > li > button[aria-selected][class*="
     border-color 0.18s var(--clay-ease),
     color 0.18s var(--clay-ease);
 }
-[data-appearance="clay"] .nav-pill :is(a, button):hover {
+[data-appearance="clay"] .nav-pill > :is(a, button)::before,
+[data-appearance="clay"] .nav-pill > div > button::before {
+  content: none;
+}
+[data-appearance="clay"] .nav-pill > :is(a, button):hover,
+[data-appearance="clay"] .nav-pill > div > button:hover {
   border-color: transparent;
-  /* Hover gathers light rather than swapping faces: the ladder's
-     next step runs opposite ways in the two modes (deeper in
-     daylight, darker in midnight), so a face swap lied in one of
-     them. A lavender wash over the resting face lightens honestly
-     in both. */
-  background-color: rgb(var(--menu-face));
-  background-image: linear-gradient(rgb(var(--clay-lavender) / 0.18), rgb(var(--clay-lavender) / 0.18));
-  color: rgb(var(--text-1));
-  box-shadow: 6px 6px 14px rgb(var(--clay-drop-h) / 0.56),
-    -5px -5px 12px rgb(255 255 255 / calc(var(--clay-lift) * 1.3)),
-    inset 2px 2px 5px var(--clay-hi),
-    inset -3px -3px 6px var(--clay-lo);
-  transform: translateY(-1px);
+  /* Hover paints nothing of its own: the pill slides under the
+     item (Navbar.moveIndicator) and the reading colour strengthens
+     (§15). A wash here would double-paint over the travelling card. */
+  background-color: transparent;
+  background-image: none;
+  box-shadow: none;
+  transform: none;
 }
 [data-appearance="clay"] .nav-pill :is(a[aria-current="page"], button[aria-expanded="true"]) {
   border-color: transparent;
-  background-color: rgb(var(--clay-lavender));
+  /* The current/open item no longer paints its own big lavender
+     card: the sliding pill rests under it and carries the fill.
+     Its ink is §15's pressed plum. (If the pill has not settled
+     yet, the item is simply flat — never a second highlight.) */
+  background-color: transparent;
   background-image: none;
-  color: rgb(var(--clay-ink));
-  box-shadow: 3px 3px 9px rgb(var(--clay-drop-h) / 0.34),
-    inset 4px 4px 9px var(--clay-hi-2),
-    inset -3px -3px 7px rgb(var(--band-glow-h) / 0.24);
+  box-shadow: none;
 }
 
 /* The hero's floating shards become the pack's organic blobs in clay:
@@ -2700,6 +2699,11 @@ html[data-theme="midnight"][data-appearance="clay"] .plate-custom {
    hold separate cards (§AC link rules), and the current/open item
    wears its own lavender card — so the sliding pill retires (§11.10
    hides it) and the item strip below no longer annuls card paint.
+   AMENDED AGAIN (§AE, user decree): the per-item resting cards and
+   the static lavender current-card are stood down; the sliding
+   pill below is now the one and only highlight — compact (it hugs
+   icon + label, §11.10's padding), visibly travelling between
+   entries and resting on the current one, iOS-switch style.
    What §15 still owns here: the plate faces, the reading colours
    (--nav-item channels), and the pressed-item ink. The amendment is
    recorded because the strip's `!important` transparency silently
@@ -2757,9 +2761,13 @@ html[data-theme="midnight"][data-appearance="clay"] .nav-pill {
   color: rgb(var(--nav-item-strong)) !important;
 }
 
-/* The sliding pill: a small plate of house lavender, rounded to the same
-   pill circle, moved by the bar (see Navbar.tsx). No animation of its own —
-   it only eases between measured positions. */
+/* The sliding pill — the bar's one highlight (§AE): a compact plate
+   of house lavender, rounded to the pill circle, exactly the size
+   of the item box it visits (icon + label, §11.10's compact padding;
+   top/bottom 4px makes it the bar's inner height, ~30px). Moved by
+   the bar (Navbar.moveIndicator — pointer, focus, and resting on
+   the current entry via settleIndicator); no animation of its own,
+   it eases between measured positions, left to right like a switch. */
 [data-appearance="clay"] .nav-pill .navclay__indicator {
   z-index: 0;
   top: 4px;
@@ -2767,6 +2775,7 @@ html[data-theme="midnight"][data-appearance="clay"] .nav-pill {
   left: 4px;
   width: 0;
   border: 0;
+  border-radius: 999px;
   background-color: rgb(var(--plate-1));
   background-image: none;
   box-shadow: 4px 4px 10px rgb(var(--clay-drop-h) / 0.35),
@@ -2774,17 +2783,16 @@ html[data-theme="midnight"][data-appearance="clay"] .nav-pill {
     inset -2px -2px 4px rgb(var(--clay-drop-h) / 0.22);
   animation: none;
   opacity: 0;
-  transition: transform 0.26s cubic-bezier(0.2, 0.8, 0.2, 1),
-    width 0.26s cubic-bezier(0.2, 0.8, 0.2, 1),
+  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
+    width 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
     opacity 0.18s ease;
 }
 
-/* The current/open item wears its own lavender card (§11.10) and
-   reads pressed on it: plum on lavender, in both modes — the plate
-   is an accent and does not invert after dark. (Plain hover used
-   to take this ink because the sliding lavender pill sat under the
-   pointer; with per-item cards the pill is retired and hover keeps
-   the --nav-item-strong reading colour above.) */
+/* The current/open item reads pressed on the pill resting under
+   it: plum on lavender, in both modes — the plate is an accent and
+   does not invert after dark. (Plain hover takes the
+   --nav-item-strong reading colour above; the pill follows the
+   pointer but the ink deepens only where the pill rests.) */
 [data-appearance="clay"] .nav-pill :is(a, button):is([aria-current="page"], [aria-expanded="true"]) {
   color: rgb(36 27 58) !important;
 }

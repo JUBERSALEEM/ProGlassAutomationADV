@@ -662,7 +662,7 @@ probe("clay bar pressed item on the pill", MODES, [...CLAYBAR, El("span", "navcl
    the mould's reading strength (0.13; the small token's 0.06 is
    documented in clay-engine.css as "a whisper, not a pattern").
    These probes measure exactly that paint, on the winning rules. */
-const separation = (label, panelChain, itemChain, floor) => {
+const separation = (label, panelChain, itemChain, floor, mouldLift = true) => {
   for (const mode of MODES) {
     const panel = paint(label, mode, panelChain);
     const item = paint(label, mode, itemChain);
@@ -670,7 +670,7 @@ const separation = (label, panelChain, itemChain, floor) => {
     test(`${mode} · ${label} — card/panel step ${step.toFixed(2)}:1 ≥ ${floor}:1`, () => {
       assert.ok(step >= floor, `${mode} ${label}: card face ${hx(item.bg)} on panel ${hx(panel.bg)} steps only ${step.toFixed(2)}:1 — a row, not a card`);
     });
-    if (mode === "midnight") {
+    if (mode === "midnight" && mouldLift) {
       test(`${mode} · ${label} — outer NW mould lift ≥ 0.13`, () => {
         const lifts = [...(item.shadow ?? "").matchAll(/(-?[\d.]+)px\s+(-?[\d.]+)px\s+([\d.]+)px\s+rgb\(255 255 255\s*\/\s*([^)]+)\)/g)]
           .filter((m) => Number(m[1]) < 0 && Number(m[2]) < 0)
@@ -688,10 +688,14 @@ separation("nav dropdown link card vs menu panel",
   MENU,
   [...MENU, El("ul", "space-y-1.5"), El("li"), El("a", "card-interactive group flex items-start gap-3 rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2.5")],
   1.25);
-separation("nav pill item card vs the pill",
+/* §AE: the bar's highlight is the sliding pill, not a per-item
+   card — the bench measures the pill's lavender plate against the
+   bar face it travels on (the items themselves rest transparent). */
+separation("sliding highlight pill vs the bar",
   CLAYBAR,
-  [...CLAYBAR, El("a", "relative flex items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold border-transparent text-text-muted")],
-  1.25);
+  [...CLAYBAR, El("span", "navclay__indicator")],
+  1.25,
+  false);
 
 /* The developer dossier (DeveloperStory /about): a light tinted plate
    nested in band-rich — its innards were washed white at midnight (D20). */
