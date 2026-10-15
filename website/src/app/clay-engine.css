@@ -1344,35 +1344,30 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
    card-interactive + both class hooks) because the §9.7 utility-pane
    sweep (0,5,3) otherwise outranks it and paints menu rows with the
    furniture-scale panel mould on card-face; the chain measures
-   (0,5,4) against it. Links outside a list keep the sweep's card —
-   still a card, never a flat row. */
+   (0,5,4) against it. §AF supersedes the mould: rows rest flat
+   and the list's ONE card travels (.menu-slide-pill below) — the
+   selector chain still matters, now to keep the §9.7 sweep from
+   repainting the rows behind the pill's back. */
 html[data-appearance="clay"] :is(.menu-card, .nav-sheet) ul > li > a.card-interactive[class*="bg-ink-"][class*="rounded-card"] {
+  position: relative;
+  z-index: 1;
   border-color: transparent;
   border-radius: 20px;
-  /* One full ladder step off the panel (--menu-face), moulded by
-     the family's measured outer pair — SE drop at half strength
-     and the NW lift at 1.3× the lift channel (0.13 at midnight,
-     where the engine's own token note says the mould begins to
-     read) — over the corner-depth insets. The first version of
-     this rule carried the panel's neighbouring step and a 0.3
-     one-sided drop: measured step 1.09–1.37 with no NW light,
-     i.e. rows, not cards — the "no separate cards" witness. */
-  background-color: rgb(var(--menu-face));
+  /* §AF: rows rest flat, like the bar's entries — the sliding
+     pill (.menu-slide-pill, below) is the ONE card in the list and
+     travels between rows. §AC's per-row moulds stood down by the
+     same decree that stood the bar's down (§AE): a static card per
+     row plus a travelling card is two patterns, not one. */
+  background-color: transparent;
   background-image: none;
-  box-shadow: 7px 7px 16px rgb(var(--clay-drop-h) / 0.5),
-    -6px -6px 14px rgb(255 255 255 / calc(var(--clay-lift) * 1.3)),
-    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1)))),
-    inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
+  box-shadow: none;
 }
 html[data-appearance="clay"] :is(.menu-card, .nav-sheet) ul > li > a.card-interactive[class*="bg-ink-"][class*="rounded-card"]:is(:hover, :focus-visible) {
   border-color: transparent;
-  background-color: rgb(var(--menu-face));
-  background-image: linear-gradient(rgb(var(--clay-lavender) / 0.18), rgb(var(--clay-lavender) / 0.18));
-  transform: translateY(-1px);
-  box-shadow: 8px 8px 18px rgb(var(--clay-drop-h) / 0.56),
-    -6px -6px 14px rgb(255 255 255 / calc(var(--clay-lift) * 1.3)),
-    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1)))),
-    inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
+  background-color: transparent;
+  background-image: none;
+  box-shadow: none;
+  transform: none;
 }
 /* Cards need air between their cast shadows: the markup's 6px row
    rhythm was measured for flat rows; moulded cards read as separate
@@ -1387,29 +1382,66 @@ html[data-appearance="clay"] :is(.menu-card, .nav-sheet) ul > li > a.card-intera
    family's pressed lavender (§9.10's selected grammar), so the
    current row reads pressed among its raised siblings. §9.10's
    bordered studio buttons outrank this where both match. */
-html[data-appearance="clay"] .menu-card ul > li > button[aria-selected][class*="hover:bg-ink-"][class*="rounded-card"] {
+html[data-appearance="clay"] .menu-card div > button[aria-selected][class*="hover:bg-ink-"][class*="rounded-card"] {
+  position: relative;
+  z-index: 1;
   border-color: transparent;
   border-radius: 20px;
-  background-color: rgb(var(--menu-face));
+  background-color: transparent;
   background-image: none;
-  box-shadow: 7px 7px 16px rgb(var(--clay-drop-h) / 0.5),
-    -6px -6px 14px rgb(255 255 255 / calc(var(--clay-lift) * 1.3)),
-    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1)))),
-    inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
+  box-shadow: none;
 }
-html[data-appearance="clay"] .menu-card ul > li > button[aria-selected][class*="hover:bg-ink-"][class*="rounded-card"]:is(:hover, :focus-visible) {
-  background-color: rgb(var(--menu-face));
-  background-image: linear-gradient(rgb(var(--clay-lavender) / 0.18), rgb(var(--clay-lavender) / 0.18));
-  transform: translateY(-1px);
+html[data-appearance="clay"] .menu-card div > button[aria-selected][class*="hover:bg-ink-"][class*="rounded-card"]:is(:hover, :focus-visible) {
+  background-color: transparent;
+  background-image: none;
+  box-shadow: none;
+  transform: none;
 }
 [data-appearance="clay"] .menu-card button[aria-selected="true"] {
   border-color: transparent;
-  background-color: rgb(var(--clay-lavender));
+  /* The chosen row no longer paints its own lavender: the pill
+     rests under it (§AF), and the ink rule below takes its text
+     plum while the pill is there. */
+  background-color: transparent;
   background-image: none;
-  color: rgb(var(--clay-ink));
-  box-shadow: 5px 5px 12px rgb(var(--clay-drop-h) / 0.38),
-    inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-soft-alpha) * var(--clay-corner-depth, 1)))),
-    inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(var(--band-glow-h) / min(0.7, calc(0.24 * var(--clay-corner-depth, 1))));
+  box-shadow: none;
+}
+
+/* §AF · The menus' sliding pill — one moulded lavender card that
+   travels between a menu's rows and rests on the current one
+   (the destination this page is, or the language in use), the
+   top bar's §AE pattern one level down. Sized and moved by
+   slidePill.ts; the row under it is tagged data-pill-on and its
+   text takes the pressed plum (the mono % chips keep their own
+   semantic colours). */
+[data-appearance="clay"] :is(.menu-card, .nav-sheet) .menu-slide-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  border-radius: 20px;
+  background-color: rgb(var(--plate-1));
+  background-image: none;
+  box-shadow: 4px 4px 10px rgb(var(--clay-drop-h) / 0.35),
+    inset 1.5px 1.5px 3px var(--clay-hi-2),
+    inset -2px -2px 4px rgb(var(--clay-drop-h) / 0.22);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.18s ease;
+}
+[data-appearance="clay"] :is(.menu-card, .nav-sheet) :is(a, button)[data-pill-on="true"] {
+  color: rgb(36 27 58);
+}
+[data-appearance="clay"] :is(.menu-card, .nav-sheet) :is(a, button)[data-pill-on="true"] :is(span, svg):not([class*="font-mono"]) {
+  color: inherit;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-appearance="clay"] :is(.menu-card, .nav-sheet) .menu-slide-pill {
+    transition: none;
+  }
 }
 
 

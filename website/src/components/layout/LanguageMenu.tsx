@@ -6,6 +6,7 @@ import { cn } from "@/lib/cn";
 import { LOCALES, type Locale } from "@/i18n/locales";
 import { LOCALE_COOKIE, pathWithoutLocale } from "@/i18n/core";
 import { useI18n } from "@/i18n/provider";
+import { slidePillHandlers, restSlidePill } from "@/components/layout/slidePill";
 import coverageTable from "@/i18n/coverage-table.json";
 
 /**
@@ -140,6 +141,23 @@ export function LanguageMenu({ compact = false }: { compact?: boolean }) {
     };
   }, [open]);
 
+  /* The menu's sliding pill (§AF) rests on the language in use when
+     the menu opens and travels between rows under the pointer — the
+     same pattern as the nav bar and its menus. */
+  const listRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    const rest = () => {
+      if (listRef.current) restSlidePill(listRef.current);
+    };
+    const frame = requestAnimationFrame(rest);
+    const late = window.setTimeout(rest, 120);
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(late);
+    };
+  }, [open]);
+
   const current = LOCALES.find((entry) => entry.code === locale) ?? LOCALES[0];
 
   const choose = (next: Locale) => {
@@ -192,6 +210,12 @@ export function LanguageMenu({ compact = false }: { compact?: boolean }) {
           <p className="px-2 pb-2 pt-1 text-2xs font-semibold uppercase tracking-[0.14em] text-text-faint">
             {t("{count} languages", { count: LOCALES.length })}
           </p>
+          <div
+            className="relative"
+            ref={listRef}
+            {...slidePillHandlers(() => listRef.current)}
+          >
+            <span aria-hidden="true" className="menu-slide-pill" />
           {LOCALES.map((entry) => {
             const active = entry.code === locale;
             /*
@@ -250,6 +274,7 @@ export function LanguageMenu({ compact = false }: { compact?: boolean }) {
               </button>
             );
           })}
+          </div>
           <p className="mt-2 border-t border-line/60 px-2 pt-2 text-2xs leading-relaxed text-text-faint">
             {t("{count} languages, chosen from the menu above and remembered on this device.", { count: LOCALES.length })}
           </p>

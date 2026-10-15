@@ -625,7 +625,7 @@ probe("chip inside .surface", MODES, [BODY, El("div", "surface p-4"), El("span",
 /* 11. The nav menu card and its destination links. */
 const MENU = [BODY, El("header"), El("nav", "nav-pill"), El("div", "relative"), El("div", "menu-card animate-scale-in rounded-panel p-2 shadow-raised")];
 probe("nav dropdown card (menu-card)", MODES, [...MENU, El("p", "mono-label px-2.5 pb-2 pt-1")], 4.5);
-probe("nav dropdown link tile", MODES, [...MENU, El("a", "card-interactive group flex items-start gap-3 rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2.5"), El("span", "flex items-center gap-1.5 text-sm font-semibold text-text-primary")], 7);
+probe("nav dropdown link tile", MODES, [...MENU, El("ul", "relative space-y-1.5"), El("li"), El("a", "card-interactive group flex items-start gap-3 rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2.5"), El("span", "flex items-center gap-1.5 text-sm font-semibold text-text-primary")], 7);
 
 /* 12. Nav bar items at rest. */
 probe("nav pill link at rest", MODES, [BODY, El("header"), El("nav", "nav-pill"), El("a", "relative flex items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold border-transparent text-text-muted")], 4.5);
@@ -684,10 +684,14 @@ const separation = (label, panelChain, itemChain, floor, mouldLift = true) => {
     }
   }
 };
-separation("nav dropdown link card vs menu panel",
+/* §AF: in menus the ONE card is the sliding pill — the bench
+   measures its lavender plate against the panel face (rows rest
+   transparent, like the bar's entries). */
+separation("menu sliding pill vs menu panel",
   MENU,
-  [...MENU, El("ul", "space-y-1.5"), El("li"), El("a", "card-interactive group flex items-start gap-3 rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2.5")],
-  1.25);
+  [...MENU, El("ul", "relative space-y-1.5"), El("span", "menu-slide-pill")],
+  1.25,
+  false);
 /* §AE: the bar's highlight is the sliding pill, not a per-item
    card — the bench measures the pill's lavender plate against the
    bar face it travels on (the items themselves rest transparent). */

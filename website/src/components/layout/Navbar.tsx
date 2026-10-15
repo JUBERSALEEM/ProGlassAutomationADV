@@ -16,6 +16,7 @@ import { BuildStampChip, BuildStampPill, BuildStampRow } from "@/components/layo
 import { Logo } from "@/components/brand/Logo";
 import { useT } from "@/i18n/provider";
 import { useAppearance } from "@/lib/useTheme";
+import { slidePillHandlers, slidePillTo, restSlidePill } from "@/components/layout/slidePill";
 import { hrefIn, localeOfPath, pathWithoutLocale } from "@/i18n/core";
 
 type NavChild = { label: string; href: string; description?: string };
@@ -224,6 +225,8 @@ export function Navbar() {
    * hover handler dedupes: the same target and the same geometry touch
    * the DOM at most once. */
   const indicatorRef = useRef<HTMLSpanElement | null>(null);
+  const menuListRef = useRef<HTMLUListElement | null>(null);
+  const sheetNavRef = useRef<HTMLElement | null>(null);
   const hoverTargetRef = useRef<HTMLElement | null>(null);
   const moveIndicator = (target: HTMLElement | null) => {
     const list = navListRef.current;
@@ -293,6 +296,41 @@ export function Navbar() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+
+  /* The open menu's sliding pill (§AF) rests on its current
+     destination when the menu opens — the same resting rule as the
+     bar, one level down. Only one menu is open at a time, so one
+     list ref serves every dropdown. */
+  useEffect(() => {
+    if (!openMenu) return;
+    const rest = () => {
+      if (menuListRef.current) restSlidePill(menuListRef.current);
+    };
+    const frame = requestAnimationFrame(rest);
+    const late = window.setTimeout(rest, 120);
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(late);
+    };
+  }, [openMenu, pathname]);
+
+  /* The sheet's destination lists get the same resting rule when
+     the sheet opens (§AF): each group's pill sits on the page the
+     visitor is already on, where that group holds it. */
+  useEffect(() => {
+    if (!mobileOpen || !sheetMounted) return;
+    const rest = () => {
+      sheetNavRef.current
+        ?.querySelectorAll<HTMLElement>("ul")
+        .forEach((ul) => restSlidePill(ul));
+    };
+    const frame = requestAnimationFrame(rest);
+    const late = window.setTimeout(rest, 140);
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(late);
+    };
+  }, [mobileOpen, sheetMounted, pathname]);
 
   useEffect(() => {
     if (mobileOpen) return; /* Mounting happens in the toggle handler itself. */
@@ -609,11 +647,23 @@ export function Navbar() {
                   >
                     <div className="menu-card animate-scale-in rounded-panel p-2 shadow-raised">
                       <p className="mono-label px-2.5 pb-2 pt-1">{t(entry.label)}</p>
-                      <ul className="space-y-1.5">
-                        {entry.children.map((child) => (
+                      <ul
+                        ref={menuListRef}
+                        className="relative space-y-1.5"
+                        {...slidePillHandlers(() => menuListRef.current)}
+                      >
+                        <span aria-hidden="true" className="menu-slide-pill" />
+                        {entry.children.map((child) => {
+                          const childPath = child.href.split(/[?#]/)[0];
+                          return (
                           <li key={child.href}>
                             <Link
                               href={toHref(child.href)}
+                              aria-current={
+                                barePath === childPath || barePath.startsWith(`${childPath}/`)
+                                  ? "page"
+                                  : undefined
+                              }
                               onClick={() => {
                                 pinnedMenu.current = null;
                                 setOpenMenu(null);
@@ -639,7 +689,8 @@ export function Navbar() {
                               </span>
                             </Link>
                           </li>
-                        ))}
+                          );
+                        })}
                       </ul>
                     </div>
                   </div>
@@ -803,7 +854,33 @@ export function Navbar() {
         >
         {sheetMounted ? (
         <div className="shell max-h-[calc(100vh-var(--nav-height))] overflow-y-auto py-5">
-          <nav aria-label={t("Mobile")} className="space-y-6">
+          <nav
+            aria-label={t("Mobile")}
+            className="space-y-6"
+            ref={sheetNavRef}
+            onPointerOver={(event) => {
+              const target = (event.target as HTMLElement).closest<HTMLElement>("a");
+              const listEl = target?.closest<HTMLElement>("ul");
+              if (target && listEl) slidePillTo(listEl, target);
+            }}
+            onPointerLeave={() => {
+              sheetNavRef.current
+                ?.querySelectorAll<HTMLElement>("ul")
+                .forEach((ul) => restSlidePill(ul));
+            }}
+            onFocusCapture={(event) => {
+              const target = (event.target as HTMLElement).closest<HTMLElement>("a");
+              const listEl = target?.closest<HTMLElement>("ul");
+              if (target && listEl) slidePillTo(listEl, target);
+            }}
+            onBlurCapture={(event) => {
+              if (!sheetNavRef.current?.contains(event.relatedTarget as Node)) {
+                sheetNavRef.current
+                  ?.querySelectorAll<HTMLElement>("ul")
+                  .forEach((ul) => restSlidePill(ul));
+              }
+            }}
+          >
             {entries.map((entry) => (
               <div key={t(entry.label)}>
                 {entry.href ? (
@@ -828,14 +905,17 @@ export function Navbar() {
                     <p className="eyebrow mb-2">{t(entry.label)}</p>
                     {/* The same card treatment as the desktop menu: a sheet
                         of cards, each carrying the destination's own mark. */}
-                    <ul className="space-y-1.5">
-                      {entry.children?.map((child) => (
+                    <ul className="relative space-y-1.5">
+                      <span aria-hidden="true" className="menu-slide-pill" />
+                      {entry.children?.map((child) => {
+                        const childPath = child.href.split(/[?#]/)[0];
+                        return (
                         <li key={child.href}>
                           <Link
                             href={toHref(child.href)}
                             onClick={() => setMobileOpen(false)}
                             aria-current={
-                              barePath === child.href || barePath.startsWith(`${child.href}/`)
+                              barePath === childPath || barePath.startsWith(`${childPath}/`)
                                 ? "page"
                                 : undefined
                             }
@@ -857,7 +937,8 @@ export function Navbar() {
                             </span>
                           </Link>
                         </li>
-                      ))}
+                        );
+                      })}
                     </ul>
                   </>
                 )}

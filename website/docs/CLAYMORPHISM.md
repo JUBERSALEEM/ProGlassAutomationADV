@@ -189,3 +189,17 @@ text-heavy or high-density.
   Dropdown and sheet destination cards keep their §AC moulds; the
   paint bench now measures the pill's plate against the bar face
   (≥1.25:1) instead of a per-item card.
+- §AF (the same travelling card, inside the menus): dropdown
+  destination lists, the mobile sheet's destination groups, and
+  the language menu each hold ONE sliding pill (`.menu-slide-pill`,
+  `slidePill.ts` — imperative writes only, the bar's discipline).
+  Rows rest flat; the pill slides between them under pointer or
+  focus and rests on the current destination / chosen language
+  (desktop dropdown links gained `aria-current`, which the pill —
+  and assistive tech — rests on; query strings are stripped before
+  comparing). The row under the pill is tagged `data-pill-on` and
+  takes the pressed plum ink, chips keeping semantic colours.
+  Per-row §AC moulds in these lists stood down; the §9.7 sweep is
+  still kept off the rows by the (0,5,4) selector chain. The theme
+  studio's option cards are not menus in this sense and keep
+  their own moulds.
