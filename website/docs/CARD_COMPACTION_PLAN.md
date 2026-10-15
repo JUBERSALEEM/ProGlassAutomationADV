@@ -109,6 +109,10 @@ every page read professional (reference: compact clay dashboards —
   typecheck and ESLint clean; Clay paint 253/253; Clay contrast/visibility
   33/33 + coverage 100%; Crystal contrast 114/114; motion 28/28; navbar
   98/98; radius guard 12/12; pointer guard scans 166 files clean.
+  Coverage gap found and closed during this check: the radius guard had
+  asserted the full `card-pad` floor but not the `card-pad-sm` floor used
+  by the compact cards; it now asserts the compact formula and that its
+  utility applies the token. Guard remains 12/12.
 - **Preview:** production server refreshed; all 26 checked route paths
   return HTTP 200, including home, all public content routes, records /
   reports logins, and the three `/sys/*` benches. Server-rendered HTML

@@ -175,6 +175,12 @@ test("card padding floors against the published radius, capped", () => {
     "the p-5 block corner-safe floor is gone",
   );
   assert.match(globals, /--card-pad:\s*calc\(var\(--card-pad-scale, 1\) \* max\(/, "--card-pad no longer carries its radius floor");
+  assert.match(
+    globals,
+    /--card-pad-sm:\s*calc\(var\(--card-pad-scale, 1\) \* max\([^;]*calc\(var\(--card-radius\) \* 0\.44\)/,
+    "--card-pad-sm lost its radius floor — compact cards can put text in the dynamic corner arc",
+  );
+  assert.match(globals, /\.card-pad-sm\s*\{\s*padding:\s*var\(--card-pad-sm\);/, ".card-pad-sm no longer applies its radius-safe token");
 });
 
 test("responsive paddings are floored at their own breakpoint", () => {
