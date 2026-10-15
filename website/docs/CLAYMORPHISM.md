@@ -133,13 +133,35 @@ text-heavy or high-density.
 - The old hard `7px 9px 0 0` offset plate was deleted — pressed-paper
   vocabulary, the reason the family read brutalist, not clay.
 - §AC (top panel & menus): every nav item is a resting clay pill-card
-  (soft cast shadow + sheen/shade, no line), so the bar and its menus
-  never read as bare text or flat rows; the sliding indicator retires
-  inside the bar (each item carries its own mould — the demo `.navclay`
-  keeps its indicator). Menu and sheet links, and the language menu's
-  rows, take the §9.10 small-card recipe (the studio buttons had it;
-  the links were the omission); the current language reads pressed in
-  lavender. Panel sizing is content-fit: the dropdown wrapper takes
-  19rem for short menus and 22rem for long ones with a viewport guard,
-  the Clay pill pads 6px/5px, and the dropdown panel insets 10px so
-  the first/last item cards clear the panel's curve.
+  and every dropdown/sheet/language row a separate round card, so the
+  bar and its menus never read as bare text or flat rows; the sliding
+  indicator retires inside the bar (the demo `.navclay` keeps its).
+  The first §AC ship was rejected on sight and the rejection was
+  correct: three stacked causes, all found on the built CSS. (1) §15's
+  flat-segment strip (`background-color: transparent !important;
+  box-shadow: none !important` on everything inside `.nav-pill`)
+  silently annulled every card rule — the items' winning background
+  measured `#0000` while the suites stayed green, because they probe
+  text contrast, never the card against its panel. §15 is amended:
+  the strip is retired (recorded in its header), its reading colours
+  stay (scoped off the current/open item, which wears its own
+  lavender card with the pressed plum ink). (2) The §9.7 utility-pane
+  sweep outranked the menu-link recipe; the menu selectors now carry
+  the structural chain that outranks it. (3) The faces were one
+  shallow step off their panels with a one-sided drop; cards now take
+  `--menu-face` (mode-aliased ladder step: daylight card-face,
+  midnight data-face) under the family's measured outer mould (SE
+  drop at half strength + NW lift at 1.3× `--clay-lift` — 0.13 at
+  midnight, where the engine's own token note says the mould begins
+  to read), rounder corners (20px), and a 10px card rhythm. Panel
+  sizing is content-fit: the dropdown wrapper takes 19rem for short
+  menus and 22rem for long ones with a viewport guard, the Clay pill
+  pads 6px/5px, and the dropdown panel insets 10px so the first/last
+  item cards clear the panel's curve. Verification is now a measured
+  separation bench (clay-paint §AC): winning card face vs winning
+  panel face steps 1.37:1 (midnight) / 1.30:1 (daylight) for menu
+  cards and 1.67:1 / ≥1.25:1 for bar items, with the ≥0.13 midnight
+  NW lift asserted on the winning shadow — computed from the built
+  stylesheet, not eyeballed. Side effect, disclosed: theme-studio
+  option buttons inside the bar were victims of the same §15 strip
+  and now receive the §9.7 sweep's card mould.

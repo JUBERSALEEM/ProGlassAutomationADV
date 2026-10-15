@@ -653,6 +653,46 @@ const CLAYBAR = [BODY, El("header"), El("nav", "nav-pill")];
 probe("clay bar resting link", MODES, [...CLAYBAR, El("a", "relative flex items-center gap-1.5 rounded-card px-2.5 py-1.5 text-sm font-semibold")], 4.5);
 probe("clay bar pressed item on the pill", MODES, [...CLAYBAR, El("span", "navclay__indicator"), El("a", "relative flex items-center gap-1.5 rounded-card px-2.5 py-1.5 text-sm font-semibold", { "aria-current": "page" })], 7);
 
+/* §AC separation bench. The "no separate cards in the menus / the
+   pattern is gone from the top panel" witness survived a fully green
+   suite once, because every probe measured TEXT on its card — never
+   the card against its panel. A card separates by (a) a tonal step
+   between its composited face and its panel's, and (b) at midnight
+   the outer NW light lift the engine's own token notes measure as
+   the mould's reading strength (0.13; the small token's 0.06 is
+   documented in clay-engine.css as "a whisper, not a pattern").
+   These probes measure exactly that paint, on the winning rules. */
+const separation = (label, panelChain, itemChain, floor) => {
+  for (const mode of MODES) {
+    const panel = paint(label, mode, panelChain);
+    const item = paint(label, mode, itemChain);
+    const step = contrast(item.bg, panel.bg);
+    test(`${mode} · ${label} — card/panel step ${step.toFixed(2)}:1 ≥ ${floor}:1`, () => {
+      assert.ok(step >= floor, `${mode} ${label}: card face ${hx(item.bg)} on panel ${hx(panel.bg)} steps only ${step.toFixed(2)}:1 — a row, not a card`);
+    });
+    if (mode === "midnight") {
+      test(`${mode} · ${label} — outer NW mould lift ≥ 0.13`, () => {
+        const lifts = [...(item.shadow ?? "").matchAll(/(-?[\d.]+)px\s+(-?[\d.]+)px\s+([\d.]+)px\s+rgb\(255 255 255\s*\/\s*([^)]+)\)/g)]
+          .filter((m) => Number(m[1]) < 0 && Number(m[2]) < 0)
+          .map((m) => {
+            const a = m[4].trim();
+            const calc = /^calc\(([\d.]+) \* ([\d.]+)\)$/.exec(a);
+            return calc ? Number(calc[1]) * Number(calc[2]) : Number(a);
+          });
+        assert.ok(Math.max(0, ...lifts) >= 0.13, `midnight ${label}: winning shadow carries no ≥0.13 NW lift (${item.shadow}) — below the engine's measured mould floor`);
+      });
+    }
+  }
+};
+separation("nav dropdown link card vs menu panel",
+  MENU,
+  [...MENU, El("ul", "space-y-1.5"), El("li"), El("a", "card-interactive group flex items-start gap-3 rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2.5")],
+  1.25);
+separation("nav pill item card vs the pill",
+  CLAYBAR,
+  [...CLAYBAR, El("a", "relative flex items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold border-transparent text-text-muted")],
+  1.25);
+
 /* The developer dossier (DeveloperStory /about): a light tinted plate
    nested in band-rich — its innards were washed white at midnight (D20). */
 {

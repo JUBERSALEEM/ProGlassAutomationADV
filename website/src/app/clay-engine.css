@@ -1334,26 +1334,52 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
    flattened them to lavender film with a tinted edge, so a Clay menu
    was a moulded panel holding flat, outlined rows — the "no separate
    cards in the menus" witness. Links in menus and in the nav sheet
-   now take the same small-card recipe as §9.10's buttons: data face,
-   corner sheen and shade, cast shadow, no line. Hover raises to the
-   overlay face (the old lavender wash would lose the cascade to this
-   recipe, so the raise is stated here instead). */
-[data-appearance="clay"] :is(.menu-card, .nav-sheet) a[class*="bg-ink-"] {
+   now take the same small-card recipe as §9.10's buttons: corner
+   sheen and shade, cast shadow, no line. (The first recipe's face
+   sat one shallow step off the panel with a one-sided drop and
+   read as rows, not cards; the face and mould are now measured —
+   --menu-face and the outer pair, see the rule.) Hover gathers a
+   lavender wash (the old globals wash would lose the cascade to
+   this recipe, so the raise is stated here instead). The selector
+   carries the full structural chain (html scope + ul > li > +
+   card-interactive + both class hooks) because the §9.7 utility-pane
+   sweep (0,5,3) otherwise outranks it and paints menu rows with the
+   furniture-scale panel mould on card-face; the chain measures
+   (0,5,4) against it. Links outside a list keep the sweep's card —
+   still a card, never a flat row. */
+html[data-appearance="clay"] :is(.menu-card, .nav-sheet) ul > li > a.card-interactive[class*="bg-ink-"][class*="rounded-card"] {
   border-color: transparent;
-  border-radius: 16px;
-  background-color: rgb(var(--data-face));
+  border-radius: 20px;
+  /* One full ladder step off the panel (--menu-face), moulded by
+     the family's measured outer pair — SE drop at half strength
+     and the NW lift at 1.3× the lift channel (0.13 at midnight,
+     where the engine's own token note says the mould begins to
+     read) — over the corner-depth insets. The first version of
+     this rule carried the panel's neighbouring step and a 0.3
+     one-sided drop: measured step 1.09–1.37 with no NW light,
+     i.e. rows, not cards — the "no separate cards" witness. */
+  background-color: rgb(var(--menu-face));
   background-image: none;
-  box-shadow: 5px 5px 12px rgb(var(--clay-drop-h) / 0.3),
+  box-shadow: 7px 7px 16px rgb(var(--clay-drop-h) / 0.5),
+    -6px -6px 14px rgb(255 255 255 / calc(var(--clay-lift) * 1.3)),
     inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1)))),
     inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
 }
-[data-appearance="clay"] :is(.menu-card, .nav-sheet) a[class*="bg-ink-"]:is(:hover, :focus-visible) {
+html[data-appearance="clay"] :is(.menu-card, .nav-sheet) ul > li > a.card-interactive[class*="bg-ink-"][class*="rounded-card"]:is(:hover, :focus-visible) {
   border-color: transparent;
-  background-color: rgb(var(--overlay-face));
+  background-color: rgb(var(--menu-face));
+  background-image: linear-gradient(rgb(var(--clay-lavender) / 0.18), rgb(var(--clay-lavender) / 0.18));
   transform: translateY(-1px);
-  box-shadow: 6px 7px 14px rgb(var(--clay-drop-h) / 0.34),
+  box-shadow: 8px 8px 18px rgb(var(--clay-drop-h) / 0.56),
+    -6px -6px 14px rgb(255 255 255 / calc(var(--clay-lift) * 1.3)),
     inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1)))),
     inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
+}
+/* Cards need air between their cast shadows: the markup's 6px row
+   rhythm was measured for flat rows; moulded cards read as separate
+   objects at a 10px rhythm (the panel's own padding scale). */
+[data-appearance="clay"] :is(.menu-card, .nav-sheet) ul > li + li {
+  margin-top: 10px;
 }
 
 /* §AC · The language menu's rows are buttons whose only fill was a
@@ -1362,17 +1388,19 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
    family's pressed lavender (§9.10's selected grammar), so the
    current row reads pressed among its raised siblings. §9.10's
    bordered studio buttons outrank this where both match. */
-[data-appearance="clay"] .menu-card button[class*="hover:bg-ink-"] {
+html[data-appearance="clay"] .menu-card ul > li > button[aria-selected][class*="hover:bg-ink-"][class*="rounded-card"] {
   border-color: transparent;
-  border-radius: 16px;
-  background-color: rgb(var(--data-face));
+  border-radius: 20px;
+  background-color: rgb(var(--menu-face));
   background-image: none;
-  box-shadow: 5px 5px 12px rgb(var(--clay-drop-h) / 0.3),
+  box-shadow: 7px 7px 16px rgb(var(--clay-drop-h) / 0.5),
+    -6px -6px 14px rgb(255 255 255 / calc(var(--clay-lift) * 1.3)),
     inset calc(3px * var(--clay-corner-spread)) calc(3px * var(--clay-corner-spread)) calc(6px * var(--clay-corner-spread)) rgb(255 255 255 / min(0.88, calc(var(--clay-corner-sheen-alpha) * var(--clay-corner-depth, 1)))),
     inset calc(-4px * var(--clay-corner-spread)) calc(-4px * var(--clay-corner-spread)) calc(8px * var(--clay-corner-spread)) rgb(var(--clay-corner-shade-rgb) / min(0.78, calc(var(--clay-corner-shade-alpha) * var(--clay-corner-depth, 1))));
 }
-[data-appearance="clay"] .menu-card button[class*="hover:bg-ink-"]:is(:hover, :focus-visible) {
-  background-color: rgb(var(--overlay-face));
+html[data-appearance="clay"] .menu-card ul > li > button[aria-selected][class*="hover:bg-ink-"][class*="rounded-card"]:is(:hover, :focus-visible) {
+  background-color: rgb(var(--menu-face));
+  background-image: linear-gradient(rgb(var(--clay-lavender) / 0.18), rgb(var(--clay-lavender) / 0.18));
   transform: translateY(-1px);
 }
 [data-appearance="clay"] .menu-card button[aria-selected="true"] {
@@ -2006,7 +2034,13 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
    press below. The sliding indicator retires in the bar: with every
    item carrying its own mould, the travelling pill would paint a
    second card behind whichever item it visits. (The demo .navclay
-   keeps its indicator — it has no per-item moulds to duplicate.) */
+   keeps its indicator — it has no per-item moulds to duplicate.)
+   Correction, same section: the first resting recipe painted the
+   items in the pill's own tone with the small shadow token, whose
+   midnight NW lift is 0.06 — below the strength this engine's own
+   tokens measure as the point where a mould reads (0.13). The
+   items now rest one ladder step off the panel (--menu-face) with
+   the measured outer shadow pair, like the menu cards below. */
 [data-appearance="clay"] .nav-pill .navclay__indicator {
   display: none;
 }
@@ -2019,9 +2053,17 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
 }
 [data-appearance="clay"] .nav-pill :is(a, button) {
   border-radius: 999px;
-  background-color: rgb(var(--clay-card));
+  /* One ladder step off the pill (--menu-face), never the pill's own
+     tone: a card the same colour as its panel separates by shadow
+     alone, and at midnight the small shadow's NW lift is 0.06 — the
+     engine's own measured whisper (see the --clay-lift note: the
+     mould reads at 0.13+). The pair below is the panel tokens'
+     outer mould at item scale: SE drop at half strength, NW lift at
+     1.3× the mode's lift channel (0.13 midnight / 0.46 daylight). */
+  background-color: rgb(var(--menu-face));
   background-image: none;
-  box-shadow: var(--clay-shadow-sm),
+  box-shadow: 5px 5px 12px rgb(var(--clay-drop-h) / 0.5),
+    -5px -5px 12px rgb(255 255 255 / calc(var(--clay-lift) * 1.3)),
     inset 2px 2px 5px var(--clay-hi),
     inset -3px -3px 6px var(--clay-lo);
   transition:
@@ -2033,10 +2075,16 @@ html[data-theme="midnight"][data-appearance="clay"] .chip {
 }
 [data-appearance="clay"] .nav-pill :is(a, button):hover {
   border-color: transparent;
-  background-color: var(--clay-surface-raised);
-  background-image: none;
+  /* Hover gathers light rather than swapping faces: the ladder's
+     next step runs opposite ways in the two modes (deeper in
+     daylight, darker in midnight), so a face swap lied in one of
+     them. A lavender wash over the resting face lightens honestly
+     in both. */
+  background-color: rgb(var(--menu-face));
+  background-image: linear-gradient(rgb(var(--clay-lavender) / 0.18), rgb(var(--clay-lavender) / 0.18));
   color: rgb(var(--text-1));
-  box-shadow: var(--clay-shadow-sm),
+  box-shadow: 6px 6px 14px rgb(var(--clay-drop-h) / 0.56),
+    -5px -5px 12px rgb(255 255 255 / calc(var(--clay-lift) * 1.3)),
     inset 2px 2px 5px var(--clay-hi),
     inset -3px -3px 6px var(--clay-lo);
   transform: translateY(-1px);
@@ -2339,6 +2387,14 @@ html[data-theme="midnight"][data-appearance="clay"] .panel-feature {
   --card-face: 206 196 255;
   --data-face: 224 216 255;
   --overlay-face: 234 226 255;
+  /* §AC — the small-card face for the top panel's menus and items.
+     Nested cards need one full ladder step off their panel, and the
+     ladder inverts between modes (daylight panels are the lightest
+     step, midnight panels the darkest), so the step is taken per
+     mode: daylight items deepen to the card step, midnight items
+     rise to the data step. Aliased, not copied, so a studio plate
+     pick re-hues the menus with the cards. */
+  --menu-face: var(--card-face);
 
 }
 
@@ -2349,6 +2405,7 @@ html[data-theme="midnight"][data-appearance="clay"] {
   --card-face: 62 40 94;
   --data-face: 76 50 112;
   --overlay-face: 52 32 76;
+  --menu-face: var(--data-face);
   /* P13 midnight zone faces — the values the band literals always painted;
      the studio's adoption block re-hues them with a picked accent. */
   --band-rich-h: 60 42 94;
@@ -2632,12 +2689,27 @@ html[data-theme="midnight"][data-appearance="clay"] .plate-custom {
    in it, a raised clay pill that slides under the pointer and settles on
    the current page, a real CTA at its side. The pack's indicator cycle is
    NOT a slide show here — `animation: none` kills the 8s demo loop; the
-   bar's own JS moves the pill to actual pointer and route state.        */
+   bar's own JS moves the pill to actual pointer and route state.
+   AMENDED (user decree, §AC): the flat-segment grammar is retired for
+   this bar. Every item is a separate moulded card (§11.10), the menus
+   hold separate cards (§AC link rules), and the current/open item
+   wears its own lavender card — so the sliding pill retires (§11.10
+   hides it) and the item strip below no longer annuls card paint.
+   What §15 still owns here: the plate faces, the reading colours
+   (--nav-item channels), and the pressed-item ink. The amendment is
+   recorded because the strip's `!important` transparency silently
+   defeated every card rule written for the bar and its menus —
+   measured on the built CSS, the items' winning background was
+   #0000 while contrast suites stayed green (they probe text,
+   never the card against its panel; §AC's separation bench in
+   clay-paint.test.mjs now probes exactly that).                  */
 
 [data-appearance="clay"] .nav-pill {
   position: relative;
   isolation: isolate;
-  gap: 2px;
+  /* 5px, not the flat segment's 2px: moulded item cards cast
+     shadows that need the rhythm §AC measured for the bar. */
+  gap: 5px;
   border-radius: 999px;
   background-color: rgb(var(--overlay-face));
   background-image: none;
@@ -2659,18 +2731,23 @@ html[data-theme="midnight"][data-appearance="clay"] .nav-pill {
   --nav-item-strong: 255 255 255;
 }
 
-/* Items rest flat on the plate — no cards inside the segment, only words. */
+/* Items are separate moulded cards (§11.10; menus: the §AC link
+   rules) — the flat-item strip that used to annul their paint with
+   !important transparency is retired. This section keeps only the
+   stacking the cards sit in and the bar's reading colours, which
+   stay !important for the reason they were earned: the §9 reading
+   locks otherwise repaint item text. The current/open item is
+   scoped out — its lavender card (§11.10) takes the pressed ink
+   below, in both modes. */
 [data-appearance="clay"] .nav-pill :is(a, button) {
   position: relative;
   z-index: 1;
-  border-color: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  box-shadow: none !important;
   border-radius: 999px;
+}
+[data-appearance="clay"] .nav-pill :is(a, button):not([aria-current="page"]):not([aria-expanded="true"]) {
   color: rgb(var(--nav-item)) !important;
 }
-[data-appearance="clay"] .nav-pill :is(a, button):hover {
+[data-appearance="clay"] .nav-pill :is(a, button):not([aria-current="page"]):not([aria-expanded="true"]):hover {
   color: rgb(var(--nav-item-strong)) !important;
 }
 
@@ -2696,9 +2773,13 @@ html[data-theme="midnight"][data-appearance="clay"] .nav-pill {
     opacity 0.18s ease;
 }
 
-/* The item the pill sits under reads as pressed: plum on lavender, in both
-   modes — the plate is an accent and does not invert after dark. */
-[data-appearance="clay"] .nav-pill :is(a, button):is(:hover, [aria-current="page"], [aria-expanded="true"]) {
+/* The current/open item wears its own lavender card (§11.10) and
+   reads pressed on it: plum on lavender, in both modes — the plate
+   is an accent and does not invert after dark. (Plain hover used
+   to take this ink because the sliding lavender pill sat under the
+   pointer; with per-item cards the pill is retired and hover keeps
+   the --nav-item-strong reading colour above.) */
+[data-appearance="clay"] .nav-pill :is(a, button):is([aria-current="page"], [aria-expanded="true"]) {
   color: rgb(36 27 58) !important;
 }
 [data-appearance="clay"] .nav-pill :is(a, button):focus-visible {
