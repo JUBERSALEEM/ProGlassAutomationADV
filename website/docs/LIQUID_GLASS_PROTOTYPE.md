@@ -808,3 +808,29 @@ before/after, pages and states tested, remaining problems — in
 `docs/LIQUID_GLASS_PERFORMANCE_AUDIT.md` §7. **Locked:** vitest §AA
 (with the §Q failsafe lock openly renegotiated from the literal
 1600ms to the token).
+
+### §AB — the audit pass: §Z's rest wins its cascade, labels hold at bright stacks (*shipped*)
+
+A full read of the engine (1,636 lines) against the user's two
+witnesses found the splash alive for a reason no presence-guard
+could catch: the §Z pause and the touch lane's disc-1 `animation`
+shorthand are both specificity (0,3,1), the shorthand sits later,
+and a shorthand resets `animation-play-state` — so on every phone
+the brand disc kept drifting through every scroll, behind panes
+that show it unblurred. The pause is restated inside the coarse
+lane after the shorthand; G7·6 now asserts the ORDER (the victory),
+not the presence. The same audit measured the small-label tier at
+the bright stacks: `.eyebrow` brand-300 is 2.4–3.9:1 there (the
+§Y rung itself was under the floor), faint micro-labels ride the
+4.5 line, and the drift rotates labels through bright zones — the
+"~10% of headings" witness. The eyebrow climbs to solid brand-200
+in Midnight Crystal, the halo tightens from bloom to core, six raw
+faint label sites on /developer + /how-it-works climb a tier, and
+three in-pane pairs join the contrast contract (renegotiated
+93 → 96). The film census closes: `.nav-sheet` and `.glass-bar`
+filmed on touch. Touch entrances go calm in both lanes
+(opacity-only; fine pointers keep the rise). Full audit, evidence
+and resolution: `docs/CRYSTAL_ENGINE_AUDIT.md`. **Locked:**
+crystal-motion G7·6, contrast §AB pairs, vitest §AB; G6·1's
+allowance and the §Y·halo string renegotiated in the open. Phase 5
+(engine hygiene — dead rule/token/keyframes) deferred by the user.

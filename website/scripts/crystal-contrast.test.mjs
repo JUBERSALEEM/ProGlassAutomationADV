@@ -372,9 +372,35 @@ const pairY = (label, fg, layers) => {
   pairY("on-wallpaper disc-1 + lamp / accent label (brand-300, haloed)", brand300, [disc1, lamp, halo]);
 }
 
+/* ── §AB · labels inside the pane (the Crystal engine audit) ──────────
+   §Y measured labels on the bare wallpaper. The audit found the same
+   tier failing INSIDE panes at the bright stacks: an eyebrow seen
+   through the midnight pane (lift 0.05 + scrim 0.38 over the disc) —
+   brand-300 lands at ~3.9:1 there, below the floor. The eyebrow now
+   climbs to solid brand-200 in midnight Crystal (engine §Y block);
+   these pairs prove the rungs where labels actually sit: brightest
+   disc (cyan) through the pane stack, no halo — in-pane labels ride
+   the scrim, and the arithmetic must not need the halo to pass. */
+{
+  const famMid = sheet("mainline", "midnight");
+  const disc2 = discLayer(2, "glass-cyan", modeSheet.midnight, "--glass-cyan");
+  const pane = [[255, 255, 255, 0.05], [4, 6, 14, 0.38]];
+  const brand200 = triplet(famMid["--brand-200"], "crystal midnight --brand-200");
+  const text3 = triplet(modeSheet.midnight["--text-3"], "midnight --text-3");
+  const text4 = triplet(modeSheet.midnight["--text-4"], "midnight --text-4");
+  pairY("in-pane disc-2 / accent label (brand-200, §AB eyebrow)", brand200, [disc2, ...pane]);
+  pairY("in-pane disc-2 / muted label (text-3, mono-label)", text3, [disc2, ...pane]);
+  pairY("in-pane disc-2 / faint micro-label (text-4)", text4, [disc2, ...pane]);
+}
+
 test("§Y·halo: bare labels and the hero field wear the scrim halo, gradient text exempt", () => {
   const engine = stripComments(engineCss);
-  assert.match(engine, /\[data-theme="midnight"\]\[data-appearance="crystal"\] :is\(\.mono-label, \.eyebrow\) \{\s*text-shadow: 0 1px 10px rgb\(4 6 14 \/ 0\.6\)/, "the label halo is gone — small text washes out over the liquid again");
+  /* §AB renegotiation: the halo's first shadow tightened from a 10px
+     bloom to a 3px core (same 0.60 alpha — the composite modelled
+     above is unchanged); at 10px type the bloom softened glyph edges.
+     The tightened string is the pinned shape now. */
+  assert.match(engine, /\[data-theme="midnight"\]\[data-appearance="crystal"\] :is\(\.mono-label, \.eyebrow\) \{\s*text-shadow: 0 0 3px rgb\(4 6 14 \/ 0\.6\)/, "the label halo is gone — small text washes out over the liquid again");
+  assert.match(engine, /\[data-theme="midnight"\]\[data-appearance="crystal"\] \.eyebrow \{\s*color: rgb\(var\(--brand-200\)\)/, "the §AB eyebrow climb is gone — brand-300 sits below the floor at bright pane stacks");
   assert.match(engine, /\[data-theme="midnight"\]\[data-appearance="crystal"\] \.hero-field \{\s*text-shadow: 0 1px 12px rgb\(4 6 14 \/ 0\.55\)/, "the hero field halo is gone");
   assert.match(engine, /\.hero-field :is\(\.text-gradient, \.text-gradient-rich\) \{\s*text-shadow: none;/, "gradient display text lost its halo exemption — shadows would print through the fill");
 });
@@ -457,7 +483,7 @@ test("G4·text: the engine never writes --text-/​--ink- tokens (glass is mater
 });
 
 test(`crystal contract complete: ${pass} pairs across 2 lanes × 2 modes, parsed not restated`, () => {
-  assert.ok(pass === 93, `expected 93 pairs (40 default + 40 bench-grid (5 dial points) + 2 catch-peak + 11 §Y on-wallpaper), got ${pass}`);
+  assert.ok(pass === 96, `expected 96 pairs (40 default + 40 bench-grid (5 dial points) + 2 catch-peak + 11 §Y on-wallpaper + 3 §AB in-pane), got ${pass}`);
 });
 
 /* ── §G · ONE EDGE (the double-card fix) ───────────────────────────────

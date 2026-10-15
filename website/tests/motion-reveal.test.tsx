@@ -146,6 +146,22 @@ describe("§R+§S touch budget (coarse pointers)", () => {
     expect(studio).toContain("max-h-[78vh] overflow-y-auto");
   });
 
+  it("touch entrances (§AB): coarse reveals are fades in both lanes, no rise, no scale", () => {
+    /* The Crystal engine audit's A4: on a phone fling, a 12px rise on
+       every entering card is a second motion layered over the scroll
+       and reads as bounce. The CSS lane drops the geometry under
+       (pointer: coarse); the Motion lane swaps to an opacity-only
+       hidden variant on the same signal. Fine pointers keep the
+       rise — this pins only the coarse behaviour. */
+    const globals = read("src/app/globals.css");
+    const coarseAt = globals.indexOf("@media (pointer: coarse)", globals.indexOf(".reveal-scale.is-visible"));
+    expect(coarseAt).toBeGreaterThan(-1);
+    expect(globals.slice(coarseAt, coarseAt + 200)).toContain("transform: none");
+    const motionReveal = read("src/components/motion/MotionReveal.tsx");
+    expect(motionReveal).toContain('window.matchMedia("(pointer: coarse)")');
+    expect(motionReveal).toContain("hidden: { opacity: 0 }");
+  });
+
   it("motion system (§AA): stagger capped in both lanes, failsafe prompt, one trigger geometry", () => {
     /* The motion-performance pass. Uncapped `index * 70` call sites
        left a big grid's last card waiting ~800ms after entering view

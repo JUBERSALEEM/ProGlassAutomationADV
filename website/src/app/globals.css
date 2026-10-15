@@ -2589,6 +2589,21 @@
     will-change: auto;
   }
 
+  /*
+   * §AB — touch entrances are fades, not rises. During a phone fling a
+   * 12 px rise (or 0.975 scale) on every entering card is a second
+   * motion layered over the scroll itself, and reads as bounce. On
+   * coarse pointers the reveal keeps its opacity grammar and drops
+   * the geometry; fine pointers keep the rise. (The Motion lane makes
+   * the same choice in MotionReveal.tsx.)
+   */
+  @media (pointer: coarse) {
+    .reveal,
+    .reveal-scale {
+      transform: none;
+    }
+  }
+
   .text-balance {
     text-wrap: balance;
   }

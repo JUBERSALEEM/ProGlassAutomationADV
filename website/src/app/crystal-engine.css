@@ -1574,6 +1574,22 @@ html.glass-econ[data-appearance="crystal"] .liquid-scene span {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
+  /* §AB: the last two samplers join the film. .nav-sheet is §O chrome
+     (14px) that every census missed — the mobile nav sheet blurred
+     whatever scrolled beneath it while open. .glass-bar (16px) is
+     showcase-only today; it takes the same film so the census closes
+     at zero, not at "one, on a page nobody audited". Fills follow the
+     mode-scoped ink-900 like every film above them. */
+  [data-appearance="crystal"] .nav-sheet {
+    background-color: rgb(var(--ink-900) / 0.97);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  [data-appearance="crystal"] .glass-bar {
+    background-color: rgb(var(--ink-900) / 0.94);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
   [data-appearance="crystal"] .liquid-scene span,
   [data-appearance="crystal"] .aurora-drift,
   [data-appearance="crystal"] .hero-aurora-strong,
@@ -1583,6 +1599,16 @@ html.glass-econ[data-appearance="crystal"] .liquid-scene span {
   }
   [data-appearance="crystal"] .liquid-scene span:nth-child(1) {
     animation: liquid-drift-a 20s ease-in-out -9s infinite alternate;
+  }
+  /* §AB: the §Z rest, restated where it can actually win. The global
+     pause (line ~1409) and the rule above are BOTH specificity (0,3,1);
+     this shorthand is later in the file, so on coarse pointers it
+     reset animation-play-state to running and the brand disc kept
+     drifting through every scroll — the surviving splash. Restated
+     here, after the shorthand, the pause wins on touch too; at rest
+     the attribute is absent and the disc drifts as §S decided. */
+  [data-appearance="crystal"] .liquid-scene[data-liquid-rest="1"] span {
+    animation-play-state: paused;
   }
   [data-appearance="crystal"] .section :is(
     .surface, .surface-raised, .menu-card, .float-card,
@@ -1624,8 +1650,22 @@ html.glass-econ[data-appearance="crystal"] .liquid-scene span {
  * through the transparent fill). The hero takes the halo as a
  * field: everything in the first screen, headline included, reads
  * over bright artwork and moving liquid. */
+/* §AB: two corrections to the §Y settlement, from the full audit
+   (docs/CRYSTAL_ENGINE_AUDIT.md §3). (1) brand-300 is itself only
+   ~2.4–3.9:1 at the bright stacks — the eyebrow climbs to solid
+   brand-200 (in-pane 5.3–5.6:1, suite-proven), still the family's
+   violet voice, never a translucent rung. Scoped to midnight Crystal
+   like the halo: Daylight's dark tokens and the other families keep
+   globals' grammar untouched, and no --text-* token is written.
+   (2) The halo's blur tightens (10px/0.6 bloom → a 3px core at the
+   same alpha): at 10px type the wide bloom softened the glyph edges
+   it was protecting — the "blurred" half of the witness. The suite's
+   halo composite (scrim 0.60) is unchanged. */
+[data-theme="midnight"][data-appearance="crystal"] .eyebrow {
+  color: rgb(var(--brand-200));
+}
 [data-theme="midnight"][data-appearance="crystal"] :is(.mono-label, .eyebrow) {
-  text-shadow: 0 1px 10px rgb(4 6 14 / 0.6), 0 0 3px rgb(4 6 14 / 0.5);
+  text-shadow: 0 0 3px rgb(4 6 14 / 0.6), 0 1px 6px rgb(4 6 14 / 0.5);
 }
 [data-theme="midnight"][data-appearance="crystal"] .hero-field {
   text-shadow: 0 1px 12px rgb(4 6 14 / 0.55), 0 0 3px rgb(4 6 14 / 0.45);

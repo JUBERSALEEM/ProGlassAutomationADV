@@ -109,7 +109,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
                           "group flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors duration-200 hover:bg-ink-850/70",
                         )}
                       >
-                        <span className="font-mono text-2xs tabular-nums text-text-faint font-medium">{stage.index}</span>
+                        <span className="font-mono text-2xs tabular-nums text-text-muted font-medium">{stage.index}</span>
                         <span className="text-sm text-text-secondary transition-colors group-hover:text-brand-200">
                           {t(stage.name)}
                         </span>

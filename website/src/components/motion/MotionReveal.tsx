@@ -56,6 +56,21 @@ export function MotionReveal({
   const reduced = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const [forced, setForced] = useState(false);
+  /* §AB: touch entrances are fades, not rises (the CSS lane's coarse
+     rule in globals.css makes the same choice). A 12px rise on every
+     card entering during a fling reads as bounce layered on the
+     scroll; on coarse pointers the hidden variant keeps only its
+     opacity, so the entrance is a settle, never a climb. */
+  const [coarse, setCoarse] = useState(false);
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(pointer: coarse)");
+    const sync = () => setCoarse(mq.matches);
+    sync();
+    mq.addEventListener?.("change", sync);
+    return () => mq.removeEventListener?.("change", sync);
+  }, []);
 
   useEffect(() => {
     if (immediate || reduced || variant === "none") return;
@@ -80,6 +95,11 @@ export function MotionReveal({
     );
   }
 
+  const laneVariants = variant === "scale" ? revealScaleVariants : revealVariants;
+  const activeVariants = coarse
+    ? { hidden: { opacity: 0 }, visible: laneVariants.visible }
+    : laneVariants;
+
   const trigger = immediate || forced
     ? { animate: "visible" as const }
     : {
@@ -95,7 +115,7 @@ export function MotionReveal({
       ref={ref}
       id={id}
       className={cn("motion-reveal", className)}
-      variants={variant === "scale" ? revealScaleVariants : revealVariants}
+      variants={activeVariants}
       initial="hidden"
       {...trigger}
       transition={{

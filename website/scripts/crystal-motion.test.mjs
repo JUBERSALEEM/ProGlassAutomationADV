@@ -155,8 +155,13 @@ test("G6·1 the coarse-pointer blocks exist, crystal-scoped: dials + the §R lan
      painter, so on touch the bar takes solid film (background-color at
      the no-backdrop fallback fill; backdrop-filter: none on both
      vendor lines). The allowance is exactly the dials + those two
-     lanes; the lane must never grow into a second design system. */
-  const ALLOWED = new Set(["--glass-frost-mult", "--glass-bright", "animation", "background", "box-shadow", "background-color", "backdrop-filter", "-webkit-backdrop-filter"]);
+     lanes; the lane must never grow into a second design system.
+     §AB extends it once more, in the open: animation-play-state joins
+     so the §Z scroll rest can be restated where it wins the cascade
+     (audit A1), and the background-color/backdrop-filter pair covers
+     the last two filmed samplers (.nav-sheet, .glass-bar — A2/A3).
+     G7·6 pins their exact shapes. */
+  const ALLOWED = new Set(["--glass-frost-mult", "--glass-bright", "animation", "animation-play-state", "background", "box-shadow", "background-color", "backdrop-filter", "-webkit-backdrop-filter"]);
   assert.ok(decls.includes("--glass-frost-mult") && ALLOWED.isSupersetOf(new Set(decls)), `coarse lane touches its allowance only, got ${decls.join(", ")}`);
   assert.ok(decls.includes("animation"), "the coarse lane lost its animation control — §R's stills and §S's one-disc drift both ride it");
 });
@@ -240,6 +245,25 @@ test("G7·2 (§P, §Z-renegotiated) scroll writes no styles; the one listener pa
   assert.ok(glassLifeComponent.includes('querySelector(".liquid-scene")'), "the §Z rest lost its scene scoping — the toggle must land on the scene, never the root");
   assert.ok(glassLifeComponent.includes('setAttribute("data-liquid-rest", "1")'), "the §Z rest toggle is gone");
   assert.ok(!glassLifeComponent.includes("setProperty"), "GlassLife writes inline styles — style writes live in glassLife.ts, scoped to the hovered card");
+});
+
+test("G7·6 (§AB) the scroll rest WINS the cascade on touch, and the film census closes", () => {
+  /* The audit's A1: the §Z pause (specificity 0,3,1) and the coarse
+     lane's disc-1 `animation` shorthand (also 0,3,1) tie, and source
+     order hands the shorthand the win — animation-play-state resets
+     to running, so the brand disc drifted through every touch scroll
+     and the pause guards pinned only presence, never victory. The
+     pause is therefore restated INSIDE the coarse lane after the
+     shorthand; this test pins the ORDER, which is the whole fix. */
+  const tail = engine.slice(engine.lastIndexOf("@media (pointer: coarse)"));
+  const disc1 = tail.indexOf("span:nth-child(1)");
+  const rest = tail.indexOf('[data-liquid-rest="1"]');
+  assert.ok(disc1 > -1, "the coarse disc-1 drift rule is gone — touch lost its one living disc");
+  assert.ok(rest > disc1, "the §AB restatement no longer follows the disc-1 shorthand — the §Z pause loses the cascade on touch again (audit A1)");
+  assert.match(tail.slice(rest), /animation-play-state:\s*paused/, "the coarse restatement lost its pause");
+  /* A2/A3: the last two chrome samplers wear the film on touch */
+  assert.match(tail, /\.nav-sheet \{[^}]*backdrop-filter:\s*none/, ".nav-sheet samples the backdrop on touch again (audit A2)");
+  assert.match(tail, /\.glass-bar \{[^}]*backdrop-filter:\s*none/, ".glass-bar samples the backdrop on touch again (audit A3)");
 });
 
 test("G7·3 (§P) nothing restyles the document on interaction: no root data flips in GlassLife", () => {

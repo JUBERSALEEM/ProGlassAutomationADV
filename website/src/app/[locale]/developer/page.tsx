@@ -464,13 +464,13 @@ const faq = [
                     <article className="surface card-interactive p-5 sm:p-6">
                       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                         <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">{entry.tag}</span>
-                        <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                        <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-muted">
                           {entry.date}
                         </span>
                       </div>
                       <h3 className="mt-2 text-lg font-semibold leading-snug text-text-primary">{t(entry.title)}</h3>
                       <p className="mt-2.5 text-sm leading-relaxed text-text-secondary">{t(entry.body)}</p>
-                      <p className="mt-3.5 border-t border-line/60 pt-3 font-mono text-[0.6875rem] leading-relaxed text-text-faint">
+                      <p className="mt-3.5 border-t border-line/60 pt-3 font-mono text-[0.6875rem] leading-relaxed text-text-muted">
                         {entry.source}
                       </p>
                     </article>
@@ -636,7 +636,7 @@ const faq = [
                   {t("Every number below is counted directly from the source tree: bounded contexts, test suites, and localization dictionaries.")}
                 </p>
               </div>
-              <p className="mx-auto max-w-xs text-xs leading-relaxed text-text-faint font-medium">
+              <p className="mx-auto max-w-xs text-xs leading-relaxed text-text-muted font-medium">
                 {t("Measured on {v1}: {v2}, {v3}, {v4}. obj/, bin/ and .git/ excluded.", {
                   v1: site.statsMeasuredOn,
                   v2: site.framework,
@@ -693,7 +693,7 @@ const faq = [
                       <span className="font-mono text-2xs text-brand-300 font-bold">
                         {item.index}
                       </span>
-                      <span className="text-2xs font-mono text-text-faint">
+                      <span className="text-2xs font-mono text-text-muted">
                         {item.stage}
                       </span>
                     </div>
@@ -705,7 +705,7 @@ const faq = [
                     </p>
                   </div>
                   <div className="mt-4 pt-3 border-t border-line/40">
-                    <p className="font-mono text-2xs text-text-faint uppercase tracking-wider mb-1.5">
+                    <p className="font-mono text-2xs text-text-muted uppercase tracking-wider mb-1.5">
                       {t("Service files")}
                     </p>
                     <ul className="space-y-1">
