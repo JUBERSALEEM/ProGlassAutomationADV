@@ -431,7 +431,7 @@ export default async function FeaturesPage({ params }: PageProps) {
       {/* ── What it is not ───────────────────────────────────────── */}
       <Section tone="sunken" aria-labelledby="not-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-10">
             <SectionHeading
               id="not-heading"
               eyebrow={t("Scope")}

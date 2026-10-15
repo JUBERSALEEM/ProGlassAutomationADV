@@ -62,7 +62,7 @@ export default async function ContactPage({ params }: PageProps) {
 
       <Section aria-labelledby="form-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="form-heading"

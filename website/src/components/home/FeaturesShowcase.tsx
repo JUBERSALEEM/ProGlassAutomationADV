@@ -179,7 +179,7 @@ export function FeaturesShowcase({
     <div className="mat-stage-root">
       <div className="mat-stage grid gap-6 lg:grid-cols-[1.08fr_1fr] lg:items-stretch">
         {/* Left: the plate — heading, caption, and the seven-dot index. */}
-        <div className="mat-stage__plates relative z-10 flex flex-col justify-between gap-6 p-6 sm:p-8">
+        <div className="mat-stage__plates relative z-10 flex flex-col justify-between gap-5 card-pad">
           <div>
             <div className="flex items-center gap-3">
               <Ring className="h-6 w-6 text-brand-400" />

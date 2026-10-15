@@ -359,7 +359,7 @@ function Lightbox({
           content here, and padding the layout out to three would just make the
           caption narrow again.
         */}
-        <div className="mx-auto mt-8 grid w-full max-w-[110rem] gap-8 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+        <div className="mx-auto mt-8 grid w-full max-w-[110rem] gap-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-8">
           <div className="space-y-5">
             <div>
               <p className="eyebrow">{t("What this screen does")}</p>

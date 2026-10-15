@@ -51,7 +51,7 @@ export function ModuleShowcase({
                 </div>
               </div>
 
-              <div className="grid items-start gap-8 pt-6 lg:grid-cols-2 lg:gap-10">
+              <div className="grid items-start gap-6 pt-5 lg:grid-cols-2 lg:gap-10">
                 <div className={cn(flip && "lg:order-2")}>
                   <p className="text-base leading-relaxed text-text-secondary">{t(module.summary)}</p>
                   <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(module.detail)}</p>

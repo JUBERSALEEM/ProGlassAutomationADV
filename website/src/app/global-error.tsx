@@ -24,7 +24,7 @@ export default function GlobalError({
     <html lang="en" data-theme="midnight" data-theme-mode="dark" data-appearance="studio">
       <body className="bg-ink-950 text-text-secondary antialiased">
         <main className="flex min-h-screen items-center justify-center px-6 py-16">
-          <div className="w-full max-w-xl rounded-panel border border-line-strong/70 bg-ink-900 p-8 shadow-raised">
+          <div className="w-full max-w-xl rounded-panel border border-line-strong/70 bg-ink-900 shadow-raised card-pad">
             <p className="font-mono text-2xs font-bold uppercase tracking-[0.22em] text-brand-300">
               ProGlass Automation
             </p>

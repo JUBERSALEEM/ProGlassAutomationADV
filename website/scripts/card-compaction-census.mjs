@@ -68,7 +68,7 @@ const PAGE_GROUPS = {
 };
 
 /* ── The surfaces that count as a "card" ─────────────────────────────── */
-const CARD_SURFACE = /\b(surface-raised|surface|glass-primary|card-live|stat-tile|plate)\b/;
+const CARD_SURFACE = /\b(surface-raised|surface|glass-primary|card-live|stat-tile|plate|rounded-panel|mat-stage__plates)\b/;
 const CARD_TOKENS = /\b(card-pad|card-pad-sm)\b/;
 
 /* Tailwind spacing scale → px, for the measures below. */
@@ -87,6 +87,13 @@ function widestGap(className) {
     widest = Math.max(widest, gapPx(m[1]));
   }
   return widest;
+}
+
+/* The unprefixed gap is the stacked phone/tablet rhythm before a responsive
+   split becomes columns. Phase 6 holds it separately from the desktop gap. */
+function baseGap(className) {
+  const match = className.match(/(?:^|\s)gap-([0-9]+(?:\.[0-9]+)?)(?=\s|$)/);
+  return match ? gapPx(match[1]) : 0;
 }
 
 /* A grid with more than one column. */
@@ -201,6 +208,7 @@ const findings = {
   rawPadding: [],
   dashboardRows: [],
   sectionOffsets: [],
+  stackedSplitGaps: [],
 };
 
 /*
@@ -251,7 +259,11 @@ for (const file of files) {
       /* The ModuleShowcase card puts the module summary beside the module
          visual — a split, not a card row. Named so the decision is written
          down rather than guessed at from the class string. */
-      className.trim() === "grid items-start gap-8 pt-6 lg:grid-cols-2 lg:gap-10";
+      className.trim() === "grid items-start gap-6 pt-5 lg:grid-cols-2 lg:gap-10";
+
+    if (split && baseGap(className) >= 32) {
+      findings.stackedSplitGaps.push({ rel, line, group, gap: baseGap(className), className: className.trim() });
+    }
 
     if (split && gap >= 48 && !/gap-y-|gap-x-/.test(className)) {
       findings.wideSplits.push({ rel, line, group, gap, className: className.trim() });
@@ -261,7 +273,9 @@ for (const file of files) {
       findings.wideCardGuts.push({ rel, line, group, gap, className: className.trim() });
     }
 
-    if (CARD_SURFACE.test(className) && !CARD_TOKENS.test(className)) {
+    /* /sys benches deliberately demonstrate raw finish recipes; they are
+       specimens, not production cards, and stay outside normalization. */
+    if (!rel.includes("/sys/") && CARD_SURFACE.test(className) && !CARD_TOKENS.test(className)) {
       for (const m of className.matchAll(/(?:^|\s)(?:[a-z]+:)?p-([6-9]|10|11|12)(?=\s|$)/g)) {
         findings.rawPadding.push({ rel, line, group, pad: m[1], className: className.trim() });
         break;
@@ -304,7 +318,7 @@ const show = (label, list) => {
   }
 };
 
-console.log("CARD COMPACTION CENSUS — §AG Phase 3/4");
+console.log("CARD COMPACTION CENSUS — §AG Phases 3–6");
 console.log("=" .repeat(60));
 show("1. WIDE SPLITS (two-track layout, gutter ≥ 48px)", findings.wideSplits);
 show("2. WIDE CARD GUTS (card grid, gutter ≥ 24px)", findings.wideCardGuts);
@@ -314,6 +328,7 @@ for (const item of findings.dashboardRows) {
   console.log(`  ${item.rel}  compact=${item.compact} comfortable=${item.comfortable}`);
 }
 show("5. SECTION OFFSETS (heading → content ≥ 40px)", findings.sectionOffsets);
+show("6. STACKED SPLIT GAPS (phone/tablet base gap ≥ 32px)", findings.stackedSplitGaps);
 
 const byGroup = {};
 for (const item of findings.wideSplits) byGroup[item.group] = (byGroup[item.group] ?? 0) + 1;
@@ -335,6 +350,8 @@ const CEILINGS = {
   dashboardComfortableRow: "py-2.5",
   /* §AG Phase 3: a heading introduces its content within 32px. */
   sectionOffsets: 0,
+  /* §AG Phase 6: stacked split columns use 24px, never the desktop gutter. */
+  stackedSplitGaps: 0,
 };
 
 if (process.argv.includes("--check")) {
@@ -350,6 +367,9 @@ if (process.argv.includes("--check")) {
   }
   if (findings.sectionOffsets.length > CEILINGS.sectionOffsets) {
     problems.push(`${findings.sectionOffsets.length} heading→content offsets ≥ 40px (ceiling ${CEILINGS.sectionOffsets})`);
+  }
+  if (findings.stackedSplitGaps.length > CEILINGS.stackedSplitGaps) {
+    problems.push(`${findings.stackedSplitGaps.length} stacked split gaps ≥ 32px (ceiling ${CEILINGS.stackedSplitGaps})`);
   }
   for (const item of findings.dashboardRows) {
     if (item.comfortable !== CEILINGS.dashboardComfortableRow) {
