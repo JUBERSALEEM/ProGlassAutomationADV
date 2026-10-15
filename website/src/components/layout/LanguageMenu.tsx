@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 import { LOCALES, type Locale } from "@/i18n/locales";
 import { LOCALE_COOKIE, pathWithoutLocale } from "@/i18n/core";
 import { useI18n } from "@/i18n/provider";
-import { slidePillHandlers, restSlidePill } from "@/components/layout/slidePill";
+import { listPillEvents, restSlidePill } from "@/components/layout/slidePill";
 import coverageTable from "@/i18n/coverage-table.json";
 
 /**
@@ -213,7 +213,7 @@ export function LanguageMenu({ compact = false }: { compact?: boolean }) {
           <div
             className="relative"
             ref={listRef}
-            {...slidePillHandlers(() => listRef.current)}
+            {...listPillEvents}
           >
             <span aria-hidden="true" className="menu-slide-pill" />
           {LOCALES.map((entry) => {

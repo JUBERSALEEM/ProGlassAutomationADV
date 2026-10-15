@@ -46,26 +46,28 @@ export function restSlidePill(list: HTMLElement) {
 }
 
 /* Pointer/focus travel inside a list: hand the pill to the row under
-   the gesture, and back to its resting row when the gesture leaves. */
-export function slidePillHandlers(list: () => HTMLElement | null) {
-  return {
-    onPointerOver: (event: React.PointerEvent) => {
-      const el = list();
-      const target = (event.target as HTMLElement).closest<HTMLElement>("a, button");
-      if (el && target && el.contains(target)) slidePillTo(el, target);
-    },
-    onPointerLeave: () => {
-      const el = list();
-      if (el) restSlidePill(el);
-    },
-    onFocusCapture: (event: React.FocusEvent) => {
-      const el = list();
-      const target = (event.target as HTMLElement).closest<HTMLElement>("a, button");
-      if (el && target && el.contains(target)) slidePillTo(el, target);
-    },
-    onBlurCapture: (event: React.FocusEvent) => {
-      const el = list();
-      if (el && !el.contains(event.relatedTarget as Node)) restSlidePill(el);
-    },
-  };
-}
+   the gesture, and back to its resting row when the gesture leaves.
+   Spread onto the list element itself; the list is always
+   `event.currentTarget`, so no ref is read while rendering. */
+export const listPillEvents = {
+  onPointerOver: (event: React.PointerEvent<HTMLElement>) => {
+    const target = (event.target as HTMLElement).closest<HTMLElement>("a, button");
+    if (target && event.currentTarget.contains(target)) {
+      slidePillTo(event.currentTarget, target);
+    }
+  },
+  onPointerLeave: (event: React.PointerEvent<HTMLElement>) => {
+    restSlidePill(event.currentTarget);
+  },
+  onFocusCapture: (event: React.FocusEvent<HTMLElement>) => {
+    const target = (event.target as HTMLElement).closest<HTMLElement>("a, button");
+    if (target && event.currentTarget.contains(target)) {
+      slidePillTo(event.currentTarget, target);
+    }
+  },
+  onBlurCapture: (event: React.FocusEvent<HTMLElement>) => {
+    if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+      restSlidePill(event.currentTarget);
+    }
+  },
+};

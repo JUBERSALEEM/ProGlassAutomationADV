@@ -333,8 +333,12 @@
        the thing crowding the first line, so each token carries a radius
        floor (the corner-safe system in the utilities layer below works the
        same way for hand-padded cards). */
-    --card-pad-base: 1.5rem;
-    --card-pad-sm-base: 1rem;
+    /* §AG Phase 1 (card compaction): the pad steps down one notch —
+       24px card padding read as bulk next to the reference density
+       (16–20px). The radius floor in --card-pad still guarantees
+       the corner curve clears content in Crystal and Clay. */
+    --card-pad-base: 1.25rem;
+    --card-pad-sm-base: 0.875rem;
     --card-pad: calc(var(--card-pad-scale, 1) * max(var(--card-pad-base) + max(0px, var(--card-edge-width) - 2px), calc(var(--card-radius) * 0.52)));
     --card-pad-sm: calc(var(--card-pad-scale, 1) * max(var(--card-pad-sm-base) + max(0px, var(--card-edge-width) - 2px), calc(var(--card-radius) * 0.44)));
 
@@ -1311,8 +1315,8 @@
    */
   @media (max-width: 40rem) {
     :root {
-      --card-pad-base: 1.15rem;
-      --card-pad-sm-base: 0.85rem;
+      --card-pad-base: 1.05rem;
+      --card-pad-sm-base: 0.8rem;
       --corner-safe-cap-inline: 1.75rem;
       --corner-safe-cap-block: 1.25rem;
     }
@@ -1388,7 +1392,11 @@
    * because a wide page has room to breathe and needs it.
    */
   .section {
-    @apply py-14 sm:py-20 lg:py-24 2xl:py-28;
+    /* §AG Phase 1: one step down at every tier (was
+       py-14/20/24/28). The old stack made sections — not cards —
+       the largest thing on the page; this keeps the rhythm's
+       proportions while returning ~16px per section edge. */
+    @apply py-12 sm:py-16 lg:py-20 2xl:py-24;
   }
 
   /*
@@ -2900,7 +2908,7 @@ html[data-ui-density="compact"] :is(.plate, .card-live, .stat-tile, .surface, .s
 
 /*
  * The rhythm itself. `.section` carries the site's own vertical spacing
- * (`py-16 sm:py-20 lg:py-24 2xl:py-28`); compact scales it, so choosing the
+ * (`py-12 sm:py-16 lg:py-20 2xl:py-24` since §AG); compact scales it, so choosing the
  * density visibly changes how much of the page fits on a screen instead of
  * nudging two padding values.
  */

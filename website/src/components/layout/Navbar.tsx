@@ -16,7 +16,7 @@ import { BuildStampChip, BuildStampPill, BuildStampRow } from "@/components/layo
 import { Logo } from "@/components/brand/Logo";
 import { useT } from "@/i18n/provider";
 import { useAppearance } from "@/lib/useTheme";
-import { slidePillHandlers, slidePillTo, restSlidePill } from "@/components/layout/slidePill";
+import { listPillEvents, slidePillTo, restSlidePill } from "@/components/layout/slidePill";
 import { hrefIn, localeOfPath, pathWithoutLocale } from "@/i18n/core";
 
 type NavChild = { label: string; href: string; description?: string };
@@ -650,7 +650,7 @@ export function Navbar() {
                       <ul
                         ref={menuListRef}
                         className="relative space-y-1.5"
-                        {...slidePillHandlers(() => menuListRef.current)}
+                        {...listPillEvents}
                       >
                         <span aria-hidden="true" className="menu-slide-pill" />
                         {entry.children.map((child) => {
