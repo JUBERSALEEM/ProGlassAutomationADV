@@ -787,3 +787,24 @@ is retired). Fine pointers keep all frost.
 **Locked.** The §M lock is renegotiated in the open (html-level
 gate pinned absent forever; scene-scoped gate pinned present);
 a vitest §Z guard covers the lane films and the GlassLife wiring.
+
+### §AA — one motion system: capped staggers, aligned triggers, prompt failsafes (*shipped*)
+
+The motion layer audited sound in architecture and guilty in values:
+~15 grids passed uncapped `index × 50–70` reveal delays (a 12-card
+tail began ~770ms after entering view), both lanes hid content up to
+1600ms on a busy thread, the two lanes disagreed on trigger geometry
+(−10% vs none), and the page transition ran an off-scale easing. The
+law now lives in `lib/motion.ts` and is enforced inside the two
+reveal lanes themselves, so every call site — present and future —
+inherits it: `stagger { stepMs 45, capMs 200 }` clamped in
+`useReveal` and `MotionReveal`; `revealFailSafeMs = 1000` in both
+lanes; both lanes trigger at 12% visible with a −4% foot margin;
+named `presets` (section/card/hover/nav/dropdown/dialog/page) added,
+and `template.tsx` programs against `presets.page`. Native scrolling
+untouched; no new dependency; reduced-motion and SSR/noscript
+contracts unchanged. Full account — root causes, files changed,
+before/after, pages and states tested, remaining problems — in
+`docs/LIQUID_GLASS_PERFORMANCE_AUDIT.md` §7. **Locked:** vitest §AA
+(with the §Q failsafe lock openly renegotiated from the literal
+1600ms to the token).

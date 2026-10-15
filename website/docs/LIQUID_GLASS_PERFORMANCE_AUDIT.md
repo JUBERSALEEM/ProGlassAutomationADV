@@ -163,3 +163,91 @@ Unblocked and verified: prototype responsiveness by construction,
 full-card frost implementation, interaction suite, build +
 regression (vitest 78/78, testcrystal 94/94, crystal-motion 17/17,
 clay-paint 249/249, clay coverage 100%, tsc/lint/guards clean).
+## 7 · Motion-performance pass (§AA — scroll lag, card reveals, one system)
+
+A full re-audit of the motion layer found the architecture sound and the
+parameters guilty. Single animation library (`motion` 14.2.0), two reveal
+lanes with one grammar, token-synced CSS/JS scale, one-shot observers,
+no scroll-position state anywhere. What was broken was values.
+
+### 7.1 · Confirmed root causes
+
+| # | Cause | Evidence |
+|---|---|---|
+| 1 | Uncapped stagger cascades: ~15 grids passed `delay={index * 50–70}` with no ceiling; a 12-card grid's tail began ~770ms after entering view, while only ~5 call sites capped inconsistently at 5–6 items | delay census across `src/` |
+| 2 | 1600ms invisible-content failsafes in BOTH reveal lanes — on a busy main thread a card could sit at opacity 0 well past its entrance | `useReveal.ts`, `MotionReveal.tsx` |
+| 3 | Trigger disagreement between the lanes billed as one grammar: CSS lane 12% / −10% foot margin, Motion lane 12% / no margin | `useReveal.ts` vs `MotionReveal.tsx` |
+| 4 | Page-transition drift: hardcoded 0.32s and `ease [0.22, 0.61, 0.21, 1]`, a curve that exists nowhere in the token scale | `template.tsx` |
+| 5 | No named presets (section/card/hover/nav/dropdown/dialog/page); surfaces hand-rolled values | `lib/motion.ts` |
+
+Audited and exonerated: `ModuleBrowser`'s AnimatePresence + layout
+springs (filter changes only, non-scroll), the accordion's
+`grid-template-rows` transition (no JS measuring), `useCountUp`
+(one-shot), the Navbar's CSS transitions (de facto nav preset, settled
+code — untouched), all `will-change` short-lived, no scroll listeners
+that write state (§Z's passive rest-gate only), no smooth-scroll system,
+no per-scroll React state.
+
+### 7.2 · Fixes (all inside the existing choke points)
+
+- **Stagger law** (`lib/motion.ts`): `stagger { stepMs: 45, capMs: 200 }`
+  + `staggerDelay(index)`. Both lanes clamp whatever a call site passes,
+  so the ~40 uncapped call sites inherited the fix without being
+  rewritten; a future uncapped call site cannot regress it.
+- **Failsafes**: `revealFailSafeMs = 1000` shared by both lanes.
+- **One trigger geometry**: both lanes now 12% visible with a −4% foot
+  margin (CSS lane −10% → −4%; Motion lane gains the margin).
+- **Presets**: `presets { section, card, hover, nav, dropdown, dialog,
+  page }` in `lib/motion.ts`; `template.tsx` now programs against
+  `presets.page` (280ms, standard ease). CSS-side surfaces already use
+  the mirrored `--dur-*`/`--ease-*` tokens (token sync test).
+- **Guards**: §AA locks in `tests/motion-reveal.test.tsx`; the §Q
+  failsafe guard was renegotiated from the literal 1600ms to the token.
+
+Native scrolling untouched; no hijacking, no artificial smoothing, no
+new dependencies, no design-system changes. `prefers-reduced-motion`
+paths in both lanes and the template are unchanged, and reveal content
+is server-rendered (57 SSR `.reveal` instances on the homepage) with a
+`<noscript>` force-visible sheet — content never depends on animation
+completion.
+
+### 7.3 · Before / after
+
+| Measure | Before | After |
+|---|---|---|
+| Worst reveal delay, grid item 8–16 | 560–1,050ms (uncapped `index × 70`) | ≤ 200ms (clamp) |
+| Hidden-content failsafe | 1,600ms | 1,000ms |
+| Reveal trigger (both lanes) | −10% / none (disagreed) | 12% / −4% (aligned) |
+| Total client JS chunks (uncompressed) | 2,377,862 B | 2,292,112 B (three largest chunks byte-identical; delta is split variance, no dependency added) |
+| Homepage HTML | 790,784 B | 790,784 B (unchanged — preserved) |
+| Frame times / FPS | unmeasurable in sandbox (§4) | still unmeasurable — device check is the arbiter |
+
+### 7.4 · What was actually tested
+
+- Suites: vitest 97/97, crystal contrast 111/111, crystal motion 25/25,
+  Clay 33/33 @ 100%, Navbar 2/2, pointer-state guard (164 files),
+  motion-token sync 2/2, ESLint clean, typecheck clean, production
+  build ok.
+- Served (production preview): `/`, `/features`, `/records`,
+  `/how-it-works`, `/optimization` all 200 with full SSR HTML; new
+  trigger geometry present in the shipped JS; noscript force-visible
+  rules present in SSR.
+- Code-verified states: slow/fast scroll (one-shot observers, capped
+  delays), scroll-back (reveals never reset — `once` everywhere),
+  viewport-boundary starts (aligned 12% / −4%), route navigation
+  (`presets.page`), dropdown/dialog timings (token-based, unchanged),
+  light/dark + Crystal/Liquid (§Z behaviour untouched by this pass),
+  reduced motion (plain-render paths in both lanes).
+- NOT verified, same limit as §4: actual frame times on a GPU device,
+  fast phone flick-scroll cadence, mid-end Android compositor cost.
+  Scroll smoothness on the user's device remains the judge; nothing
+  here claims otherwise.
+
+### 7.5 · Remaining known problems
+
+- The ~791KB homepage HTML (mostly inline i18n/RSC payload) is still
+  the largest single delivery cost; untouched by this pass.
+- The animation library is inside the shared first-load chunks; motion
+  is nearly all CSS-driven already, but a first-load byte diet needs
+  its own pass with real-network measurement.
+

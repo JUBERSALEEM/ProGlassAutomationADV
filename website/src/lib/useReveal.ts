@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { revealFailSafeMs, stagger } from "@/lib/motion";
 
 /**
  * Reveal-on-scroll, one observer for the whole page.
@@ -26,7 +27,7 @@ type RevealOptions = {
   rootMargin?: string;
 };
 
-const DEFAULT_ROOT_MARGIN = "0px 0px -10% 0px";
+const DEFAULT_ROOT_MARGIN = "0px 0px -4% 0px";
 const THRESHOLD = 0.12;
 
 /** The one class the CSS watches for. Applied once, never removed. */
@@ -96,16 +97,17 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(options?: Reve
     bucket.targets.add(node);
     bucket.observer.observe(node);
 
-    /* §N failsafe — content must never strand at opacity: 0. The observer
-       is one-shot and normally instant, but on a jank-starved main thread
-       its callback can trail the scroll by seconds, which reads as
-       "cards disappearing". If a card is in (or near) the viewport and
-       still hidden 1.6s after mount, it is simply shown; below-fold
-       cards keep waiting for their scroll entrance as designed. */
+    /* §N failsafe (ceiling tightened in the motion-performance pass) —
+       content must never strand at opacity: 0. The observer is one-shot
+       and normally instant, but on a jank-starved main thread its
+       callback can trail the scroll, which reads as "cards
+       disappearing". If a card is in (or near) the viewport and still
+       hidden `revealFailSafeMs` after mount, it is simply shown;
+       below-fold cards keep waiting for their scroll entrance. */
     const failsafe = window.setTimeout(() => {
       const rect = node.getBoundingClientRect();
       if (rect.top < window.innerHeight * 1.5 && rect.bottom > 0) revealNow(node);
-    }, 1600);
+    }, revealFailSafeMs);
 
     return () => {
       window.clearTimeout(failsafe);
@@ -118,7 +120,13 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(options?: Reve
     };
   }, [rootMargin]);
 
-  const style = options?.delay ? { transitionDelay: `${options.delay}ms` } : undefined;
+  /* The stagger law (lib/motion.ts): whatever a call site passes —
+     including the legacy uncapped `index * 70` grids — the delay that
+     reaches the transition is capped, so a large grid's tail enters
+     with its group instead of trailing it by the better part of a
+     second. Small groups keep their sequence untouched. */
+  const delay = options?.delay ? Math.min(options.delay, stagger.capMs) : 0;
+  const style = delay ? { transitionDelay: `${delay}ms` } : undefined;
 
   return { ref, style };
 }

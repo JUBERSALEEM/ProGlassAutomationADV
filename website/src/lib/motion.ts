@@ -43,6 +43,57 @@ export const springs = {
 /** Stagger step (seconds) for sequenced groups — hero beats, card grids. */
 export const staggerStep = 0.06;
 
+/**
+ * The stagger law (motion-performance pass): a reveal delay may sequence
+ * a SMALL group; it may never hold up a grid. Call sites pass
+ * `index * step` freely — both reveal lanes clamp the result to
+ * `capMs`, so the last card of a sixteen-card grid enters with the
+ * group instead of ~800ms after it. The readable pattern at call
+ * sites is `staggerDelay(index)`; the clamp inside the lanes is the
+ * guarantee, so a future uncapped call site cannot regress it.
+ */
+export const stagger = {
+  /** Default per-item step at call sites (ms). */
+  stepMs: 45,
+  /** Hard ceiling on any reveal delay (ms), enforced by both lanes. */
+  capMs: 200,
+} as const;
+
+/** Reveal delay for the item at `index` (ms), already inside the cap. */
+export const staggerDelay = (index: number, stepMs: number = stagger.stepMs): number =>
+  Math.min(Math.max(index, 0) * stepMs, stagger.capMs);
+
+/**
+ * How long a hidden reveal may wait for its observer before the lane
+ * forces it visible (both lanes). Content must never sit at opacity 0
+ * on a busy main thread; 1s is the ceiling, not the expectation — the
+ * observers fire in a frame or two when the thread is free.
+ */
+export const revealFailSafeMs = 1000;
+
+/**
+ * Named presets — the one motion system every surface programs
+ * against. Values reference the token scale above; CSS-side surfaces
+ * use the mirrored `--dur-*`/`--ease-*` tokens (see globals.css).
+ *
+ *   section   a band entering on scroll (the two reveal lanes)
+ *   card      a card's own state change (filter, selection, sheet)
+ *   hover     pointer feedback on controls
+ *   nav       the bar, its menus and sheets (CSS: 200–300ms ease-industrial)
+ *   dropdown  menus and popovers (CSS: 200ms, transform+opacity)
+ *   dialog    sheets and dialogs (CSS: 300ms ease-industrial)
+ *   page      route entry (template.tsx)
+ */
+export const presets = {
+  section: { duration: dur.reveal, ease: ease.out },
+  card: { duration: dur.card, ease: ease.out },
+  hover: { duration: dur.hover, ease: ease.standard },
+  nav: { duration: dur.lift, ease: ease.standard },
+  dropdown: { duration: dur.hover, ease: ease.out },
+  dialog: { duration: dur.lift, ease: ease.standard },
+  page: { duration: dur.lift, ease: ease.standard },
+} as const;
+
 /** Scroll-reveal variants matching the CSS `.reveal` grammar (12px rise,
  *  `--dur-reveal`, `--ease-out`) so both lanes read as one system. */
 export const revealVariants = {

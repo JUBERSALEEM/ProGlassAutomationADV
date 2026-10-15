@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { dur, ease, revealScaleVariants, revealVariants } from "@/lib/motion";
+import { dur, ease, revealFailSafeMs, revealScaleVariants, revealVariants, stagger } from "@/lib/motion";
 import { cn } from "@/lib/cn";
 
 /**
@@ -23,10 +23,11 @@ import { cn } from "@/lib/cn";
  * plain reveals precisely because it degrades without a library runtime.
  *
  * §Q failsafe (the CSS lane's contract, brought to this lane): if the
- * observer-driven entrance has not fired within 1.6s of mount while the
- * block sits near the viewport, the reveal is forced. A loaded main
- * thread must never strand server-rendered content at opacity 0 — the
- * "cards appear when I stop scrolling" witness was this gap.
+ * observer-driven entrance has not fired within `revealFailSafeMs`
+ * of mount while the block sits near the viewport, the reveal is
+ * forced. A loaded main thread must never strand server-rendered
+ * content at opacity 0 — the "cards appear when I stop scrolling"
+ * witness was this gap.
  */
 export function MotionReveal({
   children,
@@ -67,7 +68,7 @@ export function MotionReveal({
       if (rect.top < window.innerHeight * 1.5 && rect.bottom > -window.innerHeight * 0.5) {
         setForced(true);
       }
-    }, 1600);
+    }, revealFailSafeMs);
     return () => window.clearTimeout(timer);
   }, [immediate, reduced, variant]);
 
@@ -83,7 +84,10 @@ export function MotionReveal({
     ? { animate: "visible" as const }
     : {
         whileInView: "visible" as const,
-        viewport: { once: true, amount: 0.12 },
+        /* Same trigger geometry as the CSS lane's shared observer
+           (12% visible, root shrunk 4% at the foot) so both lanes
+           start their entrances at the same scroll position. */
+        viewport: { once: true, amount: 0.12, margin: "0px 0px -4% 0px" },
       };
 
   return (
@@ -97,7 +101,9 @@ export function MotionReveal({
       transition={{
         duration: variant === "scale" ? dur.revealScale : dur.reveal,
         ease: ease.out,
-        delay: delay / 1000,
+        /* The stagger law (lib/motion.ts), same cap as the CSS lane:
+           small groups sequence; a grid's tail is never held up. */
+        delay: Math.min(delay, stagger.capMs) / 1000,
       }}
     >
       {children}

@@ -90,10 +90,13 @@ describe("§Q top panel (hero frame rebuild)", () => {
   });
 
   it("MotionReveal carries the near-viewport failsafe", () => {
+    /* §AA: the ceiling moved from a hard-coded 1600ms to the shared
+       `revealFailSafeMs` token (1000ms) — content may not sit
+       invisible that long on a busy thread. */
     const src = read("src/components/motion/MotionReveal.tsx");
     expect(src).toContain("setForced");
     expect(src).toContain("window.innerHeight * 1.5");
-    expect(src).toContain("}, 1600);");
+    expect(src).toContain("revealFailSafeMs");
   });
 });
 
@@ -141,6 +144,34 @@ describe("§R+§S touch budget (coarse pointers)", () => {
     expect(studio).not.toContain("animate-fade-in max-h-[78vh]");
     expect(studio).toContain("menu-card animate-fade-in fixed inset-x-3");
     expect(studio).toContain("max-h-[78vh] overflow-y-auto");
+  });
+
+  it("motion system (§AA): stagger capped in both lanes, failsafe prompt, one trigger geometry", () => {
+    /* The motion-performance pass. Uncapped `index * 70` call sites
+       left a big grid's last card waiting ~800ms after entering view
+       ("cards appear late"); the cap now lives INSIDE both reveal
+       lanes so no call site can regress it. The lanes also share
+       their trigger geometry (12% / −4% foot) and the tightened
+       failsafe ceiling, and the page transition programs against
+       the token presets rather than a hand-rolled easing that
+       matched nothing in the scale. */
+    const tokens = read("src/lib/motion.ts");
+    expect(tokens).toContain("capMs: 200");
+    expect(tokens).toContain("revealFailSafeMs = 1000");
+    expect(tokens).toContain("export const presets");
+    const reveal = read("src/lib/useReveal.ts");
+    expect(reveal).toContain("Math.min(options.delay, stagger.capMs)");
+    expect(reveal).toContain('"0px 0px -4% 0px"');
+    expect(reveal).toContain("revealFailSafeMs");
+    expect(reveal).not.toContain("}, 1600)");
+    const motionReveal = read("src/components/motion/MotionReveal.tsx");
+    expect(motionReveal).toContain("Math.min(delay, stagger.capMs)");
+    expect(motionReveal).toContain('margin: "0px 0px -4% 0px"');
+    expect(motionReveal).not.toContain("}, 1600)");
+    const template = read("src/app/[locale]/template.tsx");
+    expect(template).toContain('from "@/lib/motion"');
+    expect(template).toContain("presets.page");
+    expect(template).not.toContain("[0.22, 0.61, 0.21, 1]");
   });
 
   it("scroll rest (§Z): the liquid parks while scrolling; engine samplers filmed on touch", () => {
