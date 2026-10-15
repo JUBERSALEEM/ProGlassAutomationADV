@@ -83,7 +83,7 @@ export default async function SponsorsPage({ params }: PageProps) {
       {/* ── Why this page exists ─────────────────────────────────── */}
       <Section aria-labelledby="why-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="why-heading"
@@ -180,7 +180,7 @@ export default async function SponsorsPage({ params }: PageProps) {
       {/* ── How support works ────────────────────────────────────── */}
       <Section aria-labelledby="how-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="how-heading"

@@ -128,7 +128,7 @@ export default async function HomePage({ params }: PageProps) {
       {/* ═══ 02 · What ProGlass is ═══════════════════════════════════ */}
       <Section tone="raised" id="what" aria-labelledby="what-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="what-heading"
@@ -193,7 +193,7 @@ export default async function HomePage({ params }: PageProps) {
             lead={t("The application stores documents, not summaries. A quotation becomes a job order becomes a delivery becomes an invoice — and each step keeps the audit record of the one before it.")}
           />
 
-          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-10">
+          <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-10">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <ChainDiagram t={t} />
               <p className="mt-6 text-xs leading-relaxed text-text-faint font-medium">{t("Status vocabularies and handoff guarantees are taken from the application's own workflow documentation and the transition code that enforces them.")}</p>
@@ -269,7 +269,7 @@ export default async function HomePage({ params }: PageProps) {
       */}
       <Section aria-labelledby="worked-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="worked-heading"
@@ -378,7 +378,7 @@ export default async function HomePage({ params }: PageProps) {
       {/* ═══ 06 · Proforma ═══════════════════════════════════════════ */}
       <Section tone="raised" aria-labelledby="proforma-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="proforma-heading"
@@ -631,7 +631,7 @@ export default async function HomePage({ params }: PageProps) {
       {/* ═══ 08c · Appearance ═════════════════════════════════════════ */}
       <Section tone="sunken" aria-labelledby="appearance-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:items-center lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:items-center lg:gap-10">
             <div>
               <SectionHeading
                 id="appearance-heading"
@@ -663,7 +663,7 @@ export default async function HomePage({ params }: PageProps) {
         <Container>
           <Reveal>
             <div className="surface-raised card-pad">
-              <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-center lg:gap-10">
+              <div className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-center lg:gap-10">
                 <div>
                   <p className="eyebrow max-lg:text-center">{t("Open to help")}</p>
                   <h2 id="sponsors-heading" className="display-2 mt-3 max-lg:text-center">{t("One developer, and room for a few more hands.")}</h2>
@@ -759,7 +759,7 @@ export default async function HomePage({ params }: PageProps) {
       {/* ═══ 11 · About the build ════════════════════════════════════ */}
       <Section aria-labelledby="about-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-10">
             <SectionHeading
               id="about-heading"
               eyebrow={t("About ProGlass")}
@@ -805,7 +805,7 @@ export default async function HomePage({ params }: PageProps) {
 
       <Section tone="raised" aria-labelledby="faq-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-10">
             <SectionHeading
               id="faq-heading"
               eyebrow={t("Questions")}
@@ -839,7 +839,7 @@ export default async function HomePage({ params }: PageProps) {
                 <GlassCubeEmblem size={280} label={null} />
               </div>
 
-              <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-center">
+              <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-center">
                 <div className="max-lg:text-center">
                   <p className="eyebrow-chip mb-5">{t("Next step")}</p>
                   <h2 id="cta-heading" className="display-2 max-lg:mx-auto">

@@ -168,7 +168,7 @@ export default async function ResourcesPage({ params }: PageProps) {
       {/* ── Blog teaser ──────────────────────────────────────────── */}
       <Section aria-labelledby="notes-heading">
         <Container>
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <SectionHeading
               id="notes-heading"
               eyebrow={t("Notes")}

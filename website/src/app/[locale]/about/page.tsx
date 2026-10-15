@@ -76,7 +76,7 @@ export default async function AboutPage({ params }: PageProps) {
       {/* ── The problem ──────────────────────────────────────────── */}
       <Section aria-labelledby="problem-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-10">
             <SectionHeading
               id="problem-heading"
               eyebrow={t("The problem")}
@@ -160,7 +160,7 @@ export default async function AboutPage({ params }: PageProps) {
       {/* ── How it is built ──────────────────────────────────────── */}
       <Section aria-labelledby="built-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="built-heading"
@@ -270,7 +270,7 @@ export default async function AboutPage({ params }: PageProps) {
       {/* ── Vision ───────────────────────────────────────────────── */}
       <Section aria-labelledby="vision-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-10">
             <SectionHeading
               id="vision-heading"
               eyebrow={t("Direction")}

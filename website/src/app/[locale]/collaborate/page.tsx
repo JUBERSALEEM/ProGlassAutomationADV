@@ -135,7 +135,7 @@ export default async function CollaboratePage({ params }: PageProps) {
       {/* ── The reason, stated first ─────────────────────────────────── */}
       <Section aria-labelledby="why-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="why-heading"
@@ -203,7 +203,7 @@ export default async function CollaboratePage({ params }: PageProps) {
               <Badge tone="warning">{t("Not built yet")}</Badge>
             </div>
 
-            <div className="grid gap-8 pt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
+            <div className="grid gap-6 pt-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
               <div>
                 <p className="text-sm leading-relaxed text-text-secondary">
                   {t(
@@ -391,7 +391,7 @@ export default async function CollaboratePage({ params }: PageProps) {
       {/* ── How it starts ────────────────────────────────────────────── */}
       <Section aria-labelledby="start-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)] lg:gap-10">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <SectionHeading
                 id="start-heading"

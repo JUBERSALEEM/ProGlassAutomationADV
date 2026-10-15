@@ -226,7 +226,7 @@ const faq = [
           employer and no years-of-experience figure, because none of those are
           established anywhere.
         */}
-        <div className="surface-raised grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:gap-10 card-pad">
+        <div className="surface-raised grid gap-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:gap-10 card-pad">
           <div>
             <div className="flex items-start gap-5">
               <span
@@ -353,7 +353,7 @@ const faq = [
       {/* ── When overthinking is used in success ───────────────────────── */}
       <Section tone="raised" aria-labelledby="overthinking-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.25fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.25fr)] lg:gap-10">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <SectionHeading
                 id="overthinking-heading"
@@ -428,7 +428,7 @@ const faq = [
       {/* ── The working history, from the repository's own documents ──── */}
       <Section aria-labelledby="history-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.5fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.5fr)] lg:gap-10">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <SectionHeading
                 id="history-heading"
@@ -505,7 +505,7 @@ const faq = [
       {/* ── How it started ───────────────────────────────────────────── */}
       <Section aria-labelledby="start-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.35fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.35fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="start-heading"
@@ -600,7 +600,7 @@ const faq = [
       {/* ── Stack ────────────────────────────────────────────────────── */}
       <Section tone="sunken" aria-labelledby="stack-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:gap-10">
             <SectionHeading
               id="stack-heading"
               eyebrow={t("Technology")}
@@ -729,7 +729,7 @@ const faq = [
       {/* ── What is still missing ────────────────────────────────────── */}
       <Section aria-labelledby="gaps-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-center lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-center lg:gap-10">
             <div>
               <SectionHeading
                 id="gaps-heading"
@@ -782,7 +782,7 @@ const faq = [
       {/* ── Closing ──────────────────────────────────────────────────── */}
       <Section aria-labelledby="dev-cta-heading">
         <Container>
-          <div className="surface-raised grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center card-pad">
+          <div className="surface-raised grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center card-pad">
             <div>
               <h2 id="dev-cta-heading" className="display-2">
           {t("You talk to the person who writes it.")}

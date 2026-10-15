@@ -110,7 +110,7 @@ export default async function OptimizationPage({ params }: PageProps) {
       {/* ── Why a guillotine model ───────────────────────────────── */}
       <Section aria-labelledby="model-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-10">
             <SectionHeading
               id="model-heading"
               eyebrow={t("The model")}
@@ -475,7 +475,7 @@ export default async function OptimizationPage({ params }: PageProps) {
       {/* ── Export / report ──────────────────────────────────────── */}
       <Section tone="sunken" aria-labelledby="export-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="export-heading"
@@ -557,7 +557,7 @@ export default async function OptimizationPage({ params }: PageProps) {
       {/* ── Technical detail ─────────────────────────────────────── */}
       <Section aria-labelledby="technical-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-10">
             <SectionHeading
               id="technical-heading"
               eyebrow={t("Technical detail")}

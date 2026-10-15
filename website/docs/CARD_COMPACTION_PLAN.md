@@ -89,9 +89,17 @@ every page read professional (reference: compact clay dashboards —
   Permanent `card-compaction-census.mjs` + `npm run test:density` hold the
   measured placement and corner contracts. Full build, lint, typecheck,
   Vitest, Clay/Crystal paint/motion/contrast, blur census, pixel pass,
-  pointer guard and site audit are green. Browser pixel witness at the
-  four named widths remains a preview/user check; no screenshot claim is
-  made from this sandbox.
+  pointer guard and site audit are green.
+- **Phase 6 — responsive balance & final hardening.** ✔ APPLIED
+  Cross-check added after the owner recalled a sixth phase. The earlier
+  desktop pass still left stacked split layouts at a 32px mobile/tablet
+  gap; these now use 24px before opening to the deliberate 40px desktop
+  split. Six remaining non-registry panel cards (global error, three
+  operator sign-ins, reports auth, feature-showcase plate) moved from raw
+  24–36px padding to the same radius-safe card token as the site. The
+  permanent census now measures this sixth responsive condition. Browser
+  pixel witness at 360/768/1280/1920 remains a preview/user check; no
+  screenshot claim is made from this sandbox.
 
 ## Phase 2 execution record
 
@@ -131,7 +139,7 @@ every page read professional (reference: compact clay dashboards —
   shells, feature-showcase stage and detail modals) stay for their
   appropriate placement/dashboard passes. No other Phase 2 defect found.
 
-## Phases 3–5 execution record
+## Phases 3–6 execution record
 
 - **Before → after, permanent census:** two-track gutters ≥48px **40→0**;
   sibling-card gutters ≥24px **41→0**; heading→content offsets ≥40px
@@ -156,6 +164,12 @@ every page read professional (reference: compact clay dashboards —
   253/253; Crystal contrast 114/114; motion 28/28; pointer guard 166 files;
   pixel pass 28 routes / 0 raw; blur census worst `/features` 531/600;
   site audit 0 failures / 0 warnings including measured budgets.
+- **Phase 6 cross-check:** stacked responsive split gaps ≥32px **40→0**;
+  all production split stacks now use 24px before their desktop breakpoint.
+  The raw-padding registry was widened to include rounded panels and the
+  feature-showcase plate; six remaining production panels now use
+  `card-pad`. `/sys/*` specimens remain deliberately exempt because their
+  purpose is to display raw finish recipes.
 - **Preview:** the production build is running on the live preview. Pixel
   sign-off at 360/768/1280/1920 is still witness-required; only structural,
   computed-paint and served-route evidence is claimed here.

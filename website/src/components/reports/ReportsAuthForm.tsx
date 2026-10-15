@@ -245,7 +245,7 @@ export function ReportsAuthForm() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="rounded-panel border border-line-strong/80 bg-ink-900/80 p-7 sm:p-9 shadow-raised backdrop-blur-xl">
+      <div className="rounded-panel border border-line-strong/80 bg-ink-900/80 shadow-raised backdrop-blur-xl card-pad">
         {/* Brand Header */}
         <div className="flex flex-col items-center text-center">
           <Link href="/" aria-label="ProGlass Automation Home" className="transition-transform hover:scale-105">

@@ -193,3 +193,15 @@ census, pixel-pass, vitest, audit-site 0/0 incl. budget.
 - Full gates green: build, lint, typecheck, Vitest 98/98, density/radius,
   Clay/Crystal paint/contrast/motion, pointer, pixel pass and blur census.
   Pixel-level responsive sign-off remains preview witness-required.
+
+### §AG Phase 6 — responsive balance cross-check (2026-10-15)
+
+- Reconciled the owner's six-phase recollection against the five-phase file:
+  the missing sixth gate was responsive balance, not another design system.
+- Forty stacked split layouts now use a 24px mobile/tablet gap rather than
+  carrying the 32px pre-desktop gutter; deliberate desktop splits remain 40px.
+- Six overlooked non-registry panels (global error, three operator sign-ins,
+  reports auth and the feature-showcase plate) joined `card-pad`, removing
+  their raw 24–36px padding while retaining radius-safe floors.
+- `card-compaction-census.mjs` now gates this sixth measure and includes
+  rounded panels; `/sys/*` raw specimens are explicitly exempt.

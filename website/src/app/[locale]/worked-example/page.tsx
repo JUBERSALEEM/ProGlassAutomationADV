@@ -131,7 +131,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
       {/* ── Where this data comes from ───────────────────────────── */}
       <Section tone="raised" aria-labelledby="provenance-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="provenance-heading"

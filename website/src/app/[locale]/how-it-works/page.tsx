@@ -97,7 +97,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
             lead={t("Every arrow is a conversion of the previous record with full audit traceability. Nothing downstream invents data that the upstream record did not carry.")}
           />
 
-          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-10">
+          <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-10">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <div className="surface p-5">
                 <p className="eyebrow mb-4">{t("At a glance")}</p>
@@ -300,7 +300,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
       {/* ── Where the assistant fits ─────────────────────────────── */}
       <Section tone="raised" aria-labelledby="assistant-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-10">
             <div>
               <SectionHeading
                 id="assistant-heading"
