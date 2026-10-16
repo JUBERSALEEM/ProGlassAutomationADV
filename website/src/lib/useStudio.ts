@@ -930,6 +930,34 @@ export function applyStudioVars(studio: Studio) {
       vars["--band-rich-h"] = rot(0, target === "dark" ? Math.min(0.32, pSat * 0.5) : Math.min(0.62, pSat * 0.75), target === "dark" ? 0.235 : Math.min(0.87, pLight + 0.07));
       vars["--band-deep-h"] = rot(0, target === "dark" ? Math.min(0.28, pSat * 0.45) : Math.min(0.56, pSat * 0.68), target === "dark" ? 0.19 : Math.min(0.84, pLight + 0.04));
       vars["--band-glow-h"] = rot(0, Math.min(0.85, pSat + 0.08), target === "dark" ? 0.5 : 0.42);
+
+      // White is a complete neutral material, not merely a zero-saturation
+      // accent. Give daylight Clay a pure-white floor and faces, then separate
+      // its elevations with cool neutral whites and gray shadows. Without this
+      // explicit material recipe, the family's lavender/brown ambient tokens
+      // survive underneath an RGB-white accent and the page still looks beige.
+      const whitePlate = rawHsl.s < 0.02 && rawHsl.l >= 0.98 && target === "light";
+      if (whitePlate) {
+        Object.assign(vars, {
+          "--ink-950": "255 255 255", "--ink-900": "252 252 253", "--ink-850": "248 249 250",
+          "--ink-800": "244 245 247", "--ink-700": "237 239 242",
+          "--clay-ink": "24 24 27", "--clay-raised": "255 255 255", "--clay-foil": "rgb(247 248 250)",
+          "--plate-1": "255 255 255", "--plate-2": "252 252 253", "--plate-3": "249 250 251",
+          "--plate-4": "246 247 249", "--plate-5": "243 244 247", "--plate-6": "239 241 244",
+          "--plate-h-1": "168 171 178", "--plate-h-2": "158 161 168", "--plate-h-3": "148 151 158",
+          "--plate-h-4": "138 141 148", "--plate-h-5": "128 131 138", "--plate-h-6": "118 121 128",
+          "--panel-face": "255 255 255", "--card-face": "255 255 255", "--data-face": "248 249 250",
+          "--overlay-face": "255 255 255", "--band-face": "255 255 255", "--band-rich-h": "248 249 250",
+          "--band-deep-h": "242 244 247", "--band-glow-h": "125 128 135", "--clay-drop-h": "150 154 162",
+          "--line": "218 221 226", "--line-soft": "235 237 240", "--line-strong": "195 199 207",
+          "--card-tint-h": "250 250 251", "--card-tint-h2": "246 247 249", "--clay-wash": "0",
+          "--pool-1": "rgb(210 214 220 / 0.08)", "--pool-2": "rgb(225 228 232 / 0.06)",
+          "--pool-3": "rgb(190 195 203 / 0.05)", "--wall-wash-1": "rgb(230 232 236 / 0.12)",
+          "--wall-wash-2": "rgb(245 246 248 / 0.16)", "--wall-mid-1": "transparent",
+          "--wall-mid-2": "transparent", "--wall-grid": "rgb(120 124 132 / 0.045)",
+          "--wall-grid-major": "rgb(120 124 132 / 0.07)", "--wall-vignette": "rgb(80 84 92 / 0.08)",
+        });
+      }
     } else {
       vars["--band-face"] = rot(0, Math.min(0.3, pSat * 0.45), 0.948);
       if (family === "crystal") {
