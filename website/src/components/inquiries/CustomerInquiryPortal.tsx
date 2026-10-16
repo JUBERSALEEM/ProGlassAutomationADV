@@ -16,6 +16,8 @@ export function CustomerInquiryPortal() {
   const { checking, authToken, isAuthRequired, userEmail, signOut, requireAuth } = useOperatorSession();
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const replaceFileInputRef = useRef<HTMLInputElement>(null);
+  const replaceIndexRef = useRef<number | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [dragging, setDragging] = useState(false);
   const [rows, setRows] = useState<CustomerInquiryListItem[]>([]);
@@ -39,12 +41,30 @@ export function CustomerInquiryPortal() {
 
   useEffect(() => { if (!checking && authToken) queueMicrotask(() => void load()); }, [authToken, checking]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  function chooseFiles(input: FileList | File[]) {
+  function validFiles(input: FileList | File[]): File[] | null {
     const files = Array.from(input);
-    if (files.length > MAX_FILES) { setError(`Select at most ${MAX_FILES} documents.`); return; }
     const oversized = files.find((file) => file.size > MAX_BYTES);
-    if (oversized) { setError(`${oversized.name} exceeds the 30 MB per-file limit.`); return; }
-    setError(""); setSelectedFiles(files);
+    if (oversized) { setError(`${oversized.name} exceeds the 30 MB per-file limit.`); return null; }
+    return files;
+  }
+
+  function addFiles(input: FileList | File[]) {
+    const files = validFiles(input);
+    if (!files) return;
+    setSelectedFiles((current) => {
+      const unique = files.filter((file) => !current.some((existing) => existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified));
+      if (current.length + unique.length > MAX_FILES) { setError(`You can attach up to ${MAX_FILES} documents. Remove a file before adding another.`); return current; }
+      setError("");
+      return [...current, ...unique];
+    });
+  }
+
+  function replaceFile(file: File) {
+    const files = validFiles([file]);
+    const index = replaceIndexRef.current;
+    if (!files || index === null) return;
+    setSelectedFiles((current) => current.map((existing, position) => position === index ? files[0]! : existing));
+    setError(""); replaceIndexRef.current = null;
   }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -88,11 +108,11 @@ export function CustomerInquiryPortal() {
           <Field name="salesman_reference" label="Salesman reference" maxLength={120} /><Field name="handover_estimator_name" label="Handover estimator name" maxLength={120} />
           <Field name="project_name" label="Project name" required maxLength={180} /><Field name="project_location" label="Project location" maxLength={180} />
           <label htmlFor="inquiry-description" className="sm:col-span-2 text-sm font-semibold leading-5 text-text-secondary">Requirements<textarea id="inquiry-description" name="description" required minLength={10} maxLength={5000} rows={6} className="mt-2 min-h-36 w-full rounded-xl border border-line-strong bg-ink-950 p-3 text-base leading-6 text-text-primary caret-brand-300 outline-none focus-visible:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400/40 sm:text-sm" /></label>
-          <div className="sm:col-span-2"><div id="inquiry-documents-label" className="text-sm font-semibold leading-5 text-text-secondary">Documents</div><input ref={fileInputRef} id="inquiry-documents" aria-labelledby="inquiry-documents-label" aria-describedby="inquiry-documents-help" name="documents" type="file" multiple accept={ACCEPT} onChange={(event)=>event.target.files&&chooseFiles(event.target.files)} className="sr-only" />
-            <button type="button" aria-labelledby="inquiry-documents-label inquiry-document-picker-copy" aria-describedby="inquiry-documents-help" onClick={()=>fileInputRef.current?.click()} onDragEnter={(event)=>{event.preventDefault();setDragging(true);}} onDragOver={(event)=>event.preventDefault()} onDragLeave={()=>setDragging(false)} onDrop={(event)=>{event.preventDefault();setDragging(false);chooseFiles(event.dataTransfer.files);}} className={`mt-2 w-full rounded-2xl border-2 border-dashed p-5 text-center outline-none transition focus-visible:border-brand-300 focus-visible:ring-2 focus-visible:ring-brand-400/50 sm:p-6 ${dragging?"border-brand-300 bg-brand-500/15":"border-line-strong bg-ink-950/70 hover:border-brand-400/70 hover:bg-ink-950"}`}>
-              <span aria-hidden="true" className="mx-auto grid h-11 w-11 place-items-center rounded-xl bg-brand-500/15 text-xl text-brand-300">↑</span><span id="inquiry-document-picker-copy" className="mt-3 block text-sm font-bold leading-5 text-text-primary">Choose documents or drop them here</span><span id="inquiry-documents-help" className="mt-1 block text-xs leading-5 text-text-muted">PDF, images, XLSX or CSV · 30 MB each · up to 15 files</span>
+          <div className="sm:col-span-2"><div className="flex items-center justify-between gap-3"><div id="inquiry-documents-label" className="text-sm font-semibold leading-5 text-text-secondary">Documents</div>{selectedFiles.length>0&&<button type="button" onClick={()=>setSelectedFiles([])} className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-semibold text-state-danger hover:bg-state-danger/10 focus-visible:ring-2 focus-visible:ring-state-danger/40">Remove all</button>}</div><input ref={fileInputRef} id="inquiry-documents" aria-labelledby="inquiry-documents-label" aria-describedby="inquiry-documents-help" name="documents" type="file" multiple accept={ACCEPT} onChange={(event)=>{if(event.target.files)addFiles(event.target.files);event.target.value="";}} className="sr-only" /><input ref={replaceFileInputRef} aria-label="Choose a replacement document" type="file" accept={ACCEPT} onChange={(event)=>{const file=event.target.files?.[0];if(file)replaceFile(file);event.target.value="";}} className="sr-only" />
+            <button type="button" aria-labelledby="inquiry-documents-label inquiry-document-picker-copy" aria-describedby="inquiry-documents-help" onClick={()=>fileInputRef.current?.click()} onDragEnter={(event)=>{event.preventDefault();setDragging(true);}} onDragOver={(event)=>event.preventDefault()} onDragLeave={()=>setDragging(false)} onDrop={(event)=>{event.preventDefault();setDragging(false);addFiles(event.dataTransfer.files);}} className={`mt-2 w-full rounded-2xl border-2 border-dashed p-5 text-center outline-none transition focus-visible:border-brand-300 focus-visible:ring-2 focus-visible:ring-brand-400/50 sm:p-6 ${dragging?"border-brand-300 bg-brand-500/15":"border-line-strong bg-ink-950/70 hover:border-brand-400/70 hover:bg-ink-950"}`}>
+              <span aria-hidden="true" className="mx-auto grid h-11 w-11 place-items-center rounded-xl bg-brand-500/15 text-xl text-brand-300">+</span><span id="inquiry-document-picker-copy" className="mt-3 block text-sm font-bold leading-5 text-text-primary">{selectedFiles.length ? "Add more documents" : "Choose documents or drop them here"}</span><span id="inquiry-documents-help" className="mt-1 block text-xs leading-5 text-text-muted">PDF, images, XLSX or CSV · 30 MB each · {selectedFiles.length}/{MAX_FILES} selected</span>
             </button>
-            {selectedFiles.length>0&&<div aria-live="polite" aria-label={`${selectedFiles.length} documents selected`} className="mt-3 grid gap-2 sm:grid-cols-2">{selectedFiles.map((file,index)=><div key={`${file.name}-${file.size}-${index}`} className="flex items-center justify-between gap-3 rounded-xl border border-line-strong bg-ink-950 px-3 py-2"><div className="min-w-0"><div className="truncate text-xs font-semibold text-text-primary">{file.name}</div><div className="text-3xs text-text-faint">{Math.ceil(file.size/1024).toLocaleString()} KB · ready to attach</div></div><button type="button" aria-label={`Remove ${file.name}`} onClick={()=>setSelectedFiles((current)=>current.filter((_,position)=>position!==index))} className="rounded-lg px-2 py-1 text-xs text-state-danger hover:bg-state-danger/10">Remove</button></div>)}</div>}
+            {selectedFiles.length>0&&<div aria-live="polite" aria-label={`${selectedFiles.length} documents selected`} className="mt-3 grid gap-2 sm:grid-cols-2">{selectedFiles.map((file,index)=><div key={`${file.name}-${file.size}-${index}`} className="flex items-center justify-between gap-3 rounded-xl border border-line-strong bg-ink-950 px-3 py-2"><div className="min-w-0"><div className="truncate text-xs font-semibold text-text-primary">{file.name}</div><div className="text-3xs text-text-faint">{Math.ceil(file.size/1024).toLocaleString()} KB · ready to attach</div></div><div className="flex shrink-0 gap-1"><button type="button" aria-label={`Replace ${file.name}`} onClick={()=>{replaceIndexRef.current=index;replaceFileInputRef.current?.click();}} className="rounded-lg px-2 py-1 text-xs font-semibold text-brand-300 hover:bg-brand-500/10 focus-visible:ring-2 focus-visible:ring-brand-400/40">Replace</button><button type="button" aria-label={`Remove ${file.name}`} onClick={()=>setSelectedFiles((current)=>current.filter((_,position)=>position!==index))} className="rounded-lg px-2 py-1 text-xs font-semibold text-state-danger hover:bg-state-danger/10 focus-visible:ring-2 focus-visible:ring-state-danger/40">Remove</button></div></div>)}</div>}
             <span className="mt-2 block text-3xs text-text-faint">Files stay private and are checked by content, not filename alone. CAD files must be exported to PDF or image.</span>
           </div>
           <button disabled={submitting} className="sm:col-span-2 rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink disabled:opacity-50">{submitting ? `Uploading and verifying ${filesLabel(selectedFiles.length)}…` : "Submit inquiry"}</button>

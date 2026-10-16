@@ -81,6 +81,9 @@ test("customer form exposes accessible responsive controls and visible dark-mode
   assert.match(portal, /caret-brand-300/);
   assert.match(portal, /text-base[^"]+sm:text-sm/);
   assert.match(portal, /sm:grid-cols-2/);
+  assert.match(portal, /Add more documents/);
+  assert.match(portal, /Remove all/);
+  assert.match(portal, /Replace/);
 });
 
 test("customer document downloads are ownership-authorized, audited and integrity checked", () => {
