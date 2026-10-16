@@ -96,6 +96,21 @@ export const appearanceFamilies: AppearanceFamilyEntry[] = [
  */
 export const accentPresets: { key: string; name: string; hex: string | null }[] = [
   { key: "GlassBlue", name: "Glass Blue", hex: null }, // theme default
+  // Neutral and elementary plates are explicit choices, not hidden behind the
+  // custom picker. White is a material palette (white faces + neutral shadow),
+  // while the other basics provide familiar starting points by name.
+  { key: "White", name: "White", hex: "#FFFFFF" },
+  { key: "Silver", name: "Silver", hex: "#D1D5DB" },
+  { key: "Gray", name: "Gray", hex: "#6B7280" },
+  { key: "Red", name: "Red", hex: "#EF4444" },
+  { key: "Blue", name: "Blue", hex: "#3B82F6" },
+  { key: "Green", name: "Green", hex: "#16A34A" },
+  { key: "Yellow", name: "Yellow", hex: "#FACC15" },
+  { key: "Purple", name: "Purple", hex: "#A855F7" },
+  { key: "Brown", name: "Brown", hex: "#92400E" },
+  { key: "Navy", name: "Navy", hex: "#1E3A8A" },
+  { key: "Turquoise", name: "Turquoise", hex: "#14B8A6" },
+  { key: "Pink", name: "Pink", hex: "#F472B6" },
   { key: "RoyalBlue", name: "Royal Blue", hex: "#2563EB" },
   { key: "Sky", name: "Sky", hex: "#0284C7" },
   { key: "Cyan", name: "Cyan", hex: "#0891B2" },

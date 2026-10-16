@@ -58,6 +58,21 @@ describe("clay bench — the adoption contract (custom support is gone)", () => 
     }
   });
 
+  it("8A.2 White is pure white material with neutral gray elevation", () => {
+    document.documentElement.dataset.appearance = "clay";
+    applyStudioVars({ ...defaultStudio, accentKey: "White", accent: "#FFFFFF" });
+    const value = (key: string) => document.documentElement.style.getPropertyValue(key);
+    expect(value("--ink-950")).toBe("255 255 255");
+    expect(value("--panel-face")).toBe("255 255 255");
+    expect(value("--card-face")).toBe("255 255 255");
+    expect(value("--clay-raised")).toBe("255 255 255");
+    for (const key of ["--clay-drop-h", "--line", "--line-strong", "--band-glow-h"]) {
+      const [r = 0, g = 0, b = 0] = value(key).split(" ").map(Number);
+      expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThanOrEqual(12);
+    }
+    expect(value("--wall-vignette")).toBe("rgb(80 84 92 / 0.08)");
+  });
+
   it("the bench stays pastel — a dark accent moves the plates but never screams", () => {
     applyStudioVars({ ...defaultStudio, accent: "#3b1d6e" });
     const written = document.documentElement.style.getPropertyValue("--clay-lavender");
