@@ -17,6 +17,8 @@ export type CustomerInquirySubmission = {
   company_name: string;
   phone: string;
   customer_reference: string;
+  attention_name: string;
+  vat_trn_number: string;
   salesman_reference: string;
   handover_estimator_name: string;
   project_name: string;
