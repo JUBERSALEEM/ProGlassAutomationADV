@@ -84,6 +84,7 @@ export function CustomerInquiryPortal() {
         <form ref={formRef} onSubmit={submit} className="mt-5 grid gap-4 sm:grid-cols-2">
           <Field name="contact_name" label="Contact name" required maxLength={120} /><Field name="company_name" label="Company" required maxLength={160} />
           <Field name="phone" label="Phone" maxLength={60} /><Field name="customer_reference" label="Your reference" maxLength={100} />
+          <Field name="attention_name" label="Attention" maxLength={120} /><Field name="vat_trn_number" label="VAT / TRN number" maxLength={50} />
           <Field name="salesman_reference" label="Salesman reference" maxLength={120} /><Field name="handover_estimator_name" label="Handover estimator name" maxLength={120} />
           <Field name="project_name" label="Project name" required maxLength={180} /><Field name="project_location" label="Project location" maxLength={180} />
           <label className="sm:col-span-2 text-xs font-semibold text-text-muted">Requirements<textarea name="description" required minLength={10} maxLength={5000} rows={6} className="mt-1.5 w-full rounded-xl border border-line-strong bg-ink-950 p-3 text-sm text-text-primary" /></label>

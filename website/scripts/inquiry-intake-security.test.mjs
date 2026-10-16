@@ -14,11 +14,13 @@ for (const table of ["inquiry_customer_submissions", "inquiry_customer_documents
   });
 }
 
-test("salesman and handover fields are bounded in fresh and already-applied schemas", () => {
+test("attention, VAT, salesman and handover fields are bounded in fresh and already-applied schemas", () => {
   for (const source of [sql, fieldsPatch]) {
+    assert.match(source, /attention_name\s+text NOT NULL DEFAULT '' CHECK \(char_length\(attention_name\) <= 120\)/);
+    assert.match(source, /vat_trn_number\s+text NOT NULL DEFAULT '' CHECK \(char_length\(vat_trn_number\) <= 50\)/);
     assert.match(source, /salesman_reference\s+text NOT NULL DEFAULT '' CHECK \(char_length\(salesman_reference\) <= 120\)/);
     assert.match(source, /handover_estimator_name\s+text NOT NULL DEFAULT '' CHECK \(char_length\(handover_estimator_name\) <= 120\)/);
-    assert.match(source, /p_salesman_reference text, p_handover_estimator_name text/);
+    assert.match(source, /p_attention_name text, p_vat_trn_number text, p_salesman_reference text, p_handover_estimator_name text/);
   }
   assert.match(fieldsPatch, /DROP FUNCTION public\.create_customer_inquiry_submission\(text,text,text,text,text,text,text\)/);
 });

@@ -104,6 +104,7 @@ export async function createCustomerInquiry(token: string, form: FormData): Prom
   const values = {
     p_contact_name: field(form, "contact_name", 120, true), p_company_name: field(form, "company_name", 160, true),
     p_phone: field(form, "phone", 60), p_customer_reference: field(form, "customer_reference", 100),
+    p_attention_name: field(form, "attention_name", 120), p_vat_trn_number: field(form, "vat_trn_number", 50),
     p_salesman_reference: field(form, "salesman_reference", 120),
     p_handover_estimator_name: field(form, "handover_estimator_name", 120),
     p_project_name: field(form, "project_name", 180, true), p_project_location: field(form, "project_location", 180),

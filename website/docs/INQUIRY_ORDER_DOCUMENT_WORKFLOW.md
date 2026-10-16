@@ -707,7 +707,7 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 
 - [x] Inspect actual auth, Supabase clients, inquiry APIs/UI, schema, Storage policy, and validation helpers.
 - [x] Add separate customer submission/document/event TypeScript contracts.
-- [x] Add authenticated customer submission UI at `/[locale]/inquiries/submit`, including salesman reference and handover estimator fields.
+- [x] Add authenticated customer submission UI at `/[locale]/inquiries/submit`, including attention, VAT/TRN, salesman reference, and handover estimator fields.
 - [x] Add responsive drag/drop file selection with selected-file cards, removal controls, size feedback, and upload/verification progress copy.
 - [x] Add customer-owned submission history and `/[locale]/inquiries/submissions/[id]` detail UI with card hierarchy and protected back navigation.
 - [x] Add bearer-authenticated multipart create/list/detail APIs under `/api/inquiry-submissions`.
