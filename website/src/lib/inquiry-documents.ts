@@ -38,6 +38,8 @@ export type InquiryDocumentCandidate = {
   declaredMime: string;
   detectedMime: string;
   sha256: string;
+  /** Optional workflow-specific limit; desktop publication remains 10 MB by default. */
+  maxByteSize?: number;
   /** Initial bytes read locally by the trusted bridge, never supplied by a browser. */
   signature: Uint8Array;
   /** Required for containers/text: XLSX entries or the complete CSV were safely parsed. */
@@ -88,8 +90,9 @@ export function validateInquiryDocumentCandidate(candidate: InquiryDocumentCandi
   if (!Number.isSafeInteger(candidate.byteSize) || candidate.byteSize < 1) {
     return fail("EMPTY_FILE", "Empty documents cannot be published.");
   }
-  if (candidate.byteSize > INQUIRY_DOCUMENT_MAX_BYTES) {
-    return fail("FILE_TOO_LARGE", "The document exceeds the 10 MB publication limit.");
+  const maxByteSize = candidate.maxByteSize ?? INQUIRY_DOCUMENT_MAX_BYTES;
+  if (!Number.isSafeInteger(maxByteSize) || maxByteSize < 1 || candidate.byteSize > maxByteSize) {
+    return fail("FILE_TOO_LARGE", `The document exceeds the ${Math.floor(maxByteSize / (1024 * 1024))} MB publication limit.`);
   }
   const extension = extensionOf(filename);
   if (!(extension in INQUIRY_DOCUMENT_TYPES)) {

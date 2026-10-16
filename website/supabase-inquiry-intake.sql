@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS public.inquiry_customer_documents (
   original_filename     text NOT NULL CHECK (char_length(original_filename) BETWEEN 1 AND 260),
   extension             text NOT NULL CHECK (extension ~ '^\.[a-z0-9]{1,10}$'),
   detected_mime         text NOT NULL CHECK (char_length(detected_mime) BETWEEN 3 AND 150),
-  byte_size             bigint NOT NULL CHECK (byte_size BETWEEN 1 AND 10485760),
+  byte_size             bigint NOT NULL CHECK (byte_size BETWEEN 1 AND 31457280),
   content_sha256        text NOT NULL CHECK (content_sha256 ~ '^[a-f0-9]{64}$'),
   storage_bucket        text NOT NULL DEFAULT 'inquiry-intake-documents' CHECK (storage_bucket='inquiry-intake-documents'),
   storage_object_key    text NOT NULL UNIQUE,
@@ -142,7 +142,7 @@ BEGIN
     WHERE id=p_submission_id AND customer_user_id=auth.uid() AND status='submitted' FOR UPDATE;
   IF v_owner IS NULL THEN RAISE EXCEPTION 'Submission not found or no longer editable.' USING ERRCODE='42501'; END IF;
   v_expected := auth.uid()::text || '/' || p_submission_id::text || '/' || p_document_id::text;
-  IF p_storage_object_key<>v_expected OR p_byte_size NOT BETWEEN 1 AND 10485760
+  IF p_storage_object_key<>v_expected OR p_byte_size NOT BETWEEN 1 AND 31457280
     OR p_content_sha256 !~ '^[a-f0-9]{64}$'
   THEN RAISE EXCEPTION 'Invalid document metadata.' USING ERRCODE='22023'; END IF;
   IF NOT EXISTS (SELECT 1 FROM storage.objects WHERE bucket_id='inquiry-intake-documents' AND name=p_storage_object_key)
@@ -200,9 +200,9 @@ REVOKE ALL ON FUNCTION public.authorize_customer_inquiry_document_download(uuid,
 GRANT EXECUTE ON FUNCTION public.authorize_customer_inquiry_document_download(uuid,uuid) TO authenticated;
 
 INSERT INTO storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
-VALUES('inquiry-intake-documents','inquiry-intake-documents',false,10485760,
+VALUES('inquiry-intake-documents','inquiry-intake-documents',false,31457280,
   ARRAY['application/pdf','image/jpeg','image/png','image/gif','image/webp','image/bmp','image/x-ms-bmp','text/csv','text/plain','application/csv','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/zip'])
-ON CONFLICT(id) DO UPDATE SET public=false,file_size_limit=10485760,allowed_mime_types=EXCLUDED.allowed_mime_types;
+ON CONFLICT(id) DO UPDATE SET public=false,file_size_limit=31457280,allowed_mime_types=EXCLUDED.allowed_mime_types;
 
 DROP POLICY IF EXISTS "Customers upload own inquiry intake documents" ON storage.objects;
 CREATE POLICY "Customers upload own inquiry intake documents" ON storage.objects FOR INSERT TO authenticated
