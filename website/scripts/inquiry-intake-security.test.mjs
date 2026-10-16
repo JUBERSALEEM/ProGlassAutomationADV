@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const sql = readFileSync(new URL("../supabase-inquiry-intake.sql", import.meta.url), "utf8");
+const fieldsPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8a-fields.sql", import.meta.url), "utf8");
 const api = readFileSync(new URL("../src/lib/inquiry-submissions-api.ts", import.meta.url), "utf8");
 const route = readFileSync(new URL("../src/app/api/inquiry-submissions/route.ts", import.meta.url), "utf8");
 
@@ -12,6 +13,15 @@ for (const table of ["inquiry_customer_submissions", "inquiry_customer_documents
     assert.match(sql, new RegExp(`ALTER TABLE public\\.${table} ENABLE ROW LEVEL SECURITY`));
   });
 }
+
+test("salesman and handover fields are bounded in fresh and already-applied schemas", () => {
+  for (const source of [sql, fieldsPatch]) {
+    assert.match(source, /salesman_reference\s+text NOT NULL DEFAULT '' CHECK \(char_length\(salesman_reference\) <= 120\)/);
+    assert.match(source, /handover_estimator_name\s+text NOT NULL DEFAULT '' CHECK \(char_length\(handover_estimator_name\) <= 120\)/);
+    assert.match(source, /p_salesman_reference text, p_handover_estimator_name text/);
+  }
+  assert.match(fieldsPatch, /DROP FUNCTION public\.create_customer_inquiry_submission\(text,text,text,text,text,text,text\)/);
+});
 
 test("customer rows and documents are ownership-bound while operators retain review access", () => {
   assert.match(sql, /customer_user_id=auth\.uid\(\)/);
