@@ -708,7 +708,11 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 - [x] Inspect actual auth, Supabase clients, inquiry APIs/UI, schema, Storage policy, and validation helpers.
 - [x] Add separate customer submission/document/event TypeScript contracts.
 - [x] Add authenticated customer submission UI at `/[locale]/inquiries/submit`, including attention, VAT/TRN, salesman reference, and handover estimator fields.
-- [x] Add responsive cumulative drag/drop/file selection with 15-slot count, selected-file cards, per-file replace/remove, remove-all, duplicate suppression, size feedback, and upload/verification progress copy.
+- [x] Add responsive cumulative drag/drop/file selection with 15-slot count, selected-file cards, per-file replace/remove, remove-all, duplicate-name rejection, size feedback, and upload/verification progress copy.
+- [x] Correct Next.js 16 proxy multipart truncation so the authenticated route receives the bounded 15 × 30 MB request; live-submit 13 documents and verify all 13 records and protected downloads.
+- [ ] Replace the single multipart request with staged one-file requests that expose genuine per-file/overall progress, transfer rate, estimated remaining time, accessible states, interruption handling, safe retry, and explicit finalization.
+- [ ] Add customer-owned saved profile defaults (company, contact, phone, VAT/TRN, and attention) with form prefill.
+- [ ] Add customer-owned projects, inquiry type/category, project association, and project/location/type/status/date history grouping and filters.
 - [x] Add customer-owned submission history and `/[locale]/inquiries/submissions/[id]` detail UI with card hierarchy and protected back navigation.
 - [x] Add bearer-authenticated multipart create/list/detail APIs under `/api/inquiry-submissions`.
 - [x] Enforce 15 files maximum and 30 MB per file for customer intake while preserving the desktop-publication 10 MB policy.
@@ -743,9 +747,9 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 - [ ] Complete Phase 8B/8C tests and their exact local runbook before asking for those manual tests.
 - [ ] Apply no migration, publication, deployment, or production change without explicit approval.
 
-**Phase 8A local/live evidence (2026-10-16):** the disposable project accepted `supabase-inquiry-intake.sql`; verification returned 3/3 tables, 3/3 RLS tables, 4/4 RPCs, 5/5 policies, and 1/1 private bounded bucket. The additive `supabase-inquiry-intake-phase8a-fields.sql` patch also succeeded: four handoff columns and constraints exist, the 11-argument RPC exists, and the obsolete 7-argument RPC is absent. Customer A created two submissions with private documents, viewed history/detail, downloaded integrity-checked copies, and verified attention, VAT/TRN, salesman reference, handover estimator, progress feedback, responsive attachment cards, and detail-card hierarchy. Customer B saw a fresh empty history and no Customer A data. Database evidence showed no duplicate document groups and expected submitted/document/download audit events. Full ESLint and TypeScript passed; inquiry security passed 36/36; production build generated 474 pages and all three customer-submission API routes. Local-host origin handling and duplicate-click feedback defects were corrected and live-retested.
+**Phase 8A local/live evidence (2026-10-16):** the disposable project accepted `supabase-inquiry-intake.sql`, `supabase-inquiry-intake-phase8a-fields.sql`, and `supabase-inquiry-intake-phase8a-limits.sql`. Verification returned 3/3 tables with RLS, valid constrained RPCs/policies, a private 30 MB bucket, the normalized 1–31457280 document constraint, and preserved submission/document counts. Customer A created submissions with private documents, viewed history/detail, downloaded integrity-checked copies, and verified attention, VAT/TRN, salesman reference, handover estimator, responsive attachment cards, and detail-card hierarchy. Customer B saw no Customer A data. Cumulative selection, replacement, removal, remove-all, and duplicate suppression were browser-tested. After correcting Next.js's 10 MB proxy truncation in `deee657`, a real 13-document submission completed and its detail page showed all 13 attachments with protected download controls. Current automated evidence is ESLint and TypeScript clean, inquiry security 38/38, and a 474-page production build.
 
-**Phase 8 status:** IN PROGRESS. Phase 8A is implemented and locally verified but remains un-deployed and not live-accepted. Phase 8B–8D remain incomplete. The previously applied `supabase-inquiries.sql` does not install customer intake; the new `supabase-inquiry-intake.sql` is deliberately unapplied.
+**Phase 8 status:** IN PROGRESS. The Phase 8A core workflow and 13-document live submission are verified in disposable non-production Supabase. Staged progress/retry/finalization, saved customer profiles, customer projects, the remaining negative/accessibility matrix, and deployment acceptance are still incomplete. Phase 8B–8D remain incomplete. No additional migration, deployment, publication, or production-data change is authorized.
 
 ---
 
@@ -753,6 +757,7 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 
 | Date | Phase | Change | Reason |
 |---|---|---|---|
+| 2026-10-16 | 8A | Recorded the live 13-document submission, Next.js body-limit correction, and the staged-upload/profile/project continuation checklist | Preserve verified evidence and explicit unfinished scope before Phase 8B so later work cannot silently skip customer-side requirements. |
 | 2026-10-15 | 1 | Created `docs/INQUIRY_ORDER_DOCUMENT_WORKFLOW.md` | Persist verified discovery, architecture gaps, recommendations, acceptance evidence, decisions, and seven-phase checklist. |
 | 2026-10-15 | 2 | Recorded approved scope and completed the workflow architecture contract | Define read-only inquiry-attachment publication, stable identity, private document organization, roles, bridge behavior, idempotency, retention, sequences, and failure recovery before implementation. |
 | 2026-10-15 | 3 | Added draft private inquiry schema, policies/RPCs, document validation, and security tests | Build an additive, non-production data/security foundation while withholding full acceptance until live non-production RLS/Storage role testing is possible. |
