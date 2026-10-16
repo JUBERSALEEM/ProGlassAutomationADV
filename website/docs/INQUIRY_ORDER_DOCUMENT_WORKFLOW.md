@@ -716,8 +716,9 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 - [x] Add additive, unapplied `supabase-inquiry-intake.sql` with separate tables, ownership RLS, constrained RPC writes, private bounded bucket, immutable objects, and audit events.
 - [x] Preserve the existing `public.inquiries` desktop projection, APIs, UI, bucket, and bridge.
 - [x] Add intake schema/API static security tests and include them in `test:inquiry-security`.
-- [ ] Execute migration in disposable Supabase and run real customer/operator/object-policy tests (explicit approval required before applying the new migration).
-- [ ] Browser-test OTP sign-in, submission, upload, history, detail, validation errors, and responsive/accessibility behavior against the disposable project.
+- [x] Execute the base and handoff-field migrations in disposable Supabase; verify objects, customer ownership isolation, private upload/download, audit events, and duplicate-record protection.
+- [x] Browser-test OTP session reuse, submission, PDF upload, history, detail, handoff fields, download integrity, file-selection feedback, and responsive card presentation against the disposable project.
+- [ ] Complete the remaining negative/file-format matrix: over-limit, six-file, spoofed signatures, malformed/macro XLSX, invalid UTF-8 CSV, unsupported formats, direct-object denial, keyboard/screen-reader, and representative mobile widths.
 
 ### Phase 8B — Internal review
 
@@ -741,7 +742,7 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 - [ ] Complete Phase 8B/8C tests and their exact local runbook before asking for those manual tests.
 - [ ] Apply no migration, publication, deployment, or production change without explicit approval.
 
-**Phase 8A local/live evidence (2026-10-16):** the disposable project accepted `supabase-inquiry-intake.sql`; verification returned 3/3 tables, 3/3 RLS tables, 4/4 RPCs, 5/5 policies, and 1/1 private bounded bucket. Customer A created one submission with one document, viewed history/detail, and downloaded an integrity-checked private copy. Customer B saw a fresh empty history and no Customer A data. Database evidence showed one submission, one document, zero duplicate document groups, and expected submitted/document/download audit events. Full ESLint and TypeScript passed; inquiry security passed before the follow-up UI work; production build generated 474 pages and all three customer-submission API routes. A local-host origin defect and duplicate-click feedback gap were corrected and rebuilt. The additive salesman/handover field patch remains unapplied pending explicit non-production execution.
+**Phase 8A local/live evidence (2026-10-16):** the disposable project accepted `supabase-inquiry-intake.sql`; verification returned 3/3 tables, 3/3 RLS tables, 4/4 RPCs, 5/5 policies, and 1/1 private bounded bucket. The additive `supabase-inquiry-intake-phase8a-fields.sql` patch also succeeded: four handoff columns and constraints exist, the 11-argument RPC exists, and the obsolete 7-argument RPC is absent. Customer A created two submissions with private documents, viewed history/detail, downloaded integrity-checked copies, and verified attention, VAT/TRN, salesman reference, handover estimator, progress feedback, responsive attachment cards, and detail-card hierarchy. Customer B saw a fresh empty history and no Customer A data. Database evidence showed no duplicate document groups and expected submitted/document/download audit events. Full ESLint and TypeScript passed; inquiry security passed 36/36; production build generated 474 pages and all three customer-submission API routes. Local-host origin handling and duplicate-click feedback defects were corrected and live-retested.
 
 **Phase 8 status:** IN PROGRESS. Phase 8A is implemented and locally verified but remains un-deployed and not live-accepted. Phase 8B–8D remain incomplete. The previously applied `supabase-inquiries.sql` does not install customer intake; the new `supabase-inquiry-intake.sql` is deliberately unapplied.
 
