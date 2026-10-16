@@ -52,6 +52,8 @@ export type Studio = {
   brightness: number;
   /** Saturation offset, −0.15 … +0.15. */
   vividness: number;
+  /** Selected colour strength: 0 is neutral, 1 is original, 1.35 is richer. */
+  richness: number;
   /** Strength of the violet wash inside cards, 0 … 1. */
   tint: number;
   /** Corner scale, 0.4 … 1.6. */
@@ -133,6 +135,7 @@ export const defaultStudio: Studio = {
   accentKey: FAMILY_ACCENT_KEY,
   brightness: 0,
   vividness: 0,
+  richness: 1,
   tint: 1,
   radius: 1,
   edge: 2,
@@ -289,6 +292,7 @@ export function normalizeStudio(raw: Partial<Studio> | null | undefined): Studio
      is now a 1-step clamp, never a crash). */
   merged.brightness = finite(merged.brightness, -0.09, 0.09, 0);
   merged.vividness = finite(merged.vividness, -0.16, 0.16, 0);
+  merged.richness = finite(merged.richness, 0, 1.35, 1);
   merged.tint = finite(merged.tint, 0, 3, 1);
   merged.radius = finite(merged.radius, 0.3, 2.0, 1);
   merged.edge = finite(merged.edge, 1, 10, 2);
@@ -642,8 +646,9 @@ export function applyStudioVars(studio: Studio) {
      bypassed store can never let a NaN near a custom property. */
   const bright = finite(studio.brightness, -0.09, 0.09, 0);
   const vivid = finite(studio.vividness, -0.16, 0.16, 0);
+  const richness = finite(studio.richness, 0, 1.35, 1);
   const tinted = finite(studio.tint, 0, 3, 1);
-  const tuned = bright !== 0 || vivid !== 0 || studio.accent !== null;
+  const tuned = bright !== 0 || vivid !== 0 || richness !== 1 || studio.accent !== null;
 
   if (tuned) {
     const ramp = rampFor(base, target, bright, vivid);
@@ -660,9 +665,9 @@ export function applyStudioVars(studio: Studio) {
     // Achromatic plates must remain neutral. The old saturation floor assigned
     // RGB white HSL's placeholder hue (0°) to every derived channel, turning
     // the White plate rose/pink across the entire page.
-    const achromatic = baseHsl.s < 0.02 && Math.abs(vivid) < 0.02;
+    const achromatic = (baseHsl.s < 0.02 || richness === 0) && Math.abs(vivid) < 0.02;
     const chroma = achromatic ? 0 : baseHsl.l < 0.2 ? Math.max(0.18, baseHsl.l / 0.22) : 1;
-    const effS = achromatic ? 0 : Math.max(0.08, Math.min(0.96, (baseHsl.s + vivid) * chroma));
+    const effS = achromatic ? 0 : Math.max(0.08, Math.min(0.96, (baseHsl.s * richness + vivid) * chroma));
     const rotTuned = (dh: number, s: number, l: number) =>
       triplet(hslToRgb({ h: (baseHsl.h + dh + 360) % 360, s, l }));
 
@@ -832,9 +837,9 @@ export function applyStudioVars(studio: Studio) {
   if (studio.accent || studio.clayPlate !== 1 || studio.clayCards !== 1 || tuned) {
     const rawHsl = rgbToHsl(hexToTriplet(studio.accent ?? FAMILY_ACCENT[family]!));
     const hub = rawHsl.h;
-    const achromatic = rawHsl.s < 0.02 && Math.abs(vivid) < 0.02;
+    const achromatic = (rawHsl.s < 0.02 || richness === 0) && Math.abs(vivid) < 0.02;
     const chroma = achromatic ? 0 : rawHsl.l < 0.2 ? Math.max(0.18, rawHsl.l / 0.22) : 1;
-    const effS = achromatic ? 0 : Math.max(0.08, Math.min(0.95, (rawHsl.s + vivid) * chroma));
+    const effS = achromatic ? 0 : Math.max(0.08, Math.min(0.95, (rawHsl.s * richness + vivid) * chroma));
     const effL = Math.max(0.08, Math.min(0.92, rawHsl.l + bright));
     const pSat = achromatic ? 0 : Math.max(0.1, Math.min(0.84, effS));
     const pLight = Math.max(0.72, Math.min(0.8, 0.68 + effL * 0.18));
@@ -904,7 +909,7 @@ export function applyStudioVars(studio: Studio) {
         return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
       };
       let coralL = Math.min(0.62, Math.max(0.11, effL));
-      const coralS = achromatic ? 0 : Math.max(0.12, Math.min(0.92, rawHsl.s + vivid));
+      const coralS = achromatic ? 0 : Math.max(0.12, Math.min(0.92, rawHsl.s * richness + vivid));
       while (coralL > 0.3 && 1.05 / (lumOf(triplet(hslToRgb({ h: hub, s: coralS, l: coralL }))) + 0.05) < 3.2) coralL -= 0.01;
       vars["--clay-coral"] = triplet(hslToRgb({ h: hub, s: coralS, l: coralL }));
       vars["--clay-coral-h"] = triplet(hslToRgb({ h: hub, s: Math.min(0.92, coralS + 0.06), l: Math.max(0.08, coralL - 0.07) }));

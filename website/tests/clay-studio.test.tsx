@@ -58,6 +58,22 @@ describe("clay bench — the adoption contract (custom support is gone)", () => 
     }
   });
 
+  it("8A.3 richness expands one selected colour from neutral through original to rich", () => {
+    document.documentElement.dataset.appearance = "clay";
+    const saturation = (richness: number) => {
+      applyStudioVars({ ...defaultStudio, accentKey: "Blue", accent: "#3B82F6", richness });
+      return hslOf(document.documentElement.style.getPropertyValue("--plate-1")).s;
+    };
+    const neutral = saturation(0);
+    const pale = saturation(0.45);
+    const original = saturation(1);
+    const rich = saturation(1.35);
+    expect(neutral).toBeLessThan(0.01);
+    expect(pale).toBeGreaterThan(neutral);
+    expect(original).toBeGreaterThan(pale);
+    expect(rich).toBeGreaterThanOrEqual(original);
+  });
+
   it("8A.2 White is pure white material with neutral gray elevation", () => {
     document.documentElement.dataset.appearance = "clay";
     applyStudioVars({ ...defaultStudio, accentKey: "White", accent: "#FFFFFF" });

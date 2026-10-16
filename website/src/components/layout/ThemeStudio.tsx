@@ -315,6 +315,25 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
               ))}
             </div>
 
+            <details className="mt-3 rounded-card border-2 border-line-strong/60 bg-ink-900/55 p-3">
+              <summary className="cursor-pointer select-none text-[0.75rem] font-bold text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60">
+                {t("Expand selected colour range")}
+              </summary>
+              <div className="mt-3">
+                <Slider
+                  label={t("Colour richness")}
+                  value={studio.richness}
+                  min={0}
+                  max={1.35}
+                  step={0.01}
+                  display={studio.richness === 0 ? t("Neutral") : studio.richness < 0.65 ? t("Pale") : Math.abs(studio.richness - 1) < 0.01 ? t("Original") : studio.richness > 1 ? `${Math.round(studio.richness * 100)}% · ${t("Rich")}` : `${Math.round(studio.richness * 100)}%`}
+                  onChange={(value) => setStudio({ richness: value })}
+                  hint={t("Move from neutral and pale versions through the original colour to its richest safe version. White stays pure white.")}
+                />
+                <div aria-hidden="true" className="mt-2 h-2 rounded-full border border-line-strong/50" style={{ background: `linear-gradient(90deg, #f4f4f5, color-mix(in srgb, ${studio.accent ?? activeFamily.swatch} 45%, white), ${studio.accent ?? activeFamily.swatch})` }} />
+              </div>
+            </details>
+
             {/* Custom colour: a picker and a field you can type into. */}
             <div className="mt-3 flex items-center gap-2">
               <input
