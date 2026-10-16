@@ -4,14 +4,14 @@ import { unzipSync } from "fflate";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabaseServerWithToken } from "@/lib/supabase";
 import {
-  INQUIRY_DOCUMENT_MAX_BYTES,
   sha256Hex,
   validateInquiryDocumentCandidate,
 } from "@/lib/inquiry-documents";
 import type { CustomerInquiryDocument, CustomerInquiryListItem, CustomerInquirySubmission } from "@/types/inquiry-submissions";
 
-export const CUSTOMER_INQUIRY_MAX_FILES = 5;
-export const CUSTOMER_INQUIRY_MAX_REQUEST_BYTES = CUSTOMER_INQUIRY_MAX_FILES * INQUIRY_DOCUMENT_MAX_BYTES + 256_000;
+export const CUSTOMER_INQUIRY_MAX_FILES = 15;
+export const CUSTOMER_INQUIRY_MAX_FILE_BYTES = 30 * 1024 * 1024;
+export const CUSTOMER_INQUIRY_MAX_REQUEST_BYTES = CUSTOMER_INQUIRY_MAX_FILES * CUSTOMER_INQUIRY_MAX_FILE_BYTES + 512_000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export class CustomerInquiryFailure extends Error {
@@ -77,7 +77,7 @@ async function validatedFiles(form: FormData) {
   if (files.length > CUSTOMER_INQUIRY_MAX_FILES) throw new CustomerInquiryFailure("INVALID", `Upload at most ${CUSTOMER_INQUIRY_MAX_FILES} documents.`);
   const output = [];
   for (const file of files) {
-    if (file.size > INQUIRY_DOCUMENT_MAX_BYTES) throw new CustomerInquiryFailure("INVALID", `${file.name} exceeds 10 MB.`);
+    if (file.size > CUSTOMER_INQUIRY_MAX_FILE_BYTES) throw new CustomerInquiryFailure("INVALID", `${file.name} exceeds the 30 MB per-file limit.`);
     const bytes = new Uint8Array(await file.arrayBuffer());
     const extension = extname(file.name).toLowerCase();
     const mime = detectedMime(extension, bytes);
@@ -85,6 +85,7 @@ async function validatedFiles(form: FormData) {
     try { deep = deepValidate(extension, bytes); } catch { deep = false; }
     const validation = validateInquiryDocumentCandidate({
       filename: file.name, byteSize: bytes.byteLength, declaredMime: mime, detectedMime: mime,
+      maxByteSize: CUSTOMER_INQUIRY_MAX_FILE_BYTES,
       sha256: sha256Hex(bytes), signature: bytes.subarray(0, 32), deepContentValidated: deep,
     });
     if (!validation.ok) throw new CustomerInquiryFailure("INVALID", `${file.name}: ${validation.message}`);

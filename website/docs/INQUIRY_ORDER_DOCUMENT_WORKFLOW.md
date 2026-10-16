@@ -711,14 +711,15 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 - [x] Add responsive drag/drop file selection with selected-file cards, removal controls, size feedback, and upload/verification progress copy.
 - [x] Add customer-owned submission history and `/[locale]/inquiries/submissions/[id]` detail UI with card hierarchy and protected back navigation.
 - [x] Add bearer-authenticated multipart create/list/detail APIs under `/api/inquiry-submissions`.
-- [x] Enforce five files maximum and 10 MB per file.
+- [x] Enforce 15 files maximum and 30 MB per file for customer intake while preserving the desktop-publication 10 MB policy.
 - [x] Validate normalized filenames, extension allowlist, detected MIME/signature, SHA-256, UTF-8 CSV, and non-macro XLSX structure server-side before persistence.
 - [x] Add additive, unapplied `supabase-inquiry-intake.sql` with separate tables, ownership RLS, constrained RPC writes, private bounded bucket, immutable objects, and audit events.
 - [x] Preserve the existing `public.inquiries` desktop projection, APIs, UI, bucket, and bridge.
 - [x] Add intake schema/API static security tests and include them in `test:inquiry-security`.
 - [x] Execute the base and handoff-field migrations in disposable Supabase; verify objects, customer ownership isolation, private upload/download, audit events, and duplicate-record protection.
 - [x] Browser-test OTP session reuse, submission, PDF upload, history, detail, handoff fields, download integrity, file-selection feedback, and responsive card presentation against the disposable project.
-- [ ] Complete the remaining negative/file-format matrix: over-limit, six-file, spoofed signatures, malformed/macro XLSX, invalid UTF-8 CSV, unsupported formats, direct-object denial, keyboard/screen-reader, and representative mobile widths.
+- [x] Improve keyboard/screen-reader labels, focus rings, caret visibility, dark-mode input contrast, line height, and one-column mobile field flow.
+- [ ] Complete the remaining negative/file-format matrix: over-30-MB, 16-file, spoofed signatures, malformed/macro XLSX, invalid UTF-8 CSV, unsupported formats, direct-object denial, screen-reader announcement testing, and representative physical mobile devices.
 
 ### Phase 8B — Internal review
 

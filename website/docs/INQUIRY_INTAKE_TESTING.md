@@ -21,7 +21,7 @@ Expected local baseline: inquiry security 35/35; TypeScript, ESLint, and build p
 Review `supabase-inquiry-intake.sql`. It is additive to the already-applied `supabase-inquiries.sql`. Apply it only after explicit authorization. Expected additions:
 
 - `inquiry_customer_submissions`, `inquiry_customer_documents`, `inquiry_customer_events`
-- private `inquiry-intake-documents` bucket with 10 MB object limit
+- private `inquiry-intake-documents` bucket with 30 MB object limit
 - customer ownership RLS and internal-role read policies
 - constrained create/register/review/download-authorization RPCs
 - no direct authenticated table mutation grants and no Storage UPDATE/DELETE policy
@@ -43,7 +43,7 @@ npm run start
 4. Verify it appears in history and opens its detail page.
 5. Download the PDF; verify filename/content and a `download_authorized` audit event.
 6. Test valid JPG/PNG/GIF/WebP/BMP, UTF-8 CSV, and non-macro XLSX.
-7. Verify rejection of empty, over-10-MB, more-than-five, renamed/spoofed, macro/malformed XLSX, invalid UTF-8 CSV, DWG/DXF/SVG/EXE, unsafe filename, and cross-origin requests.
+7. Verify rejection of empty, over-30-MB, more-than-15, renamed/spoofed, macro/malformed XLSX, invalid UTF-8 CSV, DWG/DXF/SVG/EXE, unsafe filename, and cross-origin requests.
 8. Sign in as customer B; prove customer A history/detail/document API calls return no data/404.
 9. Prove anonymous API list/create/detail/download calls return 401.
 10. Confirm bucket remains private and direct unauthenticated object requests fail.
