@@ -8,6 +8,12 @@ const limitsPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8a-lim
 const api = readFileSync(new URL("../src/lib/inquiry-submissions-api.ts", import.meta.url), "utf8");
 const route = readFileSync(new URL("../src/app/api/inquiry-submissions/route.ts", import.meta.url), "utf8");
 const portal = readFileSync(new URL("../src/components/inquiries/CustomerInquiryPortal.tsx", import.meta.url), "utf8");
+const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
+
+test("Next middleware preserves the full bounded customer multipart request", () => {
+  assert.match(nextConfig, /proxyClientMaxBodySize:\s*["']451mb["']/);
+  assert.match(api, /CUSTOMER_INQUIRY_MAX_REQUEST_BYTES\s*=\s*CUSTOMER_INQUIRY_MAX_FILES\s*\*\s*CUSTOMER_INQUIRY_MAX_FILE_BYTES/);
+});
 
 for (const table of ["inquiry_customer_submissions", "inquiry_customer_documents", "inquiry_customer_events"]) {
   test(`${table} is additive and protected by RLS`, () => {
