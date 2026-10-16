@@ -707,8 +707,9 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 
 - [x] Inspect actual auth, Supabase clients, inquiry APIs/UI, schema, Storage policy, and validation helpers.
 - [x] Add separate customer submission/document/event TypeScript contracts.
-- [x] Add authenticated customer submission UI at `/[locale]/inquiries/submit`.
-- [x] Add customer-owned submission history and `/[locale]/inquiries/submissions/[id]` detail UI.
+- [x] Add authenticated customer submission UI at `/[locale]/inquiries/submit`, including salesman reference and handover estimator fields.
+- [x] Add responsive drag/drop file selection with selected-file cards, removal controls, size feedback, and upload/verification progress copy.
+- [x] Add customer-owned submission history and `/[locale]/inquiries/submissions/[id]` detail UI with card hierarchy and protected back navigation.
 - [x] Add bearer-authenticated multipart create/list/detail APIs under `/api/inquiry-submissions`.
 - [x] Enforce five files maximum and 10 MB per file.
 - [x] Validate normalized filenames, extension allowlist, detected MIME/signature, SHA-256, UTF-8 CSV, and non-macro XLSX structure server-side before persistence.
@@ -740,7 +741,7 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 - [ ] Complete Phase 8B/8C tests and their exact local runbook before asking for those manual tests.
 - [ ] Apply no migration, publication, deployment, or production change without explicit approval.
 
-**Phase 8A local evidence (2026-10-16):** full ESLint passed; TypeScript passed; inquiry security suite passed 35/35; `git diff --check -- website` passed; production build passed and generated 474 pages plus all three customer-submission API routes. Production preview `website-8f481438` serves `/en-US/inquiries/submit` with 200; anonymous submission list and multipart create both fail closed with 401. The first build correctly failed because an undeclared `server-only` marker import violated the repository dependency gate; the unnecessary marker was removed and the clean rebuild passed.
+**Phase 8A local/live evidence (2026-10-16):** the disposable project accepted `supabase-inquiry-intake.sql`; verification returned 3/3 tables, 3/3 RLS tables, 4/4 RPCs, 5/5 policies, and 1/1 private bounded bucket. Customer A created one submission with one document, viewed history/detail, and downloaded an integrity-checked private copy. Customer B saw a fresh empty history and no Customer A data. Database evidence showed one submission, one document, zero duplicate document groups, and expected submitted/document/download audit events. Full ESLint and TypeScript passed; inquiry security passed before the follow-up UI work; production build generated 474 pages and all three customer-submission API routes. A local-host origin defect and duplicate-click feedback gap were corrected and rebuilt. The additive salesman/handover field patch remains unapplied pending explicit non-production execution.
 
 **Phase 8 status:** IN PROGRESS. Phase 8A is implemented and locally verified but remains un-deployed and not live-accepted. Phase 8B–8D remain incomplete. The previously applied `supabase-inquiries.sql` does not install customer intake; the new `supabase-inquiry-intake.sql` is deliberately unapplied.
 
