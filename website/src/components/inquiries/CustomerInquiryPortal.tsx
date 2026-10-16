@@ -52,10 +52,11 @@ export function CustomerInquiryPortal() {
     const files = validFiles(input);
     if (!files) return;
     setSelectedFiles((current) => {
-      const unique = files.filter((file) => !current.some((existing) => existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified));
-      if (current.length + unique.length > MAX_FILES) { setError(`You can attach up to ${MAX_FILES} documents. Remove a file before adding another.`); return current; }
+      const duplicate = files.find((file) => current.some((existing) => existing.name.toLocaleLowerCase() === file.name.toLocaleLowerCase()));
+      if (duplicate) { setError(`${duplicate.name} is already attached. Remove or replace the existing document before adding another file with that name.`); return current; }
+      if (current.length + files.length > MAX_FILES) { setError(`You can attach up to ${MAX_FILES} documents. Remove a file before adding another.`); return current; }
       setError("");
-      return [...current, ...unique];
+      return [...current, ...files];
     });
   }
 
@@ -63,8 +64,14 @@ export function CustomerInquiryPortal() {
     const files = validFiles([file]);
     const index = replaceIndexRef.current;
     if (!files || index === null) return;
-    setSelectedFiles((current) => current.map((existing, position) => position === index ? files[0]! : existing));
-    setError(""); replaceIndexRef.current = null;
+    setSelectedFiles((current) => {
+      const replacement = files[0]!;
+      const duplicate = current.some((existing, position) => position !== index && existing.name.toLocaleLowerCase() === replacement.name.toLocaleLowerCase());
+      if (duplicate) { setError(`${replacement.name} is already attached. Choose a document with a different name.`); return current; }
+      setError("");
+      return current.map((existing, position) => position === index ? replacement : existing);
+    });
+    replaceIndexRef.current = null;
   }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -80,9 +87,12 @@ export function CustomerInquiryPortal() {
     setSubmitting(true);
     try {
       const response = await fetch("/api/inquiry-submissions", { method: "POST", headers: { Authorization: `Bearer ${authToken}` }, body: form });
-      const body = await response.json();
+      const body = await response.json().catch(() => null);
       if (response.status === 401) { requireAuth(); return; }
-      if (!response.ok || !body.ok) throw new Error(body?.error?.message || "The inquiry could not be submitted.");
+      if (!response.ok || !body?.ok) {
+        const reference = body?.error?.reference ? ` Reference: ${body.error.reference}.` : "";
+        throw new Error(`${body?.error?.message || `The server rejected the submission (HTTP ${response.status}).`}${reference}`);
+      }
       const created = body.data as CustomerInquirySubmission;
       setNotice(`Inquiry ${created.submission_reference} was submitted securely.`);
       formRef.current?.reset();

@@ -75,6 +75,8 @@ function deepValidate(extension: string, bytes: Uint8Array): boolean | undefined
 async function validatedFiles(form: FormData) {
   const files = form.getAll("documents").filter((item): item is File => item instanceof File && item.size > 0);
   if (files.length > CUSTOMER_INQUIRY_MAX_FILES) throw new CustomerInquiryFailure("INVALID", `Upload at most ${CUSTOMER_INQUIRY_MAX_FILES} documents.`);
+  const duplicateName = files.find((file, index) => files.findIndex((candidate) => candidate.name.normalize("NFKC").trim().toLocaleLowerCase() === file.name.normalize("NFKC").trim().toLocaleLowerCase()) !== index);
+  if (duplicateName) throw new CustomerInquiryFailure("INVALID", `${duplicateName.name} is attached more than once. Remove or rename the duplicate document.`);
   const output = [];
   for (const file of files) {
     if (file.size > CUSTOMER_INQUIRY_MAX_FILE_BYTES) throw new CustomerInquiryFailure("INVALID", `${file.name} exceeds the 30 MB per-file limit.`);
