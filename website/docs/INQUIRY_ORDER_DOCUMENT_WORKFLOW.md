@@ -4,7 +4,7 @@
 **Branch inspected:** `arena/85c84b99-proglassautomationadv`
 **Discovery baseline:** commit `324b4f0fc96ebc1a53704734e313f032923909fd`
 **Report date:** 2026-10-15
-**Status:** Phases 1, 2, and 4 accepted locally; Phases 3, 5, 6, and 7 remain partially accepted; Phase 8 non-production verification is blocked pending the user's manual disposable Supabase provisioning
+**Status:** Phase 8A customer website intake is implemented and locally verified but its additive migration is unapplied; Phase 8B internal review and Phase 8C pull bridge remain incomplete
 
 This document is both the Phase 1 findings report and the persistent acceptance checklist for the seven-phase programme. It must be updated with evidence and unresolved issues as work proceeds. A phase may be marked complete only after every required acceptance item has passed.
 
@@ -699,37 +699,50 @@ It is **not production-ready** until `supabase-inquiries.sql` is reviewed and ap
 
 **Phase 7 result:** PARTIALLY ACCEPTED. The repository-level final audit is complete and all available local gates pass. The programme cannot receive final production acceptance while Phase 3, Phase 5, and Phase 6 live non-production gates remain blocked.
 
-## Phase 8 — Non-production deployment verification
+## Phase 8 — Website-originated customer inquiry workflow
 
-Phase 8 was added by user direction after the original seven-phase programme. Its purpose is to execute the previously blocked migration, RLS, Storage, bridge, and end-to-end matrix in an approved disposable Supabase project. It does not authorize production migration.
+The user corrected the earlier Phase 8 premise: website customers, not the WPF application, originate this workflow. The existing desktop-publication projection remains separate and unchanged. Customer access uses Supabase Auth; v1 accepts PDF, bounded images, XLSX, and CSV; and the later Windows bridge will pull accepted submissions into an isolated inbox without writing desktop SQLite.
 
-- [!] Provision/connect an approved disposable Supabase project.
-- [ ] Manually apply `supabase-inquiries.sql` and retain the SQL execution result.
-- [ ] Configure non-production website and bridge values outside chat/repository.
-- [ ] Create controlled viewer, auditor, admin, assigned bridge, wrong bridge, disabled bridge, and revoked identities.
-- [ ] Seed only controlled non-confidential inquiry fixtures.
-- [ ] Execute anonymous and role-based table/RPC/Storage access matrix.
-- [ ] Execute bridge publication, unchanged retry, changed-file supersession, partial-warning preservation, source-missing, and tombstone tests.
-- [ ] Execute authenticated browser list/search/filter/pagination/detail/download tests.
-- [ ] Verify document access events, byte/hash integrity, direct-object denial, and revocation.
-- [ ] Record actual non-production evidence and close the Phase 3/5/6/7 blockers only where results pass.
-- [ ] Remove test identities/data or preserve the disposable project according to the approved test-retention decision.
+### Phase 8A — Website customer inquiry
 
-**Current environment probe (2026-10-15)**
+- [x] Inspect actual auth, Supabase clients, inquiry APIs/UI, schema, Storage policy, and validation helpers.
+- [x] Add separate customer submission/document/event TypeScript contracts.
+- [x] Add authenticated customer submission UI at `/[locale]/inquiries/submit`.
+- [x] Add customer-owned submission history and `/[locale]/inquiries/submissions/[id]` detail UI.
+- [x] Add bearer-authenticated multipart create/list/detail APIs under `/api/inquiry-submissions`.
+- [x] Enforce five files maximum and 10 MB per file.
+- [x] Validate normalized filenames, extension allowlist, detected MIME/signature, SHA-256, UTF-8 CSV, and non-macro XLSX structure server-side before persistence.
+- [x] Add additive, unapplied `supabase-inquiry-intake.sql` with separate tables, ownership RLS, constrained RPC writes, private bounded bucket, immutable objects, and audit events.
+- [x] Preserve the existing `public.inquiries` desktop projection, APIs, UI, bucket, and bridge.
+- [x] Add intake schema/API static security tests and include them in `test:inquiry-security`.
+- [ ] Execute migration in disposable Supabase and run real customer/operator/object-policy tests (explicit approval required before applying the new migration).
+- [ ] Browser-test OTP sign-in, submission, upload, history, detail, validation errors, and responsive/accessibility behavior against the disposable project.
 
-- `NEXT_PUBLIC_SUPABASE_URL`: missing.
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: missing.
-- No other Supabase/PostgreSQL environment variables detected.
-- Supabase CLI: unavailable.
-- `psql`: unavailable.
-- Docker runtime: unavailable.
-- No `.env*`, Supabase CLI config, or local project config found under `website/`.
+### Phase 8B — Internal review
 
-**Provisioning decision:** the user selected manual migration. The user will apply `website/supabase-inquiries.sql` to a disposable Supabase project and configure all non-production values outside chat. Passwords, secret keys, database credentials, and service-role credentials must not be pasted into this conversation or committed to the repository.
+- [ ] Add operator list/detail APIs and UI for website submissions.
+- [ ] Add audited `under_review`, `accepted`, `rejected`, and `closed` transitions through the constrained review RPC.
+- [ ] Add private operator attachment delivery with integrity verification.
+- [ ] Verify customer/operator cross-access denial against real RLS.
 
-**Readiness signal required to continue:** confirm that the disposable migration succeeded and that the non-production runtime/test identities are configured in the environment. If SQL execution fails, provide only the sanitized PostgreSQL error code/message and failing statement location—never credentials or confidential row data.
+### Phase 8C — Cloud-to-Windows inbox bridge
 
-**Phase 8 result:** BLOCKED PENDING MANUAL NON-PRODUCTION PROVISIONING. No external database, Storage bucket, Auth identity, production record, or production configuration was changed.
+- [ ] Implement a separate pull bridge; do not repurpose the local-to-cloud publisher.
+- [ ] Add isolated inbox staging, atomic completion, byte/hash checks, retries, checkpoints, and acknowledgements.
+- [ ] Add a genuine remote-plan dry-run that downloads and acknowledges nothing.
+- [ ] Test wrong/disabled/revoked bridge identities and duplicate delivery behavior.
+
+### Phase 8D — Verification
+
+- [x] Add initial Phase 8A migration, ownership, route, validation, and immutability security assertions.
+- [x] Complete full lint, typecheck, intake/security tests, diff check, and production build for Phase 8A.
+- [x] Add the exact non-production Phase 8A procedure in `docs/INQUIRY_INTAKE_TESTING.md`.
+- [ ] Complete Phase 8B/8C tests and their exact local runbook before asking for those manual tests.
+- [ ] Apply no migration, publication, deployment, or production change without explicit approval.
+
+**Phase 8A local evidence (2026-10-16):** full ESLint passed; TypeScript passed; inquiry security suite passed 35/35; `git diff --check -- website` passed; production build passed and generated 474 pages plus all three customer-submission API routes. Production preview `website-8f481438` serves `/en-US/inquiries/submit` with 200; anonymous submission list and multipart create both fail closed with 401. The first build correctly failed because an undeclared `server-only` marker import violated the repository dependency gate; the unnecessary marker was removed and the clean rebuild passed.
+
+**Phase 8 status:** IN PROGRESS. Phase 8A is implemented and locally verified but remains un-deployed and not live-accepted. Phase 8B–8D remain incomplete. The previously applied `supabase-inquiries.sql` does not install customer intake; the new `supabase-inquiry-intake.sql` is deliberately unapplied.
 
 ---
 
