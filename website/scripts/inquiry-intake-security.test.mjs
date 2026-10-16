@@ -48,6 +48,10 @@ test("multipart route requires bearer auth, same-origin submission and no-store 
   assert.match(route, /authorization/);
   assert.match(route, /multipart\/form-data/);
   assert.match(route, /crossSite\(request\)/);
+  assert.match(route, /sec-fetch-site/);
+  assert.match(route, /x-forwarded-host/);
+  assert.match(route, /request\.headers\.get\("host"\)/);
+  assert.doesNotMatch(route, /request\.nextUrl\.host/);
   assert.match(route, /Cache-Control[^\n]+private, no-store/);
   assert.match(route, /X-Robots-Tag[^\n]+noindex, nofollow/);
 });

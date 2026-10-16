@@ -13,10 +13,13 @@ function responseError(error: unknown) {
 }
 function crossSite(request: NextRequest) {
   const site = request.headers.get("sec-fetch-site");
-  if (site && site !== "same-origin" && site !== "none") return true;
+  if (site) return site !== "same-origin" && site !== "none";
   const origin = request.headers.get("origin");
   if (!origin) return false;
-  try { return new URL(origin).host !== request.nextUrl.host; } catch { return true; }
+  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",", 1)[0]?.trim();
+  const requestHost = forwardedHost || request.headers.get("host")?.trim();
+  if (!requestHost) return true;
+  try { return new URL(origin).host !== requestHost; } catch { return true; }
 }
 
 export async function GET(request: NextRequest) {
