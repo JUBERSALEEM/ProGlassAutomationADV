@@ -757,6 +757,7 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 
 | Date | Phase | Change | Reason |
 |---|---|---|---|
+| 2026-10-16 | 8A.1 | Corrected the global White appearance plate so achromatic input stays neutral instead of inheriting HSL red/rose from a forced saturation floor | Fix the verified mobile daylight-theme defect without advancing or changing the inquiry phase sequence. |
 | 2026-10-16 | 8A | Recorded the live 13-document submission, Next.js body-limit correction, and the staged-upload/profile/project continuation checklist | Preserve verified evidence and explicit unfinished scope before Phase 8B so later work cannot silently skip customer-side requirements. |
 | 2026-10-15 | 1 | Created `docs/INQUIRY_ORDER_DOCUMENT_WORKFLOW.md` | Persist verified discovery, architecture gaps, recommendations, acceptance evidence, decisions, and seven-phase checklist. |
 | 2026-10-15 | 2 | Recorded approved scope and completed the workflow architecture contract | Define read-only inquiry-attachment publication, stable identity, private document organization, roles, bridge behavior, idempotency, retention, sequences, and failure recovery before implementation. |
