@@ -33,7 +33,7 @@ function fixture({ filename = "quote.pdf", fileBytes = Buffer.from("%PDF-1.7\nfi
 }
 
 function run(root) {
-  const stdout = execFileSync(process.execPath, ["--no-warnings", "--experimental-strip-types", "--experimental-default-type=module", bridge], {
+  const stdout = execFileSync(process.execPath, ["--no-warnings", "--experimental-strip-types", bridge], {
     env: { ...process.env, PROGLASS_DATA_ROOT: root, INQUIRY_SOURCE_DATASET_ID: sourceId },
     encoding: "utf8",
   });
@@ -75,12 +75,12 @@ test("manifest path outside the authorized inquiry tree is never read", () => {
 test("dry-run requires stable source identity and never accepts a demo root", () => {
   const root = fixture();
   try {
-    assert.throws(() => execFileSync(process.execPath, ["--no-warnings", "--experimental-strip-types", "--experimental-default-type=module", bridge], {
+    assert.throws(() => execFileSync(process.execPath, ["--no-warnings", "--experimental-strip-types", bridge], {
       env: { ...process.env, PROGLASS_DATA_ROOT: root, INQUIRY_SOURCE_DATASET_ID: "not-a-uuid" }, stdio: "pipe",
     }), /Command failed/);
     const demo = `${root}.ProGlassAutomation.Demo`;
     mkdirSync(demo);
-    assert.throws(() => execFileSync(process.execPath, ["--no-warnings", "--experimental-strip-types", "--experimental-default-type=module", bridge], {
+    assert.throws(() => execFileSync(process.execPath, ["--no-warnings", "--experimental-strip-types", bridge], {
       env: { ...process.env, PROGLASS_DATA_ROOT: demo, INQUIRY_SOURCE_DATASET_ID: sourceId }, stdio: "pipe",
     }), /Command failed/);
     rmSync(demo, { recursive: true, force: true });
