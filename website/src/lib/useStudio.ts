@@ -657,8 +657,12 @@ export function applyStudioVars(studio: Studio) {
     vars["--brand-700"] = ramp["700"];
 
     const baseHsl = rgbToHsl(hexToTriplet(base));
-    const chroma = baseHsl.l < 0.2 ? Math.max(0.18, baseHsl.l / 0.22) : 1;
-    const effS = Math.max(0.08, Math.min(0.96, (baseHsl.s + vivid) * chroma));
+    // Achromatic plates must remain neutral. The old saturation floor assigned
+    // RGB white HSL's placeholder hue (0°) to every derived channel, turning
+    // the White plate rose/pink across the entire page.
+    const achromatic = baseHsl.s < 0.02 && Math.abs(vivid) < 0.02;
+    const chroma = achromatic ? 0 : baseHsl.l < 0.2 ? Math.max(0.18, baseHsl.l / 0.22) : 1;
+    const effS = achromatic ? 0 : Math.max(0.08, Math.min(0.96, (baseHsl.s + vivid) * chroma));
     const rotTuned = (dh: number, s: number, l: number) =>
       triplet(hslToRgb({ h: (baseHsl.h + dh + 360) % 360, s, l }));
 
@@ -828,10 +832,11 @@ export function applyStudioVars(studio: Studio) {
   if (studio.accent || studio.clayPlate !== 1 || studio.clayCards !== 1 || tuned) {
     const rawHsl = rgbToHsl(hexToTriplet(studio.accent ?? FAMILY_ACCENT[family]!));
     const hub = rawHsl.h;
-    const chroma = rawHsl.l < 0.2 ? Math.max(0.18, rawHsl.l / 0.22) : 1;
-    const effS = Math.max(0.08, Math.min(0.95, (rawHsl.s + vivid) * chroma));
+    const achromatic = rawHsl.s < 0.02 && Math.abs(vivid) < 0.02;
+    const chroma = achromatic ? 0 : rawHsl.l < 0.2 ? Math.max(0.18, rawHsl.l / 0.22) : 1;
+    const effS = achromatic ? 0 : Math.max(0.08, Math.min(0.95, (rawHsl.s + vivid) * chroma));
     const effL = Math.max(0.08, Math.min(0.92, rawHsl.l + bright));
-    const pSat = Math.max(0.1, Math.min(0.84, effS));
+    const pSat = achromatic ? 0 : Math.max(0.1, Math.min(0.84, effS));
     const pLight = Math.max(0.72, Math.min(0.8, 0.68 + effL * 0.18));
     const rot = (dh: number, s: number, l: number) =>
       triplet(hslToRgb({ h: (hub + dh + 360) % 360, s, l }));
@@ -842,7 +847,13 @@ export function applyStudioVars(studio: Studio) {
        the clayPlate/clayCards bench numbers are switched, preserve the six
        house clay plates (lavender, mint, peach, sky, rose, lemon). */
     const plateHues: Array<[number, number, number]> = tuned
-      ? [
+      ? achromatic
+        ? [
+            [0, 0, pLight], [0, 0, Math.max(0.68, pLight - 0.05)],
+            [0, 0, Math.min(0.83, pLight + 0.03)], [0, 0, Math.max(0.7, pLight - 0.03)],
+            [0, 0, Math.min(0.82, pLight + 0.02)], [0, 0, Math.max(0.68, pLight - 0.05)],
+          ]
+        : [
           [0, pSat, pLight],
           [8, Math.max(0.1, pSat - 0.04), Math.max(0.68, pLight - 0.05)],
           [-8, Math.min(0.88, pSat + 0.04), Math.min(0.83, pLight + 0.03)],
@@ -866,7 +877,7 @@ export function applyStudioVars(studio: Studio) {
     const chanNames = ["lavender", "sky", "mint", "peach", "lemon", "pink"];
     chanHues.forEach((dh, i) => {
       let chL = Math.max(0.72, pLight);
-      const chS = Math.max(0.12, Math.min(0.76, pSat));
+      const chS = achromatic ? 0 : Math.max(0.12, Math.min(0.76, pSat));
       while (chL < 0.86) {
         const tp = rot(dh, chS, chL);
         const { r, g, b } = tripletToRgb(tp);
@@ -893,7 +904,7 @@ export function applyStudioVars(studio: Studio) {
         return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
       };
       let coralL = Math.min(0.62, Math.max(0.11, effL));
-      const coralS = Math.max(0.12, Math.min(0.92, rawHsl.s + vivid));
+      const coralS = achromatic ? 0 : Math.max(0.12, Math.min(0.92, rawHsl.s + vivid));
       while (coralL > 0.3 && 1.05 / (lumOf(triplet(hslToRgb({ h: hub, s: coralS, l: coralL }))) + 0.05) < 3.2) coralL -= 0.01;
       vars["--clay-coral"] = triplet(hslToRgb({ h: hub, s: coralS, l: coralL }));
       vars["--clay-coral-h"] = triplet(hslToRgb({ h: hub, s: Math.min(0.92, coralS + 0.06), l: Math.max(0.08, coralL - 0.07) }));
