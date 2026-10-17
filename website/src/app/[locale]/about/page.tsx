@@ -129,7 +129,7 @@ export default async function AboutPage({ params }: PageProps) {
             align="center"
           />
 
-          <div className="mt-8 grid gap-5 lg:grid-cols-3">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 icon: groupIcons.Sales,
@@ -224,7 +224,7 @@ export default async function AboutPage({ params }: PageProps) {
             lead={t("ProGlass is a single-company system: one business, its own customers and its own staff. It is not built for multi-tenant hosting, and it does not want to be.")}
           />
 
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 icon: editionIcons.factory!,

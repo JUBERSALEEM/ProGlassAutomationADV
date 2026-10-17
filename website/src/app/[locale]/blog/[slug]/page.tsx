@@ -189,7 +189,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             <h2 id="more-heading" className="text-xl font-semibold text-text-primary sm:text-2xl">
           {t("More notes")}
         </h2>
-            <ul className="mt-8 grid gap-5 lg:grid-cols-2">
+            <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {others.map((other, index) => (
                 <Reveal key={other.slug} as="li" delay={index * 60}>
                   <Link

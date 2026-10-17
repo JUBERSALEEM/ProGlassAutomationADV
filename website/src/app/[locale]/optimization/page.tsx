@@ -216,7 +216,7 @@ export default async function OptimizationPage({ params }: PageProps) {
             title={t("Two formats the engine writes today — and three it names honestly.")}
             lead={t("The rule is in the application's own export code: formats that are documented are implemented; formats that are not are declared, shown, and say exactly what finishes them — one sample file from the machine that will read them. Nothing writes a file it cannot stand behind.")}
           />
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 key: "dxf",
@@ -352,7 +352,7 @@ export default async function OptimizationPage({ params }: PageProps) {
             lead={t("A two-stage guillotine is faster to run and easier to jig. A free guillotine packs tighter. The engine lets you choose how deep the cut tree may go, and refuses trim cuts on laminated stock outright.")}
           />
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {cutComplexities.map((item, index) => (
               <Reveal key={`${t(item.name)}-${index}`} delay={index * 50} className="surface flex flex-col p-5">
                 <IndexChip className="h-7 w-7 text-[0.75rem]">{String(index + 1).padStart(2, "0")}</IndexChip>

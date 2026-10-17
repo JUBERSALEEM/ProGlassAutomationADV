@@ -567,7 +567,7 @@ const faq = [
             lead={t("These are not aspirations written on a wall. Each is enforced somewhere in the build, which is why they have survived at this size — and why a solo author can still answer for the result.")}
           />
 
-          <div className="mt-8 grid gap-4 lg:grid-cols-3">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {principles.map((item, index) => (
               <Reveal key={`${t(item.title)}-${index}`} delay={index * 60}>
                 <article className="surface h-full card-pad-sm">
@@ -682,7 +682,7 @@ const faq = [
               </p>
             </div>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {technicalWorkflowArchitecture.map((item) => (
                 <div
                   key={item.index}

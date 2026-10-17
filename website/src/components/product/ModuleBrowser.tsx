@@ -130,7 +130,7 @@ export function ModuleBrowser() {
               of a very long page. `scroll-mt` keeps it clear of the sticky
               navigation once it is there.
             */}
-            <ul className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               <AnimatePresence mode="popLayout">
                 {list.map((item) => (
                   <motion.li

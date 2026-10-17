@@ -182,7 +182,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             on the worked example — `pricingRules` — so the wording here and the
             arithmetic in the frame above cannot drift apart.
           */}
-          <div className="mt-6 grid gap-5 lg:grid-cols-2">
+          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {pricingRules.map((rule, index) => (
               <Reveal key={rule.id} delay={index * 60}>
                 <div className="surface-raised h-full card-pad-sm">
@@ -256,7 +256,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             </AppFrame>
           </Reveal>
 
-          <div className="mt-6 grid gap-5 lg:grid-cols-3">
+          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {logFacts.map((fact, index) => (
               <Reveal key={fact.id} delay={index * 60}>
                 <div className="surface-raised h-full card-pad-sm">
@@ -320,7 +320,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             </AppFrame>
           </Reveal>
 
-          <div className="mt-6 grid gap-5 lg:grid-cols-2">
+          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <Reveal>
               <div className="surface-raised h-full card-pad-sm">
                 <p className="eyebrow">{t("Routing by build family")}</p>

@@ -147,7 +147,7 @@ export default async function HomePage({ params }: PageProps) {
               </Reveal>
             </div>
 
-            <Reveal delay={80} className="grid gap-5 sm:grid-cols-2">
+            <Reveal delay={80} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 /* One role, one mark — the same glyph the rail already uses for
                    the module that role lives in. */
@@ -587,7 +587,7 @@ export default async function HomePage({ params }: PageProps) {
             title={t.template`Nine rail groups, ${modules.length} rooms of the same building.`}
             lead={t("The application is organized exactly as its sidebar is: nine groups, from Main to System, hold every module the catalogue lists. Walk them here, then open one in the catalogue itself — every card there keeps the app's own navigation label and the file that backs the claim.")}
           />
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {moduleGroups.map((group, index) => {
               const list = modulesByGroup(group);
               return (
@@ -708,7 +708,7 @@ export default async function HomePage({ params }: PageProps) {
             lead={t("There is no cloud account, no tenant and no subscription dashboard. The application runs on one Windows PC, or on a handful that share a database file across the office.")}
           />
 
-          <div className="mt-8 grid gap-5 lg:grid-cols-3">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {featureGroups
               .filter((group) => ["platform", "money", "documents"].includes(group.id))
               .map((group, index) => (

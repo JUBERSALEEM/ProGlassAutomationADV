@@ -265,7 +265,7 @@ export default async function CollaboratePage({ params }: PageProps) {
             </p>
           </div>
 
-          <Reveal delay={80} className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <Reveal delay={80} className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {dataOwners.map((owner) => (
               <div key={owner.name} className="surface p-5">
                 <p className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
@@ -303,7 +303,7 @@ export default async function CollaboratePage({ params }: PageProps) {
             align="center"
           />
 
-          <ul className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <ul className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {collaboratorRoles.map((role, index) => (
               <Reveal key={role.id} as="li" delay={Math.min(index, 5) * 55} id={role.id}>
                 <article className="surface-raised card-interactive flex h-full flex-col card-pad-sm">

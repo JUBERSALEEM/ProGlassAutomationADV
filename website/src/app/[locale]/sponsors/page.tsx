@@ -142,7 +142,7 @@ export default async function SponsorsPage({ params }: PageProps) {
             align="center"
           />
 
-          <ul className="mt-8 grid gap-5 lg:grid-cols-2">
+          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {sponsorNeeds.map((need, index) => (
               <Reveal key={need.id} as="li" delay={Math.min(index, 6) * 55}>
                 <article className="surface card-interactive flex h-full flex-col card-pad-sm">

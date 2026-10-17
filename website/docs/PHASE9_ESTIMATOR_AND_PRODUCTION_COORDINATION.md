@@ -126,7 +126,13 @@ Expected structure: 3 delivery columns and 3 v2/helper RPCs. Existing delivery c
 
 ## Phase 10 — responsive UI redesign pattern
 
-Repository-only visual redesign work while Phase 9E awaits the Windows PC. The website currently presents too many full-width single-card rows and must use the available desktop width more professionally. Establish and apply a responsive card-grid pattern that can present at least four cards per row where card content and viewport width permit, while preserving readable tablet/mobile layouts, accessibility, dark/light themes, and all existing behavior. Exact target pages and breakpoints are confirmed before implementation.
+Repository-only visual redesign work while Phase 9E awaits the Windows PC. The website currently presents too many full-width single-card rows and must use the available desktop width more professionally. The user selected a whole-site pattern of four normal content cards and up to six compact statistic cards on desktop, with two on tablet and one on mobile where appropriate.
+
+- [x] Convert eligible public card collections to a responsive 1/2/4 grid across Home, About, Blog, Collaborate, Contact, Developer, Features, Optimization, Pricing, Resources, Sponsors, loading skeletons, module browser, and screenshot gallery.
+- [x] Preserve wider two-track layouts, forms, tables, and content-heavy paired panels instead of blindly forcing them into quarter-width cards.
+- [x] Preserve existing dashboard four-card breakdowns and six-card operational-stat patterns.
+- [x] Add a permanent structural grid test to the density suite.
+- [ ] Complete browser visual review at representative mobile, tablet, desktop, and wide-desktop widths and correct any content-specific overflow or imbalance before closing Phase 10.
 
 ## Phase 11 — production coordination room (separate scope)
 

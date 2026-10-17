@@ -128,7 +128,7 @@ export default async function PricingPage({ params }: PageProps) {
             lead={t("The application compares editions by order, not by name, so a stored licence keeps its meaning as new tiers are appended. The descriptions below are the definitions written on the edition enum itself.")}
           />
 
-          <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {editions.map((edition, index) => (
               <Reveal
                 key={edition.id}
