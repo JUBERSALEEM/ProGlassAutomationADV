@@ -36,6 +36,8 @@ function isNetworkError(err: unknown): boolean {
  *   Browser → supabase.auth.signInWithOtp({ email }) → Supabase Auth → Gmail SMTP → Operator Inbox
  *   Browser → supabase.auth.verifyOtp({ email, token, type: "email" }) → Valid Session → /reports
  */
+const REMEMBERED_EMAIL_KEY = "proglass-auth-email";
+
 export function ReportsAuthForm() {
   const t = useT();
   const router = useRouter();
@@ -60,6 +62,15 @@ export function ReportsAuthForm() {
 
   const otpInputRef = useRef<HTMLInputElement | null>(null);
   const configured = isSupabaseConfigured();
+
+  useEffect(() => {
+    const remembered = window.localStorage.getItem(REMEMBERED_EMAIL_KEY);
+    if (remembered) queueMicrotask(() => setEmail(remembered));
+  }, []);
+
+  const rememberEmail = (value: string) => {
+    window.localStorage.setItem(REMEMBERED_EMAIL_KEY, value);
+  };
 
   // Handle 60s cooldown timer
   useEffect(() => {
@@ -96,6 +107,8 @@ export function ReportsAuthForm() {
       setError(t("Please enter a valid email address."));
       return;
     }
+
+    rememberEmail(cleanEmail);
 
     if (!configured) {
       setError(
@@ -171,6 +184,7 @@ export function ReportsAuthForm() {
     e.preventDefault(); setError(null); setNotice(null);
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail || !password) { setError(t("Enter your email and password.")); return; }
+    rememberEmail(cleanEmail);
     if (!configured) { setError(t("Supabase authentication is not configured in this environment.")); return; }
     setLoading(true);
     try {

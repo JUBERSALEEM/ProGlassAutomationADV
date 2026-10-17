@@ -86,6 +86,10 @@ test("OTP users can establish a password and return with password authentication
   assert.match(authForm,/newPassword\.length < 8/);
   assert.match(authForm,/Passwords do not match/);
   assert.match(authForm,/New account or forgot password\? Use an email code/);
+  assert.match(authForm,/REMEMBERED_EMAIL_KEY = "proglass-auth-email"/);
+  assert.match(authForm,/localStorage\.getItem\(REMEMBERED_EMAIL_KEY\)/);
+  assert.match(authForm,/localStorage\.setItem\(REMEMBERED_EMAIL_KEY, value\)/);
+  assert.doesNotMatch(authForm,/localStorage\.setItem\([^,]+,\s*password/);
   assert.match(dashboard,/code === "FORBIDDEN"/);
   assert.match(dashboard,/\/submit/);
 });
