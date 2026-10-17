@@ -44,7 +44,7 @@ INQUIRY_INBOX_MAX_ITEMS=25
 
 ## Recovery
 
-`.staging/*.partial` folders are never operator-visible completed deliveries and are removed on a handled failure. If the process stops after atomic rename but before acknowledgement, the next apply validates the existing manifest hash and safely acknowledges without downloading duplicate files. A conflicting existing final folder stops the run. Remote acknowledgement is idempotent only for the same manifest hash and document count; conflicts fail closed.
+`.staging/*.partial` folders are never operator-visible completed deliveries. They are removed on a handled failure, and a later apply removes stale interrupted staging directories before retrying. If the process stops after atomic rename but before acknowledgement, the next apply validates the existing manifest and every delivered file hash before safely acknowledging without downloading duplicate files. A conflicting existing final folder stops the run. Remote acknowledgement is idempotent only for the same manifest hash and document count; conflicts fail closed.
 
 ## Rollback
 
