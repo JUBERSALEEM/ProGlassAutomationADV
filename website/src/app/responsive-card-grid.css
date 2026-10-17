@@ -1,0 +1,29 @@
+/* Phase 10 compact collection grammar.
+ * Phone: two cards; 640px and above: four content cards (or five/six compact
+ * statistics where declared by the component). This breakpoint intentionally
+ * matches the landscape/mobile-tablet viewport shown during visual review,
+ * instead of postponing density until a 1024px desktop. */
+.dense-card-grid {
+  gap: 0.75rem;
+}
+
+.dense-card-grid > * {
+  min-width: 0;
+}
+
+/* Catalogue cards carry more prose than ordinary tiles. At the four-column
+ * tablet tier, retain identity and summary while collapsing supporting proof;
+ * full proof returns on desktop where each card has enough reading width. */
+@media (min-width: 40rem) and (max-width: 63.999rem) {
+  .module-card-compact .module-card-summary {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .module-card-compact .module-card-supporting,
+  .module-card-compact .module-card-status {
+    display: none;
+  }
+}

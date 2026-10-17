@@ -138,7 +138,7 @@ export default async function ContactPage({ params }: PageProps) {
               title={t("What a demonstration runs through.")}
               lead={t("A demonstration runs on the current release build of ProGlass Automation, shown on a screen share. It is the software working, not a slide deck about software.")}
             />
-            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="dense-card-grid mt-8 grid gap-5 grid-cols-2 sm:grid-cols-4">
               {[
                 {
                   title: t("From quotation to cutting list"),

@@ -261,7 +261,7 @@ export default async function PricingPage({ params }: PageProps) {
             lead={t("No server, no database administrator and no browser. A small office can point several workstations at a shared database file on the local network.")}
           />
 
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="dense-card-grid mt-8 grid gap-5 grid-cols-2 sm:grid-cols-4">
             {[
               { title: t("Operating system"), detail: t("Windows 10 or Windows 11, 64-bit.") },
               { title: t("Runtime"), detail: t(".NET 8 desktop runtime, installed with the application.") },

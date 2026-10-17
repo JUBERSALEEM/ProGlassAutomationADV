@@ -155,7 +155,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
       ) : null}
 
       {/* ── KPI STRIP ──────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="dense-card-grid grid grid-cols-3 gap-1.5 sm:grid-cols-6">
         {[
           { label: kpiLabels.arrived, value: arrived, tone: "" },
           { label: kpiLabels.pending, value: pending, tone: "text-amber-300" },

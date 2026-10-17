@@ -38,7 +38,7 @@ export function DeliveriesBreakdowns({
 }) {
   if (loading && !breakdowns) {
     return (
-      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="dense-card-grid grid grid-cols-2 gap-3.5 sm:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
@@ -64,7 +64,7 @@ export function DeliveriesBreakdowns({
   };
 
   return (
-    <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="dense-card-grid grid grid-cols-2 gap-3.5 sm:grid-cols-4">
       <BreakdownCard
         title="Company"
         subtitle="Outstanding m²"

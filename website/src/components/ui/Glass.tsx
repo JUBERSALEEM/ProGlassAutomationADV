@@ -160,7 +160,7 @@ export function GlassMetricRow({
   children: ReactNode;
 }) {
   return (
-    <div className={cn("grid gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-4", className)}>
+    <div className={cn("grid gap-x-6 gap-y-5 grid-cols-2 sm:grid-cols-4", className)}>
       {children}
     </div>
   );

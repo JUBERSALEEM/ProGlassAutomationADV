@@ -109,7 +109,7 @@ export function ScreenshotGallery({ initialCategory = "all" }: { initialCategory
         {t.template`${visible.length} ${visible.length === 1 ? "screen" : "screens"}. Cards carrying a photograph are real assets either captured from the application or shipped inside it. Every other card draws the application's window chrome around a working, interactive preview of that module with sample data — labelled as a preview, never dressed up as a capture.`}
       </p>
 
-      <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="dense-card-grid mt-8 grid gap-5 grid-cols-2 sm:grid-cols-4">
         {visible.map((shot, index) => (
           <Reveal
             key={shot.id}

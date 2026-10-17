@@ -200,7 +200,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
             lead={t("Each document is raised from the one before it rather than retyped. The number format is the application's own — the year is taken from the machine the data was seeded on, so 2026 here is an example of that year, not a fixed part of the format.")}
           />
 
-          <ol className="mt-8 grid gap-4 xl:grid-cols-5">
+          <ol className="dense-card-grid mt-8 grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-5">
             {seededDocuments.map((document, index) => (
               <Reveal key={document.key} as="li" delay={Math.min(index, 4) * 50}>
                 <article className="surface flex h-full flex-col p-5">
@@ -915,7 +915,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
             lead={t("A shop does not quote glass by area alone. A pane too small to fill a square metre still costs a square metre of work, and one big enough to need a crane costs more per square metre than the rest of the specification. Both are in the pricing engine, both price every line on this page, and this job sits between them: its smallest lite is 0.80 m² and its largest is 3.84 m², so neither rule fires on it. Here they are on the panels that do.")}
           />
 
-          <div className="mt-8 grid gap-5 lg:grid-cols-2">
+          <div className="dense-card-grid mt-8 grid grid-cols-2 sm:grid-cols-4">
             {pricingRules.map((rule) => (
               <Reveal key={rule.id}>
                 <div className="surface-raised h-full card-pad">
@@ -1072,7 +1072,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
             lead={t("The defining property of this application is that a job can be followed from the enquiry that started it to the money it made. Everything on this page exists because the software keeps those links — not because anyone wrote a summary of them.")}
           />
 
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="dense-card-grid mt-8 grid grid-cols-2 sm:grid-cols-4">
             {[
               {
                 title: t("The same data, six times"),

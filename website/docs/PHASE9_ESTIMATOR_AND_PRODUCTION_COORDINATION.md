@@ -128,7 +128,7 @@ Expected structure: 3 delivery columns and 3 v2/helper RPCs. Existing delivery c
 
 Repository-only visual redesign work while Phase 9E awaits the Windows PC. The website currently presents too many full-width single-card rows and must use the available desktop width more professionally. The user selected a whole-site pattern of four normal content cards and up to six compact statistic cards on desktop, with two on tablet and one on mobile where appropriate.
 
-- [x] Convert eligible public card collections to a responsive 1/2/4 grid across Home, About, Blog, Collaborate, Contact, Developer, Features, Optimization, Pricing, Resources, Sponsors, loading skeletons, module browser, and screenshot gallery.
+- [x] Audit all 19 top-level pages and their delegated card components. After screenshot review exposed that the first pass waited until the 1024px breakpoint, move normal collections to 2 cards on narrow phones and 4 cards from 640px; compact statistic collections use 3/5–6 at those tiers.
 - [x] Preserve wider two-track layouts, forms, tables, and content-heavy paired panels instead of blindly forcing them into quarter-width cards.
 - [x] Preserve existing dashboard four-card breakdowns and six-card operational-stat patterns.
 - [x] Add a permanent structural grid test to the density suite.

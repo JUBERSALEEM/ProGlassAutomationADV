@@ -147,7 +147,7 @@ export default async function HomePage({ params }: PageProps) {
               </Reveal>
             </div>
 
-            <Reveal delay={80} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <Reveal delay={80} className="dense-card-grid grid gap-5 grid-cols-2 sm:grid-cols-4">
               {[
                 /* One role, one mark — the same glyph the rail already uses for
                    the module that role lives in. */
@@ -221,7 +221,7 @@ export default async function HomePage({ params }: PageProps) {
             </p>
           </div>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="dense-card-grid mt-10 grid gap-4 grid-cols-2 sm:grid-cols-4">
             <StatCounter
               value={9}
               label={t("Workflow stages")}
@@ -359,7 +359,7 @@ export default async function HomePage({ params }: PageProps) {
             />
           </Reveal>
 
-          <Reveal delay={120} className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Reveal delay={120} className="dense-card-grid mt-10 grid gap-4 grid-cols-2 sm:grid-cols-4">
             {[
               { key: "SGU", body: t("Single glazing: thickness, colour, treatment, edge polish and panel extras.") },
               { key: "DGU", body: t("Double glazing with a 6–32 mm air space, six spacer systems, argon gas, U-Insert, fanhole, cutouts and holes.") },
@@ -520,7 +520,7 @@ export default async function HomePage({ params }: PageProps) {
                     {t("Stock Plate to Cutting Table")}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
+                <div className="dense-card-grid grid grid-cols-3 gap-2.5 sm:grid-cols-6">
                   {[
                     { step: "01", name: t("Glass Parts"), desc: t("Dimensions from confirmed orders") },
                     { step: "02", name: t("Nesting / Layout"), desc: t("Guillotine cuts fitted to plates") },
@@ -587,7 +587,7 @@ export default async function HomePage({ params }: PageProps) {
             title={t.template`Nine rail groups, ${modules.length} rooms of the same building.`}
             lead={t("The application is organized exactly as its sidebar is: nine groups, from Main to System, hold every module the catalogue lists. Walk them here, then open one in the catalogue itself — every card there keeps the app's own navigation label and the file that backs the claim.")}
           />
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="dense-card-grid mt-8 grid gap-5 grid-cols-2 sm:grid-cols-4">
             {moduleGroups.map((group, index) => {
               const list = modulesByGroup(group);
               return (
@@ -708,7 +708,7 @@ export default async function HomePage({ params }: PageProps) {
             lead={t("There is no cloud account, no tenant and no subscription dashboard. The application runs on one Windows PC, or on a handful that share a database file across the office.")}
           />
 
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="dense-card-grid mt-8 grid gap-5 grid-cols-2 sm:grid-cols-4">
             {featureGroups
               .filter((group) => ["platform", "money", "documents"].includes(group.id))
               .map((group, index) => (

@@ -180,7 +180,7 @@ export default async function ResourcesPage({ params }: PageProps) {
         </ButtonLink>
           </div>
 
-          <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="dense-card-grid mt-10 grid gap-5 grid-cols-2 sm:grid-cols-4">
             {posts.map((post, index) => (
               <Reveal key={post.slug} as="li" delay={index * 60}>
                 <Link

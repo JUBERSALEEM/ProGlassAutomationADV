@@ -130,7 +130,7 @@ export function ModuleBrowser() {
               of a very long page. `scroll-mt` keeps it clear of the sticky
               navigation once it is there.
             */}
-            <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <ul className="dense-card-grid mt-6 grid gap-5 grid-cols-2 sm:grid-cols-4">
               <AnimatePresence mode="popLayout">
                 {list.map((item) => (
                   <motion.li
@@ -165,16 +165,16 @@ export function ModuleBrowser() {
 function ModuleCard({ module }: { module: ProductModule }) {
   const t = useT();
   return (
-    <article className="surface card-interactive flex h-full flex-col p-5">
+    <article className="module-card-compact surface card-interactive flex h-full flex-col p-3 lg:p-5">
       <div className="flex items-start justify-between gap-3">
         <span className="font-mono text-2xs tabular-nums text-text-faint font-medium">{module.number}</span>
         <Badge tone="neutral">{module.railGroup}</Badge>
       </div>
 
       <h4 className="mt-3 text-base font-semibold text-text-primary">{t(module.name)}</h4>
-      <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(module.summary)}</p>
+      <p className="module-card-summary mt-2 text-xs leading-relaxed text-text-muted lg:text-sm">{t(module.summary)}</p>
 
-      <ul className="mt-4 space-y-1.5">
+      <ul className="module-card-supporting mt-3 space-y-1.5 lg:mt-4">
         {module.capabilities.slice(0, 3).map((item) => (
           <li key={item} className="flex gap-2.5 text-xs leading-relaxed text-text-muted">
             <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
@@ -185,7 +185,7 @@ function ModuleCard({ module }: { module: ProductModule }) {
 
       <div className="mt-auto pt-5">
         {module.statusNote ? (
-          <p className="mb-3 rounded-card border border-line/60 bg-ink-800/60 px-2.5 py-1.5 text-2xs leading-relaxed text-text-faint font-medium">
+          <p className="module-card-status mb-3 rounded-card border border-line/60 bg-ink-800/60 px-2.5 py-1.5 text-2xs leading-relaxed text-text-faint font-medium">
             {t(module.statusNote)}
           </p>
         ) : null}

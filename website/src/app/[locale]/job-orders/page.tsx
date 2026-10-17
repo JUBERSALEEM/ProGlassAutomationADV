@@ -35,7 +35,7 @@ function JobOrdersPageSkeleton() {
         </div>
       </div>
       <div className="shell mt-6 space-y-6">
-        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="dense-card-grid grid grid-cols-3 gap-3.5 sm:grid-cols-5">
           {Array.from({ length: 5 }).map((_, index) => (
             <div key={index} className="h-28 animate-pulse rounded-2xl border border-line-strong/40 bg-ink-900/60" />
           ))}

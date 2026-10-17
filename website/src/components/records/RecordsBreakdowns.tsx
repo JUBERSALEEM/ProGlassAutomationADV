@@ -29,7 +29,7 @@ export function RecordsBreakdowns({
 }: RecordsBreakdownsProps) {
   if (loading && !breakdowns) {
     return (
-      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="dense-card-grid grid grid-cols-2 gap-3.5 sm:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
@@ -55,7 +55,7 @@ export function RecordsBreakdowns({
   };
 
   return (
-    <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="dense-card-grid grid grid-cols-2 gap-3.5 sm:grid-cols-4">
       {/* 1. PREPARED BY */}
       <BreakdownCard
         title="Prepared By"

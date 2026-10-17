@@ -383,7 +383,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
             lead={t("Four moments that between them cover most of what a glass business does with it. The screens named are the ones the navigation rail opens.")}
           />
 
-          <div className="mt-8 grid gap-5 lg:grid-cols-2">
+          <div className="dense-card-grid mt-8 grid grid-cols-2 sm:grid-cols-4">
             {[
               {
                 time: "Morning",

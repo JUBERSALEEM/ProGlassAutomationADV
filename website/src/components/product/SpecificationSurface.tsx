@@ -970,7 +970,7 @@ export function SpecificationSurface({
             </NoTranslate>
           </p>
 
-          <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="dense-card-grid mt-2 grid gap-2 grid-cols-2 sm:grid-cols-4">
             <BuildSelect
               label={t("Outer thickness")}
               value={build.thickness ?? "6mm"}
@@ -1064,7 +1064,7 @@ export function SpecificationSurface({
           </p>
         </div>
 
-        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="dense-card-grid mt-3 grid gap-2 grid-cols-2 sm:grid-cols-4">
           <label className="block">
             <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Base rate")}</span>
             <input
@@ -1500,7 +1500,7 @@ export function SpecificationSurface({
             />
           </div>
           {plates.length > 0 ? (
-            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="dense-card-grid mt-3 grid gap-2 grid-cols-2 sm:grid-cols-4">
               {plates.slice(0, 4).map((plate) => (
                 /* A sheet of drawing paper on the panel, not a dark card: the
                    same light studio drawing every other plate on this site

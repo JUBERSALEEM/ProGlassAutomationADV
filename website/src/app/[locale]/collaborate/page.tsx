@@ -265,7 +265,7 @@ export default async function CollaboratePage({ params }: PageProps) {
             </p>
           </div>
 
-          <Reveal delay={80} className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Reveal delay={80} className="dense-card-grid mt-6 grid gap-4 grid-cols-2 sm:grid-cols-4">
             {dataOwners.map((owner) => (
               <div key={owner.name} className="surface p-5">
                 <p className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">

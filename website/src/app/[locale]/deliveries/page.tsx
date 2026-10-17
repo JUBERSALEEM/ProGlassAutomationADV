@@ -35,7 +35,7 @@ function DeliveriesPageSkeleton() {
         </div>
       </div>
       <div className="shell mt-6 space-y-6">
-        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="dense-card-grid grid grid-cols-3 gap-3.5 sm:grid-cols-6">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}
@@ -52,7 +52,7 @@ function DeliveriesPageSkeleton() {
           ))}
         </div>
         <div className="h-32 animate-pulse rounded-2xl border border-line-strong/40 bg-ink-900/60" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="dense-card-grid grid grid-cols-2 gap-4 sm:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               key={index}

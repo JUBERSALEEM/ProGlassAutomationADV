@@ -132,7 +132,7 @@ export function InquiriesDashboard() {
 
       <div className="shell mt-6 space-y-5">
         <OperationsTabs className="w-full" />
-        {data && <section aria-label="Inquiry summary" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {data && <section aria-label="Inquiry summary" className="dense-card-grid grid grid-cols-2 sm:grid-cols-4">
           {[["Published", data.summary.total], ["Active", data.summary.active], ["Confirmed", data.summary.confirmed], ["With documents", data.summary.withDocuments]].map(([label, value]) => (
             <div key={label} className="rounded-2xl border border-line-strong/60 bg-ink-900/80 p-4"><div className="text-3xs font-semibold uppercase tracking-wider text-text-faint">{label}</div><div className="mt-1 font-mono text-xl font-bold text-text-primary">{value}</div></div>
           ))}

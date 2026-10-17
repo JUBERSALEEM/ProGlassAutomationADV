@@ -374,7 +374,7 @@ export function ProfitLossSurface({
             />
           </div>
 
-          <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="dense-card-grid mt-2 grid gap-2 grid-cols-2 sm:grid-cols-4">
             <MoneyRow label={t("Given price (Step 5 base price)")} value={`AED ${cash(totals.basePricePerSqm)} / m²`} note={t("base rate paid by the customer, area-weighted")} />
             <MoneyRow label={t("Cost-based profit margin")} value={fmtPct(totals.glassMarginPercent)} note={t("net revenue less the glass cost only")} tone={totals.glassMarginPercent >= 0 ? "good" : "watch"} />
             <MoneyRow label={t("Given judged for the margin")} value={`AED ${cash(totals.givenPerSqm)} / m²`} note={`against a required AED ${cash(totals.requiredPerSqm)} / m²`} />
@@ -456,7 +456,7 @@ export function ProfitLossSurface({
           {sheets ? (
             <>
               <p className="font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">{t("1 · Sheet usage")}</p>
-              <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="dense-card-grid mt-2 grid gap-2 grid-cols-2 sm:grid-cols-4">
                 <MoneyRow label={t("Buy sheets")} value={`${sheets.result.plates}`} note={`${pnl.sheet.label} · ${pnl.sheet.w} × ${pnl.sheet.h} mm`} />
                 <MoneyRow label={t("Bought area")} value={`${sheets.boughtSqm.toFixed(2)} m²`} note={t.template`${sheets.stockSqm.toFixed(2)} m² per sheet`} />
                 <MoneyRow
@@ -473,7 +473,7 @@ export function ProfitLossSurface({
               </div>
 
               <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">{t("2 · Sheet price reconciliation")}</p>
-              <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="dense-card-grid mt-2 grid gap-2 grid-cols-2 sm:grid-cols-4">
                 <MoneyRow label={t("Buy sheet price")} value={`AED ${cash(sheets.buyPrice)} / m²`} note={t("dearest glass on the job, from the Sheet Store purchase column")} />
                 <MoneyRow label={t("Sheet cost")} value={`AED ${cash(sheets.sheetCost)}`} note={`${sheets.result.plates} × ${sheets.stockSqm.toFixed(2)} m²`} />
                 <MoneyRow label={t("Wastage value")} value={`AED ${cash(sheets.wasteValue)}`} note={t.template`${sheets.wasteSqm.toFixed(2)} m² not sold`} tone="watch" />

@@ -157,7 +157,7 @@ export function ProductShowcaseViewer() {
         <div
           role="tablist"
           aria-label={t("Select capability suite")}
-          className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6"
+          className="dense-card-grid grid grid-cols-3 gap-2 sm:grid-cols-6"
         >
           {capabilityGroups.map((group) => {
             const isSelected = group.id === activeGroupId;
