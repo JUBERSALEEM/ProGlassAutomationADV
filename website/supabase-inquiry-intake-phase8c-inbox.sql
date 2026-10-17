@@ -12,6 +12,14 @@ CREATE TABLE IF NOT EXISTS public.inquiry_customer_deliveries (
 ALTER TABLE public.inquiry_customer_deliveries ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.inquiry_customer_deliveries FROM PUBLIC,anon,authenticated;
 
+-- The acknowledgement RPC records this event atomically with the delivery row.
+ALTER TABLE public.inquiry_customer_events
+  DROP CONSTRAINT IF EXISTS inquiry_customer_events_event_type_check;
+ALTER TABLE public.inquiry_customer_events
+  ADD CONSTRAINT inquiry_customer_events_event_type_check
+  CHECK (event_type IN ('draft_created','submitted','document_registered','upload_failed',
+    'status_changed','download_authorized','inbox_delivered'));
+
 CREATE OR REPLACE FUNCTION public.plan_customer_inquiry_deliveries(p_limit integer DEFAULT 25)
 RETURNS TABLE(submission_id uuid,submission_reference text,submitted_at timestamptz,status text,
   contact_name text,company_name text,phone text,customer_reference text,attention_name text,

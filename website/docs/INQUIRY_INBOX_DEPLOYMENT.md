@@ -21,7 +21,7 @@ INQUIRY_INBOX_MAX_ITEMS=25
 
 ## Deployment sequence
 
-1. Review and separately authorize/apply `supabase-inquiry-intake-phase8c-inbox.sql` to disposable Supabase.
+1. Review and separately authorize/apply `supabase-inquiry-intake-phase8c-inbox.sql` to disposable Supabase. Deployments that applied its original revision before the inbox event constraint was included must also apply `supabase-inquiry-intake-phase8c-event-repair.sql` once.
 2. Create a dedicated Auth machine user and assign exactly `inquiry_bridge` through the protected SQL administration channel.
 3. Set the environment in a protected PowerShell/service context.
 4. Run a genuine remote plan:

@@ -737,7 +737,7 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 - [x] Implement a separate pull bridge; do not repurpose the local-to-cloud publisher. Local implementation is complete in `scripts/inquiry-inbox-bridge.mjs`.
 - [x] Add isolated inbox staging, atomic completion, byte/hash checks, retries, checkpoints, and acknowledgements. Local/static verification is complete; disposable live verification remains.
 - [x] Add a genuine authenticated remote-plan dry-run that downloads and acknowledges nothing.
-- [ ] Apply and verify `supabase-inquiry-intake-phase8c-inbox.sql`, then test wrong/disabled/revoked bridge identities, crash recovery, and duplicate delivery behavior in disposable infrastructure.
+- [ ] Complete disposable live verification. The Phase 8C migration and bridge identity are applied; authenticated planning passed, and a real interruption proved partial folders are isolated/recoverable. The first acknowledgement exposed a missing allowed `inbox_delivered` event type; `supabase-inquiry-intake-phase8c-event-repair.sql` is prepared but unapplied. After repair, verify final-folder recovery, acknowledgement, duplicate suppression, and disabled identity denial.
 
 ### Phase 8D — Verification
 
