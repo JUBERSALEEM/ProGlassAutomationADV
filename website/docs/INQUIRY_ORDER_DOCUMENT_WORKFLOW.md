@@ -767,6 +767,7 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 
 | Date | Phase | Change | Reason |
 |---|---|---|---|
+| 2026-10-17 | Post-8 | Added password sign-in plus OTP-based password setup/recovery, customer-specific authentication copy, and customer redirection from the internal register to their inquiry portal | Avoid requiring an email OTP on every return visit and make the inquiry entry route useful for ordinary customer accounts. |
 | 2026-10-16 | 8A.3 | Added an expandable selected-colour richness bar from neutral/pale through original to a richer safe version, persisted with the existing studio settings | Let each basic or extended plate provide a useful tonal range without adding dozens of near-duplicate color codes or advancing the inquiry phase. |
 | 2026-10-16 | 8A.2 | Added a complete pure-white Clay material recipe with neutral elevation shadows and exposed White plus eleven familiar basic/additional colour plates | Correct the mobile evidence that removing forced hue alone left inherited beige/lavender family tokens and an incomplete visible plate set; no inquiry phase advancement. |
 | 2026-10-16 | 8A.1 | Corrected the global White appearance plate so achromatic input stays neutral instead of inheriting HSL red/rose from a forced saturation floor | Fix the verified mobile daylight-theme defect without advancing or changing the inquiry phase sequence. |

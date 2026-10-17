@@ -18,6 +18,8 @@ const projectsRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/p
 const operatorListRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/operator/route.ts", import.meta.url), "utf8");
 const operatorDetailRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/operator/[id]/route.ts", import.meta.url), "utf8");
 const operatorReview = readFileSync(new URL("../src/components/inquiries/CustomerSubmissionReview.tsx", import.meta.url), "utf8");
+const authForm = readFileSync(new URL("../src/components/reports/ReportsAuthForm.tsx", import.meta.url), "utf8");
+const dashboard = readFileSync(new URL("../src/components/inquiries/InquiriesDashboard.tsx", import.meta.url), "utf8");
 const portal = readFileSync(new URL("../src/components/inquiries/CustomerInquiryPortal.tsx", import.meta.url), "utf8");
 const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
 
@@ -76,6 +78,16 @@ test("Phase 8B operator APIs are token-bound, same-origin protected, complete-on
   assert.match(operatorReview,/Authorization:`Bearer/);
   assert.match(portal,/row\.estimated_response_at/);
   assert.match(portal,/row\.operator_note/);
+});
+
+test("OTP users can establish a password and return with password authentication", () => {
+  assert.match(authForm,/signInWithPassword/);
+  assert.match(authForm,/auth\.updateUser\(\{ password: newPassword \}\)/);
+  assert.match(authForm,/newPassword\.length < 8/);
+  assert.match(authForm,/Passwords do not match/);
+  assert.match(authForm,/New account or forgot password\? Use an email code/);
+  assert.match(dashboard,/code === "FORBIDDEN"/);
+  assert.match(dashboard,/\/submit/);
 });
 
 test("profile and project APIs prefill, persist, associate, and filter customer inquiries", () => {

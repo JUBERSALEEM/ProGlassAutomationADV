@@ -41,11 +41,16 @@ export function ReportsAuthForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/reports";
+  const customerAccess = redirectTo.includes("/inquiries");
 
-  // Flow states: "email" (Step A) -> "otp" (Step B)
-  const [step, setStep] = useState<"email" | "otp">("email");
+  // Password is the normal return path; email OTP also serves signup/recovery.
+  const [mode, setMode] = useState<"password" | "otp">("password");
+  const [step, setStep] = useState<"email" | "otp" | "set-password">("email");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -162,9 +167,36 @@ export function ReportsAuthForm() {
     }
   };
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // STEP B: Verify 6-digit OTP code and establish authenticated Supabase session
-  // ─────────────────────────────────────────────────────────────────────────────
+  const handlePasswordSignIn = async (e: React.FormEvent) => {
+    e.preventDefault(); setError(null); setNotice(null);
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail || !password) { setError(t("Enter your email and password.")); return; }
+    if (!configured) { setError(t("Supabase authentication is not configured in this environment.")); return; }
+    setLoading(true);
+    try {
+      const { data, error: signInError } = await supabaseBrowser().auth.signInWithPassword({ email: cleanEmail, password });
+      if (signInError || !data.session) throw signInError || new Error("Authentication session could not be established.");
+      setNotice(t("Signed in successfully. Redirecting...")); router.push(redirectTo); router.refresh();
+    } catch (reason) {
+      setError(isNetworkError(reason) ? t("Unable to contact authentication service. Please try again.") : t("Email or password is incorrect. Use an email code if you need to set or reset your password."));
+    } finally { setLoading(false); }
+  };
+
+  const handleSetPassword = async (e: React.FormEvent) => {
+    e.preventDefault(); setError(null);
+    if (newPassword.length < 8) { setError(t("Password must contain at least 8 characters.")); return; }
+    if (newPassword !== confirmPassword) { setError(t("Passwords do not match.")); return; }
+    setLoading(true);
+    try {
+      const { error: updateError } = await supabaseBrowser().auth.updateUser({ password: newPassword });
+      if (updateError) throw updateError;
+      setNotice(t("Password saved. You can use it for future sign-ins.")); router.push(redirectTo); router.refresh();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : t("Password could not be saved."));
+    } finally { setLoading(false); }
+  };
+
+  // STEP B: Verify the email code, then offer a reusable password.
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -226,10 +258,9 @@ export function ReportsAuthForm() {
         throw new Error(t("Authentication session could not be established. Please try again."));
       }
 
-      // Success: authenticated session confirmed
-      setNotice(t("Code verified successfully. Redirecting to reports..."));
-      router.push(redirectTo);
-      router.refresh();
+      // The verified session is allowed to establish or replace its own password.
+      setNotice(t("Code verified. Set a password for faster future sign-ins."));
+      setStep("set-password");
     } catch (err) {
       console.error("[ReportsAuthForm] Unexpected exception verifying OTP:", err);
       if (isNetworkError(err)) {
@@ -253,18 +284,16 @@ export function ReportsAuthForm() {
           </Link>
 
           <div className="mt-3.5 flex items-center gap-2">
-            <span className="eyebrow text-brand-300">{t("Operations Suite")}</span>
+            <span className="eyebrow text-brand-300">{t(customerAccess ? "Customer portal" : "Operations Suite")}</span>
             <span className="text-text-faint">/</span>
-            <span className="eyebrow text-text-muted">{t("Reports Access")}</span>
+            <span className="eyebrow text-text-muted">{t(customerAccess ? "Inquiry access" : "Reports Access")}</span>
           </div>
 
           <h1 className="mt-2 text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
-            {step === "email" ? t("Sign In with Email OTP") : t("Enter Verification Code")}
+            {step === "otp" ? t("Enter Verification Code") : step === "set-password" ? t("Set your password") : t("Sign in")}
           </h1>
           <p className="mt-2 text-xs leading-relaxed text-text-muted">
-            {step === "email"
-              ? t("Enter your operator email address. We will send a 6-digit one-time passcode to access protected factory reports.")
-              : t.template`Enter the 6-digit verification code sent to ${email}`}
+            {step === "otp" ? t.template`Enter the 6-digit verification code sent to ${email}` : step === "set-password" ? t("Create a reusable password so future sign-ins do not require email access.") : mode === "password" ? t("Sign in with your email and password.") : t("Use an email code to sign up, recover access, or set a password.")}
           </p>
         </div>
 
@@ -295,8 +324,21 @@ export function ReportsAuthForm() {
           </div>
         )}
 
-        {/* STEP A: Email Address Submission */}
-        {step === "email" ? (
+        {step === "email" && <div className="mt-5 grid grid-cols-2 rounded-xl border border-line-strong bg-ink-950 p-1" role="tablist" aria-label="Sign-in method">
+          <button type="button" role="tab" aria-selected={mode === "password"} onClick={() => { setMode("password"); setError(null); setNotice(null); }} className={`rounded-lg px-3 py-2 text-xs font-semibold ${mode === "password" ? "bg-brand-400 text-accent-ink" : "text-text-muted"}`}>{t("Password")}</button>
+          <button type="button" role="tab" aria-selected={mode === "otp"} onClick={() => { setMode("otp"); setError(null); setNotice(null); }} className={`rounded-lg px-3 py-2 text-xs font-semibold ${mode === "otp" ? "bg-brand-400 text-accent-ink" : "text-text-muted"}`}>{t("Email code")}</button>
+        </div>}
+
+        {step === "email" && mode === "password" ? (
+          <form onSubmit={handlePasswordSignIn} className="mt-5 space-y-3.5">
+            <label htmlFor="password-email" className="block text-2xs font-mono uppercase tracking-wider text-text-secondary">{t("Email address")}</label>
+            <input id="password-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
+            <label htmlFor="password-value" className="block text-2xs font-mono uppercase tracking-wider text-text-secondary">{t("Password")}</label>
+            <input id="password-value" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
+            <Button type="submit" variant="primary" size="lg" loading={loading} className="w-full justify-center">{t("Sign in")}</Button>
+            <button type="button" onClick={() => setMode("otp")} className="w-full text-xs text-brand-300 underline underline-offset-4">{t("New account or forgot password? Use an email code")}</button>
+          </form>
+        ) : step === "email" ? (
           <form onSubmit={handleSendOtp} className="mt-5 space-y-3.5">
             <div>
               <label
@@ -328,6 +370,15 @@ export function ReportsAuthForm() {
                 {t("Send verification code")}
               </Button>
             </div>
+          </form>
+        ) : step === "set-password" ? (
+          <form onSubmit={handleSetPassword} className="mt-5 space-y-3.5">
+            <label htmlFor="new-password" className="block text-2xs font-mono uppercase tracking-wider text-text-secondary">{t("New password")}</label>
+            <input id="new-password" type="password" minLength={8} required autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
+            <label htmlFor="confirm-password" className="block text-2xs font-mono uppercase tracking-wider text-text-secondary">{t("Confirm password")}</label>
+            <input id="confirm-password" type="password" minLength={8} required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
+            <Button type="submit" variant="primary" size="lg" loading={loading} className="w-full justify-center">{t("Save password and continue")}</Button>
+            <button type="button" onClick={() => { router.push(redirectTo); router.refresh(); }} className="w-full text-xs text-text-muted underline underline-offset-4">{t("Skip for now")}</button>
           </form>
         ) : (
           /* STEP B: 6-Digit OTP Verification */
@@ -418,7 +469,7 @@ export function ReportsAuthForm() {
           </div>
 
           <p className="text-2xs text-text-muted leading-relaxed">
-            {t("Public marketing pages remain accessible to all visitors. Authentication is strictly required for live operational reports and database records.")}
+            {t(customerAccess ? "Authentication protects your inquiry details, projects, and private documents." : "Public marketing pages remain accessible to all visitors. Authentication is strictly required for live operational reports and database records.")}
           </p>
 
           <div className="pt-2">

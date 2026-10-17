@@ -82,13 +82,14 @@ export function InquiriesDashboard() {
       } catch (reason) {
         if (reason instanceof Error && reason.name === "AbortError") return;
         const [message, code] = (reason instanceof Error ? reason.message : "Unable to load inquiries.").split("\u0000");
+        if (code === "FORBIDDEN") { router.replace(`${pathname.replace(/\/$/, "")}/submit`); return; }
         setError({ message: message || "Unable to load inquiries.", code });
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }
     })();
     return () => controller.abort();
-  }, [authToken, checking, hasDocuments, isAuthRequired, page, priority, refresh, requireAuth, status, submittedSearch]);
+  }, [authToken, checking, hasDocuments, isAuthRequired, page, pathname, priority, refresh, requireAuth, router, status, submittedSearch]);
 
   const apply = (next: Partial<{ search: string; status: string; priority: string; hasDocuments: boolean; page: number }>) => {
     const values = { search: submittedSearch, status, priority, hasDocuments, page, ...next };
