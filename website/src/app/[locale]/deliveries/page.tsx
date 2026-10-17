@@ -72,7 +72,7 @@ export default async function DeliveriesPage({ params }: PageProps) {
 
   return (
     <PageOverlay locale={t.locale} route="deliveries">
-    <>
+    <div className="operations-route">
       <RouteSchema
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         locale={locale as any}
@@ -96,7 +96,7 @@ export default async function DeliveriesPage({ params }: PageProps) {
       <Suspense fallback={<DeliveriesPageSkeleton />}>
         <DeliveriesDashboard />
       </Suspense>
-    </>
+    </div>
     </PageOverlay>
   );
 }

@@ -1363,6 +1363,31 @@
   .auto-grid-standard { --auto-grid-min: var(--grid-card-standard); }
   .auto-grid-wide { --auto-grid-min: var(--grid-card-wide); }
 
+  /* Phase 10.6 — operational routes are a restrained workspace layer. Data
+   * remains flat, numerically aligned, and high-density while controls and
+   * table boundaries gain a consistent task-focused hierarchy. */
+  .operations-route {
+    min-block-size: 100vh;
+    background:
+      linear-gradient(180deg, rgb(var(--brand-600) / 0.055), transparent 18rem),
+      rgb(var(--ink-950) / 0.16);
+    font-variant-numeric: tabular-nums;
+  }
+  .operations-route :is(table, [role="table"]) {
+    font-variant-numeric: tabular-nums;
+  }
+  .operations-route :is(th, [role="columnheader"]) {
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+  }
+  .operations-route :is(input, select, textarea) {
+    scroll-margin-block: calc(var(--nav-height) + 1rem);
+  }
+  .operations-route :is(button, a, input, select, textarea):focus-visible {
+    scroll-margin-block: calc(var(--nav-height) + 1rem);
+  }
+
   /* Phase 10.5 — editorial route identity. Every public route enters through
    * PageHero, but its hierarchy is visibly variant-specific rather than a
    * repeated template with different words. */

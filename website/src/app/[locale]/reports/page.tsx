@@ -58,7 +58,7 @@ export default async function ReportsPage({ params }: PageProps) {
 
   return (
     <PageOverlay locale={t.locale} route="reports">
-    <>
+    <div className="operations-route">
       <RouteSchema
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         locale={locale as any}
@@ -82,7 +82,7 @@ export default async function ReportsPage({ params }: PageProps) {
       <Suspense fallback={<ReportsPageSkeleton />}>
         <RecordsDashboard />
       </Suspense>
-    </>
+    </div>
     </PageOverlay>
   );
 }

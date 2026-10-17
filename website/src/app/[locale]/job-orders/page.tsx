@@ -53,7 +53,7 @@ export default async function JobOrdersPage({ params }: PageProps) {
 
   return (
     <PageOverlay locale={t.locale} route="job-orders">
-    <>
+    <div className="operations-route">
       <RouteSchema
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         locale={locale as any}
@@ -77,7 +77,7 @@ export default async function JobOrdersPage({ params }: PageProps) {
       <Suspense fallback={<JobOrdersPageSkeleton />}>
         <JobOrdersDashboard />
       </Suspense>
-    </>
+    </div>
     </PageOverlay>
   );
 }

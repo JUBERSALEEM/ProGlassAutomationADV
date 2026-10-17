@@ -128,10 +128,12 @@ Expected test stderr includes Motion's reduced-motion informational warning in r
 
 ### Phase 10.6 — operational and authenticated routes
 
-- [ ] Apply the centralized operational surface and density grammar to deliveries, records, reports, job orders, and login states for legibility and task completion.
-- [ ] Preserve filters, sorting, pagination, exports, query/history behavior, tables, empty/loading/error states, and auth redirects.
-- [ ] Keep data dense and motion minimal.
+- [x] Apply the centralized operational surface and density grammar to deliveries, records, reports, job orders, and login states for legibility and task completion.
+- [x] Preserve filters, sorting, pagination, exports, query/history behavior, tables, empty/loading/error states, and auth redirects.
+- [x] Keep data dense and motion minimal.
 - **Gate:** automated suites plus authenticated live-state verification where credentials/data are available; otherwise leave explicit blockers.
+
+**Phase 10.6 implementation evidence (2026-10-18):** Deliveries, records, reports, and job-order routes now share an explicit `operations-route` workspace layer with restrained depth, tabular numerals, consistent column-header hierarchy, and focus scroll margins below the persistent navigation. Dashboard logic, filters, tables, exports, pagination, URL state, Suspense states, and server boundaries were not replaced. Live authenticated visual verification remains blocked.
 
 **Phase 10.2 implementation evidence (2026-10-18):** The redesign keeps the established semantic palette and material engines, then adds reusable `Flow`, `Cluster`, and count-aware `AutoGrid` layout primitives backed by a fluid spacing and card-measure scale. `scripts/modernization-contract.test.mjs` guards the token, layout, landmark, motion, and reduced-motion contracts. This is the foundation for route migrations in later phases, not a claim that Phases 10.3–10.6 are complete. Their earlier grouped pass is superseded by the one-phase/one-commit redesign sequence requested by the owner.
 
