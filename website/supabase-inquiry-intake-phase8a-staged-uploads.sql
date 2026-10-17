@@ -86,8 +86,8 @@ BEGIN
   -- During the migration-first deployment window, the previous atomic API can
   -- still create a complete row with expected_document_count=0. Keep that
   -- bounded path working until the staged API is deployed.
-  IF v_count >= CASE WHEN v_submission.upload_state='draft' THEN v_submission.expected_document_count ELSE 15 END
-    OR v_count >= 15
+  IF v_count >= 15 OR (v_submission.upload_state='draft'
+    AND v_count >= v_submission.expected_document_count)
   THEN RAISE EXCEPTION 'Document count reached.' USING ERRCODE='22023'; END IF;
   IF EXISTS (SELECT 1 FROM public.inquiry_customer_documents
     WHERE submission_id=p_submission_id AND lower(original_filename)=lower(btrim(p_original_filename)))
