@@ -138,10 +138,60 @@ export async function createCustomerInquiry(token: string, form: FormData): Prom
   return asSubmission(detail.data as Record<string, unknown>, documents);
 }
 
+export async function createCustomerInquiryDraft(token: string, form: FormData) {
+  const { client } = await customerClient(token);
+  const description = field(form, "description", 5000, true);
+  if (description.length < 10) throw new CustomerInquiryFailure("INVALID", "Description must contain at least 10 characters.");
+  const expected = Number(form.get("expected_document_count"));
+  if (!Number.isInteger(expected) || expected < 0 || expected > CUSTOMER_INQUIRY_MAX_FILES) {
+    throw new CustomerInquiryFailure("INVALID", `Select at most ${CUSTOMER_INQUIRY_MAX_FILES} documents.`);
+  }
+  const created = await client.rpc("create_customer_inquiry_draft", {
+    p_contact_name: field(form, "contact_name", 120, true), p_company_name: field(form, "company_name", 160, true),
+    p_phone: field(form, "phone", 60), p_customer_reference: field(form, "customer_reference", 100),
+    p_attention_name: field(form, "attention_name", 120), p_vat_trn_number: field(form, "vat_trn_number", 50),
+    p_salesman_reference: field(form, "salesman_reference", 120), p_handover_estimator_name: field(form, "handover_estimator_name", 120),
+    p_project_name: field(form, "project_name", 180, true), p_project_location: field(form, "project_location", 180),
+    p_description: description, p_expected_document_count: expected,
+  });
+  if (created.error) failDatabase(created.error);
+  const row = Array.isArray(created.data) ? created.data[0] : created.data;
+  if (!row?.id || !UUID.test(row.id)) throw new CustomerInquiryFailure("TEMPORARY_FAILURE", "The inquiry draft was not created correctly.");
+  return row as { id: string; submission_reference: string };
+}
+
+export async function uploadCustomerInquiryDocument(token: string, submissionId: string, form: FormData): Promise<CustomerInquiryDocument> {
+  if (!UUID.test(submissionId)) throw new CustomerInquiryFailure("NOT_FOUND", "Inquiry draft not found.");
+  const { client, userId } = await customerClient(token);
+  const files = await validatedFiles(form);
+  if (files.length !== 1) throw new CustomerInquiryFailure("INVALID", "Upload exactly one document at a time.");
+  const file = files[0]!;
+  const documentId = randomUUID();
+  const key = `${userId}/${submissionId}/${documentId}`.toLowerCase();
+  const upload = await client.storage.from("inquiry-intake-documents").upload(key, file.bytes, { contentType: file.mime, upsert: false, cacheControl: "0" });
+  if (upload.error) failDatabase(upload.error);
+  const registered = await client.rpc("register_customer_inquiry_document", {
+    p_submission_id: submissionId, p_document_id: documentId, p_original_filename: file.filename,
+    p_extension: file.extension, p_detected_mime: file.mime, p_byte_size: file.bytes.byteLength,
+    p_content_sha256: file.hash, p_storage_object_key: key,
+  });
+  if (registered.error) failDatabase(registered.error);
+  return { id: documentId, original_filename: file.filename, extension: file.extension, detected_mime: file.mime,
+    byte_size: file.bytes.byteLength, content_sha256: file.hash, uploaded_at: new Date().toISOString() };
+}
+
+export async function finalizeCustomerInquiry(token: string, submissionId: string): Promise<CustomerInquirySubmission> {
+  if (!UUID.test(submissionId)) throw new CustomerInquiryFailure("NOT_FOUND", "Inquiry draft not found.");
+  const { client } = await customerClient(token);
+  const finalized = await client.rpc("finalize_customer_inquiry_submission", { p_submission_id: submissionId });
+  if (finalized.error) failDatabase(finalized.error);
+  return getCustomerInquiry(token, submissionId);
+}
+
 export async function listCustomerInquiries(token: string): Promise<CustomerInquiryListItem[]> {
   const { client, userId } = await customerClient(token);
   const result = await client.from("inquiry_customer_submissions").select("*,inquiry_customer_documents(id)")
-    .eq("customer_user_id", userId).order("submitted_at", { ascending: false }).limit(100);
+    .eq("customer_user_id", userId).eq("upload_state", "complete").order("submitted_at", { ascending: false }).limit(100);
   if (result.error) failDatabase(result.error);
   return (result.data || []).map((row) => {
     const { inquiry_customer_documents, description: _description, phone: _phone, ...rest } = row;

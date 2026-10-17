@@ -11,6 +11,24 @@ const MAX_BYTES = 30 * 1024 * 1024;
 
 function date(value: string) { const parsed = new Date(value); return Number.isNaN(parsed.getTime()) ? "—" : parsed.toLocaleDateString(); }
 function filesLabel(count:number){return `${count} document${count===1?"":"s"}`;}
+type UploadState = { status: "waiting" | "uploading" | "verifying" | "complete" | "failed"; percent: number; detail: string };
+function uploadDocument(token: string, draftId: string, file: File, progress: (loaded: number, total: number) => void, verifying: () => void) {
+  return new Promise<void>((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    request.open("POST", `/api/inquiry-submissions/${draftId}/documents`);
+    request.setRequestHeader("Authorization", `Bearer ${token}`);
+    request.upload.onprogress = (event) => progress(event.loaded, event.lengthComputable ? event.total : file.size);
+    request.upload.onload = verifying;
+    request.onerror = () => reject(new Error(`${file.name}: network upload failed.`));
+    request.onload = () => {
+      let body: { ok?: boolean; error?: { message?: string; reference?: string } } | null = null;
+      try { body = JSON.parse(request.responseText); } catch { /* handled below */ }
+      if (request.status >= 200 && request.status < 300 && body?.ok) resolve();
+      else reject(new Error(`${file.name}: ${body?.error?.message || `upload failed (HTTP ${request.status})`}${body?.error?.reference ? ` Reference: ${body.error.reference}.` : ""}`));
+    };
+    const form = new FormData(); form.append("documents", file); request.send(form);
+  });
+}
 
 export function CustomerInquiryPortal() {
   const { checking, authToken, isAuthRequired, userEmail, signOut, requireAuth } = useOperatorSession();
@@ -18,6 +36,8 @@ export function CustomerInquiryPortal() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replaceFileInputRef = useRef<HTMLInputElement>(null);
   const replaceIndexRef = useRef<number | null>(null);
+  const draftIdRef = useRef<string | null>(null);
+  const draftReferenceRef = useRef<string | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [dragging, setDragging] = useState(false);
   const [rows, setRows] = useState<CustomerInquiryListItem[]>([]);
@@ -25,6 +45,15 @@ export function CustomerInquiryPortal() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [uploadStates, setUploadStates] = useState<Record<number, UploadState>>({});
+  const [overallProgress, setOverallProgress] = useState(0);
+
+  useEffect(() => {
+    if (!submitting) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [submitting]);
 
   async function load() {
     if (!authToken) return;
@@ -77,28 +106,56 @@ export function CustomerInquiryPortal() {
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); setError(""); setNotice("");
     if (!authToken) { requireAuth(); return; }
-    const form = new FormData(event.currentTarget);
-    form.delete("documents");
-    for (const file of selectedFiles) form.append("documents", file);
     const files = selectedFiles;
     if (files.length > MAX_FILES) { setError(`Select at most ${MAX_FILES} documents.`); return; }
     const oversized = files.find((file) => file.size > MAX_BYTES);
     if (oversized) { setError(`${oversized.name} exceeds the 30 MB per-file limit.`); return; }
+    const form = new FormData(event.currentTarget); form.delete("documents"); form.set("expected_document_count", String(files.length));
+    if (!draftIdRef.current) {
+      setUploadStates(Object.fromEntries(files.map((_, index) => [index, { status: "waiting", percent: 0, detail: "Waiting" }])));
+      setOverallProgress(0);
+    }
     setSubmitting(true);
     try {
-      const response = await fetch("/api/inquiry-submissions", { method: "POST", headers: { Authorization: `Bearer ${authToken}` }, body: form });
-      const body = await response.json().catch(() => null);
-      if (response.status === 401) { requireAuth(); return; }
-      if (!response.ok || !body?.ok) {
-        const reference = body?.error?.reference ? ` Reference: ${body.error.reference}.` : "";
-        throw new Error(`${body?.error?.message || `The server rejected the submission (HTTP ${response.status}).`}${reference}`);
+      if (!draftIdRef.current) {
+        const draftResponse = await fetch("/api/inquiry-submissions/drafts", { method: "POST", headers: { Authorization: `Bearer ${authToken}` }, body: form });
+        const draftBody = await draftResponse.json().catch(() => null);
+        if (draftResponse.status === 401) { requireAuth(); return; }
+        if (!draftResponse.ok || !draftBody?.ok) throw new Error(draftBody?.error?.message || "The inquiry draft could not be created.");
+        const createdDraft = draftBody.data as { id: string; submission_reference: string };
+        draftIdRef.current = createdDraft.id; draftReferenceRef.current = createdDraft.submission_reference;
       }
-      const created = body.data as CustomerInquirySubmission;
-      setNotice(`Inquiry ${created.submission_reference} was submitted securely.`);
-      formRef.current?.reset();
-      setSelectedFiles([]);
-      await load();
-    } catch (reason) { setError(reason instanceof Error ? reason.message : "The inquiry could not be submitted."); }
+      const draftId = draftIdRef.current!;
+      const totalBytes = files.reduce((sum, file) => sum + file.size, 0) || 1;
+      let completedBytes = files.reduce((sum, file, index) => sum + (uploadStates[index]?.status === "complete" ? file.size : 0), 0);
+      for (let index = 0; index < files.length; index++) {
+        const file = files[index]!;
+        if (uploadStates[index]?.status === "complete") continue;
+        const started = performance.now();
+        setUploadStates((current) => ({ ...current, [index]: { status: "uploading", percent: 0, detail: "Starting upload" } }));
+        try {
+          await uploadDocument(authToken, draftId, file, (loaded, total) => {
+            const seconds = Math.max((performance.now() - started) / 1000, 0.1);
+            const rate = loaded / seconds; const remaining = rate > 0 ? Math.ceil((total - loaded) / rate) : 0;
+            const percent = Math.min(100, Math.round((loaded / Math.max(total, 1)) * 100));
+            setUploadStates((current) => ({ ...current, [index]: { status: "uploading", percent, detail: `${percent}% · ${remaining}s remaining` } }));
+            setOverallProgress(Math.min(99, Math.round(((completedBytes + loaded) / totalBytes) * 100)));
+          }, () => setUploadStates((current) => ({ ...current, [index]: { status: "verifying", percent: 100, detail: "Uploaded · verifying content" } })));
+          completedBytes += file.size;
+          setUploadStates((current) => ({ ...current, [index]: { status: "complete", percent: 100, detail: "Verified" } }));
+          setOverallProgress(Math.round((completedBytes / totalBytes) * 100));
+        } catch (reason) {
+          setUploadStates((current) => ({ ...current, [index]: { status: "failed", percent: current[index]?.percent || 0, detail: "Failed" } }));
+          throw reason;
+        }
+      }
+      const finalResponse = await fetch(`/api/inquiry-submissions/${draftId}/finalize`, { method: "POST", headers: { Authorization: `Bearer ${authToken}` } });
+      const finalBody = await finalResponse.json().catch(() => null);
+      if (!finalResponse.ok || !finalBody?.ok) throw new Error(finalBody?.error?.message || "Files uploaded, but the inquiry could not be finalized.");
+      const created = finalBody.data as CustomerInquirySubmission;
+      setNotice(`Inquiry ${created.submission_reference} was submitted securely with ${filesLabel(files.length)}.`);
+      formRef.current?.reset(); setSelectedFiles([]); setUploadStates({}); setOverallProgress(0); draftIdRef.current=null; draftReferenceRef.current=null; await load();
+    } catch (reason) { setError(reason instanceof Error ? `${reason.message} Draft ${draftReferenceRef.current || ""} is retained; press Submit inquiry to retry only the failed document.` : "The inquiry could not be submitted."); }
     finally { setSubmitting(false); }
   }
 
@@ -122,10 +179,11 @@ export function CustomerInquiryPortal() {
             <button type="button" aria-labelledby="inquiry-documents-label inquiry-document-picker-copy" aria-describedby="inquiry-documents-help" onClick={()=>fileInputRef.current?.click()} onDragEnter={(event)=>{event.preventDefault();setDragging(true);}} onDragOver={(event)=>event.preventDefault()} onDragLeave={()=>setDragging(false)} onDrop={(event)=>{event.preventDefault();setDragging(false);addFiles(event.dataTransfer.files);}} className={`mt-2 w-full rounded-2xl border-2 border-dashed p-5 text-center outline-none transition focus-visible:border-brand-300 focus-visible:ring-2 focus-visible:ring-brand-400/50 sm:p-6 ${dragging?"border-brand-300 bg-brand-500/15":"border-line-strong bg-ink-950/70 hover:border-brand-400/70 hover:bg-ink-950"}`}>
               <span aria-hidden="true" className="mx-auto grid h-11 w-11 place-items-center rounded-xl bg-brand-500/15 text-xl text-brand-300">+</span><span id="inquiry-document-picker-copy" className="mt-3 block text-sm font-bold leading-5 text-text-primary">{selectedFiles.length ? "Add more documents" : "Choose documents or drop them here"}</span><span id="inquiry-documents-help" className="mt-1 block text-xs leading-5 text-text-muted">PDF, images, XLSX or CSV · 30 MB each · {selectedFiles.length}/{MAX_FILES} selected</span>
             </button>
-            {selectedFiles.length>0&&<div aria-live="polite" aria-label={`${selectedFiles.length} documents selected`} className="mt-3 grid gap-2 sm:grid-cols-2">{selectedFiles.map((file,index)=><div key={`${file.name}-${file.size}-${index}`} className="flex items-center justify-between gap-3 rounded-xl border border-line-strong bg-ink-950 px-3 py-2"><div className="min-w-0"><div className="truncate text-xs font-semibold text-text-primary">{file.name}</div><div className="text-3xs text-text-faint">{Math.ceil(file.size/1024).toLocaleString()} KB · ready to attach</div></div><div className="flex shrink-0 gap-1"><button type="button" aria-label={`Replace ${file.name}`} onClick={()=>{replaceIndexRef.current=index;replaceFileInputRef.current?.click();}} className="rounded-lg px-2 py-1 text-xs font-semibold text-brand-300 hover:bg-brand-500/10 focus-visible:ring-2 focus-visible:ring-brand-400/40">Replace</button><button type="button" aria-label={`Remove ${file.name}`} onClick={()=>setSelectedFiles((current)=>current.filter((_,position)=>position!==index))} className="rounded-lg px-2 py-1 text-xs font-semibold text-state-danger hover:bg-state-danger/10 focus-visible:ring-2 focus-visible:ring-state-danger/40">Remove</button></div></div>)}</div>}
+            {selectedFiles.length>0&&<div aria-live="polite" aria-label={`${selectedFiles.length} documents selected`} className="mt-3 grid gap-2 sm:grid-cols-2">{selectedFiles.map((file,index)=><div key={`${file.name}-${file.size}-${index}`} className="flex items-center justify-between gap-3 rounded-xl border border-line-strong bg-ink-950 px-3 py-2"><div className="min-w-0"><div className="truncate text-xs font-semibold text-text-primary">{file.name}</div><div className="text-3xs text-text-faint">{Math.ceil(file.size/1024).toLocaleString()} KB · {uploadStates[index]?.detail || "ready to attach"}</div>{uploadStates[index]&&<div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label={`${file.name} upload progress`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={uploadStates[index]?.percent}><div className={`h-full transition-[width] ${uploadStates[index]?.status==="failed"?"bg-state-danger":"bg-brand-400"}`} style={{width:`${uploadStates[index]?.percent||0}%`}} /></div>}</div><div className={`shrink-0 gap-1 ${submitting?"hidden":"flex"}`}><button type="button" aria-label={`Replace ${file.name}`} onClick={()=>{replaceIndexRef.current=index;replaceFileInputRef.current?.click();}} className="rounded-lg px-2 py-1 text-xs font-semibold text-brand-300 hover:bg-brand-500/10 focus-visible:ring-2 focus-visible:ring-brand-400/40">Replace</button><button type="button" aria-label={`Remove ${file.name}`} onClick={()=>setSelectedFiles((current)=>current.filter((_,position)=>position!==index))} className="rounded-lg px-2 py-1 text-xs font-semibold text-state-danger hover:bg-state-danger/10 focus-visible:ring-2 focus-visible:ring-state-danger/40">Remove</button></div></div>)}</div>}
             <span className="mt-2 block text-3xs text-text-faint">Files stay private and are checked by content, not filename alone. CAD files must be exported to PDF or image.</span>
           </div>
-          <button disabled={submitting} className="sm:col-span-2 rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink disabled:opacity-50">{submitting ? `Uploading and verifying ${filesLabel(selectedFiles.length)}…` : "Submit inquiry"}</button>
+          {submitting&&<div className="sm:col-span-2" role="status" aria-live="polite"><div className="flex justify-between text-xs font-semibold"><span>Uploading and verifying {filesLabel(selectedFiles.length)}</span><span>{overallProgress}%</span></div><div className="mt-2 h-2.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label="Overall inquiry upload progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={overallProgress}><div className="h-full bg-brand-400 transition-[width]" style={{width:`${overallProgress}%`}} /></div><p className="mt-2 text-3xs text-text-muted">Keep this page open. Each document is uploaded and verified separately.</p></div>}
+          <button disabled={submitting} className="sm:col-span-2 rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink disabled:opacity-50">{submitting ? `Uploading ${overallProgress}%` : "Submit inquiry"}</button>
         </form>
       </section>
       <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><div className="flex items-center justify-between"><h2 className="text-lg font-bold">Your submissions</h2><button onClick={() => void load()} className="text-xs font-semibold text-brand-300">Refresh</button></div>

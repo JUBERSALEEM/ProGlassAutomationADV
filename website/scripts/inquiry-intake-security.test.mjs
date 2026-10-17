@@ -8,6 +8,9 @@ const limitsPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8a-lim
 const stagedPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8a-staged-uploads.sql", import.meta.url), "utf8");
 const api = readFileSync(new URL("../src/lib/inquiry-submissions-api.ts", import.meta.url), "utf8");
 const route = readFileSync(new URL("../src/app/api/inquiry-submissions/route.ts", import.meta.url), "utf8");
+const draftRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/drafts/route.ts", import.meta.url), "utf8");
+const uploadRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/[id]/documents/route.ts", import.meta.url), "utf8");
+const finalizeRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/[id]/finalize/route.ts", import.meta.url), "utf8");
 const portal = readFileSync(new URL("../src/components/inquiries/CustomerInquiryPortal.tsx", import.meta.url), "utf8");
 const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
 
@@ -23,6 +26,24 @@ test("staged upload patch is additive, owner-bound, bounded, and explicitly fina
   assert.match(stagedPatch, /upload_state='draft'/);
   assert.match(stagedPatch, /s\.upload_state='complete' AND public\.has_inquiry_role/);
   assert.doesNotMatch(stagedPatch, /FOR (UPDATE|DELETE) TO authenticated|service_role|public\s*=\s*true/i);
+});
+
+test("staged API uploads one bounded file, finalizes explicitly, and exposes real progress", () => {
+  assert.match(draftRoute, /createCustomerInquiryDraft/);
+  assert.match(uploadRoute, /CUSTOMER_INQUIRY_MAX_FILE_BYTES \+ 128_000/);
+  assert.match(uploadRoute, /uploadCustomerInquiryDocument/);
+  assert.match(finalizeRoute, /finalizeCustomerInquiry/);
+  for (const stagedRoute of [draftRoute, uploadRoute, finalizeRoute]) {
+    assert.match(stagedRoute, /sec-fetch-site/);
+    assert.match(stagedRoute, /Bearer/);
+  }
+  assert.match(api, /files\.length !== 1/);
+  assert.match(api, /\.eq\("upload_state", "complete"\)/);
+  assert.match(portal, /new XMLHttpRequest\(\)/);
+  assert.match(portal, /request\.upload\.onprogress/);
+  assert.match(portal, /status: "verifying"/);
+  assert.match(portal, /Overall inquiry upload progress/);
+  assert.match(portal, /beforeunload/);
 });
 
 test("Next middleware preserves the full bounded customer multipart request", () => {
