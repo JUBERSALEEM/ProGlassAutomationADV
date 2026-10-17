@@ -330,10 +330,12 @@ export default async function LocaleLayout({
               Renders nothing. */}
           <GlassLife />
           <Navbar />
-          <main id="main" className="pt-[var(--nav-height)]">
-            {children}
-          </main>
-          <Footer t={t} />
+          <div className="site-stage">
+            <main id="main" className="site-main pt-[var(--nav-height)]" tabIndex={-1}>
+              {children}
+            </main>
+            <Footer t={t} />
+          </div>
           <ThemeStudioLazy />
           {/* Inside the provider, not beside it: outside the context the
               support bubble's labels and links silently resolved through the

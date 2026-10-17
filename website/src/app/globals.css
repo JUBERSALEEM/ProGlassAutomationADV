@@ -1363,6 +1363,37 @@
   .auto-grid-standard { --auto-grid-min: var(--grid-card-standard); }
   .auto-grid-wide { --auto-grid-min: var(--grid-card-wide); }
 
+  /* Phase 10.3 — the shell is a stage, not a stack of unrelated route bands.
+   * The edge lights establish depth without putting glass around every block;
+   * they are fixed paint, pointer-transparent, and disappear in print. */
+  .site-stage {
+    position: relative;
+    isolation: isolate;
+    min-block-size: 100vh;
+    overflow: clip;
+  }
+
+  .site-stage::before,
+  .site-stage::after {
+    content: "";
+    position: fixed;
+    z-index: -1;
+    inset-block: var(--nav-height) 0;
+    inline-size: 1px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, rgb(var(--brand-400) / 0.22) 24%, rgb(var(--glass-cyan) / 0.12) 72%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 16%, #000 84%, transparent);
+  }
+  .site-stage::before { inset-inline-start: max(1rem, calc((100vw - var(--shell-max)) / 2)); }
+  .site-stage::after { inset-inline-end: max(1rem, calc((100vw - var(--shell-max)) / 2)); }
+
+  .site-main {
+    position: relative;
+    z-index: 1;
+    min-block-size: 70vh;
+    outline: none;
+  }
+
   /* The persistent top panel must never trap keyboard users at the start of
    * every route. This link is the first focus stop, hidden off-canvas until it
    * is useful. Logical positioning keeps the contract correct in RTL. */

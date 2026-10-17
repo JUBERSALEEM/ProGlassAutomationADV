@@ -103,9 +103,11 @@ Expected test stderr includes Motion's reduced-motion informational warning in r
 
 ### Phase 10.3 — shared shell and navigation
 
-- [ ] Modernize header/top panel, desktop menus, mobile navigation, locale/theme controls, support affordance, footer, page container, and shared backgrounds using the existing shared shell.
-- [ ] Preserve keyboard, focus, hover/pin behavior, Escape dismissal, route/query/locale behavior, and responsive overflow safety; add a localized first-focus skip link to the main landmark.
+- [x] Modernize header/top panel, desktop menus, mobile navigation, locale/theme controls, support affordance, footer, page container, and shared backgrounds using the existing shared shell and unified site stage.
+- [x] Preserve keyboard, focus, hover/pin behavior, Escape dismissal, route/query/locale behavior, and responsive overflow safety; the localized first-focus skip link now moves focus to the programmatically focusable main landmark.
 - **Gate:** automated navigation tests plus desktop/tablet/mobile browser verification in LTR and RTL.
+
+**Phase 10.3 implementation evidence (2026-10-18):** The localized layout now owns a unified `site-stage`, subtle logical-edge depth rails, a focusable main landmark, and a translated skip link. Existing top-panel, mobile sheet, locale/theme, footer, support, Escape, and hover/pin behavior remains in the shared shell and its interaction suite. Real viewport LTR/RTL inspection remains an open gate.
 
 ### Phase 10.4 — motion and feedback system
 

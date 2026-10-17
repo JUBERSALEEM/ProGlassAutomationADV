@@ -10,7 +10,8 @@ const layoutPrimitives = readFileSync(new URL("../src/components/ui/Layout.tsx",
 
 test("the localized shell provides a keyboard bypass to the main landmark", () => {
   assert.match(layout, /href="#main" className="skip-link"/);
-  assert.match(layout, /<main id="main"/);
+  assert.match(layout, /<main id="main" className="site-main[^\"]*" tabIndex=\{-1\}>/);
+  assert.match(layout, /<div className="site-stage">/);
   assert.match(layout, /t\("Skip to content"\)/);
   assert.match(css, /\.skip-link:focus-visible\s*{[^}]*transform:\s*translateY\(0\)/s);
 });
