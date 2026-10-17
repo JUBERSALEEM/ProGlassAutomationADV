@@ -119,8 +119,9 @@ export function InquiriesDashboard() {
             <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Inquiries</h1>
             <p className="mt-1 max-w-2xl text-xs leading-relaxed text-text-muted">Search the desktop-authoritative inquiry register and privately published inquiry attachments. Changes must be made in ProGlass desktop.</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
             {userEmail && <span className="hidden text-2xs text-text-faint sm:inline">{userEmail}</span>}
+            <LocaleLink href="/inquiries/submit" className="rounded-xl bg-brand-400 px-3 py-2 text-xs font-bold text-accent-ink hover:bg-brand-300">Submit customer inquiry</LocaleLink>
             <button type="button" onClick={() => { setLoading(true); setRefresh((value) => value + 1); }} className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted hover:text-text-primary">Refresh</button>
             <button type="button" onClick={() => void signOut()} className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted hover:text-text-primary">Sign out</button>
           </div>
