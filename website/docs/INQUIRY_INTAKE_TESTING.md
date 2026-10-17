@@ -56,6 +56,29 @@ where upload_state='complete' and finalized_at is null;
 
 Expected immediately after migration: three columns, one overload for each new RPC, all pre-existing rows in `complete`, and `incomplete_legacy_rows = 0`.
 
+### Customer profile/project follow-up
+
+After staged uploads are verified, review and separately apply `supabase-inquiry-intake-phase8a-customer-projects.sql`. It adds owner-only reusable profiles/projects, nullable project association and inquiry type snapshots, and constrained save/draft-v2 RPCs. Existing submissions remain unlinked snapshots and are not rewritten.
+
+Read-only verification after authorized application:
+
+```sql
+select table_name from information_schema.tables
+where table_schema='public' and table_name in ('inquiry_customer_profiles','inquiry_customer_projects')
+order by table_name;
+
+select routine_name,count(*) from information_schema.routines
+where routine_schema='public' and routine_name in
+('save_customer_inquiry_profile','save_customer_inquiry_project','create_customer_inquiry_draft_v2')
+group by routine_name order by routine_name;
+
+select column_name from information_schema.columns
+where table_schema='public' and table_name='inquiry_customer_submissions'
+  and column_name in ('project_id','inquiry_type') order by column_name;
+```
+
+Expected: two tables, one overload for each of the three RPCs, and two submission columns.
+
 ## 3. Runtime
 
 Configure the existing non-production `NEXT_PUBLIC_SUPABASE_URL` and publishable/anon key outside Git. Never use a service-role key. Rebuild after changing `NEXT_PUBLIC_*` values:

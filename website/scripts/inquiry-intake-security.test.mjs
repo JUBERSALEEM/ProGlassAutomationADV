@@ -6,6 +6,7 @@ const sql = readFileSync(new URL("../supabase-inquiry-intake.sql", import.meta.u
 const fieldsPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8a-fields.sql", import.meta.url), "utf8");
 const limitsPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8a-limits.sql", import.meta.url), "utf8");
 const stagedPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8a-staged-uploads.sql", import.meta.url), "utf8");
+const projectsPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8a-customer-projects.sql", import.meta.url), "utf8");
 const api = readFileSync(new URL("../src/lib/inquiry-submissions-api.ts", import.meta.url), "utf8");
 const route = readFileSync(new URL("../src/app/api/inquiry-submissions/route.ts", import.meta.url), "utf8");
 const draftRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/drafts/route.ts", import.meta.url), "utf8");
@@ -26,6 +27,22 @@ test("staged upload patch is additive, owner-bound, bounded, and explicitly fina
   assert.match(stagedPatch, /upload_state='draft'/);
   assert.match(stagedPatch, /s\.upload_state='complete' AND public\.has_inquiry_role/);
   assert.doesNotMatch(stagedPatch, /FOR (UPDATE|DELETE) TO authenticated|service_role|public\s*=\s*true/i);
+});
+
+test("customer profiles and projects are owner-bound and written only through constrained RPCs", () => {
+  for (const table of ["inquiry_customer_profiles", "inquiry_customer_projects"]) {
+    assert.match(projectsPatch, new RegExp(`CREATE TABLE IF NOT EXISTS public\\.${table}`));
+    assert.match(projectsPatch, new RegExp(`ALTER TABLE public\\.${table} ENABLE ROW LEVEL SECURITY`));
+  }
+  assert.match(projectsPatch, /customer_user_id=auth\.uid\(\)/);
+  assert.match(projectsPatch, /REVOKE INSERT,UPDATE,DELETE ON TABLE/);
+  assert.match(projectsPatch, /save_customer_inquiry_profile/);
+  assert.match(projectsPatch, /save_customer_inquiry_project/);
+  assert.match(projectsPatch, /create_customer_inquiry_draft_v2/);
+  assert.match(projectsPatch, /p_project_id IS NOT NULL/);
+  assert.match(projectsPatch, /project_id uuid REFERENCES public\.inquiry_customer_projects/);
+  assert.match(projectsPatch, /inquiry_type IN \('quotation','drawing_review','technical','order_handover','other'\)/);
+  assert.doesNotMatch(projectsPatch, /service_role|public\s*=\s*true/i);
 });
 
 test("staged API uploads one bounded file, finalizes explicitly, and exposes real progress", () => {

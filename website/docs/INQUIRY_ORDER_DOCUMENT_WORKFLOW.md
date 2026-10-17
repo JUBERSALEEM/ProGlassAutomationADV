@@ -711,8 +711,8 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 - [x] Add responsive cumulative drag/drop/file selection with 15-slot count, selected-file cards, per-file replace/remove, remove-all, duplicate-name rejection, size feedback, and upload/verification progress copy.
 - [x] Correct Next.js 16 proxy multipart truncation so the authenticated route receives the bounded 15 × 30 MB request; live-submit 13 documents and verify all 13 records and protected downloads.
 - [ ] Replace the single multipart request with staged one-file requests that expose genuine per-file/overall progress, transfer rate, estimated remaining time, accessible states, interruption handling, safe retry, and explicit finalization. The staged migration is applied and verified in disposable Supabase (3 columns, 2 RPCs, 3 preserved submissions/15 documents); API/UI implementation is locally complete but still requires build and live verification before this item can be checked.
-- [ ] Add customer-owned saved profile defaults (company, contact, phone, VAT/TRN, and attention) with form prefill.
-- [ ] Add customer-owned projects, inquiry type/category, project association, and project/location/type/status/date history grouping and filters.
+- [ ] Add customer-owned saved profile defaults (company, contact, phone, VAT/TRN, and attention) with form prefill. Additive migration foundation prepared in `supabase-inquiry-intake-phase8a-customer-projects.sql`; application and UI verification remain pending.
+- [ ] Add customer-owned projects, inquiry type/category, project association, and project/location/type/status/date history grouping and filters. Schema/RLS/RPC foundation is in the same unapplied customer-projects migration.
 - [x] Add customer-owned submission history and `/[locale]/inquiries/submissions/[id]` detail UI with card hierarchy and protected back navigation.
 - [x] Add bearer-authenticated multipart create/list/detail APIs under `/api/inquiry-submissions`.
 - [x] Enforce 15 files maximum and 30 MB per file for customer intake while preserving the desktop-publication 10 MB policy.
