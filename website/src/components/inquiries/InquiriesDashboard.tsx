@@ -121,6 +121,7 @@ export function InquiriesDashboard() {
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2">
             {userEmail && <span className="hidden text-2xs text-text-faint sm:inline">{userEmail}</span>}
+            <LocaleLink href="/inquiries/customer-submissions" className="rounded-xl border border-brand-400 px-3 py-2 text-xs font-bold text-brand-200">Website submissions</LocaleLink>
             <LocaleLink href="/inquiries/submit" className="rounded-xl bg-brand-400 px-3 py-2 text-xs font-bold text-accent-ink hover:bg-brand-300">Submit customer inquiry</LocaleLink>
             <button type="button" onClick={() => { setLoading(true); setRefresh((value) => value + 1); }} className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted hover:text-text-primary">Refresh</button>
             <button type="button" onClick={() => void signOut()} className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted hover:text-text-primary">Sign out</button>
