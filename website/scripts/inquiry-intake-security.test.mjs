@@ -7,6 +7,7 @@ const fieldsPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8a-fie
 const limitsPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8a-limits.sql", import.meta.url), "utf8");
 const stagedPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8a-staged-uploads.sql", import.meta.url), "utf8");
 const projectsPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8a-customer-projects.sql", import.meta.url), "utf8");
+const reviewPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8b-review.sql", import.meta.url), "utf8");
 const api = readFileSync(new URL("../src/lib/inquiry-submissions-api.ts", import.meta.url), "utf8");
 const route = readFileSync(new URL("../src/app/api/inquiry-submissions/route.ts", import.meta.url), "utf8");
 const draftRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/drafts/route.ts", import.meta.url), "utf8");
@@ -29,6 +30,18 @@ test("staged upload patch is additive, owner-bound, bounded, and explicitly fina
   assert.match(stagedPatch, /upload_state='draft'/);
   assert.match(stagedPatch, /s\.upload_state='complete' AND public\.has_inquiry_role/);
   assert.doesNotMatch(stagedPatch, /FOR (UPDATE|DELETE) TO authenticated|service_role|public\s*=\s*true/i);
+});
+
+test("Phase 8B review is admin-gated, complete-only, bounded, and audited", () => {
+  assert.match(reviewPatch, /ADD COLUMN IF NOT EXISTS estimated_response_at/);
+  assert.match(reviewPatch, /operator_note text NOT NULL DEFAULT ''/);
+  assert.match(reviewPatch, /char_length\(operator_note\) <= 2000/);
+  assert.match(reviewPatch, /CREATE OR REPLACE FUNCTION public\.review_customer_inquiry_submission/);
+  assert.match(reviewPatch, /has_inquiry_role\(ARRAY\['inquiry_admin'\]\)/);
+  assert.match(reviewPatch, /upload_state='complete'/);
+  assert.match(reviewPatch, /p_status NOT IN \('under_review','accepted','rejected','closed'\)/);
+  assert.match(reviewPatch, /event_type,details,customer_visible/);
+  assert.doesNotMatch(reviewPatch, /service_role|public\s*=\s*true/i);
 });
 
 test("customer profiles and projects are owner-bound and written only through constrained RPCs", () => {

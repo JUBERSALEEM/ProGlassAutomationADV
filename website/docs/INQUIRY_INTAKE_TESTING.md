@@ -79,6 +79,23 @@ where table_schema='public' and table_name='inquiry_customer_submissions'
 
 Expected: two tables, one overload for each of the three RPCs, and two submission columns.
 
+### Phase 8B review follow-up
+
+Review and separately apply `supabase-inquiry-intake-phase8b-review.sql` only after authorization. It adds response-estimate/note fields and an admin-only, complete-submission review RPC. Existing status and document records are preserved.
+
+Read-only verification after application:
+
+```sql
+select column_name from information_schema.columns
+where table_schema='public' and table_name='inquiry_customer_submissions'
+  and column_name in ('estimated_response_at','operator_note') order by column_name;
+select routine_name,count(*) from information_schema.routines
+where routine_schema='public' and routine_name='review_customer_inquiry_submission'
+group by routine_name;
+```
+
+Expected: two columns and one RPC overload.
+
 ## 3. Runtime
 
 Configure the existing non-production `NEXT_PUBLIC_SUPABASE_URL` and publishable/anon key outside Git. Never use a service-role key. Rebuild after changing `NEXT_PUBLIC_*` values:
