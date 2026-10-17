@@ -1,6 +1,6 @@
 # Customer inquiry cloud-to-Windows inbox
 
-This Phase 8C bridge is separate from `inquiry-bridge.mjs`. It pulls only accepted website customer inquiries into an isolated protected inbox. It never writes desktop SQLite, the authoritative ProGlass data root, or desktop attachment manifests.
+This Phase 8C/9E bridge is separate from `inquiry-bridge.mjs`. It pulls only accepted website customer inquiries into an isolated protected inbox. Phase 9E adds an immutable active-assignment snapshot and routes each delivery under `assigned/<ESTIMATOR_CODE>/` or `unassigned/`; customer email is never used in a path. It never writes desktop SQLite, the authoritative ProGlass data root, or desktop attachment manifests.
 
 ## Security boundary
 
@@ -21,7 +21,7 @@ INQUIRY_INBOX_MAX_ITEMS=25
 
 ## Deployment sequence
 
-1. Review and separately authorize/apply `supabase-inquiry-intake-phase8c-inbox.sql` to disposable Supabase. Deployments that applied its original revision before the inbox event constraint was included must also apply `supabase-inquiry-intake-phase8c-event-repair.sql` once.
+1. Review and separately authorize/apply `supabase-inquiry-intake-phase8c-inbox.sql` to disposable Supabase. Deployments that applied its original revision before the inbox event constraint was included must also apply `supabase-inquiry-intake-phase8c-event-repair.sql` once. After Phase 9A/9B is installed, separately authorize/apply `supabase-inquiry-estimator-phase9e-handoff.sql` once to enable manifest v2 and estimator-aware routing.
 2. Create a dedicated Auth machine user and assign exactly `inquiry_bridge` through the protected SQL administration channel.
 3. Set the environment in a protected PowerShell/service context.
 4. Run a genuine remote plan:
@@ -36,7 +36,7 @@ INQUIRY_INBOX_MAX_ITEMS=25
    ```powershell
    npm run inquiries:inbox:apply
    ```
-6. Verify each final folder contains `manifest.json`, `READY`, and `documents`. Final folders appear only after all files pass expected byte size and SHA-256.
+6. Verify each final folder under `assigned/<ESTIMATOR_CODE>/` or `unassigned/` contains `manifest.json`, `READY`, and `documents`. Manifest version 2 contains the stable primary estimator code and complete active primary/collaborator assignment snapshot. Final folders appear only after all files pass expected byte size and SHA-256.
 7. Re-run dry-run. Successfully acknowledged items must not be planned again.
 8. Verify customer status is `downloaded` and an `inbox_delivered` event exists.
 9. Disable the bridge role and prove dry-run fails before revealing a plan.

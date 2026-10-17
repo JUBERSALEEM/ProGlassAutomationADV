@@ -99,10 +99,30 @@ Expected immediately after application: 2 tables, 2 RLS tables, 2 RPCs, 2 polici
 
 ## Phase 9E — estimator-aware Windows handoff
 
-- Add stable estimator code and assignment snapshot to the inbox manifest.
-- Controlled assigned/unassigned subfolders without customer email in paths.
-- Preserve global administrative recovery, byte/hash checks, atomic completion, and idempotent acknowledgement.
-- Do not write desktop SQLite.
+- [x] Add manifest v2 with stable primary estimator code and an ordered active primary/collaborator assignment snapshot.
+- [x] Route final deliveries through controlled `assigned/<ESTIMATOR_CODE>/` or `unassigned/` folders without customer email in paths.
+- [x] Fail closed if assignment or routing changes between plan and acknowledgement.
+- [x] Preserve global administrative recovery, byte/hash checks, atomic completion, conflicting-folder detection, and idempotent acknowledgement.
+- [x] Preserve the isolated inbox boundary and do not write desktop SQLite.
+- [ ] Apply `supabase-inquiry-estimator-phase9e-handoff.sql` after explicit authorization and run read-only structural verification.
+- [ ] Run dry-run/apply/recovery and assigned/unassigned/reassignment live verification on the Windows bridge environment.
+
+Read-only verification after application:
+
+```sql
+select 'delivery_columns' check_name,count(*)::text result from information_schema.columns
+where table_schema='public' and table_name='inquiry_customer_deliveries'
+  and column_name in ('routing_key','primary_estimator_code','assignment_snapshot')
+union all select 'v2_rpcs',count(*)::text from information_schema.routines where routine_schema='public'
+  and routine_name in ('plan_customer_inquiry_deliveries_v2','acknowledge_customer_inquiry_delivery_v2','customer_inquiry_assignment_snapshot')
+union all select 'existing_deliveries',count(*)::text from public.inquiry_customer_deliveries
+union all select 'invalid_routes',count(*)::text from public.inquiry_customer_deliveries
+  where routing_key is not null and routing_key<>'unassigned' and routing_key!~'^assigned/[A-Z0-9][A-Z0-9_-]{1,29}$'
+union all select 'invalid_snapshots',count(*)::text from public.inquiry_customer_deliveries
+  where assignment_snapshot is not null and jsonb_typeof(assignment_snapshot)<>'array';
+```
+
+Expected structure: 3 delivery columns and 3 v2/helper RPCs. Existing delivery count must be preserved; invalid routes and snapshots must both be 0.
 
 ## Phase 10 — production coordination room (separate scope)
 
