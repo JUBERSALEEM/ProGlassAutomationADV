@@ -4,7 +4,7 @@
 **Audit baseline:** 2026-10-18 (Asia/Dubai)  
 **Branch:** `arena/23bacfef-proglassautomationadv`  
 **Baseline commit:** `6f73f1f`  
-**Status:** Phase 10.1 audit and Phase 10.2 redesign foundation complete. Phases 10.3–10.10 are being reapplied as full redesign phases with one commit per phase; browser, authenticated-live-state, and localization-completeness gates remain open.
+**Status:** Phase 10.1 audit and Phase 10.2–10.9 redesign source passes complete with one commit per phase. Phase 10.10 automated regression is complete; browser/AT screenshots, authenticated live-state verification, lab performance, localization completeness, and Vercel preview deployment remain open.
 
 This is the evidence ledger for the full-site modernization. A checkbox is marked complete only when its stated verification was actually performed. Generated pages are not counted as unique designs, and development evidence is not represented as field Core Web Vitals.
 
@@ -165,11 +165,13 @@ Expected test stderr includes Motion's reduced-motion informational warning in r
 
 ### Phase 10.10 — final regression and Vercel preview
 
-- [ ] Run the complete automated suite and production build.
+- [x] Run the complete automated suite and production build.
 - [ ] Verify every route family and critical interaction in preview, including locale redirects and authenticated/data-dependent blockers.
 - [ ] Capture final desktop/tablet/mobile evidence and compare with baseline.
 - [ ] Deploy **preview only**; do not alter production configuration or secrets.
-- [ ] Produce final report: routes/files, component and motion changes, evidence, test/build/accessibility/performance results, preview status, defects, and unverified areas.
+- [x] Produce final report: routes/files, component and motion changes, evidence, test/build/accessibility/performance results, preview status, defects, and unverified areas (`MODERNIZATION_REPORT.md`).
+
+**Phase 10.10 evidence (2026-10-18):** Complete source regression and production build passed; local HTTP smoke checks returned 200 for English, Arabic, features, and manifest routes. The final report records exact commits, results, and blockers. Preview deployment and real-browser interaction/viewport verification remain unchecked rather than inferred from source tests.
 
 ## Persistent blockers and unresolved items
 
