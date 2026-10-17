@@ -33,6 +33,7 @@ export type InquiryEstimatorQueueItem = {
   inquiry_type: string;
   status: string;
   submitted_at: string;
+  status_updated_at: string;
   estimated_response_at: string | null;
   document_count: number;
   assignments: Array<Pick<InquiryEstimatorAssignment,"id"|"estimator_user_id"|"assignment_role"|"assigned_at">>;

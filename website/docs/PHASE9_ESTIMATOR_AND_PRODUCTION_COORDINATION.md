@@ -48,18 +48,21 @@ Planned as one complete batch after 9A passes:
 - [x] Assigned detail and private document delivery through the existing server-side byte/hash integrity check.
 - [x] Primary/team presentation by controlled display name rather than customer identity.
 - [x] Separate token/role checks, same-origin mutation checks, bounded queue, and static security assertions.
-- [ ] Apply `supabase-inquiry-estimator-phase9b-access.sql` after authorization, then live-test admin assignment UI, primary/collaborator team visibility, estimator detail/download, unassignment access loss, customer denial, and admin regression.
+- [x] Apply and structurally verify `supabase-inquiry-estimator-phase9b-access.sql`; live build 504/504, admin queue/search/filter/profile update, primary+collaborator assignment, both estimator queue/detail/download paths, customer denial, final-primary restoration, former-primary queue/detail/document denial, and admin regression all passed.
 
 ## Phase 9C — statistics and short reports
 
 Use the reports-page visual/interaction grammar with inquiry-specific facts:
 
-- Summary: assigned, new/unopened, due today, overdue, waiting for customer, completed this month.
-- Timing: first response, review duration, due compliance, last activity, aging buckets.
-- Breakdowns: estimator, inquiry type, company, project location, status, age bucket.
-- Table: received, age, reference, customer reference, company, project/location, type, primary/collaborators, documents, response due, last activity, status, action.
-- Filters: date, estimator, assigned/unassigned, type, status, company, project, location, documents, due/overdue/waiting/completed.
-- Short exports: workload, aging, response performance, source/type, assignment history, customer follow-up, conversion.
+- [x] Six role-scoped cards: visible inquiries, assigned, unassigned, due today, overdue, completed this month.
+- [x] Reports-style Top-6 breakdowns: primary estimator, inquiry type, company, and status.
+- [x] Short CSV reports: authorized queue, estimator workload, and inquiry aging/due state.
+- [x] Use persisted submitted/status-updated/response-estimate timestamps only; explicitly avoid fabricated production quantities and response values.
+- [x] Add role-scoped search, status, estimator, inquiry-type, company, and due-state filters; cards and exports recalculate from the filtered queue.
+- [x] Add server-side batched full authorized-queue loading with a fail-closed 10,000-row safety boundary instead of silently reporting from the first page.
+- [ ] Live-test the six cards, four breakdowns, six filters, three exports, and role-scoped totals.
+
+First-opened, last-activity, waiting-for-customer, first-response, and review-duration metrics are intentionally excluded until Phase 9D persists those events. URL-synchronized date/project/location filters and a larger sortable reporting table are enhancements after the verified Phase 9C dashboard rather than fabricated v1 fields.
 
 No metric may be shown until its source timestamp/state is persisted and defined.
 
