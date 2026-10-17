@@ -42,12 +42,13 @@ Expected immediately after migration: 3 tables, 3 RPC overloads, 3 RLS tables, 6
 
 Planned as one complete batch after 9A passes:
 
-- Admin estimator directory and activation controls.
-- Unassigned queue and assignment/reassignment form with required reason.
-- Estimator route showing only assigned work.
-- Detail/document access through existing integrity-checked delivery.
-- Primary and collaborator presentation without exposing customer auth identity.
-- Assignment timeline and access-loss verification after unassignment/disable.
+- [x] Admin estimator registration/directory and active-estimator assignment controls.
+- [x] Unassigned queue plus primary/collaborator assignment, reassignment, and ending controls.
+- [x] Estimator route showing only RLS-assigned complete work, with search and status filters.
+- [x] Assigned detail and private document delivery through the existing server-side byte/hash integrity check.
+- [x] Primary/team presentation by controlled display name rather than customer identity.
+- [x] Separate token/role checks, same-origin mutation checks, bounded queue, and static security assertions.
+- [ ] Apply `supabase-inquiry-estimator-phase9b-access.sql` after authorization, then live-test admin assignment UI, primary/collaborator team visibility, estimator detail/download, unassignment access loss, customer denial, and admin regression.
 
 ## Phase 9C — statistics and short reports
 

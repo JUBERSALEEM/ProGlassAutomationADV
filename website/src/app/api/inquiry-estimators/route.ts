@@ -1,0 +1,7 @@
+import { NextResponse,type NextRequest } from "next/server";
+import { EstimatorFailure,estimatorSetup,saveEstimator } from "@/lib/inquiry-estimators-api";
+export const runtime="nodejs";export const dynamic="force-dynamic";
+const token=(r:NextRequest)=>r.headers.get("authorization")?.replace(/^Bearer\s+/i,"").trim()||"";
+const fail=(e:unknown)=>{const f=e instanceof EstimatorFailure?e:new EstimatorFailure("TEMPORARY_FAILURE","Estimator service failed.");return NextResponse.json({ok:false,error:{code:f.code,message:f.message}},{status:f.code==="UNAUTHORIZED"?401:f.code==="FORBIDDEN"?403:f.code==="INVALID"?422:f.code==="NOT_FOUND"?404:503,headers:{"Cache-Control":"private, no-store"}});};
+export async function GET(r:NextRequest){try{return NextResponse.json({ok:true,data:await estimatorSetup(token(r))},{headers:{"Cache-Control":"private, no-store"}});}catch(e){return fail(e);}}
+export async function POST(r:NextRequest){try{const site=r.headers.get("sec-fetch-site");if(site&&site!=="same-origin"&&site!=="none")throw new EstimatorFailure("FORBIDDEN","Updates must originate from this website.");const body=await r.json() as {email?:string;code?:string;displayName?:string;active?:boolean};return NextResponse.json({ok:true,data:await saveEstimator(token(r),{email:body.email||"",code:body.code||"",displayName:body.displayName||"",active:body.active!==false})},{headers:{"Cache-Control":"private, no-store"}});}catch(e){return fail(e);}}

@@ -23,6 +23,21 @@ export type InquiryEstimatorAssignment = {
   ended_at: string | null;
 };
 
+export type InquiryEstimatorQueueItem = {
+  id: string;
+  submission_reference: string;
+  company_name: string;
+  contact_name: string;
+  project_name: string;
+  project_location: string;
+  inquiry_type: string;
+  status: string;
+  submitted_at: string;
+  estimated_response_at: string | null;
+  document_count: number;
+  assignments: Array<Pick<InquiryEstimatorAssignment,"id"|"estimator_user_id"|"assignment_role"|"assigned_at">>;
+};
+
 export type InquiryEstimatorEventType =
   | "estimator_registered"
   | "estimator_updated"
