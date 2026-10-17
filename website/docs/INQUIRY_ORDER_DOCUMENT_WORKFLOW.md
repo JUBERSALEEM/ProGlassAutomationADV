@@ -727,10 +727,10 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 
 ### Phase 8B — Internal review
 
-- [ ] Add operator list/detail APIs and UI for website submissions, visibly separate from the desktop-published register. Implementation is complete locally; production build and live role verification remain.
-- [ ] Add audited `under_review`, `accepted`, `rejected`, and `closed` transitions, response estimate, and bounded customer-visible operator note. Migration foundation prepared in `supabase-inquiry-intake-phase8b-review.sql`; it remains unapplied pending authorization.
-- [ ] Add private operator attachment delivery with integrity verification.
-- [ ] Verify customer/operator cross-access denial against real RLS.
+- [x] Add operator list/detail APIs and UI for website submissions, visibly separate from the desktop-published register. Production build and live admin register/search/filter/detail verification passed.
+- [x] Add audited `under_review`, `accepted`, `rejected`, and `closed` transitions, response estimate, and bounded customer-visible operator note. The migration is applied and structurally verified; live admin review plus customer status/estimate/note visibility passed.
+- [x] Add private operator attachment delivery with integrity verification; live authenticated download passed.
+- [ ] Verify customer/operator cross-access denial against real RLS with non-admin and cross-customer accounts.
 
 ### Phase 8C — Cloud-to-Windows inbox bridge
 
@@ -750,6 +750,8 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 **Phase 8A local/live evidence (2026-10-16):** the disposable project accepted `supabase-inquiry-intake.sql`, `supabase-inquiry-intake-phase8a-fields.sql`, and `supabase-inquiry-intake-phase8a-limits.sql`. Verification returned 3/3 tables with RLS, valid constrained RPCs/policies, a private 30 MB bucket, the normalized 1–31457280 document constraint, and preserved submission/document counts. Customer A created submissions with private documents, viewed history/detail, downloaded integrity-checked copies, and verified attention, VAT/TRN, salesman reference, handover estimator, responsive attachment cards, and detail-card hierarchy. Customer B saw no Customer A data. Cumulative selection, replacement, removal, remove-all, and duplicate suppression were browser-tested. After correcting Next.js's 10 MB proxy truncation in `deee657`, a real 13-document submission completed and its detail page showed all 13 attachments with protected download controls. Current automated evidence is ESLint and TypeScript clean, inquiry security 38/38, and a 474-page production build.
 
 **Phase 8A profile/project live evidence (2026-10-17):** the disposable project verification returned 2 profile/project tables, 2 submission columns, one overload for each of the 3 constrained RPCs, RLS enabled on both tables, 4 preserved submissions/18 documents before the test, and zero invalid inquiry types. A customer then saved reusable contact/company/phone/VAT/attention details through a real submission, refreshed and received those defaults, found and selected the saved project/location, restored its Drawing review type, and successfully filtered history by project, type, and Submitted status. No server error was reported.
+
+**Phase 8B positive-path live evidence (2026-10-17):** build `471930e` generated 489/489 pages with the separate localized website-submission register, dynamic detail route, and both operator APIs. An inquiry admin verified the desktop register remained unchanged, six complete website submissions appeared separately, search/status filtering and detail loading worked, a private attachment downloaded successfully, and an audited Under review update with a real estimate and customer-visible note succeeded. The owning customer then saw the updated status, estimate, and note; no server errors were reported. Cross-role/cross-customer denial remains to be live-tested.
 
 **Phase 8 status:** IN PROGRESS. The Phase 8A core workflow and 13-document live submission are verified in disposable non-production Supabase. Staged progress/retry/finalization, saved customer profiles, customer projects, the remaining negative/accessibility matrix, and deployment acceptance are still incomplete. Phase 8B–8D remain incomplete. No additional migration, deployment, publication, or production-data change is authorized.
 
