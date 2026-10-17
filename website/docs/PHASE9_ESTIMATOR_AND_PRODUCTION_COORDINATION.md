@@ -1,6 +1,6 @@
 # Phase 9 estimator workflow and Phase 10 production coordination
 
-Status: Phases 9A, 9B, 9C, and 9D are implemented and live-verified in disposable Supabase. Phase 9E is next. Phase 10 remains blocked until all five Phase 9 stages are complete and verified.
+Status: Phases 9A–9D are implemented and live-verified. Phase 9E implementation and database verification are complete; Windows bridge verification is explicitly deferred until 19 October 2026 at 08:00 Asia/Dubai when the PC is available. Do not start the production coordination room before that verification. The next repository-only work is Phase 10 responsive UI redesign; the production coordination room has moved to Phase 11.
 
 ## Verified reports-page pattern to reuse
 
@@ -105,7 +105,7 @@ Expected immediately after application: 2 tables, 2 RLS tables, 2 RPCs, 2 polici
 - [x] Preserve global administrative recovery, byte/hash checks, atomic completion, conflicting-folder detection, and idempotent acknowledgement.
 - [x] Preserve the isolated inbox boundary and do not write desktop SQLite.
 - [x] Apply `supabase-inquiry-estimator-phase9e-handoff.sql` after explicit authorization; read-only verification passed with 3 delivery columns, 3 v2/helper RPCs, 1 preserved delivery, 0 invalid routes, and 0 invalid snapshots.
-- [ ] Run dry-run/apply/recovery and assigned/unassigned/reassignment live verification on the Windows bridge environment.
+- [ ] Run dry-run/apply/recovery and assigned/unassigned/reassignment live verification on the Windows bridge environment — explicitly deferred by the user until 19 October 2026 at 08:00 Asia/Dubai because the PC is unavailable.
 
 Read-only verification after application:
 
@@ -124,7 +124,11 @@ union all select 'invalid_snapshots',count(*)::text from public.inquiry_customer
 
 Expected structure: 3 delivery columns and 3 v2/helper RPCs. Existing delivery count must be preserved; invalid routes and snapshots must both be 0.
 
-## Phase 10 — production coordination room (separate scope)
+## Phase 10 — responsive UI redesign pattern
+
+Repository-only visual redesign work while Phase 9E awaits the Windows PC. The website currently presents too many full-width single-card rows and must use the available desktop width more professionally. Establish and apply a responsive card-grid pattern that can present at least four cards per row where card content and viewport width permit, while preserving readable tablet/mobile layouts, accessibility, dark/light themes, and all existing behavior. Exact target pages and breakpoints are confirmed before implementation.
+
+## Phase 11 — production coordination room (separate scope)
 
 One production-only room is preferred over separate meeting/stage chats. Membership is explicit for approved department heads and admins; no access follows automatically from customer, estimator, viewer, or bridge roles.
 
