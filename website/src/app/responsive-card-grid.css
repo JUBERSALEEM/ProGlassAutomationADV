@@ -7,6 +7,13 @@
   gap: 0.75rem;
 }
 
+/* Content collections are count-aware. Four compact cards fit at the reviewed
+ * tablet width, but a section with only two or three cards expands those cards
+ * to consume the complete row instead of reserving empty fourth-column slots. */
+.dense-card-grid:not(.dense-fixed-grid) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+}
+
 .dense-card-grid > * {
   min-width: 0;
 }

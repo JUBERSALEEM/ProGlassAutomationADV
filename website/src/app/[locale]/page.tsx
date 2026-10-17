@@ -520,7 +520,7 @@ export default async function HomePage({ params }: PageProps) {
                     {t("Stock Plate to Cutting Table")}
                   </span>
                 </div>
-                <div className="dense-card-grid grid grid-cols-3 gap-2.5 sm:grid-cols-6">
+                <div className="dense-card-grid dense-fixed-grid grid grid-cols-3 gap-2.5 sm:grid-cols-6">
                   {[
                     { step: "01", name: t("Glass Parts"), desc: t("Dimensions from confirmed orders") },
                     { step: "02", name: t("Nesting / Layout"), desc: t("Guillotine cuts fitted to plates") },

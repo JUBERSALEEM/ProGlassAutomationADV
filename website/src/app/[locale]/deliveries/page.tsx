@@ -35,7 +35,7 @@ function DeliveriesPageSkeleton() {
         </div>
       </div>
       <div className="shell mt-6 space-y-6">
-        <div className="dense-card-grid grid grid-cols-3 gap-3.5 sm:grid-cols-6">
+        <div className="dense-card-grid dense-fixed-grid grid grid-cols-3 gap-3.5 sm:grid-cols-6">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}

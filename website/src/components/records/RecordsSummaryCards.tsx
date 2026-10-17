@@ -10,7 +10,7 @@ type RecordsSummaryCardsProps = {
 export function RecordsSummaryCards({ summary, loading }: RecordsSummaryCardsProps) {
   if (loading && !summary) {
     return (
-      <div className="dense-card-grid grid grid-cols-3 gap-3 sm:grid-cols-6">
+      <div className="dense-card-grid dense-fixed-grid grid grid-cols-3 gap-3 sm:grid-cols-6">
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
@@ -80,7 +80,7 @@ export function RecordsSummaryCards({ summary, loading }: RecordsSummaryCardsPro
   ];
 
   return (
-    <div className="dense-card-grid grid grid-cols-3 gap-3 sm:grid-cols-6">
+    <div className="dense-card-grid dense-fixed-grid grid grid-cols-3 gap-3 sm:grid-cols-6">
       {cards.map((card) => (
         <div
           key={card.label}

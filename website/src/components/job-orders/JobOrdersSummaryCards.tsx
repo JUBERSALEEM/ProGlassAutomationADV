@@ -7,7 +7,7 @@ type Props = { summary: JobOrderSummary | null; loading: boolean };
 export function JobOrdersSummaryCards({ summary, loading }: Props) {
   if (loading && !summary) {
     return (
-      <div className="dense-card-grid grid grid-cols-3 gap-3 sm:grid-cols-5">
+      <div className="dense-card-grid dense-fixed-grid grid grid-cols-3 gap-3 sm:grid-cols-5">
         {Array.from({ length: 5 }).map((_, index) => (
           <div key={index} className="h-24 animate-pulse rounded-2xl border border-line-strong/40 bg-ink-900/60 p-3.5">
             <div className="mb-3 h-3 w-24 rounded bg-line-strong/50" />
@@ -36,7 +36,7 @@ export function JobOrdersSummaryCards({ summary, loading }: Props) {
   ];
 
   return (
-    <div className="dense-card-grid grid grid-cols-3 gap-3 sm:grid-cols-5">
+    <div className="dense-card-grid dense-fixed-grid grid grid-cols-3 gap-3 sm:grid-cols-5">
       {cards.map((card) => (
         <div key={card.label} className="relative overflow-hidden rounded-2xl border border-line-strong/60 bg-ink-900/80 p-3.5 shadow-panel transition-colors hover:border-brand-400/35 hover:bg-ink-850/90">
           <div className="flex items-center justify-between gap-1.5">
