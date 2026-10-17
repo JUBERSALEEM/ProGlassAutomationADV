@@ -15,6 +15,9 @@ const uploadRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/[id
 const finalizeRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/[id]/finalize/route.ts", import.meta.url), "utf8");
 const profileRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/profile/route.ts", import.meta.url), "utf8");
 const projectsRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/projects/route.ts", import.meta.url), "utf8");
+const operatorListRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/operator/route.ts", import.meta.url), "utf8");
+const operatorDetailRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/operator/[id]/route.ts", import.meta.url), "utf8");
+const operatorReview = readFileSync(new URL("../src/components/inquiries/CustomerSubmissionReview.tsx", import.meta.url), "utf8");
 const portal = readFileSync(new URL("../src/components/inquiries/CustomerInquiryPortal.tsx", import.meta.url), "utf8");
 const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
 
@@ -58,6 +61,18 @@ test("customer profiles and projects are owner-bound and written only through co
   assert.match(projectsPatch, /project_id uuid REFERENCES public\.inquiry_customer_projects/);
   assert.match(projectsPatch, /inquiry_type IN \('quotation','drawing_review','technical','order_handover','other'\)/);
   assert.doesNotMatch(projectsPatch, /service_role|public\s*=\s*true/i);
+});
+
+test("Phase 8B operator APIs are token-bound, same-origin protected, complete-only, and RPC reviewed", () => {
+  assert.match(operatorListRoute,/listOperatorCustomerInquiries/);
+  assert.match(operatorDetailRoute,/sec-fetch-site/);
+  assert.match(operatorDetailRoute,/reviewOperatorCustomerInquiry/);
+  assert.match(api,/\.eq\("upload_state", "complete"\)/);
+  assert.match(api,/review_customer_inquiry_submission/);
+  assert.match(operatorReview,/Customer-visible note/);
+  assert.match(operatorReview,/Authorization:`Bearer/);
+  assert.match(portal,/row\.estimated_response_at/);
+  assert.match(portal,/row\.operator_note/);
 });
 
 test("profile and project APIs prefill, persist, associate, and filter customer inquiries", () => {

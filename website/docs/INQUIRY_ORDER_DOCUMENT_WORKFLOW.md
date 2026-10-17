@@ -727,7 +727,7 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 
 ### Phase 8B — Internal review
 
-- [ ] Add operator list/detail APIs and UI for website submissions, visibly separate from the desktop-published register.
+- [ ] Add operator list/detail APIs and UI for website submissions, visibly separate from the desktop-published register. Implementation is complete locally; production build and live role verification remain.
 - [ ] Add audited `under_review`, `accepted`, `rejected`, and `closed` transitions, response estimate, and bounded customer-visible operator note. Migration foundation prepared in `supabase-inquiry-intake-phase8b-review.sql`; it remains unapplied pending authorization.
 - [ ] Add private operator attachment delivery with integrity verification.
 - [ ] Verify customer/operator cross-access denial against real RLS.
