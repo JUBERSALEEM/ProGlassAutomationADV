@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { useOperatorSession } from "@/lib/useOperatorSession";
+import { InquiryCommunicationPanel } from "@/components/inquiries/InquiryCommunicationPanel";
 import type { CustomerInquirySubmission } from "@/types/inquiry-submissions";
 
 export function CustomerInquiryDetail({ id }: { id: string }) {
@@ -52,5 +53,6 @@ export function CustomerInquiryDetail({ id }: { id: string }) {
     </section>
     <section className="mt-5 rounded-2xl border border-line-strong bg-ink-900 p-5"><div className="inline-flex rounded-lg border border-line-strong bg-ink-950 px-3 py-1.5"><h2 className="font-bold">Requirements</h2></div><p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-text-secondary">{data.description}</p></section>
     <section className="mt-5 rounded-2xl border border-line-strong bg-ink-900 p-5"><div className="inline-flex rounded-lg border border-line-strong bg-ink-950 px-3 py-1.5"><h2 className="font-bold">Private documents</h2></div>{data.documents.length === 0 ? <p className="mt-3 text-xs text-text-muted">No documents attached.</p> : <ul className="mt-3 space-y-2">{data.documents.map((document) => <li key={document.id} className="flex items-center justify-between gap-3 rounded-xl border border-line-strong bg-ink-950 p-3"><div><div className="text-sm font-semibold">{document.original_filename}</div><div className="mt-1 text-3xs text-text-faint">{Math.ceil(document.byte_size / 1024).toLocaleString()} KB · integrity recorded</div></div><button type="button" disabled={downloadingId !== null} aria-busy={downloadingId === document.id} onClick={() => void download(document.id, document.original_filename)} className="min-w-24 rounded-lg border border-line-strong px-3 py-1.5 text-xs font-semibold text-brand-300 disabled:cursor-wait disabled:opacity-60">{downloadingId === document.id ? "Preparing…" : "Download"}</button></li>)}</ul>}</section>
+    <InquiryCommunicationPanel submissionId={id} token={authToken} internalAccess={false} />
   </div></main>;
 }

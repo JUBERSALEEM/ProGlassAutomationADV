@@ -70,10 +70,32 @@ No metric may be shown until its source timestamp/state is persisted and defined
 
 ## Phase 9D — controlled customer/estimator communication
 
-- Customer-visible messages and requests for missing information.
-- Separate private internal notes.
-- Audited message visibility, bounded content, private files, and status transitions.
-- Assigned estimator access only; customer ownership remains unchanged.
+- [x] Customer-visible messages and requests for missing information.
+- [x] Separate private internal notes hidden from customers.
+- [x] Immutable audit events, explicit visibility, 4,000-character bounds, and controlled open/resolved request transitions.
+- [x] Assigned-estimator/admin access only while customer ownership remains unchanged.
+- [x] Same-origin mutation API and one shared conversation panel on customer and estimator inquiry details.
+- [ ] Apply `supabase-inquiry-estimator-phase9d-communication.sql` after explicit authorization and run the read-only verification below.
+- [ ] Live-test customer/primary/collaborator/former-estimator/admin visibility and mutation matrix.
+
+Existing inquiry documents remain the protected file exchange for this phase; messages do not create a second upload path or weaken the established 30 MB/15-file controls.
+
+Read-only verification after application:
+
+```sql
+select 'tables' check_name,count(*)::text result from information_schema.tables
+where table_schema='public' and table_name in ('inquiry_communications','inquiry_communication_events')
+union all select 'rls_tables',count(*)::text from pg_tables where schemaname='public'
+  and tablename in ('inquiry_communications','inquiry_communication_events') and rowsecurity
+union all select 'rpcs',count(*)::text from information_schema.routines where routine_schema='public'
+  and routine_name in ('post_inquiry_communication','resolve_inquiry_information_request')
+union all select 'policies',count(*)::text from pg_policies where schemaname='public'
+  and tablename in ('inquiry_communications','inquiry_communication_events')
+union all select 'messages',count(*)::text from public.inquiry_communications
+union all select 'events',count(*)::text from public.inquiry_communication_events;
+```
+
+Expected immediately after application: 2 tables, 2 RLS tables, 2 RPCs, 2 policies, 0 messages, and 0 events. Existing submission, document, delivery, estimator, and assignment counts must remain unchanged.
 
 ## Phase 9E — estimator-aware Windows handoff
 
