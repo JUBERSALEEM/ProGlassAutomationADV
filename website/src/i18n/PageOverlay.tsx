@@ -29,9 +29,10 @@ export function PageOverlay({
   children: ReactNode;
 }) {
   const overlay = { ...APP_STRINGS[locale], ...pageOverlayFor(route, locale) };
+  const inquiryWorkflow = route === "inquiries" || route.startsWith("inquiries/");
   return (
     <I18nProvider locale={locale} overlay={overlay}>
-      {children}
+      {inquiryWorkflow ? <div className="inquiry-route">{children}</div> : children}
     </I18nProvider>
   );
 }

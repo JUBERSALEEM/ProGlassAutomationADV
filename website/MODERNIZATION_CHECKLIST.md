@@ -139,9 +139,11 @@ Expected test stderr includes Motion's reduced-motion informational warning in r
 
 ### Phase 10.7 — inquiry workflows
 
-- [ ] Modernize customer submission, tracking, operator review, estimator queue/detail, assignments, documents, and communications without changing security boundaries.
-- [ ] Preserve validation, staged upload progress/finalization, ownership, role checks, download authorization, audit behavior, and backend contracts.
+- [x] Modernize customer submission, tracking, operator review, estimator queue/detail, assignments, documents, and communications without changing security boundaries.
+- [x] Preserve validation, staged upload progress/finalization, ownership, role checks, download authorization, audit behavior, and backend contracts.
 - **Gate:** all inquiry/security tests, keyboard/focus/error-state QA, and authorized live workflow verification. No migration or production mutation.
+
+**Phase 10.7 implementation evidence (2026-10-18):** `PageOverlay` now applies one inquiry-workflow scope to customer, operator, estimator, document, assignment, and communication routes. Editable wells, read-only evidence, grouped fields, alerts, and live status regions receive a consistent secure-workspace hierarchy without touching handlers, RLS, storage, validation, staged uploads, finalization, or API contracts. The 73-test security suite is the pre-commit gate; authorized live workflow verification remains blocked.
 
 ### Phase 10.8 — responsive and accessibility closure
 

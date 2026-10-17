@@ -1363,6 +1363,30 @@
   .auto-grid-standard { --auto-grid-min: var(--grid-card-standard); }
   .auto-grid-wide { --auto-grid-min: var(--grid-card-wide); }
 
+  /* Phase 10.7 — inquiry workflows share a secure-workspace visual grammar.
+   * It clarifies editable wells, read-only evidence, and grouped fieldsets
+   * without changing submission, upload, authorization, or data contracts. */
+  .inquiry-route {
+    min-block-size: 100vh;
+    background:
+      radial-gradient(70% 26rem at 50% 0%, rgb(var(--brand-500) / 0.09), transparent 70%),
+      transparent;
+  }
+  .inquiry-route :is(fieldset, [role="group"]) {
+    scroll-margin-block: calc(var(--nav-height) + 1.5rem);
+  }
+  .inquiry-route :is(input, select, textarea):not(:disabled) {
+    background-color: rgb(var(--ink-950) / 0.72);
+    border-color: rgb(var(--line-strong) / 0.72);
+  }
+  .inquiry-route :is(input, select, textarea):disabled,
+  .inquiry-route [aria-readonly="true"] {
+    opacity: 0.78;
+  }
+  .inquiry-route :is([role="alert"], [aria-live]) {
+    border-inline-start: 2px solid rgb(var(--brand-400) / 0.72);
+  }
+
   /* Phase 10.6 — operational routes are a restrained workspace layer. Data
    * remains flat, numerically aligned, and high-density while controls and
    * table boundaries gain a consistent task-focused hierarchy. */
