@@ -1322,6 +1322,47 @@
     }
   }
 
+  /* Phase 10.2 — one layout rhythm for every route. These primitives use
+   * logical flow and count-aware tracks, so page templates do not invent
+   * breakpoint-specific stacks or reserve empty card columns. */
+  :root {
+    --space-flow-xs: clamp(0.5rem, 0.45rem + 0.2vw, 0.75rem);
+    --space-flow-sm: clamp(0.75rem, 0.65rem + 0.35vw, 1.125rem);
+    --space-flow-md: clamp(1rem, 0.82rem + 0.65vw, 1.625rem);
+    --space-flow-lg: clamp(1.5rem, 1.15rem + 1.2vw, 2.5rem);
+    --space-flow-xl: clamp(2.25rem, 1.55rem + 2.2vw, 4.25rem);
+    --grid-card-compact: 9.5rem;
+    --grid-card-standard: 14rem;
+    --grid-card-wide: 20rem;
+  }
+
+  .flow { display: flex; flex-direction: column; }
+  .flow-xs { gap: var(--space-flow-xs); }
+  .flow-sm { gap: var(--space-flow-sm); }
+  .flow-md { gap: var(--space-flow-md); }
+  .flow-lg { gap: var(--space-flow-lg); }
+  .flow-xl { gap: var(--space-flow-xl); }
+
+  .cluster { display: flex; flex-wrap: wrap; }
+  .cluster-xs { gap: var(--space-flow-xs); }
+  .cluster-sm { gap: var(--space-flow-sm); }
+  .cluster-md { gap: var(--space-flow-md); }
+  .cluster-align-start { align-items: flex-start; }
+  .cluster-align-center { align-items: center; }
+  .cluster-align-end { align-items: flex-end; }
+  .cluster-justify-start { justify-content: flex-start; }
+  .cluster-justify-center { justify-content: center; }
+  .cluster-justify-between { justify-content: space-between; }
+
+  .auto-grid {
+    display: grid;
+    gap: var(--space-flow-md);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--auto-grid-min)), 1fr));
+  }
+  .auto-grid-compact { --auto-grid-min: var(--grid-card-compact); }
+  .auto-grid-standard { --auto-grid-min: var(--grid-card-standard); }
+  .auto-grid-wide { --auto-grid-min: var(--grid-card-wide); }
+
   /* The persistent top panel must never trap keyboard users at the start of
    * every route. This link is the first focus stop, hidden off-canvas until it
    * is useful. Logical positioning keeps the contract correct in RTL. */

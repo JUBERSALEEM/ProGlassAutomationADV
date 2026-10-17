@@ -6,6 +6,7 @@ const layout = readFileSync(new URL("../src/app/[locale]/layout.tsx", import.met
 const css = readFileSync(new URL("../src/app/globals.css", import.meta.url), "utf8");
 const motion = readFileSync(new URL("../src/lib/motion.ts", import.meta.url), "utf8");
 const tailwind = readFileSync(new URL("../tailwind.config.ts", import.meta.url), "utf8");
+const layoutPrimitives = readFileSync(new URL("../src/components/ui/Layout.tsx", import.meta.url), "utf8");
 
 test("the localized shell provides a keyboard bypass to the main landmark", () => {
   assert.match(layout, /href="#main" className="skip-link"/);
@@ -20,6 +21,14 @@ test("components consume semantic theme colors rather than a second fixed palett
   assert.match(tailwind, /state:\s*{/);
   assert.match(tailwind, /rgb\(var\(--ink-950\)/);
   assert.match(tailwind, /rgb\(var\(--text-1\)/);
+});
+
+test("the design system exposes shared flow, cluster, and count-aware grid primitives", () => {
+  assert.match(layoutPrimitives, /export function Flow/);
+  assert.match(layoutPrimitives, /export function Cluster/);
+  assert.match(layoutPrimitives, /export function AutoGrid/);
+  assert.match(css, /--space-flow-md:\s*clamp\(/);
+  assert.match(css, /repeat\(auto-fit, minmax\(min\(100%, var\(--auto-grid-min\)\), 1fr\)\)/);
 });
 
 test("the two motion lanes retain centralized timing and capped stagger", () => {
