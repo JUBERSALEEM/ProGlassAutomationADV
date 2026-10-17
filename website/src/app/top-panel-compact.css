@@ -1,0 +1,36 @@
+/* Compact application chrome.
+ * Card content needs radius-aware safety; navigation controls do not. Keeping
+ * the global radius floor on the top panel made Clay/large-radius controls
+ * grow with the corner dial. This scope caps chrome insets and gives dropdowns
+ * an explicit compact, clipped curve without changing page cards. */
+.top-panel-compact {
+  --corner-safe-cap-inline: 0.75rem;
+  --corner-safe-cap-block: 0.5rem;
+}
+
+.top-panel-compact .nav-pill {
+  border-radius: clamp(0.75rem, var(--card-radius), 1.25rem);
+}
+
+.top-panel-compact .nav-pill > :is(a, button),
+.top-panel-compact .nav-pill > div > button,
+.top-panel-compact button[aria-controls="mobile-menu"] {
+  border-radius: clamp(0.625rem, calc(var(--card-radius) * 0.55), 0.875rem);
+}
+
+.top-panel-compact .menu-card {
+  --corner-radius: clamp(0.875rem, calc(var(--card-radius) * 0.72), 1.25rem);
+  border-radius: var(--corner-radius);
+  overflow: clip;
+}
+
+.top-panel-compact .menu-card ul > li > a {
+  --corner-radius: clamp(0.625rem, calc(var(--card-radius) * 0.5), 0.875rem);
+  border-radius: var(--corner-radius);
+}
+
+/* Clay's travelling highlight stays pill-shaped; only the surrounding chrome
+ * and dropdown cards use the compact corner contract above. */
+[data-appearance="clay"] .top-panel-compact .navclay__indicator {
+  border-radius: 999px;
+}

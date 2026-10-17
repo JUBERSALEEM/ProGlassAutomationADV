@@ -941,6 +941,28 @@ export function applyStudioVars(studio: Studio) {
       // its elevations with cool neutral whites and gray shadows. Without this
       // explicit material recipe, the family's lavender/brown ambient tokens
       // survive underneath an RGB-white accent and the page still looks beige.
+      const blackPlate = rawHsl.s < 0.02 && rawHsl.l <= 0.08 && target === "dark";
+      if (blackPlate) {
+        Object.assign(vars, {
+          "--ink-950": "2 2 3", "--ink-900": "6 6 7", "--ink-850": "10 10 12",
+          "--ink-800": "15 15 18", "--ink-700": "23 23 27",
+          "--clay-ink": "244 244 245", "--clay-raised": "20 20 23", "--clay-foil": "rgb(14 14 16)",
+          "--plate-1": "12 12 14", "--plate-2": "16 16 19", "--plate-3": "20 20 23",
+          "--plate-4": "24 24 28", "--plate-5": "28 28 32", "--plate-6": "32 32 37",
+          "--plate-h-1": "92 92 100", "--plate-h-2": "100 100 108", "--plate-h-3": "108 108 116",
+          "--plate-h-4": "116 116 124", "--plate-h-5": "124 124 132", "--plate-h-6": "132 132 140",
+          "--panel-face": "12 12 14", "--card-face": "16 16 19", "--data-face": "20 20 23",
+          "--overlay-face": "9 9 11", "--band-face": "7 7 9", "--band-rich-h": "17 17 20",
+          "--band-deep-h": "9 9 11", "--band-glow-h": "125 125 132", "--clay-drop-h": "0 0 0",
+          "--line": "38 38 43", "--line-soft": "24 24 28", "--line-strong": "58 58 65",
+          "--card-tint-h": "16 16 19", "--card-tint-h2": "22 22 25", "--clay-wash": "0",
+          "--pool-1": "rgb(255 255 255 / 0.025)", "--pool-2": "rgb(255 255 255 / 0.018)",
+          "--pool-3": "rgb(255 255 255 / 0.012)", "--wall-wash-1": "rgb(255 255 255 / 0.018)",
+          "--wall-wash-2": "rgb(255 255 255 / 0.012)", "--wall-mid-1": "transparent",
+          "--wall-mid-2": "transparent", "--wall-grid": "rgb(255 255 255 / 0.025)",
+          "--wall-grid-major": "rgb(255 255 255 / 0.04)", "--wall-vignette": "rgb(0 0 0 / 0.72)",
+        });
+      }
       const whitePlate = rawHsl.s < 0.02 && rawHsl.l >= 0.98 && target === "light";
       if (whitePlate) {
         Object.assign(vars, {

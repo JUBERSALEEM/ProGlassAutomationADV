@@ -132,6 +132,8 @@ Repository-only visual redesign work while Phase 9E awaits the Windows PC. The w
 - [x] Preserve wider two-track layouts, forms, tables, and content-heavy paired panels instead of blindly forcing them into quarter-width cards.
 - [x] Preserve existing dashboard four-card breakdowns and six-card operational-stat patterns.
 - [x] Add a permanent structural grid test to the density suite.
+- [x] Decouple top-panel chrome padding from the global radius-safe card floor, cap navigation/dropdown corners, and restore proper dropdown clipping without changing content-card geometry.
+- [x] Give Clay’s neutral Black plate a dedicated genuinely near-black midnight material recipe instead of pastel/gray derived surfaces.
 - [ ] Complete browser visual review at representative mobile, tablet, desktop, and wide-desktop widths and correct any content-specific overflow or imbalance before closing Phase 10.
 
 ## Phase 11 — production coordination room (separate scope)
