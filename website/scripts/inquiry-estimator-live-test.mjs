@@ -16,6 +16,9 @@ const target=targetResult.data;
 const primaryId=await rpc(admin,"register_inquiry_estimator",{p_email:process.env.PHASE9_PRIMARY_EMAIL,p_estimator_code:"EST-PRIMARY-TEST",p_display_name:"Phase 9 Primary Estimator",p_active:true});
 const collaboratorId=await rpc(admin,"register_inquiry_estimator",{p_email:process.env.PHASE9_COLLABORATOR_EMAIL,p_estimator_code:"EST-COLLAB-TEST",p_display_name:"Phase 9 Collaborator Estimator",p_active:true});
 check(primaryId&&collaboratorId&&primaryId!==collaboratorId,"two distinct estimator identities registered");
+const priorAssignment=await admin.from("inquiry_estimator_assignments").select("id").eq("submission_id",target.id).eq("active",true).limit(1);
+if(priorAssignment.error)throw new Error(priorAssignment.error.message);
+if(priorAssignment.data.length){await rpc(admin,"end_customer_inquiry_estimator_assignment",{p_submission_id:target.id,p_reason:"Reset interrupted Phase 9A live test before retry"});console.log("PASS: prior partial test assignment safely ended before retry");}
 const primary=await signedIn(process.env.PHASE9_PRIMARY_EMAIL,process.env.PHASE9_PRIMARY_PASSWORD,"Primary estimator");
 const collaborator=await signedIn(process.env.PHASE9_COLLABORATOR_EMAIL,process.env.PHASE9_COLLABORATOR_PASSWORD,"Collaborator estimator");
 check((await visible(primary)).length===0,"unassigned primary sees no complete submissions");

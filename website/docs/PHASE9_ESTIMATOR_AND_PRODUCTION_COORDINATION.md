@@ -18,7 +18,7 @@ The real `/reports` implementation reads `public.records` and supplies six filte
 - [ ] Apply migration to disposable Supabase only after explicit authorization.
 - [ ] Run `npm run inquiries:estimators:live-test` against disposable Supabase to verify unassigned denial, primary/collaborator isolation, assigned private download, disabled-role denial, re-enable, reassignment access loss, one-primary invariant, and preserved/audited history. Customer/admin isolation is already covered by the Phase 8 live matrix; auditor presentation follows in Phase 9B.
 
-Migration: `supabase-inquiry-estimator-phase9a.sql`.
+Migration: `supabase-inquiry-estimator-phase9a.sql`. Deployments that applied its original revision must also apply the one-time `supabase-inquiry-estimator-phase9a-rls-repair.sql`, which qualifies the outer submission ID in the estimator policy; it changes no assignment data.
 
 After authorized application, structural verification is read-only:
 

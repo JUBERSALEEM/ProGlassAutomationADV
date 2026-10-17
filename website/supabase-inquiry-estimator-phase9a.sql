@@ -147,7 +147,7 @@ GRANT EXECUTE ON FUNCTION public.register_inquiry_estimator(text,text,text,boole
 CREATE POLICY "Assigned estimators read complete submissions" ON public.inquiry_customer_submissions FOR SELECT TO authenticated
 USING(upload_state='complete' AND public.has_inquiry_role(ARRAY['inquiry_estimator']) AND
   EXISTS(SELECT 1 FROM public.inquiry_estimators e JOIN public.inquiry_estimator_assignments a ON a.estimator_user_id=e.user_id
-    WHERE a.submission_id=id AND a.estimator_user_id=auth.uid() AND a.active AND e.active));
+    WHERE a.submission_id=public.inquiry_customer_submissions.id AND a.estimator_user_id=auth.uid() AND a.active AND e.active));
 CREATE POLICY "Assigned estimators read submission documents" ON public.inquiry_customer_documents FOR SELECT TO authenticated
 USING(public.has_inquiry_role(ARRAY['inquiry_estimator']) AND EXISTS(SELECT 1 FROM public.inquiry_estimators e
   JOIN public.inquiry_estimator_assignments a ON a.estimator_user_id=e.user_id
