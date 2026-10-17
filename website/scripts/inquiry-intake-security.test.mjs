@@ -79,9 +79,10 @@ test("staged API uploads one bounded file, finalizes explicitly, and exposes rea
   assert.match(portal, /beforeunload/);
 });
 
-test("Next middleware preserves the full bounded customer multipart request", () => {
-  assert.match(nextConfig, /proxyClientMaxBodySize:\s*["']451mb["']/);
-  assert.match(api, /CUSTOMER_INQUIRY_MAX_REQUEST_BYTES\s*=\s*CUSTOMER_INQUIRY_MAX_FILES\s*\*\s*CUSTOMER_INQUIRY_MAX_FILE_BYTES/);
+test("Next proxy accepts one bounded staged document, not the obsolete aggregate payload", () => {
+  assert.match(nextConfig, /proxyClientMaxBodySize:\s*["']31mb["']/);
+  assert.doesNotMatch(nextConfig, /proxyClientMaxBodySize:\s*["']451mb["']/);
+  assert.match(uploadRoute, /CUSTOMER_INQUIRY_MAX_FILE_BYTES \+ 128_000/);
 });
 
 for (const table of ["inquiry_customer_submissions", "inquiry_customer_documents", "inquiry_customer_events"]) {

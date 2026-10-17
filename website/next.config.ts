@@ -132,10 +132,10 @@ const nextConfig: NextConfig = {
 
   reactStrictMode: true,
   experimental: {
-    // Customer intake allows 15 documents at 30 MB each. Next's middleware
-    // otherwise truncates multipart requests at 10 MB before the route can
-    // enforce its own authenticated file/count limits.
-    proxyClientMaxBodySize: "451mb",
+    // Staged customer intake sends one document per request. Allow the 30 MB
+    // file plus multipart overhead, rather than the obsolete 15-file/451 MB
+    // aggregate request, before the authenticated route enforces exact limits.
+    proxyClientMaxBodySize: "31mb",
   },
   poweredByHeader: false,
   compress: true,
