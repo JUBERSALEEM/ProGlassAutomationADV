@@ -4,7 +4,7 @@
 **Audit baseline:** 2026-10-18 (Asia/Dubai)  
 **Branch:** `arena/23bacfef-proglassautomationadv`  
 **Baseline commit:** `6f73f1f`  
-**Status:** Phase 1 audit documented. Redesign implementation has not begun.
+**Status:** Phase 10.1 audit documented. Redesign implementation has not begun.
 
 This is the evidence ledger for the full-site modernization. A checkbox is marked complete only when its stated verification was actually performed. Generated pages are not counted as unique designs, and development evidence is not represented as field Core Web Vitals.
 
@@ -18,7 +18,7 @@ This is the evidence ledger for the full-site modernization. A checkbox is marke
 - Do not alter the WPF application, apply migrations, publish production data, or deploy production.
 - Phase 9E Windows live verification remains deferred until 2026-10-19 08:00 Asia/Dubai. Phase 11 production coordination remains blocked.
 
-## Phase 1 — repository and baseline audit
+## Phase 10.1 — repository and baseline audit
 
 ### Architecture and inventory
 
@@ -93,7 +93,7 @@ Expected test stderr includes Motion's reduced-motion informational warning in r
 
 ## Approved implementation sequence
 
-### Phase 2 — consolidate the design system
+### Phase 10.2 — consolidate the design system
 
 - [ ] Audit and rationalize color, typography, spacing, radius, elevation, surface, focus, and responsive tokens in the existing system.
 - [ ] Define premium surface hierarchy without making all surfaces glass or inflated clay.
@@ -101,53 +101,53 @@ Expected test stderr includes Motion's reduced-motion informational warning in r
 - [ ] Document component usage and migration rules.
 - **Gate:** token tests, theme contrast/visibility suites, lint, typecheck, and build pass; no competing theme/provider introduced.
 
-### Phase 3 — shared shell and navigation
+### Phase 10.3 — shared shell and navigation
 
 - [ ] Modernize header/top panel, desktop menus, mobile navigation, locale/theme controls, support affordance, footer, page container, and shared backgrounds.
 - [ ] Preserve keyboard, focus, hover/pin behavior, Escape dismissal, route/query/locale behavior, and responsive overflow safety.
 - **Gate:** automated navigation tests plus desktop/tablet/mobile browser verification in LTR and RTL.
 
-### Phase 4 — motion and feedback system
+### Phase 10.4 — motion and feedback system
 
 - [ ] Refine existing tokens and primitives into one restrained motion grammar for route, section, state, dialog, and menu transitions.
 - [ ] Keep reveals one-shot, stagger-capped, no-JS safe, and reduced-motion plain.
 - [ ] Avoid scroll hijacking, long exits, layout shifts, per-card observers, and business-data decoration.
 - **Gate:** motion token/reveal tests, reduced-motion inspection, and performance profiling.
 
-### Phase 5 — marketing and editorial routes
+### Phase 10.5 — marketing and editorial routes
 
 - [ ] Modernize homepage, about, features, how-it-works, pricing, optimization, worked example, screenshots, resources, developer, collaborate, sponsors, contact, blog index/article, and legal templates.
 - [ ] Preserve copy, links, CTA destinations, blog slugs, metadata, localization, and form integrations.
 - **Gate:** every template inspected in LTR/RTL at desktop/tablet/mobile; links/forms and metadata verified.
 
-### Phase 6 — operational and authenticated routes
+### Phase 10.6 — operational and authenticated routes
 
 - [ ] Modernize deliveries, records, reports, job orders, and login states for legibility and task completion.
 - [ ] Preserve filters, sorting, pagination, exports, query/history behavior, tables, empty/loading/error states, and auth redirects.
 - [ ] Keep data dense and motion minimal.
 - **Gate:** automated suites plus authenticated live-state verification where credentials/data are available; otherwise leave explicit blockers.
 
-### Phase 7 — inquiry workflows
+### Phase 10.7 — inquiry workflows
 
 - [ ] Modernize customer submission, tracking, operator review, estimator queue/detail, assignments, documents, and communications without changing security boundaries.
 - [ ] Preserve validation, staged upload progress/finalization, ownership, role checks, download authorization, audit behavior, and backend contracts.
 - **Gate:** all inquiry/security tests, keyboard/focus/error-state QA, and authorized live workflow verification. No migration or production mutation.
 
-### Phase 8 — responsive and accessibility closure
+### Phase 10.8 — responsive and accessibility closure
 
 - [ ] Verify all templates at representative mobile, tablet, desktop, zoom, LTR, and RTL states.
 - [ ] Audit landmarks/headings, names/descriptions, focus order/visibility, dialogs, disclosures, tables, errors, contrast, target sizing, and reduced motion.
 - [ ] Correct overflow and layout shifts while preserving count-aware grid behavior.
 - **Gate:** browser screenshots, keyboard run, automated scanner, and documented manual exceptions.
 
-### Phase 9 — performance and SEO closure
+### Phase 10.9 — performance and SEO closure
 
 - [ ] Measure honest pre/post lab results on identical routes/build conditions.
 - [ ] Audit image/font/script loading, client boundaries, bundle impact, layout stability, metadata, canonical/alternate links, sitemap, robots, and structured data where applicable.
 - [ ] Report lab findings as lab findings; do not claim field Core Web Vitals without field data.
 - **Gate:** production build, route manifest, lab evidence, and SEO checks pass.
 
-### Phase 10 — final regression and Vercel preview
+### Phase 10.10 — final regression and Vercel preview
 
 - [ ] Run the complete automated suite and production build.
 - [ ] Verify every route family and critical interaction in preview, including locale redirects and authenticated/data-dependent blockers.
