@@ -111,10 +111,12 @@ Expected test stderr includes Motion's reduced-motion informational warning in r
 
 ### Phase 10.4 — motion and feedback system
 
-- [ ] Refine existing tokens and primitives into one restrained motion grammar for route, section, state, dialog, and menu transitions.
-- [ ] Keep reveals one-shot, stagger-capped, no-JS safe, and reduced-motion plain.
-- [ ] Avoid scroll hijacking, long exits, layout shifts, per-card observers, and business-data decoration.
+- [x] Refine existing tokens and primitives into one restrained motion grammar for route, section, state, dialog, menu, and coordinated hero-fact transitions.
+- [x] Keep reveals one-shot, stagger-capped, no-JS safe, and reduced-motion plain.
+- [x] Avoid scroll hijacking, long exits, layout shifts, per-card observers, and business-data decoration; short hero groups use one parent observer/timeline.
 - **Gate:** motion token/reveal tests, reduced-motion inspection, and performance profiling.
+
+**Phase 10.4 implementation evidence (2026-10-18):** Added `MotionStagger`, a Framer Motion (`motion/react`) parent timeline for small, meaningfully ordered groups. Page-hero facts now enter through one observer with capped shared timing, transform/opacity-only children, reduced-motion plain rendering, and an explicit no-JavaScript visibility override. Ordinary grids remain on the shared CSS reveal lane; operational data receives no decorative animation. Browser performance profiling remains open.
 
 ### Phase 10.5 — marketing and editorial routes
 

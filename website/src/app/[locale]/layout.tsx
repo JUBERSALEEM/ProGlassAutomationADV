@@ -285,7 +285,7 @@ export default async function LocaleLayout({
           inline styles, and nothing with script enabled ever sees this block.
         */}
         <noscript>
-          <style>{`.reveal,.reveal-scale,.motion-reveal,.route-shell{opacity:1!important;transform:none!important}.accordion-panel{grid-template-rows:1fr!important}`}</style>
+          <style>{`.reveal,.reveal-scale,.motion-reveal,.motion-stagger,.motion-stagger>div,.route-shell{opacity:1!important;transform:none!important}.accordion-panel{grid-template-rows:1fr!important}`}</style>
         </noscript>
       </head>
       <body suppressHydrationWarning>

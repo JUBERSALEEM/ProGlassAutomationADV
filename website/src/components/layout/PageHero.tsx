@@ -5,6 +5,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
 import { Spotlight } from "@/components/ui/Spotlight";
 import { PageBanner, type BannerArt } from "@/components/layout/PageBanner";
+import { MotionStagger } from "@/components/motion/MotionStagger";
 import type { Translator } from "@/i18n/core";
 
 /**
@@ -134,18 +135,21 @@ export function PageHero({
 
           {meta ? (
             <Reveal delay={140} className={showcase ? "lg:col-span-full" : undefined}>
-              <dl className={`grid gap-4${centred ? " mx-auto max-w-2xl grid-cols-2" : showcase ? " grid-cols-2 lg:grid-cols-4" : " grid-cols-2"}`}>
+              <MotionStagger
+                immediate
+                className={`grid gap-4${centred ? " mx-auto max-w-2xl grid-cols-2" : showcase ? " grid-cols-2 lg:grid-cols-4" : " grid-cols-2"}`}
+              >
                 {meta.map((item) => (
-                  /* The page's own facts, in the site's surface system: on
-                     Crystal these are small panes of glass beside the title,
-                     and in the other families they are the plain cards they
-                     have always been. */
-                  <Spotlight key={t(item.label)} className="surface edge-conic p-4">
-                    <dt className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">{t(item.label)}</dt>
-                    <dd className="mt-1.5 text-sm font-medium text-text-secondary">{t(item.value)}</dd>
+                  /* One parent timeline coordinates this short fact group;
+                     individual cards never create their own observers. */
+                  <Spotlight key={t(item.label)} className="surface edge-conic h-full p-4">
+                    <dl>
+                      <dt className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">{t(item.label)}</dt>
+                      <dd className="mt-1.5 text-sm font-medium text-text-secondary">{t(item.value)}</dd>
+                    </dl>
                   </Spotlight>
                 ))}
-              </dl>
+              </MotionStagger>
             </Reveal>
           ) : null}
         </div>

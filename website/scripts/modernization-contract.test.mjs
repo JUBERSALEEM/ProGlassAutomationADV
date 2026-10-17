@@ -7,6 +7,7 @@ const css = readFileSync(new URL("../src/app/globals.css", import.meta.url), "ut
 const motion = readFileSync(new URL("../src/lib/motion.ts", import.meta.url), "utf8");
 const tailwind = readFileSync(new URL("../tailwind.config.ts", import.meta.url), "utf8");
 const layoutPrimitives = readFileSync(new URL("../src/components/ui/Layout.tsx", import.meta.url), "utf8");
+const motionStagger = readFileSync(new URL("../src/components/motion/MotionStagger.tsx", import.meta.url), "utf8");
 
 test("the localized shell provides a keyboard bypass to the main landmark", () => {
   assert.match(layout, /href="#main" className="skip-link"/);
@@ -36,6 +37,9 @@ test("the two motion lanes retain centralized timing and capped stagger", () => 
   assert.match(motion, /capMs:\s*200/);
   assert.match(motion, /revealFailSafeMs\s*=\s*1000/);
   assert.match(motion, /presets\s*=\s*{/);
+  assert.match(motionStagger, /staggerChildren:\s*staggerStep/);
+  assert.match(motionStagger, /viewport=.*once:\s*true/s);
+  assert.match(motionStagger, /if \(reduced\)/);
   assert.match(css, /--dur-reveal:\s*380ms/);
   assert.match(css, /--ease-out:\s*cubic-bezier\(0\.16, 1, 0\.3, 1\)/);
 });
