@@ -152,6 +152,8 @@ Expected test stderr includes Motion's reduced-motion informational warning in r
 - [ ] Correct overflow and layout shifts while preserving count-aware grid behavior.
 - **Gate:** browser screenshots, keyboard run, automated scanner, and documented manual exceptions.
 
+**Phase 10.8 source evidence (2026-10-18):** Added coarse-pointer 44px control floors, localized-text overflow protection, bounded code/preformatted regions, and forced-colors surface/focus/gradient fallbacks. Existing logical properties, RTL document direction, global focus-visible treatment, reduced-motion rules, semantic controls, count-aware grids, and skip landmark remain guarded. The phase is not marked fully verified because browser screenshots, keyboard/AT runs, zoom checks, and an automated browser scanner remain unavailable.
+
 ### Phase 10.9 — performance and SEO closure
 
 - [ ] Measure honest pre/post lab results on identical routes/build conditions.

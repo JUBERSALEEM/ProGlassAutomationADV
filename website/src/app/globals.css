@@ -1363,6 +1363,36 @@
   .auto-grid-standard { --auto-grid-min: var(--grid-card-standard); }
   .auto-grid-wide { --auto-grid-min: var(--grid-card-wide); }
 
+  /* Phase 10.8 — responsive and accessibility closure in source. Touch input
+   * gets real targets without inflating desktop density; long localized words
+   * cannot force horizontal overflow; Windows high-contrast keeps boundaries. */
+  :where(h1, h2, h3, h4, h5, h6, p, li, dd, dt, label) {
+    overflow-wrap: break-word;
+  }
+  :where(pre, code, [data-overflow="scroll"]) {
+    max-inline-size: 100%;
+  }
+  @media (pointer: coarse) {
+    :where(button, input:not([type="hidden"]), select, textarea, [role="button"]) {
+      min-block-size: 2.75rem;
+    }
+  }
+  @media (forced-colors: active) {
+    :where(.surface, .surface-raised, .glass-metric, .btn, .badge-pill) {
+      border: 1px solid CanvasText;
+      box-shadow: none !important;
+    }
+    :where(a, button, input, select, textarea, summary):focus-visible {
+      outline: 2px solid Highlight !important;
+      outline-offset: 3px;
+    }
+    .text-gradient,
+    .text-gradient-rich {
+      background: none !important;
+      color: CanvasText !important;
+    }
+  }
+
   /* Phase 10.7 — inquiry workflows share a secure-workspace visual grammar.
    * It clarifies editable wells, read-only evidence, and grouped fieldsets
    * without changing submission, upload, authorization, or data contracts. */

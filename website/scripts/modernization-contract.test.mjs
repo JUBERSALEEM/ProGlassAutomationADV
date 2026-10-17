@@ -44,6 +44,12 @@ test("the two motion lanes retain centralized timing and capped stagger", () => 
   assert.match(css, /--ease-out:\s*cubic-bezier\(0\.16, 1, 0\.3, 1\)/);
 });
 
+test("responsive accessibility contracts cover touch, forced colors, and localized overflow", () => {
+  assert.match(css, /@media \(pointer: coarse\)[\s\S]*min-block-size:\s*2\.75rem/);
+  assert.match(css, /@media \(forced-colors: active\)/);
+  assert.match(css, /overflow-wrap:\s*break-word/);
+});
+
 test("reduced motion disables smooth scrolling and entrance displacement", () => {
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
   assert.match(css, /scroll-behavior:\s*auto/);
