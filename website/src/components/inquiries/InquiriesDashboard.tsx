@@ -102,7 +102,7 @@ export function InquiriesDashboard() {
   };
 
   if (checking) return <div role="status" className="grid min-h-[55vh] place-items-center bg-ink-950 text-xs text-text-muted">Verifying operator access…</div>;
-  if (isAuthRequired) return <InquiryAccessGate redirectPath={pathname} />;
+  if (isAuthRequired || error?.code === "FORBIDDEN") return <InquiryAccessGate redirectPath={pathname} />;
 
   const rows = data?.rows ?? [];
   const reset = () => {

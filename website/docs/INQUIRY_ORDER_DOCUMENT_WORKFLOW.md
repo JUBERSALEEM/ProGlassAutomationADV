@@ -730,7 +730,7 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 - [x] Add operator list/detail APIs and UI for website submissions, visibly separate from the desktop-published register. Production build and live admin register/search/filter/detail verification passed.
 - [x] Add audited `under_review`, `accepted`, `rejected`, and `closed` transitions, response estimate, and bounded customer-visible operator note. The migration is applied and structurally verified; live admin review plus customer status/estimate/note visibility passed.
 - [x] Add private operator attachment delivery with integrity verification; live authenticated download passed.
-- [ ] Verify customer/operator cross-access denial against real RLS with non-admin and cross-customer accounts.
+- [ ] Verify customer/operator cross-access denial against real RLS with non-admin and cross-customer accounts. An inquiry-giver account was found with an accidental enabled `inquiry_viewer` assignment (which correctly granted operator read/download access); that assignment was disabled. API/UI role gating is now explicit and awaits live customer-denial retest.
 
 ### Phase 8C — Cloud-to-Windows inbox bridge
 

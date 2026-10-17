@@ -67,6 +67,9 @@ test("Phase 8B operator APIs are token-bound, same-origin protected, complete-on
   assert.match(operatorListRoute,/listOperatorCustomerInquiries/);
   assert.match(operatorDetailRoute,/sec-fetch-site/);
   assert.match(operatorDetailRoute,/reviewOperatorCustomerInquiry/);
+  assert.match(api,/operatorClient\(token\)/);
+  assert.match(api,/inquiry_operator_roles/);
+  assert.match(api,/\["inquiry_viewer", "inquiry_auditor", "inquiry_admin"\]/);
   assert.match(api,/\.eq\("upload_state", "complete"\)/);
   assert.match(api,/review_customer_inquiry_submission/);
   assert.match(operatorReview,/Customer-visible note/);

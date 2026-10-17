@@ -40,6 +40,16 @@ async function customerClient(token: string): Promise<{ client: SupabaseClient; 
   return { client, userId: user.data.user.id };
 }
 
+async function operatorClient(token: string): Promise<SupabaseClient> {
+  const { client, userId } = await customerClient(token);
+  const role = await client.from("inquiry_operator_roles").select("role,enabled").eq("user_id", userId).maybeSingle();
+  if (role.error) failDatabase(role.error);
+  if (!role.data?.enabled || !["inquiry_viewer", "inquiry_auditor", "inquiry_admin"].includes(role.data.role)) {
+    throw new CustomerInquiryFailure("FORBIDDEN", "An enabled inquiry operator role is required.");
+  }
+  return client;
+}
+
 function field(form: FormData, name: string, max: number, required = false): string {
   const value = form.get(name);
   const normalized = typeof value === "string" ? value.normalize("NFKC").trim() : "";
@@ -242,7 +252,7 @@ export async function listCustomerInquiries(token: string): Promise<CustomerInqu
 }
 
 export async function listOperatorCustomerInquiries(token: string): Promise<CustomerInquiryListItem[]> {
-  const { client } = await customerClient(token);
+  const client = await operatorClient(token);
   const result = await client.from("inquiry_customer_submissions").select("*,inquiry_customer_documents(id)")
     .eq("upload_state", "complete").order("submitted_at", { ascending: false }).limit(200);
   if (result.error) failDatabase(result.error);
@@ -263,7 +273,7 @@ export async function reviewOperatorCustomerInquiry(token: string, id: string, v
 
 export async function getOperatorCustomerInquiry(token: string, id: string): Promise<CustomerInquirySubmission> {
   if (!UUID.test(id)) throw new CustomerInquiryFailure("NOT_FOUND", "Inquiry submission not found.");
-  const { client } = await customerClient(token);
+  const client = await operatorClient(token);
   const result = await client.from("inquiry_customer_submissions").select("*").eq("id", id).eq("upload_state", "complete").maybeSingle();
   if (result.error) failDatabase(result.error);
   if (!result.data) throw new CustomerInquiryFailure("NOT_FOUND", "Inquiry submission not found.");
