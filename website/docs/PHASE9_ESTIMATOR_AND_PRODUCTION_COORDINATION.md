@@ -1,6 +1,6 @@
 # Phase 9 estimator workflow and Phase 10 production coordination
 
-Status: Phases 9A, 9B, and 9C are implemented and live-verified in disposable Supabase. Phase 9D is next, followed by Phase 9E. Phase 10 remains blocked until all five Phase 9 stages are complete and verified.
+Status: Phases 9A, 9B, 9C, and 9D are implemented and live-verified in disposable Supabase. Phase 9E is next. Phase 10 remains blocked until all five Phase 9 stages are complete and verified.
 
 ## Verified reports-page pattern to reuse
 
@@ -76,7 +76,7 @@ No metric may be shown until its source timestamp/state is persisted and defined
 - [x] Assigned-estimator/admin access only while customer ownership remains unchanged.
 - [x] Same-origin mutation API and one shared conversation panel on customer and estimator inquiry details.
 - [x] Apply `supabase-inquiry-estimator-phase9d-communication.sql` after explicit authorization; read-only verification passed with 2 tables, 2 RLS tables, 2 RPCs, 2 policies, 0 messages, and 0 events.
-- [ ] Live-test customer/primary/collaborator/former-estimator/admin visibility and mutation matrix.
+- [x] Live-test customer/primary/collaborator/former-estimator/admin visibility and mutation matrix; user confirmed all Phase 9D checks passed.
 
 Existing inquiry documents remain the protected file exchange for this phase; messages do not create a second upload path or weaken the established 30 MB/15-file controls.
 
