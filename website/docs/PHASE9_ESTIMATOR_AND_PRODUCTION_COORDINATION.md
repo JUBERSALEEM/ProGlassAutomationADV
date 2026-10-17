@@ -75,7 +75,7 @@ No metric may be shown until its source timestamp/state is persisted and defined
 - [x] Immutable audit events, explicit visibility, 4,000-character bounds, and controlled open/resolved request transitions.
 - [x] Assigned-estimator/admin access only while customer ownership remains unchanged.
 - [x] Same-origin mutation API and one shared conversation panel on customer and estimator inquiry details.
-- [ ] Apply `supabase-inquiry-estimator-phase9d-communication.sql` after explicit authorization and run the read-only verification below.
+- [x] Apply `supabase-inquiry-estimator-phase9d-communication.sql` after explicit authorization; read-only verification passed with 2 tables, 2 RLS tables, 2 RPCs, 2 policies, 0 messages, and 0 events.
 - [ ] Live-test customer/primary/collaborator/former-estimator/admin visibility and mutation matrix.
 
 Existing inquiry documents remain the protected file exchange for this phase; messages do not create a second upload path or weaken the established 30 MB/15-file controls.
