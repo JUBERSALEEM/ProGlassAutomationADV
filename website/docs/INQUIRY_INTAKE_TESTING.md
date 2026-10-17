@@ -14,7 +14,7 @@ npm run lint
 npm run build
 ```
 
-Expected local baseline: inquiry security 35/35; TypeScript, ESLint, and build pass; build includes `/inquiries/submit`, `/inquiries/submissions/[id]`, and the three `/api/inquiry-submissions` routes.
+Expected current baseline: inquiry security 39/39; TypeScript, ESLint, and build pass; build includes `/inquiries/submit`, `/inquiries/submissions/[id]`, and the customer-submission API routes.
 
 ## 2. Migration review and authorized application
 
@@ -25,6 +25,36 @@ Review `supabase-inquiry-intake.sql`. It is additive to the already-applied `sup
 - customer ownership RLS and internal-role read policies
 - constrained create/register/review/download-authorization RPCs
 - no direct authenticated table mutation grants and no Storage UPDATE/DELETE policy
+
+### Staged-upload follow-up
+
+After the base, fields, and limits migrations are verified, review and separately apply `supabase-inquiry-intake-phase8a-staged-uploads.sql`. It adds only staged-upload state and RPCs; it backfills existing submissions as complete and preserves the previous atomic endpoint during the migration-first deployment window.
+
+Read-only verification after authorized application:
+
+```sql
+select column_name, data_type, column_default
+from information_schema.columns
+where table_schema='public' and table_name='inquiry_customer_submissions'
+  and column_name in ('upload_state','expected_document_count','finalized_at')
+order by column_name;
+
+select routine_name, count(*) as overloads
+from information_schema.routines
+where routine_schema='public'
+  and routine_name in ('create_customer_inquiry_draft','finalize_customer_inquiry_submission')
+group by routine_name order by routine_name;
+
+select upload_state, count(*)
+from public.inquiry_customer_submissions
+group by upload_state order by upload_state;
+
+select count(*) as incomplete_legacy_rows
+from public.inquiry_customer_submissions
+where upload_state='complete' and finalized_at is null;
+```
+
+Expected immediately after migration: three columns, one overload for each new RPC, all pre-existing rows in `complete`, and `incomplete_legacy_rows = 0`.
 
 ## 3. Runtime
 
