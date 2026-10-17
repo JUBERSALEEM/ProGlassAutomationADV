@@ -35,6 +35,8 @@ export type CustomerInquirySubmission = {
   accepted_at: string | null;
   downloaded_at: string | null;
   closed_at: string | null;
+  estimated_response_at: string | null;
+  operator_note: string;
   documents: CustomerInquiryDocument[];
 };
 

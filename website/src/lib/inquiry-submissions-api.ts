@@ -241,6 +241,37 @@ export async function listCustomerInquiries(token: string): Promise<CustomerInqu
   });
 }
 
+export async function listOperatorCustomerInquiries(token: string): Promise<CustomerInquiryListItem[]> {
+  const { client } = await customerClient(token);
+  const result = await client.from("inquiry_customer_submissions").select("*,inquiry_customer_documents(id)")
+    .eq("upload_state", "complete").order("submitted_at", { ascending: false }).limit(200);
+  if (result.error) failDatabase(result.error);
+  return (result.data || []).map((row) => {
+    const { inquiry_customer_documents, description: _description, phone: _phone, ...rest } = row;
+    return { ...rest, document_count: Array.isArray(inquiry_customer_documents) ? inquiry_customer_documents.length : 0 } as CustomerInquiryListItem;
+  });
+}
+
+export async function reviewOperatorCustomerInquiry(token: string, id: string, values: { status: string; estimatedResponseAt: string | null; operatorNote: string }): Promise<CustomerInquirySubmission> {
+  if (!UUID.test(id)) throw new CustomerInquiryFailure("NOT_FOUND", "Inquiry submission not found.");
+  const { client } = await customerClient(token);
+  if (values.operatorNote.normalize("NFKC").trim().length > 2000) throw new CustomerInquiryFailure("INVALID", "Operator note exceeds 2,000 characters.");
+  const reviewed = await client.rpc("review_customer_inquiry_submission", { p_submission_id: id, p_status: values.status, p_estimated_response_at: values.estimatedResponseAt || null, p_operator_note: values.operatorNote.normalize("NFKC").trim() });
+  if (reviewed.error) failDatabase(reviewed.error);
+  return getOperatorCustomerInquiry(token, id);
+}
+
+export async function getOperatorCustomerInquiry(token: string, id: string): Promise<CustomerInquirySubmission> {
+  if (!UUID.test(id)) throw new CustomerInquiryFailure("NOT_FOUND", "Inquiry submission not found.");
+  const { client } = await customerClient(token);
+  const result = await client.from("inquiry_customer_submissions").select("*").eq("id", id).eq("upload_state", "complete").maybeSingle();
+  if (result.error) failDatabase(result.error);
+  if (!result.data) throw new CustomerInquiryFailure("NOT_FOUND", "Inquiry submission not found.");
+  const docs = await client.from("inquiry_customer_documents").select("id,original_filename,extension,detected_mime,byte_size,content_sha256,uploaded_at").eq("submission_id", id).order("uploaded_at");
+  if (docs.error) failDatabase(docs.error);
+  return asSubmission(result.data as Record<string, unknown>, (docs.data || []) as CustomerInquiryDocument[]);
+}
+
 export async function getCustomerInquiry(token: string, id: string): Promise<CustomerInquirySubmission> {
   if (!UUID.test(id)) throw new CustomerInquiryFailure("NOT_FOUND", "Inquiry submission not found.");
   const { client, userId } = await customerClient(token);
