@@ -5,10 +5,25 @@ import test from "node:test";
 const sql = readFileSync(new URL("../supabase-inquiry-intake.sql", import.meta.url), "utf8");
 const fieldsPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8a-fields.sql", import.meta.url), "utf8");
 const limitsPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8a-limits.sql", import.meta.url), "utf8");
+const stagedPatch = readFileSync(new URL("../supabase-inquiry-intake-phase8a-staged-uploads.sql", import.meta.url), "utf8");
 const api = readFileSync(new URL("../src/lib/inquiry-submissions-api.ts", import.meta.url), "utf8");
 const route = readFileSync(new URL("../src/app/api/inquiry-submissions/route.ts", import.meta.url), "utf8");
 const portal = readFileSync(new URL("../src/components/inquiries/CustomerInquiryPortal.tsx", import.meta.url), "utf8");
 const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
+
+test("staged upload patch is additive, owner-bound, bounded, and explicitly finalized", () => {
+  assert.match(stagedPatch, /ADD COLUMN IF NOT EXISTS upload_state/);
+  assert.match(stagedPatch, /expected_document_count BETWEEN 0 AND 15/);
+  assert.match(stagedPatch, /CREATE OR REPLACE FUNCTION public\.create_customer_inquiry_draft/);
+  assert.match(stagedPatch, /CREATE OR REPLACE FUNCTION public\.finalize_customer_inquiry_submission/);
+  assert.match(stagedPatch, /customer_user_id=auth\.uid\(\)/);
+  assert.match(stagedPatch, /v_count<>v_submission\.expected_document_count/);
+  assert.match(stagedPatch, /lower\(original_filename\)=lower\(btrim\(p_original_filename\)\)/);
+  assert.match(stagedPatch, /p_byte_size NOT BETWEEN 1 AND 31457280/);
+  assert.match(stagedPatch, /upload_state='draft'/);
+  assert.match(stagedPatch, /s\.upload_state='complete' AND public\.has_inquiry_role/);
+  assert.doesNotMatch(stagedPatch, /FOR (UPDATE|DELETE) TO authenticated|service_role|public\s*=\s*true/i);
+});
 
 test("Next middleware preserves the full bounded customer multipart request", () => {
   assert.match(nextConfig, /proxyClientMaxBodySize:\s*["']451mb["']/);

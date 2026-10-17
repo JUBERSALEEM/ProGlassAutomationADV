@@ -710,7 +710,7 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 - [x] Add authenticated customer submission UI at `/[locale]/inquiries/submit`, including attention, VAT/TRN, salesman reference, and handover estimator fields.
 - [x] Add responsive cumulative drag/drop/file selection with 15-slot count, selected-file cards, per-file replace/remove, remove-all, duplicate-name rejection, size feedback, and upload/verification progress copy.
 - [x] Correct Next.js 16 proxy multipart truncation so the authenticated route receives the bounded 15 × 30 MB request; live-submit 13 documents and verify all 13 records and protected downloads.
-- [ ] Replace the single multipart request with staged one-file requests that expose genuine per-file/overall progress, transfer rate, estimated remaining time, accessible states, interruption handling, safe retry, and explicit finalization.
+- [ ] Replace the single multipart request with staged one-file requests that expose genuine per-file/overall progress, transfer rate, estimated remaining time, accessible states, interruption handling, safe retry, and explicit finalization. Migration foundation prepared in `supabase-inquiry-intake-phase8a-staged-uploads.sql`; application and live verification remain required before API/UI activation.
 - [ ] Add customer-owned saved profile defaults (company, contact, phone, VAT/TRN, and attention) with form prefill.
 - [ ] Add customer-owned projects, inquiry type/category, project association, and project/location/type/status/date history grouping and filters.
 - [x] Add customer-owned submission history and `/[locale]/inquiries/submissions/[id]` detail UI with card hierarchy and protected back navigation.
