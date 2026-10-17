@@ -12,7 +12,7 @@ export async function estimatorQueue(token:string):Promise<{role:string;rows:Inq
   const submissions: Record<string,unknown>[]=[];
   for(let from=0;from<10_000;from+=1000){
     const page=await client.from("inquiry_customer_submissions")
-      .select("id,submission_reference,company_name,contact_name,project_name,project_location,inquiry_type,status,submitted_at,status_updated_at,estimated_response_at,inquiry_customer_documents(id)")
+      .select("id,submission_reference,company_name,contact_name,customer_reference,project_name,project_location,inquiry_type,status,submitted_at,status_updated_at,estimated_response_at,inquiry_customer_documents(id)")
       .eq("upload_state","complete").order("submitted_at",{ascending:false}).range(from,from+999);
     if(page.error)db(page.error);
     submissions.push(...(page.data||[]));

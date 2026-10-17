@@ -58,11 +58,13 @@ Use the reports-page visual/interaction grammar with inquiry-specific facts:
 - [x] Reports-style Top-6 breakdowns: primary estimator, inquiry type, company, and status.
 - [x] Short CSV reports: authorized queue, estimator workload, and inquiry aging/due state.
 - [x] Use persisted submitted/status-updated/response-estimate timestamps only; explicitly avoid fabricated production quantities and response values.
-- [x] Add role-scoped search, status, estimator, inquiry-type, company, and due-state filters; cards and exports recalculate from the filtered queue.
+- [x] Add URL-synchronized role-scoped search, status, estimator, inquiry-type, company, project, location, received-date, and due-state filters; cards and exports recalculate from the filtered queue.
+- [x] Add the sortable operational table with Received, Age, Inquiry Ref, Customer Ref, Company, Project, Location, Inquiry Type, Primary, Collaborators, Documents, Response Due, Last Activity, Status, and Action columns.
+- [x] Add detail navigation from each report row.
 - [x] Add server-side batched full authorized-queue loading with a fail-closed 10,000-row safety boundary instead of silently reporting from the first page.
-- [ ] Live-test the six cards, four breakdowns, six filters, three exports, and role-scoped totals.
+- [ ] Live-test the six cards, four breakdowns, ten filters, sortable table, detail links, three exports, and role-scoped totals.
 
-First-opened, last-activity, waiting-for-customer, first-response, and review-duration metrics are intentionally excluded until Phase 9D persists those events. URL-synchronized date/project/location filters and a larger sortable reporting table are enhancements after the verified Phase 9C dashboard rather than fabricated v1 fields.
+First-opened, waiting-for-customer, first-response, and review-duration metrics remain intentionally excluded until a later additive phase persists those events. “Last Activity” is currently the genuine persisted `status_updated_at` fact.
 
 No metric may be shown until its source timestamp/state is persisted and defined.
 

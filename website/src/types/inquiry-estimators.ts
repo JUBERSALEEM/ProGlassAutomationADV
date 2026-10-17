@@ -28,6 +28,7 @@ export type InquiryEstimatorQueueItem = {
   submission_reference: string;
   company_name: string;
   contact_name: string;
+  customer_reference: string;
   project_name: string;
   project_location: string;
   inquiry_type: string;
