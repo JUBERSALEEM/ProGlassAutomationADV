@@ -1,0 +1,6 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { CustomerInquiryFailure, saveCustomerInquiryProject } from "@/lib/inquiry-submissions-api";
+export const runtime="nodejs"; export const dynamic="force-dynamic";
+const bearer=(r:NextRequest)=>r.headers.get("authorization")?.replace(/^Bearer\s+/i,"").trim()||"";
+function fail(error:unknown){const f=error instanceof CustomerInquiryFailure?error:new CustomerInquiryFailure("TEMPORARY_FAILURE","The project could not be saved.");const status=f.code==="UNAUTHORIZED"?401:f.code==="FORBIDDEN"?403:f.code==="INVALID"?422:f.code==="NOT_FOUND"?404:503;return NextResponse.json({ok:false,error:{code:f.code,message:f.message}},{status,headers:{"Cache-Control":"private, no-store"}});}
+export async function POST(request:NextRequest){try{const site=request.headers.get("sec-fetch-site");if(site&&site!=="same-origin"&&site!=="none")throw new CustomerInquiryFailure("FORBIDDEN","Project updates must originate from this website.");return NextResponse.json({ok:true,data:await saveCustomerInquiryProject(bearer(request),await request.formData())},{status:201,headers:{"Cache-Control":"private, no-store"}});}catch(error){return fail(error);}}

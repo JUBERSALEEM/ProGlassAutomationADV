@@ -7,7 +7,7 @@ import {
   sha256Hex,
   validateInquiryDocumentCandidate,
 } from "@/lib/inquiry-documents";
-import type { CustomerInquiryDocument, CustomerInquiryListItem, CustomerInquirySubmission } from "@/types/inquiry-submissions";
+import type { CustomerInquiryDocument, CustomerInquiryListItem, CustomerInquiryProfile, CustomerInquiryProject, CustomerInquirySubmission, CustomerInquiryType } from "@/types/inquiry-submissions";
 
 export const CUSTOMER_INQUIRY_MAX_FILES = 15;
 export const CUSTOMER_INQUIRY_MAX_FILE_BYTES = 30 * 1024 * 1024;
@@ -45,6 +45,12 @@ function field(form: FormData, name: string, max: number, required = false): str
   const normalized = typeof value === "string" ? value.normalize("NFKC").trim() : "";
   if ((required && !normalized) || normalized.length > max) throw new CustomerInquiryFailure("INVALID", `Invalid ${name.replaceAll("_", " ")}.`);
   return normalized;
+}
+const INQUIRY_TYPES = new Set<CustomerInquiryType>(["quotation","drawing_review","technical","order_handover","other"]);
+function inquiryType(value: FormDataEntryValue | null): CustomerInquiryType {
+  const normalized = typeof value === "string" ? value : "";
+  if (!INQUIRY_TYPES.has(normalized as CustomerInquiryType)) throw new CustomerInquiryFailure("INVALID", "Invalid inquiry type.");
+  return normalized as CustomerInquiryType;
 }
 
 function detectedMime(extension: string, bytes: Uint8Array): string {
@@ -138,6 +144,39 @@ export async function createCustomerInquiry(token: string, form: FormData): Prom
   return asSubmission(detail.data as Record<string, unknown>, documents);
 }
 
+export async function getCustomerInquirySetup(token: string): Promise<{ profile: CustomerInquiryProfile | null; projects: CustomerInquiryProject[] }> {
+  const { client, userId } = await customerClient(token);
+  const [profile, projects] = await Promise.all([
+    client.from("inquiry_customer_profiles").select("contact_name,company_name,phone,vat_trn_number,attention_name").eq("customer_user_id", userId).maybeSingle(),
+    client.from("inquiry_customer_projects").select("id,project_name,project_location,default_inquiry_type,active,created_at,updated_at").eq("customer_user_id", userId).eq("active", true).order("project_name"),
+  ]);
+  if (profile.error) failDatabase(profile.error);
+  if (projects.error) failDatabase(projects.error);
+  return { profile: profile.data as CustomerInquiryProfile | null, projects: (projects.data || []) as CustomerInquiryProject[] };
+}
+
+export async function saveCustomerInquiryProfile(token: string, form: FormData): Promise<CustomerInquiryProfile> {
+  const { client } = await customerClient(token);
+  const saved = await client.rpc("save_customer_inquiry_profile", {
+    p_contact_name: field(form,"contact_name",120), p_company_name: field(form,"company_name",160),
+    p_phone: field(form,"phone",60), p_vat_trn_number: field(form,"vat_trn_number",50), p_attention_name: field(form,"attention_name",120),
+  });
+  if (saved.error) failDatabase(saved.error);
+  return saved.data as CustomerInquiryProfile;
+}
+
+export async function saveCustomerInquiryProject(token: string, form: FormData): Promise<CustomerInquiryProject> {
+  const { client } = await customerClient(token);
+  const projectId = field(form,"project_id",36);
+  if (projectId && !UUID.test(projectId)) throw new CustomerInquiryFailure("INVALID","Invalid project selection.");
+  const saved = await client.rpc("save_customer_inquiry_project", {
+    p_project_id: projectId || null, p_project_name: field(form,"project_name",180,true),
+    p_project_location: field(form,"project_location",180), p_default_inquiry_type: inquiryType(form.get("inquiry_type")), p_active: true,
+  });
+  if (saved.error) failDatabase(saved.error);
+  return saved.data as CustomerInquiryProject;
+}
+
 export async function createCustomerInquiryDraft(token: string, form: FormData) {
   const { client } = await customerClient(token);
   const description = field(form, "description", 5000, true);
@@ -146,12 +185,15 @@ export async function createCustomerInquiryDraft(token: string, form: FormData) 
   if (!Number.isInteger(expected) || expected < 0 || expected > CUSTOMER_INQUIRY_MAX_FILES) {
     throw new CustomerInquiryFailure("INVALID", `Select at most ${CUSTOMER_INQUIRY_MAX_FILES} documents.`);
   }
-  const created = await client.rpc("create_customer_inquiry_draft", {
+  const projectId = field(form, "project_id", 36);
+  if (projectId && !UUID.test(projectId)) throw new CustomerInquiryFailure("INVALID", "Invalid project selection.");
+  const created = await client.rpc("create_customer_inquiry_draft_v2", {
     p_contact_name: field(form, "contact_name", 120, true), p_company_name: field(form, "company_name", 160, true),
     p_phone: field(form, "phone", 60), p_customer_reference: field(form, "customer_reference", 100),
     p_attention_name: field(form, "attention_name", 120), p_vat_trn_number: field(form, "vat_trn_number", 50),
     p_salesman_reference: field(form, "salesman_reference", 120), p_handover_estimator_name: field(form, "handover_estimator_name", 120),
-    p_project_name: field(form, "project_name", 180, true), p_project_location: field(form, "project_location", 180),
+    p_project_id: projectId || null, p_project_name: field(form, "project_name", 180, true),
+    p_project_location: field(form, "project_location", 180), p_inquiry_type: inquiryType(form.get("inquiry_type")),
     p_description: description, p_expected_document_count: expected,
   });
   if (created.error) failDatabase(created.error);

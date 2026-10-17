@@ -1,4 +1,7 @@
 export type CustomerInquiryStatus = "submitted" | "under_review" | "accepted" | "rejected" | "downloaded" | "closed";
+export type CustomerInquiryType = "quotation" | "drawing_review" | "technical" | "order_handover" | "other";
+export type CustomerInquiryProfile = { contact_name: string; company_name: string; phone: string; vat_trn_number: string; attention_name: string };
+export type CustomerInquiryProject = { id: string; project_name: string; project_location: string; default_inquiry_type: CustomerInquiryType; active: boolean; created_at: string; updated_at: string };
 
 export type CustomerInquiryDocument = {
   id: string;
@@ -21,8 +24,10 @@ export type CustomerInquirySubmission = {
   vat_trn_number: string;
   salesman_reference: string;
   handover_estimator_name: string;
+  project_id: string | null;
   project_name: string;
   project_location: string;
+  inquiry_type: CustomerInquiryType;
   description: string;
   status: CustomerInquiryStatus;
   submitted_at: string;

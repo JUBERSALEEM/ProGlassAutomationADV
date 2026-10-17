@@ -12,6 +12,8 @@ const route = readFileSync(new URL("../src/app/api/inquiry-submissions/route.ts"
 const draftRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/drafts/route.ts", import.meta.url), "utf8");
 const uploadRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/[id]/documents/route.ts", import.meta.url), "utf8");
 const finalizeRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/[id]/finalize/route.ts", import.meta.url), "utf8");
+const profileRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/profile/route.ts", import.meta.url), "utf8");
+const projectsRoute = readFileSync(new URL("../src/app/api/inquiry-submissions/projects/route.ts", import.meta.url), "utf8");
 const portal = readFileSync(new URL("../src/components/inquiries/CustomerInquiryPortal.tsx", import.meta.url), "utf8");
 const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
 
@@ -43,6 +45,20 @@ test("customer profiles and projects are owner-bound and written only through co
   assert.match(projectsPatch, /project_id uuid REFERENCES public\.inquiry_customer_projects/);
   assert.match(projectsPatch, /inquiry_type IN \('quotation','drawing_review','technical','order_handover','other'\)/);
   assert.doesNotMatch(projectsPatch, /service_role|public\s*=\s*true/i);
+});
+
+test("profile and project APIs prefill, persist, associate, and filter customer inquiries", () => {
+  assert.match(profileRoute, /getCustomerInquirySetup/);
+  assert.match(profileRoute, /saveCustomerInquiryProfile/);
+  assert.match(projectsRoute, /saveCustomerInquiryProject/);
+  assert.match(api, /create_customer_inquiry_draft_v2/);
+  assert.match(api, /p_project_id: projectId \|\| null/);
+  assert.match(portal, /Loading your saved details and projects/);
+  assert.match(portal, /New project — save from fields below/);
+  assert.match(portal, /Filter by project/);
+  assert.match(portal, /Filter by inquiry type/);
+  assert.match(portal, /Filter by status/);
+  for (const writeRoute of [profileRoute,projectsRoute]) assert.match(writeRoute,/sec-fetch-site/);
 });
 
 test("staged API uploads one bounded file, finalizes explicitly, and exposes real progress", () => {

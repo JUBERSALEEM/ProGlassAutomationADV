@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { useOperatorSession } from "@/lib/useOperatorSession";
-import type { CustomerInquiryListItem, CustomerInquirySubmission } from "@/types/inquiry-submissions";
+import type { CustomerInquiryListItem, CustomerInquiryProfile, CustomerInquiryProject, CustomerInquirySubmission } from "@/types/inquiry-submissions";
 
 const ACCEPT = ".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.xlsx,.csv";
 const MAX_FILES = 15;
@@ -47,6 +47,12 @@ export function CustomerInquiryPortal() {
   const [notice, setNotice] = useState("");
   const [uploadStates, setUploadStates] = useState<Record<number, UploadState>>({});
   const [overallProgress, setOverallProgress] = useState(0);
+  const [profile, setProfile] = useState<CustomerInquiryProfile | null>(null);
+  const [projects, setProjects] = useState<CustomerInquiryProject[]>([]);
+  const [setupLoaded, setSetupLoaded] = useState(false);
+  const [historyProject, setHistoryProject] = useState("");
+  const [historyType, setHistoryType] = useState("");
+  const [historyStatus, setHistoryStatus] = useState("");
 
   useEffect(() => {
     if (!submitting) return;
@@ -68,7 +74,16 @@ export function CustomerInquiryPortal() {
     finally { setLoading(false); }
   }
 
-  useEffect(() => { if (!checking && authToken) queueMicrotask(() => void load()); }, [authToken, checking]); // eslint-disable-line react-hooks/exhaustive-deps
+  async function loadSetup() {
+    if (!authToken) return;
+    try {
+      const response=await fetch("/api/inquiry-submissions/profile",{headers:{Authorization:`Bearer ${authToken}`},cache:"no-store"});
+      const body=await response.json(); if(!response.ok||!body.ok) throw new Error(body?.error?.message||"Unable to load saved customer details.");
+      setProfile(body.data.profile); setProjects(body.data.projects||[]);
+    } catch(reason) { setError(reason instanceof Error?reason.message:"Unable to load saved customer details."); }
+    finally { setSetupLoaded(true); }
+  }
+  useEffect(() => { if (!checking && authToken) queueMicrotask(() => { void load(); void loadSetup(); }); }, [authToken, checking]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function validFiles(input: FileList | File[]): File[] | null {
     const files = Array.from(input);
@@ -118,6 +133,13 @@ export function CustomerInquiryPortal() {
     setSubmitting(true);
     try {
       if (!draftIdRef.current) {
+        const profileResponse=await fetch("/api/inquiry-submissions/profile",{method:"PUT",headers:{Authorization:`Bearer ${authToken}`},body:form});
+        const profileBody=await profileResponse.json().catch(()=>null); if(!profileResponse.ok||!profileBody?.ok)throw new Error(profileBody?.error?.message||"Customer details could not be saved.");
+        if (!String(form.get("project_id")||"")) {
+          const projectResponse=await fetch("/api/inquiry-submissions/projects",{method:"POST",headers:{Authorization:`Bearer ${authToken}`},body:form});
+          const projectBody=await projectResponse.json().catch(()=>null); if(!projectResponse.ok||!projectBody?.ok)throw new Error(projectBody?.error?.message||"Project could not be saved.");
+          const saved=Array.isArray(projectBody.data)?projectBody.data[0]:projectBody.data; form.set("project_id",saved.id);
+        }
         const draftResponse = await fetch("/api/inquiry-submissions/drafts", { method: "POST", headers: { Authorization: `Bearer ${authToken}` }, body: form });
         const draftBody = await draftResponse.json().catch(() => null);
         if (draftResponse.status === 401) { requireAuth(); return; }
@@ -161,6 +183,7 @@ export function CustomerInquiryPortal() {
 
   if (checking) return <div role="status" className="grid min-h-[55vh] place-items-center bg-ink-950 text-xs text-text-muted">Checking your secure session…</div>;
   if (isAuthRequired || !authToken) return <main className="min-h-[65vh] bg-ink-950 px-4 py-20 text-text-primary"><section className="mx-auto max-w-md rounded-2xl border border-line-strong bg-ink-900 p-6 text-center"><h1 className="text-xl font-bold">Sign in to submit an inquiry</h1><p className="mt-2 text-xs text-text-muted">Email verification protects your inquiry history and private documents.</p><LocaleLink href="/reports/login?redirect=/inquiries/submit" className="mt-5 inline-flex rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink">Continue with email</LocaleLink></section></main>;
+  const filteredRows=rows.filter((row)=>(!historyProject||row.project_id===historyProject)&&(!historyType||row.inquiry_type===historyType)&&(!historyStatus||row.status===historyStatus));
 
   return <main className="min-h-screen bg-ink-950 pb-20 text-text-primary">
     <header className="border-b border-line-strong/60"><div className="shell flex flex-wrap items-center justify-between gap-3 py-6"><div><div className="eyebrow text-brand-300">Secure customer inquiry</div><h1 className="mt-1 text-2xl font-bold">Submit project documents</h1><p className="mt-1 text-xs text-text-muted">PDF, images, XLSX and CSV · up to 30 MB each · 15 files maximum</p></div><div className="text-right"><div className="text-3xs text-text-faint">{userEmail}</div><button type="button" onClick={() => void signOut()} className="mt-2 text-xs font-semibold text-brand-300">Sign out</button></div></div></header>
@@ -168,12 +191,14 @@ export function CustomerInquiryPortal() {
       <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><h2 className="text-lg font-bold">New inquiry</h2><p className="mt-1 text-xs text-text-muted">Provide enough information for the estimating team to review your request.</p>
         {error && <div role="alert" className="mt-4 rounded-xl border border-state-danger/40 bg-state-danger/10 p-3 text-xs text-state-danger">{error}</div>}
         {notice && <div role="status" className="mt-4 rounded-xl border border-state-success/40 bg-state-success/10 p-3 text-xs text-state-success">{notice}</div>}
-        <form ref={formRef} onSubmit={submit} className="mt-5 grid gap-4 sm:grid-cols-2">
-          <Field name="contact_name" label="Contact name" required maxLength={120} /><Field name="company_name" label="Company" required maxLength={160} />
-          <Field name="phone" label="Phone" maxLength={60} /><Field name="customer_reference" label="Your reference" maxLength={100} />
-          <Field name="attention_name" label="Attention" maxLength={120} /><Field name="vat_trn_number" label="VAT / TRN number" maxLength={50} />
+        {!setupLoaded?<p role="status" className="mt-5 text-xs text-text-muted">Loading your saved details and projects…</p>:<form ref={formRef} onSubmit={submit} className="mt-5 grid gap-4 sm:grid-cols-2">
+          <Field name="contact_name" label="Contact name" required maxLength={120} defaultValue={profile?.contact_name} /><Field name="company_name" label="Company" required maxLength={160} defaultValue={profile?.company_name} />
+          <Field name="phone" label="Phone" maxLength={60} defaultValue={profile?.phone} /><Field name="customer_reference" label="Your reference" maxLength={100} />
+          <Field name="attention_name" label="Attention" maxLength={120} defaultValue={profile?.attention_name} /><Field name="vat_trn_number" label="VAT / TRN number" maxLength={50} defaultValue={profile?.vat_trn_number} />
           <Field name="salesman_reference" label="Salesman reference" maxLength={120} /><Field name="handover_estimator_name" label="Handover estimator name" maxLength={120} />
+          <label className="sm:col-span-2 text-sm font-semibold leading-5 text-text-secondary">Saved project<select name="project_id" onChange={(event)=>{const project=projects.find((item)=>item.id===event.target.value);if(!project||!formRef.current)return;const elements=formRef.current.elements;(elements.namedItem("project_name") as HTMLInputElement).value=project.project_name;(elements.namedItem("project_location") as HTMLInputElement).value=project.project_location;(elements.namedItem("inquiry_type") as HTMLSelectElement).value=project.default_inquiry_type;}} className="mt-2 min-h-12 w-full rounded-xl border border-line-strong bg-ink-950 px-3 text-base text-text-primary"><option value="">New project — save from fields below</option>{projects.map((project)=><option key={project.id} value={project.id}>{project.project_name}{project.project_location?` · ${project.project_location}`:""}</option>)}</select></label>
           <Field name="project_name" label="Project name" required maxLength={180} /><Field name="project_location" label="Project location" maxLength={180} />
+          <label className="sm:col-span-2 text-sm font-semibold leading-5 text-text-secondary">Inquiry type<select name="inquiry_type" defaultValue="quotation" className="mt-2 min-h-12 w-full rounded-xl border border-line-strong bg-ink-950 px-3 text-base text-text-primary"><option value="quotation">Quotation</option><option value="drawing_review">Drawing review</option><option value="technical">Technical question</option><option value="order_handover">Order handover</option><option value="other">Other</option></select></label>
           <label htmlFor="inquiry-description" className="sm:col-span-2 text-sm font-semibold leading-5 text-text-secondary">Requirements<textarea id="inquiry-description" name="description" required minLength={10} maxLength={5000} rows={6} className="mt-2 min-h-36 w-full rounded-xl border border-line-strong bg-ink-950 p-3 text-base leading-6 text-text-primary caret-brand-300 outline-none focus-visible:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400/40 sm:text-sm" /></label>
           <div className="sm:col-span-2"><div className="flex items-center justify-between gap-3"><div id="inquiry-documents-label" className="text-sm font-semibold leading-5 text-text-secondary">Documents</div>{selectedFiles.length>0&&<button type="button" onClick={()=>setSelectedFiles([])} className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-semibold text-state-danger hover:bg-state-danger/10 focus-visible:ring-2 focus-visible:ring-state-danger/40">Remove all</button>}</div><input ref={fileInputRef} id="inquiry-documents" aria-labelledby="inquiry-documents-label" aria-describedby="inquiry-documents-help" name="documents" type="file" multiple accept={ACCEPT} onChange={(event)=>{if(event.target.files)addFiles(event.target.files);event.target.value="";}} className="sr-only" /><input ref={replaceFileInputRef} aria-label="Choose a replacement document" type="file" accept={ACCEPT} onChange={(event)=>{const file=event.target.files?.[0];if(file)replaceFile(file);event.target.value="";}} className="sr-only" />
             <button type="button" aria-labelledby="inquiry-documents-label inquiry-document-picker-copy" aria-describedby="inquiry-documents-help" onClick={()=>fileInputRef.current?.click()} onDragEnter={(event)=>{event.preventDefault();setDragging(true);}} onDragOver={(event)=>event.preventDefault()} onDragLeave={()=>setDragging(false)} onDrop={(event)=>{event.preventDefault();setDragging(false);addFiles(event.dataTransfer.files);}} className={`mt-2 w-full rounded-2xl border-2 border-dashed p-5 text-center outline-none transition focus-visible:border-brand-300 focus-visible:ring-2 focus-visible:ring-brand-400/50 sm:p-6 ${dragging?"border-brand-300 bg-brand-500/15":"border-line-strong bg-ink-950/70 hover:border-brand-400/70 hover:bg-ink-950"}`}>
@@ -184,16 +209,17 @@ export function CustomerInquiryPortal() {
           </div>
           {submitting&&<div className="sm:col-span-2" role="status" aria-live="polite"><div className="flex justify-between text-xs font-semibold"><span>Uploading and verifying {filesLabel(selectedFiles.length)}</span><span>{overallProgress}%</span></div><div className="mt-2 h-2.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label="Overall inquiry upload progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={overallProgress}><div className="h-full bg-brand-400 transition-[width]" style={{width:`${overallProgress}%`}} /></div><p className="mt-2 text-3xs text-text-muted">Keep this page open. Each document is uploaded and verified separately.</p></div>}
           <button disabled={submitting} className="sm:col-span-2 rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink disabled:opacity-50">{submitting ? `Uploading ${overallProgress}%` : "Submit inquiry"}</button>
-        </form>
+        </form>}
       </section>
       <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><div className="flex items-center justify-between"><h2 className="text-lg font-bold">Your submissions</h2><button onClick={() => void load()} className="text-xs font-semibold text-brand-300">Refresh</button></div>
-        {loading ? <p role="status" className="mt-5 text-xs text-text-muted">Loading…</p> : rows.length === 0 ? <p className="mt-5 text-xs text-text-muted">No website inquiries submitted by this account.</p> : <div className="mt-4 space-y-3">{rows.map((row) => <LocaleLink key={row.id} href={`/inquiries/submissions/${row.id}`} className="block rounded-xl border border-line-strong bg-ink-950/70 p-4"><div className="flex justify-between gap-3"><span className="font-mono text-xs font-bold text-brand-300">{row.submission_reference}</span><span className="rounded-full border border-line-strong px-2 py-0.5 text-3xs uppercase text-text-muted">{row.status.replaceAll("_", " ")}</span></div><div className="mt-2 text-sm font-semibold">{row.project_name}</div><div className="mt-1 text-3xs text-text-faint">{row.document_count} document{row.document_count === 1 ? "" : "s"} · submitted {date(row.submitted_at)}</div><div className="mt-2 text-3xs font-semibold text-text-muted">Response estimate: {row.status === "submitted" ? "pending operator review" : "see current status"}</div></LocaleLink>)}</div>}
+        <div className="mt-3 grid gap-2 sm:grid-cols-3"><select aria-label="Filter by project" value={historyProject} onChange={(event)=>setHistoryProject(event.target.value)} className="h-10 rounded-xl border border-line-strong bg-ink-950 px-2 text-xs"><option value="">All projects</option>{projects.map((project)=><option key={project.id} value={project.id}>{project.project_name}</option>)}</select><select aria-label="Filter by inquiry type" value={historyType} onChange={(event)=>setHistoryType(event.target.value)} className="h-10 rounded-xl border border-line-strong bg-ink-950 px-2 text-xs"><option value="">All types</option><option value="quotation">Quotation</option><option value="drawing_review">Drawing review</option><option value="technical">Technical</option><option value="order_handover">Order handover</option><option value="other">Other</option></select><select aria-label="Filter by status" value={historyStatus} onChange={(event)=>setHistoryStatus(event.target.value)} className="h-10 rounded-xl border border-line-strong bg-ink-950 px-2 text-xs"><option value="">All statuses</option><option value="submitted">Submitted</option><option value="under_review">Under review</option><option value="accepted">Accepted</option><option value="rejected">Rejected</option><option value="closed">Closed</option></select></div>
+        {loading ? <p role="status" className="mt-5 text-xs text-text-muted">Loading…</p> : rows.length === 0 ? <p className="mt-5 text-xs text-text-muted">No website inquiries submitted by this account.</p> : filteredRows.length===0?<p className="mt-5 text-xs text-text-muted">No inquiries match these filters.</p>: <div className="mt-4 space-y-3">{filteredRows.map((row) => <LocaleLink key={row.id} href={`/inquiries/submissions/${row.id}`} className="block rounded-xl border border-line-strong bg-ink-950/70 p-4"><div className="flex justify-between gap-3"><span className="font-mono text-xs font-bold text-brand-300">{row.submission_reference}</span><span className="rounded-full border border-line-strong px-2 py-0.5 text-3xs uppercase text-text-muted">{row.status.replaceAll("_", " ")}</span></div><div className="mt-2 text-sm font-semibold">{row.project_name}</div><div className="mt-1 text-3xs text-text-faint">{row.document_count} document{row.document_count === 1 ? "" : "s"} · submitted {date(row.submitted_at)}</div><div className="mt-2 text-3xs font-semibold text-text-muted">Response estimate: {row.status === "submitted" ? "pending operator review" : "see current status"}</div></LocaleLink>)}</div>}
       </section>
     </div>
   </main>;
 }
 
-function Field({ name, label, required, maxLength }: { name: string; label: string; required?: boolean; maxLength: number }) {
+function Field({ name, label, required, maxLength, defaultValue }: { name: string; label: string; required?: boolean; maxLength: number; defaultValue?: string }) {
   const id = `inquiry-${name.replaceAll("_", "-")}`;
-  return <label htmlFor={id} className="text-sm font-semibold leading-5 text-text-secondary">{label}<input id={id} name={name} required={required} maxLength={maxLength} className="mt-2 min-h-12 w-full rounded-xl border border-line-strong bg-ink-950 px-3 py-3 text-base leading-6 text-text-primary caret-brand-300 outline-none placeholder:text-text-faint focus-visible:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400/40 sm:text-sm" /></label>;
+  return <label htmlFor={id} className="text-sm font-semibold leading-5 text-text-secondary">{label}<input id={id} name={name} required={required} maxLength={maxLength} defaultValue={defaultValue} className="mt-2 min-h-12 w-full rounded-xl border border-line-strong bg-ink-950 px-3 py-3 text-base leading-6 text-text-primary caret-brand-300 outline-none placeholder:text-text-faint focus-visible:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400/40 sm:text-sm" /></label>;
 }

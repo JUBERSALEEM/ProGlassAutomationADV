@@ -1,0 +1,7 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { CustomerInquiryFailure, getCustomerInquirySetup, saveCustomerInquiryProfile } from "@/lib/inquiry-submissions-api";
+export const runtime="nodejs"; export const dynamic="force-dynamic";
+const bearer=(r:NextRequest)=>r.headers.get("authorization")?.replace(/^Bearer\s+/i,"").trim()||"";
+function fail(error:unknown){const f=error instanceof CustomerInquiryFailure?error:new CustomerInquiryFailure("TEMPORARY_FAILURE","Customer details could not be processed.");const status=f.code==="UNAUTHORIZED"?401:f.code==="FORBIDDEN"?403:f.code==="INVALID"?422:503;return NextResponse.json({ok:false,error:{code:f.code,message:f.message}},{status,headers:{"Cache-Control":"private, no-store"}});}
+export async function GET(request:NextRequest){try{return NextResponse.json({ok:true,data:await getCustomerInquirySetup(bearer(request))},{headers:{"Cache-Control":"private, no-store"}});}catch(error){return fail(error);}}
+export async function PUT(request:NextRequest){try{const site=request.headers.get("sec-fetch-site");if(site&&site!=="same-origin"&&site!=="none")throw new CustomerInquiryFailure("FORBIDDEN","Profile updates must originate from this website.");return NextResponse.json({ok:true,data:await saveCustomerInquiryProfile(bearer(request),await request.formData())},{headers:{"Cache-Control":"private, no-store"}});}catch(error){return fail(error);}}
