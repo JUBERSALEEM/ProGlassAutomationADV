@@ -85,6 +85,8 @@ test("profile and project APIs prefill, persist, associate, and filter customer 
   assert.match(api, /create_customer_inquiry_draft_v2/);
   assert.match(api, /p_project_id: projectId \|\| null/);
   assert.match(portal, /Loading your saved details and projects/);
+  assert.match(portal, /accepted\.length >= MAX_FILES/);
+  assert.match(portal, /was skipped because the.*document limit is already filled/);
   assert.match(portal, /New project — save from fields below/);
   assert.match(portal, /Filter by project/);
   assert.match(portal, /Filter by inquiry type/);

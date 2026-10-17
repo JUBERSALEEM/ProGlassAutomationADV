@@ -710,7 +710,7 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 - [x] Add authenticated customer submission UI at `/[locale]/inquiries/submit`, including attention, VAT/TRN, salesman reference, and handover estimator fields.
 - [x] Add responsive cumulative drag/drop/file selection with 15-slot count, selected-file cards, per-file replace/remove, remove-all, duplicate-name rejection, size feedback, and upload/verification progress copy.
 - [x] Correct Next.js 16 proxy multipart truncation so the authenticated route receives the bounded 15 × 30 MB request; live-submit 13 documents and verify all 13 records and protected downloads.
-- [ ] Replace the single multipart request with staged one-file requests that expose genuine per-file/overall progress, transfer rate, estimated remaining time, accessible states, interruption handling, safe retry, and explicit finalization. The staged migration is applied and verified in disposable Supabase (3 columns, 2 RPCs, 3 preserved submissions/15 documents); API/UI implementation is locally complete but still requires build and live verification before this item can be checked.
+- [x] Replace the single multipart request with staged one-file requests exposing genuine per-file/overall progress, transfer rate, estimated remaining time, accessible states, interruption handling, safe retry, and explicit finalization. Normal completion and a real file-3 offline failure/retry passed; files 1–2 remained verified, retry finalized one submission with exactly 3 unique documents, and no draft/duplicate remained.
 - [x] Add customer-owned saved profile defaults (company, contact, phone, VAT/TRN, and attention) with form prefill; migration, submission save, refresh persistence, and live prefill are verified in disposable Supabase.
 - [x] Add customer-owned projects, inquiry type/category, project association, and project/type/status history filters; live project creation, selection, field/type restoration, and filtering are verified. Location is carried by the project label and history remains newest-first.
 - [x] Add customer-owned submission history and `/[locale]/inquiries/submissions/[id]` detail UI with card hierarchy and protected back navigation.
@@ -723,7 +723,7 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 - [x] Execute the base and handoff-field migrations in disposable Supabase; verify objects, customer ownership isolation, private upload/download, audit events, and duplicate-record protection.
 - [x] Browser-test OTP session reuse, submission, PDF upload, history, detail, handoff fields, download integrity, file-selection feedback, and responsive card presentation against the disposable project.
 - [x] Improve keyboard/screen-reader labels, focus rings, caret visibility, dark-mode input contrast, line height, and one-column mobile field flow.
-- [ ] Complete the remaining negative/file-format matrix: over-30-MB, 16-file, spoofed signatures, malformed/macro XLSX, invalid UTF-8 CSV, unsupported formats, direct-object denial, screen-reader announcement testing, and representative physical mobile devices.
+- [ ] Complete the remaining negative/file-format matrix. Live over-30-MB, duplicate-name, replace/remove/remove-all, ownership, and direct-download denial checks passed; automated spoofed-signature, malformed/macro XLSX, invalid UTF-8 CSV, and unsupported-format checks passed. Retest the corrected 16-file partial acceptance and finish screen-reader/representative-device checks.
 
 ### Phase 8B — Internal review
 

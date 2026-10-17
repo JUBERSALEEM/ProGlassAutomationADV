@@ -93,14 +93,28 @@ export function CustomerInquiryPortal() {
   }
 
   function addFiles(input: FileList | File[]) {
-    const files = validFiles(input);
-    if (!files) return;
+    const candidates = Array.from(input);
     setSelectedFiles((current) => {
-      const duplicate = files.find((file) => current.some((existing) => existing.name.toLocaleLowerCase() === file.name.toLocaleLowerCase()));
-      if (duplicate) { setError(`${duplicate.name} is already attached. Remove or replace the existing document before adding another file with that name.`); return current; }
-      if (current.length + files.length > MAX_FILES) { setError(`You can attach up to ${MAX_FILES} documents. Remove a file before adding another.`); return current; }
-      setError("");
-      return [...current, ...files];
+      const accepted: File[] = [];
+      const rejected: string[] = [];
+      for (const file of candidates) {
+        if (file.size > MAX_BYTES) {
+          rejected.push(`${file.name} exceeds the 30 MB per-file limit.`);
+          continue;
+        }
+        const duplicate = [...current, ...accepted].some((existing) => existing.name.toLocaleLowerCase() === file.name.toLocaleLowerCase());
+        if (duplicate) {
+          rejected.push(`${file.name} is already attached. Remove or replace the existing document before adding another file with that name.`);
+          continue;
+        }
+        if (current.length + accepted.length >= MAX_FILES) {
+          rejected.push(`${file.name} was skipped because the ${MAX_FILES}-document limit is already filled.`);
+          continue;
+        }
+        accepted.push(file);
+      }
+      setError(rejected.join(" "));
+      return accepted.length ? [...current, ...accepted] : current;
     });
   }
 
