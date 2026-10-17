@@ -16,6 +16,7 @@
     "test:inquiry-security": "node --experimental-strip-types --test scripts/inquiry-document-security.test.mjs scripts/inquiry-schema-security.test.mjs scripts/inquiry-api-security.test.mjs scripts/inquiry-bridge.test.mjs scripts/inquiry-intake-security.test.mjs scripts/inquiry-inbox-bridge.test.mjs scripts/inquiry-estimator-security.test.mjs",
     "inquiries:inbox:dry-run": "node scripts/inquiry-inbox-bridge.mjs",
     "inquiries:inbox:apply": "node scripts/inquiry-inbox-bridge.mjs --apply",
+    "inquiries:estimators:live-test": "node scripts/inquiry-estimator-live-test.mjs",
     "inquiries:bridge:dry-run": "node --experimental-strip-types scripts/inquiry-bridge.mjs",
     "inquiries:bridge:publish": "node --experimental-strip-types scripts/inquiry-bridge.mjs --publish",
     "pixel:pass": "node scripts/clay-pixel-pass.mjs",

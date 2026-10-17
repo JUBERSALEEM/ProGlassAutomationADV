@@ -16,7 +16,7 @@ The real `/reports` implementation reads `public.records` and supplies six filte
 - [x] Add estimator RLS for actively assigned complete submissions, document metadata, and private objects only.
 - [x] Add TypeScript contracts and static security tests.
 - [ ] Apply migration to disposable Supabase only after explicit authorization.
-- [ ] Live-test customer, unassigned estimator, assigned estimator, collaborator, auditor, admin, disabled estimator, reassignment, and document isolation.
+- [ ] Run `npm run inquiries:estimators:live-test` against disposable Supabase to verify unassigned denial, primary/collaborator isolation, assigned private download, disabled-role denial, re-enable, reassignment access loss, one-primary invariant, and preserved/audited history. Customer/admin isolation is already covered by the Phase 8 live matrix; auditor presentation follows in Phase 9B.
 
 Migration: `supabase-inquiry-estimator-phase9a.sql`.
 
