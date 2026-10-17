@@ -1,6 +1,6 @@
 # Phase 9 estimator workflow and Phase 10 production coordination
 
-Status: Phase 9A prepared locally; migration unapplied. Phase 9B–10 are blocked until 9A is applied and live role isolation passes.
+Status: Phase 9A complete in disposable Supabase. Phase 9B implementation is next; Phase 10 remains blocked until the estimator workflow is stable.
 
 ## Verified reports-page pattern to reuse
 
@@ -15,8 +15,8 @@ The real `/reports` implementation reads `public.records` and supplies six filte
 - [x] Reject missing users, conflicting existing roles, incomplete submissions, inactive estimators, duplicate members, and overlong reasons.
 - [x] Add estimator RLS for actively assigned complete submissions, document metadata, and private objects only.
 - [x] Add TypeScript contracts and static security tests.
-- [ ] Apply migration to disposable Supabase only after explicit authorization.
-- [ ] Run `npm run inquiries:estimators:live-test` against disposable Supabase to verify unassigned denial, primary/collaborator isolation, assigned private download, disabled-role denial, re-enable, reassignment access loss, one-primary invariant, and preserved/audited history. Customer/admin isolation is already covered by the Phase 8 live matrix; auditor presentation follows in Phase 9B.
+- [x] Apply the authorized migration and one-time qualified-ID RLS repair to disposable Supabase; verify 3 tables, 3 RPCs, 3 RLS tables, 6 policies, role constraint, zero initial rows, and preserved 7 submissions/23 documents/1 delivery.
+- [x] Run `npm run inquiries:estimators:live-test`: two distinct identities, unassigned denial, primary/collaborator isolation, assigned private download, unassigned record/document denial, disabled-role denial, re-enable, reassignment access loss, one-primary invariant, and preserved/audited history all passed. Final state is one active primary (`EST-COLLAB-TEST`) on `WEB-2026-000007`, 5 history rows, and 4 assignment events.
 
 Migration: `supabase-inquiry-estimator-phase9a.sql`. Deployments that applied its original revision must also apply the one-time `supabase-inquiry-estimator-phase9a-rls-repair.sql`, which qualifies the outer submission ID in the estimator policy; it changes no assignment data.
 
