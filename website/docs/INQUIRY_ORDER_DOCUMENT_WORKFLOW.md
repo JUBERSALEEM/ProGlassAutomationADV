@@ -734,10 +734,10 @@ The user corrected the earlier Phase 8 premise: website customers, not the WPF a
 
 ### Phase 8C — Cloud-to-Windows inbox bridge
 
-- [ ] Implement a separate pull bridge; do not repurpose the local-to-cloud publisher.
-- [ ] Add isolated inbox staging, atomic completion, byte/hash checks, retries, checkpoints, and acknowledgements.
-- [ ] Add a genuine remote-plan dry-run that downloads and acknowledges nothing.
-- [ ] Test wrong/disabled/revoked bridge identities and duplicate delivery behavior.
+- [x] Implement a separate pull bridge; do not repurpose the local-to-cloud publisher. Local implementation is complete in `scripts/inquiry-inbox-bridge.mjs`.
+- [x] Add isolated inbox staging, atomic completion, byte/hash checks, retries, checkpoints, and acknowledgements. Local/static verification is complete; disposable live verification remains.
+- [x] Add a genuine authenticated remote-plan dry-run that downloads and acknowledges nothing.
+- [ ] Apply and verify `supabase-inquiry-intake-phase8c-inbox.sql`, then test wrong/disabled/revoked bridge identities, crash recovery, and duplicate delivery behavior in disposable infrastructure.
 
 ### Phase 8D — Verification
 
