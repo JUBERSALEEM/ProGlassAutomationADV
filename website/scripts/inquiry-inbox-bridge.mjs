@@ -24,7 +24,7 @@ const planned=await client.rpc("plan_customer_inquiry_deliveries_v2",{p_limit:li
 if(planned.error)throw new Error(`Inbox plan failed: ${planned.error.message}`);
 const items=planned.data||[];const plan=[];
 for(const submission of items){const docs=await client.rpc("plan_customer_inquiry_delivery_documents",{p_submission_id:submission.submission_id});if(docs.error)throw new Error(`Document plan failed for ${submission.submission_reference}: ${docs.error.message}`);if(Number(submission.document_count)!==(docs.data||[]).length)throw new Error(`Remote document count changed for ${submission.submission_reference}.`);plan.push({submission,documents:docs.data||[]});}
-console.log(JSON.stringify({mode:apply?"apply":"remote-plan-dry-run",items:plan.length,documents:plan.reduce((n,x)=>n+x.documents.length,0),references:plan.map(x=>x.submission.submission_reference)},null,2));
+console.log(JSON.stringify({mode:apply?"apply":"remote-plan-dry-run",items:plan.length,documents:plan.reduce((n,x)=>n+x.documents.length,0),deliveries:plan.map(x=>({reference:x.submission.submission_reference,routingKey:x.submission.routing_key,primaryEstimatorCode:x.submission.primary_estimator_code||null,assignmentCount:Array.isArray(x.submission.assignment_snapshot)?x.submission.assignment_snapshot.length:0,documentCount:x.documents.length}))},null,2));
 if(!apply)process.exit(0);
 await mkdir(stageRoot,{recursive:true,mode:0o700});
 for(const entry of await readdir(stageRoot,{withFileTypes:true})){
