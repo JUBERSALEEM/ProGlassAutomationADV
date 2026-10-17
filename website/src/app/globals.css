@@ -1363,6 +1363,34 @@
   .auto-grid-standard { --auto-grid-min: var(--grid-card-standard); }
   .auto-grid-wide { --auto-grid-min: var(--grid-card-wide); }
 
+  /* Phase 10.5 — editorial route identity. Every public route enters through
+   * PageHero, but its hierarchy is visibly variant-specific rather than a
+   * repeated template with different words. */
+  .page-hero {
+    min-block-size: clamp(28rem, 58vh, 46rem);
+    display: flex;
+    align-items: center;
+  }
+  .page-hero[data-hero-variant="document"] {
+    min-block-size: clamp(24rem, 48vh, 36rem);
+  }
+  .page-hero[data-hero-variant="showcase"] .hero-composition {
+    position: relative;
+  }
+  .page-hero[data-hero-variant="showcase"] .hero-composition::after {
+    content: "";
+    position: absolute;
+    inset-inline-end: 0;
+    inset-block-start: -1.5rem;
+    inline-size: clamp(5rem, 10vw, 9rem);
+    block-size: 1px;
+    background: linear-gradient(90deg, transparent, rgb(var(--brand-300) / 0.75));
+  }
+  @media (max-width: 40rem) {
+    .page-hero { min-block-size: auto; }
+    .page-hero[data-hero-variant="showcase"] .hero-composition::after { display: none; }
+  }
+
   /* Phase 10.3 — the shell is a stage, not a stack of unrelated route bands.
    * The edge lights establish depth without putting glass around every block;
    * they are fixed paint, pointer-transparent, and disappear in print. */

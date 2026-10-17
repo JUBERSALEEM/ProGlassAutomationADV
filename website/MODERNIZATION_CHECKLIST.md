@@ -120,9 +120,11 @@ Expected test stderr includes Motion's reduced-motion informational warning in r
 
 ### Phase 10.5 — marketing and editorial routes
 
-- [ ] Apply the centralized 2026 surface, typography, density, responsive-grid, and reveal grammar to homepage, about, features, how-it-works, pricing, optimization, worked example, screenshots, resources, developer, collaborate, sponsors, contact, blog index/article, and legal templates.
-- [ ] Preserve copy, links, CTA destinations, blog slugs, metadata, localization, and form integrations.
+- [x] Apply the centralized 2026 surface, typography, density, responsive-grid, and reveal grammar to homepage, about, features, how-it-works, pricing, optimization, worked example, screenshots, resources, developer, collaborate, sponsors, contact, blog index/article, and legal templates.
+- [x] Preserve copy, links, CTA destinations, blog slugs, metadata, localization, and form integrations.
 - **Gate:** every template inspected in LTR/RTL at desktop/tablet/mobile; links/forms and metadata verified.
+
+**Phase 10.5 implementation evidence (2026-10-18):** All public/editorial templates retain their route-specific content while sharing redesigned hierarchy primitives. `PageHero` now publishes editorial/document/showcase identity to CSS, uses coordinated Framer Motion facts, and receives variant-specific proportions and composition details. Existing count-aware collections, section bands, metadata helpers, forms, localized links, blog slugs, and legal reading layouts remain intact. Browser viewport inspection remains open.
 
 ### Phase 10.6 — operational and authenticated routes
 

@@ -60,7 +60,10 @@ export function PageHero({
   const centred = align === "center" || variant === "document";
   const showcase = variant === "showcase";
   return (
-    <section className="relative overflow-hidden border-b border-line/60 pb-14 pt-12 sm:pb-16 sm:pt-16 lg:pb-20 lg:pt-20">
+    <section
+      data-hero-variant={variant}
+      className="page-hero relative overflow-hidden border-b border-line/60 pb-14 pt-12 sm:pb-16 sm:pt-16 lg:pb-20 lg:pt-20"
+    >
       {/*
         The opener's light.
 
@@ -107,11 +110,11 @@ export function PageHero({
         ) : null}
 
         <div
-          className={
+          className={`hero-composition ${
             centred || showcase
               ? "grid gap-8"
               : "grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-end lg:gap-10"
-          }
+          }`}
         >
           <div className={centred ? "mx-auto max-w-3xl text-center" : showcase ? "max-w-3xl" : undefined}>
             <Reveal>
