@@ -8,6 +8,9 @@ const motion = readFileSync(new URL("../src/lib/motion.ts", import.meta.url), "u
 const tailwind = readFileSync(new URL("../tailwind.config.ts", import.meta.url), "utf8");
 const layoutPrimitives = readFileSync(new URL("../src/components/ui/Layout.tsx", import.meta.url), "utf8");
 const motionStagger = readFileSync(new URL("../src/components/motion/MotionStagger.tsx", import.meta.url), "utf8");
+const manifest = readFileSync(new URL("../src/app/manifest.ts", import.meta.url), "utf8");
+const sitemap = readFileSync(new URL("../src/app/sitemap.ts", import.meta.url), "utf8");
+const robots = readFileSync(new URL("../src/app/robots.ts", import.meta.url), "utf8");
 
 test("the localized shell provides a keyboard bypass to the main landmark", () => {
   assert.match(layout, /href="#main" className="skip-link"/);
@@ -42,6 +45,14 @@ test("the two motion lanes retain centralized timing and capped stagger", () => 
   assert.match(motionStagger, /if \(reduced\)/);
   assert.match(css, /--dur-reveal:\s*380ms/);
   assert.match(css, /--ease-out:\s*cubic-bezier\(0\.16, 1, 0\.3, 1\)/);
+});
+
+test("SEO discovery surfaces include manifest, sitemap, robots, and localized metadata", () => {
+  assert.match(layout, /manifest:\s*"\/manifest\.webmanifest"/);
+  assert.match(manifest, /start_url:\s*"\/"/);
+  assert.match(manifest, /display:\s*"standalone"/);
+  assert.match(sitemap, /alternates/);
+  assert.match(robots, /sitemap/);
 });
 
 test("responsive accessibility contracts cover touch, forced colors, and localized overflow", () => {

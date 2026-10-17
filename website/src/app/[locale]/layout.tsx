@@ -211,6 +211,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
       description,
       images: [share.toString()],
     },
+    manifest: "/manifest.webmanifest",
     icons: {
       // The application's own icon, through the manifest, so the file that is
       // advertised here and the file that is optimised below it cannot drift.

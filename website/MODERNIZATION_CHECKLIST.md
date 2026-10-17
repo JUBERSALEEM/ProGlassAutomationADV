@@ -157,9 +157,11 @@ Expected test stderr includes Motion's reduced-motion informational warning in r
 ### Phase 10.9 — performance and SEO closure
 
 - [ ] Measure honest pre/post lab results on identical routes/build conditions.
-- [ ] Audit image/font/script loading, client boundaries, bundle impact, layout stability, metadata, canonical/alternate links, sitemap, robots, and structured data where applicable.
-- [ ] Report lab findings as lab findings; do not claim field Core Web Vitals without field data.
+- [x] Audit image/font/script loading, client boundaries, bundle impact, layout stability, metadata, canonical/alternate links, sitemap, robots, structured data, and install/search manifest where applicable.
+- [x] Report lab findings as lab findings; no field Core Web Vitals are claimed without field data.
 - **Gate:** production build, route manifest, lab evidence, and SEO checks pass.
+
+**Phase 10.9 source evidence (2026-10-18):** Added a typed Next metadata manifest and advertised it from localized metadata; contract coverage now protects manifest, sitemap, robots, and localized metadata discovery. Existing Next font/image handling, server-first primitives, bounded Motion usage, content visibility, route schemas, canonical/alternate metadata, Speed Insights, sitemap, and robots remain intact. Production build route output is recorded, but a browser lab baseline is still blocked and the measurement checkbox remains open. No field Core Web Vitals claim is made.
 
 ### Phase 10.10 — final regression and Vercel preview
 
