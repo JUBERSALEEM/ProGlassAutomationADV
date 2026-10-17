@@ -1,6 +1,6 @@
 # Phase 9 estimator workflow and Phase 10 production coordination
 
-Status: Phase 9A complete in disposable Supabase. Phase 9B implementation is next; Phase 10 remains blocked until the estimator workflow is stable.
+Status: Phases 9A, 9B, and 9C are implemented and live-verified in disposable Supabase. Phase 9D is next, followed by Phase 9E. Phase 10 remains blocked until all five Phase 9 stages are complete and verified.
 
 ## Verified reports-page pattern to reuse
 
@@ -62,7 +62,7 @@ Use the reports-page visual/interaction grammar with inquiry-specific facts:
 - [x] Add the sortable operational table with Received, Age, Inquiry Ref, Customer Ref, Company, Project, Location, Inquiry Type, Primary, Collaborators, Documents, Response Due, Last Activity, Status, and Action columns.
 - [x] Add detail navigation from each report row.
 - [x] Add server-side batched full authorized-queue loading with a fail-closed 10,000-row safety boundary instead of silently reporting from the first page.
-- [ ] Live-test the six cards, four breakdowns, ten filters, sortable table, detail links, three exports, and role-scoped totals.
+- [x] Live-test the six cards, four breakdowns, ten filters, sortable table, detail links, three exports, and role-scoped totals; user confirmed the full Phase 9C matrix passed.
 
 First-opened, waiting-for-customer, first-response, and review-duration metrics remain intentionally excluded until a later additive phase persists those events. “Last Activity” is currently the genuine persisted `status_updated_at` fact.
 
