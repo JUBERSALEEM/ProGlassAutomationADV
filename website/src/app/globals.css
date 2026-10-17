@@ -1322,6 +1322,31 @@
     }
   }
 
+  /* The persistent top panel must never trap keyboard users at the start of
+   * every route. This link is the first focus stop, hidden off-canvas until it
+   * is useful. Logical positioning keeps the contract correct in RTL. */
+  .skip-link {
+    position: fixed;
+    inset-block-start: 0.75rem;
+    inset-inline-start: 0.75rem;
+    z-index: 1000;
+    max-inline-size: calc(100vw - 1.5rem);
+    transform: translateY(calc(-100% - 1rem));
+    border: 1px solid rgb(var(--line-strong));
+    border-radius: calc(0.625rem * var(--radius-scale, 1));
+    background: rgb(var(--ink-850));
+    color: rgb(var(--text-1));
+    padding: 0.65rem 0.9rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    box-shadow: var(--shadow-raised);
+    transition: transform var(--dur-hover) var(--ease-out);
+  }
+
+  .skip-link:focus-visible {
+    transform: translateY(0);
+  }
+
   /* One visible focus treatment everywhere. */
   :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
     @apply outline-none ring-2 ring-brand-400 ring-offset-2;

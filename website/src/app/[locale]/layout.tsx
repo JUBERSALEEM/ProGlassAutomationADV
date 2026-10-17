@@ -320,6 +320,11 @@ export default async function LocaleLayout({
           heading above them.
         */}
         <I18nProvider locale={locale} overlay={overlay}>
+          {/* The first keyboard stop bypasses the persistent navigation. It is
+              visually hidden until focused and uses the page language. */}
+          <a href="#main" className="skip-link">
+            {t("Skip to content")}
+          </a>
           {/* §C5 living glass — one listener for every lifted surface,
               gated twice (JS: hover+fine+no-reduce; CSS: reduce unpaints).
               Renders nothing. */}

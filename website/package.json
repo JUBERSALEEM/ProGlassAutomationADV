@@ -37,6 +37,7 @@
     "i18n:memory": "node scripts/i18n-memory-fill.mjs --all",
     "i18n:fill": "node scripts/i18n-machine-fill.mjs --all",
     "test:navbar": "node --test scripts/nav-pill-clip.test.mjs && vitest run",
+    "test:modernization": "node --test scripts/modernization-contract.test.mjs",
     "test:clay": "node --test scripts/clay-contrast.test.mjs scripts/clay-visibility.test.mjs && node scripts/clay-coverage.mjs --check",
     "test:density": "node --test scripts/card-radius-guard.test.mjs scripts/card-grid-redesign.test.mjs scripts/top-panel-compact.test.mjs && node scripts/card-compaction-census.mjs --check",
     "guard:pointer": "node scripts/pointer-state-guard.mjs",

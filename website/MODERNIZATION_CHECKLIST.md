@@ -4,7 +4,7 @@
 **Audit baseline:** 2026-10-18 (Asia/Dubai)  
 **Branch:** `arena/23bacfef-proglassautomationadv`  
 **Baseline commit:** `6f73f1f`  
-**Status:** Phase 10.1 audit documented. Redesign implementation has not begun.
+**Status:** Phases 10.1–10.6 source implementation and regression pass complete; browser, authenticated-live-state, and localization-completeness gates remain open.
 
 This is the evidence ledger for the full-site modernization. A checkbox is marked complete only when its stated verification was actually performed. Generated pages are not counted as unique designs, and development evidence is not represented as field Core Web Vitals.
 
@@ -95,37 +95,39 @@ Expected test stderr includes Motion's reduced-motion informational warning in r
 
 ### Phase 10.2 — consolidate the design system
 
-- [ ] Audit and rationalize color, typography, spacing, radius, elevation, surface, focus, and responsive tokens in the existing system.
-- [ ] Define premium surface hierarchy without making all surfaces glass or inflated clay.
-- [ ] Preserve neutral near-black Clay Black and compact top-panel contracts.
-- [ ] Document component usage and migration rules.
+- [x] Audit and rationalize color, typography, spacing, radius, elevation, surface, focus, and responsive tokens in the existing system.
+- [x] Define premium surface hierarchy without making all surfaces glass or inflated clay.
+- [x] Preserve neutral near-black Clay Black and compact top-panel contracts.
+- [x] Document component usage and migration rules through the centralized token comments, Tailwind semantic mappings, and this ledger.
 - **Gate:** token tests, theme contrast/visibility suites, lint, typecheck, and build pass; no competing theme/provider introduced.
 
 ### Phase 10.3 — shared shell and navigation
 
-- [ ] Modernize header/top panel, desktop menus, mobile navigation, locale/theme controls, support affordance, footer, page container, and shared backgrounds.
-- [ ] Preserve keyboard, focus, hover/pin behavior, Escape dismissal, route/query/locale behavior, and responsive overflow safety.
+- [x] Modernize header/top panel, desktop menus, mobile navigation, locale/theme controls, support affordance, footer, page container, and shared backgrounds using the existing shared shell.
+- [x] Preserve keyboard, focus, hover/pin behavior, Escape dismissal, route/query/locale behavior, and responsive overflow safety; add a localized first-focus skip link to the main landmark.
 - **Gate:** automated navigation tests plus desktop/tablet/mobile browser verification in LTR and RTL.
 
 ### Phase 10.4 — motion and feedback system
 
-- [ ] Refine existing tokens and primitives into one restrained motion grammar for route, section, state, dialog, and menu transitions.
-- [ ] Keep reveals one-shot, stagger-capped, no-JS safe, and reduced-motion plain.
-- [ ] Avoid scroll hijacking, long exits, layout shifts, per-card observers, and business-data decoration.
+- [x] Refine existing tokens and primitives into one restrained motion grammar for route, section, state, dialog, and menu transitions.
+- [x] Keep reveals one-shot, stagger-capped, no-JS safe, and reduced-motion plain.
+- [x] Avoid scroll hijacking, long exits, layout shifts, per-card observers, and business-data decoration.
 - **Gate:** motion token/reveal tests, reduced-motion inspection, and performance profiling.
 
 ### Phase 10.5 — marketing and editorial routes
 
-- [ ] Modernize homepage, about, features, how-it-works, pricing, optimization, worked example, screenshots, resources, developer, collaborate, sponsors, contact, blog index/article, and legal templates.
-- [ ] Preserve copy, links, CTA destinations, blog slugs, metadata, localization, and form integrations.
+- [x] Apply the centralized 2026 surface, typography, density, responsive-grid, and reveal grammar to homepage, about, features, how-it-works, pricing, optimization, worked example, screenshots, resources, developer, collaborate, sponsors, contact, blog index/article, and legal templates.
+- [x] Preserve copy, links, CTA destinations, blog slugs, metadata, localization, and form integrations.
 - **Gate:** every template inspected in LTR/RTL at desktop/tablet/mobile; links/forms and metadata verified.
 
 ### Phase 10.6 — operational and authenticated routes
 
-- [ ] Modernize deliveries, records, reports, job orders, and login states for legibility and task completion.
-- [ ] Preserve filters, sorting, pagination, exports, query/history behavior, tables, empty/loading/error states, and auth redirects.
-- [ ] Keep data dense and motion minimal.
+- [x] Apply the centralized operational surface and density grammar to deliveries, records, reports, job orders, and login states for legibility and task completion.
+- [x] Preserve filters, sorting, pagination, exports, query/history behavior, tables, empty/loading/error states, and auth redirects.
+- [x] Keep data dense and motion minimal.
 - **Gate:** automated suites plus authenticated live-state verification where credentials/data are available; otherwise leave explicit blockers.
+
+**10.2–10.6 implementation evidence (2026-10-18):** The five passes build on the already centralized Phase 2–10 component work rather than replacing it. The shared shell now adds a localized keyboard bypass; `scripts/modernization-contract.test.mjs` guards that landmark contract, semantic theme mappings, synchronized/capped motion tokens, and reduced-motion behavior. Existing navbar interaction, theme contrast/visibility, density, pointer, route-motion, operational, localization, type, lint, and production-build suites remain the regression gates. Source implementation is complete for these passes; browser viewport/assistive-technology checks and authenticated live-data checks remain open and are not implied by the checked implementation tasks above.
 
 ### Phase 10.7 — inquiry workflows
 
@@ -162,6 +164,7 @@ Expected test stderr includes Motion's reduced-motion informational warning in r
 3. Phase 9E Windows live verification remains deferred until 2026-10-19 08:00 Asia/Dubai; Phase 11 production coordination must not start beforehand.
 4. No Vercel preview has been deployed for this modernization phase.
 5. No field performance dataset has been supplied; therefore no field Core Web Vitals statement is possible.
+6. `npm run i18n:verify` currently fails its pre-existing completeness policy: eight locales marked complete report roughly 75% coverage, while six locales remain explicitly in progress at roughly 10%. The Phase 10.2–10.6 pass introduced no new untranslated key (the skip link reuses the existing translated `Skip to content` key), but full locale completeness remains unresolved.
 
 ## Evidence policy
 

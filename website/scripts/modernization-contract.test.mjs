@@ -1,0 +1,37 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import test from "node:test";
+
+const layout = readFileSync(new URL("../src/app/[locale]/layout.tsx", import.meta.url), "utf8");
+const css = readFileSync(new URL("../src/app/globals.css", import.meta.url), "utf8");
+const motion = readFileSync(new URL("../src/lib/motion.ts", import.meta.url), "utf8");
+const tailwind = readFileSync(new URL("../tailwind.config.ts", import.meta.url), "utf8");
+
+test("the localized shell provides a keyboard bypass to the main landmark", () => {
+  assert.match(layout, /href="#main" className="skip-link"/);
+  assert.match(layout, /<main id="main"/);
+  assert.match(layout, /t\("Skip to content"\)/);
+  assert.match(css, /\.skip-link:focus-visible\s*{[^}]*transform:\s*translateY\(0\)/s);
+});
+
+test("components consume semantic theme colors rather than a second fixed palette", () => {
+  assert.match(tailwind, /ink:\s*{/);
+  assert.match(tailwind, /text:\s*{/);
+  assert.match(tailwind, /state:\s*{/);
+  assert.match(tailwind, /rgb\(var\(--ink-950\)/);
+  assert.match(tailwind, /rgb\(var\(--text-1\)/);
+});
+
+test("the two motion lanes retain centralized timing and capped stagger", () => {
+  assert.match(motion, /capMs:\s*200/);
+  assert.match(motion, /revealFailSafeMs\s*=\s*1000/);
+  assert.match(motion, /presets\s*=\s*{/);
+  assert.match(css, /--dur-reveal:\s*380ms/);
+  assert.match(css, /--ease-out:\s*cubic-bezier\(0\.16, 1, 0\.3, 1\)/);
+});
+
+test("reduced motion disables smooth scrolling and entrance displacement", () => {
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
+  assert.match(css, /scroll-behavior:\s*auto/);
+  assert.match(css, /\.reveal[\s\S]*?transform:\s*none\s*!important/);
+});
