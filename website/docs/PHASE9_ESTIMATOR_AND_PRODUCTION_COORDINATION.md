@@ -104,7 +104,7 @@ Expected immediately after application: 2 tables, 2 RLS tables, 2 RPCs, 2 polici
 - [x] Fail closed if assignment or routing changes between plan and acknowledgement.
 - [x] Preserve global administrative recovery, byte/hash checks, atomic completion, conflicting-folder detection, and idempotent acknowledgement.
 - [x] Preserve the isolated inbox boundary and do not write desktop SQLite.
-- [ ] Apply `supabase-inquiry-estimator-phase9e-handoff.sql` after explicit authorization and run read-only structural verification.
+- [x] Apply `supabase-inquiry-estimator-phase9e-handoff.sql` after explicit authorization; read-only verification passed with 3 delivery columns, 3 v2/helper RPCs, 1 preserved delivery, 0 invalid routes, and 0 invalid snapshots.
 - [ ] Run dry-run/apply/recovery and assigned/unassigned/reassignment live verification on the Windows bridge environment.
 
 Read-only verification after application:
