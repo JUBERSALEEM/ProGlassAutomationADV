@@ -204,6 +204,21 @@ Rendered live responses inspected at `https://proglassautomationadv-website-tkim
 - [x] Motion pilot gates: TypeScript, ESLint, motion contracts 28/28 and interaction tests 21/21 passed.
 - [ ] Browser profile compositor/paint behavior and manually validate focus, touch and reduced motion. **Blocked in the agent environment: no installed browser runtime. A live preview is required for human visual acceptance.**
 
+## Real-browser motion evidence — 2026-10-18
+
+A temporary headless Chromium runtime was sourced from npm for verification only; it was not added to product dependencies. The repository dependency tree was restored with `npm ci` afterward.
+
+- [x] `/en-US/features` desktop at 1440×900: HTTP 200, localized title/content present, no horizontal-overflow finding.
+- [x] Browser screenshot exposed a critical real defect missed by source tests: the route shell and above-fold `Reveal` blocks serialized hidden and could leave the first viewport almost entirely blank while hydration/rendering was busy.
+- [x] Replaced JS-hidden route entry with a visible-by-default CSS `@starting-style` enhancement. Unsupported CSS, no JavaScript, reduced motion and a busy hydration thread now all retain visible content.
+- [x] Added an explicit server-visible `immediate` path to CSS Reveal and applied it throughout shared PageHero; immediate MotionReveal and MotionStagger no longer serialize hidden initial variants.
+- [x] Desktop retest: `.route-shell` opacity 1, hero content visibly rendered, page title correct, HTTP 200, no page exceptions.
+- [x] `/en-US/features` mobile at 390×844 with touch emulation: no horizontal overflow; route shell and H1 both opacity 1; mobile menu opened (`aria-expanded=true`) and closed with Escape (`false`).
+- [x] Captured evidence: `artifacts/motion-verification/features-desktop-before-route-fix.png`, `features-desktop-after-route-fix.png`, and `features-mobile-after-fix.png` (generated evidence, intentionally under the ignored artifacts directory).
+- [ ] Full-page animated traversal was not accepted as performance evidence: headless software rendering became CPU-bound on the 24,000px Features page. This is a concrete profiling warning, not a field-device FPS measurement. Continuous aurora/material paint and long-page composition require a targeted trace before acceptance.
+- [ ] Dev-only console issue: Vercel Speed Insights debug script was blocked by the local CSP. No application page exception was observed; verify preview/production CSP separately.
+- [ ] Desktop dropdown visual exit, reduced-motion screenshots, and representative route traversal still require additional browser passes. Mobile menu state behavior is verified, not its animation smoothness.
+
 ## Whole-site motion code audit — 2026-10-18
 
 This audit corrects the earlier overstatement that a complete advanced motion system already existed.

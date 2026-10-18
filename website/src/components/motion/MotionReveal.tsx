@@ -116,7 +116,10 @@ export function MotionReveal({
       id={id}
       className={cn("motion-reveal", className)}
       variants={activeVariants}
-      initial="hidden"
+      /* Above-fold content must be present in server HTML. A previous hidden
+         initial variant made the entire hero disappear until Motion hydrated,
+         which real-browser screenshots exposed as a blank first viewport. */
+      initial={immediate ? false : "hidden"}
       {...trigger}
       transition={{
         duration: variant === "scale" ? dur.revealScale : dur.reveal,

@@ -2776,6 +2776,21 @@
    * the last tenth). It was 700 ms over 18 px — twice the preset ceiling,
    * and the drag was the same on a 200-page scroll as on the first fold.
    */
+  .route-shell {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--dur-lift) var(--ease-standard),
+      transform var(--dur-lift) var(--ease-standard);
+  }
+
+  @starting-style {
+    .route-shell {
+      opacity: 0.01;
+      transform: translate3d(0, 8px, 0);
+    }
+  }
+
   .reveal {
     opacity: 0;
     transform: translate3d(0, 12px, 0);
@@ -2919,6 +2934,7 @@
     transition-duration: 0.001ms !important;
   }
 
+  .route-shell,
   .reveal,
   .reveal-scale,
   .reveal-clip,

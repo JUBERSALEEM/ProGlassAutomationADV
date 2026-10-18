@@ -19,9 +19,12 @@ export function Reveal({
   variant = "up",
   as: Tag = "div",
   id,
+  immediate = false,
 }: {
   children: ReactNode;
   delay?: number;
+  /** Above-fold content is server-visible and never waits for an observer. */
+  immediate?: boolean;
   className?: string;
   variant?: "up" | "scale" | "clip" | "none";
   as?: ElementType;
@@ -38,6 +41,7 @@ export function Reveal({
         variant === "up" && "reveal",
         variant === "scale" && "reveal-scale",
         variant === "clip" && "reveal-clip",
+        immediate && variant !== "none" && "is-visible",
         className,
       )}
     >

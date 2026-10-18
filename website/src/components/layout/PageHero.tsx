@@ -117,27 +117,27 @@ export function PageHero({
           }`}
         >
           <div className={centred ? "mx-auto max-w-3xl text-center" : showcase ? "max-w-3xl" : undefined}>
-            <Reveal>
+            <Reveal immediate>
               <p className="eyebrow-chip mb-5 inline-flex items-center gap-2">
                 {glyph ? <Icon path={glyph} className="!h-3.5 !w-3.5" /> : null}
                 {eyebrow}
               </p>
             </Reveal>
-            <Reveal delay={60}>
+            <Reveal immediate delay={60}>
               <h1 className="display-1">{title}</h1>
             </Reveal>
-            <Reveal delay={120}>
+            <Reveal immediate delay={120}>
               <p className="lede-lg mt-5 max-w-2xl">{lead}</p>
             </Reveal>
             {actions ? (
-              <Reveal delay={180} className={`mt-8 flex flex-wrap items-center gap-3${centred ? " justify-center" : ""}`}>
+              <Reveal immediate delay={180} className={`mt-8 flex flex-wrap items-center gap-3${centred ? " justify-center" : ""}`}>
                 {actions}
               </Reveal>
             ) : null}
           </div>
 
           {meta ? (
-            <Reveal delay={140} className={showcase ? "lg:col-span-full" : undefined}>
+            <Reveal immediate delay={140} className={showcase ? "lg:col-span-full" : undefined}>
               <MotionStagger
                 immediate
                 className={`grid gap-4${centred ? " mx-auto max-w-2xl grid-cols-2" : showcase ? " grid-cols-2 lg:grid-cols-4" : " grid-cols-2"}`}
@@ -157,7 +157,7 @@ export function PageHero({
           ) : null}
         </div>
 
-        {children ? <Reveal delay={200} className="mt-12">{children}</Reveal> : null}
+        {children ? <Reveal immediate delay={200} className="mt-12">{children}</Reveal> : null}
       </Container>
     </section>
   );

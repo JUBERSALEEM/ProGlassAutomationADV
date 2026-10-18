@@ -27,7 +27,7 @@ export function MotionStagger({
   return (
     <motion.div
       className={cn("motion-stagger", className)}
-      initial="hidden"
+      initial={immediate ? false : "hidden"}
       animate={immediate ? "visible" : undefined}
       whileInView={immediate ? undefined : "visible"}
       viewport={immediate ? undefined : { once: true, amount: 0.18, margin: "0px 0px -4% 0px" }}

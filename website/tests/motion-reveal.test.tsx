@@ -185,9 +185,12 @@ describe("§R+§S touch budget (coarse pointers)", () => {
     expect(motionReveal).toContain('margin: "0px 0px -4% 0px"');
     expect(motionReveal).not.toContain("}, 1600)");
     const template = read("src/app/[locale]/template.tsx");
-    expect(template).toContain('from "@/lib/motion"');
-    expect(template).toContain("presets.page");
-    expect(template).not.toContain("[0.22, 0.61, 0.21, 1]");
+    expect(template).toContain('className="route-shell"');
+    expect(template).not.toContain('initial={{ opacity: 0');
+    const globalCss = read("src/app/globals.css");
+    expect(globalCss).toContain(".route-shell");
+    expect(globalCss).toContain("opacity var(--dur-lift) var(--ease-standard)");
+    expect(globalCss).toContain("@starting-style");
   });
 
   it("scroll rest (§Z): the liquid parks while scrolling; engine samplers filmed on touch", () => {
