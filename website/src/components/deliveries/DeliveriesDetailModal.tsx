@@ -66,6 +66,9 @@ export function DeliveriesDetailModal({
   return (
     <div className="animate-fade-in fixed inset-0 z-50 flex items-center justify-center bg-ink-950/85 p-3.5">
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delivery-detail-title"
         className="relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-line-strong/80 bg-ink-900 p-5 shadow-raised"
         onClick={(event) => event.stopPropagation()}
       >
@@ -80,7 +83,7 @@ export function DeliveriesDetailModal({
                 </Badge>
               )}
             </div>
-            <h2 className="mt-1 font-mono text-lg font-bold text-text-primary sm:text-xl">
+            <h2 id="delivery-detail-title" className="mt-1 font-mono text-lg font-bold text-text-primary sm:text-xl">
               {row.pi_number}
             </h2>
             <p className="mt-0.5 text-xs text-text-muted">

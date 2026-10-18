@@ -38,6 +38,9 @@ export function RecordsRecordDetailModal({ record, onClose }: RecordsRecordDetai
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 bg-ink-950/80 backdrop-blur-sm animate-fade-in">
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="record-detail-title"
         className="relative w-full max-w-2xl rounded-2xl border border-line-strong/80 bg-ink-900 p-5 shadow-raised overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
@@ -48,7 +51,7 @@ export function RecordsRecordDetailModal({ record, onClose }: RecordsRecordDetai
               <span className="eyebrow text-brand-300">Record Inspection</span>
               <span className="font-mono text-2xs text-text-faint">#{record.id}</span>
             </div>
-            <h2 className="mt-1 text-lg font-bold text-text-primary sm:text-xl font-mono">
+            <h2 id="record-detail-title" className="mt-1 text-lg font-bold text-text-primary sm:text-xl font-mono">
               {record.pi_number}
             </h2>
             <p className="text-xs text-text-muted mt-0.5">
