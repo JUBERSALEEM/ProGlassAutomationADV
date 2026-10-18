@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useModalDialog } from "@/lib/useModalDialog";
 import type { RecordRow } from "@/types/records";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -15,13 +16,7 @@ type RecordsRecordDetailModalProps = {
 export function RecordsRecordDetailModal({ record, onClose }: RecordsRecordDetailModalProps) {
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  const dialogRef = useModalDialog<HTMLDivElement>({ open: Boolean(record), onClose });
 
   if (!record) return null;
 
@@ -38,6 +33,8 @@ export function RecordsRecordDetailModal({ record, onClose }: RecordsRecordDetai
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 bg-ink-950/80 backdrop-blur-sm animate-fade-in">
       <div
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby="record-detail-title"

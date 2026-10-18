@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { formatDateDDMMYYYY } from "@/lib/date-utils";
+import { useModalDialog } from "@/lib/useModalDialog";
 import { confirmedProformaHrefForJobOrder, deliveryNoteHrefForJobOrder } from "@/lib/job-order-links";
 import {
   buildProductionRoutePreview,
@@ -45,19 +46,20 @@ export function JobOrderDetailModal({ row, authToken, productionTrackingAvailabl
   ));
   const [error, setError] = useState<string | null>(null);
 
+  const dialogRef = useModalDialog<HTMLElement>({
+    open: Boolean(row),
+    onClose,
+    closeDisabled: busy || Boolean(savingStage),
+  });
+
   useEffect(() => {
     if (!row) return;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !busy && !savingStage) onClose();
-    };
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [row, busy, savingStage, onClose]);
+  }, [row]);
 
   if (!row) return null;
 
@@ -185,7 +187,7 @@ export function JobOrderDetailModal({ row, authToken, productionTrackingAvailabl
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/85 p-3.5 animate-fade-in" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy && !savingStage) onClose(); }}>
-      <section role="dialog" aria-modal="true" aria-labelledby="job-order-detail-title" className="relative flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-line-strong/80 bg-ink-900 shadow-raised">
+      <section ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="job-order-detail-title" className="relative flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-line-strong/80 bg-ink-900 shadow-raised">
         <div className="flex shrink-0 items-start justify-between gap-3.5 border-b border-line-strong/60 p-4 sm:p-5">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">

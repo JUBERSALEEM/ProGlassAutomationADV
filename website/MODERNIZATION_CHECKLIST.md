@@ -232,7 +232,8 @@ This audit corrects the earlier overstatement that a complete advanced motion sy
 - [x] Root cause: product imagery/live frames used the same motion as text. A separate clipped media reveal now exposes frames through inset, opacity and restrained depth without changing layout.
 - [x] Root cause: standard buttons had hover lift but weak press feedback and broad `transition-all`. Shared buttons now use an immediate 0.985 press response and a bounded transition-property list.
 - [x] Performance finding: the normal reveal lane correctly shares one IntersectionObserver bucket and drops observed nodes after reveal. The separate count-up observer is justified by its different threshold/frame updates. No second animation library was added.
-- [ ] Remaining architecture gap: operational dialogs do not share one focus-trap/return and retained-exit primitive. Naming semantics are fixed, but exit/focus work is not complete.
+- [x] Shared operational-dialog keyboard/focus foundation added for Records, Deliveries and Job Orders: initial focus, Tab/Shift+Tab trap, Escape policy, and trigger focus restoration; regression test passes.
+- [ ] Remaining architecture gap: operational dialogs still need retained visual exit at the parent presence boundary. Focus behavior is shared; exit presence is not yet complete.
 - [ ] Remaining architecture gap: filters/search/tab implementations are domain-specific; each must be migrated to shared presence/layout patterns without remount flicker.
 - [ ] Remaining quality gap: selective scroll-linked depth currently exists mainly in the hero. Marketing workflow sections need authored storytelling; it must not be copied onto operational tables.
 - [ ] Real-browser visual/performance verdict remains unavailable in this environment. Running HTML, tests, and source inspection are not relabeled as scroll/paint evidence.

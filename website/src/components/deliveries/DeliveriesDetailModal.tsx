@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useModalDialog } from "@/lib/useModalDialog";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { LocaleLink } from "@/components/ui/LocaleLink";
@@ -26,13 +27,7 @@ export function DeliveriesDetailModal({
 }) {
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  const dialogRef = useModalDialog<HTMLDivElement>({ open: Boolean(row), onClose });
 
   if (!row) return null;
 
@@ -66,6 +61,8 @@ export function DeliveriesDetailModal({
   return (
     <div className="animate-fade-in fixed inset-0 z-50 flex items-center justify-center bg-ink-950/85 p-3.5">
       <div
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby="delivery-detail-title"
