@@ -10,6 +10,7 @@ import { CallToActionCard } from "@/components/ui/CallToActionCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
 import { editions, licenceFacts, licenceGates, openModules } from "@/data/editions";
+import { buyableSkus, checkoutPath, durationById, formatPrice, licenseDurations } from "@/data/plans";
 import { editionIcon } from "@/data/groupIcons";
 import { Icon } from "@/components/ui/Icon";
 import { faq } from "@/data/faq";
@@ -185,6 +186,84 @@ export default async function PricingPage({ params }: PageProps) {
               </Reveal>
             ))}
           </div>
+        </Container>
+      </Section>
+
+      {/* ── Licence terms ────────────────────────────────────────── */}
+      <Section aria-labelledby="terms-heading">
+        <Container>
+          <SectionHeading
+            id="terms-heading"
+            eyebrow={t("Licence terms")}
+            title={t("Five terms, from a week to two years.")}
+            lead={t("Every edition is sold for a term. These are the durations in the licence plan catalogue the application itself carries — the same names the licence generator offers and the application checks when a key is pasted in. Activation is offline: a signed licence file, no phone-home, and the term is verified against the catalogue on both ends.")}
+          />
+
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+            {licenseDurations.map((duration, index) => (
+              <Reveal
+                key={duration.id}
+                delay={index * 50}
+                className={
+                  duration.featured
+                    ? "surface-raised relative flex flex-col border-brand-400/40 card-pad-sm shadow-glow"
+                    : "surface relative flex flex-col card-pad-sm"
+                }
+              >
+                {duration.featured ? (
+                  <span className="absolute -top-3 left-5">
+                    <Badge tone="accent">{t("Standard term")}</Badge>
+                  </span>
+                ) : null}
+                <p className="text-lg font-semibold text-text-primary">{t(duration.name)}</p>
+                <p className="mt-1 font-mono text-2xs uppercase tracking-[0.14em] text-brand-300">
+                  {duration.days} {t("days")}
+                </p>
+                <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(duration.note)}</p>
+              </Reveal>
+            ))}
+          </div>
+
+          {/*
+            Buyable SKUs render only when src/data/plans.ts carries a
+            published price AND an https payment link — until then this
+            block is the honest line below, and /api/checkout says the
+            same thing (501). One file edit turns this strip into a
+            checkout without touching this page.
+          */}
+          {buyableSkus().length > 0 ? (
+            <ul className="mt-8 space-y-3">
+              {buyableSkus().map((sku) => {
+                const edition = editions.find((entry) => entry.id === sku.editionId);
+                const duration = durationById(sku.durationId);
+                if (!edition || !duration || !sku.price) return null;
+                return (
+                  <li
+                    key={sku.id}
+                    className="surface-raised flex flex-wrap items-center justify-between gap-4 card-pad-sm"
+                  >
+                    <div>
+                      <p className="text-base font-semibold text-text-primary">
+                        {t(edition.name)} · {t(duration.name)}
+                      </p>
+                      <p className="mt-1 text-sm text-text-muted">{formatPrice(sku.price)}</p>
+                    </div>
+                    <ButtonLink href={checkoutPath(sku.id)} external size="md" trailing={<ArrowRight />}>
+                      {t("Buy licence")}
+                    </ButtonLink>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="mt-6 text-sm leading-relaxed text-text-muted">
+              {t("Online checkout opens when prices are published on this page. Until then, every term above is quoted per business —")}{" "}
+              <Link href="/contact" className="link-underline text-brand-200">
+                {t("request pricing")}
+              </Link>{" "}
+              {t("and a person answers.")}
+            </p>
+          )}
         </Container>
       </Section>
 
