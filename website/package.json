@@ -39,6 +39,7 @@
     "test:navbar": "node --test scripts/nav-pill-clip.test.mjs && vitest run",
     "test:modernization": "node --test scripts/modernization-contract.test.mjs",
     "test:theme-system": "node --experimental-strip-types --test scripts/theme-schema.test.mjs",
+    "test:theme-components": "vitest run tests/design-system-components.test.tsx",
     "test:clay": "node --test scripts/clay-contrast.test.mjs scripts/clay-visibility.test.mjs && node scripts/clay-coverage.mjs --check",
     "test:density": "node --test scripts/card-radius-guard.test.mjs scripts/card-grid-redesign.test.mjs scripts/top-panel-compact.test.mjs && node scripts/card-compaction-census.mjs --check",
     "guard:pointer": "node scripts/pointer-state-guard.mjs",

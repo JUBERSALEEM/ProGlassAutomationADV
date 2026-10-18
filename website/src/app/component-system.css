@@ -1,0 +1,41 @@
+/* Approved shared-component state grammar. Material/family files may repaint
+ * tokens, but must not replace these semantics or interaction states. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgb(var(--text-1) / 0.08), transparent);
+  transform: translateX(-100%);
+  animation: component-skeleton 1.5s var(--ease-standard) infinite;
+}
+
+.spinner { animation: component-spin 0.8s linear infinite; }
+
+.theme-progress {
+  border: 0;
+  background: rgb(var(--line-soft));
+  color: rgb(var(--brand-500));
+}
+.theme-progress::-webkit-progress-bar { background: rgb(var(--line-soft)); }
+.theme-progress::-webkit-progress-value { background: rgb(var(--brand-500)); }
+.theme-progress::-moz-progress-bar { background: rgb(var(--brand-500)); }
+.theme-progress:indeterminate { background: rgb(var(--line-soft)); }
+
+@keyframes component-skeleton { to { transform: translateX(100%); } }
+@keyframes component-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after,
+  .spinner { animation: none; }
+  .spinner { border-top-color: currentColor; opacity: 0.7; }
+}
+
+@media (forced-colors: active) {
+  .field-control,
+  .feedback-state,
+  .theme-progress { border: 1px solid CanvasText; }
+}
