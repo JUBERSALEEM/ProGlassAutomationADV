@@ -1,187 +1,240 @@
-# ProGlass Automation 2026 Modernization Checklist
+# ProGlass Automation 2026 Full-Site Modernization Checklist
 
-**Scope:** `website/` only  
-**Audit baseline:** 2026-10-18 (Asia/Dubai)  
-**Branch:** `arena/23bacfef-proglassautomationadv`  
-**Baseline commit:** `6f73f1f`  
-**Status:** Phase 10.1 audit and Phase 10.2–10.9 redesign source passes complete with one commit per phase. Phase 10.10 automated regression is complete; browser/AT screenshots, authenticated live-state verification, lab performance, localization completeness, and Vercel preview deployment remain open.
+**Program started:** 2026-10-18
+**Scope:** `website/` only
+**Branch:** `arena/23bacfef-proglassautomationadv`
+**Status:** Phase 1 source/live-response audit and implementation sequence documented. Browser viewport evidence and authenticated live states remain blocked. No new broad redesign implementation begins until this phase record is accepted.
 
-This is the evidence ledger for the full-site modernization. A checkbox is marked complete only when its stated verification was actually performed. Generated pages are not counted as unique designs, and development evidence is not represented as field Core Web Vitals.
+This is the active evidence ledger for the seven-phase modernization program. Generated locale variants are not counted as unique page designs. A checked item means its stated result was actually inspected or tested; source assertions are not treated as visual-browser evidence.
 
-## Ground rules
+## Permanent constraints
 
-- Preserve routes, content, 15 locales, RTL behavior, forms, authentication, data/API integrations, SEO, Vercel configuration, and security boundaries.
-- Reuse and improve the existing component and token infrastructure; do not create a competing design system.
-- Keep operational pages dense, legible, and task-oriented. Do not apply decorative motion to business data.
-- Motion is one-shot by default, capped, transform/opacity-led, reduced-motion aware, and must never make content depend on JavaScript visibility.
-- Preserve keyboard operation, focus management, Escape behavior, semantic names/relationships, history, query parameters, and locale routing.
-- Do not alter the WPF application, apply migrations, publish production data, or deploy production.
-- Phase 9E Windows live verification remains deferred until 2026-10-19 08:00 Asia/Dubai. Phase 11 production coordination remains blocked.
+- Preserve all routes, content, 15 locales, RTL behavior, forms, authentication, data/API integrations, SEO, Vercel configuration, security boundaries, and desktop-product meaning.
+- ProGlass is Windows desktop software, not browser SaaS. Do not invent cloud accounts, subscriptions, testimonials, guarantees, screenshots, customers, or capabilities.
+- Reuse and improve the existing token, material-engine, component, and Motion infrastructure; do not add a competing theme or component library.
+- Glass, clay, depth, and animation are selective. Operational data remains dense, readable, and task-oriented.
+- Preserve keyboard behavior, focus return, Escape handling, native semantics, history, search parameters, locale routing, validation, submissions, uploads, exports, and authorization.
+- Do not modify WPF sources, apply migrations, mutate production data, alter production secrets, or deploy production.
+- Phase 9E Windows verification and separate Phase 11 production coordination remain outside this website program.
 
-## Phase 10.1 — repository and baseline audit
+# Phase 1 — Inspect before editing
 
-### Architecture and inventory
+## Repository and architecture
 
-- [x] Confirm repository and branch; restrict scope to `website/`.
-- [x] Inspect package scripts and framework dependencies.
-- [x] Count route source templates: **35 page templates** under `src/app/[locale]`.
-- [x] Count API source templates: **27 `route.ts` files** under `src/app/api` (the build additionally reports `/api/og`, implemented outside that `route.ts` count).
-- [x] Count locales: **15** (`en-US` plus 14 localized URL variants); Arabic and Urdu are RTL.
-- [x] Distinguish template count from build expansion: baseline production build generated **504/504 static pages**, not 504 unique designs.
-- [x] Inspect shared locale layout, route template, global styles/tokens, reveal utilities, and Motion tokens.
-- [x] Identify shared loading/error/not-found boundaries at `[locale]` scope.
-- [x] Identify metadata, sitemap, robots, and dynamic blog static-parameter generation.
-- [x] Inventory component families: layout/navigation/footer, UI primitives, forms, records, reports, deliveries, job orders, inquiries, optimization, product, gallery, theme studio, and motion.
-- [x] Inspect locale negotiation: remembered cookie → country → `Accept-Language` → English; English uses an internal rewrite while non-English uses visible redirects; query strings are retained.
-- [x] Inspect representative interactive semantics in source and automated coverage (menus, accordion, dialogs/sheets, tabs, forms, tables, pagination, theme studio, and support controls).
-- [ ] Manually exercise every interactive control in a real browser. **Blocked:** no browser automation package/runtime is installed in this workspace.
-- [ ] Inspect every representative public template at desktop, tablet, and mobile viewports. **Blocked:** no browser workflow is currently available.
-- [ ] Inspect authenticated/data-dependent states with live credentials/data. **Unverified:** no credentials or disposable live dataset were provided; source/security tests only.
-- [ ] Capture fresh baseline screenshots for representative routes and viewports. **Blocked:** no browser workflow. User-provided Phase 10 screenshots remain historical defect evidence, not a full modernization baseline.
-- [ ] Capture browser console and network traces. **Blocked:** no browser workflow.
+- [x] Inspect repository state, package configuration, scripts, framework, dependencies, entry points, localized layout, proxy, loading/error/not-found boundaries, and deployment configuration.
+- [x] Inspect global CSS, Clay/Crystal engines, Tailwind semantic bridge, portable theme schema, existing Theme Studio, shared UI/layout components, domain components, and motion utilities.
+- [x] Confirm one animation dependency: `motion` 14.2.0 (`motion/react`); no overlapping animation library.
+- [x] Inspect server/client boundaries and identify large client surfaces (`ThemeStudio`, navigation, galleries, operational dashboards, inquiry workspaces).
+- [x] Inspect metadata helper, canonical/language alternates, structured data, sitemap, robots, manifest, proxy exclusions, and Vercel Speed Insights.
+- [x] Inspect existing automated suites and build procedure.
 
-### Route/template inventory
+## Route inventory
 
-**Public/marketing/editorial (18 templates):** `/`, `/about`, `/blog`, `/blog/[slug]`, `/collaborate`, `/contact`, `/developer`, `/features`, `/how-it-works`, `/optimization`, `/pricing`, `/resources`, `/screenshots`, `/sponsors`, `/worked-example`, `/legal/license`, `/legal/privacy`, `/legal/terms`.
+**35 page templates:**
 
-**Operational/authenticated (10 templates):** `/deliveries`, `/job-orders`, `/records`, `/records/login`, `/reports`, `/reports/login`, `/inquiries`, `/inquiries/[id]`, `/inquiries/estimator`, `/inquiries/estimator/[id]`.
+### Public/editorial/legal — 18 templates
 
-**Customer/internal inquiry workflow (4 templates):** `/inquiries/submit`, `/inquiries/submissions/[id]`, `/inquiries/customer-submissions`, `/inquiries/customer-submissions/[id]`.
+- [x] `/`
+- [x] `/about`
+- [x] `/features`
+- [x] `/how-it-works`
+- [x] `/optimization`
+- [x] `/worked-example`
+- [x] `/screenshots`
+- [x] `/pricing`
+- [x] `/resources`
+- [x] `/blog`
+- [x] `/blog/[slug]`
+- [x] `/developer`
+- [x] `/collaborate`
+- [x] `/sponsors`
+- [x] `/contact`
+- [x] `/legal/privacy`
+- [x] `/legal/terms`
+- [x] `/legal/license`
 
-**System/theme laboratories (3 templates):** `/sys/clay`, `/sys/crystal`, `/sys/liquid-glass`.
+### Operational/authenticated — 6 templates
 
-Dynamic inquiry detail templates require authorization/data and are explicitly not visually verified. System routes are retained as internal design diagnostics, not treated as primary marketing surfaces.
+- [x] `/records`
+- [x] `/records/login`
+- [x] `/reports`
+- [x] `/reports/login`
+- [x] `/deliveries`
+- [x] `/job-orders`
 
-### API/data boundary inventory
+### Inquiry/customer/operator/estimator — 8 templates
 
-- Authentication: signout.
-- Public/server intake: demo request and health.
-- Operational data: deliveries, records, operations export, job-order list/progress/release.
-- Inquiry operator/customer boundaries: inquiry records/documents/communications; estimator registration, assignment and queues; submission draft, staged documents, finalize, profile, projects, operator review and downloads.
-- Existing inquiry tests enforce bounded payloads, same-origin/auth requirements, role/ownership checks, private storage, RLS, immutable/audited flows, and no service-role browser exposure. Modernization must not bypass these server contracts.
+- [x] `/inquiries`
+- [x] `/inquiries/[id]`
+- [x] `/inquiries/submit`
+- [x] `/inquiries/submissions/[id]`
+- [x] `/inquiries/customer-submissions`
+- [x] `/inquiries/customer-submissions/[id]`
+- [x] `/inquiries/estimator`
+- [x] `/inquiries/estimator/[id]`
 
-### Existing system findings
+### Internal system catalogues — 3 templates
 
-- A centralized system already exists in `globals.css`, Tailwind configuration, theme definitions, shared surface primitives, and motion tokens. Modernization should consolidate and refine it rather than add a second library.
-- `motion` 14.2.0 is already present. `src/lib/motion.ts` centralizes durations/easing/springs and caps stagger at 200 ms.
-- Route entry motion, a shared one-shot IntersectionObserver reveal lane, fail-safe visibility, and reduced-motion behavior already exist. These are assets to preserve and audit, not replace wholesale.
-- Navigation, dropdown, dialog, accordion, table, filter, pagination, form, support, and theme controls already have reusable implementations and automated interaction coverage.
-- The locale proxy preserves explicit localized URLs, prefix-free English URLs, static/API exclusions, search parameters, and remembered language choice.
-- Metadata is centralized through shared layout/page helpers; sitemap and robots routes exist. All modernization route edits must retain page metadata and canonical/alternate behavior.
-- Current card collections use a count-aware compact grid from tablet width; intentional statistics grids have a separate fixed-grid marker. Forms, tables, detail panels, and intentional split layouts must remain outside this grammar.
-- Source inspection and unit tests are not substitutes for visual, assistive-technology, browser-console, network, or live-data verification.
+- [x] `/sys/clay`
+- [x] `/sys/crystal`
+- [x] `/sys/liquid-glass`
 
-### Baseline automated evidence
+**API:** 27 `route.ts` templates covering signout, health, demo requests, records, deliveries, exports, job orders, inquiry/customer/operator/estimator workflows and private documents. Build output also exposes `/api/og`.
 
-Run on 2026-10-18 against `6f73f1f`:
+**Generated output:** current production build generates **505/505 static pages**. This is locale/blog/metadata expansion, not 505 unique designs.
 
-- [x] `npm run lint` — passed.
-- [x] `npm run typecheck` — passed.
-- [x] `npm run test:density` — **19/19 passed**; compaction census passed.
-- [x] `npm run test:navbar` — source guard **2/2 passed**; Vitest **8 files / 100 tests passed**.
-- [x] `npm run test:clay` — passed, including coverage check.
-- [x] `npm run testcrystal` — passed.
-- [x] `npm run guard:pointer` — passed.
-- [x] `npm run test:job-orders` — passed.
-- [x] `npm run test:inquiry-security` — **73/73 passed**.
-- [x] `npm run build` — compiled and type-checked; **504/504** static pages generated.
-- [x] Build route manifest confirmed SSG, dynamic inquiry detail/API routes, sitemap, robots, icon, and middleware/proxy.
-- [ ] Lighthouse/Lab performance baseline — not run; no browser runtime. No field CWV claim is made.
-- [ ] Automated accessibility scanner — not run; no browser runtime. Existing semantic tests are only partial evidence.
+## Locale behavior
 
-Expected test stderr includes Motion's reduced-motion informational warning in reduced-motion test cases; it did not fail the suite.
+- [x] Confirm 15 locale codes; Arabic and Urdu are RTL.
+- [x] Confirm remembered cookie → country → `Accept-Language` → English resolution order.
+- [x] Confirm English uses prefix-free external URLs through an internal rewrite.
+- [x] Confirm non-English selection uses explicit localized URLs and retains query strings.
+- [x] Confirm `/de-DE` is a shipped explicit locale route.
+- [ ] Manually exercise default-locale redirect, `/de-DE`, language switching, query retention, and back/forward in a real browser. **Blocked: no browser runtime.**
+
+## Live-site inspection
+
+Rendered live responses inspected at `https://proglassautomationadv-website-tkim.vercel.app/`:
+
+- [x] Homepage: accurate Windows/local-SQLite product positioning, product preview, CTAs, developer evidence.
+- [x] Features: real 48-target/nine-group module catalogue and WPF terminology.
+- [x] Crystal catalogue: shared surface/material grammar and reduced-motion doctrine.
+- [x] Reports: authentication gate and public return path.
+- [x] Inquiry submit: email-verification gate.
+- [ ] Open every public template at desktop, tablet, and mobile widths. **Blocked: fetch tooling returns rendered content but not a visual browser viewport.**
+- [ ] Capture baseline screenshots and computed-style evidence. **Blocked: Chromium/Firefox/Playwright/Puppeteer are unavailable.**
+- [ ] Inspect browser console/network and interactive runtime defects. **Blocked: no browser runtime.**
+- [ ] Inspect authenticated/data-dependent states. **Blocked: no authorized credentials/disposable live dataset.**
+
+## Existing interaction and component audit
+
+- [x] Navigation: desktop dropdowns, mobile panel, language menu, theme controls, current-route behavior, hover/pin and Escape tests.
+- [x] Content disclosure: accordion with native button, `aria-expanded`, controlled region and height transition.
+- [x] Overlays: operational/inquiry detail modals and gallery viewers identified for focus/exit-motion audit.
+- [x] Forms: contact/demo, reports authentication, customer inquiry, staged uploads and server validation boundaries identified.
+- [x] Operational controls: tabs, filters, search, tables, pagination, exports, loading/empty/error states identified.
+- [x] Shared visual components: PageHero, PageBanner, SectionHeading, IconChip, badges, EmptyState, GlassCard, buttons, layout primitives, footer/legal, gallery/viewer.
+- [x] Motion: shared one-shot observer buckets, MotionReveal, MotionStagger, route template, reduced-motion and no-JS visibility safeguards.
+
+## Findings
+
+- [x] Existing system is substantial and must be consolidated, not replaced: semantic variables, Tailwind bridge, Clay/Crystal engines, portable schema, component contracts and shared primitives already exist.
+- [x] Current visual strengths: strong product specificity, premium material engines, self-hosted fonts, semantic surface ladder, count-aware card grids, localized shell and robust interaction tests.
+- [x] Current consistency risks: very large layered CSS/material engines, page/domain-specific control patterns, many backdrop-filter sites, arbitrary visual literals requiring scoped classification, and a large public Theme Studio client surface.
+- [x] Performance risks: large blur census on dense pages, Theme Studio/useStudio size, expensive material effects without current browser profiling, and no measured lab/field baseline.
+- [x] Accessibility risks: real-browser focus order/return, narrow Theme Studio usability, modal semantics, glass contrast over actual imagery, RTL/long-string layout, authenticated form/table states remain unverified.
+- [x] Dependency baseline: `npm ci` reports 17 audit findings (2 low, 3 moderate, 10 high, 2 critical); no force-fix applied.
+- [x] Existing localization completeness failure remains unresolved and must not be hidden by redesign work.
+
+## Baseline automated evidence
+
+- [x] ESLint passed.
+- [x] TypeScript passed.
+- [x] Modernization contracts: 7/7 passed.
+- [x] Theme schema: 5/5 passed.
+- [x] Theme components: 4/4 passed.
+- [x] Navbar guards: 2/2 passed.
+- [x] Vitest interaction suite: 100/100 passed before the new component test file; new targeted component suite passed separately.
+- [x] Density/card contracts: 19/19; census passed.
+- [x] Production build: 505/505 static pages.
+- [ ] Browser accessibility scan, Lighthouse/lab performance, LCP/INP/CLS and bundle comparison. **Blocked: no browser runtime; no field claim made.**
 
 ## Approved implementation sequence
 
-### Phase 10.2 — consolidate the design system
+1. Finish Phase 1 only when browser-dependent blockers become testable; otherwise retain them visibly and proceed with source-verifiable work per the prompt's unavailable-tool rule.
+2. Phase 2: consolidate the current token/schema/material system into the premium navy/cyan/violet/warm hybrid; preserve Clay/Crystal behavior and add scoped enforcement before route migration.
+3. Phase 3: refine existing Motion primitives and add coordinated open/close behavior, sticky-nav treatment and selective storytelling; no per-card observers or operational decoration.
+4. Phase 4: migrate shared shell first, then public/editorial templates, then operational templates, then inquiry workflows; verify each route family before continuing.
+5. Phase 5: responsive/accessibility closure with real viewport and keyboard evidence when tooling is available.
+6. Phase 6: measured performance and quality comparison; no invented Core Web Vitals.
+7. Phase 7: complete suite, route/locale/interaction matrix, screenshots, Vercel preview only, final defects and unverified areas.
 
-- [x] Audit and rationalize color, typography, spacing, radius, elevation, surface, focus, and responsive tokens in the existing system.
-- [x] Define premium surface hierarchy without making all surfaces glass or inflated clay.
-- [x] Preserve neutral near-black Clay Black and compact top-panel contracts.
-- [x] Document component usage and migration rules through the centralized token comments, Tailwind semantic mappings, and this ledger.
-- **Gate:** token tests, theme contrast/visibility suites, lint, typecheck, and build pass; no competing theme/provider introduced.
+## Phase 1 gate
 
-### Phase 10.3 — shared shell and navigation
+- [x] Repository/source/live-response audit documented.
+- [x] Route/API/generated-count distinction documented.
+- [x] Implementation order documented before new redesign work.
+- [ ] Browser viewport baseline complete. **Environment blocker.**
+- [ ] Authenticated live-state baseline complete. **Credentials/data blocker.**
 
-- [x] Modernize header/top panel, desktop menus, mobile navigation, locale/theme controls, support affordance, footer, page container, and shared backgrounds using the existing shared shell and unified site stage.
-- [x] Preserve keyboard, focus, hover/pin behavior, Escape dismissal, route/query/locale behavior, and responsive overflow safety; the localized first-focus skip link now moves focus to the programmatically focusable main landmark.
-- **Gate:** automated navigation tests plus desktop/tablet/mobile browser verification in LTR and RTL.
+# Phase 2 — Establish a complete design system
 
-**Phase 10.3 implementation evidence (2026-10-18):** The localized layout now owns a unified `site-stage`, subtle logical-edge depth rails, a focusable main landmark, and a translated skip link. Existing top-panel, mobile sheet, locale/theme, footer, support, Escape, and hover/pin behavior remains in the shared shell and its interaction suite. Real viewport LTR/RTL inspection remains an open gate.
+- [ ] Reconcile portable ThemeSpec, existing website tokens, Tailwind bridge and live CSS adapters into one authority.
+- [ ] Define premium navy/cyan/violet/warm semantic palette with verified light/dark contrast.
+- [ ] Define responsive typography, spacing, shell widths, grid measures and breakpoints.
+- [ ] Define radii/nested-radius, borders, elevation, glass, clay and interaction-state tokens.
+- [ ] Define motion, focus, forced-colors and reduced-motion tokens.
+- [ ] Classify and migrate conflicting page/component hard-coded values with allowlists for engines/catalogues/data visualizations.
+- [ ] Complete shared component contracts without introducing a duplicate library.
+- [ ] Run token completeness, contrast/material, component, lint, type and build gates.
 
-### Phase 10.4 — motion and feedback system
+**Verification gate:** one authority; no competing provider/library; theme/material suites pass; shared components demonstrate every state; documentation identifies approved usage and exceptions.
 
-- [x] Refine existing tokens and primitives into one restrained motion grammar for route, section, state, dialog, menu, and coordinated hero-fact transitions.
-- [x] Keep reveals one-shot, stagger-capped, no-JS safe, and reduced-motion plain.
-- [x] Avoid scroll hijacking, long exits, layout shifts, per-card observers, and business-data decoration; short hero groups use one parent observer/timeline.
-- **Gate:** motion token/reveal tests, reduced-motion inspection, and performance profiling.
+# Phase 3 — Build the 2026 motion system
 
-**Phase 10.4 implementation evidence (2026-10-18):** Added `MotionStagger`, a Framer Motion (`motion/react`) parent timeline for small, meaningfully ordered groups. Page-hero facts now enter through one observer with capped shared timing, transform/opacity-only children, reduced-motion plain rendering, and an explicit no-JavaScript visibility override. Ordinary grids remain on the shared CSS reveal lane; operational data receives no decorative animation. Browser performance profiling remains open.
+- [ ] Audit open/close behavior for navigation, mobile panel, accordion, dialogs, lightboxes, filters, tabs, notices and contextual controls.
+- [ ] Establish small documented directional/reveal patterns.
+- [ ] Preserve one-shot shared IntersectionObserver behavior and no-JS visibility.
+- [ ] Add intentional exit motion only where presence can be retained safely.
+- [ ] Add selective homepage/editorial scroll storytelling tied to real product workflow.
+- [ ] Add sticky-navigation surface transition and bounded pointer highlights on fine pointers.
+- [ ] Preserve route, locale, query, history, focus, Escape, touch and reduced-motion behavior.
+- [ ] Profile blur/filter/mask/shadow/sticky costs.
 
-### Phase 10.5 — marketing and editorial routes
+**Verification gate:** motion tests, keyboard/focus tests, reduced-motion/no-JS checks, pointer guard, browser profiling when available; no navigation delay or content gating.
 
-- [x] Apply the centralized 2026 surface, typography, density, responsive-grid, and reveal grammar to homepage, about, features, how-it-works, pricing, optimization, worked example, screenshots, resources, developer, collaborate, sponsors, contact, blog index/article, and legal templates.
-- [x] Preserve copy, links, CTA destinations, blog slugs, metadata, localization, and form integrations.
-- **Gate:** every template inspected in LTR/RTL at desktop/tablet/mobile; links/forms and metadata verified.
+# Phase 4 — Modernize every page
 
-**Phase 10.5 implementation evidence (2026-10-18):** All public/editorial templates retain their route-specific content while sharing redesigned hierarchy primitives. `PageHero` now publishes editorial/document/showcase identity to CSS, uses coordinated Framer Motion facts, and receives variant-specific proportions and composition details. Existing count-aware collections, section bands, metadata helpers, forms, localized links, blog slugs, and legal reading layouts remain intact. Browser viewport inspection remains open.
+- [ ] Shared shell, navigation, footer, support and loading/error/not-found surfaces.
+- [ ] Homepage and marketing/product storytelling.
+- [ ] About, Developer and Collaborate differentiated editorial compositions.
+- [ ] Resources, Blog index/article and reading layouts.
+- [ ] Features, Optimization, Worked Example, Screenshots, Pricing and legal pages.
+- [ ] Records, Reports, Job Orders and Deliveries task-focused interfaces.
+- [ ] Inquiry/customer/operator/estimator routes and form states.
+- [ ] Internal catalogues updated as system evidence, not public marketing.
+- [ ] Preserve content, translations, metadata, links, forms, data, auth, uploads, exports and APIs.
 
-### Phase 10.6 — operational and authenticated routes
+**Verification gate:** route-by-route matrix for all 35 templates; source and interaction tests; public live/preview inspection; authenticated blockers explicit.
 
-- [x] Apply the centralized operational surface and density grammar to deliveries, records, reports, job orders, and login states for legibility and task completion.
-- [x] Preserve filters, sorting, pagination, exports, query/history behavior, tables, empty/loading/error states, and auth redirects.
-- [x] Keep data dense and motion minimal.
-- **Gate:** automated suites plus authenticated live-state verification where credentials/data are available; otherwise leave explicit blockers.
+# Phase 5 — Responsive design and accessibility
 
-**Phase 10.6 implementation evidence (2026-10-18):** Deliveries, records, reports, and job-order routes now share an explicit `operations-route` workspace layer with restrained depth, tabular numerals, consistent column-header hierarchy, and focus scroll margins below the persistent navigation. Dashboard logic, filters, tables, exports, pagination, URL state, Suspense states, and server boundaries were not replaced. Live authenticated visual verification remains blocked.
+- [ ] Verify phone, tablet, laptop, desktop, wide, zoom, LTR and RTL.
+- [ ] Resolve overflow, clipping, tables, dialog fit, image ratios and mobile form zoom.
+- [ ] Verify target sizes, contrast, imagery/glass readability and non-color status.
+- [ ] Verify landmarks, headings, labels, descriptions, errors, live regions, focus order/return and keyboard traps.
+- [ ] Verify without animation, hover, fine pointer or JavaScript-enhanced reveals.
+- [ ] Run automated browser accessibility scan when available.
 
-**Phase 10.2 implementation evidence (2026-10-18):** The redesign keeps the established semantic palette and material engines, then adds reusable `Flow`, `Cluster`, and count-aware `AutoGrid` layout primitives backed by a fluid spacing and card-measure scale. `scripts/modernization-contract.test.mjs` guards the token, layout, landmark, motion, and reduced-motion contracts. This is the foundation for route migrations in later phases, not a claim that Phases 10.3–10.6 are complete. Their earlier grouped pass is superseded by the one-phase/one-commit redesign sequence requested by the owner.
+**Verification gate:** WCAG 2.2 AA-oriented evidence, screenshot matrix, keyboard run, scanner output and documented exceptions.
 
-### Phase 10.7 — inquiry workflows
+# Phase 6 — Performance and quality control
 
-- [x] Modernize customer submission, tracking, operator review, estimator queue/detail, assignments, documents, and communications without changing security boundaries.
-- [x] Preserve validation, staged upload progress/finalization, ownership, role checks, download authorization, audit behavior, and backend contracts.
-- **Gate:** all inquiry/security tests, keyboard/focus/error-state QA, and authorized live workflow verification. No migration or production mutation.
+- [ ] Measure baseline/final LCP, INP, CLS where valid tooling/data exists.
+- [ ] Compare JS/route chunks, client boundaries, hydration, fonts, images and duplicate dependencies.
+- [ ] Profile scroll smoothness and animation/material overhead.
+- [ ] Inspect console errors, failed requests and route loading.
+- [ ] Preserve metadata, canonical URLs, structured data, sitemap, robots and indexability.
+- [ ] Investigate dependency audit findings without force upgrades.
 
-**Phase 10.7 implementation evidence (2026-10-18):** `PageOverlay` now applies one inquiry-workflow scope to customer, operator, estimator, document, assignment, and communication routes. Editable wells, read-only evidence, grouped fields, alerts, and live status regions receive a consistent secure-workspace hierarchy without touching handlers, RLS, storage, validation, staged uploads, finalization, or API contracts. The 73-test security suite is the pre-commit gate; authorized live workflow verification remains blocked.
+**Verification gate:** reproducible measurements under equal conditions; production build; no field-CWV claim without sufficient field data.
 
-### Phase 10.8 — responsive and accessibility closure
+# Phase 7 — Verification and deployment
 
-- [ ] Verify all templates at representative mobile, tablet, desktop, zoom, LTR, and RTL states.
-- [ ] Audit landmarks/headings, names/descriptions, focus order/visibility, dialogs, disclosures, tables, errors, contrast, target sizing, and reduced motion.
-- [ ] Correct overflow and layout shifts while preserving count-aware grid behavior.
-- **Gate:** browser screenshots, keyboard run, automated scanner, and documented manual exceptions.
+- [ ] Run production build, lint, typecheck and every existing/new automated suite.
+- [ ] Verify all page templates, generated locales and dynamic/authenticated blockers.
+- [ ] Verify navigation, links, forms, galleries, filters, tables, pagination, locale switching and back/forward.
+- [ ] Compare baseline/final screenshots.
+- [ ] Inspect preview desktop/mobile performance, console and network.
+- [ ] Deploy Vercel preview only; preserve production configuration/secrets.
+- [ ] Produce final route matrix, changed files/components, motion patterns, test/accessibility/performance evidence, deployment status, defects and unverified areas.
 
-**Phase 10.8 source evidence (2026-10-18):** Added coarse-pointer 44px control floors, localized-text overflow protection, bounded code/preformatted regions, and forced-colors surface/focus/gradient fallbacks. Existing logical properties, RTL document direction, global focus-visible treatment, reduced-motion rules, semantic controls, count-aware grids, and skip landmark remain guarded. The phase is not marked fully verified because browser screenshots, keyboard/AT runs, zoom checks, and an automated browser scanner remain unavailable.
+**Verification gate:** preview accepted; all remaining blockers/defects explicit; checklist retained until final acceptance and explicit archive authorization.
 
-### Phase 10.9 — performance and SEO closure
+# Persistent blockers
 
-- [ ] Measure honest pre/post lab results on identical routes/build conditions.
-- [x] Audit image/font/script loading, client boundaries, bundle impact, layout stability, metadata, canonical/alternate links, sitemap, robots, structured data, and install/search manifest where applicable.
-- [x] Report lab findings as lab findings; no field Core Web Vitals are claimed without field data.
-- **Gate:** production build, route manifest, lab evidence, and SEO checks pass.
-
-**Phase 10.9 source evidence (2026-10-18):** Added a typed Next metadata manifest and advertised it from localized metadata; contract coverage now protects manifest, sitemap, robots, and localized metadata discovery. Existing Next font/image handling, server-first primitives, bounded Motion usage, content visibility, route schemas, canonical/alternate metadata, Speed Insights, sitemap, and robots remain intact. Production build route output is recorded, but a browser lab baseline is still blocked and the measurement checkbox remains open. No field Core Web Vitals claim is made.
-
-### Phase 10.10 — final regression and Vercel preview
-
-- [x] Run the complete automated suite and production build.
-- [ ] Verify every route family and critical interaction in preview, including locale redirects and authenticated/data-dependent blockers.
-- [ ] Capture final desktop/tablet/mobile evidence and compare with baseline.
-- [ ] Deploy **preview only**; do not alter production configuration or secrets.
-- [x] Produce final report: routes/files, component and motion changes, evidence, test/build/accessibility/performance results, preview status, defects, and unverified areas (`MODERNIZATION_REPORT.md`).
-
-**Phase 10.10 evidence (2026-10-18):** Complete source regression and production build passed; local HTTP smoke checks returned 200 for English, Arabic, features, and manifest routes. The final report records exact commits, results, and blockers. Preview deployment and real-browser interaction/viewport verification remain unchecked rather than inferred from source tests.
-
-## Persistent blockers and unresolved items
-
-1. Browser-based visual, responsive, console/network, accessibility, and performance baselines are currently unavailable because no browser automation runtime is installed.
-2. Authenticated and data-dependent visual states cannot be certified without suitable test credentials and disposable/live test data.
-3. Phase 9E Windows live verification remains deferred until 2026-10-19 08:00 Asia/Dubai; Phase 11 production coordination must not start beforehand.
-4. No Vercel preview has been deployed for this modernization phase.
-5. No field performance dataset has been supplied; therefore no field Core Web Vitals statement is possible.
-6. `npm run i18n:verify` currently fails its pre-existing completeness policy: eight locales marked complete report roughly 75% coverage, while six locales remain explicitly in progress at roughly 10%. The Phase 10.2–10.6 pass introduced no new untranslated key (the skip link reuses the existing translated `Skip to content` key), but full locale completeness remains unresolved.
-
-## Evidence policy
-
-For each subsequent phase, append: date/commit, changed templates/components, commands and exact outcomes, screenshots/preview references, manually exercised interactions, locale/viewports, defects found/fixed, and remaining blockers. Do not overwrite unresolved items merely because source checks pass.
+1. No browser executable/automation runtime is installed; visual viewport, screenshots, accessibility tree, console/network and lab performance remain unavailable.
+2. Authenticated/data-dependent live states require authorized credentials and disposable test data.
+3. Existing localization completeness failure remains open.
+4. Dependency audit findings require investigation, not an automatic forced fix.
+5. No Vercel preview has been deployed for this seven-phase program.
