@@ -7,12 +7,14 @@
  * baked in when it was built — and that revision is held against the revision
  * this working tree is on.
  *
- * Why it exists: this repository is deployed by more than one Vercel project,
- * and a push produces a *preview* deployment on every project while the domain
- * only moves when the project's production branch is pushed or a deployment is
- * promoted. The result is the worst kind of failure — a live site that is
- * healthy, styled, and silently months behind — and a build log that says
- * `Ready` either way. `scripts/audit-site.py --fresh` checks one origin from
+ * Why it exists: a push produces a *preview* deployment while the domain only
+ * moves when the project's production branch is pushed or a deployment is
+ * promoted. (Until 2026-10-18 this repository was also deployed by a second,
+ * duplicate Vercel project — `proglassautomationadv-website` — which built
+ * every push, served nothing, and was deleted; see
+ * `docs/CROSS_CHECK_2026-10-18.md`.) The failure this guards against is the
+ * worst kind — a live site that is healthy, styled, and silently months
+ * behind — and a build log that says `Ready` either way. `scripts/audit-site.py --fresh` checks one origin from
  * inside a full site audit; this checks all of them from a standing start, and
  * prints the verdict in a line.
  *
@@ -41,13 +43,12 @@ const websiteRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 /**
  * The origins the site is meant to be reachable at.
  *
- * Both Vercel projects are listed rather than only the one that works: the
- * point of this check is to make the difference between them visible. Add a URL
- * on the command line to check one that is not here.
+ * One production origin since the duplicate Vercel project
+ * (`proglassautomationadv-website`) was deleted on 2026-10-18. Add a URL on
+ * the command line to check a preview or any other origin alongside it.
  */
 const ORIGINS = [
   { label: "live", origin: "https://proglassautomationadv-website-tkim.vercel.app" },
-  { label: "second project", origin: "https://proglassautomationadv-website.vercel.app" },
 ];
 
 const REQUEST_TIMEOUT_MS = 15_000;
