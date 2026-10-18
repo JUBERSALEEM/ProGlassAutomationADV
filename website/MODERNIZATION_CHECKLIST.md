@@ -182,9 +182,9 @@ Rendered live responses inspected at `https://proglassautomationadv-website-tkim
 
 # Phase 3 — Build the 2026 motion system
 
-- [ ] Audit open/close behavior for navigation, mobile panel, accordion, dialogs, lightboxes, filters, tabs, notices and contextual controls.
-- [ ] Establish small documented directional/reveal patterns.
-- [ ] Preserve one-shot shared IntersectionObserver behavior and no-JS visibility.
+- [x] Audit open/close behavior for navigation, mobile panel, accordion, dialogs, lightboxes, filters, tabs, notices and contextual controls.
+- [x] Establish small documented directional/reveal patterns.
+- [x] Preserve one-shot shared IntersectionObserver behavior and no-JS visibility.
 - [ ] Add intentional exit motion only where presence can be retained safely.
 - [ ] Add selective homepage/editorial scroll storytelling tied to real product workflow.
 - [ ] Add sticky-navigation surface transition and bounded pointer highlights on fine pointers.
@@ -192,6 +192,15 @@ Rendered live responses inspected at `https://proglassautomationadv-website-tkim
 - [ ] Profile blur/filter/mask/shadow/sticky costs.
 
 **Verification gate:** motion tests, keyboard/focus tests, reduced-motion/no-JS checks, pointer guard, browser profiling when available; no navigation delay or content gating.
+
+## Phase 3 evidence in progress
+
+- [x] `src/lib/motion.ts` documents the single CSS/motion-react token mirror, bounded directional presets, reveal-delay cap and lane rule; `scripts/motion-tokens.test.mjs` prevents runtime drift.
+- [x] Shared `useReveal` buckets avoid one observer per card; MotionReveal has reduced-motion, coarse-pointer and near-viewport fail-safe paths; route entry remains transform/opacity only with a no-JS override.
+- [x] Added a single `test:motion-system` gate: motion/Crystal performance contracts 28/28 and reveal/route behavior 20/20 passed.
+- [x] Collapsed Accordion panels now use `inert` plus `aria-hidden`, preventing controls inside an animated closed panel from remaining keyboard-focusable.
+- [x] Accordion interaction regression 1/1, combined reveal/route/Accordion behavior 21/21, TypeScript and ESLint passed.
+- [ ] Browser profile compositor/paint behavior and manually validate focus, touch and reduced motion. **Blocked: no browser runtime.**
 
 # Phase 4 — Modernize every page
 

@@ -71,6 +71,8 @@ export function Accordion({
               id={panelId}
               role="region"
               aria-labelledby={buttonId}
+              aria-hidden={!expanded}
+              inert={!expanded}
               className={cn(
                 "accordion-panel grid transition-[grid-template-rows] duration-300 ease-industrial",
                 expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
