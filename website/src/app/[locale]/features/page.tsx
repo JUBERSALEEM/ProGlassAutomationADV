@@ -156,7 +156,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             lead={t("The specification grid the quotation is priced from, and the profit-and-loss step that asks whether the price is good enough. Everything below is live: the grid prices as you type, and the profit-and-loss screen reads those same rows.")}
           />
 
-          <Reveal className="mt-8">
+          <Reveal className="feature-frame-reveal mt-8" variant="scale">
             <AppFrame
       t={t}
               title={t("Proforma Invoice — Step 5 · Specification")}
@@ -234,7 +234,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             lead={t("Two services, deliberately not one. The application log records what happened — startup, licence, seeding, production, errors — and the audit trail records the business events, with the before and after of every field. The correlation ID on a traceable entry follows one operation from the inquiry to the statement, across modules and across days.")}
           />
 
-          <Reveal className="mt-8">
+          <Reveal className="feature-frame-reveal mt-8" variant="scale">
             <AppFrame
       t={t}
               title={t("Logs & Activity — Diagnostics")}
@@ -304,7 +304,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             lead={t("Production runs exclusively from job orders, and a job order only exists for a confirmed proforma — a draft never reaches the floor. From there the job is distributed across the eight stages: every piece enters at Cutting, and only the pieces a station completes arrive at the next one. A station cannot record work it never received.")}
           />
 
-          <Reveal className="mt-8">
+          <Reveal className="feature-frame-reveal mt-8" variant="scale">
             <AppFrame
       t={t}
               title={t("Production — stage queue")}

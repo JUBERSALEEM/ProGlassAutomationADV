@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { Reveal } from "@/components/ui/Reveal";
 
 /**
  * Section heading.
@@ -35,9 +36,9 @@ export function SectionHeading({
   return (
     /* flex-col + items-center so any block child under the heading (a row of
        buttons, e.g.) lands on the same centre axis as the text itself. */
-    <div
+    <Reveal
       className={cn(
-        "max-w-3xl",
+        "section-heading-reveal max-w-3xl",
         align === "center" && "mx-auto flex flex-col items-center text-center",
         className,
       )}
@@ -73,6 +74,6 @@ export function SectionHeading({
       </Tag>
       {lead ? <p className="lede mt-5 max-w-measure">{lead}</p> : null}
       {children}
-    </div>
+    </Reveal>
   );
 }

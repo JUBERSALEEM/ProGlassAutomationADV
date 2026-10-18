@@ -200,7 +200,53 @@ Rendered live responses inspected at `https://proglassautomationadv-website-tkim
 - [x] Added a single `test:motion-system` gate: motion/Crystal performance contracts 28/28 and reveal/route behavior 20/20 passed.
 - [x] Collapsed Accordion panels now use `inert` plus `aria-hidden`, preventing controls inside an animated closed panel from remaining keyboard-focusable.
 - [x] Accordion interaction regression 1/1, combined reveal/route/Accordion behavior 21/21, TypeScript and ESLint passed.
-- [ ] Browser profile compositor/paint behavior and manually validate focus, touch and reduced motion. **Blocked: no browser runtime.**
+- [x] `/features` pilot: every shared SectionHeading now enters as a coordinated eyebrow/title/lede/action sequence through the existing shared observer; the three full-size live product frames use restrained scale reveals; reduced-motion and print force every nested element visible.
+- [x] Motion pilot gates: TypeScript, ESLint, motion contracts 28/28 and interaction tests 21/21 passed.
+- [ ] Browser profile compositor/paint behavior and manually validate focus, touch and reduced motion. **Blocked in the agent environment: no installed browser runtime. A live preview is required for human visual acceptance.**
+
+## Animation verification matrix
+
+`Source verified` means the route uses the named shared implementation and passed automated contracts. It is not browser evidence. Every row remains visually pending until exercised in a real browser at desktop/mobile widths and with reduced motion.
+
+| Route/template | Intended motion and interaction | Automated/source result | Real-browser result / remaining issue |
+|---|---|---|---|
+| `/` | Coordinated hero, section-heading sequence, workflow/card reveals, restrained showcase depth | Source verified | Pending scroll both directions, hover/touch, reduced motion |
+| `/features` | Heading sequences, searchable module transitions, staggered facts, clipped/scale product frames, accordions | Pilot implemented; tests passed | **Priority visual acceptance pending** |
+| `/about` | Editorial headings, evidence/card reveals | Source verified | Pending |
+| `/developer` | Editorial headings, disclosure transitions | Source verified | Pending |
+| `/collaborate` | Editorial headings, cards, disclosure transitions | Source verified | Pending |
+| `/contact` | Heading/form entrance and control feedback | Source verified | Pending form/focus/mobile keyboard |
+| `/how-it-works` | Progressive workflow storytelling and cards | Source verified | Pending |
+| `/optimization` | Product demonstration reveals and disclosures | Source verified | Pending interactive run/reduced motion |
+| `/worked-example` | Progressive document-chain storytelling | Source verified | Pending |
+| `/screenshots` | Gallery/filter/viewer transitions and keyboard navigation | Source verified | Pending image loading/touch/keyboard |
+| `/pricing` | Edition/card reveals and disclosures | Source verified | Pending |
+| `/resources` | Editorial/card reveals | Source verified | Pending |
+| `/blog` | Article-card reveals | Source verified | Pending |
+| `/blog/[slug]` | Reading-layout heading/content reveals | Source verified | Pending all three slugs |
+| `/sponsors` | Editorial/cards/disclosures | Source verified | Pending |
+| `/legal/license` | Reading-layout headings | Source verified | Pending |
+| `/legal/privacy` | Reading-layout headings | Source verified | Pending |
+| `/legal/terms` | Reading-layout headings | Source verified | Pending |
+| `/records` | Task-first filters/table; named detail-dialog entry | Dialog semantics verified | Pending auth, focus trap/return, exit motion |
+| `/records/login` | Short form/control feedback | Source verified | Pending |
+| `/reports` | Task-first filters/table and states | Source verified | Pending auth/data |
+| `/reports/login` | Short form/control feedback | Source verified | Pending |
+| `/job-orders` | Task-first table; named production dialog entry | Dialog semantics verified | Pending auth, focus trap/return, exit motion |
+| `/deliveries` | Task-first table; named ledger dialog entry | Dialog semantics verified | Pending auth, focus trap/return, exit motion |
+| `/inquiries` | Task-first queue, filters and dialog states | Source verified | Pending auth/data |
+| `/inquiries/[id]` | Detail workflow and contextual controls | Source verified | Pending auth/data |
+| `/inquiries/customer-submissions` | Queue/filter states | Source verified | Pending auth/data |
+| `/inquiries/customer-submissions/[id]` | Submission detail/document states | Source verified | Pending auth/upload data |
+| `/inquiries/estimator` | Queue/filter states | Source verified | Pending auth/data |
+| `/inquiries/estimator/[id]` | Estimator workflow/contextual states | Source verified | Pending auth/data |
+| `/inquiries/submissions/[id]` | Submission workflow/document states | Source verified | Pending auth/data |
+| `/inquiries/submit` | Staged form, validation and upload feedback | Source verified | Pending authenticated submission/upload |
+| `/sys/clay` | Internal material controls and bounded effects | Contract tests passed | Pending browser catalogue review |
+| `/sys/crystal` | Internal material controls, pointer light and bounded frost | Motion contracts passed | Pending browser/profile review |
+| `/sys/liquid-glass` | Prototype tabs, selection and presence transitions | Interaction tests passed | Pending browser/profile review |
+
+Shared shell for every route: short route entry, sticky navigation treatment, dropdown/mobile-menu state motion, button press/hover, one-shot reveal observer, no-JS visibility, coarse-pointer adaptation, and reduced-motion fallbacks. Browser checks for Escape, outside click, navigation close, history, locale/query preservation, console errors and rendering performance remain mandatory.
 
 # Phase 4 — Modernize every page
 
