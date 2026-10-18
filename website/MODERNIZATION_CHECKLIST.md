@@ -159,16 +159,26 @@ Rendered live responses inspected at `https://proglassautomationadv-website-tkim
 
 # Phase 2 — Establish a complete design system
 
-- [ ] Reconcile portable ThemeSpec, existing website tokens, Tailwind bridge and live CSS adapters into one authority.
-- [ ] Define premium navy/cyan/violet/warm semantic palette with verified light/dark contrast.
-- [ ] Define responsive typography, spacing, shell widths, grid measures and breakpoints.
-- [ ] Define radii/nested-radius, borders, elevation, glass, clay and interaction-state tokens.
-- [ ] Define motion, focus, forced-colors and reduced-motion tokens.
-- [ ] Classify and migrate conflicting page/component hard-coded values with allowlists for engines/catalogues/data visualizations.
-- [ ] Complete shared component contracts without introducing a duplicate library.
-- [ ] Run token completeness, contrast/material, component, lint, type and build gates.
+- [x] Reconcile portable ThemeSpec, existing website tokens, Tailwind bridge and live CSS adapters into one authority.
+- [x] Define premium navy/cyan/violet/warm semantic palette with verified light/dark contrast.
+- [x] Define responsive typography, spacing, shell widths, grid measures and breakpoints.
+- [x] Define radii/nested-radius, borders, elevation, glass, clay and interaction-state tokens.
+- [x] Define motion, focus, forced-colors and reduced-motion tokens.
+- [x] Classify and migrate conflicting page/component hard-coded values with allowlists for engines/catalogues/data visualizations.
+- [x] Complete shared component contracts without introducing a duplicate library.
+- [x] Run token completeness, contrast/material, component, lint, type and build gates.
 
 **Verification gate:** one authority; no competing provider/library; theme/material suites pass; shared components demonstrate every state; documentation identifies approved usage and exceptions.
+
+## Phase 2 evidence
+
+- [x] `THEME_SYSTEM_ARCHITECTURE.md`, `COMPONENT_LIBRARY.md`, `src/theme/schema.ts`, `src/theme/specs.ts`, `src/theme/component-contracts.ts` and the existing runtime adapters describe one shared authority and its approved exceptions.
+- [x] Added `scripts/design-system-governance.test.mjs`: 4/4 checks pass for literal-color containment, core runtime semantic roles, Tailwind semantic mappings and material-family isolation from route/component markup. Comments are ignored and the localized root layout alone may publish the server-default family attribute.
+- [x] Theme schema 5/5 and shared component semantics 4/4 passed.
+- [x] Clay contrast/visibility 33/33 and 100% engine coverage passed; Crystal contrast suite passed.
+- [x] Modernization 7/7, navbar guard plus Vitest 100/100, density 19/19 plus census and pointer guard across 196 files passed.
+- [x] ESLint, TypeScript and optimized production build passed; 505/505 static pages generated.
+- [ ] Visually validate all semantic/material combinations in a browser, including forced-colors and actual-image glass contrast. **Blocked: no browser runtime; automated/source contrast evidence is not relabeled as visual evidence.**
 
 # Phase 3 — Build the 2026 motion system
 
