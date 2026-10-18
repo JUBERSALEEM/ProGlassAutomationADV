@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/cn";
 import { navIcons } from "@/data/navIcons";
 import { footerIconFor } from "@/data/footerIcons";
@@ -147,6 +148,7 @@ export function Navbar() {
      comes from the DOM-attribute store, so server and client agree
      from the first render — no state-in-effect, no flip. */
   const family = useAppearance();
+  const reduceMotion = useReducedMotion();
   const pathname = usePathname();
   /*
    * `usePathname` returns the URL as the browser speaks it, and every route
@@ -619,6 +621,7 @@ export function Navbar() {
                   </svg>
                 </button>
 
+                <AnimatePresence initial={false}>
                 {open ? (
                   /*
                    * The menu is a stack of cards, not a list of links.
@@ -639,13 +642,23 @@ export function Navbar() {
                    * ones 22rem, and neither may run past the viewport edge
                    * when its trigger sits near one.
                    */
-                  <div
+                  <motion.div
+                    initial={false}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: reduceMotion ? 0 : 0.16 }}
                     className={cn(
                       "absolute left-1/2 top-full max-h-[calc(100vh-var(--nav-height))] max-w-[calc(100vw-1.5rem)] -translate-x-1/2 overflow-y-auto overscroll-contain pt-3",
                       entry.children.length > 4 ? "w-[22rem]" : "w-[19rem]",
                     )}
                   >
-                    <div className="menu-card animate-scale-in rounded-panel p-2 shadow-raised">
+                    <motion.div
+                      className="menu-card rounded-panel p-2 shadow-raised"
+                      initial={reduceMotion ? false : { opacity: 0, y: -8, scale: 0.985 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -6, scale: 0.99 }}
+                      transition={{ duration: reduceMotion ? 0 : 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    >
                       <p className="mono-label px-2.5 pb-2 pt-1">{t(entry.label)}</p>
                       <ul
                         ref={menuListRef}
@@ -692,9 +705,10 @@ export function Navbar() {
                           );
                         })}
                       </ul>
-                    </div>
-                  </div>
+                    </motion.div>
+                  </motion.div>
                 ) : null}
+                </AnimatePresence>
               </div>
             );
           })}

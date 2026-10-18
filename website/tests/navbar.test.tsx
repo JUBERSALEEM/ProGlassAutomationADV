@@ -16,7 +16,7 @@
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 
@@ -90,7 +90,7 @@ describe("desktop top-panel menus", () => {
   it("open instantly on hover — no click at all", async () => {
     const user = userEvent.setup();
     render(<Navbar />);
-    expect(screen.queryByText(PRODUCT_BLURB)).toBeNull();
+    await waitFor(() => expect(screen.queryByText(PRODUCT_BLURB)).toBeNull());
 
     await user.hover(productTrigger());
 
@@ -108,7 +108,7 @@ describe("desktop top-panel menus", () => {
     await user.unhover(productTrigger());
     await settle();
 
-    expect(screen.queryByText(PRODUCT_BLURB)).toBeNull();
+    await waitFor(() => expect(screen.queryByText(PRODUCT_BLURB)).toBeNull());
   });
 
   it("a single click pins the menu — the pointer leaving does NOT close it", async () => {
@@ -140,7 +140,7 @@ describe("desktop top-panel menus", () => {
     /* Close it the deliberate way — a re-click on the pinned trigger. */
     await user.hover(productTrigger());
     await user.click(productTrigger());
-    expect(screen.queryByText(PRODUCT_BLURB)).toBeNull();
+    await waitFor(() => expect(screen.queryByText(PRODUCT_BLURB)).toBeNull());
 
     /* Now the sequence the visitor actually performs: come back later and
        click once. That click must OPEN. */
@@ -162,7 +162,7 @@ describe("desktop top-panel menus", () => {
     expect(screen.queryByText(PRODUCT_BLURB)).not.toBeNull();
 
     await user.click(productTrigger());
-    expect(screen.queryByText(PRODUCT_BLURB)).toBeNull();
+    await waitFor(() => expect(screen.queryByText(PRODUCT_BLURB)).toBeNull());
 
     /* And the click after that opens again — one click, every time. */
     await user.click(productTrigger());
@@ -180,13 +180,13 @@ describe("desktop top-panel menus", () => {
 
     await user.hover(resourcesTrigger());
     expect(screen.queryByText(RESOURCES_BLURB)).not.toBeNull();
-    expect(screen.queryByText(PRODUCT_BLURB)).toBeNull();
+    await waitFor(() => expect(screen.queryByText(PRODUCT_BLURB)).toBeNull());
 
     /* Resources was opened by hover, so hover-out closes it — the pin must
        not transfer to the sibling behind the visitor's back. */
     await user.unhover(resourcesTrigger());
     await settle();
-    expect(screen.queryByText(RESOURCES_BLURB)).toBeNull();
+    await waitFor(() => expect(screen.queryByText(RESOURCES_BLURB)).toBeNull());
   });
 
   it("a pointer-down outside the bar closes a pinned menu", async () => {
@@ -200,7 +200,7 @@ describe("desktop top-panel menus", () => {
     /* eslint-disable-next-line testing-library/no-node-access -- the outside target */
     fireEvent.pointerDown(document.body);
 
-    expect(screen.queryByText(PRODUCT_BLURB)).toBeNull();
+    await waitFor(() => expect(screen.queryByText(PRODUCT_BLURB)).toBeNull());
   });
 
   it("Escape closes a pinned menu", async () => {
@@ -213,7 +213,7 @@ describe("desktop top-panel menus", () => {
 
     fireEvent.keyDown(window, { key: "Escape" });
 
-    expect(screen.queryByText(PRODUCT_BLURB)).toBeNull();
+    await waitFor(() => expect(screen.queryByText(PRODUCT_BLURB)).toBeNull());
   });
 
   it("the lg–2xl Menu button mounts #mobile-menu and keeps it visible up to wide", async () => {

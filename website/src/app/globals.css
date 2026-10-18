@@ -2806,6 +2806,27 @@
     will-change: auto;
   }
 
+  /* Media/product-stage reveal: the frame stays in normal layout while a
+     shallow inset and 10px settle expose it. This creates a visibly different
+     editorial beat without masks, canvas work, or layout-driven animation. */
+  .reveal-clip {
+    opacity: 0;
+    clip-path: inset(7% 0 7% 0 round var(--card-radius));
+    transform: translate3d(0, 10px, 0) scale(0.99);
+    transition:
+      opacity var(--dur-reveal) var(--ease-out),
+      clip-path var(--dur-settle) var(--ease-out),
+      transform var(--dur-settle) var(--ease-out);
+    will-change: opacity, clip-path, transform;
+  }
+
+  .reveal-clip.is-visible {
+    opacity: 1;
+    clip-path: inset(0 0 0 0 round var(--card-radius));
+    transform: none;
+    will-change: auto;
+  }
+
   /* Coordinated editorial heading sequence. The shared observer toggles only
      the parent; the eyebrow, title, lede, and optional actions then settle in
      as one short hierarchy rather than one undifferentiated block. */
@@ -2836,7 +2857,8 @@
    */
   @media (pointer: coarse) {
     .reveal,
-    .reveal-scale {
+    .reveal-scale,
+    .reveal-clip {
       transform: none;
     }
   }
@@ -2899,8 +2921,10 @@
 
   .reveal,
   .reveal-scale,
+  .reveal-clip,
   .section-heading-reveal > * {
     opacity: 1 !important;
+    clip-path: none !important;
     transform: none !important;
     transition-delay: 0ms !important;
   }
@@ -3007,8 +3031,10 @@
   /* Reveal is a screen animation; nothing may print half-faded. */
   .reveal,
   .reveal-scale,
+  .reveal-clip,
   .section-heading-reveal > * {
     opacity: 1 !important;
+    clip-path: none !important;
     transform: none !important;
   }
 

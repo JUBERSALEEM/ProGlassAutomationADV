@@ -204,6 +204,24 @@ Rendered live responses inspected at `https://proglassautomationadv-website-tkim
 - [x] Motion pilot gates: TypeScript, ESLint, motion contracts 28/28 and interaction tests 21/21 passed.
 - [ ] Browser profile compositor/paint behavior and manually validate focus, touch and reduced motion. **Blocked in the agent environment: no installed browser runtime. A live preview is required for human visual acceptance.**
 
+## Whole-site motion code audit — 2026-10-18
+
+This audit corrects the earlier overstatement that a complete advanced motion system already existed.
+
+- [x] Read all 35 localized page templates and censused their explicit motion use. Public editorial templates contain 116 explicit `Reveal` calls plus shared headings; 16 operational/legal/internal templates contain none at page-template level. Operational restraint is intentional for dense tables, but legal pages and several workflow shells still lack authored sequencing.
+- [x] Read the shared motion runtime, CSS reveal lanes, route template, navigation state machine, buttons, Accordion, product browser/viewer, hero field and operational dialogs.
+- [x] Dependency finding: `motion/react` is already installed and used selectively. Adding another animation package is unjustified.
+- [x] Root cause: most page motion was a single barely differentiated 12px one-shot fade/rise. Installing Motion did not make the predominantly CSS/static templates feel coordinated.
+- [x] Root cause: desktop dropdowns were conditionally removed immediately and only had an entry utility, so there was no real close animation. They now use retained `AnimatePresence` entry/exit with reduced-motion handling.
+- [x] Root cause: headings were usually static unless each route author remembered to wrap them. Shared `SectionHeading` now owns one coordinated observer-driven eyebrow/title/lede/action sequence across applicable routes.
+- [x] Root cause: product imagery/live frames used the same motion as text. A separate clipped media reveal now exposes frames through inset, opacity and restrained depth without changing layout.
+- [x] Root cause: standard buttons had hover lift but weak press feedback and broad `transition-all`. Shared buttons now use an immediate 0.985 press response and a bounded transition-property list.
+- [x] Performance finding: the normal reveal lane correctly shares one IntersectionObserver bucket and drops observed nodes after reveal. The separate count-up observer is justified by its different threshold/frame updates. No second animation library was added.
+- [ ] Remaining architecture gap: operational dialogs do not share one focus-trap/return and retained-exit primitive. Naming semantics are fixed, but exit/focus work is not complete.
+- [ ] Remaining architecture gap: filters/search/tab implementations are domain-specific; each must be migrated to shared presence/layout patterns without remount flicker.
+- [ ] Remaining quality gap: selective scroll-linked depth currently exists mainly in the hero. Marketing workflow sections need authored storytelling; it must not be copied onto operational tables.
+- [ ] Real-browser visual/performance verdict remains unavailable in this environment. Running HTML, tests, and source inspection are not relabeled as scroll/paint evidence.
+
 ## Animation verification matrix
 
 `Source verified` means the route uses the named shared implementation and passed automated contracts. It is not browser evidence. Every row remains visually pending until exercised in a real browser at desktop/mobile widths and with reduced motion.

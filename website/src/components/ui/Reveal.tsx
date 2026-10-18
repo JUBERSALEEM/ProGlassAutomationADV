@@ -23,7 +23,7 @@ export function Reveal({
   children: ReactNode;
   delay?: number;
   className?: string;
-  variant?: "up" | "scale" | "none";
+  variant?: "up" | "scale" | "clip" | "none";
   as?: ElementType;
   id?: string;
 }) {
@@ -34,7 +34,12 @@ export function Reveal({
       ref={ref}
       id={id}
       style={style}
-      className={cn(variant === "up" && "reveal", variant === "scale" && "reveal-scale", className)}
+      className={cn(
+        variant === "up" && "reveal",
+        variant === "scale" && "reveal-scale",
+        variant === "clip" && "reveal-clip",
+        className,
+      )}
     >
       {children}
     </Tag>
