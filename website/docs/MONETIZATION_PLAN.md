@@ -12,7 +12,7 @@ floors, offline licensing is a feature there, not a bug).
 | Phase | What | Code state | Owner inputs still needed |
 |---|---|---|---|
 | **0** | Foundations | ✅ applied 2026-10-18 (this doc, `supabase-records.sql`, `.env.example`) | Connect owning Supabase account; verify `records` DDL live; buy domain; decide prices |
-| **1** | Sell desktop licenses online | ✅ applied 2026-10-18, dormant (plans catalog, `/api/checkout`, `/api/webhooks/billing`, `supabase-billing.sql`) | Prices + payment links in `src/data/plans.ts`; `BILLING_WEBHOOK_SECRET`; run `supabase-billing.sql` |
+| **1** | Sell desktop licenses online | ✅ applied 2026-10-18 (plans catalog, `/api/checkout`, `/api/webhooks/billing`, `supabase-billing.sql`); **AED prices published same day** — WhatsApp buy path live in code | Payment links in `src/data/plans.ts` (provider account); `BILLING_WEBHOOK_SECRET`; run `supabase-billing.sql` |
 | **2** | Cloud subscription (multi-tenant) | ✅ foundation applied 2026-10-18, dormant (`supabase-multitenancy-phase2.sql`, `src/lib/tenant.ts`, flag off) | Apply SQL on live project + backfill default company, then flip `NEXT_PUBLIC_CLOUD_TENANCY=on` |
 
 Everything commerce-shaped ships **inert**: until the owner inputs above
@@ -60,12 +60,22 @@ register:
   `LicenseCrypto.cs` to a server — do that only after order volume
   hurts, and never re-implement crypto casually.
 
-**Price worksheet (owner fills; launch narrow):** 25 edition×duration
-combinations is too many SKUs for day one. Suggested launch set:
-Business + Factory × 1 Year (+ 2 Years at ~20% anchor discount), 7 Days
-as the paid/free trial. Currency: AED for GCC buyers (site + product
-already speak AED/5% VAT); merchant-of-record (Paddle/Lemon Squeezy)
-handles cross-border tax and pays out to India.
+**Published launch prices (2026-10-18, AED excl. 5% VAT, in
+`src/data/plans.ts`):**
+
+| Edition | 1 Year | 2 Years (1.6×, ≈20% anchor) | ≈/month on 1 Year |
+|---|---|---|---|
+| Basic | 1,499 | 2,399 | 125 |
+| Business | 3,999 | 6,399 | 333 |
+| Factory | 7,999 | 12,799 | 667 |
+
+Reasoning: an SMB fabricator loses more than AED 333/month to one
+mis-priced or re-cut job; the optimizer carries Factory. Enterprise
+stays quote-only; 7/30-day and 6-month terms exist in the catalog for
+negotiation, not self-serve; the in-app 30-day Trial covers evaluation.
+Until a provider account exists, priced SKUs sell through WhatsApp
+(deep link pre-writes edition/term/price); pasting hosted payment
+links into `plans.ts` switches each row to card checkout untouched.
 
 ## Phase 2 — Cloud subscription ("ProGlass Cloud")
 
@@ -95,6 +105,48 @@ Applied as dormant foundation:
    flag in Preview first, then Production.
 5. Attach subscriptions to billing (Phase 1 webhooks already land
    orders; map plan → `subscriptions` row).
+
+## Sellability backlog (checked 2026-10-18, in money order)
+
+**Sell the WPF app harder — no SaaS required:**
+1. **Public trial download (biggest funnel gap).** The app has a
+   built-in 30-day all-features trial and OTA updates, yet the website
+   offers no download — every evaluation waits on an email reply. Host
+   the installer publicly (the repo is private; use a public release
+   mirror or Vercel static asset), add `/download` + "Start free trial"
+   CTAs. Nothing else converts like the product itself.
+2. **In-app conversion path.** Trial countdown + expired-trial screen
+   should deep-link to the exact pricing SKU; the existing
+   read-only-after-trial behaviour is the paywall, it just needs a door.
+3. **Demo videos.** The app can record itself (DemoCenter); publish 3
+   short workflow videos (quote→job→delivery→invoice; optimizer;
+   owner reports) on the site + YouTube. Motion outsells screenshots.
+4. **Arabic-first reach.** ar-AE is already a full locale — point
+   UAE/GCC discovery (Google Business, industrial-area directories,
+   WhatsApp) at the Arabic pricing page.
+5. **SEO content.** Blog has 3 posts; fabricators search problems
+   ("glass cutting wastage", "DGU quotation format UAE"). The worked
+   example is a ready-made series.
+6. **Support/AMC add-on.** Priority WhatsApp support + update
+   assurance as an annual add-on — recurring revenue even mid-term.
+7. **Referral channel.** Glass machinery/spacer/hardware suppliers in
+   GCC industrial zones meet every fabricator monthly; a reseller cut
+   beats ads in this niche.
+
+**Then the SaaS layer (Phase 2 activation):**
+8. **ProGlass Cloud subscription** (suggested AED 299/company/month):
+   inquiry portal free for the fabricator's *customers* (they are the
+   acquisition channel), owner dashboards, estimator queue.
+9. **Customer tracking links** per delivery ("track your glass
+   order") — every shared link advertises ProGlass to the next
+   fabricator's customer base.
+10. **Multi-site cloud sync** for Enterprise, replacing shared-file
+    LAN setups; later, hosted AI credits for the assistant.
+
+**Mechanics:** payment links + `BILLING_WEBHOOK_SECRET` (webhook
+already built); founding cohort — first 10 UAE factories at a launch
+discount with onboarding, in exchange for the testimonials/case study
+the site's honesty policy currently forbids inventing.
 
 ## Explicit non-goals
 

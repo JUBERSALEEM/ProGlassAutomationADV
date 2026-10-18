@@ -10,7 +10,8 @@ import { CallToActionCard } from "@/components/ui/CallToActionCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
 import { editions, licenceFacts, licenceGates, openModules } from "@/data/editions";
-import { buyableSkus, checkoutPath, durationById, formatPrice, licenseDurations } from "@/data/plans";
+import { checkoutPath, durationById, formatPrice, isSkuBuyable, licenseDurations, pricedSkus } from "@/data/plans";
+import { site } from "@/lib/site";
 import { editionIcon } from "@/data/groupIcons";
 import { Icon } from "@/components/ui/Icon";
 import { faq } from "@/data/faq";
@@ -36,6 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function PricingPage({ params }: PageProps) {
   const t = await translatorFor(params);
   const locale = t.locale;
+  const priced = pricedSkus();
   return (
     <PageOverlay locale={t.locale} route="pricing">
     <>
@@ -62,7 +64,7 @@ export default async function PricingPage({ params }: PageProps) {
           { label: t("Editions"), value: t("5 (Trial → Enterprise)") },
           { label: t("Trial"), value: t("30 days, all features") },
           { label: t("Activation"), value: t("Offline licence file") },
-          { label: t("Pricing"), value: t("Quoted per business") },
+          { label: t("Pricing"), value: priced.length > 0 ? t("Published below · AED") : t("Quoted per business") },
         ]}
         actions={
           <>
@@ -82,8 +84,8 @@ export default async function PricingPage({ params }: PageProps) {
           <Reveal>
             <div className="surface-raised grid gap-5 sm:grid-cols-3 card-pad">
               <div className="sm:col-span-2">
-                <h2 className="display-3">{t("There is no price on this page, and that is deliberate.")}</h2>
-                <p className="mt-4 text-sm leading-relaxed text-text-muted">{t("ProGlass is sold to glass businesses with different shapes: a single estimator, a five-person office, or a factory running eight production stages. What you need ranges from the proforma wizard alone to the full chain plus the cutting-optimization engine. Quoting one number for all of those would mean either overcharging the first or underdelivering the last.")}</p>
+                <h2 className="display-3">{priced.length > 0 ? t("Standard licences are priced right here.") : t("There is no price on this page, and that is deliberate.")}</h2>
+                <p className="mt-4 text-sm leading-relaxed text-text-muted">{priced.length > 0 ? t("Basic, Business and Factory are published below in AED, excluding 5% VAT — the number you see is the licence price for that edition and term. Multi-site deployments and custom integration work (Enterprise) are still quoted per business, because no two of those have the same shape.") : t("ProGlass is sold to glass businesses with different shapes: a single estimator, a five-person office, or a factory running eight production stages. What you need ranges from the proforma wizard alone to the full chain plus the cutting-optimization engine. Quoting one number for all of those would mean either overcharging the first or underdelivering the last.")}</p>
                 <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("Tell us how many people will use it, which modules matter, and whether cutting optimization is part of your day. You get a written quote for that scope.")}</p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <ButtonLink href="/contact" size="md" trailing={<ArrowRight />}>
@@ -225,36 +227,57 @@ export default async function PricingPage({ params }: PageProps) {
           </div>
 
           {/*
-            Buyable SKUs render only when src/data/plans.ts carries a
-            published price AND an https payment link — until then this
-            block is the honest line below, and /api/checkout says the
-            same thing (501). One file edit turns this strip into a
-            checkout without touching this page.
+            Priced SKUs render whenever src/data/plans.ts publishes a
+            number. Each row's button follows the money path that exists
+            for that SKU today: hosted checkout once it carries an https
+            payment link, otherwise WhatsApp — where GCC trade buyers
+            already are — with edition, term and price pre-written.
           */}
-          {buyableSkus().length > 0 ? (
-            <ul className="mt-8 space-y-3">
-              {buyableSkus().map((sku) => {
-                const edition = editions.find((entry) => entry.id === sku.editionId);
-                const duration = durationById(sku.durationId);
-                if (!edition || !duration || !sku.price) return null;
-                return (
-                  <li
-                    key={sku.id}
-                    className="surface-raised flex flex-wrap items-center justify-between gap-4 card-pad-sm"
-                  >
-                    <div>
-                      <p className="text-base font-semibold text-text-primary">
-                        {t(edition.name)} · {t(duration.name)}
-                      </p>
-                      <p className="mt-1 text-sm text-text-muted">{formatPrice(sku.price)}</p>
-                    </div>
-                    <ButtonLink href={checkoutPath(sku.id)} external size="md" trailing={<ArrowRight />}>
-                      {t("Buy licence")}
-                    </ButtonLink>
-                  </li>
-                );
-              })}
-            </ul>
+          {priced.length > 0 ? (
+            <>
+              <p className="mt-8 text-sm leading-relaxed text-text-muted">
+                {t("Published licence prices — AED, excluding 5% VAT. Until card checkout opens, buying runs through WhatsApp: bank transfer or a card link, then your signed licence key arrives by email.")}
+              </p>
+              <ul className="mt-4 space-y-3">
+                {priced.map((sku) => {
+                  const edition = editions.find((entry) => entry.id === sku.editionId);
+                  const duration = durationById(sku.durationId);
+                  if (!edition || !duration || !sku.price) return null;
+                  const months = duration.days >= 365 ? (duration.days / 365) * 12 : duration.days === 182 ? 6 : 0;
+                  const monthly = months > 0 ? Math.round(sku.price.amount / months) : null;
+                  const buyable = isSkuBuyable(sku);
+                  const waText = `Hello, I want to buy ProGlass Automation — ${edition.name} · ${duration.name} (${formatPrice(sku.price)}). Please share payment details.`;
+                  return (
+                    <li
+                      key={sku.id}
+                      className="surface-raised flex flex-wrap items-center justify-between gap-4 card-pad-sm"
+                    >
+                      <div>
+                        <p className="text-base font-semibold text-text-primary">
+                          {t(edition.name)} · {t(duration.name)}
+                        </p>
+                        <p className="mt-1 text-sm text-text-muted">
+                          {formatPrice(sku.price)}
+                          {monthly ? (
+                            <span>
+                              {" "}· ≈ {formatPrice({ amount: monthly, currency: sku.price.currency })}/{t("month")}
+                            </span>
+                          ) : null}
+                        </p>
+                      </div>
+                      <ButtonLink
+                        href={buyable ? checkoutPath(sku.id) : `https://wa.me/${site.whatsappNumber}?text=${encodeURIComponent(waText)}`}
+                        external
+                        size="md"
+                        trailing={<ArrowRight />}
+                      >
+                        {buyable ? t("Buy licence") : t("Buy on WhatsApp")}
+                      </ButtonLink>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
           ) : (
             <p className="mt-6 text-sm leading-relaxed text-text-muted">
               {t("Online checkout opens when prices are published on this page. Until then, every term above is quoted per business —")}{" "}

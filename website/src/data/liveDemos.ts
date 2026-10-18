@@ -1081,7 +1081,7 @@ const bespoke: Record<string, Demo> = {
           { edition: "Factory", state: "Unlimited users, includes the cutting-optimisation engine" },
           { edition: "Enterprise", state: "Unlimited, multi-site, custom integrations" },
         ],
-        summary: [{ label: "Price list", value: "Not published — ask the developer" }],
+        summary: [{ label: "Price list", value: "Published — see Pricing (AED)" }],
       },
     ],
   },

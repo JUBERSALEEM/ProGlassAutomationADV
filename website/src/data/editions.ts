@@ -2,9 +2,9 @@
  * Licensing editions — the real tiers from
  * Licensing/Contracts/LicensePayload.cs (`enum LicenseEdition`).
  *
- * The repository defines the tiers and what each one grants. It does NOT
- * contain a price list, so this site publishes no prices and says so, rather
- * than inventing a subscription.
+ * The repository defines the tiers and what each one grants. Prices live
+ * in `src/data/plans.ts` (AED list first published 2026-10-18); the
+ * Enterprise tier is quote-only there as well.
  *
  * Enum values are ordinal-compared by OperationGuard.LicenseEditionAtLeast,
  * so the order below is the commercial order, not an alphabetised list.

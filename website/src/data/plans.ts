@@ -8,12 +8,13 @@
  * there, add it here; the Phase-1 cross-check compared the two lists
  * mechanically, and any future drift is a bug in the same way.
  *
- * Prices are NOT invented here (the site's standing policy: see
- * `src/data/editions.ts`). A SKU with `price: null` or an empty
- * `paymentLink` is simply not sold online yet — the pricing page omits
- * its buy button and `/api/checkout` answers 501 for it. Publishing a
- * price is an owner edit to this one file: fill the amount, paste the
- * provider's hosted payment link, deploy. See docs/MONETIZATION_PLAN.md.
+ * Prices were first published here on 2026-10-18 (owner-delegated AED
+ * list; see the launch table in docs/MONETIZATION_PLAN.md for the
+ * reasoning). A SKU with `price: null` is not offered online; a priced
+ * SKU with an empty `paymentLink` sells through the WhatsApp path on
+ * the pricing page until hosted checkout links land. Editing a price
+ * is an edit to this one file — the page, the checkout route and the
+ * FAQ defer to it (the FAQ deliberately repeats no numbers).
  */
 
 export type LicenseDuration = {
@@ -45,14 +46,24 @@ export type LicenseSku = {
 };
 
 /**
- * Online-sellable combinations. Starts empty on purpose: the owner adds
- * rows here as prices and payment links are decided (suggested launch
- * set in docs/MONETIZATION_PLAN.md). Example shape:
+ * Published online SKUs — AED, excluding 5% UAE VAT. Launch set is
+ * deliberately narrow (one- and two-year terms for the three
+ * self-serve editions); the 7/30-day and 6-month durations remain
+ * available on request, the in-app Trial covers evaluation, and
+ * Enterprise stays quote-only. 2-year terms are priced at 1.6× the
+ * annual — a 20% anchor for committing longer.
  *
- *   { id: "factory-1-year", editionId: "factory", durationId: "1-year",
- *     price: { amount: 0, currency: "AED" }, paymentLink: "https://…" }
+ * `paymentLink` is empty until the payment provider account exists;
+ * priced-but-linkless SKUs sell via WhatsApp (see pricing page).
  */
-export const licenseSkus: LicenseSku[] = [];
+export const licenseSkus: LicenseSku[] = [
+  { id: "basic-1-year", editionId: "basic", durationId: "1-year", price: { amount: 1499, currency: "AED" }, paymentLink: "" },
+  { id: "basic-2-years", editionId: "basic", durationId: "2-years", price: { amount: 2399, currency: "AED" }, paymentLink: "" },
+  { id: "business-1-year", editionId: "business", durationId: "1-year", price: { amount: 3999, currency: "AED" }, paymentLink: "" },
+  { id: "business-2-years", editionId: "business", durationId: "2-years", price: { amount: 6399, currency: "AED" }, paymentLink: "" },
+  { id: "factory-1-year", editionId: "factory", durationId: "1-year", price: { amount: 7999, currency: "AED" }, paymentLink: "" },
+  { id: "factory-2-years", editionId: "factory", durationId: "2-years", price: { amount: 12799, currency: "AED" }, paymentLink: "" },
+];
 
 export function durationById(id: string): LicenseDuration | undefined {
   return licenseDurations.find((duration) => duration.id === id);
@@ -73,6 +84,11 @@ export function isSkuBuyable(sku: LicenseSku): boolean {
 
 export function buyableSkus(): LicenseSku[] {
   return licenseSkus.filter(isSkuBuyable);
+}
+
+/** Priced = a public number exists, checkout link or not (WhatsApp path). */
+export function pricedSkus(): LicenseSku[] {
+  return licenseSkus.filter((sku) => sku.price !== null && sku.price.amount > 0);
 }
 
 export function formatPrice(price: { amount: number; currency: string }): string {

@@ -85,7 +85,7 @@ export const faq: FaqItem[] = [
     group: "Licensing",
     question: "What does it cost?",
     answer:
-      "Pricing is quoted per business rather than listed here as a self-serve plan. Use the contact form to request pricing, and say how many users and which modules you need — the editions above are the vocabulary, but the commercial terms are not fixed in this website.",
+      "Standard licence prices are published on the pricing page in AED (excluding 5% VAT) — Basic, Business and Factory in one- and two-year terms. Enterprise (multi-site, custom integrations) is quoted per business. Every new install runs a built-in 30-day trial with all features enabled, so evaluation costs nothing.",
   },
 ];
 
