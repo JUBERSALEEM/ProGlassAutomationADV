@@ -549,7 +549,7 @@ def main():
             k in f for k in ("Clay", "Neu", "Swiss", "Holo",
                              "LiquidGlass", "Eight",
                              "Bento", "Spatial", "Glassmorphism",
-                             "Aurora")))
+                             "Aurora", "NeoBrutal")))
     elif args:
         files = [a for a in args if a.endswith(".xaml")]
     else:

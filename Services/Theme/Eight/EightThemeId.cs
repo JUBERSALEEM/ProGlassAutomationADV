@@ -47,6 +47,11 @@
 //                  drifting colour fields behind translucent panels whose
 //                  rims are gradients. Dark substrate only; there is no
 //                  light mode to invert into.
+//  Neo-Brutalism   Three rules: a 2-6px border, a hard offset shadow
+//                  with ZERO blur, and radius 0. Flat fills, no
+//                  gradients. The only family here whose shadow has a
+//                  hard edge, and the only one that puts INK on its
+//                  accents rather than white.
 //  Glassmorphism   The 2020 recipe. Uniform backdrop blur, semi-transparent
 //                  fill, one hairline border, static. Included precisely
 //                  because it is NOT liquid glass — the two get confused
@@ -72,6 +77,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
         LiquidGlass = 6,
         Glassmorphism = 7,
         Aurora = 8,
+        NeoBrutalism = 9,
     }
 
     /// <summary>
@@ -90,6 +96,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
         public const string LiquidGlass = "Liquid Glass";
         public const string Glassmorphism = "Glassmorphism";
         public const string Aurora = "Aurora";
+        public const string NeoBrutalism = "Neo-Brutalism";
 
         /// <summary>The shipped default. Liquid Glass is the family's native
         /// home: it was already the most-developed material in this codebase
@@ -111,6 +118,11 @@ namespace ProGlassAutomation.Services.Theme.Eight
             // after Bento it reads as a Bento variant rather than the
             // inversion it actually is.
             Aurora,
+            // Neo-Brutalism sits beside Aurora deliberately: both are
+            // opposites of something. Aurora is the only backdrop-driven
+            // family; this is the only one with a hard edge on its
+            // shadow. Putting them adjacent makes the range legible.
+            NeoBrutalism,
             BentoGrid,
             Spatial,
             Swiss,
@@ -161,5 +173,12 @@ namespace ProGlassAutomation.Services.Theme.Eight
         /// sense of distance comes entirely from the sky behind it.
         /// (Aurora)</summary>
         Luminous = 7,
+
+        /// <summary>Flat, square, and STAMPED. A hard zero-blur offset
+        /// copy of the silhouette plus a thick border; there is no
+        /// gradient, no transparency and no blur anywhere in the family.
+        /// Depth is a printed cut-out, not a lighting effect.
+        /// (Neo-Brutalism)</summary>
+        Stamped = 8,
     }
 }

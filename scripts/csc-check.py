@@ -1294,6 +1294,7 @@ def select(args, root):
                     # SoftUi is load-bearing -- it owns SoftDepthTier,
                     # SoftInteractionState and SoftUiAccessibility, which
                     # every family resolves against.
+                    "Services/Theme/NeoBrutal/*.cs",
                     "Services/Theme/SoftUi/*.cs",
                     "Services/Theme/Engine/*.cs",
                     "Tests/Theme/*.cs"):

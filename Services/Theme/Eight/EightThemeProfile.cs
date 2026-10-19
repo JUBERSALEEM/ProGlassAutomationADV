@@ -62,6 +62,15 @@ namespace ProGlassAutomation.Services.Theme.Eight
         /// (Holographic)</summary>
         TintedGlow = 4,
 
+        /// <summary>ONE hard offset, ZERO blur. Not a soft shadow scaled
+        /// up — a different mechanism entirely: a translated copy of the
+        /// element's own silhouette, which is why it reads as a printed
+        /// cut-out rather than as elevation. This is the only kind in
+        /// this engine with a hard edge, and the reason a zero-blur
+        /// shadow could not be expressed by tuning any of the others.
+        /// (Neo-Brutalism)</summary>
+        Stamp = 5,
+
         /// <summary>Exactly one low, wide shadow level for everything.
         /// Deliberately no depth ramp — a bento grid's cells must read as
         /// one flat tray, not as a stack of cards at different heights.</summary>

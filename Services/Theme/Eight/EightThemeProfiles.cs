@@ -68,6 +68,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
             yield return LiquidGlass();
             yield return Glassmorphism();
             yield return Aurora();
+            yield return NeoBrutalism();
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -1037,5 +1038,122 @@ namespace ProGlassAutomation.Services.Theme.Eight
             accentPresets: new[] { "#6D5CFF", "#2DD4BF", "#8B5CF6", "#00CEC9", "#FD79A8" },
             sceneLabel: "Northern Drift",
             sceneType: "Three-field atmospheric mesh");
+
+        // ═══════════════════════════════════════════════════════════════
+        //  10 · NEO-BRUTALISM
+        //  RESEARCH NOTES
+        //    · Three rules, and that is the whole style: a 2-6px solid
+        //      border, a hard offset shadow with ZERO blur, radius 0.
+        //      "Leaving even 2px of blur is the difference between the
+        //      style reading as intentional and reading as a mistake."
+        //    · "At 1px a border is a hairline that separates two regions.
+        //      At 4px it becomes a graphic element in its own right."
+        //    · PRESS: "the element translates by exactly the shadow
+        //      offset while the shadow collapses to zero, so it reads as
+        //      being physically pressed." And: "do not let a default
+        //      transition near the press. The gesture is impact, and
+        //      impact has no curve."
+        //    · The press TRANSLATES. Adjusting margin or padding "makes
+        //      the whole board jump on every click."
+        //    · GRID: "equal-offset hard shadows on a dense grid collide
+        //      where two shadows meet a gap. Keep the grid gap larger
+        //      than the offset." A soft shadow fades at its edge; a hard
+        //      one does not, so touching plates merge into a black wedge.
+        //    · INK: "black text on acid yellow passes, white text on
+        //      acid does not." Measured on THIS app's ramps, not quoted:
+        //      14.80:1 black-on-acid against 1.34:1 white-on-acid.
+        //    · FOCUS: "focus states get eaten" — a 4px black border
+        //      means a focus ring lands on an existing black outline and
+        //      vanishes. This family draws its own, OUTSIDE the border.
+        //    · DISABLED drops the shadow entirely, so a dead block reads
+        //      flat and inert rather than merely quiet.
+        // ═══════════════════════════════════════════════════════════════
+        private static EightThemeProfile NeoBrutalism() => new(
+            EightThemeId.NeoBrutalism,
+            EightThemeNames.NeoBrutalism,
+            "Neo-Brutalism",
+            "Flat, square, stamped",
+            "Thick black borders and hard offset shadows with zero blur. No gradient, no transparency, no rounding anywhere.",
+            "The inverse of Swiss: both sit at radius 0, but Swiss forbids the shadow entirely while this one makes it load-bearing. Ink, never white, on every accent.",
+            new EightColorRamp(
+                window: C("#FFFDF5"),
+                module: C("#F5F1E4"),
+                surface: C("#FFFFFF"),
+                surfaceSecondary: C("#F2EEE0"),
+                surfaceDetail: C("#E8E3D2"),
+                chrome: C("#FFFDF5"),
+                dialog: C("#FFFFFF"),
+                dialogInset: C("#F2EEE0"),
+                textPrimary: C("#0A0A0A"),
+                textSecondary: C("#2E2A22"),
+                // Muted is still body text, so it clears 4.5:1 on paper.
+                textMuted: C("#4A4A4A"),
+                borderSubtle: C("#0A0A0A"),
+                borderDefault: C("#0A0A0A"),
+                borderStrong: C("#0A0A0A"),
+                accent: C("#FFDE00"),
+                // Explicitly INK. See the research note above.
+                accentForeground: C("#0A0A0A"),
+                shadow: C("#0A0A0A"),
+                focusRing: C("#0A0A0A")),
+            new EightColorRamp(
+                // A black hard shadow on a dark page separates nothing:
+                // it is a darker rectangle under a darker rectangle. The
+                // sources permit a bold accent colour instead, so the dark
+                // ramp stamps in ACID and the border stays bright ink.
+                window: C("#16130F"),
+                module: C("#1E1A14"),
+                surface: C("#2A241C"),
+                surfaceSecondary: C("#352E24"),
+                surfaceDetail: C("#211C15"),
+                chrome: C("#16130F"),
+                dialog: C("#2A241C"),
+                dialogInset: C("#1E1A14"),
+                textPrimary: C("#FFFDF5"),
+                textSecondary: C("#D9D3C4"),
+                textMuted: C("#B0A896"),
+                // The border inverts to bright ink: it is the only thing
+                // that has to separate the block from a dark page.
+                borderSubtle: C("#FFFDF5"),
+                borderDefault: C("#FFFDF5"),
+                borderStrong: C("#FFFFFF"),
+                accent: C("#FFDE00"),
+                accentForeground: C("#0A0A0A"),
+                // Coloured hard offset. Loud, and canonical.
+                shadow: C("#FFDE00"),
+                focusRing: C("#FFDE00")),
+            // EVERY radius is 0. Swiss is the only other family here at
+            // 0, and the pair is what makes radius legible as a dial
+            // rather than an identity.
+            geometry: new EightGeometry(
+                control: 0, card: 0, large: 0, hero: 0),
+            // Stamp. The only hard-edged shadow in the engine.
+            elevation: new EightElevation(
+                EightElevationKind.Stamp,
+                // Blur is ZERO and that is the entire point.
+                lowBlur: 0, lowDepth: 3, lowOpacity: 1.0,
+                highBlur: 0, highDepth: 8, highOpacity: 1.0,
+                lightStop: C("#FFDE00"), shadeStop: C("#0A0A0A")),
+            material: new EightMaterial(
+                EightMaterialKind.Stamped,
+                // Fully opaque, always. Transparency is not in this style.
+                surfaceAlpha: 1.0, chromeAlpha: 1.0,
+                blurRadius: 0, saturationBoost: 1.0,
+                rimOpacity: 1.0, rimTint: C("#0A0A0A"),
+                specularRim: false, innerGlowOpacity: 0,
+                allowBackdrop: false),
+            // 1ms, not 0, and the reason is already documented in
+            // EightThemePainter: WPF treats a zero duration as "not
+            // animated" in some paths and as an instant cut in others,
+            // and 1ms is indistinguishable from zero to the eye while
+            // still taking the animated code path. So this family has no
+            // curves and no overshoot, but it is not literally zero.
+            motion: new EightMotion(
+                fast: 1, normal: 1, slow: 1,
+                // Linear, not a spring. Impact has no curve.
+                easeOut: "0,0,1,1", spring: "0,0,1,1"),
+            accentPresets: new[] { "#FFDE00", "#00E5FF", "#FF6B6B", "#C4F000", "#29ABE2" },
+            sceneLabel: "Ink & Cut",
+            sceneType: "Paper with hard printed shadows");
     }
 }

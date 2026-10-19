@@ -41,6 +41,7 @@ using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Theme.Clay;
 using ProGlassAutomation.Services.Theme.Holo;
 using ProGlassAutomation.Services.Theme.LiquidGlass;
+using ProGlassAutomation.Services.Theme.NeoBrutal;
 using ProGlassAutomation.Services.Theme.Neu;
 using ProGlassAutomation.Services.Theme.Swiss;
 using ProGlassAutomation.Services.Theme.Aurora;
@@ -253,10 +254,12 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
                     // The elevation's two stops ARE the clay shadow pair:
                     // the highlight that catches the light, and the shade
                     // tinted to the object's own hue. Using the ramp's
@@ -278,10 +281,12 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
                     // Neumorphism's stops are NOT the ramp's. Its whole
                     // defining rule is that the object IS the page, so
                     // the light and shade are derived from that one
@@ -314,6 +319,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
 
                     if (profile.Identity == EightThemeNames.Swiss)
                     {
@@ -380,6 +386,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
                     }
                     break;
 
@@ -389,10 +396,12 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     SwissPalette.Clear();
                     LiquidGlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
 
                     // ── WHY THE GROUND COMES FROM Surface AND NOT Window ──
                     // Holographic inverts the other families' arrangement:
@@ -417,6 +426,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
                     // LIQUID GLASS. The only family whose material is an
                     // optical one rather than a tonal one: what it
                     // carries is the tint, what it IS is the rim.
@@ -472,10 +482,12 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
                     SpatialPalette.Publish(
                         lightEnvironment: profile.Light.Window,
                         lightFar: profile.Light.Module,
@@ -520,10 +532,12 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
                     GlassPalette.Publish(
                         lightStage: profile.Light.Window,
                         lightFill: profile.Light.Surface,
@@ -568,6 +582,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
                     AuroraPalette.Publish(
                         lightBase: profile.Light.Window,
                         lightBlobIndigo: profile.Light.BlobIndigo,
@@ -591,6 +606,63 @@ namespace ProGlassAutomation.Services.Theme.Eight
                         darkGlow: profile.Dark.FocusRing);
                     break;
 
+                case EightMaterialKind.Stamped:
+                    // ── NEO-BRUTALISM ────────────────────────────────────
+                    // The tenth family, and the only one whose shadow has
+                    // a HARD edge.
+                    //
+                    // Every other arm here publishes a soft shadow or no
+                    // shadow at all. This one publishes an offset that is
+                    // conceptually a translated copy of the element's
+                    // own silhouette, which no amount of tuning a blurred
+                    // drop shadow reaches -- because blur is the property
+                    // that makes an edge soft, and this family forbids it.
+                    //
+                    // Border and Shadow are SEPARATE inputs, not one
+                    // colour written twice. In light they resolve to the
+                    // same ink, because that is what one ink drawn at two
+                    // weights looks like. In dark they cannot: a black
+                    // hard shadow under a near-black block separates
+                    // nothing, so the border inverts to bright ink and the
+                    // offset takes the accent instead. The sources
+                    // explicitly allow a bold colour for the shadow.
+                    ClayPalette.Clear();
+                    NeuPalette.Clear();
+                    SwissPalette.Clear();
+                    HoloPalette.Clear();
+                    LiquidGlassPalette.Clear();
+                    BentoPalette.Clear();
+                    SpatialPalette.Clear();
+                    GlassPalette.Clear();
+                    AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
+                    NeoBrutalPalette.Publish(
+                        lightPage: profile.Light.Window,
+                        lightSurface: profile.Light.Surface,
+                        lightInk: profile.Light.TextPrimary,
+                        lightMuted: profile.Light.TextMuted,
+                        lightBorder: profile.Light.BorderStrong,
+                        lightShadow: profile.Light.Shadow,
+                        lightAccent: profile.Light.Accent,
+                        lightAccentForeground:
+                            profile.Light.AccentForeground,
+                        lightDanger: profile.Light.Accent,
+                        lightInfo: profile.Light.FocusRing,
+                        lightSuccess: profile.Light.Accent,
+                        darkPage: profile.Dark.Window,
+                        darkSurface: profile.Dark.Surface,
+                        darkInk: profile.Dark.TextPrimary,
+                        darkMuted: profile.Dark.TextMuted,
+                        darkBorder: profile.Dark.BorderStrong,
+                        darkShadow: profile.Dark.Shadow,
+                        darkAccent: profile.Dark.Accent,
+                        darkAccentForeground:
+                            profile.Dark.AccentForeground,
+                        darkDanger: profile.Dark.Accent,
+                        darkInfo: profile.Dark.FocusRing,
+                        darkSuccess: profile.Dark.Accent);
+                    break;
+
                 default:
                     // No family maps here. The Clear()s are the
                     // load-bearing part: a control from a previously active
@@ -603,10 +675,12 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
                     AuroraPalette.Clear();
+                    NeoBrutalPalette.Clear();
                     break;
             }
         }

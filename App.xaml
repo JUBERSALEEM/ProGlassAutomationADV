@@ -203,6 +203,28 @@
                      translucency and leaves the edge as the only thing
                      describing the surface. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Aurora/AuroraControls.xaml"/>
+                <!-- Neo-Brutalism control plane. The TENTH family, and
+                     the only one in this app whose shadow has a hard
+                     edge.
+
+                     Two things are load-bearing here and neither is
+                     obvious. First, every template reserves NeoShadowRoom
+                     around its root: a hard offset extends past the
+                     control's own bounds and does NOT fade at the edge,
+                     so without that margin a parent clips it. A blurred
+                     shadow forgives this; this one cannot.
+
+                     Second, there is no corner radius anywhere in the
+                     dictionary, and every CornerRadius is an explicit
+                     zero rather than merely the Border default. Radius 0
+                     is the third of this family's three rules, and a
+                     value that is only the absence of configuration is
+                     not a value.
+
+                     Note that Swiss also sits at radius 0. Between them
+                     they are the reason radius reads as a dial in this
+                     engine rather than as an identity. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/NeoBrutal/NeoBrutalControls.xaml"/>
                 <!-- Glass Blush — Personal UI family plane (GB-P1, 2026-09-18).
                      Measured token plane for the second ProGlass experience.
                      Managed keys are republished by the family painter (GB-P14). -->
