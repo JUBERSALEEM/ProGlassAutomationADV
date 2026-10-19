@@ -210,7 +210,7 @@ namespace ProGlassAutomation.Tests.Theme
                 "ElevatedSurfaceBrush", "PrimaryForegroundBrush", "BorderBrush",
                 "CardCornerRadius", "ControlCornerRadius", "ShadowElevated"
             })
-                Assert.Contains($"resources[\\"{token}\\"]", overlay, StringComparison.Ordinal);
+                Assert.Contains($"resources[\"{token}\"]", overlay, StringComparison.Ordinal);
         }
 
         [Theory]
