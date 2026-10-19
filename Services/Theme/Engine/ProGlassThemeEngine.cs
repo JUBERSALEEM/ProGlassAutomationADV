@@ -21,9 +21,6 @@ namespace ProGlassAutomation.Services.Theme.Engine
         {
             return persisted?.Trim() switch
             {
-                VisualThemeEngine.Monet or "Monet" => ProGlassThemeFamily.Monet,
-                VisualThemeEngine.CrystalFluid or "Ios-17pm" => ProGlassThemeFamily.Crystal,
-                VisualThemeEngine.Ios26 or "iOS 26" => ProGlassThemeFamily.Ios26,
                 VisualThemeEngine.BentoGrid => ProGlassThemeFamily.BentoGrid,
                 VisualThemeEngine.SpatialImmersive => ProGlassThemeFamily.SpatialImmersive,
                 VisualThemeEngine.SwissInternational => ProGlassThemeFamily.SwissInternational,
@@ -32,15 +29,22 @@ namespace ProGlassAutomation.Services.Theme.Engine
                 VisualThemeEngine.Claymorphism => ProGlassThemeFamily.Claymorphism,
                 VisualThemeEngine.LiquidGlass => ProGlassThemeFamily.LiquidGlass,
                 VisualThemeEngine.Glassmorphism => ProGlassThemeFamily.Glassmorphism,
-                _ => ProGlassThemeFamily.Industrial
+
+                // Migrate old persisted identities and imported theme packs.
+                VisualThemeEngine.Monet => ProGlassThemeFamily.Claymorphism,
+                VisualThemeEngine.CrystalFluid or VisualThemeEngine.Ios26 or
+                "Crystal" or "Crystal Fluid" or "Ios-17pm" or "iOS 26" or
+                "iPhone 17 Pro Max" or "Ultra Transparent" or "Transparent" or "Clear"
+                    => ProGlassThemeFamily.LiquidGlass,
+                VisualThemeEngine.Normal or VisualThemeEngine.NormalIndustrial or
+                "Industrial" or "Industrial White" or "Industrial Grey" or
+                "Industrial Dark" or "Professional" => ProGlassThemeFamily.BentoGrid,
+                _ => ProGlassThemeFamily.LiquidGlass
             };
         }
 
         public static string PersistFamily(ProGlassThemeFamily family) => family switch
         {
-            ProGlassThemeFamily.Monet => VisualThemeEngine.Monet,
-            ProGlassThemeFamily.Crystal => VisualThemeEngine.CrystalFluid,
-            ProGlassThemeFamily.Ios26 => VisualThemeEngine.Ios26,
             ProGlassThemeFamily.BentoGrid => VisualThemeEngine.BentoGrid,
             ProGlassThemeFamily.SpatialImmersive => VisualThemeEngine.SpatialImmersive,
             ProGlassThemeFamily.SwissInternational => VisualThemeEngine.SwissInternational,
@@ -49,7 +53,9 @@ namespace ProGlassAutomation.Services.Theme.Engine
             ProGlassThemeFamily.Claymorphism => VisualThemeEngine.Claymorphism,
             ProGlassThemeFamily.LiquidGlass => VisualThemeEngine.LiquidGlass,
             ProGlassThemeFamily.Glassmorphism => VisualThemeEngine.Glassmorphism,
-            _ => VisualThemeEngine.NormalIndustrial
+            ProGlassThemeFamily.Monet => VisualThemeEngine.Claymorphism,
+            ProGlassThemeFamily.Crystal or ProGlassThemeFamily.Ios26 => VisualThemeEngine.LiquidGlass,
+            _ => VisualThemeEngine.BentoGrid
         };
 
         /// <summary>
