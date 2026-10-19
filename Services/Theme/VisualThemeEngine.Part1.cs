@@ -448,22 +448,23 @@ namespace ProGlassAutomation.Services.Theme
                             _lastWallpaperOpacity);
                         break;
 
+                    // Only Liquid Glass uses the legacy crystal-water painter.
+                    // All other approved families start from the neutral industrial
+                    // resource seed and then receive their own eight-theme material
+                    // overlay below; this prevents old Monet/Crystal treatments from
+                    // leaking into Clay, Spatial, Holographic, or Glassmorphism.
                     case CrystalFluid:
                     case LiquidGlass:
-                    case Glassmorphism:
-                    case SpatialImmersive:
-                    case HolographicIridescent:
                         ApplyCrystalFluid(resources);
                         break;
 
-                    case Claymorphism:
-                        ApplyMonet(resources, _lastWallpaperPath,
-                            _lastWallpaperOpacity);
-                        break;
-
                     case BentoGrid:
+                    case SpatialImmersive:
                     case SwissInternational:
+                    case HolographicIridescent:
                     case Neumorphism:
+                    case Claymorphism:
+                    case Glassmorphism:
                     case NormalIndustrial:
                         ApplyIndustrial(resources);
                         break;
@@ -636,20 +637,20 @@ namespace ProGlassAutomation.Services.Theme
                             ApplyMonet(resources, _lastWallpaperPath,
                                 _lastWallpaperOpacity);
                             break;
+                        // The water-stage painter belongs only to Liquid Glass.
+                        // Other approved families use a neutral base and their own
+                        // material overlay, not legacy Crystal/Monet visuals.
                         case CrystalFluid:
                         case LiquidGlass:
-                        case Glassmorphism:
-                        case SpatialImmersive:
-                        case HolographicIridescent:
                             ApplyCrystalFluid(resources);
                             break;
-                        case Claymorphism:
-                            ApplyMonet(resources, _lastWallpaperPath,
-                                _lastWallpaperOpacity);
-                            break;
                         case BentoGrid:
+                        case SpatialImmersive:
                         case SwissInternational:
+                        case HolographicIridescent:
                         case Neumorphism:
+                        case Claymorphism:
+                        case Glassmorphism:
                         case NormalIndustrial:
                             ApplyIndustrial(resources);
                             break;
