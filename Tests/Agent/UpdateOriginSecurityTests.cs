@@ -162,10 +162,10 @@ namespace ProGlassAutomation.Tests.Agent
     public class UpdateReleaseAssetSelectionTests
     {
         [Fact]
-        public void Prefers_tag_specific_single_file_app_over_velopack_packages()
+        public void Prefers_setup_installer_over_standalone_app_and_velopack_packages()
         {
             using var document = JsonDocument.Parse(
-                """{"assets":[{"name":"ProGlassAutomation-Setup.exe"},{"name":"ProGlassAutomation-win-full.nupkg"},{"name":"ProGlassAutomation-v2.0.12-win-x64.exe"}]}""");
+                """{"assets":[{"name":"ProGlassAutomation-v2.0.12-win-x64.exe"},{"name":"ProGlassAutomation-win-full.nupkg"},{"name":"Setup.exe"},{"name":"SHA256SUMS.txt"}]}""");
 
             int index = UpdateService.FindPreferredReleaseAssetIndex(
                 document.RootElement.GetProperty("assets"), "v2.0.12");
@@ -178,6 +178,18 @@ namespace ProGlassAutomation.Tests.Agent
         {
             using var document = JsonDocument.Parse(
                 """{"assets":[{"name":"ProGlassAutomation.LicenseGenerator.exe"},{"name":"ProGlassAutomation-win-full.nupkg"},{"name":"SHA256SUMS.txt"}]}""");
+
+            int index = UpdateService.FindPreferredReleaseAssetIndex(
+                document.RootElement.GetProperty("assets"), "v2.0.12");
+
+            Assert.Equal(-1, index);
+        }
+
+        [Fact]
+        public void Does_not_treat_a_standalone_app_exe_as_an_installer()
+        {
+            using var document = JsonDocument.Parse(
+                """{"assets":[{"name":"ProGlassAutomation-v2.0.12-win-x64.exe"},{"name":"ProGlassAutomation-win-full.nupkg"},{"name":"SHA256SUMS.txt"}]}""");
 
             int index = UpdateService.FindPreferredReleaseAssetIndex(
                 document.RootElement.GetProperty("assets"), "v2.0.12");
