@@ -52,9 +52,15 @@ namespace ProGlassAutomation.Services.Theme
             resources["CardCornerRadius"] = new CornerRadius(palette.CardRadius);
             resources["CardCornerRadiusLarge"] = new CornerRadius(palette.CardRadius + 4);
             resources["ControlCornerRadius"] = new CornerRadius(palette.ControlRadius);
-            resources["CardBorderThickness"] = family == SwissInternational ? 1.5 :
+            // These resources feed Border.BorderThickness (a System.Windows.Thickness),
+            // not a scalar Double. Publishing a Double here can survive theme setup and
+            // crash later during Border.MeasureOverride when WPF unboxes the property.
+            // Keep the family-specific values typed correctly at the source.
+            double cardBorderWeight = family == SwissInternational ? 1.5 :
                 family == Neumorphism || family == Claymorphism ? 0.0 : 1.0;
-            resources["CardEdgeThickness"] = family == SwissInternational ? 1.5 : 1.0;
+            double cardEdgeWeight = family == SwissInternational ? 1.5 : 1.0;
+            resources["CardBorderThickness"] = new Thickness(cardBorderWeight);
+            resources["CardEdgeThickness"] = new Thickness(cardEdgeWeight);
 
             // Reuse frozen, shared effect resources instead of creating a
             // per-card animation/effect. Material families get different
