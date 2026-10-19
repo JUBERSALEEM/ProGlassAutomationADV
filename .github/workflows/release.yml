@@ -113,9 +113,9 @@ jobs:
           $pfx = Join-Path $env:RUNNER_TEMP "proglass-codesign.pfx"
           [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:PFX_CERT))
           $exe = Join-Path $PWD "publish/app/ProGlassAutomation.exe"
-          $signtool = Get-Command signtool.exe -ErrorAction SilentlyContinue
+          $signtool = Get-ChildItem "$env:ProgramFiles(x86)\\Windows Kits\\10\\bin" -Recurse -Filter signtool.exe | Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
           if (-not $signtool) { throw "Windows SDK signtool.exe was not found on the runner." }
-          & $signtool.Source sign /f $pfx /p $env:PFX_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 $exe
+          & $signtool sign /f $pfx /p $env:PFX_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 $exe
           if ($LASTEXITCODE -ne 0) { throw "Authenticode signing failed." }
           Remove-Item -Force $pfx
           $signature = Get-AuthenticodeSignature $exe
@@ -149,6 +149,25 @@ jobs:
           vpk pack --packId ProGlassAutomation --packVersion $version --packDir publish/app --packTitle "ProGlass Automation" --packAuthors "Juber Saleem" --outputDir releases
           if ($LASTEXITCODE -ne 0) { throw "Velopack package creation failed." }
 
+      - name: Sign Velopack Setup.exe before it is published
+        shell: pwsh
+        env:
+          PFX_CERT: ${{ secrets.CODESIGN_PFX_BASE64 }}
+          PFX_PASSWORD: ${{ secrets.CODESIGN_PFX_PASSWORD }}
+        run: |
+          $pfx = Join-Path $env:RUNNER_TEMP "proglass-codesign-setup.pfx"
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:PFX_CERT))
+          $setup = Get-ChildItem "releases" -Filter "Setup.exe" -File | Select-Object -First 1
+          if (-not $setup) { throw "Velopack Setup.exe was not produced." }
+          $signtool = Get-ChildItem "$env:ProgramFiles(x86)\\Windows Kits\\10\\bin" -Recurse -Filter signtool.exe | Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
+          if (-not $signtool) { throw "Windows SDK signtool.exe was not found." }
+          & $signtool sign /f $pfx /p $env:PFX_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 $setup.FullName
+          if ($LASTEXITCODE -ne 0) { throw "Authenticode signing of Setup.exe failed." }
+          $signature = Get-AuthenticodeSignature $setup.FullName
+          if ($signature.Status -ne "Valid") { throw "Setup.exe signature did not validate: $($signature.Status)." }
+          Copy-Item $setup.FullName "ProGlassAutomation-Setup.exe" -Force
+          Remove-Item -Force $pfx
+
       - name: Publish Velopack OTA packages to the tagged GitHub Release
         shell: pwsh
         env:
@@ -167,6 +186,7 @@ jobs:
           fail_on_unmatched_files: true
           files: |
             ${{ env.APP_ASSET }}
+            ProGlassAutomation-Setup.exe
             SHA256SUMS.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
