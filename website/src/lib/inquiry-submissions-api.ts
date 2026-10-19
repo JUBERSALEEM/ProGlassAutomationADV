@@ -2,7 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { extname } from "node:path";
 import { unzipSync } from "fflate";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { isSupabaseConfigured, supabaseServerWithToken } from "@/lib/supabase";
+import { isSupabaseConfigured, isSupabaseUnavailableError, supabaseServerWithToken } from "@/lib/supabase";
 import {
   sha256Hex,
   validateInquiryDocumentCandidate,
@@ -21,6 +21,9 @@ export class CustomerInquiryFailure extends Error {
 }
 
 function failDatabase(error: { code?: string; message?: string }): never {
+  if (isSupabaseUnavailableError(error)) {
+    throw new CustomerInquiryFailure("TEMPORARY_FAILURE", "The inquiry service is temporarily unreachable. Please try again.");
+  }
   if (/42P01|PGRST202|PGRST205|schema cache|does not exist/i.test(`${error.code || ""} ${error.message || ""}`)) {
     throw new CustomerInquiryFailure("NOT_CONFIGURED", "Customer inquiry intake is not installed in this deployment.");
   }
@@ -36,6 +39,7 @@ async function customerClient(token: string): Promise<{ client: SupabaseClient; 
   if (!isSupabaseConfigured()) throw new CustomerInquiryFailure("NOT_CONFIGURED", "Supabase is not configured for inquiry intake.");
   const client = supabaseServerWithToken(token);
   const user = await client.auth.getUser(token);
+  if (user.error && isSupabaseUnavailableError(user.error)) throw new CustomerInquiryFailure("TEMPORARY_FAILURE", "The authentication service is temporarily unreachable. Please try again.");
   if (user.error || !user.data.user) throw new CustomerInquiryFailure("UNAUTHORIZED", "Your session is expired or invalid.");
   return { client, userId: user.data.user.id };
 }

@@ -77,6 +77,36 @@ export function isSupabaseConfigured(): boolean {
 }
 
 /**
+ * Whether a Supabase error means "the service could not be reached" rather
+ * than "this caller is not allowed".
+ *
+ * The distinction decides whether a signed-in operator keeps their session.
+ * A refused token is an auth answer (401/403, show the sign-in gate); a
+ * failed fetch is a transport answer — the sandbox or deployment could not
+ * open a TLS connection to the project at all — and must surface as a
+ * retryable failure. Treating transport failures as expired sessions is
+ * what produced the login loop: sign in succeeds in the browser, the
+ * server-side re-check cannot reach Supabase, and the page interprets the
+ * network error as "session invalid" and bounces back to the login form.
+ */
+export function isSupabaseUnavailableError(
+  error: { name?: string; message?: string; status?: number; code?: string; details?: string } | null | undefined,
+): boolean {
+  if (!error) return false;
+  if (error.name === "AuthRetryableFetchError") return true;
+  // Supabase Auth reports a fetch that never received an HTTP response as status 0.
+  if (error.status === 0) return true;
+  const transport = `${error.name || ""} ${error.message || ""} ${error.details || ""}`;
+  const looksLikeTransport =
+    /fetch failed|failed to fetch|network|ECONNRESET|ECONNREFUSED|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|socket disconnected|TLS|SSL connection has been closed/i.test(
+      transport,
+    );
+  if (!looksLikeTransport) return false;
+  // A genuine auth refusal can mention the token; never reclassify those.
+  return !/jwt|token|unauthorized|permission/i.test(`${error.code || ""} ${error.message || ""}`);
+}
+
+/**
  * The `role` a Supabase key carries, when the key is the JWT kind.
  *
  * Modern projects may hand out `sb_publishable_…` keys instead, which are not

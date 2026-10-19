@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { isSupabaseConfigured, supabaseServerWithToken } from "@/lib/supabase";
+import { isSupabaseConfigured, isSupabaseUnavailableError, supabaseServerWithToken } from "@/lib/supabase";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { InquiryDetail, InquiryDocumentRow, InquiryListData, InquiryListRow, InquiryPriority, InquiryStatus } from "@/types/inquiries";
 
@@ -25,6 +25,7 @@ function authFailure(error: { code?: string; message?: string }): boolean {
   return /jwt|token|expired|unauthorized|permission denied|42501|PGRST301/i.test(`${error.code || ""} ${error.message || ""}`);
 }
 function databaseFailure(error: { code?: string; message?: string }): never {
+  if (isSupabaseUnavailableError(error)) throw new InquiryApiFailure("TEMPORARY_FAILURE", "The inquiry service is temporarily unreachable. Please try again.");
   if (schemaMissing(error)) throw new InquiryApiFailure("NOT_CONFIGURED", "The private inquiry projection is not installed in this deployment.");
   if (authFailure(error)) throw new InquiryApiFailure("UNAUTHORIZED", "Your operator session has expired or is unauthorized.");
   console.error("[inquiries-api] Supabase query failed:", { code: error.code, message: error.message });
@@ -36,6 +37,7 @@ async function authorizedClient(token: string): Promise<SupabaseClient> {
   if (!isSupabaseConfigured()) throw new InquiryApiFailure("NOT_CONFIGURED", "Supabase is not configured for the private inquiry workflow.");
   const client = supabaseServerWithToken(token);
   const user = await client.auth.getUser(token);
+  if (user.error && isSupabaseUnavailableError(user.error)) throw new InquiryApiFailure("TEMPORARY_FAILURE", "The authentication service is temporarily unreachable. Please try again.");
   if (user.error || !user.data.user) throw new InquiryApiFailure("UNAUTHORIZED", "Your operator session is expired or invalid.");
   const { data, error } = await client.from("inquiry_operator_roles").select("role, enabled").eq("user_id", user.data.user.id).maybeSingle();
   if (error) databaseFailure(error);
