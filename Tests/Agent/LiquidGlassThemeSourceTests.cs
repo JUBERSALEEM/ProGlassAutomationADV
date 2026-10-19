@@ -87,12 +87,12 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.DoesNotContain("\"Glassy\" => LiquidGlass", engine, StringComparison.Ordinal);
 
             string config = Read("Services/AI/AIConfig/AppConfig.cs");
-            Assert.Contains("= \"Normal (Industrial)\";", config, StringComparison.Ordinal);
+            Assert.Contains("= \"Liquid Glass\";", config, StringComparison.Ordinal);
             Assert.DoesNotContain("= \"iOS Liquid Glass\";", config, StringComparison.Ordinal);
 
             // App.StartupCore.cs is pulled in by the App.*.cs convention.
             string appCs = Read("App.xaml.cs");
-            Assert.Contains("?? VisualThemeEngine.NormalIndustrial", appCs, StringComparison.Ordinal);
+            Assert.Contains("?? VisualThemeEngine.LiquidGlass", appCs, StringComparison.Ordinal);
             Assert.DoesNotContain("?? \"iOS Liquid Glass\"", appCs, StringComparison.Ordinal);
 
             // 2026-09-17 CORRECTION (owner: "I could see only two" → then
