@@ -245,3 +245,21 @@
  .theme-center-card,.theme-center-mode-button { transition:none; }
  .theme-center-card:hover,.theme-center-mode-button:hover { transform:none; }
 }
+
+/* Family-specific geometry and elevation for the existing site surfaces. */
+[data-appearance="bento"] :is(.menu-card,.plate,.surface-card,.module-card,.feature-card) { border-radius: 1rem; box-shadow: var(--shadow-panel); }
+[data-appearance="bento"] :is(button,input,select,textarea,[role="button"]):not(.theme-center-select) { border-radius: .75rem; }
+[data-appearance="spatial"] :is(.menu-card,.plate,.surface-card,.module-card,.feature-card) { border-radius: 1.5rem; box-shadow: var(--shadow-panel); }
+[data-appearance="spatial"] :is(button,input,select,textarea,[role="button"]):not(.theme-center-select) { border-radius: 1rem; }
+[data-appearance="swiss"] :is(.menu-card,.plate,.surface-card,.module-card,.feature-card) { border-radius: .25rem; box-shadow: none; }
+[data-appearance="swiss"] :is(button,input,select,textarea,[role="button"]):not(.theme-center-select) { border-radius: .25rem; }
+[data-appearance="holographic"] :is(.menu-card,.plate,.surface-card,.module-card,.feature-card) { border-radius: 1.125rem; box-shadow: var(--shadow-glow, var(--shadow-panel)); }
+[data-appearance="holographic"] :is(button,input,select,textarea,[role="button"]):not(.theme-center-select) { border-radius: .8rem; }
+[data-appearance="neumorphism"] :is(.menu-card,.plate,.surface-card,.module-card,.feature-card) { border-radius: 1.125rem; border-color: transparent; box-shadow: var(--shadow-panel); }
+[data-appearance="neumorphism"] :is(button,input,select,textarea,[role="button"]):not(.theme-center-select) { border-radius: .9rem; box-shadow: 3px 3px 8px rgb(0 0 0 / .08), -3px -3px 8px rgb(255 255 255 / .07); }
+[data-appearance="clay"] :is(.menu-card,.plate,.surface-card,.module-card,.feature-card) { border-radius: 1.5rem; box-shadow: var(--shadow-raised); }
+[data-appearance="clay"] :is(button,input,select,textarea,[role="button"]):not(.theme-center-select) { border-radius: 1rem; }
+[data-appearance="liquid-glass"] :is(.menu-card,.plate,.surface-card,.module-card,.feature-card) { border-radius: 1.5rem; }
+[data-appearance="liquid-glass"] :is(button,input,select,textarea,[role="button"]):not(.theme-center-select) { border-radius: 999px; }
+[data-appearance="glassmorphism"] :is(.menu-card,.plate,.surface-card,.module-card,.feature-card) { border-radius: 1.25rem; box-shadow: var(--shadow-panel); }
+[data-appearance="glassmorphism"] :is(button,input,select,textarea,[role="button"]):not(.theme-center-select) { border-radius: .9rem; }
