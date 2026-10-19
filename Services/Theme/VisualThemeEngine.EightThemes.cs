@@ -117,6 +117,68 @@ namespace ProGlassAutomation.Services.Theme
             // theme. Only Liquid Glass receives translucent liquid fills;
             // glassmorphism gets a more opaque frost, and solid families keep
             // their own surfaces without accidentally inheriting blur.
+            // Family material surfaces must be published into the legacy keys
+            // consumed by the existing ERP card, dialog, dashboard and input styles.
+            // Writing only WindowBackgroundBrush/ModuleBackgroundBrush made the
+            // preview swatches change while most real cards continued to read the
+            // identical surfaces seeded by ApplyIndustrial().
+            Brush cardFace = palette.Glass
+                ? Alpha(palette.Surface, (byte)(dark ? 0xC8 : 0xE0))
+                : Solid(palette.Surface);
+            Brush cardRaised = palette.Glass
+                ? Alpha(palette.Raised, (byte)(dark ? 0xD8 : 0xE8))
+                : Solid(palette.Raised);
+            Brush cardInset = palette.Glass
+                ? Alpha(palette.Inset, (byte)(dark ? 0xB8 : 0xD8))
+                : Solid(palette.Inset);
+            Brush cardEdge = family == HolographicIridescent
+                ? Gradient(palette.Edge, palette.Accent, palette.SecondAccent)
+                : edge;
+
+            // These are the actual source tokens used by ThemeManager's semantic
+            // surface composer. Populate them BEFORE that composer runs in
+            // ThemePipeline.RebuildFamily, so its dynamic surface aliases inherit
+            // the selected family instead of the generic industrial seed.
+            resources["GlassUltraClearBrush"] = cardFace;
+            resources["GlassSurfaceBrush"] = cardFace;
+            resources["GlassCrystalBrush"] = cardRaised;
+            resources["GlassFrostedBrush"] = cardFace;
+            resources["GlassSurfaceStandard"] = cardInset;
+            resources["GlassSurfaceUltra"] = cardRaised;
+            resources["GlassSurfaceElevated"] = cardRaised;
+            resources["GlassWaterBrush"] = family == LiquidGlass
+                ? Alpha(palette.SecondAccent, (byte)(dark ? 0x55 : 0x35))
+                : Solid(Colors.Transparent);
+            resources["GlassBorderGradientCrystal"] = cardEdge;
+            resources["GlassBorderSoft"] = Alpha(palette.Edge, (byte)(palette.Glass ? 0xB0 : 0xFF));
+            resources["GlassBorderPrimary"] = edge;
+            resources["GlassBorderBright"] = family == HolographicIridescent
+                ? Gradient(Colors.White, palette.Accent, palette.SecondAccent)
+                : edge;
+
+            // Shell and dashboard styles still consume these compatibility keys.
+            resources["ShellLiquidBrush"] = raised;
+            resources["SidebarCardBrush"] = cardRaised;
+            resources["DashLiquidSurfaceBrush"] = cardFace;
+            resources["DashAmbientBrush"] = palette.Atmospheric
+                ? Alpha(palette.Accent, (byte)(dark ? 0x25 : 0x18))
+                : Solid(Colors.Transparent);
+            resources["DashAmbientBlob1Brush"] = palette.Atmospheric
+                ? Alpha(palette.SecondAccent, (byte)(dark ? 0x20 : 0x14))
+                : Solid(Colors.Transparent);
+            resources["DashAmbientBlob2Brush"] = palette.Atmospheric
+                ? Alpha(palette.Accent, (byte)(dark ? 0x18 : 0x10))
+                : Solid(Colors.Transparent);
+
+            // The status-tint family is also visible across dashboards and lists.
+            resources["TintIndigoBrush"] = Alpha(palette.Accent, (byte)(dark ? 0x38 : 0x20));
+            resources["TintBlueBrush"] = Alpha(palette.SecondAccent, (byte)(dark ? 0x38 : 0x20));
+            resources["TintGreenBrush"] = Alpha(Rgb(46, 184, 124), (byte)(dark ? 0x38 : 0x20));
+            resources["TintRedBrush"] = Alpha(Rgb(225, 72, 77), (byte)(dark ? 0x38 : 0x20));
+            resources["TintAmberBrush"] = Alpha(Rgb(230, 159, 58), (byte)(dark ? 0x38 : 0x20));
+            resources["TintPurpleBrush"] = Alpha(palette.SecondAccent, (byte)(dark ? 0x38 : 0x20));
+            resources["TintGrayBrush"] = Alpha(palette.SecondaryInk, (byte)(dark ? 0x38 : 0x20));
+
             resources["LiquidGlassBrush"] = family == LiquidGlass
                 ? Gradient(
                     Color.FromArgb(dark ? (byte)0xA6 : (byte)0xC7,
