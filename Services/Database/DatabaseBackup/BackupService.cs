@@ -378,37 +378,72 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
 
 
         /// <summary>
-        /// Copies a SQLite database plus live sidecars. In local WAL mode,
-        /// recent committed pages may still be in *.db-wal when the backup
-        /// starts; copying only *.db can produce a stale/incomplete backup.
-        /// In shared-root mode the sidecars normally do not exist because
-        /// the network profile uses DELETE journal, but this remains safe.
-        /// Every copy error is returned to the caller so a partial set is
-        /// rejected instead of presented as a complete backup.
+        /// Takes a SQLite-supported online backup into one standalone
+        /// database file. Unlike copying .db, -wal and -shm independently,
+        /// BackupDatabase obtains a consistent SQLite snapshot while readers
+        /// and writers may be active. The output is verified before it is
+        /// counted as a successful backup file.
         /// </summary>
         private static int CopySqliteFileSet(
             string dbPath,
             string targetFolder,
             System.Collections.Generic.List<string> failures)
         {
-            int copied = 0;
-            foreach (var path in new[] { dbPath, dbPath + "-wal", dbPath + "-shm" })
+            string targetPath = Path.Combine(targetFolder, Path.GetFileName(dbPath));
+            try
             {
-                if (!File.Exists(path)) continue;
+                var sourceBuilder = new SqliteConnectionStringBuilder
+                {
+                    DataSource = dbPath,
+                    Mode = SqliteOpenMode.ReadOnly,
+                    Pooling = false
+                };
+                var targetBuilder = new SqliteConnectionStringBuilder
+                {
+                    DataSource = targetPath,
+                    Mode = SqliteOpenMode.ReadWriteCreate,
+                    Pooling = false
+                };
+
+                using (var source = new SqliteConnection(sourceBuilder.ToString()))
+                using (var target = new SqliteConnection(targetBuilder.ToString()))
+                {
+                    source.Open();
+                    target.Open();
+                    source.BackupDatabase(target);
+
+                    using var check = target.CreateCommand();
+                    check.CommandText = "PRAGMA integrity_check;";
+                    var integrity = Convert.ToString(check.ExecuteScalar());
+                    if (!string.Equals(integrity, "ok", StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidDataException(
+                            $"SQLite integrity_check failed for {Path.GetFileName(dbPath)}: {integrity}");
+                }
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
                 try
                 {
-                    File.Copy(path, Path.Combine(targetFolder, Path.GetFileName(path)), overwrite: true);
-                    copied++;
+                    if (File.Exists(targetPath)) File.Delete(targetPath);
+                    if (File.Exists(targetPath + "-wal")) File.Delete(targetPath + "-wal");
+                    if (File.Exists(targetPath + "-shm")) File.Delete(targetPath + "-shm");
                 }
-                catch (Exception ex)
+                catch (Exception cleanupEx)
                 {
-                    failures.Add($"{Path.GetFileName(path)}: {ex.Message}");
                     AppLogService.Warning(
-                        $"Could not back up {Path.GetFileName(path)}: {ex.Message}",
-                        new LogContext { Module = "Backup", Operation = "Copy" });
+                        $"Could not remove incomplete SQLite backup '{targetPath}': {cleanupEx.Message}",
+                        new LogContext { Module = "Backup", Operation = "CleanupIncompleteDatabase" });
                 }
+
+                failures.Add($"{Path.GetFileName(dbPath)}: {ex.Message}");
+                AppLogService.Error(
+                    $"SQLite online backup failed for {Path.GetFileName(dbPath)}: {ex.Message}",
+                    ex,
+                    new LogContext { Module = "Backup", Class = nameof(BackupService), Operation = "CopySqliteDatabase" });
+                return 0;
             }
-            return copied;
         }
 
         /// <summary>
