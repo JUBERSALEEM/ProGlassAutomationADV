@@ -264,7 +264,7 @@ export default async function LocaleLayout({
       data-locale={locale}
       data-theme="midnight"
       data-theme-mode="system"
-      data-appearance="crystal"
+      data-appearance="liquid-glass"
       data-scroll-behavior="smooth"
       data-build-time={buildStamp.builtAt}
       data-build-rev={buildStamp.revision ?? ""}
