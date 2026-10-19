@@ -312,9 +312,15 @@ def main():
         for d in ("Themes",):
             files += glob.glob(os.path.join(d, "**", "*.xaml"),
                                recursive=True)
+        # Every family's dictionary has to be NAMED here. The filter is a
+        # literal list rather than a directory scan, which meant Bento
+        # and Spatial were silently outside the scope of every "clean"
+        # run reported for them -- a tool that reports success on files
+        # it never opened is worse than no tool.
         files = sorted(f for f in files if any(
             k in f for k in ("Clay", "Neu", "Swiss", "Holo",
-                             "LiquidGlass", "Eight")))
+                             "LiquidGlass", "Eight",
+                             "Bento", "Spatial", "Glassmorphism")))
     elif args:
         files = [a for a in args if a.endswith(".xaml")]
     else:

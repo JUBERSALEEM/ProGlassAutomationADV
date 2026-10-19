@@ -149,6 +149,19 @@
                      until a host adopts BentoSurface / BentoButton /
                      BentoField inside a BentoPanel. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Bento/BentoControls.xaml"/>
+                <!-- Spatial / Immersive control plane, merged on the same
+                     terms. The only family here whose TEMPLATES ARE THE
+                     POINT: Fluent builds elevation from a PAIR of shadows
+                     (a sharp directional key plus a soft diffused
+                     ambient), and WPF allows one Effect per element, so
+                     each template nests two shadow hosts around the fill.
+                     The file header also states plainly that these are
+                     not acrylic — WPF's BlurEffect blurs a control's own
+                     content, not the backdrop — and that depth here is
+                     simulated by the shadow ladder and per-plane opacity.
+                     Inert until a host adopts SpatialSurface /
+                     SpatialButton / SpatialField. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Spatial/SpatialControls.xaml"/>
                 <!-- Glass Blush — Personal UI family plane (GB-P1, 2026-09-18).
                      Measured token plane for the second ProGlass experience.
                      Managed keys are republished by the family painter (GB-P14). -->

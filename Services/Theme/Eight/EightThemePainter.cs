@@ -44,6 +44,7 @@ using ProGlassAutomation.Services.Theme.LiquidGlass;
 using ProGlassAutomation.Services.Theme.Neu;
 using ProGlassAutomation.Services.Theme.Swiss;
 using ProGlassAutomation.Services.Theme.Bento;
+using ProGlassAutomation.Services.Theme.Spatial;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -250,6 +251,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
                     BentoPalette.Clear();
+                    SpatialPalette.Clear();
                     // The elevation's two stops ARE the clay shadow pair:
                     // the highlight that catches the light, and the shade
                     // tinted to the object's own hue. Using the ramp's
@@ -271,6 +273,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
                     BentoPalette.Clear();
+                    SpatialPalette.Clear();
                     // Neumorphism's stops are NOT the ramp's. Its whole
                     // defining rule is that the object IS the page, so
                     // the light and shade are derived from that one
@@ -365,6 +368,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     else
                     {
                         BentoPalette.Clear();
+                    SpatialPalette.Clear();
                     }
                     break;
 
@@ -374,6 +378,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     SwissPalette.Clear();
                     LiquidGlassPalette.Clear();
                     BentoPalette.Clear();
+                    SpatialPalette.Clear();
 
                     // ── WHY THE GROUND COMES FROM Surface AND NOT Window ──
                     // Holographic inverts the other families' arrangement:
@@ -395,6 +400,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
 
                 case EightMaterialKind.Refractive:
                     BentoPalette.Clear();
+                    SpatialPalette.Clear();
                     // LIQUID GLASS. The only family whose material is an
                     // optical one rather than a tonal one: what it
                     // carries is the tint, what it IS is the rim.
@@ -421,19 +427,66 @@ namespace ProGlassAutomation.Services.Theme.Eight
                         darkRim: profile.Dark.BorderStrong);
                     break;
 
-                default:
-                    // Frosted (Glassmorphism) and Volumetric (Spatial)
-                    // have no palette yet and land here. They still get
-                    // every Clear() below, which is the load-bearing
-                    // part: a control from a previously active family
-                    // keeps its published material until something
-                    // explicitly takes it away.
+                case EightMaterialKind.Volumetric:
+                    // ── SPATIAL ────────────────────────────────────────────
+                    // Three planes in, where the others publish one or
+                    // two, and that is the family: Spatial's premise is a
+                    // Z hierarchy, so it needs the ROOM it sits in and
+                    // the FAR CHROME between the room and the panels.
+                    //
+                    // Environment is Window, and light mode here means a
+                    // bright luminous room rather than white paper -- the
+                    // profile is explicit about it, and a flat white
+                    // environment would leave the translucency above it
+                    // with nothing to reveal, which is the whole effect.
+                    //
+                    // Far is Module, and it is what panels composite
+                    // against: SpatialPalette validates a panel's fill
+                    // against the FAR CHROME rather than against the
+                    // room, because that is the plane actually behind it.
+                    //
+                    // Rim is BorderStrong for the same reason every other
+                    // family uses it: a rim drawn in a subtle border is a
+                    // keyline the user cannot see, and a keyline you
+                    // cannot see is not doing the job of making a
+                    // translucent plane legible.
                     ClayPalette.Clear();
                     NeuPalette.Clear();
                     SwissPalette.Clear();
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
                     BentoPalette.Clear();
+                    SpatialPalette.Clear();
+                    SpatialPalette.Publish(
+                        lightEnvironment: profile.Light.Window,
+                        lightFar: profile.Light.Module,
+                        lightFill: profile.Light.Surface,
+                        lightInk: profile.Light.TextPrimary,
+                        lightMuted: profile.Light.TextMuted,
+                        lightRim: profile.Light.BorderStrong,
+                        accent: profile.Light.Accent,
+                        darkEnvironment: profile.Dark.Window,
+                        darkFar: profile.Dark.Module,
+                        darkFill: profile.Dark.Surface,
+                        darkInk: profile.Dark.TextPrimary,
+                        darkMuted: profile.Dark.TextMuted,
+                        darkRim: profile.Dark.BorderStrong);
+                    break;
+
+                default:
+                    // Frosted (Glassmorphism) still lands here and has no
+                    // palette yet. The Clear()s below are the load-bearing
+                    // part of this arm: a control from a previously active
+                    // family keeps its published material until something
+                    // explicitly takes it away, so an unhandled material
+                    // must still take Spatial's with it.
+                    ClayPalette.Clear();
+                    NeuPalette.Clear();
+                    SwissPalette.Clear();
+                    HoloPalette.Clear();
+                    LiquidGlassPalette.Clear();
+                    BentoPalette.Clear();
+                    SpatialPalette.Clear();
                     break;
             }
         }

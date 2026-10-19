@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Spatial/SpatialControls.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Spatial / Immersive — control templates
+
+     FOUR PARTS PER TEMPLATE, AND THE OUTER TWO ARE THE SHADOW PAIR.
+
+         PART_SpatialAmbient   wide, soft, low opacity
+         PART_SpatialKey       sharp, directional
+         PART_SpatialFill      the translucent fill plus its 1px rim
+         PART_SpatialFocus     the focus ring
+
+     The nesting order is load-bearing and is the reason the first two
+     exist as separate hosts at all:
+
+         Ambient (outermost, 64px blur at the overlay plane)
+           └─ Key (sharp, directional, shadows OVER the ambient one)
+                └─ Fill (innermost, so neither shadow tints the
+                         translucent surface the user reads through)
+
+     Fluent builds elevation from a PAIR of shadows, not one — "sharp,
+     directional key shadows for nearby objects and soft, diffused
+     ambient shadows for distant ones… a low-elevation shadow might use
+     2px blur, while high-elevation ones reach up to 64px." WPF allows
+     exactly one Effect per element, so the pair needs two hosts.
+
+     This file is the only one in the engine where the shadow hosts are
+     the point rather than an implementation detail.
+
+     ── WHY THERE IS NO BACKDROP, AND WHY THAT IS STATED HERE ──────────
+
+     Real Mica/Acrylic needs the DWM or WinAppSDK. Neither is reachable
+     from a control template, and WPF's BlurEffect blurs the ELEMENT'S
+     OWN CONTENT rather than the backdrop behind it, so it cannot stand
+     in for one.
+
+     What these templates therefore produce is GENUINE ALPHA over
+     whatever the window already has, with DEPTH carried by the shadow
+     ladder and the per-plane opacity. That is a simulation of depth,
+     not acrylic — and it is documented here rather than left for a
+     maintainer to assume otherwise. Services/Theme/Spatial/README.md
+     §3 records why the DWM P/Invoke is deliberately not shipped.
+
+     The practical consequence for anyone editing this file: adding a
+     BlurEffect here will not do what the name suggests, and will blur
+     the control's own text instead of what is behind it.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:spatial="clr-namespace:ProGlassAutomation.Controls.Spatial"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         PALETTE BRIDGE
+
+         Declared as consumers rather than literal colours, so these
+         follow EightThemePainter when the active family changes.
+
+         The ALPHAS are the family's whole identity. SpatialPalette.Publish()
+         writes these same keys, and the per-plane opacity ladder lives
+         in SpatialMetrics.OpacityFor — a single flat alpha across all
+         five planes would produce one translucent look at every distance
+         instead of a ladder, and the ladder is what the user reads.
+         ═══════════════════════════════════════════════════════════ -->
+    <SolidColorBrush x:Key="SpatialEnvironmentBrush" Color="#DDE4F0" />
+    <SolidColorBrush x:Key="SpatialFarBrush" Color="#C7D2E6" />
+    <SolidColorBrush x:Key="SpatialFillBrush" Color="#F4F7FF" />
+    <SolidColorBrush x:Key="SpatialInkBrush" Color="#0D1220" />
+    <SolidColorBrush x:Key="SpatialMutedBrush" Color="#58637E" />
+    <SolidColorBrush x:Key="SpatialRimBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SpatialAccentBrush" Color="#4A5AE8" />
+
+    <!-- The blur ladder. Declared as keys so the plane->radius mapping
+         in SpatialMetrics has a single source of truth and the XAML can
+         document it in one place. Chrome 20, cards 40, overlays 60. -->
+    <sys:Double x:Key="SpatialBlurAmbient">20</sys:Double>
+    <sys:Double x:Key="SpatialBlurPanel">40</sys:Double>
+    <sys:Double x:Key="SpatialBlurOverlay">60</sys:Double>
+
+    <!-- Matches SoftUiAccessibility.FocusRingWidth. -->
+    <sys:Double x:Key="SpatialFocusWidth">3</sys:Double>
+    <CornerRadius x:Key="SpatialRadius">12</CornerRadius>
+    <Thickness x:Key="SpatialUnit">16</Thickness>
+
+    <Style x:Key="SpatialFocusRing">
+        <Setter Property="BorderThickness"
+                Value="{StaticResource SpatialFocusWidth}" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SURFACE
+         ═══════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="SpatialSurfaceTemplate"
+                     TargetType="{x:Type spatial:SpatialSurface}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <!-- Outermost. Its Effect is assigned in code — the resting
+                 state below is deliberately blank, because a shadow left
+                 on a stale plane is the "switching themes keeps the old
+                 material" failure this engine keeps guarding against. -->
+            <Border x:Name="PART_SpatialAmbient">
+                <Border x:Name="PART_SpatialKey">
+                    <Border x:Name="PART_SpatialFill"
+                            Background="{DynamicResource SpatialFillBrush}"
+                            BorderBrush="{DynamicResource SpatialRimBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource SpatialRadius}">
+                        <ContentPresenter
+                            Margin="{StaticResource SpatialUnit}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Border>
+                </Border>
+            </Border>
+            <Border x:Name="PART_SpatialFocus"
+                    Style="{StaticResource SpatialFocusRing}"
+                    Visibility="Collapsed" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type spatial:SpatialSurface}">
+        <Setter Property="Template"
+                Value="{StaticResource SpatialSurfaceTemplate}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Top" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         BUTTON
+
+         Press RECEDES here — less surface, a step further from the
+         viewer — where every other family in this engine shifts the fill
+         toward the ink and reads as coming closer. Fluent's own wording
+         is that a pressed item "momentarily recedes into the background".
+
+         Nothing translates. On a translucent plane a translation also
+         changes what shows THROUGH the control, so the content behind
+         would appear to shift: an artefact, not an effect.
+         ═══════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="SpatialButtonTemplate"
+                     TargetType="{x:Type spatial:SpatialButton}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_SpatialAmbient">
+                <Border x:Name="PART_SpatialKey">
+                    <Border x:Name="PART_SpatialFill"
+                            Background="{DynamicResource SpatialFillBrush}"
+                            BorderBrush="{DynamicResource SpatialRimBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource SpatialRadius}">
+                        <ContentPresenter
+                            Margin="{StaticResource SpatialUnit}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Border>
+                </Border>
+            </Border>
+            <Border x:Name="PART_SpatialFocus"
+                    Style="{StaticResource SpatialFocusRing}"
+                    Visibility="Collapsed" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type spatial:SpatialButton}">
+        <Setter Property="Template"
+                Value="{StaticResource SpatialButtonTemplate}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <!-- Nulled because WPF's default focus visual is a dotted
+             rectangle that ignores the template's corner radius, so it
+             draws a square around a 12px-rounded translucent plane. The
+             real ring is rebuilt in PART_SpatialFocus. -->
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         FIELD
+
+         No recess, same as BentoField: an inset would add a second
+         depth cue inside a surface whose whole job is to state its
+         depth.
+
+         The fill is deliberately MORE opaque than the panel plane's 0.62
+         — SpatialField.MinimumFieldOpacity is 0.78, the overlay
+         plane's value. A translucent field shows an unknown backdrop, so
+         its placeholder text has no fixed contrast; a field that reads
+         as less present than the card beside it has the emphasis
+         exactly backwards.
+         ═══════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="SpatialFieldTemplate"
+                     TargetType="{x:Type spatial:SpatialField}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_SpatialAmbient">
+                <Border x:Name="PART_SpatialKey">
+                    <Border x:Name="PART_SpatialFill"
+                            Background="{DynamicResource SpatialFillBrush}"
+                            BorderBrush="{DynamicResource SpatialRimBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource SpatialRadius}">
+                        <ScrollViewer x:Name="PART_SpatialScroll"
+                                      Margin="{StaticResource SpatialUnit}"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <TextBox x:Name="PART_SpatialText"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     Foreground="{DynamicResource SpatialInkBrush}"
+                                     CaretBrush="{DynamicResource SpatialInkBrush}"
+                                     SelectionBrush="{DynamicResource SpatialAccentBrush}"
+                                     FontSize="14"
+                                     Padding="0"
+                                     TextWrapping="Wrap"
+                                     AcceptsReturn="True"
+                                     IsReadOnly="{TemplateBinding IsReadOnly}"
+                                     Text="{TemplateBinding Text, Mode=TwoWay}"
+                                     TextOptions.TextFormattingMode="Display"
+                                     TextOptions.TextRenderingMode="ClearType" />
+                        </ScrollViewer>
+                    </Border>
+                </Border>
+            </Border>
+            <Border x:Name="PART_SpatialFocus"
+                    Style="{StaticResource SpatialFocusRing}"
+                    Visibility="Collapsed" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type spatial:SpatialField}">
+        <Setter Property="Template"
+                Value="{StaticResource SpatialFieldTemplate}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource SpatialInkBrush}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource SpatialInkBrush}" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TYPE
+
+         Display, not Ideal. Over a translucent surface the glyph cache
+         is what makes ClearType's subpixel edges sample the WRONG
+         backdrop — the one behind the text is whatever shows through
+         the panel, and it can change without the text changing. Ideal
+         mode turns caching off so the text re-samples against the
+         current composition.
+         ═══════════════════════════════════════════════════════════ -->
+    <Style x:Key="SpatialDisplayType"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource {x:Type TextBlock}}">
+        <Setter Property="FontSize" Value="28" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource SpatialInkBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="SpatialBodyType"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource {x:Type TextBlock}}">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="{DynamicResource SpatialMutedBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+</ResourceDictionary>
