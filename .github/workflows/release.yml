@@ -2,6 +2,12 @@ name: ProGlass Windows Release
 
 on:
   push:
+    # Tags are the normal release trigger. A version-named release branch is
+    # also supported so a Windows build can be initiated when tag creation is
+    # unavailable to the connected GitHub integration. The version check below
+    # still requires this ref name to match ProGlassAutomation.csproj.
+    branches:
+      - "v*.*.*"
     tags:
       - "v*.*.*"
 
