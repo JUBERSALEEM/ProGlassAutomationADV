@@ -48,7 +48,7 @@ namespace ProGlassAutomation.Services.Theme
         /// picker never reads "X — X".</summary>
         public static readonly (string Key, string Label)[] All =
         {
-            (VisualThemeEngine.BentoGrid, "Bento Grid"),
+            (VisualThemeEngine.BentoGrid, "Modular Bento"),
             (VisualThemeEngine.SpatialImmersive, "Spatial Atmosphere"),
             (VisualThemeEngine.SwissInternational, "Swiss Editorial"),
             (VisualThemeEngine.HolographicIridescent, "Iridescent Spectrum"),
