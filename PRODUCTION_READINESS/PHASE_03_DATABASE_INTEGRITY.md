@@ -1,6 +1,6 @@
 # Phase 3 — Database and financial-data integrity
 
-**Status:** One fail-closed Tax Invoice initialization change is present in the working branch; global database startup policy and live-write backup consistency remain open.
+**Status:** Main database initialization now fails closed on initialization or migration failure; Tax Invoice migration failure is also checked. Full integration testing and live-write backup validation remain open.
 
 ## Scope
 Protect all SQLite databases and all related business documents from partial writes, schema drift, duplicate operations, concurrency races, corrupt backups and restore mistakes.
@@ -12,7 +12,7 @@ Protect all SQLite databases and all related business documents from partial wri
 
 | ID | Finding | Required fix | Acceptance evidence |
 |---|---|---|---|
-| DB-01 | Main `DatabaseInitializer` logs a failed migration but allows startup to continue | Define an explicit degraded-mode contract. Disable dependent writes or stop startup with a recoverable diagnostic; do not permit unsafe writes | Startup tests for migration failure and proof no dependent mutation succeeds |
+| DB-01 | Main database migration/init failure must not allow app startup to continue | `DatabaseInitializer.Initialize()` now throws on migration failure and rethrows initialization exceptions after logging; outer startup handler should show the fatal-startup UX and shut down | Windows startup test proves failure exits before module UI and dependent writes |
 | DB-02 | Backup service copies SQLite database and WAL/SHM sidecars as separate files | Use SQLite's supported backup/snapshot approach or a quiesced, verified backup protocol; do not assume file-by-file copy is a consistent point-in-time snapshot | Integration test with concurrent writes and integrity/content checks |
 | DB-03 | Restore drill must never mutate live data | Inject isolated source/scratch roots; assert all drill writes stay beneath a unique temporary root | Test asserts live database hashes and timestamps remain unchanged |
 | DB-04 | Cross-document operations can race between validation and commit | Put invariants in the same transaction/write boundary, add appropriate unique/foreign-key/check constraints | Parallel duplicate-create, delivery/invoice linkage and stock movement tests |
