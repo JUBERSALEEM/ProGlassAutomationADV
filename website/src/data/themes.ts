@@ -128,9 +128,9 @@ if(m!=="light"&&m!=="dark"&&m!=="system")m="system";
 /* One-time hygiene clears stale studio dials before the eight-family recipes apply. */
 var vk2="proglass-studio-attrs";
 var hv="proglass-hygiene-v4";
-if(sg(hv)!=="1"){sr(vk);sr(vk2);ss(ak,"liquid-glass");ss(hv,"1");}
+if(sg(hv)!=="1"){sr(vk);sr(vk2);ss(hv,"1");}
 var a=sg(ak);
-if(a!=="bento"&&a!=="spatial"&&a!=="swiss"&&a!=="holographic"&&a!=="neumorphism"&&a!=="clay"&&a!=="liquid-glass"&&a!=="glassmorphism")a="liquid-glass";
+if(a!=="bento"&&a!=="spatial"&&a!=="swiss"&&a!=="holographic"&&a!=="neumorphism"&&a!=="clay"&&a!=="liquid-glass"&&a!=="glassmorphism"){a="liquid-glass";ss(ak,a);}
 var d=window.matchMedia?window.matchMedia("(prefers-color-scheme: dark)").matches:true;
 var t=m==="light"?"daylight":m==="dark"?"midnight":(d?"midnight":"daylight");
 var e=document.documentElement;
