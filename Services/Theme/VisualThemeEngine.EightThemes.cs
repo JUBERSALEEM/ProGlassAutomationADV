@@ -59,8 +59,11 @@ namespace ProGlassAutomation.Services.Theme
             // glassmorphism gets a more opaque frost, and solid families keep
             // their own surfaces without accidentally inheriting blur.
             resources["LiquidGlassBrush"] = family == LiquidGlass
-                ? Gradient(Alpha(palette.Raised, dark ? (byte)0xA6 : (byte)0xC7),
-                    Alpha(Colors.White, dark ? (byte)0x1A : (byte)0x76))
+                ? Gradient(
+                    Color.FromArgb(dark ? (byte)0xA6 : (byte)0xC7,
+                        palette.Raised.R, palette.Raised.G, palette.Raised.B),
+                    Color.FromArgb(dark ? (byte)0x1A : (byte)0x76,
+                        Colors.White.R, Colors.White.G, Colors.White.B))
                 : Solid(palette.Raised);
             resources["LiquidGlassSubtleBrush"] = family == LiquidGlass || family == Glassmorphism
                 ? Alpha(palette.Raised, dark ? (byte)0x92 : (byte)0xD0)
