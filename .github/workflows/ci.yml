@@ -170,3 +170,47 @@ jobs:
           path: TestResults/**/*.trx
           if-no-files-found: warn
           retention-days: 14
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Dependency security gate. This intentionally fails on any known vulnerable
+  # direct or transitive NuGet dependency; findings must be upgraded or
+  # explicitly reviewed before this gate is changed.
+  dependency-audit:
+    name: NuGet vulnerability audit
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          cache: true
+
+      - name: Restore test project and transitive dependencies
+        run: dotnet restore Tests/ProGlassAutomation.Tests.csproj --verbosity minimal
+
+      - name: Fail if NuGet reports vulnerable packages
+        shell: pwsh
+        run: |
+          $report = dotnet list Tests/ProGlassAutomation.Tests.csproj package --vulnerable --include-transitive 2>&1
+          $exitCode = $LASTEXITCODE
+          $report | Tee-Object -FilePath vulnerable-packages.txt
+          if ($exitCode -ne 0) {
+            throw "NuGet vulnerability audit command failed; dependency security status is unknown."
+          }
+          if (($report -join "`n") -match '(?i)has the following vulnerable packages') {
+            throw "Known vulnerable NuGet package(s) detected. Upgrade or document a reviewed exception before release."
+          }
+
+      - name: Upload dependency audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-vulnerability-audit
+          path: vulnerable-packages.txt
+          if-no-files-found: warn
+          retention-days: 30
+
