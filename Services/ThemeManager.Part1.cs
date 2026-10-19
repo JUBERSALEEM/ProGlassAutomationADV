@@ -434,12 +434,10 @@ namespace ProGlassAutomation.Services
                 dark ? Color.FromRgb(0x1E, 0x29, 0x3B)
                      : Color.FromRgb(0xFF, 0xFF, 0xFF));
 
-            // The Crystal Fluid (Ios-17pm) family OWNS the tint brushes
-            // (it renders them as see-through hue frost). ApplyAccent runs
-            // AFTER the engine on every family switch (settings path),
-            // so without this guard it would repaint the Blue/Indigo
-            // chips opaque on top of the frost — the same class of bug
-            // as the dashboard-surface guard below.
+            // Glass-like families own their tint brushes (Liquid Glass and
+            // Glassmorphism use frost; Spatial and Holographic use atmospheric
+            // tints). ApplyAccent runs after the family engine, so repainting
+            // those brushes as opaque accent chips would erase the material.
             if (VisualThemeEngine.Current != VisualThemeEngine.CrystalFluid &&
                 VisualThemeEngine.Current != VisualThemeEngine.LiquidGlass &&
                 VisualThemeEngine.Current != VisualThemeEngine.Glassmorphism &&
