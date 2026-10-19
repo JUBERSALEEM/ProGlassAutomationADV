@@ -470,6 +470,14 @@ namespace ProGlassAutomation.Services.Theme
             return family?.Trim() switch
             {
                 Monet => Monet,
+                BentoGrid => BentoGrid,
+                SpatialImmersive => SpatialImmersive,
+                SwissInternational => SwissInternational,
+                HolographicIridescent => HolographicIridescent,
+                Neumorphism => Neumorphism,
+                Claymorphism => Claymorphism,
+                LiquidGlass => LiquidGlass,
+                Glassmorphism => Glassmorphism,
                 // FAMILY FIX (2026-09-17 owner report: "Ios and iphone 17
                 // pro max theme is also broken"): these two lines folded BOTH
                 // iOS families into Industrial. Settings offers four families
