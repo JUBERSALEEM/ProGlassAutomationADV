@@ -513,6 +513,110 @@ namespace ProGlassAutomation.Tests.Theme
                 "default:", painter);
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        //  REGRESSIONS
+        //
+        //  Each of these shipped in the first pass and was found by
+        //  reading the code rather than by running it. They are here
+        //  because all five are invisible to the compiler and to every
+        //  other test in this file.
+        // ═══════════════════════════════════════════════════════════════
+
+        [Fact]
+        public void Drift_never_freezes_the_transforms_it_is_about_to_animate()
+        {
+            // TransformGroup.Freeze() propagates recursively to its
+            // Freezable children, so a frozen group means frozen
+            // transforms -- and every BeginAnimation on them then throws
+            // InvalidOperationException. This fired on the first frame of
+            // every Aurora theme load.
+            var drift = AuroraMesh.Drift(0, new AuroraMetrics(),
+                motionAllowed: true);
+
+            Assert.NotNull(drift);
+            Assert.False(drift!.IsFrozen,
+                "the drift group is animated every frame; freezing it " +
+                "makes BeginAnimation throw before the first frame draws");
+
+            foreach (var child in drift.Children)
+            {
+                Assert.False(child.IsFrozen,
+                    $"{child.GetType().Name} is animated by Drift and " +
+                    "cannot be frozen");
+            }
+        }
+
+        [Fact]
+        public void The_backdrop_never_disables_hit_testing_for_its_content()
+        {
+            // AuroraSurface WRAPS the app root. IsHitTestVisible=False on
+            // a container disables it for the whole subtree, so the
+            // window renders correctly and responds to nothing.
+            var surface = RepoFile(
+                "Controls", "Aurora", "AuroraSurface.cs");
+
+            Assert.DoesNotContain("IsHitTestVisible = false;", surface);
+            Assert.DoesNotContain("IsHitTestVisible = False;", surface);
+
+            // ...but the decorative blobs still opt out individually.
+            Assert.Contains("IsHitTestVisible = false,", surface);
+
+            var style = DictionaryText()
+                .Split("<Style TargetType=\"{x:Type aurora:AuroraSurface}\">")[1]
+                .Split("</Style>")[0];
+
+            Assert.DoesNotContain("IsHitTestVisible", style);
+        }
+
+        [Fact]
+        public void Motion_is_gated_on_reduced_motion_never_on_transparency()
+        {
+            // These are different settings. High contrast strips
+            // translucency; it is not an animation preference, and
+            // conflating them froze the sky for users who never asked.
+            foreach (var file in new[]
+                     {
+                         "Controls", "Aurora", "AuroraButton.cs"
+                     })
+            {
+                var text = RepoFile(file);
+
+                Assert.DoesNotContain(
+                    "if (AuroraPalette.TransparencySuppressed)",
+                    text);
+            }
+
+            var surface = RepoFile(
+                "Controls", "Aurora", "AuroraSurface.cs");
+
+            Assert.DoesNotContain(
+                "!AuroraPalette.TransparencySuppressed",
+                surface);
+        }
+
+        [Fact]
+        public void The_sky_resolves_the_ramp_for_the_current_theme()
+        {
+            // Both ramps are dark, but they are different darks, and
+            // painting the light one in dark mode leaves the one surface
+            // nobody else owns visibly out of step with the window.
+            var surface = RepoFile(
+                "Controls", "Aurora", "AuroraSurface.cs");
+
+            Assert.DoesNotContain("AuroraPalette.For(false)", surface);
+            Assert.Contains("AuroraPalette.For(IsDark())", surface);
+
+            // The same mistake a second time, in the button: the press
+            // scale was read from the light ramp. Benign today only
+            // because both ramps happen to declare 0.98 -- which is
+            // exactly the kind of coincidence that stops being true
+            // during the next design pass.
+            var button = RepoFile(
+                "Controls", "Aurora", "AuroraButton.cs");
+
+            Assert.DoesNotContain("AuroraPalette.For(false)", button);
+        }
+
         [Fact]
         public void The_family_ships_as_the_ninth_member_of_the_enum()
         {

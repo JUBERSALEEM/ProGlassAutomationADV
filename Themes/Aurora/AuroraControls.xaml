@@ -211,8 +211,12 @@
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <!-- Focusable is false: the sky is not a tab stop.
+             IsHitTestVisible is deliberately NOT set here. This control
+             WRAPS the app root, and disabling hit-testing on a container
+             disables it for every element inside. Only the blob Ellipses
+             opt out, individually, in AuroraSurface.Build. -->
         <Setter Property="Focusable" Value="False" />
-        <Setter Property="IsHitTestVisible" Value="False" />
     </Style>
 
     <Style TargetType="{x:Type aurora:AuroraCard}">

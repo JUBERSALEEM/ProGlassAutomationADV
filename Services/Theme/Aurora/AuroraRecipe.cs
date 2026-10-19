@@ -546,7 +546,25 @@ namespace ProGlassAutomation.Services.Theme.Aurora
             var group = new TransformGroup();
             group.Children.Add(scale);
             group.Children.Add(translate);
-            group.Freeze();
+
+            // The group is deliberately NOT frozen.
+            //
+            // TransformGroup.Freeze() propagates recursively to its
+            // Freezable children, so freezing the group freezes BOTH
+            // transforms -- and every BeginAnimation below then throws
+            // InvalidOperationException("Cannot animate a frozen
+            // Freezable"). That fired on every Aurora theme load, on
+            // every build of the sky, on the very first frame. The
+            // freezing was added for performance and removed the
+            // animation it was meant to optimise.
+            //
+            // Nothing is lost by leaving it live: WPF caches an
+            // unanimated transform internally regardless, and these two
+            // are animated every frame anyway, so they can never be
+            // promoted to a shared frozen resource in the first place.
+            //
+            // The ANIMATIONS are still frozen, which is the half that was
+            // actually safe: a DoubleAnimation is applied, never mutated.
 
             var moveX = new DoubleAnimation(0, -amp * 60,
                 period, FillBehavior.HoldEnd)
@@ -555,6 +573,9 @@ namespace ProGlassAutomation.Services.Theme.Aurora
                 AutoReverse = true,
                 RepeatBehavior = RepeatBehavior.Forever,
             };
+            // Safe to freeze: an animation is consumed by the animation
+            // system, never edited afterwards. The transforms they drive
+            // are not.
             var moveY = new DoubleAnimation(0, amp * 40,
                 period, FillBehavior.HoldEnd)
             {
@@ -574,6 +595,10 @@ namespace ProGlassAutomation.Services.Theme.Aurora
             // Transform properties only. No GradientStop is ever
             // animated -- that would re-rasterise the sky every frame,
             // which is the single most expensive mistake available here.
+            moveX.Freeze();
+            moveY.Freeze();
+            breathe.Freeze();
+
             translate.BeginAnimation(TranslateTransform.XProperty, moveX);
             translate.BeginAnimation(TranslateTransform.YProperty, moveY);
             scale.BeginAnimation(ScaleTransform.ScaleXProperty, breathe);

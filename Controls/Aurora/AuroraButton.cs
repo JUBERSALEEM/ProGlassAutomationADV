@@ -40,6 +40,7 @@ using System.Windows.Media.Animation;
 using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Services.Theme.Aurora;
+using ProGlassAutomation.Services.Theme.Eight;
 using ProGlassAutomation.Services.Theme.SoftUi;
 
 namespace ProGlassAutomation.Controls.Aurora
@@ -215,20 +216,26 @@ namespace ProGlassAutomation.Controls.Aurora
 
             double target = pressed ? metrics : 1.0;
 
-            try
+            // Reduced MOTION, not reduced TRANSPARENCY. These are
+            // different settings and were being conflated:
+            // TransparencySuppressed comes from Windows high contrast and
+            // from the user forcing opaque surfaces. A user in high
+            // contrast has not asked for less animation, and a user who
+            // has asked for less animation is very often NOT in high
+            // contrast. Gating the dip on the wrong one meant the press
+            // animation kept running for people who had specifically
+            // turned motion down, and vanished for people who had not.
+            if (!MotionAllowed())
             {
-                if (AuroraPalette.TransparencySuppressed)
-                {
-                    _scale.BeginAnimation(
-                        ScaleTransform.ScaleXProperty, null);
-                    _scale.BeginAnimation(
-                        ScaleTransform.ScaleYProperty, null);
-                    _scale.ScaleX = 1.0;
-                    _scale.ScaleY = 1.0;
-                    return;
-                }
+                // Clear any in-flight animation rather than merely
+                // skipping the new one, or a half-finished dip is left
+                // stranded mid-scale.
+                _scale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+                _scale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+                _scale.ScaleX = 1.0;
+                _scale.ScaleY = 1.0;
+                return;
             }
-            catch (Exception) { /* fall through to the animation */ }
 
             var anim = new DoubleAnimation(
                 target, new Duration(TimeSpan.FromMilliseconds(120)))
@@ -244,11 +251,32 @@ namespace ProGlassAutomation.Controls.Aurora
             _scale.BeginAnimation(ScaleTransform.ScaleYProperty, anim);
         }
 
+        /// <summary>
+        /// Whether the control may animate. Motion is the user's
+        /// accessibility setting, so it is read the same way every other
+        /// family reads it and never guessed from an unrelated one.
+        /// </summary>
+        /// <summary>
+        /// Which ramp this control belongs to. Read live so the dip
+        /// tracks the same profile the fill was painted from.
+        /// </summary>
+        private static bool IsDark()
+        {
+            try { return ThemeManager.CurrentTheme == AppTheme.Dark; }
+            catch (Exception) { return false; }
+        }
+
+        private static bool MotionAllowed()
+        {
+            try { return !EightThemePainter.ReducedMotionRequested; }
+            catch (Exception) { return false; }
+        }
+
         private static double SafePressScale()
         {
             try
             {
-                var profile = AuroraPalette.For(false);
+                var profile = AuroraPalette.For(IsDark());
                 return profile?.Metrics.PressScale ?? 0.98;
             }
             catch (Exception) { return 0.98; }

@@ -42,7 +42,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using ProGlassAutomation.Services;
+using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Services.Theme.Aurora;
+using ProGlassAutomation.Services.Theme.Eight;
 
 namespace ProGlassAutomation.Controls.Aurora
 {
@@ -60,12 +63,23 @@ namespace ProGlassAutomation.Controls.Aurora
 
         public AuroraSurface()
         {
-            // The sky is not a hit-test target. Every pixel here belongs
-            // to the app's chrome, and a 100%-hit backdrop would swallow
-            // clicks meant for the window behind it.
+            // The sky is not a hit-test target -- but that is a property
+            // of the BLOBS, not of this control.
+            //
+            // This control WRAPS the app root: it is a ContentControl
+            // whose template hosts a ContentPresenter. Setting
+            // IsHitTestVisible = False here disables hit-testing for the
+            // ENTIRE subtree, so every button, field and row inside the
+            // window stops receiving mouse input. It looks like a working
+            // app and does nothing at all when clicked.
+            //
+            // The intent was only ever to stop three decorative Ellipses
+            // intercepting pointers, and each Ellipse already sets it
+            // individually. Background stays null so the wash itself is
+            // not a target either -- a null-background Border is not
+            // hit-testable in the first place.
             Background = null;
             Focusable = false;
-            IsHitTestVisible = false;
         }
 
         /// <summary>
@@ -88,6 +102,14 @@ namespace ProGlassAutomation.Controls.Aurora
             _host = Template.FindName("PART_AuroraBlobHost", this) as Canvas;
 
             Build();
+
+            // The sky has to follow the app between light and dark. It is
+            // not a decoration that can be painted once: both Aurora
+            // ramps are dark, but they are DIFFERENT darks, and holding
+            // the light ramp while the rest of the window sits in dark
+            // leaves the one surface nobody else is responsible for
+            // visibly out of step with everything around it.
+            ThemeWeakEventManager.SubscribeThemeChanged((_, _) => Build());
         }
 
         /// <summary>
@@ -98,7 +120,7 @@ namespace ProGlassAutomation.Controls.Aurora
         {
             if (_host is null) return;
 
-            var profile = AuroraPalette.For(false);
+            var profile = AuroraPalette.For(IsDark());
             if (profile is null)
             {
                 // No Aurora profile published: leave the wash alone and
@@ -165,7 +187,7 @@ namespace ProGlassAutomation.Controls.Aurora
         private void LayoutBlobs()
         {
             var specs = AuroraMesh.Blobs;
-            var profile = AuroraPalette.For(false);
+            var profile = AuroraPalette.For(IsDark());
             if (profile is null || _blobs.Count == 0) return;
 
             double w = ActualWidth;
@@ -203,20 +225,30 @@ namespace ProGlassAutomation.Controls.Aurora
         /// -- a control constructor running before the painter has
         /// published would otherwise take the whole window down.
         /// </summary>
+        /// <summary>
+        /// Which ramp the sky is painting. Read live rather than cached,
+        /// because Build() is what gets called when the theme flips.
+        /// </summary>
+        private static bool IsDark()
+        {
+            try { return ThemeManager.CurrentTheme == AppTheme.Dark; }
+            catch (Exception) { return false; }
+        }
+
         private static bool SafeMotionAllowed()
         {
-            try { return !AuroraPalette.TransparencySuppressed
-                  && !ReducedMotion(); }
+            // Reduced MOTION only. Conflating this with transparency
+            // suppression was a mistake repeated from the button's press
+            // dip: Windows high contrast strips translucency, but it is
+            // not an animation preference. The only legitimate reason to
+            // freeze the sky is the user asking for less motion.
+            try { return !ReducedMotion(); }
             catch (Exception) { return false; }
         }
 
         private static bool ReducedMotion()
         {
-            try
-            {
-                return Services.Theme.Eight.EightThemePainter
-                    .ReducedMotionRequested;
-            }
+            try { return EightThemePainter.ReducedMotionRequested; }
             catch (Exception) { return false; }
         }
     }
