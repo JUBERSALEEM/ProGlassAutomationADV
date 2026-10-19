@@ -1,0 +1,184 @@
+/*
+ * ProGlass eight-family appearance engine.
+ * Only semantic tokens and a few material-specific surfaces are overridden;
+ * business components keep their existing markup. Blur is deliberately limited
+ * to navigation/material surfaces, never applied to every card in the tree.
+ */
+[data-appearance="bento"] {
+  --radius-family: 1.02;
+  --brand-50: 235 240 255; --brand-100: 213 222 255; --brand-200: 184 198 255;
+  --brand-300: 148 166 255; --brand-400: 112 134 247; --brand-500: 87 111 231;
+  --brand-600: 65 84 197; --brand-700: 49 63 153;
+  --pool-1: rgb(100 120 242 / .18); --pool-2: rgb(53 184 201 / .10); --pool-3: transparent;
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / .07) inset, 0 12px 28px -24px rgb(0 0 0 / .7);
+  --shadow-raised: 0 1px 0 rgb(255 255 255 / .08) inset, 0 18px 38px -28px rgb(0 0 0 / .78);
+}
+[data-theme="daylight"][data-appearance="bento"] {
+  --ink-950: 245 247 252; --ink-900: 255 255 255; --ink-850: 239 243 251;
+  --ink-800: 229 235 247; --ink-700: 215 224 242;
+  --line: 215 223 239; --line-soft: 231 236 247; --line-strong: 172 187 219;
+  --text-1: 22 30 51; --text-2: 43 54 78; --text-3: 78 91 119; --text-4: 99 112 139;
+}
+[data-theme="midnight"][data-appearance="bento"] {
+  --ink-950: 11 16 32; --ink-900: 18 26 48; --ink-850: 24 35 62; --ink-800: 31 45 77; --ink-700: 41 57 95;
+  --line: 43 58 92; --line-soft: 30 43 72; --line-strong: 64 84 130;
+  --text-1: 247 249 255; --text-2: 225 232 247; --text-3: 183 196 220; --text-4: 154 170 199;
+}
+
+[data-appearance="spatial"] {
+  --radius-family: 1.18;
+  --brand-50: 225 252 252; --brand-100: 190 244 246; --brand-200: 148 231 236;
+  --brand-300: 102 213 222; --brand-400: 53 184 201; --brand-500: 24 151 171;
+  --brand-600: 17 120 142; --brand-700: 15 91 111;
+  --pool-1: rgb(53 184 201 / .26); --pool-2: rgb(88 111 242 / .18); --pool-3: rgb(95 226 196 / .10);
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / .09) inset, 0 22px 52px -34px rgb(0 0 0 / .78);
+}
+[data-theme="daylight"][data-appearance="spatial"] {
+  --ink-950: 232 243 248; --ink-900: 248 253 255; --ink-850: 235 247 250; --ink-800: 219 238 244; --ink-700: 202 228 236;
+  --line: 198 222 231; --line-soft: 220 238 243; --line-strong: 139 190 205;
+  --text-1: 16 42 56; --text-2: 36 66 80; --text-3: 69 101 116; --text-4: 91 120 133;
+}
+[data-theme="midnight"][data-appearance="spatial"] {
+  --ink-950: 6 17 29; --ink-900: 10 28 43; --ink-850: 14 39 57; --ink-800: 19 51 71; --ink-700: 25 65 87;
+  --line: 34 78 99; --line-soft: 22 56 76; --line-strong: 48 112 135;
+  --text-1: 241 251 255; --text-2: 217 237 245; --text-3: 171 202 215; --text-4: 139 178 194;
+}
+
+[data-appearance="swiss"] {
+  --radius-family: .72;
+  --brand-50: 255 238 238; --brand-100: 255 216 216; --brand-200: 255 185 185;
+  --brand-300: 255 139 139; --brand-400: 248 93 98; --brand-500: 229 72 77;
+  --brand-600: 190 45 52; --brand-700: 151 31 39;
+  --pool-1: rgb(229 72 77 / .13); --pool-2: transparent; --pool-3: transparent;
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / .04) inset, 0 8px 20px -20px rgb(0 0 0 / .65);
+  --shadow-raised: 0 1px 0 rgb(255 255 255 / .05) inset, 0 12px 24px -22px rgb(0 0 0 / .72);
+}
+[data-theme="daylight"][data-appearance="swiss"] {
+  --ink-950: 250 249 247; --ink-900: 255 255 255; --ink-850: 244 242 239; --ink-800: 235 232 228; --ink-700: 222 218 213;
+  --line: 219 214 208; --line-soft: 237 233 228; --line-strong: 178 170 160;
+  --text-1: 20 22 25; --text-2: 43 44 45; --text-3: 83 82 79; --text-4: 106 104 99;
+}
+[data-theme="midnight"][data-appearance="swiss"] {
+  --ink-950: 17 18 20; --ink-900: 25 26 28; --ink-850: 33 34 36; --ink-800: 43 44 46; --ink-700: 56 57 59;
+  --line: 62 63 65; --line-soft: 42 43 45; --line-strong: 99 99 100;
+  --text-1: 250 249 247; --text-2: 230 228 224; --text-3: 194 191 185; --text-4: 164 160 153;
+}
+[data-appearance="swiss"] .menu-card { border-radius: .65rem; backdrop-filter: none; }
+
+[data-appearance="holographic"] {
+  --radius-family: 1.08;
+  --brand-50: 246 236 255; --brand-100: 231 211 255; --brand-200: 210 178 255;
+  --brand-300: 185 143 255; --brand-400: 166 108 255; --brand-500: 139 75 225;
+  --brand-600: 111 55 191; --brand-700: 83 39 148;
+  --glass-teal: 66 224 213; --glass-cyan: 80 205 255; --glass-rose: 244 117 210;
+  --pool-1: rgb(166 108 255 / .22); --pool-2: rgb(80 205 255 / .15); --pool-3: rgb(244 117 210 / .13);
+  --shadow-glow: 0 0 0 1px rgb(166 108 255 / .28), 0 20px 52px -28px rgb(80 205 255 / .35);
+}
+[data-theme="daylight"][data-appearance="holographic"] {
+  --ink-950: 247 243 253; --ink-900: 255 255 255; --ink-850: 244 237 253; --ink-800: 235 225 250; --ink-700: 223 210 245;
+  --line: 221 205 244; --line-soft: 240 231 251; --line-strong: 186 153 225;
+  --text-1: 36 23 58; --text-2: 57 41 81; --text-3: 91 74 115; --text-4: 116 98 140;
+}
+[data-theme="midnight"][data-appearance="holographic"] {
+  --ink-950: 15 10 28; --ink-900: 25 17 43; --ink-850: 35 23 59; --ink-800: 46 29 74; --ink-700: 60 36 92;
+  --line: 78 51 115; --line-soft: 47 31 74; --line-strong: 127 80 175;
+  --text-1: 253 248 255; --text-2: 235 223 248; --text-3: 197 177 219; --text-4: 168 145 197;
+}
+[data-appearance="holographic"] .menu-card { border-image: linear-gradient(120deg, rgb(166 108 255 / .65), rgb(80 205 255 / .5), rgb(244 117 210 / .55)) 1; }
+
+[data-appearance="neumorphism"] {
+  --radius-family: 1.16;
+  --brand-50: 231 239 251; --brand-100: 211 224 244; --brand-200: 182 202 232;
+  --brand-300: 151 176 214; --brand-400: 129 149 180; --brand-500: 100 124 159;
+  --brand-600: 76 98 133; --brand-700: 56 74 103;
+  --pool-1: transparent; --pool-2: transparent; --pool-3: transparent;
+  --shadow-panel: 7px 7px 18px rgb(26 39 58 / .10), -7px -7px 18px rgb(255 255 255 / .72);
+  --shadow-raised: 9px 9px 22px rgb(26 39 58 / .13), -9px -9px 22px rgb(255 255 255 / .78);
+}
+[data-theme="daylight"][data-appearance="neumorphism"] {
+  --ink-950: 226 232 240; --ink-900: 226 232 240; --ink-850: 219 226 235; --ink-800: 210 219 231; --ink-700: 198 209 224;
+  --line: 211 220 232; --line-soft: 226 232 240; --line-strong: 190 202 218;
+  --text-1: 31 41 55; --text-2: 51 65 85; --text-3: 71 85 105; --text-4: 85 99 119;
+}
+[data-theme="midnight"][data-appearance="neumorphism"] {
+  --ink-950: 24 31 43; --ink-900: 27 35 48; --ink-850: 31 40 54; --ink-800: 22 29 40; --ink-700: 18 24 34;
+  --line: 38 49 66; --line-soft: 30 39 53; --line-strong: 52 66 87;
+  --text-1: 244 247 252; --text-2: 221 227 237; --text-3: 181 191 207; --text-4: 151 164 183;
+  --shadow-panel: 7px 7px 18px rgb(0 0 0 / .35), -7px -7px 18px rgb(255 255 255 / .035);
+  --shadow-raised: 9px 9px 22px rgb(0 0 0 / .42), -9px -9px 22px rgb(255 255 255 / .04);
+}
+[data-appearance="neumorphism"] .menu-card { backdrop-filter: none; border-color: transparent; }
+
+[data-appearance="clay"] {
+  --brand-400: 184 166 255; --brand-500: 154 129 235; --brand-600: 119 94 200;
+  --pool-1: rgb(184 166 255 / .15); --pool-2: rgb(255 191 214 / .10);
+}
+[data-theme="daylight"][data-appearance="clay"] {
+  --ink-950: 244 240 255; --ink-900: 247 242 255; --ink-850: 238 231 255; --ink-800: 229 219 250; --ink-700: 217 205 244;
+  --line: 223 214 245; --line-soft: 241 235 252; --line-strong: 195 177 235;
+  --text-1: 45 33 75; --text-2: 67 52 99; --text-3: 102 86 135; --text-4: 126 110 158;
+}
+[data-theme="midnight"][data-appearance="clay"] {
+  --ink-950: 30 24 48; --ink-900: 39 31 61; --ink-850: 48 38 73; --ink-800: 59 46 87; --ink-700: 72 55 103;
+  --line: 83 65 115; --line-soft: 54 42 80; --line-strong: 111 86 151;
+  --text-1: 255 250 255; --text-2: 239 229 250; --text-3: 204 187 225; --text-4: 178 157 203;
+}
+[data-appearance="clay"] .menu-card { backdrop-filter: none; }
+
+[data-appearance="liquid-glass"] {
+  --radius-family: 1.28;
+  --brand-50: 225 253 255; --brand-100: 193 248 253; --brand-200: 151 240 250;
+  --brand-300: 94 226 246; --brand-400: 26 197 226; --brand-500: 8 145 178;
+  --brand-600: 12 110 138; --brand-700: 18 88 110;
+  --pool-1: rgb(26 197 226 / .25); --pool-2: rgb(124 134 246 / .16); --pool-3: rgb(34 205 189 / .13);
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / .12) inset, 0 18px 42px -32px rgb(0 0 0 / .6);
+  --shadow-raised: 0 1px 0 rgb(255 255 255 / .20) inset, 0 28px 54px -36px rgb(0 0 0 / .7);
+}
+[data-theme="daylight"][data-appearance="liquid-glass"] {
+  --ink-950: 222 240 248; --ink-900: 246 252 255; --ink-850: 233 246 252; --ink-800: 222 240 248; --ink-700: 207 231 242;
+  --line: 194 222 233; --line-soft: 223 241 248; --line-strong: 153 204 220;
+  --text-1: 13 39 53; --text-2: 31 60 75; --text-3: 63 94 109; --text-4: 86 115 129;
+}
+[data-theme="midnight"][data-appearance="liquid-glass"] {
+  --ink-950: 6 19 32; --ink-900: 10 29 46; --ink-850: 15 40 60; --ink-800: 20 51 73; --ink-700: 27 65 88;
+  --line: 40 84 105; --line-soft: 24 57 78; --line-strong: 62 123 145;
+  --text-1: 244 252 255; --text-2: 218 239 247; --text-3: 172 205 219; --text-4: 140 181 198;
+}
+[data-appearance="liquid-glass"] .menu-card {
+  background: rgb(var(--ink-900) / .78);
+  border-color: rgb(255 255 255 / .28);
+  box-shadow: 0 1px 0 rgb(255 255 255 / .28) inset, 0 18px 46px -30px rgb(0 0 0 / .7);
+  backdrop-filter: blur(14px) saturate(1.12);
+}
+
+[data-appearance="glassmorphism"] {
+  --radius-family: 1.12;
+  --brand-50: 224 243 255; --brand-100: 196 229 251; --brand-200: 158 210 244;
+  --brand-300: 112 187 232; --brand-400: 72 169 232; --brand-500: 43 135 203;
+  --brand-600: 29 107 166; --brand-700: 25 82 128;
+  --pool-1: rgb(72 169 232 / .22); --pool-2: rgb(139 111 241 / .15); --pool-3: rgb(45 212 191 / .09);
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / .08) inset, 0 20px 44px -32px rgb(0 0 0 / .68);
+}
+[data-theme="daylight"][data-appearance="glassmorphism"] {
+  --ink-950: 231 241 250; --ink-900: 247 251 255; --ink-850: 235 245 252; --ink-800: 222 237 248; --ink-700: 207 228 242;
+  --line: 194 217 234; --line-soft: 222 238 248; --line-strong: 148 190 216;
+  --text-1: 15 41 64; --text-2: 34 62 84; --text-3: 66 95 117; --text-4: 89 117 138;
+}
+[data-theme="midnight"][data-appearance="glassmorphism"] {
+  --ink-950: 8 18 34; --ink-900: 15 30 50; --ink-850: 22 42 65; --ink-800: 30 55 81; --ink-700: 39 69 97;
+  --line: 42 75 106; --line-soft: 26 49 75; --line-strong: 65 109 145;
+  --text-1: 244 250 255; --text-2: 221 236 248; --text-3: 177 201 221; --text-4: 145 176 199;
+}
+[data-appearance="glassmorphism"] .menu-card {
+  background: rgb(var(--ink-900) / .88);
+  border-color: rgb(255 255 255 / .20);
+  backdrop-filter: blur(10px) saturate(1.08);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-appearance] *, [data-appearance] *::before, [data-appearance] *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
