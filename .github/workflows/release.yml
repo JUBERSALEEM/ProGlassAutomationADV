@@ -83,7 +83,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-          cache: true
 
       - name: Restore
         run: dotnet restore Tests/ProGlassAutomation.Tests.csproj --verbosity minimal
@@ -132,7 +131,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-          cache: true
 
       # One version, checked against the csproj before anything is built.
       - name: Resolve release version
