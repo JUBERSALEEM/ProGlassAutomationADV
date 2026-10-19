@@ -65,7 +65,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Single-file application publish failed." }
           $appExe = Join-Path $PWD "publish/app/ProGlassAutomation.exe"
           if (-not (Test-Path $appExe)) { throw "Expected single-file output was not created: $appExe" }
-          Write-Host "Single-file executable created: $appExe"
+          $unexpected = Get-ChildItem "publish/app" -File | Where-Object { $_.Name -ne "ProGlassAutomation.exe" }
+          if ($unexpected) {
+            $names = ($unexpected | ForEach-Object Name) -join ", "
+            throw "Publish output is not a single-EXE distribution; unexpected sidecar files: $names"
+          }
+          Write-Host "Verified single-file distribution: $appExe"
 
       - name: Build private License Generator (not a release/OTA asset)
         shell: pwsh
@@ -144,7 +149,7 @@ jobs:
       - name: Publish Velopack OTA packages to the tagged GitHub Release
         shell: pwsh
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           vpk publish github --repoUrl "https://github.com/${{ github.repository }}" --packDir releases --pre false --tag $env:RELEASE_TAG
@@ -162,3 +167,16 @@ jobs:
             SHA256SUMS.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate and apply full GitHub changelog
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $body = gh api --method POST "repos/$env:GITHUB_REPOSITORY/releases/generate-notes" -f tag_name="$env:RELEASE_TAG" --jq .body
+          if ($LASTEXITCODE -ne 0) { throw "GitHub could not generate release notes." }
+          $notesPath = Join-Path $env:RUNNER_TEMP "proglass-release-notes.md"
+          $body | Set-Content -Path $notesPath -Encoding utf8
+          gh release edit "$env:RELEASE_TAG" --notes-file $notesPath
+          if ($LASTEXITCODE -ne 0) { throw "Could not attach generated changelog to the GitHub Release." }
