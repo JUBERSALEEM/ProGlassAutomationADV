@@ -101,7 +101,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             get
             {
                 var raw = _config?.Appearance?.VisualTheme
-                    ?? ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial;
+                    ?? ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass;
                 return ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine
                     .PersistFamily(
                         ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine
