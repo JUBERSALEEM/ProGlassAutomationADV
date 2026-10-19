@@ -635,8 +635,19 @@ namespace ProGlassAutomation.Services.Theme
                                 _lastWallpaperOpacity);
                             break;
                         case CrystalFluid:
+                        case LiquidGlass:
+                        case Glassmorphism:
+                        case SpatialImmersive:
+                        case HolographicIridescent:
                             ApplyCrystalFluid(resources);
                             break;
+                        case Claymorphism:
+                            ApplyMonet(resources, _lastWallpaperPath,
+                                _lastWallpaperOpacity);
+                            break;
+                        case BentoGrid:
+                        case SwissInternational:
+                        case Neumorphism:
                         case NormalIndustrial:
                             ApplyIndustrial(resources);
                             break;
@@ -644,6 +655,8 @@ namespace ProGlassAutomation.Services.Theme
                             ApplyIos26(resources);
                             break;
                     }
+
+                    ApplyEightThemeMaterial(resources, Current);
 
                     // Cache the family's pre-wallpaper surfaces so a
                     // wallpaper-only change can restore them and skip the
