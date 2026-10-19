@@ -467,9 +467,11 @@ namespace ProGlassAutomation.Services.Theme
 
         private static string Normalize(string family)
         {
+            // Runtime identity is intentionally limited to the eight selectable
+            // families. Old saved profiles and imported theme packs are mapped
+            // to the nearest current material instead of reviving hidden themes.
             return family?.Trim() switch
             {
-                Monet => Monet,
                 BentoGrid => BentoGrid,
                 SpatialImmersive => SpatialImmersive,
                 SwissInternational => SwissInternational,
@@ -478,42 +480,18 @@ namespace ProGlassAutomation.Services.Theme
                 Claymorphism => Claymorphism,
                 LiquidGlass => LiquidGlass,
                 Glassmorphism => Glassmorphism,
-                // FAMILY FIX (2026-09-17 owner report: "Ios and iphone 17
-                // pro max theme is also broken"): these two lines folded BOTH
-                // iOS families into Industrial. Settings offers four families
-                // and the language files promise "Industrial, Monet, iOS 26 or
-                // iPhone 17 Pro Max — restyles the whole app instantly", but
-                // every Apply()/ApplyModule() runs its argument through this
-                // Normalize, so picking either one painted Industrial and the
-                // picker snapped back. Both painters are alive and complete
-                // (ApplyCrystalFluid, ApplyIos26) — they were simply
-                // unreachable. Identity strings are PERSISTED keys, so they
-                // must survive normalization verbatim.
-                CrystalFluid => CrystalFluid,
-                Ios26 => Ios26,
-                // 2026-09-13 INDUSTRIAL REFORM (owner: "strictness
-                // industrial pattern"): the strict industrial look is the
-                // app-wide default again. The cream SaaS "Normal" folds
-                // into it, and every legacy industrial name resolves back
-                // to Normal (Industrial) — the single global default.
-                Normal => NormalIndustrial,
-                NormalIndustrial => NormalIndustrial,
-                // Legacy transparent-glass names keep landing on Crystal
-                // Fluid (iPhone 17 Pro Max), never on a missing family.
-                "Ultra Transparent" => CrystalFluid,
-                "Transparent" => CrystalFluid,
-                "Clear" => CrystalFluid,
-                "Crystal" => CrystalFluid,
-                "Crystal Sea" => CrystalFluid,
-                "Professional" => NormalIndustrial,
-                "Industrial" => NormalIndustrial,
-                "Industrial White" => NormalIndustrial,
-                "Industrial Grey" => NormalIndustrial,
-                "Industrial Dark" => NormalIndustrial,
-                // Every other removed family (iOS Liquid Glass, Ocean) and
-                // any unknown saved value resets to Normal (Industrial) —
-                // the strict industrial default.
-                _ => NormalIndustrial
+
+                // Compatibility mappings for configurations/theme packs created
+                // before the eight-family contract.
+                Monet => Claymorphism,
+                CrystalFluid or Ios26 => LiquidGlass,
+                Normal or NormalIndustrial => BentoGrid,
+                "Ultra Transparent" or "Transparent" or "Clear" or
+                "Crystal" or "Crystal Sea" or "Crystal Fluid" or
+                "Ios-17pm" or "iOS 26" or "iPhone 17 Pro Max" => LiquidGlass,
+                "Professional" or "Industrial" or "Industrial White" or
+                "Industrial Grey" or "Industrial Dark" => BentoGrid,
+                _ => LiquidGlass
             };
         }
 
