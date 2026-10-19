@@ -252,7 +252,7 @@ namespace ProGlassAutomation.Services.Theme
             string? moduleKey, AI.AIConfig.AppearanceSettings? appearance)
         {
             string mod = moduleKey ?? "";
-            string family = Normalize(appearance?.VisualTheme ?? Normal);
+            string family = Normalize(appearance?.VisualTheme ?? LiquidGlass);
             string wall = appearance?.WallpaperPath ?? "";
             double op = ClampOpacity(appearance?.WallpaperOpacity ?? 0.85);
 
@@ -296,7 +296,7 @@ namespace ProGlassAutomation.Services.Theme
         private static string BuildFamilySignature(
             AI.AIConfig.AppearanceSettings? appearance)
         {
-            string family = Normalize(appearance?.VisualTheme ?? Normal);
+            string family = Normalize(appearance?.VisualTheme ?? LiquidGlass);
             // The SYSTEM wallpaper is a family input: Monet derives its
             // window stage directly from it (ApplyMonet), so a changed
             // system wallpaper must force a real family rebuild. The
