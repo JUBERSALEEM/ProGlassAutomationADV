@@ -21,6 +21,7 @@ const summaries: Record<AppearanceFamily, { number: string; material: string; mo
   clay: { number: "06", material: "Sculpted solid surfaces", motion: "Soft spring, no blur" },
   "liquid-glass": { number: "07", material: "Luminous liquid panes", motion: "Restrained fluid movement" },
   glassmorphism: { number: "08", material: "Frosted layered panes", motion: "Short, smooth reveals" },
+  crystal: { number: "07", material: "Legacy glass alias", motion: "Compatibility only" },
 };
 
 export function ThemeCenter() {
