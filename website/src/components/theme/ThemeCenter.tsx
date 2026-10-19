@@ -1,14 +1,15 @@
 "use client";
 
-import { setFamily, useAppearance } from "@/lib/useTheme";
-import { setThemeMode, useThemeMode } from "@/lib/useTheme";
+import { useAppearance, useResolvedTheme, useThemeMode, setThemeMode } from "@/lib/useTheme";
+import { setFamily } from "@/lib/useStudio";
 import { appearanceFamilies, type AppearanceFamily, type ThemeMode } from "@/data/themes";
 import { useT } from "@/i18n/provider";
 import { cn } from "@/lib/cn";
 
-const modes: { id: Exclude<ThemeMode, "system">; label: string; detail: string }[] = [
+const modes: { id: ThemeMode; label: string; detail: string }[] = [
   { id: "light", label: "Light", detail: "Bright, low-glare surfaces" },
   { id: "dark", label: "Dark", detail: "Deep, controlled contrast" },
+  { id: "system", label: "System", detail: "Follow device preference" },
 ];
 
 const summaries: Record<AppearanceFamily, { number: string; material: string; motion: string }> = {
@@ -26,6 +27,7 @@ export function ThemeCenter() {
   const t = useT();
   const activeFamily = useAppearance();
   const mode = useThemeMode();
+  const resolved = useResolvedTheme();
 
   return (
     <div className="theme-center">
@@ -67,7 +69,7 @@ export function ThemeCenter() {
               >
                 <div
                   className="theme-center-mini"
-                  data-theme={mode === "dark" ? "midnight" : "daylight"}
+                  data-theme={resolved}
                   data-appearance={entry.id}
                   aria-hidden="true"
                 >
