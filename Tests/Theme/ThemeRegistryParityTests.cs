@@ -164,6 +164,22 @@ namespace ProGlassAutomation.Tests.Theme
                 Assert.Contains(key, coverage);
         }
 
+        [Theory]
+        [InlineData(VisualThemeEngine.BentoGrid)]
+        [InlineData(VisualThemeEngine.SpatialImmersive)]
+        [InlineData(VisualThemeEngine.SwissInternational)]
+        [InlineData(VisualThemeEngine.HolographicIridescent)]
+        [InlineData(VisualThemeEngine.Neumorphism)]
+        [InlineData(VisualThemeEngine.Claymorphism)]
+        [InlineData(VisualThemeEngine.LiquidGlass)]
+        [InlineData(VisualThemeEngine.Glassmorphism)]
+        public void Eight_theme_family_identity_round_trips(string family)
+        {
+            var parsed = ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine.ParseFamily(family);
+            Assert.Equal(family,
+                ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine.PersistFamily(parsed));
+        }
+
         // ── F-06: mode coupling lives in the engine ─────────────────────
 
         [Theory]
