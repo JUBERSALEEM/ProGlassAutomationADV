@@ -375,7 +375,6 @@ namespace ProGlassAutomation.Tests.Settings
         /// Stretch so they always fill the full content width. This locks the
         /// container choice + the tile restyle so the gap cannot return.
         /// </summary>
-        [Fact]
         /// <summary>
         /// The owner repeatedly reported "ugly empty space" across every Settings
         /// section. Root cause: tiles lived in a WrapPanel with a hard MaxWidth
@@ -685,7 +684,6 @@ namespace ProGlassAutomation.Tests.Settings
         /// Lock the shape so a future edit cannot silently bring back the tall
         /// stack or split the global card back into two tiles.
         /// </summary>
-        [Fact]
         /// <summary>
         /// The WALLPAPERS group was redesigned (Aug 2026) so it stops wasting
         /// vertical space:

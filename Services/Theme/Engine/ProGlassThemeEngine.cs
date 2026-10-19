@@ -12,7 +12,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
     /// </summary>
     public static class ProGlassThemeEngine
     {
-        public static ProGlassThemeFamily Family { get; private set; } = ProGlassThemeFamily.Industrial;
+        public static ProGlassThemeFamily Family { get; private set; } = ProGlassThemeFamily.LiquidGlass;
         public static ProGlassThemeMode Mode { get; private set; } = ProGlassThemeMode.Light;
         public static ProGlassMaterial Material { get; private set; } = ProGlassMaterial.Frosted;
         public static ProGlassDensity Density { get; private set; } = ProGlassDensity.Compact;
@@ -21,19 +21,41 @@ namespace ProGlassAutomation.Services.Theme.Engine
         {
             return persisted?.Trim() switch
             {
-                VisualThemeEngine.Monet or "Monet" => ProGlassThemeFamily.Monet,
-                VisualThemeEngine.CrystalFluid or "Ios-17pm" => ProGlassThemeFamily.Crystal,
-                VisualThemeEngine.Ios26 or "iOS 26" => ProGlassThemeFamily.Ios26,
-                _ => ProGlassThemeFamily.Industrial
+                VisualThemeEngine.BentoGrid => ProGlassThemeFamily.BentoGrid,
+                VisualThemeEngine.SpatialImmersive => ProGlassThemeFamily.SpatialImmersive,
+                VisualThemeEngine.SwissInternational => ProGlassThemeFamily.SwissInternational,
+                VisualThemeEngine.HolographicIridescent => ProGlassThemeFamily.HolographicIridescent,
+                VisualThemeEngine.Neumorphism => ProGlassThemeFamily.Neumorphism,
+                VisualThemeEngine.Claymorphism => ProGlassThemeFamily.Claymorphism,
+                VisualThemeEngine.LiquidGlass => ProGlassThemeFamily.LiquidGlass,
+                VisualThemeEngine.Glassmorphism => ProGlassThemeFamily.Glassmorphism,
+
+                // Migrate old persisted identities and imported theme packs.
+                VisualThemeEngine.Monet => ProGlassThemeFamily.Claymorphism,
+                VisualThemeEngine.CrystalFluid or VisualThemeEngine.Ios26 or
+                "Crystal" or "Ios-17pm" or "iPhone 17 Pro Max" or
+                "Ultra Transparent" or "Transparent" or "Clear"
+                    => ProGlassThemeFamily.LiquidGlass,
+                VisualThemeEngine.Normal or VisualThemeEngine.NormalIndustrial or
+                "Industrial" or "Industrial White" or "Industrial Grey" or
+                "Industrial Dark" or "Professional" => ProGlassThemeFamily.BentoGrid,
+                _ => ProGlassThemeFamily.LiquidGlass
             };
         }
 
         public static string PersistFamily(ProGlassThemeFamily family) => family switch
         {
-            ProGlassThemeFamily.Monet => VisualThemeEngine.Monet,
-            ProGlassThemeFamily.Crystal => VisualThemeEngine.CrystalFluid,
-            ProGlassThemeFamily.Ios26 => VisualThemeEngine.Ios26,
-            _ => VisualThemeEngine.NormalIndustrial
+            ProGlassThemeFamily.BentoGrid => VisualThemeEngine.BentoGrid,
+            ProGlassThemeFamily.SpatialImmersive => VisualThemeEngine.SpatialImmersive,
+            ProGlassThemeFamily.SwissInternational => VisualThemeEngine.SwissInternational,
+            ProGlassThemeFamily.HolographicIridescent => VisualThemeEngine.HolographicIridescent,
+            ProGlassThemeFamily.Neumorphism => VisualThemeEngine.Neumorphism,
+            ProGlassThemeFamily.Claymorphism => VisualThemeEngine.Claymorphism,
+            ProGlassThemeFamily.LiquidGlass => VisualThemeEngine.LiquidGlass,
+            ProGlassThemeFamily.Glassmorphism => VisualThemeEngine.Glassmorphism,
+            ProGlassThemeFamily.Monet => VisualThemeEngine.Claymorphism,
+            ProGlassThemeFamily.Crystal or ProGlassThemeFamily.Ios26 => VisualThemeEngine.LiquidGlass,
+            _ => VisualThemeEngine.BentoGrid
         };
 
         /// <summary>
@@ -108,11 +130,10 @@ namespace ProGlassAutomation.Services.Theme.Engine
                 else
                     resources["MotionSpeedRatio"] = 1.0;
 
-                // Last write after VisualThemeEngine: keep Crystal water
-                // ON only for iPhone 17 Pro Max. A blanket FALSE here used
-                // to erase ApplyCrystalFluid's gate, so Crystal and iOS 26
-                // both rendered as still glass.
-                bool crystal = Family == ProGlassThemeFamily.Crystal;
+                // The animated water stage is part of Liquid Glass only.
+                // Glassmorphism, Spatial, and Holographic may use translucent
+                // material tokens but must not inherit the legacy water scene.
+                bool crystal = Family == ProGlassThemeFamily.LiquidGlass;
                 resources["CrystalWaterDefaultEnabled"] = crystal;
                 resources["CrystalAmbientHostVisibility"] = crystal
                     ? Visibility.Visible : Visibility.Collapsed;

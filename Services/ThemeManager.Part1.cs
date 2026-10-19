@@ -367,17 +367,51 @@ namespace ProGlassAutomation.Services
                 ColorMath.Lighten(core, 0.12));
             FreezeAndSet(resources, "OverlayButtonBackgroundBrush", core);
 
-            // ── Liquid Glass active gradient — accent-tinted ─────────
-            // The reference's blue liquid (#28BEFF / #82E1FF / #2FAFF5)
-            // is mixed toward the user's accent at 45%, so primary
-            // buttons, switches and selections stay the "blue liquid"
-            // identity while belonging to the chosen colour.
-            Color activeTop = ColorMath.Mix(
-                Color.FromArgb(0xB7, 0x28, 0xBE, 0xFF), core, 0.45);
-            Color activeMid = ColorMath.Mix(
-                Color.FromArgb(0x66, 0x82, 0xE1, 0xFF), core, 0.45);
-            Color activeBot = ColorMath.Mix(
-                Color.FromArgb(0xA6, 0x32, 0xAF, 0xF5), core, 0.45);
+            // Active control treatment follows the selected material family:
+            // only glass-like themes use the luminous liquid ramp; solid/editorial
+            // families keep crisp fills so all eight identities remain distinct.
+            Color activeTop;
+            Color activeMid;
+            Color activeBot;
+            switch (VisualThemeEngine.Current)
+            {
+                case VisualThemeEngine.LiquidGlass:
+                case VisualThemeEngine.Glassmorphism:
+                    activeTop = ColorMath.Mix(Color.FromArgb(0xB7, 0x28, 0xBE, 0xFF), core, 0.45);
+                    activeMid = ColorMath.Mix(Color.FromArgb(0x66, 0x82, 0xE1, 0xFF), core, 0.45);
+                    activeBot = ColorMath.Mix(Color.FromArgb(0xA6, 0x32, 0xAF, 0xF5), core, 0.45);
+                    break;
+                case VisualThemeEngine.HolographicIridescent:
+                    activeTop = ColorMath.Mix(Color.FromRgb(166, 108, 255), core, 0.40);
+                    activeMid = ColorMath.Mix(Color.FromRgb(80, 205, 255), core, 0.30);
+                    activeBot = ColorMath.Mix(Color.FromRgb(244, 117, 210), core, 0.40);
+                    break;
+                case VisualThemeEngine.SpatialImmersive:
+                    activeTop = ColorMath.Lighten(core, 0.16);
+                    activeMid = ColorMath.Mix(core, Color.FromRgb(53, 184, 201), 0.22);
+                    activeBot = ColorMath.Mix(core, Color.FromRgb(0, 0, 0), 0.10);
+                    break;
+                case VisualThemeEngine.SwissInternational:
+                    activeTop = core;
+                    activeMid = core;
+                    activeBot = core;
+                    break;
+                case VisualThemeEngine.Neumorphism:
+                    activeTop = ColorMath.Lighten(core, 0.10);
+                    activeMid = core;
+                    activeBot = ColorMath.Mix(core, Color.FromRgb(0, 0, 0), 0.04);
+                    break;
+                case VisualThemeEngine.Claymorphism:
+                    activeTop = ColorMath.Lighten(core, 0.12);
+                    activeMid = core;
+                    activeBot = ColorMath.Mix(core, Color.FromRgb(0, 0, 0), 0.06);
+                    break;
+                default:
+                    activeTop = ColorMath.Lighten(core, 0.08);
+                    activeMid = core;
+                    activeBot = ColorMath.Mix(core, Color.FromRgb(0, 0, 0), 0.08);
+                    break;
+            }
             var activeGlass = new LinearGradientBrush
             {
                 StartPoint = new Point(0, 0),
@@ -400,13 +434,15 @@ namespace ProGlassAutomation.Services
                 dark ? Color.FromRgb(0x1E, 0x29, 0x3B)
                      : Color.FromRgb(0xFF, 0xFF, 0xFF));
 
-            // The Crystal Fluid (Ios-17pm) family OWNS the tint brushes
-            // (it renders them as see-through hue frost). ApplyAccent runs
-            // AFTER the engine on every family switch (settings path),
-            // so without this guard it would repaint the Blue/Indigo
-            // chips opaque on top of the frost — the same class of bug
-            // as the dashboard-surface guard below.
-            if (VisualThemeEngine.Current != VisualThemeEngine.CrystalFluid)
+            // Glass-like families own their tint brushes (Liquid Glass and
+            // Glassmorphism use frost; Spatial and Holographic use atmospheric
+            // tints). ApplyAccent runs after the family engine, so repainting
+            // those brushes as opaque accent chips would erase the material.
+            if (VisualThemeEngine.Current != VisualThemeEngine.CrystalFluid &&
+                VisualThemeEngine.Current != VisualThemeEngine.LiquidGlass &&
+                VisualThemeEngine.Current != VisualThemeEngine.Glassmorphism &&
+                VisualThemeEngine.Current != VisualThemeEngine.SpatialImmersive &&
+                VisualThemeEngine.Current != VisualThemeEngine.HolographicIridescent)
             {
                 if (normalFamily)
                 {

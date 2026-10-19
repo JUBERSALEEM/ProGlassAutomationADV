@@ -250,12 +250,16 @@
                                                 <Run Text="{Binding ReleasePublishedDisplay, Mode=OneWay}"/>
                                             </TextBlock>
                                         </StackPanel>
-                                        <TextBlock Text="{Binding ReleaseNotesPreview}"
-                                                   FontSize="{DynamicResource FontSize.Body}"
-                                                   Margin="{StaticResource SettingsStackGap8}"
-                                                   TextWrapping="Wrap"
-                                                   MaxHeight="90"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                        <ScrollViewer MaxHeight="240"
+                                                      Margin="{StaticResource SettingsStackGap8}"
+                                                      VerticalScrollBarVisibility="Auto"
+                                                      HorizontalScrollBarVisibility="Disabled"
+                                                      Focusable="False">
+                                            <TextBlock Text="{Binding ReleaseNotesPreview}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
+                                                       TextWrapping="Wrap"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                        </ScrollViewer>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>

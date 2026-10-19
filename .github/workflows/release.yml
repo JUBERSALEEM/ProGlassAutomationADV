@@ -1,0 +1,255 @@
+name: ProGlass Windows Release
+
+on:
+  push:
+    # Tags are the normal release trigger. A version-named release branch is
+    # also supported so a Windows build can be initiated when tag creation is
+    # unavailable to the connected GitHub integration. The version check below
+    # still requires this ref name to match ProGlassAutomation.csproj.
+    branches:
+      - "v*.*.*"
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: proglass-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-test:
+    name: Build and test application
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout tagged source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Verify release tag matches app version
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          [xml]$project = Get-Content "ProGlassAutomation.csproj"
+          $version = [string]$project.Project.PropertyGroup.Version
+          $tagVersion = $env:RELEASE_TAG.TrimStart('v', 'V')
+          if ([string]::IsNullOrWhiteSpace($version)) { throw "ProGlassAutomation.csproj has no Version." }
+          if ($version -ne $tagVersion) {
+            throw "Release tag $($env:RELEASE_TAG) does not match ProGlassAutomation.csproj Version $version."
+          }
+          Write-Host "Release version validated: $version"
+
+      - name: Verify public OTA release token is configured
+        shell: pwsh
+        env:
+          OTA_RELEASE_TOKEN: ${{ secrets.OTA_RELEASE_TOKEN }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:OTA_RELEASE_TOKEN)) {
+            throw "Configure OTA_RELEASE_TOKEN in the private source repository. It must have Contents: Read and write access to JUBERSALEEM/ProGlassAutomationssss."
+          }
+
+      - name: Restore application
+        run: dotnet restore ProGlassAutomation.csproj
+
+      - name: Restore regression tests
+        run: dotnet restore Tests/ProGlassAutomation.Tests.csproj
+
+      - name: Build application
+        run: dotnet build ProGlassAutomation.csproj --configuration Release --no-restore
+
+      - name: Run regression tests
+        run: dotnet test Tests/ProGlassAutomation.Tests.csproj --configuration Release --no-restore
+
+      - name: Publish self-contained single-file app (win-x64)
+        shell: pwsh
+        run: |
+          dotnet publish ProGlassAutomation.csproj --configuration Release --runtime win-x64 --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeAllContentForSelfExtract=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -p:DebugType=None `
+            -p:DebugSymbols=false `
+            --output publish/app
+          if ($LASTEXITCODE -ne 0) { throw "Single-file application publish failed." }
+          $appExe = Join-Path $PWD "publish/app/ProGlassAutomation.exe"
+          if (-not (Test-Path $appExe)) { throw "Expected single-file output was not created: $appExe" }
+          $unexpected = Get-ChildItem "publish/app" -File | Where-Object { $_.Name -ne "ProGlassAutomation.exe" }
+          if ($unexpected) {
+            $names = ($unexpected | ForEach-Object Name) -join ", "
+            throw "Publish output is not a single-EXE distribution; unexpected sidecar files: $names"
+          }
+          Write-Host "Verified single-file distribution: $appExe"
+
+      - name: Build private License Generator (not a release/OTA asset)
+        shell: pwsh
+        run: |
+          dotnet restore Tools/LicenseGenerator/ProGlassAutomation.LicenseGenerator.csproj
+          if ($LASTEXITCODE -ne 0) { throw "License Generator restore failed." }
+          dotnet publish Tools/LicenseGenerator/ProGlassAutomation.LicenseGenerator.csproj --configuration Release --runtime win-x64 --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeAllContentForSelfExtract=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -p:DebugType=None `
+            -p:DebugSymbols=false `
+            --output publish/license-generator
+          if ($LASTEXITCODE -ne 0) { throw "License Generator publish failed." }
+          if (-not (Test-Path "publish/license-generator/ProGlassAutomation.LicenseGenerator.exe")) {
+            throw "Expected License Generator executable was not created."
+          }
+
+      - name: Keep License Generator in private Actions artifact only
+        uses: actions/upload-artifact@v4
+        with:
+          name: private-license-generator-${{ github.ref_name }}
+          path: publish/license-generator/ProGlassAutomation.LicenseGenerator.exe
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Require trusted Authenticode signing credentials
+        shell: pwsh
+        env:
+          PFX_CERT: ${{ secrets.CODESIGN_PFX_BASE64 }}
+          PFX_PASSWORD: ${{ secrets.CODESIGN_PFX_PASSWORD }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:PFX_CERT) -or [string]::IsNullOrWhiteSpace($env:PFX_PASSWORD)) {
+            throw "Release blocked: configure CODESIGN_PFX_BASE64 and CODESIGN_PFX_PASSWORD in private repository Actions secrets. OTA refuses unsigned executables."
+          }
+          $pfx = Join-Path $env:RUNNER_TEMP "proglass-codesign.pfx"
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:PFX_CERT))
+          $exe = Join-Path $PWD "publish/app/ProGlassAutomation.exe"
+          $signtool = Get-ChildItem "$env:ProgramFiles(x86)\\Windows Kits\\10\\bin" -Recurse -Filter signtool.exe | Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
+          if (-not $signtool) { throw "Windows SDK signtool.exe was not found on the runner." }
+          & $signtool sign /f $pfx /p $env:PFX_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 $exe
+          if ($LASTEXITCODE -ne 0) { throw "Authenticode signing failed." }
+          Remove-Item -Force $pfx
+          $signature = Get-AuthenticodeSignature $exe
+          if ($signature.Status -ne "Valid") { throw "The application signature did not validate: $($signature.Status)." }
+          Write-Host "Application EXE has a valid Authenticode signature."
+
+      - name: Prepare versioned single-EXE release asset and checksum
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $asset = "ProGlassAutomation-$($env:RELEASE_TAG)-win-x64.exe"
+          Copy-Item "publish/app/ProGlassAutomation.exe" $asset -Force
+          $hash = (Get-FileHash $asset -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $asset" | Set-Content "SHA256SUMS.txt" -Encoding ascii
+          "APP_ASSET=$asset" | Out-File -FilePath $env:GITHUB_ENV -Append
+          if ((Get-Item $asset).Length -lt 1MB) { throw "Published app EXE is unexpectedly small." }
+
+      - name: Install Velopack CLI
+        shell: pwsh
+        run: |
+          dotnet tool install --global vpk --version 1.2.0
+          if ($LASTEXITCODE -ne 0) { throw "Could not install Velopack CLI." }
+
+      - name: Build Velopack packages for installed-client OTA
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $version = $env:RELEASE_TAG.TrimStart('v', 'V')
+          vpk pack --packId ProGlassAutomation --packVersion $version --packDir publish/app --packTitle "ProGlass Automation" --packAuthors "Juber Saleem" --outputDir releases
+          if ($LASTEXITCODE -ne 0) { throw "Velopack package creation failed." }
+
+      - name: Sign Velopack Setup.exe before it is published
+        shell: pwsh
+        env:
+          PFX_CERT: ${{ secrets.CODESIGN_PFX_BASE64 }}
+          PFX_PASSWORD: ${{ secrets.CODESIGN_PFX_PASSWORD }}
+        run: |
+          $pfx = Join-Path $env:RUNNER_TEMP "proglass-codesign-setup.pfx"
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:PFX_CERT))
+          $setup = Get-ChildItem "releases" -Filter "Setup.exe" -File | Select-Object -First 1
+          if (-not $setup) { throw "Velopack Setup.exe was not produced." }
+          $signtool = Get-ChildItem "$env:ProgramFiles(x86)\\Windows Kits\\10\\bin" -Recurse -Filter signtool.exe | Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
+          if (-not $signtool) { throw "Windows SDK signtool.exe was not found." }
+          & $signtool sign /f $pfx /p $env:PFX_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 $setup.FullName
+          if ($LASTEXITCODE -ne 0) { throw "Authenticode signing of Setup.exe failed." }
+          $signature = Get-AuthenticodeSignature $setup.FullName
+          if ($signature.Status -ne "Valid") { throw "Setup.exe signature did not validate: $($signature.Status)." }
+          Copy-Item $setup.FullName "ProGlassAutomation-Setup.exe" -Force
+          Remove-Item -Force $pfx
+
+      - name: Generate changelog from the private source commit range
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $previous = ""
+          try {
+            $previous = (git describe --tags --abbrev=0 "$($env:RELEASE_TAG)^" 2>$null).Trim()
+          } catch {
+            $previous = ""
+          }
+          if ($previous) {
+            $changes = git log --no-merges --pretty=format:"- %s (%h)" "$previous..$env:RELEASE_TAG"
+          } else {
+            $changes = git log -n 30 --no-merges --pretty=format:"- %s (%h)" $env:RELEASE_TAG
+          }
+          if ([string]::IsNullOrWhiteSpace(($changes -join ""))) {
+            $changes = @("- Release packaging and maintenance updates.")
+          }
+          $asset = "ProGlassAutomation-$($env:RELEASE_TAG)-win-x64.exe"
+          $notes = @(
+            "# ProGlass Automation $($env:RELEASE_TAG)",
+            "",
+            "## What's included",
+            "",
+            ($changes -join "`n"),
+            "",
+            "## Release files",
+            "",
+            "- $asset — self-contained single-file Windows x64 application.",
+            "- `ProGlassAutomation-Setup.exe` — signed installer for managed installations.",
+            "- `SHA256SUMS.txt` — SHA-256 integrity checksum.",
+            "",
+            "The License Generator is intentionally excluded from public release assets and OTA."
+          )
+          $notes | Set-Content -Path "CHANGELOG-RELEASE.md" -Encoding utf8
+
+      - name: Publish Velopack OTA packages to the public release repository
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.OTA_RELEASE_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          vpk upload github --repoUrl "https://github.com/JUBERSALEEM/ProGlassAutomationssss" --token $env:GITHUB_TOKEN --outputDir releases --publish --tag $env:RELEASE_TAG --releaseName "ProGlass Automation $env:RELEASE_TAG"
+          if ($LASTEXITCODE -ne 0) { throw "Velopack release publishing failed." }
+
+      - name: Publish single EXE, installer, checksum and changelog
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: JUBERSALEEM/ProGlassAutomationssss
+          token: ${{ secrets.OTA_RELEASE_TOKEN }}
+          tag_name: ${{ github.ref_name }}
+          name: ProGlass Automation ${{ github.ref_name }}
+          body_path: CHANGELOG-RELEASE.md
+          generate_release_notes: false
+          fail_on_unmatched_files: true
+          files: |
+            ${{ env.APP_ASSET }}
+            ProGlassAutomation-Setup.exe
+            SHA256SUMS.txt
+
+      - name: Ensure public release changelog is attached
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.OTA_RELEASE_TOKEN }}
+          OTA_RELEASE_REPOSITORY: JUBERSALEEM/ProGlassAutomationssss
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          gh release edit "$env:RELEASE_TAG" --repo $env:OTA_RELEASE_REPOSITORY --notes-file CHANGELOG-RELEASE.md
+          if ($LASTEXITCODE -ne 0) { throw "Could not attach the source-commit changelog to the public GitHub Release." }

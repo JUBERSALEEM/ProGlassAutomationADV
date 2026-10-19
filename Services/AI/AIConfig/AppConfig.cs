@@ -54,18 +54,12 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public string UiExperience { get; set; } = "Professional";
 
         /// <summary>
-        /// "Normal (Industrial)" (displayed "Industrial") | "Monet" |
-        /// "Crystal Fluid" (displayed "iPhone 17 Pro Max") | "iOS 26" —
-        /// see VisualThemeEngine for what each does. 2026-09-13
-        /// industrial reform (owner ask: "strictness industrial
-        /// pattern"): the four selectable families are Industrial (the
-        /// strict default), Monet, iPhone 17 Pro Max and iOS 26. The
-        /// cream SaaS "Normal" value and every unknown legacy value
-        /// migrate to Normal (Industrial) via the engine's Normalize
-        /// mapping.
-        /// Default: Normal (Industrial).
+        /// Persisted identity for one of the eight selectable theme families.
+        /// ConfigService migrates legacy Normal/Industrial, Monet, Crystal Fluid,
+        /// and iOS 26 values before the visual theme pipeline is built.
+        /// Default: Liquid Glass.
         /// </summary>
-        public string VisualTheme { get; set; } = "Normal (Industrial)";
+        public string VisualTheme { get; set; } = "Liquid Glass";
 
         /// <summary>
         /// One-time migration marker (2026-09-13): set the first time a
@@ -75,6 +69,9 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// re-picks a family.
         /// </summary>
         public bool VisualThemeMigrated { get; set; }
+
+        /// <summary>One-time migration to the eight selectable theme families.</summary>
+        public bool EightThemeMigrationApplied { get; set; }
 
         /// <summary>
         /// Global font colour override (Settings → Appearance → Font

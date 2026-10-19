@@ -150,6 +150,47 @@ namespace ProGlassAutomation.Tests.Theme
         }
 
         [Fact]
+        public void Eight_theme_engine_publishes_border_thickness_tokens_as_Thickness()
+        {
+            // ERR-AA72E9 (2026-10-19): theme application wrote boxed Doubles to
+            // CardBorderThickness/CardEdgeThickness. The crash surfaced later,
+            // during WPF layout, when Border.BorderThickness unboxed the value.
+            // The XAML-only scan above cannot catch programmatic ResourceDictionary
+            // writes, so pin those writes separately.
+            var enginePath = Path.Combine(
+                Root(), "Services", "Theme", "VisualThemeEngine.EightThemes.cs");
+            Assert.True(File.Exists(enginePath),
+                $"Eight-theme engine source was not found: {enginePath}");
+
+            var assignments = new List<string>();
+            var assignmentPattern = new Regex(
+                @"resources\[""(CardBorderThickness|CardEdgeThickness)""\]\s*=\s*(.*);",
+                RegexOptions.Compiled);
+
+            var line = 0;
+            foreach (var raw in File.ReadLines(enginePath))
+            {
+                line++;
+                var match = assignmentPattern.Match(raw);
+                if (!match.Success) continue;
+
+                var key = match.Groups[1].Value;
+                var value = match.Groups[2].Value;
+                assignments.Add($"{line}: {key} = {value}");
+
+                Assert.Contains(
+                    "new Thickness(",
+                    value,
+                    StringComparison.Ordinal);
+            }
+
+            Assert.Equal(2, assignments.Count);
+            Assert.DoesNotContain(assignments, assignment =>
+                assignment.Contains("CardBorderThickness = ", StringComparison.Ordinal)
+                && assignment.Contains(" ? 1.5", StringComparison.Ordinal));
+        }
+
+        [Fact]
         public void The_retired_dashboard_gutter_half_token_stays_retired()
         {
             // ERR-F4C120 (2026-09-09) was caused by DbGutterHalf, a sys:Double

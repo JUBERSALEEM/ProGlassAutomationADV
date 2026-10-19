@@ -1363,11 +1363,14 @@ function AppearanceDeck() {
   const t = useT();
   const activeFamily = useAppearance();
   const families = [
-    { id: "clay", label: t("Clay") },
-    { id: "crystal", label: t("Crystal") },
-    { id: "studio", label: t("Studio") },
-    { id: "monet", label: t("Monet") },
-    { id: "industrial", label: t("Industrial") },
+    { id: "bento", label: t("Bento Grid") },
+    { id: "spatial", label: t("Spatial / Immersive") },
+    { id: "swiss", label: t("Swiss International") },
+    { id: "holographic", label: t("Holographic / Iridescent") },
+    { id: "neumorphism", label: t("Neumorphism") },
+    { id: "clay", label: t("Claymorphism") },
+    { id: "liquid-glass", label: t("Liquid Glass") },
+    { id: "glassmorphism", label: t("Glassmorphism") },
   ] as const;
 
   return (
@@ -1393,7 +1396,7 @@ function FamilyButton({
   label,
   active,
 }: {
-  id: "clay" | "crystal" | "studio" | "monet" | "industrial";
+  id: "bento" | "spatial" | "swiss" | "holographic" | "neumorphism" | "clay" | "liquid-glass" | "glassmorphism" | "crystal";
   label: string;
   active: boolean;
 }) {

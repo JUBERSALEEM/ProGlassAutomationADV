@@ -89,6 +89,7 @@ export const nav = {
   ],
   primary: [
     { label: "Features", href: "/features" },
+    { label: "Theme Center", href: "/themes" },
     { label: "Optimization", href: "/optimization" },
     { label: "How It Works", href: "/how-it-works" },
     { label: "Worked Example", href: "/worked-example" },
@@ -113,6 +114,7 @@ export const nav = {
       { label: "Deliveries", href: "/deliveries" },
     ],
     company: [
+      { label: "Theme Center", href: "/themes" },
       { label: "About ProGlass", href: "/about" },
       { label: "Developer", href: "/developer" },
       { label: "Collaborate", href: "/collaborate" },

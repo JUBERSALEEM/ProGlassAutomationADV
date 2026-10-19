@@ -71,8 +71,8 @@
                         </Border>
 
                         <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                            <TextBlock Text="Themes &amp; Surface Tuning" Style="{StaticResource SettingsHeroTitleStyle}"/>
-                            <TextBlock Text="Bounded material precision tuning, porcelain contrast, and real-time fluid refraction" Style="{StaticResource SettingsHeroNoteStyle}"/>
+                            <TextBlock Text="Theme Center — Eight Visual Systems" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="Eight coordinated themes, each available in Light and Dark, with live material previews" Style="{StaticResource SettingsHeroNoteStyle}"/>
                         </StackPanel>
 
                         <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
@@ -86,7 +86,7 @@
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Settings.LblThemeFamily}"
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource Settings.NormalMonetIos17pm}"
+                        <TextBlock Text="Eight theme families — each available in Light and Dark."
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
                         <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
                             <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
@@ -95,13 +95,16 @@
                                     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
                                                Text="{DynamicResource Settings.LblThemeFamily}"/>
                                 </StackPanel>
-                                <ComboBox AutomationProperties.AutomationId="Settings.VisualTheme"
-                                          ItemsSource="{Binding VisualThemeOptions}"
-                                          DisplayMemberPath="Display"
-                                          SelectedValuePath="Key"
-                                          SelectedValue="{Binding SelectedVisualTheme, Mode=TwoWay}"
-                                          HorizontalAlignment="Stretch"
-                                          Padding="10,7" FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                                <TextBlock Text="Eight complete visual systems"
+                                           TextWrapping="Wrap"
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"
+                                           FontSize="{DynamicResource FontSize.Body}"
+                                           Margin="0,8,0,0"/>
+                                <TextBlock Text="Choose a theme from the live preview cards below."
+                                           TextWrapping="Wrap"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           Margin="0,4,0,0"/>
                             </StackPanel>
 
                             <!-- Base Light / Dark Mode Toggle -->
@@ -121,6 +124,81 @@
                                 </ListBox>
                             </StackPanel>
                         </UniformGrid>
+
+                        <!-- Eight-theme material selector: real selectable cards, not a text-only dropdown. -->
+                        <StackPanel Margin="{StaticResource SettingsStackGap14}">
+                            <TextBlock Text="THEME CENTER"
+                                       Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="Each theme supports Light and Dark. Selecting a card applies it immediately and persists the choice."
+                                       Style="{StaticResource SettingsCardHeaderNoteStyle}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,4,0,8"/>
+                            <ListBox AutomationProperties.AutomationId="Settings.ThemeCenter"
+                                     AutomationProperties.Name="Eight visual themes"
+                                     ItemsSource="{Binding VisualThemeOptions}"
+                                     SelectedValuePath="Key"
+                                     SelectedValue="{Binding SelectedVisualTheme, Mode=TwoWay}"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="4"/>
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Margin" Value="5"/>
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border x:Name="ThemeTileBorder"
+                                                            Background="{DynamicResource SurfaceSecondaryBrush}"
+                                                            BorderBrush="{DynamicResource DividerBrush}"
+                                                            BorderThickness="1"
+                                                            CornerRadius="12"
+                                                            Padding="12">
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsSelected" Value="True">
+                                                            <Setter TargetName="ThemeTileBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                            <Setter TargetName="ThemeTileBorder" Property="BorderThickness" Value="2"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="ThemeTileBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                                            <Setter TargetName="ThemeTileBorder" Property="BorderThickness" Value="2"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel>
+                                            <Border Height="6" CornerRadius="3" Background="{Binding Swatch}" Margin="0,0,0,9"/>
+                                            <TextBlock Text="{Binding Display}"
+                                                       Style="{StaticResource SettingsRowTitleStyle}"
+                                                       TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Description}"
+                                                       Style="{StaticResource SettingsRowMetaStyle}"
+                                                       TextWrapping="Wrap"
+                                                       Margin="0,5,0,0"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
 
                         <!-- Brand Accent Palette Directly Inside Theme Studio -->
                         <StackPanel Margin="{StaticResource SettingsStackGap14}">

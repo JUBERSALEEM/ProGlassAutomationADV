@@ -5,7 +5,7 @@
 // SCALE HARDENING — pins the guarantees added for very large jobs
 // (~1 lakh / 100,000 parts). Three things are locked down here:
 //
-//   1. RESULT IDENTITY. Below ScaleProfile.LargeThreshold the search is
+//   1. RESULT IDENTITY. Below OptimizationSearchGovernor.FullSearchPieceLimit the search is
 //      untouched, so every calibrated benchmark figure still holds. The
 //      engine changes at scale are pruning and allocation removal, not
 //      heuristics: a sheet is skipped only when its exact free-rect
@@ -63,48 +63,48 @@ namespace ProGlassAutomation.Tests.Agent
         // ── 1. the scale policy itself ─────────────────────────────────
 
         [Fact]
-        public void ScaleProfile_AtOrBelowLargeThreshold_LeavesSearchUnlimited()
+        public void ScaleProfile_AtFullSearchThreshold_UsesFullSearchPolicy()
         {
-            var p = ScaleProfile.For(ScaleProfile.LargeThreshold, 5);
+            var p = ScaleProfile.For(OptimizationSearchGovernor.FullSearchPieceLimit, 5);
 
             Assert.Equal(ScaleTier.Standard, p.Tier);
             Assert.False(p.IsReduced);
-            Assert.Equal(int.MaxValue, p.ShuffleCap);
+            Assert.Equal(6, p.ShuffleCap);
             Assert.True(p.AllowBeam);
-            Assert.Equal(int.MaxValue, p.MaxRectsOrderings);
+            Assert.Equal(6, p.MaxRectsOrderings);
             Assert.Equal(int.MaxValue, p.ConsolidationSweeps);
         }
 
         [Fact]
-        public void ScaleProfile_JustAboveLargeThreshold_TrimsBreadthOnly()
+        public void ScaleProfile_JustAboveFullSearchThreshold_UsesNarrowedPolicy()
         {
-            var p = ScaleProfile.For(ScaleProfile.LargeThreshold + 1, 5);
+            var p = ScaleProfile.For(OptimizationSearchGovernor.FullSearchPieceLimit + 1, 5);
 
             Assert.Equal(ScaleTier.Large, p.Tier);
             Assert.True(p.IsReduced);
-            Assert.Equal(1, p.ShuffleCap);
+            Assert.Equal(2, p.ShuffleCap);
             Assert.False(p.AllowBeam);
             Assert.Equal(3, p.MaxRectsOrderings);
-            Assert.Equal(2, p.ConsolidationSweeps);
+            Assert.Equal(4, p.ConsolidationSweeps);
         }
 
         [Fact]
-        public void ScaleProfile_JustAboveHugeThreshold_UsesMinimumSearch()
+        public void ScaleProfile_JustAboveNarrowedThreshold_UsesIndustrialPolicy()
         {
-            var p = ScaleProfile.For(ScaleProfile.HugeThreshold + 1, 5);
+            var p = ScaleProfile.For(OptimizationSearchGovernor.NarrowedSearchPieceLimit + 1, 5);
 
             Assert.Equal(ScaleTier.Huge, p.Tier);
             Assert.True(p.IsReduced);
-            Assert.Equal(0, p.ShuffleCap);
+            Assert.Equal(3, p.ShuffleCap);
             Assert.False(p.AllowBeam);
-            Assert.Equal(1, p.MaxRectsOrderings);
+            Assert.Equal(3, p.MaxRectsOrderings);
             Assert.Equal(1, p.ConsolidationSweeps);
         }
 
         [Fact]
-        public void ScaleProfile_HugeThresholdBoundary_IsStillLargeNotHuge()
+        public void ScaleProfile_NarrowedThresholdBoundary_IsStillLargeNotIndustrial()
         {
-            Assert.Equal(ScaleTier.Large, ScaleProfile.For(ScaleProfile.HugeThreshold, 5).Tier);
+            Assert.Equal(ScaleTier.Large, ScaleProfile.For(OptimizationSearchGovernor.NarrowedSearchPieceLimit, 5).Tier);
         }
 
         [Fact]
@@ -123,8 +123,8 @@ namespace ProGlassAutomation.Tests.Agent
         [Fact]
         public void ScaleProfile_Summary_StatesThePartCount()
         {
-            var reduced = ScaleProfile.For(ScaleProfile.LargeThreshold + 1, 5);
-            Assert.Contains((ScaleProfile.LargeThreshold + 1).ToString(), reduced.Summary);
+            var reduced = ScaleProfile.For(OptimizationSearchGovernor.FullSearchPieceLimit + 1, 5);
+            Assert.Contains((OptimizationSearchGovernor.FullSearchPieceLimit + 1).ToString(), reduced.Summary);
 
             var standard = ScaleProfile.For(10, 5);
             Assert.False(standard.IsReduced);
@@ -160,8 +160,8 @@ namespace ProGlassAutomation.Tests.Agent
         [Fact]
         public void LargeRun_TerminatesAndVerifies()
         {
-            // Above LargeThreshold, so the reduced search is exercised.
-            var pieces = LargeJob(ScaleProfile.LargeThreshold + 400);
+            // Above FullSearchPieceLimit, so the reduced search is exercised.
+            var pieces = LargeJob(OptimizationSearchGovernor.FullSearchPieceLimit + 400);
 
             var sw = Stopwatch.StartNew();
             var result = GuillotinePacker.PackOptimize(
@@ -182,7 +182,7 @@ namespace ProGlassAutomation.Tests.Agent
         [Fact]
         public void LargeRun_ReportsTheReductionItApplied()
         {
-            var pieces = LargeJob(ScaleProfile.LargeThreshold + 100);
+            var pieces = LargeJob(OptimizationSearchGovernor.FullSearchPieceLimit + 100);
 
             var result = GuillotinePacker.PackOptimize(
                 pieces, Stocks, Margins, RotationPolicy.Free90, 5);
@@ -194,7 +194,7 @@ namespace ProGlassAutomation.Tests.Agent
         [Fact]
         public void LargeRun_IsDeterministic()
         {
-            var pieces = LargeJob(ScaleProfile.LargeThreshold + 100);
+            var pieces = LargeJob(OptimizationSearchGovernor.FullSearchPieceLimit + 100);
 
             var a = GuillotinePacker.PackOptimize(pieces, Stocks, Margins, RotationPolicy.Free90, 4);
             var b = GuillotinePacker.PackOptimize(pieces, Stocks, Margins, RotationPolicy.Free90, 4);
@@ -208,7 +208,7 @@ namespace ProGlassAutomation.Tests.Agent
             // OPTIMIZE always evaluates the QUICK candidate (OrderBy.Area /
             // HorizontalFirst / no shuffle survives every shuffle cap) and
             // Better() keeps the minimum, so this must hold at every tier.
-            var pieces = LargeJob(ScaleProfile.LargeThreshold + 100);
+            var pieces = LargeJob(OptimizationSearchGovernor.FullSearchPieceLimit + 100);
 
             var quick = GuillotinePacker.PackQuick(
                 pieces, Stocks, Margins, RotationPolicy.Free90, SplitMode.HorizontalFirst);
@@ -222,7 +222,7 @@ namespace ProGlassAutomation.Tests.Agent
         [Fact]
         public void LargeRun_QuickAlsoTerminates()
         {
-            var pieces = LargeJob(ScaleProfile.LargeThreshold + 100);
+            var pieces = LargeJob(OptimizationSearchGovernor.FullSearchPieceLimit + 100);
 
             var result = GuillotinePacker.PackQuick(
                 pieces, Stocks, Margins, RotationPolicy.Free90, SplitMode.HorizontalFirst);
@@ -268,7 +268,7 @@ namespace ProGlassAutomation.Tests.Agent
         {
             // The sink is synchronous on purpose: Progress<T> would post to a
             // synchronization context and make the assertion race the run.
-            var pieces = LargeJob(ScaleProfile.LargeThreshold + 100);
+            var pieces = LargeJob(OptimizationSearchGovernor.FullSearchPieceLimit + 100);
             using var cts = new CancellationTokenSource();
             var cancelAfterTwoReports = new CancelAfterN(cts, 2);
 

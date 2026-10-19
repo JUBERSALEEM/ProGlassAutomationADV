@@ -10,7 +10,7 @@ import { useT } from "@/i18n/provider";
 /**
  * Palette control — the *colours* of the site, on its own control.
  *
- * One click opens the four families, each with the swatch it paints and one
+ * One click opens the eight families, each with the swatch it paints and one
  * line of where it comes from. The reading — Light, System, Dark — is a
  * separate switch beside it (`ThemeModeSwitch`): the two questions are
  * independent, and a control that answered both at once was a control where a

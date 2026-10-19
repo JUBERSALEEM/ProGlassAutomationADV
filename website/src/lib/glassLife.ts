@@ -61,7 +61,7 @@ export function initGlassLife(): () => void {
       clearLit();
       return;
     }
-    if (document.documentElement.dataset.appearance !== "crystal") {
+    if (document.documentElement.dataset.appearance !== "liquid-glass" && document.documentElement.dataset.appearance !== "crystal") {
       clearLit();
       return;
     }

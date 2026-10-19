@@ -631,8 +631,8 @@ export function applyStudioVars(studio: Studio) {
   const target = root.getAttribute("data-theme") === "daylight" ? "light" : "dark";
   const vars: Record<string, string> = {};
 
-  const family = root.getAttribute("data-appearance") ?? "studio";
-  const base = studio.accent ?? FAMILY_ACCENT[family] ?? FAMILY_ACCENT["studio"]!;
+  const family = root.getAttribute("data-appearance") ?? "liquid-glass";
+  const base = studio.accent ?? FAMILY_ACCENT[family] ?? FAMILY_ACCENT["liquid-glass"]!;
   // A family on its own keeps its hand-tuned ramp; the moment the visitor
   // moves any ramp control, the ramp is rebuilt from that family's colour.
   /* P18 — the spectrum reaches the write path too. A bench is now always
@@ -705,7 +705,7 @@ export function applyStudioVars(studio: Studio) {
 
   /* The crystal bench (G4). Three multipliers, written only when moved —
      the daytime doctrine lives in crystal-engine §C4 (floors and caps are
-     math there, not promises here). Under every family but crystal the
+     math there, not promises here). Under every family but Liquid Glass the
      vars are inert: no consumer reads them. */
   if (studio.glassFrost !== defaultStudio.glassFrost) {
     vars["--glass-frost-mult"] = finite(studio.glassFrost, 0.25, 3, 1).toFixed(2);
@@ -826,7 +826,7 @@ export function applyStudioVars(studio: Studio) {
      two rows split them: --panel-face (feature cards) vs --card-face (the
      .plate cards on screen). Default: both wear plate 1. */
   if (studio.accent || studio.clayPlate !== 1 || studio.clayCards !== 1 || tuned) {
-    const rawHsl = rgbToHsl(hexToTriplet(studio.accent ?? FAMILY_ACCENT[family]!));
+    const rawHsl = rgbToHsl(hexToTriplet(studio.accent ?? FAMILY_ACCENT[family] ?? FAMILY_ACCENT["liquid-glass"]!));
     const hub = rawHsl.h;
     const chroma = rawHsl.l < 0.2 ? Math.max(0.18, rawHsl.l / 0.22) : 1;
     const effS = Math.max(0.08, Math.min(0.95, (rawHsl.s + vivid) * chroma));
@@ -921,7 +921,7 @@ export function applyStudioVars(studio: Studio) {
       vars["--band-glow-h"] = rot(0, Math.min(0.85, pSat + 0.08), target === "dark" ? 0.5 : 0.42);
     } else {
       vars["--band-face"] = rot(0, Math.min(0.3, pSat * 0.45), 0.948);
-      if (family === "crystal") {
+      if (family === "liquid-glass" || family === "crystal") {
         vars["--pool-1"] = `rgb(${rot(0, Math.min(0.86, effS), target === "dark" ? 0.56 : 0.58)} / ${target === "dark" ? 0.58 : 0.56})`;
         vars["--pool-2"] = `rgb(${rot(14, Math.min(0.84, effS), 0.62)} / ${target === "dark" ? 0.46 : 0.38})`;
         vars["--pool-3"] = `rgb(${rot(-14, Math.min(0.82, effS), 0.64)} / ${target === "dark" ? 0.4 : 0.48})`;

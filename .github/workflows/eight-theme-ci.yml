@@ -1,0 +1,79 @@
+name: Eight-theme cross-platform checks
+
+on:
+  push:
+    branches:
+      - feat/eight-theme-center-wpf-nextjs
+  pull_request:
+    branches:
+      - arena/b24b721c-proglassautomationadv
+    paths:
+      - "Services/Theme/**"
+      - "Services/AI/AIConfig/**"
+      - "ViewModels/Settings/SettingsViewModel.Theme*.cs"
+      - "Views/Settings/Sections/SettingsThemesSection.xaml"
+      - "Tests/Theme/**"
+      - "Tests/Agent/LiquidGlassThemeSourceTests.cs"
+      - "website/src/data/themes.ts"
+      - "website/src/app/eight-theme-engine.css"
+      - "website/src/components/theme/**"
+      - "website/src/components/layout/ThemeCenter.tsx"
+      - "website/tests/eight-theme-registry.test.ts"
+      - "website/tests/studio-interaction.test.tsx"
+      - "website/package.json"
+      - "website/package-lock.json"
+      - ".github/workflows/eight-theme-ci.yml"
+
+concurrency:
+  group: eight-theme-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  website:
+    name: Next.js theme center
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: TypeScript
+        run: npm run typecheck
+      - name: ESLint
+        run: npm run lint
+      - name: Theme registry and interaction tests
+        run: npx vitest run tests/eight-theme-registry.test.ts tests/studio-interaction.test.tsx
+      - name: Production build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-build-placeholder-not-a-secret
+        run: npm run build
+
+  wpf:
+    name: WPF theme engine and regression tests
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore WPF test project
+        run: dotnet restore Tests/ProGlassAutomation.Tests.csproj
+      - name: Build and run WPF theme regression tests
+        run: dotnet test Tests/ProGlassAutomation.Tests.csproj --configuration Release --no-restore --filter "FullyQualifiedName~ThemeRegistryParityTests|FullyQualifiedName~LiquidGlassThemeSourceTests"

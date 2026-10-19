@@ -38,9 +38,9 @@ namespace ProGlassAutomation.ViewModels.Settings
     public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
     {
         // ══════════════════════════════════════════════════════════════
-        //  Phase 8: Settings exposes exactly Industrial / Monet / Crystal.
-        //  Saved "iOS 26" migrates to Crystal. Engine Ios26 painter stays
-        //  until Phase 12 zero-ref delete.
+        //  Theme Center exposes the eight approved visual families.
+        //  Legacy Industrial, Monet, and Crystal identities are migration
+        //  inputs only; the current picker never offers them as families.
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>One selectable visual family. Display pairs the family
@@ -51,38 +51,57 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             public string Key { get; }
             public string Display { get; }
+            public string Description { get; }
+            public Brush Swatch { get; }
+
             public VisualThemeOptionRow(string key)
             {
                 Key = key;
-                string scene = "Industrial Pattern";
-                foreach (var s in ProGlassAutomation.Services.Theme
-                             .BuiltinWallpaperScenes.All)
-                    if (s.Key == key) { scene = s.Label; break; }
-                // Display name (Ios-17pm for Crystal Fluid) — the family
-                // IDENTITY stays the persisted engine const.
                 Display = ProGlassAutomation.Services.Theme.VisualThemeEngine
-                    .FamilyDisplayName(key) + "  —  " + scene;
+                    .FamilyDisplayName(key);
+                (Color color, string description) = key switch
+                {
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.BentoGrid =>
+                        (Color.FromRgb(100, 120, 242), "Modular cards and clear hierarchy"),
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.SpatialImmersive =>
+                        (Color.FromRgb(53, 184, 201), "Atmospheric depth and layered surfaces"),
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.SwissInternational =>
+                        (Color.FromRgb(229, 72, 77), "Editorial grid and precise typography"),
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.HolographicIridescent =>
+                        (Color.FromRgb(166, 108, 255), "Prismatic accents and luminous edges"),
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.Neumorphism =>
+                        (Color.FromRgb(129, 149, 180), "Soft raised and inset controls"),
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.Claymorphism =>
+                        (Color.FromRgb(184, 166, 255), "Sculpted surfaces and soft depth"),
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass =>
+                        (Color.FromRgb(26, 197, 226), "Near-clear panes and liquid highlights"),
+                    _ => (Color.FromRgb(72, 169, 232), "Frosted layers with restrained blur")
+                };
+                Description = description;
+                Swatch = new SolidColorBrush(color);
+                Swatch.Freeze();
             }
-            /// <summary>Style-immune label (see file header).</summary>
+
             public override string ToString() => Display;
         }
 
         public List<VisualThemeOptionRow> VisualThemeOptions { get; } = new()
         {
-            // Normal — August-25 cream SaaS (persisted as Normal Industrial).
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial),
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet),
-            // Surfaced as "iPhone 17 Pro Max" (FamilyDisplayName).
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.CrystalFluid),
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Ios26),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.BentoGrid),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.SpatialImmersive),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.SwissInternational),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.HolographicIridescent),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Neumorphism),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Claymorphism),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Glassmorphism),
         };
-
         public string SelectedVisualTheme
         {
             get
             {
                 var raw = _config?.Appearance?.VisualTheme
-                    ?? ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial;
+                    ?? ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass;
                 return ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine
                     .PersistFamily(
                         ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine
@@ -100,10 +119,9 @@ namespace ProGlassAutomation.ViewModels.Settings
                 _config.Appearance.VisualTheme = value;
                 SaveConfig();
 
-                // Mode coupling (engine data, VisualThemeEngine.ModePairFor):
-                // Crystal Fluid (Ios-17pm) is light-only, so picking it
-                // auto-engages Light. Normal and Monet keep the user's own
-                // Light/Dark choice.
+                // All eight approved families support both Light and Dark.
+                // ModePairFor remains only as compatibility for a legacy
+                // light-only persisted family; canonical choices do not couple.
                 bool? modePair = ProGlassAutomation.Services.Theme
                     .VisualThemeEngine.ModePairFor(value);
                 if (modePair.HasValue)
@@ -120,8 +138,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                 }
                 OnPropertyChanged();
 
-                // Family gate for the Themes section's Crystal Fluid
-                // material group (visible only while Ios-17pm is active).
+                // The optional water-material controls belong to Liquid Glass
+                // only; the other seven families do not inherit this scene.
                 OnPropertyChanged(nameof(IsCrystalThemeActive));
 
                 // 2026-09-05 PIPELINE UNIFICATION: the extra RefreshScene

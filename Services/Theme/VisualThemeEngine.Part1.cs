@@ -59,6 +59,17 @@ namespace ProGlassAutomation.Services.Theme
         /// (ModePairFor → false). See Themes/CrystalFluid/.</summary>
         public const string CrystalFluid = "Crystal Fluid";
 
+        // Approved eight-theme material system. These persisted identities
+        // are intentionally independent of the legacy painter implementation.
+        public const string BentoGrid = "Bento Grid";
+        public const string SpatialImmersive = "Spatial / Immersive";
+        public const string SwissInternational = "Swiss International";
+        public const string HolographicIridescent = "Holographic / Iridescent";
+        public const string Neumorphism = "Neumorphism";
+        public const string Claymorphism = "Claymorphism";
+        public const string LiquidGlass = "Liquid Glass";
+        public const string Glassmorphism = "Glassmorphism";
+
         /// <summary>User-facing family label. Identity strings (the consts)
         /// are PERSISTED keys — configs, profiles and window state store
         /// them verbatim, so they can never be renamed in place. Display
@@ -194,7 +205,7 @@ namespace ProGlassAutomation.Services.Theme
         };
 
         /// <summary>Currently active family.</summary>
-        public static string Current { get; private set; } = NormalIndustrial;
+        public static string Current { get; private set; } = LiquidGlass;
 
         /// <summary>Module whose wallpaper is currently layered (or "").</summary>
         public static string CurrentModule { get; private set; } = "";
@@ -241,7 +252,7 @@ namespace ProGlassAutomation.Services.Theme
             string? moduleKey, AI.AIConfig.AppearanceSettings? appearance)
         {
             string mod = moduleKey ?? "";
-            string family = Normalize(appearance?.VisualTheme ?? Normal);
+            string family = Normalize(appearance?.VisualTheme ?? LiquidGlass);
             string wall = appearance?.WallpaperPath ?? "";
             double op = ClampOpacity(appearance?.WallpaperOpacity ?? 0.85);
 
@@ -285,7 +296,7 @@ namespace ProGlassAutomation.Services.Theme
         private static string BuildFamilySignature(
             AI.AIConfig.AppearanceSettings? appearance)
         {
-            string family = Normalize(appearance?.VisualTheme ?? Normal);
+            string family = Normalize(appearance?.VisualTheme ?? LiquidGlass);
             // The SYSTEM wallpaper is a family input: Monet derives its
             // window stage directly from it (ApplyMonet), so a changed
             // system wallpaper must force a real family rebuild. The
@@ -347,7 +358,9 @@ namespace ProGlassAutomation.Services.Theme
             // Monet and Crystal Fluid derive their surfaces and
             // window stage from the active accent colour, so both must
             // re-derive when the user changes the accent.
-            if (Current != Monet && Current != CrystalFluid)
+            if (Current != Monet && Current != CrystalFluid &&
+                Current != LiquidGlass && Current != Glassmorphism &&
+                Current != SpatialImmersive && Current != HolographicIridescent)
                 return;
             InvalidateSceneCache();
             Apply(Current, _lastWallpaperPath, _lastWallpaperOpacity);
@@ -435,10 +448,23 @@ namespace ProGlassAutomation.Services.Theme
                             _lastWallpaperOpacity);
                         break;
 
+                    // Only Liquid Glass uses the legacy crystal-water painter.
+                    // All other approved families start from the neutral industrial
+                    // resource seed and then receive their own eight-theme material
+                    // overlay below; this prevents old Monet/Crystal treatments from
+                    // leaking into Clay, Spatial, Holographic, or Glassmorphism.
                     case CrystalFluid:
+                    case LiquidGlass:
                         ApplyCrystalFluid(resources);
                         break;
 
+                    case BentoGrid:
+                    case SpatialImmersive:
+                    case SwissInternational:
+                    case HolographicIridescent:
+                    case Neumorphism:
+                    case Claymorphism:
+                    case Glassmorphism:
                     case NormalIndustrial:
                         ApplyIndustrial(resources);
                         break;
@@ -452,6 +478,10 @@ namespace ProGlassAutomation.Services.Theme
                         ApplyIos26(resources);
                         break;
                 }
+
+                // Apply the selected material recipe after its safe base painter.
+                // The overlay only writes existing semantic/compatibility resources.
+                ApplyEightThemeMaterial(resources, Current);
 
                 // Cache the family's pre-wallpaper surfaces so the next
                 // ApplyModule can fast-path a wallpaper-only change (see
@@ -573,7 +603,7 @@ namespace ProGlassAutomation.Services.Theme
                 _lastWallpaperOpacity =
                     ClampOpacity(appearance?.WallpaperOpacity ?? 0.85);
 
-                Current = Normalize(appearance?.VisualTheme ?? Normal);
+                Current = Normalize(appearance?.VisualTheme ?? LiquidGlass);
 
                 if (familyChanged)
                 {
@@ -607,9 +637,20 @@ namespace ProGlassAutomation.Services.Theme
                             ApplyMonet(resources, _lastWallpaperPath,
                                 _lastWallpaperOpacity);
                             break;
+                        // The water-stage painter belongs only to Liquid Glass.
+                        // Other approved families use a neutral base and their own
+                        // material overlay, not legacy Crystal/Monet visuals.
                         case CrystalFluid:
+                        case LiquidGlass:
                             ApplyCrystalFluid(resources);
                             break;
+                        case BentoGrid:
+                        case SpatialImmersive:
+                        case SwissInternational:
+                        case HolographicIridescent:
+                        case Neumorphism:
+                        case Claymorphism:
+                        case Glassmorphism:
                         case NormalIndustrial:
                             ApplyIndustrial(resources);
                             break;
@@ -617,6 +658,8 @@ namespace ProGlassAutomation.Services.Theme
                             ApplyIos26(resources);
                             break;
                     }
+
+                    ApplyEightThemeMaterial(resources, Current);
 
                     // Cache the family's pre-wallpaper surfaces so a
                     // wallpaper-only change can restore them and skip the

@@ -131,13 +131,10 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                 config.DataConnectivity ??= new DataConnectivitySettings();
 
                 // ── One-time theme migration (2026-09-13) ────────────────
-                // The strict industrial look is the app-wide default again
-                // (owner: "strictness industrial pattern"). Saved configs
-                // still pinned to the cream SaaS "Normal" are folded once
-                // to "Normal (Industrial)". The VisualThemeMigrated flag
-                // makes this run EXACTLY ONCE per install: a user who later
-                // deliberately re-picks a family keeps it, because the flag
-                // is already set.
+                // Preserve the historical one-time "Normal" normalization.
+                // The following EightThemeMigrationApplied stage maps the
+                // intermediate legacy identity to a selectable family, while
+                // supported new-family choices are left untouched.
                 if (!config.Appearance.VisualThemeMigrated)
                 {
                     config.Appearance.VisualThemeMigrated = true;
@@ -150,8 +147,39 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                     }
                 }
 
-                // Retired fourth family — always fold to Crystal so
-                // navigation does not paint a dead Ios26 path.
+                // One-time migration from the retired theme catalogue to the
+                // eight selectable families. Existing choices map to the nearest
+                // material; a supported choice is never overwritten.
+                if (!config.Appearance.EightThemeMigrationApplied)
+                {
+                    string savedFamily = config.Appearance.VisualTheme ?? "";
+                    bool supported = savedFamily is
+                        VisualThemeEngine.BentoGrid or
+                        VisualThemeEngine.SpatialImmersive or
+                        VisualThemeEngine.SwissInternational or
+                        VisualThemeEngine.HolographicIridescent or
+                        VisualThemeEngine.Neumorphism or
+                        VisualThemeEngine.Claymorphism or
+                        VisualThemeEngine.LiquidGlass or
+                        VisualThemeEngine.Glassmorphism;
+
+                    if (!supported)
+                    {
+                        config.Appearance.VisualTheme = savedFamily switch
+                        {
+                            VisualThemeEngine.Monet => VisualThemeEngine.Claymorphism,
+                            VisualThemeEngine.CrystalFluid or
+                            VisualThemeEngine.Ios26 or
+                            "Crystal" or "iPhone 17 Pro Max" => VisualThemeEngine.LiquidGlass,
+                            _ => VisualThemeEngine.BentoGrid
+                        };
+                    }
+
+                    config.Appearance.EightThemeMigrationApplied = true;
+                }
+
+                // Safety net for legacy values written by older builds:
+                // glass families migrate to Liquid Glass, not an unselectable industrial row.
                 if (string.Equals(config.Appearance.VisualTheme,
                         VisualThemeEngine.Ios26,
                         StringComparison.OrdinalIgnoreCase)
@@ -166,7 +194,7 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                         "Crystal Fluid", StringComparison.OrdinalIgnoreCase))
                 {
                     config.Appearance.VisualTheme =
-                        VisualThemeEngine.NormalIndustrial;
+                        VisualThemeEngine.LiquidGlass;
                 }
 
                 config.Ai ??= new AiSettings();

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import "../globals.css";
 import "../clay-engine.css";
 import "../crystal-engine.css";
+import "../eight-theme-engine.css";
 import { SvgDefs } from "@/components/brand/SvgDefs";
 import { Navbar } from "@/components/layout/Navbar";
 import { globalGraph } from "@/lib/schema";
@@ -263,7 +264,7 @@ export default async function LocaleLayout({
       data-locale={locale}
       data-theme="midnight"
       data-theme-mode="system"
-      data-appearance="crystal"
+      data-appearance="liquid-glass"
       data-scroll-behavior="smooth"
       data-build-time={buildStamp.builtAt}
       data-build-rev={buildStamp.revision ?? ""}

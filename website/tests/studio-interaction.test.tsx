@@ -189,12 +189,12 @@ describe("P18 · the colour plates", () => {
     await settle();
     const rose400 = inline("--brand-400");
     expect(rose400).not.toBe("");
-    /* The palette-family plates: click Crystal. setFamily clears the pick,
+    /* The palette-family plates: click Liquid Glass. setFamily clears the pick,
        data-appearance flips, the observer re-applies. */
-    await user.click(within(panel).getByRole("button", { name: /^crystal$/i }));
+    await user.click(within(panel).getByRole("button", { name: /^liquid glass$/i }));
     await settle();
-    expect(html().getAttribute("data-appearance")).toBe("crystal");
-    expect(window.localStorage.getItem(APPEARANCE_STORAGE_KEY)).toBe("crystal");
+    expect(html().getAttribute("data-appearance")).toBe("liquid-glass");
+    expect(window.localStorage.getItem(APPEARANCE_STORAGE_KEY)).toBe("liquid-glass");
     /* Family pick clears the explicit accent → stylesheet owns the ramp. */
     expect(inline("--brand-400")).toBe("");
   });
@@ -337,7 +337,7 @@ describe("P18 · the spectrum (normalizeStudio)", () => {
 
 describe("P18 · crystal wall adoption", () => {
   it("a picked accent rotates washes, mid pools, aurora balls and the relight", () => {
-    html().setAttribute("data-appearance", "crystal");
+    html().setAttribute("data-appearance", "liquid-glass");
     html().setAttribute("data-theme", "midnight");
     applyStudioVars({ ...defaultStudio, accent: "#14B06A" });
     for (const key of [
@@ -371,7 +371,7 @@ describe("P18 · crystal wall adoption", () => {
 });
 
 describe("P18 · benches outside their family explain themselves", () => {
-  it("the crystal bench renders inert under clay (and live under crystal)", async () => {
+  it("the glass bench renders inert under Clay and live under Liquid Glass", async () => {
     const user = userEvent.setup();
     render(<ThemeStudio />);
     const panel = await openStudio(user);
@@ -381,7 +381,7 @@ describe("P18 · benches outside their family explain themselves", () => {
     let gate = frost().closest("div[class*='pointer-events-none']");
     expect(gate).not.toBeNull();
     /* Switch the family plate → the same slider unwraps and works. */
-    await user.click(within(panel).getByRole("button", { name: /^crystal$/i }));
+    await user.click(within(panel).getByRole("button", { name: /^liquid glass$/i }));
     gate = frost().closest("div[class*='pointer-events-none']");
     expect(gate).toBeNull();
     fireEvent.change(frost(), { target: { value: "1.8" } });
@@ -445,7 +445,7 @@ describe("P19 · the wallpaper paints what the studio writes", () => {
 });
 
 describe("P19 · the family gates are real gates, not veils", () => {
-  it("glass-bench sliders are disabled off-crystal — keyboard included", async () => {
+  it("glass-bench sliders are disabled off Liquid Glass — keyboard included", async () => {
     const user = userEvent.setup();
     render(<ThemeStudio />);
     const panel = await openStudio(user); // family = clay (beforeEach)
@@ -455,8 +455,8 @@ describe("P19 · the family gates are real gates, not veils", () => {
     for (const dial of [frost, body, glint]) {
       expect((dial as HTMLInputElement).disabled).toBe(true);
     }
-    /* After the family plate flips to crystal the same dials go live. */
-    await user.click(within(panel).getByRole("button", { name: /^crystal$/i }));
+    /* After the family plate flips to Liquid Glass the same dials go live. */
+    await user.click(within(panel).getByRole("button", { name: /^liquid glass$/i }));
     expect((within(panel).getByRole("slider", { name: /frost/i }) as HTMLInputElement).disabled).toBe(false);
   });
 
@@ -466,8 +466,8 @@ describe("P19 · the family gates are real gates, not veils", () => {
     const panel = await openStudio(user); // clay: live
     let rowSix = within(panel).getAllByRole("button", { name: /^6$/ })[0]!;
     expect((rowSix as HTMLButtonElement).disabled).toBe(false);
-    /* Switch to crystal: the bench veils AND disables. */
-    await user.click(within(panel).getByRole("button", { name: /^crystal$/i }));
+    /* Switch to Liquid Glass: the Clay bench veils AND disables. */
+    await user.click(within(panel).getByRole("button", { name: /^liquid glass$/i }));
     rowSix = within(panel).getAllByRole("button", { name: /^6$/ })[0]!;
     expect((rowSix as HTMLButtonElement).disabled).toBe(true);
   });
@@ -550,8 +550,8 @@ describe("P20 · live Chrome, GlassBlue plate, Frost IACVT guard & Chat bubble",
     expect(hueDistance(parseTripletHue(inline("--band-rich-h")), goldHue)).toBeLessThan(8);
     expect(hueDistance(parseTripletHue(inline("--card-face")), goldHue)).toBeLessThan(12);
 
-    // Pick Emerald (#059669, hue ~161°) in daylight on Crystal
-    html().setAttribute("data-appearance", "crystal");
+    // Pick Emerald (#059669, hue ~161°) in daylight on Liquid Glass
+    html().setAttribute("data-appearance", "liquid-glass");
     applyStudioVars({ ...defaultStudio, accent: "#059669", accentKey: "Emerald" });
     const emeraldHue = parseTripletHue("5 150 105");
     expect(hueDistance(parseTripletHue(inline("--brand-400")), emeraldHue)).toBeLessThan(8);

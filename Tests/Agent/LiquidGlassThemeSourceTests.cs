@@ -57,8 +57,13 @@ namespace ProGlassAutomation.Tests.Agent
             return sb.ToString();
         }
 
-        private static string Engine => Read(
-            "Services/Theme/VisualThemeEngine.cs");
+        // VisualThemeEngine is split into partial files. Keep this helper
+        // reading the complete implementation so source-contract tests cannot
+        // silently inspect only the small facade and miss the actual painters.
+        private static string Engine =>
+            // Read() automatically appends VisualThemeEngine.Part*.cs siblings.
+            Read("Services/Theme/VisualThemeEngine.cs") + Environment.NewLine +
+            Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
 
         private static string LightTheme => Read("Themes/LightTheme.xaml");
 
@@ -67,19 +72,15 @@ namespace ProGlassAutomation.Tests.Agent
         // ══════════════════════════════════════════════════════════════
 
         [Fact]
-        public void Removed_families_are_gone_and_industrial_is_the_default_family()
+        public void Eight_families_are_selectable_and_LiquidGlass_is_the_default_family()
         {
-            // 2026-08-29 rewrite removed the two confusing "Glass"/"Glassy"
-            // families. 2026-09-06 theme reduction then removed the iOS
-            // Liquid Glass, Ocean, Professional and Industrial families.
-            // 2026-09-13 industrial reform (owner ask: "strictness
-            // industrial pattern") makes Normal (Industrial) the constant
-            // app-wide default; the cream SaaS "Normal" and every
-            // unknown/removed value resolve to Normal (Industrial).
+            // The selectable contract is now the eight approved material
+            // families. Old industrial, Monet, Crystal Fluid, and iOS 26
+            // values are migrated once by ConfigService.
             string engine = Engine;
             Assert.DoesNotContain("public const string Glass =", engine, StringComparison.Ordinal);
             Assert.DoesNotContain("public const string Glassy =", engine, StringComparison.Ordinal);
-            Assert.DoesNotContain("public const string LiquidGlass =", engine, StringComparison.Ordinal);
+            Assert.Contains("public const string LiquidGlass = \"Liquid Glass\";", engine, StringComparison.Ordinal);
             Assert.DoesNotContain("public const string Ocean =", engine, StringComparison.Ordinal);
             Assert.DoesNotContain("public const string Professional =", engine, StringComparison.Ordinal);
             Assert.DoesNotContain("public const string Industrial", engine, StringComparison.Ordinal);
@@ -87,12 +88,12 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.DoesNotContain("\"Glassy\" => LiquidGlass", engine, StringComparison.Ordinal);
 
             string config = Read("Services/AI/AIConfig/AppConfig.cs");
-            Assert.Contains("= \"Normal (Industrial)\";", config, StringComparison.Ordinal);
+            Assert.Contains("= \"Liquid Glass\";", config, StringComparison.Ordinal);
             Assert.DoesNotContain("= \"iOS Liquid Glass\";", config, StringComparison.Ordinal);
 
             // App.StartupCore.cs is pulled in by the App.*.cs convention.
             string appCs = Read("App.xaml.cs");
-            Assert.Contains("?? VisualThemeEngine.NormalIndustrial", appCs, StringComparison.Ordinal);
+            Assert.Contains("?? VisualThemeEngine.LiquidGlass", appCs, StringComparison.Ordinal);
             Assert.DoesNotContain("?? \"iOS Liquid Glass\"", appCs, StringComparison.Ordinal);
 
             // 2026-09-17 CORRECTION (owner: "I could see only two" → then
@@ -107,16 +108,19 @@ namespace ProGlassAutomation.Tests.Agent
             // are still gone.
             string vm = Read(
                 "ViewModels/Settings/SettingsViewModel.ThemeWallpaper.cs");
-            Assert.Contains("VisualThemeEngine.NormalIndustrial)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.Monet)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.CrystalFluid)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.Ios26)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.BentoGrid)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.SpatialImmersive)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.SwissInternational)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.HolographicIridescent)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.Neumorphism)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.Claymorphism)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.LiquidGlass)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.Glassmorphism)", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Normal)", vm, StringComparison.Ordinal);
-            Assert.DoesNotContain("VisualThemeEngine.LiquidGlass", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Ocean", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Professional", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Industrial", vm, StringComparison.Ordinal);
-            Assert.DoesNotContain("VisualThemeEngine.Glass", vm, StringComparison.Ordinal);
+            Assert.DoesNotContain("VisualThemeEngine.Glass,", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Glassy", vm, StringComparison.Ordinal);
         }
 
@@ -131,7 +135,9 @@ namespace ProGlassAutomation.Tests.Agent
             // re-parenting can never re-activate them as TwoWay (ERR-21172E).
             string configService = Read("Services/AI/AIConfig/ConfigService.cs");
             Assert.Contains("VisualThemeMigrated", configService, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.NormalIndustrial", configService, StringComparison.Ordinal);
+            Assert.Contains("EightThemeMigrationApplied", configService, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.BentoGrid", configService, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.LiquidGlass", configService, StringComparison.Ordinal);
 
             string engine = Engine;
             Assert.Contains(
@@ -143,34 +149,37 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Every_selectable_family_survives_normalization_and_is_dispatched()
+        public void Eight_selectable_families_survive_normalization_and_are_dispatched()
         {
-            // ROOT-CAUSE LOCK (2026-09-17). Two independent cuts made the
-            // iPhone 17 Pro Max and iOS 26 families dead options:
-            //   1. VisualThemeEngine.Normalize folded BOTH identity strings to
-            //      NormalIndustrial, so every Apply()/ApplyModule() painted
-            //      Industrial no matter what the picker saved.
-            //   2. ApplyIos26 had no `case` in either dispatch switch, so even
-            //      an unfaded Normalize could not have painted it.
-            // A fold like that is invisible to every other test: the family
-            // resolves, paints and saves — it just paints the wrong thing.
             string part3 = Read("Services/Theme/VisualThemeEngine.Part3.cs");
-            Assert.Contains("CrystalFluid => CrystalFluid,", part3, StringComparison.Ordinal);
-            Assert.Contains("Ios26 => Ios26,", part3, StringComparison.Ordinal);
-            Assert.DoesNotContain("CrystalFluid => NormalIndustrial", part3, StringComparison.Ordinal);
-            Assert.DoesNotContain("Ios26 => NormalIndustrial", part3, StringComparison.Ordinal);
+            foreach (var family in new[]
+            {
+                "BentoGrid", "SpatialImmersive", "SwissInternational",
+                "HolographicIridescent", "Neumorphism", "Claymorphism",
+                "LiquidGlass", "Glassmorphism"
+            })
+                Assert.Contains(family + " => " + family, part3, StringComparison.Ordinal);
+
+            Assert.Contains("Monet => Claymorphism", part3, StringComparison.Ordinal);
+            Assert.Contains("CrystalFluid or Ios26 => LiquidGlass", part3, StringComparison.Ordinal);
+            Assert.Contains("Normal or NormalIndustrial => BentoGrid", part3, StringComparison.Ordinal);
 
             string part1 = Read("Services/Theme/VisualThemeEngine.Part1.cs");
-            Assert.Equal(2, CountOccurrences(part1, "case Ios26:"));
-            Assert.Equal(2, CountOccurrences(part1, "ApplyIos26(resources);"));
-            Assert.Equal(2, CountOccurrences(part1, "case CrystalFluid:"));
-            Assert.Equal(2, CountOccurrences(part1, "ApplyCrystalFluid(resources);"));
+            foreach (var family in new[]
+            {
+                "BentoGrid", "SpatialImmersive", "SwissInternational",
+                "HolographicIridescent", "Neumorphism", "Claymorphism",
+                "LiquidGlass", "Glassmorphism"
+            })
+                Assert.Contains("case " + family + ":", part1, StringComparison.Ordinal);
 
-            // The Themes-section gate must read the saved family, never a
-            // hardcoded false (that hid the crystal axes permanently).
+            Assert.Equal(2, CountOccurrences(part1, "ApplyEightThemeMaterial(resources, Current);"));
+
+            // Crystal material controls remain available to Liquid Glass;
+            // they are no longer a ninth selectable family.
             string customization = Read(
                 "ViewModels/Settings/SettingsViewModel.ThemeCustomization.cs");
-            Assert.Contains("SelectedVisualTheme == VisualThemeEngine.CrystalFluid",
+            Assert.Contains("SelectedVisualTheme == VisualThemeEngine.LiquidGlass",
                 customization, StringComparison.Ordinal);
             Assert.DoesNotContain("IsCrystalThemeActive => false",
                 customization, StringComparison.Ordinal);

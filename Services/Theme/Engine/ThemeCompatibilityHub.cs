@@ -3,11 +3,13 @@ using System.Collections.Generic;
 namespace ProGlassAutomation.Services.Theme.Engine
 {
     /// <summary>
-    /// MIGRATION BRIDGE. Old Crystal/Liquid/Glass keys are written to the
-    /// SAME frozen brush instance as the semantic TokenStore key after every
-    /// Publish. New XAML must use the semantic name. Delete this hub in
-    /// Phase 12 after a zero-reference sweep.
-    /// Direction: semantic owns legacy.
+    /// MIGRATION BRIDGE. Only true semantic aliases are dual-written after
+    /// Publish. Material-role resources (card face, frost, crystal, raised,
+    /// module/workspace, and distinct edge treatments) remain owned by the
+    /// active family painter because collapsing those roles into one brush
+    /// makes theme changes invisible and breaks the surface hierarchy.
+    /// New XAML should use semantic names; keep legacy aliases until a
+    /// consumer sweep proves they can be retired.
     /// </summary>
     public static class ThemeCompatibilityHub
     {
@@ -15,21 +17,15 @@ namespace ProGlassAutomation.Services.Theme.Engine
         public static IReadOnlyDictionary<string, string> LegacyToSemantic { get; } =
             new Dictionary<string, string>
             {
-                ["GlassUltraClearBrush"] = "SurfacePrimaryBrush",
-                ["GlassSurfaceBrush"] = "SurfacePrimaryBrush",
-                ["GlassCrystalBrush"] = "SurfacePrimaryBrush",
+                // Material-role resources stay family-painter-owned. Do not
+                // alias these back to one semantic brush: doing so collapses
+                // distinct card/frost/crystal/raised surfaces after Publish().
+                // Semantic consumers read from these roles via SemanticSources.
                 ["GlassBorderSoft"] = "BorderSubtleBrush",
-                ["GlassBorderPrimary"] = "BorderDefaultBrush",
                 ["GlassBorderBright"] = "BorderStrongBrush",
-                ["GlassBorderGradientCrystal"] = "BorderDefaultBrush",
                 ["LiquidCard"] = "SurfacePrimaryBrush",
                 ["LiquidOverlayBrush"] = "SurfaceOverlayBrush",
-                ["GlassFrostedBrush"] = "SurfaceSecondaryBrush",
-                ["ModuleBackgroundBrush"] = "SurfacePrimaryBrush",
                 ["ElevatedSurfaceBrush"] = "SurfaceSecondaryBrush",
-                ["GlassSurfaceElevated"] = "SurfaceSecondaryBrush",
-                ["GlassSurfaceUltra"] = "SurfaceTertiaryBrush",
-                ["GlassSurfaceStandard"] = "SurfaceTertiaryBrush",
                 // ["PopupSurfaceBrush"] = "SurfaceOverlayBrush"  ← REMOVED.
                 // This one entry inverted the meaning of the app's popup
                 // surface token. DualWriteLegacy() runs at the END of every
@@ -94,7 +90,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
                 ("SurfacePrimaryBrush", "GlassUltraClearBrush", "ElevatedSurfaceBrush"),
                 ("SurfaceSecondaryBrush", "ElevatedSurfaceBrush", "ModuleBackgroundBrush"),
                 ("SurfaceTertiaryBrush", "MenuHoverBrush", "GlassSurfaceUltra"),
-                ("SurfaceInputBrush", "ModuleBackgroundBrush", "GlassSurfaceUltra"),
+                ("SurfaceInputBrush", "GlassSurfaceStandard", "GlassSurfaceUltra"),
                 ("SurfaceOverlayBrush", "LiquidOverlayBrush", "MenuHoverBrush"),
                 ("TextTertiaryBrush", "MutedForegroundBrush", "TextSecondaryBrush"),
                 ("TextDisabledBrush", "LiquidControlDisabledBrush", "MutedForegroundBrush"),

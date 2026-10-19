@@ -31,23 +31,19 @@ namespace ProGlassAutomation.Tests.Theme
 {
     public class ThemeRegistryParityTests
     {
-        // The complete family catalogue (2026-09-13 industrial reform,
-        // owner ask: "strictness industrial pattern"): Industrial (Normal
-        // Industrial, the default), Monet, iPhone 17 Pro Max (Crystal
-        // Fluid) and iOS 26. The cream SaaS "Normal" folds to Normal
-        // (Industrial) via the engine's Normalize mapping.
+        // Canonical selectable contract: eight material families, each
+        // with Light and Dark palette recipes. Older Industrial, Monet,
+        // Crystal Fluid, and iOS identities are migration inputs only.
         private static readonly string[] AllFamilies =
         {
-            VisualThemeEngine.NormalIndustrial,
-            VisualThemeEngine.Monet,
-            // 2026-09-16: the comment above this array has named four
-            // families since 2026-09-13, but the array listed two — so
-            // SceneCatalogue_CoversEveryFamily_Exactly was passing while
-            // BuiltinWallpaperScenes.All covered half the picker. That silent
-            // half-coverage is why two dropdown rows advertised the wrong
-            // wallpaper scene. The array now matches its own documentation.
-            VisualThemeEngine.CrystalFluid,
-            VisualThemeEngine.Ios26,
+            VisualThemeEngine.BentoGrid,
+            VisualThemeEngine.SpatialImmersive,
+            VisualThemeEngine.SwissInternational,
+            VisualThemeEngine.HolographicIridescent,
+            VisualThemeEngine.Neumorphism,
+            VisualThemeEngine.Claymorphism,
+            VisualThemeEngine.LiquidGlass,
+            VisualThemeEngine.Glassmorphism,
         };
 
         // ── F-01: the managed-key contract ──────────────────────────────
@@ -166,12 +162,160 @@ namespace ProGlassAutomation.Tests.Theme
                 Assert.Contains(key, coverage);
         }
 
+        [Fact]
+        public void Eight_theme_material_overlay_defines_all_families_and_both_modes()
+        {
+            string overlay = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
+            foreach (var family in new[]
+            {
+                "BentoGrid", "SpatialImmersive", "SwissInternational",
+                "HolographicIridescent", "Neumorphism", "Claymorphism",
+                "LiquidGlass", "Glassmorphism"
+            })
+                Assert.Contains(family, overlay, StringComparison.Ordinal);
+
+            Assert.Contains("ThemeManager.CurrentTheme == AppTheme.Dark", overlay, StringComparison.Ordinal);
+            Assert.Contains("ApplyEightThemeMaterial(resources, Current)", Read("Services/Theme/VisualThemeEngine.Part1.cs"), StringComparison.Ordinal);
+            string painter = Read("Services/Theme/VisualThemeEngine.Part1.cs");
+            Assert.Contains("case LiquidGlass:\\n                        ApplyCrystalFluid(resources);", painter, StringComparison.Ordinal);
+            Assert.Contains("case Claymorphism:", painter, StringComparison.Ordinal);
+            Assert.Contains("case Glassmorphism:", painter, StringComparison.Ordinal);
+            Assert.Contains("case SpatialImmersive:", painter, StringComparison.Ordinal);
+            Assert.Contains("case HolographicIridescent:", painter, StringComparison.Ordinal);
+            Assert.Contains("ApplyIndustrial(resources);", painter, StringComparison.Ordinal);
+            Assert.Contains("bool crystal = Family == ProGlassThemeFamily.LiquidGlass;", Read("Services/Theme/Engine/ProGlassThemeEngine.cs"), StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Eight_theme_material_overlay_populates_live_card_shell_and_status_surface_sources()
+        {
+            string overlay = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
+
+            // These are not preview-only tokens. The semantic surface publisher,
+            // dashboard shell, and legacy ERP card styles read these exact keys.
+            // If the overlay stops writing them, most of the app silently falls
+            // back to ApplyIndustrial's shared cream palette.
+            foreach (var key in new[]
+            {
+                "GlassUltraClearBrush", "GlassSurfaceBrush", "GlassCrystalBrush",
+                "GlassFrostedBrush", "GlassSurfaceStandard", "GlassSurfaceUltra",
+                "GlassSurfaceElevated", "GlassWaterBrush", "GlassBorderGradientCrystal",
+                "GlassBorderSoft", "GlassBorderPrimary", "GlassBorderBright",
+                "ShellLiquidBrush", "SidebarCardBrush", "DashLiquidSurfaceBrush",
+                "DashAmbientBrush", "DashAmbientBlob1Brush", "DashAmbientBlob2Brush",
+                "TintIndigoBrush", "TintBlueBrush", "TintGreenBrush", "TintRedBrush",
+                "TintAmberBrush", "TintPurpleBrush", "TintGrayBrush",
+                // Dedicated keys consumed directly by SettingsCardStyles.xaml.
+                "SettingsCardFaceBrush", "SettingsCardEdgeBrush",
+                "SettingsInnerEdgeBrush", "SettingsCardShadow", "Ios26CardShadow",
+                "Ios26RadiusCard", "Ios26RadiusInner", "Ios26RadiusTile",
+                "Ios26RadiusChip", "Ios26RadiusSmall", "Ios26CardBrush",
+                "Ios26TileBrush", "Ios26RailBrush", "Ios26CardBorderBrush",
+                "Ios26TileBorderBrush", "Ios26HairlineBrush", "Ios26HoverBrush",
+                "Ios26AccentBrush", "Ios26AccentDeepBrush", "Ios26AccentSoftBrush",
+                "Ios26AccentSoftTextBrush", "Ios26TextTitleBrush",
+                "Ios26TextBodyBrush", "Ios26TextSecondaryBrush", "Ios26TextMutedBrush"
+            })
+                Assert.Contains($"resources[\"{key}\"]", overlay, StringComparison.Ordinal);
+
+            string bridge = Read("Services/Theme/Engine/ThemeCompatibilityHub.cs");
+            foreach (var roleKey in new[]
+            {
+                "GlassUltraClearBrush", "GlassSurfaceBrush", "GlassCrystalBrush",
+                "GlassFrostedBrush", "GlassSurfaceElevated", "GlassSurfaceUltra",
+                "GlassSurfaceStandard", "GlassBorderPrimary", "GlassBorderGradientCrystal",
+                "ModuleBackgroundBrush"
+            })
+                Assert.DoesNotContain($"[\"{roleKey}\"] =", bridge, StringComparison.Ordinal);
+
+            Assert.Contains(
+                "(\"SurfaceInputBrush\", \"GlassSurfaceStandard\", \"GlassSurfaceUltra\")",
+                bridge,
+                StringComparison.Ordinal);
+
+            string semanticPublisher = Read("Services/ThemeManager.Part2.cs");
+            Assert.Contains("SetBrushResource(resources, \"Surface.Primary.BackgroundBrush\", primaryKey", semanticPublisher, StringComparison.Ordinal);
+            Assert.Contains("SetBrushResource(resources, \"Surface.Secondary.BackgroundBrush\", secondaryKey", semanticPublisher, StringComparison.Ordinal);
+
+            string globalStyles = Read("Themes/Styles/GlobalDesignSystem.xaml");
+            Assert.Contains("DynamicResource Surface.Primary.BackgroundBrush", globalStyles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource Surface.Secondary.BackgroundBrush", globalStyles, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Every_approved_family_has_separate_light_and_dark_palette_recipes()
+        {
+            string overlay = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
+            foreach (var family in new[]
+            {
+                "BentoGrid", "SpatialImmersive", "SwissInternational",
+                "HolographicIridescent", "Neumorphism", "Claymorphism",
+                "LiquidGlass", "Glassmorphism"
+            })
+            {
+                // Every switch arm must explicitly provide a dark and light
+                // palette rather than falling through to one shared palette.
+                Assert.Matches(
+                    family + @"\s*=>\s*dark\s*\?\s*new\([^\r\n]*\)\s*:\s*new\(",
+                    overlay);
+            }
+
+            foreach (var token in new[]
+            {
+                "BackgroundBrush", "WindowBackgroundBrush", "ModuleBackgroundBrush",
+                "ElevatedSurfaceBrush", "PrimaryForegroundBrush", "BorderBrush",
+                "CardCornerRadius", "ControlCornerRadius", "ShadowElevated"
+            })
+                Assert.Contains($"resources[\"{token}\"]", overlay, StringComparison.Ordinal);
+        }
+
+        [Theory]
+        [InlineData(VisualThemeEngine.BentoGrid)]
+        [InlineData(VisualThemeEngine.SpatialImmersive)]
+        [InlineData(VisualThemeEngine.SwissInternational)]
+        [InlineData(VisualThemeEngine.HolographicIridescent)]
+        [InlineData(VisualThemeEngine.Neumorphism)]
+        [InlineData(VisualThemeEngine.Claymorphism)]
+        [InlineData(VisualThemeEngine.LiquidGlass)]
+        [InlineData(VisualThemeEngine.Glassmorphism)]
+        public void Eight_theme_family_identity_round_trips(string family)
+        {
+            var parsed = ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine.ParseFamily(family);
+            Assert.Equal(family,
+                ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine.PersistFamily(parsed));
+        }
+
+        [Theory]
+        [InlineData("Normal", VisualThemeEngine.BentoGrid)]
+        [InlineData("Normal (Industrial)", VisualThemeEngine.BentoGrid)]
+        [InlineData("Industrial", VisualThemeEngine.BentoGrid)]
+        [InlineData("Monet", VisualThemeEngine.Claymorphism)]
+        [InlineData("Crystal", VisualThemeEngine.LiquidGlass)]
+        [InlineData("Crystal Fluid", VisualThemeEngine.LiquidGlass)]
+        [InlineData("iOS 26", VisualThemeEngine.LiquidGlass)]
+        [InlineData("iPhone 17 Pro Max", VisualThemeEngine.LiquidGlass)]
+        public void Legacy_theme_identities_migrate_to_selectable_families(
+            string legacy, string expected)
+        {
+            var parsed = ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine.ParseFamily(legacy);
+            Assert.Equal(expected,
+                ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine.PersistFamily(parsed));
+        }
+
         // ── F-06: mode coupling lives in the engine ─────────────────────
 
         [Theory]
         [InlineData(VisualThemeEngine.NormalIndustrial, null)]
         [InlineData(VisualThemeEngine.Monet, null)]
         [InlineData(VisualThemeEngine.Ios26, null)]
+        [InlineData(VisualThemeEngine.BentoGrid, null)]
+        [InlineData(VisualThemeEngine.SpatialImmersive, null)]
+        [InlineData(VisualThemeEngine.SwissInternational, null)]
+        [InlineData(VisualThemeEngine.HolographicIridescent, null)]
+        [InlineData(VisualThemeEngine.Neumorphism, null)]
+        [InlineData(VisualThemeEngine.Claymorphism, null)]
+        [InlineData(VisualThemeEngine.LiquidGlass, null)]
+        [InlineData(VisualThemeEngine.Glassmorphism, null)]
         // Crystal Fluid (iPhone 17 Pro Max) is light-only (2026-09-05
         // product decision); Industrial, Monet and iOS 26 respect the
         // user's own mode.

@@ -20,14 +20,14 @@ namespace ProGlassAutomation.Services.Updates
 
         /// <summary>GitHub repository backing the OTA update check.</summary>
         public const string GitHubOwner = "JUBERSALEEM";
-        public const string GitHubRepo = "ProGlassAutomationADV";
+        public const string GitHubRepo = "ProGlassAutomationssss";
 
         /// <summary>
         /// Fallback only — real value comes from the assembly. Kept in step
         /// with the .csproj &lt;Version&gt; and exposed so the licensing
         /// wrapper does not carry its own third copy of the number.
         /// </summary>
-        public const string FallbackVersion = "2.0.4";
+        public const string FallbackVersion = "2.0.12";
 
         /// <summary>
         /// Current application version (MAJOR.MINOR.PATCH), resolved once

@@ -54,9 +54,24 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
                 IsCheckingUpdate = true;
                 UpdateStatus = "Checking for updates…";
 
-                // Installed builds use the Velopack OTA path.
+                // Installed builds use Velopack for applying updates, but
+                // release metadata still comes from GitHub so the user can
+                // read the exact changelog for the latest published EXE.
                 if (Services.Updates.VelopackUpdateService.IsInstalled)
                 {
+                    var releaseInfo = await Services.Updates.UpdateService
+                        .CheckForUpdateAsync();
+                    if (releaseInfo.Success)
+                    {
+                        _lastUpdateCheck = releaseInfo;
+                        ApplyReleaseInfo(releaseInfo);
+                    }
+                    else
+                    {
+                        HasReleaseInfo = false;
+                        ReleaseNotesPreview = "";
+                    }
+
                     var latest = await Services.Updates.VelopackUpdateService
                         .CheckAsync();
                     IsCheckingUpdate = false;

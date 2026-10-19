@@ -1,8 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Theme/BuiltinWallpaperScenes.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Wallpaper system — code-drawn 4K+ scenes (2026-09-06;
-//         2026-09-07: Normal (Industrial) joins the Normal Studio scene)
+// MODULE: Wallpaper system — code-drawn family scenes for the eight-theme system.
 //
 // DESIGN TRUTH (senior answer to "bundle 50 wallpapers"):
 //   Shipping 50 binary wallpapers would bloat the installer by hundreds
@@ -24,12 +23,8 @@
 //   Painted behind modules through the engine's existing
 //   "ModuleWallpaperBrush" key — zero XAML changes required.
 //
-// SCENE SIGNATURES (family → mood) — families shipped (2026-09-06;
-//  2026-09-07 adds Normal (Industrial) to the Studio scene):
-//   Normal (Industrial) → Studio         — cream SaaS sweep (25 August)
-//   Monet               → Golden Hour    — dusk derived from the accent hue
-//   Crystal Fluid       → Luminous Water — cyan water atmosphere
-//   iOS 26              → Grouped Glass  — Apple grouped-grey liquid glass
+// SCENE SIGNATURES align with the selectable eight families; legacy Monet,
+// Crystal Fluid and iOS 26 scene functions remain only for compatibility.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -48,16 +43,14 @@ namespace ProGlassAutomation.Services.Theme
         /// picker never reads "X — X".</summary>
         public static readonly (string Key, string Label)[] All =
         {
-            // Industrial theme pattern wallpaper — warm paper with an
-            // indigo structural wash. Not the family display name ("Normal").
-            (VisualThemeEngine.NormalIndustrial, "Industrial Pattern"),
-            (VisualThemeEngine.Monet,            "Golden Hour"),
-            // iPhone 17 Pro Max (Crystal Fluid) — cyan water atmosphere.
-            (VisualThemeEngine.CrystalFluid,     "Luminous Water"),
-            // iOS 26 — Apple grouped-grey liquid glass. MUST NOT share
-            // Crystal's scene: that was why iOS 26 and iPhone 17 Pro Max
-            // painted identically under ThemeLinked wallpaper.
-            (VisualThemeEngine.Ios26,            "Grouped Glass"),
+            (VisualThemeEngine.BentoGrid, "Modular Bento"),
+            (VisualThemeEngine.SpatialImmersive, "Spatial Atmosphere"),
+            (VisualThemeEngine.SwissInternational, "Swiss Editorial"),
+            (VisualThemeEngine.HolographicIridescent, "Iridescent Spectrum"),
+            (VisualThemeEngine.Neumorphism, "Soft Relief"),
+            (VisualThemeEngine.Claymorphism, "Sculpted Clay"),
+            (VisualThemeEngine.LiquidGlass, "Liquid Light"),
+            (VisualThemeEngine.Glassmorphism, "Frosted Layers"),
         };
 
         /// <summary>Draws the scene for a family. Unknown/empty family →
@@ -72,11 +65,37 @@ namespace ProGlassAutomation.Services.Theme
                 var (h, s, _) = ColorMath.ToHsl(accent);
 
                 string f = string.IsNullOrWhiteSpace(family)
-                    ? VisualThemeEngine.NormalIndustrial
+                    ? VisualThemeEngine.LiquidGlass
                     : family!;
 
-                if (f == VisualThemeEngine.CrystalFluid)
+                if (f == VisualThemeEngine.CrystalFluid ||
+                    f == VisualThemeEngine.LiquidGlass ||
+                    f == VisualThemeEngine.Glassmorphism)
                     return CrystalFluidScene(dark);
+                if (f == VisualThemeEngine.SpatialImmersive)
+                    return Diagonal((Parse(dark ? "#06111D" : "#E7F5F8"), 0.0),
+                        (Parse(dark ? "#0F3344" : "#BDE8EF"), 0.55),
+                        (Parse(dark ? "#071A2A" : "#D9F0F4"), 1.0));
+                if (f == VisualThemeEngine.HolographicIridescent)
+                    return Diagonal((Parse(dark ? "#190F2B" : "#F6F0FF"), 0.0),
+                        (Parse(dark ? "#33204F" : "#E6D8FF"), 0.55),
+                        (Parse(dark ? "#10243A" : "#D5F2FF"), 1.0));
+                if (f == VisualThemeEngine.BentoGrid)
+                    return Diagonal((Parse(dark ? "#0C1222" : "#F5F7FC"), 0.0),
+                        (Parse(dark ? "#182746" : "#E5EBF7"), 0.52),
+                        (Parse(dark ? "#0B1020" : "#FFFFFF"), 1.0));
+                if (f == VisualThemeEngine.SwissInternational)
+                    return Diagonal((Parse(dark ? "#111214" : "#FAF9F7"), 0.0),
+                        (Parse(dark ? "#292A2C" : "#EEEAE5"), 0.62),
+                        (Parse(dark ? "#1A1B1D" : "#FFFFFF"), 1.0));
+                if (f == VisualThemeEngine.Neumorphism)
+                    return Diagonal((Parse(dark ? "#181F2B" : "#E2E8F0"), 0.0),
+                        (Parse(dark ? "#202B3B" : "#D2DBE7"), 0.55),
+                        (Parse(dark ? "#171E29" : "#E2E8F0"), 1.0));
+                if (f == VisualThemeEngine.Claymorphism)
+                    return Diagonal((Parse(dark ? "#1E1830" : "#F4F0FF"), 0.0),
+                        (Parse(dark ? "#49345F" : "#E5D9FA"), 0.55),
+                        (Parse(dark ? "#281F42" : "#F9F1FF"), 1.0));
                 if (f == VisualThemeEngine.Ios26)
                     return Ios26Scene(dark);
                 if (f == VisualThemeEngine.Monet)            return GoldenHour(h, s, dark);
