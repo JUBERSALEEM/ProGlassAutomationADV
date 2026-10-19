@@ -164,7 +164,7 @@
              (AiChatView.xaml.cs) so the user can drag it out of the way. -->
         <Canvas x:Name="ChatCanvas">
         <Border x:Name="ChatPanel"
-                BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Width="420" Height="600"
+                BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Width="420" Height="600"
                 MaxHeight="{Binding ActualHeight,
                             RelativeSource={RelativeSource AncestorType=Window},
                             Converter={StaticResource WindowInsetConverter},
