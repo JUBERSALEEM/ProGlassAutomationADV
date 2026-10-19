@@ -49,6 +49,27 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void Verify_without_publisher_pin_fails_closed()
+        {
+            var path = Path.Combine(
+                Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".exe");
+            File.WriteAllBytes(path, new byte[] { 0x4D, 0x5A, 0x90, 0x00 });
+
+            try
+            {
+                var result = UpdateSignatureVerifier.Verify(path);
+
+                Assert.False(result.IsValid);
+                Assert.Contains("no approved publisher pin", result.Reason,
+                    StringComparison.OrdinalIgnoreCase);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
         public void Verify_unsigned_file_fails_cleanly()
         {
             // "MZ" header but no Authenticode signature → must be refused.
