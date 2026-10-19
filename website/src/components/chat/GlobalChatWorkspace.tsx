@@ -513,13 +513,16 @@ export function GlobalChatWorkspace() {
     if (latestVisible) void markReadRef.current(latestVisible.created_at);
   }, [configured, user]);
 
-  const scheduleVisibleMessagesRead = useCallback(() => {
-    if (visibleReadFrameRef.current !== null) return;
-    visibleReadFrameRef.current = requestAnimationFrame(() => {
-      visibleReadFrameRef.current = null;
-      markVisibleMessagesRead();
-    });
-  }, [markVisibleMessagesRead]);
+  const scheduleVisibleMessagesRead = useCallback(
+    (delay = 32) => {
+      if (!scrollRef.current || visibleReadFrameRef.current !== null) return;
+      visibleReadFrameRef.current = window.setTimeout(() => {
+        visibleReadFrameRef.current = null;
+        markVisibleMessagesRead();
+      }, delay);
+    },
+    [markVisibleMessagesRead],
+  );
 
   const loadChat = useCallback(
     async ({ scroll = false }: { scroll?: boolean } = {}) => {
@@ -582,7 +585,7 @@ export function GlobalChatWorkspace() {
           requestAnimationFrame(() => {
             if (unread > 0 && firstUnread) scrollToMessage(firstUnread);
             else scrollToBottom(false);
-            window.setTimeout(scheduleVisibleMessagesRead, 350);
+            scheduleVisibleMessagesRead(350);
           });
         }
       } catch (reason) {
@@ -642,7 +645,7 @@ export function GlobalChatWorkspace() {
       } else if (nearBottomRef.current) {
         requestAnimationFrame(() => {
           scrollToBottom(true);
-          window.setTimeout(scheduleVisibleMessagesRead, 80);
+          scheduleVisibleMessagesRead(80);
         });
       } else {
         setUnreadCount((count) => count + newIncoming.length);
@@ -750,7 +753,7 @@ export function GlobalChatWorkspace() {
   useEffect(
     () => () => {
       if (deliveredTimerRef.current !== null) window.clearTimeout(deliveredTimerRef.current);
-      if (visibleReadFrameRef.current !== null) cancelAnimationFrame(visibleReadFrameRef.current);
+      if (visibleReadFrameRef.current !== null) window.clearTimeout(visibleReadFrameRef.current);
     },
     [],
   );
