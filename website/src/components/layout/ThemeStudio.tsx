@@ -104,7 +104,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
      the keyboard — a veiled dial still wrote invisible tokens, which is
      the precise failure "plates/frost do nothing" reports. */
   const clayGated = family !== "clay";
-  const glassGated = family !== "crystal";
+  const glassGated = family !== "liquid-glass";
 
   /* The Clay-paused edge controls must ANSWER, not freeze (the "Border
      line button is unresponsive" fix). A hard `disabled` + a
@@ -453,7 +453,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
             <legend className="mono-label">{t("Crystal engine — glass bench")}</legend>
             <p className={cn(
               "mt-1.5 text-[0.75rem] leading-relaxed",
-              family === "crystal"
+              family === "liquid-glass"
                 ? "font-medium text-text-muted"
                 : "rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2 font-semibold text-text-secondary",
             )}>
