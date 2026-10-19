@@ -1,6 +1,6 @@
 # Phase 9 estimator workflow and Phase 10 production coordination
 
-Status: Phases 9A–9D are implemented and live-verified. Phase 9E implementation and database verification are complete; Windows bridge verification is explicitly deferred until 19 October 2026 at 08:00 Asia/Dubai when the PC is available. Do not start the production coordination room before that verification. The next repository-only work is Phase 10 responsive UI redesign; the production coordination room has moved to Phase 11.
+Status: Phases 9A–9D are implemented and live-verified. Phase 9E implementation and database verification are complete; Windows bridge verification is explicitly deferred until 19 October 2026 at 08:00 Asia/Dubai when the PC is available. Owner authorized repository-only implementation of Phase 11A–11B on 19 October 2026; that work is now in the repo. Its migration has not been applied, and live activation remains prohibited until Phase 9E verification passes. Phase 10 responsive UI redesign is implemented except for the final browser visual review.
 
 ## Verified reports-page pattern to reuse
 
@@ -138,11 +138,67 @@ Repository-only visual redesign work while Phase 9E awaits the Windows PC. The w
 
 ## Phase 11 — production coordination room (separate scope)
 
-One production-only room is preferred over separate meeting/stage chats. Membership is explicit for approved department heads and admins; no access follows automatically from customer, estimator, viewer, or bridge roles.
+One production-only room is preferred over separate meeting/stage chats. Membership is explicit for approved department heads and admins; no access follows automatically from customer, estimator, viewer, auditor, or bridge roles. Even inquiry admins must hold an active room-membership row before they can read or post messages; inquiry-admin authority is used only to bootstrap and manage membership.
 
-Planned categories: general production, urgent blocker, material shortage, machine issue, quality issue, schedule change, dispatch dependency, decision, action item.
+Repository-only status (19 October 2026): Phase 11A and Phase 11B are implemented in the repo. The migration `supabase-production-room-phase11a.sql` has not been applied to live Supabase. Do not apply or activate it until Phase 9E Windows bridge verification passes and the owner authorizes live activation. The owner has indicated that the owning Supabase account will be connected for the eventual apply and verification steps.
 
-Planned controls: RLS membership, threads/replies, mentions, unread/read position, pinned decisions, bounded edits/deletion policy, search/date/category filters, action owner/due/status, optional stable links to PI/Job Order/delivery/inquiry, private bounded attachments, and immutable audit events. Voice/video, public employee chat, customer chat, and WPF chat synchronization are excluded initially.
+Categories are fixed identically in SQL and TypeScript: `general_production`, `urgent_blocker`, `material_shortage`, `machine_issue`, `quality_issue`, `schedule_change`, `dispatch_dependency`, `decision`, and `action_item`.
+
+### Phase 11A — schema, RLS, membership, and RPC controls
+
+- [x] Add the additive migration `supabase-production-room-phase11a.sql` with members, messages, read positions, and immutable audit events.
+- [x] Add an explicit production-room member register with display name, department label, room-admin flag, and active state, independent of the one-row `inquiry_operator_roles` contract.
+- [x] Add one-room messages with one-level threads/replies; replies inherit the parent category.
+- [x] Enable RLS on all four new tables, grant authenticated users `SELECT` only, revoke direct `INSERT`/`UPDATE`/`DELETE`, and route every write through reviewed RPCs.
+- [x] Add `is_production_room_member()` and `is_production_room_admin()` helpers for policies and RPC checks.
+- [x] Add RPCs to register/update members, set member active state, post, edit, delete, pin/unpin, and mark the room read.
+- [x] Bound message bodies to 1–4,000 trimmed characters. Authors may edit/delete only within 30 minutes; room admins may delete at any time. Deletion overwrites the body with a tombstone and unpins the message.
+- [x] Allow only top-level `decision` messages to be pinned, and only by active room admins.
+- [x] Protect against deactivating or demoting the last active room admin.
+- [x] Add TypeScript contracts and static security tests (`npm run test:production-room`).
+- [ ] Apply the migration only after Phase 9E passes and explicit live authorization is given.
+- [ ] Run the read-only structural verification below and the live member/non-member/admin matrix after application.
+
+After authorized application, structural verification is read-only:
+
+```sql
+select 'tables' check_name,count(*)::text result from information_schema.tables
+where table_schema='public' and table_name in ('production_room_members','production_room_messages','production_room_reads','production_room_events')
+union all select 'rls_tables',count(*)::text from pg_tables where schemaname='public'
+  and tablename in ('production_room_members','production_room_messages','production_room_reads','production_room_events') and rowsecurity
+union all select 'policies',count(*)::text from pg_policies where schemaname='public'
+  and tablename in ('production_room_members','production_room_messages','production_room_reads','production_room_events')
+union all select 'functions',count(*)::text from information_schema.routines where routine_schema='public'
+  and routine_name in ('is_production_room_member','is_production_room_admin','register_production_room_member','set_production_room_member_active','post_production_room_message','edit_production_room_message','delete_production_room_message','set_production_room_message_pinned','mark_production_room_read')
+union all select 'members',count(*)::text from public.production_room_members
+union all select 'messages',count(*)::text from public.production_room_messages
+union all select 'reads',count(*)::text from public.production_room_reads
+union all select 'events',count(*)::text from public.production_room_events;
+```
+
+Expected immediately after application: 4 tables, 4 RLS tables, 4 policies, 9 functions, and zero rows in all four new tables. Existing inquiry, estimator, document, delivery, record, and job-order counts must be checked separately and remain unchanged.
+
+### Phase 11B — basic room UI
+
+- [x] Add the protected `/production-room` operator route.
+- [x] Add same-origin mutation API routes that forward the signed-in user's token, keeping Supabase RLS as the authority.
+- [x] Add stat cards for active members, unread messages, pinned decisions, and visible threads.
+- [x] Add URL-synchronized search, category, date-range, and pinned-only filters, expanding matched replies into their threads.
+- [x] Add timeline, categorized composer, one-level replies, bounded edit/delete controls, room-admin decision pinning, unread badges, and mark-room-read.
+- [x] Add the pinned-decisions strip.
+- [x] Add member directory plus manager-only registration/update and deactivate/reactivate controls.
+- [x] Add graceful sign-in, non-member/inactive-member, and schema-not-installed states so the repo-only preview does not crash before live activation.
+- [ ] Live-test after migration with room-admin, department-head, inactive-member, non-member, and inquiry-admin-without-room-membership identities.
+
+### Phase 11C — deferred scope
+
+- [ ] Mentions.
+- [ ] Action owner, due date, and status workflow beyond the `action_item` category label.
+- [ ] Optional stable links to PI, Job Order, delivery, and inquiry records.
+- [ ] Private bounded attachments, reusing the established staged-upload and byte/hash controls.
+- [ ] Decide whether Supabase Realtime is needed; Phase 11B deliberately uses refresh plus unread state, consistent with the rest of the site.
+
+Voice/video, public employee chat, customer chat, and WPF chat synchronization remain excluded initially.
 
 ## WPF boundary
 
