@@ -1,27 +1,8 @@
 /**
- * Appearance registry — the website mirrors the application's own
- * Settings → Appearance, so a visitor can see the product's palette on the
- * site rather than being told about it.
- *
- * Ground truth, from the WPF repository:
- *
- *   VisualThemeEngine.Part1.cs   — the four selectable families:
- *                                  Industrial (default), Monet,
- *                                  Crystal Fluid (displayed "iPhone 17 Pro Max"),
- *                                  iOS 26
- *   AppConfig.cs                 — VisualTheme default and migration notes
- *   AccentPresets.cs             — the 16 accent presets + Custom, with hex
- *   BuiltinWallpaperScenes.cs    — Monet paints an accent-derived "Golden Hour"
- *
- * What the website does with that: two independent controls, one click each.
- *
- *   MODE      Light · Dark · System        (surface lightness)
- *   FAMILY    Studio · Monet · Industrial · Crystal
- *
- * `Studio` is this website's own palette — deep violet, derived from the
- * Violet accent preset. The other three follow the application's families so
- * the site and the product read as one piece of work. Mode and family are
- * independent, which is how the application treats them too (ModePairFor).
+ * Shared eight-family appearance registry. The selectable IDs intentionally
+ * match the WPF ERP's persisted family identities by meaning, while the web
+ * uses kebab-case IDs for DOM attributes. Legacy "crystal" is a type-only
+ * compatibility alias and is not included in the selectable family list.
  */
 
 export type ThemeMode = "light" | "dark" | "system";
