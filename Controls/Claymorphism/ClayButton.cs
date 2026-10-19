@@ -7,20 +7,30 @@
 //
 // ── THE PRESS IS THE WHOLE POINT ─────────────────────────────────────
 // On every other button in this app, :active changes a colour. Here it
-// changes the object's GEOMETRY OF LIGHT: the two inner rolls cross over
-// and the drop collapses toward contact. That is what pressing clay
-// looks like, and substituting a tint for it is the mistake that makes
-// most "clay" buttons feel like tinted rectangles.
+// pushes the object two pixels into the page and takes two percent off
+// its scale. That is what pressing clay looks like, and substituting a
+// tint for it is the mistake that makes most "clay" buttons feel like
+// tinted rectangles.
 //
-// ── PRESS MUST NOT BE A DEPTH SIGNAL ALONE ───────────────────────────
-// WCAG 2.4.7 and 1.4.1 both care here: a raised-versus-pressed shadow
-// change is not perceivable by everyone — it is a low-contrast,
-// non-textual, shadow-only difference, which is exactly the class of cue
-// the guidelines exclude. So a pressed button ALSO darkens its fill by a
-// visible amount. That is why <see cref="PressedFillShift"/> exists and
-// why it is not optional styling.
+// ── PRESS IS A MOVE, NOT A SHADOW SWAP ──────────────────────────────
+// The press used to darken the fill as well, on the theory that a
+// shadow-only cue fails WCAG 1.4.1. That theory was right and its
+// remedy was wrong for this family: the reference grammar makes press a
+// TRANSFORM (translateY(2px) scale(0.98)), and a transform is movement —
+// a perceivable non-colour cue in its own right, so 1.4.1 is satisfied
+// by the geometry rather than by piling a colour change on top of it.
+// Two cues where one is enough is how a control starts to feel mushy.
 //
-// ── REDUCED MOTION ───────────────────────────────────────────────────
+// The tier is deliberately left alone on press (see SoftDepthRules):
+// the object does not change depth, it moves.
+//
+// ── SHADOWS ARE NEVER ANIMATED ───────────────────────────────────────
+// The mould is painted as three discrete states rather than interpolated.
+// box-shadow/blur animation is the single most expensive thing a soft-UI
+// surface can do, and a scrolling grid pays for it on every frame.
+// The transform is the only thing that moves, and it is cheap.
+//
+//// ── REDUCED MOTION ───────────────────────────────────────────────────
 // The crossing is an instant state change, not an animation, so the
 // preference has nothing to switch off here — the press still reads,
 // because it now carries a colour change as well as a shape change.
@@ -57,29 +67,6 @@ namespace ProGlassAutomation.Controls.Claymorphism
         {
             get => (CornerRadius)GetValue(ClayCornerRadiusProperty);
             set => SetValue(ClayCornerRadiusProperty, value);
-        }
-
-        /// <summary>
-        /// How far the fill darkens on press, 0..1.
-        /// <para>
-        /// This is the accessibility half of the press. Do not set it to
-        /// zero to "keep it subtle" — a press signalled only by a shadow
-        /// swap fails WCAG 1.4.1 (use of colour is not the only cue) and
-        /// SC 2.4.7 (focus visible), and it is invisible to anyone with
-        /// reduced contrast sensitivity, which is the exact population
-        /// most drawn to a soft-UI theme.
-        /// </para>
-        /// </summary>
-        public static readonly DependencyProperty PressedFillShiftProperty =
-            DependencyProperty.Register(
-                nameof(PressedFillShift), typeof(double),
-                typeof(ClayButton),
-                new FrameworkPropertyMetadata(0.10, OnClayChanged));
-
-        public double PressedFillShift
-        {
-            get => (double)GetValue(PressedFillShiftProperty);
-            set => SetValue(PressedFillShiftProperty, value);
         }
 
         /// <summary>
@@ -219,10 +206,6 @@ namespace ProGlassAutomation.Controls.Claymorphism
                 baseFill = accent?.Color ?? Colors.Gray;
             }
 
-            if (state == SoftInteractionState.Pressed)
-            {
-                return ClayPaletteShade(baseFill, PressedFillShift);
-            }
             if (state == SoftInteractionState.Disabled)
             {
                 return ClayPaletteShade(baseFill, 0.55);

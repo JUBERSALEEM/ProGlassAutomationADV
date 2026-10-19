@@ -466,6 +466,25 @@ def check_resource_scoping(root, findings):
     return dup_reported
 
 
+def check_xml_comments(path, text, findings):
+    """`--` is ILLEGAL inside an XML comment, and it is silent.
+
+    Writing `<!-- press: not a shadow swap -- a transform -->` produces a
+    document that no XML parser will accept, so the build fails with a
+    message that points at the markup rather than at the dash. It is
+    caught here because the habit of writing an em-dash as `--` in prose
+    is near-universal, including in this file's own comments.
+    """
+    for m in re.finditer(r"<!--.*?-->", text, re.S):
+        if "--" in m.group(0)[4:-3]:
+            line = text[:m.start()].count("\n") + 1
+            findings.append((
+                path, line,
+                "XML0031 a comment contains '--', which is illegal inside "
+                "an XML comment and makes the file unparseable",
+            ))
+
+
 def main():
     root = repo_root()
     os.chdir(root)
@@ -502,6 +521,16 @@ def main():
     # therefore off unless asked for, and always on for the theme
     # surface, where the merge graph is small and fully known.
     do_keys = want_keys or bool(args and args[0] == "--all-theme")
+
+    # XML comment legality. Cheap, and it catches a dash written as
+    # `--` in prose -- which happens constantly and fails the build with
+    # an error that never points at the dash.
+    for f in files:
+        try:
+            _txt = open(f, encoding="utf-8", errors="ignore").read()
+        except OSError:
+            continue
+        check_xml_comments(f, _txt, findings)
 
     # Parse-time resource scoping: duplicate keys, BasedOn, StaticResource.
     # Always on -- it only inspects dictionaries App.xaml really merges,

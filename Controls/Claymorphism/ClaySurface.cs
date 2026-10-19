@@ -250,5 +250,35 @@ namespace ProGlassAutomation.Controls.Claymorphism
             Math.Max(0,
                 Math.Max(r.TopLeft, Math.Max(r.TopRight,
                     Math.Max(r.BottomRight, r.BottomLeft))));
+
+        /// <summary>
+        /// Moves a fill toward black. Shared so the whole family dims a
+        /// disabled control identically — ClayButton used to keep its own
+        /// private copy, which is exactly how two controls end up
+        /// disagreeing about what "disabled" looks like.
+        /// </summary>
+        /// <remarks>
+        /// Deliberately NOT part of the clay recipe: a fill belongs to the
+        /// accent pipeline, whereas the recipe shapes a surface. Clay
+        /// geometry and surface colour are separate concerns.
+        /// </remarks>
+        internal static Color Shade(Color c, double amount)
+        {
+            double k = Math.Clamp(amount, 0, 1);
+            return Color.FromRgb(
+                (byte)Math.Round(c.R * (1 - k)),
+                (byte)Math.Round(c.G * (1 - k)),
+                (byte)Math.Round(c.B * (1 - k)));
+        }
+
+        /// <summary>Moves a fill toward white.</summary>
+        internal static Color Lighten(Color c, double amount)
+        {
+            double k = Math.Clamp(amount, 0, 1);
+            return Color.FromRgb(
+                (byte)Math.Round(c.R + (255 - c.R) * k),
+                (byte)Math.Round(c.G + (255 - c.G) * k),
+                (byte)Math.Round(c.B + (255 - c.B) * k));
+        }
     }
 }

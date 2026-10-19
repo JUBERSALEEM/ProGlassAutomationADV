@@ -137,7 +137,21 @@
                              Color="White" />
         </ControlTemplate.Resources>
 
-        <Grid>
+        <!-- The press transform sits on the OUTER grid, not on the drop
+             host, so the shadow travels with the button instead of the
+             surface shrinking out from under a stationary shadow.
+             This is a TRANSFORM, not a shadow swap: a translate/scale is
+             movement, which is a non-colour cue, so WCAG 1.4.1 is
+             satisfied by the geometry and the fill no longer has to
+             carry the signal as well. -->
+        <Grid RenderTransformOrigin="0.5,0.5">
+            <Grid.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="ClayPressScale"
+                                    ScaleX="1" ScaleY="1" />
+                    <TranslateTransform x:Name="ClayPressTranslate" Y="0" />
+                </TransformGroup>
+            </Grid.RenderTransform>
             <Border x:Name="FocusRingHost"
                     Style="{StaticResource ClayFocusRing}"
                     Visibility="Collapsed"
@@ -171,6 +185,15 @@
         </Grid>
 
         <ControlTemplate.Triggers>
+            <!-- Press: the object moves into the page. Not a shadow swap,
+                 not a fill change - a transform. Nothing here animates a
+                 blur radius, which is the one thing a scrolling grid
+                 cannot afford. -->
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="ClayPressScale" Property="ScaleX" Value="0.98" />
+                <Setter TargetName="ClayPressScale" Property="ScaleY" Value="0.98" />
+                <Setter TargetName="ClayPressTranslate" Property="Y" Value="2" />
+            </Trigger>
             <Trigger Property="IsKeyboardFocused" Value="True">
                 <Setter TargetName="FocusRingHost"
                         Property="Visibility" Value="Visible" />
@@ -321,6 +344,814 @@
                 Value="{DynamicResource AccentForegroundBrush}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+
+    <!-- ═══════════════════════════════════════════════════════════
+         THE COMPONENT CATALOGUE
+
+         Every template below is the SAME four-border mould plus the
+         part that makes the component itself. None of them paints a
+         shadow by hand — the recipe owns the light, so a component can
+         never disagree with the surface it sits on.
+
+         The four names are load-bearing:
+           PART_ClayDropHost  fill + outer drop (shadow follows the
+                              silhouette, so THIS is the opaque one)
+           PART_ClayHighlight inner roll toward the light
+           PART_ClayShade     inner roll away from it — declared AFTER
+                              the highlight so it paints on top and the
+                              crossover forms the rounded edge
+           PART_ClayEdge      the accessible 3:1 boundary
+         ═══════════════════════════════════════════════════════════ -->
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CLAY FIELD — concave, because text goes IN
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="ClayFieldTemplate"
+                     TargetType="{x:Type clay:ClayField}">
+        <Grid>
+            <Border x:Name="FocusRingHost"
+                    Style="{StaticResource ClayFocusRing}"
+                    Visibility="Collapsed"
+                    CornerRadius="{TemplateBinding ClayCornerRadius}" />
+
+            <Border x:Name="PART_ClayDropHost"
+                    CornerRadius="{TemplateBinding ClayCornerRadius}"
+                    Background="Transparent">
+                <Grid>
+                    <Border x:Name="PART_ClayHighlight"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+
+                    <Border x:Name="PART_ClayShade"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+
+                    <!-- Placeholder. Sits UNDER the real text and is
+                         revealed only while the field is empty, so it can
+                         never overlap a value. -->
+                    <TextBlock x:Name="ClayPlaceholderText"
+                               Margin="{TemplateBinding Padding}"
+                               Text="{TemplateBinding ClayPlaceholder}"
+                               Foreground="{TemplateBinding ClayPlaceholderBrush}"
+                               VerticalAlignment="Center"
+                               IsHitTestVisible="False"
+                               Visibility="Collapsed" />
+
+                    <!-- PART_ContentHost is not optional. WPF renders the
+                         text and blinks the caret through this part; a
+                         template without it is an empty box that still
+                         takes focus. -->
+                    <ScrollViewer x:Name="PART_ContentHost"
+                                  Margin="{TemplateBinding Padding}"
+                                  VerticalAlignment="Center"
+                                  Focusable="False"
+                                  HorizontalScrollBarVisibility="Hidden"
+                                  VerticalScrollBarVisibility="Hidden" />
+
+                    <Border x:Name="PART_ClayEdge"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False"
+                            BorderThickness="1" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <ControlTemplate.Triggers>
+            <!-- Reveal the placeholder only while the field is empty.
+                 This uses a bare equality test on purpose. An "is null OR
+                 is whitespace" converter would read better, but it means
+                 shipping a converter, and the only difference is whether
+                 a field containing a single space shows its hint - not
+                 worth the extra indirection in a template every field on
+                 the page pays to parse. -->
+            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}"
+                         Value="">
+                <Setter TargetName="ClayPlaceholderText" Property="Visibility" Value="Visible" />
+            </DataTrigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="FocusRingHost" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="PART_ClayDropHost" Property="Opacity" Value="0.55" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type clay:ClayField}">
+        <Setter Property="Template" Value="{StaticResource ClayFieldTemplate}" />
+        <Setter Property="Padding" Value="18,0" />
+        <Setter Property="Height" Value="52" />
+        <Setter Property="ClayCornerRadius" Value="22" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}" />
+        <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}" />
+        <Setter Property="SelectionOpacity" Value="0.35" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CLAY TOGGLE SWITCH — track + thumb, two tiers nested
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="ClayToggleSwitchTemplate"
+                     TargetType="{x:Type clay:ClayToggleSwitch}">
+        <Grid>
+            <Border x:Name="FocusRingHost"
+                    Style="{StaticResource ClayFocusRing}"
+                    Visibility="Collapsed"
+                    CornerRadius="{TemplateBinding ClayCornerRadius}" />
+
+            <Border x:Name="PART_ClayDropHost"
+                    CornerRadius="{TemplateBinding ClayCornerRadius}"
+                    Background="Transparent">
+                <Grid>
+                    <Border x:Name="PART_ClayHighlight"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+
+                    <Border x:Name="PART_ClayShade"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+
+                    <Border x:Name="PART_ClayEdge"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False"
+                            BorderThickness="1" />
+                </Grid>
+            </Border>
+
+            <!-- The thumb. It keeps the Raised tier in BOTH positions; a
+                 thumb that flattens on the off state stops reading as
+                 something you can grab. Position, not colour, is the
+                 state signal — so this survives greyscale. -->
+            <Border x:Name="ClaySwitchThumb"
+                    Width="26" Height="26"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Margin="5,0,0,0"
+                    CornerRadius="13"
+                    Background="{DynamicResource SurfacePrimaryBrush}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="3"
+                                      Direction="315" Opacity="0.34" />
+                </Border.Effect>
+            </Border>
+        </Grid>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="ClaySwitchThumb"
+                        Property="HorizontalAlignment" Value="Right" />
+                <Setter TargetName="ClaySwitchThumb"
+                        Property="Margin" Value="0,0,5,0" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="FocusRingHost" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="PART_ClayDropHost" Property="Opacity" Value="0.55" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type clay:ClayToggleSwitch}">
+        <Setter Property="Template" Value="{StaticResource ClayToggleSwitchTemplate}" />
+        <Setter Property="Width" Value="58" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="ClayCornerRadius" Value="17" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CLAY ICON BUTTON — square, press moves it into the page
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="ClayIconButtonTemplate"
+                     TargetType="{x:Type clay:ClayIconButton}">
+        <ControlTemplate.Resources>
+            <!-- Mutated from code; left unfrozen for that reason. -->
+            <SolidColorBrush x:Key="ClayIconBrush" Color="Black" />
+        </ControlTemplate.Resources>
+
+        <!-- The press transform lives on the OUTER grid, not on the drop
+             host, so the shadow travels with the button instead of the
+             surface shrinking out from under a stationary shadow. -->
+        <Grid RenderTransformOrigin="0.5,0.5">
+            <Grid.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="ClayIconPressScale"
+                                    ScaleX="1" ScaleY="1" />
+                    <TranslateTransform x:Name="ClayIconPressTranslate" Y="0" />
+                </TransformGroup>
+            </Grid.RenderTransform>
+
+            <Border x:Name="FocusRingHost"
+                    Style="{StaticResource ClayFocusRing}"
+                    Visibility="Collapsed"
+                    CornerRadius="{TemplateBinding ClayCornerRadius}" />
+
+            <Border x:Name="PART_ClayDropHost"
+                    CornerRadius="{TemplateBinding ClayCornerRadius}"
+                    Background="Transparent">
+                <Grid>
+                    <Border x:Name="PART_ClayHighlight"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+                    <Border x:Name="PART_ClayShade"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+                    <ContentPresenter Margin="{TemplateBinding Padding}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      RecognizesAccessKey="True" />
+                    <Border x:Name="PART_ClayEdge"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False"
+                            BorderThickness="1" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="ClayIconPressScale" Property="ScaleX" Value="0.96" />
+                <Setter TargetName="ClayIconPressScale" Property="ScaleY" Value="0.96" />
+                <Setter TargetName="ClayIconPressTranslate" Property="Y" Value="2" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="FocusRingHost" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="PART_ClayDropHost" Property="Opacity" Value="0.55" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type clay:ClayIconButton}">
+        <Setter Property="Template" Value="{StaticResource ClayIconButtonTemplate}" />
+        <Setter Property="Width" Value="44" />
+        <Setter Property="Height" Value="44" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="ClayCornerRadius" Value="16" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CLAY CHIP — the documented exception, ink fill, no card pose
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="ClayChipTemplate"
+                     TargetType="{x:Type clay:ClayChip}">
+        <ControlTemplate.Resources>
+            <SolidColorBrush x:Key="ClayChipBrush" Color="White" />
+        </ControlTemplate.Resources>
+
+        <Border x:Name="PART_ClayDropHost"
+                CornerRadius="{TemplateBinding ClayCornerRadius}"
+                Background="Transparent">
+            <Grid>
+                <Border x:Name="PART_ClayHighlight"
+                        CornerRadius="{TemplateBinding ClayCornerRadius}"
+                        IsHitTestVisible="False" />
+                <Border x:Name="PART_ClayShade"
+                        CornerRadius="{TemplateBinding ClayCornerRadius}"
+                        IsHitTestVisible="False" />
+                <ContentPresenter Margin="{TemplateBinding Padding}"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center" />
+                <Border x:Name="PART_ClayEdge"
+                        CornerRadius="{TemplateBinding ClayCornerRadius}"
+                        IsHitTestVisible="False"
+                        BorderThickness="1" />
+            </Grid>
+        </Border>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="PART_ClayDropHost" Property="Opacity" Value="0.55" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type clay:ClayChip}">
+        <Setter Property="Template" Value="{StaticResource ClayChipTemplate}" />
+        <Setter Property="Padding" Value="12,5" />
+        <Setter Property="ClayCornerRadius" Value="14" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CLAY STAT TILE — label, value, delta
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="ClayStatTileTemplate"
+                     TargetType="{x:Type clay:ClayStatTile}">
+        <ControlTemplate.Resources>
+            <SolidColorBrush x:Key="ClayTileValueBrush" Color="Black" />
+            <SolidColorBrush x:Key="ClayTileLabelBrush" Color="Gray" />
+            <SolidColorBrush x:Key="ClayTileDeltaBrush" Color="Gray" />
+        </ControlTemplate.Resources>
+
+        <Border x:Name="PART_ClayDropHost"
+                CornerRadius="{TemplateBinding ClayCornerRadius}"
+                Background="Transparent">
+            <Grid>
+                <Border x:Name="PART_ClayHighlight"
+                        CornerRadius="{TemplateBinding ClayCornerRadius}"
+                        IsHitTestVisible="False" />
+                <Border x:Name="PART_ClayShade"
+                        CornerRadius="{TemplateBinding ClayCornerRadius}"
+                        IsHitTestVisible="False" />
+
+                <StackPanel Margin="{TemplateBinding Padding}">
+                    <TextBlock Text="{TemplateBinding ClayLabelText}"
+                               Foreground="{StaticResource ClayTileLabelBrush}"
+                               FontSize="12" FontWeight="SemiBold" />
+                    <TextBlock Text="{TemplateBinding ClayValueText}"
+                               Foreground="{StaticResource ClayTileValueBrush}"
+                               FontSize="30" FontWeight="Bold"
+                               Margin="0,4,0,0" TextWrapping="NoWrap" />
+                    <!-- The arrow is the cue that makes direction
+                         non-colour. It is drawn for BOTH directions; an
+                         absent arrow would leave colour as the only
+                         difference, which is the thing 1.4.1 forbids. -->
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,8,0,0">
+                        <TextBlock x:Name="ClayDeltaArrow"
+                                   Text="•" FontSize="11"
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource ClayTileDeltaBrush}" />
+                        <TextBlock Text="{TemplateBinding ClayDeltaText}"
+                                   Foreground="{StaticResource ClayTileDeltaBrush}"
+                                   FontSize="13" FontWeight="SemiBold"
+                                   Margin="5,0,0,0" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Caller-supplied content sits UNDER the tile's own
+                     parts so a caller cannot repaint the mould. -->
+                <ContentPresenter Margin="{TemplateBinding Padding}"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Bottom" />
+
+                <Border x:Name="PART_ClayEdge"
+                        CornerRadius="{TemplateBinding ClayCornerRadius}"
+                        IsHitTestVisible="False"
+                        BorderThickness="1" />
+            </Grid>
+        </Border>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="PART_ClayDropHost" Property="Opacity" Value="0.55" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type clay:ClayStatTile}">
+        <Setter Property="Template" Value="{StaticResource ClayStatTileTemplate}" />
+        <Setter Property="Padding" Value="22" />
+        <Setter Property="ClayCornerRadius" Value="28" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CLAY PROGRESS BAR — concave track, FLAT accent fill
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="ClayProgressBarTemplate"
+                     TargetType="{x:Type clay:ClayProgressBar}">
+        <ControlTemplate.Resources>
+            <SolidColorBrush x:Key="ClayProgressFillBrush" Color="Gray" />
+        </ControlTemplate.Resources>
+
+        <Border x:Name="PART_ClayDropHost"
+                CornerRadius="{TemplateBinding ClayCornerRadius}"
+                Background="Transparent"
+                ClipToBounds="True">
+            <Grid>
+                <Border x:Name="PART_ClayHighlight"
+                        CornerRadius="{TemplateBinding ClayCornerRadius}"
+                        IsHitTestVisible="False" />
+                <Border x:Name="PART_ClayShade"
+                        CornerRadius="{TemplateBinding ClayCornerRadius}"
+                        IsHitTestVisible="False" />
+
+                <!-- The fill is FLAT on purpose: at 14px a three-shadow
+                     stack cannot resolve and reads as a lit tube. Its
+                     radius is inset by 2px so it sits INSIDE the groove
+                     rather than filling it edge to edge. -->
+                <Border x:Name="ClayProgressFillHost"
+                        HorizontalAlignment="Left"
+                        Margin="2"
+                        CornerRadius="{TemplateBinding ClayCornerRadius}"
+                        Background="{StaticResource ClayProgressFillBrush}" />
+
+                <Border x:Name="PART_ClayEdge"
+                        CornerRadius="{TemplateBinding ClayCornerRadius}"
+                        IsHitTestVisible="False"
+                        BorderThickness="1" />
+            </Grid>
+        </Border>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type clay:ClayProgressBar}">
+        <Setter Property="Template" Value="{StaticResource ClayProgressBarTemplate}" />
+        <Setter Property="Height" Value="14" />
+        <Setter Property="ClayCornerRadius" Value="7" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CLAY PROGRESS RING — arc driven from the REAL circumference
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="ClayProgressRingTemplate"
+                     TargetType="{x:Type clay:ClayProgressRing}">
+        <ControlTemplate.Resources>
+            <SolidColorBrush x:Key="ClayRingBrush" Color="Gray" />
+        </ControlTemplate.Resources>
+
+        <Grid x:Name="ClayRingGrid">
+            <!-- Track: the full circle, sunk. -->
+            <Ellipse StrokeThickness="{TemplateBinding ClayThickness}">
+                <Ellipse.Stroke>
+                    <SolidColorBrush Color="{DynamicResource SurfaceSecondaryBrush}" />
+                </Ellipse.Stroke>
+                <Ellipse.Opacity>0.55</Ellipse.Opacity>
+            </Ellipse>
+
+            <!-- Arc. The dash array is COMPUTED from the rendered size,
+                 never hard-coded: a fixed dash silently mis-draws the
+                 moment the ring is resized. -->
+            <Ellipse x:Name="ClayRingArc"
+                     StrokeThickness="{TemplateBinding ClayThickness}"
+                     Stroke="{StaticResource ClayRingBrush}"
+                     RenderTransformOrigin="0.5,0.5" />
+
+            <TextBlock x:Name="ClayRingCenter"
+                       Text="{TemplateBinding ClayCenterText}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontSize="20" FontWeight="Bold"
+                       Foreground="{DynamicResource TextPrimaryBrush}" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type clay:ClayProgressRing}">
+        <Setter Property="Template" Value="{StaticResource ClayProgressRingTemplate}" />
+        <Setter Property="Width" Value="96" />
+        <Setter Property="Height" Value="96" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CLAY SLIDER — concave track, raised thumb
+         ═══════════════════════════════════════════════════════════ -->
+
+    <!-- The thumb is its OWN mould, so it carries its own template. -->
+    <ControlTemplate x:Key="ClaySliderThumbTemplate"
+                     TargetType="{x:Type Border}">
+        <Grid>
+            <Border x:Name="PART_ClayDropHost"
+                    CornerRadius="14" Background="Transparent">
+                <Grid>
+                    <Border x:Name="PART_ClayHighlight"
+                            CornerRadius="14" IsHitTestVisible="False" />
+                    <Border x:Name="PART_ClayShade"
+                            CornerRadius="14" IsHitTestVisible="False" />
+                    <Border x:Name="PART_ClayEdge"
+                            CornerRadius="14" IsHitTestVisible="False"
+                            BorderThickness="1" />
+                </Grid>
+            </Border>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="ClaySliderTemplate"
+                     TargetType="{x:Type clay:ClaySlider}">
+        <Grid>
+            <Border x:Name="FocusRingHost"
+                    Style="{StaticResource ClayFocusRing}"
+                    Visibility="Collapsed"
+                    CornerRadius="{TemplateBinding ClayCornerRadius}" />
+
+            <Border x:Name="PART_ClayDropHost"
+                    Height="14"
+                    VerticalAlignment="Center"
+                    CornerRadius="{TemplateBinding ClayCornerRadius}"
+                    Background="Transparent">
+                <Grid ClipToBounds="True">
+                    <Border x:Name="PART_ClayHighlight"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+                    <Border x:Name="PART_ClayShade"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+
+                    <!-- The filled portion. Flat, for the same reason the
+                         progress bar's fill is flat. -->
+                    <Border x:Name="ClaySliderFill"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Height="14"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            Background="{DynamicResource AccentBrush}" />
+
+                    <Border x:Name="PART_ClayEdge"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False"
+                            BorderThickness="1" />
+                </Grid>
+            </Border>
+
+            <!-- Offset is pushed from Value in code. -->
+            <Border x:Name="ClaySliderThumb"
+                    Width="28" Height="28"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Template="{StaticResource ClaySliderThumbTemplate}" />
+        </Grid>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter TargetName="FocusRingHost" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="PART_ClayDropHost" Property="Opacity" Value="0.55" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type clay:ClaySlider}">
+        <Setter Property="Template" Value="{StaticResource ClaySliderTemplate}" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="ClayCornerRadius" Value="7" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CLAY MENU ROW — the row that is the same control everywhere
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="ClayMenuRowTemplate"
+                     TargetType="{x:Type clay:ClayMenuRow}">
+        <Grid>
+            <Border x:Name="FocusRingHost"
+                    Style="{StaticResource ClayFocusRing}"
+                    Visibility="Collapsed"
+                    CornerRadius="{TemplateBinding ClayCornerRadius}" />
+
+            <Border x:Name="PART_ClayDropHost"
+                    CornerRadius="{TemplateBinding ClayCornerRadius}"
+                    Background="Transparent">
+                <Grid>
+                    <Border x:Name="PART_ClayHighlight"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+                    <Border x:Name="PART_ClayShade"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Margin="{TemplateBinding Padding}">
+                        <!-- The selection marker. A selected row is tinted
+                             AND marked, so the selection survives
+                             greyscale and colour blindness. -->
+                        <Border x:Name="ClayRowMarker"
+                                Width="4" Height="18"
+                                CornerRadius="2"
+                                Margin="0,0,12,0"
+                                VerticalAlignment="Center"
+                                Background="{DynamicResource AccentBrush}"
+                                Visibility="Collapsed" />
+
+                        <TextBlock x:Name="ClayRowGlyph"
+                                   Text="{TemplateBinding ClayRowGlyph}"
+                                   FontSize="15"
+                                   Margin="0,0,12,0"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextPrimaryBrush}" />
+
+                        <ContentPresenter VerticalAlignment="Center"
+                                          RecognizesAccessKey="True" />
+                    </StackPanel>
+
+                    <Border x:Name="PART_ClayEdge"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False"
+                            BorderThickness="1" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsSelectedRow" Value="True">
+                <Setter TargetName="ClayRowMarker" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="ClayRowGlyph" Value="">
+                <Setter TargetName="ClayRowGlyph" Property="Margin" Value="0" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="FocusRingHost" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="PART_ClayDropHost" Property="Opacity" Value="0.55" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type clay:ClayMenuRow}">
+        <Setter Property="Template" Value="{StaticResource ClayMenuRowTemplate}" />
+        <Setter Property="Padding" Value="14,0" />
+        <Setter Property="Height" Value="48" />
+        <Setter Property="ClayCornerRadius" Value="18" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CLAY COMBOBOX — closed is a Surface, open is a menu list
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="ClayComboBoxTemplate"
+                     TargetType="{x:Type clay:ClayComboBox}">
+        <Grid>
+            <Border x:Name="FocusRingHost"
+                    Style="{StaticResource ClayFocusRing}"
+                    Visibility="Collapsed"
+                    CornerRadius="{TemplateBinding ClayCornerRadius}" />
+
+            <Border x:Name="PART_ClayDropHost"
+                    CornerRadius="{TemplateBinding ClayCornerRadius}"
+                    Background="Transparent">
+                <Grid>
+                    <Border x:Name="PART_ClayHighlight"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+                    <Border x:Name="PART_ClayShade"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+
+                    <Grid Margin="{TemplateBinding Padding}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock x:Name="ClayComboSelection"
+                                   Grid.Column="0"
+                                   VerticalAlignment="Center"
+                                   Text="{TemplateBinding SelectionBoxItem}"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource TextPrimaryBrush}" />
+
+                        <!-- Chevron. The open/closed state is carried by
+                             ROTATION as well as by the surface lift, so
+                             the state is not signalled by depth alone. -->
+                        <Path x:Name="ClayComboChevron"
+                              Grid.Column="1"
+                              Width="10" Height="6"
+                              VerticalAlignment="Center"
+                              HorizontalAlignment="Right"
+                              Data="M 0,0 L 10,0 L 5,6 Z"
+                              Fill="{DynamicResource TextSecondaryBrush}"
+                              RenderTransformOrigin="0.5,0.5">
+                            <Path.RenderTransform>
+                                <RotateTransform x:Name="ClayComboChevronRotate"
+                                                 Angle="0" />
+                            </Path.RenderTransform>
+                        </Path>
+                    </Grid>
+
+                    <!-- Keyboard support. AccessibleName lets the caller
+                         name the control for a screen reader. -->
+                    <TextBlock x:Name="ClayComboProxy"
+                               Visibility="Collapsed"
+                               Text="{TemplateBinding SelectedItem}" />
+
+                    <Border x:Name="PART_ClayEdge"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False"
+                            BorderThickness="1" />
+                </Grid>
+            </Border>
+
+            <!-- The hit target. Covers the surface so the whole card is
+                 clickable, and owns the popup. -->
+            <ToggleButton x:Name="ClayComboToggle"
+                          Focusable="False"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                          ClickMode="Press">
+                <ToggleButton.Template>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Border Background="Transparent" />
+                    </ControlTemplate>
+                </ToggleButton.Template>
+
+                <!-- PART_Popup is REQUIRED by name: ComboBox looks the
+                     popup up by exactly this key and silently does
+                     nothing without it. -->
+                <Popup x:Name="PART_Popup"
+                       IsOpen="{TemplateBinding IsDropDownOpen}"
+                       Placement="Bottom"
+                       AllowsTransparency="True"
+                       Focusable="False"
+                       PopupAnimation="Fade">
+                    <Border x:Name="ClayDropdownHost"
+                            Margin="0,8,0,0"
+                            Padding="6"
+                            MinWidth="{TemplateBinding ActualWidth}"
+                            CornerRadius="22"
+                            Background="{DynamicResource SurfacePrimaryBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
+                            BorderThickness="1">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="26" ShadowDepth="8"
+                                              Direction="315" Opacity="0.32" />
+                        </Border.Effect>
+                        <ScrollViewer MaxHeight="320"
+                                      VerticalScrollBarVisibility="Auto">
+                            <ItemsPresenter />
+                        </ScrollViewer>
+                    </Border>
+                </Popup>
+            </ToggleButton>
+        </Grid>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsDropDownOpen" Value="True">
+                <Setter TargetName="ClayComboChevronRotate"
+                        Property="Angle" Value="180" />
+                <Setter TargetName="ClayDropdownHost"
+                        Property="Background"
+                        Value="{DynamicResource SurfacePrimaryBrush}" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter TargetName="FocusRingHost" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="PART_ClayDropHost" Property="Opacity" Value="0.55" />
+            </Trigger>
+            <Trigger Property="SelectedItem" Value="{x:Null}">
+                <Setter TargetName="ClayComboSelection"
+                        Property="Text" Value="Select…" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type clay:ClayComboBox}">
+        <Setter Property="Template" Value="{StaticResource ClayComboBoxTemplate}" />
+        <Setter Property="Padding" Value="18,0" />
+        <Setter Property="Height" Value="52" />
+        <Setter Property="ClayCornerRadius" Value="22" />
+        <Setter Property="FontSize" Value="14" />
+        <!-- The open list is clay menu rows, so a dropdown and a nav
+             rail are literally the same object. -->
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type clay:ClayMenuRow}">
+                    <Setter Property="Template" Value="{StaticResource ClayMenuRowTemplate}" />
+                    <Setter Property="Padding" Value="14,0" />
+                    <Setter Property="Height" Value="44" />
+                    <Setter Property="ClayCornerRadius" Value="16" />
+                    <Setter Property="FontSize" Value="14" />
+                    <Setter Property="HorizontalContentAlignment" Value="Left" />
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
     </Style>
 
 </ResourceDictionary>

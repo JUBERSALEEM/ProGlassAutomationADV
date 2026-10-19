@@ -16,7 +16,6 @@
 
 using System;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using ProGlassAutomation.Services.Theme.Clay;
 using ProGlassAutomation.Services.Theme.SoftUi;
@@ -60,21 +59,23 @@ namespace ProGlassAutomation.Controls.Claymorphism
         /// a template authoring error, so it is reported loudly rather
         /// than leaving half a recipe painted.
         /// <para>
-        /// CONTROL, not FrameworkElement. Only Control carries a
-        /// <c>Template</c>; FrameworkElement has no such member, so
-        /// every <c>root.Template</c> call in this method was CS1061.
-        /// The narrower parameter is also the honest one — there is
-        /// no such thing as a template on a bare FrameworkElement,
-        /// and widening the type just to make it call would only
-        /// hide that.
+        /// The parameter is FRAMEWORK ELEMENT, not Control. The comment
+        /// that used to stand here claimed only Control carries a
+        /// <c>Template</c> and FrameworkElement has no such member — that
+        /// is simply wrong: Template is declared on FrameworkElement, and
+        /// Control inherits it. The narrower signature was not caught
+        /// earlier because every existing caller passes <c>this</c> from a
+        /// Control, which satisfies both. ClaySlider's thumb is a Border
+        /// carrying its own ControlTemplate, and it is exactly the case
+        /// the narrow parameter could not express.
         /// </para>
         /// </summary>
-        public void Bind(Control root)
+        public void Bind(FrameworkElement root)
         {
-            DropHost = root.Template.FindName("PART_ClayDropHost", root) as Border;
-            Highlight = root.Template.FindName("PART_ClayHighlight", root) as Border;
-            Shade = root.Template.FindName("PART_ClayShade", root) as Border;
-            Edge = root.Template.FindName("PART_ClayEdge", root) as Border;
+            DropHost = root.Template?.FindName("PART_ClayDropHost", root) as Border;
+            Highlight = root.Template?.FindName("PART_ClayHighlight", root) as Border;
+            Shade = root.Template?.FindName("PART_ClayShade", root) as Border;
+            Edge = root.Template?.FindName("PART_ClayEdge", root) as Border;
         }
 
         /// <summary>Applies a resolved three-shadow stack.</summary>
