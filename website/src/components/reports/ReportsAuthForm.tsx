@@ -54,7 +54,7 @@ export function ReportsAuthForm({ defaultRedirect = "/reports", variant = "opera
   const searchParams = useSearchParams();
   const redirectTo = safeRedirectPath(searchParams.get("redirect"), defaultRedirect);
   const signupRequested = searchParams.get("mode") === "signup" || searchParams.get("auth") === "signup";
-  const customerAccess = variant === "account" || redirectTo.includes("/inquiries") || redirectTo === "/account";
+  const customerAccess = variant === "account" || redirectTo.includes("/inquiries") || redirectTo === "/account" || redirectTo === "/chat";
 
   // Password is the normal return path; email OTP also serves signup/recovery.
   const [mode, setMode] = useState<"password" | "otp">(() => (signupRequested ? "otp" : "password"));

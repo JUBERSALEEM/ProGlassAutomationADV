@@ -66,6 +66,11 @@ const entries: NavEntry[] = [
         href: "/inquiries/chat",
         description: "Current status and messages for your inquiries",
       },
+      {
+        label: "Community Chat",
+        href: "/chat",
+        description: "Signed-in group room for general discussion",
+      },
     ],
   },
   /* About and Developer are separate pages with separate jobs, and both get a

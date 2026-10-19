@@ -192,7 +192,7 @@ export function SupportBubble() {
             <div>
               <p className="text-sm font-bold text-text-primary">{t("Inquiry chat & support")}</p>
               <p className="mt-1 text-xs leading-relaxed text-text-muted">
-                {t("Signed-in customers can chat on their own inquiry reference. General questions can still go by WhatsApp or email.")}
+                {t("Signed-in customers can chat privately on their own inquiry reference or join the signed-in community room for general discussion.")}
               </p>
             </div>
             <button
@@ -206,6 +206,27 @@ export function SupportBubble() {
               </svg>
             </button>
           </div>
+
+          <section aria-label={t("Community chat")} className="mt-4 rounded-card border-2 border-emerald-400/40 bg-emerald-500/10 p-3.5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-bold text-text-primary">{t("Community chat")}</h2>
+                <p className="mt-1 text-xs leading-relaxed text-text-muted">
+                  {t("One signed-in group room for normal general discussion. Keep private project details in inquiry chat.")}
+                </p>
+              </div>
+              <span className="shrink-0 rounded-full border border-emerald-400/50 bg-emerald-400/10 px-2 py-0.5 text-3xs font-bold uppercase text-emerald-200">
+                {t("Live")}
+              </span>
+            </div>
+            <Link
+              href={href(signedIn ? "/chat" : accountPathForRedirect("/chat"))}
+              onClick={() => setOpen(false)}
+              className="mt-3 block rounded-card bg-emerald-400 px-3 py-2.5 text-center text-xs font-bold text-accent-ink"
+            >
+              {t("Open community chat")}
+            </Link>
+          </section>
 
           <section aria-label={t("Customer inquiry chat")} className="mt-4 rounded-card border-2 border-brand-400/40 bg-ink-950/60 p-3.5">
             {!sessionChecked ? (

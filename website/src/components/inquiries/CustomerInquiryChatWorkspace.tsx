@@ -182,6 +182,12 @@ export function CustomerInquiryChatWorkspace({ initialInquiryId }: { initialInqu
               Refresh status
             </button>
             <LocaleLink
+              href="/chat"
+              className="rounded-xl border border-line-strong bg-ink-900 px-4 py-2.5 text-xs font-bold text-text-secondary"
+            >
+              Community chat
+            </LocaleLink>
+            <LocaleLink
               href="/inquiries/submit"
               className="rounded-xl bg-brand-400 px-4 py-2.5 text-xs font-bold text-accent-ink"
             >

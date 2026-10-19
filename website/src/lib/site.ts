@@ -125,6 +125,7 @@ export const nav = {
       { label: "Blog", href: "/blog" },
       { label: "Customer Account", href: "/account?redirect=%2Finquiries%2Fchat" },
       { label: "My Inquiries & Chat", href: "/inquiries/chat" },
+      { label: "Community Chat", href: "/chat" },
       { label: "Submit Inquiry", href: "/inquiries/submit" },
     ],
     legal: [
