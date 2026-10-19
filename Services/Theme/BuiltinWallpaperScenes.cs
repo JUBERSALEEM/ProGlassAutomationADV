@@ -70,7 +70,7 @@ namespace ProGlassAutomation.Services.Theme
                 var (h, s, _) = ColorMath.ToHsl(accent);
 
                 string f = string.IsNullOrWhiteSpace(family)
-                    ? VisualThemeEngine.NormalIndustrial
+                    ? VisualThemeEngine.LiquidGlass
                     : family!;
 
                 if (f == VisualThemeEngine.CrystalFluid ||
