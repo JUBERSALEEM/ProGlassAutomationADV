@@ -130,11 +130,10 @@ namespace ProGlassAutomation.Services.Theme.Engine
                 else
                     resources["MotionSpeedRatio"] = 1.0;
 
-                // Last write after VisualThemeEngine: keep Crystal water
-                // ON only for iPhone 17 Pro Max. A blanket FALSE here used
-                // to erase ApplyCrystalFluid's gate, so Crystal and iOS 26
-                // both rendered as still glass.
-                bool crystal = Family == ProGlassThemeFamily.Crystal || Family == ProGlassThemeFamily.LiquidGlass;
+                // The animated water stage is part of Liquid Glass only.
+                // Glassmorphism, Spatial, and Holographic may use translucent
+                // material tokens but must not inherit the legacy water scene.
+                bool crystal = Family == ProGlassThemeFamily.LiquidGlass;
                 resources["CrystalWaterDefaultEnabled"] = crystal;
                 resources["CrystalAmbientHostVisibility"] = crystal
                     ? Visibility.Visible : Visibility.Collapsed;
