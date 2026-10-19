@@ -111,8 +111,23 @@
         <Setter Property="LineHeight" Value="20" />
         <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="Foreground" Value="{DynamicResource SwissInkBrush}" />
-        <Setter Property="TextOptions.TextFormattingMode" Value="Load" />
-        <Setter Property="TextRenderingMode" Value="ClearType" />
+        <!-- Display, not Load. TextFormattingMode has exactly three
+             values: Ideal, Display, Disable. There is no Load, and
+             the XAML compiler rejects it. Display is also the right
+             one for Swiss data type, because it turns off glyph
+             caching so digits stay identical frame to frame, which
+             is the whole reason a column of figures must not
+             jitter. Matches TypographyStyles.xaml and the rest of
+             this repo. -->
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+        <!-- TextOptions.TextRenderingMode, NOT bare
+             TextRenderingMode. That property is declared on
+             TextElement, and TextBlock derives from
+             FrameworkElement rather than from TextElement, so a
+             Style with TargetType="TextBlock" cannot resolve it.
+             The attached form works on any DependencyObject and
+             is what every other dictionary here already uses. -->
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
     </Style>
 
     <!-- Small caps by weight and case, not by synthesised capitals. A
@@ -144,8 +159,23 @@
         <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="LineHeight" Value="20" />
         <Setter Property="Foreground" Value="{DynamicResource SwissInkBrush}" />
-        <Setter Property="TextOptions.TextFormattingMode" Value="Load" />
-        <Setter Property="TextRenderingMode" Value="ClearType" />
+        <!-- Display, not Load. TextFormattingMode has exactly three
+             values: Ideal, Display, Disable. There is no Load, and
+             the XAML compiler rejects it. Display is also the right
+             one for Swiss data type, because it turns off glyph
+             caching so digits stay identical frame to frame, which
+             is the whole reason a column of figures must not
+             jitter. Matches TypographyStyles.xaml and the rest of
+             this repo. -->
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+        <!-- TextOptions.TextRenderingMode, NOT bare
+             TextRenderingMode. That property is declared on
+             TextElement, and TextBlock derives from
+             FrameworkElement rather than from TextElement, so a
+             Style with TargetType="TextBlock" cannot resolve it.
+             The attached form works on any DependencyObject and
+             is what every other dictionary here already uses. -->
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
     </Style>
 
     <!-- ═══════════════════════════════════════════════════════════
