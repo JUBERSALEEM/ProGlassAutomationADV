@@ -40,6 +40,7 @@
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Theme.Clay;
 using ProGlassAutomation.Services.Theme.Holo;
+using ProGlassAutomation.Services.Theme.LiquidGlass;
 using ProGlassAutomation.Services.Theme.Neu;
 using ProGlassAutomation.Services.Theme.Swiss;
 using System;
@@ -246,6 +247,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                 case EightMaterialKind.Inflated:
                     NeuPalette.Clear();
                     HoloPalette.Clear();
+                    LiquidGlassPalette.Clear();
                     // The elevation's two stops ARE the clay shadow pair:
                     // the highlight that catches the light, and the shade
                     // tinted to the object's own hue. Using the ramp's
@@ -265,6 +267,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                 case EightMaterialKind.Extruded:
                     ClayPalette.Clear();
                     HoloPalette.Clear();
+                    LiquidGlassPalette.Clear();
                     // Neumorphism's stops are NOT the ramp's. Its whole
                     // defining rule is that the object IS the page, so
                     // the light and shade are derived from that one
@@ -295,6 +298,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     ClayPalette.Clear();
                     NeuPalette.Clear();
                     HoloPalette.Clear();
+                    LiquidGlassPalette.Clear();
 
                     if (profile.Identity == EightThemeNames.Swiss)
                     {
@@ -330,6 +334,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     ClayPalette.Clear();
                     NeuPalette.Clear();
                     SwissPalette.Clear();
+                    LiquidGlassPalette.Clear();
 
                     // ── WHY THE GROUND COMES FROM Surface AND NOT Window ──
                     // Holographic inverts the other families' arrangement:
@@ -349,11 +354,45 @@ namespace ProGlassAutomation.Services.Theme.Eight
                         darkAccent: profile.Dark.Accent);
                     break;
 
-                default:
+                case EightMaterialKind.Refractive:
+                    // LIQUID GLASS. The only family whose material is an
+                    // optical one rather than a tonal one: what it
+                    // carries is the tint, what it IS is the rim.
+                    //
+                    // The rim is BorderStrong, not BorderDefault. A
+                    // subtle border is the difference between a
+                    // specular edge and a tinted rectangle, and the
+                    // palette contrast-enforces it to 3:1 anyway --
+                    // so a faint ramp value would simply be pushed
+                    // back up there, and reading it here makes that
+                    // visible instead of hiding the correction.
                     ClayPalette.Clear();
                     NeuPalette.Clear();
                     SwissPalette.Clear();
                     HoloPalette.Clear();
+                    LiquidGlassPalette.Publish(
+                        lightFill: profile.Light.Surface,
+                        lightInk: profile.Light.TextPrimary,
+                        lightAccent: profile.Light.Accent,
+                        lightRim: profile.Light.BorderStrong,
+                        darkFill: profile.Dark.Surface,
+                        darkInk: profile.Dark.TextPrimary,
+                        darkAccent: profile.Dark.Accent,
+                        darkRim: profile.Dark.BorderStrong);
+                    break;
+
+                default:
+                    // Frosted (Glassmorphism) and Volumetric (Spatial)
+                    // have no palette yet and land here. They still get
+                    // every Clear() below, which is the load-bearing
+                    // part: a control from a previously active family
+                    // keeps its published material until something
+                    // explicitly takes it away.
+                    ClayPalette.Clear();
+                    NeuPalette.Clear();
+                    SwissPalette.Clear();
+                    HoloPalette.Clear();
+                    LiquidGlassPalette.Clear();
                     break;
             }
         }
