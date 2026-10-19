@@ -22,7 +22,7 @@ The reviewer must not rely solely on the implementation notes written by the sam
 ## Mandatory no-go conditions
 
 - CI is red, pending, missing, or for a different SHA.
-- Installer packages are unsigned or the publisher is not pinned on every executable-verification path.
+- Installer packages are unsigned or the publisher is not pinned on every executable-verification path. The classic updater now rejects verification when no publisher pin is configured, so classic installer updates will remain blocked until the owner supplies the actual approved thumbprint/subject and rotation plan.
 - Database migration failure can permit dependent writes.
 - Backup/restore is not proven consistent and isolated.
 - Critical business invariants are not protected at the persistence transaction boundary.
