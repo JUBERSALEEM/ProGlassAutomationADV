@@ -28,6 +28,7 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 using ProGlassAutomation.Services.Theme;
+using ProGlassAutomation.Services.Theme.Eight;
 using ProGlassAutomation.Services.Theme.Clay;
 using ProGlassAutomation.Services.Theme.Neu;
 using ProGlassAutomation.Services.Theme.SoftUi;

@@ -38,6 +38,7 @@ using System.Windows.Controls;
 using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Services.Theme.Glassmorphism;
+using ProGlassAutomation.Services.Theme.SoftUi;
 
 namespace ProGlassAutomation.Controls.Glassmorphism
 {

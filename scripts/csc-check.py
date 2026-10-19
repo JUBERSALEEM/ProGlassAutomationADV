@@ -106,6 +106,7 @@ class Repo:
         self.root = root
         self.ns = set()
         self.types = {}                       # type -> (bases, body)
+        self.type_ns = {}                     # type -> set(namespace names)
         self.methods = {}                     # (type, name) -> [decls]
         self.props = {}                       # type -> set(member names)
         self.enum_members = {}
@@ -146,12 +147,14 @@ class Repo:
                             bases.append(self._text(b, src))
                 body = child.child_by_field_name("body")
                 self.types[tname] = (bases, body)
+                self.type_ns.setdefault(tname, set()).add(ns)
                 if body is not None:
                     self._collect(body, src, tname)
                 continue
             if t == "enum_declaration":
                 ename = self._decl_name(child)
                 body = child.child_by_field_name("body")
+                self.type_ns.setdefault(ename, set()).add(ns)
                 if body is not None:
                     for m in body.children:
                         if m.type == "enum_member_declaration":
@@ -1001,6 +1004,231 @@ def walk_all(root):
 CHECK_IDS = False
 
 
+
+def check_usings(repo, path, findings):
+    """
+    CS0246 -- a repo type used by simple name with no using for the
+    namespace that declares it.
+
+    This is the single most expensive class of error in this engine,
+    and not because it is hard to fix. CoreCompile in MSBuild is
+    all-or-nothing: one unresolved name anywhere means the assembly is
+    never emitted, and EVERY clr-namespace reference in every XAML file
+    in the project then fails with XDG0008 "the name X does not exist
+    in the namespace". That is how a single missing using in one
+    control file produced a twenty-eight error report spanning four
+    unrelated theme dictionaries.
+
+    Only names this tool can actually resolve are checked. An
+    identifier that matches no repo type is left alone, because a BCL
+    type is equally unbound here and reporting it would be noise.
+    """
+    src = open(path, "rb").read()
+    tree = PARSER.parse(src)
+
+    usings = set()
+    own_ns = None
+    for node in walk_all(tree.root_node):
+        if node.type == "using_directive":
+            # A using_directive has NO `name` field of its own. The
+            # namespace is a nested chain of qualified_name nodes:
+            #
+            #   qualified_name [qualified_name, '.', identifier "SoftUi"]
+            #     qualified_name [qualified_name, '.', identifier "Theme"]
+            #       qualified_name [qualified_name, '.', identifier "Services"]
+            #         identifier "ProGlassAutomation"
+            #
+            # Two traps here, both of which silently yield a WRONG but
+            # plausible-looking namespace:
+            #   1. `name` is this level's LAST segment, and the nested
+            #      qualified_name is everything BEFORE it -- so walking
+            #      outermost-inward collects them in reverse order.
+            #   2. The chain does NOT bottom out at a qualified_name. The
+            #      first segment is a bare `identifier`, so a loop that
+            #      stops when there is no nested qualified_name drops
+            #      "ProGlassAutomation" and reports "Services.Theme.SoftUi".
+            #
+            # A namespace is just dot-separated identifiers, so flattening
+            # every identifier under the directive gets it right
+            # regardless of how the chain nests -- but note the flattened
+            # order is LAST segment first ("SoftUi", "Theme", "Services",
+            # "ProGlassAutomation"), so it must be reversed.
+            #
+            # Alias forms (`using X = Y;`) carry an `=` and are skipped --
+            # they do not bind a namespace name.
+            if any(c.type == "equals" for c in walk_all(node)):
+                continue
+            segs = [d.text.decode() for d in walk_all(node)
+                    if d.type == "identifier"]
+            if segs:
+                usings.add(".".join(reversed(segs)))
+        elif node.type in ("namespace_declaration",
+                           "file_scoped_namespace_declaration") and own_ns is None:
+            nm = node.child_by_field_name("name")
+            if nm is not None:
+                own_ns = nm.text.decode()
+
+    # Names DECLARED in this file -- types, nested types, or members --
+    # are reachable by simple name from the whole file, so a using is
+    # never required for them. Two collisions made this necessary:
+    # LegacyLicenseMigrationInspector declares its own nested `Result`
+    # while an unrelated `Result` lives in Services.Common, and
+    # SettingsNavigationAuditTests declares `const string SettingsView`
+    # while a `SettingsView` UserControl lives in Views.Settings.
+    DECL_TYPES = ("class_declaration", "struct_declaration",
+                  "interface_declaration", "enum_declaration",
+                  "record_declaration", "delegate_declaration",
+                  "enum_member_declaration",
+                  # Members too: a `private const string SettingsView = ...`
+                  # shadows a same-named repo type for the whole class, and
+                  # SettingsNavigationAuditTests references it that way.
+                  "variable_declarator", "property_declaration",
+                  "method_declaration", "event_declaration",
+                  "event_field_declaration")
+    local_types = set()
+    for d in walk_all(tree.root_node):
+        if d.type in DECL_TYPES:
+            nm = d.child_by_field_name("name")
+            if nm is not None:
+                local_types.add(nm.text.decode())
+
+    for n in walk_all(tree.root_node):
+        if n.type != "identifier":
+            continue
+        if not is_type_position(n):
+            continue
+        name = n.text.decode()
+        if name in local_types:
+            continue
+        if name not in repo.type_ns:
+            continue
+
+        par = n.parent
+        if par is None:
+            continue
+
+        # Identifiers INSIDE a using directive are not references at all.
+        # The namespace segments are names, and an alias
+        #   using ThemeManager = ProGlassAutomation.Services.ThemeManager;
+        # declares `ThemeManager` as a local alias -- so it is in scope
+        # by definition and reporting it as unresolved is pure noise.
+        anc = n.parent
+        inside_using = False
+        while anc is not None:
+            if anc.type == "using_directive":
+                inside_using = True
+                break
+            anc = anc.parent
+        if inside_using:
+            continue
+
+        pt = par.type
+
+        # `SoftUi.SoftDepthTier` -- the qualifier is part of the
+        # reference, so the using is not needed. NeuPalette.cs does
+        # this deliberately and is correct.
+        if pt == "member_access_expression" and field_name(n):
+            continue
+        if pt in ("qualified_name", "generic_name", "alias_qualified_name",
+                  "namespace_alias_directive"):
+            continue
+
+        for decl_ns in repo.type_ns[name]:
+            if decl_ns is None:
+                break
+            if decl_ns in usings or decl_ns == own_ns:
+                break
+            # An ANCESTOR namespace is visible WITHOUT a using -- C#
+            # resolves enclosing namespaces outward. This is what makes
+            # NeuPalette.cs correct: it sits in ...Theme.Neu and refers
+            # to SoftUi.SoftDepthTier, which lives in ...Theme.SoftUi.
+            # A sibling is NOT visible, which is the GlassField.cs case.
+            if own_ns and (own_ns.startswith(decl_ns + ".")
+                            or decl_ns.startswith(own_ns + ".")):
+                break
+        else:
+            findings.append((
+                path, n.start_point[0] + 1,
+                f"CS0246 '{name}' is declared in "
+                f"{sorted(repo.type_ns[name])[0]} but this file has no "
+                f"using for it. CoreCompile is all-or-nothing, so one "
+                f"missing using here fails the whole assembly and turns "
+                f"every clr-namespace XAML reference into XDG0008",
+            ))
+            return
+
+
+# Fields whose value IS a type.
+TYPE_FIELDS = ("type", "returns")
+
+# Node types whose relevant child is a type. Verified empirically against
+# tree-sitter-c-sharp rather than guessed -- see the probe in the commit
+# message. Anything not listed here is treated as NOT a type position.
+TYPE_PARENTS = frozenset((
+    "generic_name",              # List<T>  -> the List itself
+    "type_argument_list",        # List<T>  -> the T
+    "base_list", "interface_list",
+    "as_expression", "constant_pattern", "is_pattern_expression",
+    "nullable_type", "array_type", "ref_type", "pointer_type",
+    "typeof_expression", "sizeof_expression", "default_expression",
+    "type_parameter_constraint_clause", "generic_constraint",
+    "implicit_object_creation_expression",
+))
+
+
+def is_type_position(node):
+    """True when `node` names a TYPE rather than a member or a value.
+
+    This distinction is what keeps the CS0246 check honest. Testing every
+    identifier against the repo's type names looks reasonable and is
+    worthless: `public string AttachmentType { get; set; }` is a PROPERTY
+    named AttachmentType, and the repository also happens to declare an
+    ENUM named AttachmentType, so a name-only test reports it as an
+    unresolved type reference -- hundreds of times over, in code that
+    compiles. Only genuine type positions are checked.
+    """
+    par = node.parent
+    if par is None:
+        return False
+    for f in TYPE_FIELDS:
+        if par.child_by_field_name(f) == node:
+            return True
+    if par.type in TYPE_PARENTS:
+        return True
+
+    # `EightThemePainter.Apply(...)` -- the type is the `object` of a
+    # member access that is then INVOKED. That is a static call, so the
+    # object names a type. Gating on the invocation is what keeps this
+    # from re-admitting the noise the field/type gate just removed:
+    # `x.AttachmentType.ToString()` has the same shape but is a property
+    # read on an instance, and there the object is a value, not a type.
+    # NOTE the receiver field is "expression", not "object".
+    if par.type == "member_access_expression" \
+            and par.child_by_field_name("expression") == node:
+        call = par.parent
+        if call is not None and call.type == "invocation_expression" \
+                and call.child_by_field_name("function") == par:
+            return True
+    return False
+
+
+def node_text(qn):
+    """The last dotted segment of a qualified_name chain."""
+    nm = qn.child_by_field_name("name")
+    return nm.text.decode() if nm is not None else ""
+
+
+def field_name(node):
+    """True when `node` is its parent's `name` field.
+
+    NOTE: this returns a bool, not the field's name. Comparing the result
+    to the string "name" is a silent always-False, which is exactly how a
+    missing-using defect slipped past the qualifier filter below.
+    """
+    par = node.parent
+    return par.child_by_field_name("name") == node if par is not None else False
+
+
 def audit_file(repo, path, findings):
     src = open(path, "rb").read()
     tree = PARSER.parse(src)
@@ -1020,6 +1248,13 @@ def audit_file(repo, path, findings):
     for line, name in collect_overrides(tree, src):
         check_override(repo, name, line, findings, path)
 
+    # CS0246 is on by DEFAULT. It only fires on a name this tool can
+    # resolve to a repo type, so it has no false-positive surface from
+    # the BCL, and it is the check that catches the single defect whose
+    # blast radius is the whole project.
+    check_usings(repo, path, findings)
+
+    # The near-miss CS0103 check stays opt-in -- see CHECK_IDS.
     if not CHECK_IDS:
         return
 
