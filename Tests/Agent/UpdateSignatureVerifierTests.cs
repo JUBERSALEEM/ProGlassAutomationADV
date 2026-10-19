@@ -60,8 +60,7 @@ namespace ProGlassAutomation.Tests.Agent
                 var result = UpdateSignatureVerifier.Verify(path);
 
                 Assert.False(result.IsValid);
-                Assert.Contains("no approved publisher pin", result.Reason,
-                    StringComparison.OrdinalIgnoreCase);
+                Assert.Contains("no approved publisher pin", result.Reason.ToLowerInvariant());
             }
             finally
             {
