@@ -46,57 +46,138 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// <summary>One selectable visual family. Display pairs the family
         /// name with its built-in wallpaper scene (2026-09-05 owner ask:
         /// "show which theme comes with which scene"); Key drives the
-        /// SelectedValue binding so the saved config keeps the raw key.</summary>
+        /// SelectedValue binding so the saved config keeps the raw key.
+        /// <para>
+        /// EIGHT-FAMILY CONTRACT: every extra field here is Theme Center
+        /// metadata — tagline, the plain-language material note, the scene
+        /// caption and the accent swatches. The card has to explain what a
+        /// style DOES, not just name it: "Neumorphism" means nothing to
+        /// somebody who has to decide, while "Extruded from the page"
+        /// answers the only question they actually have.
+        /// </para></summary>
         public sealed class VisualThemeOptionRow
         {
             public string Key { get; }
             public string Display { get; }
+            public string Tagline { get; }
+            public string Summary { get; }
+            public string MaterialNote { get; }
+            public string SceneLabel { get; }
+            public string SceneType { get; }
+            public bool AllowsBackdrop { get; }
+            /// <summary>Hex swatches offered by this family, in order.
+            /// Empty for a retired identity.</summary>
+            public string[] AccentSwatches { get; }
+
             public VisualThemeOptionRow(string key)
             {
                 Key = key;
+                Tagline = "";
+                Summary = "";
+                MaterialNote = "";
+                SceneLabel = "";
+                SceneType = "";
+                AccentSwatches = Array.Empty<string>();
+
                 string scene = "Industrial Pattern";
                 foreach (var s in ProGlassAutomation.Services.Theme
                              .BuiltinWallpaperScenes.All)
                     if (s.Key == key) { scene = s.Label; break; }
+
+                if (ProGlassAutomation.Services.Theme.Eight.EightThemeCatalog
+                        .IsKnown(key))
+                {
+                    var profile =
+                        ProGlassAutomation.Services.Theme.Eight
+                            .EightThemeCatalog.Resolve(key);
+                    Display = profile.DisplayName;
+                    Tagline = profile.Tagline;
+                    Summary = profile.Summary;
+                    MaterialNote = profile.MaterialNote;
+                    SceneLabel = profile.SceneLabel;
+                    SceneType = profile.SceneType;
+                    AccentSwatches = profile.AccentPresets;
+                    AllowsBackdrop = profile.Material.AllowBackdrop;
+                    return;
+                }
+
                 // Display name (Ios-17pm for Crystal Fluid) — the family
                 // IDENTITY stays the persisted engine const.
                 Display = ProGlassAutomation.Services.Theme.VisualThemeEngine
                     .FamilyDisplayName(key) + "  —  " + scene;
+                AllowsBackdrop = true;
             }
             /// <summary>Style-immune label (see file header).</summary>
             public override string ToString() => Display;
         }
 
-        public List<VisualThemeOptionRow> VisualThemeOptions { get; } = new()
+        /// <summary>
+        /// The selectable appearance families. This list IS the product
+        /// contract: eight cards, built from the catalogue rather than
+        /// hand-listed, so a new family cannot be added to the engine and
+        /// then forgotten in Settings — which is exactly how the previous
+        /// four-family picker ended up offering families the engine could
+        /// not paint.
+        /// </summary>
+        public List<VisualThemeOptionRow> VisualThemeOptions { get; } =
+            BuildThemeOptions();
+
+        private static List<VisualThemeOptionRow> BuildThemeOptions()
         {
-            // Normal — August-25 cream SaaS (persisted as Normal Industrial).
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial),
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet),
-            // Surfaced as "iPhone 17 Pro Max" (FamilyDisplayName).
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.CrystalFluid),
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Ios26),
-        };
+            var rows = new List<VisualThemeOptionRow>();
+            foreach (var identity in
+                ProGlassAutomation.Services.Theme.Eight.EightThemeNames.All)
+                rows.Add(new VisualThemeOptionRow(identity));
+            return rows;
+        }
+
+        /// <summary>
+        /// The currently selected family row, or null when the saved value
+        /// is not one of the eight. Theme Center cards bind to this so the
+        /// selected card can show its check mark; returning null rather
+        /// than fabricating a row is deliberate, because a fabricated row
+        /// would render a card for a family the user is not actually
+        /// running.
+        /// </summary>
+        public VisualThemeOptionRow? SelectedFamilyOption
+        {
+            get
+            {
+                var selected = SelectedVisualTheme;
+                foreach (var row in VisualThemeOptions)
+                    if (row.Key == selected) return row;
+                return null;
+            }
+        }
+
+        /// <summary>Activates a family from a Theme Center card. Routed
+        /// through the SAME setter the old ComboBox used, so there is one
+        /// write path: save → mode coupling → pipeline → audit. A second
+        /// path is how the picker and the engine end up disagreeing about
+        /// what is selected.</summary>
+        public void SelectVisualTheme(string identity) =>
+            SelectedVisualTheme = identity;
 
         public string SelectedVisualTheme
         {
             get
             {
-                var raw = _config?.Appearance?.VisualTheme
-                    ?? ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial;
-                return ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine
-                    .PersistFamily(
-                        ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine
-                            .ParseFamily(raw));
+                var raw = _config?.Appearance?.VisualTheme;
+                // Normalise through the eight-family migration rather than
+                // the legacy four-value enum: PersistFamily(ParseFamily(x))
+                // cannot tell Liquid Glass from Glassmorphism — both are
+                // translucent — so it would collapse two of the eight into
+                // one and the picker would snap back on read.
+                return ProGlassAutomation.Services.Theme.Eight
+                    .EightThemeMigration.Normalize(raw);
             }
             set
             {
                 if (_config == null || string.IsNullOrEmpty(value))
                     return;
 
-                value = ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine
-                    .PersistFamily(
-                        ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine
-                            .ParseFamily(value));
+                value = ProGlassAutomation.Services.Theme.Eight
+                    .EightThemeMigration.Normalize(value);
                 _config.Appearance.VisualTheme = value;
                 SaveConfig();
 
@@ -123,6 +204,10 @@ namespace ProGlassAutomation.ViewModels.Settings
                 // Family gate for the Themes section's Crystal Fluid
                 // material group (visible only while Ios-17pm is active).
                 OnPropertyChanged(nameof(IsCrystalThemeActive));
+                // Theme Center selection state. Without this the eight
+                // cards never repaint their check mark and the page looks
+                // frozen after a click.
+                OnPropertyChanged(nameof(SelectedFamilyOption));
 
                 // 2026-09-05 PIPELINE UNIFICATION: the extra RefreshScene
                 // toggle used to duplicate the module overlay that is

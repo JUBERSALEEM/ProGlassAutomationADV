@@ -1,0 +1,233 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/ThemeCenterCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Theme Center — one selectable appearance family
+
+     WHY A CUSTOM CARD AND NOT A COMBOBOX
+     ───────────────────────────────────────────────────────────────────
+     A dropdown asks the user to pick a NAME. These eight are MATERIALS,
+     and the entire point of the engine is that they look and behave
+     differently — a name cannot communicate that. This card shows a live
+     miniature painted from the family's own recipe, so the choice is made
+     by looking rather than by reading.
+
+     THE PREVIEW IS REAL, NOT AN ICON
+     ───────────────────────────────────────────────────────────────────
+     ThemeCenterCard.PreviewModel paints the miniature from the same
+     EightThemeProfile the engine paints the application from. If a family
+     is going to look wrong, the card shows it wrong — which is the whole
+     point of a preview. A hard-coded icon would have kept showing a
+     frosted card for Swiss long after Swiss stopped being frosted.
+
+     THE CARD GRID ITSELF IS A BENTO GRID
+     ───────────────────────────────────────────────────────────────────
+     The eight families ship in a two-column grid, because the Bento Grid
+     family's own rules (uniform gutters, size encodes importance, nothing
+     lifted off the tray) are simply the correct layout for eight
+     heterogeneous choices. The Theme Center obeys the first family in its
+     own catalogue.
+     ════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.ThemeCenterCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- The eight families need at least 44px of hit area per
+                 WCAG 2.2. A dense 3-column grid drops the cards below
+                 that, so the Theme Center is two columns. -->
+            <Style x:Key="ThemeCenterCardName" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+            </Style>
+
+            <Style x:Key="ThemeCenterCardTagline" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+            </Style>
+
+            <Style x:Key="ThemeCenterCardNote" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}"/>
+                <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+            </Style>
+
+            <Style x:Key="ThemeCenterSwatch" TargetType="Border">
+                <Setter Property="Width" Value="14"/>
+                <Setter Property="Height" Value="14"/>
+                <Setter Property="CornerRadius" Value="7"/>
+                <Setter Property="Margin" Value="0,0,4,0"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <!-- Click target. A Button rather than a Border + MouseDown so the card
+         is keyboard reachable and announces itself to a screen reader; the
+         content is templated so the visual underneath is unconstrained. -->
+    <Button x:Name="RootButton"
+            Background="Transparent"
+            BorderThickness="0"
+            Padding="0"
+            HorizontalContentAlignment="Stretch"
+            VerticalContentAlignment="Stretch"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Cursor="Hand"
+            FocusVisualStyle="{x:Null}"
+            AutomationProperties.AutomationId="ThemeCenter.Card">
+        <Button.Template>
+            <ControlTemplate TargetType="Button">
+                <Border x:Name="FocusRing"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        BorderThickness="2"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        SnapsToDevicePixels="True">
+                    <ContentPresenter HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Stretch"/>
+                </Border>
+                <ControlTemplate.Triggers>
+                    <!-- Keyboard focus must be visible INDEPENDENTLY of
+                         selection: a user tabbing the grid must always be
+                         able to see where they are, which on a dark family
+                         means the accent ring, never a shadow. -->
+                    <Trigger Property="IsKeyboardFocused" Value="True">
+                        <Setter TargetName="FocusRing" Property="BorderBrush"
+                                Value="{DynamicResource FocusRingBrush}"/>
+                    </Trigger>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter TargetName="FocusRing" Property="Background"
+                                Value="{DynamicResource MenuHoverBrush}"/>
+                    </Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
+        </Button.Template>
+
+        <!-- ── CARD BODY ──────────────────────────────────────────── -->
+        <Border x:Name="CardFrame"
+                Style="{StaticResource ProGlassMaterial.Solid}"
+                Padding="12"
+                MinHeight="96"
+                behaviors:RoundedEdgeStrokeBehavior.IsEnabled="False">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- ── LIVE PREVIEW ──────────────────────────────────
+                     A miniature of the real thing: the family's own
+                     stage gradient behind three cards at the family's own
+                     corner radius, elevation and translucency. -->
+                <Border Grid.Column="0"
+                        Grid.Row="0"
+                        x:Name="PreviewSurface"
+                        Width="84"
+                        Height="84"
+                        Margin="0,0,12,0"
+                        CornerRadius="8"
+                        ClipToBounds="True"
+                        SnapsToDevicePixels="True">
+                    <Grid>
+                        <!-- Stage: the family's own built-in scene. -->
+                        <Rectangle x:Name="PreviewStage" />
+
+                        <!-- Three cards, at the family's real geometry.
+                             Sizes are deliberately uneven (a 2×2 anchor
+                             plus two 1×1) so a Bento preview actually
+                             looks like a bento and not like a row of
+                             identical squares. -->
+                        <Grid Margin="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.6*"/>
+                                <ColumnDefinition Width="4"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border x:Name="PreviewAnchor"
+                                    Grid.Row="0" Grid.Column="0"
+                                    CornerRadius="10">
+                                <Border.Effect>
+                                    <DropShadowEffect x:Name="PreviewAnchorShadow"
+                                                      BlurRadius="10"
+                                                      ShadowDepth="2"
+                                                      Opacity="0.16"/>
+                                </Border.Effect>
+                            </Border>
+
+                            <Border x:Name="PreviewSmallA"
+                                    Grid.Row="0" Grid.Column="2"
+                                    Margin="0,0,0,4"
+                                    CornerRadius="8"
+                                    Background="Transparent"
+                                    BorderThickness="1"/>
+                            <Border x:Name="PreviewSmallB"
+                                    Grid.Row="0" Grid.Column="2"
+                                    Margin="0,4,0,0"
+                                    CornerRadius="8"
+                                    Background="Transparent"
+                                    BorderThickness="1"/>
+
+                            <!-- Accent chip: the one saturated element, so
+                                 the preview shows the family's accent
+                                 treatment as well as its surfaces. -->
+                            <Border x:Name="PreviewAccent"
+                                    Grid.Row="1" Grid.Column="0"
+                                    Grid.ColumnSpan="3"
+                                    Height="10"
+                                    Margin="0,6,0,0"
+                                    CornerRadius="5"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- ── TEXT ────────────────────────────────────────── -->
+                <StackPanel Grid.Column="1" Grid.Row="0"
+                            VerticalAlignment="Center">
+                    <TextBlock x:Name="NameText" Style="{StaticResource ThemeCenterCardName}"/>
+                    <TextBlock x:Name="TaglineText"
+                               Style="{StaticResource ThemeCenterCardTagline}"
+                               Margin="0,2,0,0"/>
+                    <TextBlock x:Name="SceneText"
+                               Style="{StaticResource ThemeCenterCardNote}"
+                               Margin="0,6,0,0"/>
+                    <ItemsControl x:Name="SwatchList"
+                                  ItemsSource="{Binding AccentSwatches}"
+                                  Margin="0,8,0,0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource ThemeCenterSwatch}"
+                                        Background="{Binding}">
+                                    <Border.ToolTip>
+                                        <TextBlock Text="{Binding}"/>
+                                    </Border.ToolTip>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Button>
+</UserControl>

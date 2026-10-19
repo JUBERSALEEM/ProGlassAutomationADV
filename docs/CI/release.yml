@@ -1,40 +1,13 @@
-# ═══════════════════════════════════════════════════════════════════════════
-# SUPERSEDED — 2026-10-05. This file is no longer a workflow template.
-# ═══════════════════════════════════════════════════════════════════════════
+# Release workflow moved to .github/workflows/release.yml.
+# This file is retained as a pointer for older documentation links.
+# The active workflow builds and tests ProGlass Automation, publishes a
+# signed single-file win-x64 EXE and checksum to GitHub Releases, preserves
+# Velopack assets for installed-client OTA, and builds the License Generator
+# only as a private, short-lived GitHub Actions artifact.
 #
-# The live release workflow is:
+# Required private repository Actions secrets:
+#   CODESIGN_PFX_BASE64
+#   CODESIGN_PFX_PASSWORD
 #
-#     .github/workflows/release.yml
-#
-# Kept as a comment-only file rather than deleted because nine documents
-# reference it, several of them audits written before CI existed.
-#
-# This template was one of the two release pipelines in the repository and it
-# was the wrong one. Four concrete reasons, so nobody resurrects it:
-#
-#   1. WRONG PUBLISH VERB. It ended with `vpk publish github --packDir
-#      releases --pre false`. The Velopack 1.x CLI verb is `vpk upload
-#      github`, and it takes `--outputDir`, not `--packDir` — this is the same
-#      CLI version the app references (1.2.0) and the same one
-#      `scripts/build-installer.ps1` installs. As written the step fails, and
-#      the failure looks like an OTA problem rather than a typo.
-#   2. IT SIGNED THE WRONG THINGS. A `signtool` pass over `publish/**.exe,
-#      *.dll` ran BEFORE `vpk pack`, so the Setup.exe and Update.exe that vpk
-#      generates during packaging shipped unsigned. Signing has to be
-#      delegated to the pack step (`--signParams`) so Velopack signs every
-#      file it produces — and doing it after pack would invalidate the feed
-#      checksums. Neither order here is correct.
-#   3. TWO PARALLEL RELEASE PATHS. It uploaded a hand-made
-#      `ProGlassAutomation-<tag>-win-x64.zip` through
-#      `softprops/action-gh-release` while also publishing the Velopack feed.
-#      The zip name disagrees with the one `build-installer.ps1` produces
-#      (`ProGlassAutomation-Portable-<version>.zip`), so the same release
-#      could carry two different portable archives depending on who built it.
-#   4. IT RE-IMPLEMENTED PACKAGING INLINE instead of calling
-#      `scripts/build-installer.ps1`, so the CI package and a locally built
-#      package were free to diverge — no art generation, no
-#      PRODUCTION_READINESS strip, no SHA-256 summary.
-#
-# The live workflow calls the script and adds only what a local box cannot do:
-# assert the tag agrees with `<Version>` in the csproj, and publish the feed
-# with `vpk upload github --channel stable`. The handbook is `docs/CI.md`.
+# A pushed vMAJOR.MINOR.PATCH tag must match <Version> in
+# ProGlassAutomation.csproj. See docs/OTA.md for the complete release contract.

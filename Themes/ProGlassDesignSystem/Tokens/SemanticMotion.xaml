@@ -7,4 +7,12 @@
     <sys:String x:Key="MotionSlow">0:0:0.35</sys:String>
     <sys:Double x:Key="MotionSpeedRatio">1</sys:Double>
 
+    <!-- Reduced-motion switch. Defaults to FALSE so animation is on
+         until an animated control has read it; the theme painter
+         republishes it on every rebuild from the OS Ease of Access
+         "Animation effects" preference. Animated controls bind this and
+         substitute an opacity cross-fade for their movement animation —
+         a zeroed duration alone still reads as a jump cut. -->
+    <sys:Boolean x:Key="MotionReduced">False</sys:Boolean>
+
 </ResourceDictionary>

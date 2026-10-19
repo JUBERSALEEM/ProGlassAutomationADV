@@ -22,9 +22,25 @@ namespace ProGlassAutomation.Services.Theme
         // scene: the user's FILE wallpaper (window layer + module layer)
         // must never paint over it — that was the "wallpaper still copies
         // my Normal theme" bug AND a per-navigation re-layer cost.
-        private static bool SystemWallpaperApplies =>
-            Current != Monet && Current != Ios26;
-        private static bool ModuleWallpaperApplies => Current != Ios26;
+        private static bool SystemWallpaperApplies
+        {
+            get
+            {
+                if (ActiveProfile is { Material.AllowBackdrop: false })
+                    return false;
+                return Current != Monet && Current != Ios26;
+            }
+        }
+
+        private static bool ModuleWallpaperApplies
+        {
+            get
+            {
+                if (ActiveProfile is { Material.AllowBackdrop: false })
+                    return false;
+                return Current != Ios26;
+            }
+        }
 
         /// <summary>The FILE wallpaper layer paints ONLY when the user's
         /// wallpaper mode actually wants a file: "File" mode, or legacy
@@ -64,19 +80,54 @@ namespace ProGlassAutomation.Services.Theme
         /// them verbatim, so they can never be renamed in place. Display
         /// names are a pure view concern and live only here.
         /// Normal (Industrial) is the August-25 cream SaaS "Normal";
-        /// Crystal Fluid is surfaced as "iPhone 17 Pro Max".</summary>
-        public static string FamilyDisplayName(string family) =>
-            family == NormalIndustrial ? "Normal"
+        /// Crystal Fluid is surfaced as "iPhone 17 Pro Max".
+        /// <para>
+        /// EIGHT-FAMILY CONTRACT: a family that is one of the eight returns
+        /// its own catalogue display name. The eight names were chosen to
+        /// be the thing a user would search for — "Swiss", "Bento Grid",
+        /// "Claymorphism" — so passing the identity through is correct and
+        /// adding a rename layer on top would only create a second place for
+        /// the two lists to drift.
+        /// </para></summary>
+        public static string FamilyDisplayName(string family)
+        {
+            if (Eight.EightThemeCatalog.IsKnown(family))
+                return Eight.EightThemeCatalog.Resolve(family).DisplayName;
+            return family == NormalIndustrial ? "Normal"
             : family == CrystalFluid ? "iPhone 17 Pro Max"
             : family;
+        }
 
         /// <summary>The Light/Dark mode a family PROMISES by design —
         /// true = Dark, false = Light, null = respects the user's own
-        /// mode choice. Industrial (Normal Industrial), Monet and iOS 26
-        /// follow the user's Light/Dark toggle; Crystal Fluid
-        /// (iPhone 17 Pro Max) is LIGHT-ONLY and snaps to Light.</summary>
-        public static bool? ModePairFor(string? family) =>
-            family == CrystalFluid ? (bool?)false : null;
+        /// mode choice. Crystal Fluid is LIGHT-ONLY and snaps to Light.
+        /// <para>
+        /// ALL EIGHT of the eight-family families return null, i.e. they
+        /// honour the user's toggle, and that is a deliberate contract
+        /// rather than an omission. Neumorphism, Spatial and Holographic
+        /// genuinely need a dark ramp to exist at all — a light-shadowed
+        /// extruded surface on white paper is not a lighter neumorphism, it
+        /// is a broken one — so those three are DARK-PROMISING (true).
+        /// Bento Grid, Swiss, Claymorphism, Liquid Glass and Glassmorphism
+        /// ship a real light ramp and follow the user. Forcing any of them
+        /// to one mode would throw away half the recipe.
+        /// </para></summary>
+        public static bool? ModePairFor(string? family)
+        {
+            if (Eight.EightThemeCatalog.IsKnown(family))
+                return Eight.EightThemeCatalog.Resolve(family!).Id
+                    switch
+                    {
+                        // No light-shadowed extrude survives on white.
+                        Eight.EightThemeId.Neumorphism => true,
+                        // The room has to be dark for depth to read.
+                        Eight.EightThemeId.Spatial => true,
+                        // Foil banding is invisible on paper.
+                        Eight.EightThemeId.Holographic => true,
+                        _ => null,
+                    };
+            return family == CrystalFluid ? (bool?)false : null;
+        }
 
         /// <summary>Crystal Fluid's tunable water tokens (2026-09-05):
         /// the tokens file carries the defaults; family paint writes
@@ -93,6 +144,18 @@ namespace ProGlassAutomation.Services.Theme
             // Ios-17pm P3: wave amplitude joined the live axis set.
             "CrystalWaveAmplitude",
         };
+
+        /// <summary>
+        /// Every key the eight-theme engine publishes. Declared BEFORE
+        /// <see cref="ManagedKeys"/> on purpose: static field initialisers
+        /// run in DECLARATION ORDER, so a ManagedKeys initializer that
+        /// referenced this field while it was still declared afterwards
+        /// would copy a null array and the eight families would never be
+        /// cleaned up on switch — leaking a clay card's 32px radius into
+        /// Swiss. Declaration order is load-bearing here.
+        /// </summary>
+        private static readonly string[] EightThemeEightKeys =
+            Eight.EightThemePainter.AllTokenKeys;
 
         /// <summary>Keys the engine may override (removed on Normal).</summary>
         private static readonly string[] ManagedKeys =
@@ -191,10 +254,21 @@ namespace ProGlassAutomation.Services.Theme
             // and the cards would drop back to the base theme grey. That
             // is precisely the bug this whole sequence of changes was
             // chasing. Leave them out.
+
+            // ── EIGHT-FAMILY CONTRACT ────────────────────────────────
+            // EightThemePainter publishes its own token list. Those keys
+            // are APPENDED here rather than replacing anything, because
+            // the eight families write on top of the same application
+            // dictionary the legacy painters write into. Without this,
+            // switching from a hard-cornered family (Swiss, radius 0) to
+            // a soft one (claymorphism, radius 32) leaves half the cards
+            // square — a family switch must tear down BOTH token sets.
+            EightThemeEightKeys,
         };
 
         /// <summary>Currently active family.</summary>
-        public static string Current { get; private set; } = NormalIndustrial;
+        public static string Current { get; private set; } =
+            Eight.EightThemeNames.Default;
 
         /// <summary>Module whose wallpaper is currently layered (or "").</summary>
         public static string CurrentModule { get; private set; } = "";
@@ -453,6 +527,16 @@ namespace ProGlassAutomation.Services.Theme
                         break;
                 }
 
+                // ── EIGHT-FAMILY CONTRACT ────────────────────────────
+                // Routed AFTER the legacy cases above so a build that
+                // still names a retired family keeps working, while every
+                // current selection resolves to one of the eight. The
+                // migration in Normalize() guarantees Current is always
+                // either a legacy constant or an eight-family identity,
+                // so exactly one case in the two switches fires.
+                if (IsEightThemeFamily)
+                    ApplyEightTheme(resources, Current);
+
                 // Cache the family's pre-wallpaper surfaces so the next
                 // ApplyModule can fast-path a wallpaper-only change (see
                 // ApplyModule's familyChanged branch for the full story).
@@ -617,6 +701,17 @@ namespace ProGlassAutomation.Services.Theme
                             ApplyIos26(resources);
                             break;
                     }
+
+                    // ── EIGHT-FAMILY CONTRACT (module dispatch) ──────
+                    // Same routing contract as Apply(): the eight families
+                    // are checked last so a retired identity still lands on
+                    // its own painter, while every current selection paints
+                    // through EightThemePainter. This switch runs inside the
+                    // familyChanged branch, which is why it is the branch
+                    // that has to know about the eight at all — a
+                    // wallpaper-only repaint must NOT repaint the family.
+                    if (IsEightThemeFamily)
+                        ApplyEightTheme(resources, Current);
 
                     // Cache the family's pre-wallpaper surfaces so a
                     // wallpaper-only change can restore them and skip the

@@ -20,7 +20,14 @@ namespace ProGlassAutomation.Services.Updates
 
         /// <summary>GitHub repository backing the OTA update check.</summary>
         public const string GitHubOwner = "JUBERSALEEM";
-        public const string GitHubRepo = "ProGlassAutomationADV";
+        /// <summary>
+        /// The PUBLIC distribution repository that actually hosts release
+        /// assets. Application source and the License Generator stay in the
+        /// private ProGlassAutomationADV repository; only built artefacts are
+        /// published here, so the desktop app can read release metadata over
+        /// the anonymous GitHub API with no token and no secret in the binary.
+        /// </summary>
+        public const string GitHubRepo = "ProGlassAutomationssss";
 
         /// <summary>
         /// Fallback only — the real value comes from the assembly identity set

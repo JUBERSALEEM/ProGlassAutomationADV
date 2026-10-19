@@ -17,8 +17,38 @@ namespace ProGlassAutomation.Services.Theme.Engine
         public static ProGlassMaterial Material { get; private set; } = ProGlassMaterial.Frosted;
         public static ProGlassDensity Density { get; private set; } = ProGlassDensity.Compact;
 
+        /// <summary>
+        /// Resolves a persisted family for the legacy TokenStore contract.
+        /// <para>
+        /// EIGHT-FAMILY CONTRACT: this is a four-value enum that predates
+        /// the eight families, so a five-way lossless mapping is not
+        /// available here. Rather than widen the enum — which would force
+        /// every consumer of <see cref="ProGlassThemeFamily"/> to handle
+        /// eight cases — every one of the eight maps onto the legacy value
+        /// whose MATERIAL closest matches it, and the eight-family identity
+        /// is carried verbatim alongside by
+        /// <see cref="EightThemeIdentity"/>. Callers that need the exact
+        /// selected family must read that, not this.
+        /// </para>
+        /// </summary>
         public static ProGlassThemeFamily ParseFamily(string? persisted)
         {
+            // The eight: map onto the legacy material that matches their
+            // physics, so the TokenStore's material-derived surfaces stay
+            // correct underneath the eight-family paint.
+            if (Eight.EightThemeCatalog.IsKnown(persisted))
+            {
+                return Eight.EightThemeCatalog.Resolve(persisted).Material.Kind
+                    switch
+                    {
+                        Eight.EightMaterialKind.Extruded => ProGlassThemeFamily.Industrial,
+                        Eight.EightMaterialKind.Foil => ProGlassThemeFamily.Monet,
+                        Eight.EightMaterialKind.Frosted => ProGlassThemeFamily.Ios26,
+                        Eight.EightMaterialKind.Refractive => ProGlassThemeFamily.Crystal,
+                        _ => ProGlassThemeFamily.Industrial,
+                    };
+            }
+
             return persisted?.Trim() switch
             {
                 VisualThemeEngine.Monet or "Monet" => ProGlassThemeFamily.Monet,
@@ -27,6 +57,22 @@ namespace ProGlassAutomation.Services.Theme.Engine
                 _ => ProGlassThemeFamily.Industrial
             };
         }
+
+        /// <summary>
+        /// The EXACT selected family identity, carried separately from the
+        /// legacy four-value enum so nothing has to be widened.
+        /// <para>
+        /// This is the field every caller that needs to know which of the
+        /// eight is active must read. Round-tripping the enum through
+        /// Parse/PersistFamily cannot distinguish, say, Liquid Glass from
+        /// Glassmorphism — both are translucent — and a caller that used
+        /// PersistFamily(ParseFamily(x)) to normalise a saved value would
+        /// silently collapse those two into one. That is the bug this
+        /// property exists to prevent.
+        /// </para>
+        /// </summary>
+        public static string EightThemeIdentity { get; private set; } =
+            Eight.EightThemeNames.Default;
 
         public static string PersistFamily(ProGlassThemeFamily family) => family switch
         {
@@ -75,6 +121,9 @@ namespace ProGlassAutomation.Services.Theme.Engine
             {
                 var appearance = App.Config?.Appearance;
                 Family = ParseFamily(appearance?.VisualTheme);
+                // The exact identity, kept alongside the lossy legacy enum.
+                EightThemeIdentity =
+                    Eight.EightThemeMigration.Normalize(appearance?.VisualTheme);
                 Mode = ThemeManager.CurrentTheme == AppTheme.Dark
                     ? ProGlassThemeMode.Dark
                     : ProGlassThemeMode.Light;
@@ -299,7 +348,12 @@ namespace ProGlassAutomation.Services.Theme.Engine
 
                 if (!string.IsNullOrWhiteSpace(p.Family))
                 {
-                    var familyConst = PersistFamily(ParseFamily(p.Family));
+                    // Normalise through the eight-family migration, NOT through the
+                    // four-value enum: an imported profile may name any of
+                    // the eight, and routing it through PersistFamily
+                    // would collapse every one of them onto Industrial.
+                    var familyConst = Eight.EightThemeMigration.Normalize(p.Family);
+                    EightThemeIdentity = familyConst;
                     VisualThemeEngine.Apply(familyConst);
                 }
 

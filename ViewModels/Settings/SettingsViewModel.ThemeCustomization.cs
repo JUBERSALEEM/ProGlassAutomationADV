@@ -75,6 +75,16 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// (SelectedVisualTheme setter, InitializeThemesSection) raise it.
         /// </summary>
         public bool IsCrystalThemeActive =>
+            // Deliberately NOT widened to the eight-family Liquid Glass.
+            // These six axes (water opacity/speed, wave amplitude, caustic,
+            // bubble, reflection) are consumed by exactly one place —
+            // Themes/CrystalFluid/CrystalFluidControls.xaml and
+            // CrystalWaterControl. Liquid Glass is a REFRACTIVE material
+            // with no water stage, so offering a "wave amplitude" slider
+            // there would be a control with no consumer, which is the one
+            // thing this file has a standing rule against. Liquid Glass has
+            // its own tuning story (blur, saturation, rim) and that belongs
+            // on the material, not in a slider bound to a dead token.
             SelectedVisualTheme == VisualThemeEngine.CrystalFluid;
 
         /// <summary>Identity of the last preset that wrote the axes
@@ -269,6 +279,10 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             NotifyAllCrystalAxes();
             OnPropertyChanged(nameof(IsCrystalThemeActive));
+            // Theme Center: the eight cards need their selection state on
+            // first render. Without this the cards paint unselected until
+            // something else happens to raise the property.
+            OnPropertyChanged(nameof(SelectedFamilyOption));
         }
 
         private ICommand? _exportThemeProfileCommand;
