@@ -1396,7 +1396,7 @@ function FamilyButton({
   label,
   active,
 }: {
-  id: "bento" | "spatial" | "swiss" | "holographic" | "neumorphism" | "clay" | "liquid-glass" | "glassmorphism";
+  id: "bento" | "spatial" | "swiss" | "holographic" | "neumorphism" | "clay" | "liquid-glass" | "glassmorphism" | "crystal";
   label: string;
   active: boolean;
 }) {
