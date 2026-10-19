@@ -40,6 +40,7 @@
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Theme.Clay;
 using ProGlassAutomation.Services.Theme.Neu;
+using ProGlassAutomation.Services.Theme.Swiss;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -259,9 +260,57 @@ namespace ProGlassAutomation.Services.Theme.Eight
                         rampDarkStop: profile.Light.Elevation.ShadeStop);
                     break;
 
+                case EightMaterialKind.Solid:
+                    // Solid covers BOTH Bento and Swiss, and the two
+                    // families share a material while sharing nothing
+                    // else: Bento has depth tiers and a shadow level,
+                    // Swiss has neither and treats any shadow as a
+                    // defect. So the branch tests the identity, not the
+                    // material.
+                    //
+                    // Getting this wrong is not a subtle drift. A Swiss
+                    // control still holding no palette falls back to a
+                    // plain flat surface, and a Bento control still
+                    // holding one keeps drawing extrusions over a grid
+                    // that has no depth axis — so the Clear() on the
+                    // other arm is load-bearing, not tidiness.
+                    ClayPalette.Clear();
+                    NeuPalette.Clear();
+
+                    if (profile.Identity == EightThemeNames.Swiss)
+                    {
+                        // Paper comes from Window, NOT from Surface. Swiss
+                        // panels are the page — there is no separate card
+                        // colour to tint, and letting a panel carry the
+                        // family's module tint would reintroduce exactly
+                        // the filled-box decoration the style abolishes.
+                        //
+                        // The RULE is BorderStrong, not BorderDefault: a
+                        // 1px hairline drawn in a subtle border is a line
+                        // the reader cannot see, and a rule you cannot see
+                        // is not a structural device, it is a rendering
+                        // artefact.
+                        SwissPalette.Publish(
+                            lightPaper: profile.Light.Window,
+                            lightInk: profile.Light.TextPrimary,
+                            lightMuted: profile.Light.TextSecondary,
+                            lightRule: profile.Light.BorderStrong,
+                            accent: profile.Light.Accent,
+                            darkPaper: profile.Dark.Window,
+                            darkInk: profile.Dark.TextPrimary,
+                            darkMuted: profile.Dark.TextSecondary,
+                            darkRule: profile.Dark.BorderStrong);
+                    }
+                    else
+                    {
+                        SwissPalette.Clear();
+                    }
+                    break;
+
                 default:
                     ClayPalette.Clear();
                     NeuPalette.Clear();
+                    SwissPalette.Clear();
                     break;
             }
         }

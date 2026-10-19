@@ -111,6 +111,13 @@
                      back to a plain rounded surface when neumorphism is
                      not the active family. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Neumorphism/NeuControls.xaml"/>
+                <!-- Swiss International control plane, merged on the same
+                     terms. The one family here whose templates declare NO
+                     shadow host at all, because the style treats any
+                     shadow as a defect — see the header note in the file.
+                     Inert until a host adopts SwissSurface / SwissButton /
+                     SwissField. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Swiss/SwissControls.xaml"/>
                 <!-- Glass Blush — Personal UI family plane (GB-P1, 2026-09-18).
                      Measured token plane for the second ProGlass experience.
                      Managed keys are republished by the family painter (GB-P14). -->
