@@ -37,8 +37,8 @@ describe("eight-family appearance contract", () => {
     expect(APPEARANCE_STORAGE_KEY).toBe("proglass-appearance");
   });
 
-  it("accepts legacy Crystal only as a compatibility alias, not as a selectable card", () => {
-    expect(isAppearanceFamily("crystal")).toBe(true);
+  it("rejects retired Crystal storage while keeping it out of the selectable card list", () => {
+    expect(isAppearanceFamily("crystal")).toBe(false);
     expect(appearanceFamilies.some((family) => family.id === "crystal")).toBe(false);
   });
 });
