@@ -38,15 +38,26 @@ function isNetworkError(err: unknown): boolean {
  */
 const REMEMBERED_EMAIL_KEY = "proglass-auth-email";
 
-export function ReportsAuthForm() {
+function safeRedirectPath(value: string | null, fallback: string): string {
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return fallback;
+  return value;
+}
+
+type ReportsAuthFormProps = {
+  defaultRedirect?: string;
+  variant?: "operations" | "account";
+};
+
+export function ReportsAuthForm({ defaultRedirect = "/reports", variant = "operations" }: ReportsAuthFormProps = {}) {
   const t = useT();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/reports";
-  const customerAccess = redirectTo.includes("/inquiries");
+  const redirectTo = safeRedirectPath(searchParams.get("redirect"), defaultRedirect);
+  const signupRequested = searchParams.get("mode") === "signup" || searchParams.get("auth") === "signup";
+  const customerAccess = variant === "account" || redirectTo.includes("/inquiries") || redirectTo === "/account";
 
   // Password is the normal return path; email OTP also serves signup/recovery.
-  const [mode, setMode] = useState<"password" | "otp">("password");
+  const [mode, setMode] = useState<"password" | "otp">(() => (signupRequested ? "otp" : "password"));
   const [step, setStep] = useState<"email" | "otp" | "set-password">("email");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -298,16 +309,16 @@ export function ReportsAuthForm() {
           </Link>
 
           <div className="mt-3.5 flex items-center gap-2">
-            <span className="eyebrow text-brand-300">{t(customerAccess ? "Customer portal" : "Operations Suite")}</span>
+            <span className="eyebrow text-brand-300">{t(variant === "account" ? "Customer account" : customerAccess ? "Customer portal" : "Operations Suite")}</span>
             <span className="text-text-faint">/</span>
-            <span className="eyebrow text-text-muted">{t(customerAccess ? "Inquiry access" : "Reports Access")}</span>
+            <span className="eyebrow text-text-muted">{t(variant === "account" ? "Inquiries & chat" : customerAccess ? "Inquiry access" : "Reports Access")}</span>
           </div>
 
           <h1 className="mt-2 text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
-            {step === "otp" ? t("Enter Verification Code") : step === "set-password" ? t("Set your password") : t("Sign in")}
+            {step === "otp" ? t("Enter Verification Code") : step === "set-password" ? t("Set your password") : signupRequested && mode === "otp" ? t("Create your account") : t("Sign in")}
           </h1>
           <p className="mt-2 text-xs leading-relaxed text-text-muted">
-            {step === "otp" ? t.template`Enter the 6-digit verification code sent to ${email}` : step === "set-password" ? t("Create a reusable password so future sign-ins do not require email access.") : mode === "password" ? t("Sign in with your email and password.") : t("Use an email code to sign up, recover access, or set a password.")}
+            {step === "otp" ? t.template`Enter the 6-digit verification code sent to ${email}` : step === "set-password" ? t("Create a reusable password so future sign-ins do not require email access.") : variant === "account" ? t("Sign in or create one secure account to submit inquiries, follow current status, manage documents, and chat on your own inquiry.") : mode === "password" ? t("Sign in with your email and password.") : t("Use an email code to sign up, recover access, or set a password.")}
           </p>
         </div>
 
@@ -368,7 +379,7 @@ export function ReportsAuthForm() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="operator@proglass.ae"
+                placeholder={variant === "account" ? "you@company.com" : "operator@proglass.ae"}
                 className="w-full rounded-xl border border-line-strong/80 bg-ink-950/80 px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400 transition-colors"
               />
             </div>
@@ -483,7 +494,7 @@ export function ReportsAuthForm() {
           </div>
 
           <p className="text-2xs text-text-muted leading-relaxed">
-            {t(customerAccess ? "Authentication protects your inquiry details, projects, and private documents." : "Public marketing pages remain accessible to all visitors. Authentication is strictly required for live operational reports and database records.")}
+            {t(variant === "account" ? "Authentication protects your inquiry details, project documents, current status, and inquiry chat." : customerAccess ? "Authentication protects your inquiry details, projects, and private documents." : "Public marketing pages remain accessible to all visitors. Authentication is strictly required for live operational reports and database records.")}
           </p>
 
           <div className="pt-2">

@@ -50,7 +50,7 @@ vi.mock("@/i18n/provider", () => {
   const t = (copy: string): string => copy;
   t.template = (strings: TemplateStringsArray, ...values: unknown[]) =>
     strings.reduce((acc, s, i) => acc + s + (i < values.length ? String(values[i]) : ""), "");
-  return { useT: () => t, useHref: () => (path: string) => path };
+  return { useT: () => t, useHref: () => (path: string) => path, useLocale: () => "en-US" };
 });
 
 import { ThemeStudio } from "@/components/layout/ThemeStudio";

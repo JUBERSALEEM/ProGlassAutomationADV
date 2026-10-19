@@ -188,7 +188,7 @@ export function Footer({ t }: { t: Translator }) {
           <p className="text-xs text-text-faint font-medium">{t(site.copyrightLine)}</p>
           <p className="max-w-xl text-xs leading-relaxed text-text-faint font-medium">
             {t(
-              "ProGlass Automation is desktop software. There is no cloud account, no subscription dashboard and nothing to sign in to on this website.",
+              "ProGlass Automation is desktop software. The desktop app needs no cloud account; the optional website account is only for secure customer inquiries, status tracking, and inquiry chat.",
             )}
           </p>
           {/*

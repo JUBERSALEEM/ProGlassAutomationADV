@@ -39,6 +39,9 @@ export const footerLinkIcons: Record<string, string> = {
   "/records": "M4.5 3.5h7l2 2v8h-9zM11.5 3.5v2h2M6.5 8.5h4M6.5 11h4",
   "/records/login": "M3 3.5h10v9H3zM8 6.8a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6zM8 9.6v1.9",
   "/reports/login": "M3 3.5h10v9H3zM8 6.8a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6zM8 9.6v1.9",
+  "/account": "M8 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM3.5 13.5c.7-2 2.4-3 4.5-3s3.8 1 4.5 3",
+  "/inquiries/chat": "M3 4.5h10v6H8l-3 2.5v-2.5H3zM5.5 7h5M5.5 9h3",
+  "/inquiries/submit": "M4.5 2.5h5L12 5v8.5H4.5zM9.5 2.5V5H12M6.5 8h3.5M6.5 10.5h2.5",
 };
 
 /**
