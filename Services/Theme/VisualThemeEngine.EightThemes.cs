@@ -179,6 +179,96 @@ namespace ProGlassAutomation.Services.Theme
             resources["TintPurpleBrush"] = Alpha(palette.SecondAccent, (byte)(dark ? 0x38 : 0x20));
             resources["TintGrayBrush"] = Alpha(palette.SecondaryInk, (byte)(dark ? 0x38 : 0x20));
 
+            // REAL SETTINGS / ABOUT CARD MATERIALS.
+            // SettingsCardStyles.xaml does not consume the generic
+            // Surface.Primary tokens; it binds these dedicated legacy keys.
+            // Leaving them at the LightTheme/DarkTheme defaults was why the
+            // theme preview changed while the actual Settings cards did not.
+            // Publish family-owned resources directly so all Settings pages
+            // repaint on every family or Light/Dark change.
+            Brush settingsFace = family switch
+            {
+                SwissInternational => Solid(palette.Surface),
+                BentoGrid => Solid(palette.Surface),
+                Neumorphism => Solid(palette.Surface),
+                Claymorphism => Gradient(palette.Surface, palette.Raised, palette.Surface),
+                SpatialImmersive => Gradient(
+                    Color.FromArgb(dark ? (byte)0xE8 : (byte)0xF3, palette.Surface.R, palette.Surface.G, palette.Surface.B),
+                    Color.FromArgb(dark ? (byte)0xDA : (byte)0xE8, palette.Raised.R, palette.Raised.G, palette.Raised.B),
+                    Color.FromArgb(dark ? (byte)0xE8 : (byte)0xF3, palette.Surface.R, palette.Surface.G, palette.Surface.B)),
+                HolographicIridescent => Gradient(palette.Surface, palette.Raised, palette.Inset),
+                LiquidGlass => Gradient(
+                    Color.FromArgb(dark ? (byte)0xC8 : (byte)0xD8, palette.Surface.R, palette.Surface.G, palette.Surface.B),
+                    Color.FromArgb(dark ? (byte)0xA8 : (byte)0xC0, Colors.White.R, Colors.White.G, Colors.White.B),
+                    Color.FromArgb(dark ? (byte)0xD0 : (byte)0xE5, palette.Raised.R, palette.Raised.G, palette.Raised.B)),
+                Glassmorphism => Gradient(
+                    Color.FromArgb(dark ? (byte)0xC4 : (byte)0xD8, palette.Surface.R, palette.Surface.G, palette.Surface.B),
+                    Color.FromArgb(dark ? (byte)0xB8 : (byte)0xCC, palette.Raised.R, palette.Raised.G, palette.Raised.B),
+                    Color.FromArgb(dark ? (byte)0xC8 : (byte)0xDC, palette.Surface.R, palette.Surface.G, palette.Surface.B)),
+                _ => Solid(palette.Surface)
+            };
+            Brush settingsEdge = family == HolographicIridescent
+                ? Gradient(Colors.White, palette.Accent, palette.SecondAccent)
+                : family == SwissInternational
+                    ? Solid(palette.Accent)
+                    : Gradient(palette.Edge, palette.Accent, palette.Edge);
+            Brush settingsInnerEdge = family == SwissInternational
+                ? Alpha(palette.Edge, (byte)0xB0)
+                : family == Neumorphism
+                    ? Alpha(palette.Edge, (byte)0x55)
+                    : Alpha(palette.Edge, (byte)(palette.Glass ? 0x95 : 0xC0));
+            resources["SettingsCardFaceBrush"] = settingsFace;
+            resources["SettingsCardEdgeBrush"] = settingsEdge;
+            resources["SettingsInnerEdgeBrush"] = settingsInnerEdge;
+            resources["SettingsCardShadow"] = CreateThemeShadow(
+                family == HolographicIridescent || family == LiquidGlass || family == Glassmorphism
+                    ? palette.Accent
+                    : dark ? Rgb(0, 0, 0) : palette.Edge,
+                family == SwissInternational ? 0.025 :
+                    family == Neumorphism ? (dark ? 0.16 : 0.09) :
+                    family == Claymorphism ? 0.13 :
+                    family == SpatialImmersive ? 0.12 :
+                    family == HolographicIridescent ? 0.10 :
+                    family == LiquidGlass ? 0.09 :
+                    family == Glassmorphism ? 0.08 : 0.07,
+                family == SwissInternational ? 2 :
+                    family == BentoGrid ? 8 :
+                    family == Neumorphism ? 12 :
+                    family == Claymorphism ? 15 :
+                    family == SpatialImmersive ? 16 :
+                    family == HolographicIridescent ? 13 :
+                    family == LiquidGlass ? 12 :
+                    family == Glassmorphism ? 11 : 8,
+                family == SwissInternational ? 1 :
+                    family == BentoGrid ? 2 :
+                    family == Neumorphism ? 4 :
+                    family == Claymorphism ? 5 :
+                    family == SpatialImmersive ? 5 :
+                    family == HolographicIridescent ? 4 :
+                    family == LiquidGlass ? 4 :
+                    family == Glassmorphism ? 3 : 2);
+            resources["Ios26CardShadow"] = resources["SettingsCardShadow"];
+            resources["Ios26RadiusCard"] = new CornerRadius(palette.CardRadius);
+            resources["Ios26RadiusInner"] = new CornerRadius(Math.Max(4, palette.CardRadius - 5));
+            resources["Ios26RadiusTile"] = new CornerRadius(Math.Max(4, palette.CardRadius - 7));
+            resources["Ios26RadiusChip"] = new CornerRadius(Math.Min(14, palette.ControlRadius));
+            resources["Ios26RadiusSmall"] = new CornerRadius(Math.Min(8, palette.ControlRadius));
+            resources["Ios26CardBrush"] = settingsFace;
+            resources["Ios26TileBrush"] = cardRaised;
+            resources["Ios26RailBrush"] = raised;
+            resources["Ios26CardBorderBrush"] = settingsEdge;
+            resources["Ios26TileBorderBrush"] = settingsInnerEdge;
+            resources["Ios26HairlineBrush"] = Alpha(palette.Edge, (byte)0x75);
+            resources["Ios26HoverBrush"] = Alpha(palette.Accent, (byte)(dark ? 0x35 : 0x22));
+            resources["Ios26AccentBrush"] = Solid(palette.Accent);
+            resources["Ios26AccentDeepBrush"] = Solid(palette.Edge);
+            resources["Ios26AccentSoftBrush"] = Alpha(palette.Accent, (byte)(dark ? 0x50 : 0x30));
+            resources["Ios26AccentSoftTextBrush"] = Solid(palette.Accent);
+            resources["Ios26TextTitleBrush"] = Solid(palette.Ink);
+            resources["Ios26TextBodyBrush"] = Solid(palette.Ink);
+            resources["Ios26TextSecondaryBrush"] = Solid(palette.SecondaryInk);
+            resources["Ios26TextMutedBrush"] = Solid(palette.MutedInk);
+
             resources["LiquidGlassBrush"] = family == LiquidGlass
                 ? Gradient(
                     Color.FromArgb(dark ? (byte)0xA6 : (byte)0xC7,
