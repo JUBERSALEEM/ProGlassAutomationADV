@@ -150,8 +150,40 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                     }
                 }
 
-                // Retired fourth family — always fold to Crystal so
-                // navigation does not paint a dead Ios26 path.
+                // One-time migration from the retired theme catalogue to the
+                // eight selectable families. Existing choices map to the nearest
+                // material; a supported choice is never overwritten.
+                if (!config.Appearance.EightThemeMigrationApplied)
+                {
+                    string savedFamily = config.Appearance.VisualTheme ?? "";
+                    bool supported = savedFamily is
+                        VisualThemeEngine.BentoGrid or
+                        VisualThemeEngine.SpatialImmersive or
+                        VisualThemeEngine.SwissInternational or
+                        VisualThemeEngine.HolographicIridescent or
+                        VisualThemeEngine.Neumorphism or
+                        VisualThemeEngine.Claymorphism or
+                        VisualThemeEngine.LiquidGlass or
+                        VisualThemeEngine.Glassmorphism;
+
+                    if (!supported)
+                    {
+                        config.Appearance.VisualTheme = savedFamily switch
+                        {
+                            VisualThemeEngine.Monet => VisualThemeEngine.Claymorphism,
+                            VisualThemeEngine.CrystalFluid or
+                            VisualThemeEngine.Ios26 or
+                            "Crystal" or "Crystal Fluid" or
+                            "iOS 26" or "iPhone 17 Pro Max" => VisualThemeEngine.LiquidGlass,
+                            _ => VisualThemeEngine.BentoGrid
+                        };
+                    }
+
+                    config.Appearance.EightThemeMigrationApplied = true;
+                }
+
+                // Safety net for legacy values written by older builds:
+                // glass families migrate to Liquid Glass, not an unselectable industrial row.
                 if (string.Equals(config.Appearance.VisualTheme,
                         VisualThemeEngine.Ios26,
                         StringComparison.OrdinalIgnoreCase)
@@ -166,7 +198,7 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                         "Crystal Fluid", StringComparison.OrdinalIgnoreCase))
                 {
                     config.Appearance.VisualTheme =
-                        VisualThemeEngine.NormalIndustrial;
+                        VisualThemeEngine.LiquidGlass;
                 }
 
                 config.Ai ??= new AiSettings();
