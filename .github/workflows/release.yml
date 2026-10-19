@@ -220,7 +220,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.OTA_RELEASE_TOKEN }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          vpk publish github --repoUrl "https://github.com/JUBERSALEEM/ProGlassAutomationssss" --packDir releases --pre false --tag $env:RELEASE_TAG
+          vpk upload github --repoUrl "https://github.com/JUBERSALEEM/ProGlassAutomationssss" --token $env:GITHUB_TOKEN --outputDir releases --publish --tag $env:RELEASE_TAG --releaseName "ProGlass Automation $env:RELEASE_TAG"
           if ($LASTEXITCODE -ne 0) { throw "Velopack release publishing failed." }
 
       - name: Publish single EXE, installer, checksum and changelog
