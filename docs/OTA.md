@@ -54,14 +54,25 @@ host scenarios.
 
 ## Release tagging & GitHub Actions
 
-- Tags use the `v` prefix: `v2.0.1`, `v2.1.0`, …
-- Normal pushes **never** create releases. A release is triggered
-  **intentionally** by pushing a version tag.
-- The pipeline template lives at [`Docs/CI/release.yml`](CI/release.yml)
-  (the Arena session cannot push into `.github/workflows/` directly —
-  copy it there once to activate, alongside `Docs/CI/build.yml`).
-- Pipeline: checkout → restore → build (Release) → publish → package →
-  create GitHub Release with generated notes → upload artifacts.
+- Tags use the `v` prefix and must match `<Version>` in
+  `ProGlassAutomation.csproj` exactly (for example `2.0.12` ↔ `v2.0.12`).
+- Normal pushes **never** publish a release. The active workflow is
+  [`.github/workflows/release.yml`](../.github/workflows/release.yml);
+  pushing a matching version tag triggers it.
+- The pipeline restores, builds, runs regression tests, and publishes a
+  **self-contained single-file win-x64 EXE**. It also builds the License
+  Generator as a separate single-file EXE and stores that output only as
+  a short-lived private GitHub Actions artifact. The License Generator is
+  never attached to GitHub Release assets and is never selected by OTA.
+- The application EXE is Authenticode-signed before release. Configure
+  repository Actions secrets `CODESIGN_PFX_BASE64` and
+  `CODESIGN_PFX_PASSWORD`; publishing intentionally fails if trusted
+  signing credentials are missing because the updater refuses unsigned
+  downloads.
+- Velopack packages remain available for installed-client OTA. The release
+  also contains the versioned standalone app EXE and SHA-256 checksum.
+  GitHub-generated release notes are attached to the release, and the
+  OTA Updates page displays the full changelog.
 
 ## How users receive updates
 
