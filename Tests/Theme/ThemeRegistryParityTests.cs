@@ -38,16 +38,14 @@ namespace ProGlassAutomation.Tests.Theme
         // (Industrial) via the engine's Normalize mapping.
         private static readonly string[] AllFamilies =
         {
-            VisualThemeEngine.NormalIndustrial,
-            VisualThemeEngine.Monet,
-            // 2026-09-16: the comment above this array has named four
-            // families since 2026-09-13, but the array listed two — so
-            // SceneCatalogue_CoversEveryFamily_Exactly was passing while
-            // BuiltinWallpaperScenes.All covered half the picker. That silent
-            // half-coverage is why two dropdown rows advertised the wrong
-            // wallpaper scene. The array now matches its own documentation.
-            VisualThemeEngine.CrystalFluid,
-            VisualThemeEngine.Ios26,
+            VisualThemeEngine.BentoGrid,
+            VisualThemeEngine.SpatialImmersive,
+            VisualThemeEngine.SwissInternational,
+            VisualThemeEngine.HolographicIridescent,
+            VisualThemeEngine.Neumorphism,
+            VisualThemeEngine.Claymorphism,
+            VisualThemeEngine.LiquidGlass,
+            VisualThemeEngine.Glassmorphism,
         };
 
         // ── F-01: the managed-key contract ──────────────────────────────
@@ -172,6 +170,14 @@ namespace ProGlassAutomation.Tests.Theme
         [InlineData(VisualThemeEngine.NormalIndustrial, null)]
         [InlineData(VisualThemeEngine.Monet, null)]
         [InlineData(VisualThemeEngine.Ios26, null)]
+        [InlineData(VisualThemeEngine.BentoGrid, null)]
+        [InlineData(VisualThemeEngine.SpatialImmersive, null)]
+        [InlineData(VisualThemeEngine.SwissInternational, null)]
+        [InlineData(VisualThemeEngine.HolographicIridescent, null)]
+        [InlineData(VisualThemeEngine.Neumorphism, null)]
+        [InlineData(VisualThemeEngine.Claymorphism, null)]
+        [InlineData(VisualThemeEngine.LiquidGlass, null)]
+        [InlineData(VisualThemeEngine.Glassmorphism, null)
         // Crystal Fluid (iPhone 17 Pro Max) is light-only (2026-09-05
         // product decision); Industrial, Monet and iOS 26 respect the
         // user's own mode.
