@@ -85,6 +85,22 @@ namespace ProGlassAutomation.Services.Theme
                     return Diagonal((Parse(dark ? "#190F2B" : "#F6F0FF"), 0.0),
                         (Parse(dark ? "#33204F" : "#E6D8FF"), 0.55),
                         (Parse(dark ? "#10243A" : "#D5F2FF"), 1.0));
+                if (f == VisualThemeEngine.BentoGrid)
+                    return Diagonal((Parse(dark ? "#0C1222" : "#F5F7FC"), 0.0),
+                        (Parse(dark ? "#182746" : "#E5EBF7"), 0.52),
+                        (Parse(dark ? "#0B1020" : "#FFFFFF"), 1.0));
+                if (f == VisualThemeEngine.SwissInternational)
+                    return Diagonal((Parse(dark ? "#111214" : "#FAF9F7"), 0.0),
+                        (Parse(dark ? "#292A2C" : "#EEEAE5"), 0.62),
+                        (Parse(dark ? "#1A1B1D" : "#FFFFFF"), 1.0));
+                if (f == VisualThemeEngine.Neumorphism)
+                    return Diagonal((Parse(dark ? "#181F2B" : "#E2E8F0"), 0.0),
+                        (Parse(dark ? "#202B3B" : "#D2DBE7"), 0.55),
+                        (Parse(dark ? "#171E29" : "#E2E8F0"), 1.0));
+                if (f == VisualThemeEngine.Claymorphism)
+                    return Diagonal((Parse(dark ? "#1E1830" : "#F4F0FF"), 0.0),
+                        (Parse(dark ? "#49345F" : "#E5D9FA"), 0.55),
+                        (Parse(dark ? "#281F42" : "#F9F1FF"), 1.0));
                 if (f == VisualThemeEngine.Ios26)
                     return Ios26Scene(dark);
                 if (f == VisualThemeEngine.Monet)            return GoldenHour(h, s, dark);
