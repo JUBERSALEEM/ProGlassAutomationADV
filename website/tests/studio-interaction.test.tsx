@@ -194,7 +194,7 @@ describe("P18 · the colour plates", () => {
     await user.click(within(panel).getByRole("button", { name: /^liquid glass$/i }));
     await settle();
     expect(html().getAttribute("data-appearance")).toBe("liquid-glass");
-    expect(window.localStorage.getItem(APPEARANCE_STORAGE_KEY)).toBe("crystal");
+    expect(window.localStorage.getItem(APPEARANCE_STORAGE_KEY)).toBe("liquid-glass");
     /* Family pick clears the explicit accent → stylesheet owns the ramp. */
     expect(inline("--brand-400")).toBe("");
   });
