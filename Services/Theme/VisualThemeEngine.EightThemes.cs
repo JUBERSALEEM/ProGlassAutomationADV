@@ -36,7 +36,7 @@ namespace ProGlassAutomation.Services.Theme
             resources["ModuleBackgroundBrush"] = module;
             resources["ElevatedSurfaceBrush"] = raised;
             resources["SideMenuBackgroundBrush"] = raised;
-            resources["MenuHoverBrush"] = Alpha(palette.Accent, 0x28);
+            resources["MenuHoverBrush"] = Alpha(palette.Accent, (byte)0x28);
             resources["DialogSurfaceBrush"] = raised;
             resources["DialogInsetBrush"] = inset;
             resources["PrimaryForegroundBrush"] = Solid(palette.Ink);
@@ -47,7 +47,7 @@ namespace ProGlassAutomation.Services.Theme
                 ? Gradient(palette.Edge, palette.Accent, palette.SecondAccent)
                 : edge;
             resources["OutlineDefaultBrush"] = edge;
-            resources["DividerBrush"] = Alpha(palette.Edge, 0x9A);
+            resources["DividerBrush"] = Alpha(palette.Edge, (byte)0x9A);
             resources["GlassBorderSoft"] = Alpha(palette.Edge, 0x75);
             resources["CardCornerRadius"] = new CornerRadius(palette.CardRadius);
             resources["CardCornerRadiusLarge"] = new CornerRadius(palette.CardRadius + 4);
@@ -229,6 +229,8 @@ namespace ProGlassAutomation.Services.Theme
             Color SecondAccent, Color CanvasEnd, double CardRadius,
             double ControlRadius, bool Atmospheric, bool Glass)
         {
+            public Color MutedInk => ColorMath.Mix(SecondaryInk, Canvas, 0.22);
+
             public Color CanvasMid => Color.FromRgb(
                 (byte)((Canvas.R + Surface.R) / 2),
                 (byte)((Canvas.G + Surface.G) / 2),
