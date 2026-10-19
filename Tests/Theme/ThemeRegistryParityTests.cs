@@ -178,6 +178,10 @@ namespace ProGlassAutomation.Tests.Theme
 
             Assert.Contains("ThemeManager.CurrentTheme == AppTheme.Dark", overlay, StringComparison.Ordinal);
             Assert.Contains("ApplyEightThemeMaterial(resources, Current)", Read("Services/Theme/VisualThemeEngine.Part1.cs"), StringComparison.Ordinal);
+            string painter = Read("Services/Theme/VisualThemeEngine.Part1.cs");
+            Assert.Contains("case LiquidGlass:\\n                        ApplyCrystalFluid(resources);", painter, StringComparison.Ordinal);
+            Assert.Contains("case Claymorphism:\\n                    case Glassmorphism:\\n                    case NormalIndustrial:\\n                        ApplyIndustrial(resources);", painter, StringComparison.Ordinal);
+            Assert.Contains("bool crystal = Family == ProGlassThemeFamily.LiquidGlass;", Read("Services/Theme/Engine/ProGlassThemeEngine.cs"), StringComparison.Ordinal);
         }
 
         [Theory]
