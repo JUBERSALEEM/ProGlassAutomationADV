@@ -494,29 +494,27 @@ namespace ProGlassAutomation.Services.Updates
                 item.TryGetProperty("name", out var name)
                     ? name.GetString() ?? "" : "";
 
-            string expected = $"ProGlassAutomation-{tag}-win-x64.exe";
+            // The manual update command launches an installer. Prefer the
+            // Velopack Setup.exe even when the standalone app EXE appears
+            // first in the GitHub API response; executing a portable app EXE
+            // would only start another app instance, not install an update.
             int index = Array.FindIndex(candidates, item =>
-                string.Equals(ReadName(item), expected,
+                string.Equals(ReadName(item), "Setup.exe",
                     StringComparison.OrdinalIgnoreCase));
             if (index >= 0) return index;
 
-            // Accept the versioned standalone EXE if a future tag format
-            // differs slightly, but never select a license-tool executable.
-            index = Array.FindIndex(candidates, item =>
-            {
-                var name = ReadName(item);
-                return name.StartsWith("ProGlassAutomation-", StringComparison.OrdinalIgnoreCase)
-                    && name.EndsWith("-win-x64.exe", StringComparison.OrdinalIgnoreCase);
-            });
-            if (index >= 0) return index;
-
-            // Backward compatibility for existing signed installer releases.
+            // Backward compatibility with earlier release asset names.
             index = Array.FindIndex(candidates, item =>
                 string.Equals(ReadName(item), "ProGlassAutomation-Setup.exe",
                     StringComparison.OrdinalIgnoreCase));
             if (index >= 0) return index;
 
-            // Old releases may contain a portable ZIP rather than a Setup EXE.
+            index = Array.FindIndex(candidates, item =>
+                ReadName(item).EndsWith("-Setup.exe",
+                    StringComparison.OrdinalIgnoreCase));
+            if (index >= 0) return index;
+
+            // Old releases may contain a portable ZIP rather than an installer.
             return Array.FindIndex(candidates, item =>
             {
                 var name = ReadName(item);
