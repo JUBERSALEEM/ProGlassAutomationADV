@@ -42,8 +42,11 @@ jobs:
           }
           Write-Host "Release version validated: $version"
 
-      - name: Restore application and tests
-        run: dotnet restore ProGlassAutomation.slnx
+      - name: Restore application
+        run: dotnet restore ProGlassAutomation.csproj
+
+      - name: Restore regression tests
+        run: dotnet restore Tests/ProGlassAutomation.Tests.csproj
 
       - name: Build application
         run: dotnet build ProGlassAutomation.csproj --configuration Release --no-restore
