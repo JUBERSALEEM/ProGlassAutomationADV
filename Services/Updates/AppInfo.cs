@@ -27,7 +27,7 @@ namespace ProGlassAutomation.Services.Updates
         /// with the .csproj &lt;Version&gt; and exposed so the licensing
         /// wrapper does not carry its own third copy of the number.
         /// </summary>
-        public const string FallbackVersion = "2.0.4";
+        public const string FallbackVersion = "2.0.12";
 
         /// <summary>
         /// Current application version (MAJOR.MINOR.PATCH), resolved once
