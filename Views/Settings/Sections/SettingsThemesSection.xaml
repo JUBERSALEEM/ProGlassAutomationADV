@@ -97,12 +97,12 @@
                                 </StackPanel>
                                 <TextBlock Text="Eight complete visual systems"
                                            TextWrapping="Wrap"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"
                                            FontSize="{DynamicResource FontSize.Body}"
                                            Margin="0,8,0,0"/>
                                 <TextBlock Text="Choose a theme from the live preview cards below."
                                            TextWrapping="Wrap"
-                                           Foreground="{DynamicResource TextMutedBrush}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
@@ -188,12 +188,10 @@
                                         <StackPanel>
                                             <Border Height="6" CornerRadius="3" Background="{Binding Swatch}" Margin="0,0,0,9"/>
                                             <TextBlock Text="{Binding Display}"
-                                                       Foreground="{DynamicResource TextPrimaryBrush}"
-                                                       FontWeight="SemiBold"
+                                                       Style="{StaticResource SettingsRowTitleStyle}"
                                                        TextWrapping="Wrap"/>
                                             <TextBlock Text="{Binding Description}"
-                                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                                       Style="{StaticResource SettingsRowMetaStyle}"
                                                        TextWrapping="Wrap"
                                                        Margin="0,5,0,0"/>
                                         </StackPanel>
