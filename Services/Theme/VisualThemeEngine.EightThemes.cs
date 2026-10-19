@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 
 namespace ProGlassAutomation.Services.Theme
 {
@@ -51,8 +52,60 @@ namespace ProGlassAutomation.Services.Theme
             resources["CardCornerRadius"] = new CornerRadius(palette.CardRadius);
             resources["CardCornerRadiusLarge"] = new CornerRadius(palette.CardRadius + 4);
             resources["ControlCornerRadius"] = new CornerRadius(palette.ControlRadius);
-            resources["CardBorderThickness"] = palette.Glass ? 1.0 : 1.0;
+            resources["CardBorderThickness"] = family == SwissInternational ? 1.5 :
+                family == Neumorphism || family == Claymorphism ? 0.0 : 1.0;
             resources["CardEdgeThickness"] = family == SwissInternational ? 1.5 : 1.0;
+
+            // Reuse frozen, shared effect resources instead of creating a
+            // per-card animation/effect. Material families get different
+            // elevation profiles while retaining the existing performance gates.
+            Color shadowColor = family == SpatialImmersive ||
+                                family == HolographicIridescent ||
+                                family == LiquidGlass ||
+                                family == Glassmorphism
+                ? palette.Accent
+                : dark ? Rgb(0, 0, 0) : Rgb(35, 48, 68);
+            double shadowOpacity = family switch
+            {
+                SwissInternational => 0.025,
+                Neumorphism => dark ? 0.30 : 0.14,
+                Claymorphism => 0.16,
+                SpatialImmersive => 0.18,
+                HolographicIridescent => 0.16,
+                LiquidGlass => 0.13,
+                Glassmorphism => 0.12,
+                _ => 0.09
+            };
+            double shadowBlur = family switch
+            {
+                SwissInternational => 2,
+                BentoGrid => 12,
+                Neumorphism => 16,
+                Claymorphism => 22,
+                SpatialImmersive => 26,
+                HolographicIridescent => 18,
+                LiquidGlass => 20,
+                Glassmorphism => 18,
+                _ => 12
+            };
+            double shadowDepth = family switch
+            {
+                SwissInternational => 1,
+                BentoGrid => 4,
+                Neumorphism => 6,
+                Claymorphism => 7,
+                SpatialImmersive => 9,
+                HolographicIridescent => 5,
+                LiquidGlass => 7,
+                Glassmorphism => 6,
+                _ => 4
+            };
+            resources["ShadowSoft"] = CreateThemeShadow(shadowColor, shadowOpacity * 0.65, shadowBlur * 0.7, shadowDepth * 0.65);
+            resources["ShadowElevated"] = CreateThemeShadow(shadowColor, shadowOpacity, shadowBlur, shadowDepth);
+            resources["ShadowDeep"] = CreateThemeShadow(shadowColor, shadowOpacity * 0.8, shadowBlur * 1.2, shadowDepth * 1.25);
+            resources["DashCardShadowEffect"] = CreateThemeShadow(shadowColor, shadowOpacity, shadowBlur, shadowDepth);
+            resources["DashSubtleShadowEffect"] = CreateThemeShadow(shadowColor, shadowOpacity * 0.55, shadowBlur * 0.7, shadowDepth * 0.55);
+            resources["DashInteractiveShadowEffect"] = CreateThemeShadow(palette.Accent, Math.Min(0.2, shadowOpacity), shadowBlur * 0.8, shadowDepth * 0.6);
 
             // The shared liquid-glass resource keys remain safe for every
             // theme. Only Liquid Glass receives translucent liquid fills;
@@ -117,6 +170,21 @@ namespace ProGlassAutomation.Services.Theme
                     : new(Rgb(231, 241, 250), Rgb(249, 252, 255), Rgb(235, 245, 252), Rgb(222, 237, 248), Rgb(15, 41, 64), Rgb(66, 95, 117), Rgb(29, 107, 166), Rgb(148, 190, 216), Rgb(139, 111, 241), Rgb(207, 228, 242), 22, 15, true, false),
                 _ => null
             };
+        }
+
+        private static DropShadowEffect CreateThemeShadow(Color color, double opacity, double blur, double depth)
+        {
+            var effect = new DropShadowEffect
+            {
+                Color = color,
+                Opacity = Math.Clamp(opacity, 0, 0.35),
+                BlurRadius = Math.Clamp(blur, 0, 28),
+                ShadowDepth = Math.Clamp(depth, 0, 12),
+                Direction = 270,
+                RenderingBias = RenderingBias.Performance
+            };
+            effect.Freeze();
+            return effect;
         }
 
         private static Color Rgb(byte r, byte g, byte b) => Color.FromRgb(r, g, b);
