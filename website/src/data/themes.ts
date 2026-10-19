@@ -30,7 +30,7 @@ export type ThemeMode = "light" | "dark" | "system";
 export type ResolvedTheme = "midnight" | "daylight";
 
 /** The `data-appearance` value written to <html>. */
-export type AppearanceFamily = "bento" | "spatial" | "swiss" | "holographic" | "neumorphism" | "clay" | "liquid-glass" | "glassmorphism";
+export type AppearanceFamily = "bento" | "spatial" | "swiss" | "holographic" | "neumorphism" | "clay" | "liquid-glass" | "glassmorphism" | "crystal";
 
 export type ThemeModeEntry = {
   id: ThemeMode;
@@ -110,12 +110,7 @@ export const THEME_STORAGE_KEY = "proglass-theme-mode";
 export const APPEARANCE_STORAGE_KEY = "proglass-appearance";
 
 export const DEFAULT_THEME_MODE: ThemeMode = "system";
-/*
- * The first-run family. Crystal is the liquid-glass identity the site is
- * art-directed around; a stored choice (any family, including Clay) always
- * wins over this default — the default only greets a visitor who has never
- * picked.
- */
+/* Liquid Glass is the first-run family; legacy Crystal remains a non-selectable compatibility alias. */
 export const DEFAULT_APPEARANCE: AppearanceFamily = "liquid-glass";
 
 export function isThemeMode(value: unknown): value is ThemeMode {
@@ -123,7 +118,7 @@ export function isThemeMode(value: unknown): value is ThemeMode {
 }
 
 export function isAppearanceFamily(value: unknown): value is AppearanceFamily {
-  return value === "bento" || value === "spatial" || value === "swiss" || value === "holographic" || value === "neumorphism" || value === "clay" || value === "liquid-glass" || value === "glassmorphism";
+  return value === "bento" || value === "spatial" || value === "swiss" || value === "holographic" || value === "neumorphism" || value === "clay" || value === "liquid-glass" || value === "glassmorphism" || value === "crystal";
 }
 
 /** Mode → the `data-theme` value to write on <html>. */
@@ -149,14 +144,7 @@ var sr=function(k){try{localStorage.removeItem(k)}catch(e){}};
 var mk=${JSON.stringify(THEME_STORAGE_KEY)},ak=${JSON.stringify(APPEARANCE_STORAGE_KEY)},vk="proglass-studio-vars";
 var m=sg(mk);
 if(m!=="light"&&m!=="dark"&&m!=="system")m="system";
-/* Hygiene v2 — rides BEFORE the appearance resolves, so it takes effect on
-   this very boot: clears the stored studio dials (an old edge/scale dial
-   could outrank the family recipe's own corners and strokes) AND lands
-   the visitor on the Crystal family once — the liquid-glass identity
-   (Phase 5 rollout, user-approved 14 Oct 2026; hygiene v3 had landed
-   everyone on Clay). The palette picker still switches away — this
-   just makes Crystal the first thing every visitor feels, including
-   a returning one whose storage pinned an older family. */
+/* One-time hygiene clears stale studio dials before the eight-family recipes apply. */
 var vk2="proglass-studio-attrs";
 var hv="proglass-hygiene-v4";
 if(sg(hv)!=="1"){sr(vk);sr(vk2);ss(ak,"liquid-glass");ss(hv,"1");}
