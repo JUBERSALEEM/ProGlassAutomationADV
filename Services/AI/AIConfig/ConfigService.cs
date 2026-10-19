@@ -170,8 +170,7 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                             VisualThemeEngine.Monet => VisualThemeEngine.Claymorphism,
                             VisualThemeEngine.CrystalFluid or
                             VisualThemeEngine.Ios26 or
-                            "Crystal" or "Crystal Fluid" or
-                            "iOS 26" or "iPhone 17 Pro Max" => VisualThemeEngine.LiquidGlass,
+                            "Crystal" or "iPhone 17 Pro Max" => VisualThemeEngine.LiquidGlass,
                             _ => VisualThemeEngine.BentoGrid
                         };
                     }
