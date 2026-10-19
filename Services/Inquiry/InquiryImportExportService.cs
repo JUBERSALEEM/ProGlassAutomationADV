@@ -34,39 +34,43 @@ namespace ProGlassAutomation.Services.Inquiry
         }
 
         /// <summary>
-        /// S3 fix: parses a register CSV into validated records.
-        /// - rows without customer AND project are skipped (counted);
-        /// - duplicate inquiry numbers inside one file are blanked so the
-        ///   repository generates a fresh sequential number on insert (the
-        ///   UNIQUE index made the previous importer crash mid-batch);
-        /// - statuses are normalized through the controlled status model.
+        /// Parses a register CSV using record boundaries rather than physical
+        /// lines, so valid quoted fields containing commas, quotes, CR/LF, or
+        /// embedded newlines round-trip without shifting later columns.
         /// </summary>
         public async Task<InquiryImportParseResult> ParseCsvAsync(string path, CancellationToken ct = default)
         {
-            var lines = await File.ReadAllLinesAsync(path, ct).ConfigureAwait(false);
+            var csv = await File.ReadAllTextAsync(path, ct).ConfigureAwait(false);
+            var records = ParseCsvRecords(csv);
             var result = new InquiryImportParseResult();
             var seenNumbers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (string line in lines.Skip(1))
+
+            // First record is the exported header. Empty files and header-only
+            // files produce an empty result without indexing errors.
+            foreach (var c in records.Skip(1))
             {
-                if (string.IsNullOrWhiteSpace(line)) continue;
-                var c = ParseCsvLine(line);
+                ct.ThrowIfCancellationRequested();
+                if (c.Count == 1 && string.IsNullOrWhiteSpace(c[0])) continue;
                 if (c.Count < 6)
                 {
                     result.SkippedInvalidRows++;
                     continue;
                 }
+
                 string customer = c[2].Trim(), project = c[4].Trim();
                 if (customer.Length == 0 || project.Length == 0)
                 {
                     result.SkippedInvalidRows++;
                     continue;
                 }
+
                 string number = c[0].Trim();
                 if (number.Length > 0 && !seenNumbers.Add(number))
                 {
                     result.DuplicateNumbersRegenerated++;
                     number = "";
                 }
+
                 result.Rows.Add(new InquiryRecord
                 {
                     InquiryNumber = number,
@@ -84,20 +88,67 @@ namespace ProGlassAutomation.Services.Inquiry
                     Priority = "Normal"
                 });
             }
+
             return result;
         }
 
-        private static List<string> ParseCsvLine(string line)
+        /// <summary>
+        /// RFC-4180-style CSV record parser. A newline ends a record only
+        /// outside a quoted field; doubled quotes inside a quoted field
+        /// become one literal quote. A malformed unterminated quote is rejected.
+        /// </summary>
+        private static List<List<string>> ParseCsvRecords(string csv)
         {
-            var cells = new List<string>(); var b = new StringBuilder(); bool quoted = false;
-            for (int i = 0; i < line.Length; i++)
+            var records = new List<List<string>>();
+            var cells = new List<string>();
+            var field = new StringBuilder();
+            bool quoted = false;
+
+            for (int i = 0; i < csv.Length; i++)
             {
-                char ch = line[i];
-                if (ch == '"') { if (quoted && i + 1 < line.Length && line[i + 1] == '"') { b.Append('"'); i++; } else quoted = !quoted; }
-                else if (ch == ',' && !quoted) { cells.Add(b.ToString()); b.Clear(); }
-                else b.Append(ch);
+                char ch = csv[i];
+                if (ch == '"')
+                {
+                    if (quoted && i + 1 < csv.Length && csv[i + 1] == '"')
+                    {
+                        field.Append('"');
+                        i++;
+                    }
+                    else
+                    {
+                        quoted = !quoted;
+                    }
+                }
+                else if (ch == ',' && !quoted)
+                {
+                    cells.Add(field.ToString());
+                    field.Clear();
+                }
+                else if ((ch == '\r' || ch == '\n') && !quoted)
+                {
+                    cells.Add(field.ToString());
+                    field.Clear();
+                    records.Add(cells);
+                    cells = new List<string>();
+                    if (ch == '\r' && i + 1 < csv.Length && csv[i + 1] == '\n')
+                        i++;
+                }
+                else
+                {
+                    field.Append(ch);
+                }
             }
-            cells.Add(b.ToString()); return cells;
+
+            if (quoted)
+                throw new FormatException("The CSV file ends inside a quoted field.");
+
+            if (field.Length > 0 || cells.Count > 0)
+            {
+                cells.Add(field.ToString());
+                records.Add(cells);
+            }
+
+            return records;
         }
     }
 }

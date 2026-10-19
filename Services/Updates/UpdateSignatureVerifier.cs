@@ -70,18 +70,18 @@ namespace ProGlassAutomation.Services.Updates
         /// Fully verifies an installer file. Returns IsValid=true only when
         /// the file carries a valid Authenticode signature (signature AND
         /// file hash verified by WinVerifyTrust) from a non-expired
-        /// Code-Signing certificate that matches the pinned publisher (when
-        /// pins are supplied).
+        /// Code-Signing certificate that matches an explicitly configured
+        /// publisher pin. Verification fails closed when no pin is supplied.
         /// </summary>
         /// <param name="filePath">Path of the downloaded installer.</param>
         /// <param name="pinnedThumbprints">
-        /// Optional allow-list of leaf-certificate thumbprints (uppercase,
-        /// no spaces). Empty/omitted = any trusted Code-Signing certificate
-        /// is accepted (WinVerifyTrust still enforces chain trust).
+        /// Allow-list of leaf-certificate thumbprints (spaces are ignored).
+        /// Required for production verification unless exact pinnedSubjects
+        /// are supplied; empty/omitted pins fail closed.
         /// </param>
         /// <param name="pinnedSubjects">
-        /// Optional allow-list of certificate subject CNs (exact match).
-        /// Empty/omitted = not enforced.
+        /// Optional allow-list of certificate subjects (exact match).
+        /// At least one publisher pin list must be non-empty.
         /// </param>
         /// <param name="now">Injectable clock for tests.</param>
         public static SignatureVerificationResult Verify(
@@ -101,6 +101,19 @@ namespace ProGlassAutomation.Services.Updates
             if (!File.Exists(filePath))
             {
                 result.Reason = "The installer file does not exist.";
+                return result;
+            }
+
+            // Fail closed in production when no publisher identity is pinned.
+            // Windows trust-chain validation alone accepts any trusted code
+            // signing publisher and is not sufficient for application updates.
+            // Configure an approved thumbprint or exact subject before enabling
+            // this updater; never replace this guard with a guessed identity.
+            if ((pinnedThumbprints == null || pinnedThumbprints.Length == 0) &&
+                (pinnedSubjects == null || pinnedSubjects.Length == 0))
+            {
+                result.Reason =
+                    "Update blocked: no approved publisher pin is configured.";
                 return result;
             }
 

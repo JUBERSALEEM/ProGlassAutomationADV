@@ -26,7 +26,7 @@ From a clone on your own machine, authenticated as yourself:
 
 ```bash
 git fetch origin
-git checkout arena/01a10c0d-proglassautomationadv
+git checkout fix/production-readiness-2026-10-19
 git pull
 
 mkdir -p .github/workflows

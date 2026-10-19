@@ -453,3 +453,16 @@ ios_*.png
 optimization-top-card-mockups/
 **/optimization-top-card-mockups/**
 *-mockup-*.png
+
+# Local credentials and machine-specific secrets (Phase 4 hardening)
+# Keep sample templates in source control; never commit real local values.
+.env
+.env.*
+!.env.example
+!.env.*.example
+**/secrets.dat
+**/secrets.dat.*
+**/config.local.json
+**/appsettings.Local.json
+**/private-key*.json
+**/*private-key*.json

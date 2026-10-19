@@ -5,8 +5,10 @@ using System;
 namespace ProGlassAutomation.Services.Database
 {
     /// <summary>
-    /// Handles database creation on first app run.
-    /// Called from App.xaml.cs startup before UI loads.
+    /// Initializes the main application database before any module UI or
+    /// repository is allowed to operate. Database startup is fail-closed:
+    /// a failed schema migration or database initialization aborts startup
+    /// instead of allowing the application to write against an unknown schema.
     /// </summary>
     public static class DatabaseInitializer
     {
@@ -16,12 +18,12 @@ namespace ProGlassAutomation.Services.Database
             {
                 using var db = new AppDbContext();
 
-                // Creates DB file + tables if they don't exist
+                // Creates DB file + tables if they don't exist.
                 db.Database.EnsureCreated();
 
-                // Bring an EXISTING proglass.db forward if any schema
-                // migrations are registered (additive only; see
-                // AppSchemaMigrations). Safe no-op until one is added.
+                // Bring an existing proglass.db forward if migrations are
+                // registered. A failed migration is a startup blocker:
+                // continuing could let modules write against an unknown schema.
                 bool upgraded = SchemaMigrationRunner.Upgrade(
                     AppDbContext.DatabaseFilePath,
                     AppSchemaMigrations.ProGlass,
@@ -29,22 +31,15 @@ namespace ProGlassAutomation.Services.Database
 
                 if (!upgraded)
                 {
-                    AppLogService.Error(
-                        "Main database schema was not upgraded. Writes may not match the expected schema. " +
-                        SchemaMigrationRunner.FailureSummary,
-                        null,
-                        new LogContext
-                        {
-                            Module = "Database",
-                            Class = nameof(DatabaseInitializer),
-                            Operation = "Initialize"
-                        });
+                    string detail = SchemaMigrationRunner.FailureSummary;
+                    throw new InvalidOperationException(
+                        "The main database schema migration failed. " +
+                        "Startup has been stopped to protect business data. " +
+                        detail);
                 }
 
                 AppLogService.Info(
-                    upgraded
-                        ? $"Main database ready at {AppDbContext.DatabaseFilePath}"
-                        : $"Main database opened WITHOUT a schema upgrade at {AppDbContext.DatabaseFilePath}",
+                    $"Main database ready at {AppDbContext.DatabaseFilePath}",
                     new LogContext
                     {
                         Module = "Database",
@@ -54,19 +49,9 @@ namespace ProGlassAutomation.Services.Database
             }
             catch (Exception ex)
             {
-                // R-1 RECURRENCE: this previously reported only through
-                // Debug.WriteLine, which is [Conditional("DEBUG")] and is
-                // removed by the compiler in Release. In a shipped build a
-                // failure here was completely invisible — the Sheet Store
-                // would simply appear empty with no explanation, because
-                // the database was never created.
-                //
-                // Still non-fatal by design (the app runs with degraded
-                // features rather than refusing to start), but the reason
-                // is now recoverable from the log.
                 AppLogService.Error(
-                    "Main database could not be initialized. Sheet Store "
-                    + "and pricing features will be unavailable.",
+                    "Main database initialization failed. Startup must stop; " +
+                    "the application must not continue with an unknown schema.",
                     ex,
                     new LogContext
                     {
@@ -74,6 +59,13 @@ namespace ProGlassAutomation.Services.Database
                         Class = nameof(DatabaseInitializer),
                         Operation = "Initialize"
                     });
+
+                // App.Application_Startup owns the fatal-startup UX and
+                // exits with a non-zero code. Preserve the original cause.
+                throw new InvalidOperationException(
+                    "ProGlass cannot safely start because the main database " +
+                    "could not be initialized. No module UI should be opened.",
+                    ex);
             }
         }
     }

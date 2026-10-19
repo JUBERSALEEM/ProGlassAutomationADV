@@ -42,10 +42,19 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             using var ctx = new TaxInvoiceDbContext();
             await ctx.Database.EnsureCreatedAsync();
 
-            SchemaMigrationRunner.Upgrade(
+            bool upgraded = SchemaMigrationRunner.Upgrade(
                 TaxInvoiceDbContext.DatabaseFilePath,
                 AppSchemaMigrations.TaxInvoices,
                 "Tax Invoice");
+
+            if (!upgraded)
+            {
+                // Fail closed: do not let invoice operations continue against a
+                // database whose schema is known not to match the application.
+                throw new InvalidOperationException(
+                    "Tax Invoice database migration failed. Invoice initialization has been stopped to protect existing financial records. " +
+                    SchemaMigrationRunner.FailureSummary);
+            }
         }
 
         // ── Single invoice retrieval ──────────────────────────────────
