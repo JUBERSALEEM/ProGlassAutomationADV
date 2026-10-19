@@ -17,12 +17,13 @@
 // inferred.
 // ═══════════════════════════════════════════════════════════════════════
 
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using ProGlassAutomation.Services.Theme;
+using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.Theme.Clay;
 using ProGlassAutomation.Services.Theme.SoftUi;
+using ProGlassAutomation.Services.Theme;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows;
 
 namespace ProGlassAutomation.Controls.Claymorphism
 {
@@ -153,7 +154,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
                     ? SoftInteractionState.Rest
                     : SoftInteractionState.Disabled,
                 radius,
-                smallSurface: true,
+                small: true,
                 ResolveFill(dark));
 
             UpdateLabel(dark);

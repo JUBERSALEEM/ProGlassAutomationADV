@@ -6,6 +6,7 @@ using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -158,7 +159,21 @@ namespace ProGlassAutomation.Services.Theme
             Eight.EightThemePainter.AllTokenKeys;
 
         /// <summary>Keys the engine may override (removed on Normal).</summary>
+        /// <para>
+        /// CONCATENATED, not appended as a single element. The eight
+        /// families contribute a whole array, and an array initialiser
+        /// has no spread operator in this position — writing
+        /// <c>{ "a", EightThemeEightKeys }</c> tries to store a
+        /// string[] inside a string[] and fails to compile.
+        /// </para>
+        /// </summary>
         private static readonly string[] ManagedKeys =
+            ManagedKeySeeds.Concat(EightThemeEightKeys).ToArray();
+
+        /// <summary>The legacy families' own keys. Split out of
+        /// <see cref="ManagedKeys"/> only so the eight families can be
+        /// concatenated; the contents are unchanged.</summary>
+        private static readonly string[] ManagedKeySeeds =
         {
             "BackgroundBrush",
             "WindowBackgroundBrush", "ModuleBackgroundBrush",
@@ -263,7 +278,7 @@ namespace ProGlassAutomation.Services.Theme
             // switching from a hard-cornered family (Swiss, radius 0) to
             // a soft one (claymorphism, radius 32) leaves half the cards
             // square — a family switch must tear down BOTH token sets.
-            EightThemeEightKeys,
+            // (EightThemeEightKeys itself is concatenated above.)
         };
 
         /// <summary>Currently active family.</summary>

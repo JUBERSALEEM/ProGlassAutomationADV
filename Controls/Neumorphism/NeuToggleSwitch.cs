@@ -21,13 +21,15 @@
 // and automation get the same state the pointer does.
 // ═══════════════════════════════════════════════════════════════════════
 
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media;
-using ProGlassAutomation.Services.Theme;
+using ProGlassAutomation.Services;
+using System.Windows.Shapes;
 using ProGlassAutomation.Services.Theme.Neu;
 using ProGlassAutomation.Services.Theme.SoftUi;
+using ProGlassAutomation.Services.Theme;
+using System.Windows.Controls.Primitives;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows;
 
 namespace ProGlassAutomation.Controls.Neumorphism
 {
@@ -115,7 +117,7 @@ namespace ProGlassAutomation.Controls.Neumorphism
                 {
                     plain.Background = Frozen(page);
                     plain.BorderBrush =
-                        SoftUiAccessibility.BuildEdge(page, dark);
+                        SoftUiAccessibility.BuildEdge(page, dark)?.Brush;
                 }
                 return;
             }
@@ -133,7 +135,7 @@ namespace ProGlassAutomation.Controls.Neumorphism
             track.CornerRadius = corner;
             track.Background = Frozen(page);
             track.BorderBrush =
-                SoftUiAccessibility.BuildEdge(page, dark);
+                SoftUiAccessibility.BuildEdge(page, dark)?.Brush;
             track.BorderThickness = new Thickness(1);
         }
 
@@ -176,7 +178,13 @@ namespace ProGlassAutomation.Controls.Neumorphism
             // the thumb's position.
             if (Template.FindName("PART_NeuCheck", this) is Path check)
             {
-                check.Visibility = IsChecked
+                // IsChecked is bool? on ToggleButton, and bool? has no
+                // implicit conversion to bool, so it cannot be a
+                // ternary condition as-is. Comparing against true is
+                // also the more honest test: null is neither on nor
+                // off, and treating it as off matches what the control
+                // actually renders.
+                check.Visibility = IsChecked == true
                     ? Visibility.Visible
                     : Visibility.Collapsed;
                 check.Fill = Frozen(accent);

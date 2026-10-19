@@ -33,10 +33,11 @@
 //    contract is expressed by the new dispatch, not by deleting code.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Theme.Eight;
-using System;
-using System.Windows;
 using System.Windows.Media;
+using System.Windows;
+using System;
 
 namespace ProGlassAutomation.Services.Theme
 {
@@ -109,12 +110,12 @@ namespace ProGlassAutomation.Services.Theme
                 resources["AboutWallpaperBrush"] = EightThemeScenes.For(
                     profile.Identity, dark);
 
-                var slab = ApplyAlpha(
-                    ramp.Surface, mat.SurfaceAlpha, mat.Kind);
-                var panel = ApplyAlpha(
-                    ramp.SurfaceSecondary, mat.SurfaceAlpha, mat.Kind);
-                var capsule = ApplyAlpha(
-                    ramp.SurfaceDetail, mat.SurfaceAlpha, mat.Kind);
+                var slab = SurfaceFill(
+                    ramp.Surface, mat.Kind);
+                var panel = SurfaceFill(
+                    ramp.SurfaceSecondary, mat.Kind);
+                var capsule = SurfaceFill(
+                    ramp.SurfaceDetail, mat.Kind);
 
                 resources["AboutGlassSlabBrush"] =
                     EightThemePainter.FrozenSolid(slab);

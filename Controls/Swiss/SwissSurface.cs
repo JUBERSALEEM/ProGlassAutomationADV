@@ -16,11 +16,12 @@
 // because it has no mechanism for it.
 // ═══════════════════════════════════════════════════════════════════════
 
-using System.Windows;
+using ProGlassAutomation.Services;
+using ProGlassAutomation.Services.Theme.SoftUi;
+using ProGlassAutomation.Services.Theme;
 using System.Windows.Controls;
 using System.Windows.Media;
-using ProGlassAutomation.Services.Theme;
-using ProGlassAutomation.Services.Theme.SoftUi;
+using System.Windows;
 
 namespace ProGlassAutomation.Controls.Swiss
 {

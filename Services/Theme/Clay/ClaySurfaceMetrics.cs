@@ -329,7 +329,6 @@ namespace ProGlassAutomation.Services.Theme.Clay
             // The crossover is also the reason this state cannot be
             // signalled by depth alone, which is why the templates also
             // change the fill. See the state-contrast note below.
-            double pressDropScale = 1.0;
             double lightStops = insetReach;
             double shadeStops = 1.0 - insetReach;
             bool inverted = false;

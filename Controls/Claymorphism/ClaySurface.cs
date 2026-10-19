@@ -21,13 +21,14 @@
 // would not calm anyone; it would just stop looking pressed.
 // ═══════════════════════════════════════════════════════════════════════
 
-using System;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using ProGlassAutomation.Services.Theme;
+using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.Theme.Clay;
 using ProGlassAutomation.Services.Theme.SoftUi;
+using ProGlassAutomation.Services.Theme;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows;
+using System;
 
 namespace ProGlassAutomation.Controls.Claymorphism
 {

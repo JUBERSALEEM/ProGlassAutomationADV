@@ -155,16 +155,27 @@ namespace ProGlassAutomation.Services.Theme.Eight
         internal static readonly string[] AllTokenKeys = Combine(
             SurfaceKeys, StageKeys, InkKeys, RuleKeys, RadiusKeys,
             ShadowKeys, LiquidKeys, MotionKeys, AccentKeys, AmbientKeys,
-            "GlassWaterBrush", "GlassFrostedBrush", "GlassBorderSoft",
-            "GlassBorderPrimary", "GlassBorderBright", "GlassCrystalBrush",
-            "GlassSurfaceBrush", "GlassSurfaceElevated", "GlassSurfaceStandard",
-            "GlassSurfaceUltra", "GlassUltraClearBrush",
-            "GlassBorderGradientCrystal", "CardBorderThickness",
-            // Neumorphism's four-stop extrude. These MUST be listed or a
-            // claymorphism switch leaves the neumorphic control templates
-            // bound to a light-grey highlight they were never meant to see.
-            "NeuLightEffect", "NeuShadeEffect",
-            "NeuPressedLightEffect", "NeuPressedShadeEffect");
+
+            // Combine takes params string[][], so a loose literal is a
+            // string where a string[] is expected. The trailing keys go
+            // in as ONE array argument rather than being spread across
+            // the params list.
+            new[]
+            {
+                "GlassWaterBrush", "GlassFrostedBrush", "GlassBorderSoft",
+                "GlassBorderPrimary", "GlassBorderBright",
+                "GlassCrystalBrush", "GlassSurfaceBrush",
+                "GlassSurfaceElevated", "GlassSurfaceStandard",
+                "GlassSurfaceUltra", "GlassUltraClearBrush",
+                "GlassBorderGradientCrystal", "CardBorderThickness",
+
+                // Neumorphism's four-stop extrude. These MUST be listed
+                // or a claymorphism switch leaves the neumorphic control
+                // templates bound to a light-grey highlight they were
+                // never meant to see.
+                "NeuLightEffect", "NeuShadeEffect",
+                "NeuPressedLightEffect", "NeuPressedShadeEffect",
+            });
 
         private static string[] Combine(params string[][] groups)
         {
@@ -243,8 +254,12 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     ClayPalette.Publish(
                         lightSurface: profile.Light.Surface,
                         darkSurface: profile.Dark.Surface,
-                        shadeHue: profile.Light.Elevation.ShadeStop,
-                        lightHue: profile.Light.Elevation.LightStop);
+                        // Elevation is a property of the PROFILE, not of a colour ramp.
+                        // There is one elevation per family and it is shared by
+                        // both modes, which is why these read profile.Elevation
+                        // and not profile.Light.Elevation.
+                        shadeHue: profile.Elevation.ShadeStop,
+                        lightHue: profile.Elevation.LightStop);
                     break;
 
                 case EightMaterialKind.Extruded:
@@ -259,8 +274,8 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     NeuPalette.Publish(
                         lightFill: profile.Light.Module,
                         darkFill: profile.Dark.Module,
-                        rampLightStop: profile.Light.Elevation.LightStop,
-                        rampDarkStop: profile.Light.Elevation.ShadeStop);
+                        rampLightStop: profile.Elevation.LightStop,
+                        rampDarkStop: profile.Elevation.ShadeStop);
                     break;
 
                 case EightMaterialKind.Solid:
@@ -421,8 +436,24 @@ namespace ProGlassAutomation.Services.Theme.Eight
         /// spring, no acceleration curve to read as movement.</summary>
         private const string FlatEaseOut = "0,0,1,1";
 
-        private static readonly TimeSpan Suppressed =
-            TimeSpan.FromMilliseconds(1);
+        /// <summary>
+        /// The duration published when the user has asked for reduced
+        /// motion: 1ms.
+        /// <para>
+        /// MILLISECONDS, not a TimeSpan. The suppressed branch has to be
+        /// interchangeable with p.Motion.Fast / .Normal / .Slow, which
+        /// are doubles of milliseconds, and a ternary needs both arms to
+        /// be the same type. Declaring this as a TimeSpan made every one
+        /// of those three ternaries fail to resolve.
+        /// </para>
+        /// <para>
+        /// 1ms and not 0: WPF treats a zero duration as "not animated"
+        /// on some paths and as an instant cut on others, and 1ms is
+        /// indistinguishable from zero to the eye while still taking the
+        /// animated code path.
+        /// </para>
+        /// </summary>
+        private const double Suppressed = 1.0;
 
         private static void Paint(ResourceDictionary r,
             EightThemeProfile p, bool dark, Color accent,
@@ -605,21 +636,29 @@ namespace ProGlassAutomation.Services.Theme.Eight
             // extrude from collapsing back to an ordinary shadow.
             if (e.Kind == EightElevationKind.Extrude)
             {
+                // DropShadowEffect has ONE Direction (degrees) and one
+                // ShadowDepth — there are no DirectionX/DirectionY
+                // members. Direction 315 is up-and-left, 135 is
+                // down-and-right, which is the shared top-left light
+                // the whole engine obeys.
+                //
+                // ShadowDepth is NOT zero here. A drop shadow with a
+                // depth of zero has no offset at all and renders
+                // nothing, so the previous shape could only ever have
+                // described an invisible effect.
                 var light = new DropShadowEffect
                 {
                     BlurRadius = lo,
-                    DirectionX = -1.0,
-                    DirectionY = -1.0,
-                    ShadowDepth = 0,
+                    Direction = 315.0,
+                    ShadowDepth = Math.Max(0.5, Math.Min(e.LowDepth, 12)),
                     Opacity = 1.0,
                     Color = e.LightStop,
                 };
                 var shade = new DropShadowEffect
                 {
                     BlurRadius = lo,
-                    DirectionX = 1.0,
-                    DirectionY = 1.0,
-                    ShadowDepth = 0,
+                    Direction = 135.0,
+                    ShadowDepth = Math.Max(0.5, Math.Min(e.LowDepth, 12)),
                     Opacity = 1.0,
                     Color = Darken(e.ShadeStop, 0.0),
                 };
@@ -633,11 +672,19 @@ namespace ProGlassAutomation.Services.Theme.Eight
             }
         }
 
+        /// <summary>
+        /// Mirrors a drop shadow about the light axis.
+        /// <para>
+        /// Reversal is NEUMORPHISM'S ONLY STATE SIGNAL, so it has to be
+        /// exact: 315 becomes 135 and back, which is +180 degrees and
+        /// not a negation. Negating the angle itself would point the
+        /// shadow back along its own axis and collapse the pair.
+        /// </para>
+        /// </summary>
         private static DropShadowEffect CloneReversed(DropShadowEffect source)
         {
             var clone = (DropShadowEffect)source.Clone();
-            clone.DirectionX = -source.DirectionX;
-            clone.DirectionY = -source.DirectionY;
+            clone.Direction = (source.Direction + 180.0) % 360.0;
             return clone;
         }
 
@@ -679,7 +726,13 @@ namespace ProGlassAutomation.Services.Theme.Eight
             Brush(r, "GlassFrostedBrush", frosted);
 
             // ── THE RIM ───────────────────────────────────────────────
-            var rimBase = m.SpecularRim
+            // Typed as the BASE class deliberately. Diagonal returns a
+            // LinearGradientBrush and Sol returns a SolidColorBrush;
+            // with `var` the conditional below has no best common type
+            // and CS0173 fires. Brush is the one type both arms convert
+            // to, and the two later uses of rimBase resolve against it
+            // for the same reason.
+            Brush rimBase = m.SpecularRim
                 // A specular rim is BRIGHT along the lit edge and falls away
                 // on the opposite side. A flat alpha ring is the thing that
                 // makes a "liquid glass" theme look like a plain white card
@@ -846,6 +899,12 @@ namespace ProGlassAutomation.Services.Theme.Eight
 
             double ns = System.Math.Clamp(s * boost, 0, 1);
             double nd = ns * (1 - System.Math.Abs(2 * l - 1));
+
+            // ng and nb are the green and blue channels of the result.
+            // They are declared here rather than at the top of the
+            // method because they are only assigned on the two
+            // non-grey branches below.
+            double ng, nb;
             double nr = ng = nb = 0;
 
             if (d <= 1e-6)
@@ -922,6 +981,21 @@ namespace ProGlassAutomation.Services.Theme.Eight
 
         private static void Brush(ResourceDictionary r, string key, Brush b) =>
             r[key] = Freeze(b);
+
+        /// <summary>
+        /// Publishes a solid brush under <paramref name="key"/>.
+        /// <para>
+        /// An overload rather than asking every caller to reach for
+        /// <see cref="Sol"/> instead. Both helpers mean "put this on the
+        /// resource dictionary", and most values reaching them are the
+        /// result of a colour calculation — NormalizeAlpha, ScaleAlpha,
+        /// Mix — so the Color is the natural argument type and forcing
+        /// callers to convert by hand is how the two drifted apart in
+        /// the first place.
+        /// </para>
+        /// </summary>
+        private static void Brush(ResourceDictionary r, string key, Color c) =>
+            r[key] = FrozenSolid(c);
 
         private static void Str(ResourceDictionary r, string key, string v) =>
             r[key] = v;

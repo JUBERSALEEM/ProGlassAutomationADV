@@ -27,12 +27,13 @@
 // vocabulary: a quiet matte field, and an edge that comes alive.
 // ═══════════════════════════════════════════════════════════════════════
 
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using ProGlassAutomation.Services.Theme;
+using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.Theme.Holo;
 using ProGlassAutomation.Services.Theme.SoftUi;
+using ProGlassAutomation.Services.Theme;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows;
 
 namespace ProGlassAutomation.Controls.Holo
 {

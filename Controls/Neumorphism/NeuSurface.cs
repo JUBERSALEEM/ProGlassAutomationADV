@@ -16,12 +16,13 @@
 // edge and a real focus ring and treats the shadows as decoration.
 // ═══════════════════════════════════════════════════════════════════════
 
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using ProGlassAutomation.Services.Theme;
+using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.Theme.Neu;
 using ProGlassAutomation.Services.Theme.SoftUi;
+using ProGlassAutomation.Services.Theme;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows;
 
 namespace ProGlassAutomation.Controls.Neumorphism
 {

@@ -26,13 +26,17 @@
 // because it now carries a colour change as well as a shape change.
 // ═══════════════════════════════════════════════════════════════════════
 
-using System;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using ProGlassAutomation.Services.Theme;
+using ProGlassAutomation.Services;
+using System.ComponentModel;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using ProGlassAutomation.Services.Theme.Clay;
 using ProGlassAutomation.Services.Theme.SoftUi;
+using ProGlassAutomation.Services.Theme;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows;
+using System;
 
 namespace ProGlassAutomation.Controls.Claymorphism
 {
@@ -196,7 +200,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
                 _parts, dark,
                 SoftDepthTier.Raised, state,
                 ClaySurface.TopLeft(ClayCornerRadius),
-                smallSurface: false,
+                small: false,
                 fill);
 
             UpdateLabel(fill, dark, state);

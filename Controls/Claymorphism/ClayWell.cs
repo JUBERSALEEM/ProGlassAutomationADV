@@ -21,12 +21,14 @@
 // and inherits the well's text colour; the well supplies the form.
 // ═══════════════════════════════════════════════════════════════════════
 
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using ProGlassAutomation.Services.Theme;
+using ProGlassAutomation.Services;
+using System.ComponentModel;
 using ProGlassAutomation.Services.Theme.Clay;
 using ProGlassAutomation.Services.Theme.SoftUi;
+using ProGlassAutomation.Services.Theme;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows;
 
 namespace ProGlassAutomation.Controls.Claymorphism
 {
@@ -147,7 +149,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
                 SoftDepthTier.Well,
                 ResolveState(),
                 ClaySurface.TopLeft(ClayCornerRadius),
-                smallSurface: false,
+                small: false,
                 ResolveFill(dark));
         }
 

@@ -27,11 +27,13 @@
 // simply declines to have.
 // ═══════════════════════════════════════════════════════════════════════
 
-using System.Windows;
-using System.Windows.Controls;
-using ProGlassAutomation.Services.Theme;
+using ProGlassAutomation.Services;
+using System.ComponentModel;
 using ProGlassAutomation.Services.Theme.SoftUi;
 using ProGlassAutomation.Services.Theme.Swiss;
+using ProGlassAutomation.Services.Theme;
+using System.Windows.Controls;
+using System.Windows;
 
 namespace ProGlassAutomation.Controls.Swiss
 {

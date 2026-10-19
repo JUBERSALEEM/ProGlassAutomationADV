@@ -43,12 +43,15 @@
 // also the difference between a view switch and a novelty.
 // ═══════════════════════════════════════════════════════════════════════
 
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using ProGlassAutomation.Services.Theme;
+using ProGlassAutomation.Services;
+using System.ComponentModel;
+using System.Windows.Documents;
 using ProGlassAutomation.Services.Theme.Holo;
 using ProGlassAutomation.Services.Theme.SoftUi;
+using ProGlassAutomation.Services.Theme;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows;
 
 namespace ProGlassAutomation.Controls.Holo
 {
