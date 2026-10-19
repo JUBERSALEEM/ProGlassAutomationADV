@@ -51,19 +51,37 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             public string Key { get; }
             public string Display { get; }
+            public string Description { get; }
+            public Brush Swatch { get; }
+
             public VisualThemeOptionRow(string key)
             {
                 Key = key;
-                string scene = "Industrial Pattern";
-                foreach (var s in ProGlassAutomation.Services.Theme
-                             .BuiltinWallpaperScenes.All)
-                    if (s.Key == key) { scene = s.Label; break; }
-                // Display name (Ios-17pm for Crystal Fluid) — the family
-                // IDENTITY stays the persisted engine const.
                 Display = ProGlassAutomation.Services.Theme.VisualThemeEngine
-                    .FamilyDisplayName(key) + "  —  " + scene;
+                    .FamilyDisplayName(key);
+                (Color color, string description) = key switch
+                {
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.BentoGrid =>
+                        (Color.FromRgb(100, 120, 242), "Modular cards and clear hierarchy"),
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.SpatialImmersive =>
+                        (Color.FromRgb(53, 184, 201), "Atmospheric depth and layered surfaces"),
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.SwissInternational =>
+                        (Color.FromRgb(229, 72, 77), "Editorial grid and precise typography"),
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.HolographicIridescent =>
+                        (Color.FromRgb(166, 108, 255), "Prismatic accents and luminous edges"),
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.Neumorphism =>
+                        (Color.FromRgb(129, 149, 180), "Soft raised and inset controls"),
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.Claymorphism =>
+                        (Color.FromRgb(184, 166, 255), "Sculpted surfaces and soft depth"),
+                    var k when k == ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass =>
+                        (Color.FromRgb(26, 197, 226), "Near-clear panes and liquid highlights"),
+                    _ => (Color.FromRgb(72, 169, 232), "Frosted layers with restrained blur")
+                };
+                Description = description;
+                Swatch = new SolidColorBrush(color);
+                Swatch.Freeze();
             }
-            /// <summary>Style-immune label (see file header).</summary>
+
             public override string ToString() => Display;
         }
 
