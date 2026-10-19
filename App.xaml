@@ -118,6 +118,14 @@
                      Inert until a host adopts SwissSurface / SwissButton /
                      SwissField. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Swiss/SwissControls.xaml"/>
+                <!-- Holographic / Iridescent control plane, merged on the
+                     same terms. The family whose foil lives on the RIM
+                     and never on the ground: the templates declare no
+                     foil-on-ground part at all, so there is nothing a
+                     host could fill with spectrum and put a label on.
+                     Inert until a host adopts HoloSurface / HoloButton /
+                     HoloChip. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Holo/HoloControls.xaml"/>
                 <!-- Glass Blush — Personal UI family plane (GB-P1, 2026-09-18).
                      Measured token plane for the second ProGlass experience.
                      Managed keys are republished by the family painter (GB-P14). -->

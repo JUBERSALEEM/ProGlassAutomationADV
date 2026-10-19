@@ -39,6 +39,7 @@
 
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Theme.Clay;
+using ProGlassAutomation.Services.Theme.Holo;
 using ProGlassAutomation.Services.Theme.Neu;
 using ProGlassAutomation.Services.Theme.Swiss;
 using System;
@@ -233,6 +234,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
             {
                 case EightMaterialKind.Inflated:
                     NeuPalette.Clear();
+                    HoloPalette.Clear();
                     // The elevation's two stops ARE the clay shadow pair:
                     // the highlight that catches the light, and the shade
                     // tinted to the object's own hue. Using the ramp's
@@ -247,6 +249,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
 
                 case EightMaterialKind.Extruded:
                     ClayPalette.Clear();
+                    HoloPalette.Clear();
                     // Neumorphism's stops are NOT the ramp's. Its whole
                     // defining rule is that the object IS the page, so
                     // the light and shade are derived from that one
@@ -276,6 +279,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     // other arm is load-bearing, not tidiness.
                     ClayPalette.Clear();
                     NeuPalette.Clear();
+                    HoloPalette.Clear();
 
                     if (profile.Identity == EightThemeNames.Swiss)
                     {
@@ -307,10 +311,34 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     }
                     break;
 
+                case EightMaterialKind.Foil:
+                    ClayPalette.Clear();
+                    NeuPalette.Clear();
+                    SwissPalette.Clear();
+
+                    // ── WHY THE GROUND COMES FROM Surface AND NOT Window ──
+                    // Holographic inverts the other families' arrangement:
+                    // the foil lives on the RIM, so the ground is a real
+                    // PANEL that has to read as a panel. Window is the
+                    // page behind the panels, and using it would flatten
+                    // every surface into the background — which is Bento's
+                    // job, not this family's.
+                    HoloPalette.Publish(
+                        lightGround: profile.Light.Surface,
+                        lightInk: profile.Light.TextPrimary,
+                        lightMuted: profile.Light.TextSecondary,
+                        lightAccent: profile.Light.Accent,
+                        darkGround: profile.Dark.Surface,
+                        darkInk: profile.Dark.TextPrimary,
+                        darkMuted: profile.Dark.TextSecondary,
+                        darkAccent: profile.Dark.Accent);
+                    break;
+
                 default:
                     ClayPalette.Clear();
                     NeuPalette.Clear();
                     SwissPalette.Clear();
+                    HoloPalette.Clear();
                     break;
             }
         }

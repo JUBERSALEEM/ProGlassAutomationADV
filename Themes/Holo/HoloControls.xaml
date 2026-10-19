@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Holo/HoloControls.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Holographic / Iridescent — control templates
+
+     FOUR PARTS PER TEMPLATE, AND THE ORDER IS THE ACCESSIBILITY
+     STRATEGY.
+
+         PART_HoloGround      the OPAQUE matte. Text goes here.
+         PART_HoloRim         the spectrum. Decoration only.
+         PART_HoloSheen       the travelling specular band
+         PART_HoloFocusRing   from the ramp, never from the spectrum
+
+     The rim is a Border PAINTED OVER the ground rather than the
+     ground's own BorderBrush. That is not a stylistic choice: a foil
+     is a film ON a surface and has to be able to be brighter than any
+     colour the ground could be, which a property of the ground's own
+     fill cannot express.
+
+     THE FOCUS RING IS DELIBERATELY EXCLUDED FROM THE SPECTRUM. A ring
+     drawn in a spectral colour is invisible against the adjacent band
+     of its own gradient — which makes this the one place where a
+     colourful focus indicator reliably fails, and the reason the family
+     cannot use its own material for focus however tempting it looks.
+
+     No template declares a foil-on-ground part. There is no part a
+     host could fill with spectrum and put a label on.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:holo="clr-namespace:ProGlassAutomation.Controls.Holo">
+
+    <!-- The matte ramp. DynamicResource consumers, not literals, so
+         these follow EightThemePainter when the active family changes;
+         a literal brush captured at load time would make dark mode a
+         relaunch rather than a switch. -->
+    <SolidColorBrush x:Key="HoloGroundBrush" Color="#151128" />
+    <SolidColorBrush x:Key="HoloInkBrush" Color="#F4F1FF" />
+
+    <FontFamily x:Key="HoloTypeFamily">Segoe UI, Inter, system-ui, sans-serif</FontFamily>
+
+    <Style x:Key="HoloLabelType" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource HoloTypeFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="LineHeight" Value="16" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         HOLO SURFACE
+
+         A matte panel whose rim lights up. The foil is NOT on the
+         ground, and no template part exists that could put it there.
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="HoloSurfaceTemplate"
+                     TargetType="{x:Type holo:HoloSurface}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_HoloGround"
+                    Background="{DynamicResource HoloGroundBrush}"
+                    CornerRadius="18"
+                    SnapsToDevicePixels="True" />
+            <Border x:Name="PART_HoloRim"
+                    CornerRadius="18"
+                    IsHitTestVisible="False"
+                    SnapsToDevicePixels="True" />
+            <!-- Content sits BETWEEN the ground and the rim, so the
+                 foil can never wash across a glyph. -->
+            <ContentPresenter Margin="16"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+            <!-- The sheen is last and clipped by the template's own
+                 bounds, so its light lands on the edge and not on the
+                 content. -->
+            <Border x:Name="PART_HoloSheen"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed"
+                    SnapsToDevicePixels="True" />
+            <Border x:Name="PART_HoloFocusRing"
+                    BorderThickness="0"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed"
+                    Margin="-4"
+                    SnapsToDevicePixels="True" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type holo:HoloSurface}">
+        <Setter Property="Template" Value="{StaticResource HoloSurfaceTemplate}" />
+        <Setter Property="Background" Value="{DynamicResource HoloGroundBrush}" />
+        <Setter Property="Focusable" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         HOLO BUTTON
+
+         Press raises the rim. It does NOT flood the ground — a label
+         that changed contrast on the exact frame it was clicked would
+         be the worst possible moment to lose it.
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="HoloButtonTemplate"
+                     TargetType="{x:Type holo:HoloButton}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_HoloGround"
+                    Background="{DynamicResource HoloGroundBrush}"
+                    CornerRadius="12"
+                    SnapsToDevicePixels="True" />
+            <Border x:Name="PART_HoloRim"
+                    CornerRadius="12"
+                    IsHitTestVisible="False"
+                    SnapsToDevicePixels="True" />
+            <ContentPresenter Margin="14,0"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="Center"
+                              TextElement.Foreground="{TemplateBinding Foreground}" />
+            <Border x:Name="PART_HoloSheen"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed"
+                    SnapsToDevicePixels="True" />
+            <Border x:Name="PART_HoloFocusRing"
+                    BorderThickness="0"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed"
+                    Margin="-4"
+                    SnapsToDevicePixels="True" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type holo:HoloButton}">
+        <Setter Property="Template" Value="{StaticResource HoloButtonTemplate}" />
+        <Setter Property="Background" Value="{DynamicResource HoloGroundBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource HoloInkBrush}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         HOLO CHIP
+
+         The signature control, and the only one where the foil comes
+         near a glyph. Five layers:
+
+           1. matte ground      never foil
+           2. foil rim          the spectrum
+           3. OPAQUE glyph chip sized to the glyph
+           4. glyph             ink measured against the WORST band
+           5. focus ring        from the ramp
+
+         Layer 3 is what makes layers 2 and 4 legal together. Without
+         an opaque chip behind the glyph, no contrast promise is
+         available at all — the glyph lands on a different band every
+         time the foil drifts.
+
+         PART_HoloGlyphChip is VISIBLE ONLY WHEN SELECTED. An
+         unselected chip carries no foil, so it needs no shield, and
+         hiding the plate there is what keeps a view switch calm
+         instead of turning every item into a decoration.
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="HoloChipTemplate"
+                     TargetType="{x:Type holo:HoloChip}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_HoloGround"
+                    Background="{DynamicResource HoloGroundBrush}"
+                    CornerRadius="12"
+                    SnapsToDevicePixels="True" />
+            <Border x:Name="PART_HoloRim"
+                    CornerRadius="12"
+                    IsHitTestVisible="False"
+                    SnapsToDevicePixels="True" />
+            <!-- 3. THE SHIELD. The plate covers the full inner bounds
+                 of the chip, so the glyph never touches the spectrum. -->
+            <Border x:Name="PART_HoloGlyphChip"
+                    Margin="4"
+                    CornerRadius="9"
+                    Visibility="Collapsed"
+                    SnapsToDevicePixels="True" />
+            <!-- 4. The glyph.
+
+                 A plain named ContentPresenter rather than a
+                 DataTemplate wrapping a TextBlock: a DataTemplate puts
+                 its names in their OWN name scope, so
+                 HoloChip.ApplyGlyph's FindName("PART_HoloGlyphInk")
+                 would never find them and the ink swap would silently
+                 do nothing at all. Naming the presenter itself keeps
+                 it in the template's scope, where FindName can reach
+                 it.
+
+                 The ink travels through TextElement rather than a plain
+                 Foreground because the content is whatever the host
+                 supplied — a TextBlock, a Path, an icon — and those
+                 share no Foreground property between them. -->
+            <ContentPresenter x:Name="PART_HoloGlyphInk"
+                              Margin="12,7"
+                              ContentSource="Content"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                              TextElement.Foreground="{DynamicResource HoloInkBrush}" />
+            <Border x:Name="PART_HoloSheen"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed"
+                    SnapsToDevicePixels="True" />
+            <!-- 5. -->
+            <Border x:Name="PART_HoloFocusRing"
+                    BorderThickness="0"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed"
+                    Margin="-4"
+                    SnapsToDevicePixels="True" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type holo:HoloChip}">
+        <Setter Property="Template" Value="{StaticResource HoloChipTemplate}" />
+        <Setter Property="Background" Value="{DynamicResource HoloGroundBrush}" />
+        <!-- Focusable=False: the chip is a shell the host makes
+             selectable, and a focusable shell would put an empty stop
+             in the tab order ahead of the real control. -->
+        <Setter Property="Focusable" Value="False" />
+    </Style>
+
+</ResourceDictionary>
