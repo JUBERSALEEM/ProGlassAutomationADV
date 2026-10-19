@@ -54,17 +54,10 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public string UiExperience { get; set; } = "Professional";
 
         /// <summary>
-        /// "Normal (Industrial)" (displayed "Industrial") | "Monet" |
-        /// "Crystal Fluid" (displayed "iPhone 17 Pro Max") | "iOS 26" —
-        /// see VisualThemeEngine for what each does. 2026-09-13
-        /// industrial reform (owner ask: "strictness industrial
-        /// pattern"): the four selectable families are Industrial (the
-        /// strict default), Monet, iPhone 17 Pro Max and iOS 26. The
-        /// cream SaaS "Normal" value and every unknown legacy value
-        /// migrate to Normal (Industrial) via the engine's Normalize
-        /// mapping.
-        /// The eight selectable visual families are defined by VisualThemeEngine.
-        /// Default: Liquid Glass. ConfigService migrates older family identities.
+        /// Persisted identity for one of the eight selectable theme families.
+        /// ConfigService migrates legacy Normal/Industrial, Monet, Crystal Fluid,
+        /// and iOS 26 values before the visual theme pipeline is built.
+        /// Default: Liquid Glass.
         /// </summary>
         public string VisualTheme { get; set; } = "Liquid Glass";
 
