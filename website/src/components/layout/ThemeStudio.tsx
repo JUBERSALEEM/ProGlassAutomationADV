@@ -104,7 +104,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
      the keyboard — a veiled dial still wrote invisible tokens, which is
      the precise failure "plates/frost do nothing" reports. */
   const clayGated = family !== "clay";
-  const glassGated = family !== "liquid-glass";
+  const glassGated = family !== "liquid-glass" && family !== "crystal";
 
   /* The Clay-paused edge controls must ANSWER, not freeze (the "Border
      line button is unresponsive" fix). A hard `disabled` + a
@@ -459,7 +459,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
             )}>
               {t("Frost, body and glint for the Crystal family — the material the site is made of, multiplied from its own recipe. Applies when the Crystal family is active; text ink never moves.")}
             </p>
-            <div className={family === "crystal" ? undefined : "pointer-events-none select-none opacity-50 saturate-[0.6]"}>
+            <div className={(family === "liquid-glass" || family === "crystal") ? undefined : "pointer-events-none select-none opacity-50 saturate-[0.6]"}>
               <div className="mt-3 grid gap-3">
                 <Slider
                   label={t("Frost — blur behind every pane")}
