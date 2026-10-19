@@ -208,6 +208,21 @@ namespace ProGlassAutomation.Tests.Theme
             })
                 Assert.Contains($"resources[\"{key}\"]", overlay, StringComparison.Ordinal);
 
+            string bridge = Read("Services/Theme/Engine/ThemeCompatibilityHub.cs");
+            foreach (var roleKey in new[]
+            {
+                "GlassUltraClearBrush", "GlassSurfaceBrush", "GlassCrystalBrush",
+                "GlassFrostedBrush", "GlassSurfaceElevated", "GlassSurfaceUltra",
+                "GlassSurfaceStandard", "GlassBorderPrimary", "GlassBorderGradientCrystal",
+                "ModuleBackgroundBrush"
+            })
+                Assert.DoesNotContain($"[\"{roleKey}\"] =", bridge, StringComparison.Ordinal);
+
+            Assert.Contains(
+                "(\"SurfaceInputBrush\", \"GlassSurfaceStandard\", \"GlassSurfaceUltra\")",
+                bridge,
+                StringComparison.Ordinal);
+
             string semanticPublisher = Read("Services/ThemeManager.Part2.cs");
             Assert.Contains("SetBrushResource(resources, \"Surface.Primary.BackgroundBrush\", primaryKey", semanticPublisher, StringComparison.Ordinal);
             Assert.Contains("SetBrushResource(resources, \"Surface.Secondary.BackgroundBrush\", secondaryKey", semanticPublisher, StringComparison.Ordinal);
