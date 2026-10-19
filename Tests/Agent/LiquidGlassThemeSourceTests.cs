@@ -112,14 +112,6 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("VisualThemeEngine.LiquidGlass)", vm, StringComparison.Ordinal);
             Assert.Contains("VisualThemeEngine.Glassmorphism)", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Normal)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.BentoGrid)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.SpatialImmersive)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.SwissInternational)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.HolographicIridescent)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.Neumorphism)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.Claymorphism)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.LiquidGlass)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.Glassmorphism)", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Ocean", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Professional", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Industrial", vm, StringComparison.Ordinal);
