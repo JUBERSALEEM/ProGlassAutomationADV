@@ -48,16 +48,14 @@ namespace ProGlassAutomation.Services.Theme
         /// picker never reads "X — X".</summary>
         public static readonly (string Key, string Label)[] All =
         {
-            // Industrial theme pattern wallpaper — warm paper with an
-            // indigo structural wash. Not the family display name ("Normal").
-            (VisualThemeEngine.NormalIndustrial, "Industrial Pattern"),
-            (VisualThemeEngine.Monet,            "Golden Hour"),
-            // iPhone 17 Pro Max (Crystal Fluid) — cyan water atmosphere.
-            (VisualThemeEngine.CrystalFluid,     "Luminous Water"),
-            // iOS 26 — Apple grouped-grey liquid glass. MUST NOT share
-            // Crystal's scene: that was why iOS 26 and iPhone 17 Pro Max
-            // painted identically under ThemeLinked wallpaper.
-            (VisualThemeEngine.Ios26,            "Grouped Glass"),
+            (VisualThemeEngine.BentoGrid, "Bento Grid"),
+            (VisualThemeEngine.SpatialImmersive, "Spatial Atmosphere"),
+            (VisualThemeEngine.SwissInternational, "Swiss Editorial"),
+            (VisualThemeEngine.HolographicIridescent, "Iridescent Spectrum"),
+            (VisualThemeEngine.Neumorphism, "Soft Relief"),
+            (VisualThemeEngine.Claymorphism, "Sculpted Clay"),
+            (VisualThemeEngine.LiquidGlass, "Liquid Light"),
+            (VisualThemeEngine.Glassmorphism, "Frosted Layers"),
         };
 
         /// <summary>Draws the scene for a family. Unknown/empty family →
@@ -75,8 +73,18 @@ namespace ProGlassAutomation.Services.Theme
                     ? VisualThemeEngine.NormalIndustrial
                     : family!;
 
-                if (f == VisualThemeEngine.CrystalFluid)
+                if (f == VisualThemeEngine.CrystalFluid ||
+                    f == VisualThemeEngine.LiquidGlass ||
+                    f == VisualThemeEngine.Glassmorphism)
                     return CrystalFluidScene(dark);
+                if (f == VisualThemeEngine.SpatialImmersive)
+                    return Diagonal((Parse(dark ? "#06111D" : "#E7F5F8"), 0.0),
+                        (Parse(dark ? "#0F3344" : "#BDE8EF"), 0.55),
+                        (Parse(dark ? "#071A2A" : "#D9F0F4"), 1.0));
+                if (f == VisualThemeEngine.HolographicIridescent)
+                    return Diagonal((Parse(dark ? "#190F2B" : "#F6F0FF"), 0.0),
+                        (Parse(dark ? "#33204F" : "#E6D8FF"), 0.55),
+                        (Parse(dark ? "#10243A" : "#D5F2FF"), 1.0));
                 if (f == VisualThemeEngine.Ios26)
                     return Ios26Scene(dark);
                 if (f == VisualThemeEngine.Monet)            return GoldenHour(h, s, dark);
