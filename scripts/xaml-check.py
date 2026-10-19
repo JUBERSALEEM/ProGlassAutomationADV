@@ -261,6 +261,36 @@ def check_file(root, repo, path, keys, merged, findings,
                             f"App.xaml merges",
                         ))
 
+    # 2z. A Style with Setters and no TargetType cannot resolve its
+    # property names. WPF reports XLS0431 ("Invalid value for property
+    # 'Property': 'X'") and XDG0012 ("The member X is not recognized or
+    # is not accessible") once per setter, which is a lot of noise for
+    # one missing attribute.
+    #
+    # The subtle part, and the reason this is a rule rather than a note:
+    # adding TargetType is NOT always the whole fix. If the target is a
+    # Border, then Focusable is still invalid -- Focusable is declared
+    # on Control, and Border derives from Decorator -> FrameworkElement.
+    # So the repair has to check the setter names against the declared
+    # TargetType, not just supply one.
+    for st in tree.getroot().iter():
+        if not st.tag.endswith("}Style"):
+            continue
+        setters = [x for x in st.iter() if x.tag.endswith("}Setter")]
+        if not setters:
+            continue
+        if st.get("TargetType") is not None:
+            continue
+
+        names = [x.get("Property") for x in setters if x.get("Property")]
+        findings.append((
+            rel, 0,
+            f"XLS0431 Style has {len(names)} setter(s) but no "
+            f"TargetType, so none of {', '.join(names)} can be resolved. "
+            f"Add TargetType, and check the names against it -- Focusable "
+            f"is on Control, which Border does not derive from",
+        ))
+
     # 2a. TemplateBinding is ONE-WAY and has no Mode property. This is
     # MC3045, and it is a FATAL markup error -- not a warning, not a
     # style nit. Worse, it aborts MarkupCompilePass1, which is why it

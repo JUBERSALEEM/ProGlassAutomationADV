@@ -111,11 +111,10 @@
     <CornerRadius x:Key="GlassRadius">16</CornerRadius>
     <Thickness x:Key="GlassUnit">16</Thickness>
 
-    <Style x:Key="GlassFocusRing">
+    <Style x:Key="GlassFocusRing" TargetType="{x:Type Border}">
         <Setter Property="BorderThickness"
                 Value="{StaticResource GlassFocusWidth}" />
         <Setter Property="IsHitTestVisible" Value="False" />
-        <Setter Property="Focusable" Value="False" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
     </Style>
 

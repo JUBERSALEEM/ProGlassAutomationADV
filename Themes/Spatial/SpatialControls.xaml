@@ -85,11 +85,10 @@
     <CornerRadius x:Key="SpatialRadius">12</CornerRadius>
     <Thickness x:Key="SpatialUnit">16</Thickness>
 
-    <Style x:Key="SpatialFocusRing">
+    <Style x:Key="SpatialFocusRing" TargetType="{x:Type Border}">
         <Setter Property="BorderThickness"
                 Value="{StaticResource SpatialFocusWidth}" />
         <Setter Property="IsHitTestVisible" Value="False" />
-        <Setter Property="Focusable" Value="False" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
     </Style>
 

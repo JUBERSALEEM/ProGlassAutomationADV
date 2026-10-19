@@ -102,11 +102,10 @@
          anything else does — so the ring is the only thing confirming
          the cell is genuinely focusable rather than merely big.
          ═══════════════════════════════════════════════════════════ -->
-    <Style x:Key="BentoFocusRing">
+    <Style x:Key="BentoFocusRing" TargetType="{x:Type Border}">
         <Setter Property="BorderThickness"
                 Value="{StaticResource BentoFocusWidth}" />
         <Setter Property="IsHitTestVisible" Value="False" />
-        <Setter Property="Focusable" Value="False" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
     </Style>
 
