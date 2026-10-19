@@ -71,8 +71,8 @@
                         </Border>
 
                         <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                            <TextBlock Text="Themes &amp; Surface Tuning" Style="{StaticResource SettingsHeroTitleStyle}"/>
-                            <TextBlock Text="Bounded material precision tuning, porcelain contrast, and real-time fluid refraction" Style="{StaticResource SettingsHeroNoteStyle}"/>
+                            <TextBlock Text="Theme Center — Eight Visual Systems" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="Eight coordinated themes, each available in Light and Dark, with live material previews" Style="{StaticResource SettingsHeroNoteStyle}"/>
                         </StackPanel>
 
                         <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
@@ -86,7 +86,7 @@
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Settings.LblThemeFamily}"
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource Settings.NormalMonetIos17pm}"
+                        <TextBlock Text="Eight theme families — each available in Light and Dark."
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
                         <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
                             <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
