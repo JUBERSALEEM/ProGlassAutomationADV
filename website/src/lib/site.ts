@@ -114,6 +114,7 @@ export const nav = {
       { label: "Deliveries", href: "/deliveries" },
     ],
     company: [
+      { label: "Theme Center", href: "/themes" },
       { label: "About ProGlass", href: "/about" },
       { label: "Developer", href: "/developer" },
       { label: "Collaborate", href: "/collaborate" },
