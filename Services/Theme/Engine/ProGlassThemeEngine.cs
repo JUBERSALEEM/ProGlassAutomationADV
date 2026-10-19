@@ -12,7 +12,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
     /// </summary>
     public static class ProGlassThemeEngine
     {
-        public static ProGlassThemeFamily Family { get; private set; } = ProGlassThemeFamily.Industrial;
+        public static ProGlassThemeFamily Family { get; private set; } = ProGlassThemeFamily.LiquidGlass;
         public static ProGlassThemeMode Mode { get; private set; } = ProGlassThemeMode.Light;
         public static ProGlassMaterial Material { get; private set; } = ProGlassMaterial.Frosted;
         public static ProGlassDensity Density { get; private set; } = ProGlassDensity.Compact;
