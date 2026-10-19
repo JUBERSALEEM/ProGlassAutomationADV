@@ -136,6 +136,19 @@
                      Inert until a host adopts LiquidSurface / LiquidButton /
                      LiquidField. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/LiquidGlass/LiquidGlassControls.xaml"/>
+                <!-- Bento Grid control plane, merged on the same terms.
+                     The one family here that is a LAYOUT family rather
+                     than a material family, so its dictionary carries a
+                     measurement system (gutter 16, radius 24, fixed row
+                     104) and states the RELATIONSHIP between them: a
+                     bento reads as one object only while the gap stays
+                     between half the radius and the full radius. Like
+                     Swiss, its templates declare no shadow host at all —
+                     the gutter does the separating, and a gutter is a
+                     layout property rather than a material one. Inert
+                     until a host adopts BentoSurface / BentoButton /
+                     BentoField inside a BentoPanel. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Bento/BentoControls.xaml"/>
                 <!-- Glass Blush — Personal UI family plane (GB-P1, 2026-09-18).
                      Measured token plane for the second ProGlass experience.
                      Managed keys are republished by the family painter (GB-P14). -->

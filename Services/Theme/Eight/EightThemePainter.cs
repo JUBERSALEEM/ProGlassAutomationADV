@@ -43,6 +43,7 @@ using ProGlassAutomation.Services.Theme.Holo;
 using ProGlassAutomation.Services.Theme.LiquidGlass;
 using ProGlassAutomation.Services.Theme.Neu;
 using ProGlassAutomation.Services.Theme.Swiss;
+using ProGlassAutomation.Services.Theme.Bento;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -248,6 +249,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     NeuPalette.Clear();
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
+                    BentoPalette.Clear();
                     // The elevation's two stops ARE the clay shadow pair:
                     // the highlight that catches the light, and the shade
                     // tinted to the object's own hue. Using the ramp's
@@ -268,6 +270,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     ClayPalette.Clear();
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
+                    BentoPalette.Clear();
                     // Neumorphism's stops are NOT the ramp's. Its whole
                     // defining rule is that the object IS the page, so
                     // the light and shade are derived from that one
@@ -328,6 +331,41 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     {
                         SwissPalette.Clear();
                     }
+
+                    // ── BENTO NEEDS BOTH PLANES, WHICH IS WHY IT IS HERE ──
+                    // Bento is the one family in this arm that needs
+                    // Window AND Surface at the same time.
+                    //
+                    // A bento grid is separated by its GUTTER, and the
+                    // gutter is empty CANVAS -- so the canvas comes from
+                    // Window. The cells themselves come from Surface,
+                    // and unlike Swiss, where a panel IS the page, a
+                    // bento cell emphatically is not: the entire
+                    // composition depends on the cell being a distinct
+                    // plane sitting on a distinct ground.
+                    //
+                    // Publishing Window for both would flatten the grid
+                    // into one field with gaps in it, which is the exact
+                    // failure this style is built to avoid.
+                    if (profile.Identity == EightThemeNames.BentoGrid)
+                    {
+                        BentoPalette.Publish(
+                            lightCanvas: profile.Light.Window,
+                            lightSurface: profile.Light.Surface,
+                            lightInk: profile.Light.TextPrimary,
+                            lightMuted: profile.Light.TextMuted,
+                            lightEdge: profile.Light.BorderStrong,
+                            accent: profile.Light.Accent,
+                            darkCanvas: profile.Dark.Window,
+                            darkSurface: profile.Dark.Surface,
+                            darkInk: profile.Dark.TextPrimary,
+                            darkMuted: profile.Dark.TextMuted,
+                            darkEdge: profile.Dark.BorderStrong);
+                    }
+                    else
+                    {
+                        BentoPalette.Clear();
+                    }
                     break;
 
                 case EightMaterialKind.Foil:
@@ -335,6 +373,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     NeuPalette.Clear();
                     SwissPalette.Clear();
                     LiquidGlassPalette.Clear();
+                    BentoPalette.Clear();
 
                     // ── WHY THE GROUND COMES FROM Surface AND NOT Window ──
                     // Holographic inverts the other families' arrangement:
@@ -355,6 +394,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     break;
 
                 case EightMaterialKind.Refractive:
+                    BentoPalette.Clear();
                     // LIQUID GLASS. The only family whose material is an
                     // optical one rather than a tonal one: what it
                     // carries is the tint, what it IS is the rim.
@@ -393,6 +433,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     SwissPalette.Clear();
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
+                    BentoPalette.Clear();
                     break;
             }
         }
