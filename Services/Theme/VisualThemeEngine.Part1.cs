@@ -59,6 +59,17 @@ namespace ProGlassAutomation.Services.Theme
         /// (ModePairFor → false). See Themes/CrystalFluid/.</summary>
         public const string CrystalFluid = "Crystal Fluid";
 
+        // Approved eight-theme material system. These persisted identities
+        // are intentionally independent of the legacy painter implementation.
+        public const string BentoGrid = "Bento Grid";
+        public const string SpatialImmersive = "Spatial / Immersive";
+        public const string SwissInternational = "Swiss International";
+        public const string HolographicIridescent = "Holographic / Iridescent";
+        public const string Neumorphism = "Neumorphism";
+        public const string Claymorphism = "Claymorphism";
+        public const string LiquidGlass = "Liquid Glass";
+        public const string Glassmorphism = "Glassmorphism";
+
         /// <summary>User-facing family label. Identity strings (the consts)
         /// are PERSISTED keys — configs, profiles and window state store
         /// them verbatim, so they can never be renamed in place. Display
@@ -436,9 +447,21 @@ namespace ProGlassAutomation.Services.Theme
                         break;
 
                     case CrystalFluid:
+                    case LiquidGlass:
+                    case Glassmorphism:
+                    case SpatialImmersive:
+                    case HolographicIridescent:
                         ApplyCrystalFluid(resources);
                         break;
 
+                    case Claymorphism:
+                        ApplyMonet(resources, _lastWallpaperPath,
+                            _lastWallpaperOpacity);
+                        break;
+
+                    case BentoGrid:
+                    case SwissInternational:
+                    case Neumorphism:
                     case NormalIndustrial:
                         ApplyIndustrial(resources);
                         break;
@@ -452,6 +475,10 @@ namespace ProGlassAutomation.Services.Theme
                         ApplyIos26(resources);
                         break;
                 }
+
+                // Apply the selected material recipe after its safe base painter.
+                // The overlay only writes existing semantic/compatibility resources.
+                ApplyEightThemeMaterial(resources, Current);
 
                 // Cache the family's pre-wallpaper surfaces so the next
                 // ApplyModule can fast-path a wallpaper-only change (see
