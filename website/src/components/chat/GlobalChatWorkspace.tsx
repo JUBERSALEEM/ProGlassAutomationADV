@@ -28,10 +28,15 @@ import {
   groupGlobalChatReceiptsByMessage,
   mergeGlobalChatMessages,
   normalizeGlobalChatDraft,
+  normalizeGlobalChatMessage,
+  normalizeGlobalChatMessages,
+  normalizeGlobalChatReadState,
+  normalizeGlobalChatReceipt,
+  normalizeGlobalChatReceipts,
   summarizeGlobalChatReceipts,
 } from "@/lib/global-chat";
 import { isSupabaseConfigured, supabaseBrowser } from "@/lib/supabase";
-import type { GlobalChatMessage, GlobalChatReadState, GlobalChatReceipt } from "@/types/global-chat";
+import type { GlobalChatMessage, GlobalChatReceipt } from "@/types/global-chat";
 
 const MESSAGE_SELECT =
   "id,author_user_id,author_display_name,body,reply_to_message_id,deleted_at,deleted_by,created_at";
@@ -43,7 +48,7 @@ function mergeReceiptRows(
 ): Map<string, GlobalChatReceipt[]> {
   const next = new Map(current);
   for (const [messageId, incoming] of groupGlobalChatReceiptsByMessage(rows)) {
-    const merged = [...(next.get(messageId) ?? [])];
+    const merged = normalizeGlobalChatReceipts(next.get(messageId) ?? []);
     for (const receipt of incoming) {
       const index = merged.findIndex((row) => row.user_id === receipt.user_id);
       if (index >= 0) merged[index] = receipt;
@@ -52,6 +57,15 @@ function mergeReceiptRows(
     next.set(messageId, merged);
   }
   return next;
+}
+
+function firstMessageFromUnknown(value: unknown): GlobalChatMessage | null {
+  return normalizeGlobalChatMessages(Array.isArray(value) ? value : [value])[0] ?? null;
+}
+
+function recordFromUnknown(value: unknown): Record<string, unknown> | null {
+  if (Array.isArray(value)) return value.map(recordFromUnknown).find(Boolean) ?? null;
+  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : null;
 }
 
 type ChatUser = {
@@ -75,15 +89,19 @@ const AVATAR_CLASSES = [
 ] as const;
 
 function toChatUser(user: User | null): ChatUser | null {
-  if (!user) return null;
+  if (!user || typeof user.id !== "string" || !user.id) return null;
   return {
     id: user.id,
-    email: user.email ?? null,
+    email: typeof user.email === "string" ? user.email : null,
     displayName: globalChatDisplayName({
-      email: user.email,
-      metadata: user.user_metadata as Record<string, unknown> | null,
+      email: typeof user.email === "string" ? user.email : null,
+      metadata: recordFromUnknown(user.user_metadata),
     }),
   };
+}
+
+function sameChatUser(left: ChatUser | null, right: ChatUser | null): boolean {
+  return left?.id === right?.id && left?.email === right?.email && left?.displayName === right?.displayName;
 }
 
 function friendlyError(error: unknown, fallback: string): string {
@@ -99,7 +117,8 @@ function friendlyError(error: unknown, fallback: string): string {
 
 function avatarClass(authorId: string): string {
   let hash = 0;
-  for (const char of authorId) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  const safeAuthorId = typeof authorId === "string" && authorId ? authorId : "ProGlass";
+  for (const char of safeAuthorId) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
   return AVATAR_CLASSES[hash % AVATAR_CLASSES.length] ?? AVATAR_CLASSES[0];
 }
 
@@ -138,6 +157,16 @@ export function GlobalChatWorkspace() {
   const [infoMessage, setInfoMessage] = useState<GlobalChatMessage | null>(null);
   const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
   const [quotedMessages, setQuotedMessages] = useState<Map<string, GlobalChatMessage>>(new Map());
+  // A fresh topic for every mounted workspace prevents Supabase from handing
+  // back a same-topic channel from the previous mount while its asynchronous
+  // removeChannel() is still leaving. The realtime effect adds its own attempt
+  // suffix too, covering an effect restart inside the same mount. A reused
+  // subscribed channel can reject new postgres_changes handlers, which must
+  // never be able to take down the whole route.
+  const [realtimeSessionId] = useState(
+    () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`,
+  );
+  const realtimeAttemptRef = useRef(0);
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const composerRef = useRef<HTMLTextAreaElement | null>(null);
@@ -150,10 +179,13 @@ export function GlobalChatWorkspace() {
   const deliveredQueueRef = useRef<Set<string>>(new Set());
   const deliveredTimerRef = useRef<number | null>(null);
   const quotedFetchingRef = useRef<Set<string>>(new Set());
+  const activeUserIdRef = useRef<string | null>(null);
 
   const normalizedDraft = useMemo(() => normalizeGlobalChatDraft(draft), [draft]);
   const draftTooLong = normalizedDraft.length > GLOBAL_CHAT_MAX_BODY;
   const canSend = Boolean(user && configured && !busy && normalizedDraft.length > 0 && !draftTooLong);
+  const realtimeLabel =
+    typeof realtimeStatus === "string" && realtimeStatus ? realtimeStatus.toLowerCase() : "connecting";
   const firstUnreadId = useMemo(
     () => firstUnreadGlobalChatMessageId(messages, user?.id ?? null, lastReadAt),
     [lastReadAt, messages, user?.id],
@@ -176,16 +208,24 @@ export function GlobalChatWorkspace() {
   const scrollToBottom = useCallback((smooth = true) => {
     const element = scrollRef.current;
     if (!element) return;
-    element.scrollTo({ top: element.scrollHeight, behavior: smooth ? "smooth" : "auto" });
+    try {
+      element.scrollTo?.({ top: element.scrollHeight, behavior: smooth ? "smooth" : "auto" });
+    } catch {
+      // Scrolling is progressive enhancement; it must never crash the room.
+    }
     nearBottomRef.current = true;
     setIsNearBottom(true);
   }, []);
 
   const scrollToMessage = useCallback((messageId: string) => {
-    document.getElementById(`global-chat-message-${messageId}`)?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
+    try {
+      document.getElementById(`global-chat-message-${messageId}`)?.scrollIntoView?.({
+        behavior: "smooth",
+        block: "center",
+      });
+    } catch {
+      // Jump-to-quote remains best-effort across browsers.
+    }
   }, []);
 
   const fetchUnreadCount = useCallback(
@@ -209,8 +249,9 @@ export function GlobalChatWorkspace() {
   );
 
   const mergeReceipts = useCallback((rows: readonly GlobalChatReceipt[]) => {
-    if (!rows.length) return;
-    setReceiptsByMessage((current) => mergeReceiptRows(current, rows));
+    const normalizedRows = normalizeGlobalChatReceipts(rows);
+    if (!normalizedRows.length) return;
+    setReceiptsByMessage((current) => mergeReceiptRows(current, normalizedRows));
   }, []);
 
   const fetchReceipts = useCallback(
@@ -223,7 +264,8 @@ export function GlobalChatWorkspace() {
             .select(RECEIPT_SELECT)
             .in("message_id", messageIds.slice(start, start + 200));
           if (receiptError) throw receiptError;
-          const rows = (data ?? []) as GlobalChatReceipt[];
+          if (activeUserIdRef.current !== user.id) return;
+          const rows = normalizeGlobalChatReceipts(data);
           for (const row of rows) {
             if (row.user_id !== user.id) continue;
             if (row.delivered_at) deliveredSentRef.current.add(row.message_id);
@@ -251,7 +293,7 @@ export function GlobalChatWorkspace() {
             { p_message_ids: pending.slice(start, start + 200) },
           );
           if (deliveredError) throw deliveredError;
-          mergeReceipts((data ?? []) as GlobalChatReceipt[]);
+          mergeReceipts(normalizeGlobalChatReceipts(data));
         }
       } catch {
         pending.forEach((id) => deliveredSentRef.current.delete(id));
@@ -278,7 +320,7 @@ export function GlobalChatWorkspace() {
     async (target: string) => {
       if (!user || !configured) return;
       const targetTime = Date.parse(target);
-      const pending = messagesRef.current
+      const pending = normalizeGlobalChatMessages(messagesRef.current)
         .filter(
           (message) =>
             message.author_user_id !== user.id &&
@@ -299,7 +341,7 @@ export function GlobalChatWorkspace() {
             { p_message_ids: pending.slice(start, start + 200) },
           );
           if (readReceiptError) throw readReceiptError;
-          mergeReceipts((data ?? []) as GlobalChatReceipt[]);
+          mergeReceipts(normalizeGlobalChatReceipts(data));
         }
       } catch {
         pending.forEach((id) => readSentRef.current.delete(id));
@@ -323,7 +365,7 @@ export function GlobalChatWorkspace() {
           p_last_read_at: target,
         });
         if (readError) throw readError;
-        const nextReadAt = (data as GlobalChatReadState | null)?.last_read_at ?? target;
+        const nextReadAt = normalizeGlobalChatReadState(data)?.last_read_at ?? target;
         lastReadAtRef.current = nextReadAt;
         setLastReadAt(nextReadAt);
         setUnreadCount(0);
@@ -359,16 +401,20 @@ export function GlobalChatWorkspace() {
 
         if (readResult.error) throw readResult.error;
         if (messageResult.error) throw messageResult.error;
+        if (activeUserIdRef.current !== user.id) return;
 
-        const rowsDescending = (messageResult.data ?? []) as GlobalChatMessage[];
-        const nextMessages = [...rowsDescending].reverse();
-        const readAt = (readResult.data as GlobalChatReadState | null)?.last_read_at ?? null;
+        const rowsDescending = normalizeGlobalChatMessages(messageResult.data);
+        const nextMessages = mergeGlobalChatMessages([], rowsDescending);
+        const readAt = normalizeGlobalChatReadState(readResult.data)?.last_read_at ?? null;
+        const fetchedCount = Array.isArray(messageResult.data)
+          ? messageResult.data.length
+          : rowsDescending.length;
 
         messagesRef.current = nextMessages;
         lastReadAtRef.current = readAt;
         setMessages(nextMessages);
         setLastReadAt(readAt);
-        setHasMoreOlder(rowsDescending.length >= GLOBAL_CHAT_PAGE_SIZE);
+        setHasMoreOlder(fetchedCount >= GLOBAL_CHAT_PAGE_SIZE);
         void fetchReceipts(nextMessages.map((message) => message.id));
         queueDelivered(
           nextMessages
@@ -377,11 +423,12 @@ export function GlobalChatWorkspace() {
         );
 
         if (!roleResult.error) {
-          const role = roleResult.data as { role?: string; enabled?: boolean } | null;
-          setIsModerator(Boolean(role?.enabled && role.role === "inquiry_admin"));
+          const role = recordFromUnknown(roleResult.data);
+          setIsModerator(Boolean(role?.enabled === true && role.role === "inquiry_admin"));
         }
 
         const databaseUnread = await fetchUnreadCount(readAt);
+        if (activeUserIdRef.current !== user.id) return;
         const unread = databaseUnread ?? countUnreadGlobalChatMessages(nextMessages, user.id, readAt);
         setUnreadCount(unread);
 
@@ -420,12 +467,13 @@ export function GlobalChatWorkspace() {
         .order("id", { ascending: false })
         .limit(GLOBAL_CHAT_PAGE_SIZE);
       if (olderError) throw olderError;
+      if (activeUserIdRef.current !== user.id) return false;
 
-      const olderRows = ((data ?? []) as GlobalChatMessage[]).slice().reverse();
+      const olderRows = mergeGlobalChatMessages([], normalizeGlobalChatMessages(data));
       const merged = mergeGlobalChatMessages(messagesRef.current, olderRows);
       messagesRef.current = merged;
       setMessages(merged);
-      const more = (data ?? []).length >= GLOBAL_CHAT_PAGE_SIZE;
+      const more = (Array.isArray(data) ? data.length : 0) >= GLOBAL_CHAT_PAGE_SIZE;
       setHasMoreOlder(more);
       void fetchReceipts(olderRows.map((message) => message.id));
       queueDelivered(
@@ -447,8 +495,15 @@ export function GlobalChatWorkspace() {
   }, [configured, fetchReceipts, loadingOlder, queueDelivered, user]);
 
   useEffect(() => {
-    messagesRef.current = messages;
+    messagesRef.current = normalizeGlobalChatMessages(messages);
   }, [messages]);
+
+  useEffect(
+    () => () => {
+      if (deliveredTimerRef.current !== null) window.clearTimeout(deliveredTimerRef.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     lastReadAtRef.current = lastReadAt;
@@ -487,10 +542,11 @@ export function GlobalChatWorkspace() {
 
   useEffect(() => {
     if (!user || !configured) return;
-    const known = new Set(messages.map((message) => message.id));
+    const safeMessages = normalizeGlobalChatMessages(messages);
+    const known = new Set(safeMessages.map((message) => message.id));
     const missing = [
       ...new Set(
-        messages
+        safeMessages
           .map((message) => message.reply_to_message_id)
           .filter((id): id is string => Boolean(id)),
       ),
@@ -499,19 +555,24 @@ export function GlobalChatWorkspace() {
 
     missing.forEach((id) => quotedFetchingRef.current.add(id));
     let alive = true;
-    void supabaseBrowser()
-      .from("global_chat_messages")
-      .select(MESSAGE_SELECT)
-      .in("id", missing.slice(0, 50))
-      .then(({ data, error: quotedError }) => {
-        missing.forEach((id) => quotedFetchingRef.current.delete(id));
-        if (!alive || quotedError || !data) return;
+    void (async () => {
+      try {
+        const { data, error: quotedError } = await supabaseBrowser()
+          .from("global_chat_messages")
+          .select(MESSAGE_SELECT)
+          .in("id", missing.slice(0, 50));
+        if (!alive || quotedError) return;
         setQuotedMessages((current) => {
           const next = new Map(current);
-          for (const row of data as GlobalChatMessage[]) next.set(row.id, row);
+          for (const row of normalizeGlobalChatMessages(data)) next.set(row.id, row);
           return next;
         });
-      });
+      } catch {
+        // Missing quote context is non-fatal; the reply bubble shows a fallback.
+      } finally {
+        missing.forEach((id) => quotedFetchingRef.current.delete(id));
+      }
+    })();
     return () => {
       alive = false;
     };
@@ -533,24 +594,77 @@ export function GlobalChatWorkspace() {
     }
 
     let alive = true;
-    const supabase = supabaseBrowser();
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!alive) return;
-      setUser(toChatUser(data.session?.user ?? null));
-      setChecking(false);
-    });
+    let subscription: { unsubscribe: () => void } | null = null;
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    const applySessionUser = (nextUser: ChatUser | null) => {
       if (!alive) return;
-      setUser(toChatUser(session?.user ?? null));
+      const nextUserId = nextUser?.id ?? null;
+      if (activeUserIdRef.current !== nextUserId) {
+        activeUserIdRef.current = nextUserId;
+        messagesRef.current = [];
+        lastReadAtRef.current = null;
+        deliveredSentRef.current.clear();
+        readSentRef.current.clear();
+        deliveredQueueRef.current.clear();
+        quotedFetchingRef.current.clear();
+        setMessages([]);
+        setReceiptsByMessage(new Map());
+        setQuotedMessages(new Map());
+        setReplyTarget(null);
+        setInfoMessage(null);
+        setHighlightedMessageId(null);
+        setLastReadAt(null);
+        setUnreadCount(0);
+        setHasMoreOlder(false);
+        setIsModerator(false);
+      }
+      // Supabase may emit INITIAL_SESSION, TOKEN_REFRESHED, and getSession()
+      // for the same account in quick succession. Preserve object identity
+      // when nothing user-visible changed so the load and Realtime effects do
+      // not restart (and do not race channel teardown) for duplicate events.
+      setUser((current) => (sameChatUser(current, nextUser) ? current : nextUser));
       setChecking(false);
-    });
+    };
+
+    try {
+      const supabase = supabaseBrowser();
+      void supabase.auth
+        .getSession()
+        .then(({ data, error: sessionError }) => {
+          if (sessionError) throw sessionError;
+          applySessionUser(toChatUser(data.session?.user ?? null));
+        })
+        .catch((reason: unknown) => {
+          if (!alive) return;
+          setError(friendlyError(reason, "Unable to confirm your sign-in. Please refresh and sign in again."));
+          setChecking(false);
+        });
+
+      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        try {
+          applySessionUser(toChatUser(session?.user ?? null));
+        } catch (reason) {
+          if (!alive) return;
+          setError(friendlyError(reason, "Unable to confirm your sign-in. Please refresh and sign in again."));
+          setChecking(false);
+        }
+      });
+      subscription = data.subscription;
+    } catch (reason) {
+      queueMicrotask(() => {
+        if (!alive) return;
+        setError(friendlyError(reason, "Unable to start sign-in. Please refresh and try again."));
+        setChecking(false);
+      });
+    }
 
     return () => {
       alive = false;
-      subscription.unsubscribe();
+      try {
+        subscription?.unsubscribe();
+      } catch {
+        // Auth teardown is best-effort during route cleanup.
+      }
     };
   }, [configured]);
 
@@ -564,56 +678,107 @@ export function GlobalChatWorkspace() {
   useEffect(() => {
     if (!user || !configured) return;
 
-    const supabase = supabaseBrowser();
-    const channel = supabase
-      .channel(`global-community-chat-${user.id}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "global_chat_messages" },
-        (payload) => {
-          const next = payload.new as unknown as GlobalChatMessage;
-          const previous = payload.old as unknown as Partial<GlobalChatMessage>;
+    let active = true;
+    let removeChannel: (() => void) | null = null;
+    try {
+      const supabase = supabaseBrowser();
+      realtimeAttemptRef.current += 1;
+      const realtimeTopic = `global-community-chat-${user.id}-${realtimeSessionId}-${realtimeAttemptRef.current}`;
+      const channel = supabase.channel(realtimeTopic);
+      removeChannel = () => {
+        void Promise.resolve(supabase.removeChannel(channel)).catch(() => undefined);
+      };
+      channel
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "global_chat_messages" },
+          (payload) => {
+            if (!active) return;
+            try {
+              const previousId = recordFromUnknown(payload.old)?.id;
+              if (payload.eventType === "DELETE" && typeof previousId === "string" && previousId) {
+                const filtered = normalizeGlobalChatMessages(messagesRef.current).filter(
+                  (message) => message.id !== previousId,
+                );
+                messagesRef.current = filtered;
+                setMessages(filtered);
+                return;
+              }
 
-          if (payload.eventType === "DELETE" && previous?.id) {
-            const filtered = messagesRef.current.filter((message) => message.id !== previous.id);
-            messagesRef.current = filtered;
-            setMessages(filtered);
-            return;
-          }
+              const next = normalizeGlobalChatMessage(payload.new);
+              if (!next) return;
+              const merged = mergeGlobalChatMessages(messagesRef.current, [next]);
+              messagesRef.current = merged;
+              setMessages(merged);
 
-          if (!next?.id) return;
-          const merged = mergeGlobalChatMessages(messagesRef.current, [next]);
-          messagesRef.current = merged;
-          setMessages(merged);
-
-          const isMine = next.author_user_id === user.id;
-          if (payload.eventType === "INSERT" && isMine) {
-            requestAnimationFrame(() => scrollToBottom(true));
-          } else if (payload.eventType === "INSERT" && !next.deleted_at) {
-            queueDelivered([next.id]);
-            if (nearBottomRef.current) {
-              requestAnimationFrame(() => scrollToBottom(true));
-              void markReadRef.current(next.created_at);
-            } else {
-              setUnreadCount((count) => count + 1);
+              const isMine = next.author_user_id === user.id;
+              if (payload.eventType === "INSERT" && isMine) {
+                requestAnimationFrame(() => scrollToBottom(true));
+              } else if (payload.eventType === "INSERT" && !next.deleted_at) {
+                queueDelivered([next.id]);
+                if (nearBottomRef.current) {
+                  requestAnimationFrame(() => scrollToBottom(true));
+                  void markReadRef.current(next.created_at);
+                } else {
+                  setUnreadCount((count) => count + 1);
+                }
+              }
+            } catch (reason) {
+              setRealtimeStatus("error");
+              setError(
+                friendlyError(reason, "A live community message could not be displayed. Refresh to reload the room."),
+              );
             }
-          }
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "global_chat_receipts" },
-        (payload) => {
-          const receipt = payload.new as unknown as GlobalChatReceipt;
-          if (receipt?.message_id) mergeReceipts([receipt]);
-        },
-      )
-      .subscribe((status) => setRealtimeStatus(status));
+          },
+        )
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "global_chat_receipts" },
+          (payload) => {
+            if (!active) return;
+            try {
+              const receipt = normalizeGlobalChatReceipt(payload.new);
+              if (receipt) mergeReceipts([receipt]);
+            } catch {
+              // A malformed receipt event must never hide the message stream.
+            }
+          },
+        )
+        .subscribe((status) => {
+          if (!active) return;
+          setRealtimeStatus(typeof status === "string" && status ? status : "connecting");
+        });
+    } catch (reason) {
+      // Realtime is an enhancement over the already-loaded REST history. A
+      // browser/WebSocket/channel setup failure should be visible inline, not
+      // replaced by the route error boundary.
+      try {
+        removeChannel?.();
+      } catch {
+        // Best-effort cleanup for a channel whose setup failed part-way.
+      }
+      queueMicrotask(() => {
+        if (!active) return;
+        setRealtimeStatus("error");
+        setError(
+          friendlyError(
+            reason,
+            "Live updates could not start. You can still read the room; refresh to load the latest messages.",
+          ),
+        );
+      });
+    }
 
     return () => {
-      void supabase.removeChannel(channel);
+      active = false;
+      try {
+        removeChannel?.();
+      } catch {
+        // Channel teardown is best-effort; the unique next-mount topic still
+        // prevents this cleanup race from affecting a later subscription.
+      }
     };
-  }, [configured, mergeReceipts, queueDelivered, scrollToBottom, user]);
+  }, [configured, mergeReceipts, queueDelivered, realtimeSessionId, scrollToBottom, user]);
 
   const handleScroll = () => {
     const element = scrollRef.current;
@@ -644,7 +809,8 @@ export function GlobalChatWorkspace() {
         p_reply_to_message_id: replyTarget?.id ?? null,
       });
       if (sendError) throw sendError;
-      const row = data as GlobalChatMessage;
+      const row = firstMessageFromUnknown(data);
+      if (!row) throw new Error("The message was saved, but its returned row could not be displayed. Refresh the room.");
       const merged = mergeGlobalChatMessages(messagesRef.current, [row]);
       messagesRef.current = merged;
       setMessages(merged);
@@ -681,7 +847,8 @@ export function GlobalChatWorkspace() {
         p_message_id: message.id,
       });
       if (deleteError) throw deleteError;
-      const row = data as GlobalChatMessage;
+      const row = firstMessageFromUnknown(data);
+      if (!row) throw new Error("The message was deleted, but its updated row could not be displayed. Refresh the room.");
       const merged = mergeGlobalChatMessages(messagesRef.current, [row]);
       messagesRef.current = merged;
       setMessages(merged);
@@ -732,6 +899,14 @@ export function GlobalChatWorkspace() {
             This is one live group room for signed-in ProGlass users. Sign in or create an account to read and post.
             Keep private project details, documents, and prices in your private inquiry chat.
           </p>
+          {error ? (
+            <p
+              role="alert"
+              className="mx-auto mt-4 max-w-md rounded-xl border border-state-danger/40 bg-state-danger/10 px-4 py-3 text-xs font-semibold leading-relaxed text-state-danger"
+            >
+              {error}
+            </p>
+          ) : null}
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
             <LocaleLink
               href={accountPathForRedirect(GLOBAL_CHAT_PATH)}
@@ -806,7 +981,7 @@ export function GlobalChatWorkspace() {
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-sm font-bold">Chats</h2>
                 <span className="rounded-full border border-emerald-400/50 bg-emerald-400/10 px-2 py-0.5 text-3xs font-bold uppercase text-emerald-200">
-                  {realtimeStatus.toLowerCase()}
+                  {realtimeLabel}
                 </span>
               </div>
 
@@ -878,9 +1053,9 @@ export function GlobalChatWorkspace() {
                 <p className="mt-0.5 flex items-center gap-1.5 text-3xs text-text-faint">
                   <span
                     aria-hidden="true"
-                    className={`h-2 w-2 rounded-full ${realtimeStatus === "SUBSCRIBED" ? "bg-emerald-400" : "bg-state-warning"}`}
+                    className={`h-2 w-2 rounded-full ${realtimeLabel === "subscribed" ? "bg-emerald-400" : "bg-state-warning"}`}
                   />
-                  Signed-in group room · realtime {realtimeStatus.toLowerCase()}
+                  Signed-in group room · realtime {realtimeLabel}
                   {isNearBottom ? " · viewing latest" : " · reading history"}
                 </p>
               </div>

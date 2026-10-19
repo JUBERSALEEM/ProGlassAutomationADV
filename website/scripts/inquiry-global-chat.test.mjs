@@ -23,6 +23,7 @@ const communityHelpers = read("../src/lib/global-chat.ts");
 const communitySql = read("../supabase-global-chat.sql");
 const communitySqlV2 = read("../supabase-global-chat-v2-replies-receipts.sql");
 const communityTypes = read("../src/types/global-chat.ts");
+const nextConfig = read("../next.config.ts");
 
 test("global account route reuses the existing Supabase form with a safe inquiry-chat return", () => {
   assert.match(accountPage, /ReportsAuthForm variant="account" defaultRedirect="\/inquiries\/chat"/);
@@ -175,6 +176,21 @@ test("community chat v2 SQL adds message replies and per-message receipts safely
   assert.match(communitySqlV2, /ALTER TABLE public\.global_chat_receipts REPLICA IDENTITY FULL/);
   assert.match(communitySqlV2, /ALTER PUBLICATION supabase_realtime ADD TABLE public\.global_chat_receipts/);
   assert.doesNotMatch(communitySqlV2, /service_role/i);
+});
+
+test("community chat auth and realtime setup cannot restart or crash the room on duplicate events", () => {
+  assert.match(communityWorkspace, /function sameChatUser/);
+  assert.match(communityWorkspace, /sameChatUser\(current, nextUser\) \? current : nextUser/);
+  assert.match(communityWorkspace, /activeUserIdRef/);
+  assert.match(communityWorkspace, /realtimeSessionId/);
+  assert.match(communityWorkspace, /global-community-chat-\$\{user\.id\}-\$\{realtimeSessionId\}/);
+  assert.match(communityWorkspace, /Live updates could not start/);
+  assert.match(communityWorkspace, /normalizeGlobalChatMessage\(payload\.new\)/);
+  assert.match(communityWorkspace, /normalizeGlobalChatReceipt\(payload\.new\)/);
+  assert.match(communityHelpers, /export function normalizeGlobalChatMessage/);
+  assert.match(communityHelpers, /export function normalizeGlobalChatReceipt/);
+  assert.match(communityHelpers, /export function normalizeGlobalChatReadState/);
+  assert.match(nextConfig, /wss:\/\/afpbdyamedpanwijxghk\.supabase\.co/);
 });
 
 test("community chat workspace supports WhatsApp-style replies, ticks and who-read-when info", () => {
