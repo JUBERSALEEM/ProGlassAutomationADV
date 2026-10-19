@@ -526,6 +526,481 @@ def check_override(repo, name, line, findings, path):
     ))
 
 
+
+# Names the BCL and the language supply. Only identifiers NOT in this set,
+# not declared in the file, and not a repo type are reported. The set is
+# intentionally broad: a false positive here costs more than a missed
+# CS0103, because the whole point of this tool is that its clean runs can
+# be trusted without a Windows rebuild.
+KNOWN_NAMES = set("""
+string int long short byte sbyte uint ulong ushort float double decimal bool
+char object void var dynamic nint nuint String Int32 Int64 Double Single
+Boolean Byte Char Object Decimal Math System Console Environment Exception
+Task Thread Timer Guid DateTime DateTimeOffset TimeSpan DateOnly TimeOnly
+Convert Action Func List Dictionary HashSet SortedList SortedDictionary
+Queue Stack LinkedList IEnumerable IEnumerator ICollection IList IDictionary
+IReadOnlyList IReadOnlyDictionary IComparable IEquatable ICloneable
+Nullable Array Type Uri File Path Stream Text StringBuilder Random Stopwatch
+Tuple ValueTuple KeyValuePair Lazy WeakReference GCHandle Marshal IntPtr
+Parallel TaskFactory CancellationToken OperationCanceledException
+Application Window UserControl Control ContentControl ItemsControl ListBox
+ListView ComboBox ButtonBase Button ToggleButton CheckBox RadioButton
+TextBlock TextBox PasswordBox Label Canvas Grid StackPanel WrapPanel
+DockPanel ScrollViewer ScrollBar Slider ProgressBar TabControl TabItem
+ToolTip ContextMenu Menu MenuItem Separator StatusBar ProgressBar
+Dispatcher DispatcherTimer DispatcherPriority DependencyObject
+DependencyProperty DependencyPropertyDescriptor FrameworkElement
+Visual UIElement Panel Decorator ContentPresenter FrameworkContentElement
+FrameworkElementFactory FrameworkPropertyMetadata PropertyMetadata
+DefaultValueAttribute NotifyPropertyChangedCallback PropertyChangedCallback
+FrameworkPropertyMetadataOptions BindingBase Binding RelativeSource
+DependencyPropertyChangedEventArgs RoutedEvent RoutedEventHandler
+AutomationPeer AutomationProperties IAutomationPeer TextElement
+Typography TextDecorations TextDecorations3D TextFormattingMode
+TextRenderingMode TextHintingMode TextOptions FlowDirection Visibility
+Thickness GridLength GridUnitType Point Rect Size Vector Matrix
+Transform ScaleTransform RotateTransform TranslateTransform TransformGroup
+Transform3D TranslateTransform3D RotateTransform3D ScaleTransform3D
+Geometry RectangleGeometry EllipseGeometry PathGeometry CombinedGeometry
+StreamGeometry LineSegment PathFigure BezierSegment QuadraticBezierSegment
+ArcSegment PolyLineSegment PolyBezierSegment
+Brush SolidColorBrush LinearGradientBrush RadialGradientBrush
+GradientStop DrawingGroup DrawingImage VisualBrush BitmapBrush
+ImageBrush Pen Brushes Colors Color ColorConverter PixelFormats
+Pen DashStyle PenLineCap ThicknessEffect BitmapEffect
+BitmapSource FormatConvertedBitmap CroppedBitmap TransformedBitmap
+WriteableBitmap PixelFormat Imaging.BitmapSource
+Effect BlurEffect DropShadowEffect ShaderEffect InputElement
+UIElement3D ModelVisual3D Viewport3D
+Freezable PresentationSource ImageSource Image
+SolidColorBrush ColorConverter Color
+DispatcherObject DispatcherOperation
+ComponentModel PropertyChangedEventArgs INotifyPropertyChanged
+DescriptionAttribute CategoryAttribute BrowsableAttribute
+AuthorAttribute VersionAttribute AssemblyTitle
+KeyEventArgs MouseButtonEventArgs MouseEventArgs KeyboardEventArgs
+RoutedEventArgs FocusEventArgs TextCompositionEventArgs DragEventArgs
+DataObject Clipboard DragDropEffects
+BooleanToVisibilityConverter StringFormat ConverterBase IValueConverter
+ArgumentNullException ArgumentOutOfRangeException ArgumentException
+NullReferenceException InvalidOperationException NotSupportedException
+NotImplementedException FormatException OverflowException IndexOutOfRangeException
+KeyNotFoundException AggregateException DivideByZeroException
+Task Delay Run ConfigureAwait ContinueWith Wait Result Async
+
+TypeConverter CultureInfo Comparison DateTimeStyles BindingOperations
+PointCollection BrushCollection DoubleCollection
+ObservableCollection ReadOnlyObservableCollection
+FreezableCollection
+DispatcherUnhandledExceptionEventArgs
+DispatcherPriority SendResult
+AutoCompleteBox
+Random Generator CancellationTokenSource
+Exception inner
+inheritdoc cref langvar nameof nameof typeof sizeof typeof default
+checked unchecked value is as new this base null true false in out ref
+params this base lock using namespace
+""".split())
+
+
+def _edit_distance(a, b, cap=3):
+    """Levenshtein distance, abandoned once it exceeds `cap`."""
+    if abs(len(a) - len(b)) > cap:
+        return cap + 1
+    prev = list(range(len(b) + 1))
+    for i, ca in enumerate(a, 1):
+        cur = [i]
+        for j, cb in enumerate(b, 1):
+            cur.append(min(prev[j] + 1, cur[j - 1] + 1,
+                           prev[j - 1] + (ca != cb)))
+        if min(cur) > cap:
+            return cap + 1
+        prev = cur
+    return prev[-1]
+
+
+def _near_miss(name, pool):
+    return _closest(name, pool) is not None
+
+
+def _closest(name, pool):
+    """The declared name within edit distance 2 of `name`, if any.
+
+    Names shorter than four characters are skipped. At that length a
+    two-character edit reaches most of the short identifiers in scope
+    (`x`, `p`, `k`), so the rule stops discriminating and starts
+    guessing -- which is the exact failure mode the other checks are
+    careful to avoid.
+    """
+    if len(name) < 4:
+        return None
+    best, best_d = None, 3
+    for cand in pool:
+        if cand == name or len(cand) < 4:
+            continue
+        d = _edit_distance(name, cand)
+        if d < best_d:
+            best, best_d = cand, d
+            if d == 1:
+                break
+    return best if best_d <= 2 else None
+
+
+MEMBER_NODES = {
+    "method_declaration", "constructor_declaration",
+    "destructor_declaration", "operator_declaration",
+    "conversion_operator_declaration", "property_declaration",
+    "field_declaration", "event_declaration", "event_field_declaration",
+    "indexer_declaration", "local_function_statement",
+    "get_accessor", "set_accessor", "add_accessor", "remove_accessor",
+}
+
+TYPE_NODES = {
+    "class_declaration", "struct_declaration", "interface_declaration",
+    "record_declaration", "record_struct_declaration",
+}
+
+
+def collect_undefined(tree, src, repo):
+    """
+    (line, name) for identifiers used in expression position that are
+    declared neither in the enclosing member, nor on its type, nor as a
+    repo type or a known BCL name.
+
+    Scoped to the enclosing MEMBER rather than the whole file. A
+    file-wide scope is not good enough, and the defect is easy to
+    demonstrate:
+
+        public BentoRecipe(BentoProfile bento, bool dark) { _dark = dark; }
+        public BentoStack Resolve(...) { ... dark ? 0.45 : 0.55 ... }
+
+    Here `dark` IS declared in the file -- in the constructor -- so a
+    file-wide check stays silent about a name that is genuinely unbound
+    inside Resolve. That is CS0103 and it compiles to an error, so the
+    check has to be member-scoped to be worth running at all.
+
+    It is still not block-scoped, which means a local in an earlier
+    method can mask a use in a later one only when the two share a name.
+    Accepted: full block resolution would have to bind lambdas, pattern
+    variables and using-aliases correctly, and every one of those is a
+    false-positive source, which is a worse failure than a rare miss.
+    """
+    out = []
+    root = tree.root_node
+
+    def field_is(node, field):
+        par = node.parent
+        return par is not None and par.child_by_field_name(field) == node
+
+    def decl_names(scope):
+        """
+        Every name DECLARED anywhere inside `scope`: locals, parameters,
+        type parameters, fields, properties, methods and lambda
+        parameters.
+        """
+        names = set()
+        for n in walk_all(scope):
+            t = n.type
+            nm = n.child_by_field_name("name")
+            if nm is not None and t in (
+                    "variable_declarator", "parameter", "type_parameter",
+                    "label_statement", "namespace_declaration",
+                    "class_declaration", "struct_declaration",
+                    "interface_declaration", "record_declaration",
+                    "record_struct_declaration", "enum_declaration",
+                    "property_declaration", "method_declaration",
+                    "constructor_declaration", "destructor_declaration",
+                    "operator_declaration", "conversion_operator_declaration",
+                    "event_declaration", "event_field_declaration",
+                    "local_function_statement", "catch_declaration",
+                    "enum_member_declaration"):
+                names.add(nm.text.decode())
+
+            # for (int i = 0; ...) -- the declarator is in the initializer.
+            if t == "for_statement":
+                init = n.child_by_field_name("initializer")
+                if init is not None:
+                    for c in walk_all(init):
+                        nm2 = c.child_by_field_name("name")
+                        if nm2 is not None:
+                            names.add(nm2.text.decode())
+
+            # Lambda and anonymous-method parameters.
+            #
+            # `r => r.Id == 1` parses with an `implicit_parameter`, not a
+            # bare identifier, so collecting only `parameter` nodes misses
+            # every single-parameter lambda -- which is most of them,
+            # because one-parameter lambdas are the common LINQ case.
+            if t in ("lambda_expression", "anonymous_method_expression"):
+                params = n.child_by_field_name("parameters")
+                if params is not None:
+                    for c in walk_all(params):
+                        if c.type == "parameter":
+                            nm2 = c.child_by_field_name("name")
+                            if nm2 is not None:
+                                names.add(nm2.text.decode())
+                        elif c.type in ("identifier", "implicit_parameter"):
+                            names.add(c.text.decode())
+
+            # A field's declarator is a grandchild:
+            # field_declaration > variable_declaration > variable_declarator
+            if t == "variable_declaration":
+                for c in n.named_children:
+                    if c.type == "variable_declarator":
+                        nm2 = c.child_by_field_name("name")
+                        if nm2 is not None:
+                            names.add(nm2.text.decode())
+        return names
+
+    # Names that are in scope before any member is considered.
+    base = set(KNOWN_NAMES) | set(repo.types)
+
+    # The project's own root namespace. `namespace ProGlassAutomation.X`
+    # and `ProGlassAutomation.X.Y` qualified references are namespaces,
+    # not types, and repo.types only holds types.
+    base.add("ProGlassAutomation")
+
+    # ---- one pass per type: members, then each member's own scope -----
+    def type_scope_names(tnode):
+        """
+        Names a type contributes to the scope of its members: its fields,
+        properties, events, method names, nested type names and type
+        parameters.
+
+        Deliberately NOT decl_names(tnode). That walks the whole subtree
+        and so picks up PARAMETERS and LOCALS of every member, which
+        silently re-creates the file-wide masking this function exists to
+        remove:
+
+            public BentoRecipe(BentoProfile bento, bool dark) { ... }
+            public BentoStack Resolve(...) { ... dark ... }
+
+        With decl_names, `dark` is "declared on the type" because the
+        constructor declares it, and Resolve's unbound use stays silent
+        again. A type's scope is its members, never its members' locals.
+        """
+        names = set()
+
+        # Direct members of this type only -- not members of nested types.
+        #
+        # They are NOT direct children of the class_declaration: the
+        # braces and their contents sit inside a `declaration_list`, so
+        # `tnode.named_children` yields only {class, identifier,
+        # declaration_list} and iterating it finds zero members.
+        members = []
+        for ch in tnode.named_children:
+            if ch.type == "declaration_list":
+                members.extend(ch.named_children)
+            elif ch.type in ("field_declaration", "property_declaration",
+                             "event_field_declaration", "event_declaration",
+                             "method_declaration", "constructor_declaration",
+                             "destructor_declaration", "operator_declaration",
+                             "conversion_operator_declaration",
+                             "indexer_declaration"):
+                members.append(ch)
+
+        for m in members:
+            t = m.type
+            if t == "field_declaration":
+                # field_declaration > variable_declaration >
+                #   variable_declarator > identifier
+                # The declarator is a GRANDchild, so looking for it
+                # directly under field_declaration silently finds nothing
+                # and every private field looks undeclared.
+                for vd in m.named_children:
+                    if vd.type != "variable_declaration":
+                        continue
+                    for dec in vd.named_children:
+                        if dec.type != "variable_declarator":
+                            continue
+                        nm = dec.child_by_field_name("name")
+                        if nm is not None:
+                            names.add(nm.text.decode())
+            elif t in ("property_declaration", "event_field_declaration",
+                       "event_declaration"):
+                # An auto-property `{ get; }` has no declarator at all --
+                # its name hangs directly off the declaration.
+                nm = m.child_by_field_name("name")
+                if nm is not None:
+                    names.add(nm.text.decode())
+            elif t in ("method_declaration", "constructor_declaration",
+                       "destructor_declaration", "operator_declaration",
+                       "conversion_operator_declaration",
+                       "indexer_declaration"):
+                nm = m.child_by_field_name("name")
+                if nm is not None:
+                    names.add(nm.text.decode())
+                # `void M<T>()` makes T visible in the signature.
+                for tp in walk_all(m):
+                    if tp.type == "type_parameter":
+                        nm2 = tp.child_by_field_name("name")
+                        if nm2 is not None:
+                            names.add(nm2.text.decode())
+            elif t in TYPE_NODES or t in ("enum_declaration",):
+                nm = m.child_by_field_name("name")
+                if nm is not None:
+                    names.add(nm.text.decode())
+
+        for tp in walk_all(tnode):
+            if tp.type == "type_parameter":
+                nm = tp.child_by_field_name("name")
+                if nm is not None:
+                    names.add(nm.text.decode())
+
+        return names
+
+    def visit_type(tnode):
+        type_members = type_scope_names(tnode)
+        type_params = {
+            n.text.decode() for n in walk_all(tnode)
+            if n.type == "type_parameter"
+        }
+        inherited = base | type_members | type_params
+
+        for m in walk_all(tnode):
+            if m.type not in MEMBER_NODES:
+                continue
+            # Only the outermost such member inside this type; nested
+            # types are visited on their own.
+            anc = m.parent
+            while anc is not None and anc.type not in TYPE_NODES:
+                if anc.type in MEMBER_NODES:
+                    return_innermost = anc
+                    break
+                anc = anc.parent
+            else:
+                return_innermost = None
+            if return_innermost is not None and return_innermost is not m:
+                continue
+
+            # A member's own type name (its return type) is a use.
+            scope_names = inherited | decl_names(m)
+
+            body = m.child_by_field_name("body")
+            for n in walk_all(body if body is not None else m):
+                if n.type != "identifier":
+                    continue
+                name = n.text.decode()
+                if name in scope_names or repo.is_repo_type(name):
+                    continue
+
+                # ── SOUNDNESS ──────────────────────────────────────
+                # Reporting every undeclared name is not viable here.
+                # It cannot be: a control subclass uses IsEnabled,
+                # TryFindResource, Template and ActualHeight, all
+                # inherited from WPF base classes this tool has no
+                # reference assemblies for, so each one reads as
+                # undeclared. On the 52-file theme surface that is 409
+                # false positives against 1 true positive.
+                #
+                # So this only reports a name that is a NEAR MISS of a
+                # name actually in scope -- within edit distance 2 of a
+                # declared member or parameter. `_dark` used as `dark`
+                # is distance 1 and is caught; `IsEnabled` is distance
+                # everything from any local and is not. A bare identifier
+                # that happens to be one or two edits from something in
+                # scope is a typo with essentially no other explanation,
+                # which is what makes this safe to leave switched on.
+                if not _near_miss(name, scope_names):
+                    continue
+
+                par = n.parent
+                pt = par.type if par is not None else ""
+                if pt == "member_access_expression" and field_is(n, "name"):
+                    continue
+                if pt in ("qualified_name", "generic_name",
+                          "alias_qualified_name", "predefined_type",
+                          "predefined_generic_type", "from_clause"):
+                    continue
+                if pt in ("variable_declarator", "parameter",
+                          "type_parameter", "enum_member_declaration",
+                          "local_function_statement", "catch_declaration"):
+                    continue
+
+                # `new BentoCell(...) { IsHero = hero }` -- the left of an
+                # assignment inside an object/collection initializer is a
+                # MEMBER name, not a variable, so it is never a CS0103.
+                # `Foo(bar: baz)` -- the `name` of an argument node is a
+                # parameter name supplied by the caller, not a variable.
+                if pt == "argument" and field_is(n, "name"):
+                    continue
+
+                # A bare method GROUP -- `list.Any`, `task.Wait`,
+                # `PropertyChanged` -- is a delegate reference, not an
+                # identifier lookup. csc-check's call check covers the
+                # ones that are actually invoked.
+                if pt in ("invocation_expression", "object_creation_expression",
+                          "conditional_access_expression") \
+                        and field_is(n, "function"):
+                    continue
+
+                if pt == "assignment_expression" and field_is(n, "left"):
+                    anc = par.parent
+                    inside_init = False
+                    while anc is not None:
+                        if anc.type == "initializer_expression":
+                            inside_init = True
+                            break
+                        if anc.type in MEMBER_NODES or anc.type in TYPE_NODES:
+                            break
+                        anc = anc.parent
+                    if inside_init:
+                        continue
+
+                hint = _closest(name, scope_names)
+                out.append((n.start_point[0] + 1, name, hint))
+
+    # Top-level types.
+    for n in walk_all(root):
+        if n.type in TYPE_NODES:
+            anc = n.parent
+            nested = False
+            while anc is not None:
+                if anc.type in TYPE_NODES:
+                    nested = True
+                    break
+                anc = anc.parent
+            if not nested:
+                visit_type(n)
+
+    # Field initialisers can sit at namespace scope in partial types, but
+    # are covered above by walking each type. Namespace-level usings are
+    # not expression positions.
+    return out
+
+
+def walk_all(root):
+    stack = [root]
+    while stack:
+        n = stack.pop()
+        yield n
+        stack.extend(n.children)
+
+# CS0103 near-miss detection is OFF by default and enabled with --ids.
+#
+# It is not sound, and shipping it unsound would be worse than not having
+# it. The tool has no .NET reference assemblies, so it cannot know that
+# `IsEnabled`, `TryFindResource` and `Template` are inherited from WPF
+# base classes, nor that a BCL type named `Dark` or `List` shadows
+# nothing when a local of the same name is in scope. It also does not
+# do BLOCK scoping, so a local declared inside an `if` or a `foreach` is
+# invisible and reads as unbound.
+#
+# Measured on this repo, the fully-resolved version of the check produced
+# 12813 findings across 1785 files, and even after restricting it to
+# near-misses it still reports 55 on the 52-file theme surface -- almost
+# all of them the case-collision pattern above (`tier`/`Timer`,
+# `dark`/`Dark`, `brush`/`Brush`, `path`/`Path`, `list`/`List`). One true
+# positive against fifty-five false ones.
+#
+# It found a genuine CS0103 while this family was being written (a bare
+# `dark` where `_dark` was meant, which is the missing-underscore class
+# of typo), and it is kept and reachable because that class is real and
+# expensive to find through a Windows rebuild. But the default runs do
+# NOT include it, because "clean" has to mean something.
+CHECK_IDS = False
+
+
 def audit_file(repo, path, findings):
     src = open(path, "rb").read()
     tree = PARSER.parse(src)
@@ -545,6 +1020,17 @@ def audit_file(repo, path, findings):
     for line, name in collect_overrides(tree, src):
         check_override(repo, name, line, findings, path)
 
+    if not CHECK_IDS:
+        return
+
+    for line, name, hint in collect_undefined(tree, src, repo):
+        findings.append((
+            path, line,
+            f"CS0103 '{name}' is not in scope here. The nearest declared "
+            f"name is '{hint}' -- check for a missing prefix, a typo, or a "
+            f"member on the wrong object",
+        ))
+
 
 def select(args, root):
     if args and args[0] == "--all-theme":
@@ -557,6 +1043,15 @@ def select(args, root):
                     "Services/Theme/Eight/*.cs", "Tests/Theme/*.cs"):
             files += glob.glob(os.path.join(root, pat))
         return sorted(set(f for f in files if os.path.exists(f)))
+    if args and args[0] == "--repo":
+        out = []
+        for dirpath, dirnames, filenames in os.walk(root):
+            dirnames[:] = [d for d in dirnames
+                           if d not in ("obj", "bin", ".git", "node_modules")]
+            for fn in filenames:
+                if fn.endswith(".cs"):
+                    out.append(os.path.join(dirpath, fn))
+        return sorted(out)
     if args:
         return [a for a in args if a.endswith(".cs") and os.path.exists(a)]
     ch = subprocess.run(["git", "diff", "--name-only"],
@@ -566,10 +1061,13 @@ def select(args, root):
 
 
 def main():
+    global CHECK_IDS
+    CHECK_IDS = "--ids" in sys.argv
+
     root = subprocess.run(["git", "rev-parse", "--show-toplevel"],
                           capture_output=True, text=True).stdout.strip() or "."
     os.chdir(root)
-    files = select(sys.argv[1:], root)
+    files = select([a for a in sys.argv[1:] if a != "--ids"], root)
     if not files:
         print("No C# files to check.")
         return
