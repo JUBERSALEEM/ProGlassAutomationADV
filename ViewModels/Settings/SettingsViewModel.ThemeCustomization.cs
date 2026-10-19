@@ -75,7 +75,8 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// (SelectedVisualTheme setter, InitializeThemesSection) raise it.
         /// </summary>
         public bool IsCrystalThemeActive =>
-            SelectedVisualTheme == VisualThemeEngine.CrystalFluid;
+            SelectedVisualTheme == VisualThemeEngine.CrystalFluid ||
+            SelectedVisualTheme == VisualThemeEngine.LiquidGlass;
 
         /// <summary>Identity of the last preset that wrote the axes
         /// ("Default" | "Calm" | "Intense"), or "" after a manual tweak.
