@@ -31,11 +31,9 @@ namespace ProGlassAutomation.Tests.Theme
 {
     public class ThemeRegistryParityTests
     {
-        // The complete family catalogue (2026-09-13 industrial reform,
-        // owner ask: "strictness industrial pattern"): Industrial (Normal
-        // Industrial, the default), Monet, iPhone 17 Pro Max (Crystal
-        // Fluid) and iOS 26. The cream SaaS "Normal" folds to Normal
-        // (Industrial) via the engine's Normalize mapping.
+        // Canonical selectable contract: eight material families, each
+        // with Light and Dark palette recipes. Older Industrial, Monet,
+        // Crystal Fluid, and iOS identities are migration inputs only.
         private static readonly string[] AllFamilies =
         {
             VisualThemeEngine.BentoGrid,
@@ -186,6 +184,33 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("case HolographicIridescent:", painter, StringComparison.Ordinal);
             Assert.Contains("ApplyIndustrial(resources);", painter, StringComparison.Ordinal);
             Assert.Contains("bool crystal = Family == ProGlassThemeFamily.LiquidGlass;", Read("Services/Theme/Engine/ProGlassThemeEngine.cs"), StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Every_approved_family_has_separate_light_and_dark_palette_recipes()
+        {
+            string overlay = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
+            foreach (var family in new[]
+            {
+                "BentoGrid", "SpatialImmersive", "SwissInternational",
+                "HolographicIridescent", "Neumorphism", "Claymorphism",
+                "LiquidGlass", "Glassmorphism"
+            })
+            {
+                // Every switch arm must explicitly provide a dark and light
+                // palette rather than falling through to one shared palette.
+                Assert.Matches(
+                    family + @"\\s*=>\\s*dark\\s*\\?\\s*new\\([^\\r\\n]*\\)\\s*:\\s*new\\(",
+                    overlay);
+            }
+
+            foreach (var token in new[]
+            {
+                "BackgroundBrush", "WindowBackgroundBrush", "ModuleBackgroundBrush",
+                "ElevatedSurfaceBrush", "PrimaryForegroundBrush", "BorderBrush",
+                "CardCornerRadius", "ControlCornerRadius", "ShadowElevated"
+            })
+                Assert.Contains($"resources[\\"{token}\\"]", overlay, StringComparison.Ordinal);
         }
 
         [Theory]
