@@ -42,6 +42,15 @@ jobs:
           }
           Write-Host "Release version validated: $version"
 
+      - name: Verify public OTA release token is configured
+        shell: pwsh
+        env:
+          OTA_RELEASE_TOKEN: ${{ secrets.OTA_RELEASE_TOKEN }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:OTA_RELEASE_TOKEN)) {
+            throw "Configure OTA_RELEASE_TOKEN in the private source repository. It must have Contents: Read and write access to JUBERSALEEM/ProGlassAutomationssss."
+          }
+
       - name: Restore application
         run: dotnet restore ProGlassAutomation.csproj
 
@@ -168,38 +177,73 @@ jobs:
           Copy-Item $setup.FullName "ProGlassAutomation-Setup.exe" -Force
           Remove-Item -Force $pfx
 
-      - name: Publish Velopack OTA packages to the tagged GitHub Release
+      - name: Generate changelog from the private source commit range
         shell: pwsh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          vpk publish github --repoUrl "https://github.com/${{ github.repository }}" --packDir releases --pre false --tag $env:RELEASE_TAG
+          $previous = ""
+          try {
+            $previous = (git describe --tags --abbrev=0 "$($env:RELEASE_TAG)^" 2>$null).Trim()
+          } catch {
+            $previous = ""
+          }
+          if ($previous) {
+            $changes = git log --no-merges --pretty=format:"- %s (%h)" "$previous..$env:RELEASE_TAG"
+          } else {
+            $changes = git log -n 30 --no-merges --pretty=format:"- %s (%h)" $env:RELEASE_TAG
+          }
+          if ([string]::IsNullOrWhiteSpace(($changes -join ""))) {
+            $changes = @("- Release packaging and maintenance updates.")
+          }
+          $asset = "ProGlassAutomation-$($env:RELEASE_TAG)-win-x64.exe"
+          $notes = @(
+            "# ProGlass Automation $($env:RELEASE_TAG)",
+            "",
+            "## What's included",
+            "",
+            ($changes -join "`n"),
+            "",
+            "## Release files",
+            "",
+            "- `$asset` — self-contained single-file Windows x64 application.",
+            "- `ProGlassAutomation-Setup.exe` — signed installer for managed installations.",
+            "- `SHA256SUMS.txt` — SHA-256 integrity checksum.",
+            "",
+            "The License Generator is intentionally excluded from public release assets and OTA."
+          )
+          $notes | Set-Content -Path "CHANGELOG-RELEASE.md" -Encoding utf8
+
+      - name: Publish Velopack OTA packages to the public release repository
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.OTA_RELEASE_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          vpk publish github --repoUrl "https://github.com/JUBERSALEEM/ProGlassAutomationssss" --packDir releases --pre false --tag $env:RELEASE_TAG
           if ($LASTEXITCODE -ne 0) { throw "Velopack release publishing failed." }
 
-      - name: Publish GitHub Release with changelog and single EXE
+      - name: Publish single EXE, installer, checksum and changelog
         uses: softprops/action-gh-release@v2
         with:
+          repository: JUBERSALEEM/ProGlassAutomationssss
+          token: ${{ secrets.OTA_RELEASE_TOKEN }}
           tag_name: ${{ github.ref_name }}
           name: ProGlass Automation ${{ github.ref_name }}
-          generate_release_notes: true
+          body_path: CHANGELOG-RELEASE.md
+          generate_release_notes: false
           fail_on_unmatched_files: true
           files: |
             ${{ env.APP_ASSET }}
             ProGlassAutomation-Setup.exe
             SHA256SUMS.txt
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate and apply full GitHub changelog
+      - name: Ensure public release changelog is attached
         shell: pwsh
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.OTA_RELEASE_TOKEN }}
+          OTA_RELEASE_REPOSITORY: JUBERSALEEM/ProGlassAutomationssss
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          $body = gh api --method POST "repos/$env:GITHUB_REPOSITORY/releases/generate-notes" -f tag_name="$env:RELEASE_TAG" --jq .body
-          if ($LASTEXITCODE -ne 0) { throw "GitHub could not generate release notes." }
-          $notesPath = Join-Path $env:RUNNER_TEMP "proglass-release-notes.md"
-          $body | Set-Content -Path $notesPath -Encoding utf8
-          gh release edit "$env:RELEASE_TAG" --notes-file $notesPath
-          if ($LASTEXITCODE -ne 0) { throw "Could not attach generated changelog to the GitHub Release." }
+          gh release edit "$env:RELEASE_TAG" --repo $env:OTA_RELEASE_REPOSITORY --notes-file CHANGELOG-RELEASE.md
+          if ($LASTEXITCODE -ne 0) { throw "Could not attach the source-commit changelog to the public GitHub Release." }
