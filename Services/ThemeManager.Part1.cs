@@ -406,7 +406,11 @@ namespace ProGlassAutomation.Services
             // so without this guard it would repaint the Blue/Indigo
             // chips opaque on top of the frost — the same class of bug
             // as the dashboard-surface guard below.
-            if (VisualThemeEngine.Current != VisualThemeEngine.CrystalFluid)
+            if (VisualThemeEngine.Current != VisualThemeEngine.CrystalFluid &&
+                VisualThemeEngine.Current != VisualThemeEngine.LiquidGlass &&
+                VisualThemeEngine.Current != VisualThemeEngine.Glassmorphism &&
+                VisualThemeEngine.Current != VisualThemeEngine.SpatialImmersive &&
+                VisualThemeEngine.Current != VisualThemeEngine.HolographicIridescent)
             {
                 if (normalFamily)
                 {
