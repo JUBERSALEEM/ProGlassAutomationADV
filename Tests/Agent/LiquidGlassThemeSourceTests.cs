@@ -107,10 +107,14 @@ namespace ProGlassAutomation.Tests.Agent
             // are still gone.
             string vm = Read(
                 "ViewModels/Settings/SettingsViewModel.ThemeWallpaper.cs");
-            Assert.Contains("VisualThemeEngine.NormalIndustrial)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.Monet)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.CrystalFluid)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.Ios26)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.BentoGrid)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.SpatialImmersive)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.SwissInternational)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.HolographicIridescent)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.Neumorphism)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.Claymorphism)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.LiquidGlass)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.Glassmorphism)", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Normal)", vm, StringComparison.Ordinal);
             Assert.Contains("VisualThemeEngine.BentoGrid)", vm, StringComparison.Ordinal);
             Assert.Contains("VisualThemeEngine.SpatialImmersive)", vm, StringComparison.Ordinal);
