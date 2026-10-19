@@ -89,6 +89,7 @@ export const nav = {
   ],
   primary: [
     { label: "Features", href: "/features" },
+    { label: "Theme Center", href: "/themes" },
     { label: "Optimization", href: "/optimization" },
     { label: "How It Works", href: "/how-it-works" },
     { label: "Worked Example", href: "/worked-example" },
