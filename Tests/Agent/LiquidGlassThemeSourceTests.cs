@@ -142,7 +142,9 @@ namespace ProGlassAutomation.Tests.Agent
             // re-parenting can never re-activate them as TwoWay (ERR-21172E).
             string configService = Read("Services/AI/AIConfig/ConfigService.cs");
             Assert.Contains("VisualThemeMigrated", configService, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.NormalIndustrial", configService, StringComparison.Ordinal);
+            Assert.Contains("EightThemeMigrationApplied", configService, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.BentoGrid", configService, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.LiquidGlass", configService, StringComparison.Ordinal);
 
             string engine = Engine;
             Assert.Contains(
