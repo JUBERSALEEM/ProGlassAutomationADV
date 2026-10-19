@@ -439,7 +439,7 @@ export function Navbar() {
       className={cn(
         // `no-print`: a fixed bar that repeats on every printed sheet is waste.
         "no-print fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-industrial",
-        scrolled || family === "crystal"
+        scrolled || family === "liquid-glass"
           /*
            * The bar is opaque in the three opaque families — a blurred,
            * 65%-opaque bar puts the navigation, the most-read text on the site,
