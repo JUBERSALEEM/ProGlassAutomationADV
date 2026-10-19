@@ -3,11 +3,13 @@ using System.Collections.Generic;
 namespace ProGlassAutomation.Services.Theme.Engine
 {
     /// <summary>
-    /// MIGRATION BRIDGE. Old Crystal/Liquid/Glass keys are written to the
-    /// SAME frozen brush instance as the semantic TokenStore key after every
-    /// Publish. New XAML must use the semantic name. Delete this hub in
-    /// Phase 12 after a zero-reference sweep.
-    /// Direction: semantic owns legacy.
+    /// MIGRATION BRIDGE. Only true semantic aliases are dual-written after
+    /// Publish. Material-role resources (card face, frost, crystal, raised,
+    /// module/workspace, and distinct edge treatments) remain owned by the
+    /// active family painter because collapsing those roles into one brush
+    /// makes theme changes invisible and breaks the surface hierarchy.
+    /// New XAML should use semantic names; keep legacy aliases until a
+    /// consumer sweep proves they can be retired.
     /// </summary>
     public static class ThemeCompatibilityHub
     {
