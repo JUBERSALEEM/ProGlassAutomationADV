@@ -430,7 +430,7 @@
                          Hidden while streaming (the live bubble below
                          takes over once tokens arrive).
                     ════════════════════════════════════════════════ -->
-                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" HorizontalAlignment="Left"
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" HorizontalAlignment="Left"
                             VerticalAlignment="Bottom"
                             Background="{DynamicResource SurfaceTertiaryBrush}"
                             CornerRadius="{DynamicResource Radius.Asymmetric.Brand}"
@@ -584,7 +584,7 @@
                          token-by-token while Gemini streams it.
                          Bound to ActiveStream (StreamingChatMessage).
                     ════════════════════════════════════════════════ -->
-                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" HorizontalAlignment="Left"
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" HorizontalAlignment="Left"
                             VerticalAlignment="Bottom"
                             Background="{DynamicResource SurfaceTertiaryBrush}"
                             CornerRadius="{DynamicResource Radius.Asymmetric.Brand}"
@@ -658,7 +658,7 @@
                 </Border>
 
                 <!-- Input area -->
-                <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="3"
+                <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Grid.Row="3"
                         Background="{DynamicResource SideMenuBackgroundBrush}"
                         CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                         Padding="12"
