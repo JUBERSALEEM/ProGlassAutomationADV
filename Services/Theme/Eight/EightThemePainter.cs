@@ -788,9 +788,19 @@ namespace ProGlassAutomation.Services.Theme.Eight
                 m.SpecularRim ? rimBase : Sol(m.RimTint, m.RimOpacity * 0.5));
             Brush(r, "GlassBorderGradientCrystal", rimBase);
             Brush(r, "ShellLiquidBorderBrush", rimBase);
+            // Sol() returns a SolidColorBrush; Diagonal() takes two
+            // COLORS and builds the GradientStops itself. Sol(...) here
+            // was passing brushes where colors are required, which is
+            // CS1503 on both arguments at once.
+            //
+            // Rescale(Colors.White, a) is exactly the colour Sol(Colors.White, a)
+            // wraps -- Sol is FrozenSolid(Rescale(c, alpha)) -- so this is
+            // the same gradient without the redundant brush allocation.
             Brush(r, "ShellSheenBrush",
                 m.InnerGlowOpacity > 0
-                    ? Diagonal(Sol(Colors.White, m.InnerGlowOpacity * 0.8), Sol(Colors.White, 0))
+                    ? Diagonal(
+                        Rescale(Colors.White, m.InnerGlowOpacity * 0.8),
+                        Rescale(Colors.White, 0))
                     : Sol(Colors.White, 0));
             Brush(r, "SidebarCardBrush", NormalizeAlpha(ramp.Chrome, m.Kind));
             Brush(r, "ShellLiquidBrush", NormalizeAlpha(ramp.Chrome, m.Kind));

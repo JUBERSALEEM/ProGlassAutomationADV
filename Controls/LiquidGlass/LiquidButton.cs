@@ -25,9 +25,11 @@
 //     one place so a template author cannot get half of it right.
 // ═══════════════════════════════════════════════════════════════════════
 
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media;
 using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.Theme;
@@ -149,20 +151,6 @@ namespace ProGlassAutomation.Controls.LiquidGlass
             Repaint();
         }
 
-        protected override void OnIsPressedChanged(
-            bool oldValue, bool newValue)
-        {
-            base.OnIsPressedChanged(oldValue, newValue);
-            Repaint();
-        }
-
-        protected override void OnIsKeyboardFocusedChanged(
-            bool oldValue, bool newValue)
-        {
-            base.OnIsKeyboardFocusedChanged(oldValue, newValue);
-            Repaint();
-        }
-
         private static void OnLiquidChanged(
             DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -179,7 +167,28 @@ namespace ProGlassAutomation.Controls.LiquidGlass
         {
             if (_wired) return;
             _wired = true;
+
             ThemeWeakEventManager.SubscribeThemeChanged((_, _) => Repaint());
+
+            // IsPressed, IsKeyboardFocused and IsMouseOver raise NO
+            // routed event, and ButtonBase exposes no virtual
+            // OnIsPressedChanged / OnIsKeyboardFocusedChanged to
+            // override -- both of those were CS0115. The repaint is
+            // hooked to the properties themselves, which is what
+            // ClayButton, NeuButton, SwissButton and HoloButton all
+            // do. Keeping one approach across five families matters
+            // more than it sounds: five different mechanisms for the
+            // same notification is five places for the next person to
+            // look when a button stops repainting.
+            DependencyPropertyDescriptor.FromProperty(
+                IsPressedProperty, typeof(ButtonBase))
+                .AddValueChanged(this, (_, _) => Repaint());
+            DependencyPropertyDescriptor.FromProperty(
+                IsKeyboardFocusedProperty, typeof(KeyboardNavigation))
+                .AddValueChanged(this, (_, _) => Repaint());
+            DependencyPropertyDescriptor.FromProperty(
+                IsMouseOverProperty, typeof(ButtonBase))
+                .AddValueChanged(this, (_, _) => Repaint());
         }
 
         /// <summary>Recomputes and applies the construction.</summary>
