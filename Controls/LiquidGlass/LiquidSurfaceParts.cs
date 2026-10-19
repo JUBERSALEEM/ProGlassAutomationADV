@@ -145,8 +145,13 @@ namespace ProGlassAutomation.Controls.LiquidGlass
             // on a lens the ink is low-contrast by construction, since
             // the whole point is that content shows through.
             FocusRing!.CornerRadius = radius;
+            // NOT Solid(...). FocusRingPen already returns a Pen, and a
+            // Pen's Brush is already a brush. Wrapping it in Solid(Color)
+            // asked for a Color and got a Brush, which is CS1503. The
+            // brush from BuildEdge is already frozen, so there was
+            // nothing left to freeze here anyway.
             FocusRing.BorderBrush =
-                Solid(LiquidGlassRecipe.FocusRingPen(profile).Brush);
+                LiquidGlassRecipe.FocusRingPen(profile).Brush;
             FocusRing.BorderThickness =
                 new Thickness(SoftUiAccessibility.FocusRingWidth);
             FocusRing.Visibility =

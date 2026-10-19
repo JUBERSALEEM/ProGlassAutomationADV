@@ -118,7 +118,12 @@ TYPE_NS = {
     "RoutedCommand": "System.Windows.Input",
     # System.Windows.Documents
     "Run": "System.Windows.Documents", "TextElement": "System.Windows.Documents",
-    "Inline": "System.Windows.Documents", "FormattedText": "System.Windows.Documents",
+    "Inline": "System.Windows.Documents",
+    # FormattedText is System.Windows.Media, not System.Windows.Documents.
+    # Getting this wrong produced a false positive on
+    # GlassAssemblyShowcase.Part2.cs, which compiles today precisely
+    # because the file imports Media. Verified, not assumed.
+    "FormattedText": "System.Windows.Media",
     # System.Windows.Shapes
     "Rectangle": "System.Windows.Shapes", "Ellipse": "System.Windows.Shapes",
     "Line": "System.Windows.Shapes",
@@ -132,7 +137,7 @@ TYPE_NS = {
     "AutomationPeer": "System.Windows.Automation.Peers",
     # System.Windows.Data
     "IValueConverter": "System.Windows.Data", "Binding": "System.Windows.Data",
-    "PropertyChangedEventArgs": "System.Windows",
+    "PropertyChangedEventArgs": "System.ComponentModel",
     "INotifyPropertyChanged": "System.ComponentModel",
     "DependencyPropertyDescriptor": "System.ComponentModel",
     "PropertyDescriptor": "System.ComponentModel",
@@ -285,6 +290,53 @@ def collect_repo_symbols():
     return repo_ns, members
 
 
+# Expressions that are certainly a Brush, or a Pen (whose .Brush is
+# one). Matched against an argument before it is passed to a
+# Color-typed parameter.
+BRUSHY = re.compile(
+    r'\.Brush\b'                       # pen.Brush, brush.Brush
+    r'|\b(?:Solid|FrozenSolid|Diagonal|Radial|Freeze|BuildEdge|Sol)\s*\('
+)
+
+# Helpers declared in THIS file that take a Color, mapped to the number
+# of Color parameters they have. 0 means "no Color parameter", which is
+# the common case and costs one dict lookup.
+COLOR_PARAM_HELPERS = re.compile(
+    r'\b(?:private|internal|public|protected)\s+static\s+'
+    r'(?:[\w\.\<\>\[\]\?]+)\s+(\w+)\s*\(([^)]*)\)\s*(?:=>|\{)'
+)
+
+
+def gather_color_helpers(code):
+    """Locally-declared helpers that unambiguously take a Color.
+
+    A helper is SKIPPED when it is overloaded. Overload resolution is
+    too subtle to model here: EightThemePainter.Brush has a
+    (..., Color) form and a (..., Brush) form, so flagging every call to
+    it because one overload takes a Color reports the brush overload as
+    an error. Only a helper with exactly one declaration, no Color-free
+    overload, and no brush-typed parameter is checked.
+    """
+    decls = {}
+    for m in COLOR_PARAM_HELPERS.finditer(code):
+        name, params = m.group(1), m.group(2)
+        decls.setdefault(name, []).append(params)
+
+    out = {}
+    for name, signatures in decls.items():
+        if len(signatures) != 1:
+            continue
+        params = signatures[0]
+        if re.search(r'\b(?:Brush|Pen|SolidColorBrush|LinearGradientBrush)\b',
+                     params):
+            continue
+        out[name] = sum(
+            1 for p in params.split(",")
+            if re.match(r'^\s*Color\b', p)
+        )
+    return out
+
+
 def gather_parameter_names(root):
     """Every identifier that appears in any parameter list, keyed by method
     name. Used to decide whether a `name:` argument is plausible at all."""
@@ -337,6 +389,7 @@ def main():
     for f in files:
         raw = open(f, encoding="utf-8", errors="replace").read()
         code = strip_noise(raw)
+        local_color_helpers = gather_color_helpers(code)
 
         # CS0246 -- namespace not found
         for i, line in enumerate(code.split("\n"), 1):
@@ -420,8 +473,17 @@ def main():
                 for t, ns in sorted(TYPE_NS.items()):
                     if ns not in missing_ns:
                         continue
+                    # The trailing guard rejects member access (Color.X)
+                    # AND assignment/named-argument use. Those are the
+                    # two shapes that produced every false positive:
+                    #   Thickness = key.Item4      object initializer
+                    #   (Color: GREEN)             named argument
+                    # Both are preceded by a comma, which TYPE_POSITION
+                    # accepts because a comma also precedes a real type
+                    # argument. An identifier followed by '=' or ':' is
+                    # naming something, never being used as a type.
                     pattern = (TYPE_POSITION + re.escape(t)
-                               + r'\b(?!\s*\.)')
+                               + r'\b(?!\s*[.=:])')
                     if re.search(pattern, line):
                         findings.append(
                             (f, i, f"CS0246 '{t}' used but '{ns}' not imported")
@@ -429,6 +491,44 @@ def main():
                         missing_ns.discard(ns)
                         break
 
+    # CS1503 -- a Color-typed parameter fed an expression that is
+        # evidently a brush.
+        #
+        # The recurring shape is a double wrap: a helper that already
+        # returns a Brush (or a Pen, whose .Brush is one) being handed to
+        # another helper that takes a Color. Sol(Colors.X, a) returns a
+        # SolidColorBrush and Solid(Color) expects a Color, so nesting
+        # them fails at the inner call -- and the compiler reports it at
+        # the OUTERMOST call, which is usually a different line entirely.
+        #
+        # Restricted to locally-declared helpers. That is the only case
+        # where this tool knows the parameter type; for framework methods
+        # it would be guessing.
+        for helper, param_types in local_color_helpers.items():
+            if not param_types:
+                continue
+            call = re.compile(
+                rf'(?<![\w.]){re.escape(helper)}\s*\(([^()]*(?:\([^()]*\)[^()]*)*)\)'
+            )
+            for cm in call.finditer(code):
+                for arg in cm.group(1).split(","):
+                    arg = arg.strip()
+                    if not arg:
+                        continue
+                    m = re.match(r'^(?:\w+\s*:\s*)?(.+)$', arg)
+                    expr = m.group(1).strip() if m else arg
+                    if not BRUSHY.search(expr):
+                        continue
+                    line_no = code[:cm.start()].count("\n") + 1
+                    findings.append((
+                        f, line_no,
+                        f"CS1503 {helper}() takes Color but is passed a "
+                        f"brush-shaped expression: {expr[:48]}"
+                    ))
+
+    # Deduplicate: the same message can surface from more than one
+    # construct on the same file, and a worklist with the same line
+    # repeated three times is harder to act on than one with it once.
     seen, unique = set(), []
     for f, i, msg in findings:
         if (f, msg) in seen:
