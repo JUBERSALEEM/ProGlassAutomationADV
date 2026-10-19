@@ -1,8 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Theme/BuiltinWallpaperScenes.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Wallpaper system — code-drawn 4K+ scenes (2026-09-06;
-//         2026-09-07: Normal (Industrial) joins the Normal Studio scene)
+// MODULE: Wallpaper system — code-drawn family scenes for the eight-theme system.
 //
 // DESIGN TRUTH (senior answer to "bundle 50 wallpapers"):
 //   Shipping 50 binary wallpapers would bloat the installer by hundreds
@@ -24,12 +23,8 @@
 //   Painted behind modules through the engine's existing
 //   "ModuleWallpaperBrush" key — zero XAML changes required.
 //
-// SCENE SIGNATURES (family → mood) — families shipped (2026-09-06;
-//  2026-09-07 adds Normal (Industrial) to the Studio scene):
-//   Normal (Industrial) → Studio         — cream SaaS sweep (25 August)
-//   Monet               → Golden Hour    — dusk derived from the accent hue
-//   Crystal Fluid       → Luminous Water — cyan water atmosphere
-//   iOS 26              → Grouped Glass  — Apple grouped-grey liquid glass
+// SCENE SIGNATURES align with the selectable eight families; legacy Monet,
+// Crystal Fluid and iOS 26 scene functions remain only for compatibility.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
