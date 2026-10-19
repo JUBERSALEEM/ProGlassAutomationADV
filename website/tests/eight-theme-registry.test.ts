@@ -5,6 +5,7 @@ import {
   appearanceFamilies,
   isAppearanceFamily,
   themeModes,
+  themeBootScript,
 } from "@/data/themes";
 
 describe("eight-family appearance contract", () => {
@@ -40,5 +41,11 @@ describe("eight-family appearance contract", () => {
   it("rejects retired Crystal storage while keeping it out of the selectable card list", () => {
     expect(isAppearanceFamily("crystal")).toBe(false);
     expect(appearanceFamilies.some((family) => family.id === "crystal")).toBe(false);
+  });
+
+  it("preserves an existing valid family during one-time studio-state cleanup", () => {
+    expect(themeBootScript).not.toContain('ss(ak,"liquid-glass")');
+    expect(themeBootScript).toContain('if(a!=="bento"');
+    expect(themeBootScript).toContain('ss(ak,a)');
   });
 });
