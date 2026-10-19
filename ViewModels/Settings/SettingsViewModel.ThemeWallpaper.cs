@@ -38,9 +38,9 @@ namespace ProGlassAutomation.ViewModels.Settings
     public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
     {
         // ══════════════════════════════════════════════════════════════
-        //  Phase 8: Settings exposes exactly Industrial / Monet / Crystal.
-        //  Saved "iOS 26" migrates to Crystal. Engine Ios26 painter stays
-        //  until Phase 12 zero-ref delete.
+        //  Theme Center exposes the eight approved visual families.
+        //  Legacy Industrial, Monet, and Crystal identities are migration
+        //  inputs only; the current picker never offers them as families.
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>One selectable visual family. Display pairs the family
@@ -119,10 +119,9 @@ namespace ProGlassAutomation.ViewModels.Settings
                 _config.Appearance.VisualTheme = value;
                 SaveConfig();
 
-                // Mode coupling (engine data, VisualThemeEngine.ModePairFor):
-                // Crystal Fluid (Ios-17pm) is light-only, so picking it
-                // auto-engages Light. Normal and Monet keep the user's own
-                // Light/Dark choice.
+                // All eight approved families support both Light and Dark.
+                // ModePairFor remains only as compatibility for a legacy
+                // light-only persisted family; canonical choices do not couple.
                 bool? modePair = ProGlassAutomation.Services.Theme
                     .VisualThemeEngine.ModePairFor(value);
                 if (modePair.HasValue)
@@ -139,8 +138,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                 }
                 OnPropertyChanged();
 
-                // Family gate for the Themes section's Crystal Fluid
-                // material group (visible only while Ios-17pm is active).
+                // The optional water-material controls belong to Liquid Glass
+                // only; the other seven families do not inherit this scene.
                 OnPropertyChanged(nameof(IsCrystalThemeActive));
 
                 // 2026-09-05 PIPELINE UNIFICATION: the extra RefreshScene
