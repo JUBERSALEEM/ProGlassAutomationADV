@@ -165,10 +165,7 @@ namespace ProGlassAutomation.Tests.Agent
         public void Prefers_tag_specific_single_file_app_over_velopack_packages()
         {
             using var document = JsonDocument.Parse(
-                "{\\"assets\\":[" +
-                "{\\"name\\":\\"ProGlassAutomation-Setup.exe\\"}," +
-                "{\\"name\\":\\"ProGlassAutomation-win-full.nupkg\\"}," +
-                "{\\"name\\":\\"ProGlassAutomation-v2.0.12-win-x64.exe\\"}]}");
+                """{"assets":[{"name":"ProGlassAutomation-Setup.exe"},{"name":"ProGlassAutomation-win-full.nupkg"},{"name":"ProGlassAutomation-v2.0.12-win-x64.exe"}]}""");
 
             int index = UpdateService.FindPreferredReleaseAssetIndex(
                 document.RootElement.GetProperty("assets"), "v2.0.12");
@@ -180,10 +177,7 @@ namespace ProGlassAutomation.Tests.Agent
         public void Never_selects_license_generator_or_arbitrary_first_asset()
         {
             using var document = JsonDocument.Parse(
-                "{\\"assets\\":[" +
-                "{\\"name\\":\\"ProGlassAutomation.LicenseGenerator.exe\\"}," +
-                "{\\"name\\":\\"ProGlassAutomation-win-full.nupkg\\"}," +
-                "{\\"name\\":\\"SHA256SUMS.txt\\"}]}");
+                """{"assets":[{"name":"ProGlassAutomation.LicenseGenerator.exe"},{"name":"ProGlassAutomation-win-full.nupkg"},{"name":"SHA256SUMS.txt"}]}""");
 
             int index = UpdateService.FindPreferredReleaseAssetIndex(
                 document.RootElement.GetProperty("assets"), "v2.0.12");
@@ -195,9 +189,7 @@ namespace ProGlassAutomation.Tests.Agent
         public void Supports_existing_setup_asset_for_legacy_releases()
         {
             using var document = JsonDocument.Parse(
-                "{\\"assets\\":[" +
-                "{\\"name\\":\\"ProGlassAutomation-win-full.nupkg\\"}," +
-                "{\\"name\\":\\"ProGlassAutomation-Setup.exe\\"}]}");
+                """{"assets":[{"name":"ProGlassAutomation-win-full.nupkg"},{"name":"ProGlassAutomation-Setup.exe"}]}""");
 
             int index = UpdateService.FindPreferredReleaseAssetIndex(
                 document.RootElement.GetProperty("assets"), "v2.0.12");
