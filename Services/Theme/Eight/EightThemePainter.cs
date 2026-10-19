@@ -39,6 +39,7 @@
 
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Theme.Clay;
+using ProGlassAutomation.Services.Theme.Neu;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -189,7 +190,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
             try
             {
                 Paint(resources, profile, dark, accent, forceReducedMotion);
-                PublishClayPalette(profile);
+                PublishSoftUiPalettes(profile);
                 AppLogService.Debug(
                     $"[EightTheme] Painted {profile.Identity} ({(dark ? "dark" : "light")})",
                     new LogContext { Module = "Themes", Operation = "EightThemePainter" });
@@ -204,43 +205,65 @@ namespace ProGlassAutomation.Services.Theme.Eight
         }
 
         /// <summary>
-        /// Keeps the clay control palette in step with the painted family.
+        /// Keeps the soft-UI control palettes in step with the painted
+        /// family.
         /// <para>
-        /// Claymorphism is the only one of the eight whose controls have
-        /// to RESOLVE a recipe rather than bind a token: the three inner
-        /// shadows are brush objects the control recomputes whenever its
-        /// tier or interaction state changes, so it needs the profile
-        /// object and not the flattened resource bag. Publishing here —
-        /// inside Apply, immediately after the paint — means the palette
-        /// cannot drift out of step with the tokens on screen, which is
-        /// the failure mode where a clay button keeps its insets after the
-        /// user has switched to Swiss.
+        /// The two extruding families are the only ones whose controls
+        /// have to RESOLVE a construction rather than bind a token:
+        /// neumorphism needs a mirrored outset pair, clay needs an outer
+        /// drop plus two inner rolls, and in both cases the objects are
+        /// brush objects the control recomputes whenever its tier or
+        /// interaction state changes. So they need the profile, not the
+        /// flattened resource bag.
         /// </para>
         /// <para>
-        /// The Clear() on the else branch is the half that matters: a
-        /// control left holding a published palette under another family
-        /// keeps drawing clay surfaces that no longer match the theme.
+        /// Publishing here — immediately after the paint — means the
+        /// palettes cannot drift out of step with the tokens on screen.
+        /// The three Clear() branches on the other families are the half
+        /// that matters: a control still holding a published palette after
+        /// the user switches to Swiss keeps drawing extrusions that no
+        /// longer match the theme, and it looks like the theme change
+        /// half-happened.
         /// </para>
         /// </summary>
-        private static void PublishClayPalette(EightThemeProfile profile)
+        private static void PublishSoftUiPalettes(EightThemeProfile profile)
         {
-            if (profile.Material.Kind != EightMaterialKind.Inflated)
+            switch (profile.Material.Kind)
             {
-                ClayPalette.Clear();
-                return;
-            }
+                case EightMaterialKind.Inflated:
+                    NeuPalette.Clear();
+                    // The elevation's two stops ARE the clay shadow pair:
+                    // the highlight that catches the light, and the shade
+                    // tinted to the object's own hue. Using the ramp's
+                    // Shadow for the shade is what keeps it a purple
+                    // shadow on a lavender card rather than a grey one.
+                    ClayPalette.Publish(
+                        lightSurface: profile.Light.Surface,
+                        darkSurface: profile.Dark.Surface,
+                        shadeHue: profile.Light.Elevation.ShadeStop,
+                        lightHue: profile.Light.Elevation.LightStop);
+                    break;
 
-            // The elevation's two stops ARE the clay shadow pair: the
-            // highlight that catches the light, and the shade tinted to
-            // the object's own hue. Using the ramp's Shadow for the
-            // shade is what keeps it a purple shadow on a lavender card
-            // rather than a grey one — the whole difference between
-            // clay and a pastel rectangle with a blur.
-            ClayPalette.Publish(
-                lightSurface: profile.Light.Surface,
-                darkSurface: profile.Dark.Surface,
-                shadeHue: profile.Light.Elevation.ShadeStop,
-                lightHue: profile.Light.Elevation.LightStop);
+                case EightMaterialKind.Extruded:
+                    ClayPalette.Clear();
+                    // Neumorphism's stops are NOT the ramp's. Its whole
+                    // defining rule is that the object IS the page, so
+                    // the light and shade are derived from that one
+                    // colour rather than taken from the accent — which is
+                    // exactly why the engine cannot point this at the
+                    // ramp's Shadow the way it does for clay.
+                    NeuPalette.Publish(
+                        lightFill: profile.Light.Module,
+                        darkFill: profile.Dark.Module,
+                        rampLightStop: profile.Light.Elevation.LightStop,
+                        rampDarkStop: profile.Light.Elevation.ShadeStop);
+                    break;
+
+                default:
+                    ClayPalette.Clear();
+                    NeuPalette.Clear();
+                    break;
+            }
         }
 
         /// <summary>

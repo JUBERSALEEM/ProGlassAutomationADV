@@ -27,6 +27,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Services.Theme.Clay;
+using ProGlassAutomation.Services.Theme.SoftUi;
 
 namespace ProGlassAutomation.Controls.Claymorphism
 {
@@ -40,14 +41,14 @@ namespace ProGlassAutomation.Controls.Claymorphism
         /// <summary>Which depth tier this object occupies.</summary>
         public static readonly DependencyProperty ClayDepthProperty =
             DependencyProperty.Register(
-                nameof(ClayDepth), typeof(ClayDepthTier),
+                nameof(ClayDepth), typeof(SoftDepthTier),
                 typeof(ClaySurface),
                 new FrameworkPropertyMetadata(
-                    ClayDepthTier.Resting, OnClayChanged));
+                    SoftDepthTier.Resting, OnClayChanged));
 
-        public ClayDepthTier ClayDepth
+        public SoftDepthTier ClayDepth
         {
-            get => (ClayDepthTier)GetValue(ClayDepthProperty);
+            get => (SoftDepthTier)GetValue(ClayDepthProperty);
             set => SetValue(ClayDepthProperty, value);
         }
 
@@ -138,15 +139,15 @@ namespace ProGlassAutomation.Controls.Claymorphism
         /// </summary>
         public static readonly DependencyProperty ClayStateProperty =
             DependencyProperty.Register(
-                nameof(ClayState), typeof(ClayInteractionState),
+                nameof(ClayState), typeof(SoftInteractionState),
                 typeof(ClaySurface),
                 new PropertyMetadata(
-                    ClayInteractionState.Rest,
+                    SoftInteractionState.Rest,
                     OnClayStateChanged));
 
-        public ClayInteractionState ClayState
+        public SoftInteractionState ClayState
         {
-            get => (ClayInteractionState)GetValue(ClayStateProperty);
+            get => (SoftInteractionState)GetValue(ClayStateProperty);
             set => SetValue(ClayStateProperty, value);
         }
 
@@ -223,10 +224,10 @@ namespace ProGlassAutomation.Controls.Claymorphism
         /// affordance in this style, a lie the eye believes.
         /// </para>
         /// </summary>
-        private ClayInteractionState ResolveState()
+        private SoftInteractionState ResolveState()
         {
-            if (!IsEnabled) return ClayInteractionState.Disabled;
-            if (!ClayInteractive) return ClayInteractionState.Rest;
+            if (!IsEnabled) return SoftInteractionState.Disabled;
+            if (!ClayInteractive) return SoftInteractionState.Rest;
             return ClayState;
         }
 

@@ -106,6 +106,11 @@
                      until a view places a ClaySurface / ClayButton /
                      ClayWell / ClayStatusPill. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Claymorphism/ClayControls.xaml"/>
+                <!-- Neumorphism control plane, merged on the same terms:
+                     inert until a host adopts it, and the controls fall
+                     back to a plain rounded surface when neumorphism is
+                     not the active family. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Neumorphism/NeuControls.xaml"/>
                 <!-- Glass Blush — Personal UI family plane (GB-P1, 2026-09-18).
                      Measured token plane for the second ProGlass experience.
                      Managed keys are republished by the family painter (GB-P14). -->

@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Neumorphism/NeuControls.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Neumorphism — control templates
+
+     FIVE BORDERS PER SURFACE, AND THE ORDER IS THE RECIPE.
+
+     NeuSurface / NeuButton (an EXTRUDED object):
+
+       PART_NeuEdge        the accessible boundary — NOT the recipe
+       PART_NeuInsetShade  inner shade  ─┐ only while dented
+       PART_NeuInsetLight  inner light  ─┘
+       PART_NeuShadeHost   fill + shade offset AWAY from the light
+       PART_NeuLightHost   fill + highlight offset TOWARD it
+
+     Why two hosts rather than two shadows on one element: WPF allows a
+     single Effect per element, and the mirrored pair needs two shadows on
+     the SAME shape. Stacking two identically-filled Borders produces the
+     WPF equivalent of the canonical CSS pair — the upper one covers the
+     lower completely, so only their outside shadows differ.
+
+     ORDER IS LOAD-BEARING. Shade host first, light host second. Reversed,
+     the shade's soft outer edge clips the highlight and every extrusion
+     on the page flattens at once.
+
+     NeuToggleSwitch is built from the same vocabulary inverted: the
+     track is a plain dented stadium and the THUMB is extruded out of it.
+     Two constructions on one control — which is why this style cannot
+     be faked with a stylesheet.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:neu="clr-namespace:ProGlassAutomation.Controls.Neumorphism"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- The focus ring. A ring, and a real one, sitting OUTSIDE the
+         shadow entirely so its contrast never depends on the surface
+         illusion holding up. A soft-UI shadow reads as a focus state
+         closely enough that outlines get deleted for looking untidy,
+         which is exactly how SC 2.4.7 gets failed. -->
+    <Style x:Key="NeuFocusRing" TargetType="Border">
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource FocusRingBrush}" />
+        <Setter Property="BorderThickness" Value="3" />
+        <Setter Property="Margin" Value="-6" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         NEU SURFACE
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="NeuSurfaceTemplate"
+                     TargetType="{x:Type neu:NeuSurface}">
+        <Grid>
+            <Border x:Name="FocusRingHost"
+                    Style="{StaticResource NeuFocusRing}"
+                    Visibility="Collapsed"
+                    CornerRadius="{TemplateBinding NeuCornerRadius}" />
+
+            <Border x:Name="PART_NeuInsetShade"
+                    CornerRadius="{TemplateBinding NeuCornerRadius}"
+                    IsHitTestVisible="False" />
+
+            <Border x:Name="PART_NeuInsetLight"
+                    CornerRadius="{TemplateBinding NeuCornerRadius}"
+                    IsHitTestVisible="False" />
+
+            <!-- Shade first, then highlight. See the file header. -->
+            <Border x:Name="PART_NeuShadeHost"
+                    CornerRadius="{TemplateBinding NeuCornerRadius}"
+                    Background="Transparent">
+                <Border x:Name="PART_NeuLightHost"
+                        CornerRadius="{TemplateBinding NeuCornerRadius}"
+                        Background="Transparent">
+                    <Grid>
+                        <ContentPresenter
+                            Margin="{TemplateBinding Padding}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            RecognizesAccessKey="True" />
+
+                        <Border x:Name="PART_NeuEdge"
+                                CornerRadius="{TemplateBinding NeuCornerRadius}"
+                                IsHitTestVisible="False"
+                                BorderThickness="1" />
+                    </Grid>
+                </Border>
+            </Border>
+        </Grid>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="FocusRingHost"
+                        Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.55" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type neu:NeuSurface}">
+        <Setter Property="Template" Value="{StaticResource NeuSurfaceTemplate}" />
+        <Setter Property="Padding" Value="20" />
+        <!-- 16px: inside the style's 12-20px band. Rounder than that and
+             the object becomes a blob; squarer and the moulded look goes. -->
+        <Setter Property="NeuCornerRadius" Value="16" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         NEU BUTTON
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="NeuButtonTemplate"
+                     TargetType="{x:Type neu:NeuButton}">
+        <ControlTemplate.Resources>
+            <!-- Left unfrozen on purpose: the code recolours it on the
+                 primary/secondary switch, and a frozen brush cannot be
+                 written to. It is one instance per button. -->
+            <SolidColorBrush x:Key="NeuLabelBrush" Color="White" />
+        </ControlTemplate.Resources>
+
+        <Grid>
+            <Border x:Name="FocusRingHost"
+                    Style="{StaticResource NeuFocusRing}"
+                    Visibility="Collapsed"
+                    CornerRadius="{TemplateBinding NeuCornerRadius}" />
+
+            <Border x:Name="PART_NeuInsetShade"
+                    CornerRadius="{TemplateBinding NeuCornerRadius}"
+                    IsHitTestVisible="False" />
+
+            <Border x:Name="PART_NeuInsetLight"
+                    CornerRadius="{TemplateBinding NeuCornerRadius}"
+                    IsHitTestVisible="False" />
+
+            <Border x:Name="PART_NeuShadeHost"
+                    CornerRadius="{TemplateBinding NeuCornerRadius}"
+                    Background="Transparent">
+                <Border x:Name="PART_NeuLightHost"
+                        CornerRadius="{TemplateBinding NeuCornerRadius}"
+                        Background="Transparent">
+                    <Grid>
+                        <ContentPresenter
+                            Margin="{TemplateBinding Padding}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            RecognizesAccessKey="True"
+                            TextElement.Foreground="{StaticResource NeuLabelBrush}" />
+
+                        <Border x:Name="PART_NeuEdge"
+                                CornerRadius="{TemplateBinding NeuCornerRadius}"
+                                IsHitTestVisible="False"
+                                BorderThickness="1" />
+                    </Grid>
+                </Border>
+            </Border>
+        </Grid>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="FocusRingHost"
+                        Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.55" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type neu:NeuButton}">
+        <Setter Property="Template" Value="{StaticResource NeuButtonTemplate}" />
+        <Setter Property="NeuCornerRadius" Value="12" />
+        <Setter Property="Padding" Value="24,14" />
+        <!-- 44px is the WCAG 2.2 SC 2.5.8 hit-target floor, and it is
+             also where a 12px radius can still resolve its pair. -->
+        <Setter Property="MinHeight" Value="44" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
+        <!-- Body ink, not a grey. 1.4.3 is the ONE requirement this style
+             can actually satisfy on its own, and the label is what makes
+             a clickable thing findable against a page it shares a colour
+             with. -->
+        <Setter Property="Foreground"
+                Value="{DynamicResource PrimaryForegroundBrush}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         NEU TOGGLE — dented track, extruded thumb
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="NeuToggleTemplate"
+                     TargetType="{x:Type neu:NeuToggleSwitch}">
+        <ControlTemplate.Resources>
+            <SolidColorBrush x:Key="NeuThumbBrush" Color="Transparent" />
+        </ControlTemplate.Resources>
+
+        <Grid x:Name="Root"
+              Width="{TemplateBinding TrackWidth}"
+              Height="{TemplateBinding TrackHeight}">
+
+            <Border x:Name="FocusRingHost"
+                    Style="{StaticResource NeuFocusRing}"
+                    Visibility="Collapsed"
+                    CornerRadius="{Binding TrackHeight,
+                                 RelativeSource={RelativeSource TemplatedParent}}" />
+
+            <!-- THE TRACK: a cavity. It never extrudes, on hover or when
+                 checked — a cavity that changes depth stops reading as a
+                 cavity and starts reading as a button. The accent fill
+                 below is what carries state. -->
+            <Border x:Name="PART_NeuTrack"
+                    CornerRadius="{Binding TrackHeight,
+                                 RelativeSource={RelativeSource TemplatedParent}}"
+                    Background="Transparent"
+                    BorderThickness="1">
+
+                <!-- THE THUMB: an extrusion sitting proud of the cavity.
+                     The only control in the app with two constructions at
+                     once, which is precisely why it reads as a physical
+                     switch. -->
+                <Border x:Name="PART_NeuThumb"
+                        Width="{Binding TrackHeight,
+                                    RelativeSource={RelativeSource TemplatedParent}}"
+                        Height="{Binding TrackHeight,
+                                 RelativeSource={RelativeSource TemplatedParent}}"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Margin="4,0,0,0"
+                        CornerRadius="{Binding TrackHeight,
+                                     RelativeSource={RelativeSource TemplatedParent}}"
+                        Background="{StaticResource NeuThumbBrush}">
+
+                    <!-- The check glyph. State as a MARK, not as a
+                         position — a thumb on the right is meaningless to
+                         a screen reader and invisible to anyone who
+                         cannot separate the two ends of a 1.4:1 track. -->
+                    <Path x:Name="PART_NeuCheck"
+                          Width="11" Height="9"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Visibility="Collapsed"
+                          StrokeThickness="2.2"
+                          StrokeLineJoin="Round"
+                          StrokeStartLineCap="Round"
+                          StrokeEndLineCap="Round"
+                          Stroke="{DynamicResource AccentForegroundBrush}"
+                          Data="M 0,4 L 3.6,7.6 L 11,0" />
+                </Border>
+            </Border>
+        </Grid>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+                <!-- The ON state is the accent track, not a moved thumb.
+                     A large colour change beats a 26px circle crossing a
+                     surface nobody can read. -->
+                <Setter TargetName="PART_NeuTrack"
+                        Property="Background"
+                        Value="{DynamicResource AccentBrush}" />
+                <Setter TargetName="PART_NeuThumb"
+                        Property="HorizontalAlignment" Value="Right" />
+                <Setter TargetName="PART_NeuThumb"
+                        Property="Margin" Value="0,0,4,0" />
+                <Setter TargetName="PART_NeuCheck"
+                        Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="FocusRingHost"
+                        Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.55" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type neu:NeuToggleSwitch}">
+        <Setter Property="Template" Value="{StaticResource NeuToggleTemplate}" />
+        <Setter Property="TrackWidth" Value="60" />
+        <Setter Property="TrackHeight" Value="30" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+</ResourceDictionary>

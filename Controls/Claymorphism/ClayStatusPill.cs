@@ -22,6 +22,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Services.Theme.Clay;
+using ProGlassAutomation.Services.Theme.SoftUi;
 
 namespace ProGlassAutomation.Controls.Claymorphism
 {
@@ -147,10 +148,10 @@ namespace ProGlassAutomation.Controls.Claymorphism
 
             ClaySurfaceParts.Paint(
                 _parts, ClayPalette, dark,
-                ClayDepthTier.Resting,
+                SoftDepthTier.Resting,
                 IsEnabled
-                    ? ClayInteractionState.Rest
-                    : ClayInteractionState.Disabled,
+                    ? SoftInteractionState.Rest
+                    : SoftInteractionState.Disabled,
                 radius,
                 smallSurface: true,
                 ResolveFill(dark));

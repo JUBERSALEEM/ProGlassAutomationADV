@@ -23,6 +23,8 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 
+using ProGlassAutomation.Services.Theme.SoftUi;
+
 namespace ProGlassAutomation.Services.Theme.Clay
 {
     /// <summary>The three frozen visuals one clay surface binds to.</summary>
@@ -97,7 +99,7 @@ namespace ProGlassAutomation.Services.Theme.Clay
                 {
                     // Falls AWAY from the light. 315° points up-left, so
                     // the shadow lands down-right.
-                    Direction = ClayLight.ShadowDirection,
+                    Direction = SoftLight.ShadowDirection,
                     BlurRadius = stack.DropBlur,
                     ShadowDepth = stack.DropDepth,
                     Color = stack.DropColor,
@@ -134,7 +136,7 @@ namespace ProGlassAutomation.Services.Theme.Clay
                 lightBrush.GradientStops.Clear();
                 lightBrush.GradientStops.Add(new GradientStop(
                     WithAlpha(stack.LightColor,
-                        stack.State == ClayInteractionState.Disabled
+                        stack.State == SoftInteractionState.Disabled
                             ? 0.0 : LightAlpha),
                     0.0));
                 lightBrush.GradientStops.Add(new GradientStop(
@@ -230,14 +232,11 @@ namespace ProGlassAutomation.Services.Theme.Clay
         /// </summary>
         public static Pen BuildEdge(ClayProfile clay, Color fill, bool dark)
         {
-            double strength = dark ? 0.55 : 0.32;
-            var c = ClayRecipe.Mix(
-                fill, dark ? Colors.Black : Colors.White,
-                dark ? 0.45 : 0.30);
-            var pen = new Pen(
-                Solid(c, strength), Math.Max(1.0, clay.FocusRingWidth - 1.0));
-            pen.Freeze();
-            return pen;
+            // Delegates rather than reimplementing. The edge is an
+            // ACCESSIBILITY floor, not a family style choice, and two
+            // implementations of "the minimum compliant boundary" is one
+            // more thing that can drift.
+            return SoftUiAccessibility.BuildEdge(fill, dark);
         }
 
         private static SolidColorBrush Solid(Color c, double opacity) =>

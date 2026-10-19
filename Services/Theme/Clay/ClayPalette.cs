@@ -22,6 +22,8 @@
 using System;
 using System.Windows.Media;
 
+using ProGlassAutomation.Services.Theme.SoftUi;
+
 namespace ProGlassAutomation.Services.Theme.Clay
 {
     /// <summary>
@@ -105,8 +107,8 @@ namespace ProGlassAutomation.Services.Theme.Clay
         /// want the three-layer result rather than the profile.
         /// </summary>
         public static ClayShadowStack? Resolve(
-            ClayDepthTier tier,
-            ClayInteractionState state,
+            SoftDepthTier tier,
+            SoftInteractionState state,
             double radius,
             bool dark,
             Color baseFill,

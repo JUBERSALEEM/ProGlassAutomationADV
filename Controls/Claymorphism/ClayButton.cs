@@ -32,6 +32,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Services.Theme.Clay;
+using ProGlassAutomation.Services.Theme.SoftUi;
 
 namespace ProGlassAutomation.Controls.Claymorphism
 {
@@ -149,13 +150,13 @@ namespace ProGlassAutomation.Controls.Claymorphism
         /// so Disabled is checked before Hover. A pressed button that has
         /// just been clicked out of must not flicker back to hover first.
         /// </summary>
-        private ClayInteractionState ResolveState()
+        private SoftInteractionState ResolveState()
         {
-            if (!IsEnabled) return ClayInteractionState.Disabled;
-            if (IsPressed) return ClayInteractionState.Pressed;
-            if (IsKeyboardFocused) return ClayInteractionState.Focused;
-            if (IsMouseOver) return ClayInteractionState.Hover;
-            return ClayInteractionState.Rest;
+            if (!IsEnabled) return SoftInteractionState.Disabled;
+            if (IsPressed) return SoftInteractionState.Pressed;
+            if (IsKeyboardFocused) return SoftInteractionState.Focused;
+            if (IsMouseOver) return SoftInteractionState.Hover;
+            return SoftInteractionState.Rest;
         }
 
         private void Wire()
@@ -193,7 +194,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
             // be flush with the list it lives in.
             ClaySurfaceParts.Paint(
                 _parts, ClayPalette, dark,
-                ClayDepthTier.Raised, state,
+                SoftDepthTier.Raised, state,
                 ClaySurface.TopLeft(ClayCornerRadius),
                 smallSurface: false,
                 fill);
@@ -204,7 +205,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
         /// <summary>
         /// Resolves the button's fill, applying the press shift.
         /// </summary>
-        private Color ResolveFill(bool dark, ClayInteractionState state)
+        private Color ResolveFill(bool dark, SoftInteractionState state)
         {
             var baseFill = ClayFill;
             if (baseFill.A == 0)
@@ -214,15 +215,15 @@ namespace ProGlassAutomation.Controls.Claymorphism
                 baseFill = accent?.Color ?? Colors.Gray;
             }
 
-            if (state == ClayInteractionState.Pressed)
+            if (state == SoftInteractionState.Pressed)
             {
                 return ClayPaletteShade(baseFill, PressedFillShift);
             }
-            if (state == ClayInteractionState.Disabled)
+            if (state == SoftInteractionState.Disabled)
             {
                 return ClayPaletteShade(baseFill, 0.55);
             }
-            if (state == ClayInteractionState.Hover)
+            if (state == SoftInteractionState.Hover)
             {
                 return ClayPaletteLighten(baseFill, 0.06);
             }
@@ -263,7 +264,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
         /// </para>
         /// </summary>
         private void UpdateLabel(
-            Color fill, bool dark, ClayInteractionState state)
+            Color fill, bool dark, SoftInteractionState state)
         {
             var text = ClayLabel;
             if (text.A == 0)
@@ -272,7 +273,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
                     "AccentForegroundBrush") as SolidColorBrush;
                 text = token?.Color ?? Colors.White;
             }
-            if (state == ClayInteractionState.Disabled)
+            if (state == SoftInteractionState.Disabled)
             {
                 text = ClayPaletteShade(text, 0.35);
             }

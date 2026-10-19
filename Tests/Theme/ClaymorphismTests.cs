@@ -20,6 +20,7 @@ using System.Windows;
 using System.Windows.Media;
 using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Services.Theme.Clay;
+using ProGlassAutomation.Services.Theme.SoftUi;
 using Xunit;
 
 namespace ProGlassAutomation.Tests.Theme
@@ -43,7 +44,7 @@ namespace ProGlassAutomation.Tests.Theme
             DarkSurface, ShadeHue, LightHue, dark: true);
 
         private static ClayShadowStack Resolve(
-            ClayDepthTier tier, ClayInteractionState state,
+            SoftDepthTier tier, SoftInteractionState state,
             double radius = 32, bool small = false, bool dark = false) =>
             new ClayRecipe(dark ? Dark() : Light(), dark)
                 .Resolve(tier, state, radius, small);
@@ -51,17 +52,17 @@ namespace ProGlassAutomation.Tests.Theme
         // ── the three layers ─────────────────────────────────────────
 
         [Theory]
-        [InlineData(ClayDepthTier.Resting)]
-        [InlineData(ClayDepthTier.Raised)]
-        [InlineData(ClayDepthTier.Floating)]
+        [InlineData(SoftDepthTier.Resting)]
+        [InlineData(SoftDepthTier.Raised)]
+        [InlineData(SoftDepthTier.Floating)]
         public void Every_raised_tier_paints_all_three_shadows(
-            ClayDepthTier tier)
+            SoftDepthTier tier)
         {
             // The whole style. One outer drop for mass, one inner shade
             // for wall thickness, one inner highlight for the roll. A
             // surface missing the inner shade is a lit rectangle; a
             // surface missing the drop is a sticker.
-            var stack = Resolve(tier, ClayInteractionState.Rest);
+            var stack = Resolve(tier, SoftInteractionState.Rest);
 
             Assert.True(stack.HasDrop,
                 $"{tier}: no outer drop shadow.");
@@ -84,7 +85,7 @@ namespace ProGlassAutomation.Tests.Theme
             // faked, and it is why so many "clay" forms feel like a
             // keyboard made of pillows.
             var stack = Resolve(
-                ClayDepthTier.Well, ClayInteractionState.Rest);
+                SoftDepthTier.Well, SoftInteractionState.Rest);
 
             Assert.False(stack.HasDrop,
                 "a well must not float — it is a recess.");
@@ -99,7 +100,7 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.True(stack.LightStops > 0);
 
             var resting = Resolve(
-                ClayDepthTier.Resting, ClayInteractionState.Rest);
+                SoftDepthTier.Resting, SoftInteractionState.Rest);
             Assert.True(stack.LightStops >= resting.LightStops,
                 "a well's inset should reach at least as far as a "
                 + "resting surface's.");
@@ -111,12 +112,12 @@ namespace ProGlassAutomation.Tests.Theme
         public void The_drop_always_falls_away_from_the_light()
         {
             var effect = ClayVisualFactory.Build(
-                Resolve(ClayDepthTier.Raised,
-                        ClayInteractionState.Rest),
+                Resolve(SoftDepthTier.Raised,
+                        SoftInteractionState.Rest),
                 LightSurface).Drop;
 
             Assert.NotNull(effect);
-            Assert.Equal(ClayLight.ShadowDirection, effect!.Direction);
+            Assert.Equal(SoftLight.ShadowDirection, effect!.Direction);
 
             // 315° in WPF is up-left, so the shadow lands down-right.
             // Get this backwards and the whole layout looks lit from two
@@ -127,19 +128,19 @@ namespace ProGlassAutomation.Tests.Theme
         }
 
         [Theory]
-        [InlineData(ClayDepthTier.Resting, false)]
-        [InlineData(ClayDepthTier.Resting, true)]
-        [InlineData(ClayDepthTier.Floating, false)]
-        [InlineData(ClayDepthTier.Well, false)]
+        [InlineData(SoftDepthTier.Resting, false)]
+        [InlineData(SoftDepthTier.Resting, true)]
+        [InlineData(SoftDepthTier.Floating, false)]
+        [InlineData(SoftDepthTier.Well, false)]
         public void The_two_inner_rolls_face_opposite_ways(
-            ClayDepthTier tier, bool dark)
+            SoftDepthTier tier, bool dark)
         {
             // Highlight is born top-left, shade is born bottom-right. If
             // they both ran the same way the corner would be lit on one
             // side and dark on the other with nothing between them, and
             // the surface would read as flat.
             var visuals = ClayVisualFactory.Build(
-                Resolve(tier, ClayInteractionState.Rest, dark: dark),
+                Resolve(tier, SoftInteractionState.Rest, dark: dark),
                 dark ? DarkSurface : LightSurface);
 
             Assert.NotNull(visuals.Light);
@@ -164,10 +165,10 @@ namespace ProGlassAutomation.Tests.Theme
             // been pushed into the page, so the underside is now what
             // catches the light.
             var resting = ClayVisualFactory.Build(
-                Resolve(ClayDepthTier.Raised, ClayInteractionState.Rest),
+                Resolve(SoftDepthTier.Raised, SoftInteractionState.Rest),
                 LightSurface);
             var pressed = ClayVisualFactory.Build(
-                Resolve(ClayDepthTier.Raised, ClayInteractionState.Pressed),
+                Resolve(SoftDepthTier.Raised, SoftInteractionState.Pressed),
                 LightSurface);
 
             Assert.False(resting.Light!.StartPoint.Equals(
@@ -196,7 +197,7 @@ namespace ProGlassAutomation.Tests.Theme
             // every shadow tool, which is why they leak in.
             var profile = Light();
             var stack = Resolve(
-                ClayDepthTier.Resting, ClayInteractionState.Rest);
+                SoftDepthTier.Resting, SoftInteractionState.Rest);
 
             double hue = Saturation(stack.DropColor);
             double sourceHue = Saturation(profile.Shade);
@@ -224,7 +225,7 @@ namespace ProGlassAutomation.Tests.Theme
             // a broad light. Matching them is what makes this look like a
             // glossy button instead of a moulded one.
             var stack = Resolve(
-                ClayDepthTier.Resting, ClayInteractionState.Rest);
+                SoftDepthTier.Resting, SoftInteractionState.Rest);
             var visuals = ClayVisualFactory.Build(stack, LightSurface);
 
             double lightAlpha = visuals.Light!.GradientStops
@@ -242,12 +243,12 @@ namespace ProGlassAutomation.Tests.Theme
         [Fact]
         public void Depth_tiers_increase_monotonically()
         {
-            var resting = Resolve(ClayDepthTier.Resting,
-                ClayInteractionState.Rest);
-            var raised = Resolve(ClayDepthTier.Raised,
-                ClayInteractionState.Rest);
-            var floating = Resolve(ClayDepthTier.Floating,
-                ClayInteractionState.Rest);
+            var resting = Resolve(SoftDepthTier.Resting,
+                SoftInteractionState.Rest);
+            var raised = Resolve(SoftDepthTier.Raised,
+                SoftInteractionState.Rest);
+            var floating = Resolve(SoftDepthTier.Floating,
+                SoftInteractionState.Rest);
 
             Assert.True(raised.DropBlur > resting.DropBlur);
             Assert.True(raised.DropDepth > resting.DropDepth);
@@ -265,19 +266,19 @@ namespace ProGlassAutomation.Tests.Theme
             // card it sits inside.
             foreach (var tier in new[]
             {
-                ClayDepthTier.Well, ClayDepthTier.Resting,
-                ClayDepthTier.Raised,
+                SoftDepthTier.Well, SoftDepthTier.Resting,
+                SoftDepthTier.Raised,
             })
             {
                 Assert.Equal(
-                    ClayDepthRules.Promote(tier),
-                    ClayDepthRules.Resolve(tier, ClayInteractionState.Hover));
+                    SoftDepthRules.Promote(tier),
+                    SoftDepthRules.Resolve(tier, SoftInteractionState.Hover));
             }
 
             Assert.Equal(
-                ClayDepthTier.Floating,
-                ClayDepthRules.Resolve(
-                    ClayDepthTier.Floating, ClayInteractionState.Hover));
+                SoftDepthTier.Floating,
+                SoftDepthRules.Resolve(
+                    SoftDepthTier.Floating, SoftInteractionState.Hover));
         }
 
         [Fact]
@@ -290,16 +291,16 @@ namespace ProGlassAutomation.Tests.Theme
             // to a soft-UI theme in the first place. The ring carries
             // focus; the depth carries position.
             Assert.Equal(
-                ClayDepthTier.Resting,
-                ClayDepthRules.Resolve(
-                    ClayDepthTier.Resting, ClayInteractionState.Focused));
+                SoftDepthTier.Resting,
+                SoftDepthRules.Resolve(
+                    SoftDepthTier.Resting, SoftInteractionState.Focused));
 
             // A press moves the object DOWN into the page, not to a
             // different tier.
             Assert.Equal(
-                ClayDepthTier.Raised,
-                ClayDepthRules.Resolve(
-                    ClayDepthTier.Raised, ClayInteractionState.Pressed));
+                SoftDepthTier.Raised,
+                SoftDepthRules.Resolve(
+                    SoftDepthTier.Raised, SoftInteractionState.Pressed));
         }
 
         // ── radius drives the roll ───────────────────────────────────
@@ -311,10 +312,10 @@ namespace ProGlassAutomation.Tests.Theme
             // like a card with a glow. A large radius with a tight inset
             // produces a hard rim instead of a soft roll.
             var small = Resolve(
-                ClayDepthTier.Resting, ClayInteractionState.Rest,
+                SoftDepthTier.Resting, SoftInteractionState.Rest,
                 radius: 16);
             var large = Resolve(
-                ClayDepthTier.Resting, ClayInteractionState.Rest,
+                SoftDepthTier.Resting, SoftInteractionState.Rest,
                 radius: 48);
 
             Assert.True(large.LightStops > small.LightStops,
@@ -334,7 +335,7 @@ namespace ProGlassAutomation.Tests.Theme
             // inset is asked to resolve inside about 14px of travel. It
             // cannot, and the collapse reads as a dirty rim.
             var stack = Resolve(
-                ClayDepthTier.Resting, ClayInteractionState.Rest,
+                SoftDepthTier.Resting, SoftInteractionState.Rest,
                 radius: 14, small: true);
 
             Assert.Equal(0.0, stack.LightStops);
@@ -359,10 +360,10 @@ namespace ProGlassAutomation.Tests.Theme
             //   The HIGHLIGHT is the other failure. A bright highlight
             //   that reads as a soft roll on pastel reads as hard plastic
             //   glare on a dark surface. It has to be dimmed.
-            var light = Resolve(ClayDepthTier.Resting,
-                ClayInteractionState.Rest);
-            var dark = Resolve(ClayDepthTier.Resting,
-                ClayInteractionState.Rest, dark: true);
+            var light = Resolve(SoftDepthTier.Resting,
+                SoftInteractionState.Rest);
+            var dark = Resolve(SoftDepthTier.Resting,
+                SoftInteractionState.Rest, dark: true);
 
             Assert.True(dark.DropOpacity < light.DropOpacity,
                 "the dark drop must be more transparent, not stronger.");
@@ -383,14 +384,14 @@ namespace ProGlassAutomation.Tests.Theme
             // tiers — every tier collapses into the same flat rectangle.
             // The only lever left is lightness, so each tier raises its
             // fill a few percent instead.
-            for (var i = 0; i <= (int)ClayDepthTier.Floating; i++)
+            for (var i = 0; i <= (int)SoftDepthTier.Floating; i++)
             {
-                var tier = (ClayDepthTier)i;
-                var light = Resolve(tier, ClayInteractionState.Rest);
-                var dark = Resolve(tier, ClayInteractionState.Rest,
+                var tier = (SoftDepthTier)i;
+                var light = Resolve(tier, SoftInteractionState.Rest);
+                var dark = Resolve(tier, SoftInteractionState.Rest,
                     dark: true);
 
-                if (ClayDepthRules.IsConcave(tier)) continue;
+                if (SoftDepthRules.IsConcave(tier)) continue;
 
                 Assert.True(dark.FillLift > 0.0,
                     $"{tier}: dark mode needs a fill lift or the tier is "
@@ -415,11 +416,11 @@ namespace ProGlassAutomation.Tests.Theme
             {
                 foreach (var tier in new[]
                 {
-                    ClayDepthTier.Well, ClayDepthTier.Resting,
-                    ClayDepthTier.Raised, ClayDepthTier.Floating,
+                    SoftDepthTier.Well, SoftDepthTier.Resting,
+                    SoftDepthTier.Raised, SoftDepthTier.Floating,
                 })
                 {
-                    foreach (var state in Enum.GetValues<ClayInteractionState>())
+                    foreach (var state in Enum.GetValues<SoftInteractionState>())
                     {
                         var stack = Resolve(tier, state, dark: dark);
                         Assert.InRange(stack.DropBlur, 0, 56);
@@ -437,7 +438,7 @@ namespace ProGlassAutomation.Tests.Theme
             // unfindable — and in a style whose entire affordance is the
             // shadow, "gone" is indistinguishable from "broken".
             var stack = Resolve(
-                ClayDepthTier.Raised, ClayInteractionState.Disabled);
+                SoftDepthTier.Raised, SoftInteractionState.Disabled);
 
             Assert.False(stack.HasDrop);
 
@@ -499,7 +500,7 @@ namespace ProGlassAutomation.Tests.Theme
             // developer's machine, because there it always works.
             ClayPalette.Clear();
             Assert.Null(ClayPalette.Resolve(
-                ClayDepthTier.Resting, ClayInteractionState.Rest,
+                SoftDepthTier.Resting, SoftInteractionState.Rest,
                 radius: 32, dark: false, baseFill: LightSurface));
         }
 

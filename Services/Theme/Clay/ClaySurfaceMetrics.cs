@@ -56,6 +56,8 @@
 using System;
 using System.Windows.Media;
 
+using ProGlassAutomation.Services.Theme.SoftUi;
+
 namespace ProGlassAutomation.Services.Theme.Clay
 {
     /// <summary>
@@ -66,8 +68,8 @@ namespace ProGlassAutomation.Services.Theme.Clay
     public sealed class ClayShadowStack
     {
         internal ClayShadowStack(
-            ClayDepthTier tier,
-            ClayInteractionState state,
+            SoftDepthTier tier,
+            SoftInteractionState state,
             bool dark,
             double dropBlur,
             double dropDepth,
@@ -98,10 +100,10 @@ namespace ProGlassAutomation.Services.Theme.Clay
         }
 
         /// <summary>Depth tier this was resolved for.</summary>
-        public ClayDepthTier Tier { get; }
+        public SoftDepthTier Tier { get; }
 
         /// <summary>Interaction state this was resolved for.</summary>
-        public ClayInteractionState State { get; }
+        public SoftInteractionState State { get; }
 
         /// <summary>True when resolved against the dark ramp.</summary>
         public bool Dark { get; }
@@ -113,7 +115,7 @@ namespace ProGlassAutomation.Services.Theme.Clay
         public Color DropColor { get; }
 
         /// <summary>True when this tier paints no drop at all (Wells).</summary>
-        public bool HasDrop => Tier != ClayDepthTier.Well && DropOpacity > 0.001;
+        public bool HasDrop => Tier != SoftDepthTier.Well && DropOpacity > 0.001;
 
         // ── layer 2: the far-side inner shade ────────────────────────
         /// <summary>How far in the shade roll reaches, 0..1.</summary>
@@ -238,12 +240,12 @@ namespace ProGlassAutomation.Services.Theme.Clay
         /// a dirty smudge.
         /// </param>
         public ClayShadowStack Resolve(
-            ClayDepthTier declared,
-            ClayInteractionState state,
+            SoftDepthTier declared,
+            SoftInteractionState state,
             double radius,
             bool smallSurface = false)
         {
-            var tier = ClayDepthRules.Resolve(declared, state);
+            var tier = SoftDepthRules.Resolve(declared, state);
             var t = TierTable[(int)tier];
 
             double dropBlur = BaseDropBlur(radius) * t.DropBlur;
@@ -332,7 +334,7 @@ namespace ProGlassAutomation.Services.Theme.Clay
             double shadeStops = 1.0 - insetReach;
             bool inverted = false;
 
-            if (state == ClayInteractionState.Pressed)
+            if (state == SoftInteractionState.Pressed)
             {
                 dropBlur *= 0.55;
                 dropDepth *= 0.35;
@@ -345,7 +347,7 @@ namespace ProGlassAutomation.Services.Theme.Clay
             // rather than a hole — and the templates drop the fill
             // contrast alongside it, so the state is carried by colour
             // as well as by shadow.
-            if (state == ClayInteractionState.Disabled)
+            if (state == SoftInteractionState.Disabled)
             {
                 dropOpacity = 0.0;
                 light = WithOpacity(light, 0.0);

@@ -19,6 +19,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using ProGlassAutomation.Services.Theme.Clay;
+using ProGlassAutomation.Services.Theme.SoftUi;
 
 namespace ProGlassAutomation.Controls.Claymorphism
 {
@@ -127,8 +128,8 @@ namespace ProGlassAutomation.Controls.Claymorphism
             ClaySurfaceParts parts,
             ClayPalette palette,
             bool dark,
-            ClayDepthTier depth,
-            ClayInteractionState state,
+            SoftDepthTier depth,
+            SoftInteractionState state,
             double radius,
             bool small,
             Color fill)

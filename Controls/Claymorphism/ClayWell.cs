@@ -26,6 +26,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Services.Theme.Clay;
+using ProGlassAutomation.Services.Theme.SoftUi;
 
 namespace ProGlassAutomation.Controls.Claymorphism
 {
@@ -143,19 +144,19 @@ namespace ProGlassAutomation.Controls.Claymorphism
 
             ClaySurfaceParts.Paint(
                 _parts, ClayPalette, dark,
-                ClayDepthTier.Well,
+                SoftDepthTier.Well,
                 ResolveState(),
                 ClaySurface.TopLeft(ClayCornerRadius),
                 smallSurface: false,
                 ResolveFill(dark));
         }
 
-        private ClayInteractionState ResolveState()
+        private SoftInteractionState ResolveState()
         {
-            if (!IsEnabled) return ClayInteractionState.Disabled;
+            if (!IsEnabled) return SoftInteractionState.Disabled;
             return IsKeyboardFocusWithin
-                ? ClayInteractionState.Focused
-                : ClayInteractionState.Rest;
+                ? SoftInteractionState.Focused
+                : SoftInteractionState.Rest;
         }
 
         private Color ResolveFill(bool dark)
