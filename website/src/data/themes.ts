@@ -118,7 +118,7 @@ export function isThemeMode(value: unknown): value is ThemeMode {
 }
 
 export function isAppearanceFamily(value: unknown): value is AppearanceFamily {
-  return value === "bento" || value === "spatial" || value === "swiss" || value === "holographic" || value === "neumorphism" || value === "clay" || value === "liquid-glass" || value === "glassmorphism" || value === "crystal";
+  return value === "bento" || value === "spatial" || value === "swiss" || value === "holographic" || value === "neumorphism" || value === "clay" || value === "liquid-glass" || value === "glassmorphism";
 }
 
 /** Mode → the `data-theme` value to write on <html>. */
