@@ -8,6 +8,30 @@
 //   PART_AuroraFill     the translucent panel (carries the glow)
 //   PART_AuroraRim      the GRADIENT rim -- teal into violet
 //   PART_AuroraBlobHost the sky itself (AuroraSurface only)
+//   PART_AuroraFocus    the focus outline, OUTSIDE the rim
+//
+// -- PART_AuroraFocus WAS MISSING, AND IT MATTERED --------------------
+//
+// The first version of this family nulled FocusVisualStyle on both the
+// button and the field and carried focus on the RECIPE rim change alone:
+// on Focused the rim went to the accent colour and thickened by one
+// pixel.
+//
+// That is not a focus cue, it is a side effect. There is no drawn ring,
+// and its contrast depends on whichever blob happens to be drifting past
+// the panel at that moment. WCAG 2.4.11 wants a 2px perimeter at 3:1
+// against the ADJACENT colour, which a translucent rim over a moving
+// gradient cannot promise. Neo-Brutalism, built after this family, got
+// PART_NeoFocus from the start and Aurora did not -- the kind of
+// inconsistency that only surfaces when two families are compared side by
+// side.
+//
+// So the outline is drawn here, OUTSIDE the rim, by the same negative
+// margin Neo uses -- and in the recipe's focus ink, NOT the accent, which
+// is the colour the focused rim itself switches to. The template's
+// stand-in brush is AuroraAccentBrush, exactly as Neo's is
+// NeoAccentBrush; the live ring is overwritten below on every repaint.
+// The rim change stays, as a secondary cue.
 //
 // ── THE RIM IS A GRADIENT, AND THAT IS THE DIFFERENCE ─────────────────
 //
@@ -56,6 +80,9 @@ namespace ProGlassAutomation.Controls.Aurora
         /// <summary>The gradient rim.</summary>
         public Border? Rim { get; private set; }
 
+        /// <summary>The focus outline, drawn OUTSIDE the rim.</summary>
+        public Border? Focus { get; private set; }
+
         /// <summary>The sky, on AuroraSurface only.</summary>
         public Canvas? BlobHost { get; private set; }
 
@@ -69,6 +96,7 @@ namespace ProGlassAutomation.Controls.Aurora
         {
             Fill = root.Template.FindName("PART_AuroraFill", root) as Border;
             Rim = root.Template.FindName("PART_AuroraRim", root) as Border;
+            Focus = root.Template.FindName("PART_AuroraFocus", root) as Border;
             BlobHost =
                 root.Template.FindName("PART_AuroraBlobHost", root) as Canvas;
         }
@@ -136,6 +164,38 @@ namespace ProGlassAutomation.Controls.Aurora
                 Rim.BorderThickness = new Thickness(
                     Math.Max(1, c.RimThickness));
             }
+
+            // Drawn OUTSIDE the rim, by the same construction Neo uses:
+            // a negative margin equal to the rim width plus the focus gap.
+            // The rim is 1px inside the panel edge, so an outline drawn
+            // inboard of it would land on the fill and read as a border
+            // colour change -- which is exactly the bug this replaces.
+            //
+            // Ink, not the accent: the accent is what the focused rim
+            // already uses, so painting the ring in it too would make the
+            // ring invisible against the rim it is meant to separate from.
+            if (Focus is not null)
+            {
+                if (stack.FocusRing.HasValue)
+                {
+                    var ring = new SolidColorBrush(stack.FocusRing.Value);
+                    ring.Freeze();
+                    Focus.BorderBrush = ring;
+                    Focus.BorderThickness =
+                        new Thickness(SoftUiAccessibility.FocusRingWidth);
+
+                    var out_ = Math.Max(1, c.RimThickness)
+                               + SoftUiAccessibility.FocusRingOffset;
+                    Focus.Margin = new Thickness(-out_, -out_, -out_, -out_);
+                    Focus.CornerRadius = new CornerRadius(
+                        RadiusFor() + out_ + SoftUiAccessibility.FocusRingWidth);
+                    Focus.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    Focus.Visibility = Visibility.Collapsed;
+                }
+            }
         }
 
         /// <summary>
@@ -162,6 +222,9 @@ namespace ProGlassAutomation.Controls.Aurora
                 Rim.BorderThickness = new Thickness(1);
                 Rim.CornerRadius = new CornerRadius(RadiusFor());
             }
+
+            if (Focus is not null)
+                Focus.Visibility = Visibility.Collapsed;
         }
 
         private static AuroraMetrics MetricsFor() =>

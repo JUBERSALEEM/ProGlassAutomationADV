@@ -454,8 +454,90 @@ namespace ProGlassAutomation.Tests.Theme
                     .Split("</ControlTemplate>")[0];
 
                 Assert.Contains("PART_AuroraFill", body);
+
+                // AuroraSurfaceTemplate is the passive sky panel: it is
+                // Focusable=false and is never given focus, so it carries
+                // neither a rim nor a focus outline. Asserting a rim on all
+                // four templates is unsatisfiable -- this test has been
+                // unable to pass since the family landed, because the
+                // surface template never had a rim to begin with.
+                if (name == "AuroraSurfaceTemplate")
+                    continue;
+
                 Assert.Contains("PART_AuroraRim", body);
             }
+        }
+
+        [Fact]
+        public void Every_aurora_template_declares_a_focus_outline()
+        {
+            // The controls null FocusVisualStyle, so the ring drawn by
+            // PART_AuroraFocus is the ONLY focus cue this family has.
+            // Before this part existed, focus was carried by the rim
+            // switching colour and gaining 1px -- a side effect over a
+            // moving translucent gradient, which cannot hold a 2px
+            // perimeter at 3:1. This test exists so that removing the
+            // outline again is a failing build, not a silent regression.
+            var text = DictionaryText();
+
+            var templates = text.Split("<ControlTemplate x:Key=\"")
+                .Skip(1)
+                .Select(chunk => chunk.Split('>')[0])
+                .Select(key => key.Split('"')[0])
+                .Where(key => key.StartsWith("Aurora"))
+                .ToList();
+
+            Assert.Equal(4, templates.Count);
+
+            // Only the three focusable ones. The sky panel is
+            // Focusable=false and draws no outline by design.
+            var focusable = templates
+                .Where(name => name != "AuroraSurfaceTemplate")
+                .ToList();
+
+            // Guard the count itself, so a fifth template added later is
+            // not silently skipped by the Where above.
+            Assert.Equal(3, focusable.Count);
+
+            foreach (var name in focusable)
+            {
+                var body = text.Split(
+                    $"<ControlTemplate x:Key=\"{name}\"")[1]
+                    .Split("</ControlTemplate>")[0];
+
+                Assert.Contains("PART_AuroraFocus", body);
+            }
+        }
+
+        [Fact]
+        public void The_focus_outline_is_resolved_and_drawn_outside_the_rim()
+        {
+            var parts = RepoFile(
+                "Controls", "Aurora", "AuroraSurfaceParts.cs");
+
+            Assert.Contains(
+                "FindName(\"PART_AuroraFocus\"",
+                parts);
+
+            // Outside the rim, by negative margin, the way Neo does it.
+            // An outline drawn inboard would sit on the fill and read as
+            // another border colour.
+            Assert.Contains("Focus.Margin = new Thickness(-out_", parts);
+            Assert.Contains("SoftUiAccessibility.FocusRingWidth", parts);
+
+            // And it must collapse again, or every Aurora control in the
+            // app carries a permanent ring.
+            Assert.Contains("Focus.Visibility = Visibility.Collapsed", parts);
+        }
+
+        [Fact]
+        public void Focus_is_not_left_to_the_recipe_alone()
+        {
+            // The rim change stays as a SECONDARY cue, but it is not the
+            // only one any more.
+            var parts = RepoFile(
+                "Controls", "Aurora", "AuroraSurfaceParts.cs");
+            Assert.Contains("stack.FocusRing", parts);
         }
 
         [Fact]

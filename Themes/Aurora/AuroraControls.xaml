@@ -145,6 +145,14 @@
                     BorderBrush="{StaticResource AuroraRimBrush}"
                     BorderThickness="{StaticResource AuroraRimWidth}"
                     CornerRadius="{StaticResource AuroraPill}" />
+            <!-- Focus outline, OUTSIDE the rim. The negative margin is
+                 applied in code from the live rim thickness. -->
+            <Border x:Name="PART_AuroraFocus"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed"
+                    BorderBrush="{StaticResource AuroraAccentBrush}"
+                    BorderThickness="{StaticResource AuroraFocusWidth}"
+                    CornerRadius="{StaticResource AuroraPill}" />
             <ContentPresenter Margin="{StaticResource AuroraGap}"
                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
@@ -167,6 +175,14 @@
                     IsHitTestVisible="False"
                     BorderBrush="{StaticResource AuroraRimBrush}"
                     BorderThickness="{StaticResource AuroraRimWidth}"
+                    CornerRadius="{StaticResource AuroraCorner}" />
+            <!-- Focus outline, OUTSIDE the rim. The negative margin is
+                 applied in code from the live rim thickness. -->
+            <Border x:Name="PART_AuroraFocus"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed"
+                    BorderBrush="{StaticResource AuroraAccentBrush}"
+                    BorderThickness="{StaticResource AuroraFocusWidth}"
                     CornerRadius="{StaticResource AuroraCorner}" />
             <ContentPresenter Margin="{StaticResource AuroraPad}"
                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -192,6 +208,14 @@
                     IsHitTestVisible="False"
                     BorderBrush="{StaticResource AuroraRimBrush}"
                     BorderThickness="{StaticResource AuroraRimWidth}"
+                    CornerRadius="{StaticResource AuroraCorner}" />
+            <!-- Focus outline, OUTSIDE the rim. The negative margin is
+                 applied in code from the live rim thickness. -->
+            <Border x:Name="PART_AuroraFocus"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed"
+                    BorderBrush="{StaticResource AuroraAccentBrush}"
+                    BorderThickness="{StaticResource AuroraFocusWidth}"
                     CornerRadius="{StaticResource AuroraCorner}" />
             <ScrollViewer x:Name="PART_ContentHost"
                           Margin="{StaticResource AuroraPad}"
