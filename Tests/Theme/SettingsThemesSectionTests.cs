@@ -117,6 +117,23 @@ namespace ProGlassAutomation.Tests.Theme
 
         // ── 3. XAML: axes gated + live preview reuses CrystalWaterControl ─
         [Fact]
+        public void Theme_center_exposes_the_eight_selectable_theme_cards()
+        {
+            string vm = Read("ViewModels/Settings/SettingsViewModel.ThemeWallpaper.cs");
+            string xaml = Read("Views/Settings/Sections/SettingsThemesSection.xaml");
+            foreach (var family in new[]
+            {
+                "BentoGrid", "SpatialImmersive", "SwissInternational",
+                "HolographicIridescent", "Neumorphism", "Claymorphism",
+                "LiquidGlass", "Glassmorphism"
+            })
+                Assert.Contains($"VisualThemeEngine.{family}", vm, StringComparison.Ordinal);
+            Assert.Contains("AutomationProperties.AutomationId=\"Settings.ThemeCenter\"", xaml, StringComparison.Ordinal);
+            Assert.Contains("ItemsSource=\"{Binding VisualThemeOptions}\"", xaml, StringComparison.Ordinal);
+            Assert.Contains("SelectedValue=\"{Binding SelectedVisualTheme, Mode=TwoWay}\"", xaml, StringComparison.Ordinal);
+        }
+
+        [Fact]
         public void Section_gates_the_crystal_group_on_the_family_flag()
         {
             string xaml = Read("Views/Settings/Sections/SettingsThemesSection.xaml");
