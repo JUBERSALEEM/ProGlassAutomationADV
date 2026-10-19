@@ -20,7 +20,7 @@ namespace ProGlassAutomation.Services.Updates
 
         /// <summary>GitHub repository backing the OTA update check.</summary>
         public const string GitHubOwner = "JUBERSALEEM";
-        public const string GitHubRepo = "ProGlassAutomationADV";
+        public const string GitHubRepo = "ProGlassAutomationssss";
 
         /// <summary>
         /// Fallback only — real value comes from the assembly. Kept in step
