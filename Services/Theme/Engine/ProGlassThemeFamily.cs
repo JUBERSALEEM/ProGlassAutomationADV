@@ -7,9 +7,8 @@ namespace ProGlassAutomation.Services.Theme.Engine
         Industrial,
         Monet,
         Crystal,
-        /// <summary>iOS 26 liquid glass — fourth family (was missing from
-        /// the contract, which is why the Settings picker offered only two
-        /// themes; the engine override layer always existed).</summary>
+        /// <summary>Legacy iOS 26 family retained for config migration only;
+        /// it is no longer one of the selectable eight theme families.</summary>
         Ios26,
         BentoGrid,
         SpatialImmersive,
