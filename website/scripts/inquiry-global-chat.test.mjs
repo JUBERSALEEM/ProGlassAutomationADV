@@ -23,16 +23,67 @@ const communityHelpers = read("../src/lib/global-chat.ts");
 const communitySql = read("../supabase-global-chat.sql");
 const communitySqlV2 = read("../supabase-global-chat-v2-replies-receipts.sql");
 const communityTypes = read("../src/types/global-chat.ts");
+const accountWorkspace = read("../src/components/account/CustomerAccountWorkspace.tsx");
+const profileHelpers = read("../src/lib/user-profile.ts");
+const profileSql = read("../supabase-user-profiles.sql");
 const nextConfig = read("../next.config.ts");
 
-test("global account route reuses the existing Supabase form with a safe inquiry-chat return", () => {
-  assert.match(accountPage, /ReportsAuthForm variant="account" defaultRedirect="\/inquiries\/chat"/);
+test("global account route recognizes a saved session before reusing the sign-in form", () => {
+  assert.match(accountPage, /CustomerAccountWorkspace/);
+  assert.match(accountWorkspace, /getSession\(\)/);
+  assert.match(accountWorkspace, /onAuthStateChange/);
+  assert.match(accountWorkspace, /Checking your saved sign-in/);
+  assert.match(accountWorkspace, /Saved sign-in found/);
+  assert.match(accountWorkspace, /router\.replace\(redirectTo\)/);
+  assert.match(accountWorkspace, /<ReportsAuthForm variant="account" defaultRedirect="\/account" \/>/);
   assert.match(authForm, /function safeRedirectPath/);
+  assert.match(authForm, /export function safeAuthRedirect/);
   assert.match(authForm, /startsWith\("\/\/"\)/);
   assert.match(authForm, /includes\("\\\\"\)/);
   assert.match(authForm, /signupRequested \? "otp" : "password"/);
   assert.match(authForm, /Customer account/);
   assert.match(authForm, /Inquiries & chat/);
+  assert.match(authForm, /name="email"/);
+  assert.match(authForm, /name="password"/);
+  assert.match(authForm, /Saved sign-in/);
+  assert.match(authForm, /stays saved on this device and renews automatically/);
+});
+
+test("customer account dashboard manages the public chat profile and password without exposing private data", () => {
+  assert.match(accountWorkspace, /Saved sign-in active/);
+  assert.match(accountWorkspace, /Your WhatsApp-style chat profile/);
+  assert.match(accountWorkspace, /Choose your profile icon/);
+  assert.match(accountWorkspace, /AVATAR_ICON_OPTIONS/);
+  assert.match(accountWorkspace, /AVATAR_COLOR_OPTIONS/);
+  assert.match(accountWorkspace, /from\("user_profiles"\)/);
+  assert.match(accountWorkspace, /upsert\(previewProfile, \{ onConflict: "user_id" \}\)/);
+  assert.match(accountWorkspace, /auth\.updateUser\(\{\s*data:/);
+  assert.match(accountWorkspace, /avatar_icon: saved\.avatar_icon/);
+  assert.match(accountWorkspace, /Update password/);
+  assert.match(accountWorkspace, /auth\.signOut\(\)/);
+  assert.match(accountWorkspace, /customerInquiryChatPath\(\)/);
+  assert.match(accountWorkspace, /href="\/chat"/);
+  assert.match(accountWorkspace, /your email stays private/i);
+  assert.doesNotMatch(accountWorkspace, /inquiry_customer_profiles|production-room|service_role/i);
+});
+
+test("user profile SQL is chat-safe, own-row writable, participant-readable and realtime enabled", () => {
+  assert.match(profileSql, /CREATE TABLE IF NOT EXISTS public\.user_profiles/);
+  assert.match(profileSql, /display_name text NOT NULL/);
+  assert.match(profileSql, /avatar_icon text NOT NULL/);
+  assert.match(profileSql, /avatar_color text NOT NULL/);
+  assert.match(profileSql, /ALTER TABLE public\.user_profiles ENABLE ROW LEVEL SECURITY/);
+  assert.match(profileSql, /REVOKE ALL ON TABLE public\.user_profiles FROM PUBLIC, anon/);
+  assert.match(profileSql, /Users read own or community participant profiles/);
+  assert.match(profileSql, /m\.author_user_id = public\.user_profiles\.user_id/);
+  assert.match(profileSql, /r\.user_id = public\.user_profiles\.user_id/);
+  assert.match(profileSql, /Users create own profile/);
+  assert.match(profileSql, /Users update own profile/);
+  assert.match(profileSql, /user_id = auth\.uid\(\)/);
+  assert.match(profileSql, /ALTER TABLE public\.user_profiles REPLICA IDENTITY FULL/);
+  assert.match(profileSql, /ALTER PUBLICATION supabase_realtime ADD TABLE public\.user_profiles/);
+  assert.match(profileHelpers, /AVATAR_ICON_OPTIONS/);
+  assert.match(profileHelpers, /normalizeUserProfile/);
 });
 
 test("customer chat lists only through the token-bound customer inquiries API hook", () => {
@@ -143,7 +194,7 @@ test("community chat workspace is browser-direct realtime with unread handling a
   assert.match(communityWorkspace, /Load older messages/);
   assert.match(communityWorkspace, /Unread messages/);
   assert.match(communityWorkspace, /Jump to latest/);
-  assert.match(communityWorkspace, /visible to all signed-in ProGlass users/);
+  assert.match(communityWorkspace, /Every signed-in ProGlass user can read this room/);
   assert.match(communityWorkspace, /private inquiry chat/i);
   assert.match(communityHelpers, /GLOBAL_CHAT_MAX_BODY = 1000/);
   assert.match(communityHelpers, /mergeGlobalChatMessages/);
@@ -191,6 +242,31 @@ test("community chat auth and realtime setup cannot restart or crash the room on
   assert.match(communityHelpers, /export function normalizeGlobalChatReceipt/);
   assert.match(communityHelpers, /export function normalizeGlobalChatReadState/);
   assert.match(nextConfig, /wss:\/\/afpbdyamedpanwijxghk\.supabase\.co/);
+  assert.match(communityWorkspace, /realtime\.setAuth\(accessToken\)/);
+  assert.match(communityWorkspace, /data\.session\?\.access_token/);
+  assert.match(communityWorkspace, /session\?\.access_token/);
+  assert.match(communityWorkspace, /table: "user_profiles"/);
+  assert.match(communityWorkspace, /status === "SUBSCRIBED".*refreshLatestRef\.current/s);
+  assert.match(communityWorkspace, /window\.setInterval/);
+  assert.match(communityWorkspace, /\}, 3000\)/);
+  assert.match(communityWorkspace, /visibilitychange/);
+  assert.match(communityWorkspace, /window\.addEventListener\("focus"/);
+  assert.match(communityWorkspace, /window\.addEventListener\("online"/);
+});
+
+test("community chat is a compact right-aligned panel with visible receipt sync", () => {
+  assert.match(communityWorkspace, /max-w-\[430px\]/);
+  assert.match(communityWorkspace, /max-h-\[720px\]/);
+  assert.match(communityWorkspace, /justify-end/);
+  assert.match(communityWorkspace, /Refresh messages now/);
+  assert.match(communityWorkspace, /Edit profile/);
+  assert.match(communityWorkspace, /markReceiptsReadUpTo\(readAt\)/);
+  assert.match(communityWorkspace, /markVisibleMessagesRead/);
+  assert.match(communityWorkspace, /scheduleVisibleMessagesRead/);
+  assert.match(communityWorkspace, /Seen by \$\{receiptSummary\.readCount\} · Info/);
+  assert.match(communityWorkspace, /Delivered to \$\{receiptSummary\.deliveredCount\} · Info/);
+  assert.match(communityWorkspace, /ChatAvatar/);
+  assert.match(communityWorkspace, /profileFor\(receipt\.user_id/);
 });
 
 test("community chat workspace supports WhatsApp-style replies, ticks and who-read-when info", () => {

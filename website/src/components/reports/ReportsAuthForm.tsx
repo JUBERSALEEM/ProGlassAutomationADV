@@ -43,6 +43,10 @@ function safeRedirectPath(value: string | null, fallback: string): string {
   return value;
 }
 
+export function safeAuthRedirect(value: string | null, fallback: string): string {
+  return safeRedirectPath(value, fallback);
+}
+
 type ReportsAuthFormProps = {
   defaultRedirect?: string;
   variant?: "operations" | "account";
@@ -357,9 +361,13 @@ export function ReportsAuthForm({ defaultRedirect = "/reports", variant = "opera
         {step === "email" && mode === "password" ? (
           <form onSubmit={handlePasswordSignIn} className="mt-5 space-y-3.5">
             <label htmlFor="password-email" className="block text-2xs font-mono uppercase tracking-wider text-text-secondary">{t("Email address")}</label>
-            <input id="password-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
+            <input id="password-email" name="email" type="email" required autoComplete="username email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
             <label htmlFor="password-value" className="block text-2xs font-mono uppercase tracking-wider text-text-secondary">{t("Password")}</label>
-            <input id="password-value" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
+            <input id="password-value" name="password" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
+            <div className="rounded-xl border border-brand-400/30 bg-brand-500/10 px-3 py-2.5 text-left text-xs leading-relaxed text-brand-100">
+              <strong className="font-semibold">{t("Saved sign-in")}</strong>
+              <p className="mt-0.5 text-brand-100/80">{t("Your secure sign-in stays saved on this device and renews automatically. Sign out only when you want this browser to forget it.")}</p>
+            </div>
             <Button type="submit" variant="primary" size="lg" loading={loading} className="w-full justify-center">{t("Sign in")}</Button>
             <button type="button" onClick={() => setMode("otp")} className="w-full text-xs text-brand-300 underline underline-offset-4">{t("New account or forgot password? Use an email code")}</button>
           </form>
@@ -374,6 +382,7 @@ export function ReportsAuthForm({ defaultRedirect = "/reports", variant = "opera
               </label>
               <input
                 id="reports-email"
+                name="email"
                 type="email"
                 required
                 autoComplete="email"
@@ -399,9 +408,9 @@ export function ReportsAuthForm({ defaultRedirect = "/reports", variant = "opera
         ) : step === "set-password" ? (
           <form onSubmit={handleSetPassword} className="mt-5 space-y-3.5">
             <label htmlFor="new-password" className="block text-2xs font-mono uppercase tracking-wider text-text-secondary">{t("New password")}</label>
-            <input id="new-password" type="password" minLength={8} required autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
+            <input id="new-password" name="new-password" type="password" minLength={8} required autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
             <label htmlFor="confirm-password" className="block text-2xs font-mono uppercase tracking-wider text-text-secondary">{t("Confirm password")}</label>
-            <input id="confirm-password" type="password" minLength={8} required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
+            <input id="confirm-password" name="confirm-password" type="password" minLength={8} required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
             <Button type="submit" variant="primary" size="lg" loading={loading} className="w-full justify-center">{t("Save password and continue")}</Button>
             <button type="button" onClick={() => { router.push(redirectTo); router.refresh(); }} className="w-full text-xs text-text-muted underline underline-offset-4">{t("Skip for now")}</button>
           </form>
@@ -433,6 +442,7 @@ export function ReportsAuthForm({ defaultRedirect = "/reports", variant = "opera
               <input
                 ref={otpInputRef}
                 id="reports-otp"
+                name="one-time-code"
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -495,6 +505,9 @@ export function ReportsAuthForm({ defaultRedirect = "/reports", variant = "opera
 
           <p className="text-2xs text-text-muted leading-relaxed">
             {t(variant === "account" ? "Authentication protects your inquiry details, project documents, current status, and inquiry chat." : customerAccess ? "Authentication protects your inquiry details, projects, and private documents." : "Public marketing pages remain accessible to all visitors. Authentication is strictly required for live operational reports and database records.")}
+          </p>
+          <p className="text-2xs leading-relaxed text-text-faint">
+            {t("After sign-in, this browser remembers your secure session until you sign out or clear browser data.")}
           </p>
 
           <div className="pt-2">

@@ -17,7 +17,6 @@ import {
   GLOBAL_CHAT_MAX_BODY,
   GLOBAL_CHAT_PAGE_SIZE,
   GLOBAL_CHAT_PATH,
-  authorInitials,
   countUnreadGlobalChatMessages,
   firstUnreadGlobalChatMessageId,
   formatGlobalChatDateTime,
@@ -36,11 +35,21 @@ import {
   summarizeGlobalChatReceipts,
 } from "@/lib/global-chat";
 import { isSupabaseConfigured, supabaseBrowser } from "@/lib/supabase";
+import {
+  avatarColorClass,
+  avatarSymbol,
+  fallbackUserProfile,
+  normalizeUserProfile,
+  normalizeUserProfiles,
+  profileFromMetadata,
+} from "@/lib/user-profile";
 import type { GlobalChatMessage, GlobalChatReceipt } from "@/types/global-chat";
+import type { UserProfile } from "@/types/user-profile";
 
 const MESSAGE_SELECT =
   "id,author_user_id,author_display_name,body,reply_to_message_id,deleted_at,deleted_by,created_at";
 const RECEIPT_SELECT = "message_id,user_id,display_name,delivered_at,read_at";
+const PROFILE_SELECT = "user_id,display_name,avatar_icon,avatar_color,updated_at";
 
 function mergeReceiptRows(
   current: ReadonlyMap<string, GlobalChatReceipt[]>,
@@ -72,6 +81,8 @@ type ChatUser = {
   id: string;
   email: string | null;
   displayName: string;
+  avatarIcon: string;
+  avatarColor: string;
 };
 
 type ErrorLike = {
@@ -80,28 +91,31 @@ type ErrorLike = {
   details?: unknown;
 };
 
-const AVATAR_CLASSES = [
-  "bg-brand-500/20 text-brand-200 border-brand-400/40",
-  "bg-emerald-500/20 text-emerald-200 border-emerald-400/40",
-  "bg-sky-500/20 text-sky-200 border-sky-400/40",
-  "bg-amber-500/20 text-amber-200 border-amber-400/40",
-  "bg-rose-500/20 text-rose-200 border-rose-400/40",
-] as const;
-
 function toChatUser(user: User | null): ChatUser | null {
   if (!user || typeof user.id !== "string" || !user.id) return null;
+  const metadata = recordFromUnknown(user.user_metadata);
+  const displayName = globalChatDisplayName({
+    email: typeof user.email === "string" ? user.email : null,
+    metadata,
+  });
+  const profile = profileFromMetadata({ userId: user.id, displayName, metadata });
   return {
     id: user.id,
     email: typeof user.email === "string" ? user.email : null,
-    displayName: globalChatDisplayName({
-      email: typeof user.email === "string" ? user.email : null,
-      metadata: recordFromUnknown(user.user_metadata),
-    }),
+    displayName: profile.display_name,
+    avatarIcon: profile.avatar_icon,
+    avatarColor: profile.avatar_color,
   };
 }
 
 function sameChatUser(left: ChatUser | null, right: ChatUser | null): boolean {
-  return left?.id === right?.id && left?.email === right?.email && left?.displayName === right?.displayName;
+  return (
+    left?.id === right?.id &&
+    left?.email === right?.email &&
+    left?.displayName === right?.displayName &&
+    left?.avatarIcon === right?.avatarIcon &&
+    left?.avatarColor === right?.avatarColor
+  );
 }
 
 function friendlyError(error: unknown, fallback: string): string {
@@ -115,11 +129,25 @@ function friendlyError(error: unknown, fallback: string): string {
   return message || fallback;
 }
 
-function avatarClass(authorId: string): string {
-  let hash = 0;
-  const safeAuthorId = typeof authorId === "string" && authorId ? authorId : "ProGlass";
-  for (const char of safeAuthorId) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
-  return AVATAR_CLASSES[hash % AVATAR_CLASSES.length] ?? AVATAR_CLASSES[0];
+function ChatAvatar({
+  profile,
+  sizeClassName = "h-8 w-8",
+}: {
+  profile: UserProfile;
+  sizeClassName?: string;
+}) {
+  const symbol = avatarSymbol(profile);
+  return (
+    <span
+      aria-hidden="true"
+      className={`grid shrink-0 place-items-center rounded-full border font-black ${avatarColorClass(
+        profile.avatar_color,
+        profile.user_id,
+      )} ${sizeClassName} ${profile.avatar_icon === "initials" ? "text-[10px]" : "text-[15px]"}`}
+    >
+      {symbol}
+    </span>
+  );
 }
 
 function DayDivider({ label }: { label: string }) {
@@ -151,12 +179,12 @@ export function GlobalChatWorkspace() {
   const [hasMoreOlder, setHasMoreOlder] = useState(false);
   const [isModerator, setIsModerator] = useState(false);
   const [realtimeStatus, setRealtimeStatus] = useState("connecting");
-  const [isNearBottom, setIsNearBottom] = useState(true);
   const [replyTarget, setReplyTarget] = useState<GlobalChatMessage | null>(null);
   const [receiptsByMessage, setReceiptsByMessage] = useState<Map<string, GlobalChatReceipt[]>>(new Map());
   const [infoMessage, setInfoMessage] = useState<GlobalChatMessage | null>(null);
   const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
   const [quotedMessages, setQuotedMessages] = useState<Map<string, GlobalChatMessage>>(new Map());
+  const [profilesByUserId, setProfilesByUserId] = useState<Map<string, UserProfile>>(new Map());
   // A fresh topic for every mounted workspace prevents Supabase from handing
   // back a same-topic channel from the previous mount while its asynchronous
   // removeChannel() is still leaving. The realtime effect adds its own attempt
@@ -180,6 +208,12 @@ export function GlobalChatWorkspace() {
   const deliveredTimerRef = useRef<number | null>(null);
   const quotedFetchingRef = useRef<Set<string>>(new Set());
   const activeUserIdRef = useRef<string | null>(null);
+  const authAccessTokenRef = useRef<string | null>(null);
+  const profileFetchingRef = useRef<Set<string>>(new Set());
+  const profileAttemptedRef = useRef<Set<string>>(new Set());
+  const refreshInFlightRef = useRef(false);
+  const refreshLatestRef = useRef<() => Promise<void>>(async () => {});
+  const visibleReadFrameRef = useRef<number | null>(null);
 
   const normalizedDraft = useMemo(() => normalizeGlobalChatDraft(draft), [draft]);
   const draftTooLong = normalizedDraft.length > GLOBAL_CHAT_MAX_BODY;
@@ -191,10 +225,25 @@ export function GlobalChatWorkspace() {
     [lastReadAt, messages, user?.id],
   );
   const latestMessage = messages[messages.length - 1] ?? null;
-  const latestPreview = useMemo(() => {
-    const latestVisible = [...messages].reverse().find((message) => !message.deleted_at);
-    return latestVisible?.body ?? "No messages yet. Say hello to the community.";
-  }, [messages]);
+  const currentProfile = useMemo<UserProfile | null>(() => {
+    if (!user) return null;
+    return (
+      profilesByUserId.get(user.id) ?? {
+        user_id: user.id,
+        display_name: user.displayName,
+        avatar_icon: user.avatarIcon,
+        avatar_color: user.avatarColor,
+      }
+    );
+  }, [profilesByUserId, user]);
+  const profileFor = useCallback(
+    (userId: string, fallbackName: string): UserProfile =>
+      profilesByUserId.get(userId) ??
+      (currentProfile && currentProfile.user_id === userId
+        ? currentProfile
+        : fallbackUserProfile(userId, fallbackName)),
+    [currentProfile, profilesByUserId],
+  );
   const messagesById = useMemo(() => new Map(messages.map((message) => [message.id, message])), [messages]);
   const infoTarget = infoMessage ? (messagesById.get(infoMessage.id) ?? infoMessage) : null;
   const infoReceipts = infoTarget ? (receiptsByMessage.get(infoTarget.id) ?? []) : [];
@@ -214,7 +263,6 @@ export function GlobalChatWorkspace() {
       // Scrolling is progressive enhancement; it must never crash the room.
     }
     nearBottomRef.current = true;
-    setIsNearBottom(true);
   }, []);
 
   const scrollToMessage = useCallback((messageId: string) => {
@@ -254,9 +302,55 @@ export function GlobalChatWorkspace() {
     setReceiptsByMessage((current) => mergeReceiptRows(current, normalizedRows));
   }, []);
 
+  const mergeProfiles = useCallback((rows: readonly UserProfile[]) => {
+    const normalizedRows = normalizeUserProfiles(rows);
+    if (!normalizedRows.length) return;
+    setProfilesByUserId((current) => {
+      const next = new Map(current);
+      for (const profile of normalizedRows) next.set(profile.user_id, profile);
+      return next;
+    });
+  }, []);
+
+  const fetchProfiles = useCallback(
+    async (userIds: readonly string[], force = false) => {
+      if (!user || !configured) return;
+      const unique = [...new Set(userIds)].filter(
+        (id) =>
+          typeof id === "string" &&
+          Boolean(id) &&
+          !profileFetchingRef.current.has(id) &&
+          (force || !profileAttemptedRef.current.has(id)),
+      );
+      if (!unique.length) return;
+      unique.forEach((id) => {
+        profileFetchingRef.current.add(id);
+        profileAttemptedRef.current.add(id);
+      });
+      try {
+        for (let start = 0; start < unique.length; start += 100) {
+          const { data, error: profileError } = await supabaseBrowser()
+            .from("user_profiles")
+            .select(PROFILE_SELECT)
+            .in("user_id", unique.slice(start, start + 100));
+          if (profileError) throw profileError;
+          if (activeUserIdRef.current !== user.id) return;
+          mergeProfiles(normalizeUserProfiles(data));
+        }
+      } catch {
+        // Avatar profiles are additive. Initials remain a safe fallback if a
+        // deployment has not installed the profile table yet.
+      } finally {
+        unique.forEach((id) => profileFetchingRef.current.delete(id));
+      }
+    },
+    [configured, mergeProfiles, user],
+  );
+
   const fetchReceipts = useCallback(
-    async (messageIds: readonly string[]) => {
-      if (!user || !configured || messageIds.length === 0) return;
+    async (messageIds: readonly string[]): Promise<GlobalChatReceipt[]> => {
+      if (!user || !configured || messageIds.length === 0) return [];
+      const fetched: GlobalChatReceipt[] = [];
       try {
         for (let start = 0; start < messageIds.length; start += 200) {
           const { data, error: receiptError } = await supabaseBrowser()
@@ -264,8 +358,9 @@ export function GlobalChatWorkspace() {
             .select(RECEIPT_SELECT)
             .in("message_id", messageIds.slice(start, start + 200));
           if (receiptError) throw receiptError;
-          if (activeUserIdRef.current !== user.id) return;
+          if (activeUserIdRef.current !== user.id) return fetched;
           const rows = normalizeGlobalChatReceipts(data);
+          fetched.push(...rows);
           for (const row of rows) {
             if (row.user_id !== user.id) continue;
             if (row.delivered_at) deliveredSentRef.current.add(row.message_id);
@@ -276,6 +371,7 @@ export function GlobalChatWorkspace() {
       } catch {
         // Receipts are an upgrade layer; the core room must keep working if absent.
       }
+      return fetched;
     },
     [configured, mergeReceipts, user],
   );
@@ -355,27 +451,75 @@ export function GlobalChatWorkspace() {
       if (!user || !configured) return;
       const target =
         at ?? messagesRef.current[messagesRef.current.length - 1]?.created_at ?? new Date().toISOString();
-      if (lastReadAtRef.current && Date.parse(lastReadAtRef.current) >= Date.parse(target)) {
-        setUnreadCount(0);
-        await markReceiptsReadUpTo(target);
-        return;
-      }
+      const targetTime = Date.parse(target);
+      if (!Number.isFinite(targetTime)) return;
+
       try {
-        const { data, error: readError } = await supabaseBrowser().rpc("mark_global_chat_read", {
-          p_last_read_at: target,
-        });
-        if (readError) throw readError;
-        const nextReadAt = normalizeGlobalChatReadState(data)?.last_read_at ?? target;
-        lastReadAtRef.current = nextReadAt;
-        setLastReadAt(nextReadAt);
-        setUnreadCount(0);
-        await markReceiptsReadUpTo(nextReadAt);
+        let effectiveReadAt = lastReadAtRef.current;
+        const effectiveReadTime = effectiveReadAt ? Date.parse(effectiveReadAt) : 0;
+
+        if (!effectiveReadAt || !Number.isFinite(effectiveReadTime) || effectiveReadTime < targetTime) {
+          const { data, error: readError } = await supabaseBrowser().rpc("mark_global_chat_read", {
+            p_last_read_at: target,
+          });
+          if (readError) throw readError;
+          effectiveReadAt = normalizeGlobalChatReadState(data)?.last_read_at ?? target;
+          lastReadAtRef.current = effectiveReadAt;
+          setLastReadAt(effectiveReadAt);
+        }
+
+        // Always sync exact per-message receipts up to the effective cursor.
+        // This is essential after the receipts upgrade and on a second device:
+        // the cursor may already cover messages whose individual read rows do
+        // not exist yet, so "unread = 0" must not skip receipt creation.
+        await markReceiptsReadUpTo(effectiveReadAt ?? target);
+        setUnreadCount(
+          countUnreadGlobalChatMessages(messagesRef.current, user.id, effectiveReadAt ?? target),
+        );
       } catch (reason) {
         setError(friendlyError(reason, "Unable to update your read position."));
       }
     },
     [configured, markReceiptsReadUpTo, user],
   );
+
+  const markVisibleMessagesRead = useCallback(() => {
+    if (!user || !configured || document.visibilityState !== "visible") return;
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const readCursorTime = lastReadAtRef.current ? Date.parse(lastReadAtRef.current) : 0;
+    let latestVisible: GlobalChatMessage | null = null;
+
+    for (const message of normalizeGlobalChatMessages(messagesRef.current)) {
+      if (message.author_user_id === user.id || message.deleted_at) continue;
+      const messageTime = Date.parse(message.created_at);
+      const alreadyFullySynced =
+        Number.isFinite(messageTime) &&
+        Number.isFinite(readCursorTime) &&
+        messageTime <= readCursorTime &&
+        readSentRef.current.has(message.id);
+      if (alreadyFullySynced) continue;
+
+      const element = document.getElementById(`global-chat-message-${message.id}`);
+      if (!element) continue;
+      const rect = element.getBoundingClientRect();
+      if (rect.bottom > containerRect.top + 4 && rect.top < containerRect.bottom - 4) {
+        latestVisible = message;
+      }
+    }
+
+    if (latestVisible) void markReadRef.current(latestVisible.created_at);
+  }, [configured, user]);
+
+  const scheduleVisibleMessagesRead = useCallback(() => {
+    if (visibleReadFrameRef.current !== null) return;
+    visibleReadFrameRef.current = requestAnimationFrame(() => {
+      visibleReadFrameRef.current = null;
+      markVisibleMessagesRead();
+    });
+  }, [markVisibleMessagesRead]);
 
   const loadChat = useCallback(
     async ({ scroll = false }: { scroll?: boolean } = {}) => {
@@ -414,6 +558,7 @@ export function GlobalChatWorkspace() {
         lastReadAtRef.current = readAt;
         setMessages(nextMessages);
         setLastReadAt(readAt);
+        if (readAt) void markReceiptsReadUpTo(readAt);
         setHasMoreOlder(fetchedCount >= GLOBAL_CHAT_PAGE_SIZE);
         void fetchReceipts(nextMessages.map((message) => message.id));
         queueDelivered(
@@ -437,6 +582,7 @@ export function GlobalChatWorkspace() {
           requestAnimationFrame(() => {
             if (unread > 0 && firstUnread) scrollToMessage(firstUnread);
             else scrollToBottom(false);
+            window.setTimeout(scheduleVisibleMessagesRead, 350);
           });
         }
       } catch (reason) {
@@ -445,8 +591,96 @@ export function GlobalChatWorkspace() {
         setLoading(false);
       }
     },
-    [configured, fetchReceipts, fetchUnreadCount, queueDelivered, scrollToBottom, scrollToMessage, user],
+    [
+      configured,
+      fetchReceipts,
+      fetchUnreadCount,
+      markReceiptsReadUpTo,
+      queueDelivered,
+      scheduleVisibleMessagesRead,
+      scrollToBottom,
+      scrollToMessage,
+      user,
+    ],
   );
+
+  const refreshLatest = useCallback(async () => {
+    if (!user || !configured || activeUserIdRef.current !== user.id || refreshInFlightRef.current) return;
+    refreshInFlightRef.current = true;
+    try {
+      const supabase = supabaseBrowser();
+      const batchSize = Math.max(GLOBAL_CHAT_PAGE_SIZE, Math.min(messagesRef.current.length || 0, 200));
+      const { data, error: refreshError } = await supabase
+        .from("global_chat_messages")
+        .select(MESSAGE_SELECT)
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
+        .limit(batchSize);
+      if (refreshError) throw refreshError;
+      if (activeUserIdRef.current !== user.id) return;
+
+      const fresh = normalizeGlobalChatMessages(data);
+      if (!fresh.length) return;
+      const existingIds = new Set(messagesRef.current.map((message) => message.id));
+      const merged = mergeGlobalChatMessages(messagesRef.current, fresh);
+      const newMessages = merged.filter((message: GlobalChatMessage) => !existingIds.has(message.id));
+      messagesRef.current = merged;
+      setMessages(merged);
+      await fetchReceipts(fresh.map((message) => message.id));
+      if (!newMessages.length) return;
+      void fetchProfiles(newMessages.map((message) => message.author_user_id), true);
+
+      const newIncoming = newMessages.filter(
+        (message) => message.author_user_id !== user.id && !message.deleted_at,
+      );
+      if (newIncoming.length) queueDelivered(newIncoming.map((message) => message.id));
+
+      const newest = newMessages[newMessages.length - 1];
+      if (!newest) return;
+      if (newest.author_user_id === user.id) {
+        requestAnimationFrame(() => scrollToBottom(true));
+      } else if (nearBottomRef.current) {
+        requestAnimationFrame(() => {
+          scrollToBottom(true);
+          window.setTimeout(scheduleVisibleMessagesRead, 80);
+        });
+      } else {
+        setUnreadCount((count) => count + newIncoming.length);
+      }
+    } catch {
+      // Silent background reconcile: a failed poll keeps the visible room
+      // intact, and the next 3-second tick or realtime event retries.
+    } finally {
+      refreshInFlightRef.current = false;
+    }
+  }, [configured, fetchProfiles, fetchReceipts, queueDelivered, scheduleVisibleMessagesRead, scrollToBottom, user]);
+
+  useEffect(() => {
+    refreshLatestRef.current = refreshLatest;
+  }, [refreshLatest]);
+
+  useEffect(() => {
+    if (!user || !configured) return;
+    // Supabase Realtime remains the primary path. This quiet 3-second
+    // reconcile guarantees message/receipt convergence even when a browser
+    // tab, proxy, or reconnect drops a websocket event.
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === "visible") void refreshLatest();
+    }, 3000);
+    const refreshWhenActive = () => void refreshLatest();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") refreshWhenActive();
+    };
+    window.addEventListener("focus", refreshWhenActive);
+    window.addEventListener("online", refreshWhenActive);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refreshWhenActive);
+      window.removeEventListener("online", refreshWhenActive);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [configured, refreshLatest, user]);
 
   const loadOlder = useCallback(async (): Promise<boolean> => {
     const oldest = messagesRef.current[0];
@@ -476,11 +710,13 @@ export function GlobalChatWorkspace() {
       const more = (Array.isArray(data) ? data.length : 0) >= GLOBAL_CHAT_PAGE_SIZE;
       setHasMoreOlder(more);
       void fetchReceipts(olderRows.map((message) => message.id));
+      void fetchProfiles(olderRows.map((message) => message.author_user_id));
       queueDelivered(
         olderRows
           .filter((message) => message.author_user_id !== user.id && !message.deleted_at)
           .map((message) => message.id),
       );
+      if (lastReadAtRef.current) void markReceiptsReadUpTo(lastReadAtRef.current);
       requestAnimationFrame(() => {
         const nextElement = scrollRef.current;
         if (nextElement) nextElement.scrollTop = nextElement.scrollHeight - oldHeight + oldTop;
@@ -492,15 +728,29 @@ export function GlobalChatWorkspace() {
     } finally {
       setLoadingOlder(false);
     }
-  }, [configured, fetchReceipts, loadingOlder, queueDelivered, user]);
+  }, [configured, fetchProfiles, fetchReceipts, loadingOlder, markReceiptsReadUpTo, queueDelivered, user]);
 
   useEffect(() => {
     messagesRef.current = normalizeGlobalChatMessages(messages);
   }, [messages]);
 
+  useEffect(() => {
+    if (!user) return;
+    const participantIds = new Set<string>([user.id]);
+    for (const message of normalizeGlobalChatMessages(messages)) participantIds.add(message.author_user_id);
+    for (const message of quotedMessages.values()) participantIds.add(message.author_user_id);
+    for (const receipts of receiptsByMessage.values()) {
+      for (const receipt of receipts) participantIds.add(receipt.user_id);
+    }
+    queueMicrotask(() => {
+      void fetchProfiles([...participantIds]);
+    });
+  }, [fetchProfiles, messages, quotedMessages, receiptsByMessage, user]);
+
   useEffect(
     () => () => {
       if (deliveredTimerRef.current !== null) window.clearTimeout(deliveredTimerRef.current);
+      if (visibleReadFrameRef.current !== null) cancelAnimationFrame(visibleReadFrameRef.current);
     },
     [],
   );
@@ -539,6 +789,16 @@ export function GlobalChatWorkspace() {
     setReplyTarget(message);
     requestAnimationFrame(() => composerRef.current?.focus());
   }, []);
+
+  const openMessageInfo = useCallback(
+    (message: GlobalChatMessage) => {
+      setInfoMessage(message);
+      void fetchReceipts([message.id]).then((rows) => {
+        void fetchProfiles([message.author_user_id, ...rows.map((row) => row.user_id)], true);
+      });
+    },
+    [fetchProfiles, fetchReceipts],
+  );
 
   useEffect(() => {
     if (!user || !configured) return;
@@ -596,8 +856,19 @@ export function GlobalChatWorkspace() {
     let alive = true;
     let subscription: { unsubscribe: () => void } | null = null;
 
-    const applySessionUser = (nextUser: ChatUser | null) => {
+    const applySessionUser = (nextUser: ChatUser | null, accessToken?: string | null) => {
       if (!alive) return;
+      if (typeof accessToken === "string" || accessToken === null) {
+        const previousToken = authAccessTokenRef.current;
+        authAccessTokenRef.current = accessToken || null;
+        if (accessToken && accessToken !== previousToken) {
+          try {
+            void Promise.resolve(supabaseBrowser().realtime.setAuth(accessToken)).catch(() => undefined);
+          } catch {
+            // The realtime effect also calls setAuth before subscribing.
+          }
+        }
+      }
       const nextUserId = nextUser?.id ?? null;
       if (activeUserIdRef.current !== nextUserId) {
         activeUserIdRef.current = nextUserId;
@@ -607,9 +878,13 @@ export function GlobalChatWorkspace() {
         readSentRef.current.clear();
         deliveredQueueRef.current.clear();
         quotedFetchingRef.current.clear();
+        profileFetchingRef.current.clear();
+        profileAttemptedRef.current.clear();
+        refreshInFlightRef.current = false;
         setMessages([]);
         setReceiptsByMessage(new Map());
         setQuotedMessages(new Map());
+        setProfilesByUserId(new Map());
         setReplyTarget(null);
         setInfoMessage(null);
         setHighlightedMessageId(null);
@@ -632,7 +907,7 @@ export function GlobalChatWorkspace() {
         .getSession()
         .then(({ data, error: sessionError }) => {
           if (sessionError) throw sessionError;
-          applySessionUser(toChatUser(data.session?.user ?? null));
+          applySessionUser(toChatUser(data.session?.user ?? null), data.session?.access_token ?? null);
         })
         .catch((reason: unknown) => {
           if (!alive) return;
@@ -642,7 +917,7 @@ export function GlobalChatWorkspace() {
 
       const { data } = supabase.auth.onAuthStateChange((_event, session) => {
         try {
-          applySessionUser(toChatUser(session?.user ?? null));
+          applySessionUser(toChatUser(session?.user ?? null), session?.access_token ?? null);
         } catch (reason) {
           if (!alive) return;
           setError(friendlyError(reason, "Unable to confirm your sign-in. Please refresh and sign in again."));
@@ -680,8 +955,12 @@ export function GlobalChatWorkspace() {
 
     let active = true;
     let removeChannel: (() => void) | null = null;
+    void (async () => {
     try {
       const supabase = supabaseBrowser();
+      const accessToken = authAccessTokenRef.current;
+      if (accessToken) await supabase.realtime.setAuth(accessToken);
+      if (!active) return;
       realtimeAttemptRef.current += 1;
       const realtimeTopic = `global-community-chat-${user.id}-${realtimeSessionId}-${realtimeAttemptRef.current}`;
       const channel = supabase.channel(realtimeTopic);
@@ -710,6 +989,7 @@ export function GlobalChatWorkspace() {
               const merged = mergeGlobalChatMessages(messagesRef.current, [next]);
               messagesRef.current = merged;
               setMessages(merged);
+              void fetchProfiles([next.author_user_id], true);
 
               const isMine = next.author_user_id === user.id;
               if (payload.eventType === "INSERT" && isMine) {
@@ -744,9 +1024,23 @@ export function GlobalChatWorkspace() {
             }
           },
         )
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "user_profiles" },
+          (payload) => {
+            if (!active) return;
+            try {
+              const profile = normalizeUserProfile(payload.new);
+              if (profile) mergeProfiles([profile]);
+            } catch {
+              // Avatar changes are cosmetic; initials remain the fallback.
+            }
+          },
+        )
         .subscribe((status) => {
           if (!active) return;
           setRealtimeStatus(typeof status === "string" && status ? status : "connecting");
+          if (status === "SUBSCRIBED") void refreshLatestRef.current();
         });
     } catch (reason) {
       // Realtime is an enhancement over the already-loaded REST history. A
@@ -768,6 +1062,7 @@ export function GlobalChatWorkspace() {
         );
       });
     }
+    })();
 
     return () => {
       active = false;
@@ -778,18 +1073,14 @@ export function GlobalChatWorkspace() {
         // prevents this cleanup race from affecting a later subscription.
       }
     };
-  }, [configured, mergeReceipts, queueDelivered, realtimeSessionId, scrollToBottom, user]);
+  }, [configured, fetchProfiles, mergeProfiles, mergeReceipts, queueDelivered, realtimeSessionId, scrollToBottom, user]);
 
   const handleScroll = () => {
     const element = scrollRef.current;
     if (!element) return;
     const nearBottom = element.scrollHeight - element.scrollTop - element.clientHeight < 120;
     nearBottomRef.current = nearBottom;
-    setIsNearBottom(nearBottom);
-    if (nearBottom && unreadCount > 0) {
-      const last = messagesRef.current[messagesRef.current.length - 1];
-      if (last) void markRead(last.created_at);
-    }
+    scheduleVisibleMessagesRead();
   };
 
   const jumpToLatest = () => {
@@ -863,16 +1154,18 @@ export function GlobalChatWorkspace() {
 
   if (checking) {
     return (
-      <div role="status" className="grid min-h-[60vh] place-items-center bg-ink-950 text-xs text-text-muted">
-        Checking your secure session…
+      <div role="status" className="flex min-h-[60vh] items-start justify-end bg-ink-950 px-3 py-6 text-xs text-text-muted sm:px-5">
+        <div className="grid h-[420px] w-full max-w-[430px] place-items-center rounded-[28px] border border-line-strong bg-ink-900 shadow-panel">
+          Checking your secure session…
+        </div>
       </div>
     );
   }
 
   if (!configured) {
     return (
-      <main className="min-h-[65vh] bg-ink-950 px-4 py-20 text-text-primary">
-        <section className="mx-auto max-w-xl rounded-3xl border border-state-warning/40 bg-state-warning/10 p-6 text-center shadow-panel sm:p-8">
+      <main className="flex min-h-[65vh] items-start justify-end bg-ink-950 px-3 py-6 text-text-primary sm:px-5">
+        <section className="w-full max-w-[430px] rounded-[28px] border border-state-warning/40 bg-state-warning/10 p-6 text-center shadow-panel">
           <p className="eyebrow text-state-warning">Community chat</p>
           <h1 className="mt-3 text-2xl font-bold">Chat is not configured in this deployment</h1>
           <p className="mt-3 text-sm leading-relaxed text-text-muted">
@@ -891,8 +1184,8 @@ export function GlobalChatWorkspace() {
 
   if (!user) {
     return (
-      <main className="min-h-[65vh] bg-ink-950 px-4 py-20 text-text-primary">
-        <section className="mx-auto max-w-xl rounded-3xl border border-line-strong bg-ink-900 p-6 text-center shadow-panel sm:p-8">
+      <main className="flex min-h-[65vh] items-start justify-end bg-ink-950 px-3 py-6 text-text-primary sm:px-5">
+        <section className="w-full max-w-[430px] rounded-[28px] border border-line-strong bg-ink-900 p-6 text-center shadow-panel">
           <p className="eyebrow text-brand-300">Community chat</p>
           <h1 className="mt-3 text-2xl font-bold">Sign in to join the ProGlass community room</h1>
           <p className="mt-3 text-sm leading-relaxed text-text-muted">
@@ -930,159 +1223,108 @@ export function GlobalChatWorkspace() {
   }
 
   return (
-    <main className="min-h-screen bg-ink-950 pb-20 text-text-primary">
-      <div className="shell py-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="max-w-3xl">
-            <p className="eyebrow text-brand-300">Community</p>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight">ProGlass Community Chat</h1>
-            <p className="mt-2 text-sm leading-relaxed text-text-muted">
-              One live, WhatsApp-style group room for signed-in users to chat normally. Private inquiry work stays in
-              My inquiries &amp; chat.
-            </p>
-            <p className="mt-2 text-xs text-text-faint">
-              Signed in as {user.displayName}
-              {user.email ? ` · ${user.email}` : ""}
-              {isModerator ? " · Community moderator" : ""}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => void loadChat()}
-              className="rounded-xl border border-line-strong bg-ink-900 px-4 py-2.5 text-xs font-bold text-brand-300"
-            >
-              Refresh
-            </button>
-            <LocaleLink
-              href="/inquiries/chat"
-              className="rounded-xl border border-line-strong bg-ink-900 px-4 py-2.5 text-xs font-bold text-text-secondary"
-            >
-              Private inquiry chat
-            </LocaleLink>
-            <LocaleLink
-              href="/inquiries/submit"
-              className="rounded-xl bg-brand-400 px-4 py-2.5 text-xs font-bold text-accent-ink"
-            >
-              Submit inquiry
-            </LocaleLink>
-          </div>
-        </div>
-
-        {error ? (
-          <div role="alert" className="mt-5 rounded-2xl border border-state-danger/40 bg-state-danger/10 p-4 text-sm text-state-danger">
-            {error}
-          </div>
-        ) : null}
-
-        <div className="mt-6 grid items-start gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
-          <aside aria-label="Community rooms" className="hidden space-y-4 lg:block">
-            <section className="rounded-3xl border border-line-strong bg-ink-900 p-4 shadow-panel">
-              <div className="flex items-center justify-between gap-3">
-                <h2 className="text-sm font-bold">Chats</h2>
-                <span className="rounded-full border border-emerald-400/50 bg-emerald-400/10 px-2 py-0.5 text-3xs font-bold uppercase text-emerald-200">
-                  {realtimeLabel}
-                </span>
-              </div>
-
-              <div className="mt-4 rounded-2xl border border-brand-400/70 bg-brand-400/10 p-3" aria-current="true">
-                <div className="flex items-start gap-3">
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-400 text-sm font-black text-accent-ink">
-                    PG
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center justify-between gap-2">
-                      <strong className="truncate text-sm">ProGlass Community</strong>
-                      {latestMessage ? (
-                        <time className="shrink-0 text-3xs text-text-faint">
-                          {formatGlobalChatTime(latestMessage.created_at, locale)}
-                        </time>
-                      ) : null}
-                    </span>
-                    <span className="mt-1 line-clamp-2 block text-xs leading-relaxed text-text-muted">{latestPreview}</span>
-                  </span>
-                  {unreadCount > 0 ? (
-                    <span className="grid h-6 min-w-6 shrink-0 place-items-center rounded-full bg-emerald-400 px-1.5 text-3xs font-black text-accent-ink">
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
-                  ) : null}
-                </div>
-              </div>
-
-              <dl className="mt-4 grid grid-cols-3 gap-2 text-center">
-                <div className="rounded-2xl border border-line bg-ink-950/70 p-3">
-                  <dt className="text-3xs uppercase tracking-wider text-text-faint">Loaded</dt>
-                  <dd className="mt-1 text-lg font-bold">{messages.length}</dd>
-                </div>
-                <div className="rounded-2xl border border-line bg-ink-950/70 p-3">
-                  <dt className="text-3xs uppercase tracking-wider text-text-faint">Unread</dt>
-                  <dd className="mt-1 text-lg font-bold">{unreadCount}</dd>
-                </div>
-                <div className="rounded-2xl border border-line bg-ink-950/70 p-3">
-                  <dt className="text-3xs uppercase tracking-wider text-text-faint">Room</dt>
-                  <dd className="mt-1 text-lg font-bold">1</dd>
-                </div>
-              </dl>
-            </section>
-
-            <section className="rounded-3xl border border-line-strong bg-ink-900 p-5 shadow-panel">
-              <h2 className="text-sm font-bold">Room guidelines</h2>
-              <ul className="mt-3 list-disc space-y-2 pl-5 text-xs leading-relaxed text-text-muted">
-                <li>Every signed-in ProGlass user can read this room.</li>
-                <li>Do not post private project details, documents, prices, phone numbers, or customer data.</li>
-                <li>Use My inquiries &amp; chat for quotations, drawings, files, and account-specific help.</li>
-                <li>Admins can delete messages that break these rules.</li>
-                <li>
-                  Read receipts are on, like a WhatsApp group: tap the ticks or “Message info” to see who read a
-                  message and when.
-                </li>
-              </ul>
-            </section>
-          </aside>
-
-          <section
-            aria-label="ProGlass community chat room"
-            className="overflow-hidden rounded-3xl border border-line-strong bg-ink-900 shadow-panel"
-          >
-            <header className="flex items-center gap-3 border-b border-line bg-ink-900 px-4 py-3 sm:px-5">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-400 text-sm font-black text-accent-ink">
+    <main className="bg-ink-950 px-3 py-4 text-text-primary sm:px-5">
+      <div className="mx-auto flex w-full max-w-[1180px] justify-end">
+        <section
+          aria-label="ProGlass community chat room"
+          className="relative flex h-[calc(100dvh-175px)] max-h-[720px] min-h-[500px] w-full max-w-[430px] flex-col overflow-hidden rounded-[28px] border border-line-strong bg-ink-900 shadow-raised"
+        >
+          <header className="border-b border-line bg-ink-900 px-3 py-3">
+            <div className="flex items-center gap-2.5">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-400 text-xs font-black text-accent-ink">
                 PG
               </span>
               <div className="min-w-0 flex-1">
-                <h2 className="truncate text-base font-bold">ProGlass Community</h2>
-                <p className="mt-0.5 flex items-center gap-1.5 text-3xs text-text-faint">
+                <h1 className="truncate text-[15px] font-bold leading-tight">ProGlass Community</h1>
+                <p className="mt-0.5 flex items-center gap-1.5 text-[10px] leading-tight text-text-faint">
                   <span
                     aria-hidden="true"
                     className={`h-2 w-2 rounded-full ${realtimeLabel === "subscribed" ? "bg-emerald-400" : "bg-state-warning"}`}
                   />
-                  Signed-in group room · realtime {realtimeLabel}
-                  {isNearBottom ? " · viewing latest" : " · reading history"}
+                  <span>{realtimeLabel === "subscribed" ? "Live now" : "Auto-refresh on"}</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{messages.length} loaded</span>
+                  {latestMessage ? (
+                    <>
+                      <span aria-hidden="true">·</span>
+                      <time dateTime={latestMessage.created_at}>
+                        {formatGlobalChatTime(latestMessage.created_at, locale)}
+                      </time>
+                    </>
+                  ) : null}
                 </p>
               </div>
               {unreadCount > 0 ? (
-                <span className="rounded-full bg-emerald-400 px-2.5 py-1 text-3xs font-black text-accent-ink">
-                  {unreadCount} unread
+                <span className="grid h-6 min-w-6 shrink-0 place-items-center rounded-full bg-emerald-400 px-1.5 text-[10px] font-black text-accent-ink">
+                  {unreadCount > 99 ? "99+" : unreadCount}
                 </span>
               ) : null}
-            </header>
+              <button
+                type="button"
+                onClick={() => void refreshLatest()}
+                aria-label="Refresh messages now"
+                title="Refresh messages now"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-line-strong text-sm font-black text-brand-300 hover:bg-ink-850"
+              >
+                ↻
+              </button>
+            </div>
 
-            <div className="border-b border-line bg-brand-400/10 px-4 py-3 text-xs leading-relaxed text-brand-100 sm:px-5">
-              This room is visible to all signed-in ProGlass users. Please do not share private project details,
-              documents, prices, or personal contact information here — use{" "}
+            <div className="mt-2 flex items-center gap-2 rounded-2xl border border-line bg-ink-950/70 px-2 py-1.5">
+              {currentProfile ? <ChatAvatar profile={currentProfile} sizeClassName="h-7 w-7" /> : null}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[11px] font-bold leading-tight">
+                  {currentProfile?.display_name ?? user.displayName}
+                </p>
+                <p className="truncate text-[10px] leading-tight text-text-faint">
+                  {user.email ?? "Signed in"}
+                  {isModerator ? " · Moderator" : ""}
+                </p>
+              </div>
+              <LocaleLink
+                href="/account"
+                className="shrink-0 rounded-full border border-line-strong px-2 py-1 text-[10px] font-bold text-brand-300"
+              >
+                Edit profile
+              </LocaleLink>
+              <LocaleLink
+                href="/inquiries/chat"
+                className="shrink-0 rounded-full border border-line-strong px-2 py-1 text-[10px] font-bold text-text-secondary"
+              >
+                Private chat
+              </LocaleLink>
+            </div>
+          </header>
+
+          <details className="border-b border-line bg-brand-400/10 px-3 py-2 text-[11px] leading-relaxed text-brand-100">
+            <summary className="cursor-pointer font-bold">Public room · keep private work private</summary>
+            <p className="mt-1 text-text-muted">
+              Every signed-in ProGlass user can read this room. Do not share project details, documents, prices, or
+              personal contact information here — use{" "}
               <LocaleLink href="/inquiries/chat" className="font-bold text-brand-200 underline underline-offset-4">
                 My inquiries &amp; chat
               </LocaleLink>{" "}
-              for private work.
-            </div>
+              for private work. Read receipts are on: use Message info to see who received and read each message.
+            </p>
+          </details>
 
-            <div className="relative">
+          {error ? (
+            <div
+              role="alert"
+              className="mx-3 mt-2 rounded-2xl border border-state-danger/40 bg-state-danger/10 px-3 py-2 text-[11px] font-semibold leading-relaxed text-state-danger"
+            >
+              {error}
+            </div>
+          ) : null}
+
+            <div className="relative flex min-h-0 flex-1 flex-col">
               <div
                 ref={scrollRef}
                 onScroll={handleScroll}
                 role="log"
                 aria-live="polite"
                 aria-label="Community messages"
-                className="h-[58vh] space-y-4 overflow-y-auto scroll-smooth bg-ink-950/70 px-3 py-4 sm:px-5 lg:h-[64vh]"
+                className="min-h-0 flex-1 space-y-3 overflow-y-auto scroll-smooth bg-ink-950/70 px-3 py-3"
               >
                 {hasMoreOlder ? (
                   <div className="flex justify-center">
@@ -1129,6 +1371,19 @@ export function GlobalChatWorkspace() {
                       : null;
                     const receiptSummary = summarizeGlobalChatReceipts(receiptsByMessage.get(message.id) ?? []);
                     const highlighted = highlightedMessageId === message.id;
+                    const authorProfile = profileFor(message.author_user_id, message.author_display_name);
+                    const authorName = authorProfile.display_name || message.author_display_name;
+                    const quotedAuthorName = quoted
+                      ? quoted.author_user_id === user.id
+                        ? "You"
+                        : profileFor(quoted.author_user_id, quoted.author_display_name).display_name
+                      : "Original message";
+                    const receiptActionLabel =
+                      receiptSummary.readCount > 0
+                        ? `Seen by ${receiptSummary.readCount} · Info`
+                        : receiptSummary.deliveredCount > 0
+                          ? `Delivered to ${receiptSummary.deliveredCount} · Info`
+                          : "Message info";
 
                     return (
                       <div key={message.id} className="space-y-3">
@@ -1147,23 +1402,16 @@ export function GlobalChatWorkspace() {
                           id={`global-chat-message-${message.id}`}
                           className={`flex items-end gap-2 ${own ? "justify-end" : "justify-start"}`}
                         >
-                          {!own ? (
-                            <span
-                              aria-hidden="true"
-                              className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border text-3xs font-black ${avatarClass(message.author_user_id)}`}
-                            >
-                              {authorInitials(message.author_display_name)}
-                            </span>
-                          ) : null}
+                          {!own ? <ChatAvatar profile={authorProfile} sizeClassName="h-7 w-7" /> : null}
 
-                          <div className={`flex max-w-[84%] flex-col sm:max-w-[72%] ${own ? "items-end" : "items-start"}`}>
+                          <div className={`flex max-w-[84%] flex-col ${own ? "items-end" : "items-start"}`}>
                             {showAuthor ? (
-                              <div className="mb-1 px-1 text-3xs font-bold text-brand-200">
-                                {message.author_display_name}
+                              <div className="mb-1 px-1 text-[10px] font-bold leading-tight text-brand-200">
+                                {authorName}
                               </div>
                             ) : null}
                             <article
-                              className={`rounded-3xl px-3.5 py-2.5 shadow-panel transition-shadow ${
+                              className={`rounded-[20px] px-3 py-2 shadow-panel transition-shadow ${
                                 deleted
                                   ? "border border-line bg-ink-950/80 text-text-faint"
                                   : own
@@ -1187,11 +1435,7 @@ export function GlobalChatWorkspace() {
                                       own ? "text-accent-ink/80" : "text-emerald-300"
                                     }`}
                                   >
-                                    {quoted
-                                      ? quoted.author_user_id === user.id
-                                        ? "You"
-                                        : quoted.author_display_name
-                                      : "Original message"}
+                                    {quotedAuthorName}
                                   </span>
                                   <span className="mt-0.5 line-clamp-2 block text-xs leading-relaxed opacity-90">
                                     {quoted
@@ -1202,7 +1446,7 @@ export function GlobalChatWorkspace() {
                                   </span>
                                 </button>
                               ) : null}
-                              <p className={`whitespace-pre-wrap break-words text-sm leading-relaxed ${deleted ? "italic" : ""}`}>
+                              <p className={`whitespace-pre-wrap break-words text-[13px] leading-relaxed ${deleted ? "italic" : ""}`}>
                                 {deleted ? "This message was deleted." : message.body}
                               </p>
                               <div
@@ -1214,7 +1458,7 @@ export function GlobalChatWorkspace() {
                                 {own && !deleted ? (
                                   <button
                                     type="button"
-                                    onClick={() => setInfoMessage(message)}
+                                    onClick={() => openMessageInfo(message)}
                                     title={
                                       receiptSummary.state === "read"
                                         ? `Seen by ${receiptSummary.readCount}`
@@ -1250,12 +1494,10 @@ export function GlobalChatWorkspace() {
                                 </button>
                                 <button
                                   type="button"
-                                  onClick={() => setInfoMessage(message)}
+                                  onClick={() => openMessageInfo(message)}
                                   className="text-3xs font-bold text-text-faint underline-offset-4 hover:text-brand-300 hover:underline"
                                 >
-                                  {own && receiptSummary.readCount > 0
-                                    ? `Seen by ${receiptSummary.readCount} · Info`
-                                    : "Message info"}
+                                  {receiptActionLabel}
                                 </button>
                                 {canDelete ? (
                                   <button
@@ -1271,13 +1513,8 @@ export function GlobalChatWorkspace() {
                             ) : null}
                           </div>
 
-                          {own ? (
-                            <span
-                              aria-hidden="true"
-                              className="hidden h-8 w-8 shrink-0 place-items-center rounded-full border border-brand-400/50 bg-brand-400/15 text-3xs font-black text-brand-200 sm:grid"
-                            >
-                              {authorInitials(user.displayName)}
-                            </span>
+                          {own && currentProfile ? (
+                            <ChatAvatar profile={currentProfile} sizeClassName="h-7 w-7" />
                           ) : null}
                         </div>
                       </div>
@@ -1297,12 +1534,16 @@ export function GlobalChatWorkspace() {
               ) : null}
             </div>
 
-            <form onSubmit={(event) => void send(event)} className="border-t border-line bg-ink-900 p-3 sm:p-4">
+            <form onSubmit={(event) => void send(event)} className="border-t border-line bg-ink-900 p-2.5">
               {replyTarget ? (
                 <div className="mb-2 flex items-start gap-3 rounded-2xl border border-line-strong border-l-4 border-l-emerald-400 bg-ink-950 px-3 py-2">
                   <div className="min-w-0 flex-1">
                     <p className="text-3xs font-black uppercase tracking-wider text-emerald-300">
-                      Replying to {replyTarget.author_user_id === user.id ? "yourself" : replyTarget.author_display_name}
+                      Replying to {
+                        replyTarget.author_user_id === user.id
+                          ? "yourself"
+                          : profileFor(replyTarget.author_user_id, replyTarget.author_display_name).display_name
+                      }
                     </p>
                     <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-text-muted">
                       {globalChatMessageExcerpt(replyTarget.body, 180)}
@@ -1328,14 +1569,14 @@ export function GlobalChatWorkspace() {
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
                   onKeyDown={onComposerKeyDown}
-                  rows={2}
-                  placeholder={replyTarget ? "Type your reply…" : "Message the community…"}
-                  className="min-h-12 flex-1 resize-none rounded-3xl border border-line-strong bg-ink-950 px-4 py-3 text-sm leading-relaxed text-text-primary placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/40"
+                  rows={1}
+                  placeholder={replyTarget ? "Type your reply…" : "Message…"}
+                  className="max-h-28 min-h-10 flex-1 resize-none rounded-full border border-line-strong bg-ink-950 px-4 py-2.5 text-[13px] leading-relaxed text-text-primary placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/40"
                 />
                 <button
                   type="submit"
                   disabled={!canSend}
-                  className="h-12 shrink-0 rounded-3xl bg-brand-400 px-5 text-sm font-black text-accent-ink transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+                  className="h-10 shrink-0 rounded-full bg-brand-400 px-4 text-[13px] font-black text-accent-ink transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {busy ? "Sending…" : "Send"}
                 </button>
@@ -1353,19 +1594,23 @@ export function GlobalChatWorkspace() {
               ) : null}
             </form>
           </section>
-        </div>
       </div>
 
       {infoTarget ? (
-        <div className="fixed inset-0 z-50 flex" role="dialog" aria-modal="true" aria-label="Message info">
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-end p-3 sm:p-5"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Message info"
+        >
           <button
             type="button"
             aria-label="Close message info"
             onClick={() => setInfoMessage(null)}
-            className="hidden flex-1 bg-ink-950/70 sm:block"
+            className="absolute inset-0 bg-ink-950/70"
           />
-          <aside className="flex h-full w-full max-w-md flex-col border-l border-line-strong bg-ink-900 shadow-raised">
-            <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
+          <aside className="relative flex max-h-[min(720px,calc(100dvh-2rem))] w-full max-w-[430px] flex-col overflow-hidden rounded-[28px] border border-line-strong bg-ink-900 shadow-raised">
+            <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
               <h2 className="text-base font-bold">Message info</h2>
               <button
                 type="button"
@@ -1376,11 +1621,19 @@ export function GlobalChatWorkspace() {
                 ✕
               </button>
             </header>
-            <div className="flex-1 space-y-5 overflow-y-auto px-5 py-4">
-              <div className="rounded-3xl border border-line-strong bg-ink-950/70 p-4">
-                <p className="text-3xs font-black uppercase tracking-wider text-brand-300">
-                  {infoTarget.author_user_id === user.id ? "You" : infoTarget.author_display_name}
-                </p>
+            <div className="flex-1 space-y-4 overflow-y-auto px-4 py-3">
+              <div className="rounded-3xl border border-line-strong bg-ink-950/70 p-3">
+                <div className="flex items-center gap-2">
+                  <ChatAvatar
+                    profile={profileFor(infoTarget.author_user_id, infoTarget.author_display_name)}
+                    sizeClassName="h-7 w-7"
+                  />
+                  <p className="text-[10px] font-black uppercase tracking-wider text-brand-300">
+                    {infoTarget.author_user_id === user.id
+                      ? "You"
+                      : profileFor(infoTarget.author_user_id, infoTarget.author_display_name).display_name}
+                  </p>
+                </div>
                 <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed">
                   {globalChatMessageExcerpt(infoTarget.body, 300)}
                 </p>
@@ -1398,25 +1651,26 @@ export function GlobalChatWorkspace() {
                 </h3>
                 {infoReaders.length ? (
                   <ul className="mt-3 space-y-2">
-                    {infoReaders.map((receipt) => (
-                      <li
-                        key={receipt.user_id}
-                        className="flex items-center gap-3 rounded-2xl border border-line bg-ink-950/60 px-3 py-2.5"
-                      >
-                        <span
-                          aria-hidden="true"
-                          className={`grid h-9 w-9 shrink-0 place-items-center rounded-full border text-3xs font-black ${avatarClass(receipt.user_id)}`}
+                    {infoReaders.map((receipt) => {
+                      const receiptProfile = profileFor(receipt.user_id, receipt.display_name);
+                      return (
+                        <li
+                          key={receipt.user_id}
+                          className="flex items-center gap-3 rounded-2xl border border-line bg-ink-950/60 px-3 py-2.5"
                         >
-                          {authorInitials(receipt.display_name)}
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block truncate text-sm font-bold">{receipt.display_name}</span>
-                          <span className="block text-3xs text-text-faint">
-                            Read · {formatGlobalChatDateTime(receipt.read_at, locale)}
+                          <ChatAvatar profile={receiptProfile} sizeClassName="h-9 w-9" />
+                          <span className="min-w-0">
+                            <span className="block truncate text-sm font-bold">{receiptProfile.display_name}</span>
+                            <span className="block text-[10px] leading-relaxed text-text-faint">
+                              Read · {formatGlobalChatDateTime(receipt.read_at, locale)}
+                              {receipt.delivered_at
+                                ? ` · Delivered · ${formatGlobalChatDateTime(receipt.delivered_at, locale)}`
+                                : ""}
+                            </span>
                           </span>
-                        </span>
-                      </li>
-                    ))}
+                        </li>
+                      );
+                    })}
                   </ul>
                 ) : (
                   <p className="mt-2 text-xs leading-relaxed text-text-muted">Not read by anyone yet.</p>
@@ -1432,25 +1686,23 @@ export function GlobalChatWorkspace() {
                 </h3>
                 {infoDeliveredOnly.length ? (
                   <ul className="mt-3 space-y-2">
-                    {infoDeliveredOnly.map((receipt) => (
-                      <li
-                        key={receipt.user_id}
-                        className="flex items-center gap-3 rounded-2xl border border-line bg-ink-950/60 px-3 py-2.5"
-                      >
-                        <span
-                          aria-hidden="true"
-                          className={`grid h-9 w-9 shrink-0 place-items-center rounded-full border text-3xs font-black ${avatarClass(receipt.user_id)}`}
+                    {infoDeliveredOnly.map((receipt) => {
+                      const receiptProfile = profileFor(receipt.user_id, receipt.display_name);
+                      return (
+                        <li
+                          key={receipt.user_id}
+                          className="flex items-center gap-3 rounded-2xl border border-line bg-ink-950/60 px-3 py-2.5"
                         >
-                          {authorInitials(receipt.display_name)}
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block truncate text-sm font-bold">{receipt.display_name}</span>
-                          <span className="block text-3xs text-text-faint">
-                            Delivered · {formatGlobalChatDateTime(receipt.delivered_at, locale)}
+                          <ChatAvatar profile={receiptProfile} sizeClassName="h-9 w-9" />
+                          <span className="min-w-0">
+                            <span className="block truncate text-sm font-bold">{receiptProfile.display_name}</span>
+                            <span className="block text-[10px] leading-relaxed text-text-faint">
+                              Delivered · {formatGlobalChatDateTime(receipt.delivered_at, locale)}
+                            </span>
                           </span>
-                        </span>
-                      </li>
-                    ))}
+                        </li>
+                      );
+                    })}
                   </ul>
                 ) : (
                   <p className="mt-2 text-xs leading-relaxed text-text-muted">

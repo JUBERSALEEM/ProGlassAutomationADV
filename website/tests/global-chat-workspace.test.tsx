@@ -56,6 +56,42 @@ const mocks = vi.hoisted(() => {
     },
   ];
 
+  const otherId = "ee646814-0d2f-47b0-be96-68fcb51dda54";
+  const profiles = [
+    {
+      user_id: me.id,
+      display_name: "up17mix",
+      avatar_icon: "star",
+      avatar_color: "emerald",
+      updated_at: "2026-10-19T07:35:00.000Z",
+    },
+    {
+      user_id: otherId,
+      display_name: "Tech With Yassh",
+      avatar_icon: "gem",
+      avatar_color: "sky",
+      updated_at: "2026-10-19T07:35:00.000Z",
+    },
+  ];
+  const receipts = [
+    {
+      message_id: "4059d398-fb14-4a70-b91d-d124c97e4f94",
+      user_id: otherId,
+      display_name: "Tech With Yassh",
+      delivered_at: "2026-10-19T07:31:00.000Z",
+      read_at: "2026-10-19T07:31:30.000Z",
+    },
+    {
+      message_id: "ddbe5a13-f575-4ecf-a18b-e7fab498ee9a",
+      user_id: me.id,
+      display_name: "up17mix",
+      delivered_at: "2026-10-19T07:32:10.000Z",
+      read_at: null,
+    },
+  ];
+  const channelTables: string[] = [];
+  const rpcCalls: Array<{ name: string; args?: unknown }> = [];
+
   class Query implements PromiseLike<unknown> {
     private head = false;
     constructor(private table: string) {}
@@ -87,6 +123,8 @@ const mocks = vi.hoisted(() => {
     private result() {
       if (this.table === "global_chat_messages" && this.head) return { data: null, count: 1, error: null };
       if (this.table === "global_chat_messages") return { data: messages, count: null, error: null };
+      if (this.table === "global_chat_receipts") return { data: receipts, count: null, error: null };
+      if (this.table === "user_profiles") return { data: profiles, count: null, error: null };
       return { data: [], count: null, error: null };
     }
     then<TResult1 = unknown, TResult2 = never>(
@@ -98,7 +136,10 @@ const mocks = vi.hoisted(() => {
   }
 
   const channel = {
-    on: vi.fn(function (this: unknown) { return this; }),
+    on: vi.fn(function (this: unknown, _event: string, config?: { table?: string }) {
+      if (config?.table) channelTables.push(config.table);
+      return this;
+    }),
     subscribe: vi.fn((callback?: (status: string) => void) => {
       callback?.("SUBSCRIBED");
       return channel;
@@ -106,20 +147,38 @@ const mocks = vi.hoisted(() => {
   };
 
   const state: {
-    authCallback: ((event: string, session: { user: typeof me } | null) => void) | null;
+    authCallback: ((event: string, session: { user: typeof me; access_token?: string } | null) => void) | null;
     channelCalls: string[];
-  } = { authCallback: null, channelCalls: [] };
+    channelTables: string[];
+    rpcCalls: Array<{ name: string; args?: unknown }>;
+  } = { authCallback: null, channelCalls: [], channelTables, rpcCalls };
 
   const client = {
     auth: {
-      getSession: vi.fn(async () => ({ data: { session: { user: me } }, error: null })),
+      getSession: vi.fn(async () => ({
+        data: { session: { user: me, access_token: "test-access-token" } },
+        error: null,
+      })),
       onAuthStateChange: vi.fn((callback: NonNullable<typeof state.authCallback>) => {
         state.authCallback = callback;
         return { data: { subscription: { unsubscribe: vi.fn() } } };
       }),
     },
     from: vi.fn((table: string) => new Query(table)),
-    rpc: vi.fn(async (name: string, args?: { p_last_read_at?: string }) => {
+    rpc: vi.fn(async (name: string, args?: { p_last_read_at?: string; p_message_ids?: string[] }) => {
+      rpcCalls.push({ name, args });
+      if (name === "mark_global_chat_receipts_read") {
+        return {
+          data: (args?.p_message_ids ?? []).map((message_id) => ({
+            message_id,
+            user_id: me.id,
+            display_name: "up17mix",
+            delivered_at: "2026-10-19T07:31:00.000Z",
+            read_at: "2026-10-19T07:32:00.000Z",
+          })),
+          error: null,
+        };
+      }
       if (name === "mark_global_chat_read") {
         return {
           data: { user_id: me.id, last_read_at: args?.p_last_read_at, updated_at: new Date().toISOString() },
@@ -128,6 +187,9 @@ const mocks = vi.hoisted(() => {
       }
       return { data: [], error: null };
     }),
+    realtime: {
+      setAuth: vi.fn(async () => undefined),
+    },
     channel: vi.fn((name: string) => {
       state.channelCalls.push(name);
       return channel;
@@ -158,6 +220,8 @@ afterEach(() => {
   cleanup();
   vi.clearAllMocks();
   mocks.state.channelCalls.length = 0;
+  mocks.state.channelTables.length = 0;
+  mocks.state.rpcCalls.length = 0;
   mocks.state.authCallback = null;
 });
 
@@ -171,12 +235,33 @@ describe("community chat signed-in workspace", () => {
     await waitFor(() => expect(screen.getAllByText("i am fine you say").length).toBeGreaterThan(0));
     expect(screen.getAllByText("how are you").length).toBeGreaterThan(0);
     expect(screen.getByText("Unread messages")).not.toBeNull();
+    expect(screen.getByLabelText("ProGlass community chat room").className).toContain("max-w-[430px]");
+    expect(screen.getByText("Live now")).not.toBeNull();
+    expect(screen.getAllByText("Tech With Yassh").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("💎").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("⭐").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Seen by 1 · Info").length).toBeGreaterThan(0);
+    expect(mocks.client.realtime.setAuth).toHaveBeenCalledWith("test-access-token");
+    expect(mocks.state.channelTables).toEqual(
+      expect.arrayContaining(["global_chat_messages", "global_chat_receipts", "user_profiles"]),
+    );
+    await waitFor(() =>
+      expect(mocks.state.rpcCalls).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: "mark_global_chat_receipts_read",
+            args: { p_message_ids: ["e1553ac8-5e71-4fd0-b8ff-f6ebb705ffa2"] },
+          }),
+        ]),
+      ),
+    );
     expect(mocks.state.channelCalls).toHaveLength(1);
     expect(mocks.state.channelCalls[0]).toMatch(new RegExp(`^global-community-chat-${mocks.me.id}-`));
 
     await act(async () => {
       mocks.state.authCallback?.("TOKEN_REFRESHED", {
         user: { ...mocks.me, user_metadata: { ...mocks.me.user_metadata } },
+        access_token: "test-access-token",
       });
     });
 
