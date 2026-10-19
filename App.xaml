@@ -126,6 +126,16 @@
                      Inert until a host adopts HoloSurface / HoloButton /
                      HoloChip. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Holo/HoloControls.xaml"/>
+                <!-- Liquid Glass control plane, merged on the same terms.
+                     The only family here whose templates must build a box
+                     rather than abstain from one: the material IS the
+                     surface. Every template declares the specular rim as
+                     its own part, because the recipe assigns that rim a
+                     gradient and a flat BorderBrush cannot express the
+                     ramp that stops the panel reading as tinted film.
+                     Inert until a host adopts LiquidSurface / LiquidButton /
+                     LiquidField. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/LiquidGlass/LiquidGlassControls.xaml"/>
                 <!-- Glass Blush — Personal UI family plane (GB-P1, 2026-09-18).
                      Measured token plane for the second ProGlass experience.
                      Managed keys are republished by the family painter (GB-P14). -->

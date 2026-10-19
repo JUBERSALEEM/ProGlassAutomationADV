@@ -138,8 +138,33 @@ namespace ProGlassAutomation.Controls.LiquidGlass
                 _parts.Bind(this);
                 _bound = true;
                 Wire();
+
+                // Adopt the template's editor.
+                //
+                // The LiquidEditor dependency property has to come from
+                // HERE rather than being assigned by the caller,
+                // because a caller cannot reach the named element inside
+                // a ControlTemplate at all. Leaving the property
+                // unwired would make it permanently null: the focus
+                // handlers in OnLiquidEditorChanged would never fire
+                // and a caller reading LiquidEditor to focus the field
+                // programmatically would get nothing back.
+                //
+                // Only assigned once (_bound gates this), so a theme
+                // switch that re-applies the template does not
+                // detach the LostFocus handler and attach it again.
+                AdoptEditor();
             }
             Repaint();
+        }
+
+        private void AdoptEditor()
+        {
+            if (LiquidEditor is not null) return;
+            var editor = Template?.FindName(
+                "PART_LiquidEditor", this) as TextBox;
+            if (editor is null) return;
+            LiquidEditor = editor;
         }
 
         private static void OnLiquidChanged(
