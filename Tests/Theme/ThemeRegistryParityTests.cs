@@ -196,6 +196,23 @@ namespace ProGlassAutomation.Tests.Theme
                 ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine.PersistFamily(parsed));
         }
 
+        [Theory]
+        [InlineData("Normal", VisualThemeEngine.BentoGrid)]
+        [InlineData("Normal (Industrial)", VisualThemeEngine.BentoGrid)]
+        [InlineData("Industrial", VisualThemeEngine.BentoGrid)]
+        [InlineData("Monet", VisualThemeEngine.Claymorphism)]
+        [InlineData("Crystal", VisualThemeEngine.LiquidGlass)]
+        [InlineData("Crystal Fluid", VisualThemeEngine.LiquidGlass)]
+        [InlineData("iOS 26", VisualThemeEngine.LiquidGlass)]
+        [InlineData("iPhone 17 Pro Max", VisualThemeEngine.LiquidGlass)]
+        public void Legacy_theme_identities_migrate_to_selectable_families(
+            string legacy, string expected)
+        {
+            var parsed = ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine.ParseFamily(legacy);
+            Assert.Equal(expected,
+                ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine.PersistFamily(parsed));
+        }
+
         // ── F-06: mode coupling lives in the engine ─────────────────────
 
         [Theory]
@@ -209,7 +226,7 @@ namespace ProGlassAutomation.Tests.Theme
         [InlineData(VisualThemeEngine.Neumorphism, null)]
         [InlineData(VisualThemeEngine.Claymorphism, null)]
         [InlineData(VisualThemeEngine.LiquidGlass, null)]
-        [InlineData(VisualThemeEngine.Glassmorphism, null)
+        [InlineData(VisualThemeEngine.Glassmorphism, null)]
         // Crystal Fluid (iPhone 17 Pro Max) is light-only (2026-09-05
         // product decision); Industrial, Monet and iOS 26 respect the
         // user's own mode.
