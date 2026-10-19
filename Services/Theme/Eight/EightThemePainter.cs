@@ -38,6 +38,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Theme.Clay;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -188,6 +189,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
             try
             {
                 Paint(resources, profile, dark, accent, forceReducedMotion);
+                PublishClayPalette(profile);
                 AppLogService.Debug(
                     $"[EightTheme] Painted {profile.Identity} ({(dark ? "dark" : "light")})",
                     new LogContext { Module = "Themes", Operation = "EightThemePainter" });
@@ -199,6 +201,46 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     $"Eight-theme paint degraded for {profile.Identity}: {ex.Message}",
                     new LogContext { Module = "Themes", Operation = "EightThemePainter" });
             }
+        }
+
+        /// <summary>
+        /// Keeps the clay control palette in step with the painted family.
+        /// <para>
+        /// Claymorphism is the only one of the eight whose controls have
+        /// to RESOLVE a recipe rather than bind a token: the three inner
+        /// shadows are brush objects the control recomputes whenever its
+        /// tier or interaction state changes, so it needs the profile
+        /// object and not the flattened resource bag. Publishing here —
+        /// inside Apply, immediately after the paint — means the palette
+        /// cannot drift out of step with the tokens on screen, which is
+        /// the failure mode where a clay button keeps its insets after the
+        /// user has switched to Swiss.
+        /// </para>
+        /// <para>
+        /// The Clear() on the else branch is the half that matters: a
+        /// control left holding a published palette under another family
+        /// keeps drawing clay surfaces that no longer match the theme.
+        /// </para>
+        /// </summary>
+        private static void PublishClayPalette(EightThemeProfile profile)
+        {
+            if (profile.Material.Kind != EightMaterialKind.Inflated)
+            {
+                ClayPalette.Clear();
+                return;
+            }
+
+            // The elevation's two stops ARE the clay shadow pair: the
+            // highlight that catches the light, and the shade tinted to
+            // the object's own hue. Using the ramp's Shadow for the
+            // shade is what keeps it a purple shadow on a lavender card
+            // rather than a grey one — the whole difference between
+            // clay and a pastel rectangle with a blur.
+            ClayPalette.Publish(
+                lightSurface: profile.Light.Surface,
+                darkSurface: profile.Dark.Surface,
+                shadeHue: profile.Light.Elevation.ShadeStop,
+                lightHue: profile.Light.Elevation.LightStop);
         }
 
         /// <summary>

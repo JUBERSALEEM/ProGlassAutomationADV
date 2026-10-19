@@ -1,0 +1,164 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: Controls/Claymorphism/ClaySurfaceParts.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Claymorphism — recipe applied to template parts
+//
+// Holds the four named borders a clay ControlTemplate declares and
+// applies a resolved ClayShadowStack to them. Internal: the controls own
+// one; callers never do.
+//
+// The template is authored in XAML (matching the rest of the design
+// system) and only the BRUSHES and the EFFECT are written from code,
+// because those are objects the recipe computes rather than markup. The
+// geometry stays declarative — ClayCornerRadius is a real CornerRadius
+// DP so it flows through TemplateBinding without a converter.
+// ═══════════════════════════════════════════════════════════════════════
+
+using System;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using ProGlassAutomation.Services.Theme.Clay;
+
+namespace ProGlassAutomation.Controls.Claymorphism
+{
+    /// <summary>The four borders a clay ControlTemplate must name.</summary>
+    internal sealed class ClaySurfaceParts
+    {
+        /// <summary>
+        /// The element carrying the fill and the outer drop. The shadow
+        /// renders from this element's silhouette, so the drop host has to
+        /// be the one with the opaque fill.
+        /// </summary>
+        public Border? DropHost { get; private set; }
+
+        /// <summary>Inner roll toward the light.</summary>
+        public Border? Highlight { get; private set; }
+
+        /// <summary>
+        /// Inner roll away from the light. Declared AFTER the highlight in
+        /// the template so it paints on top: at the corners the two rolls
+        /// overlap, and the crossover between them is what forms the
+        /// rounded edge. Reversing them flattens the corner.
+        /// </summary>
+        public Border? Shade { get; private set; }
+
+        /// <summary>
+        /// The accessible boundary. Not part of the recipe — see the
+        /// header note in ClayVisualFactory.BuildEdge.
+        /// </summary>
+        public Border? Edge { get; private set; }
+
+        /// <summary>True once every part has been found.</summary>
+        public bool Complete =>
+            DropHost is not null && Highlight is not null
+            && Shade is not null && Edge is not null;
+
+        /// <summary>
+        /// Resolves the parts from an applied template. A partial match is
+        /// a template authoring error, so it is reported loudly rather
+        /// than leaving half a recipe painted.
+        /// </summary>
+        public void Bind(FrameworkElement root)
+        {
+            DropHost = root.Template.FindName("PART_ClayDropHost", root) as Border;
+            Highlight = root.Template.FindName("PART_ClayHighlight", root) as Border;
+            Shade = root.Template.FindName("PART_ClayShade", root) as Border;
+            Edge = root.Template.FindName("PART_ClayEdge", root) as Border;
+        }
+
+        /// <summary>Applies a resolved three-shadow stack.</summary>
+        public void Apply(ClayShadowStack stack, Color baseFill)
+        {
+            if (!Complete) return;
+
+            var visuals = ClayVisualFactory.Build(stack, baseFill);
+
+            DropHost!.Background = visuals.Fill
+                ?? ClayVisualFactory.Frozen(new SolidColorBrush(baseFill));
+            DropHost.Effect = visuals.Drop;
+
+            Highlight!.Background = visuals.Light;
+            Shade!.Background = visuals.Shade;
+
+            // A disabled surface keeps its edge: a control that has faded
+            // out entirely is a control the user cannot find. The recipe
+            // has already removed its drop and highlight.
+            Edge!.BorderThickness = new Thickness(1);
+        }
+
+        /// <summary>
+        /// Falls back to a plain rounded surface, for when claymorphism is
+        /// not the active family. Still honours the 3:1 boundary —
+        /// a control that vanishes on a theme change is worse than one
+        /// that looks plain.
+        /// </summary>
+        public void ApplyPlain(Color fill, Pen? edge)
+        {
+            if (!Complete) return;
+            DropHost!.Background =
+                ClayVisualFactory.Frozen(new SolidColorBrush(fill));
+            DropHost.Effect = null;
+            Highlight!.Background = null;
+            Shade!.Background = null;
+            Edge!.BorderBrush = edge;
+            Edge!.BorderThickness = new Thickness(1);
+        }
+
+        /// <summary>Attaches the accessible edge pen.</summary>
+        public void SetEdge(Pen? pen)
+        {
+            if (Edge is not null) Edge.BorderBrush = pen;
+        }
+
+        /// <summary>
+        /// Resolves the palette and applies the whole recipe. The single
+        /// entry point every clay control uses, so the fallback path and
+        /// the try/catch live in exactly one place.
+        /// </summary>
+        /// <remarks>
+        /// Deliberately takes the palette as a parameter rather than
+        /// reaching for <c>ClayPalette.For</c> itself: that lets a test
+        /// drive a stack against a synthetic profile without publishing
+        /// global state, which is what makes the dark-mode and
+        /// small-surface rules testable at all.
+        /// </remarks>
+        public static void Paint(
+            ClaySurfaceParts parts,
+            ClayPalette palette,
+            bool dark,
+            ClayDepthTier depth,
+            ClayInteractionState state,
+            double radius,
+            bool small,
+            Color fill)
+        {
+            if (parts is null || !parts.Complete) return;
+
+            var profile = palette.For(dark);
+            if (profile is null)
+            {
+                // Another family is active. A plain rounded surface that
+                // still honours the 3:1 boundary beats a control that
+                // disappears when the user changes theme.
+                parts.ApplyPlain(fill, null);
+                return;
+            }
+
+            try
+            {
+                var stack = profile.Resolve(depth, state, radius, small);
+                if (stack is null) return;
+                parts.SetEdge(ClayVisualFactory.BuildEdge(
+                    profile, fill, dark));
+                parts.Apply(stack, fill);
+            }
+            catch (Exception)
+            {
+                // A broken recipe is a cosmetic defect; a crash on theme
+                // apply is a support ticket. Degrade to a plain surface.
+                parts.ApplyPlain(fill, null);
+            }
+        }
+    }
+}
