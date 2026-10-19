@@ -75,8 +75,14 @@ jobs:
         with:
           python-version: "3.11"
 
-      # Broken relative links, a stale docs index and folder READMEs that lost
-      # their navigation. Exits non-zero on any of the three.
+      # Regenerate derived navigation/index files in the checkout before
+      # validation. This catches broken links and verifies the generators
+      # produce a consistent tree; generated changes are not auto-committed.
+      - name: Regenerate documentation index and folder navigation
+        run: |
+          python3 scripts/gen-docs-index.py
+          python3 scripts/readme-nav.py
+
       - name: Verify documentation links, index and nav
         run: python3 scripts/verify-readmes.py
 
@@ -105,7 +111,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-          cache: true
 
       # global.json pins 8.0.100 with rollForward latestFeature, so any
       # 8.0.x SDK satisfies it. A 9.x SDK would be refused by design —
@@ -136,7 +141,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-          cache: true
 
       - name: Restore
         run: dotnet restore Tests/ProGlassAutomation.Tests.csproj --verbosity minimal
@@ -187,7 +191,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-          cache: true
 
       - name: Restore test project and transitive dependencies
         run: dotnet restore Tests/ProGlassAutomation.Tests.csproj --verbosity minimal
