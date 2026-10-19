@@ -45,6 +45,7 @@ using ProGlassAutomation.Services.Theme.Neu;
 using ProGlassAutomation.Services.Theme.Swiss;
 using ProGlassAutomation.Services.Theme.Bento;
 using ProGlassAutomation.Services.Theme.Spatial;
+using ProGlassAutomation.Services.Theme.Glassmorphism;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -252,6 +253,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     LiquidGlassPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
+                    GlassPalette.Clear();
                     // The elevation's two stops ARE the clay shadow pair:
                     // the highlight that catches the light, and the shade
                     // tinted to the object's own hue. Using the ramp's
@@ -274,6 +276,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     LiquidGlassPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
+                    GlassPalette.Clear();
                     // Neumorphism's stops are NOT the ramp's. Its whole
                     // defining rule is that the object IS the page, so
                     // the light and shade are derived from that one
@@ -369,6 +372,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     {
                         BentoPalette.Clear();
                     SpatialPalette.Clear();
+                    GlassPalette.Clear();
                     }
                     break;
 
@@ -379,6 +383,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     LiquidGlassPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
+                    GlassPalette.Clear();
 
                     // ── WHY THE GROUND COMES FROM Surface AND NOT Window ──
                     // Holographic inverts the other families' arrangement:
@@ -401,6 +406,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                 case EightMaterialKind.Refractive:
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
+                    GlassPalette.Clear();
                     // LIQUID GLASS. The only family whose material is an
                     // optical one rather than a tonal one: what it
                     // carries is the tint, what it IS is the rim.
@@ -457,6 +463,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     LiquidGlassPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
+                    GlassPalette.Clear();
                     SpatialPalette.Publish(
                         lightEnvironment: profile.Light.Window,
                         lightFar: profile.Light.Module,
@@ -473,13 +480,28 @@ namespace ProGlassAutomation.Services.Theme.Eight
                         darkRim: profile.Dark.BorderStrong);
                     break;
 
-                default:
-                    // Frosted (Glassmorphism) still lands here and has no
-                    // palette yet. The Clear()s below are the load-bearing
-                    // part of this arm: a control from a previously active
-                    // family keeps its published material until something
-                    // explicitly takes it away, so an unhandled material
-                    // must still take Spatial's with it.
+                case EightMaterialKind.Frosted:
+                    // ── GLASSMORPHISM ──────────────────────────────────────
+                    // The eighth and last family to get a palette, which is
+                    // why this arm exists separately from default now.
+                    //
+                    // Stage is Window, because glass needs a STAGE: "over a
+                    // flat single colour, blur has nothing to do and the
+                    // panel just looks washed out." A bento grid can be a
+                    // flat colour because its gutter does the separating;
+                    // a glass pane cannot, because its whole material is
+                    // what is behind it.
+                    //
+                    // Fill is Surface, and it stays alpha-bearing — the
+                    // per-placement opacity decision (Chrome 0.30,
+                    // Content 0.78) lives in GlassRecipe, not here, so
+                    // there is exactly one place where a glass fill
+                    // becomes opaque.
+                    //
+                    // Rim is BorderStrong, which for this family is not a
+                    // styling choice but the accessibility fallback:
+                    // Windows high contrast strips the transparency and
+                    // leaves that border as the only visible edge.
                     ClayPalette.Clear();
                     NeuPalette.Clear();
                     SwissPalette.Clear();
@@ -487,6 +509,35 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     LiquidGlassPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
+                    GlassPalette.Clear();
+                    GlassPalette.Publish(
+                        lightStage: profile.Light.Window,
+                        lightFill: profile.Light.Surface,
+                        lightInk: profile.Light.TextPrimary,
+                        lightMuted: profile.Light.TextMuted,
+                        lightRim: profile.Light.BorderStrong,
+                        accent: profile.Light.Accent,
+                        darkStage: profile.Dark.Window,
+                        darkFill: profile.Dark.Surface,
+                        darkInk: profile.Dark.TextPrimary,
+                        darkMuted: profile.Dark.TextMuted,
+                        darkRim: profile.Dark.BorderStrong);
+                    break;
+
+                default:
+                    // No family maps here. The Clear()s are the
+                    // load-bearing part: a control from a previously active
+                    // family keeps its published material until something
+                    // explicitly takes it away, so an unhandled material
+                    // must still take every published one with it.
+                    ClayPalette.Clear();
+                    NeuPalette.Clear();
+                    SwissPalette.Clear();
+                    HoloPalette.Clear();
+                    LiquidGlassPalette.Clear();
+                    BentoPalette.Clear();
+                    SpatialPalette.Clear();
+                    GlassPalette.Clear();
                     break;
             }
         }

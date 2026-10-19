@@ -1038,11 +1038,13 @@ def select(args, root):
         for pat in ("Controls/Claymorphism/*.cs", "Controls/Neumorphism/*.cs",
                     "Controls/Swiss/*.cs", "Controls/Holo/*.cs",
                     "Controls/LiquidGlass/*.cs", "Controls/Bento/*.cs", "Controls/Spatial/*.cs",
+                    "Controls/Glassmorphism/*.cs",
                     "Services/Theme/Clay/*.cs",
                     "Services/Theme/Neu/*.cs", "Services/Theme/Swiss/*.cs",
                     "Services/Theme/Holo/*.cs", "Services/Theme/LiquidGlass/*.cs",
                     "Services/Theme/Bento/*.cs",
                     "Services/Theme/Spatial/*.cs",
+                    "Services/Theme/Glassmorphism/*.cs",
                     "Services/Theme/Eight/*.cs", "Tests/Theme/*.cs"):
             files += glob.glob(os.path.join(root, pat))
         return sorted(set(f for f in files if os.path.exists(f)))

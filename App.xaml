@@ -162,6 +162,22 @@
                      Inert until a host adopts SpatialSurface /
                      SpatialButton / SpatialField. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Spatial/SpatialControls.xaml"/>
+                <!-- Glassmorphism control plane, merged on the same terms.
+                     The eighth and last family. Two template parts and NO
+                     shadow host: the 2020 recipe has a UNIFORM blur and no
+                     elevation ladder, so unlike Spatial it has nothing for
+                     a shadow to encode.
+                     Its 1px rim is an accessibility feature, not
+                     decoration — Windows high contrast strips the
+                     transparency and leaves that border as the only
+                     visible edge, which on WPF is one property read away.
+                     Note the placement defaults: GlassSurface is Content
+                     and therefore opaque, GlassButton is Chrome and
+                     therefore translucent. That is the family working as
+                     designed — glassmorphism cannot be made WCAG-compliant
+                     over a dynamic backdrop, so the translucency is spent
+                     on chrome and text surfaces stay readable. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Glassmorphism/GlassControls.xaml"/>
                 <!-- Glass Blush — Personal UI family plane (GB-P1, 2026-09-18).
                      Measured token plane for the second ProGlass experience.
                      Managed keys are republished by the family painter (GB-P14). -->

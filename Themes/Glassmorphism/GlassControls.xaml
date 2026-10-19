@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Glassmorphism/GlassControls.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Glassmorphism — the 2020 recipe
+
+     TWO PARTS PER TEMPLATE, AND NO SHADOW HOST AT ALL.
+
+         PART_GlassFill     the frost
+         PART_GlassFocus    the focus ring
+
+     Compare SpatialControls.xaml, which nests two Borders per template
+     because Fluent builds elevation from a key/ambient shadow PAIR and
+     WPF allows one Effect per element. This family has no shadow host
+     because the 2020 recipe has no elevation ladder to encode: depth
+     comes from the material being frosted and lit from behind, not
+     from an object sitting at a height. The rim is what keeps the pane
+     from reading as a smudge, which is the job a shadow would do.
+
+     ── THE BLUR IS UNIFORM, AND THAT IS THE STYLE ─────────────────────
+
+     Every surface, every tier, the same 12px. GlassMetrics.BlurRadius
+     takes no tier parameter and there is nothing to pass. This is the
+     defining difference from Spatial's five-plane ladder, and it means
+     the family has NO depth signal at all — everything is at the same
+     distance, which is what the 2020 look actually is.
+
+     ── THE 1px RIM IS AN ACCESSIBILITY FEATURE ───────────────────────
+
+     "The 1px light border is an accessibility feature, not decoration:
+     Windows forced-colors mode strips transparency and leaves that
+     border as the only visible edge."
+
+     On the web that is a hypothetical. This is a WPF app: the mode is
+     SystemParameters.HighContrast, one property read away, and users
+     toggle it for real reasons. GlassPalette collapses every
+     translucent value to opaque when it is set, which leaves the rim
+     as the only thing describing the panel. So it is drawn at full
+     strength in every state, and never at zero thickness.
+
+     ── WHAT THE TRANSLUCENCY IS FOR ──────────────────────────────────
+
+     GlassSurface defaults to Placement="Content" and is therefore
+     OPAQUE. GlassButton defaults to Placement="Chrome" and is
+     therefore translucent. GlassField is always Content and exposes no
+     placement at all.
+
+     That is the family's whole design. Glassmorphism cannot be made
+     WCAG-compliant over a dynamic backdrop — 14 tested implementations,
+     none consistently compliant, one component measured 5.2:1 over a
+     dark wallpaper and 1.8:1 over a light one — so the translucency is
+     spent on CHROME and text surfaces stay opaque. See
+     Services/Theme/Glassmorphism/README.md §1.
+
+     There is no backdrop-filter in WPF. BlurEffect blurs a control's
+     own content, not what is behind it, so the frost here is genuine
+     alpha over whatever the window already has, and the file does not
+     pretend otherwise.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:glass="clr-namespace:ProGlassAutomation.Controls.Glassmorphism"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         PALETTE BRIDGE
+
+         Consumers rather than literals, so these follow
+         EightThemePainter when the active family changes.
+         GlassPalette.Publish() writes the same keys.
+
+         The STAGE is what the glass sits on, and it must not be a flat
+         white: "Glass needs a busy backdrop. Over a flat single
+         colour, blur has nothing to do and the panel just looks washed
+         out." GlassPalette.HoldOffExtreme keeps it off both extremes
+         for that reason specifically.
+         ═══════════════════════════════════════════════════════════ -->
+    <SolidColorBrush x:Key="GlassStageBrush" Color="#E8ECF4" />
+    <SolidColorBrush x:Key="GlassFillBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="GlassInkBrush" Color="#101828" />
+    <SolidColorBrush x:Key="GlassMutedBrush" Color="#4A5468" />
+    <SolidColorBrush x:Key="GlassRimBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="GlassAccentBrush" Color="#2F6FEB" />
+
+    <!-- ═══════════════════════════════════════════════════════════
+         THE 2020 MEASUREMENT SYSTEM
+
+         Blur 12 is the canonical value from the recipe (blur(12px)
+         saturate(160%)), and it is LOW on purpose: the research is
+         consistent that blur is the first thing to overdo, and past
+         ~24px the background stops being readable.
+
+         SaturationBoost matters as much as the blur and is easy to
+         miss: blur pulls colour toward grey, and without the boost
+         every surface behind the glass converges on the same
+         desaturated tone, which is what makes heavy glass look like
+         fog rather than frost.
+         ═══════════════════════════════════════════════════════════ -->
+    <sys:Double x:Key="GlassBlurRadius">12</sys:Double>
+    <sys:Double x:Key="GlassSaturationBoost">1.6</sys:Double>
+    <sys:Double x:Key="GlassChromeOpacity">0.30</sys:Double>
+    <!-- The content floor. See GlassMetrics.MinimumSurfaceOpacity for
+         why this is above the 0.40–0.55 the sources give for
+         text-heavy cards. -->
+    <sys:Double x:Key="GlassContentOpacity">0.78</sys:Double>
+
+    <!-- Matches SoftUiAccessibility.FocusRingWidth. -->
+    <sys:Double x:Key="GlassFocusWidth">3</sys:Double>
+    <CornerRadius x:Key="GlassRadius">16</CornerRadius>
+    <Thickness x:Key="GlassUnit">16</Thickness>
+
+    <Style x:Key="GlassFocusRing">
+        <Setter Property="BorderThickness"
+                Value="{StaticResource GlassFocusWidth}" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SURFACE
+
+         BorderThickness is 1 and never 0, including in the selected
+         and focused states where the recipe thickens it. A selected
+         glass pane with no edge is a pane the user cannot find, and
+         the edge is the only thing this family has instead of a
+         shadow.
+         ═══════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="GlassSurfaceTemplate"
+                     TargetType="{x:Type glass:GlassSurface}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_GlassFill"
+                    Background="{DynamicResource GlassFillBrush}"
+                    BorderBrush="{DynamicResource GlassRimBrush}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource GlassRadius}">
+                <ContentPresenter Margin="{StaticResource GlassUnit}"
+                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+            </Border>
+            <Border x:Name="PART_GlassFocus"
+                    Style="{StaticResource GlassFocusRing}"
+                    Visibility="Collapsed" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type glass:GlassSurface}">
+        <Setter Property="Template"
+                Value="{StaticResource GlassSurfaceTemplate}" />
+        <Setter Property="GlassPlacement" Value="Content" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Top" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         BUTTON
+
+         Defaults to Chrome, so it is the translucent one. A button is
+         a target rather than a text surface, and the research's own
+         table puts buttons in the band where the glass is visible.
+
+         Nothing moves on hover or press. A frosted pane that slid
+         would slide the content behind it too, and that content is not
+         ours.
+         ═══════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="GlassButtonTemplate"
+                     TargetType="{x:Type glass:GlassButton}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_GlassFill"
+                    Background="{DynamicResource GlassFillBrush}"
+                    BorderBrush="{DynamicResource GlassRimBrush}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource GlassRadius}">
+                <ContentPresenter Margin="{StaticResource GlassUnit}"
+                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+            </Border>
+            <Border x:Name="PART_GlassFocus"
+                    Style="{StaticResource GlassFocusRing}"
+                    Visibility="Collapsed" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type glass:GlassButton}">
+        <Setter Property="Template"
+                Value="{StaticResource GlassButtonTemplate}" />
+        <Setter Property="GlassPlacement" Value="Chrome" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         FIELD
+
+         No placement property at all: this is always Content, and
+         therefore always opaque. Exposing the knob here would invite
+         exactly the configuration the family exists to prevent.
+
+         No recess either — an inner well would compete with the rim on
+         a frosted pane, and the pane would stop reading as glass.
+         ═══════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="GlassFieldTemplate"
+                     TargetType="{x:Type glass:GlassField}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_GlassFill"
+                    Background="{DynamicResource GlassFillBrush}"
+                    BorderBrush="{DynamicResource GlassRimBrush}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource GlassRadius}">
+                <ScrollViewer x:Name="PART_GlassScroll"
+                              Margin="{StaticResource GlassUnit}"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <TextBox x:Name="PART_GlassText"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             Foreground="{DynamicResource GlassInkBrush}"
+                             CaretBrush="{DynamicResource GlassInkBrush}"
+                             SelectionBrush="{DynamicResource GlassAccentBrush}"
+                             FontSize="14"
+                             Padding="0"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             IsReadOnly="{TemplateBinding IsReadOnly}"
+                             Text="{TemplateBinding Text, Mode=TwoWay}"
+                             TextOptions.TextFormattingMode="Display"
+                             TextOptions.TextRenderingMode="ClearType" />
+                </ScrollViewer>
+            </Border>
+            <Border x:Name="PART_GlassFocus"
+                    Style="{StaticResource GlassFocusRing}"
+                    Visibility="Collapsed" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type glass:GlassField}">
+        <Setter Property="Template"
+                Value="{StaticResource GlassFieldTemplate}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource GlassInkBrush}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource GlassInkBrush}" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TYPE
+
+         Display formatting mode. On a frosted pane the glyph cache is
+         what lets ClearType's subpixel edges keep sampling the backdrop
+         the text was laid out over — and on this family the backdrop is
+         whatever is behind a translucent surface, which can change
+         without the text changing. Ideal turns caching off so the text
+         re-samples against the current composition.
+         ═══════════════════════════════════════════════════════════ -->
+    <Style x:Key="GlassDisplayType"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource {x:Type TextBlock}}">
+        <Setter Property="FontSize" Value="28" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource GlassInkBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="GlassBodyType"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource {x:Type TextBlock}}">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="{DynamicResource GlassMutedBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+</ResourceDictionary>
