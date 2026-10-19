@@ -67,15 +67,11 @@ namespace ProGlassAutomation.Tests.Agent
         // ══════════════════════════════════════════════════════════════
 
         [Fact]
-        public void Removed_families_are_gone_and_industrial_is_the_default_family()
+        public void Eight_families_are_selectable_and_LiquidGlass_is_the_default_family()
         {
-            // 2026-08-29 rewrite removed the two confusing "Glass"/"Glassy"
-            // families. 2026-09-06 theme reduction then removed the iOS
-            // Liquid Glass, Ocean, Professional and Industrial families.
-            // 2026-09-13 industrial reform (owner ask: "strictness
-            // industrial pattern") makes Normal (Industrial) the constant
-            // app-wide default; the cream SaaS "Normal" and every
-            // unknown/removed value resolve to Normal (Industrial).
+            // The selectable contract is now the eight approved material
+            // families. Old industrial, Monet, Crystal Fluid, and iOS 26
+            // values are migrated once by ConfigService.
             string engine = Engine;
             Assert.DoesNotContain("public const string Glass =", engine, StringComparison.Ordinal);
             Assert.DoesNotContain("public const string Glassy =", engine, StringComparison.Ordinal);
