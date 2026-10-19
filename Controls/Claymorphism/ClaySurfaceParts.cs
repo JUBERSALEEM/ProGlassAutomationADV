@@ -59,8 +59,17 @@ namespace ProGlassAutomation.Controls.Claymorphism
         /// Resolves the parts from an applied template. A partial match is
         /// a template authoring error, so it is reported loudly rather
         /// than leaving half a recipe painted.
+        /// <para>
+        /// CONTROL, not FrameworkElement. Only Control carries a
+        /// <c>Template</c>; FrameworkElement has no such member, so
+        /// every <c>root.Template</c> call in this method was CS1061.
+        /// The narrower parameter is also the honest one — there is
+        /// no such thing as a template on a bare FrameworkElement,
+        /// and widening the type just to make it call would only
+        /// hide that.
+        /// </para>
         /// </summary>
-        public void Bind(FrameworkElement root)
+        public void Bind(Control root)
         {
             DropHost = root.Template.FindName("PART_ClayDropHost", root) as Border;
             Highlight = root.Template.FindName("PART_ClayHighlight", root) as Border;
@@ -102,14 +111,19 @@ namespace ProGlassAutomation.Controls.Claymorphism
             DropHost.Effect = null;
             Highlight!.Background = null;
             Shade!.Background = null;
-            Edge!.BorderBrush = edge;
+            // A Pen is NOT a Brush. Border.BorderBrush wants the
+            // pen's BRUSH; a Border never reads a Pen's Thickness,
+            // which is why BorderThickness below is the only thing
+            // that actually sets the edge weight.
+            Edge!.BorderBrush = edge?.Brush;
             Edge!.BorderThickness = new Thickness(1);
         }
 
         /// <summary>Attaches the accessible edge pen.</summary>
         public void SetEdge(Pen? pen)
         {
-            if (Edge is not null) Edge.BorderBrush = pen;
+            // Brush, not Pen — see ApplyPlain.
+            if (Edge is not null) Edge.BorderBrush = pen?.Brush;
         }
 
         /// <summary>
@@ -149,7 +163,12 @@ namespace ProGlassAutomation.Controls.Claymorphism
 
             try
             {
-                var stack = profile.Resolve(depth, state, radius, small);
+                // ClayProfile is DATA; ClayRecipe is the type that knows
+                // how to resolve it — the same call ClayPalette makes.
+                // Calling Resolve on the profile read the wrong type
+                // for the method, which does not exist there.
+                var stack = new ClayRecipe(profile, dark)
+                    .Resolve(depth, state, radius, small);
                 if (stack is null) return;
                 parts.SetEdge(ClayVisualFactory.BuildEdge(
                     profile, fill, dark));

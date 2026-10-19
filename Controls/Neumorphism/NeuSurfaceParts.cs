@@ -56,7 +56,19 @@ namespace ProGlassAutomation.Controls.Neumorphism
             && InsetLight is not null
             && ShadeHost is not null && LightHost is not null;
 
-        public void Bind(FrameworkElement root)
+        /// <summary>
+        /// Resolves the parts from an applied template.
+        /// <para>
+        /// CONTROL, not FrameworkElement. Only Control carries a
+        /// <c>Template</c>; FrameworkElement has no such member, so
+        /// every <c>root.Template</c> call in this method was CS1061.
+        /// The narrower parameter is also the honest one — there is
+        /// no such thing as a template on a bare FrameworkElement,
+        /// and widening the type just to make it call would only
+        /// hide that.
+        /// </para>
+        /// </summary>
+        public void Bind(Control root)
         {
             Edge = root.Template.FindName("PART_NeuEdge", root) as Border;
             InsetShade =
@@ -111,13 +123,18 @@ namespace ProGlassAutomation.Controls.Neumorphism
             LightHost.Effect = null;
             InsetLight!.Background = null;
             InsetShade!.Background = null;
-            Edge!.BorderBrush = edge;
+            // A Pen is NOT a Brush. Border.BorderBrush wants the
+            // pen's BRUSH; a Border never reads a Pen's Thickness,
+            // which is why BorderThickness below is the only thing
+            // that actually sets the edge weight.
+            Edge!.BorderBrush = edge?.Brush;
             Edge!.BorderThickness = new Thickness(1);
         }
 
         public void SetEdge(Pen? pen)
         {
-            if (Edge is not null) Edge.BorderBrush = pen;
+            // Brush, not Pen — see ApplyPlain.
+            if (Edge is not null) Edge.BorderBrush = pen?.Brush;
         }
 
         /// <summary>

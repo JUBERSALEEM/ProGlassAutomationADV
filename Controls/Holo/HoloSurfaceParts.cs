@@ -45,7 +45,19 @@ namespace ProGlassAutomation.Controls.Holo
             Ground is not null && Rim is not null &&
             Sheen is not null && FocusRing is not null;
 
-        public void Bind(FrameworkElement root)
+        /// <summary>
+        /// Resolves the parts from an applied template.
+        /// <para>
+        /// CONTROL, not FrameworkElement. Only Control carries a
+        /// <c>Template</c>; FrameworkElement has no such member, so
+        /// every <c>root.Template</c> call in this method was CS1061.
+        /// The narrower parameter is also the honest one — there is
+        /// no such thing as a template on a bare FrameworkElement,
+        /// and widening the type just to make it call would only
+        /// hide that.
+        /// </para>
+        /// </summary>
+        public void Bind(Control root)
         {
             Ground = root.Template.FindName("PART_HoloGround", root) as Border;
             Rim = root.Template.FindName("PART_HoloRim", root) as Border;

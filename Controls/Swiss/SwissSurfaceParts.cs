@@ -19,6 +19,7 @@
 
 using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using ProGlassAutomation.Services.Theme.Swiss;
 using ProGlassAutomation.Services.Theme.SoftUi;
@@ -66,7 +67,19 @@ namespace ProGlassAutomation.Controls.Swiss
         public bool Complete =>
             Rule is not null && Fill is not null && FocusRing is not null;
 
-        public void Bind(FrameworkElement root)
+        /// <summary>
+        /// Resolves the parts from an applied template.
+        /// <para>
+        /// CONTROL, not FrameworkElement. Only Control carries a
+        /// <c>Template</c>; FrameworkElement has no such member, so
+        /// every <c>root.Template</c> call in this method was CS1061.
+        /// The narrower parameter is also the honest one — there is
+        /// no such thing as a template on a bare FrameworkElement,
+        /// and widening the type just to make it call would only
+        /// hide that.
+        /// </para>
+        /// </summary>
+        public void Bind(Control root)
         {
             // The field names its rule PART_SwissRuleEdged because it puts
             // the line on the BOTTOM edge. Resolving both names here is
