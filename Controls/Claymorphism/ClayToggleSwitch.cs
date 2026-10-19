@@ -21,6 +21,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+using System.ComponentModel;
+using System.Windows.Input;
 using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Services.Theme.Clay;

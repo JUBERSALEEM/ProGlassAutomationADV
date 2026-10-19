@@ -16,6 +16,8 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.ComponentModel;
+using System.Windows.Input;
 using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Services.Theme.Clay;
@@ -83,6 +85,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
         }
 
         private readonly ClaySurfaceParts _parts = new ClaySurfaceParts();
+        private readonly ClayPressHost _press = new ClayPressHost();
         private bool _bound;
         private bool _wired;
 
@@ -99,6 +102,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
             if (!_bound)
             {
                 _parts.Bind(this);
+                _press.Bind(this, "ClayMenuRowPressScale", "ClayMenuRowPressTranslate");
                 _bound = true;
                 Wire();
             }

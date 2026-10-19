@@ -185,15 +185,13 @@
         </Grid>
 
         <ControlTemplate.Triggers>
-            <!-- Press: the object moves into the page. Not a shadow swap,
-                 not a fill change - a transform. Nothing here animates a
-                 blur radius, which is the one thing a scrolling grid
-                 cannot afford. -->
-            <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="ClayPressScale" Property="ScaleX" Value="0.98" />
-                <Setter TargetName="ClayPressScale" Property="ScaleY" Value="0.98" />
-                <Setter TargetName="ClayPressTranslate" Property="Y" Value="2" />
-            </Trigger>
+            <!-- No IsPressed trigger here ON PURPOSE. The press is a
+                 SPRING, not a step: it is driven from code by
+                 ClayMotion so the family's declared ease-out curve is
+                 what actually runs. A Trigger would set the value
+                 instantly on press AND reassert it the moment the
+                 animation's FillBehavior released it, which is a
+                 visible snap at the end of every press. -->
             <Trigger Property="IsKeyboardFocused" Value="True">
                 <Setter TargetName="FocusRingHost"
                         Property="Visibility" Value="Visible" />
@@ -581,11 +579,7 @@
         </Grid>
 
         <ControlTemplate.Triggers>
-            <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="ClayIconPressScale" Property="ScaleX" Value="0.96" />
-                <Setter TargetName="ClayIconPressScale" Property="ScaleY" Value="0.96" />
-                <Setter TargetName="ClayIconPressTranslate" Property="Y" Value="2" />
-            </Trigger>
+            <!-- Spring-driven from code, same as ClayButtonTemplate. -->
             <Trigger Property="IsKeyboardFocused" Value="True">
                 <Setter TargetName="FocusRingHost" Property="Visibility" Value="Visible" />
             </Trigger>
@@ -792,13 +786,28 @@
         </ControlTemplate.Resources>
 
         <Grid x:Name="ClayRingGrid">
-            <!-- Track: the full circle, sunk. -->
+            <!-- Track: the full circle, sunk.
+                 This is a STROKE, not a mould. The other clay surfaces get
+                 their Well from the PART_Clay* gradient insets, and a
+                 linear gradient cannot follow a circular path in WPF
+                 without hand-built Path geometry - which would cost more
+                 than the ring is worth. The trade is real, so the track
+                 gets an explicit 1px edge instead: every other surface in
+                 this family carries a 3:1 boundary, and a ring without one
+                 is invisible against a same-value page. -->
             <Ellipse StrokeThickness="{TemplateBinding ClayThickness}">
                 <Ellipse.Stroke>
                     <SolidColorBrush Color="{DynamicResource SurfaceSecondaryBrush}" />
                 </Ellipse.Stroke>
                 <Ellipse.Opacity>0.55</Ellipse.Opacity>
             </Ellipse>
+
+            <!-- The accessible boundary for the track. Sits OUTSIDE the
+                 track stroke so it never competes with the arc. -->
+            <Ellipse x:Name="ClayRingEdge"
+                     StrokeThickness="1"
+                     Stroke="{DynamicResource BorderDefaultBrush}"
+                     Margin="1" />
 
             <!-- Arc. The dash array is COMPUTED from the rendered size,
                  never hard-coded: a fixed dash silently mis-draws the
@@ -919,7 +928,19 @@
 
     <ControlTemplate x:Key="ClayMenuRowTemplate"
                      TargetType="{x:Type clay:ClayMenuRow}">
-        <Grid>
+        <Grid RenderTransformOrigin="0.5,0.5">
+            <!-- Spring-driven from code by ClayMotion, like every other
+                 pressable clay control. A row in a scrolling list is the
+                 one place a heavy press animation would be felt most, so
+                 the travel is deliberately smaller than a button's. -->
+            <Grid.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="ClayMenuRowPressScale"
+                                    ScaleX="1" ScaleY="1" />
+                    <TranslateTransform x:Name="ClayMenuRowPressTranslate" Y="0" />
+                </TransformGroup>
+            </Grid.RenderTransform>
+
             <Border x:Name="FocusRingHost"
                     Style="{StaticResource ClayFocusRing}"
                     Visibility="Collapsed"
@@ -1152,6 +1173,191 @@
         <Setter Property="Focusable" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CLAY CARD — header / body / footer
+
+         Four content slots, deliberately: ClayHeader, ClayFooter,
+         Content (the body) and ContentPresenter's own leftover space.
+         A caller who sets Content on a card that already has a header
+         gets the BODY, not an overlap.
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="ClayCardTemplate"
+                     TargetType="{x:Type clay:ClayCard}">
+        <ControlTemplate.Resources>
+            <SolidColorBrush x:Key="ClayCardAccentBrush" Color="Gray" />
+        </ControlTemplate.Resources>
+
+        <Grid>
+            <Border x:Name="FocusRingHost"
+                    Style="{StaticResource ClayFocusRing}"
+                    Visibility="Collapsed"
+                    CornerRadius="{TemplateBinding ClayCornerRadius}" />
+
+            <Border x:Name="PART_ClayDropHost"
+                    CornerRadius="{TemplateBinding ClayCornerRadius}"
+                    Background="Transparent">
+                <Grid>
+                    <Border x:Name="PART_ClayHighlight"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+                    <Border x:Name="PART_ClayShade"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+
+                    <Grid Margin="{TemplateBinding Padding}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Header: accent marker + caller content. The
+                             marker is what ties a card to a status colour
+                             without tinting the whole card. -->
+                        <Grid Grid.Row="0" Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="ClayCardAccent"
+                                    Grid.Column="0"
+                                    Width="4" Height="22"
+                                    CornerRadius="2"
+                                    VerticalAlignment="Center"
+                                    Margin="0,0,12,0"
+                                    Background="{StaticResource ClayCardAccentBrush}" />
+                            <ContentPresenter Grid.Column="1"
+                                              Content="{TemplateBinding ClayHeader}"
+                                              VerticalAlignment="Center" />
+                        </Grid>
+
+                        <!-- The body is the control's own Content. Row 1
+                             stays collapsed-by-default in effect: with no
+                             body there is nothing to show, and the row
+                             collapses to zero height because its content
+                             is empty. -->
+                        <ContentPresenter Grid.Row="1"
+                                          Margin="0,10,0,0"
+                                          HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Top" />
+
+                        <ContentPresenter Grid.Row="2"
+                                          Content="{TemplateBinding ClayFooter}"
+                                          Margin="0,14,0,0" />
+                    </Grid>
+
+                    <Border x:Name="PART_ClayEdge"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False"
+                            BorderThickness="1" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="FocusRingHost" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="PART_ClayDropHost" Property="Opacity" Value="0.55" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type clay:ClayCard}">
+        <Setter Property="Template" Value="{StaticResource ClayCardTemplate}" />
+        <Setter Property="Padding" Value="20" />
+        <Setter Property="ClayCornerRadius" Value="28" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CLAY NAV — brand / items / account
+         ═══════════════════════════════════════════════════════════ -->
+
+    <ControlTemplate x:Key="ClayNavTemplate"
+                     TargetType="{x:Type clay:ClayNav}">
+        <Grid>
+            <Border x:Name="PART_ClayDropHost"
+                    CornerRadius="{TemplateBinding ClayCornerRadius}"
+                    Background="Transparent">
+                <Grid>
+                    <Border x:Name="PART_ClayHighlight"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+                    <Border x:Name="PART_ClayShade"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False" />
+
+                    <Grid Margin="16">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <ContentPresenter Grid.Row="0"
+                                          Content="{TemplateBinding ClayBrand}"
+                                          Margin="6,0,6,20" />
+
+                        <!-- The rows. Each item is expected to be a
+                             ClayMenuRow, which is what makes the rail and
+                             a dropdown share one selection grammar. -->
+                        <ScrollViewer Grid.Row="1"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Focusable="False">
+                            <ItemsControl ItemsSource="{TemplateBinding ClayItems}" />
+                        </ScrollViewer>
+
+                        <!-- Pinned, so the account block never scrolls
+                             away with the links. -->
+                        <ContentPresenter Grid.Row="2"
+                                          Content="{TemplateBinding ClayAccount}"
+                                          Margin="6,16,6,0" />
+                    </Grid>
+
+                    <Border x:Name="PART_ClayEdge"
+                            CornerRadius="{TemplateBinding ClayCornerRadius}"
+                            IsHitTestVisible="False"
+                            BorderThickness="1" />
+                </Grid>
+            </Border>
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type clay:ClayNav}">
+        <Setter Property="Template" Value="{StaticResource ClayNavTemplate}" />
+        <Setter Property="Width" Value="240" />
+        <Setter Property="ClayCornerRadius" Value="24" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+
+        <!-- One selection grammar for the whole app: a nav row IS a menu
+             row. Without this the rail would invent its own hover and
+             selected treatment and the two would drift apart. -->
+        <!-- Deliberately NOT set here: ClayItems (a caller supplies it)
+             and FocusVisualStyle (the rail carries ClayFocusRing, and
+             blanking the system one would remove the only focus cue a
+             keyboard user has here). -->
+    </Style>
+
+    <Style x:Key="ClayNavRowStyle" TargetType="{x:Type clay:ClayMenuRow}">
+        <Setter Property="Template" Value="{StaticResource ClayMenuRowTemplate}" />
+        <Setter Property="Padding" Value="14,0" />
+        <Setter Property="Height" Value="46" />
+        <Setter Property="ClayCornerRadius" Value="16" />
+        <Setter Property="Margin" Value="0,2,0,2" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="Focusable" Value="True" />
     </Style>
 
 </ResourceDictionary>

@@ -180,7 +180,20 @@ namespace ProGlassAutomation.Controls.Claymorphism
         }
     }
 
-    /// <summary>Clay progress as an arc ring.</summary>
+    /// <summary>
+    /// Clay progress as an arc ring.
+    /// <para>
+    /// THE ONE SURFACE IN THIS FAMILY THAT IS NOT A MOULD. Every other
+    /// clay control resolves through ClaySurfaceParts, which paints the
+    /// Well as gradient insets inside the element's own rounded
+    /// rectangle. A ring is a STROKE, and a linear gradient cannot follow
+    /// a circular path in WPF without hand-built Path geometry -- which
+    /// would cost more than the ring earns on screen. So the track is a
+    /// flat sunk circle carrying an explicit 1px edge for the same 3:1
+    /// boundary every other surface gets. It is a deliberate deviation,
+    /// not an oversight, and it is the only one.
+    /// </para>
+    /// </summary>
     public class ClayProgressRing : Control
     {
         /// <summary>Ring thickness.</summary>

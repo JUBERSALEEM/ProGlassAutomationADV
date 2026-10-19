@@ -266,7 +266,19 @@ namespace ProGlassAutomation.Services.Theme.Clay
             // On light ground the drop carries the depth, so it is the
             // strongest thing in the recipe. On dark ground it cannot
             // (see ClayRecipe.Resolve) and comes down hard.
-            double dropOpacity = dark ? 0.30 : 0.34;
+            //
+            // 0.42 is MEASURED, not chosen. The reference audit measured
+            // a 0.32 drop on this near-white ground at 1.39:1 and called
+            // it "a whisper" -- on a pastel card the drop is the only
+            // outer shadow that can register at all, so too little here
+            // does not read as "subtle", it reads as "there is no mould".
+            // The tier table then multiplies this by 1.00 / 1.14 / 1.29 to
+            // land on the reference's own 0.42 / 0.48 / 0.54.
+            //
+            // Dark is RECALIBRATED, not inverted: 0.38 rather than 0.42,
+            // because a drop already below the card's own lightness has
+            // nothing left to darken.
+            double dropOpacity = dark ? 0.38 : 0.42;
 
             return new ClayProfile(
                 baseFill: surface,

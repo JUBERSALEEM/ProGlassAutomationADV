@@ -204,10 +204,16 @@ namespace ProGlassAutomation.Services.Theme.Clay
             new ClayTierTable(1.00, 1.00, 1.00, insetBias: 1.00, fillLift: 0.020),
 
             // ── Raised ──────────────────────────────────────────────────
-            new ClayTierTable(1.18, 1.25, 1.22, insetBias: 0.94, fillLift: 0.038),
+            // The opacity column steps by the reference's own measured ratios
+            // (0.48 / 0.54 against a 0.42 resting drop), NOT by the larger
+            // multipliers used for blur and depth. Those two measure how
+            // far a shadow reaches; opacity measures how much of it is
+            // visible, and letting them share a multiplier is what made a
+            // floating panel's drop overshoot into a smudge.
+            new ClayTierTable(1.18, 1.25, 1.14, insetBias: 0.94, fillLift: 0.038),
 
             // ── Floating ────────────────────────────────────────────────
-            new ClayTierTable(1.55, 1.60, 1.45, insetBias: 1.06, fillLift: 0.055),
+            new ClayTierTable(1.55, 1.60, 1.29, insetBias: 1.06, fillLift: 0.055),
         };
 
         /// <summary>

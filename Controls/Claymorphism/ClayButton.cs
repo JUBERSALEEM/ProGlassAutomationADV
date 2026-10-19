@@ -105,6 +105,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
         #endregion
 
         private readonly ClaySurfaceParts _parts = new ClaySurfaceParts();
+        private readonly ClayPressHost _press = new ClayPressHost();
         private bool _bound;
         private bool _wired;
 
@@ -123,6 +124,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
             if (!_bound)
             {
                 _parts.Bind(this);
+                _press.Bind(this, "ClayPressScale", "ClayPressTranslate");
                 _bound = true;
                 Wire();
             }
