@@ -111,6 +111,8 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Contains("public bool IsCrystalThemeActive", vm, StringComparison.Ordinal);
             Assert.Contains("SelectedVisualTheme == VisualThemeEngine.CrystalFluid",
                 vm, StringComparison.Ordinal);
+            Assert.Contains("SelectedVisualTheme == VisualThemeEngine.LiquidGlass",
+                vm, StringComparison.Ordinal);
         }
 
         // ── 3. XAML: axes gated + live preview reuses CrystalWaterControl ─
