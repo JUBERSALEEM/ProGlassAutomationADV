@@ -61,10 +61,8 @@ namespace ProGlassAutomation.Tests.Agent
         // reading the complete implementation so source-contract tests cannot
         // silently inspect only the small facade and miss the actual painters.
         private static string Engine =>
+            // Read() automatically appends VisualThemeEngine.Part*.cs siblings.
             Read("Services/Theme/VisualThemeEngine.cs") + Environment.NewLine +
-            Read("Services/Theme/VisualThemeEngine.Part1.cs") + Environment.NewLine +
-            Read("Services/Theme/VisualThemeEngine.Part2.cs") + Environment.NewLine +
-            Read("Services/Theme/VisualThemeEngine.Part3.cs") + Environment.NewLine +
             Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
 
         private static string LightTheme => Read("Themes/LightTheme.xaml");
