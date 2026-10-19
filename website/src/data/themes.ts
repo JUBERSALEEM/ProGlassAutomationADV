@@ -30,7 +30,7 @@ export type ThemeMode = "light" | "dark" | "system";
 export type ResolvedTheme = "midnight" | "daylight";
 
 /** The `data-appearance` value written to <html>. */
-export type AppearanceFamily = "studio" | "monet" | "industrial" | "crystal" | "clay";
+export type AppearanceFamily = "bento" | "spatial" | "swiss" | "holographic" | "neumorphism" | "clay" | "liquid-glass" | "glassmorphism";
 
 export type ThemeModeEntry = {
   id: ThemeMode;
@@ -55,38 +55,14 @@ export const themeModes: ThemeModeEntry[] = [
 ];
 
 export const appearanceFamilies: AppearanceFamilyEntry[] = [
-  {
-    id: "studio",
-    label: "Studio",
-    origin: "The website's own palette — the application's Violet accent, taken deep.",
-    swatch: "#7E57CE",
-  },
-  {
-    id: "monet",
-    label: "Monet",
-    origin:
-      "The application's Material-You family: surfaces derived from the accent's own dusk (its Golden Hour wallpaper).",
-    swatch: "#E469A0",
-  },
-  {
-    id: "industrial",
-    label: "Industrial",
-    origin: "The application's strict default family — crisp sky over slate, minimal tinting.",
-    swatch: "#2DB0F0",
-  },
-  {
-    id: "crystal",
-    label: "Crystal",
-    origin: "The application's Crystal Fluid family: see-through surfaces over a luminous environment.",
-    swatch: "#1AC5E2",
-  },
-  {
-    id: "clay",
-    label: "Clay",
-    origin:
-      "Claymorphism — solid pastel surfaces with puffed corners and a soft tinted pillow-shadow, moulded rather than assembled. Rounded higher, and with no backdrop blur at all, it is also the cheapest family to paint.",
-    swatch: "#B8A6FF",
-  },
+  { id: "bento", label: "Bento Grid", origin: "A structured modular workspace with deliberate hierarchy, crisp spacing, and grouped information panels.", swatch: "#6478F2" },
+  { id: "spatial", label: "Spatial / Immersive", origin: "Layered depth, atmospheric lighting, and restrained floating surfaces without sacrificing content clarity.", swatch: "#35B8C9" },
+  { id: "swiss", label: "Swiss International", origin: "Editorial grid, precise alignment, high typographic contrast, and disciplined use of colour.", swatch: "#E5484D" },
+  { id: "holographic", label: "Holographic / Iridescent", origin: "Controlled spectral accents and prismatic edge highlights on readable, mostly solid surfaces.", swatch: "#A66CFF" },
+  { id: "neumorphism", label: "Neumorphism", origin: "Soft extruded controls and shallow inset wells; depth is subtle and never the only state indicator.", swatch: "#8195B4" },
+  { id: "clay", label: "Claymorphism", origin: "Friendly sculpted surfaces, generous radii, and soft tinted shadows; no backdrop blur.", swatch: "#B8A6FF" },
+  { id: "liquid-glass", label: "Liquid Glass", origin: "Near-clear layered panes, fine luminous edges, and restrained watery highlights with bounded blur.", swatch: "#1AC5E2" },
+  { id: "glassmorphism", label: "Glassmorphism", origin: "Frosted translucent panels with clear separation and blur reserved for selected foreground surfaces.", swatch: "#48A9E8" },
 ];
 
 /**
@@ -140,14 +116,14 @@ export const DEFAULT_THEME_MODE: ThemeMode = "system";
  * wins over this default — the default only greets a visitor who has never
  * picked.
  */
-export const DEFAULT_APPEARANCE: AppearanceFamily = "crystal";
+export const DEFAULT_APPEARANCE: AppearanceFamily = "liquid-glass";
 
 export function isThemeMode(value: unknown): value is ThemeMode {
   return value === "light" || value === "dark" || value === "system";
 }
 
 export function isAppearanceFamily(value: unknown): value is AppearanceFamily {
-  return value === "studio" || value === "monet" || value === "industrial" || value === "crystal" || value === "clay";
+  return value === "bento" || value === "spatial" || value === "swiss" || value === "holographic" || value === "neumorphism" || value === "clay" || value === "liquid-glass" || value === "glassmorphism";
 }
 
 /** Mode → the `data-theme` value to write on <html>. */
@@ -183,9 +159,9 @@ if(m!=="light"&&m!=="dark"&&m!=="system")m="system";
    a returning one whose storage pinned an older family. */
 var vk2="proglass-studio-attrs";
 var hv="proglass-hygiene-v4";
-if(sg(hv)!=="1"){sr(vk);sr(vk2);ss(ak,"crystal");ss(hv,"1");}
+if(sg(hv)!=="1"){sr(vk);sr(vk2);ss(ak,"liquid-glass");ss(hv,"1");}
 var a=sg(ak);
-if(a!=="studio"&&a!=="monet"&&a!=="industrial"&&a!=="crystal"&&a!=="clay")a="crystal";
+if(a!=="bento"&&a!=="spatial"&&a!=="swiss"&&a!=="holographic"&&a!=="neumorphism"&&a!=="clay"&&a!=="liquid-glass"&&a!=="glassmorphism")a="liquid-glass";
 var d=window.matchMedia?window.matchMedia("(prefers-color-scheme: dark)").matches:true;
 var t=m==="light"?"daylight":m==="dark"?"midnight":(d?"midnight":"daylight");
 var e=document.documentElement;
