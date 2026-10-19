@@ -33,8 +33,8 @@ namespace ProGlassAutomation.Services.Theme.Engine
                 // Migrate old persisted identities and imported theme packs.
                 VisualThemeEngine.Monet => ProGlassThemeFamily.Claymorphism,
                 VisualThemeEngine.CrystalFluid or VisualThemeEngine.Ios26 or
-                "Crystal" or "Crystal Fluid" or "Ios-17pm" or "iOS 26" or
-                "iPhone 17 Pro Max" or "Ultra Transparent" or "Transparent" or "Clear"
+                "Crystal" or "Ios-17pm" or "iPhone 17 Pro Max" or
+                "Ultra Transparent" or "Transparent" or "Clear"
                     => ProGlassThemeFamily.LiquidGlass,
                 VisualThemeEngine.Normal or VisualThemeEngine.NormalIndustrial or
                 "Industrial" or "Industrial White" or "Industrial Grey" or
