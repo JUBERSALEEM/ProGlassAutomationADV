@@ -355,6 +355,117 @@ def check_file(root, repo, path, keys, merged, findings,
                     ))
 
 
+def merge_order(root):
+    """App.xaml merged dictionaries, in DECLARATION order, as disk paths.
+
+    Order is the whole point. A StaticResource is resolved while the
+    object graph is being parsed, so it can only reach a key that exists
+    in its own dictionary or in one merged BEFORE it. Treating the merge
+    list as an unordered set is what makes naive key checkers miss a
+    whole class of "cannot locate resource" cascades.
+    """
+    app = os.path.join(root, "App.xaml")
+    if not os.path.exists(app):
+        return []
+    out = []
+    for el in ET.parse(app).getroot().iter():
+        src = el.get("Source")
+        if not src:
+            continue
+        p = src
+        if p.startswith("pack://application:,,,/"):
+            p = p[len("pack://application:,,,/"):]
+        full = os.path.join(root, p)
+        if not os.path.exists(full):
+            alt = os.path.join(root, "Themes", p)
+            if os.path.exists(alt):
+                full = alt
+        out.append(full)
+    return out
+
+
+def check_resource_scoping(root, findings):
+    """Three parse-time resource defects, on merged dictionaries only.
+
+    Scoped to dictionaries that App.xaml actually merges. A UserControl
+    resolves StaticResource against Application.Resources at RUNTIME,
+    so flagging those here would manufacture false positives across
+    hundreds of view files; a merged ResourceDictionary resolves at
+    PARSE time and really can fail the build.
+    """
+    order = merge_order(root)
+    cumulative = []
+    seen = set()
+    for p in order:
+        if os.path.exists(p):
+            try:
+                seen |= {e.get(X + "Key") for e in ET.parse(p).getroot().iter()
+                         if e.get(X + "Key")}
+            except ET.ParseError:
+                pass
+        cumulative.append(set(seen))
+
+    dup_reported = 0
+    for idx, path in enumerate(order):
+        if not os.path.exists(path):
+            continue
+        rel = os.path.relpath(path, root)
+        try:
+            root_el = ET.parse(path).getroot()
+        except ET.ParseError:
+            continue
+        own = {e.get(X + "Key") for e in root_el.iter() if e.get(X + "Key")}
+        available = cumulative[idx]
+
+        # XLS0422 -- duplicate x:Key WITHIN ONE SCOPE. Two dictionaries may
+        # each define ClayLabelBrush, and two ControlTemplate.Resources
+        # blocks may each define it; only a repeat inside the SAME parent
+        # is a real collision.
+        for parent in root_el.iter():
+            ks = [c.get(X + "Key") for c in parent
+                  if isinstance(c.tag, str) and c.get(X + "Key")]
+            for k in sorted(set(ks)):
+                if ks.count(k) > 1:
+                    findings.append((
+                        rel, 0,
+                        f"XLS0422 duplicate x:Key '{k}' occurs "
+                        f"{ks.count(k)} times inside the same "
+                        f"<{parent.tag.split('}')[-1]}> scope",
+                    ))
+                    dup_reported += 1
+
+        # XLS0434 -- BasedOn pointing at a key that does not exist.
+        for st in root_el.iter():
+            if not (isinstance(st.tag, str) and st.tag.endswith("}Style")):
+                continue
+            raw = (st.get("BasedOn") or "").strip()
+            m = re.search(r"StaticResource\s+([A-Za-z0-9_.]+)", raw)
+            if not m:
+                continue
+            t = m.group(1)
+            if t in own or t in available:
+                continue
+            findings.append((
+                rel, 0,
+                f"XLS0434 BasedOn references '{t}', which is not defined "
+                f"in this dictionary or in any dictionary merged before it",
+            ))
+
+        # XLS0418 -- StaticResource that resolves nowhere.
+        text = open(path, encoding="utf-8", errors="ignore").read()
+        for m in re.finditer(r"\{StaticResource\s+([A-Za-z0-9_.]+)\}", text):
+            k = m.group(1)
+            if k in own or k in available:
+                continue
+            line = text[:m.start()].count("\n") + 1
+            findings.append((
+                rel, line,
+                f"XLS0418 StaticResource '{k}' is defined nowhere in this "
+                f"dictionary or in any dictionary merged before it",
+            ))
+    return dup_reported
+
+
 def main():
     root = repo_root()
     os.chdir(root)
@@ -391,6 +502,11 @@ def main():
     # therefore off unless asked for, and always on for the theme
     # surface, where the merge graph is small and fully known.
     do_keys = want_keys or bool(args and args[0] == "--all-theme")
+
+    # Parse-time resource scoping: duplicate keys, BasedOn, StaticResource.
+    # Always on -- it only inspects dictionaries App.xaml really merges,
+    # so it cannot drift into the view files that resolve at runtime.
+    check_resource_scoping(root, findings)
 
     for f in files:
         if os.path.exists(f):
