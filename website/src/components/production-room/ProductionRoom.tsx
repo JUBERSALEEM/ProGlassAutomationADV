@@ -262,7 +262,7 @@ export function ProductionRoom() {
               {" "}
               <code className="font-mono text-brand-200">supabase-production-room-phase11a.sql</code>
               {" "}
-              has not been applied. Live activation remains gated on the Phase 9E Windows bridge verification.
+              is not available in the database used by this deployment, or this deployment is not configured to use the live project.
             </p>
             <button
               type="button"

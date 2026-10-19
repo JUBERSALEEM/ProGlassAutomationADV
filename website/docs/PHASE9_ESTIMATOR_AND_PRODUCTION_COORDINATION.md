@@ -1,6 +1,6 @@
 # Phase 9 estimator workflow and Phase 10 production coordination
 
-Status: Phases 9A–9D are implemented and live-verified. Phase 9E implementation and database verification are complete; Windows bridge verification is explicitly deferred until 19 October 2026 at 08:00 Asia/Dubai when the PC is available. Owner authorized repository-only implementation of Phase 11A–11B on 19 October 2026; that work is now in the repo. Its migration has not been applied, and live activation remains prohibited until Phase 9E verification passes. Phase 10 responsive UI redesign is implemented except for the final browser visual review.
+Status: Phases 9A–9E are implemented and live-verified. The owner confirmed on 19 October 2026 that the Phase 9E Windows bridge dry-run/apply/recovery and assigned/unassigned/reassignment verification passed. Phase 11A–11B are implemented in the repo, and the Phase 11A migration was applied to live Supabase project `afpbdyamedpanwijxghk` on 19 October 2026 as migration version `20261019043256` (`production_room_phase11a`); structural verification passed. Production use still requires the frontend production-branch merge, first room-member registration, and the live identity matrix. Phase 10 responsive UI redesign is implemented except for the final browser visual review.
 
 ## Verified reports-page pattern to reuse
 
@@ -105,7 +105,7 @@ Expected immediately after application: 2 tables, 2 RLS tables, 2 RPCs, 2 polici
 - [x] Preserve global administrative recovery, byte/hash checks, atomic completion, conflicting-folder detection, and idempotent acknowledgement.
 - [x] Preserve the isolated inbox boundary and do not write desktop SQLite.
 - [x] Apply `supabase-inquiry-estimator-phase9e-handoff.sql` after explicit authorization; read-only verification passed with 3 delivery columns, 3 v2/helper RPCs, 1 preserved delivery, 0 invalid routes, and 0 invalid snapshots.
-- [ ] Run dry-run/apply/recovery and assigned/unassigned/reassignment live verification on the Windows bridge environment — explicitly deferred by the user until 19 October 2026 at 08:00 Asia/Dubai because the PC is unavailable.
+- [x] Run dry-run/apply/recovery and assigned/unassigned/reassignment live verification on the Windows bridge environment — owner confirmed completion on 19 October 2026.
 
 Read-only verification after application:
 
@@ -126,7 +126,7 @@ Expected structure: 3 delivery columns and 3 v2/helper RPCs. Existing delivery c
 
 ## Phase 10 — responsive UI redesign pattern
 
-Repository-only visual redesign work while Phase 9E awaits the Windows PC. The website currently presents too many full-width single-card rows and must use the available desktop width more professionally. The user selected a whole-site pattern of four normal content cards and up to six compact statistic cards on desktop, with two on tablet and one on mobile where appropriate.
+Repository-only visual redesign work undertaken while Phase 9E awaited the Windows PC. The website currently presents too many full-width single-card rows and must use the available desktop width more professionally. The user selected a whole-site pattern of four normal content cards and up to six compact statistic cards on desktop, with two on tablet and one on mobile where appropriate.
 
 - [x] Audit all 19 top-level pages and their delegated card components. After screenshot review exposed that the first pass waited until the 1024px breakpoint, move normal collections to 2 cards on narrow phones and 4 cards from 640px; compact statistic collections use 3/5–6 at those tiers.
 - [x] Preserve wider two-track layouts, forms, tables, and content-heavy paired panels instead of blindly forcing them into quarter-width cards.
@@ -140,7 +140,7 @@ Repository-only visual redesign work while Phase 9E awaits the Windows PC. The w
 
 One production-only room is preferred over separate meeting/stage chats. Membership is explicit for approved department heads and admins; no access follows automatically from customer, estimator, viewer, auditor, or bridge roles. Even inquiry admins must hold an active room-membership row before they can read or post messages; inquiry-admin authority is used only to bootstrap and manage membership.
 
-Repository-only status (19 October 2026): Phase 11A and Phase 11B are implemented in the repo. The migration `supabase-production-room-phase11a.sql` has not been applied to live Supabase. Do not apply or activate it until Phase 9E Windows bridge verification passes and the owner authorizes live activation. The owner has indicated that the owning Supabase account will be connected for the eventual apply and verification steps.
+Live database status (19 October 2026): Phase 11A and Phase 11B are implemented in the repo. After the owner confirmed Phase 9E completion, `supabase-production-room-phase11a.sql` (SHA-256 `44b0ae7d986f02fb851a2a842c38b7b30cdb86d5d5795b9b79f32142eb93b40a`) was applied to live Supabase project `afpbdyamedpanwijxghk` as migration version `20261019043256` (`production_room_phase11a`). Read-only verification returned 4 tables, 4 RLS tables, 4 policies, 9 functions, and zero rows in all four new tables. Existing counts immediately before and after application were unchanged: 67 records, 1 job order, 7 customer submissions, 23 customer documents, 1 delivery, 2 estimators, 10 estimator assignments, and 6 operator-role rows. The frontend has not yet been merged to the production branch and no room member has been registered, so the room is not operationally live until first-member registration and the live identity matrix pass.
 
 Categories are fixed identically in SQL and TypeScript: `general_production`, `urgent_blocker`, `material_shortage`, `machine_issue`, `quality_issue`, `schedule_change`, `dispatch_dependency`, `decision`, and `action_item`.
 
@@ -156,8 +156,9 @@ Categories are fixed identically in SQL and TypeScript: `general_production`, `u
 - [x] Allow only top-level `decision` messages to be pinned, and only by active room admins.
 - [x] Protect against deactivating or demoting the last active room admin.
 - [x] Add TypeScript contracts and static security tests (`npm run test:production-room`).
-- [ ] Apply the migration only after Phase 9E passes and explicit live authorization is given.
-- [ ] Run the read-only structural verification below and the live member/non-member/admin matrix after application.
+- [x] Apply the migration after Phase 9E passed and the owner authorized continuation (19 October 2026; migration version `20261019043256`).
+- [x] Run the read-only structural verification below after application (4 tables, 4 RLS tables, 4 policies, 9 functions, and zero initial rows).
+- [ ] Register the first room admin/members and run the live member/non-member/admin matrix.
 
 After authorized application, structural verification is read-only:
 
@@ -187,7 +188,7 @@ Expected immediately after application: 4 tables, 4 RLS tables, 4 policies, 9 fu
 - [x] Add timeline, categorized composer, one-level replies, bounded edit/delete controls, room-admin decision pinning, unread badges, and mark-room-read.
 - [x] Add the pinned-decisions strip.
 - [x] Add member directory plus manager-only registration/update and deactivate/reactivate controls.
-- [x] Add graceful sign-in, non-member/inactive-member, and schema-not-installed states so the repo-only preview does not crash before live activation.
+- [x] Add graceful sign-in, non-member/inactive-member, and schema-not-installed states so unconfigured deployments fail safely without exposing room data.
 - [ ] Live-test after migration with room-admin, department-head, inactive-member, non-member, and inquiry-admin-without-room-membership identities.
 
 ### Phase 11C — deferred scope

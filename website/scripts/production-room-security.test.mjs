@@ -118,10 +118,13 @@ test("room UI exposes Phase 11B controls and keeps 11C scope explicit", () => {
   assert.match(page, /route="production-room"/);
 });
 
-test("phase record keeps repo-only status and the Phase 9E live gate explicit", () => {
+test("phase record keeps Phase 9E completion and Phase 11 live-database status explicit", () => {
   assert.match(phaseDoc, /supabase-production-room-phase11a\.sql/);
-  assert.match(phaseDoc, /repository-only|repo-only/i);
-  assert.match(phaseDoc, /has not been applied/i);
-  assert.match(phaseDoc, /Phase 9E/);
+  assert.match(phaseDoc, /Phases 9A–9E are implemented and live-verified/);
+  assert.match(phaseDoc, /owner confirmed completion on 19 October 2026/);
+  assert.match(phaseDoc, /migration version `20261019043256`/);
+  assert.match(phaseDoc, /4 tables, 4 RLS tables, 4 policies, 9 functions/);
+  assert.match(phaseDoc, /Register the first room admin\/members/);
   assert.match(phaseDoc, /Phase 11C/);
+  assert.doesNotMatch(ui, /Phase 9E Windows bridge verification/);
 });
