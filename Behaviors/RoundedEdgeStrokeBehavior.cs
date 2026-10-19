@@ -187,7 +187,35 @@ namespace ProGlassAutomation.Behaviors
 
         private static void UpdateAdornerCore(Border border, StrokeState state)
         {
-            var thickness = border.BorderThickness;
+            // Border.BorderThickness is a typed CLR wrapper over a dependency property.
+            // A malformed DynamicResource/TemplateBinding can leave a boxed Double in
+            // the property store; reading border.BorderThickness then throws
+            // InvalidCastException and can take down the entire WPF dispatcher.
+            // Inspect the raw value first and repair this one border before layout
+            // reads the typed wrapper. Valid Thickness values retain their binding.
+            var rawThickness = border.GetValue(Border.BorderThicknessProperty);
+            Thickness thickness;
+            if (rawThickness is Thickness validThickness)
+            {
+                thickness = validThickness;
+            }
+            else
+            {
+                double fallback = rawThickness is double numericThickness
+                    && double.IsFinite(numericThickness)
+                    ? Math.Max(0.0, Math.Min(100.0, numericThickness))
+                    : 1.0;
+                thickness = new Thickness(fallback);
+
+                // Replace the invalid expression/value with a safe typed value.
+                // This is intentionally local to the affected Border; all valid
+                // theme resources and other controls remain untouched.
+                border.SetValue(Border.BorderThicknessProperty, thickness);
+                System.Diagnostics.Trace.TraceError(
+                    $"RoundedEdgeStrokeBehavior repaired invalid BorderThickness value " +
+                    $"'{rawThickness ?? "<null>"}' ({rawThickness?.GetType().FullName ?? "null"}).");
+            }
+
             bool uniform = Nearly(thickness.Left, thickness.Top)
                 && Nearly(thickness.Left, thickness.Right)
                 && Nearly(thickness.Left, thickness.Bottom);
