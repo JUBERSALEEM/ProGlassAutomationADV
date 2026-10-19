@@ -104,6 +104,19 @@ namespace ProGlassAutomation.Services.Updates
                 return result;
             }
 
+            // Fail closed in production when no publisher identity is pinned.
+            // Windows trust-chain validation alone accepts any trusted code
+            // signing publisher and is not sufficient for application updates.
+            // Configure an approved thumbprint or exact subject before enabling
+            // this updater; never replace this guard with a guessed identity.
+            if ((pinnedThumbprints == null || pinnedThumbprints.Length == 0) &&
+                (pinnedSubjects == null || pinnedSubjects.Length == 0))
+            {
+                result.Reason =
+                    "Update blocked: no approved publisher pin is configured.";
+                return result;
+            }
+
             var clock = now ?? DateTime.UtcNow;
 
             // ── 1. Extract + sanity-check the signer certificate ───────
