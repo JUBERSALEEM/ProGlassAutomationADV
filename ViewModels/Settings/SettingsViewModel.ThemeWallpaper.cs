@@ -69,14 +69,15 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public List<VisualThemeOptionRow> VisualThemeOptions { get; } = new()
         {
-            // Normal — August-25 cream SaaS (persisted as Normal Industrial).
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial),
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet),
-            // Surfaced as "iPhone 17 Pro Max" (FamilyDisplayName).
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.CrystalFluid),
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Ios26),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.BentoGrid),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.SpatialImmersive),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.SwissInternational),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.HolographicIridescent),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Neumorphism),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Claymorphism),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Glassmorphism),
         };
-
         public string SelectedVisualTheme
         {
             get
