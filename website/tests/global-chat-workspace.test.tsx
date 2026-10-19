@@ -235,7 +235,9 @@ describe("community chat signed-in workspace", () => {
     await waitFor(() => expect(screen.getAllByText("i am fine you say").length).toBeGreaterThan(0));
     expect(screen.getAllByText("how are you").length).toBeGreaterThan(0);
     expect(screen.getByText("Unread messages")).not.toBeNull();
-    expect(screen.getByLabelText("ProGlass community chat room").className).toContain("max-w-[430px]");
+    expect(screen.getByTestId("community-chat-panel").className).toContain("max-w-[370px]");
+    expect(screen.getByTestId("community-chat-panel").className).toContain("max-h-[560px]");
+    expect(screen.getByTestId("community-chat-panel").getAttribute("data-chat-size")).toBe("compact-370x560");
     expect(screen.getByText("Live now")).not.toBeNull();
     expect(screen.getAllByText("Tech With Yassh").length).toBeGreaterThan(0);
     expect(screen.getAllByText("💎").length).toBeGreaterThan(0);

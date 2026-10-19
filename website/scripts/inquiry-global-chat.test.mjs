@@ -248,16 +248,18 @@ test("community chat auth and realtime setup cannot restart or crash the room on
   assert.match(communityWorkspace, /table: "user_profiles"/);
   assert.match(communityWorkspace, /status === "SUBSCRIBED".*refreshLatestRef\.current/s);
   assert.match(communityWorkspace, /window\.setInterval/);
-  assert.match(communityWorkspace, /\}, 3000\)/);
+  assert.match(communityWorkspace, /\}, 2000\)/);
   assert.match(communityWorkspace, /visibilitychange/);
   assert.match(communityWorkspace, /window\.addEventListener\("focus"/);
   assert.match(communityWorkspace, /window\.addEventListener\("online"/);
 });
 
 test("community chat is a compact right-aligned panel with visible receipt sync", () => {
-  assert.match(communityWorkspace, /max-w-\[430px\]/);
-  assert.match(communityWorkspace, /max-h-\[720px\]/);
+  assert.match(communityWorkspace, /max-w-\[370px\]/);
+  assert.match(communityWorkspace, /max-h-\[560px\]/);
   assert.match(communityWorkspace, /justify-end/);
+  assert.match(communityWorkspace, /data-chat-size="compact-370x560"/);
+  assert.match(communityWorkspace, /CHANNEL_ERROR/);
   assert.match(communityWorkspace, /Refresh messages now/);
   assert.match(communityWorkspace, /Edit profile/);
   assert.match(communityWorkspace, /markReceiptsReadUpTo\(readAt\)/);

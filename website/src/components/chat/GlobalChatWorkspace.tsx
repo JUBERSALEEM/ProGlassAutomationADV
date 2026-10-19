@@ -299,6 +299,12 @@ export function GlobalChatWorkspace() {
   const mergeReceipts = useCallback((rows: readonly GlobalChatReceipt[]) => {
     const normalizedRows = normalizeGlobalChatReceipts(rows);
     if (!normalizedRows.length) return;
+    const activeUserId = activeUserIdRef.current;
+    for (const row of normalizedRows) {
+      if (row.user_id !== activeUserId) continue;
+      if (row.delivered_at) deliveredSentRef.current.add(row.message_id);
+      if (row.read_at) readSentRef.current.add(row.message_id);
+    }
     setReceiptsByMessage((current) => mergeReceiptRows(current, normalizedRows));
   }, []);
 
@@ -407,7 +413,7 @@ export function GlobalChatWorkspace() {
         const queued = [...deliveredQueueRef.current];
         deliveredQueueRef.current.clear();
         void markDelivered(queued);
-      }, 700);
+      }, 250);
     },
     [markDelivered],
   );
@@ -613,16 +619,35 @@ export function GlobalChatWorkspace() {
     try {
       const supabase = supabaseBrowser();
       const batchSize = Math.max(GLOBAL_CHAT_PAGE_SIZE, Math.min(messagesRef.current.length || 0, 200));
-      const { data, error: refreshError } = await supabase
-        .from("global_chat_messages")
-        .select(MESSAGE_SELECT)
-        .order("created_at", { ascending: false })
-        .order("id", { ascending: false })
-        .limit(batchSize);
-      if (refreshError) throw refreshError;
+      const [messageResult, readResult] = await Promise.all([
+        supabase
+          .from("global_chat_messages")
+          .select(MESSAGE_SELECT)
+          .order("created_at", { ascending: false })
+          .order("id", { ascending: false })
+          .limit(batchSize),
+        supabase
+          .from("global_chat_reads")
+          .select("user_id,last_read_at,updated_at")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+      ]);
+      if (messageResult.error) throw messageResult.error;
       if (activeUserIdRef.current !== user.id) return;
 
-      const fresh = normalizeGlobalChatMessages(data);
+      const remoteReadAt = !readResult.error
+        ? (normalizeGlobalChatReadState(readResult.data)?.last_read_at ?? null)
+        : null;
+      if (remoteReadAt) {
+        const remoteReadTime = Date.parse(remoteReadAt);
+        const localReadTime = lastReadAtRef.current ? Date.parse(lastReadAtRef.current) : 0;
+        if (!Number.isFinite(localReadTime) || remoteReadTime > localReadTime) {
+          lastReadAtRef.current = remoteReadAt;
+          setLastReadAt(remoteReadAt);
+        }
+      }
+
+      const fresh = normalizeGlobalChatMessages(messageResult.data);
       if (!fresh.length) return;
       const existingIds = new Set(messagesRef.current.map((message) => message.id));
       const merged = mergeGlobalChatMessages(messagesRef.current, fresh);
@@ -630,7 +655,15 @@ export function GlobalChatWorkspace() {
       messagesRef.current = merged;
       setMessages(merged);
       await fetchReceipts(fresh.map((message) => message.id));
-      if (!newMessages.length) return;
+      const effectiveReadAt = lastReadAtRef.current;
+      if (effectiveReadAt) {
+        await markReceiptsReadUpTo(effectiveReadAt);
+        setUnreadCount(countUnreadGlobalChatMessages(merged, user.id, effectiveReadAt));
+      }
+      if (!newMessages.length) {
+        scheduleVisibleMessagesRead(80);
+        return;
+      }
       void fetchProfiles(newMessages.map((message) => message.author_user_id), true);
 
       const newIncoming = newMessages.filter(
@@ -656,7 +689,16 @@ export function GlobalChatWorkspace() {
     } finally {
       refreshInFlightRef.current = false;
     }
-  }, [configured, fetchProfiles, fetchReceipts, queueDelivered, scheduleVisibleMessagesRead, scrollToBottom, user]);
+  }, [
+    configured,
+    fetchProfiles,
+    fetchReceipts,
+    markReceiptsReadUpTo,
+    queueDelivered,
+    scheduleVisibleMessagesRead,
+    scrollToBottom,
+    user,
+  ]);
 
   useEffect(() => {
     refreshLatestRef.current = refreshLatest;
@@ -664,13 +706,16 @@ export function GlobalChatWorkspace() {
 
   useEffect(() => {
     if (!user || !configured) return;
-    // Supabase Realtime remains the primary path. This quiet 3-second
+    // Supabase Realtime remains the primary path. This quiet 2-second
     // reconcile guarantees message/receipt convergence even when a browser
     // tab, proxy, or reconnect drops a websocket event.
     const interval = window.setInterval(() => {
       if (document.visibilityState === "visible") void refreshLatest();
-    }, 3000);
-    const refreshWhenActive = () => void refreshLatest();
+    }, 2000);
+    const refreshWhenActive = () => {
+      void refreshLatest();
+      scheduleVisibleMessagesRead(250);
+    };
     const onVisibility = () => {
       if (document.visibilityState === "visible") refreshWhenActive();
     };
@@ -683,7 +728,7 @@ export function GlobalChatWorkspace() {
       window.removeEventListener("online", refreshWhenActive);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [configured, refreshLatest, user]);
+  }, [configured, refreshLatest, scheduleVisibleMessagesRead, user]);
 
   const loadOlder = useCallback(async (): Promise<boolean> => {
     const oldest = messagesRef.current[0];
@@ -999,7 +1044,7 @@ export function GlobalChatWorkspace() {
                 requestAnimationFrame(() => scrollToBottom(true));
               } else if (payload.eventType === "INSERT" && !next.deleted_at) {
                 queueDelivered([next.id]);
-                if (nearBottomRef.current) {
+                if (nearBottomRef.current && document.visibilityState === "visible") {
                   requestAnimationFrame(() => scrollToBottom(true));
                   void markReadRef.current(next.created_at);
                 } else {
@@ -1043,7 +1088,9 @@ export function GlobalChatWorkspace() {
         .subscribe((status) => {
           if (!active) return;
           setRealtimeStatus(typeof status === "string" && status ? status : "connecting");
-          if (status === "SUBSCRIBED") void refreshLatestRef.current();
+          if (status === "SUBSCRIBED" || status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
+            void refreshLatestRef.current();
+          }
         });
     } catch (reason) {
       // Realtime is an enhancement over the already-loaded REST history. A
@@ -1157,8 +1204,8 @@ export function GlobalChatWorkspace() {
 
   if (checking) {
     return (
-      <div role="status" className="flex min-h-[60vh] items-start justify-end bg-ink-950 px-3 py-6 text-xs text-text-muted sm:px-5">
-        <div className="grid h-[420px] w-full max-w-[430px] place-items-center rounded-[28px] border border-line-strong bg-ink-900 shadow-panel">
+      <div role="status" className="flex min-h-[60vh] items-start justify-end bg-ink-950 px-3 py-4 text-xs text-text-muted sm:px-5">
+        <div className="grid h-[360px] w-full max-w-[370px] place-items-center rounded-[24px] border border-line-strong bg-ink-900 shadow-panel">
           Checking your secure session…
         </div>
       </div>
@@ -1168,7 +1215,7 @@ export function GlobalChatWorkspace() {
   if (!configured) {
     return (
       <main className="flex min-h-[65vh] items-start justify-end bg-ink-950 px-3 py-6 text-text-primary sm:px-5">
-        <section className="w-full max-w-[430px] rounded-[28px] border border-state-warning/40 bg-state-warning/10 p-6 text-center shadow-panel">
+        <section className="w-full max-w-[370px] rounded-[24px] border border-state-warning/40 bg-state-warning/10 p-6 text-center shadow-panel">
           <p className="eyebrow text-state-warning">Community chat</p>
           <h1 className="mt-3 text-2xl font-bold">Chat is not configured in this deployment</h1>
           <p className="mt-3 text-sm leading-relaxed text-text-muted">
@@ -1188,7 +1235,7 @@ export function GlobalChatWorkspace() {
   if (!user) {
     return (
       <main className="flex min-h-[65vh] items-start justify-end bg-ink-950 px-3 py-6 text-text-primary sm:px-5">
-        <section className="w-full max-w-[430px] rounded-[28px] border border-line-strong bg-ink-900 p-6 text-center shadow-panel">
+        <section className="w-full max-w-[370px] rounded-[24px] border border-line-strong bg-ink-900 p-6 text-center shadow-panel">
           <p className="eyebrow text-brand-300">Community chat</p>
           <h1 className="mt-3 text-2xl font-bold">Sign in to join the ProGlass community room</h1>
           <p className="mt-3 text-sm leading-relaxed text-text-muted">
@@ -1230,16 +1277,18 @@ export function GlobalChatWorkspace() {
       <div className="mx-auto flex w-full max-w-[1180px] justify-end">
         <section
           aria-label="ProGlass community chat room"
-          className="relative flex h-[calc(100dvh-175px)] max-h-[720px] min-h-[500px] w-full max-w-[430px] flex-col overflow-hidden rounded-[28px] border border-line-strong bg-ink-900 shadow-raised"
+          data-testid="community-chat-panel"
+          data-chat-size="compact-370x560"
+          className="relative flex h-[min(560px,calc(100dvh-190px))] max-h-[560px] min-h-[460px] w-full max-w-[370px] flex-col overflow-hidden rounded-[24px] border border-line-strong bg-ink-900 shadow-raised"
         >
-          <header className="border-b border-line bg-ink-900 px-3 py-3">
-            <div className="flex items-center gap-2.5">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-400 text-xs font-black text-accent-ink">
+          <header className="border-b border-line bg-ink-900 px-2.5 py-2.5">
+            <div className="flex items-center gap-2">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-400 text-[10px] font-black text-accent-ink">
                 PG
               </span>
               <div className="min-w-0 flex-1">
-                <h1 className="truncate text-[15px] font-bold leading-tight">ProGlass Community</h1>
-                <p className="mt-0.5 flex items-center gap-1.5 text-[10px] leading-tight text-text-faint">
+                <h1 className="truncate text-sm font-bold leading-tight">ProGlass Community</h1>
+                <p className="mt-0.5 flex items-center gap-1 text-[9px] leading-tight text-text-faint">
                   <span
                     aria-hidden="true"
                     className={`h-2 w-2 rounded-full ${realtimeLabel === "subscribed" ? "bg-emerald-400" : "bg-state-warning"}`}
@@ -1267,39 +1316,39 @@ export function GlobalChatWorkspace() {
                 onClick={() => void refreshLatest()}
                 aria-label="Refresh messages now"
                 title="Refresh messages now"
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-line-strong text-sm font-black text-brand-300 hover:bg-ink-850"
+                className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-line-strong text-xs font-black text-brand-300 hover:bg-ink-850"
               >
                 ↻
               </button>
             </div>
 
-            <div className="mt-2 flex items-center gap-2 rounded-2xl border border-line bg-ink-950/70 px-2 py-1.5">
-              {currentProfile ? <ChatAvatar profile={currentProfile} sizeClassName="h-7 w-7" /> : null}
+            <div className="mt-1.5 flex items-center gap-1.5 rounded-2xl border border-line bg-ink-950/70 px-1.5 py-1">
+              {currentProfile ? <ChatAvatar profile={currentProfile} sizeClassName="h-6 w-6" /> : null}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[11px] font-bold leading-tight">
+                <p className="truncate text-[10px] font-bold leading-tight">
                   {currentProfile?.display_name ?? user.displayName}
                 </p>
-                <p className="truncate text-[10px] leading-tight text-text-faint">
+                <p className="truncate text-[9px] leading-tight text-text-faint">
                   {user.email ?? "Signed in"}
                   {isModerator ? " · Moderator" : ""}
                 </p>
               </div>
               <LocaleLink
                 href="/account"
-                className="shrink-0 rounded-full border border-line-strong px-2 py-1 text-[10px] font-bold text-brand-300"
+                className="shrink-0 rounded-full border border-line-strong px-1.5 py-0.5 text-[9px] font-bold text-brand-300"
               >
                 Edit profile
               </LocaleLink>
               <LocaleLink
                 href="/inquiries/chat"
-                className="shrink-0 rounded-full border border-line-strong px-2 py-1 text-[10px] font-bold text-text-secondary"
+                className="shrink-0 rounded-full border border-line-strong px-1.5 py-0.5 text-[9px] font-bold text-text-secondary"
               >
                 Private chat
               </LocaleLink>
             </div>
           </header>
 
-          <details className="border-b border-line bg-brand-400/10 px-3 py-2 text-[11px] leading-relaxed text-brand-100">
+          <details className="border-b border-line bg-brand-400/10 px-2.5 py-1.5 text-[10px] leading-relaxed text-brand-100">
             <summary className="cursor-pointer font-bold">Public room · keep private work private</summary>
             <p className="mt-1 text-text-muted">
               Every signed-in ProGlass user can read this room. Do not share project details, documents, prices, or
@@ -1327,7 +1376,7 @@ export function GlobalChatWorkspace() {
                 role="log"
                 aria-live="polite"
                 aria-label="Community messages"
-                className="min-h-0 flex-1 space-y-3 overflow-y-auto scroll-smooth bg-ink-950/70 px-3 py-3"
+                className="min-h-0 flex-1 space-y-2 overflow-y-auto scroll-smooth bg-ink-950/70 px-2.5 py-2.5"
               >
                 {hasMoreOlder ? (
                   <div className="flex justify-center">
@@ -1389,7 +1438,7 @@ export function GlobalChatWorkspace() {
                           : "Message info";
 
                     return (
-                      <div key={message.id} className="space-y-3">
+                      <div key={message.id} className="space-y-2">
                         {showDay ? <DayDivider label={day} /> : null}
                         {showUnread ? (
                           <div className="flex items-center gap-3" aria-label="Unread messages start here">
@@ -1403,18 +1452,18 @@ export function GlobalChatWorkspace() {
 
                         <div
                           id={`global-chat-message-${message.id}`}
-                          className={`flex items-end gap-2 ${own ? "justify-end" : "justify-start"}`}
+                          className={`flex items-end gap-1.5 ${own ? "justify-end" : "justify-start"}`}
                         >
-                          {!own ? <ChatAvatar profile={authorProfile} sizeClassName="h-7 w-7" /> : null}
+                          {!own ? <ChatAvatar profile={authorProfile} sizeClassName="h-6 w-6" /> : null}
 
-                          <div className={`flex max-w-[84%] flex-col ${own ? "items-end" : "items-start"}`}>
+                          <div className={`flex max-w-[82%] flex-col ${own ? "items-end" : "items-start"}`}>
                             {showAuthor ? (
                               <div className="mb-1 px-1 text-[10px] font-bold leading-tight text-brand-200">
                                 {authorName}
                               </div>
                             ) : null}
                             <article
-                              className={`rounded-[20px] px-3 py-2 shadow-panel transition-shadow ${
+                              className={`rounded-[18px] px-2.5 py-1.5 shadow-panel transition-shadow ${
                                 deleted
                                   ? "border border-line bg-ink-950/80 text-text-faint"
                                   : own
@@ -1427,7 +1476,7 @@ export function GlobalChatWorkspace() {
                                   type="button"
                                   onClick={() => void jumpToQuoted(replyToId)}
                                   aria-label="Jump to the original message"
-                                  className={`mb-2 block w-full rounded-2xl border-l-4 px-3 py-2 text-left ${
+                                  className={`mb-1.5 block w-full rounded-2xl border-l-4 px-2.5 py-1.5 text-left ${
                                     own
                                       ? "border-accent-ink/60 bg-accent-ink/10 text-accent-ink"
                                       : "border-emerald-400/80 bg-ink-950/70 text-text-primary"
@@ -1449,7 +1498,7 @@ export function GlobalChatWorkspace() {
                                   </span>
                                 </button>
                               ) : null}
-                              <p className={`whitespace-pre-wrap break-words text-[13px] leading-relaxed ${deleted ? "italic" : ""}`}>
+                              <p className={`whitespace-pre-wrap break-words text-xs leading-relaxed ${deleted ? "italic" : ""}`}>
                                 {deleted ? "This message was deleted." : message.body}
                               </p>
                               <div
@@ -1517,7 +1566,7 @@ export function GlobalChatWorkspace() {
                           </div>
 
                           {own && currentProfile ? (
-                            <ChatAvatar profile={currentProfile} sizeClassName="h-7 w-7" />
+                            <ChatAvatar profile={currentProfile} sizeClassName="h-6 w-6" />
                           ) : null}
                         </div>
                       </div>
@@ -1537,7 +1586,7 @@ export function GlobalChatWorkspace() {
               ) : null}
             </div>
 
-            <form onSubmit={(event) => void send(event)} className="border-t border-line bg-ink-900 p-2.5">
+            <form onSubmit={(event) => void send(event)} className="border-t border-line bg-ink-900 p-2">
               {replyTarget ? (
                 <div className="mb-2 flex items-start gap-3 rounded-2xl border border-line-strong border-l-4 border-l-emerald-400 bg-ink-950 px-3 py-2">
                   <div className="min-w-0 flex-1">
@@ -1574,17 +1623,17 @@ export function GlobalChatWorkspace() {
                   onKeyDown={onComposerKeyDown}
                   rows={1}
                   placeholder={replyTarget ? "Type your reply…" : "Message…"}
-                  className="max-h-28 min-h-10 flex-1 resize-none rounded-full border border-line-strong bg-ink-950 px-4 py-2.5 text-[13px] leading-relaxed text-text-primary placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/40"
+                  className="max-h-24 min-h-9 flex-1 resize-none rounded-full border border-line-strong bg-ink-950 px-3 py-2 text-xs leading-relaxed text-text-primary placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/40"
                 />
                 <button
                   type="submit"
                   disabled={!canSend}
-                  className="h-10 shrink-0 rounded-full bg-brand-400 px-4 text-[13px] font-black text-accent-ink transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+                  className="h-9 shrink-0 rounded-full bg-brand-400 px-3.5 text-xs font-black text-accent-ink transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {busy ? "Sending…" : "Send"}
                 </button>
               </div>
-              <div className="mt-2 flex items-center justify-between gap-3 px-1 text-3xs text-text-faint">
+              <div className="mt-1 flex items-center justify-between gap-3 px-1 text-3xs text-text-faint">
                 <span>Enter to send · Shift+Enter for a new line</span>
                 <span className={draftTooLong ? "font-bold text-state-danger" : undefined}>
                   {normalizedDraft.length}/{GLOBAL_CHAT_MAX_BODY}
@@ -1612,7 +1661,7 @@ export function GlobalChatWorkspace() {
             onClick={() => setInfoMessage(null)}
             className="absolute inset-0 bg-ink-950/70"
           />
-          <aside className="relative flex max-h-[min(720px,calc(100dvh-2rem))] w-full max-w-[430px] flex-col overflow-hidden rounded-[28px] border border-line-strong bg-ink-900 shadow-raised">
+          <aside className="relative flex max-h-[min(560px,calc(100dvh-2rem))] w-full max-w-[370px] flex-col overflow-hidden rounded-[24px] border border-line-strong bg-ink-900 shadow-raised">
             <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
               <h2 className="text-base font-bold">Message info</h2>
               <button
