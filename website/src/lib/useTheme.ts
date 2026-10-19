@@ -21,7 +21,7 @@ import {
  * Two choices, one resolved state, and one place that writes it to the document:
  *
  *   mode      Light · Dark · System     — the lightness of every surface
- *   family    Studio · Monet · Industrial · Crystal — the palette
+ *   family    eight selectable visual systems — the palette
  *   resolved  midnight | daylight       — what the mode actually resolves to
  *
  * The DOM is the source of truth, and that is deliberate. The inline boot
