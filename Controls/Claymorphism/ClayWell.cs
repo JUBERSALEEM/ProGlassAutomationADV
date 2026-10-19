@@ -143,7 +143,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
             var dark = ThemeManager.CurrentTheme == AppTheme.Dark;
 
             ClaySurfaceParts.Paint(
-                _parts, ClayPalette, dark,
+                _parts, dark,
                 SoftDepthTier.Well,
                 ResolveState(),
                 ClaySurface.TopLeft(ClayCornerRadius),

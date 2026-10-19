@@ -147,7 +147,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
             }
 
             ClaySurfaceParts.Paint(
-                _parts, ClayPalette, dark,
+                _parts, dark,
                 SoftDepthTier.Resting,
                 IsEnabled
                     ? SoftInteractionState.Rest

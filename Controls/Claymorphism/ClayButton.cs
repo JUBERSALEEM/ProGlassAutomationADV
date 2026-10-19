@@ -193,7 +193,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
             // Buttons sit at Raised: something you can act on should not
             // be flush with the list it lives in.
             ClaySurfaceParts.Paint(
-                _parts, ClayPalette, dark,
+                _parts, dark,
                 SoftDepthTier.Raised, state,
                 ClaySurface.TopLeft(ClayCornerRadius),
                 smallSurface: false,

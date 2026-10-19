@@ -118,15 +118,16 @@ namespace ProGlassAutomation.Controls.Claymorphism
         /// the try/catch live in exactly one place.
         /// </summary>
         /// <remarks>
-        /// Deliberately takes the palette as a parameter rather than
-        /// reaching for <c>ClayPalette.For</c> itself: that lets a test
-        /// drive a stack against a synthetic profile without publishing
-        /// global state, which is what makes the dark-mode and
-        /// small-surface rules testable at all.
+        /// The palette is reached for statically. It was previously a
+        /// parameter, which does not even compile — a static class cannot
+        /// be a parameter type — and the comment claimed it was there as a
+        /// test seam so a test could drive a synthetic profile. Neither
+        /// was true: the palette IS global state, so passing it in gained
+        /// nothing, and the tests drive <c>ClayRecipe</c> directly against
+        /// a synthetic profile rather than coming through here.
         /// </remarks>
         public static void Paint(
             ClaySurfaceParts parts,
-            ClayPalette palette,
             bool dark,
             SoftDepthTier depth,
             SoftInteractionState state,
@@ -136,7 +137,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
         {
             if (parts is null || !parts.Complete) return;
 
-            var profile = palette.For(dark);
+            var profile = ClayPalette.For(dark);
             if (profile is null)
             {
                 // Another family is active. A plain rounded surface that
