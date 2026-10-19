@@ -42,11 +42,11 @@ namespace ProGlassAutomation.Tests.Agent
         // "return false".
 
         [Theory]
-        [InlineData("https://github.com/JUBERSALEEM/ProGlassAutomationADV/releases/download/v2.0.1/Setup.exe")]
+        [InlineData("https://github.com/JUBERSALEEM/ProGlassAutomationssss/releases/download/v2.0.1/Setup.exe")]
         [InlineData("https://objects.githubusercontent.com/github-production-release-asset/1/2")]
         [InlineData("https://release-assets.githubusercontent.com/github-production-release-asset/9")]
         [InlineData("https://api.github.com/repos/JUBERSALEEM/ProGlassAutomationADV/releases/assets/1")]
-        [InlineData("https://www.github.com/JUBERSALEEM/ProGlassAutomationADV/releases/download/v1/a.zip")]
+        [InlineData("https://www.github.com/JUBERSALEEM/ProGlassAutomationssss/releases/download/v1/a.zip")]
         public void Accepts_genuine_github_release_urls(string url)
         {
             Assert.True(UpdateService.IsAllowedDownloadUrl(url));
