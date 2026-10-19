@@ -358,7 +358,9 @@ namespace ProGlassAutomation.Services.Theme
             // Monet and Crystal Fluid derive their surfaces and
             // window stage from the active accent colour, so both must
             // re-derive when the user changes the accent.
-            if (Current != Monet && Current != CrystalFluid)
+            if (Current != Monet && Current != CrystalFluid &&
+                Current != LiquidGlass && Current != Glassmorphism &&
+                Current != SpatialImmersive && Current != HolographicIridescent)
                 return;
             InvalidateSceneCache();
             Apply(Current, _lastWallpaperPath, _lastWallpaperOpacity);
