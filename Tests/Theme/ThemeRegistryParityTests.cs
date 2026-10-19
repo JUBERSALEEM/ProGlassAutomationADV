@@ -200,7 +200,7 @@ namespace ProGlassAutomation.Tests.Theme
                 // Every switch arm must explicitly provide a dark and light
                 // palette rather than falling through to one shared palette.
                 Assert.Matches(
-                    family + @"\\s*=>\\s*dark\\s*\\?\\s*new\\([^\\r\\n]*\\)\\s*:\\s*new\\(",
+                    family + @"\s*=>\s*dark\s*\?\s*new\([^\r\n]*\)\s*:\s*new\(",
                     overlay);
             }
 
