@@ -187,6 +187,37 @@ namespace ProGlassAutomation.Tests.Theme
         }
 
         [Fact]
+        public void Eight_theme_material_overlay_populates_live_card_shell_and_status_surface_sources()
+        {
+            string overlay = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
+
+            // These are not preview-only tokens. The semantic surface publisher,
+            // dashboard shell, and legacy ERP card styles read these exact keys.
+            // If the overlay stops writing them, most of the app silently falls
+            // back to ApplyIndustrial's shared cream palette.
+            foreach (var key in new[]
+            {
+                "GlassUltraClearBrush", "GlassSurfaceBrush", "GlassCrystalBrush",
+                "GlassFrostedBrush", "GlassSurfaceStandard", "GlassSurfaceUltra",
+                "GlassSurfaceElevated", "GlassWaterBrush", "GlassBorderGradientCrystal",
+                "GlassBorderSoft", "GlassBorderPrimary", "GlassBorderBright",
+                "ShellLiquidBrush", "SidebarCardBrush", "DashLiquidSurfaceBrush",
+                "DashAmbientBrush", "DashAmbientBlob1Brush", "DashAmbientBlob2Brush",
+                "TintIndigoBrush", "TintBlueBrush", "TintGreenBrush", "TintRedBrush",
+                "TintAmberBrush", "TintPurpleBrush", "TintGrayBrush"
+            })
+                Assert.Contains($"resources[\"{key}\"]", overlay, StringComparison.Ordinal);
+
+            string semanticPublisher = Read("Services/ThemeManager.Part2.cs");
+            Assert.Contains("SetBrushResource(resources, \"Surface.Primary.BackgroundBrush\", primaryKey", semanticPublisher, StringComparison.Ordinal);
+            Assert.Contains("SetBrushResource(resources, \"Surface.Secondary.BackgroundBrush\", secondaryKey", semanticPublisher, StringComparison.Ordinal);
+
+            string globalStyles = Read("Themes/Styles/GlobalDesignSystem.xaml");
+            Assert.Contains("DynamicResource Surface.Primary.BackgroundBrush", globalStyles, StringComparison.Ordinal);
+            Assert.Contains("DynamicResource Surface.Secondary.BackgroundBrush", globalStyles, StringComparison.Ordinal);
+        }
+
+        [Fact]
         public void Every_approved_family_has_separate_light_and_dark_palette_recipes()
         {
             string overlay = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
