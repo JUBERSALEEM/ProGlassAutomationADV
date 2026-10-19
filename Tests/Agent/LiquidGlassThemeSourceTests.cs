@@ -79,7 +79,7 @@ namespace ProGlassAutomation.Tests.Agent
             string engine = Engine;
             Assert.DoesNotContain("public const string Glass =", engine, StringComparison.Ordinal);
             Assert.DoesNotContain("public const string Glassy =", engine, StringComparison.Ordinal);
-            Assert.DoesNotContain("public const string LiquidGlass =", engine, StringComparison.Ordinal);
+            Assert.Contains("public const string LiquidGlass = \"Liquid Glass\";", engine, StringComparison.Ordinal);
             Assert.DoesNotContain("public const string Ocean =", engine, StringComparison.Ordinal);
             Assert.DoesNotContain("public const string Professional =", engine, StringComparison.Ordinal);
             Assert.DoesNotContain("public const string Industrial", engine, StringComparison.Ordinal);
@@ -112,11 +112,18 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("VisualThemeEngine.CrystalFluid)", vm, StringComparison.Ordinal);
             Assert.Contains("VisualThemeEngine.Ios26)", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Normal)", vm, StringComparison.Ordinal);
-            Assert.DoesNotContain("VisualThemeEngine.LiquidGlass", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.BentoGrid)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.SpatialImmersive)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.SwissInternational)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.HolographicIridescent)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.Neumorphism)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.Claymorphism)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.LiquidGlass)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.Glassmorphism)", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Ocean", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Professional", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Industrial", vm, StringComparison.Ordinal);
-            Assert.DoesNotContain("VisualThemeEngine.Glass", vm, StringComparison.Ordinal);
+            Assert.DoesNotContain("VisualThemeEngine.Glass,", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Glassy", vm, StringComparison.Ordinal);
         }
 
