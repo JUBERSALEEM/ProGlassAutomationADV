@@ -144,34 +144,37 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Every_selectable_family_survives_normalization_and_is_dispatched()
+        public void Eight_selectable_families_survive_normalization_and_are_dispatched()
         {
-            // ROOT-CAUSE LOCK (2026-09-17). Two independent cuts made the
-            // iPhone 17 Pro Max and iOS 26 families dead options:
-            //   1. VisualThemeEngine.Normalize folded BOTH identity strings to
-            //      NormalIndustrial, so every Apply()/ApplyModule() painted
-            //      Industrial no matter what the picker saved.
-            //   2. ApplyIos26 had no `case` in either dispatch switch, so even
-            //      an unfaded Normalize could not have painted it.
-            // A fold like that is invisible to every other test: the family
-            // resolves, paints and saves — it just paints the wrong thing.
             string part3 = Read("Services/Theme/VisualThemeEngine.Part3.cs");
-            Assert.Contains("CrystalFluid => CrystalFluid,", part3, StringComparison.Ordinal);
-            Assert.Contains("Ios26 => Ios26,", part3, StringComparison.Ordinal);
-            Assert.DoesNotContain("CrystalFluid => NormalIndustrial", part3, StringComparison.Ordinal);
-            Assert.DoesNotContain("Ios26 => NormalIndustrial", part3, StringComparison.Ordinal);
+            foreach (var family in new[]
+            {
+                "BentoGrid", "SpatialImmersive", "SwissInternational",
+                "HolographicIridescent", "Neumorphism", "Claymorphism",
+                "LiquidGlass", "Glassmorphism"
+            })
+                Assert.Contains(family + " => " + family, part3, StringComparison.Ordinal);
+
+            Assert.Contains("Monet => Claymorphism", part3, StringComparison.Ordinal);
+            Assert.Contains("CrystalFluid or Ios26 => LiquidGlass", part3, StringComparison.Ordinal);
+            Assert.Contains("Normal or NormalIndustrial => BentoGrid", part3, StringComparison.Ordinal);
 
             string part1 = Read("Services/Theme/VisualThemeEngine.Part1.cs");
-            Assert.Equal(2, CountOccurrences(part1, "case Ios26:"));
-            Assert.Equal(2, CountOccurrences(part1, "ApplyIos26(resources);"));
-            Assert.Equal(2, CountOccurrences(part1, "case CrystalFluid:"));
-            Assert.Equal(2, CountOccurrences(part1, "ApplyCrystalFluid(resources);"));
+            foreach (var family in new[]
+            {
+                "BentoGrid", "SpatialImmersive", "SwissInternational",
+                "HolographicIridescent", "Neumorphism", "Claymorphism",
+                "LiquidGlass", "Glassmorphism"
+            })
+                Assert.Contains("case " + family + ":", part1, StringComparison.Ordinal);
 
-            // The Themes-section gate must read the saved family, never a
-            // hardcoded false (that hid the crystal axes permanently).
+            Assert.Equal(2, CountOccurrences(part1, "ApplyEightThemeMaterial(resources, Current);"));
+
+            // Crystal material controls remain available to Liquid Glass;
+            // they are no longer a ninth selectable family.
             string customization = Read(
                 "ViewModels/Settings/SettingsViewModel.ThemeCustomization.cs");
-            Assert.Contains("SelectedVisualTheme == VisualThemeEngine.CrystalFluid",
+            Assert.Contains("SelectedVisualTheme == VisualThemeEngine.LiquidGlass",
                 customization, StringComparison.Ordinal);
             Assert.DoesNotContain("IsCrystalThemeActive => false",
                 customization, StringComparison.Ordinal);
