@@ -63,9 +63,10 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// cream SaaS "Normal" value and every unknown legacy value
         /// migrate to Normal (Industrial) via the engine's Normalize
         /// mapping.
-        /// Default: Normal (Industrial).
+        /// The eight selectable visual families are defined by VisualThemeEngine.
+        /// Default: Liquid Glass. ConfigService migrates older family identities.
         /// </summary>
-        public string VisualTheme { get; set; } = "Normal (Industrial)";
+        public string VisualTheme { get; set; } = "Liquid Glass";
 
         /// <summary>
         /// One-time migration marker (2026-09-13): set the first time a
@@ -75,6 +76,9 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// re-picks a family.
         /// </summary>
         public bool VisualThemeMigrated { get; set; }
+
+        /// <summary>One-time migration to the eight selectable theme families.</summary>
+        public bool EightThemeMigrationApplied { get; set; }
 
         /// <summary>
         /// Global font colour override (Settings → Appearance → Font
