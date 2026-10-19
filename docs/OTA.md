@@ -37,8 +37,8 @@ above already cover it.
 
 ## Where releases are hosted
 
-GitHub Releases on `JUBERSALEEM/ProGlassAutomationADV`.
-The desktop app calls the **public** releases API — it contains **no
+GitHub Releases on the public distribution repository `JUBERSALEEM/ProGlassAutomationssss`. Application source and the License Generator remain in the private `ProGlassAutomationADV` repository.
+The desktop app calls the **public distribution repository's** releases API — it contains **no
 GitHub token or secret anywhere** (spec §9/§23). CI secrets live only
 in GitHub Actions.
 
