@@ -76,4 +76,4 @@ jobs:
       - name: Restore WPF test project
         run: dotnet restore Tests/ProGlassAutomation.Tests.csproj
       - name: Build and run WPF theme regression tests
-        run: dotnet test Tests/ProGlassAutomation.Tests.csproj --configuration Release --no-restore --filter "FullyQualifiedName~ProGlassAutomation.Tests.Theme|FullyQualifiedName~LiquidGlassThemeSourceTests"
+        run: dotnet test Tests/ProGlassAutomation.Tests.csproj --configuration Release --no-restore --filter "FullyQualifiedName~ThemeRegistryParityTests|FullyQualifiedName~LiquidGlassThemeSourceTests"
