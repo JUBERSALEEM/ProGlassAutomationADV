@@ -206,7 +206,7 @@ jobs:
             "",
             "## Release files",
             "",
-            "- `$asset` — self-contained single-file Windows x64 application.",
+            "- $asset — self-contained single-file Windows x64 application.",
             "- `ProGlassAutomation-Setup.exe` — signed installer for managed installations.",
             "- `SHA256SUMS.txt` — SHA-256 integrity checksum.",
             "",
