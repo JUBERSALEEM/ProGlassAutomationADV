@@ -261,6 +261,30 @@ def check_file(root, repo, path, keys, merged, findings,
                             f"App.xaml merges",
                         ))
 
+    # 2a. TemplateBinding is ONE-WAY and has no Mode property. This is
+    # MC3045, and it is a FATAL markup error -- not a warning, not a
+    # style nit. Worse, it aborts MarkupCompilePass1, which is why it
+    # also produced a wall of XDG0008 "type does not exist" errors in
+    # LATER files whose types are perfectly fine: the pass died before
+    # it finished resolving them. Fixing this one line is what clears
+    # those, not renaming anything in Controls/.
+    #
+    #   WRONG   Text="{TemplateBinding Text, Mode=TwoWay}"
+    #   RIGHT   Text="{Binding Text, Mode=TwoWay,
+    #                     RelativeSource={RelativeSource TemplatedParent}}"
+    for el in tree.getroot().iter():
+        for attr, val in el.attrib.items():
+            for m in re.finditer(r'\{(TemplateBinding)\b([^}]*)\}', val or ""):
+                args = m.group(2)
+                if re.search(r'\bMode\s*=', args):
+                    findings.append((
+                        rel, 0,
+                        f"MC3045 TemplateBinding has no Mode property "
+                        f"({m.group(0)}). TemplateBinding is one-way by "
+                        f"construction -- use Binding with "
+                        f"RelativeSource={{RelativeSource TemplatedParent}}",
+                    ))
+
     # 2b. enum-valued Setter values must name a real member of the enum.
     # "Load" is not a TextFormattingMode; the enum has exactly three.
     for el in tree.getroot().iter():

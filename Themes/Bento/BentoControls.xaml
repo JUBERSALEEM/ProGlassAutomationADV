@@ -316,7 +316,7 @@
                              TextWrapping="Wrap"
                              AcceptsReturn="True"
                              IsReadOnly="{TemplateBinding IsReadOnly}"
-                             Text="{TemplateBinding Text, Mode=TwoWay}"
+                             Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                              TextOptions.TextFormattingMode="Display"
                              TextOptions.TextRenderingMode="ClearType" />
                 </ScrollViewer>
