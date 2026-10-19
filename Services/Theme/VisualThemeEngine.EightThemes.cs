@@ -23,10 +23,10 @@ namespace ProGlassAutomation.Services.Theme
                 ? Gradient(palette.Canvas, palette.CanvasMid, palette.CanvasEnd)
                 : Solid(palette.Canvas);
             Brush module = palette.Glass
-                ? Alpha(palette.Surface, dark ? 0xD9 : 0xE8)
+                ? Alpha(palette.Surface, dark ? (byte)0xD9 : (byte)0xE8)
                 : Solid(palette.Surface);
             Brush raised = palette.Glass
-                ? Alpha(palette.Raised, dark ? 0xE8 : 0xF0)
+                ? Alpha(palette.Raised, dark ? (byte)0xE8 : (byte)0xF0)
                 : Solid(palette.Raised);
             Brush inset = Solid(palette.Inset);
             Brush edge = Alpha(palette.Edge, palette.Glass ? (byte)0xB8 : (byte)0xFF);
