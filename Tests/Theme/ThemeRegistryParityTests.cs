@@ -164,6 +164,22 @@ namespace ProGlassAutomation.Tests.Theme
                 Assert.Contains(key, coverage);
         }
 
+        [Fact]
+        public void Eight_theme_material_overlay_defines_all_families_and_both_modes()
+        {
+            string overlay = Read("Services/Theme/VisualThemeEngine.EightThemes.cs");
+            foreach (var family in new[]
+            {
+                "BentoGrid", "SpatialImmersive", "SwissInternational",
+                "HolographicIridescent", "Neumorphism", "Claymorphism",
+                "LiquidGlass", "Glassmorphism"
+            })
+                Assert.Contains(family, overlay, StringComparison.Ordinal);
+
+            Assert.Contains("ThemeManager.CurrentTheme == AppTheme.Dark", overlay, StringComparison.Ordinal);
+            Assert.Contains("ApplyEightThemeMaterial(resources, Current)", Read("Services/Theme/VisualThemeEngine.Part1.cs"), StringComparison.Ordinal);
+        }
+
         [Theory]
         [InlineData(VisualThemeEngine.BentoGrid)]
         [InlineData(VisualThemeEngine.SpatialImmersive)]
