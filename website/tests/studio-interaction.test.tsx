@@ -191,9 +191,9 @@ describe("P18 · the colour plates", () => {
     expect(rose400).not.toBe("");
     /* The palette-family plates: click Crystal. setFamily clears the pick,
        data-appearance flips, the observer re-applies. */
-    await user.click(within(panel).getByRole("button", { name: /^crystal$/i }));
+    await user.click(within(panel).getByRole("button", { name: /^liquid glass$/i }));
     await settle();
-    expect(html().getAttribute("data-appearance")).toBe("crystal");
+    expect(html().getAttribute("data-appearance")).toBe("liquid-glass");
     expect(window.localStorage.getItem(APPEARANCE_STORAGE_KEY)).toBe("crystal");
     /* Family pick clears the explicit accent → stylesheet owns the ramp. */
     expect(inline("--brand-400")).toBe("");
