@@ -548,7 +548,7 @@ namespace ProGlassAutomation
 
             VisualThemeEngine.Apply(
                 Config.Appearance?.VisualTheme
-                    ?? VisualThemeEngine.NormalIndustrial,
+                    ?? VisualThemeEngine.LiquidGlass,
                 Config.Appearance?.WallpaperPath ?? "",
                 Config.Appearance?.WallpaperOpacity ?? 0.85);
 
