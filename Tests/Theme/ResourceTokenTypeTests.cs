@@ -164,7 +164,7 @@ namespace ProGlassAutomation.Tests.Theme
 
             var assignments = new List<string>();
             var assignmentPattern = new Regex(
-                @"resources\[\"(CardBorderThickness|CardEdgeThickness)\"\]\s*=\s*(.*);",
+                @"resources\[""(CardBorderThickness|CardEdgeThickness)""\]\s*=\s*(.*);",
                 RegexOptions.Compiled);
 
             var line = 0;
