@@ -124,7 +124,9 @@ test("phase record keeps Phase 9E completion and Phase 11 live-database status e
   assert.match(phaseDoc, /owner confirmed completion on 19 October 2026/);
   assert.match(phaseDoc, /migration version `20261019043256`/);
   assert.match(phaseDoc, /4 tables, 4 RLS tables, 4 policies, 9 functions/);
-  assert.match(phaseDoc, /Register the first room admin\/members/);
+  assert.match(phaseDoc, /Register the first two owner-designated Management accounts as active room admins/);
+  assert.match(phaseDoc, /use it as the main branch/);
+  assert.match(phaseDoc, /current room counts are 2 members, 2 registration events/);
   assert.match(phaseDoc, /Phase 11C/);
   assert.doesNotMatch(ui, /Phase 9E Windows bridge verification/);
 });

@@ -1,6 +1,6 @@
 # Phase 9 estimator workflow and Phase 10 production coordination
 
-Status: Phases 9A–9E are implemented and live-verified. The owner confirmed on 19 October 2026 that the Phase 9E Windows bridge dry-run/apply/recovery and assigned/unassigned/reassignment verification passed. Phase 11A–11B are implemented in the repo, and the Phase 11A migration was applied to live Supabase project `afpbdyamedpanwijxghk` on 19 October 2026 as migration version `20261019043256` (`production_room_phase11a`); structural verification passed. Production use still requires the frontend production-branch merge, first room-member registration, and the live identity matrix. Phase 10 responsive UI redesign is implemented except for the final browser visual review.
+Status: Phases 9A–9E are implemented and live-verified. The owner confirmed on 19 October 2026 that the Phase 9E Windows bridge dry-run/apply/recovery and assigned/unassigned/reassignment verification passed. Phase 11A–11B are implemented in the repo, and the Phase 11A migration was applied to live Supabase project `afpbdyamedpanwijxghk` on 19 October 2026 as migration version `20261019043256` (`production_room_phase11a`); structural verification passed. Two owner-designated Management accounts have since been registered as active room admins. The owner decided not to merge this branch into another branch and to use it as the main branch; production use still requires that branch to be the deployed main branch and the live identity matrix to pass. Phase 10 responsive UI redesign is implemented except for the final browser visual review.
 
 ## Verified reports-page pattern to reuse
 
@@ -140,7 +140,7 @@ Repository-only visual redesign work undertaken while Phase 9E awaited the Windo
 
 One production-only room is preferred over separate meeting/stage chats. Membership is explicit for approved department heads and admins; no access follows automatically from customer, estimator, viewer, auditor, or bridge roles. Even inquiry admins must hold an active room-membership row before they can read or post messages; inquiry-admin authority is used only to bootstrap and manage membership.
 
-Live database status (19 October 2026): Phase 11A and Phase 11B are implemented in the repo. After the owner confirmed Phase 9E completion, `supabase-production-room-phase11a.sql` (SHA-256 `44b0ae7d986f02fb851a2a842c38b7b30cdb86d5d5795b9b79f32142eb93b40a`) was applied to live Supabase project `afpbdyamedpanwijxghk` as migration version `20261019043256` (`production_room_phase11a`). Read-only verification returned 4 tables, 4 RLS tables, 4 policies, 9 functions, and zero rows in all four new tables. Existing counts immediately before and after application were unchanged: 67 records, 1 job order, 7 customer submissions, 23 customer documents, 1 delivery, 2 estimators, 10 estimator assignments, and 6 operator-role rows. The frontend has not yet been merged to the production branch and no room member has been registered, so the room is not operationally live until first-member registration and the live identity matrix pass.
+Live database status (19 October 2026): Phase 11A and Phase 11B are implemented in the repo. After the owner confirmed Phase 9E completion, `supabase-production-room-phase11a.sql` (SHA-256 `44b0ae7d986f02fb851a2a842c38b7b30cdb86d5d5795b9b79f32142eb93b40a`) was applied to live Supabase project `afpbdyamedpanwijxghk` as migration version `20261019043256` (`production_room_phase11a`). Read-only verification returned 4 tables, 4 RLS tables, 4 policies, 9 functions, and zero rows in all four new tables. Existing counts immediately before and after application were unchanged: 67 records, 1 job order, 7 customer submissions, 23 customer documents, 1 delivery, 2 estimators, 10 estimator assignments, and 6 operator-role rows. After that initial zero-row verification, two owner-designated Management accounts were registered through the reviewed RPC as active room admins; current room counts are 2 members, 2 registration events, 0 messages, and 0 read positions. The owner decided not to merge `arena/f2590052-proglassautomationadv` into another branch and to use it as the main branch. The room is not operationally live until that branch is the deployed main branch and the live identity matrix passes.
 
 Categories are fixed identically in SQL and TypeScript: `general_production`, `urgent_blocker`, `material_shortage`, `machine_issue`, `quality_issue`, `schedule_change`, `dispatch_dependency`, `decision`, and `action_item`.
 
@@ -158,7 +158,8 @@ Categories are fixed identically in SQL and TypeScript: `general_production`, `u
 - [x] Add TypeScript contracts and static security tests (`npm run test:production-room`).
 - [x] Apply the migration after Phase 9E passed and the owner authorized continuation (19 October 2026; migration version `20261019043256`).
 - [x] Run the read-only structural verification below after application (4 tables, 4 RLS tables, 4 policies, 9 functions, and zero initial rows).
-- [ ] Register the first room admin/members and run the live member/non-member/admin matrix.
+- [x] Register the first two owner-designated Management accounts as active room admins.
+- [ ] Run the live member/non-member/admin matrix after this branch is deployed as the main branch.
 
 After authorized application, structural verification is read-only:
 
