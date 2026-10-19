@@ -21,6 +21,8 @@ const communityPage = read("../src/app/[locale]/chat/page.tsx");
 const communityWorkspace = read("../src/components/chat/GlobalChatWorkspace.tsx");
 const communityHelpers = read("../src/lib/global-chat.ts");
 const communitySql = read("../supabase-global-chat.sql");
+const communitySqlV2 = read("../supabase-global-chat-v2-replies-receipts.sql");
+const communityTypes = read("../src/types/global-chat.ts");
 
 test("global account route reuses the existing Supabase form with a safe inquiry-chat return", () => {
   assert.match(accountPage, /ReportsAuthForm variant="account" defaultRedirect="\/inquiries\/chat"/);
@@ -152,4 +154,51 @@ test("community chat workspace is browser-direct realtime with unread handling a
   assert.match(bubble, /accountPathForRedirect\("\/chat"\)/);
   assert.match(workspace, /href="\/chat"/);
   assert.match(workspace, /Community chat/);
+});
+
+test("community chat v2 SQL adds message replies and per-message receipts safely", () => {
+  assert.match(communitySqlV2, /ADD COLUMN IF NOT EXISTS reply_to_message_id uuid REFERENCES public\.global_chat_messages\(id\)/);
+  assert.match(communitySqlV2, /DROP FUNCTION IF EXISTS public\.post_global_chat_message\(text\)/);
+  assert.match(communitySqlV2, /post_global_chat_message\(p_body text, p_reply_to_message_id uuid DEFAULT NULL\)/);
+  assert.match(communitySqlV2, /no longer available/);
+  assert.match(communitySqlV2, /CREATE TABLE IF NOT EXISTS public\.global_chat_receipts/);
+  assert.match(communitySqlV2, /PRIMARY KEY \(message_id, user_id\)/);
+  assert.match(communitySqlV2, /ALTER TABLE public\.global_chat_receipts ENABLE ROW LEVEL SECURITY/);
+  assert.match(communitySqlV2, /REVOKE ALL ON TABLE public\.global_chat_receipts FROM anon/);
+  assert.match(communitySqlV2, /REVOKE INSERT, UPDATE, DELETE ON TABLE public\.global_chat_receipts FROM authenticated/);
+  assert.match(communitySqlV2, /Signed-in users read global chat receipts/);
+  assert.match(communitySqlV2, /mark_global_chat_receipts_delivered\(p_message_ids uuid\[\]\)/);
+  assert.match(communitySqlV2, /mark_global_chat_receipts_read\(p_message_ids uuid\[\]\)/);
+  assert.match(communitySqlV2, /cardinality\(p_message_ids\) > 200/);
+  assert.match(communitySqlV2, /m\.author_user_id <> auth\.uid\(\)/);
+  assert.match(communitySqlV2, /COALESCE\(public\.global_chat_receipts\.read_at, EXCLUDED\.read_at\)/);
+  assert.match(communitySqlV2, /ALTER TABLE public\.global_chat_receipts REPLICA IDENTITY FULL/);
+  assert.match(communitySqlV2, /ALTER PUBLICATION supabase_realtime ADD TABLE public\.global_chat_receipts/);
+  assert.doesNotMatch(communitySqlV2, /service_role/i);
+});
+
+test("community chat workspace supports WhatsApp-style replies, ticks and who-read-when info", () => {
+  assert.match(communityTypes, /reply_to_message_id: string \| null/);
+  assert.match(communityTypes, /GlobalChatReceipt/);
+  assert.match(communityHelpers, /globalChatMessageExcerpt/);
+  assert.match(communityHelpers, /formatGlobalChatDateTime/);
+  assert.match(communityHelpers, /summarizeGlobalChatReceipts/);
+  assert.match(communityHelpers, /groupGlobalChatReceiptsByMessage/);
+  assert.match(communityWorkspace, /replyTarget/);
+  assert.match(communityWorkspace, /Replying to/);
+  assert.match(communityWorkspace, /Cancel reply/);
+  assert.match(communityWorkspace, /p_reply_to_message_id: replyTarget\?\.id \?\? null/);
+  assert.match(communityWorkspace, /jumpToQuoted/);
+  assert.match(communityWorkspace, /Jump to the original message/);
+  assert.match(communityWorkspace, /highlightedMessageId/);
+  assert.match(communityWorkspace, /from\("global_chat_receipts"\)/);
+  assert.match(communityWorkspace, /mark_global_chat_receipts_delivered/);
+  assert.match(communityWorkspace, /mark_global_chat_receipts_read/);
+  assert.match(communityWorkspace, /table: "global_chat_receipts"/);
+  assert.match(communityWorkspace, /Seen by \$\{receiptSummary\.readCount\}/);
+  assert.match(communityWorkspace, /Message info/);
+  assert.match(communityWorkspace, /Read by/);
+  assert.match(communityWorkspace, /Delivered to/);
+  assert.match(communityWorkspace, /formatGlobalChatDateTime\(receipt\.read_at/);
+  assert.match(communityWorkspace, /formatGlobalChatDateTime\(receipt\.delivered_at/);
 });

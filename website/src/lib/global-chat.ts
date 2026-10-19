@@ -1,4 +1,4 @@
-import type { GlobalChatMessage } from "@/types/global-chat";
+import type { GlobalChatMessage, GlobalChatReceipt } from "@/types/global-chat";
 
 export const GLOBAL_CHAT_PATH = "/chat";
 export const GLOBAL_CHAT_MAX_BODY = 1000;
@@ -99,4 +99,57 @@ export function formatGlobalChatDay(
   yesterday.setDate(now.getDate() - 1);
   if (sameLocalDay(date, yesterday)) return "Yesterday";
   return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(date);
+}
+
+export function formatGlobalChatDateTime(value: string | null | undefined, locale?: string): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  const day = formatGlobalChatDay(value, locale);
+  return `${day} · ${formatGlobalChatTime(value, locale)}`;
+}
+
+export function globalChatMessageExcerpt(body: string, maxLength = 180): string {
+  const text = body.replace(/\s+/g, " ").trim();
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, Math.max(1, maxLength - 1)).trimEnd()}…`;
+}
+
+export type GlobalChatReceiptState = "sent" | "delivered" | "read";
+
+export type GlobalChatReceiptSummary = {
+  deliveredCount: number;
+  readCount: number;
+  state: GlobalChatReceiptState;
+};
+
+export function summarizeGlobalChatReceipts(
+  receipts: readonly GlobalChatReceipt[],
+): GlobalChatReceiptSummary {
+  let deliveredCount = 0;
+  let readCount = 0;
+  for (const receipt of receipts) {
+    if (receipt.read_at) readCount += 1;
+    else if (receipt.delivered_at) deliveredCount += 1;
+  }
+  return {
+    deliveredCount,
+    readCount,
+    state: readCount > 0 ? "read" : deliveredCount > 0 ? "delivered" : "sent",
+  };
+}
+
+export function groupGlobalChatReceiptsByMessage(
+  receipts: readonly GlobalChatReceipt[],
+): Map<string, GlobalChatReceipt[]> {
+  const grouped = new Map<string, GlobalChatReceipt[]>();
+  for (const receipt of receipts) {
+    if (!receipt?.message_id) continue;
+    const rows = grouped.get(receipt.message_id) ?? [];
+    const index = rows.findIndex((row) => row.user_id === receipt.user_id);
+    if (index >= 0) rows[index] = receipt;
+    else rows.push(receipt);
+    grouped.set(receipt.message_id, rows);
+  }
+  return grouped;
 }

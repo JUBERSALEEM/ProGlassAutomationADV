@@ -20,14 +20,39 @@ import {
   authorInitials,
   countUnreadGlobalChatMessages,
   firstUnreadGlobalChatMessageId,
+  formatGlobalChatDateTime,
   formatGlobalChatDay,
   formatGlobalChatTime,
   globalChatDisplayName,
+  globalChatMessageExcerpt,
+  groupGlobalChatReceiptsByMessage,
   mergeGlobalChatMessages,
   normalizeGlobalChatDraft,
+  summarizeGlobalChatReceipts,
 } from "@/lib/global-chat";
 import { isSupabaseConfigured, supabaseBrowser } from "@/lib/supabase";
-import type { GlobalChatMessage, GlobalChatReadState } from "@/types/global-chat";
+import type { GlobalChatMessage, GlobalChatReadState, GlobalChatReceipt } from "@/types/global-chat";
+
+const MESSAGE_SELECT =
+  "id,author_user_id,author_display_name,body,reply_to_message_id,deleted_at,deleted_by,created_at";
+const RECEIPT_SELECT = "message_id,user_id,display_name,delivered_at,read_at";
+
+function mergeReceiptRows(
+  current: ReadonlyMap<string, GlobalChatReceipt[]>,
+  rows: readonly GlobalChatReceipt[],
+): Map<string, GlobalChatReceipt[]> {
+  const next = new Map(current);
+  for (const [messageId, incoming] of groupGlobalChatReceiptsByMessage(rows)) {
+    const merged = [...(next.get(messageId) ?? [])];
+    for (const receipt of incoming) {
+      const index = merged.findIndex((row) => row.user_id === receipt.user_id);
+      if (index >= 0) merged[index] = receipt;
+      else merged.push(receipt);
+    }
+    next.set(messageId, merged);
+  }
+  return next;
+}
 
 type ChatUser = {
   id: string;
@@ -108,12 +133,23 @@ export function GlobalChatWorkspace() {
   const [isModerator, setIsModerator] = useState(false);
   const [realtimeStatus, setRealtimeStatus] = useState("connecting");
   const [isNearBottom, setIsNearBottom] = useState(true);
+  const [replyTarget, setReplyTarget] = useState<GlobalChatMessage | null>(null);
+  const [receiptsByMessage, setReceiptsByMessage] = useState<Map<string, GlobalChatReceipt[]>>(new Map());
+  const [infoMessage, setInfoMessage] = useState<GlobalChatMessage | null>(null);
+  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
+  const [quotedMessages, setQuotedMessages] = useState<Map<string, GlobalChatMessage>>(new Map());
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const composerRef = useRef<HTMLTextAreaElement | null>(null);
   const nearBottomRef = useRef(true);
   const messagesRef = useRef<GlobalChatMessage[]>([]);
   const lastReadAtRef = useRef<string | null>(null);
   const markReadRef = useRef<(at?: string | null) => Promise<void>>(async () => {});
+  const deliveredSentRef = useRef<Set<string>>(new Set());
+  const readSentRef = useRef<Set<string>>(new Set());
+  const deliveredQueueRef = useRef<Set<string>>(new Set());
+  const deliveredTimerRef = useRef<number | null>(null);
+  const quotedFetchingRef = useRef<Set<string>>(new Set());
 
   const normalizedDraft = useMemo(() => normalizeGlobalChatDraft(draft), [draft]);
   const draftTooLong = normalizedDraft.length > GLOBAL_CHAT_MAX_BODY;
@@ -127,6 +163,15 @@ export function GlobalChatWorkspace() {
     const latestVisible = [...messages].reverse().find((message) => !message.deleted_at);
     return latestVisible?.body ?? "No messages yet. Say hello to the community.";
   }, [messages]);
+  const messagesById = useMemo(() => new Map(messages.map((message) => [message.id, message])), [messages]);
+  const infoTarget = infoMessage ? (messagesById.get(infoMessage.id) ?? infoMessage) : null;
+  const infoReceipts = infoTarget ? (receiptsByMessage.get(infoTarget.id) ?? []) : [];
+  const infoReaders = infoReceipts
+    .filter((receipt) => receipt.read_at)
+    .sort((a, b) => Date.parse(a.read_at ?? "") - Date.parse(b.read_at ?? ""));
+  const infoDeliveredOnly = infoReceipts
+    .filter((receipt) => receipt.delivered_at && !receipt.read_at)
+    .sort((a, b) => Date.parse(a.delivered_at ?? "") - Date.parse(b.delivered_at ?? ""));
 
   const scrollToBottom = useCallback((smooth = true) => {
     const element = scrollRef.current;
@@ -163,6 +208,106 @@ export function GlobalChatWorkspace() {
     [configured, user],
   );
 
+  const mergeReceipts = useCallback((rows: readonly GlobalChatReceipt[]) => {
+    if (!rows.length) return;
+    setReceiptsByMessage((current) => mergeReceiptRows(current, rows));
+  }, []);
+
+  const fetchReceipts = useCallback(
+    async (messageIds: readonly string[]) => {
+      if (!user || !configured || messageIds.length === 0) return;
+      try {
+        for (let start = 0; start < messageIds.length; start += 200) {
+          const { data, error: receiptError } = await supabaseBrowser()
+            .from("global_chat_receipts")
+            .select(RECEIPT_SELECT)
+            .in("message_id", messageIds.slice(start, start + 200));
+          if (receiptError) throw receiptError;
+          const rows = (data ?? []) as GlobalChatReceipt[];
+          for (const row of rows) {
+            if (row.user_id !== user.id) continue;
+            if (row.delivered_at) deliveredSentRef.current.add(row.message_id);
+            if (row.read_at) readSentRef.current.add(row.message_id);
+          }
+          mergeReceipts(rows);
+        }
+      } catch {
+        // Receipts are an upgrade layer; the core room must keep working if absent.
+      }
+    },
+    [configured, mergeReceipts, user],
+  );
+
+  const markDelivered = useCallback(
+    async (messageIds: readonly string[]) => {
+      if (!user || !configured) return;
+      const pending = [...new Set(messageIds)].filter((id) => !deliveredSentRef.current.has(id));
+      if (!pending.length) return;
+      pending.forEach((id) => deliveredSentRef.current.add(id));
+      try {
+        for (let start = 0; start < pending.length; start += 200) {
+          const { data, error: deliveredError } = await supabaseBrowser().rpc(
+            "mark_global_chat_receipts_delivered",
+            { p_message_ids: pending.slice(start, start + 200) },
+          );
+          if (deliveredError) throw deliveredError;
+          mergeReceipts((data ?? []) as GlobalChatReceipt[]);
+        }
+      } catch {
+        pending.forEach((id) => deliveredSentRef.current.delete(id));
+      }
+    },
+    [configured, mergeReceipts, user],
+  );
+
+  const queueDelivered = useCallback(
+    (messageIds: readonly string[]) => {
+      messageIds.forEach((id) => deliveredQueueRef.current.add(id));
+      if (deliveredTimerRef.current !== null) return;
+      deliveredTimerRef.current = window.setTimeout(() => {
+        deliveredTimerRef.current = null;
+        const queued = [...deliveredQueueRef.current];
+        deliveredQueueRef.current.clear();
+        void markDelivered(queued);
+      }, 700);
+    },
+    [markDelivered],
+  );
+
+  const markReceiptsReadUpTo = useCallback(
+    async (target: string) => {
+      if (!user || !configured) return;
+      const targetTime = Date.parse(target);
+      const pending = messagesRef.current
+        .filter(
+          (message) =>
+            message.author_user_id !== user.id &&
+            !message.deleted_at &&
+            Date.parse(message.created_at) <= targetTime &&
+            !readSentRef.current.has(message.id),
+        )
+        .map((message) => message.id);
+      if (!pending.length) return;
+      pending.forEach((id) => {
+        readSentRef.current.add(id);
+        deliveredSentRef.current.add(id);
+      });
+      try {
+        for (let start = 0; start < pending.length; start += 200) {
+          const { data, error: readReceiptError } = await supabaseBrowser().rpc(
+            "mark_global_chat_receipts_read",
+            { p_message_ids: pending.slice(start, start + 200) },
+          );
+          if (readReceiptError) throw readReceiptError;
+          mergeReceipts((data ?? []) as GlobalChatReceipt[]);
+        }
+      } catch {
+        pending.forEach((id) => readSentRef.current.delete(id));
+      }
+    },
+    [configured, mergeReceipts, user],
+  );
+
   const markRead = useCallback(
     async (at?: string | null) => {
       if (!user || !configured) return;
@@ -170,6 +315,7 @@ export function GlobalChatWorkspace() {
         at ?? messagesRef.current[messagesRef.current.length - 1]?.created_at ?? new Date().toISOString();
       if (lastReadAtRef.current && Date.parse(lastReadAtRef.current) >= Date.parse(target)) {
         setUnreadCount(0);
+        await markReceiptsReadUpTo(target);
         return;
       }
       try {
@@ -181,11 +327,12 @@ export function GlobalChatWorkspace() {
         lastReadAtRef.current = nextReadAt;
         setLastReadAt(nextReadAt);
         setUnreadCount(0);
+        await markReceiptsReadUpTo(nextReadAt);
       } catch (reason) {
         setError(friendlyError(reason, "Unable to update your read position."));
       }
     },
-    [configured, user],
+    [configured, markReceiptsReadUpTo, user],
   );
 
   const loadChat = useCallback(
@@ -203,7 +350,7 @@ export function GlobalChatWorkspace() {
             .maybeSingle(),
           supabase
             .from("global_chat_messages")
-            .select("id,author_user_id,author_display_name,body,deleted_at,deleted_by,created_at")
+            .select(MESSAGE_SELECT)
             .order("created_at", { ascending: false })
             .order("id", { ascending: false })
             .limit(GLOBAL_CHAT_PAGE_SIZE),
@@ -222,6 +369,12 @@ export function GlobalChatWorkspace() {
         setMessages(nextMessages);
         setLastReadAt(readAt);
         setHasMoreOlder(rowsDescending.length >= GLOBAL_CHAT_PAGE_SIZE);
+        void fetchReceipts(nextMessages.map((message) => message.id));
+        queueDelivered(
+          nextMessages
+            .filter((message) => message.author_user_id !== user.id && !message.deleted_at)
+            .map((message) => message.id),
+        );
 
         if (!roleResult.error) {
           const role = roleResult.data as { role?: string; enabled?: boolean } | null;
@@ -245,12 +398,12 @@ export function GlobalChatWorkspace() {
         setLoading(false);
       }
     },
-    [configured, fetchUnreadCount, scrollToBottom, scrollToMessage, user],
+    [configured, fetchReceipts, fetchUnreadCount, queueDelivered, scrollToBottom, scrollToMessage, user],
   );
 
-  const loadOlder = useCallback(async () => {
+  const loadOlder = useCallback(async (): Promise<boolean> => {
     const oldest = messagesRef.current[0];
-    if (!user || !configured || !oldest || loadingOlder) return;
+    if (!user || !configured || !oldest || loadingOlder) return false;
 
     const element = scrollRef.current;
     const oldHeight = element?.scrollHeight ?? 0;
@@ -261,7 +414,7 @@ export function GlobalChatWorkspace() {
     try {
       const { data, error: olderError } = await supabaseBrowser()
         .from("global_chat_messages")
-        .select("id,author_user_id,author_display_name,body,deleted_at,deleted_by,created_at")
+        .select(MESSAGE_SELECT)
         .lt("created_at", oldest.created_at)
         .order("created_at", { ascending: false })
         .order("id", { ascending: false })
@@ -272,17 +425,26 @@ export function GlobalChatWorkspace() {
       const merged = mergeGlobalChatMessages(messagesRef.current, olderRows);
       messagesRef.current = merged;
       setMessages(merged);
-      setHasMoreOlder((data ?? []).length >= GLOBAL_CHAT_PAGE_SIZE);
+      const more = (data ?? []).length >= GLOBAL_CHAT_PAGE_SIZE;
+      setHasMoreOlder(more);
+      void fetchReceipts(olderRows.map((message) => message.id));
+      queueDelivered(
+        olderRows
+          .filter((message) => message.author_user_id !== user.id && !message.deleted_at)
+          .map((message) => message.id),
+      );
       requestAnimationFrame(() => {
         const nextElement = scrollRef.current;
         if (nextElement) nextElement.scrollTop = nextElement.scrollHeight - oldHeight + oldTop;
       });
+      return more;
     } catch (reason) {
       setError(friendlyError(reason, "Unable to load older community messages."));
+      return false;
     } finally {
       setLoadingOlder(false);
     }
-  }, [configured, loadingOlder, user]);
+  }, [configured, fetchReceipts, loadingOlder, queueDelivered, user]);
 
   useEffect(() => {
     messagesRef.current = messages;
@@ -295,6 +457,74 @@ export function GlobalChatWorkspace() {
   useEffect(() => {
     markReadRef.current = markRead;
   }, [markRead]);
+
+  const jumpToQuoted = useCallback(
+    async (originalId: string) => {
+      const highlight = () => {
+        scrollToMessage(originalId);
+        setHighlightedMessageId(originalId);
+        window.setTimeout(() => {
+          setHighlightedMessageId((current) => (current === originalId ? null : current));
+        }, 2400);
+      };
+      if (messagesRef.current.some((message) => message.id === originalId)) {
+        highlight();
+        return;
+      }
+      for (let attempt = 0; attempt < 20; attempt += 1) {
+        const more = await loadOlder();
+        if (messagesRef.current.some((message) => message.id === originalId) || !more) break;
+      }
+      requestAnimationFrame(highlight);
+    },
+    [loadOlder, scrollToMessage],
+  );
+
+  const startReply = useCallback((message: GlobalChatMessage) => {
+    setReplyTarget(message);
+    requestAnimationFrame(() => composerRef.current?.focus());
+  }, []);
+
+  useEffect(() => {
+    if (!user || !configured) return;
+    const known = new Set(messages.map((message) => message.id));
+    const missing = [
+      ...new Set(
+        messages
+          .map((message) => message.reply_to_message_id)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    ].filter((id) => !known.has(id) && !quotedMessages.has(id) && !quotedFetchingRef.current.has(id));
+    if (!missing.length) return;
+
+    missing.forEach((id) => quotedFetchingRef.current.add(id));
+    let alive = true;
+    void supabaseBrowser()
+      .from("global_chat_messages")
+      .select(MESSAGE_SELECT)
+      .in("id", missing.slice(0, 50))
+      .then(({ data, error: quotedError }) => {
+        missing.forEach((id) => quotedFetchingRef.current.delete(id));
+        if (!alive || quotedError || !data) return;
+        setQuotedMessages((current) => {
+          const next = new Map(current);
+          for (const row of data as GlobalChatMessage[]) next.set(row.id, row);
+          return next;
+        });
+      });
+    return () => {
+      alive = false;
+    };
+  }, [configured, messages, quotedMessages, user]);
+
+  useEffect(() => {
+    if (!infoMessage) return;
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") setInfoMessage(null);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [infoMessage]);
 
   useEffect(() => {
     if (!configured) {
@@ -360,6 +590,7 @@ export function GlobalChatWorkspace() {
           if (payload.eventType === "INSERT" && isMine) {
             requestAnimationFrame(() => scrollToBottom(true));
           } else if (payload.eventType === "INSERT" && !next.deleted_at) {
+            queueDelivered([next.id]);
             if (nearBottomRef.current) {
               requestAnimationFrame(() => scrollToBottom(true));
               void markReadRef.current(next.created_at);
@@ -369,12 +600,20 @@ export function GlobalChatWorkspace() {
           }
         },
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "global_chat_receipts" },
+        (payload) => {
+          const receipt = payload.new as unknown as GlobalChatReceipt;
+          if (receipt?.message_id) mergeReceipts([receipt]);
+        },
+      )
       .subscribe((status) => setRealtimeStatus(status));
 
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [configured, scrollToBottom, user]);
+  }, [configured, mergeReceipts, queueDelivered, scrollToBottom, user]);
 
   const handleScroll = () => {
     const element = scrollRef.current;
@@ -402,6 +641,7 @@ export function GlobalChatWorkspace() {
     try {
       const { data, error: sendError } = await supabaseBrowser().rpc("post_global_chat_message", {
         p_body: normalizedDraft,
+        p_reply_to_message_id: replyTarget?.id ?? null,
       });
       if (sendError) throw sendError;
       const row = data as GlobalChatMessage;
@@ -409,6 +649,7 @@ export function GlobalChatWorkspace() {
       messagesRef.current = merged;
       setMessages(merged);
       setDraft("");
+      setReplyTarget(null);
       requestAnimationFrame(() => scrollToBottom(true));
       void markRead(row.created_at);
     } catch (reason) {
@@ -419,6 +660,11 @@ export function GlobalChatWorkspace() {
   };
 
   const onComposerKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Escape" && replyTarget) {
+      event.preventDefault();
+      setReplyTarget(null);
+      return;
+    }
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
       void send();
@@ -439,6 +685,8 @@ export function GlobalChatWorkspace() {
       const merged = mergeGlobalChatMessages(messagesRef.current, [row]);
       messagesRef.current = merged;
       setMessages(merged);
+      setReplyTarget((current) => (current?.id === row.id ? null : current));
+      setInfoMessage((current) => (current?.id === row.id ? null : current));
     } catch (reason) {
       setError(friendlyError(reason, "Unable to delete that message."));
     } finally {
@@ -609,6 +857,10 @@ export function GlobalChatWorkspace() {
                 <li>Do not post private project details, documents, prices, phone numbers, or customer data.</li>
                 <li>Use My inquiries &amp; chat for quotations, drawings, files, and account-specific help.</li>
                 <li>Admins can delete messages that break these rules.</li>
+                <li>
+                  Read receipts are on, like a WhatsApp group: tap the ticks or “Message info” to see who read a
+                  message and when.
+                </li>
               </ul>
             </section>
           </aside>
@@ -696,6 +948,12 @@ export function GlobalChatWorkspace() {
                     const showAuthor =
                       !own && (!previous || previous.author_user_id !== message.author_user_id || showDay || showUnread);
                     const canDelete = !deleted && (own || isModerator);
+                    const replyToId = message.reply_to_message_id;
+                    const quoted = replyToId
+                      ? (messagesById.get(replyToId) ?? quotedMessages.get(replyToId) ?? null)
+                      : null;
+                    const receiptSummary = summarizeGlobalChatReceipts(receiptsByMessage.get(message.id) ?? []);
+                    const highlighted = highlightedMessageId === message.id;
 
                     return (
                       <div key={message.id} className="space-y-3">
@@ -730,14 +988,45 @@ export function GlobalChatWorkspace() {
                               </div>
                             ) : null}
                             <article
-                              className={`rounded-3xl px-3.5 py-2.5 shadow-panel ${
+                              className={`rounded-3xl px-3.5 py-2.5 shadow-panel transition-shadow ${
                                 deleted
                                   ? "border border-line bg-ink-950/80 text-text-faint"
                                   : own
                                     ? "rounded-br-md bg-brand-400 text-accent-ink"
                                     : "rounded-bl-md border border-line-strong bg-ink-850 text-text-primary"
-                              }`}
+                              } ${highlighted ? "ring-2 ring-emerald-300 ring-offset-2 ring-offset-ink-950" : ""}`}
                             >
+                              {replyToId && !deleted ? (
+                                <button
+                                  type="button"
+                                  onClick={() => void jumpToQuoted(replyToId)}
+                                  aria-label="Jump to the original message"
+                                  className={`mb-2 block w-full rounded-2xl border-l-4 px-3 py-2 text-left ${
+                                    own
+                                      ? "border-accent-ink/60 bg-accent-ink/10 text-accent-ink"
+                                      : "border-emerald-400/80 bg-ink-950/70 text-text-primary"
+                                  }`}
+                                >
+                                  <span
+                                    className={`block text-3xs font-black uppercase tracking-wider ${
+                                      own ? "text-accent-ink/80" : "text-emerald-300"
+                                    }`}
+                                  >
+                                    {quoted
+                                      ? quoted.author_user_id === user.id
+                                        ? "You"
+                                        : quoted.author_display_name
+                                      : "Original message"}
+                                  </span>
+                                  <span className="mt-0.5 line-clamp-2 block text-xs leading-relaxed opacity-90">
+                                    {quoted
+                                      ? quoted.deleted_at
+                                        ? "This message was deleted."
+                                        : globalChatMessageExcerpt(quoted.body, 140)
+                                      : "Loading original message…"}
+                                  </span>
+                                </button>
+                              ) : null}
                               <p className={`whitespace-pre-wrap break-words text-sm leading-relaxed ${deleted ? "italic" : ""}`}>
                                 {deleted ? "This message was deleted." : message.body}
                               </p>
@@ -747,17 +1036,63 @@ export function GlobalChatWorkspace() {
                                 }`}
                               >
                                 <time dateTime={message.created_at}>{formatGlobalChatTime(message.created_at, locale)}</time>
+                                {own && !deleted ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => setInfoMessage(message)}
+                                    title={
+                                      receiptSummary.state === "read"
+                                        ? `Seen by ${receiptSummary.readCount}`
+                                        : receiptSummary.state === "delivered"
+                                          ? `Delivered to ${receiptSummary.deliveredCount}`
+                                          : "Sent"
+                                    }
+                                    aria-label={`Message info: ${
+                                      receiptSummary.state === "read"
+                                        ? `seen by ${receiptSummary.readCount}`
+                                        : receiptSummary.state === "delivered"
+                                          ? `delivered to ${receiptSummary.deliveredCount}`
+                                          : "sent"
+                                    }. Show who read this message`}
+                                    className={`ml-1.5 text-[11px] font-black leading-none tracking-[-0.18em] ${
+                                      receiptSummary.state === "read" ? "text-sky-700" : ""
+                                    }`}
+                                  >
+                                    {receiptSummary.state === "sent" ? "✓" : "✓✓"}
+                                  </button>
+                                ) : null}
                               </div>
                             </article>
-                            {canDelete ? (
-                              <button
-                                type="button"
-                                disabled={busy}
-                                onClick={() => void removeMessage(message)}
-                                className="mt-1 px-1 text-3xs font-bold text-text-faint underline-offset-4 hover:text-state-danger hover:underline disabled:opacity-50"
-                              >
-                                Delete for everyone
-                              </button>
+                            {!deleted ? (
+                              <div className={`mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 px-1 ${own ? "justify-end" : ""}`}>
+                                <button
+                                  type="button"
+                                  disabled={busy}
+                                  onClick={() => startReply(message)}
+                                  className="text-3xs font-bold text-text-faint underline-offset-4 hover:text-brand-300 hover:underline disabled:opacity-50"
+                                >
+                                  Reply
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setInfoMessage(message)}
+                                  className="text-3xs font-bold text-text-faint underline-offset-4 hover:text-brand-300 hover:underline"
+                                >
+                                  {own && receiptSummary.readCount > 0
+                                    ? `Seen by ${receiptSummary.readCount} · Info`
+                                    : "Message info"}
+                                </button>
+                                {canDelete ? (
+                                  <button
+                                    type="button"
+                                    disabled={busy}
+                                    onClick={() => void removeMessage(message)}
+                                    className="text-3xs font-bold text-text-faint underline-offset-4 hover:text-state-danger hover:underline disabled:opacity-50"
+                                  >
+                                    Delete for everyone
+                                  </button>
+                                ) : null}
+                              </div>
                             ) : null}
                           </div>
 
@@ -788,17 +1123,38 @@ export function GlobalChatWorkspace() {
             </div>
 
             <form onSubmit={(event) => void send(event)} className="border-t border-line bg-ink-900 p-3 sm:p-4">
+              {replyTarget ? (
+                <div className="mb-2 flex items-start gap-3 rounded-2xl border border-line-strong border-l-4 border-l-emerald-400 bg-ink-950 px-3 py-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-3xs font-black uppercase tracking-wider text-emerald-300">
+                      Replying to {replyTarget.author_user_id === user.id ? "yourself" : replyTarget.author_display_name}
+                    </p>
+                    <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-text-muted">
+                      {globalChatMessageExcerpt(replyTarget.body, 180)}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    aria-label="Cancel reply"
+                    onClick={() => setReplyTarget(null)}
+                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-line-strong text-xs font-black text-text-muted hover:text-text-primary"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : null}
               <div className="flex items-end gap-2">
                 <label htmlFor="global-chat-composer" className="sr-only">
                   Message the ProGlass community
                 </label>
                 <textarea
+                  ref={composerRef}
                   id="global-chat-composer"
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
                   onKeyDown={onComposerKeyDown}
                   rows={2}
-                  placeholder="Message the community…"
+                  placeholder={replyTarget ? "Type your reply…" : "Message the community…"}
                   className="min-h-12 flex-1 resize-none rounded-3xl border border-line-strong bg-ink-950 px-4 py-3 text-sm leading-relaxed text-text-primary placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/40"
                 />
                 <button
@@ -824,6 +1180,118 @@ export function GlobalChatWorkspace() {
           </section>
         </div>
       </div>
+
+      {infoTarget ? (
+        <div className="fixed inset-0 z-50 flex" role="dialog" aria-modal="true" aria-label="Message info">
+          <button
+            type="button"
+            aria-label="Close message info"
+            onClick={() => setInfoMessage(null)}
+            className="hidden flex-1 bg-ink-950/70 sm:block"
+          />
+          <aside className="flex h-full w-full max-w-md flex-col border-l border-line-strong bg-ink-900 shadow-raised">
+            <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
+              <h2 className="text-base font-bold">Message info</h2>
+              <button
+                type="button"
+                aria-label="Close"
+                onClick={() => setInfoMessage(null)}
+                className="grid h-8 w-8 place-items-center rounded-full border border-line-strong text-sm font-black text-text-muted hover:text-text-primary"
+              >
+                ✕
+              </button>
+            </header>
+            <div className="flex-1 space-y-5 overflow-y-auto px-5 py-4">
+              <div className="rounded-3xl border border-line-strong bg-ink-950/70 p-4">
+                <p className="text-3xs font-black uppercase tracking-wider text-brand-300">
+                  {infoTarget.author_user_id === user.id ? "You" : infoTarget.author_display_name}
+                </p>
+                <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed">
+                  {globalChatMessageExcerpt(infoTarget.body, 300)}
+                </p>
+                <p className="mt-2 text-3xs text-text-faint">
+                  Sent · {formatGlobalChatDateTime(infoTarget.created_at, locale)}
+                </p>
+              </div>
+
+              <section aria-label="Read by">
+                <h3 className="flex items-center gap-2 text-sm font-bold">
+                  <span aria-hidden="true" className="font-black tracking-[-0.18em] text-sky-400">
+                    ✓✓
+                  </span>
+                  Read by{infoReaders.length ? ` (${infoReaders.length})` : ""}
+                </h3>
+                {infoReaders.length ? (
+                  <ul className="mt-3 space-y-2">
+                    {infoReaders.map((receipt) => (
+                      <li
+                        key={receipt.user_id}
+                        className="flex items-center gap-3 rounded-2xl border border-line bg-ink-950/60 px-3 py-2.5"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={`grid h-9 w-9 shrink-0 place-items-center rounded-full border text-3xs font-black ${avatarClass(receipt.user_id)}`}
+                        >
+                          {authorInitials(receipt.display_name)}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-bold">{receipt.display_name}</span>
+                          <span className="block text-3xs text-text-faint">
+                            Read · {formatGlobalChatDateTime(receipt.read_at, locale)}
+                          </span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-xs leading-relaxed text-text-muted">Not read by anyone yet.</p>
+                )}
+              </section>
+
+              <section aria-label="Delivered to">
+                <h3 className="flex items-center gap-2 text-sm font-bold">
+                  <span aria-hidden="true" className="font-black tracking-[-0.18em] text-text-faint">
+                    ✓✓
+                  </span>
+                  Delivered to{infoDeliveredOnly.length ? ` (${infoDeliveredOnly.length})` : ""}
+                </h3>
+                {infoDeliveredOnly.length ? (
+                  <ul className="mt-3 space-y-2">
+                    {infoDeliveredOnly.map((receipt) => (
+                      <li
+                        key={receipt.user_id}
+                        className="flex items-center gap-3 rounded-2xl border border-line bg-ink-950/60 px-3 py-2.5"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={`grid h-9 w-9 shrink-0 place-items-center rounded-full border text-3xs font-black ${avatarClass(receipt.user_id)}`}
+                        >
+                          {authorInitials(receipt.display_name)}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-bold">{receipt.display_name}</span>
+                          <span className="block text-3xs text-text-faint">
+                            Delivered · {formatGlobalChatDateTime(receipt.delivered_at, locale)}
+                          </span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-xs leading-relaxed text-text-muted">
+                    No one is only at “delivered” — anyone who received it has also read it.
+                  </p>
+                )}
+              </section>
+
+              <p className="text-3xs leading-relaxed text-text-faint">
+                Delivered means the message reached that signed-in user’s open chat. Receipts are visible to signed-in
+                room participants, like a WhatsApp group.
+              </p>
+            </div>
+          </aside>
+        </div>
+      ) : null}
     </main>
   );
 }
