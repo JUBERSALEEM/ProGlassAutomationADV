@@ -204,7 +204,17 @@ namespace ProGlassAutomation.Tests.Theme
                 "ShellLiquidBrush", "SidebarCardBrush", "DashLiquidSurfaceBrush",
                 "DashAmbientBrush", "DashAmbientBlob1Brush", "DashAmbientBlob2Brush",
                 "TintIndigoBrush", "TintBlueBrush", "TintGreenBrush", "TintRedBrush",
-                "TintAmberBrush", "TintPurpleBrush", "TintGrayBrush"
+                "TintAmberBrush", "TintPurpleBrush", "TintGrayBrush",
+                // Dedicated keys consumed directly by SettingsCardStyles.xaml.
+                "SettingsCardFaceBrush", "SettingsCardEdgeBrush",
+                "SettingsInnerEdgeBrush", "SettingsCardShadow", "Ios26CardShadow",
+                "Ios26RadiusCard", "Ios26RadiusInner", "Ios26RadiusTile",
+                "Ios26RadiusChip", "Ios26RadiusSmall", "Ios26CardBrush",
+                "Ios26TileBrush", "Ios26RailBrush", "Ios26CardBorderBrush",
+                "Ios26TileBorderBrush", "Ios26HairlineBrush", "Ios26HoverBrush",
+                "Ios26AccentBrush", "Ios26AccentDeepBrush", "Ios26AccentSoftBrush",
+                "Ios26AccentSoftTextBrush", "Ios26TextTitleBrush",
+                "Ios26TextBodyBrush", "Ios26TextSecondaryBrush", "Ios26TextMutedBrush"
             })
                 Assert.Contains($"resources[\"{key}\"]", overlay, StringComparison.Ordinal);
 
