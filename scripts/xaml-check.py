@@ -466,6 +466,50 @@ def check_resource_scoping(root, findings):
     return dup_reported
 
 
+def check_orphaned_parts(root, findings):
+    """XLS0440 - a part the control looks up that no template declares.
+
+    Every family's recipe binds its layers by NAME: the C# asks the
+    applied template for PART_ClayDropHost, PART_SwissFill,
+    PART_SpatialAmbient and friends, and paints onto whatever comes back.
+    If a template is renamed, moved to another dictionary, or copied from
+    a sibling family without renaming the parts, FindName returns null and
+    the control paints a flat rectangle. Nothing throws, nothing warns,
+    the build is clean, and the surface simply has no mould on it.
+
+    That is the single most expensive failure mode in this design system
+    because it is invisible until somebody looks at the screen.
+    """
+    # 1. every part name each *Parts.cs looks up
+    looked_up = {}
+    for pf in glob.glob("Controls/*/*Parts.cs"):
+        family = os.path.basename(os.path.dirname(pf))
+        text = open(pf, encoding="utf-8", errors="ignore").read()
+        for name in re.findall(r'FindName\(\s*"([A-Za-z_0-9]+)"', text):
+            looked_up.setdefault(family, set()).add(name)
+
+    if not looked_up:
+        return 0
+
+    # 2. every part name each family's XAML actually declares
+    declared = {}
+    for x in glob.glob("Themes/*/*.xaml"):
+        family = os.path.basename(os.path.dirname(x))
+        declared.setdefault(family, set()).update(
+            re.findall(r'x:Name="([A-Za-z_0-9]+)"',
+                       open(x, encoding="utf-8", errors="ignore").read()))
+
+    orphans = 0
+    for family, names in sorted(looked_up.items()):
+        have = declared.get(family, set())
+        for name in sorted(names - have):
+            orphans += 1
+            print(f"  {family}: XLS0440 code looks up {name}, but no "
+                  f"template in Themes/{family}/ declares it -- the "
+                  f"surface would paint flat with no error")
+    return orphans
+
+
 def check_xml_comments(path, text, findings):
     """`--` is ILLEGAL inside an XML comment, and it is silent.
 
@@ -521,6 +565,10 @@ def main():
     # therefore off unless asked for, and always on for the theme
     # surface, where the merge graph is small and fully known.
     do_keys = want_keys or bool(args and args[0] == "--all-theme")
+
+    # XLS0440 part-name orphan sweep. Always on: a renamed part is a
+    # silent flat surface, and it costs nothing to check.
+    check_orphaned_parts(root, findings)
 
     # XML comment legality. Cheap, and it catches a dash written as
     # `--` in prose -- which happens constantly and fails the build with
