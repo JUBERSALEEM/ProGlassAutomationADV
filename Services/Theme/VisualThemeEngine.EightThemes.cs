@@ -23,13 +23,13 @@ namespace ProGlassAutomation.Services.Theme
                 ? Gradient(palette.Canvas, palette.CanvasMid, palette.CanvasEnd)
                 : Solid(palette.Canvas);
             Brush module = palette.Glass
-                ? Alpha(palette.Surface, dark ? (byte)0xD9 : (byte)0xE8)
+                ? Alpha(palette.Surface, (byte)(dark ? 0xD9 : 0xE8))
                 : Solid(palette.Surface);
             Brush raised = palette.Glass
-                ? Alpha(palette.Raised, dark ? (byte)0xE8 : (byte)0xF0)
+                ? Alpha(palette.Raised, (byte)(dark ? 0xE8 : 0xF0))
                 : Solid(palette.Raised);
             Brush inset = Solid(palette.Inset);
-            Brush edge = Alpha(palette.Edge, palette.Glass ? (byte)0xB8 : (byte)0xFF);
+            Brush edge = Alpha(palette.Edge, (byte)(palette.Glass ? 0xB8 : 0xFF));
 
             resources["BackgroundBrush"] = canvas;
             resources["WindowBackgroundBrush"] = canvas;
@@ -48,7 +48,7 @@ namespace ProGlassAutomation.Services.Theme
                 : edge;
             resources["OutlineDefaultBrush"] = edge;
             resources["DividerBrush"] = Alpha(palette.Edge, (byte)0x9A);
-            resources["GlassBorderSoft"] = Alpha(palette.Edge, 0x75);
+            resources["GlassBorderSoft"] = Alpha(palette.Edge, (byte)0x75);
             resources["CardCornerRadius"] = new CornerRadius(palette.CardRadius);
             resources["CardCornerRadiusLarge"] = new CornerRadius(palette.CardRadius + 4);
             resources["ControlCornerRadius"] = new CornerRadius(palette.ControlRadius);
@@ -119,17 +119,17 @@ namespace ProGlassAutomation.Services.Theme
                         Colors.White.R, Colors.White.G, Colors.White.B))
                 : Solid(palette.Raised);
             resources["LiquidGlassSubtleBrush"] = family == LiquidGlass || family == Glassmorphism
-                ? Alpha(palette.Raised, dark ? (byte)0x92 : (byte)0xD0)
+                ? Alpha(palette.Raised, (byte)(dark ? 0x92 : 0xD0))
                 : Solid(palette.Surface);
             resources["LiquidGlassStrongBrush"] = family == LiquidGlass || family == Glassmorphism
-                ? Alpha(palette.Raised, dark ? (byte)0xEA : (byte)0xF2)
+                ? Alpha(palette.Raised, (byte)(dark ? 0xEA : 0xF2))
                 : Solid(palette.Raised);
             resources["LiquidEdgeBrush"] = edge;
             resources["LiquidInnerHighlightBrush"] = Alpha(Colors.White, palette.Glass ? (byte)0x55 : (byte)0x00);
             resources["LiquidReflectionBrush"] = Alpha(palette.SecondAccent, palette.Glass ? (byte)0x35 : (byte)0x00);
-            resources["LiquidControlHoverBrush"] = Alpha(palette.Accent, 0x30);
-            resources["LiquidControlPressedBrush"] = Alpha(palette.Accent, 0x50);
-            resources["LiquidControlDisabledBrush"] = Alpha(palette.SecondaryInk, 0x35);
+            resources["LiquidControlHoverBrush"] = Alpha(palette.Accent, (byte)0x30);
+            resources["LiquidControlPressedBrush"] = Alpha(palette.Accent, (byte)0x50);
+            resources["LiquidControlDisabledBrush"] = Alpha(palette.SecondaryInk, (byte)0x35);
             resources["ProGlass.ThemeFamily"] = family;
             resources["ProGlass.ThemeMode"] = dark ? "Dark" : "Light";
         }
