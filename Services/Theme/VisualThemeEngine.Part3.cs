@@ -487,8 +487,8 @@ namespace ProGlassAutomation.Services.Theme
                 CrystalFluid or Ios26 => LiquidGlass,
                 Normal or NormalIndustrial => BentoGrid,
                 "Ultra Transparent" or "Transparent" or "Clear" or
-                "Crystal" or "Crystal Sea" or "Crystal Fluid" or
-                "Ios-17pm" or "iOS 26" or "iPhone 17 Pro Max" => LiquidGlass,
+                "Crystal" or "Crystal Sea" or "Ios-17pm" or
+                "iPhone 17 Pro Max" => LiquidGlass,
                 "Professional" or "Industrial" or "Industrial White" or
                 "Industrial Grey" or "Industrial Dark" => BentoGrid,
                 _ => LiquidGlass
