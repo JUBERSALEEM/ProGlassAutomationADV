@@ -53,7 +53,7 @@ const mocks = vi.hoisted(() => {
   const client = {
     auth: {
       getSession: vi.fn(async () => ({
-        data: { session: state.sessionUser ? { user: state.sessionUser } : null },
+        data: { session: state.sessionUser ? { user: state.sessionUser, access_token: "test-access-token", expires_at: 4102444800 } : null },
         error: null,
       })),
       onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
@@ -76,6 +76,9 @@ const mocks = vi.hoisted(() => {
 vi.mock("@/lib/supabase", () => ({
   isSupabaseConfigured: () => true,
   supabaseBrowser: () => mocks.client,
+  hasStoredSupabaseSession: () => Boolean(mocks.state.sessionUser),
+  isSupabaseUnavailableError: () => false,
+  supabaseAuthStorageKey: () => "sb-test-auth-token",
 }));
 
 vi.mock("next/navigation", () => ({
@@ -95,9 +98,11 @@ vi.mock("@/components/ui/LocaleLink", () => ({
 }));
 
 import { CustomerAccountWorkspace } from "@/components/account/CustomerAccountWorkspace";
+import { resetWebsiteSessionForTests } from "@/lib/website-session";
 
 afterEach(() => {
   cleanup();
+  resetWebsiteSessionForTests();
   vi.clearAllMocks();
   mocks.state.sessionUser = mocks.me;
   mocks.state.profile = {

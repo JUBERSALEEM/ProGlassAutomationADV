@@ -1,40 +1,39 @@
 "use client";
 
 /**
- * One operator session, three dashboards.
+ * Operator/customer API session adapter.
  *
- * Reports, the Job Order queue and the Deliveries Tracker stand behind the
- * same door: the same Supabase project, the same Row Level Security policies,
- * the same operator account. Before this hook existed, session logic lived
- * inside `RecordsDashboard` — every new operations page either copied it or
- * risked drifting out of step. Both are the kind of bug that shows up after
- * the release, in production, on the page nobody re-tested.
- *
- * So the logic lives here: check the session once, subscribe to auth changes,
- * expose the access token so the API route can forward it to PostgREST as the
- * `authenticated` role, and sign out through both the client library and the
- * server's cookie route.
+ * The actual saved-login state now lives in `useWebsiteSession`, the one
+ * shared browser session store used by Account and both chats. This hook
+ * retains the older operator-facing shape (email + bearer token + reports
+ * sign-out redirect) without owning a second, divergent copy of Supabase
+ * session state. In particular, `requireAuth()` no longer erases the token
+ * locally on the first API 401: it asks the shared store to recover or
+ * refresh the persisted Supabase session and only gates the page if that
+ * recovery proves the session is really gone.
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { isSupabaseConfigured, supabaseBrowser } from "@/lib/supabase";
+import type { Session } from "@supabase/supabase-js";
+import { useWebsiteSession } from "@/lib/website-session";
 
 export type OperatorSession = {
-  /** True while the first session check is in flight. */
+  /** True while the shared saved-session check/recovery is in flight. */
   checking: boolean;
   userEmail: string | null;
-  /** The JWT forwarded to `/api/…` so PostgREST runs as this operator. */
+  /** The JWT forwarded to `/api/…` so PostgREST runs as this user. */
   authToken: string | null;
-  /** True when the page must show the sign-in gate instead of data. */
+  /** True when recovery proves the page must show the sign-in gate. */
   isAuthRequired: boolean;
+  /** True when auth was unreachable; callers should offer retry, not login. */
+  unavailable: boolean;
+  error: string | null;
+  refreshSession: () => Promise<Session | null>;
   signOut: () => Promise<void>;
   /**
-   * Close the gate because the server said the session is no longer valid.
-   *
-   * A 401 from `/api/…` is the authoritative answer — the token the browser
-   * still believes in has been revoked or expired — so the page stops asking
-   * and shows the sign-in panel rather than looping on failed requests.
+   * Recover after an API 401. A refreshed token updates every subscribed
+   * chat/page at once; a genuinely revoked/expired session then gates.
    */
   requireAuth: () => void;
 };
@@ -45,91 +44,36 @@ const SIGN_IN_PATH = "/reports/login";
 export function useOperatorSession(): OperatorSession {
   const router = useRouter();
   const pathname = usePathname();
-
-  const [checking, setChecking] = useState(() => isSupabaseConfigured());
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [authToken, setAuthToken] = useState<string | null>(null);
-  const [isAuthRequired, setIsAuthRequired] = useState(false);
-
-  useEffect(() => {
-    if (!isSupabaseConfigured()) return;
-
-    let isSubscribed = true;
-
-    async function checkSession() {
-      try {
-        const supabase = supabaseBrowser();
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        if (!isSubscribed) return;
-
-        if (session?.user) {
-          setUserEmail(session.user.email ?? null);
-          setAuthToken(session.access_token);
-          setIsAuthRequired(false);
-        } else if (process.env.NODE_ENV === "production") {
-          setIsAuthRequired(true);
-        }
-      } catch (error) {
-        console.warn("[operator-session] Session check failed:", error);
-      } finally {
-        if (isSubscribed) setChecking(false);
-      }
-    }
-
-    checkSession();
-
-    let unsubscribe = () => {};
-    try {
-      const {
-        data: { subscription },
-      } = supabaseBrowser().auth.onAuthStateChange((_event, session) => {
-        if (!isSubscribed) return;
-        if (session?.user) {
-          setUserEmail(session.user.email ?? null);
-          setAuthToken(session.access_token);
-          setIsAuthRequired(false);
-        } else {
-          setUserEmail(null);
-          setAuthToken(null);
-          if (process.env.NODE_ENV === "production") setIsAuthRequired(true);
-        }
-      });
-      unsubscribe = () => subscription.unsubscribe();
-    } catch {
-      // No auth event stream available — the initial check above is enough.
-    }
-
-    return () => {
-      isSubscribed = false;
-      unsubscribe();
-    };
-  }, []);
+  const session = useWebsiteSession();
+  const { signOut: signOutSharedSession } = session;
 
   const signOut = useCallback(async () => {
     try {
-      if (isSupabaseConfigured()) {
-        await supabaseBrowser().auth.signOut();
-      }
+      await signOutSharedSession();
       try {
         await fetch("/api/auth/signout", { method: "POST" });
       } catch {
-        // The client library already cleared the local session; the server
-        // cookie route is a courtesy, not a dependency.
+        // The shared Supabase session is already cleared; the server cookie
+        // route remains a courtesy for legacy operator surfaces.
       }
     } finally {
-      setUserEmail(null);
-      setAuthToken(null);
-      setIsAuthRequired(true);
-      router.push(`${SIGN_IN_PATH}?redirect=${encodeURIComponent(pathname)}`);
+      const redirect = pathname || "/reports";
+      router.push(`${SIGN_IN_PATH}?redirect=${encodeURIComponent(redirect)}`);
     }
-  }, [pathname, router]);
+  }, [pathname, router, signOutSharedSession]);
 
-  const requireAuth = useCallback(() => {
-    setAuthToken(null);
-    setIsAuthRequired(true);
-  }, []);
-
-  return { checking, userEmail, authToken, isAuthRequired, signOut, requireAuth };
+  return {
+    checking: session.checking,
+    userEmail: session.userEmail,
+    authToken: session.accessToken,
+    // Preserve the historical local-development behaviour for internal
+    // operator workspaces; production uses the shared store's authoritative
+    // signed-out answer. Customer chat also checks for a token directly.
+    isAuthRequired: session.isAuthRequired && process.env.NODE_ENV === "production",
+    unavailable: session.unavailable,
+    error: session.error,
+    refreshSession: session.refreshSession,
+    signOut,
+    requireAuth: session.requireAuth,
+  };
 }

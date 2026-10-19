@@ -6,7 +6,7 @@ import { InquiryCommunicationPanel } from "@/components/inquiries/InquiryCommuni
 import type { CustomerInquirySubmission } from "@/types/inquiry-submissions";
 
 export function CustomerInquiryDetail({ id }: { id: string }) {
-  const { checking, authToken, isAuthRequired, requireAuth } = useOperatorSession();
+  const { checking, authToken, isAuthRequired, requireAuth, unavailable: sessionUnavailable, error: sessionError, refreshSession } = useOperatorSession();
   const [data, setData] = useState<CustomerInquirySubmission | null>(null);
   const [error, setError] = useState("");
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
@@ -41,6 +41,7 @@ export function CustomerInquiryDetail({ id }: { id: string }) {
   }, [authToken, id, requireAuth]);
 
   if (checking) return <div className="grid min-h-[60vh] place-items-center bg-ink-950 text-xs text-text-muted">Checking secure access…</div>;
+  if (sessionUnavailable && !authToken) return <main className="min-h-[60vh] bg-ink-950 px-4 py-20 text-center text-text-primary"><section className="mx-auto max-w-md rounded-2xl border border-state-warning/40 bg-ink-900 p-6"><h1 className="text-xl font-bold">Saved sign-in could not be confirmed yet</h1><p className="mt-2 text-xs leading-relaxed text-text-muted">{sessionError || "The authentication service is temporarily unreachable. Your saved sign-in has not been discarded."}</p><button type="button" onClick={() => void refreshSession()} className="mt-5 rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink">Retry saved sign-in</button></section></main>;
   if (isAuthRequired || !authToken) return <main className="min-h-[60vh] bg-ink-950 px-4 py-20 text-center text-text-primary"><LocaleLink href={`/account?redirect=${encodeURIComponent(`/inquiries/submissions/${id}`)}`} className="rounded-xl bg-brand-400 px-5 py-3 font-bold text-accent-ink">Sign in to view this inquiry</LocaleLink></main>;
   if (error) return <main className="min-h-[60vh] bg-ink-950 px-4 py-20 text-center text-state-danger">{error}</main>;
   if (!data) return <div className="grid min-h-[60vh] place-items-center bg-ink-950 text-xs text-text-muted">Loading submission…</div>;
@@ -53,6 +54,6 @@ export function CustomerInquiryDetail({ id }: { id: string }) {
     </section>
     <section className="mt-5 rounded-2xl border border-line-strong bg-ink-900 p-5"><div className="inline-flex rounded-lg border border-line-strong bg-ink-950 px-3 py-1.5"><h2 className="font-bold">Requirements</h2></div><p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-text-secondary">{data.description}</p></section>
     <section className="mt-5 rounded-2xl border border-line-strong bg-ink-900 p-5"><div className="inline-flex rounded-lg border border-line-strong bg-ink-950 px-3 py-1.5"><h2 className="font-bold">Private documents</h2></div>{data.documents.length === 0 ? <p className="mt-3 text-xs text-text-muted">No documents attached.</p> : <ul className="mt-3 space-y-2">{data.documents.map((document) => <li key={document.id} className="flex items-center justify-between gap-3 rounded-xl border border-line-strong bg-ink-950 p-3"><div><div className="text-sm font-semibold">{document.original_filename}</div><div className="mt-1 text-3xs text-text-faint">{Math.ceil(document.byte_size / 1024).toLocaleString()} KB · integrity recorded</div></div><button type="button" disabled={downloadingId !== null} aria-busy={downloadingId === document.id} onClick={() => void download(document.id, document.original_filename)} className="min-w-24 rounded-lg border border-line-strong px-3 py-1.5 text-xs font-semibold text-brand-300 disabled:cursor-wait disabled:opacity-60">{downloadingId === document.id ? "Preparing…" : "Download"}</button></li>)}</ul>}</section>
-    <InquiryCommunicationPanel submissionId={id} token={authToken} internalAccess={false} />
+    <InquiryCommunicationPanel submissionId={id} token={authToken} internalAccess={false} onUnauthorized={requireAuth} />
   </div></main>;
 }

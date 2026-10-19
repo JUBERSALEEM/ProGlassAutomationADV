@@ -122,7 +122,25 @@ const mocks = vi.hoisted(() => {
     }
     private result() {
       if (this.table === "global_chat_messages" && this.head) return { data: null, count: 1, error: null };
-      if (this.table === "global_chat_messages") return { data: messages, count: null, error: null };
+      if (this.table === "global_chat_messages") {
+        if (state.denseMessages) {
+          return {
+            data: Array.from({ length: 16 }, (_, index) => ({
+              id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
+              author_user_id: index % 2 === 0 ? otherId : me.id,
+              author_display_name: index % 2 === 0 ? "techwithyassh" : "up17mix",
+              body: `Dense message ${index + 1}`,
+              reply_to_message_id: null,
+              deleted_at: null,
+              deleted_by: null,
+              created_at: `2026-10-19T07:${String(index).padStart(2, "0")}:00.000Z`,
+            })),
+            count: null,
+            error: null,
+          };
+        }
+        return { data: messages, count: null, error: null };
+      }
       if (this.table === "global_chat_receipts") return { data: receipts, count: null, error: null };
       if (this.table === "user_profiles") return { data: profiles, count: null, error: null };
       return { data: [], count: null, error: null };
@@ -151,7 +169,8 @@ const mocks = vi.hoisted(() => {
     channelCalls: string[];
     channelTables: string[];
     rpcCalls: Array<{ name: string; args?: unknown }>;
-  } = { authCallback: null, channelCalls: [], channelTables, rpcCalls };
+    denseMessages: boolean;
+  } = { authCallback: null, channelCalls: [], channelTables, rpcCalls, denseMessages: false };
 
   const client = {
     auth: {
@@ -203,6 +222,9 @@ const mocks = vi.hoisted(() => {
 vi.mock("@/lib/supabase", () => ({
   isSupabaseConfigured: () => true,
   supabaseBrowser: () => mocks.client,
+  hasStoredSupabaseSession: () => true,
+  isSupabaseUnavailableError: () => false,
+  supabaseAuthStorageKey: () => "sb-test-auth-token",
 }));
 
 vi.mock("@/i18n/provider", () => ({
@@ -215,14 +237,17 @@ vi.mock("@/components/ui/LocaleLink", () => ({
 }));
 
 import { GlobalChatWorkspace } from "@/components/chat/GlobalChatWorkspace";
+import { resetWebsiteSessionForTests } from "@/lib/website-session";
 
 afterEach(() => {
   cleanup();
+  resetWebsiteSessionForTests();
   vi.clearAllMocks();
   mocks.state.channelCalls.length = 0;
   mocks.state.channelTables.length = 0;
   mocks.state.rpcCalls.length = 0;
   mocks.state.authCallback = null;
+  mocks.state.denseMessages = false;
 });
 
 describe("community chat signed-in workspace", () => {
@@ -236,13 +261,15 @@ describe("community chat signed-in workspace", () => {
     expect(screen.getAllByText("how are you").length).toBeGreaterThan(0);
     expect(screen.getByText("Unread messages")).not.toBeNull();
     expect(screen.getByTestId("community-chat-panel").className).toContain("max-w-[370px]");
-    expect(screen.getByTestId("community-chat-panel").className).toContain("max-h-[560px]");
-    expect(screen.getByTestId("community-chat-panel").getAttribute("data-chat-size")).toBe("compact-370x560");
+    expect(screen.getByTestId("community-chat-panel").className).toContain("max-h-[640px]");
+    expect(screen.getByTestId("community-chat-panel").getAttribute("data-chat-size")).toBe("compact-370x640");
+    expect(screen.getByTestId("community-chat-panel").getAttribute("data-visible-message-target")).toBe("16");
+    expect(screen.getByTestId("community-message-stream").getAttribute("data-message-density")).toBe("16-up");
     expect(screen.getByText("Live now")).not.toBeNull();
-    expect(screen.getAllByText("Tech With Yassh").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Tech With Yassh/).length).toBeGreaterThan(0);
     expect(screen.getAllByText("💎").length).toBeGreaterThan(0);
     expect(screen.getAllByText("⭐").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Seen by 1 · Info").length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /Message info: seen by 1/i })).not.toBeNull();
     expect(mocks.client.realtime.setAuth).toHaveBeenCalledWith("test-access-token");
     expect(mocks.state.channelTables).toEqual(
       expect.arrayContaining(["global_chat_messages", "global_chat_receipts", "user_profiles"]),
@@ -271,6 +298,28 @@ describe("community chat signed-in workspace", () => {
     // INITIAL_SESSION/getSession/TOKEN_REFRESHED can describe the same user;
     // none of those duplicates may tear down and recreate the Realtime channel.
     expect(mocks.state.channelCalls).toHaveLength(1);
+  });
+
+
+  it("keeps sixteen short messages in the dense one-line stream", async () => {
+    Element.prototype.scrollIntoView = vi.fn();
+    HTMLElement.prototype.scrollTo = vi.fn();
+    mocks.state.denseMessages = true;
+
+    render(<GlobalChatWorkspace />);
+
+    await waitFor(() => expect(screen.getByText(/Dense message 16/)).not.toBeNull());
+    expect(screen.getAllByTestId("community-chat-message-row")).toHaveLength(16);
+    expect(screen.getAllByTestId("community-chat-message-line")).toHaveLength(16);
+    expect(screen.getByTestId("community-message-stream").className).toContain("space-y-[3px]");
+    for (const bubble of screen.getAllByTestId("community-chat-bubble")) {
+      expect(bubble.className).toContain("py-[3px]");
+    }
+    // The timestamp is inside the same flex line as each short message.
+    expect(screen.getAllByTestId("community-chat-message-line")[0]?.textContent).toMatch(/Dense message 1.*\d{1,2}:00/);
+    // No second action row is rendered under the bubbles.
+    expect(screen.queryByText("Delete for everyone")).toBeNull();
+    expect(screen.getAllByRole("button", { name: "Delete for everyone" }).length).toBeGreaterThan(0);
   });
 
   it("keeps the loaded room visible when Realtime setup throws", async () => {

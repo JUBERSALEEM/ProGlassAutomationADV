@@ -18,6 +18,7 @@ import {
   type InquiryCommunicationStats,
 } from "@/lib/customer-inquiry-chat";
 import { useCustomerInquiries } from "@/lib/useCustomerInquiries";
+import { useWebsiteSession } from "@/lib/website-session";
 import type { InquiryCommunication } from "@/types/inquiry-communications";
 
 /**
@@ -50,9 +51,10 @@ export function SupportBubble() {
   const href = useHref();
   const locale = useLocale();
   const [open, setOpen] = useState(false);
-  const [sessionChecked, setSessionChecked] = useState(false);
-  const [authToken, setAuthToken] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const websiteSession = useWebsiteSession({ enabled: open });
+  const sessionChecked = !websiteSession.checking;
+  const authToken = websiteSession.accessToken;
+  const userEmail = websiteSession.userEmail;
   const [selectedInquiryId, setSelectedInquiryId] = useState("");
   const [communicationStatsState, setCommunicationStatsState] = useState<{
     inquiryId: string;
@@ -94,52 +96,7 @@ export function SupportBubble() {
     };
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-    let alive = true;
-    let unsubscribe = () => {};
-
-    void (async () => {
-      try {
-        const { isSupabaseConfigured, supabaseBrowser } = await import("@/lib/supabase");
-        if (!isSupabaseConfigured()) {
-          if (alive) setSessionChecked(true);
-          return;
-        }
-        const supabase = supabaseBrowser();
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        if (!alive) return;
-        setAuthToken(session?.access_token ?? null);
-        setUserEmail(session?.user.email ?? null);
-        setSessionChecked(true);
-
-        const {
-          data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-          if (!alive) return;
-          setAuthToken(nextSession?.access_token ?? null);
-          setUserEmail(nextSession?.user.email ?? null);
-          setSessionChecked(true);
-        });
-        unsubscribe = () => subscription.unsubscribe();
-      } catch {
-        if (alive) setSessionChecked(true);
-      }
-    })();
-
-    return () => {
-      alive = false;
-      unsubscribe();
-    };
-  }, [open]);
-
-  const handleUnauthorized = useCallback(() => {
-    setAuthToken(null);
-    setUserEmail(null);
-    setSessionChecked(true);
-  }, []);
+  const handleUnauthorized = websiteSession.requireAuth;
 
   const {
     inquiries,
@@ -220,7 +177,7 @@ export function SupportBubble() {
               </span>
             </div>
             <Link
-              href={href(signedIn ? "/chat" : accountPathForRedirect("/chat"))}
+              href={href("/chat")}
               onClick={() => setOpen(false)}
               className="mt-3 block rounded-card bg-emerald-400 px-3 py-2.5 text-center text-xs font-bold text-accent-ink"
             >
@@ -231,6 +188,20 @@ export function SupportBubble() {
           <section aria-label={t("Customer inquiry chat")} className="mt-4 rounded-card border-2 border-brand-400/40 bg-ink-950/60 p-3.5">
             {!sessionChecked ? (
               <p role="status" className="text-xs text-text-muted">{t("Checking your account…")}</p>
+            ) : websiteSession.unavailable && !signedIn ? (
+              <>
+                <h2 className="text-sm font-bold text-text-primary">{t("Saved sign-in could not be confirmed")}</h2>
+                <p className="mt-1 text-xs leading-relaxed text-text-muted">
+                  {t("The authentication service is temporarily unreachable. Your saved sign-in has not been discarded.")}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void websiteSession.refreshSession()}
+                  className="mt-3 block w-full rounded-card bg-brand-400 px-3 py-2.5 text-center text-xs font-bold text-accent-ink"
+                >
+                  {t("Retry saved sign-in")}
+                </button>
+              </>
             ) : !signedIn ? (
               <>
                 <h2 className="text-sm font-bold text-text-primary">{t("Customer inquiry chat")}</h2>
@@ -393,6 +364,7 @@ export function SupportBubble() {
                         internalAccess={false}
                         compact
                         onCommunicationsChanged={handleCommunicationsChanged}
+                        onUnauthorized={handleUnauthorized}
                       />
                     </div>
                   </>

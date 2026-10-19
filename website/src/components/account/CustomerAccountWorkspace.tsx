@@ -15,6 +15,7 @@ import { LocaleLink } from "@/components/ui/LocaleLink";
 import { customerInquiryChatPath } from "@/lib/customer-inquiry-chat";
 import { globalChatDisplayName } from "@/lib/global-chat";
 import { isSupabaseConfigured, supabaseBrowser } from "@/lib/supabase";
+import { useWebsiteSession } from "@/lib/website-session";
 import {
   AVATAR_COLOR_OPTIONS,
   AVATAR_ICON_OPTIONS,
@@ -51,22 +52,6 @@ function toAccountUser(user: User | null | undefined): AccountUser | null {
     email: typeof user.email === "string" ? user.email : null,
     user_metadata: recordFrom(user.user_metadata),
   };
-}
-
-function metadataValue(user: AccountUser | null, key: string): string {
-  const value = user?.user_metadata[key];
-  return typeof value === "string" ? value : "";
-}
-
-function sameAccountUser(left: AccountUser | null, right: AccountUser | null): boolean {
-  return (
-    left?.id === right?.id &&
-    left?.email === right?.email &&
-    metadataValue(left, "full_name") === metadataValue(right, "full_name") &&
-    metadataValue(left, "name") === metadataValue(right, "name") &&
-    metadataValue(left, "avatar_icon") === metadataValue(right, "avatar_icon") &&
-    metadataValue(left, "avatar_color") === metadataValue(right, "avatar_color")
-  );
 }
 
 function cleanProfileName(value: string, fallback: string): string {
@@ -144,8 +129,9 @@ export function CustomerAccountWorkspace() {
   const redirectTo = safeAuthRedirect(requestedRedirect, "/account");
   const hasExplicitRedirect = Boolean(requestedRedirect && redirectTo !== "/account");
 
-  const [checking, setChecking] = useState(true);
-  const [user, setUser] = useState<AccountUser | null>(null);
+  const websiteSession = useWebsiteSession({ enabled: configured });
+  const checking = configured ? websiteSession.checking : false;
+  const user = useMemo(() => toAccountUser(websiteSession.user), [websiteSession.user]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [displayName, setDisplayName] = useState("");
@@ -155,6 +141,7 @@ export function CustomerAccountWorkspace() {
   const [profileError, setProfileError] = useState("");
   const [profileNotice, setProfileNotice] = useState("");
   const [authError, setAuthError] = useState("");
+  const visibleAuthError = authError || (!user ? websiteSession.error ?? "" : "");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [savingPassword, setSavingPassword] = useState(false);
@@ -201,67 +188,21 @@ export function CustomerAccountWorkspace() {
   );
 
   useEffect(() => {
-    if (!configured) {
-      queueMicrotask(() => setChecking(false));
-      return;
-    }
-
-    let alive = true;
-    let subscription: { unsubscribe: () => void } | null = null;
-
-    const applyUser = (nextUser: AccountUser | null) => {
-      if (!alive) return;
-      const nextUserId = nextUser?.id ?? null;
-      if (activeUserIdRef.current !== nextUserId) {
-        activeUserIdRef.current = nextUserId;
-        setProfile(null);
-        setDisplayName("");
-        setSelectedIcon("initials");
-        setSelectedColor("brand");
-        setProfileError("");
-        setProfileNotice("");
-        setPasswordError("");
-        setPasswordNotice("");
-      }
-      setUser((current) => (sameAccountUser(current, nextUser) ? current : nextUser));
-      setChecking(false);
-    };
-
-    try {
-      const supabase = supabaseBrowser();
-      void supabase.auth
-        .getSession()
-        .then(({ data, error }) => {
-          if (error) throw error;
-          applyUser(toAccountUser(data.session?.user));
-        })
-        .catch((reason: unknown) => {
-          if (!alive) return;
-          setAuthError(friendlyError(reason, "Unable to confirm your saved sign-in. Please refresh."));
-          setChecking(false);
-        });
-
-      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-        applyUser(toAccountUser(session?.user));
-      });
-      subscription = data.subscription;
-    } catch (reason) {
-      queueMicrotask(() => {
-        if (!alive) return;
-        setAuthError(friendlyError(reason, "Unable to start account sign-in. Please refresh."));
-        setChecking(false);
-      });
-    }
-
-    return () => {
-      alive = false;
-      try {
-        subscription?.unsubscribe();
-      } catch {
-        // Auth listener cleanup is best effort during navigation.
-      }
-    };
-  }, [configured]);
+    if (!configured) return;
+    const nextUserId = user?.id ?? null;
+    if (activeUserIdRef.current === nextUserId) return;
+    activeUserIdRef.current = nextUserId;
+    queueMicrotask(() => {
+      setProfile(null);
+      setDisplayName("");
+      setSelectedIcon("initials");
+      setSelectedColor("brand");
+      setProfileError("");
+      setProfileNotice("");
+      setPasswordError("");
+      setPasswordNotice("");
+    });
+  }, [configured, user?.id]);
 
   useEffect(() => {
     if (!user) return;
@@ -326,7 +267,7 @@ export function CustomerAccountWorkspace() {
         normalizeUserProfile(data, { userId: user.id, displayName: previewProfile.display_name }) ?? previewProfile;
       syncProfileForm(saved);
 
-      const { data: updated, error: updateError } = await supabase.auth.updateUser({
+      const { error: updateError } = await supabase.auth.updateUser({
         data: {
           ...user.user_metadata,
           full_name: saved.display_name,
@@ -338,8 +279,6 @@ export function CustomerAccountWorkspace() {
       if (updateError) {
         setProfileNotice("Profile saved for chat. Your sign-in details will refresh the next time you sign in.");
       } else {
-        const updatedUser = toAccountUser(updated.user);
-        if (updatedUser) setUser((current) => (sameAccountUser(current, updatedUser) ? current : updatedUser));
         setProfileNotice("Profile saved. Your name and icon now update live in community chat.");
       }
       router.refresh();
@@ -389,7 +328,6 @@ export function CustomerAccountWorkspace() {
       const { error } = await supabaseBrowser().auth.signOut();
       if (error) throw error;
       activeUserIdRef.current = null;
-      setUser(null);
       setProfile(null);
       router.replace("/account");
       router.refresh();
@@ -414,6 +352,27 @@ export function CustomerAccountWorkspace() {
     );
   }
 
+  if (configured && websiteSession.unavailable && !websiteSession.user) {
+    return (
+      <div className="shell grid min-h-[520px] w-full place-items-center py-14">
+        <section className="w-full max-w-md rounded-[28px] border border-state-warning/40 bg-ink-900 p-8 text-center shadow-panel">
+          <p className="eyebrow text-state-warning">Saved sign-in</p>
+          <h1 className="mt-3 text-2xl font-black">We could not confirm your saved sign-in yet</h1>
+          <p className="mt-3 text-sm leading-relaxed text-text-muted">
+            {websiteSession.error ?? "The authentication service is temporarily unreachable. Your saved sign-in has not been discarded."}
+          </p>
+          <button
+            type="button"
+            onClick={() => void websiteSession.refreshSession()}
+            className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-brand-400 px-5 text-sm font-bold text-accent-ink"
+          >
+            Retry saved sign-in
+          </button>
+        </section>
+      </div>
+    );
+  }
+
   if (!user || !previewProfile || !currentProfile) {
     return (
       <div className="shell grid w-full items-center gap-10 py-12 lg:grid-cols-[minmax(0,1fr)_480px] lg:py-20">
@@ -426,9 +385,9 @@ export function CustomerAccountWorkspace() {
             Sign in once on this device. Your secure ProGlass session renews automatically, so you can return to private
             inquiry chats and the community room without entering your password every visit.
           </p>
-          {authError ? (
+          {visibleAuthError ? (
             <p role="alert" className="mt-5 rounded-2xl border border-state-danger/40 bg-state-danger/10 p-4 text-sm text-state-danger">
-              {authError}
+              {visibleAuthError}
             </p>
           ) : null}
           <ul className="mt-7 grid gap-3 sm:grid-cols-2">
@@ -515,8 +474,8 @@ export function CustomerAccountWorkspace() {
         </div>
       </header>
 
-      {authError ? (
-        <p role="alert" className="mt-5 rounded-2xl border border-state-danger/40 bg-state-danger/10 p-4 text-sm text-state-danger">{authError}</p>
+      {visibleAuthError ? (
+        <p role="alert" className="mt-5 rounded-2xl border border-state-danger/40 bg-state-danger/10 p-4 text-sm text-state-danger">{visibleAuthError}</p>
       ) : null}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_350px]">

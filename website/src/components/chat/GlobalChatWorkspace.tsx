@@ -35,6 +35,7 @@ import {
   summarizeGlobalChatReceipts,
 } from "@/lib/global-chat";
 import { isSupabaseConfigured, supabaseBrowser } from "@/lib/supabase";
+import { useWebsiteSession } from "@/lib/website-session";
 import {
   avatarColorClass,
   avatarSymbol,
@@ -152,9 +153,9 @@ function ChatAvatar({
 
 function DayDivider({ label }: { label: string }) {
   return (
-    <div className="flex items-center gap-3 py-1" aria-label={`Messages from ${label}`}>
+    <div className="flex items-center gap-2 py-0.5" aria-label={`Messages from ${label}`}>
       <span className="h-px flex-1 bg-line/70" />
-      <span className="rounded-full border border-line-strong bg-ink-900 px-3 py-1 text-3xs font-bold uppercase tracking-wider text-text-faint">
+      <span className="rounded-full border border-line-strong bg-ink-900 px-2 py-0.5 text-[8px] font-bold uppercase leading-none tracking-wider text-text-faint">
         {label}
       </span>
       <span className="h-px flex-1 bg-line/70" />
@@ -166,7 +167,8 @@ export function GlobalChatWorkspace() {
   const locale = useLocale();
   const configured = isSupabaseConfigured();
 
-  const [checking, setChecking] = useState(true);
+  const websiteSession = useWebsiteSession({ enabled: configured });
+  const checking = configured ? websiteSession.checking : false;
   const [user, setUser] = useState<ChatUser | null>(null);
   const [messages, setMessages] = useState<GlobalChatMessage[]>([]);
   const [draft, setDraft] = useState("");
@@ -896,100 +898,52 @@ export function GlobalChatWorkspace() {
   }, [infoMessage]);
 
   useEffect(() => {
-    if (!configured) {
-      queueMicrotask(() => setChecking(false));
-      return;
-    }
+    if (!configured) return;
 
-    let alive = true;
-    let subscription: { unsubscribe: () => void } | null = null;
-
-    const applySessionUser = (nextUser: ChatUser | null, accessToken?: string | null) => {
-      if (!alive) return;
-      if (typeof accessToken === "string" || accessToken === null) {
-        const previousToken = authAccessTokenRef.current;
-        authAccessTokenRef.current = accessToken || null;
-        if (accessToken && accessToken !== previousToken) {
-          try {
-            void Promise.resolve(supabaseBrowser().realtime.setAuth(accessToken)).catch(() => undefined);
-          } catch {
-            // The realtime effect also calls setAuth before subscribing.
-          }
-        }
-      }
-      const nextUserId = nextUser?.id ?? null;
-      if (activeUserIdRef.current !== nextUserId) {
-        activeUserIdRef.current = nextUserId;
-        messagesRef.current = [];
-        lastReadAtRef.current = null;
-        deliveredSentRef.current.clear();
-        readSentRef.current.clear();
-        deliveredQueueRef.current.clear();
-        quotedFetchingRef.current.clear();
-        profileFetchingRef.current.clear();
-        profileAttemptedRef.current.clear();
-        refreshInFlightRef.current = false;
-        setMessages([]);
-        setReceiptsByMessage(new Map());
-        setQuotedMessages(new Map());
-        setProfilesByUserId(new Map());
-        setReplyTarget(null);
-        setInfoMessage(null);
-        setHighlightedMessageId(null);
-        setLastReadAt(null);
-        setUnreadCount(0);
-        setHasMoreOlder(false);
-        setIsModerator(false);
-      }
-      // Supabase may emit INITIAL_SESSION, TOKEN_REFRESHED, and getSession()
-      // for the same account in quick succession. Preserve object identity
-      // when nothing user-visible changed so the load and Realtime effects do
-      // not restart (and do not race channel teardown) for duplicate events.
-      setUser((current) => (sameChatUser(current, nextUser) ? current : nextUser));
-      setChecking(false);
-    };
-
-    try {
-      const supabase = supabaseBrowser();
-      void supabase.auth
-        .getSession()
-        .then(({ data, error: sessionError }) => {
-          if (sessionError) throw sessionError;
-          applySessionUser(toChatUser(data.session?.user ?? null), data.session?.access_token ?? null);
-        })
-        .catch((reason: unknown) => {
-          if (!alive) return;
-          setError(friendlyError(reason, "Unable to confirm your sign-in. Please refresh and sign in again."));
-          setChecking(false);
-        });
-
-      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-        try {
-          applySessionUser(toChatUser(session?.user ?? null), session?.access_token ?? null);
-        } catch (reason) {
-          if (!alive) return;
-          setError(friendlyError(reason, "Unable to confirm your sign-in. Please refresh and sign in again."));
-          setChecking(false);
-        }
-      });
-      subscription = data.subscription;
-    } catch (reason) {
-      queueMicrotask(() => {
-        if (!alive) return;
-        setError(friendlyError(reason, "Unable to start sign-in. Please refresh and try again."));
-        setChecking(false);
-      });
-    }
-
-    return () => {
-      alive = false;
+    const accessToken = websiteSession.accessToken;
+    const previousToken = authAccessTokenRef.current;
+    authAccessTokenRef.current = accessToken;
+    if (accessToken && accessToken !== previousToken) {
       try {
-        subscription?.unsubscribe();
+        void Promise.resolve(supabaseBrowser().realtime.setAuth(accessToken)).catch(() => undefined);
       } catch {
-        // Auth teardown is best-effort during route cleanup.
+        // The realtime effect also calls setAuth before subscribing.
       }
-    };
-  }, [configured]);
+    }
+
+    const nextUser = toChatUser(websiteSession.user);
+    const nextUserId = nextUser?.id ?? null;
+    if (activeUserIdRef.current !== nextUserId) {
+      activeUserIdRef.current = nextUserId;
+      messagesRef.current = [];
+      lastReadAtRef.current = null;
+      deliveredSentRef.current.clear();
+      readSentRef.current.clear();
+      deliveredQueueRef.current.clear();
+      quotedFetchingRef.current.clear();
+      profileFetchingRef.current.clear();
+      profileAttemptedRef.current.clear();
+      refreshInFlightRef.current = false;
+      setMessages([]);
+      setReceiptsByMessage(new Map());
+      setQuotedMessages(new Map());
+      setProfilesByUserId(new Map());
+      setReplyTarget(null);
+      setInfoMessage(null);
+      setHighlightedMessageId(null);
+      setLastReadAt(null);
+      setUnreadCount(0);
+      setHasMoreOlder(false);
+      setIsModerator(false);
+    }
+
+    // The shared website-session store deduplicates INITIAL_SESSION,
+    // TOKEN_REFRESHED and getSession() for Account and both chats. Preserve
+    // the local ChatUser identity when nothing visible changed so load and
+    // Realtime effects do not restart for a mere token refresh.
+    setUser((current) => (sameChatUser(current, nextUser) ? current : nextUser));
+    if (!nextUser && websiteSession.error) setError(websiteSession.error);
+  }, [configured, websiteSession.accessToken, websiteSession.error, websiteSession.user]);
 
   useEffect(() => {
     if (!user) return;
@@ -1232,6 +1186,27 @@ export function GlobalChatWorkspace() {
     );
   }
 
+  if (websiteSession.unavailable && !websiteSession.user) {
+    return (
+      <main className="flex min-h-[65vh] items-start justify-end bg-ink-950 px-3 py-6 text-text-primary sm:px-5">
+        <section className="w-full max-w-[370px] rounded-[24px] border border-state-warning/40 bg-ink-900 p-6 text-center shadow-panel">
+          <p className="eyebrow text-state-warning">Saved sign-in</p>
+          <h1 className="mt-3 text-2xl font-bold">We could not confirm your saved sign-in yet</h1>
+          <p className="mt-3 text-sm leading-relaxed text-text-muted">
+            {websiteSession.error ?? "The authentication service is temporarily unreachable. Your saved sign-in has not been discarded."}
+          </p>
+          <button
+            type="button"
+            onClick={() => void websiteSession.refreshSession()}
+            className="mt-6 inline-flex rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink"
+          >
+            Retry saved sign-in
+          </button>
+        </section>
+      </main>
+    );
+  }
+
   if (!user) {
     return (
       <main className="flex min-h-[65vh] items-start justify-end bg-ink-950 px-3 py-6 text-text-primary sm:px-5">
@@ -1278,24 +1253,31 @@ export function GlobalChatWorkspace() {
         <section
           aria-label="ProGlass community chat room"
           data-testid="community-chat-panel"
-          data-chat-size="compact-370x560"
-          className="relative flex h-[min(560px,calc(100dvh-190px))] max-h-[560px] min-h-[460px] w-full max-w-[370px] flex-col overflow-hidden rounded-[24px] border border-line-strong bg-ink-900 shadow-raised"
+          data-chat-size="compact-370x640"
+          data-visible-message-target="16"
+          className="relative flex h-[min(640px,calc(100dvh-120px))] max-h-[640px] min-h-[560px] w-full max-w-[370px] flex-col overflow-hidden rounded-[24px] border border-line-strong bg-ink-900 shadow-raised"
         >
-          <header className="border-b border-line bg-ink-900 px-2.5 py-2.5">
-            <div className="flex items-center gap-2">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-400 text-[10px] font-black text-accent-ink">
+          <header className="border-b border-line bg-ink-900 px-2 py-1.5">
+            <div className="flex items-center gap-1.5">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand-400 text-[9px] font-black text-accent-ink">
                 PG
               </span>
               <div className="min-w-0 flex-1">
-                <h1 className="truncate text-sm font-bold leading-tight">ProGlass Community</h1>
-                <p className="mt-0.5 flex items-center gap-1 text-[9px] leading-tight text-text-faint">
+                <h1 className="truncate text-[13px] font-bold leading-tight">ProGlass Community</h1>
+                <p className="mt-0.5 flex items-center gap-1 text-[8.5px] leading-none text-text-faint">
                   <span
                     aria-hidden="true"
-                    className={`h-2 w-2 rounded-full ${realtimeLabel === "subscribed" ? "bg-emerald-400" : "bg-state-warning"}`}
+                    className={`h-1.5 w-1.5 rounded-full ${realtimeLabel === "subscribed" ? "bg-emerald-400" : "bg-state-warning"}`}
                   />
                   <span>{realtimeLabel === "subscribed" ? "Live now" : "Auto-refresh on"}</span>
                   <span aria-hidden="true">·</span>
                   <span>{messages.length} loaded</span>
+                  {isModerator ? (
+                    <>
+                      <span aria-hidden="true">·</span>
+                      <span>Moderator</span>
+                    </>
+                  ) : null}
                   {latestMessage ? (
                     <>
                       <span aria-hidden="true">·</span>
@@ -1307,10 +1289,28 @@ export function GlobalChatWorkspace() {
                 </p>
               </div>
               {unreadCount > 0 ? (
-                <span className="grid h-6 min-w-6 shrink-0 place-items-center rounded-full bg-emerald-400 px-1.5 text-[10px] font-black text-accent-ink">
+                <span className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-emerald-400 px-1 text-[9px] font-black text-accent-ink">
                   {unreadCount > 99 ? "99+" : unreadCount}
                 </span>
               ) : null}
+              {currentProfile ? (
+                <LocaleLink
+                  href="/account"
+                  aria-label={`Edit profile for ${currentProfile.display_name}`}
+                  title={`Edit profile · ${currentProfile.display_name}${user.email ? ` · ${user.email}` : ""}`}
+                  className="shrink-0 rounded-full outline-none ring-brand-400 transition hover:ring-2 focus-visible:ring-2"
+                >
+                  <ChatAvatar profile={currentProfile} sizeClassName="h-7 w-7" />
+                </LocaleLink>
+              ) : null}
+              <LocaleLink
+                href="/inquiries/chat"
+                aria-label="Private chat"
+                title="Private chat"
+                className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-line-strong text-[11px] text-text-secondary hover:bg-ink-850"
+              >
+                🔒
+              </LocaleLink>
               <button
                 type="button"
                 onClick={() => void refreshLatest()}
@@ -1321,36 +1321,11 @@ export function GlobalChatWorkspace() {
                 ↻
               </button>
             </div>
-
-            <div className="mt-1.5 flex items-center gap-1.5 rounded-2xl border border-line bg-ink-950/70 px-1.5 py-1">
-              {currentProfile ? <ChatAvatar profile={currentProfile} sizeClassName="h-6 w-6" /> : null}
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[10px] font-bold leading-tight">
-                  {currentProfile?.display_name ?? user.displayName}
-                </p>
-                <p className="truncate text-[9px] leading-tight text-text-faint">
-                  {user.email ?? "Signed in"}
-                  {isModerator ? " · Moderator" : ""}
-                </p>
-              </div>
-              <LocaleLink
-                href="/account"
-                className="shrink-0 rounded-full border border-line-strong px-1.5 py-0.5 text-[9px] font-bold text-brand-300"
-              >
-                Edit profile
-              </LocaleLink>
-              <LocaleLink
-                href="/inquiries/chat"
-                className="shrink-0 rounded-full border border-line-strong px-1.5 py-0.5 text-[9px] font-bold text-text-secondary"
-              >
-                Private chat
-              </LocaleLink>
-            </div>
           </header>
 
-          <details className="border-b border-line bg-brand-400/10 px-2.5 py-1.5 text-[10px] leading-relaxed text-brand-100">
-            <summary className="cursor-pointer font-bold">Public room · keep private work private</summary>
-            <p className="mt-1 text-text-muted">
+          <details className="border-b border-line bg-brand-400/10 px-2.5 py-1 text-[9px] leading-tight text-brand-100">
+            <summary className="cursor-pointer truncate font-bold">Public room · keep private work private</summary>
+            <p className="mt-1 leading-relaxed text-text-muted">
               Every signed-in ProGlass user can read this room. Do not share project details, documents, prices, or
               personal contact information here — use{" "}
               <LocaleLink href="/inquiries/chat" className="font-bold text-brand-200 underline underline-offset-4">
@@ -1363,7 +1338,7 @@ export function GlobalChatWorkspace() {
           {error ? (
             <div
               role="alert"
-              className="mx-3 mt-2 rounded-2xl border border-state-danger/40 bg-state-danger/10 px-3 py-2 text-[11px] font-semibold leading-relaxed text-state-danger"
+              className="mx-2 mt-1 line-clamp-2 rounded-xl border border-state-danger/40 bg-state-danger/10 px-2 py-1 text-[10px] font-semibold leading-tight text-state-danger"
             >
               {error}
             </div>
@@ -1376,7 +1351,9 @@ export function GlobalChatWorkspace() {
                 role="log"
                 aria-live="polite"
                 aria-label="Community messages"
-                className="min-h-0 flex-1 space-y-2 overflow-y-auto scroll-smooth bg-ink-950/70 px-2.5 py-2.5"
+                data-testid="community-message-stream"
+                data-message-density="16-up"
+                className="min-h-0 flex-1 space-y-[3px] overflow-y-auto scroll-smooth bg-ink-950/70 px-2 py-1.5"
               >
                 {hasMoreOlder ? (
                   <div className="flex justify-center">
@@ -1384,7 +1361,7 @@ export function GlobalChatWorkspace() {
                       type="button"
                       disabled={loadingOlder}
                       onClick={() => void loadOlder()}
-                      className="rounded-full border border-line-strong bg-ink-900 px-4 py-2 text-xs font-bold text-brand-300 disabled:opacity-50"
+                      className="rounded-full border border-line-strong bg-ink-900 px-3 py-1 text-[10px] font-bold leading-none text-brand-300 disabled:opacity-50"
                     >
                       {loadingOlder ? "Loading older messages…" : "Load older messages"}
                     </button>
@@ -1408,11 +1385,15 @@ export function GlobalChatWorkspace() {
                 ) : (
                   messages.map((message, index) => {
                     const previous = messages[index - 1];
+                    const next = messages[index + 1];
                     const day = formatGlobalChatDay(message.created_at, locale);
                     const previousDay = previous ? formatGlobalChatDay(previous.created_at, locale) : null;
+                    const nextDay = next ? formatGlobalChatDay(next.created_at, locale) : null;
                     const showDay = day !== previousDay;
                     const showUnread = message.id === firstUnreadId;
                     const own = message.author_user_id === user.id;
+                    const isLastInGroup =
+                      !next || next.author_user_id !== message.author_user_id || nextDay !== day || next.id === firstUnreadId;
                     const deleted = Boolean(message.deleted_at);
                     const showAuthor =
                       !own && (!previous || previous.author_user_id !== message.author_user_id || showDay || showUnread);
@@ -1438,12 +1419,12 @@ export function GlobalChatWorkspace() {
                           : "Message info";
 
                     return (
-                      <div key={message.id} className="space-y-2">
+                      <div key={message.id}>
                         {showDay ? <DayDivider label={day} /> : null}
                         {showUnread ? (
-                          <div className="flex items-center gap-3" aria-label="Unread messages start here">
+                          <div className="flex items-center gap-2 py-0.5" aria-label="Unread messages start here">
                             <span className="h-px flex-1 bg-emerald-400/60" />
-                            <span className="rounded-full bg-emerald-400 px-3 py-1 text-3xs font-black uppercase tracking-wider text-accent-ink">
+                            <span className="rounded-full bg-emerald-400 px-2 py-0.5 text-[8px] font-black uppercase leading-none tracking-wider text-accent-ink">
                               Unread messages
                             </span>
                             <span className="h-px flex-1 bg-emerald-400/60" />
@@ -1452,18 +1433,21 @@ export function GlobalChatWorkspace() {
 
                         <div
                           id={`global-chat-message-${message.id}`}
-                          className={`flex items-end gap-1.5 ${own ? "justify-end" : "justify-start"}`}
+                          data-testid="community-chat-message-row"
+                          className={`flex items-end gap-1 ${own ? "justify-end" : "justify-start"}`}
                         >
-                          {!own ? <ChatAvatar profile={authorProfile} sizeClassName="h-6 w-6" /> : null}
+                          {!own ? (
+                            isLastInGroup ? (
+                              <ChatAvatar profile={authorProfile} sizeClassName="h-5 w-5" />
+                            ) : (
+                              <span aria-hidden="true" className="w-5 shrink-0" />
+                            )
+                          ) : null}
 
-                          <div className={`flex max-w-[82%] flex-col ${own ? "items-end" : "items-start"}`}>
-                            {showAuthor ? (
-                              <div className="mb-1 px-1 text-[10px] font-bold leading-tight text-brand-200">
-                                {authorName}
-                              </div>
-                            ) : null}
+                          <div className={`flex max-w-[88%] flex-col ${own ? "items-end" : "items-start"}`}>
                             <article
-                              className={`rounded-[18px] px-2.5 py-1.5 shadow-panel transition-shadow ${
+                              data-testid="community-chat-bubble"
+                              className={`rounded-[14px] px-2 py-[3px] shadow-panel transition-shadow ${
                                 deleted
                                   ? "border border-line bg-ink-950/80 text-text-faint"
                                   : own
@@ -1476,20 +1460,20 @@ export function GlobalChatWorkspace() {
                                   type="button"
                                   onClick={() => void jumpToQuoted(replyToId)}
                                   aria-label="Jump to the original message"
-                                  className={`mb-1.5 block w-full rounded-2xl border-l-4 px-2.5 py-1.5 text-left ${
+                                  className={`mb-1 flex w-full items-center gap-1 overflow-hidden rounded-lg border-l-2 px-1.5 py-0.5 text-left ${
                                     own
                                       ? "border-accent-ink/60 bg-accent-ink/10 text-accent-ink"
                                       : "border-emerald-400/80 bg-ink-950/70 text-text-primary"
                                   }`}
                                 >
                                   <span
-                                    className={`block text-3xs font-black uppercase tracking-wider ${
+                                    className={`shrink-0 text-[8px] font-black uppercase leading-none tracking-wider ${
                                       own ? "text-accent-ink/80" : "text-emerald-300"
                                     }`}
                                   >
                                     {quotedAuthorName}
                                   </span>
-                                  <span className="mt-0.5 line-clamp-2 block text-xs leading-relaxed opacity-90">
+                                  <span className="min-w-0 truncate text-[10px] leading-tight opacity-90">
                                     {quoted
                                       ? quoted.deleted_at
                                         ? "This message was deleted."
@@ -1498,75 +1482,100 @@ export function GlobalChatWorkspace() {
                                   </span>
                                 </button>
                               ) : null}
-                              <p className={`whitespace-pre-wrap break-words text-xs leading-relaxed ${deleted ? "italic" : ""}`}>
-                                {deleted ? "This message was deleted." : message.body}
-                              </p>
-                              <div
-                                className={`mt-1 flex items-center justify-end text-[10px] font-semibold ${
-                                  deleted ? "text-text-faint" : own ? "text-accent-ink/70" : "text-text-faint"
-                                }`}
-                              >
-                                <time dateTime={message.created_at}>{formatGlobalChatTime(message.created_at, locale)}</time>
-                                {own && !deleted ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => openMessageInfo(message)}
-                                    title={
-                                      receiptSummary.state === "read"
-                                        ? `Seen by ${receiptSummary.readCount}`
-                                        : receiptSummary.state === "delivered"
-                                          ? `Delivered to ${receiptSummary.deliveredCount}`
-                                          : "Sent"
-                                    }
-                                    aria-label={`Message info: ${
-                                      receiptSummary.state === "read"
-                                        ? `seen by ${receiptSummary.readCount}`
-                                        : receiptSummary.state === "delivered"
-                                          ? `delivered to ${receiptSummary.deliveredCount}`
-                                          : "sent"
-                                    }. Show who read this message`}
-                                    className={`ml-1.5 text-[11px] font-black leading-none tracking-[-0.18em] ${
-                                      receiptSummary.state === "read" ? "text-sky-700" : ""
-                                    }`}
-                                  >
-                                    {receiptSummary.state === "sent" ? "✓" : "✓✓"}
-                                  </button>
-                                ) : null}
+                              <div data-testid="community-chat-message-line" className="flex items-end gap-1.5">
+                                <p
+                                  className={`min-w-0 whitespace-pre-wrap break-words text-xs leading-[1.2] ${deleted ? "italic" : ""}`}
+                                >
+                                  {showAuthor && !deleted ? (
+                                    <span className="mr-1 font-bold text-brand-200">{authorName}:</span>
+                                  ) : !own && !deleted ? (
+                                    <span className="sr-only">{authorName}: </span>
+                                  ) : null}
+                                  {deleted ? "This message was deleted." : message.body}
+                                </p>
+                                <span
+                                  className={`ml-auto flex shrink-0 translate-y-px items-center gap-1 whitespace-nowrap text-[8.5px] font-semibold leading-none ${
+                                    deleted ? "text-text-faint" : own ? "text-accent-ink/70" : "text-text-faint"
+                                  }`}
+                                >
+                                  <time dateTime={message.created_at}>{formatGlobalChatTime(message.created_at, locale)}</time>
+                                  {!deleted ? (
+                                    <>
+                                      <button
+                                        type="button"
+                                        disabled={busy}
+                                        onClick={() => startReply(message)}
+                                        aria-label={own ? "Reply to your message" : `Reply to message from ${authorName}`}
+                                        title="Reply"
+                                        className="text-[10px] leading-none opacity-75 transition-opacity hover:opacity-100 disabled:opacity-40"
+                                      >
+                                        ↩
+                                      </button>
+                                      {own ? (
+                                        <button
+                                          type="button"
+                                          onClick={() => openMessageInfo(message)}
+                                          title={
+                                            receiptSummary.state === "read"
+                                              ? `Seen by ${receiptSummary.readCount}`
+                                              : receiptSummary.state === "delivered"
+                                                ? `Delivered to ${receiptSummary.deliveredCount}`
+                                                : "Sent"
+                                          }
+                                          aria-label={`Message info: ${
+                                            receiptSummary.state === "read"
+                                              ? `seen by ${receiptSummary.readCount}`
+                                              : receiptSummary.state === "delivered"
+                                                ? `delivered to ${receiptSummary.deliveredCount}`
+                                                : "sent"
+                                          }. Show who read this message`}
+                                          className={`text-[10px] font-black leading-none tracking-[-0.18em] ${
+                                            receiptSummary.state === "read" ? "text-sky-700" : ""
+                                          }`}
+                                        >
+                                          {receiptSummary.state === "sent" ? "✓" : "✓✓"}
+                                          {receiptSummary.state === "read" && receiptSummary.readCount > 0 ? (
+                                            <span className="ml-0.5 tracking-normal">{receiptSummary.readCount}</span>
+                                          ) : receiptSummary.state === "delivered" && receiptSummary.deliveredCount > 0 ? (
+                                            <span className="ml-0.5 tracking-normal">{receiptSummary.deliveredCount}</span>
+                                          ) : null}
+                                        </button>
+                                      ) : (
+                                        <button
+                                          type="button"
+                                          onClick={() => openMessageInfo(message)}
+                                          aria-label={receiptActionLabel}
+                                          title={receiptActionLabel}
+                                          className="text-[10px] leading-none opacity-75 transition-opacity hover:opacity-100"
+                                        >
+                                          ⓘ
+                                        </button>
+                                      )}
+                                      {canDelete ? (
+                                        <button
+                                          type="button"
+                                          disabled={busy}
+                                          onClick={() => void removeMessage(message)}
+                                          aria-label="Delete for everyone"
+                                          title="Delete for everyone"
+                                          className="text-[10px] font-bold leading-none opacity-75 transition-opacity hover:text-state-danger hover:opacity-100 disabled:opacity-40"
+                                        >
+                                          ×
+                                        </button>
+                                      ) : null}
+                                    </>
+                                  ) : null}
+                                </span>
                               </div>
                             </article>
-                            {!deleted ? (
-                              <div className={`mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 px-1 ${own ? "justify-end" : ""}`}>
-                                <button
-                                  type="button"
-                                  disabled={busy}
-                                  onClick={() => startReply(message)}
-                                  className="text-3xs font-bold text-text-faint underline-offset-4 hover:text-brand-300 hover:underline disabled:opacity-50"
-                                >
-                                  Reply
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => openMessageInfo(message)}
-                                  className="text-3xs font-bold text-text-faint underline-offset-4 hover:text-brand-300 hover:underline"
-                                >
-                                  {receiptActionLabel}
-                                </button>
-                                {canDelete ? (
-                                  <button
-                                    type="button"
-                                    disabled={busy}
-                                    onClick={() => void removeMessage(message)}
-                                    className="text-3xs font-bold text-text-faint underline-offset-4 hover:text-state-danger hover:underline disabled:opacity-50"
-                                  >
-                                    Delete for everyone
-                                  </button>
-                                ) : null}
-                              </div>
-                            ) : null}
                           </div>
 
                           {own && currentProfile ? (
-                            <ChatAvatar profile={currentProfile} sizeClassName="h-6 w-6" />
+                            isLastInGroup ? (
+                              <ChatAvatar profile={currentProfile} sizeClassName="h-5 w-5" />
+                            ) : (
+                              <span aria-hidden="true" className="w-5 shrink-0" />
+                            )
                           ) : null}
                         </div>
                       </div>
@@ -1586,32 +1595,32 @@ export function GlobalChatWorkspace() {
               ) : null}
             </div>
 
-            <form onSubmit={(event) => void send(event)} className="border-t border-line bg-ink-900 p-2">
+            <form onSubmit={(event) => void send(event)} className="border-t border-line bg-ink-900 p-1.5">
               {replyTarget ? (
-                <div className="mb-2 flex items-start gap-3 rounded-2xl border border-line-strong border-l-4 border-l-emerald-400 bg-ink-950 px-3 py-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-3xs font-black uppercase tracking-wider text-emerald-300">
+                <div className="mb-1.5 flex items-center gap-2 overflow-hidden rounded-xl border border-line-strong border-l-2 border-l-emerald-400 bg-ink-950 px-2 py-1">
+                  <div className="flex min-w-0 flex-1 items-baseline gap-1">
+                    <span className="shrink-0 text-[8px] font-black uppercase leading-none tracking-wider text-emerald-300">
                       Replying to {
                         replyTarget.author_user_id === user.id
                           ? "yourself"
                           : profileFor(replyTarget.author_user_id, replyTarget.author_display_name).display_name
                       }
-                    </p>
-                    <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-text-muted">
+                    </span>
+                    <span className="truncate text-[10px] leading-tight text-text-muted">
                       {globalChatMessageExcerpt(replyTarget.body, 180)}
-                    </p>
+                    </span>
                   </div>
                   <button
                     type="button"
                     aria-label="Cancel reply"
                     onClick={() => setReplyTarget(null)}
-                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-line-strong text-xs font-black text-text-muted hover:text-text-primary"
+                    className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-line-strong text-[10px] font-black text-text-muted hover:text-text-primary"
                   >
                     ✕
                   </button>
                 </div>
               ) : null}
-              <div className="flex items-end gap-2">
+              <div className="flex items-end gap-1.5">
                 <label htmlFor="global-chat-composer" className="sr-only">
                   Message the ProGlass community
                 </label>
@@ -1623,24 +1632,30 @@ export function GlobalChatWorkspace() {
                   onKeyDown={onComposerKeyDown}
                   rows={1}
                   placeholder={replyTarget ? "Type your reply…" : "Message…"}
-                  className="max-h-24 min-h-9 flex-1 resize-none rounded-full border border-line-strong bg-ink-950 px-3 py-2 text-xs leading-relaxed text-text-primary placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/40"
+                  title="Enter to send · Shift+Enter for a new line"
+                  aria-describedby="global-chat-composer-hint"
+                  className="max-h-20 min-h-8 flex-1 resize-none rounded-full border border-line-strong bg-ink-950 px-3 py-1.5 text-xs leading-tight text-text-primary placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/40"
                 />
                 <button
                   type="submit"
                   disabled={!canSend}
-                  className="h-9 shrink-0 rounded-full bg-brand-400 px-3.5 text-xs font-black text-accent-ink transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+                  className="h-8 shrink-0 rounded-full bg-brand-400 px-3 text-[11px] font-black text-accent-ink transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {busy ? "Sending…" : "Send"}
                 </button>
               </div>
-              <div className="mt-1 flex items-center justify-between gap-3 px-1 text-3xs text-text-faint">
-                <span>Enter to send · Shift+Enter for a new line</span>
-                <span className={draftTooLong ? "font-bold text-state-danger" : undefined}>
-                  {normalizedDraft.length}/{GLOBAL_CHAT_MAX_BODY}
-                </span>
-              </div>
+              <p id="global-chat-composer-hint" className="sr-only">
+                Enter to send. Shift plus Enter for a new line.
+              </p>
+              {normalizedDraft.length >= 800 || draftTooLong ? (
+                <div className="mt-0.5 flex justify-end px-1 text-[9px] leading-none text-text-faint">
+                  <span className={draftTooLong ? "font-bold text-state-danger" : undefined}>
+                    {normalizedDraft.length}/{GLOBAL_CHAT_MAX_BODY}
+                  </span>
+                </div>
+              ) : null}
               {draftTooLong ? (
-                <p role="alert" className="mt-2 px-1 text-xs font-semibold text-state-danger">
+                <p role="alert" className="mt-1 px-1 text-[10px] font-semibold leading-tight text-state-danger">
                   Message is too long. Please keep it within {GLOBAL_CHAT_MAX_BODY} characters.
                 </p>
               ) : null}
@@ -1661,7 +1676,7 @@ export function GlobalChatWorkspace() {
             onClick={() => setInfoMessage(null)}
             className="absolute inset-0 bg-ink-950/70"
           />
-          <aside className="relative flex max-h-[min(560px,calc(100dvh-2rem))] w-full max-w-[370px] flex-col overflow-hidden rounded-[24px] border border-line-strong bg-ink-900 shadow-raised">
+          <aside className="relative flex max-h-[min(640px,calc(100dvh-2rem))] w-full max-w-[370px] flex-col overflow-hidden rounded-[24px] border border-line-strong bg-ink-900 shadow-raised">
             <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
               <h2 className="text-base font-bold">Message info</h2>
               <button

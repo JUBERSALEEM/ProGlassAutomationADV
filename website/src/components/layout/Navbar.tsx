@@ -58,7 +58,7 @@ const entries: NavEntry[] = [
       { label: "Sponsors", href: "/sponsors", description: "Back the build, or join it" },
       {
         label: "Customer Account",
-        href: "/account?redirect=%2Finquiries%2Fchat",
+        href: "/account",
         description: "Sign in or create an inquiry account",
       },
       {
@@ -991,7 +991,7 @@ export function Navbar() {
               {t("Request a Demo")}
             </ButtonLink>
             <ButtonLink
-              href={toHref("/account?redirect=%2Finquiries%2Fchat")}
+              href={toHref("/account")}
               variant="secondary"
               size="lg"
               onClick={() => setMobileOpen(false)}

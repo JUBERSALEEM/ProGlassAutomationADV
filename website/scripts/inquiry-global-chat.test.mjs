@@ -27,11 +27,15 @@ const accountWorkspace = read("../src/components/account/CustomerAccountWorkspac
 const profileHelpers = read("../src/lib/user-profile.ts");
 const profileSql = read("../supabase-user-profiles.sql");
 const nextConfig = read("../next.config.ts");
+const supabaseLib = read("../src/lib/supabase.ts");
+const websiteSession = read("../src/lib/website-session.ts");
+const operatorSession = read("../src/lib/useOperatorSession.ts");
 
 test("global account route recognizes a saved session before reusing the sign-in form", () => {
   assert.match(accountPage, /CustomerAccountWorkspace/);
-  assert.match(accountWorkspace, /getSession\(\)/);
-  assert.match(accountWorkspace, /onAuthStateChange/);
+  assert.match(accountWorkspace, /useWebsiteSession/);
+  assert.match(websiteSession, /onAuthStateChange/);
+  assert.match(websiteSession, /recoverWebsiteSession/);
   assert.match(accountWorkspace, /Checking your saved sign-in/);
   assert.match(accountWorkspace, /Saved sign-in found/);
   assert.match(accountWorkspace, /router\.replace\(redirectTo\)/);
@@ -203,7 +207,7 @@ test("community chat workspace is browser-direct realtime with unread handling a
   assert.match(navbar, /href: "\/chat"/);
   assert.match(siteNav, /label: "Community Chat", href: "\/chat"/);
   assert.match(bubble, /Open community chat/);
-  assert.match(bubble, /accountPathForRedirect\("\/chat"\)/);
+  assert.match(bubble, /href=\{href\("\/chat"\)\}/);
   assert.match(workspace, /href="\/chat"/);
   assert.match(workspace, /Community chat/);
 });
@@ -243,8 +247,8 @@ test("community chat auth and realtime setup cannot restart or crash the room on
   assert.match(communityHelpers, /export function normalizeGlobalChatReadState/);
   assert.match(nextConfig, /wss:\/\/afpbdyamedpanwijxghk\.supabase\.co/);
   assert.match(communityWorkspace, /realtime\.setAuth\(accessToken\)/);
-  assert.match(communityWorkspace, /data\.session\?\.access_token/);
-  assert.match(communityWorkspace, /session\?\.access_token/);
+  assert.match(communityWorkspace, /websiteSession\.accessToken/);
+  assert.match(websiteSession, /getSession\(\)/);
   assert.match(communityWorkspace, /table: "user_profiles"/);
   assert.match(communityWorkspace, /status === "SUBSCRIBED".*refreshLatestRef\.current/s);
   assert.match(communityWorkspace, /window\.setInterval/);
@@ -256,9 +260,9 @@ test("community chat auth and realtime setup cannot restart or crash the room on
 
 test("community chat is a compact right-aligned panel with visible receipt sync", () => {
   assert.match(communityWorkspace, /max-w-\[370px\]/);
-  assert.match(communityWorkspace, /max-h-\[560px\]/);
+  assert.match(communityWorkspace, /max-h-\[640px\]/);
   assert.match(communityWorkspace, /justify-end/);
-  assert.match(communityWorkspace, /data-chat-size="compact-370x560"/);
+  assert.match(communityWorkspace, /data-chat-size="compact-370x640"/);
   assert.match(communityWorkspace, /CHANNEL_ERROR/);
   assert.match(communityWorkspace, /Refresh messages now/);
   assert.match(communityWorkspace, /Edit profile/);
@@ -269,6 +273,42 @@ test("community chat is a compact right-aligned panel with visible receipt sync"
   assert.match(communityWorkspace, /Delivered to \$\{receiptSummary\.deliveredCount\} · Info/);
   assert.match(communityWorkspace, /ChatAvatar/);
   assert.match(communityWorkspace, /profileFor\(receipt\.user_id/);
+});
+
+test("account and every chat share one recoverable saved website session", () => {
+  assert.match(supabaseLib, /supabaseAuthStorageKey/);
+  assert.match(supabaseLib, /sb-\$\{projectRef\}-auth-token/);
+  assert.match(supabaseLib, /persistSession: true/);
+  assert.match(supabaseLib, /autoRefreshToken: true/);
+  assert.match(websiteSession, /useSyncExternalStore/);
+  assert.match(websiteSession, /recoverWebsiteSessionAfterUnauthorized/);
+  assert.match(websiteSession, /refreshSavedSession/);
+  assert.match(websiteSession, /window\.addEventListener\("storage"/);
+  assert.match(websiteSession, /document\.addEventListener\("visibilitychange"/);
+  assert.match(operatorSession, /useWebsiteSession/);
+  assert.match(operatorSession, /requireAuth: session\.requireAuth/);
+  assert.match(accountWorkspace, /useWebsiteSession\(\{ enabled: configured \}\)/);
+  assert.match(communityWorkspace, /useWebsiteSession\(\{ enabled: configured \}\)/);
+  assert.match(workspace, /sessionUnavailable/);
+  assert.match(workspace, /Retry saved sign-in/);
+  assert.match(bubble, /useWebsiteSession\(\{ enabled: open \}\)/);
+  assert.match(bubble, /onUnauthorized=\{handleUnauthorized\}/);
+  assert.match(panel, /onUnauthorized/);
+  assert.match(panel, /r\.status===401/);
+  assert.match(navbar, /href: "\/account"/);
+});
+
+test("community chat uses dense one-line bubbles sized for sixteen short messages", () => {
+  assert.match(communityWorkspace, /data-visible-message-target="16"/);
+  assert.match(communityWorkspace, /data-message-density="16-up"/);
+  assert.match(communityWorkspace, /space-y-\[3px\]/);
+  assert.match(communityWorkspace, /data-testid="community-chat-message-line"/);
+  assert.match(communityWorkspace, /data-testid="community-chat-bubble"/);
+  assert.match(communityWorkspace, /py-\[3px\]/);
+  assert.match(communityWorkspace, /leading-\[1\.2\]/);
+  assert.match(communityWorkspace, /isLastInGroup/);
+  assert.match(communityWorkspace, /aria-label=\{own \? "Reply to your message"/);
+  assert.doesNotMatch(communityWorkspace, /mt-1 flex flex-wrap items-center gap-x-3/);
 });
 
 test("community chat workspace supports WhatsApp-style replies, ticks and who-read-when info", () => {

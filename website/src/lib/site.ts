@@ -123,7 +123,7 @@ export const nav = {
     resources: [
       { label: "Resources", href: "/resources" },
       { label: "Blog", href: "/blog" },
-      { label: "Customer Account", href: "/account?redirect=%2Finquiries%2Fchat" },
+      { label: "Customer Account", href: "/account" },
       { label: "My Inquiries & Chat", href: "/inquiries/chat" },
       { label: "Community Chat", href: "/chat" },
       { label: "Submit Inquiry", href: "/inquiries/submit" },

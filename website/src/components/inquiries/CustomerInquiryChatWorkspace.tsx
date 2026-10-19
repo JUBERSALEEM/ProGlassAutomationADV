@@ -83,7 +83,16 @@ function InquiryListButton({
 
 export function CustomerInquiryChatWorkspace({ initialInquiryId }: { initialInquiryId?: string }) {
   const locale = useLocale();
-  const { checking, authToken, isAuthRequired, userEmail, requireAuth } = useOperatorSession();
+  const {
+    checking,
+    authToken,
+    isAuthRequired,
+    userEmail,
+    requireAuth,
+    unavailable: sessionUnavailable,
+    error: sessionError,
+    refreshSession,
+  } = useOperatorSession();
   const { inquiries, loading, error, refresh } = useCustomerInquiries(authToken, {
     enabled: Boolean(authToken),
     onUnauthorized: requireAuth,
@@ -127,6 +136,27 @@ export function CustomerInquiryChatWorkspace({ initialInquiryId }: { initialInqu
       <div role="status" className="grid min-h-[60vh] place-items-center bg-ink-950 text-xs text-text-muted">
         Checking your secure session…
       </div>
+    );
+  }
+
+  if (sessionUnavailable && !authToken) {
+    return (
+      <main className="min-h-[65vh] bg-ink-950 px-4 py-20 text-text-primary">
+        <section className="mx-auto max-w-xl rounded-3xl border border-state-warning/40 bg-ink-900 p-6 text-center shadow-panel sm:p-8">
+          <p className="eyebrow text-state-warning">Saved sign-in</p>
+          <h1 className="mt-3 text-2xl font-bold">We could not confirm your saved sign-in yet</h1>
+          <p className="mt-3 text-sm leading-relaxed text-text-muted">
+            {sessionError ?? "The authentication service is temporarily unreachable. Your saved sign-in has not been discarded."}
+          </p>
+          <button
+            type="button"
+            onClick={() => void refreshSession()}
+            className="mt-6 inline-flex justify-center rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink"
+          >
+            Retry saved sign-in
+          </button>
+        </section>
+      </main>
     );
   }
 
@@ -335,6 +365,7 @@ export function CustomerInquiryChatWorkspace({ initialInquiryId }: { initialInqu
                 token={authToken}
                 internalAccess={false}
                 onCommunicationsChanged={handleCommunicationsChanged}
+                onUnauthorized={requireAuth}
               />
             </div>
           </div>
