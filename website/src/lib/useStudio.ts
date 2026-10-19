@@ -705,7 +705,7 @@ export function applyStudioVars(studio: Studio) {
 
   /* The crystal bench (G4). Three multipliers, written only when moved —
      the daytime doctrine lives in crystal-engine §C4 (floors and caps are
-     math there, not promises here). Under every family but crystal the
+     math there, not promises here). Under every family but Liquid Glass the
      vars are inert: no consumer reads them. */
   if (studio.glassFrost !== defaultStudio.glassFrost) {
     vars["--glass-frost-mult"] = finite(studio.glassFrost, 0.25, 3, 1).toFixed(2);
@@ -921,7 +921,7 @@ export function applyStudioVars(studio: Studio) {
       vars["--band-glow-h"] = rot(0, Math.min(0.85, pSat + 0.08), target === "dark" ? 0.5 : 0.42);
     } else {
       vars["--band-face"] = rot(0, Math.min(0.3, pSat * 0.45), 0.948);
-      if (family === "crystal") {
+      if (family === "liquid-glass") {
         vars["--pool-1"] = `rgb(${rot(0, Math.min(0.86, effS), target === "dark" ? 0.56 : 0.58)} / ${target === "dark" ? 0.58 : 0.56})`;
         vars["--pool-2"] = `rgb(${rot(14, Math.min(0.84, effS), 0.62)} / ${target === "dark" ? 0.46 : 0.38})`;
         vars["--pool-3"] = `rgb(${rot(-14, Math.min(0.82, effS), 0.64)} / ${target === "dark" ? 0.4 : 0.48})`;
