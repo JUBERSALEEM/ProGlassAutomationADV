@@ -205,7 +205,7 @@ namespace ProGlassAutomation.Services.Theme
         };
 
         /// <summary>Currently active family.</summary>
-        public static string Current { get; private set; } = NormalIndustrial;
+        public static string Current { get; private set; } = LiquidGlass;
 
         /// <summary>Module whose wallpaper is currently layered (or "").</summary>
         public static string CurrentModule { get; private set; } = "";
@@ -602,7 +602,7 @@ namespace ProGlassAutomation.Services.Theme
                 _lastWallpaperOpacity =
                     ClampOpacity(appearance?.WallpaperOpacity ?? 0.85);
 
-                Current = Normalize(appearance?.VisualTheme ?? Normal);
+                Current = Normalize(appearance?.VisualTheme ?? LiquidGlass);
 
                 if (familyChanged)
                 {
