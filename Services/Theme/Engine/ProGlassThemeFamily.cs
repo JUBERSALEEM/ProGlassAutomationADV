@@ -10,7 +10,15 @@ namespace ProGlassAutomation.Services.Theme.Engine
         /// <summary>iOS 26 liquid glass — fourth family (was missing from
         /// the contract, which is why the Settings picker offered only two
         /// themes; the engine override layer always existed).</summary>
-        Ios26
+        Ios26,
+        BentoGrid,
+        SpatialImmersive,
+        SwissInternational,
+        HolographicIridescent,
+        Neumorphism,
+        Claymorphism,
+        LiquidGlass,
+        Glassmorphism
     }
 
     public enum ProGlassThemeMode
