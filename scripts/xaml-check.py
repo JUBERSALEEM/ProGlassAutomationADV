@@ -548,7 +548,8 @@ def main():
         files = sorted(f for f in files if any(
             k in f for k in ("Clay", "Neu", "Swiss", "Holo",
                              "LiquidGlass", "Eight",
-                             "Bento", "Spatial", "Glassmorphism")))
+                             "Bento", "Spatial", "Glassmorphism",
+                             "Aurora")))
     elif args:
         files = [a for a in args if a.endswith(".xaml")]
     else:

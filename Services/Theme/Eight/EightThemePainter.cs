@@ -43,6 +43,7 @@ using ProGlassAutomation.Services.Theme.Holo;
 using ProGlassAutomation.Services.Theme.LiquidGlass;
 using ProGlassAutomation.Services.Theme.Neu;
 using ProGlassAutomation.Services.Theme.Swiss;
+using ProGlassAutomation.Services.Theme.Aurora;
 using ProGlassAutomation.Services.Theme.Bento;
 using ProGlassAutomation.Services.Theme.Spatial;
 using ProGlassAutomation.Services.Theme.Glassmorphism;
@@ -251,9 +252,11 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     NeuPalette.Clear();
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
+                    AuroraPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
+                    AuroraPalette.Clear();
                     // The elevation's two stops ARE the clay shadow pair:
                     // the highlight that catches the light, and the shade
                     // tinted to the object's own hue. Using the ramp's
@@ -274,9 +277,11 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     ClayPalette.Clear();
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
+                    AuroraPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
+                    AuroraPalette.Clear();
                     // Neumorphism's stops are NOT the ramp's. Its whole
                     // defining rule is that the object IS the page, so
                     // the light and shade are derived from that one
@@ -308,6 +313,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     NeuPalette.Clear();
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
+                    AuroraPalette.Clear();
 
                     if (profile.Identity == EightThemeNames.Swiss)
                     {
@@ -373,6 +379,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                         BentoPalette.Clear();
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
+                    AuroraPalette.Clear();
                     }
                     break;
 
@@ -381,9 +388,11 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     NeuPalette.Clear();
                     SwissPalette.Clear();
                     LiquidGlassPalette.Clear();
+                    AuroraPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
+                    AuroraPalette.Clear();
 
                     // ── WHY THE GROUND COMES FROM Surface AND NOT Window ──
                     // Holographic inverts the other families' arrangement:
@@ -407,6 +416,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
+                    AuroraPalette.Clear();
                     // LIQUID GLASS. The only family whose material is an
                     // optical one rather than a tonal one: what it
                     // carries is the tint, what it IS is the rim.
@@ -461,9 +471,11 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     SwissPalette.Clear();
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
+                    AuroraPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
+                    AuroraPalette.Clear();
                     SpatialPalette.Publish(
                         lightEnvironment: profile.Light.Window,
                         lightFar: profile.Light.Module,
@@ -507,9 +519,11 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     SwissPalette.Clear();
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
+                    AuroraPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
+                    AuroraPalette.Clear();
                     GlassPalette.Publish(
                         lightStage: profile.Light.Window,
                         lightFill: profile.Light.Surface,
@@ -524,6 +538,59 @@ namespace ProGlassAutomation.Services.Theme.Eight
                         darkRim: profile.Dark.BorderStrong);
                     break;
 
+                case EightMaterialKind.Luminous:
+                    // ── AURORA ────────────────────────────────────────────
+                    // The only family here that publishes a BACKDROP.
+                    //
+                    // Every other arm maps one ramp onto a surface recipe.
+                    // This one publishes ten colours per darkness because
+                    // the sky needs three blobs and a base, not a surface
+                    // and a border -- there is no single "Window" colour
+                    // that describes a drifting field.
+                    //
+                    // Base is Window, and it is dark in BOTH ramps. There
+                    // is no light Aurora: "aurora over white dies", so the
+                    // light ramp is a dimmed violet cast of the same void.
+                    // Ink stays near-white in both -- see AuroraPalette's
+                    // header, where that convention break is stated rather
+                    // than quietly absorbed.
+                    //
+                    // BlobIndigo is the ANCHOR (roughly half the field
+                    // weight), BlobViolet and BlobTeal orbit it on
+                    // opposite sides so the composition reads as a
+                    // diagonal. Each ramp names all three explicitly.
+                    ClayPalette.Clear();
+                    NeuPalette.Clear();
+                    SwissPalette.Clear();
+                    HoloPalette.Clear();
+                    LiquidGlassPalette.Clear();
+                    BentoPalette.Clear();
+                    SpatialPalette.Clear();
+                    GlassPalette.Clear();
+                    AuroraPalette.Clear();
+                    AuroraPalette.Publish(
+                        lightBase: profile.Light.Window,
+                        lightBlobIndigo: profile.Light.BlobIndigo,
+                        lightBlobViolet: profile.Light.BlobViolet,
+                        lightBlobTeal: profile.Light.BlobTeal,
+                        lightInk: profile.Light.TextPrimary,
+                        lightMuted: profile.Light.TextMuted,
+                        lightRimLow: profile.Light.BorderSubtle,
+                        lightRimHigh: profile.Light.BorderStrong,
+                        lightAccent: profile.Light.Accent,
+                        lightGlow: profile.Light.FocusRing,
+                        darkBase: profile.Dark.Window,
+                        darkBlobIndigo: profile.Dark.BlobIndigo,
+                        darkBlobViolet: profile.Dark.BlobViolet,
+                        darkBlobTeal: profile.Dark.BlobTeal,
+                        darkInk: profile.Dark.TextPrimary,
+                        darkMuted: profile.Dark.TextMuted,
+                        darkRimLow: profile.Dark.BorderSubtle,
+                        darkRimHigh: profile.Dark.BorderStrong,
+                        darkAccent: profile.Dark.Accent,
+                        darkGlow: profile.Dark.FocusRing);
+                    break;
+
                 default:
                     // No family maps here. The Clear()s are the
                     // load-bearing part: a control from a previously active
@@ -535,9 +602,11 @@ namespace ProGlassAutomation.Services.Theme.Eight
                     SwissPalette.Clear();
                     HoloPalette.Clear();
                     LiquidGlassPalette.Clear();
+                    AuroraPalette.Clear();
                     BentoPalette.Clear();
                     SpatialPalette.Clear();
                     GlassPalette.Clear();
+                    AuroraPalette.Clear();
                     break;
             }
         }

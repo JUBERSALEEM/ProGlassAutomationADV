@@ -178,6 +178,31 @@
                      over a dynamic backdrop, so the translucency is spent
                      on chrome and text surfaces stay readable. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Glassmorphism/GlassControls.xaml"/>
+                <!-- Aurora control plane. The NINTH family, and the first
+                     in this list whose subject is the BACKDROP rather than
+                     the control: AuroraSurface owns three slow drifting
+                     colour fields, and every panel in the family is
+                     described relative to the sky behind it.
+
+                     Two things are load-bearing in this merge.
+
+                     First, the sky is a SEPARATE control from the panels.
+                     The mesh is never painted onto a card or a button, so
+                     AuroraSurface wraps the app root and the panels sit in
+                     front of it. Putting a mesh gradient on a control is
+                     how a moving backdrop ends up under a text label, and
+                     from there it is one contrast failure away from
+                     being unusable.
+
+                     Second, the rim is a GRADIENT here rather than the flat
+                     hairline the other families draw. A flat 1px edge
+                     loses contrast exactly when a blob drifts toward it,
+                     so a two-stop rim keeps a bright edge on both sides
+                     at once. That rim is also the accessibility fallback
+                     under Windows high contrast, which strips the
+                     translucency and leaves the edge as the only thing
+                     describing the surface. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Aurora/AuroraControls.xaml"/>
                 <!-- Glass Blush — Personal UI family plane (GB-P1, 2026-09-18).
                      Measured token plane for the second ProGlass experience.
                      Managed keys are republished by the family painter (GB-P14). -->

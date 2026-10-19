@@ -42,6 +42,11 @@
 //  LiquidGlass     Refraction-first (Apple WWDC 2025). Clear centre, heavy
 //                  blur, HIGH saturation, a specular rim that catches light,
 //                  and a tint that keeps text legible over any backdrop.
+//  Aurora          The backdrop-driven family. The FIRST in this list whose
+//                  subject is the SKY rather than the control: three slow
+//                  drifting colour fields behind translucent panels whose
+//                  rims are gradients. Dark substrate only; there is no
+//                  light mode to invert into.
 //  Glassmorphism   The 2020 recipe. Uniform backdrop blur, semi-transparent
 //                  fill, one hairline border, static. Included precisely
 //                  because it is NOT liquid glass — the two get confused
@@ -66,6 +71,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
         Claymorphism = 5,
         LiquidGlass = 6,
         Glassmorphism = 7,
+        Aurora = 8,
     }
 
     /// <summary>
@@ -83,6 +89,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
         public const string Claymorphism = "Claymorphism";
         public const string LiquidGlass = "Liquid Glass";
         public const string Glassmorphism = "Glassmorphism";
+        public const string Aurora = "Aurora";
 
         /// <summary>The shipped default. Liquid Glass is the family's native
         /// home: it was already the most-developed material in this codebase
@@ -99,6 +106,11 @@ namespace ProGlassAutomation.Services.Theme.Eight
         /// sitting together at the end where they can be compared directly.</summary>
         public static readonly string[] All =
         {
+            // Aurora leads deliberately. It is the only family here whose
+            // subject is the backdrop rather than the control, and listed
+            // after Bento it reads as a Bento variant rather than the
+            // inversion it actually is.
+            Aurora,
             BentoGrid,
             Spatial,
             Swiss,
@@ -142,5 +154,12 @@ namespace ProGlassAutomation.Services.Theme.Eight
         /// <summary>Translucent panels arranged on a real Z hierarchy where
         /// blur radius encodes depth. (Spatial)</summary>
         Volumetric = 6,
+
+        /// <summary>Depth is ATMOSPHERIC, not geometric. The surface is a
+        /// translucent panel floating over a live drifting colour field;
+        /// there is no elevation ladder, no shadow, and no blur -- the
+        /// sense of distance comes entirely from the sky behind it.
+        /// (Aurora)</summary>
+        Luminous = 7,
     }
 }

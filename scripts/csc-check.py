@@ -1268,21 +1268,60 @@ def audit_file(repo, path, findings):
 
 
 def select(args, root):
+    files_ok = True
+
     if args and args[0] == "--all-theme":
         files = []
-        for pat in ("Controls/Claymorphism/*.cs", "Controls/Neumorphism/*.cs",
-                    "Controls/Swiss/*.cs", "Controls/Holo/*.cs",
-                    "Controls/LiquidGlass/*.cs", "Controls/Bento/*.cs", "Controls/Spatial/*.cs",
-                    "Controls/Glassmorphism/*.cs",
+        # Controls are matched GENERICALLY. An explicit per-family list was
+        # silently skipping eleven app control directories (StatCard,
+        # TrendChart, GlobalSearch, CrystalFluid, ...) on every run that
+        # reported "clean" -- and the CS0000 drift guard below is what
+        # finally showed it. A glob cannot drift.
+        #
+        # Services/Theme keeps its explicit list because its shape is
+        # deliberate and shallow.
+        for pat in ("Controls/*/*.cs",
+                    "Services/Theme/Aurora/*.cs",
                     "Services/Theme/Clay/*.cs",
                     "Services/Theme/Neu/*.cs", "Services/Theme/Swiss/*.cs",
                     "Services/Theme/Holo/*.cs", "Services/Theme/LiquidGlass/*.cs",
                     "Services/Theme/Bento/*.cs",
                     "Services/Theme/Spatial/*.cs",
                     "Services/Theme/Glassmorphism/*.cs",
-                    "Services/Theme/Eight/*.cs", "Tests/Theme/*.cs"):
+                    "Services/Theme/Eight/*.cs",
+                    # Found by the CS0000 drift guard, not by hand: these
+                    # two were outside every "clean" run ever reported.
+                    # SoftUi is load-bearing -- it owns SoftDepthTier,
+                    # SoftInteractionState and SoftUiAccessibility, which
+                    # every family resolves against.
+                    "Services/Theme/SoftUi/*.cs",
+                    "Services/Theme/Engine/*.cs",
+                    "Tests/Theme/*.cs"):
             files += glob.glob(os.path.join(root, pat))
-        return sorted(set(f for f in files if os.path.exists(f)))
+        files = sorted(set(f for f in files if os.path.exists(f)))
+
+        # A family directory that exists but contributes zero files means
+        # this list has drifted from the tree -- and a hardcoded list that
+        # drifts reports "clean" over whatever it happens to still cover.
+        # The XAML checker had exactly this hole: Bento and Spatial were
+        # silently outside every run that claimed to be clean for them.
+        covered = {os.path.basename(os.path.dirname(f)) for f in files}
+        for base in ("Controls", "Services/Theme"):
+            d = os.path.join(root, base)
+            if not os.path.isdir(d):
+                continue
+            for fam in sorted(os.listdir(d)):
+                fd = os.path.join(base, fam)
+                if not os.path.isdir(fd):
+                    continue
+                if not glob.glob(os.path.join(fd, "*.cs")):
+                    continue
+                if fam in covered:
+                    continue
+                print(f"  CS0000 {base}/{fam} has .cs files but is NOT in "
+                      f"the --all-theme pattern list; it was not checked")
+                files_ok = False
+        return files
     if args and args[0] == "--repo":
         out = []
         for dirpath, dirnames, filenames in os.walk(root):

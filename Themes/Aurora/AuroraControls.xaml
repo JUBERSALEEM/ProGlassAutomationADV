@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Aurora/AuroraControls.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Aurora — the backdrop-driven family
+
+     TWO PARTS PER CONTROL, PLUS THE SKY.
+
+         PART_AuroraFill       the translucent panel (carries the glow)
+         PART_AuroraRim        the GRADIENT rim, teal into violet
+         PART_AuroraBlobHost   the sky, AuroraSurfaceTemplate only
+
+     ── THE RIM IS A GRADIENT, AND IT IS THE SIGNATURE ────────────────
+
+     Every other family here draws a flat one-pixel rim in a single
+     colour. Aurora draws a LinearGradientBrush from RimLow to RimHigh.
+
+     It is not decoration. The sky behind every panel is moving, so a
+     flat rim loses contrast on one side exactly when a blob drifts
+     toward it. A two-stop gradient holds a bright edge on BOTH sides at
+     once, which is what keeps a translucent panel findable while the
+     backdrop breathes. It is also, not coincidentally, what the
+     reference render shows: teal along the low edge, violet along the
+     high one.
+
+     WPF does this natively because Border.BorderBrush is a Brush, not
+     a Colour. No shader, no clip geometry, no path.
+
+     ── WHY THE SKY IS AN ELEMENT AND NOT A BRUSH ─────────────────────
+
+     The obvious aurora in WPF is one brush with four stops and an
+     animated Offset. That version re-rasterises the entire backdrop
+     every frame.
+
+     So each blob is its own Ellipse with its own FROZEN brush, and the
+     drift animates only RenderTransform. Three frozen ellipses raster
+     once, at startup, and are composited by the GPU forever after. No
+     GradientStop in this file is animated, and no BlurEffect is
+     instantiated anywhere in the family: a radial that reaches alpha
+     zero is already soft, so the blur is structural rather than applied.
+     ═══════════════════════════════════════════════════════════════════ -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:aurora="clr-namespace:ProGlassAutomation.Controls.Aurora"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         TOKENS
+         Values here are XAML-time placeholders and design-time metrics.
+         The LIVE values are resolved in code by AuroraSurfaceParts.Apply,
+         which overwrites Background, BorderBrush and Effect on every
+         repaint. Nothing in the Brush entries below is ever seen at
+         runtime unless the code path fails, which is exactly why they
+         are readable dark colours rather than nothing at all.
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <sys:Double x:Key="AuroraRadius">20</sys:Double>
+    <CornerRadius x:Key="AuroraCorner">20</CornerRadius>
+    <!-- Pills: half of a 48px control height, so a button is round. -->
+    <CornerRadius x:Key="AuroraPill">24</CornerRadius>
+    <sys:Double x:Key="AuroraUnit">16</sys:Double>
+    <Thickness x:Key="AuroraGap">16</Thickness>
+    <Thickness x:Key="AuroraPad">20</Thickness>
+    <Thickness x:Key="AuroraRimWidth">1</Thickness>
+    <sys:Double x:Key="AuroraFocusWidth">3</sys:Double>
+    <sys:Double x:Key="AuroraFocusOffset">3</sys:Double>
+    <sys:Double x:Key="AuroraHitTarget">44</sys:Double>
+    <sys:Double x:Key="AuroraBlobCount">3</sys:Double>
+    <sys:Double x:Key="AuroraDriftPeriod">42</sys:Double>
+    <sys:Double x:Key="AuroraPanelOpacity">0.55</sys:Double>
+    <sys:Double x:Key="AuroraContentOpacity">0.86</sys:Double>
+    <sys:Double x:Key="AuroraChromeOpacity">0.42</sys:Double>
+
+    <!-- The void. Never white: aurora over white dies. -->
+    <SolidColorBrush x:Key="AuroraBaseBrush" Color="#05010F" />
+    <!-- The three blobs. Indigo is the anchor at roughly half the field. -->
+    <SolidColorBrush x:Key="AuroraBlobIndigoBrush" Color="#6366F1" />
+    <SolidColorBrush x:Key="AuroraBlobVioletBrush" Color="#8B5CF6" />
+    <SolidColorBrush x:Key="AuroraBlobTealBrush" Color="#2DD4BF" />
+
+    <SolidColorBrush x:Key="AuroraInkBrush" Color="#F4F1FF" />
+    <SolidColorBrush x:Key="AuroraMutedBrush" Color="#A9A2C8" />
+    <SolidColorBrush x:Key="AuroraAccentBrush" Color="#6D5CFF" />
+    <SolidColorBrush x:Key="AuroraGlowBrush" Color="#7C5CFF" />
+    <SolidColorBrush x:Key="AuroraFillBrush" Color="#0D0A1C" />
+
+    <!-- The rim's two ends. Teal low, violet high. -->
+    <SolidColorBrush x:Key="AuroraRimLowBrush" Color="#2DD4BF" />
+    <SolidColorBrush x:Key="AuroraRimHighBrush" Color="#8B5CF6" />
+
+    <LinearGradientBrush x:Key="AuroraRimBrush"
+                        StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Offset="0" Color="#2DD4BF" />
+        <GradientStop Offset="1" Color="#8B5CF6" />
+    </LinearGradientBrush>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         FOCUS RING
+         A real three-pixel ring, never removed. Same argument as
+         Glassmorphism: Windows forced-colors strips translucency and
+         leaves this as the only visible edge of the control.
+         ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="AuroraFocusRing" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{StaticResource AuroraInkBrush}" />
+        <Setter Property="BorderThickness" Value="3" />
+        <Setter Property="CornerRadius" Value="{StaticResource AuroraCorner}" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         THE SKY
+         PART_AuroraFill is the deep wash, PART_AuroraBlobHost is the
+         Canvas AuroraSurface lays three Ellipses into. AuroraSurface.Build
+         fills both in code; the values here are the design-time stand-in.
+         ═══════════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="AuroraSurfaceTemplate"
+                     TargetType="{x:Type aurora:AuroraSurface}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_AuroraFill"
+                    Background="{StaticResource AuroraBaseBrush}" />
+            <Canvas x:Name="PART_AuroraBlobHost" />
+            <ContentPresenter Margin="{StaticResource AuroraGap}"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         BUTTON
+         Fill and Rim are SEPARATE borders, not one border with a
+         BorderBrush, because press and hover here change fill alpha
+         ONLY and must never touch the edge. Rim is IsHitTestVisible
+         false so it cannot swallow the click.
+         ═══════════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="AuroraButtonTemplate"
+                     TargetType="{x:Type aurora:AuroraButton}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_AuroraFill"
+                    Background="{StaticResource AuroraFillBrush}"
+                    CornerRadius="{StaticResource AuroraPill}" />
+            <Border x:Name="PART_AuroraRim"
+                    IsHitTestVisible="False"
+                    BorderBrush="{StaticResource AuroraRimBrush}"
+                    BorderThickness="{StaticResource AuroraRimWidth}"
+                    CornerRadius="{StaticResource AuroraPill}" />
+            <ContentPresenter Margin="{StaticResource AuroraGap}"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         CARD
+         The reference render's KPI card: radius 20, not a pill. The
+         gradient rim is what separates it from the sky behind it.
+         ═══════════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="AuroraCardTemplate"
+                     TargetType="{x:Type aurora:AuroraCard}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_AuroraFill"
+                    Background="{StaticResource AuroraFillBrush}"
+                    CornerRadius="{StaticResource AuroraCorner}" />
+            <Border x:Name="PART_AuroraRim"
+                    IsHitTestVisible="False"
+                    BorderBrush="{StaticResource AuroraRimBrush}"
+                    BorderThickness="{StaticResource AuroraRimWidth}"
+                    CornerRadius="{StaticResource AuroraCorner}" />
+            <ContentPresenter Margin="{StaticResource AuroraPad}"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         FIELD
+         Painted at Content placement, so the fill is composited to
+         AuroraContentOpacity before the ink resolves. A text field at
+         panel opacity is readable in a screenshot and unusable in the
+         hand, because the blob behind it changes contrast every pass.
+         ═══════════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="AuroraFieldTemplate"
+                     TargetType="{x:Type aurora:AuroraField}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_AuroraFill"
+                    Background="{StaticResource AuroraFillBrush}"
+                    CornerRadius="{StaticResource AuroraCorner}" />
+            <Border x:Name="PART_AuroraRim"
+                    IsHitTestVisible="False"
+                    BorderBrush="{StaticResource AuroraRimBrush}"
+                    BorderThickness="{StaticResource AuroraRimWidth}"
+                    CornerRadius="{StaticResource AuroraCorner}" />
+            <ScrollViewer x:Name="PART_ContentHost"
+                          Margin="{StaticResource AuroraPad}"
+                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                          Focusable="False"
+                          HorizontalScrollBarVisibility="Hidden"
+                          VerticalScrollBarVisibility="Hidden" />
+        </Grid>
+    </ControlTemplate>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         STYLES
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <Style TargetType="{x:Type aurora:AuroraSurface}">
+        <Setter Property="Template" Value="{StaticResource AuroraSurfaceTemplate}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+    </Style>
+
+    <Style TargetType="{x:Type aurora:AuroraCard}">
+        <Setter Property="Template" Value="{StaticResource AuroraCardTemplate}" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Top" />
+        <Setter Property="MinHeight" Value="{StaticResource AuroraHitTarget}" />
+    </Style>
+
+    <Style x:Key="AuroraKpiCardStyle"
+           TargetType="{x:Type aurora:AuroraCard}"
+           BasedOn="{StaticResource {x:Type aurora:AuroraCard}}">
+        <Setter Property="Padding" Value="24" />
+        <Setter Property="MinHeight" Value="160" />
+    </Style>
+
+    <Style TargetType="{x:Type aurora:AuroraButton}">
+        <Setter Property="Template" Value="{StaticResource AuroraButtonTemplate}" />
+        <Setter Property="Foreground" Value="{StaticResource AuroraInkBrush}" />
+        <Setter Property="MinHeight" Value="{StaticResource AuroraHitTarget}" />
+        <Setter Property="MinWidth" Value="{StaticResource AuroraHitTarget}" />
+        <Setter Property="Padding" Value="24,0" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- The primary action. The ONLY control in the family that glows. -->
+    <Style x:Key="AuroraPrimaryButtonStyle"
+           TargetType="{x:Type aurora:AuroraButton}"
+           BasedOn="{StaticResource {x:Type aurora:AuroraButton}}">
+        <Setter Property="AuroraPrimary" Value="True" />
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+
+    <!-- A quiet action: same geometry, no fill lift, brighter rim. -->
+    <Style x:Key="AuroraGhostButtonStyle"
+           TargetType="{x:Type aurora:AuroraButton}"
+           BasedOn="{StaticResource {x:Type aurora:AuroraButton}}">
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Padding" Value="20,0" />
+    </Style>
+
+    <Style TargetType="{x:Type aurora:AuroraField}">
+        <Setter Property="Template" Value="{StaticResource AuroraFieldTemplate}" />
+        <Setter Property="Foreground" Value="{StaticResource AuroraInkBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="MinHeight" Value="{StaticResource AuroraHitTarget}" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+</ResourceDictionary>

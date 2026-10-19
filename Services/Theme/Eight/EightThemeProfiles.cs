@@ -67,6 +67,7 @@ namespace ProGlassAutomation.Services.Theme.Eight
             yield return Claymorphism();
             yield return LiquidGlass();
             yield return Glassmorphism();
+            yield return Aurora();
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -928,5 +929,113 @@ namespace ProGlassAutomation.Services.Theme.Eight
             accentPresets: new[] { "#6C5CE7", "#00CEC9", "#FD79A8", "#0984E3", "#00B894" },
             sceneLabel: "Prism Wash",
             sceneType: "Chromatic gradient wallpaper");
+
+        // ═══════════════════════════════════════════════════════════════
+        //  9 · AURORA
+        //  RESEARCH NOTES
+        //    · "The dark void (#06060F) is the required base." Aurora over
+        //      white dies, so there is NO light mode to invert into — the
+        //      light ramp below is a dimmed violet cast of the same void,
+        //      not a brighter one.
+        //    · "Three blobs is the minimum: two reads as a gradient, three
+        //      reads as weather." BlobCount is enforced at 3.
+        //    · "Anchor in one dominant hue, let secondary colours orbit —
+        //      never give three colours equal weight or you get mud."
+        //      Indigo carries roughly half the field.
+        //    · "The moment you put a mesh gradient on a card or button,
+        //      you've lost the plot." Hence AuroraPlacement: the mesh is
+        //      Backdrop only and never reaches a control.
+        //    · "Text never on the raw gradient" — contrast collapses as
+        //      the hues shift. Content placement composites opaque BEFORE
+        //      ink is resolved, and AuroraPalette validates against the
+        //      sky PEAK rather than the average.
+        //    · "Drifting on transform-only keyframes, never
+        //      background-position — that repaints the gradient every
+        //      frame." Hence three frozen Ellipses and a zero blur radius.
+        // ═══════════════════════════════════════════════════════════════
+        private static EightThemeProfile Aurora() => new(
+            EightThemeId.Aurora,
+            EightThemeNames.Aurora,
+            "Aurora",
+            "Dark, atmospheric, drifting",
+            "Three slow colour fields behind translucent panels. Depth comes from the sky, never from geometry.",
+            "Sublime gradient rim instead of a hairline: a flat edge loses contrast whenever a blob drifts toward it. No shadow and no blur anywhere in the family.",
+            new EightColorRamp(
+                // NOT an inversion. A dimmed violet cast of the void.
+                window: C("#0A0718"),
+                module: C("#0F0B24"),
+                surface: A("#1A1340", 0.62),
+                surfaceSecondary: A("#221A4E", 0.72),
+                surfaceDetail: A("#151033", 0.58),
+                chrome: A("#0E0A24", 0.52),
+                dialog: C("#120E28"),
+                dialogInset: A("#0A0718", 0.72),
+                textPrimary: C("#F4F1FF"),
+                textSecondary: C("#CFC9E8"),
+                textMuted: C("#A9A2C8"),
+                borderSubtle: C("#2DD4BF"),
+                borderDefault: C("#3A2F63"),
+                borderStrong: C("#8B5CF6"),
+                accent: C("#6D5CFF"),
+                accentForeground: C("#FFFFFF"),
+                shadow: C("#05010F"),
+                focusRing: C("#7C5CFF"),
+                // The field. Indigo is the anchor.
+                blobIndigo: C("#6366F1"),
+                blobViolet: C("#8B5CF6"),
+                blobTeal: C("#2DD4BF")),
+            new EightColorRamp(
+                window: C("#05010F"),
+                module: C("#08061A"),
+                surface: A("#151034", 0.66),
+                surfaceSecondary: A("#1C1542", 0.76),
+                surfaceDetail: C("#100C28"),
+                chrome: A("#0B0820", 0.56),
+                dialog: C("#0E0A22"),
+                dialogInset: A("#070514", 0.78),
+                textPrimary: C("#F4F1FF"),
+                textSecondary: C("#CFC9E8"),
+                textMuted: C("#A9A2C8"),
+                borderSubtle: C("#2DD4BF"),
+                borderDefault: C("#2E2654"),
+                borderStrong: C("#8B5CF6"),
+                accent: C("#6D5CFF"),
+                accentForeground: C("#FFFFFF"),
+                shadow: C("#05010F"),
+                focusRing: C("#7C5CFF"),
+                blobIndigo: C("#6366F1"),
+                blobViolet: C("#8B5CF6"),
+                blobTeal: C("#2DD4BF")),
+            // 24px controls read as PILLS, which is the reference render's
+            // strongest signal after the sky itself.
+            geometry: new EightGeometry(control: 24, card: 20, large: 20, hero: 28),
+            // None. This family has no shadow, and encoding that as a
+            // "very faint" elevation would be a lie the renderer would
+            // eventually stop believing.
+            elevation: new EightElevation(
+                EightElevationKind.None,
+                lowBlur: 0, lowDepth: 0, lowOpacity: 0,
+                highBlur: 0, highDepth: 0, highOpacity: 0,
+                lightStop: C("#FFFFFF"), shadeStop: C("#05010F")),
+            material: new EightMaterial(
+                EightMaterialKind.Luminous,
+                surfaceAlpha: 0.55, chromeAlpha: 0.42,
+                // ZERO. A radial gradient that reaches alpha 0 IS the
+                // blur; adding a BlurEffect on top would re-rasterise the
+                // whole sky every frame of the drift.
+                blurRadius: 0, saturationBoost: 1.0,
+                rimOpacity: 0.55, rimTint: C("#8B5CF6"),
+                specularRim: false, innerGlowOpacity: 0,
+                allowBackdrop: true),
+            // Control motion only. The 42-second sky drift is NOT in this
+            // scale — it is a backdrop property, owned by AuroraMetrics,
+            // and putting it here would imply it is a control animation
+            // that reduced motion might be expected to shorten.
+            motion: new EightMotion(
+                fast: 120, normal: 220, slow: 320,
+                easeOut: "0.25,0.1 0.25,1.0", spring: "0.34,1.2 0.64,1.0"),
+            accentPresets: new[] { "#6D5CFF", "#2DD4BF", "#8B5CF6", "#00CEC9", "#FD79A8" },
+            sceneLabel: "Northern Drift",
+            sceneType: "Three-field atmospheric mesh");
     }
 }

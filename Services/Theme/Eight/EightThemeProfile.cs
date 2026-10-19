@@ -87,7 +87,9 @@ namespace ProGlassAutomation.Services.Theme.Eight
             Color surfaceDetail, Color chrome, Color dialog, Color dialogInset,
             Color textPrimary, Color textSecondary, Color textMuted,
             Color borderSubtle, Color borderDefault, Color borderStrong,
-            Color accent, Color accentForeground, Color shadow, Color focusRing)
+            Color accent, Color accentForeground, Color shadow, Color focusRing,
+            Color? blobIndigo = null, Color? blobViolet = null,
+            Color? blobTeal = null)
         {
             Window = window;
             Module = module;
@@ -107,7 +109,26 @@ namespace ProGlassAutomation.Services.Theme.Eight
             AccentForeground = accentForeground;
             Shadow = shadow;
             FocusRing = focusRing;
+
+            // The aurora field. Optional with an Accent fallback so the
+            // seven surface-first families need no change: a ramp that
+            // does not name its blobs gets the accent, which is exactly
+            // as good as a guess, since no other family ever paints one.
+            _blobIndigo = blobIndigo;
+            _blobViolet = blobViolet;
+            _blobTeal = blobTeal;
         }
+
+        private readonly Color? _blobIndigo;
+        private readonly Color? _blobViolet;
+        private readonly Color? _blobTeal;
+
+        /// <summary>The ANCHOR blob. Roughly half the field weight.</summary>
+        public Color BlobIndigo => _blobIndigo ?? Accent;
+        /// <summary>Orbiting blob, centre-right.</summary>
+        public Color BlobViolet => _blobViolet ?? FocusRing;
+        /// <summary>Orbiting blob, lower-right.</summary>
+        public Color BlobTeal => _blobTeal ?? Accent;
 
         /// <summary>Behind everything — the desk the window sits on.</summary>
         public Color Window { get; }
