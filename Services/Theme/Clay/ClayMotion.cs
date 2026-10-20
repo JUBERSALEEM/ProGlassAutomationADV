@@ -128,13 +128,11 @@ namespace ProGlassAutomation.Services.Theme.Clay
         /// build time and buys an animation that IS the declared curve.
         /// </para>
         /// </summary>
-        private static DoubleAnimation Bake(
+        private static DoubleAnimationUsingKeyFrames Bake(
             double from, double to, TimeSpan duration, string ease)
         {
-            var anim = new DoubleAnimation
+            var anim = new DoubleAnimationUsingKeyFrames
             {
-                From = from,
-                To = to,
                 Duration = duration,
                 FillBehavior = FillBehavior.Stop,
             };
@@ -144,10 +142,19 @@ namespace ProGlassAutomation.Services.Theme.Clay
             {
                 // Unparseable easing must degrade to something that still
                 // moves, never to an exception from a press handler.
-                anim.EasingFunction = new QuadraticEase
+                // Two frames with the fallback ease: same shape as the
+                // stock animation, expressed as keyframes so the return
+                // type stays uniform.
+                anim.KeyFrames.Add(
+                    new LinearDoubleKeyFrame(from, KeyTime.FromPercent(0.0)));
+                anim.KeyFrames.Add(new EasingDoubleKeyFrame(
+                    to, KeyTime.FromPercent(1.0))
                 {
-                    EasingMode = EasingMode.EaseOut,
-                };
+                    EasingFunction = new QuadraticEase
+                    {
+                        EasingMode = EasingMode.EaseOut,
+                    },
+                });
                 return anim;
             }
 
@@ -155,16 +162,14 @@ namespace ProGlassAutomation.Services.Theme.Clay
             // enough that a grid full of these is still a handful of
             // keyframes each.
             const int Samples = 12;
-            var frames = new DoubleKeyFrameCollection();
             for (int i = 0; i <= Samples; i++)
             {
                 double t = (double)i / Samples;
-                frames.Add(new DoubleKeyFrame(
+                anim.KeyFrames.Add(new LinearDoubleKeyFrame(
                     from + (to - from) * Evaluate(xs, ys, t),
                     KeyTime.FromPercent(t)));
             }
 
-            anim.KeyFrames = frames;
             return anim;
         }
 

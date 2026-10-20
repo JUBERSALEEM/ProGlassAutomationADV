@@ -431,9 +431,117 @@ def rule_sem007(findings):
                         f"the part is silently never bound")
 
 
+def rule_sem008(findings):
+    """A member accessed on a type that provably does not declare it.
+
+    This is the defect class that shipped FORTY-THREE times in one
+    build: FrameworkElement.Template, FrameworkElement.Background,
+    Control.IsPressed, DoubleAnimation.KeyFrames, IReadOnlyList.Add,
+    RadialGradientBrush.GradientUnits, `new DoubleKeyFrame(...)`.
+
+    Every one of them is CS1061/CS0103/CS0119/CS0144, and every one
+    passed every check this repository had. csc-check's footer says so
+    out loud: "Frameworks methods (WPF/BCL) are NOT resolved". The tool
+    was honest; the mistake was reporting "every call and override
+    resolves" as though that meant the code compiles.
+
+    WHY THIS IS A DENY LIST AND NOT AN ALLOW LIST
+    ---------------------------------------------
+    csc-check already has an allow list of known WPF virtuals, and it
+    hid a real CS0115 for the entire life of that rule, because
+    "OnSizeChanged" was on it. An allow list fails OPEN: anything not
+    enumerated is treated as fine. A deny list fails CLOSED: it only
+    fires on combinations proven impossible, and it cannot silently
+    stop working just because someone added a plausible-sounding name.
+
+    Every entry below was reported by a real Windows compiler. Nothing
+    is here because it sounded right.
+    """
+    # type -> members that type provably does not have.
+    impossible = {
+        # Template/Background/Padding/Content all live below
+        # FrameworkElement, on Control, Border or Panel.
+        "FrameworkElement": ["Template", "Background", "BorderBrush",
+                             "BorderThickness", "Padding", "Content",
+                             "Foreground", "CornerRadius", "IsPressed"],
+        "UIElement": ["Template", "Background", "BorderThickness",
+                      "Padding", "Content", "Foreground", "IsPressed"],
+        # IsPressed is on ButtonBase; Control is one level too high.
+        "Control": ["IsPressed", "IsChecked"],
+        # KeyFrames is on *AnimationUsingKeyFrames, not on the
+        # plain from/to animation.
+        "DoubleAnimation": ["KeyFrames"],
+        "ColorAnimation": ["KeyFrames"],
+        "PointAnimation": ["KeyFrames"],
+        # WPF spells this MappingMode / BrushMappingMode.
+        "GradientBrush": ["GradientUnits"],
+        "LinearGradientBrush": ["GradientUnits"],
+        "RadialGradientBrush": ["GradientUnits"],
+        # Read-only views have no mutators.
+        "IReadOnlyList": ["Add", "Remove", "Clear", "Insert", "RemoveAt"],
+        "IReadOnlyCollection": ["Add", "Remove", "Clear", "Insert"],
+        "IReadOnlyDictionary": ["Add", "Remove", "Clear"],
+    }
+
+    # `as Border x` / `is Border x` / `IReadOnlyList<string> xs`
+    simple = re.compile(r'\b(?:as|is)\s+([A-Z]\w*)\s+(\w+)\b')
+    generic = re.compile(r'\b(?:as|is)\s+([A-Z]\w*)\s*<[^>]*>\s+(\w+)\b')
+    # a declared parameter/local: `FrameworkElement root)`
+    param = re.compile(r'\b([A-Z]\w*)\s+(\w+)\s*\)')
+
+    for path in csharp_files():
+        code = strip(open(path, encoding="utf-8", errors="ignore").read())
+        lines = code.splitlines()
+        typed = []
+        for i, line in enumerate(lines):
+            for pat in (generic, simple, param):
+                for m in pat.finditer(line):
+                    typed.append((i, m.group(1), m.group(2)))
+        for i, tname, var in typed:
+            bad = impossible.get(tname)
+            if not bad:
+                continue
+            for j in range(i, min(len(lines), i + 30)):
+                for mem in bad:
+                    if re.search(r'\b%s\s*\.\s*%s\b' % (re.escape(var), mem),
+                                 lines[j]):
+                        findings.append(
+                            f"{path}:{j + 1}: SEM008 '{var}' is typed "
+                            f"{tname}, which has no '{mem}' -- "
+                            f"{mem} is declared further down the WPF "
+                            f"hierarchy (CS1061). Check the declared "
+                            f"type of the variable, not the call site")
+
+
+def rule_sem009(findings):
+    """Instantiating an abstract WPF type.
+
+    CS0144. The *KeyFrame classes are abstract; the concrete ones are
+    Linear/Easing/Discrete/Spline<Type>KeyFrame. `new DoubleKeyFrame(...)`
+    reads perfectly reasonably and cannot be told apart from
+    `new LinearDoubleKeyFrame(...)` without knowing the hierarchy --
+    which is precisely what no text-based check in this repository has.
+    """
+    abstract = ("Double", "Color", "Point", "Size", "Object", "String",
+                "Boolean", "Char", "Int16", "Int32", "Int64", "Single",
+                "Matrix", "Rect", "Vector", "Thickness", "CornerRadius",
+                "Decimal", "Byte", "Int16")
+    pat = re.compile(r'\bnew\s+(?:%s)KeyFrame\s*\(' % "|".join(abstract))
+    for path in csharp_files():
+        code = strip(open(path, encoding="utf-8", errors="ignore").read())
+        for i, line in enumerate(code.splitlines(), 1):
+            for m in pat.finditer(line):
+                name = m.group(0)[4:m.group(0).index("(")].strip()
+                findings.append(
+                    f"{path}:{i}: SEM009 '{name}' is abstract and cannot "
+                    f"be instantiated (CS0144). Use "
+                    f"Linear{name}, Easing{name}, Discrete{name} or "
+                    f"Spline{name}")
+
+
 RULES = [rule_csb001, rule_sem001, rule_sem002,
          rule_sem003, rule_sem004, rule_sem005,
-         rule_sem006, rule_sem007]
+         rule_sem006, rule_sem007, rule_sem008, rule_sem009]
 
 
 def main():

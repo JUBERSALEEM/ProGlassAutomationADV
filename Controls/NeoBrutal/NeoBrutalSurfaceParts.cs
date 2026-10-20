@@ -61,7 +61,7 @@ namespace ProGlassAutomation.Controls.NeoBrutal
 
         public bool Complete => Fill is not null;
 
-        public void Bind(FrameworkElement root)
+        public void Bind(Control root)
         {
             Fill = root.Template.FindName("PART_NeoFill", root) as Border;
             Shadow = root.Template.FindName("PART_NeoShadow", root) as Border;

@@ -383,7 +383,7 @@ namespace ProGlassAutomation.Services.Theme.Bento
                               : surface;
 
             Color edgeNow = edge;
-            double edgeWidth = _bento.Metrics.EdThickness;
+            double edgeWidth = _bento.Metrics.EdgeThickness;
 
             // Hover shifts the FILL toward the ink, by a small amount. It
             // is never a translate and never a scale.
@@ -417,7 +417,7 @@ namespace ProGlassAutomation.Services.Theme.Bento
             if (selected)
             {
                 edgeNow = _bento.Accent;
-                edgeWidth = _bento.Metrics.EdSelectedThickness;
+                edgeWidth = _bento.Metrics.EdgeSelectedThickness;
             }
 
             // Disabled steps toward the canvas. It must remain visibly a
@@ -438,7 +438,7 @@ namespace ProGlassAutomation.Services.Theme.Bento
             if (state == SoftInteractionState.Focused)
             {
                 edgeNow = ink;
-                edgeWidth = _bento.Metrics.EdSelectedThickness;
+                edgeWidth = _bento.Metrics.EdgeSelectedThickness;
             }
 
             var cell = new BentoCell(

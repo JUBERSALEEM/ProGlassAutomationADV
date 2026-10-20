@@ -70,7 +70,7 @@ namespace ProGlassAutomation.Controls.Glassmorphism
             SnapsToDevicePixels = true;
             AcceptsReturn = true;
             TextWrapping = TextWrapping.Wrap;
-            VerticalScrollBarVisibility = ScrollVisibility.Auto;
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
         }
 
         public override void OnApplyTemplate()

@@ -470,8 +470,10 @@ namespace ProGlassAutomation.Services.Theme.Aurora
             // Not a flat fill: a flat fill has nothing for the blobs to
             // modulate, and the falloff at the bottom edge is what stops
             // the sky reading as a texture rather than a void.
-            var top = dark ? p.Base : Mix(p.Base, Colors.Black, 0.35);
-            var bottom = Mix(p.Base, Colors.Black, dark ? 0.55 : 0.70);
+            var top = dark ? p.Base
+                           : AuroraRecipe.Mix(p.Base, Colors.Black, 0.35);
+            var bottom = AuroraRecipe.Mix(
+                p.Base, Colors.Black, dark ? 0.55 : 0.70);
 
             var b = new LinearGradientBrush(
                 Color.FromArgb(255, top.R, top.G, top.B),
@@ -508,7 +510,7 @@ namespace ProGlassAutomation.Services.Theme.Aurora
             b.Center = new Point(0.5, 0.5);
             b.RadiusX = 0.5;
             b.RadiusY = 0.5;
-            b.GradientUnits = GradientUnits.ObjectBoundingBox;
+            b.MappingMode = BrushMappingMode.RelativeToBoundingBox;
             b.Freeze();
             return b;
         }
@@ -534,8 +536,8 @@ namespace ProGlassAutomation.Services.Theme.Aurora
             // Phase offset via BeginTime, so all three share one cycle
             // length but never arrive anywhere together.
             TimeSpan begin = TimeSpan.FromTicks(
-                period.Ticks * spec.Phase.TotalSeconds
-                / Math.Max(1.0, metrics.DriftPeriod));
+                (long)(period.Ticks * spec.Phase.TotalSeconds
+                / Math.Max(1.0, metrics.DriftPeriod)));
 
             // Amplitude scales with the blob, so the big indigo field
             // moves least. Small teal travels furthest.

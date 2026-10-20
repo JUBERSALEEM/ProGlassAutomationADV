@@ -171,7 +171,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
                     14, small: true, accent);
             }
 
-            if (Template?.FindName("ClaySliderFill", this) is FrameworkElement f)
+            if (Template?.FindName("ClaySliderFill", this) is Border f)
             {
                 var brush = Application.Current?.TryFindResource(
                     "AccentBrush") as SolidColorBrush;

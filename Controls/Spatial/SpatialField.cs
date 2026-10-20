@@ -59,7 +59,8 @@ namespace ProGlassAutomation.Controls.Spatial
                 nameof(SpatialPlane), typeof(SpatialPlane),
                 typeof(SpatialField),
                 new FrameworkPropertyMetadata(
-                    SpatialPlane.Panel, OnSpatialChanged));
+                    ProGlassAutomation.Services.Theme.Spatial.SpatialPlane.Panel,
+                    OnSpatialChanged));
 
         public SpatialPlane? SpatialPlane
         {
@@ -118,7 +119,7 @@ namespace ProGlassAutomation.Controls.Spatial
             SnapsToDevicePixels = true;
             AcceptsReturn = true;
             TextWrapping = TextWrapping.Wrap;
-            VerticalScrollBarVisibility = ScrollVisibility.Auto;
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
         }
 
         public override void OnApplyTemplate()

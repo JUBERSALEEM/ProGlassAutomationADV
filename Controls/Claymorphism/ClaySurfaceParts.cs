@@ -66,12 +66,10 @@ namespace ProGlassAutomation.Controls.Claymorphism
         /// is simply wrong: Template is declared on FrameworkElement, and
         /// Control inherits it. The narrower signature was not caught
         /// earlier because every existing caller passes <c>this</c> from a
-        /// Control, which satisfies both. ClaySlider's thumb is a Border
-        /// carrying its own ControlTemplate, and it is exactly the case
-        /// the narrow parameter could not express.
+        /// Control. The thumb is likewise a Control since the MC3072 fix.
         /// </para>
         /// </summary>
-        public void Bind(FrameworkElement root)
+        public void Bind(Control root)
         {
             DropHost = root.Template?.FindName("PART_ClayDropHost", root) as Border;
             Highlight = root.Template?.FindName("PART_ClayHighlight", root) as Border;

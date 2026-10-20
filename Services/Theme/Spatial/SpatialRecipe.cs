@@ -440,7 +440,7 @@ namespace ProGlassAutomation.Services.Theme.Spatial
 
                 return new SpatialStack(
                     onPlane, declared, state, opaqueCell,
-                    Key: null, Ambient: null,
+                    key: null, ambient: null,
                     interactive, selected,
                     motionAllowed: !ReducedMotion());
             }

@@ -27,6 +27,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -73,13 +74,13 @@ namespace ProGlassAutomation.Controls.Claymorphism
 
             _hooked = true;
             DependencyPropertyDescriptor.FromProperty(
-                    IsPressedProperty, typeof(ButtonBase))
+                    ButtonBase.IsPressedProperty, typeof(ButtonBase))
                 .AddValueChanged(root, (_, _) => Sync(root));
 
             // A control can be mid-press when it loses the capture (a drag
             // that leaves the window, or a context menu opening). Without
             // this the button stays pushed until the next press.
-            LostMouseCapture += (_, _) => Sync(root);
+            root.LostMouseCapture += (_, _) => Sync(root);
         }
 
         /// <summary>Drives the spring to match the control's real state.</summary>
@@ -96,7 +97,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
 
             ClayMotion.Press(
                 _scale!, _translate!,
-                root.IsEnabled && root.IsPressed,
+                root.IsEnabled && (root as ButtonBase)?.IsPressed == true,
                 ClayMotion.DefaultEase,
                 PressedScale, PressedDepth);
         }

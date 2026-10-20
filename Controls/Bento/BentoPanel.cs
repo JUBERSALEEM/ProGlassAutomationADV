@@ -67,7 +67,7 @@ namespace ProGlassAutomation.Controls.Bento
         }
 
         /// <summary>Human-readable descriptions, in placement order.</summary>
-        public IReadOnlyList<string> Issues { get; }
+        public IList<string> Issues { get; }
 
         /// <summary>
         /// More than one Hero in the grid. The anchor is unique by
@@ -473,8 +473,10 @@ namespace ProGlassAutomation.Controls.Bento
         /// </summary>
         static BentoPanel()
         {
-            KeyboardNavigation.SetTabNavigation(
-                DependencyProperty, KeyboardNavigationMode.Continue);
+            KeyboardNavigation.TabNavigationProperty.OverrideMetadata(
+                typeof(BentoPanel),
+                new FrameworkPropertyMetadata(
+                    KeyboardNavigationMode.Continue));
         }
     }
 }

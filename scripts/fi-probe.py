@@ -118,6 +118,25 @@ CASES = {
     # never painted. No exception, no log, no compile error. Deliberately
     # no Template= on the Border here, so this proves SEM007 on its own
     # rather than riding on SEM006.
+    # A member that the declared type provably does not have. This is
+    # the class that shipped 43 errors in a single build -- see the
+    # SEM008 docstring. Deliberately a deny list, because csc-check's
+    # allow list is what let a real CS0115 through for months.
+    "SEM008": [(NO_THEME_PROBE,
+                "namespace X { class P {\n"
+                "  void M(FrameworkElement root) {\n"
+                "    root.Template = null;\n"
+                "    root.Background = null;\n"
+                "  }\n} }\n")],
+
+    # The *KeyFrame classes are abstract; only the
+    # Linear/Easing/Discrete/Spline variants are concrete.
+    "SEM009": [(NO_THEME_PROBE,
+                "namespace X { class P {\n"
+                "  void M() {\n"
+                "    var f = new DoubleKeyFrame(1.0, default);\n"
+                "  }\n} }\n")],
+
     "SEM007": [(PROBE_XAML2, _RD % (
         '    <ControlTemplate x:Key="ProbeSliderTemplate"\n'
         '                     TargetType="{x:Type Control}">\n'

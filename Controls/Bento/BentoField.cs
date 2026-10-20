@@ -99,7 +99,7 @@ namespace ProGlassAutomation.Controls.Bento
             // means the user cannot complete the field.
             AcceptsReturn = true;
             TextWrapping = TextWrapping.Wrap;
-            VerticalScrollBarVisibility = ScrollVisibility.Auto;
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
         }
 
         public override void OnApplyTemplate()

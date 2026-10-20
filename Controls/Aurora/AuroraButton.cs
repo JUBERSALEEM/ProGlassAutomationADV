@@ -55,8 +55,8 @@ namespace ProGlassAutomation.Controls.Aurora
                 new FrameworkPropertyMetadata(
                     AuroraPlacement.Panel,
                     FrameworkPropertyMetadataOptions.AffectsRender,
-                    OnAuroraPropertyChanged),
-                OnPlacementCoerce);
+                    OnAuroraPropertyChanged,
+                    OnPlacementCoerce));
 
         public static readonly DependencyProperty AuroraDepthProperty =
             DependencyProperty.Register(

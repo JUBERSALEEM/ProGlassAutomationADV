@@ -50,8 +50,8 @@ namespace ProGlassAutomation.Controls.NeoBrutal
                 new FrameworkPropertyMetadata(
                     NeoBrutalPlacement.Control,
                     FrameworkPropertyMetadataOptions.AffectsRender,
-                    OnNeoChanged),
-                OnPlacementCoerce);
+                    OnNeoChanged,
+                    OnPlacementCoerce));
 
         public static readonly DependencyProperty NeoDepthProperty =
             DependencyProperty.Register(

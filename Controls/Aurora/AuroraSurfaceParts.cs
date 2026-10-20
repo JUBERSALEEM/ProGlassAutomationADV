@@ -92,7 +92,7 @@ namespace ProGlassAutomation.Controls.Aurora
         /// </summary>
         public bool Complete => Fill is not null && Rim is not null;
 
-        public void Bind(FrameworkElement root)
+        public void Bind(Control root)
         {
             Fill = root.Template.FindName("PART_AuroraFill", root) as Border;
             Rim = root.Template.FindName("PART_AuroraRim", root) as Border;

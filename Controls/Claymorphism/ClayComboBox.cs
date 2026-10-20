@@ -102,7 +102,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
             // The popup lives outside the visual tree, so it cannot be
             // reached through OnApplyTemplate. This is the only reliable
             // moment at which it exists.
-            Opened += (_, _) => PaintPopup();
+            DropDownOpened += (_, _) => PaintPopup();
         }
 
         private SoftInteractionState ResolveState()
@@ -159,7 +159,7 @@ namespace ProGlassAutomation.Controls.Claymorphism
             // without it. A bespoke name would render a box that never
             // opens.
             var popup = Template?.FindName("PART_Popup", this) as Popup;
-            if (popup?.Child is not FrameworkElement root) return;
+            if (popup?.Child is not Border root) return;
 
             var dark = ThemeManager.CurrentTheme == AppTheme.Dark;
             var profile = ClayPalette.For(dark);
