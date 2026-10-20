@@ -66,11 +66,29 @@ KNOWN_WPF_VIRTUALS = {
     "OnPropertyChanged", "OnGotFocus", "OnLostFocus",
     "OnIsVisibleChanged", "OnDataContextChanged", "OnInitialized",
     "OnItemsChanged", "OnSelectionChanged", "OnValueChanged",
-    "OnCheckedChanged", "OnTextChanged", "OnSizeChanged",
+    # "OnCheckedChanged" and "OnSizeChanged" used to be on this list.
+    # Both were guesses, and both were wrong:
+    #   OnSizeChanged  -- no such WPF virtual. FrameworkElement exposes
+    #                     SizeChanged as an EVENT; the hook is
+    #                     OnRenderSizeChanged. It shipped as CS0115 in
+    #                     Controls/Aurora/AuroraSurface.cs, and being on
+    #                     this list is exactly why the check stayed
+    #                     silent. Reported by a real Windows build.
+    #   OnCheckedChanged -- a WinForms / System.Web.UI.WebControls
+    #                     virtual. WPF's ToggleButton overrides are
+    #                     OnChecked(RoutedEventArgs) and OnUnchecked.
+    # An entry here does not suppress one finding, it suppresses the
+    # check for that name FOREVER, so anything added must be verifiable
+    # against WPF specifically -- not merely plausible.
+    "OnTextChanged",
     "OnMouseLeftButtonDown", "OnMouseLeftButtonUp", "OnKeyDown",
+    # GetVisualChild is real (Visual/FrameworkElement). The four names
+    # removed alongside it were not: GenerateVisualChild and
+    # GetVisualChildren have no WPF definition at all, and
+    # AddVisualChild/RemoveVisualChild are protected *void* helpers on
+    # Visual, not virtuals -- you call them, you never override them.
     "MeasureOverride", "ArrangeOverride", "GetVisualChild",
-    "GenerateVisualChild", "GetVisualChildren", "AddVisualChild",
-    "RemoveVisualChild", "OnVisualParentChanged", "OnPropertyChanged",
+    "OnVisualParentChanged", "OnPropertyChanged",
     "OnIsEnabledChanged", "OnToolTipOpening", "OnContextMenuOpening",
     "OnPreviewMouseLeftButtonDown", "OnPreviewMouseLeftButtonUp",
     "OnDragEnter", "OnDragLeave", "OnDrop", "OnGotKeyboardFocus",
@@ -79,6 +97,16 @@ KNOWN_WPF_VIRTUALS = {
     # not WPF at all, but the check cannot tell a WPF base from an
     # Entity Framework or AnimationBase one, and reporting 140 valid
     # overrides would bury the finding that matters.
+    # Compiler-proven external virtuals. Every name below is overridden
+    # by code in this repository that already builds, which is the
+    # standard the header asks for -- and the standard OnSizeChanged
+    # never met: it was added before anything overrode it, as a
+    # plausible-sounding guess, and it is why the check missed it.
+    "OnClosed", "OnSourceInitialized", "OnContentRendered",   # Window
+    "OnPreviewKeyDown",                                       # UIElement
+    "SelectTemplate",                                         # DataTemplateSelector
+    "GetPage",                                                # DocumentPaginator
+    "SaveChanges", "SaveChangesAsync",                        # EF DbContext
     "ToString", "Equals", "GetHashCode", "Dispose", "Clone",
     "OnConfiguring", "OnModelCreating", "OnModelCreatingPartial",
     "CreateInstanceCore", "GetCurrentValue", "OnExit", "OnStartup",
@@ -107,7 +135,14 @@ class Repo:
         self.ns = set()
         self.types = {}                       # type -> (bases, body)
         self.type_ns = {}                     # type -> set(namespace names)
-        self.methods = {}                     # (type, name) -> [decls]
+        self.methods = {}                       # (type, name) -> [decls]
+        # Names the repository itself declares as `virtual` or
+        # `abstract`. check_override used to ignore these entirely and
+        # consult only KNOWN_WPF_VIRTUALS, so every override of a
+        # repo-declared virtual was reported -- 75 false positives across
+        # the solution. The docstring claimed it walked the repo's own
+        # base chain; the code never did.
+        self.virtuals = set()
         self.props = {}                       # type -> set(member names)
         self.enum_members = {}
         self._parse_all()
@@ -168,6 +203,14 @@ class Repo:
             if m.type != "method_declaration":
                 continue
             name = self._decl_name(m)
+            # Record repo-declared overridable members. A bare name match
+            # is deliberately loose: the aim is to stop reporting the
+            # solution's own virtuals, not to prove the base class of any
+            # particular override.
+            mods = {c.text.decode("utf8", "replace")
+                    for c in m.children if c.type == "modifier"}
+            if mods & {"virtual", "abstract"}:
+                self.virtuals.add(name)
             params = m.child_by_field_name("parameters")
             plist = []
             if params is not None:
@@ -520,12 +563,19 @@ def check_call(repo, name, receiver, enclosing, pos, named, line,
 def check_override(repo, name, line, findings, path):
     if name in KNOWN_WPF_VIRTUALS:
         return
+    # Overriding something the repository itself declares virtual or
+    # abstract is exactly the legitimate case, and it used to be missed.
+    if name in getattr(repo, "virtuals", ()):
+        return
     findings.append((
         path, line,
-        f"CS0115 ADVISORY: override of '{name}()' is not in the known "
-        f"virtual list and not found in any repo base chain. Base types "
-        f"outside this repository cannot be verified -- confirm by hand "
-        f"that the base declares it.",
+        f"CS0115 '{name}()' is not a virtual in any base this tool can "
+        f"see. It is absent from the verified WPF/BCL virtual list and "
+        f"is never declared virtual or abstract anywhere in the "
+        f"repository, so the base almost certainly does not declare it. "
+        f"Only add a name to that list if it is overridden by code that "
+        f"already compiles -- OnSizeChanged was added as a guess and hid "
+        f"this exact defect until a real Windows build caught it.",
     ))
 
 
@@ -1361,7 +1411,7 @@ def main():
           f"{len(repo.types)} types, {len(repo.methods)} methods indexed")
     if not findings:
         print("  clean -- parses, and every call and override resolves.")
-        return
+        return 0
     seen, uniq = set(), []
     for f, i, m in findings:
         if (f, m) in seen:
@@ -1375,7 +1425,8 @@ def main():
     print("\n  Frameworks methods (WPF/BCL) are NOT resolved -- an unknown "
           "call is\n  not evidence of an error. This tool proves parsing, "
           "and resolves\n  only calls and overrides against the repository.")
+    return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

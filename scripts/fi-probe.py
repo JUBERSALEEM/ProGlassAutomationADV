@@ -150,6 +150,58 @@ def cleanup():
     shutil.rmtree(os.path.join(ROOT, PROBE_XAML_DIR), ignore_errors=True)
 
 
+# csc-check is a separate tool with its own defect class, so it gets its
+# own probe rather than being squeezed into the semantic-check table.
+# This one matters more than most: the CS0115 override check was dead for
+# its entire life because "OnSizeChanged" sat in the allow-list of known
+# virtuals. A poisoned allow-list does not report one false negative, it
+# removes the check for that name permanently, so the guard has to be an
+# injection -- reading the list tells you nothing.
+CS0115_FILE = os.path.join("Controls", "ProbeFam", "__Cs0115Probe.cs")
+CS0115_SRC = (
+    "using System.Windows;\n"
+    "using System.Windows.Controls;\n"
+    "namespace X {\n"
+    "    public class P : ContentControl {\n"
+    "        protected override void OnSizeChanged(SizeChangedInfo info)\n"
+    "        {\n"
+    "            base.OnSizeChanged(info);\n"
+    "        }\n"
+    "    }\n"
+    "}\n")
+
+
+def run_csc(path):
+    return subprocess.run(
+        [sys.executable, os.path.join("scripts", "csc-check.py"), path],
+        cwd=ROOT, capture_output=True, text=True)
+
+
+def probe_cs0115():
+    """csc-check must report a bogus override, and must exit non-zero."""
+    full = os.path.join(ROOT, CS0115_FILE)
+    os.makedirs(os.path.dirname(full), exist_ok=True)
+    try:
+        with open(full, "w") as fh:
+            fh.write(CS0115_SRC)
+        r = run_csc(CS0115_FILE)
+    finally:
+        if os.path.exists(full):
+            os.remove(full)
+        shutil.rmtree(os.path.join(ROOT, "Controls", "ProbeFam"),
+                      ignore_errors=True)
+
+    fired = "CS0115" in r.stdout and "OnSizeChanged" in r.stdout
+    # A finding that prints but exits 0 is a finding nobody will act on,
+    # so the exit code is part of what is being asserted here.
+    failed = r.returncode != 0
+    print("  CS0115:  %s (exit %d)"
+          % ("FIRES" if fired else "*** SILENT ***", r.returncode))
+    if not failed and fired:
+        print("           ^ reported but exit code is 0 -- it will be ignored")
+    return fired and failed
+
+
 def main():
     os.makedirs(os.path.join(ROOT, NO_THEME_FAM), exist_ok=True)
     os.makedirs(os.path.join(ROOT, PROBE_XAML_DIR), exist_ok=True)
@@ -189,7 +241,10 @@ def main():
     print("%s | tree clean after injection: %s"
           % ("ALL RULES BITING" if all_fired else "CHECKER IS BLIND", restored))
 
-    if not all_fired or not restored:
+    print("\ncsc-check (separate tool):")
+    cs0115_ok = probe_cs0115()
+    print()
+    if not all_fired or not restored or not cs0115_ok:
         return 1
     return 0
 

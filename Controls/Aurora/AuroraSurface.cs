@@ -210,10 +210,16 @@ namespace ProGlassAutomation.Controls.Aurora
             }
         }
 
-        protected override void OnSizeChanged(
+        // WPF has no OnSizeChanged virtual; FrameworkElement exposes
+        // SizeChanged as an EVENT, and the overridable hook is
+        // OnRenderSizeChanged (declared protected internal on UIElement,
+        // overridden here as protected because internal is not
+        // accessible across assemblies). SizeChangedInfo lives in
+        // System.Windows, not System.Windows.Controls.Primitives.
+        protected override void OnRenderSizeChanged(
             SizeChangedInfo info)
         {
-            base.OnSizeChanged(info);
+            base.OnRenderSizeChanged(info);
             // Blob geometry is host-relative, so it has to be recomputed
             // on resize. Cheap: three assignments, no re-rasterisation,
             // because every brush is frozen.
