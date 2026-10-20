@@ -31,7 +31,7 @@ function uploadDocument(token: string, draftId: string, file: File, progress: (l
 }
 
 export function CustomerInquiryPortal() {
-  const { checking, authToken, isAuthRequired, userEmail, signOut, requireAuth } = useOperatorSession();
+  const { checking, authToken, isAuthRequired, userEmail, signOut, requireAuth, unavailable: sessionUnavailable, error: sessionError, refreshSession } = useOperatorSession();
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replaceFileInputRef = useRef<HTMLInputElement>(null);
@@ -196,7 +196,8 @@ export function CustomerInquiryPortal() {
   }
 
   if (checking) return <div role="status" className="grid min-h-[55vh] place-items-center bg-ink-950 text-xs text-text-muted">Checking your secure session…</div>;
-  if (isAuthRequired || !authToken) return <main className="min-h-[65vh] bg-ink-950 px-4 py-20 text-text-primary"><section className="mx-auto max-w-md rounded-2xl border border-line-strong bg-ink-900 p-6 text-center"><h1 className="text-xl font-bold">Sign in to submit an inquiry</h1><p className="mt-2 text-xs text-text-muted">Email verification protects your inquiry history and private documents.</p><LocaleLink href="/reports/login?redirect=/inquiries/submit" className="mt-5 inline-flex rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink">Continue with email</LocaleLink></section></main>;
+  if (sessionUnavailable && !authToken) return <main className="min-h-[65vh] bg-ink-950 px-4 py-20 text-text-primary"><section className="mx-auto max-w-md rounded-2xl border border-state-warning/40 bg-ink-900 p-6 text-center"><h1 className="text-xl font-bold">Saved sign-in could not be confirmed yet</h1><p className="mt-2 text-xs leading-relaxed text-text-muted">{sessionError || "The authentication service is temporarily unreachable. Your saved sign-in has not been discarded."}</p><button type="button" onClick={() => void refreshSession()} className="mt-5 rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink">Retry saved sign-in</button></section></main>;
+  if (isAuthRequired || !authToken) return <main className="min-h-[65vh] bg-ink-950 px-4 py-20 text-text-primary"><section className="mx-auto max-w-md rounded-2xl border border-line-strong bg-ink-900 p-6 text-center"><h1 className="text-xl font-bold">Sign in to submit an inquiry</h1><p className="mt-2 text-xs text-text-muted">Email verification protects your inquiry history and private documents.</p><LocaleLink href="/account?redirect=%2Finquiries%2Fsubmit" className="mt-5 inline-flex rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink">Continue with email</LocaleLink></section></main>;
   const filteredRows=rows.filter((row)=>(!historyProject||row.project_id===historyProject)&&(!historyType||row.inquiry_type===historyType)&&(!historyStatus||row.status===historyStatus));
 
   return <main className="min-h-screen bg-ink-950 pb-20 text-text-primary">

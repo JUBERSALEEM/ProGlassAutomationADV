@@ -50,7 +50,7 @@ vi.mock("@/i18n/provider", () => {
   const t = (copy: string): string => copy;
   t.template = (strings: TemplateStringsArray, ...values: unknown[]) =>
     strings.reduce((acc, s, i) => acc + s + (i < values.length ? String(values[i]) : ""), "");
-  return { useT: () => t, useHref: () => (path: string) => path };
+  return { useT: () => t, useHref: () => (path: string) => path, useLocale: () => "en-US" };
 });
 
 import { ThemeStudio } from "@/components/layout/ThemeStudio";
@@ -100,8 +100,8 @@ afterEach(cleanup);
 
 describe("P18 · the launcher and the drawer", () => {
   it("opens on click and stays open while the click lands on the trigger", async () => {
-    const user = userEvent.setup();
     render(<ThemeStudio />);
+    const user = userEvent.setup();
     expect(screen.queryByRole("dialog")).toBeNull();
     const panel = await openStudio(user);
     expect(panel.getAttribute("id")).toBe("theme-studio");
@@ -248,6 +248,71 @@ describe("P18 · the clay plate bench", () => {
     expect(inline("--card-face")).not.toBe(inline("--overlay-face"));
     const stored = JSON.parse(window.localStorage.getItem(STUDIO_STORAGE_KEY) ?? "{}");
     expect(stored.clayCards).toBe(6);
+  });
+});
+
+describe("P21 · the neumorphism bench — depth / distance / softness", () => {
+  it("is disabled off-family, goes live on Neumorphism, writes only moved dials, and resets cleanly", async () => {
+    const user = userEvent.setup();
+    render(<ThemeStudio />);
+    const panel = await openStudio(user);
+
+    const depth = () => within(panel).getByRole("slider", { name: /Depth — paired light and shade strength/i }) as HTMLInputElement;
+    const distance = () => within(panel).getByRole("slider", { name: /Distance — shadow offset/i }) as HTMLInputElement;
+    const softness = () => within(panel).getByRole("slider", { name: /Softness — shadow blur/i }) as HTMLInputElement;
+
+    expect(depth().disabled).toBe(true);
+    expect(distance().disabled).toBe(true);
+    expect(softness().disabled).toBe(true);
+
+    await user.click(within(panel).getByRole("button", { name: /^neumorphism$/i }));
+    await settle();
+
+    expect(html().getAttribute("data-appearance")).toBe("neumorphism");
+    expect(window.localStorage.getItem(APPEARANCE_STORAGE_KEY)).toBe("neumorphism");
+    expect(depth().disabled).toBe(false);
+    expect(distance().disabled).toBe(false);
+    expect(softness().disabled).toBe(false);
+    expect(inline("--neu-depth")).toBe("");
+    expect(inline("--neu-distance")).toBe("");
+    expect(inline("--neu-softness")).toBe("");
+
+    fireEvent.change(depth(), { target: { value: "1.45" } });
+    fireEvent.change(distance(), { target: { value: "0.8" } });
+    fireEvent.change(softness(), { target: { value: "1.9" } });
+    await settle();
+
+    expect(inline("--neu-depth")).toBe("1.45");
+    expect(inline("--neu-distance")).toBe("0.80");
+    expect(inline("--neu-softness")).toBe("1.90");
+    const stored = JSON.parse(window.localStorage.getItem(STUDIO_STORAGE_KEY) ?? "{}");
+    expect(stored.neuDepth).toBe(1.45);
+    expect(stored.neuDistance).toBe(0.8);
+    expect(stored.neuSoftness).toBe(1.9);
+
+    await user.click(within(panel).getByRole("button", { name: /reset the neumorphism bench/i }));
+    await settle();
+
+    expect(inline("--neu-depth")).toBe("");
+    expect(inline("--neu-distance")).toBe("");
+    expect(inline("--neu-softness")).toBe("");
+  });
+
+  it("adopts a picked accent into the neumorphic material channels", async () => {
+    const user = userEvent.setup();
+    render(<ThemeStudio />);
+    const panel = await openStudio(user);
+
+    await user.click(within(panel).getByRole("button", { name: /^neumorphism$/i }));
+    await settle();
+    await user.click(within(panel).getByRole("button", { name: /rose colour plate/i }));
+    await settle();
+
+    expect(inline("--neu-canvas")).not.toBe("");
+    expect(inline("--neu-face")).not.toBe("");
+    expect(inline("--neu-light-source")).not.toBe("");
+    expect(inline("--neu-dark-source")).not.toBe("");
+    expect(inline("--ink-950")).toBe(inline("--neu-canvas"));
   });
 });
 
@@ -427,7 +492,6 @@ describe("P19 · the wallpaper paints what the studio writes", () => {
   });
 
   it("the launcher's accent dot is the family swatch when nothing is picked", async () => {
-    const user = userEvent.setup();
     render(<ThemeStudio />);
     const trigger = screen.getByRole("button", { name: /open the theme studio/i });
     const dots = Array.from(trigger.querySelectorAll("span[style]"));
@@ -585,6 +649,29 @@ describe("P20 · the Clay-paused card edge answers, not freeze", () => {
     await settle();
     expect(document.activeElement).toBe(cornerDepth);
     /* And the pause is real: no border token was written under Clay. */
+    expect(inline("--card-edge-width")).toBe("");
+  });
+});
+
+describe("P21 · the Neumorphism-paused card edge answers, not freeze", () => {
+  it("Border line explains itself and hands over to Depth", async () => {
+    const user = userEvent.setup();
+    render(<ThemeStudio />);
+    const panel = await openStudio(user);
+
+    await user.click(within(panel).getByRole("button", { name: /^neumorphism$/i }));
+    await settle();
+
+    const borderLine = within(panel).getByRole("slider", { name: /border line/i }) as HTMLInputElement;
+    expect(borderLine.disabled).toBe(false);
+
+    fireEvent.pointerDown(borderLine);
+    expect(await within(panel).findByText(/paused in Neumorphism, not broken/i)).toBeTruthy();
+
+    const depth = within(panel).getByRole("slider", { name: /Depth — paired light and shade strength/i }) as HTMLInputElement;
+    expect(depth.disabled).toBe(false);
+    await settle();
+    expect(document.activeElement).toBe(depth);
     expect(inline("--card-edge-width")).toBe("");
   });
 });

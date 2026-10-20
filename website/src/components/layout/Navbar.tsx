@@ -42,6 +42,11 @@ const entries: NavEntry[] = [
         href: "/deliveries",
         description: "Delivery Notes, part loads and outstanding balance",
       },
+      {
+        label: "Submit Inquiry",
+        href: "/inquiries/submit",
+        description: "Private customer inquiry and documents",
+      },
     ],
   },
   { label: "Optimization", href: "/optimization" },
@@ -51,6 +56,21 @@ const entries: NavEntry[] = [
       { label: "Resources", href: "/resources", description: "Guides to the glass workflows" },
       { label: "Blog", href: "/blog", description: "Notes on the build and the industry" },
       { label: "Sponsors", href: "/sponsors", description: "Back the build, or join it" },
+      {
+        label: "Customer Account",
+        href: "/account",
+        description: "Sign in or create an inquiry account",
+      },
+      {
+        label: "My Inquiries & Chat",
+        href: "/inquiries/chat",
+        description: "Current status and messages for your inquiries",
+      },
+      {
+        label: "Community Chat",
+        href: "/chat",
+        description: "Signed-in group room for general discussion",
+      },
     ],
   },
   /* About and Developer are separate pages with separate jobs, and both get a
@@ -970,13 +990,21 @@ export function Navbar() {
             <ButtonLink href={toHref("/contact")} size="lg" trailing={<ArrowRight />} onClick={() => setMobileOpen(false)}>
               {t("Request a Demo")}
             </ButtonLink>
+            <ButtonLink
+              href={toHref("/account")}
+              variant="secondary"
+              size="lg"
+              onClick={() => setMobileOpen(false)}
+            >
+              {t("Customer sign in / sign up")}
+            </ButtonLink>
             <ButtonLink href={toHref("/optimization")} variant="secondary" size="lg" onClick={() => setMobileOpen(false)}>
               {t("See the optimization engine")}
             </ButtonLink>
           </div>
 
           <p className="mt-6 font-mono text-2xs uppercase tracking-[0.18em] text-text-faint font-medium">
-            {t("Desktop software · v{version} · No account required", { version: site.version })}
+            {t("Desktop software · v{version} · Desktop app needs no account", { version: site.version })}
           </p>
 
           {/* The same stamp as the desktop panel, with room for the revision. */}

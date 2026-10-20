@@ -105,25 +105,36 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
      the precise failure "plates/frost do nothing" reports. */
   const clayGated = family !== "clay";
   const glassGated = family !== "crystal";
+  const neuGated = family !== "neumorphism";
 
-  /* The Clay-paused edge controls must ANSWER, not freeze (the "Border
-     line button is unresponsive" fix). A hard `disabled` + a
-     pointer-events veil made the control indistinguishable from a hung
-     UI: no movement, no click, no explanation. The gate itself stays —
-     Clay never writes a border line — but touching the paused control
-     now responds immediately: it says why, then takes the visitor to
-     the dial that replaces it (Corner depth, highlighted). */
+  /* The paused edge controls must ANSWER, not freeze (the "Border line
+     button is unresponsive" fix). Clay and Neumorphism both form their
+     boundary from light and shade rather than the generic card-edge stroke:
+     Clay replaces it with Corner depth, Neumorphism with Depth. Touching a
+     paused control therefore explains itself and takes the visitor to the
+     material dial that actually shapes the edge. */
+  const edgePaused = family === "clay" || family === "neumorphism";
   const [edgePausedNotice, setEdgePausedNotice] = useState(false);
   const [cornerDepthHot, setCornerDepthHot] = useState(false);
+  const [neuDepthHot, setNeuDepthHot] = useState(false);
   const cornerDepthRef = useRef<HTMLDivElement | null>(null);
+  const neuDepthRef = useRef<HTMLDivElement | null>(null);
   const cornerDepthHotTimer = useRef<number | null>(null);
-  const explainClayEdge = () => {
+  const neuDepthHotTimer = useRef<number | null>(null);
+  const explainPausedEdge = () => {
     setEdgePausedNotice(true);
-    setCornerDepthHot(true);
-    if (cornerDepthHotTimer.current) window.clearTimeout(cornerDepthHotTimer.current);
-    cornerDepthHotTimer.current = window.setTimeout(() => setCornerDepthHot(false), 2200);
+    const neumorphismActive = family === "neumorphism";
+    if (neumorphismActive) {
+      setNeuDepthHot(true);
+      if (neuDepthHotTimer.current) window.clearTimeout(neuDepthHotTimer.current);
+      neuDepthHotTimer.current = window.setTimeout(() => setNeuDepthHot(false), 2200);
+    } else {
+      setCornerDepthHot(true);
+      if (cornerDepthHotTimer.current) window.clearTimeout(cornerDepthHotTimer.current);
+      cornerDepthHotTimer.current = window.setTimeout(() => setCornerDepthHot(false), 2200);
+    }
     requestAnimationFrame(() => {
-      const box = cornerDepthRef.current;
+      const box = neumorphismActive ? neuDepthRef.current : cornerDepthRef.current;
       if (!box) return;
       box.scrollIntoView?.({ behavior: "smooth", block: "center" });
       const input = box.querySelector('input[type="range"]');
@@ -526,6 +537,72 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
               ) : null}
             </div>
           </fieldset>
+          {/* ── Neumorphism engine · the soft-extrusion bench ─────────────
+              The material is one tonal surface, so its bench does not offer
+              another set of colours. Depth, distance, and softness move the
+              paired top-left light and bottom-right shade together; surface
+              lightness and text ink remain engine-owned. */}
+          <fieldset className="mt-4">
+            <legend className="mono-label">{t("Neumorphism engine — soft-extrusion bench")}</legend>
+            <p className={cn(
+              "mt-1.5 text-[0.75rem] leading-relaxed",
+              family === "neumorphism"
+                ? "font-medium text-text-muted"
+                : "rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2 font-semibold text-text-secondary",
+            )}>
+              {t("Depth, distance, and softness for the Neumorphism family — raised cards and pressed-in wells shaped by one top-left light. Applies when Neumorphism is active; surface and text contrast never move.")}
+            </p>
+            <div className={family === "neumorphism" ? undefined : "pointer-events-none select-none opacity-50 saturate-[0.6]"}>
+              <div className="mt-3 grid gap-3">
+                <div ref={neuDepthRef} className={cn("rounded-card", neuDepthHot && "ring-2 ring-brand-400/80")}>
+                  <Slider
+                    label={t("Depth — paired light and shade strength")}
+                    value={studio.neuDepth}
+                    min={0.35}
+                    max={1.8}
+                    step={0.05}
+                    disabled={neuGated}
+                    display={`${studio.neuDepth.toFixed(2)}×`}
+                    onChange={(value) => setStudio({ neuDepth: value })}
+                    hint={t("1.00 is the shipped extrusion. Lower values flatten the material; higher values deepen both the top-left light and bottom-right shade without changing surface colour.")}
+                  />
+                </div>
+                <Slider
+                  label={t("Distance — shadow offset")}
+                  value={studio.neuDistance}
+                  min={0.5}
+                  max={1.8}
+                  step={0.05}
+                  disabled={neuGated}
+                  display={`${studio.neuDistance.toFixed(2)}×`}
+                  onChange={(value) => setStudio({ neuDistance: value })}
+                  hint={t("How far the light and shade travel from each raised or pressed edge. 1.00 keeps the 4–11px engine ladder.")}
+                />
+                <Slider
+                  label={t("Softness — shadow blur")}
+                  value={studio.neuSoftness}
+                  min={0.5}
+                  max={2.2}
+                  step={0.05}
+                  disabled={neuGated}
+                  display={`${studio.neuSoftness.toFixed(2)}×`}
+                  onChange={(value) => setStudio({ neuSoftness: value })}
+                  hint={t("How diffuse the extrusion feels. Lower values read firmer and more machined; higher values melt the edges into the canvas.")}
+                />
+              </div>
+              {studio.neuDepth !== 1 || studio.neuDistance !== 1 || studio.neuSoftness !== 1 ? (
+                <button
+                  type="button"
+                  disabled={neuGated}
+                  onClick={() => setStudio({ neuDepth: 1, neuDistance: 1, neuSoftness: 1 })}
+                  className="mt-2 text-[0.72rem] font-semibold text-text-faint underline-offset-2 hover:underline"
+                >
+                  {t("Reset the neumorphism bench")}
+                </button>
+              ) : null}
+            </div>
+          </fieldset>
+
           <fieldset className="mt-4">
             <legend className="mono-label">{t("Clay depth")}</legend>
             <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">
@@ -743,18 +820,22 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
               <p className="mt-1 text-[0.6875rem] leading-relaxed text-text-muted">
                 {family === "clay"
                   ? t("Clay cards do not draw this line. Their boundary is the moulded corner itself, so the line and colour controls pause while Clay is active; Corner radius still applies, and Corner depth below controls the clay bevel.")
-                  : t("The border line on every card, the corner it turns on, and the padding that follows it.")}
+                  : family === "neumorphism"
+                    ? t("Neumorphism keeps only a one-pixel separation hairline. Its visible boundary is paired light and shade, so the line and colour controls pause while Neumorphism is active; Corner radius still applies, and Depth above shapes the extrusion.")
+                    : t("The border line on every card, the corner it turns on, and the padding that follows it.")}
               </p>
-              {family === "clay" && edgePausedNotice ? (
+              {edgePaused && edgePausedNotice ? (
                 <p role="status" className="mt-2 rounded-card bg-brand-500/15 px-3 py-2 text-[0.6875rem] font-semibold leading-relaxed text-text-primary">
-                  {t("That control is paused in Clay, not broken: clay cards draw no border line. Corner depth — highlighted for you below — is the dial that shapes the clay edge.")}
+                  {family === "neumorphism"
+                    ? t("That control is paused in Neumorphism, not broken: its cards keep only a separation hairline. Depth — highlighted for you above — is the dial that shapes the soft-extruded edge.")
+                    : t("That control is paused in Clay, not broken: clay cards draw no border line. Corner depth — highlighted for you below — is the dial that shapes the clay edge.")}
                 </p>
               ) : null}
 
               <div className="mt-3 space-y-3.5">
                 <div
-                  onPointerDownCapture={family === "clay" ? (event) => { event.preventDefault(); explainClayEdge(); } : undefined}
-                  onKeyDownCapture={family === "clay" ? (event) => { if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"].includes(event.key)) { event.preventDefault(); explainClayEdge(); } } : undefined}
+                  onPointerDownCapture={edgePaused ? (event) => { event.preventDefault(); explainPausedEdge(); } : undefined}
+                  onKeyDownCapture={edgePaused ? (event) => { if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"].includes(event.key)) { event.preventDefault(); explainPausedEdge(); } } : undefined}
                 >
                   <Slider
                     label={t("Border line")}
@@ -766,7 +847,9 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                     onChange={(value) => setStudio({ edge: value })}
                     hint={family === "clay"
                       ? t("Paused in Clay — touch it and it takes you to Corner depth, the dial that replaces it.")
-                      : t("1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with; the dial runs to 10 px for plate-strength borders.")}
+                      : family === "neumorphism"
+                        ? t("Paused in Neumorphism — touch it and it takes you to Depth, the dial that replaces it.")
+                        : t("1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with; the dial runs to 10 px for plate-strength borders.")}
                   />
                 </div>
                 <Slider
@@ -777,13 +860,13 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                   step={0.05}
                   display={`${studio.radius.toFixed(2)}×`}
                   onChange={(value) => setStudio({ radius: value })}
-                  hint={t("Multiplies your family's own roundness — Crystal and Clay start rounder — the way the radius setting scales it in the application.")}
+                  hint={t("Multiplies your family's own roundness — Crystal, Clay, and Neumorphism start rounder — the way the radius setting scales it in the application.")}
                 />
               </div>
 
               <div
-                className={family === "clay" ? "mt-3.5 opacity-70 saturate-[0.7]" : "mt-3.5"}
-                onClickCapture={family === "clay" ? (event) => { event.preventDefault(); event.stopPropagation(); explainClayEdge(); } : undefined}
+                className={edgePaused ? "mt-3.5 opacity-70 saturate-[0.7]" : "mt-3.5"}
+                onClickCapture={edgePaused ? (event) => { event.preventDefault(); event.stopPropagation(); explainPausedEdge(); } : undefined}
               >
                 <p className="mono-label mb-2">{t("Edge colour")}</p>
                 <div className="flex flex-wrap items-center gap-1.5">
@@ -802,7 +885,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                       type="button"
                       data-color-plate="true"
                       aria-pressed={studio.edgeColor === (plate.hex ?? "")}
-                      aria-disabled={family === "clay"}
+                      aria-disabled={edgePaused}
                       aria-label={t(plate.name)}
                       title={t(plate.name)}
                       onClick={() => setStudio({ edgeColor: plate.hex ?? "" })}
@@ -822,7 +905,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                   <input
                     type="color"
                     value={studio.edgeColor || "#8B7CF0"}
-                    aria-disabled={family === "clay"}
+                    aria-disabled={edgePaused}
                     aria-label={t("Pick a custom edge colour")}
                     onChange={(event) => setStudio({ edgeColor: event.target.value })}
                     className="h-7 w-9 shrink-0"
@@ -838,10 +921,17 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                   aria-hidden="true"
                   className="grid h-10 w-16 shrink-0 place-items-center bg-ink-900"
                   style={{
-                    border: family === "clay" ? "2px solid transparent" : `${studio.edge}px solid var(--card-edge)`,
+                    border:
+                      family === "clay"
+                        ? "2px solid transparent"
+                        : family === "neumorphism"
+                          ? "1px solid rgb(var(--neu-light-source) / 0.16)"
+                          : `${studio.edge}px solid var(--card-edge)`,
                     boxShadow: family === "clay"
                       ? "6px 6px 14px rgb(var(--clay-drop-h) / 0.25), inset 3px 3px 6px rgb(255 255 255 / 0.55), inset -4px -4px 8px rgb(var(--clay-drop-h) / 0.35)"
-                      : undefined,
+                      : family === "neumorphism"
+                        ? "var(--neu-shadow-panel)"
+                        : undefined,
                     /* Mirrors the real card corner: the site's 16px base,
                        the active family's factor (set on <html> by its
                        engine file), and this dial — never the dial alone. */
@@ -855,7 +945,9 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                   <p className="mt-0.5 text-xs leading-relaxed text-text-muted">
                     {family === "clay"
                       ? t("Shown as clay actually renders: a soft corner, not a stroke.")
-                      : studio.edge <= 1.5
+                      : family === "neumorphism"
+                        ? t("Shown as neumorphism actually renders: a tonal face carried by paired light and shade, not a thick stroke.")
+                        : studio.edge <= 1.5
                         ? "The subtle hairline the application uses for inputs and gridlines."
                         : studio.edge <= 2
                           ? "The defined card edge the application ships as its default."

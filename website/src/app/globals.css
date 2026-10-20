@@ -316,7 +316,7 @@
        The site's base corner is one step rounder than the app's (16/20 px
        rather than 12/16), and it is dynamic twice over — see
        `--radius-scale` below. At the studio dial's rest position (1×):
-         Studio · Monet · Industrial   card 16 px · panel 20 px
+         Neumorphism · Monet · Industrial   card 16 px · panel 20 px
          Crystal (family ×1.5)         card 24 px · panel 30 px
          Clay    (family ×2)           card 32 px · panel 40 px */
     --card-radius: calc(16px * var(--radius-scale));
@@ -370,7 +370,7 @@
      *
      * `--radius-family` is the family's own roundness, declared by the
      * family (Crystal ×1.5 and Clay ×2 in their engine files; 1 here for
-     * Studio/Monet/Industrial). `--radius-user` is the appearance studio's
+     * Neumorphism/Monet/Industrial). `--radius-user` is the appearance studio's
      * Corner-radius dial, written inline on <html> by `useStudio` — and
      * only when the visitor actually moved it. The old scheme had both
      * sides write `--radius-scale` itself, so the moment the dial moved,
@@ -573,31 +573,29 @@
    */
 
   /*
-   * Studio — the application's own violet, taken deep.
-   *
-   * Every value here is transcribed from the product rather than chosen for
-   * the site: `Sp.Accent #6546B5`, `Sp.AccentDeep #493080`, `Sp.Pane
-   * #B4A1E1 → #8568CF` and `Sp.Keyline #D9D0EC` are the brushes the
-   * application's own splash and design-system tokens paint with
-   * (Views/Splash/SplashView.xaml · Themes/ProGlassDesignSystem/Tokens/
-   * SemanticColors.xaml). The ramp below is those five colours extended to a
-   * full seven steps, so the site and the product are literally the same
-   * violet at every tone.
+   * Neumorphism — a muted slate-blue accent for a tonal, soft-extruded
+   * material. The complete surface, shadow, radius, and control recipe is
+   * owned by `neumorphism-engine.css`; this global block only supplies the
+   * shared brand ramp and quiet ambient channels every other token consumer
+   * expects. Keeping saturation restrained prevents the accent from turning
+   * the same-color raised/inset geometry into a conventional colored card.
    */
-  [data-appearance="studio"] {
-    --brand-50: 240 235 252;
-    --brand-100: 226 216 248;
-    --brand-200: 214 199 246;
-    --brand-300: 190 165 240;
-    --brand-400: 158 121 229;
-    --brand-500: 126 87 206;
-    --brand-600: 101 70 181;
-    --brand-700: 73 48 128;
-    --pool-1: rgb(126 87 206 / 0.32);
-    --pool-2: rgb(26 197 226 / 0.13);
-    --pool-3: rgb(242 96 164 / 0.11);
-    --card-tint: rgb(101 70 181 / 0.22);
-    --card-tint-2: rgb(26 197 226 / 0.1);
+  [data-appearance="neumorphism"] {
+    --brand-50: 238 242 255;
+    --brand-100: 219 226 244;
+    --brand-200: 190 200 224;
+    --brand-300: 153 166 199;
+    --brand-400: 113 128 168;
+    --brand-500: 92 106 143;
+    --brand-600: 74 87 119;
+    --brand-700: 58 69 96;
+    --pool-1: rgb(113 128 168 / 0.16);
+    --pool-2: rgb(148 163 191 / 0.1);
+    --pool-3: rgb(92 106 143 / 0.08);
+    --wall-wash-1: rgb(113 128 168 / 0.12);
+    --wall-wash-2: rgb(153 166 199 / 0.08);
+    --card-tint: rgb(113 128 168 / 0.1);
+    --card-tint-2: rgb(153 166 199 / 0.06);
   }
 
   /* Monet — the application's Material-You family: a warm accent dusk. */
@@ -648,20 +646,22 @@
    * outranks the one-attribute family block above. Same hue, deep end of the
    * ramp, measured against the ivory surface rather than against the dark one.
    */
-  [data-theme="daylight"][data-appearance="studio"] {
-    --brand-50: 238 232 249;
-    --brand-100: 73 48 128;
-    --brand-200: 205 188 240;
-    --brand-300: 101 70 181;   /* #6546B5 — 6.1:1 on the ivory page */
-    --brand-400: 92 62 170;
-    --brand-500: 82 55 152;
-    --brand-600: 73 48 128;
-    --brand-700: 56 36 100;
-    --pool-1: rgb(101 70 181 / 0.22);
-    --pool-2: rgb(8 145 178 / 0.13);
-    --pool-3: rgb(214 78 140 / 0.11);
-    --card-tint: rgb(101 70 181 / 0.11);
-    --card-tint-2: rgb(8 145 178 / 0.08);
+  [data-theme="daylight"][data-appearance="neumorphism"] {
+    --brand-50: 238 242 248;
+    --brand-100: 58 69 96;
+    --brand-200: 190 200 219;
+    --brand-300: 69 81 111;   /* #45516F — dark enough for labels on the soft canvas */
+    --brand-400: 66 78 106;
+    --brand-500: 72 84 113;
+    --brand-600: 58 69 94;
+    --brand-700: 45 54 76;
+    --pool-1: rgb(113 128 168 / 0.12);
+    --pool-2: rgb(153 166 199 / 0.08);
+    --pool-3: rgb(92 106 143 / 0.06);
+    --wall-wash-1: rgb(153 166 199 / 0.12);
+    --wall-wash-2: rgb(219 226 244 / 0.18);
+    --card-tint: rgb(113 128 168 / 0.07);
+    --card-tint-2: rgb(153 166 199 / 0.05);
   }
 
   /*

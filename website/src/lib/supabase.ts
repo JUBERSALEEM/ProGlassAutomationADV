@@ -77,6 +77,36 @@ export function isSupabaseConfigured(): boolean {
 }
 
 /**
+ * Whether a Supabase error means "the service could not be reached" rather
+ * than "this caller is not allowed".
+ *
+ * The distinction decides whether a signed-in operator keeps their session.
+ * A refused token is an auth answer (401/403, show the sign-in gate); a
+ * failed fetch is a transport answer — the sandbox or deployment could not
+ * open a TLS connection to the project at all — and must surface as a
+ * retryable failure. Treating transport failures as expired sessions is
+ * what produced the login loop: sign in succeeds in the browser, the
+ * server-side re-check cannot reach Supabase, and the page interprets the
+ * network error as "session invalid" and bounces back to the login form.
+ */
+export function isSupabaseUnavailableError(
+  error: { name?: string; message?: string; status?: number; code?: string; details?: string } | null | undefined,
+): boolean {
+  if (!error) return false;
+  if (error.name === "AuthRetryableFetchError") return true;
+  // Supabase Auth reports a fetch that never received an HTTP response as status 0.
+  if (error.status === 0) return true;
+  const transport = `${error.name || ""} ${error.message || ""} ${error.details || ""}`;
+  const looksLikeTransport =
+    /fetch failed|failed to fetch|network|ECONNRESET|ECONNREFUSED|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|socket disconnected|TLS|SSL connection has been closed/i.test(
+      transport,
+    );
+  if (!looksLikeTransport) return false;
+  // A genuine auth refusal can mention the token; never reclassify those.
+  return !/jwt|token|unauthorized|permission/i.test(`${error.code || ""} ${error.message || ""}`);
+}
+
+/**
  * The `role` a Supabase key carries, when the key is the JWT kind.
  *
  * Modern projects may hand out `sb_publishable_…` keys instead, which are not
@@ -123,6 +153,53 @@ function credentials(): { url: string; key: string } {
   return { url, key };
 }
 
+/**
+ * The one browser-storage key every ProGlass sign-in surface must share.
+ *
+ * This intentionally matches Supabase's own default (`sb-<ref>-auth-token`)
+ * so making it explicit does not orphan a session a customer already saved.
+ * Account, community chat, private inquiry chat and the support bubble all
+ * construct their browser client through `supabaseBrowser()` below; giving
+ * that client an explicit, stable key prevents a future library/default
+ * change—or a second hand-built client—from splitting one customer login
+ * into separate per-page logins.
+ */
+export function supabaseAuthStorageKey(url = projectUrl()): string {
+  if (!url) return "sb-auth-token";
+  try {
+    const projectRef = new URL(url).hostname.split(".")[0];
+    return projectRef ? `sb-${projectRef}-auth-token` : "sb-auth-token";
+  } catch {
+    return "sb-auth-token";
+  }
+}
+
+/** Whether this origin still has a persisted Supabase session to recover. */
+export function hasStoredSupabaseSession(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const stored = window.localStorage.getItem(supabaseAuthStorageKey());
+    return Boolean(stored && stored.length > 20);
+  } catch {
+    return false;
+  }
+}
+
+function workingBrowserStorage(storageKey: string): Storage | undefined {
+  if (typeof window === "undefined") return undefined;
+  try {
+    const storage = window.localStorage;
+    // Accessing the actual auth key is enough to prove storage is usable in
+    // this browsing context without writing a probe value into customer data.
+    void storage.getItem(storageKey);
+    return storage;
+  } catch {
+    // Let Supabase choose its in-memory fallback when a browser/privacy mode
+    // denies Web Storage instead of failing client construction outright.
+    return undefined;
+  }
+}
+
 /** Keys already inspected, so the guard costs nothing on a hot path. */
 let inspectedKey: string | null = null;
 
@@ -149,15 +226,24 @@ function refuseServiceKey(key: string): void {
  * library does by default and what a future sign-in would want.
  */
 let browserClient: SupabaseClient | undefined;
-let browserKey: string | undefined;
+let browserClientIdentity: string | undefined;
 
 export function supabaseBrowser(): SupabaseClient {
   const { url, key } = credentials();
-  if (!browserClient || browserKey !== key) {
+  const identity = `${url}\n${key}`;
+  if (!browserClient || browserClientIdentity !== identity) {
+    const storageKey = supabaseAuthStorageKey(url);
+    const storage = workingBrowserStorage(storageKey);
     browserClient = createClient(url, key, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storageKey,
+        ...(storage ? { storage } : {}),
+      },
     });
-    browserKey = key;
+    browserClientIdentity = identity;
   }
   return browserClient;
 }

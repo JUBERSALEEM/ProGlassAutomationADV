@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { isSupabaseConfigured, supabaseBrowser } from "@/lib/supabase";
+import { useWebsiteSession } from "@/lib/website-session";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -38,15 +39,30 @@ function isNetworkError(err: unknown): boolean {
  */
 const REMEMBERED_EMAIL_KEY = "proglass-auth-email";
 
-export function ReportsAuthForm() {
+function safeRedirectPath(value: string | null, fallback: string): string {
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return fallback;
+  return value;
+}
+
+export function safeAuthRedirect(value: string | null, fallback: string): string {
+  return safeRedirectPath(value, fallback);
+}
+
+type ReportsAuthFormProps = {
+  defaultRedirect?: string;
+  variant?: "operations" | "account";
+};
+
+export function ReportsAuthForm({ defaultRedirect = "/reports", variant = "operations" }: ReportsAuthFormProps = {}) {
   const t = useT();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/reports";
-  const customerAccess = redirectTo.includes("/inquiries");
+  const redirectTo = safeRedirectPath(searchParams.get("redirect"), defaultRedirect);
+  const signupRequested = searchParams.get("mode") === "signup" || searchParams.get("auth") === "signup";
+  const customerAccess = variant === "account" || redirectTo.includes("/inquiries") || redirectTo === "/account" || redirectTo === "/chat";
 
   // Password is the normal return path; email OTP also serves signup/recovery.
-  const [mode, setMode] = useState<"password" | "otp">("password");
+  const [mode, setMode] = useState<"password" | "otp">(() => (signupRequested ? "otp" : "password"));
   const [step, setStep] = useState<"email" | "otp" | "set-password">("email");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -62,6 +78,9 @@ export function ReportsAuthForm() {
 
   const otpInputRef = useRef<HTMLInputElement | null>(null);
   const configured = isSupabaseConfigured();
+  const websiteSession = useWebsiteSession({ enabled: configured });
+  const [useDifferentAccount, setUseDifferentAccount] = useState(false);
+  const savedSessionUser = step === "email" && !useDifferentAccount ? websiteSession.user : null;
 
   useEffect(() => {
     const remembered = window.localStorage.getItem(REMEMBERED_EMAIL_KEY);
@@ -87,6 +106,16 @@ export function ReportsAuthForm() {
       otpInputRef.current?.focus();
     }
   }, [step]);
+
+  // A login route is a gate, not a destination. If the shared website
+  // session already exists, continue to the requested chat/page instead of
+  // presenting the password form again. The saved-session panel below gives
+  // the visitor a brief chance to choose a different account.
+  useEffect(() => {
+    if (!savedSessionUser) return;
+    const timer = window.setTimeout(() => router.replace(redirectTo), 650);
+    return () => window.clearTimeout(timer);
+  }, [redirectTo, router, savedSessionUser]);
 
   // ─────────────────────────────────────────────────────────────────────────────
   // STEP A: Request 6-digit OTP code to email via Supabase Auth
@@ -288,6 +317,70 @@ export function ReportsAuthForm() {
     }
   };
 
+  if (configured && websiteSession.checking && step === "email") {
+    return (
+      <div className="w-full max-w-md mx-auto">
+        <div className="rounded-panel border border-line-strong/80 bg-ink-900/80 p-8 text-center shadow-raised backdrop-blur-xl" role="status">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-brand-400 border-t-transparent" />
+          <h1 className="mt-4 text-lg font-bold text-text-primary">{t("Checking your saved sign-in…")}</h1>
+          <p className="mt-2 text-xs leading-relaxed text-text-muted">
+            {t("One ProGlass sign-in is shared by your account, community chat, and private inquiry chat.")}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (configured && websiteSession.unavailable && !websiteSession.user && step === "email") {
+    return (
+      <div className="w-full max-w-md mx-auto">
+        <div className="rounded-panel border border-state-warning/40 bg-ink-900/80 p-8 text-center shadow-raised backdrop-blur-xl">
+          <p className="eyebrow text-state-warning">{t("Saved sign-in")}</p>
+          <h1 className="mt-3 text-xl font-bold text-text-primary">{t("We could not confirm your saved sign-in yet")}</h1>
+          <p className="mt-3 text-xs leading-relaxed text-text-muted">
+            {t("The authentication service is temporarily unreachable. Your saved sign-in has not been discarded.")}
+          </p>
+          <Button type="button" variant="primary" size="lg" className="mt-5 w-full justify-center" onClick={() => void websiteSession.refreshSession()}>
+            {t("Retry saved sign-in")}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (savedSessionUser) {
+    return (
+      <div className="w-full max-w-md mx-auto">
+        <div className="rounded-panel border border-line-strong/80 bg-ink-900/80 p-8 text-center shadow-raised backdrop-blur-xl">
+          <div className="flex justify-center">
+            <Logo size={42} />
+          </div>
+          <p className="eyebrow mt-4 text-brand-300">{t("Saved sign-in found")}</p>
+          <h1 className="mt-2 text-xl font-bold text-text-primary">{t("You are already signed in")}</h1>
+          <p className="mt-3 break-all text-xs leading-relaxed text-text-muted">
+            {savedSessionUser.email ?? t("Your ProGlass account")}
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-text-muted">
+            {t("This one sign-in is shared by Customer Account, Community Chat, and My inquiries & chat. Continuing…")}
+          </p>
+          <Button type="button" variant="primary" size="lg" className="mt-5 w-full justify-center" onClick={() => router.replace(redirectTo)}>
+            {t("Continue now")}
+          </Button>
+          <button
+            type="button"
+            className="mt-3 w-full text-xs font-semibold text-brand-300 underline underline-offset-4"
+            onClick={() => {
+              setUseDifferentAccount(true);
+              void websiteSession.signOut();
+            }}
+          >
+            {t("Use a different account")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="rounded-panel border border-line-strong/80 bg-ink-900/80 shadow-raised backdrop-blur-xl card-pad">
@@ -298,16 +391,16 @@ export function ReportsAuthForm() {
           </Link>
 
           <div className="mt-3.5 flex items-center gap-2">
-            <span className="eyebrow text-brand-300">{t(customerAccess ? "Customer portal" : "Operations Suite")}</span>
+            <span className="eyebrow text-brand-300">{t(variant === "account" ? "Customer account" : customerAccess ? "Customer portal" : "Operations Suite")}</span>
             <span className="text-text-faint">/</span>
-            <span className="eyebrow text-text-muted">{t(customerAccess ? "Inquiry access" : "Reports Access")}</span>
+            <span className="eyebrow text-text-muted">{t(variant === "account" ? "Inquiries & chat" : customerAccess ? "Inquiry access" : "Reports Access")}</span>
           </div>
 
           <h1 className="mt-2 text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
-            {step === "otp" ? t("Enter Verification Code") : step === "set-password" ? t("Set your password") : t("Sign in")}
+            {step === "otp" ? t("Enter Verification Code") : step === "set-password" ? t("Set your password") : signupRequested && mode === "otp" ? t("Create your account") : t("Sign in")}
           </h1>
           <p className="mt-2 text-xs leading-relaxed text-text-muted">
-            {step === "otp" ? t.template`Enter the 6-digit verification code sent to ${email}` : step === "set-password" ? t("Create a reusable password so future sign-ins do not require email access.") : mode === "password" ? t("Sign in with your email and password.") : t("Use an email code to sign up, recover access, or set a password.")}
+            {step === "otp" ? t.template`Enter the 6-digit verification code sent to ${email}` : step === "set-password" ? t("Create a reusable password so future sign-ins do not require email access.") : variant === "account" ? t("Sign in or create one secure account to submit inquiries, follow current status, manage documents, and chat on your own inquiry.") : mode === "password" ? t("Sign in with your email and password.") : t("Use an email code to sign up, recover access, or set a password.")}
           </p>
         </div>
 
@@ -346,9 +439,13 @@ export function ReportsAuthForm() {
         {step === "email" && mode === "password" ? (
           <form onSubmit={handlePasswordSignIn} className="mt-5 space-y-3.5">
             <label htmlFor="password-email" className="block text-2xs font-mono uppercase tracking-wider text-text-secondary">{t("Email address")}</label>
-            <input id="password-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
+            <input id="password-email" name="email" type="email" required autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
             <label htmlFor="password-value" className="block text-2xs font-mono uppercase tracking-wider text-text-secondary">{t("Password")}</label>
-            <input id="password-value" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
+            <input id="password-value" name="password" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
+            <div className="rounded-xl border border-brand-400/30 bg-brand-500/10 px-3 py-2.5 text-left text-xs leading-relaxed text-brand-100">
+              <strong className="font-semibold">{t("Saved sign-in")}</strong>
+              <p className="mt-0.5 text-brand-100/80">{t("Your secure sign-in stays saved on this device and renews automatically. Sign out only when you want this browser to forget it.")}</p>
+            </div>
             <Button type="submit" variant="primary" size="lg" loading={loading} className="w-full justify-center">{t("Sign in")}</Button>
             <button type="button" onClick={() => setMode("otp")} className="w-full text-xs text-brand-300 underline underline-offset-4">{t("New account or forgot password? Use an email code")}</button>
           </form>
@@ -363,12 +460,13 @@ export function ReportsAuthForm() {
               </label>
               <input
                 id="reports-email"
+                name="email"
                 type="email"
                 required
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="operator@proglass.ae"
+                placeholder={variant === "account" ? "you@company.com" : "operator@proglass.ae"}
                 className="w-full rounded-xl border border-line-strong/80 bg-ink-950/80 px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400 transition-colors"
               />
             </div>
@@ -388,9 +486,9 @@ export function ReportsAuthForm() {
         ) : step === "set-password" ? (
           <form onSubmit={handleSetPassword} className="mt-5 space-y-3.5">
             <label htmlFor="new-password" className="block text-2xs font-mono uppercase tracking-wider text-text-secondary">{t("New password")}</label>
-            <input id="new-password" type="password" minLength={8} required autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
+            <input id="new-password" name="password" type="password" minLength={8} required autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
             <label htmlFor="confirm-password" className="block text-2xs font-mono uppercase tracking-wider text-text-secondary">{t("Confirm password")}</label>
-            <input id="confirm-password" type="password" minLength={8} required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
+            <input id="confirm-password" name="password-confirmation" type="password" minLength={8} required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
             <Button type="submit" variant="primary" size="lg" loading={loading} className="w-full justify-center">{t("Save password and continue")}</Button>
             <button type="button" onClick={() => { router.push(redirectTo); router.refresh(); }} className="w-full text-xs text-text-muted underline underline-offset-4">{t("Skip for now")}</button>
           </form>
@@ -422,6 +520,7 @@ export function ReportsAuthForm() {
               <input
                 ref={otpInputRef}
                 id="reports-otp"
+                name="one-time-code"
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -483,7 +582,10 @@ export function ReportsAuthForm() {
           </div>
 
           <p className="text-2xs text-text-muted leading-relaxed">
-            {t(customerAccess ? "Authentication protects your inquiry details, projects, and private documents." : "Public marketing pages remain accessible to all visitors. Authentication is strictly required for live operational reports and database records.")}
+            {t(variant === "account" ? "Authentication protects your inquiry details, project documents, current status, and inquiry chat." : customerAccess ? "Authentication protects your inquiry details, projects, and private documents." : "Public marketing pages remain accessible to all visitors. Authentication is strictly required for live operational reports and database records.")}
+          </p>
+          <p className="text-2xs leading-relaxed text-text-faint">
+            {t("After sign-in, this browser remembers your secure session until you sign out or clear browser data.")}
           </p>
 
           <div className="pt-2">

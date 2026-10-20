@@ -902,7 +902,7 @@ const FILE_CHIP = [BODY, El("li", "font-mono text-2xs text-brand-200/90 break-al
 /* G1 LANDED: crystal-engine §C1 lifts the carrier to glass and globals'
    daylight legibility grammar re-inks the foil — the four G1 pins sprung
    and were promoted to these ordinary floor probes (1.25→fixed). */
-for (const family of ["crystal", "studio", "monet", "industrial"]) {
+for (const family of ["crystal", "neumorphism", "monet", "industrial"]) {
   probeIn(family, "service file chip (bg-ink-950/60 + text-brand-200/90) · post-G1", MODES, FILE_CHIP, 4.5);
 }
 
@@ -945,7 +945,7 @@ probeIn("crystal", "inline code chip (bg-ink-850 + text-brand-100)", MODES,
   [BODY, El("p", "text-text-secondary"), El("code", "rounded bg-ink-850 px-1.5 py-0.5 font-mono text-brand-100")], 4.5);
 /* The inline-code defect class exists wherever brand-100 rides a foil —
    it is family-generic: same grammar, four times. */
-for (const family of ["studio", "monet", "industrial"]) {
+for (const family of ["neumorphism", "monet", "industrial"]) {
   probeIn(family, "inline code chip (bg-ink-850 + text-brand-100)", MODES,
     [BODY, El("p", "text-text-secondary"), El("code", "rounded bg-ink-850 px-1.5 py-0.5 font-mono text-brand-100")], 4.5);
 }
@@ -1045,7 +1045,7 @@ probe("xcheck badge danger", MODES, [...X_MACHINE, El("span", `${X_BADGE} border
 probe("xcheck index chip", MODES, [BODY, El("div", "surface p-5"), El("span", "index-chip inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.6rem] border border-brand-500/45 bg-brand-600/25 font-mono text-xs font-bold text-brand-200")]);
 probe("xcheck faint evidence on surface-raised", MODES, [BODY, El("div", "surface-raised p-6"), El("p", "mt-4 font-mono text-2xs text-text-faint")]);
 probe("xcheck state-warning on surface-raised", MODES, [BODY, El("div", "surface-raised p-6"), El("dd", "mt-2 text-sm font-semibold text-state-warning")]);
-for (const fam of ["crystal", "studio", "monet", "industrial"]) {
+for (const fam of ["crystal", "neumorphism", "monet", "industrial"]) {
   probeIn(fam, "xcheck machine extension (text-muted)", MODES, [...X_MACHINE, El("h3", "font-mono text-sm font-semibold text-text-primary"), El("span", "text-text-muted")]);
   probeIn(fam, "xcheck badge warning", MODES, [...X_MACHINE, El("span", `${X_BADGE} border-state-warning/50 bg-state-warning/22 text-state-warning`)]);
   probeIn(fam, "xcheck faint evidence on surface-raised", MODES, [BODY, El("div", "surface-raised p-6"), El("p", "mt-4 font-mono text-2xs text-text-faint")]);

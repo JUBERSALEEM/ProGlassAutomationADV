@@ -37,23 +37,34 @@ export function AppearancePreview() {
   const family = useAppearance();
   const studio = useStudio();
 
-  /* The Clay-paused edge controls must ANSWER, not freeze (the "Border
-     line button is unresponsive" fix): hard-disabled buttons and a
-     pointer-events veil read exactly like a hung UI. In Clay the gate
-     stays — no border token is ever written — but touching a paused
-     preset or the paused dial explains itself and takes the visitor to
-     Corner depth, the dial that replaces it. */
+  /* The paused edge controls must ANSWER, not freeze (the "Border line
+     button is unresponsive" fix): hard-disabled buttons and a
+     pointer-events veil read exactly like a hung UI. Clay replaces the
+     stroke with Corner depth; Neumorphism replaces it with Depth. Touching
+     a paused preset or dial explains itself and takes the visitor to the
+     material control that actually shapes that boundary. */
+  const edgePaused = family === "clay" || family === "neumorphism";
   const [edgePausedNotice, setEdgePausedNotice] = useState(false);
   const [cornerDepthHot, setCornerDepthHot] = useState(false);
+  const [neuDepthHot, setNeuDepthHot] = useState(false);
   const cornerDepthRef = useRef<HTMLDivElement | null>(null);
+  const neuDepthRef = useRef<HTMLDivElement | null>(null);
   const cornerDepthHotTimer = useRef<number | null>(null);
-  const explainClayEdge = () => {
+  const neuDepthHotTimer = useRef<number | null>(null);
+  const explainPausedEdge = () => {
     setEdgePausedNotice(true);
-    setCornerDepthHot(true);
-    if (cornerDepthHotTimer.current) window.clearTimeout(cornerDepthHotTimer.current);
-    cornerDepthHotTimer.current = window.setTimeout(() => setCornerDepthHot(false), 2200);
+    const neumorphismActive = family === "neumorphism";
+    if (neumorphismActive) {
+      setNeuDepthHot(true);
+      if (neuDepthHotTimer.current) window.clearTimeout(neuDepthHotTimer.current);
+      neuDepthHotTimer.current = window.setTimeout(() => setNeuDepthHot(false), 2200);
+    } else {
+      setCornerDepthHot(true);
+      if (cornerDepthHotTimer.current) window.clearTimeout(cornerDepthHotTimer.current);
+      cornerDepthHotTimer.current = window.setTimeout(() => setCornerDepthHot(false), 2200);
+    }
     requestAnimationFrame(() => {
-      const box = cornerDepthRef.current;
+      const box = neumorphismActive ? neuDepthRef.current : cornerDepthRef.current;
       if (!box) return;
       box.scrollIntoView?.({ behavior: "smooth", block: "center" });
       const input = box.querySelector('input[type="range"]');
@@ -151,6 +162,8 @@ export function AppearancePreview() {
       <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-text-secondary">
         {family === "clay" ? (
           <>{t("Clay corner")}<span className="font-medium normal-case tracking-normal text-text-muted">{t("— light and shade, no border line")}</span></>
+        ) : family === "neumorphism" ? (
+          <>{t("Neumorphism depth")}<span className="font-medium normal-case tracking-normal text-text-muted">{t("— soft light and shade, no drawn border")}</span></>
         ) : (
           <>{t("Card edge")}<span className="font-medium normal-case tracking-normal text-text-muted">{t("— the border line and the corner")}</span></>
         )}
@@ -168,7 +181,7 @@ export function AppearancePreview() {
           press. Four weights the application's settings describe: the 1.5 px
           hairline its inputs carry, the 2 px card edge it ships with, and two
           heavier edges for high-DPI or accessibility setups. */}
-      <div className={family === "clay" ? "mt-2 grid grid-cols-2 gap-2 opacity-70 saturate-[0.7] sm:grid-cols-4" : "mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4"}>
+      <div className={edgePaused ? "mt-2 grid grid-cols-2 gap-2 opacity-70 saturate-[0.7] sm:grid-cols-4" : "mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4"}>
         {EDGE_PRESETS.map((preset) => {
           const active = Math.abs(studio.edge - preset.edge) < 0.001;
           return (
@@ -176,8 +189,8 @@ export function AppearancePreview() {
               key={t(preset.label)}
               type="button"
               aria-pressed={active}
-              aria-disabled={family === "clay"}
-              onClick={() => (family === "clay" ? explainClayEdge() : setStudio({ edge: preset.edge }))}
+              aria-disabled={edgePaused}
+              onClick={() => (edgePaused ? explainPausedEdge() : setStudio({ edge: preset.edge }))}
               title={t(preset.note)}
               className={cn(
                 "flex flex-col items-center gap-1.5 rounded-card border-2 px-2 py-2.5 text-[0.75rem] font-bold transition-colors",
@@ -189,7 +202,14 @@ export function AppearancePreview() {
               <span
                 aria-hidden="true"
                 className="h-4 w-8 rounded-[0.35rem] bg-ink-900"
-                style={{ border: `${preset.edge}px solid var(--card-edge)` }}
+                style={
+                  family === "neumorphism"
+                    ? {
+                        border: "1px solid rgb(var(--neu-light-source) / 0.18)",
+                        boxShadow: "var(--neu-shadow-small)",
+                      }
+                    : { border: `${preset.edge}px solid var(--card-edge)` }
+                }
               />
               {t(preset.label)}
             </button>
@@ -197,17 +217,19 @@ export function AppearancePreview() {
         })}
       </div>
 
-      {family === "clay" && edgePausedNotice ? (
+      {edgePaused && edgePausedNotice ? (
         <p role="status" className="mt-3 rounded-card bg-brand-500/15 px-3 py-2 text-[0.6875rem] font-semibold leading-relaxed text-text-primary">
-          {t("That control is paused in Clay, not broken: clay cards draw no border line. Corner depth — highlighted for you below — is the dial that shapes the clay edge.")}
+          {family === "neumorphism"
+            ? t("That control is paused in Neumorphism, not broken: its cards keep only a separation hairline. Depth — highlighted for you below — is the dial that shapes the soft-extruded edge.")
+            : t("That control is paused in Clay, not broken: clay cards draw no border line. Corner depth — highlighted for you below — is the dial that shapes the clay edge.")}
         </p>
       ) : null}
 
       <div className="mt-3 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-start">
         <div className="space-y-3.5">
           <div
-            onPointerDownCapture={family === "clay" ? (event) => { event.preventDefault(); explainClayEdge(); } : undefined}
-            onKeyDownCapture={family === "clay" ? (event) => { if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"].includes(event.key)) { event.preventDefault(); explainClayEdge(); } } : undefined}
+            onPointerDownCapture={edgePaused ? (event) => { event.preventDefault(); explainPausedEdge(); } : undefined}
+            onKeyDownCapture={edgePaused ? (event) => { if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"].includes(event.key)) { event.preventDefault(); explainPausedEdge(); } } : undefined}
           >
             <Slider
               label={t("Card edge")}
@@ -219,7 +241,9 @@ export function AppearancePreview() {
               onChange={(value) => setStudio({ edge: value })}
               hint={family === "clay"
                 ? t("Paused in Clay — touch it and it takes you to Corner depth, the dial that replaces it.")
-                : t("1.5 px is the hairline the app uses for inputs; 2 px is the defined card edge it ships with.")}
+                : family === "neumorphism"
+                  ? t("Paused in Neumorphism — touch it and it takes you to Depth, the dial that replaces it.")
+                  : t("1.5 px is the hairline the app uses for inputs; 2 px is the defined card edge it ships with.")}
             />
           </div>
           {family === "clay" ? (
@@ -235,6 +259,41 @@ export function AppearancePreview() {
               hint={t("Soft light from the top-left and shade pooling bottom-right inside the rounded corner. No border is drawn.")}
             />
             </div>
+          ) : family === "neumorphism" ? (
+            <>
+              <div ref={neuDepthRef} className={cn("rounded-card", neuDepthHot && "ring-2 ring-brand-400/80")}>
+                <Slider
+                  label={t("Depth")}
+                  value={studio.neuDepth}
+                  min={0.35}
+                  max={1.8}
+                  step={0.05}
+                  display={`${studio.neuDepth.toFixed(2)}×`}
+                  onChange={(value) => setStudio({ neuDepth: value })}
+                  hint={t("Paired top-left light and bottom-right shade. The tonal face and text contrast stay fixed.")}
+                />
+              </div>
+              <Slider
+                label={t("Distance")}
+                value={studio.neuDistance}
+                min={0.5}
+                max={1.8}
+                step={0.05}
+                display={`${studio.neuDistance.toFixed(2)}×`}
+                onChange={(value) => setStudio({ neuDistance: value })}
+                hint={t("How far the paired shadows travel from raised and pressed edges.")}
+              />
+              <Slider
+                label={t("Softness")}
+                value={studio.neuSoftness}
+                min={0.5}
+                max={2.2}
+                step={0.05}
+                display={`${studio.neuSoftness.toFixed(2)}×`}
+                onChange={(value) => setStudio({ neuSoftness: value })}
+                hint={t("Shadow blur: firmer and more machined at the low end, melted into the canvas at the high end.")}
+              />
+            </>
           ) : null}
           <Slider
             label={t("Corner radius")}
@@ -266,7 +325,9 @@ export function AppearancePreview() {
           <p className="col-span-3 text-[0.6875rem] leading-snug text-text-muted">
             {family === "clay"
               ? t("Live cards, not a picture: every clay surface takes this corner depth and radius as you move the dials — with no drawn edge.")
-              : t("Live cards, not a picture: every `.surface` on the page takes this edge and this corner as you move the dials.")}
+              : family === "neumorphism"
+                ? t("Live cards, not a picture: every neumorphic surface takes this depth, distance, softness, and radius as you move the dials — with only a separation hairline.")
+                : t("Live cards, not a picture: every `.surface` on the page takes this edge and this corner as you move the dials.")}
           </p>
         </div>
       </div>

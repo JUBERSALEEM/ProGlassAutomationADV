@@ -9,6 +9,7 @@ import {
   THEME_STORAGE_KEY,
   isAppearanceFamily,
   isThemeMode,
+  normalizeAppearanceFamily,
   resolveTheme,
   type AppearanceFamily,
   type ResolvedTheme,
@@ -21,7 +22,7 @@ import {
  * Two choices, one resolved state, and one place that writes it to the document:
  *
  *   mode      Light · Dark · System     — the lightness of every surface
- *   family    Studio · Monet · Industrial · Crystal — the palette
+ *   family    Neumorphism · Monet · Industrial · Crystal · Clay — the material/palette
  *   resolved  midnight | daylight       — what the mode actually resolves to
  *
  * The DOM is the source of truth, and that is deliberate. The inline boot
@@ -120,7 +121,7 @@ function readMode(): ThemeMode {
 
 function readAppearance(): AppearanceFamily {
   const value = document.documentElement.getAttribute("data-appearance");
-  return isAppearanceFamily(value) ? value : DEFAULT_APPEARANCE;
+  return normalizeAppearanceFamily(value);
 }
 
 function readResolved(): ResolvedTheme {
@@ -173,8 +174,9 @@ function syncChromeColour() {
 }
 
 /** Writes every attribute the document needs, and the chrome colour with them. */
-function writeDom(mode: ThemeMode, appearance: AppearanceFamily, options: { flash?: boolean } = {}) {
+function writeDom(mode: ThemeMode, appearanceInput: AppearanceFamily, options: { flash?: boolean } = {}) {
   const root = document.documentElement;
+  const appearance = normalizeAppearanceFamily(appearanceInput);
   /* Read before the write: what is on the document now is the old palette. */
   const wasResolved = readResolved();
   const wasAppearance = readAppearance();
@@ -206,8 +208,9 @@ export function applyTheme(mode: ThemeMode, appearance: AppearanceFamily = readA
 }
 
 export function applyAppearance(appearance: AppearanceFamily, mode: ThemeMode = readMode()) {
-  writeDom(mode, appearance, { flash: true });
-  safeStore(APPEARANCE_STORAGE_KEY, appearance);
+  const normalized = normalizeAppearanceFamily(appearance);
+  writeDom(mode, normalized, { flash: true });
+  safeStore(APPEARANCE_STORAGE_KEY, normalized);
   emit();
 }
 
@@ -251,11 +254,11 @@ function storedMode(): ThemeMode {
   return readMode();
 }
 
-/** The stored palette, or the DOM's current one. */
+/** The stored palette, migrated when retired, or the DOM's current one. */
 function storedAppearance(): AppearanceFamily {
   try {
     const value = window.localStorage.getItem(APPEARANCE_STORAGE_KEY);
-    if (isAppearanceFamily(value)) return value;
+    if (value === "studio" || isAppearanceFamily(value)) return normalizeAppearanceFamily(value);
   } catch {
     /* As above. */
   }

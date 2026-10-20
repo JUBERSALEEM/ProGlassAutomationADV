@@ -1,34 +1,65 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { site } from "@/lib/site";
-import { useT, useHref } from "@/i18n/provider";
+import { useT, useHref, useLocale } from "@/i18n/provider";
 import { Icon } from "@/components/ui/Icon";
+import { InquiryCommunicationPanel } from "@/components/inquiries/InquiryCommunicationPanel";
+import {
+  accountPathForRedirect,
+  countCustomerInquiriesByStatus,
+  customerInquiryChatPath,
+  customerInquiryDetailPath,
+  customerInquiryStatusLabel,
+  customerInquiryTypeLabel,
+  formatCustomerInquiryDate,
+  inquiryCommunicationStats,
+  type InquiryCommunicationStats,
+} from "@/lib/customer-inquiry-chat";
+import { useCustomerInquiries } from "@/lib/useCustomerInquiries";
+import { useWebsiteSession } from "@/lib/website-session";
+import type { InquiryCommunication } from "@/types/inquiry-communications";
 
 /**
- * The support bubble — a chat stoep that hands a real person to you instead
- * of a wizard you have not asked for.
+ * The global support bubble.
  *
- * How this site does "chat support", because reality beats a fake live-chat:
- * no webhook, no agent roster, no 9-to-5 staffing lie. The visitor presses a
- * button and a real channel opens — WhatsApp first (you answer inside the
- * WhatsApp you already carry, the author answers personally, free both ways),
- * email next, and the demo form last. The panel says so in its own words,
- * because a bubble that pretends a live agent is waiting is a debt you pay
- * forever.
- *
- * Trigger sits at the fixed-left mirror of the theme dial. Panel opens
- * upward; Escape and outside clicks close it; focus moves in on open and
- * back to the trigger on close. WhatsApp hides itself quietly when the
- * number is not configured, and every remaining option still works.
+ * Customer inquiry chat is account-bound: a signed-in customer sees only the
+ * completed inquiries returned for their own token and messages are posted to
+ * the selected submission ID through the existing Phase 9D communication API.
+ * WhatsApp, email, and the demo form remain available as general contact
+ * channels, but they are deliberately secondary to the private inquiry thread.
  */
 const OPEN_EVENT = "proglass:open-support";
+const EMPTY_COMMUNICATION_STATS: InquiryCommunicationStats = {
+  messageCount: 0,
+  openInformationRequests: 0,
+  lastActivityAt: null,
+};
+
+function MiniStat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-card border border-line-strong/60 bg-ink-950/70 px-2.5 py-2 text-center">
+      <div className="text-base font-bold leading-none text-text-primary">{value}</div>
+      <div className="mt-1 text-3xs font-mono uppercase tracking-wide text-text-faint">{label}</div>
+    </div>
+  );
+}
 
 export function SupportBubble() {
   const t = useT();
   const href = useHref();
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
+  const websiteSession = useWebsiteSession({ enabled: open });
+  const sessionChecked = !websiteSession.checking;
+  const authToken = websiteSession.accessToken;
+  const userEmail = websiteSession.userEmail;
+  const [selectedInquiryId, setSelectedInquiryId] = useState("");
+  const [communicationStatsState, setCommunicationStatsState] = useState<{
+    inquiryId: string;
+    stats: InquiryCommunicationStats;
+  } | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const wasOpenRef = useRef(false);
@@ -65,6 +96,37 @@ export function SupportBubble() {
     };
   }, [open]);
 
+  const handleUnauthorized = websiteSession.requireAuth;
+
+  const {
+    inquiries,
+    loading: inquiriesLoading,
+    error: inquiriesError,
+    refresh: refreshInquiries,
+  } = useCustomerInquiries(authToken, {
+    enabled: open && Boolean(authToken),
+    onUnauthorized: handleUnauthorized,
+  });
+
+  const selectedInquiry = useMemo(
+    () => inquiries.find((inquiry) => inquiry.id === selectedInquiryId) ?? inquiries[0] ?? null,
+    [inquiries, selectedInquiryId],
+  );
+  const counts = useMemo(() => countCustomerInquiriesByStatus(inquiries), [inquiries]);
+  const communicationStats =
+    communicationStatsState && communicationStatsState.inquiryId === selectedInquiry?.id
+      ? communicationStatsState.stats
+      : EMPTY_COMMUNICATION_STATS;
+
+  const handleCommunicationsChanged = useCallback(
+    (rows: InquiryCommunication[]) => {
+      const inquiryId = rows[0]?.submission_id ?? selectedInquiry?.id;
+      if (!inquiryId) return;
+      setCommunicationStatsState({ inquiryId, stats: inquiryCommunicationStats(rows) });
+    },
+    [selectedInquiry?.id],
+  );
+
   const whatsappHref = site.whatsappNumber
     ? `https://wa.me/${site.whatsappNumber}?text=${encodeURIComponent(
         "Hello — I am on the ProGlass Automation site and have a question.",
@@ -72,6 +134,7 @@ export function SupportBubble() {
     : "";
 
   const mailtoHref = `mailto:${site.developerEmail}?subject=${encodeURIComponent("Support — ProGlass Automation")}`;
+  const signedIn = Boolean(authToken);
 
   return (
     <div ref={rootRef} className="no-print fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] left-[max(1.25rem,env(safe-area-inset-left))] z-40">
@@ -80,13 +143,13 @@ export function SupportBubble() {
           id="support-dialog"
           role="dialog"
           aria-label={t("Support")}
-          className="menu-card animate-scale-in mb-3 w-[min(21rem,calc(100vw-2.5rem))] rounded-panel border-2 border-line-strong/60 bg-ink-900/95 p-4 shadow-raised"
+          className="menu-card animate-scale-in mb-3 max-h-[calc(100dvh-7rem)] w-[min(24rem,calc(100vw-2.5rem))] overflow-y-auto overscroll-contain rounded-panel border-2 border-line-strong/60 bg-ink-900/95 p-4 shadow-raised"
         >
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-sm font-bold text-text-primary">{t("Talk to the person who builds it")}</p>
+              <p className="text-sm font-bold text-text-primary">{t("Inquiry chat & support")}</p>
               <p className="mt-1 text-xs leading-relaxed text-text-muted">
-                {t("No bots and no ticket queues. Pick a channel and a real reply lands there — usually the same day, Gulf Standard Time.")}
+                {t("Signed-in customers can chat privately on their own inquiry reference or join the signed-in community room for general discussion.")}
               </p>
             </div>
             <button
@@ -101,7 +164,217 @@ export function SupportBubble() {
             </button>
           </div>
 
-          <div className="mt-4 space-y-2">
+          <section aria-label={t("Community chat")} className="mt-4 rounded-card border-2 border-emerald-400/40 bg-emerald-500/10 p-3.5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-bold text-text-primary">{t("Community chat")}</h2>
+                <p className="mt-1 text-xs leading-relaxed text-text-muted">
+                  {t("One signed-in group room for normal general discussion. Keep private project details in inquiry chat.")}
+                </p>
+              </div>
+              <span className="shrink-0 rounded-full border border-emerald-400/50 bg-emerald-400/10 px-2 py-0.5 text-3xs font-bold uppercase text-emerald-200">
+                {t("Live")}
+              </span>
+            </div>
+            <Link
+              href={href("/chat")}
+              onClick={() => setOpen(false)}
+              className="mt-3 block rounded-card bg-emerald-400 px-3 py-2.5 text-center text-xs font-bold text-accent-ink"
+            >
+              {t("Open community chat")}
+            </Link>
+          </section>
+
+          <section aria-label={t("Customer inquiry chat")} className="mt-4 rounded-card border-2 border-brand-400/40 bg-ink-950/60 p-3.5">
+            {!sessionChecked ? (
+              <p role="status" className="text-xs text-text-muted">{t("Checking your account…")}</p>
+            ) : websiteSession.unavailable && !signedIn ? (
+              <>
+                <h2 className="text-sm font-bold text-text-primary">{t("Saved sign-in could not be confirmed")}</h2>
+                <p className="mt-1 text-xs leading-relaxed text-text-muted">
+                  {t("The authentication service is temporarily unreachable. Your saved sign-in has not been discarded.")}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void websiteSession.refreshSession()}
+                  className="mt-3 block w-full rounded-card bg-brand-400 px-3 py-2.5 text-center text-xs font-bold text-accent-ink"
+                >
+                  {t("Retry saved sign-in")}
+                </button>
+              </>
+            ) : !signedIn ? (
+              <>
+                <h2 className="text-sm font-bold text-text-primary">{t("Customer inquiry chat")}</h2>
+                <p className="mt-1 text-xs leading-relaxed text-text-muted">
+                  {t("Sign in or create one website account to submit inquiries, follow current status, and chat privately on your own inquiry.")}
+                </p>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <Link
+                    href={href(accountPathForRedirect("/inquiries/chat"))}
+                    onClick={() => setOpen(false)}
+                    className="rounded-card bg-brand-400 px-3 py-2.5 text-center text-xs font-bold text-accent-ink"
+                  >
+                    {t("Sign in")}
+                  </Link>
+                  <Link
+                    href={href(accountPathForRedirect("/inquiries/chat", "signup"))}
+                    onClick={() => setOpen(false)}
+                    className="rounded-card border border-line-strong px-3 py-2.5 text-center text-xs font-bold text-brand-300"
+                  >
+                    {t("Create account")}
+                  </Link>
+                </div>
+                <Link
+                  href={href(accountPathForRedirect("/inquiries/submit"))}
+                  onClick={() => setOpen(false)}
+                  className="mt-2 block rounded-card border border-line-strong/70 px-3 py-2.5 text-center text-xs font-semibold text-text-secondary"
+                >
+                  {t("Start an inquiry after sign-in")}
+                </Link>
+              </>
+            ) : (
+              <>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-sm font-bold text-text-primary">{t("Your inquiry chat")}</h2>
+                    {userEmail ? <p className="mt-0.5 break-all text-3xs text-text-faint">{userEmail}</p> : null}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={refreshInquiries}
+                    className="shrink-0 rounded-card border border-line-strong px-2.5 py-1.5 text-3xs font-bold text-brand-300"
+                  >
+                    {t("Refresh")}
+                  </button>
+                </div>
+
+                {inquiriesError ? (
+                  <p role="alert" className="mt-3 text-xs leading-relaxed text-state-danger">{inquiriesError}</p>
+                ) : inquiriesLoading && inquiries.length === 0 ? (
+                  <p role="status" className="mt-3 text-xs text-text-muted">{t("Loading your inquiries…")}</p>
+                ) : inquiries.length === 0 ? (
+                  <>
+                    <p className="mt-2 text-xs leading-relaxed text-text-muted">
+                      {t("You have no completed inquiry yet. Submit one first; its reference will connect the status, documents, and chat.")}
+                    </p>
+                    <Link
+                      href={href("/inquiries/submit")}
+                      onClick={() => setOpen(false)}
+                      className="mt-3 block rounded-card bg-brand-400 px-3 py-2.5 text-center text-xs font-bold text-accent-ink"
+                    >
+                      {t("Submit an inquiry")}
+                    </Link>
+                  </>
+                ) : selectedInquiry ? (
+                  <>
+                    <div className="mt-3 grid grid-cols-4 gap-2">
+                      <MiniStat label={t("Total")} value={counts.total} />
+                      <MiniStat label={t("Submitted")} value={counts.submitted} />
+                      <MiniStat label={t("Review")} value={counts.under_review} />
+                      <MiniStat label={t("Accepted")} value={counts.acceptedOrDownloaded} />
+                    </div>
+                    <p className="mt-2 text-center text-3xs text-text-faint">
+                      {t.template`${counts.closedOrRejected} closed/rejected · ${counts.active} active`}
+                    </p>
+
+                    <label htmlFor="support-inquiry-select" className="mt-3 block text-3xs font-mono uppercase tracking-wider text-text-faint">
+                      {t("Chat about inquiry")}
+                    </label>
+                    <select
+                      id="support-inquiry-select"
+                      value={selectedInquiry.id}
+                      onChange={(event) => setSelectedInquiryId(event.target.value)}
+                      className="mt-1 h-10 w-full rounded-card border border-line-strong bg-ink-950 px-2 text-xs text-text-primary"
+                    >
+                      {inquiries.map((inquiry) => (
+                        <option key={inquiry.id} value={inquiry.id}>
+                          {inquiry.submission_reference} — {inquiry.project_name} ({customerInquiryStatusLabel(inquiry.status)})
+                        </option>
+                      ))}
+                    </select>
+
+                    <div className="mt-3 rounded-card border border-line-strong/60 bg-ink-900/70 p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="font-mono text-xs font-bold text-brand-300">{selectedInquiry.submission_reference}</span>
+                        <span className="rounded-full border border-brand-400/50 px-2 py-0.5 text-3xs font-bold uppercase text-brand-200">
+                          {t(customerInquiryStatusLabel(selectedInquiry.status))}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm font-semibold text-text-primary">{selectedInquiry.project_name}</p>
+                      <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-3xs">
+                        <div>
+                          <dt className="text-text-faint">{t("Type")}</dt>
+                          <dd className="mt-0.5 font-semibold text-text-secondary">{t(customerInquiryTypeLabel(selectedInquiry.inquiry_type))}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-text-faint">{t("Documents")}</dt>
+                          <dd className="mt-0.5 font-semibold text-text-secondary">{selectedInquiry.document_count}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-text-faint">{t("Submitted")}</dt>
+                          <dd className="mt-0.5 font-semibold text-text-secondary">{formatCustomerInquiryDate(selectedInquiry.submitted_at, locale)}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-text-faint">{t("Response estimate")}</dt>
+                          <dd className="mt-0.5 font-semibold text-text-secondary">
+                            {selectedInquiry.estimated_response_at
+                              ? formatCustomerInquiryDate(selectedInquiry.estimated_response_at, locale)
+                              : t("Pending review")}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-text-faint">{t("Chat messages")}</dt>
+                          <dd className="mt-0.5 font-semibold text-text-secondary">{communicationStats.messageCount}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-text-faint">{t("Open info requests")}</dt>
+                          <dd className="mt-0.5 font-semibold text-text-secondary">{communicationStats.openInformationRequests}</dd>
+                        </div>
+                        <div className="col-span-2">
+                          <dt className="text-text-faint">{t("Last chat activity")}</dt>
+                          <dd className="mt-0.5 font-semibold text-text-secondary">{formatCustomerInquiryDate(communicationStats.lastActivityAt, locale)}</dd>
+                        </div>
+                      </dl>
+                      <div className="mt-3 grid grid-cols-2 gap-2">
+                        <Link
+                          href={href(customerInquiryChatPath(selectedInquiry.id))}
+                          onClick={() => setOpen(false)}
+                          className="rounded-card border border-line-strong px-2 py-2 text-center text-3xs font-bold text-brand-300"
+                        >
+                          {t("Full chat workspace")}
+                        </Link>
+                        <Link
+                          href={href(customerInquiryDetailPath(selectedInquiry.id))}
+                          onClick={() => setOpen(false)}
+                          className="rounded-card border border-line-strong px-2 py-2 text-center text-3xs font-bold text-text-secondary"
+                        >
+                          {t("Inquiry details")}
+                        </Link>
+                      </div>
+                    </div>
+
+                    <p className="mt-3 text-3xs leading-relaxed text-text-faint">
+                      {t.template`Messages are saved against ${selectedInquiry.submission_reference} and visible only to you and authorized ProGlass staff.`}
+                    </p>
+                    <div className="mt-3">
+                      <InquiryCommunicationPanel
+                        key={selectedInquiry.id}
+                        submissionId={selectedInquiry.id}
+                        token={authToken ?? ""}
+                        internalAccess={false}
+                        compact
+                        onCommunicationsChanged={handleCommunicationsChanged}
+                        onUnauthorized={handleUnauthorized}
+                      />
+                    </div>
+                  </>
+                ) : null}
+              </>
+            )}
+          </section>
+
+          <p className="mt-4 text-3xs font-mono uppercase tracking-wider text-text-faint">{t("Other ways to reach us")}</p>
+          <div className="mt-2 space-y-2">
             {site.whatsappNumber ? (
               <a
                 href={whatsappHref}
@@ -162,7 +435,7 @@ export function SupportBubble() {
           </div>
 
           <p className="mt-3 border-t border-line/60 pt-2.5 text-2xs leading-relaxed text-text-faint">
-            {t("Nothing here is stored, tracked, or seen by anyone else until you choose to send.")}
+            {t("WhatsApp and email open outside this website. Inquiry-chat messages are stored only against your selected inquiry after you press send.")}
           </p>
         </div>
       ) : null}

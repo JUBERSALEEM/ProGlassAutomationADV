@@ -21,7 +21,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <html lang="en" data-theme="midnight" data-theme-mode="dark" data-appearance="studio">
+    <html lang="en" data-theme="midnight" data-theme-mode="dark" data-appearance="neumorphism">
       <body className="bg-ink-950 text-text-secondary antialiased">
         <main className="flex min-h-screen items-center justify-center px-6 py-16">
           <div className="w-full max-w-xl rounded-panel border border-line-strong/70 bg-ink-900 shadow-raised card-pad">

@@ -85,10 +85,13 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  /* `https://*.supabase.co` in development; in production, strictly allow the project's own origin. */
+  /* `https://*.supabase.co` in development; in production, strictly allow the
+   * project's own REST/Auth origin plus its Realtime WebSocket origin. Some
+   * browsers do not treat an https connect-src source as permission for wss,
+   * so community-chat live updates need the explicit wss entry. */
   isDevelopment
     ? "connect-src 'self' ws: wss: https://*.supabase.co"
-    : "connect-src 'self' https://afpbdyamedpanwijxghk.supabase.co",
+    : "connect-src 'self' https://afpbdyamedpanwijxghk.supabase.co wss://afpbdyamedpanwijxghk.supabase.co",
   "form-action 'self'",
   ...(isDevelopment ? [] : ["frame-ancestors 'none'"]),
   "base-uri 'self'",

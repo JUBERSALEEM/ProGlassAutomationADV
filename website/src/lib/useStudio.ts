@@ -5,6 +5,7 @@ import { hslToRgb, rgbToHsl, rampFor, shift, triplet } from "@/lib/color";
 import {
   accentPresets,
   appearanceFamilies,
+  DEFAULT_APPEARANCE,
   type AppearanceFamily,
 } from "@/data/themes";
 import { setAppearance } from "@/lib/useTheme";
@@ -128,6 +129,15 @@ export type Studio = {
   glassFrost: number;
   glassBody: number;
   glassGlint: number;
+  /**
+   * The Neumorphism bench — three material multipliers for the tonal
+   * extruded family. Depth scales paired light/shade alpha, distance scales
+   * their offset from the surface, and softness scales blur. They never move
+   * surface lightness, so text contrast remains owned by the engine recipe.
+   */
+  neuDepth: number;
+  neuDistance: number;
+  neuSoftness: number;
 };
 
 export const defaultStudio: Studio = {
@@ -156,6 +166,9 @@ export const defaultStudio: Studio = {
   glassFrost: 1,
   glassBody: 1,
   glassGlint: 1,
+  neuDepth: 1,
+  neuDistance: 1,
+  neuSoftness: 1,
 };
 
 /*
@@ -302,6 +315,9 @@ export function normalizeStudio(raw: Partial<Studio> | null | undefined): Studio
   merged.glassFrost = finite(merged.glassFrost, 0.25, 3, 1);
   merged.glassBody = finite(merged.glassBody, 0.25, 3, 1);
   merged.glassGlint = finite(merged.glassGlint, 0, 3, 1);
+  merged.neuDepth = finite(merged.neuDepth, 0.35, 1.8, 1);
+  merged.neuDistance = finite(merged.neuDistance, 0.5, 1.8, 1);
+  merged.neuSoftness = finite(merged.neuSoftness, 0.5, 2.2, 1);
   merged.clayPlate = Number.isInteger(merged.clayPlate) && merged.clayPlate >= 1 && merged.clayPlate <= 6 ? merged.clayPlate : defaultStudio.clayPlate;
   merged.clayCards = Number.isInteger(merged.clayCards) && merged.clayCards >= 1 && merged.clayCards <= 6 ? merged.clayCards : defaultStudio.clayCards;
 
@@ -635,8 +651,9 @@ export function applyStudioVars(studio: Studio) {
   const target = root.getAttribute("data-theme") === "daylight" ? "light" : "dark";
   const vars: Record<string, string> = {};
 
-  const family = root.getAttribute("data-appearance") ?? "studio";
-  const base = studio.accent ?? FAMILY_ACCENT[family] ?? FAMILY_ACCENT["studio"]!;
+  const rawFamily = root.getAttribute("data-appearance") ?? DEFAULT_APPEARANCE;
+  const family = rawFamily === "studio" ? "neumorphism" : rawFamily;
+  const base = studio.accent ?? FAMILY_ACCENT[family] ?? FAMILY_ACCENT[DEFAULT_APPEARANCE]!;
   // A family on its own keeps its hand-tuned ramp; the moment the visitor
   // moves any ramp control, the ramp is rebuilt from that family's colour.
   /* P18 — the spectrum reaches the write path too. A bench is now always
@@ -724,6 +741,20 @@ export function applyStudioVars(studio: Studio) {
   }
   if (studio.glassGlint !== defaultStudio.glassGlint) {
     vars["--glass-glint-mult"] = finite(studio.glassGlint, 0, 3, 1).toFixed(2);
+  }
+
+  /* The Neumorphism bench. The engine stylesheet owns the recipe at 1.00;
+     moved dials write only their multiplier. Depth changes light/shade alpha,
+     distance changes offset, and softness changes blur — none moves a surface
+     lightness step, so the engine's text contrast ladder cannot drift. */
+  if (studio.neuDepth !== defaultStudio.neuDepth) {
+    vars["--neu-depth"] = finite(studio.neuDepth, 0.35, 1.8, 1).toFixed(2);
+  }
+  if (studio.neuDistance !== defaultStudio.neuDistance) {
+    vars["--neu-distance"] = finite(studio.neuDistance, 0.5, 1.8, 1).toFixed(2);
+  }
+  if (studio.neuSoftness !== defaultStudio.neuSoftness) {
+    vars["--neu-softness"] = finite(studio.neuSoftness, 0.5, 2.2, 1).toFixed(2);
   }
 
   /*
@@ -1010,6 +1041,76 @@ export function applyStudioVars(studio: Studio) {
         vars["--wall-wash-2"] = `rgb(${rot(14, target === "dark" ? Math.min(0.72, effS) : Math.min(0.65, effS), target === "dark" ? 0.54 : 0.78)} / ${target === "dark" ? 0.18 : 0.3})`;
       }
     }
+  }
+
+  /*
+   * Neumorphism adoption. This intentionally runs after the Clay derivation:
+   * that shared bench writes generic ink/line/pool channels, and the tonal
+   * material must have the final word when its own family is active. Only
+   * hue is adopted from the effective accent. Saturation is capped at a
+   * material tint and every lightness step remains on the engine ladder, so
+   * a vivid plate can re-hue the room without moving text contrast.
+   */
+  if (family === "neumorphism" && tuned) {
+    const neuHsl = rgbToHsl(hexToTriplet(base));
+    const neuAchromatic = (neuHsl.s < 0.02 || richness === 0) && Math.abs(vivid) < 0.02;
+    const neuSaturation = neuAchromatic
+      ? 0
+      : Math.min(0.22, Math.max(0.06, (neuHsl.s * richness + vivid) * 0.28));
+    const neuLift = bright * 0.35;
+    const neuColor = (lightness: number, saturationScale = 1) =>
+      triplet(
+        hslToRgb({
+          h: neuHsl.h,
+          s: Math.min(0.26, neuSaturation * saturationScale),
+          l: Math.min(0.995, Math.max(0.03, lightness + neuLift)),
+        }),
+      );
+
+    const neuCanvas = neuColor(target === "dark" ? 0.145 : 0.875);
+    const neuFace = neuColor(target === "dark" ? 0.165 : 0.885);
+    const neuRaised = neuColor(target === "dark" ? 0.19 : 0.905);
+    const neuOverlay = neuColor(target === "dark" ? 0.215 : 0.93);
+    const neuInset = neuColor(target === "dark" ? 0.115 : 0.815);
+    const neuLightSource = neuColor(target === "dark" ? 0.34 : 0.995, 1.08);
+    const neuDarkSource = neuColor(target === "dark" ? 0.045 : 0.66, 1.05);
+    const neuLine = neuColor(target === "dark" ? 0.29 : 0.74);
+
+    vars["--neu-canvas"] = neuCanvas;
+    vars["--neu-face"] = neuFace;
+    vars["--neu-raised"] = neuRaised;
+    vars["--neu-overlay"] = neuOverlay;
+    vars["--neu-inset"] = neuInset;
+    vars["--neu-light-source"] = neuLightSource;
+    vars["--neu-dark-source"] = neuDarkSource;
+    vars["--neu-line"] = neuLine;
+
+    vars["--ink-950"] = neuCanvas;
+    vars["--ink-900"] = neuFace;
+    vars["--ink-850"] = neuRaised;
+    vars["--ink-800"] = neuOverlay;
+    vars["--ink-700"] = neuLine;
+    vars["--line"] = neuLine;
+    vars["--line-soft"] = neuInset;
+    vars["--line-strong"] = neuLightSource;
+
+    vars["--card-tint"] = `rgb(${neuColor(target === "dark" ? 0.38 : 0.48, 1.2)} / 0.07)`;
+    vars["--card-tint-2"] = `rgb(${neuColor(target === "dark" ? 0.48 : 0.58, 1.1)} / 0.045)`;
+    vars["--card-edge"] = `rgb(${neuLightSource} / 0.16)`;
+    vars["--card-edge-hover"] = `rgb(${vars["--brand-400"] ?? neuColor(0.52, 1.4)} / 0.55)`;
+    vars["--pool-1"] = `rgb(${neuLightSource} / ${target === "dark" ? 0.1 : 0.12})`;
+    vars["--pool-2"] = `rgb(${neuColor(0.62, 1.25)} / 0.07)`;
+    vars["--pool-3"] = `rgb(${neuDarkSource} / ${target === "dark" ? 0.12 : 0.06})`;
+    vars["--wall-wash-1"] = `rgb(${neuLightSource} / ${target === "dark" ? 0.07 : 0.12})`;
+    vars["--wall-wash-2"] = `rgb(${neuColor(0.68, 1.15)} / ${target === "dark" ? 0.05 : 0.08})`;
+    vars["--wall-grid"] = `rgb(${neuLightSource} / 0.045)`;
+    vars["--wall-grid-major"] = `rgb(${neuLightSource} / 0.065)`;
+    vars["--wall-sheen"] = `rgb(${neuLightSource} / ${target === "dark" ? 0.035 : 0.18})`;
+    vars["--wall-vignette"] = `rgb(${neuDarkSource} / ${target === "dark" ? 0.5 : 0.1})`;
+    vars["--wall-lamp"] = `rgb(${neuLightSource} / ${target === "dark" ? 0.08 : 0.34})`;
+    vars["--wall-floor"] = `rgb(${neuDarkSource} / ${target === "dark" ? 0.16 : 0.08})`;
+    vars["--viz-grid"] = `rgb(${neuLightSource} / 0.28)`;
+    vars["--viz-plate"] = `rgb(${neuInset} / 0.98)`;
   }
 
   /*

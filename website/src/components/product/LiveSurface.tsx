@@ -1365,7 +1365,7 @@ function AppearanceDeck() {
   const families = [
     { id: "clay", label: t("Clay") },
     { id: "crystal", label: t("Crystal") },
-    { id: "studio", label: t("Studio") },
+    { id: "neumorphism", label: t("Neumorphism") },
     { id: "monet", label: t("Monet") },
     { id: "industrial", label: t("Industrial") },
   ] as const;
@@ -1393,7 +1393,7 @@ function FamilyButton({
   label,
   active,
 }: {
-  id: "clay" | "crystal" | "studio" | "monet" | "industrial";
+  id: "clay" | "crystal" | "neumorphism" | "monet" | "industrial";
   label: string;
   active: boolean;
 }) {

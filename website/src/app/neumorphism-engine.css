@@ -1,0 +1,663 @@
+/* ============================================================================
+ * THE NEUMORPHISM ENGINE — strict soft-extruded material
+ * ============================================================================
+ *
+ * This file owns the `neumorphism` appearance family. It replaces the former
+ * Studio palette family, not the Theme & Colour customisation store.
+ *
+ * Strict neumorphism contract:
+ *
+ *   1. One tonal canvas. Cards are the canvas pushed outward; form wells are
+ *      the same canvas pressed inward. Depth is carried ONLY by paired light
+ *      and shade — never by borders, glass, backdrop blur, or saturated fills.
+ *   2. Light always arrives from the top-left. A light shadow sits top-left,
+ *      a dark shadow sits bottom-right; both are substantial and coloured by
+ *      the material, never neutral grey. Pressed surfaces reverse the pair.
+ *   3. Faces are only a step lighter (dark) or darker (light) than canvas.
+ *      The shadow pair does the modelling, not colour separation.
+ *   4. Corners are large and soft; every surface is rounded.
+ *   5. The three bench dials are multipliers only:
+ *        --neu-depth     shadow alpha
+ *        --neu-distance  shadow offset
+ *        --neu-softness  shadow blur
+ *      `useStudio` writes them only when moved from 1.00.
+ *   6. Accent adoption re-hues the neutral material through `--neu-*` RGB
+ *      channels but must preserve the mode-specific lightness ladder so
+ *      contrast never drifts.
+ *   7. Every selector is scoped to `[data-appearance="neumorphism"]`.
+ */
+
+/* ═══ §N0 · CHANNELS, TOKENS, AND THE SHARED VOCABULARY ═════════════════ */
+
+[data-appearance="neumorphism"] {
+  color-scheme: dark;
+
+  /* Bench multipliers. Inline values from useStudio replace these only when
+     a dial has actually moved; at rest this stylesheet is the recipe. */
+  --neu-depth: 1;
+  --neu-distance: 1;
+  --neu-softness: 1;
+
+  /* Midnight material channels. Face is one step lighter than canvas so the
+     shadow pair can read as extrusion; raised is lighter still so elevated
+     panels pop off the page. Inset wells are darker than canvas so they read
+     as pushed into the surface. */
+  --neu-canvas: 33 37 47;
+  --neu-face: 43 47 58;
+  --neu-raised: 53 58 69;
+  --neu-overlay: 63 69 81;
+  --neu-inset: 26 29 38;
+
+  /* The two shadow colours — light from the top-left, dark to the bottom-right.
+     Kept as raw RGB triplets so every shadow token can divide them by alpha. */
+  --neu-light-source: 238 242 250;
+  --neu-dark-source: 10 11 15;
+  --neu-line: 71 77 92;
+
+  /* Alpha floors per bench multiplier. depth clamps these so a hostile stored
+     value can never erase the shadow pair or blow it out past readable. */
+  --neu-light-alpha: 0.4;
+  --neu-dark-alpha: 0.45;
+
+  /* Re-point the site's shared surface vocabulary at the material channels.
+     Tailwind utilities receive RGB triplets through these tokens. */
+  --ink-950: var(--neu-canvas);
+  --ink-900: var(--neu-face);
+  --ink-850: var(--neu-raised);
+  --ink-800: var(--neu-overlay);
+  --ink-700: var(--neu-line);
+  --line: var(--neu-line);
+  --line-soft: var(--neu-inset);
+  --line-strong: var(--neu-light-source);
+
+  --text-1: 247 248 250;
+  --text-2: 228 232 240;
+  --text-3: 195 201 214;
+  --text-4: 164 171 187;
+
+  /* Large, soft geometry — neumorphism reads best with puffed corners. The
+     visitor's radius dial multiplies through --radius-user. */
+  --radius-family: 1.5;
+
+  /* Solid material: no translucency tiers, no backdrop work, no borders. */
+  --surface-alpha: 1;
+  --surface-alpha-2: 1;
+  --surface-alpha-3: 1;
+  --surface-blur: 0px;
+  --surface-sat: 100%;
+  --surface-specular: 0;
+  --glass-frost: none;
+  --glass-hi: transparent;
+  --glass-lo: transparent;
+  --glass-sheen: transparent;
+  --glass-scrim: transparent;
+  --glass-edge-light: transparent;
+  --glass-edge-dark: transparent;
+  --glass-ring: transparent;
+  --glass-line: transparent;
+  --glass-primary-tint: 0;
+  --glass-primary-glow: transparent;
+
+  --tint-base: 0;
+  --tint-mix: 0;
+  --tint-alpha: 0;
+  --tint-alpha-2: 0;
+  --card-tint: transparent;
+  --card-tint-2: transparent;
+  --card-highlight: transparent;
+  --card-edge: transparent;
+  --card-edge-hover: transparent;
+  --selection: rgb(var(--brand-500) / 0.38);
+
+  /* Keep the room almost still: faint tonal pooling, no coloured aurora. */
+  --pool-1: rgb(var(--neu-light-source) / 0.06);
+  --pool-2: rgb(var(--brand-500) / 0.05);
+  --pool-3: rgb(var(--neu-dark-source) / 0.08);
+  --wall-wash-1: rgb(var(--neu-light-source) / 0.05);
+  --wall-wash-2: rgb(var(--brand-500) / 0.04);
+  --wall-sheen: rgb(var(--neu-light-source) / 0.03);
+  --wall-grid: transparent;
+  --wall-grid-major: transparent;
+  --wall-vignette: rgb(var(--neu-dark-source) / 0.45);
+  --wall-lamp: rgb(var(--neu-light-source) / 0.05);
+  --wall-floor: rgb(var(--neu-dark-source) / 0.1);
+  --sweep-1: transparent;
+  --sweep-2: transparent;
+  --sweep-3: transparent;
+  --sweep-4: transparent;
+  --sweep-5: transparent;
+
+  --viz-grid: rgb(var(--neu-light-source) / 0.25);
+  --viz-part: rgb(var(--brand-400) / 0.9);
+  --viz-part-2: rgb(var(--brand-300) / 0.78);
+  --viz-scrap: rgb(var(--neu-line) / 0.65);
+  --viz-plate: rgb(var(--neu-inset) / 0.98);
+
+  /* Derived geometry. One offset/blur ladder feeds every raised and inset
+     surface so the three bench dials move the whole material as one object.
+     Offsets are large enough to read at 1×; softness is puffy by default. */
+  --neu-offset-sm: calc(4px * var(--neu-distance));
+  --neu-offset: calc(8px * var(--neu-distance));
+  --neu-offset-lg: calc(14px * var(--neu-distance));
+  --neu-blur-sm: calc(14px * var(--neu-softness));
+  --neu-blur: calc(28px * var(--neu-softness));
+  --neu-blur-lg: calc(46px * var(--neu-softness));
+
+  /* Shadow pair: dark bottom-right, light top-left. No inset hairlines —
+     strict neumorphism models edges with shadow alone. alpha is clamped so
+     the pair never vanishes or saturates past readable at any bench value. */
+  --neu-shadow-surface:
+    var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
+      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth) * 0.75)),
+    calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth) * 0.75));
+
+  --neu-shadow-panel:
+    var(--neu-offset) var(--neu-offset) var(--neu-blur)
+      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
+    calc(-1 * var(--neu-offset)) calc(-1 * var(--neu-offset)) var(--neu-blur)
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
+
+  --neu-shadow-raised:
+    var(--neu-offset-lg) var(--neu-offset-lg) var(--neu-blur-lg)
+      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth) * 1.15)),
+    calc(-1 * var(--neu-offset-lg)) calc(-1 * var(--neu-offset-lg)) var(--neu-blur-lg)
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth) * 1.1));
+
+  --neu-shadow-well:
+    inset var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
+      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
+    inset calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
+
+  /* Specular rim light caught by the top-left rounded edge — a thin bright
+     glance that makes the surface read as solid material rather than flat
+     paint. Applied on top of the shadow pair for raised and surface tiers. */
+  --neu-specular:
+    inset calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) calc(var(--neu-blur-sm) * 0.5) 0
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * 0.5 * var(--neu-depth)));
+
+  --shadow-panel: var(--neu-shadow-panel);
+  --shadow-raised: var(--neu-shadow-raised);
+  --shadow-glow:
+    var(--neu-shadow-panel);
+  --shadow-glow-strong:
+    var(--neu-shadow-raised);
+}
+
+[data-theme="daylight"][data-appearance="neumorphism"] {
+  color-scheme: light;
+
+  --neu-canvas: 226 230 236;
+  --neu-face: 232 236 242;
+  --neu-raised: 240 243 247;
+  --neu-overlay: 245 247 250;
+  --neu-inset: 208 214 223;
+  --neu-light-source: 255 255 255;
+  --neu-dark-source: 145 154 166;
+  --neu-line: 181 190 204;
+  --neu-light-alpha: 0.85;
+  --neu-dark-alpha: 0.22;
+
+  --text-1: 30 35 47;
+  --text-2: 48 56 70;
+  --text-3: 76 86 102;
+  --text-4: 99 108 124;
+
+  --wall-vignette: rgb(var(--neu-dark-source) / 0.06);
+  --wall-lamp: rgb(var(--neu-light-source) / 0.2);
+  --wall-floor: rgb(var(--neu-dark-source) / 0.06);
+  --viz-plate: rgb(var(--neu-raised) / 0.98);
+}
+
+/* ═══ §N1 · CANVAS AND UTILITY-CARRIER LIFT ═════════════════════════════ */
+
+[data-appearance="neumorphism"] body {
+  background-color: rgb(var(--neu-canvas));
+}
+
+[data-appearance="neumorphism"] [class*="backdrop-blur"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Utility-authored panes become tonal extrusions: the face colour plus the
+   shadow pair. State and brand fills are deliberately excluded — their
+   semantic colour remains theirs. */
+[data-appearance="neumorphism"]
+  :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"])
+  :where(:not(option):not(.decor):not(.liquid-scene)) {
+  background-color: rgb(var(--neu-face));
+  border-color: transparent;
+  box-shadow: var(--neu-shadow-surface);
+}
+
+[data-appearance="neumorphism"]
+  :is(div, section, article, li, figure, aside, form, fieldset)
+  :is([class*="bg-ink-"], [class*="bg-white"], [class*="bg-glass"])
+  :is(
+    [class*="rounded-card"],
+    [class*="rounded-panel"],
+    [class*="rounded-2xl"],
+    [class*="rounded-3xl"],
+    [class*="rounded-xl"]
+  ) {
+  box-shadow: var(--neu-shadow-panel);
+}
+
+[data-appearance="neumorphism"] :is([class*="border-line"], [class*="border-ink-"]) {
+  border-color: transparent;
+}
+
+[data-appearance="neumorphism"] :is([class*="divide-line"], [class*="divide-ink-"]) > * + * {
+  border-color: transparent;
+}
+
+[data-appearance="neumorphism"] :is([class*="shadow-panel"], .shadow-panel, [class*="shadow-md"], [class*="shadow-lg"]) {
+  box-shadow: var(--neu-shadow-panel);
+}
+
+[data-appearance="neumorphism"] :is([class*="shadow-raised"], .shadow-raised, [class*="shadow-xl"], [class*="shadow-2xl"]) {
+  box-shadow: var(--neu-shadow-raised);
+}
+
+[data-appearance="neumorphism"] :is([class*="shadow-sm"], [class*="shadow-card"], [class*="shadow-accent"]) {
+  box-shadow: var(--neu-shadow-surface);
+}
+
+/* ═══ §N2 · NAMED SURFACES ═══════════════════════════════════════════════ */
+
+/* The generic card-edge dial remains available to the other families, but
+   it must not thicken this material into an outlined card system. Strict
+   neumorphism carries its boundary in shadow, so every surface here keeps a
+   hairline-thin transparent border only to hold anti-aliasing, and the
+   shadow pair does the real work. */
+[data-appearance="neumorphism"]
+  :is(
+    .surface,
+    .surface-raised,
+    .stat-tile,
+    .plate,
+    .card-live,
+    .card-accent,
+    .card-glass,
+    .glass-primary,
+    .glass-rows,
+    .menu-card,
+    .float-card,
+    .panel-feature,
+    .studio-sheet
+  ) {
+  border-width: 1px;
+  border-color: transparent;
+}
+
+[data-appearance="neumorphism"]
+  :is(.surface, .stat-tile, .plate, .card-live, .card-glass, .glass-rows, .studio-sheet) {
+  background-color: rgb(var(--neu-face));
+  box-shadow: var(--neu-shadow-surface);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+[data-appearance="neumorphism"]
+  :is(.surface-raised, .panel-feature, .float-card, .menu-card, .card-accent) {
+  background-color: rgb(var(--neu-raised));
+  box-shadow: var(--neu-shadow-raised);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+[data-appearance="neumorphism"] .glass-primary {
+  background-color: rgb(var(--neu-raised));
+  box-shadow: var(--neu-shadow-raised);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+[data-appearance="neumorphism"] .card-accent {
+  background-image:
+    linear-gradient(150deg, rgb(var(--brand-500) / 0.12) 0%, transparent 55%);
+}
+
+[data-appearance="neumorphism"]
+  .studio-inset,
+  [data-appearance="neumorphism"] .glass-metric,
+  [data-appearance="neumorphism"]
+    :is(.surface, .surface-raised, .plate, .panel-feature)
+    :is(.surface, .stat-tile, .card-live, .studio-inset) {
+  background-color: rgb(var(--neu-inset));
+  box-shadow: var(--neu-shadow-well);
+}
+
+[data-appearance="neumorphism"] .card-interactive {
+  transition:
+    box-shadow var(--dur-card) var(--ease-out),
+    transform var(--dur-lift) var(--ease-out),
+    background-color var(--dur-card) var(--ease-out);
+}
+
+[data-appearance="neumorphism"] .card-interactive:hover,
+[data-appearance="neumorphism"] .card-interactive:focus-visible {
+  border-color: transparent;
+  box-shadow: var(--neu-shadow-raised);
+  transform: translateY(-2px);
+}
+
+[data-appearance="neumorphism"] .card-interactive:active {
+  box-shadow: var(--neu-shadow-well);
+  transform: translateY(1px);
+}
+
+/* Bands are broad tonal fields, not floating cards: keep their section
+   separation but remove the sweep/glow language from the material. */
+[data-appearance="neumorphism"] .band-deep {
+  background-color: rgb(var(--neu-inset));
+  box-shadow: var(--neu-shadow-well);
+}
+
+[data-appearance="neumorphism"] .band-rich {
+  background-color: rgb(var(--neu-face));
+  box-shadow: var(--neu-shadow-surface);
+}
+
+[data-appearance="neumorphism"] .band-solid,
+[data-appearance="neumorphism"] .band-veil {
+  background-color: rgb(var(--neu-canvas));
+}
+
+/* ═══ §N3 · CHROME, MENUS, AND NAVIGATION ═══════════════════════════════ */
+
+[data-appearance="neumorphism"] .nav-glass {
+  background-color: rgb(var(--neu-canvas));
+  box-shadow: var(--neu-shadow-panel);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+[data-appearance="neumorphism"] .nav-glass::after {
+  opacity: 0;
+}
+
+[data-appearance="neumorphism"] .nav-pill {
+  background-color: rgb(var(--neu-face));
+  box-shadow: var(--neu-shadow-panel);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+[data-appearance="neumorphism"] .nav-pill::after {
+  animation: none;
+  opacity: 0;
+}
+
+[data-appearance="neumorphism"] .nav-sheet {
+  background-color: rgb(var(--neu-canvas));
+  box-shadow: var(--neu-shadow-panel);
+}
+
+[data-appearance="neumorphism"]
+  :is(.nav-glass, .nav-pill, .nav-sheet, .menu-card)
+  :is(a, button)[aria-current="page"] {
+  background-color: rgb(var(--neu-inset));
+  box-shadow: var(--neu-shadow-well);
+}
+
+/* ═══ §N4 · BUTTONS, CHIPS, AND PRESSED STATES ═════════════════════════ */
+
+[data-appearance="neumorphism"] .btn-primary {
+  background-color: rgb(var(--brand-600));
+  background-image: linear-gradient(
+    145deg,
+    rgb(var(--brand-400) / 0.35) 0%,
+    transparent 52%,
+    rgb(var(--brand-700) / 0.35) 100%
+  );
+  border-color: transparent;
+  box-shadow:
+    var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
+      rgba(var(--brand-700) / calc(0.5 * var(--neu-depth))),
+    calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
+    inset 1px 1px 0 rgb(255 255 255 / 0.25),
+    inset -1px -1px 0 rgba(var(--brand-700) / 0.3);
+}
+
+[data-appearance="neumorphism"] .btn-primary::before,
+[data-appearance="neumorphism"] .btn::before {
+  background: linear-gradient(
+    100deg,
+    transparent 42%,
+    rgb(255 255 255 / 0.25) 50%,
+    transparent 58%
+  );
+  mix-blend-mode: normal;
+}
+
+[data-appearance="neumorphism"] .btn-primary:hover,
+[data-appearance="neumorphism"] .btn-primary:focus-visible {
+  box-shadow:
+    var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
+      rgba(var(--brand-700) / calc(0.55 * var(--neu-depth))),
+    calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
+    inset 1px 1px 0 rgb(255 255 255 / 0.3),
+    inset -1px -1px 0 rgba(var(--brand-700) / 0.35);
+}
+
+[data-appearance="neumorphism"]
+  :is(.btn-secondary, .btn[class*="bg-ink-"], .btn[class*="border-line"]) {
+  background-color: rgb(var(--neu-face));
+  box-shadow: var(--neu-shadow-surface);
+}
+
+[data-appearance="neumorphism"]
+  :is(.btn-secondary, .btn[class*="bg-ink-"], .btn[class*="border-line"]):hover {
+  background-color: rgb(var(--neu-raised));
+  box-shadow: var(--neu-shadow-panel);
+}
+
+[data-appearance="neumorphism"] .btn:active,
+[data-appearance="neumorphism"] .btn-primary:active,
+[data-appearance="neumorphism"] .btn-secondary:active {
+  box-shadow: var(--neu-shadow-well);
+  transform: translateY(1px);
+}
+
+[data-appearance="neumorphism"] .btn:disabled,
+[data-appearance="neumorphism"] .btn-primary:disabled,
+[data-appearance="neumorphism"] .btn-secondary:disabled {
+  box-shadow: var(--neu-shadow-surface);
+}
+
+[data-appearance="neumorphism"]
+  :is(.chip, .eyebrow-chip, .badge-pill, .icon-chip, .icon-chip-strong, .index-chip) {
+  box-shadow: var(--neu-shadow-surface);
+}
+
+[data-appearance="neumorphism"] :is(.chip, .eyebrow-chip) {
+  background-color: rgb(var(--neu-face));
+  border-color: transparent;
+}
+
+[data-appearance="neumorphism"]
+  :is(button, a, [role="button"])
+  :is([aria-pressed="true"], [aria-selected="true"], [data-pill-on="true"]) {
+  box-shadow: var(--neu-shadow-well);
+}
+
+/* ═══ §N5 · FORM WELLS AND NATIVE CONTROLS ══════════════════════════════ */
+
+[data-appearance="neumorphism"]
+  :is(input, textarea, select, .field-control)
+  :where(
+    :not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"])
+  ) {
+  background-color: rgb(var(--neu-inset));
+  border-color: transparent;
+  box-shadow: var(--neu-shadow-well);
+  color: rgb(var(--text-1));
+  caret-color: rgb(var(--brand-400));
+}
+
+[data-appearance="neumorphism"] :is(input, textarea)::placeholder {
+  color: rgb(var(--text-4));
+  opacity: 1;
+}
+
+[data-appearance="neumorphism"]
+  :is(input, textarea, select, .field-control):focus-visible {
+  outline: 2px solid rgb(var(--brand-400) / 0.78);
+  outline-offset: 2px;
+  box-shadow:
+    var(--neu-shadow-well),
+    0 0 0 4px rgb(var(--brand-500) / 0.16);
+}
+
+[data-appearance="neumorphism"]
+  :is(input, textarea, select, .field-control):disabled {
+  background-color: rgb(var(--neu-face));
+  box-shadow: var(--neu-shadow-surface);
+}
+
+[data-appearance="neumorphism"] :is(input[type="checkbox"], input[type="radio"]) {
+  accent-color: rgb(var(--brand-500));
+}
+
+[data-appearance="neumorphism"] option {
+  background-color: rgb(var(--neu-face));
+  color: rgb(var(--text-1));
+}
+
+[data-appearance="neumorphism"] input[type="color"] {
+  background-color: rgb(var(--neu-face));
+  border-color: transparent;
+  box-shadow: var(--neu-shadow-surface);
+}
+
+[data-appearance="neumorphism"] input[type="range"] {
+  background: transparent;
+  box-shadow: none;
+}
+
+[data-appearance="neumorphism"] input[type="range"]::-webkit-slider-runnable-track {
+  height: 8px;
+  border: none;
+  border-radius: 999px;
+  background: rgb(var(--neu-inset));
+  box-shadow: var(--neu-shadow-well);
+}
+
+[data-appearance="neumorphism"] input[type="range"]::-webkit-slider-thumb {
+  margin-top: -6px;
+  height: 20px;
+  width: 20px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(145deg, rgb(var(--brand-400)), rgb(var(--brand-600)));
+  box-shadow: var(--neu-shadow-small);
+}
+
+[data-appearance="neumorphism"] input[type="range"]::-moz-range-track {
+  height: 8px;
+  border: none;
+  border-radius: 999px;
+  background: rgb(var(--neu-inset));
+  box-shadow: var(--neu-shadow-well);
+}
+
+[data-appearance="neumorphism"] input[type="range"]::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(145deg, rgb(var(--brand-400)), rgb(var(--brand-600)));
+  box-shadow: var(--neu-shadow-small);
+}
+
+/* ═══ §N6 · TABLES, CODE, PROGRESS, AND FOCUS ═══════════════════════════ */
+
+[data-appearance="neumorphism"] :is(table, .studio-table) {
+  border-color: transparent;
+}
+
+[data-appearance="neumorphism"] :is(th, .studio-table th) {
+  background-color: rgb(var(--neu-inset));
+  box-shadow: var(--neu-shadow-well);
+}
+
+[data-appearance="neumorphism"] :is(td, .studio-table td) {
+  border-color: transparent;
+}
+
+[data-appearance="neumorphism"] :is(tbody tr:hover, .studio-table tbody tr:hover) {
+  background-color: rgb(var(--neu-raised) / 0.6);
+}
+
+[data-appearance="neumorphism"] :is(code, pre, kbd) {
+  background-color: rgb(var(--neu-inset));
+  border-color: transparent;
+  box-shadow: var(--neu-shadow-well);
+}
+
+[data-appearance="neumorphism"] .theme-progress {
+  background: rgb(var(--neu-inset));
+  box-shadow: var(--neu-shadow-well);
+}
+
+[data-appearance="neumorphism"]
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid rgb(var(--brand-400) / 0.78);
+  outline-offset: 3px;
+}
+
+[data-appearance="neumorphism"] .skeleton {
+  background-color: rgb(var(--neu-inset));
+  box-shadow: var(--neu-shadow-well);
+}
+
+/* ═══ §N7 · MOTION AND FORCED-COLOUR FLOORS ═════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  [data-appearance="neumorphism"] .card-interactive,
+  [data-appearance="neumorphism"] .btn,
+  [data-appearance="neumorphism"] .btn-primary,
+  [data-appearance="neumorphism"] .btn-secondary {
+    transform: none;
+    transition-property: background-color, border-color, box-shadow, color;
+  }
+
+  [data-appearance="neumorphism"] .btn::before,
+  [data-appearance="neumorphism"] .btn-primary::before {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  [data-appearance="neumorphism"]
+    :is(
+      .surface,
+      .surface-raised,
+      .stat-tile,
+      .plate,
+      .card-live,
+      .menu-card,
+      .float-card,
+      .nav-glass,
+      .nav-pill,
+      .nav-sheet,
+      .btn,
+      .btn-primary,
+      .btn-secondary,
+      .chip,
+      .badge-pill,
+      input,
+      textarea,
+      select,
+      .field-control
+    ) {
+    border: 1px solid CanvasText;
+    box-shadow: none;
+    forced-color-adjust: auto;
+  }
+}

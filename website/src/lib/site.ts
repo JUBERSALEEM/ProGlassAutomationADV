@@ -86,6 +86,7 @@ export const nav = {
     { label: "Reports", href: "/reports?status=Confirmed" },
     { label: "Job Order", href: "/job-orders" },
     { label: "Deliveries", href: "/deliveries" },
+    { label: "Submit Inquiry", href: "/inquiries/submit" },
   ],
   primary: [
     { label: "Features", href: "/features" },
@@ -122,6 +123,10 @@ export const nav = {
     resources: [
       { label: "Resources", href: "/resources" },
       { label: "Blog", href: "/blog" },
+      { label: "Customer Account", href: "/account" },
+      { label: "My Inquiries & Chat", href: "/inquiries/chat" },
+      { label: "Community Chat", href: "/chat" },
+      { label: "Submit Inquiry", href: "/inquiries/submit" },
     ],
     legal: [
       { label: "Privacy", href: "/legal/privacy" },

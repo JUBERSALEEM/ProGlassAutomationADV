@@ -108,7 +108,7 @@ export const THEME_SPECS = {
 
 /** Existing saved website choices migrate to the closest explicit family. */
 export const LEGACY_FAMILY_MIGRATION = {
-  studio: "material",
+  studio: "neumorphic",
   monet: "material",
   industrial: "material",
   crystal: "liquid-glass",
