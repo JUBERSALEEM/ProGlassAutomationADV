@@ -1070,8 +1070,12 @@
                               Fill="{DynamicResource TextSecondaryBrush}"
                               RenderTransformOrigin="0.5,0.5">
                             <Path.RenderTransform>
-                                <RotateTransform x:Name="ClayComboChevronRotate"
-                                                 Angle="0" />
+                                <!-- Unnamed on purpose: a Trigger Setter
+                                     can only target a FrameworkElement,
+                                     never a Freezable like this transform
+                                     (MC4111). The trigger below sets
+                                     RenderTransform on the Path itself. -->
+                                <RotateTransform Angle="0" />
                             </Path.RenderTransform>
                         </Path>
                     </Grid>
@@ -1135,8 +1139,12 @@
 
         <ControlTemplate.Triggers>
             <Trigger Property="IsDropDownOpen" Value="True">
-                <Setter TargetName="ClayComboChevronRotate"
-                        Property="Angle" Value="180" />
+                <Setter TargetName="ClayComboChevron"
+                        Property="RenderTransform">
+                    <Setter.Value>
+                        <RotateTransform Angle="180" />
+                    </Setter.Value>
+                </Setter>
                 <Setter TargetName="ClayDropdownHost"
                         Property="Background"
                         Value="{DynamicResource SurfacePrimaryBrush}" />

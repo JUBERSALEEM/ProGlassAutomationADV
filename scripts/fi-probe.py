@@ -137,6 +137,34 @@ CASES = {
                 "    var f = new DoubleKeyFrame(1.0, default);\n"
                 "  }\n} }\n")],
 
+    # A using directive declared twice. I did this to ClayPressHost
+    # myself while fixing something else: correct edit, blind edit.
+    "SEM010": [(NO_THEME_PROBE,
+                "using System.Windows;\n"
+                "using System.Windows;\n"
+                "namespace X { class P { }\n}\n")],
+
+    # A Trigger Setter targeting a Freezable. The markup looks identical
+    # to a working Storyboard target -- only the compiler can tell, and
+    # only the type distinguishes them.
+    "SEM011": [(PROBE_XAML2, _RD % (
+        '    <ControlTemplate x:Key="ProbeT" TargetType="{x:Type Control}">\n'
+        '        <Grid>\n'
+        '            <Path x:Name="ProbeChevron">\n'
+        '                <Path.RenderTransform>\n'
+        '                    <RotateTransform x:Name="ProbeChevronRotate"\n'
+        '                                     Angle="0" />\n'
+        '                </Path.RenderTransform>\n'
+        '            </Path>\n'
+        '        </Grid>\n'
+        '        <ControlTemplate.Triggers>\n'
+        '            <Trigger Property="IsEnabled" Value="False">\n'
+        '                <Setter TargetName="ProbeChevronRotate"\n'
+        '                        Property="Angle" Value="180" />\n'
+        '            </Trigger>\n'
+        '        </ControlTemplate.Triggers>\n'
+        '    </ControlTemplate>\n'))],
+
     "SEM007": [(PROBE_XAML2, _RD % (
         '    <ControlTemplate x:Key="ProbeSliderTemplate"\n'
         '                     TargetType="{x:Type Control}">\n'

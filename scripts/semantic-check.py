@@ -539,9 +539,97 @@ def rule_sem009(findings):
                     f"Spline{name}")
 
 
+def rule_sem010(findings):
+    """The same using directive twice (CS0105).
+
+    I introduced this one myself: adding `using
+    System.Windows.Controls.Primitives;` to ClayPressHost without
+    checking whether it was already there. It was. The fix that closed
+    three CS0103 errors opened a CS0105, and a Windows build caught it
+    the same day. Editing blind is still editing blind even when the
+    edit is correct.
+    """
+    use = re.compile(r'^\s*using\s+([\w\.]+)\s*;')
+    for path in csharp_files():
+        seen = {}
+        for i, line in enumerate(open(path, encoding="utf-8",
+                                      errors="ignore").read().splitlines(), 1):
+            m = use.match(line)
+            if not m:
+                continue
+            ns = m.group(1)
+            if ns in seen:
+                findings.append(
+                    f"{path}:{i}: SEM010 'using {ns};' already appears "
+                    f"at line {seen[ns]} -- duplicate using directive "
+                    f"(CS0105)")
+            else:
+                seen[ns] = i
+
+
+def rule_sem011(findings):
+    """A Trigger Setter targeting something that is not an element.
+
+    MC4111. A Trigger Setter can only target a FrameworkElement or a
+    FrameworkContentElement; a Storyboard can target any
+    DependencyProperty. They are not interchangeable, and the
+    difference is invisible in the markup: both lines look identical
+    and only one compiles.
+
+    Shipped as the combo box chevron, where a Trigger Setter set Angle
+    on a named RotateTransform. Order was not the problem -- the name
+    was declared well before the trigger -- the type was.
+    """
+    not_targetable = {
+        "RotateTransform", "TranslateTransform", "ScaleTransform",
+        "SkewTransform", "TransformGroup", "MatrixTransform",
+        "CompositeTransform",
+        "SolidColorBrush", "LinearGradientBrush", "RadialGradientBrush",
+        "ImageBrush", "VisualBrush", "DrawingBrush", "GradientStop",
+        "DoubleAnimation", "ColorAnimation", "PointAnimation",
+        "DoubleAnimationUsingKeyFrames", "ColorAnimationUsingKeyFrames",
+        "Storyboard", "BeginStoryboard",
+        "DropShadowEffect", "BlurEffect",
+        "RectangleGeometry", "EllipseGeometry", "PathGeometry",
+        "LineGeometry", "StreamGeometry", "CombinedGeometry",
+        "GeometryGroup",
+    }
+    xn = "{http://schemas.microsoft.com/winfx/2006/xaml}Name"
+    for path in xaml_files():
+        try:
+            tree = ET.parse(path)
+        except ET.ParseError:
+            continue
+        named = {}
+        for el in tree.iter():
+            n = el.get(xn)
+            if n:
+                named[n] = el.tag.split("}")[-1]
+        src = open(path, encoding="utf-8", errors="ignore").read().splitlines()
+        for el in tree.iter():
+            if el.tag.split("}")[-1] != "Setter":
+                continue
+            target = el.get("TargetName")
+            if not target:
+                continue
+            tag = named.get(target)
+            if tag not in not_targetable:
+                continue
+            line = next((i for i, l in enumerate(src, 1)
+                         if 'TargetName="%s"' % target in l), 0)
+            findings.append(
+                f"{path}:{line}: SEM011 Setter targets "
+                f"\"{target}\", which is a <{tag}> -- a Trigger Setter "
+                f"can only target a FrameworkElement or "
+                f"FrameworkContentElement (MC4111). Set the property on "
+                f"the parent element instead, or animate it from a "
+                f"Storyboard, which can target any DependencyProperty")
+
+
 RULES = [rule_csb001, rule_sem001, rule_sem002,
          rule_sem003, rule_sem004, rule_sem005,
-         rule_sem006, rule_sem007, rule_sem008, rule_sem009]
+         rule_sem006, rule_sem007, rule_sem008, rule_sem009,
+         rule_sem010, rule_sem011]
 
 
 def main():
