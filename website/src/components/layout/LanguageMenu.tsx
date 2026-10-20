@@ -77,7 +77,7 @@ function addressFor(locale: Locale, pathname: string, search: string): string {
  * This is deliberate, and it is the fix for two bugs that shared one cause.
  *
  * The root layout renders `<html>` with the theme attributes at their defaults
- * (`data-theme="midnight"`, `data-theme-mode="system"`, `data-appearance="studio"`);
+ * (`data-theme="midnight"`, `data-theme-mode="system"`, `data-appearance="crystal"`);
  * the inline boot script overwrites them before first paint with what the
  * visitor actually chose. That works on a load, because the script runs on
  * every load. It does *not* work on a client-side navigation: changing language

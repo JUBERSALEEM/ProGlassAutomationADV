@@ -16,12 +16,14 @@
  * What the website does with that: two independent controls, one click each.
  *
  *   MODE      Light · Dark · System        (surface lightness)
- *   FAMILY    Studio · Monet · Industrial · Crystal
+ *   FAMILY    Neumorphism · Monet · Industrial · Crystal · Clay
  *
- * `Studio` is this website's own palette — deep violet, derived from the
- * Violet accent preset. The other three follow the application's families so
- * the site and the product read as one piece of work. Mode and family are
- * independent, which is how the application treats them too (ModePairFor).
+ * `Neumorphism` is the website's soft-extruded material: one tonal surface,
+ * light from the top-left, shade to the bottom-right, and pressed-in wells
+ * for controls. The other families follow the application's own appearance
+ * families so the site and the product read as one piece of work. Mode and
+ * family are independent, which is how the application treats them too
+ * (ModePairFor).
  */
 
 export type ThemeMode = "light" | "dark" | "system";
@@ -30,7 +32,7 @@ export type ThemeMode = "light" | "dark" | "system";
 export type ResolvedTheme = "midnight" | "daylight";
 
 /** The `data-appearance` value written to <html>. */
-export type AppearanceFamily = "studio" | "monet" | "industrial" | "crystal" | "clay";
+export type AppearanceFamily = "neumorphism" | "monet" | "industrial" | "crystal" | "clay";
 
 export type ThemeModeEntry = {
   id: ThemeMode;
@@ -56,10 +58,11 @@ export const themeModes: ThemeModeEntry[] = [
 
 export const appearanceFamilies: AppearanceFamilyEntry[] = [
   {
-    id: "studio",
-    label: "Studio",
-    origin: "The website's own palette — the application's Violet accent, taken deep.",
-    swatch: "#7E57CE",
+    id: "neumorphism",
+    label: "Neumorphism",
+    origin:
+      "A soft-extruded material — one tonal surface shaped by top-left light, bottom-right shade, raised cards, and pressed-in controls. No glass, blur, or hard outline does the depth work.",
+    swatch: "#7180A8",
   },
   {
     id: "monet",
@@ -162,7 +165,25 @@ export function isThemeMode(value: unknown): value is ThemeMode {
 }
 
 export function isAppearanceFamily(value: unknown): value is AppearanceFamily {
-  return value === "studio" || value === "monet" || value === "industrial" || value === "crystal" || value === "clay";
+  return (
+    value === "neumorphism" ||
+    value === "monet" ||
+    value === "industrial" ||
+    value === "crystal" ||
+    value === "clay"
+  );
+}
+
+/**
+ * Resolve a persisted or DOM-carried family to one this build can paint.
+ *
+ * The retired Studio family is a migration, not an invalid value: a visitor
+ * who explicitly saved Studio should land on its Neumorphism replacement,
+ * while genuinely unknown values retain the first-run Crystal fallback.
+ */
+export function normalizeAppearanceFamily(value: unknown): AppearanceFamily {
+  if (value === "studio") return "neumorphism";
+  return isAppearanceFamily(value) ? value : DEFAULT_APPEARANCE;
 }
 
 /** Mode → the `data-theme` value to write on <html>. */
@@ -200,7 +221,11 @@ var vk2="proglass-studio-attrs";
 var hv="proglass-hygiene-v4";
 if(sg(hv)!=="1"){sr(vk);sr(vk2);ss(ak,"crystal");ss(hv,"1");}
 var a=sg(ak);
-if(a!=="studio"&&a!=="monet"&&a!=="industrial"&&a!=="crystal"&&a!=="clay")a="crystal";
+/* Studio was replaced by Neumorphism. Migrate only that explicit saved
+   choice, in place, and before the validation below so the first painted
+   frame and every later boot agree. */
+if(a==="studio"){a="neumorphism";ss(ak,a);}
+if(a!=="neumorphism"&&a!=="monet"&&a!=="industrial"&&a!=="crystal"&&a!=="clay")a="crystal";
 var d=window.matchMedia?window.matchMedia("(prefers-color-scheme: dark)").matches:true;
 var t=m==="light"?"daylight":m==="dark"?"midnight":(d?"midnight":"daylight");
 var e=document.documentElement;

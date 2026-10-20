@@ -22,7 +22,7 @@ import { cn } from "@/lib/cn";
  * this paints them from the site's design tokens, so the emblem follows the
  * mode and the appearance family exactly as the rest of the page does. The
  * three token pairs were chosen to land on the splash's own three brushes in
- * the Studio family at the dark mode's default — same violet, one ramp.
+ * the live brand ramp at the dark mode's default — token-driven, never a fixed redraw.
  *
  * `SplashThemeManager` can re-tint `GlassFacePath` in the application; the
  * `tinted` prop is the same idea here, and it is what lets a page show the

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import "../globals.css";
 import "../clay-engine.css";
 import "../crystal-engine.css";
+import "../neumorphism-engine.css";
 import "../top-panel-compact.css";
 import "../responsive-card-grid.css";
 import "../component-system.css";
