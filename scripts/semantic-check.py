@@ -626,10 +626,56 @@ def rule_sem011(findings):
                 f"Storyboard, which can target any DependencyProperty")
 
 
+def rule_sem012(findings):
+    """A static field initialiser that reads a static field declared
+    later in the same file.
+
+    C# runs static field initialisers in DECLARATION ORDER. A field
+    whose initialiser names a field declared below it does not fail to
+    compile and does not warn -- it reads null (or default) and carries
+    on. For a string[] that means Enumerable.Concat throws
+    ArgumentNullException from the static constructor, which surfaces
+    as TypeInitializationException at the first touch of the type.
+
+    This shipped as ERR-85A748: VisualThemeEngine.ManagedKeys read
+    ManagedKeySeeds, declared six lines below it, so the application
+    crashed during startup on every launch. A static constructor is the
+    worst possible place for this -- the type is unloadable, every
+    member access throws, and the stack points at the property you
+    touched rather than at the field that was actually null.
+
+    The `=(?!>)` guard matters: expression-bodied members (`=>`) are
+    evaluated per call, so declaration order can never hand them a
+    default. Matching them produces pure noise.
+    """
+    field = re.compile(
+        r'\bstatic\s+(?:readonly\s+)?([\w\<\>\[\]\.,\s\?]+?)\s+(\w+)\s*=(?!>)\s*([^;]+);')
+    for path in csharp_files():
+        src = open(path, encoding="utf-8", errors="ignore").read()
+        fields = []
+        for m in field.finditer(src):
+            fields.append((src[:m.start()].count("\n"), m.group(2),
+                           m.group(3)))
+        for i, (pos, name, init) in enumerate(fields):
+            for j, (pos2, name2, _) in enumerate(fields):
+                if i == j or pos2 <= pos:
+                    continue
+                # Unqualified only: `Other.Type.Name` is a different
+                # type's member and unaffected by order here.
+                if not re.search(r'(?<!\.)\b%s\b' % re.escape(name2), init):
+                    continue
+                findings.append(
+                    f"{path}:{pos + 1}: SEM012 static field '{name}' "
+                    f"reads '{name2}', which is declared later (line "
+                    f"{pos2 + 1}) -- initialisers run in declaration "
+                    f"order, so '{name2}' is still null here. Move the "
+                    f"declaration of '{name2}' above '{name}'")
+
+
 RULES = [rule_csb001, rule_sem001, rule_sem002,
          rule_sem003, rule_sem004, rule_sem005,
          rule_sem006, rule_sem007, rule_sem008, rule_sem009,
-         rule_sem010, rule_sem011]
+         rule_sem010, rule_sem011, rule_sem012]
 
 
 def main():

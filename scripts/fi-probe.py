@@ -165,6 +165,20 @@ CASES = {
         '        </ControlTemplate.Triggers>\n'
         '    </ControlTemplate>\n'))],
 
+    # Static field initialisers run in declaration order. Reading one
+    # declared later does not warn and does not fail to compile -- it
+    # hands you null and surfaces as TypeInitializationException at
+    # first touch of the type. This is ERR-85A748: a startup crash on
+    # every launch.
+    "SEM012": [(NO_THEME_PROBE,
+                "using System.Linq;\n"
+                "namespace X { static class P {\n"
+                "    private static readonly string[] All =\n"
+                "        Seeds.Concat(new[]{ \"z\" }).ToArray();\n"
+                "    private static readonly string[] Seeds =\n"
+                "        { \"a\", \"b\" };\n"
+                "} }\n")],
+
     "SEM007": [(PROBE_XAML2, _RD % (
         '    <ControlTemplate x:Key="ProbeSliderTemplate"\n'
         '                     TargetType="{x:Type Control}">\n'

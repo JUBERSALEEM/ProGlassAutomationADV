@@ -155,20 +155,17 @@ namespace ProGlassAutomation.Services.Theme
         /// cleaned up on switch — leaking a clay card's 32px radius into
         /// Swiss. Declaration order is load-bearing here.
         /// </summary>
+        /// <remarks>
+        /// Both of ManagedKeys' dependencies must sit above it, not just
+        /// this one. The <see cref="ManagedKeySeeds"/> array used to be
+        /// declared BELOW ManagedKeys, so the initializer read it as null
+        /// and Enumerable.Concat threw ArgumentNullException("first")
+        /// from the static constructor. That is a TypeInitializationException
+        /// at first touch of the engine, which is a startup crash, not a
+        /// theme bug — ERR-85A748.
+        /// </remarks>
         private static readonly string[] EightThemeEightKeys =
             Eight.EightThemePainter.AllTokenKeys;
-
-        /// <summary>Keys the engine may override (removed on Normal).</summary>
-        /// <para>
-        /// CONCATENATED, not appended as a single element. The eight
-        /// families contribute a whole array, and an array initialiser
-        /// has no spread operator in this position — writing
-        /// <c>{ "a", EightThemeEightKeys }</c> tries to store a
-        /// string[] inside a string[] and fails to compile.
-        /// </para>
-        /// </summary>
-        private static readonly string[] ManagedKeys =
-            ManagedKeySeeds.Concat(EightThemeEightKeys).ToArray();
 
         /// <summary>The legacy families' own keys. Split out of
         /// <see cref="ManagedKeys"/> only so the eight families can be
@@ -280,6 +277,18 @@ namespace ProGlassAutomation.Services.Theme
             // square — a family switch must tear down BOTH token sets.
             // (EightThemeEightKeys itself is concatenated above.)
         };
+
+        /// <summary>Keys the engine may override (removed on Normal).</summary>
+        /// <para>
+        /// CONCATENATED, not appended as a single element. The eight
+        /// families contribute a whole array, and an array initialiser
+        /// has no spread operator in this position — writing
+        /// <c>{ "a", EightThemeEightKeys }</c> tries to store a
+        /// string[] inside a string[] and fails to compile.
+        /// </para>
+        /// </summary>
+        private static readonly string[] ManagedKeys =
+            ManagedKeySeeds.Concat(EightThemeEightKeys).ToArray();
 
         /// <summary>Currently active family.</summary>
         public static string Current { get; private set; } =
