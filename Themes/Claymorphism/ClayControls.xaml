@@ -841,7 +841,7 @@
 
     <!-- The thumb is its OWN mould, so it carries its own template. -->
     <ControlTemplate x:Key="ClaySliderThumbTemplate"
-                     TargetType="{x:Type Border}">
+                     TargetType="{x:Type Control}">
         <Grid>
             <Border x:Name="PART_ClayDropHost"
                     CornerRadius="14" Background="Transparent">
@@ -896,11 +896,15 @@
             </Border>
 
             <!-- Offset is pushed from Value in code. -->
-            <Border x:Name="ClaySliderThumb"
-                    Width="28" Height="28"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-                    Template="{StaticResource ClaySliderThumbTemplate}" />
+            <!-- The thumb is a Control, not a Border. Border derives from
+                 Decorator, not Control, so it has no Template property
+                 (MC3072) and ClaySlider's `as Control` lookup silently
+                 returned null, leaving the thumb's second mould unpainted. -->
+            <Control x:Name="ClaySliderThumb"
+                     Width="28" Height="28"
+                     HorizontalAlignment="Left"
+                     VerticalAlignment="Center"
+                     Template="{StaticResource ClaySliderThumbTemplate}" />
         </Grid>
 
         <ControlTemplate.Triggers>

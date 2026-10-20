@@ -48,6 +48,7 @@ import glob
 import os
 import re
 import sys
+import xml.etree.ElementTree as ET
 
 # ImplicitUsings=enable injects these for a WPF net8.0 project.
 IMPLICIT_USINGS = {
@@ -109,6 +110,21 @@ def csharp_files():
     out = []
     for pat in ("Controls/**/*.cs", "Services/Theme/**/*.cs", "Behaviors/*.cs",
                 "Scripts/*.cs", "Converters/*.cs", "ViewModels/**/*.cs"):
+        out += glob.glob(pat, recursive=True)
+    return sorted(f for f in out
+                  if "/obj/" not in f and "/bin/" not in f)
+
+
+def xaml_files():
+    """Every XAML file in the tree, excluding build output.
+
+    SEM006/SEM007 need the whole tree, not a family directory: a part
+    name is declared in one dictionary and consumed by C# in a directory
+    that shares nothing but the name.
+    """
+    out = []
+    for pat in ("Themes/**/*.xaml", "Views/**/*.xaml", "Controls/**/*.xaml",
+                "Styles/**/*.xaml", "*.xaml"):
         out += glob.glob(pat, recursive=True)
     return sorted(f for f in out
                   if "/obj/" not in f and "/bin/" not in f)
@@ -306,8 +322,118 @@ def rule_sem005(findings):
             f"directory nor Themes/{fam}/ declares a focus cue")
 
 
+def rule_sem006(findings):
+    """A Template= attribute applied to an element that has no Template.
+
+    Shipped as MC3072 in Themes/Claymorphism/ClayControls.xaml: the
+    slider thumb was a <Border ... Template="..."/>. Border derives from
+    Decorator, which derives from FrameworkElement -- NOT Control -- and
+    Template is declared by Control. The markup compiler rejects it, and
+    a markup-compile failure produces no assembly at all, so every
+    clr-namespace type in the solution then reports XDG0008 in the
+    designer. One bad attribute made three unrelated families look
+    broken.
+
+    Note what this is NOT: it is not a type-existence check. xaml-check
+    already proves every clr-namespace name resolves, and it reported
+    this file clean, because Border certainly does exist. The defect is
+    an attribute that is illegal FOR THAT ELEMENT, which no amount of
+    name resolution will ever catch.
+    """
+    # Elements WPF defines that are FrameworkElement-derived but not
+    # Control-derived, and so have no Template property to set.
+    not_control = {
+        "Border", "Decorator", "Viewbox", "BulletDecorator",
+        "AdornerDecorator", "InkPresenter", "Grid", "StackPanel",
+        "Canvas", "DockPanel", "WrapPanel", "UniformGrid",
+        "VirtualizingStackPanel", "Panel", "Rectangle", "Ellipse",
+        "Line", "Path", "Polygon", "Polyline", "TextBlock", "Image",
+        "Shape", "AccessText", "ContentPresenter", "ItemsPresenter",
+        "ScrollContentPresenter",
+    }
+    for path in xaml_files():
+        try:
+            tree = ET.parse(path)
+        except ET.ParseError:
+            continue  # malformed XAML is xaml-check's problem, not ours
+        src = open(path, encoding="utf-8", errors="ignore").read().splitlines()
+        for el in tree.iter():
+            if "Template" not in el.attrib:
+                continue
+            local = el.tag.split("}")[-1]
+            if local not in not_control:
+                continue
+            line = 0
+            for i, text in enumerate(src, 1):
+                if "Template=" in text:
+                    line = i
+                    break
+            findings.append(
+                f"{path}:{line}: SEM006 <{local}> sets Template=, but "
+                f"{local} derives from FrameworkElement, not Control, so "
+                f"it has no Template property (MC3072). Use a "
+                f"Control-derived element, or move the template onto one")
+
+
+def rule_sem007(findings):
+    """FindName("X") as Control where the template declares X as a
+    non-Control element.
+
+    Same root cause as SEM006 seen from the C# side, and it fails
+    QUIETLY instead of loudly: `as` yields null, the `if (x is not null)`
+    guard skips the work, and the part is simply never painted. No
+    exception, no log line, no compile error. The clay slider thumb
+    shipped exactly this -- Border, cast as Control -- so its second
+    mould (highlight, shade, edge) was never bound and the thumb
+    rendered as bare geometry for as long as the control existed.
+
+    SEM006 catches the compile-time half. This catches the runtime half,
+    which survives even when someone "fixes" the XAML by removing the
+    Template= attribute and leaving the element type alone.
+    """
+    # x:Name -> element tag across every XAML file
+    name_to_tag = {}
+    for path in xaml_files():
+        try:
+            tree = ET.parse(path)
+        except ET.ParseError:
+            continue
+        for el in tree.iter():
+            n = el.get("{http://schemas.microsoft.com/winfx/2006/xaml}Name")
+            if n:
+                name_to_tag.setdefault(n, []).append(
+                    (path, el.tag.split("}")[-1]))
+
+    # Casts that demand a Control-derived element.
+    cast_re = re.compile(
+        r'FindName\(\s*"([^"]+)"[^)]*\)\s*as\s*(Control|ContentControl|'
+        r'ButtonBase|Button|Thumb|TextBoxBase)\b')
+    not_control = {
+        "Border", "Decorator", "Viewbox", "Grid", "StackPanel", "Canvas",
+        "DockPanel", "WrapPanel", "UniformGrid", "Panel", "Rectangle",
+        "Ellipse", "Line", "Path", "Polygon", "Polyline", "TextBlock",
+        "Image", "Shape", "AccessText", "ContentPresenter",
+        "ItemsPresenter", "ScrollContentPresenter",
+    }
+    for path in csharp_files():
+        code = strip_comments_only(
+            open(path, encoding="utf-8", errors="ignore").read())
+        for i, line in enumerate(code.splitlines(), 1):
+            for m in cast_re.finditer(line):
+                name, cast = m.group(1), m.group(2)
+                for xp, tag in name_to_tag.get(name, []):
+                    if tag not in not_control:
+                        continue
+                    findings.append(
+                        f"{path}:{i}: SEM007 FindName(\"{name}\") as "
+                        f"{cast}, but {xp} declares it as <{tag}> -- "
+                        f"{tag} is not a Control, so `as` yields null and "
+                        f"the part is silently never bound")
+
+
 RULES = [rule_csb001, rule_sem001, rule_sem002,
-         rule_sem003, rule_sem004, rule_sem005]
+         rule_sem003, rule_sem004, rule_sem005,
+         rule_sem006, rule_sem007]
 
 
 def main():

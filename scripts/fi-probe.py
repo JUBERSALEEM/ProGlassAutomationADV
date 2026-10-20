@@ -44,6 +44,19 @@ IN_FAMILY = os.path.join("Controls", "Aurora", "__SemanticProbe.cs")
 NO_THEME_FAM = "Controls/ProbeFam"
 NO_THEME_PROBE = os.path.join(NO_THEME_FAM, "__SemanticProbe.cs")
 
+# SEM006/SEM007 need XAML as well as C#: the defect is the relationship
+# between a template declaration and the code that looks it up, so
+# neither half can be injected alone.
+PROBE_XAML_DIR = "Themes/ProbeFam"
+PROBE_XAML = os.path.join(PROBE_XAML_DIR, "__SemanticProbe.xaml")
+PROBE_XAML2 = os.path.join(PROBE_XAML_DIR, "__SemanticProbe2.xaml")
+
+_RD = ('<ResourceDictionary\n'
+       '    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"\n'
+       '    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">\n'
+       '%s\n'
+       '</ResourceDictionary>\n')
+
 CASES = {
     # Thumb lives in System.Windows.Controls.Primitives; the probe
     # declares no using, so this is CS0246.
@@ -77,6 +90,44 @@ CASES = {
     "SEM005": (NO_THEME_PROBE,
                "using System.Windows;\nnamespace X { class P {\n"
                "  public P() { FocusVisualStyle = null; }\n} }\n"),
+
+    # Template= on a Border. Border is FrameworkElement-derived, not
+    # Control-derived, so it has no Template property. This is the exact
+    # MC3072 that shipped in ClayControls.xaml, and a markup-compile
+    # failure produces no assembly, so every clr-namespace type in the
+    # solution reports XDG0008 in the designer. One attribute, nine
+    # families looking broken.
+    "SEM006": [(PROBE_XAML, _RD % (
+        '    <ControlTemplate x:Key="ProbeThumbTemplate"\n'
+        '                     TargetType="{x:Type Control}">\n'
+        '        <Border />\n'
+        '    </ControlTemplate>\n'
+        '    <Style x:Key="ProbeStyle" TargetType="{x:Type Control}">\n'
+        '        <Setter Property="Template">\n'
+        '            <Setter.Value>\n'
+        '                <ControlTemplate TargetType="{x:Type Control}">\n'
+        '                    <Border x:Name="ProbeThumb" Width="28" Height="28"\n'
+        '                            Template="{StaticResource ProbeThumbTemplate}" />\n'
+        '                </ControlTemplate>\n'
+        '            </Setter.Value>\n'
+        '        </Setter>\n'
+        '    </Style>\n'))],
+
+    # The same root cause seen from the C# side, and it fails SILENTLY:
+    # `as` yields null, the null guard skips the bind, and the part is
+    # never painted. No exception, no log, no compile error. Deliberately
+    # no Template= on the Border here, so this proves SEM007 on its own
+    # rather than riding on SEM006.
+    "SEM007": [(PROBE_XAML2, _RD % (
+        '    <ControlTemplate x:Key="ProbeSliderTemplate"\n'
+        '                     TargetType="{x:Type Control}">\n'
+        '        <Border x:Name="ProbeThumb" Width="28" Height="28" />\n'
+        '    </ControlTemplate>\n')),
+               (NO_THEME_PROBE,
+                "namespace X { class P {\n"
+                "  void M() {\n"
+                "    var t = Template?.FindName(\"ProbeThumb\", this) as Control;\n"
+                "  }\n} }\n")],
 }
 
 
@@ -87,15 +138,21 @@ def run_checker():
 
 
 def cleanup():
-    for path, _ in CASES.values():
-        full = os.path.join(ROOT, path)
-        if os.path.exists(full):
-            os.remove(full)
+    for case in CASES.values():
+        # A case is one file or several; SEM007 needs a template and the
+        # code that consumes it, injected together.
+        files = case if isinstance(case, list) else [case]
+        for path, _ in files:
+            full = os.path.join(ROOT, path)
+            if os.path.exists(full):
+                os.remove(full)
     shutil.rmtree(os.path.join(ROOT, NO_THEME_FAM), ignore_errors=True)
+    shutil.rmtree(os.path.join(ROOT, PROBE_XAML_DIR), ignore_errors=True)
 
 
 def main():
     os.makedirs(os.path.join(ROOT, NO_THEME_FAM), exist_ok=True)
+    os.makedirs(os.path.join(ROOT, PROBE_XAML_DIR), exist_ok=True)
 
     baseline = run_checker()
     print("baseline:", baseline.stdout.strip().splitlines()[-1].strip(),
@@ -108,11 +165,14 @@ def main():
 
     all_fired = True
     try:
-        for rule, (rel_path, code) in CASES.items():
-            with open(os.path.join(ROOT, rel_path), "w") as fh:
-                fh.write(code)
+        for rule, case in CASES.items():
+            files = case if isinstance(case, list) else [case]
+            for rel_path, code in files:
+                with open(os.path.join(ROOT, rel_path), "w") as fh:
+                    fh.write(code)
             result = run_checker()
-            os.remove(os.path.join(ROOT, rel_path))
+            for rel_path, _ in files:
+                os.remove(os.path.join(ROOT, rel_path))
 
             line = next((l.strip() for l in result.stdout.splitlines()
                          if "__SemanticProbe" in l), "")

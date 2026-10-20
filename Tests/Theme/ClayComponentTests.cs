@@ -380,5 +380,82 @@ namespace ProGlassAutomation.Tests.Theme
                     "TemplateBinding has no Mode property (MC3045)");
             }
         }
+
+        [Fact]
+        public void The_slider_thumb_is_a_Control_and_not_a_Border()
+        {
+            // MC3072, and a silent runtime defect behind it.
+            //
+            // Border derives from Decorator, which derives from
+            // FrameworkElement -- NOT Control -- and Template is declared
+            // by Control. The markup compiler rejects the attribute
+            // outright, and because a markup-compile failure emits no
+            // assembly at all, every clr-namespace type in the solution
+            // then reports XDG0008 in the designer. One attribute on one
+            // element made unrelated families look broken.
+            //
+            // The quieter half: ClaySlider.OnApplyTemplate looks the thumb
+            // up as `Template?.FindName("ClaySliderThumb", this) as Control`.
+            // Against a Border that cast returns null, the `is not null`
+            // guard skips the bind, and the thumb's second mould is never
+            // painted. No exception, no log line -- just a thumb rendered
+            // as bare geometry. Fixing only the XAML attribute would have
+            // left this half behind, so both are asserted together.
+            var text = DictionaryText();
+
+            Assert.Contains("<Control x:Name=\"ClaySliderThumb\"", text);
+            Assert.DoesNotContain("<Border x:Name=\"ClaySliderThumb\"", text);
+
+            var start = text.IndexOf("<ControlTemplate x:Key=\"ClaySliderThumbTemplate\"",
+                StringComparison.Ordinal);
+            Assert.True(start >= 0, "ClaySliderThumbTemplate is missing");
+            var head = text.Substring(start, text.IndexOf('>', start) - start);
+            Assert.Contains("TargetType=\"{x:Type Control}\"", head);
+        }
+
+        [Fact]
+        public void No_element_carries_a_Template_property_it_cannot_have()
+        {
+            // The general form of the MC3072 above. These are all
+            // FrameworkElement-derived and none of them has a Template
+            // property, because Template is declared by Control.
+            var notControl = new[]
+            {
+                "Border", "Grid", "StackPanel", "Canvas", "Rectangle",
+                "Ellipse", "Path", "TextBlock", "Image", "Panel",
+                "Decorator", "Viewbox", "Polygon", "Line",
+            };
+
+            var text = DictionaryText();
+            var lines = text.Split('\n');
+            for (var i = 0; i < lines.Length; i++)
+            {
+                if (!lines[i].Contains("Template=")) continue;
+                if (lines[i].Contains("Property=\"Template\"")) continue;
+
+                // The attribute can sit several lines below its element,
+                // so walk back to the nearest opening tag.
+                string? element = null;
+                for (var j = i; j >= 0 && j >= i - 8; j--)
+                {
+                    var open = lines[j].LastIndexOf('<');
+                    if (open < 0) continue;
+                    var tag = lines[j].Substring(open + 1);
+                    var end = tag.IndexOfAny(new[] { ' ', '\t', '/', '>' });
+                    if (end > 0) tag = tag.Substring(0, end);
+                    if (tag.Length > 0)
+                    {
+                        element = tag.Contains(':') ? tag.Split(':')[1] : tag;
+                        break;
+                    }
+                }
+                if (element is null) continue;
+
+                Assert.False(Array.IndexOf(notControl, element) >= 0,
+                    $"line {i + 1}: <{element}> sets Template=, but " +
+                    $"{element} is not Control-derived and has no Template " +
+                    $"property (MC3072)");
+            }
+        }
     }
 }
