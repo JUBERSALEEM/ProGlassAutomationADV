@@ -293,6 +293,16 @@ export function AppearancePreview() {
                 onChange={(value) => setStudio({ neuSoftness: value })}
                 hint={t("Shadow blur: firmer and more machined at the low end, melted into the canvas at the high end.")}
               />
+              <Slider
+                label={t("Lift")}
+                value={studio.neuLift}
+                min={0.4}
+                max={2.4}
+                step={0.05}
+                display={`${studio.neuLift.toFixed(2)}×`}
+                onChange={(value) => setStudio({ neuLift: value })}
+                hint={t("How far a raised face stands off the page and how deep a well sinks. The canvas and the text ladder never move.")}
+              />
             </>
           ) : null}
           <Slider

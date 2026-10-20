@@ -29,6 +29,7 @@ import {
   decodeStudio,
   defaultStudio,
   encodeStudio,
+  neuPresets,
   normalizeStudio,
 } from "@/lib/useStudio";
 
@@ -151,6 +152,70 @@ describe("neumorphism bench — write-only-when-moved", () => {
     expect(prop("--neu-depth")).toBe("1.80");
     expect(prop("--neu-distance")).toBe("0.50");
     expect(prop("--neu-softness")).toBe("2.20");
+  });
+
+  it("writes the surface-lift dial only when it is moved", () => {
+    root().dataset.appearance = "neumorphism";
+    root().dataset.theme = "midnight";
+
+    applyStudioVars({ ...defaultStudio });
+    expect(prop("--neu-lift")).toBe("");
+
+    applyStudioVars({ ...defaultStudio, neuLift: 1.9 });
+    expect(prop("--neu-lift")).toBe("1.90");
+  });
+
+  it("clamps a hostile surface-lift value and keeps the material ladder", () => {
+    root().dataset.appearance = "neumorphism";
+    root().dataset.theme = "midnight";
+    applyStudioVars({ ...defaultStudio, accentKey: "Rose", accent: "#E11D48", neuLift: 9 });
+
+    expect(prop("--neu-lift")).toBe("2.40");
+
+    const canvas = hslOf(prop("--neu-canvas"));
+    const face = hslOf(prop("--neu-face"));
+    const raised = hslOf(prop("--neu-raised"));
+    const inset = hslOf(prop("--neu-inset"));
+
+    /* Lift moves the faces and the wells; the canvas the text is measured
+       against never moves, and the order of the ladder is preserved. */
+    expect(canvas.l).toBeGreaterThan(0.12);
+    expect(canvas.l).toBeLessThan(0.17);
+    expect(face.l).toBeGreaterThan(canvas.l);
+    expect(raised.l).toBeGreaterThan(face.l);
+    expect(inset.l).toBeLessThan(canvas.l);
+  });
+
+  it("raises face separation with lift without touching the canvas", () => {
+    root().dataset.appearance = "neumorphism";
+    root().dataset.theme = "midnight";
+
+    applyStudioVars({ ...defaultStudio, accentKey: "Rose", accent: "#E11D48", neuLift: 0.4 });
+    const flatCanvas = hslOf(prop("--neu-canvas"));
+    const flatFace = hslOf(prop("--neu-face"));
+
+    applyStudioVars({ ...defaultStudio, accentKey: "Rose", accent: "#E11D48", neuLift: 2.4 });
+    const deepCanvas = hslOf(prop("--neu-canvas"));
+    const deepFace = hslOf(prop("--neu-face"));
+
+    expect(deepCanvas.l).toBeCloseTo(flatCanvas.l, 3);
+    expect(deepFace.l - deepCanvas.l).toBeGreaterThan(flatFace.l - flatCanvas.l);
+  });
+
+  it("ships recipes whose every value survives normalization unchanged", () => {
+    for (const preset of neuPresets) {
+      const healed = normalizeStudio({
+        neuDepth: preset.neuDepth,
+        neuDistance: preset.neuDistance,
+        neuSoftness: preset.neuSoftness,
+        neuLift: preset.neuLift,
+      });
+
+      expect(healed.neuDepth).toBe(preset.neuDepth);
+      expect(healed.neuDistance).toBe(preset.neuDistance);
+      expect(healed.neuSoftness).toBe(preset.neuSoftness);
+      expect(healed.neuLift).toBe(preset.neuLift);
+    }
   });
 
   it("normalizes hostile stored dial values back to the recipe", () => {

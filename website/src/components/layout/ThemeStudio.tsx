@@ -7,6 +7,7 @@ import { setThemeMode, useAppearance, useResolvedTheme, useThemeMode } from "@/l
 import {
   bundledTypefaceKeys,
   installedTypefaceKeys,
+  neuPresets,
   resetStudio,
   setAccent,
   setFamily,
@@ -550,7 +551,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                 ? "font-medium text-text-muted"
                 : "rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2 font-semibold text-text-secondary",
             )}>
-              {t("Depth, distance, and softness for the Neumorphism family — raised cards and pressed-in wells shaped by one top-left light. Applies when Neumorphism is active; surface and text contrast never move.")}
+              {t("Depth, distance, softness and lift for the Neumorphism family — raised cards and pressed-in wells shaped by one top-left light, with four whole recipes above the dials. Applies when Neumorphism is active; the canvas and the text ladder never move.")}
             </p>
             <div className={family === "neumorphism" ? undefined : "pointer-events-none select-none opacity-50 saturate-[0.6]"}>
               <div className="mt-3 grid gap-3">
@@ -589,12 +590,62 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                   onChange={(value) => setStudio({ neuSoftness: value })}
                   hint={t("How diffuse the extrusion feels. Lower values read firmer and more machined; higher values melt the edges into the canvas.")}
                 />
+                <Slider
+                  label={t("Lift — face separation from the canvas")}
+                  value={studio.neuLift}
+                  min={0.4}
+                  max={2.4}
+                  step={0.05}
+                  disabled={neuGated}
+                  display={`${studio.neuLift.toFixed(2)}×`}
+                  onChange={(value) => setStudio({ neuLift: value })}
+                  hint={t("How far a raised face stands off the page and how deep a well sinks into it. 1.00 is the canonical two-point step by night and one by day; the canvas and the text ladder never move.")}
+                />
               </div>
-              {studio.neuDepth !== 1 || studio.neuDistance !== 1 || studio.neuSoftness !== 1 ? (
+              {/* Four whole recipes, because the dials interact: a deep shadow
+                  with a tight blur reads as a hard line, and a soft blur with
+                  no lift reads as fog. One press gets a combination that
+                  works; the dials stay free above it. */}
+              <p className="mono-label mt-3">{t("Recipes")}</p>
+              <div className="mt-1.5 grid grid-cols-2 gap-2">
+                {neuPresets.map((preset) => {
+                  const active =
+                    Math.abs(studio.neuDepth - preset.neuDepth) < 0.001 &&
+                    Math.abs(studio.neuDistance - preset.neuDistance) < 0.001 &&
+                    Math.abs(studio.neuSoftness - preset.neuSoftness) < 0.001 &&
+                    Math.abs(studio.neuLift - preset.neuLift) < 0.001;
+                  return (
+                    <button
+                      key={preset.key}
+                      type="button"
+                      aria-pressed={active}
+                      disabled={neuGated}
+                      title={t(preset.note)}
+                      onClick={() =>
+                        setStudio({
+                          neuDepth: preset.neuDepth,
+                          neuDistance: preset.neuDistance,
+                          neuSoftness: preset.neuSoftness,
+                          neuLift: preset.neuLift,
+                        })
+                      }
+                      className={cn(
+                        "rounded-card border-2 px-2 py-2 text-left text-[0.75rem] font-bold transition-colors",
+                        active
+                          ? "border-brand-400 bg-brand-500/15 text-text-primary"
+                          : "border-line-strong/70 text-text-secondary hover:border-brand-400/60 hover:text-text-primary",
+                      )}
+                    >
+                      {t(preset.name)}
+                    </button>
+                  );
+                })}
+              </div>
+              {studio.neuDepth !== 1 || studio.neuDistance !== 1 || studio.neuSoftness !== 1 || studio.neuLift !== 1 ? (
                 <button
                   type="button"
                   disabled={neuGated}
-                  onClick={() => setStudio({ neuDepth: 1, neuDistance: 1, neuSoftness: 1 })}
+                  onClick={() => setStudio({ neuDepth: 1, neuDistance: 1, neuSoftness: 1, neuLift: 1 })}
                   className="mt-2 text-[0.72rem] font-semibold text-text-faint underline-offset-2 hover:underline"
                 >
                   {t("Reset the neumorphism bench")}

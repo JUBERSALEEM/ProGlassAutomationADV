@@ -130,14 +130,17 @@ export type Studio = {
   glassBody: number;
   glassGlint: number;
   /**
-   * The Neumorphism bench — three material multipliers for the tonal
-   * extruded family. Depth scales paired light/shade alpha, distance scales
-   * their offset from the surface, and softness scales blur. They never move
-   * surface lightness, so text contrast remains owned by the engine recipe.
+   * The Neumorphism bench — four material multipliers for the tonal extruded
+   * family. Depth scales paired light/shade alpha, distance scales their
+   * offset from the surface, and softness scales blur. Lift scales how far a
+   * face stands off the canvas (the tonal separation the extrusion reads
+   * against); it moves face, raised and inset together around a fixed canvas,
+   * so text contrast stays owned by the engine recipe at every value.
    */
   neuDepth: number;
   neuDistance: number;
   neuSoftness: number;
+  neuLift: number;
 };
 
 export const defaultStudio: Studio = {
@@ -169,6 +172,7 @@ export const defaultStudio: Studio = {
   neuDepth: 1,
   neuDistance: 1,
   neuSoftness: 1,
+  neuLift: 1,
 };
 
 /*
@@ -318,6 +322,7 @@ export function normalizeStudio(raw: Partial<Studio> | null | undefined): Studio
   merged.neuDepth = finite(merged.neuDepth, 0.35, 1.8, 1);
   merged.neuDistance = finite(merged.neuDistance, 0.5, 1.8, 1);
   merged.neuSoftness = finite(merged.neuSoftness, 0.5, 2.2, 1);
+  merged.neuLift = finite(merged.neuLift, 0.4, 2.4, 1);
   merged.clayPlate = Number.isInteger(merged.clayPlate) && merged.clayPlate >= 1 && merged.clayPlate <= 6 ? merged.clayPlate : defaultStudio.clayPlate;
   merged.clayCards = Number.isInteger(merged.clayCards) && merged.clayCards >= 1 && merged.clayCards <= 6 ? merged.clayCards : defaultStudio.clayCards;
 
@@ -756,6 +761,12 @@ export function applyStudioVars(studio: Studio) {
   if (studio.neuSoftness !== defaultStudio.neuSoftness) {
     vars["--neu-softness"] = finite(studio.neuSoftness, 0.5, 2.2, 1).toFixed(2);
   }
+  /* Lift is re-derived in the adoption block above (it moves real colour, not
+     a CSS multiplier), so the only job here is the replay key: a share link or
+     a stored session must restore the dial itself. */
+  if (studio.neuLift !== defaultStudio.neuLift) {
+    vars["--neu-lift"] = finite(studio.neuLift, 0.4, 2.4, 1).toFixed(2);
+  }
 
   /*
    * The corner dial writes ONLY the visitor's factor (`--radius-user`).
@@ -1067,11 +1078,28 @@ export function applyStudioVars(studio: Studio) {
         }),
       );
 
-    const neuCanvas = neuColor(target === "dark" ? 0.145 : 0.875);
-    const neuFace = neuColor(target === "dark" ? 0.165 : 0.885);
-    const neuRaised = neuColor(target === "dark" ? 0.19 : 0.905);
-    const neuOverlay = neuColor(target === "dark" ? 0.215 : 0.93);
-    const neuInset = neuColor(target === "dark" ? 0.115 : 0.815);
+    /*
+     * The Surface-lift dial scales the tonal separation around a FIXED canvas.
+     * Neumorphism reads as moulded because a face stands a measurable step off
+     * the page and a well sits a step under it — at the shipped 1.00 that is
+     * two lightness points by night and one by day, which is the canonical
+     * recipe but a soft one. Lift lets a visitor push the material until the
+     * extrusions are unmistakable, or flatten it to a whisper, without ever
+     * moving the canvas the text is measured against.
+     */
+    const neuLiftScale = Math.min(2.4, Math.max(0.4, finite(studio.neuLift, 0.4, 2.4, 1)));
+    /* The ladder in points of HSL lightness, per reading. Night holds a wider
+       step than paper: an ivory page turns into a grey card system long before
+       a slate one does. */
+    const neuLadder = target === "dark"
+      ? { canvas: 0.135, face: 0.02, raised: 0.045, overlay: 0.07, inset: 0.03 }
+      : { canvas: 0.875, face: 0.01, raised: 0.03, overlay: 0.055, inset: 0.06 };
+    const neuStep = (points: number) => points * neuLiftScale;
+    const neuCanvas = neuColor(neuLadder.canvas);
+    const neuFace = neuColor(neuLadder.canvas + neuStep(neuLadder.face));
+    const neuRaised = neuColor(neuLadder.canvas + neuStep(neuLadder.raised));
+    const neuOverlay = neuColor(neuLadder.canvas + neuStep(neuLadder.overlay));
+    const neuInset = neuColor(neuLadder.canvas - neuStep(neuLadder.inset));
     const neuLightSource = neuColor(target === "dark" ? 0.34 : 0.995, 1.08);
     const neuDarkSource = neuColor(target === "dark" ? 0.045 : 0.66, 1.05);
     const neuLine = neuColor(target === "dark" ? 0.29 : 0.74);
@@ -1081,6 +1109,7 @@ export function applyStudioVars(studio: Studio) {
     vars["--neu-raised"] = neuRaised;
     vars["--neu-overlay"] = neuOverlay;
     vars["--neu-inset"] = neuInset;
+    vars["--neu-lift"] = neuLiftScale.toFixed(2);
     vars["--neu-light-source"] = neuLightSource;
     vars["--neu-dark-source"] = neuDarkSource;
     vars["--neu-line"] = neuLine;
@@ -1311,4 +1340,30 @@ export function useStudio(): Studio {
 }
 
 /** The accent presets the application ships, as pickable chips. */
+/*
+ * ── The neumorphism recipes ─────────────────────────────────────────────
+ *
+ * Four whole recipes rather than four sliders a visitor has to discover the
+ * right combination of. The bench's four dials interact — a deep shadow with a
+ * tight blur reads as a hard line, a soft blur with no lift reads as fog — and
+ * the honest thing to ship is the combinations that actually work, with the
+ * dials left free to move from there.
+ *
+ *   whisper   almost flat; the family as a quiet tonal shift
+ *   classic   the canonical soft-UI extrusion: offset ≈ blur/2, four-point lift
+ *   crisp     machined — tight blur, strong lift, shallow offset
+ *   deep      a heavy moulded plate; the far end of every dial together
+ *
+ * Every value sits inside the clamps `normalizeStudio` enforces, so a preset
+ * can never write a token the engine's floors would reject.
+ */
+export const neuPresets = [
+  { key: "whisper", name: "Whisper", neuDepth: 0.55, neuDistance: 0.6, neuSoftness: 1.8, neuLift: 0.5, note: "A barely-there tonal shift — the quietest reading of the family." },
+  { key: "classic", name: "Classic", neuDepth: 1, neuDistance: 1, neuSoftness: 1, neuLift: 1, note: "The shipped soft-UI recipe: offset half the blur, light from the top-left." },
+  { key: "crisp", name: "Crisp", neuDepth: 1.3, neuDistance: 0.8, neuSoftness: 0.65, neuLift: 1.4, note: "Machined: a tight blur and a strong face lift, so edges read sharp." },
+  { key: "deep", name: "Deep", neuDepth: 1.7, neuDistance: 1.5, neuSoftness: 1.25, neuLift: 2, note: "A heavy moulded plate — every dial pushed together for maximum relief." },
+] as const;
+
+export type NeuPreset = (typeof neuPresets)[number];
+
 export const studioAccents = accentPresets.filter((entry) => entry.key !== "Custom");
