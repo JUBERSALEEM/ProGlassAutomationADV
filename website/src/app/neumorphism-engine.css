@@ -92,6 +92,18 @@
   --neu-rim-shade: 0.85;
   --neu-fill-light: 0.3;
   --neu-fill-shade: 0.22;
+  /* At night the accent's light half has to be brighter than the ground to
+     register at all, so the selected pair swaps which end is which: the
+     highlight comes from the accent's lighter step, the shade from its
+     deeper one. Same two stops, different roles. */
+  --neu-selected-light: var(--brand-400);
+  --neu-selected-shade: var(--brand-700);
+  /* Accent ink is a reading surface, so it flips with the ground: the dark
+     step of the ramp on a light page, the light step on a dark one. The
+     accent never becomes a fill here, so this is the only place it has to
+     clear a contrast floor. */
+  --neu-accent-ink: var(--brand-300);
+  --neu-accent-ink-hover: var(--brand-200);
   --neu-face-tint: 0.55;
   --neu-face-shade-tint: 0.85;
   --neu-line: 66 72 84;
@@ -153,6 +165,27 @@
     inset calc(-1 * var(--neu-rim-offset)) calc(-1 * var(--neu-rim-offset)) var(--neu-rim-blur)
       rgba(var(--neu-dark-source) / calc(var(--neu-rim-shade) * var(--neu-depth))),
     var(--neu-fill);
+
+  /* The four states. The guide this family follows names exactly three
+     (flat, pressed, floating) and one that this site needs on top of them:
+     selected, which takes the accent into the SHADOW rather than into the
+     fill, so a chosen row is lit, not painted. */
+  --neu-shadow-float:
+    var(--neu-offset-lg) var(--neu-offset-lg) var(--neu-blur-lg)
+      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
+    calc(-1 * var(--neu-offset-lg)) calc(-1 * var(--neu-offset-lg)) var(--neu-blur-lg)
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
+    inset var(--neu-rim-offset) var(--neu-rim-offset) var(--neu-rim-blur)
+      rgba(var(--neu-light-source) / calc(var(--neu-rim-light) * var(--neu-depth))),
+    inset calc(-1 * var(--neu-rim-offset)) calc(-1 * var(--neu-rim-offset)) var(--neu-rim-blur)
+      rgba(var(--neu-dark-source) / calc(var(--neu-rim-shade) * var(--neu-depth))),
+    var(--neu-fill);
+
+  --neu-shadow-selected:
+    inset var(--neu-offset-in) var(--neu-offset-in) var(--neu-blur-in)
+      rgb(var(--neu-selected-shade) / calc(0.34 * var(--neu-depth))),
+    inset calc(-1 * var(--neu-offset-in)) calc(-1 * var(--neu-offset-in)) var(--neu-blur-in)
+      rgb(var(--neu-selected-light) / calc(0.34 * var(--neu-depth)));
 
   /* The small rung: discs, chips and thumbs. */
   --neu-shadow-small:
@@ -331,6 +364,10 @@
   --neu-rim-shade: 0.6;
   --neu-fill-light: 0.5;
   --neu-fill-shade: 0.16;
+  --neu-selected-light: var(--brand-300);
+  --neu-selected-shade: var(--brand-700);
+  --neu-accent-ink: var(--brand-600);
+  --neu-accent-ink-hover: var(--brand-700);
   /* The face tints are the published stop pair over #E0E5EC: white at 0.19
      composites to #E6E9F0 at the top left, the shade at 0.45 composites to
      #CFD4DE at the bottom right, which is exactly the generator's
@@ -673,10 +710,12 @@
     background-color var(--dur-card) var(--ease-out);
 }
 
+/* State three: floating. The guide's hover/focus is the flat state carried
+   one rung further out, which is what `--neu-shadow-float` is. */
 [data-appearance="neumorphism"] .card-interactive:hover,
 [data-appearance="neumorphism"] .card-interactive:focus-visible {
   border-color: transparent;
-  box-shadow: var(--neu-shadow-raise-lg);
+  box-shadow: var(--neu-shadow-float);
   transform: translateY(-2px);
 }
 
@@ -761,6 +800,18 @@
 
 /* Controls use the recipe's tighter corner: 12px on a 40px button, and a
    capsule when the layout asks for one. */
+/* Controls carry the transition the guide calls the whole interaction: the
+   shadow pair swapping in 150ms, the body settling in 100ms. Without it a
+   press is a jump cut and the material reads as a picture of a material. */
+[data-appearance="neumorphism"]
+  :is(.btn, .btn-secondary, .btn[class*="bg-ink-"], .btn[class*="border-line"], .chip, .eyebrow-chip, .icon-chip, .icon-chip-strong, .nav-pill) {
+  transition:
+    box-shadow 150ms var(--ease-out),
+    background-image 150ms var(--ease-out),
+    transform 100ms var(--ease-out),
+    color 150ms var(--ease-out);
+}
+
 [data-appearance="neumorphism"]
   :is(.btn, .btn-secondary, .btn[class*="bg-ink-"], .btn[class*="border-line"]) {
   border-radius: var(--neu-radius-control);
@@ -771,36 +822,69 @@
   color: rgb(var(--text-1));
 }
 
+/* The focus ring is not a border and not a shadow: it is the one thing on a
+   soft-UI page that is allowed to be a hard line, because a keyboard user
+   cannot feel a bevel. */
+[data-appearance="neumorphism"]
+  :is(.btn, .chip, .eyebrow-chip, .icon-chip, .icon-chip-strong, .nav-pill, a[class*="rounded"], button[class*="rounded"]):focus-visible {
+  outline: 2px solid rgb(var(--brand-500) / 0.9);
+  outline-offset: 3px;
+}
+
 [data-appearance="neumorphism"]
   :is(.btn-secondary, .btn[class*="bg-ink-"], .btn[class*="border-line"]):hover {
   box-shadow: var(--neu-shadow-raise);
 }
 
-/* The primary action is the one control the recipe keeps filled, and every
-   source says the same thing: a soft shadow alone cannot mark the most
-   important action, and the accent is where it belongs. Shape, weight and
-   spacing still do the work; this is not a gradient plate. */
-[data-appearance="neumorphism"] .btn-primary {
-  background-color: rgb(var(--brand-600));
-  background-image: none;
+/* The primary action. It is NOT filled: on this family an accent is light,
+   not paint. The verb is the same raised object as every other control, but
+   it is cut from the accent's own light, it casts a violet shade instead of
+   the page's grey, and it carries the accent in its ink. That reads as the
+   loudest object on the page without putting a coloured plate in a material
+   whose whole argument is that nothing is a plate.
+   The selector is deliberately more specific than the generic control rule
+   above: `:is()` inherits its heaviest argument, so a bare `.btn-primary`
+   was losing that cascade and the call to action rendered as a plain
+   button. */
+[data-appearance="neumorphism"] :is(.btn, button).btn-primary {
+  background-color: rgb(var(--neu-face));
+  background-image: var(--neu-face-light);
   border-color: transparent;
   border-radius: var(--neu-radius-control);
-  color: rgb(255 255 255);
+  color: rgb(var(--neu-accent-ink));
   box-shadow:
     var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
-      rgba(var(--brand-700) / calc(0.55 * var(--neu-depth))),
+      rgb(var(--brand-700) / calc(0.42 * var(--neu-depth))),
     calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
-      rgba(var(--neu-light-source) / calc(0.35 * var(--neu-light-alpha)));
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
+    inset var(--neu-rim-offset-sm) var(--neu-rim-offset-sm) calc(var(--neu-rim-blur) * 0.75)
+      rgb(var(--brand-300) / calc(0.55 * var(--neu-depth))),
+    inset calc(-1 * var(--neu-rim-offset-sm)) calc(-1 * var(--neu-rim-offset-sm)) calc(var(--neu-rim-blur) * 0.75)
+      rgb(var(--brand-700) / calc(0.28 * var(--neu-depth)));
 }
 
-[data-appearance="neumorphism"] .btn-primary:hover,
-[data-appearance="neumorphism"] .btn-primary:focus-visible {
-  background-color: rgb(var(--brand-500));
+[data-appearance="neumorphism"] :is(.btn, button).btn-primary:hover,
+[data-appearance="neumorphism"] :is(.btn, button).btn-primary:focus-visible {
+  color: rgb(var(--neu-accent-ink-hover));
   box-shadow:
-    var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
-      rgba(var(--brand-700) / calc(0.6 * var(--neu-depth))),
-    calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
-      rgba(var(--neu-light-source) / calc(0.4 * var(--neu-light-alpha)));
+    var(--neu-offset) var(--neu-offset) var(--neu-blur)
+      rgb(var(--brand-700) / calc(0.5 * var(--neu-depth))),
+    calc(-1 * var(--neu-offset)) calc(-1 * var(--neu-offset)) var(--neu-blur)
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
+    inset var(--neu-rim-offset-sm) var(--neu-rim-offset-sm) calc(var(--neu-rim-blur) * 0.75)
+      rgb(var(--brand-300) / calc(0.7 * var(--neu-depth))),
+    inset calc(-1 * var(--neu-rim-offset-sm)) calc(-1 * var(--neu-rim-offset-sm)) calc(var(--neu-rim-blur) * 0.75)
+      rgb(var(--brand-700) / calc(0.3 * var(--neu-depth)));
+}
+
+[data-appearance="neumorphism"] :is(.btn, button).btn-primary:active {
+  background-image: var(--neu-face-shade);
+  box-shadow:
+    inset var(--neu-offset-in) var(--neu-offset-in) var(--neu-blur-in)
+      rgb(var(--brand-700) / calc(0.35 * var(--neu-depth))),
+    inset calc(-1 * var(--neu-offset-in)) calc(-1 * var(--neu-offset-in)) var(--neu-blur-in)
+      rgba(var(--neu-light-source) / calc(var(--neu-rim-light) * var(--neu-depth)));
+  transform: translateY(1px) scale(0.99);
 }
 
 /* The sheen pseudo-elements belong to the glass families. */
@@ -813,7 +897,7 @@
 [data-appearance="neumorphism"] .btn:active,
 [data-appearance="neumorphism"] .btn-primary:active,
 [data-appearance="neumorphism"] .btn-secondary:active {
-  transform: translateY(1px);
+  transform: translateY(1px) scale(0.99);
 }
 
 /* The recipe's pressed state: both shadows move inside. A button that only
@@ -824,9 +908,7 @@
   box-shadow: var(--neu-shadow-press);
 }
 
-[data-appearance="neumorphism"] .btn-primary:active {
-  box-shadow: inset 0 2px 6px rgba(var(--brand-700) / 0.55);
-}
+
 
 [data-appearance="neumorphism"] .btn:disabled,
 [data-appearance="neumorphism"] .btn-primary:disabled,
@@ -861,10 +943,17 @@
   box-shadow: var(--neu-shadow-raise);
 }
 
+/* Selected. The guide's toggle puts the accent in the track's inner
+   shadow and on the thumb; on a page where the control also carries text,
+   a fill would cost the label its contrast, so the accent goes into the
+   shadow only: a violet-shaded well with a violet-lit lip. The label stays
+   on the page's own ink, which is what "an accent is light, not paint"
+   means in practice. */
 [data-appearance="neumorphism"]
   :is(button, a, [role="button"])
   :is([aria-pressed="true"], [aria-selected="true"], [data-pill-on="true"]) {
-  box-shadow: var(--neu-shadow-well);
+  background-image: var(--neu-face-shade);
+  box-shadow: var(--neu-shadow-selected);
 }
 
 /* ═══ §N5 · FORM CONTROLS ═══════════════════════════════════════════════ */
@@ -961,6 +1050,12 @@
 [data-appearance="neumorphism"] input[type="checkbox"]:checked::after,
 [data-appearance="neumorphism"] input[type="radio"]:checked::after {
   transform: scale(1);
+}
+
+[data-appearance="neumorphism"] input[type="checkbox"]:checked,
+[data-appearance="neumorphism"] input[type="radio"]:checked {
+  background-image: var(--neu-face-shade);
+  box-shadow: var(--neu-shadow-selected);
 }
 
 [data-appearance="neumorphism"] :is(input[type="checkbox"], input[type="radio"]):focus-visible {

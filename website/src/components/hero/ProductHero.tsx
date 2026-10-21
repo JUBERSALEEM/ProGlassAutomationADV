@@ -136,7 +136,7 @@ export function ProductHero({ t }: { t: Translator }) {
       <div aria-hidden="true" className="hero-aurora-strong pointer-events-none absolute inset-x-0 top-0 h-full max-h-[180svh]" />
 
       <div className="shell relative">
-        <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.06fr)] lg:gap-10">
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.06fr)] lg:gap-10 lg:pt-6">
           <div className="max-lg:text-center">
             {/* ── The header block ──────────────────────────────────────
                 Product mark, name, version, and the byline. A hero that opens

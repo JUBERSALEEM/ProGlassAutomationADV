@@ -451,6 +451,35 @@ describe("neumorphism stylesheet contract", () => {
     expect(convex).not.toContain("inset");
   });
 
+  it("names the four states and keeps the accent out of the fill", () => {
+    /* rest, floating, pressed, selected. The guide this engine follows names
+       three and the site needs a fourth, because a chosen control also
+       carries text. */
+    expect(css).toContain("--neu-shadow-float:");
+    expect(css).toContain("--neu-shadow-selected:");
+    expect(css).toContain("var(--neu-shadow-float)");
+    expect(css).toContain("var(--neu-shadow-selected)");
+    /* Selected is lit, not painted: the accent lives in the shadow pair. */
+    const selected = tokenBlock(css, "--neu-shadow-selected:");
+    expect(selected).toContain("var(--neu-selected-shade)");
+    expect(selected).toContain("var(--neu-selected-light)");
+    expect(selected.match(/inset/g)?.length).toBe(2);
+    /* ...and the primary action carries accent ink, in both modes, because
+       an accent ink is text and has to clear a contrast floor. */
+    expect(css).toContain("--neu-accent-ink: var(--brand-300);");
+    expect(css).toContain("--neu-accent-ink: var(--brand-600);");
+    const primary = css.slice(css.indexOf(":is(.btn, button).btn-primary {"));
+    expect(primary.slice(0, 600)).toContain("color: rgb(var(--neu-accent-ink));");
+  });
+
+  it("transitions the shadow pair instead of jumping between states", () => {
+    /* The press has to read as a material settling, not a picture swap. */
+    expect(css).toContain("box-shadow 150ms var(--ease-out)");
+    expect(css).toContain("transform 100ms var(--ease-out)");
+    /* The keyboard still gets a hard line: a bevel is not a boundary. */
+    expect(css).toContain("outline: 2px solid rgb(var(--brand-500) / 0.9)");
+  });
+
   it("never leaks a selector outside the neumorphism family", () => {
     const selectorHeads = css
       .split("}")
