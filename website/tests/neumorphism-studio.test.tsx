@@ -7,7 +7,7 @@
  *
  *   1. the retired Studio family migrates to Neumorphism everywhere a saved
  *      or DOM-carried choice can re-enter the runtime;
- *   2. at the shipped recipe the bench writes no dial tokens — moved dials
+ *   2. at the shipped recipe the bench writes no dial tokens, moved dials
  *      write clamped multipliers and hostile stored values degrade safely;
  *   3. an accent may re-hue the material, but only at low saturation and on
  *      the engine's fixed lightness ladder;
@@ -123,7 +123,7 @@ describe("neumorphism family registry and migration", () => {
   });
 });
 
-describe("neumorphism bench — write-only-when-moved", () => {
+describe("neumorphism bench, write-only-when-moved", () => {
   it("the shipped recipe writes no dial or adoption tokens", () => {
     applyStudioVars({ ...defaultStudio });
 
@@ -197,7 +197,7 @@ describe("neumorphism bench — write-only-when-moved", () => {
     const deepCanvas = hslOf(prop("--neu-canvas"));
     const deepInset = hslOf(prop("--neu-inset"));
 
-    /* The page never moves — text contrast is measured against it. */
+    /* The page never moves, text contrast is measured against it. */
     expect(deepCanvas.l).toBeCloseTo(flatCanvas.l, 3);
     expect(prop("--neu-face")).toBe(prop("--neu-canvas"));
     /* …while the well sinks further with the dial. */
@@ -369,16 +369,41 @@ describe("neumorphism stylesheet contract", () => {
        is what made the pair invisible against the fill. */
     expect(css).toContain("--neu-light-alpha: 1;");
 
-    /* A card must not repaint a tint or a glass stack over its own fill. */
+    /* A card must not repaint a tint or a glass stack over its own fill. It
+       may paint the room's light ON that fill, which is the gradient below. */
     expect(css).toContain("background-image: none");
+  });
 
-    /* The outer pair belongs to cards; inset belongs to wells. A card that
-       carries an inset pair reads as a framed rectangle, not a pillow. */
-    const surfaceBlock = css.slice(
-      css.indexOf("--neu-shadow-surface:"),
-      css.indexOf("--neu-shadow-panel:"),
+  it("keeps the moulded plate: cast pair outward, corner pair inward", () => {
+    /* The plate the family is built from is moulded, not merely dropped: a
+       cast pair travelling outward plus an inner pair curving light around
+       the corner. The cast pair must stay OUTSIDE the box (an inset cast on
+       every card reads as a framed rectangle, not a pillow); the inset
+       belongs to the mould that follows it. */
+    const cardBlock = css.slice(
+      css.indexOf("--neu-shadow-card:"),
+      css.indexOf("--neu-shadow-card-raised:"),
     );
-    expect(surfaceBlock).not.toContain("inset");
+    expect(cardBlock).toContain("var(--neu-mould)");
+    expect(cardBlock.slice(0, cardBlock.indexOf("var(--neu-mould)"))).not.toContain("inset");
+
+    const mouldBlock = css.slice(css.indexOf("--neu-mould:"), css.indexOf("--neu-shadow-card:"));
+    expect(mouldBlock).toContain("inset");
+    expect(mouldBlock).not.toContain("1px");
+  });
+
+  it("carries the four richness devices the reference family owns", () => {
+    /* Mass, ground, bloom, answer, ported from the reference without
+       borrowing a single one of its colours. */
+    expect(css).toContain("--neu-shadow-float");
+    expect(css).toContain("--neu-glow:");
+    expect(css).toContain("--neu-face-light");
+    expect(css).toContain("--wall-lamp:");
+    expect(css).toContain("--wall-vignette:");
+    expect(css).toContain("--neu-ease:");
+    expect(css).toContain("::selection");
+    expect(css).toContain("caret-color");
+    expect(css).toContain("card-interactive:hover");
   });
 
   it("never leaks a selector outside the neumorphism family", () => {
