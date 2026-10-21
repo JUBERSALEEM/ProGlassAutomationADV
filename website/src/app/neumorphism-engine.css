@@ -1,107 +1,174 @@
 /* ============================================================================
- * THE NEUMORPHISM ENGINE, strict soft-extruded material
+ * THE NEUMORPHISM ENGINE, soft UI built to the canonical recipe
  * ============================================================================
  *
- * This file owns the `neumorphism` appearance family. It replaces the former
- * Studio palette family, not the Theme & Colour customisation store.
+ * This file owns the `neumorphism` appearance family. It implements the
+ * published recipe, not an interpretation of it:
  *
- * Strict neumorphism contract:
+ *   page and every surface   #E0E5EC  (one base, identical everywhere)
+ *   shade (bottom right)     #A3B1C6 at 62%, which composites to the #BEC3C9
+ *                            the recipe quotes on #E0E5EC
+ *   light (top left)         #FFFFFF at 90%
+ *   geometry                 9px / 18px raised, 6px / 12px inset (blur 2x)
+ *   corners                  16 to 20px cards, 12px controls, 50% discs
+ *   curvature                linear-gradient(145deg, lighter, darker)
+ *   dark mode                #2D3239 base, #23272D shade, #373D46 light
  *
- *   1. One tonal material. The page is the grey the casts fall on; a card is
- *      that material raised and lit; a well is it pressed in. Depth is carried
- *      ONLY by paired light and shade and by the tonal step, never by borders,
- *      glass, backdrop blur, or saturated fills.
- *   2. Light always arrives from the top-left. A light shadow sits top-left,
- *      a dark shadow sits bottom-right; both are substantial and coloured by
- *      the material, never neutral grey. Pressed surfaces reverse the pair.
- *   3. Faces are a step lighter than the page, and the step is the material:
- *      white plates on a grey ground, exactly like the reference kit. It is a
- *      lightness step of the same hue, never a tint, and surface lift scales
- *      it.
- *   4. Corners are large and soft; every surface is rounded.
- *   5. The three bench dials are multipliers only:
- *        --neu-depth     shadow alpha
- *        --neu-distance  shadow offset
- *        --neu-softness  shadow blur
- *      `useStudio` writes them only when moved from 1.00.
- *   6. Accent adoption re-hues the neutral material through `--neu-*` RGB
- *      channels but must preserve the mode-specific lightness ladder so
- *      contrast never drifts.
- *   7. Every selector is scoped to `[data-appearance="neumorphism"]`.
+ * Sources are recorded here because the numbers are the design:
+ *
+ *   neumorphism.io (adamgiebl/neumorphism, src/Configuration.js) generates the
+ *   pair as `colorLuminance(base, +/-0.15)` at `blur = distance * 2`, and adds
+ *   the convex `linear-gradient(145deg, ...)` when the surface should bulge.
+ *   superdesign.dev/styles/neumorphism, csstools.io/blog/css-neumorphism-guide,
+ *   setproduct.com/blog/neumorphism-design-guide and theplusaddons.com all
+ *   publish the same light and dark pairs used above.
+ *
+ * The rules those sources agree on are the contract here:
+ *
+ *   1. The element background EQUALS the page background. Depth comes from
+ *      the shadow pair and the surface gradient, never from a lighter fill.
+ *      A card tinted away from the page reads as a card, not as extrusion.
+ *   2. Light always arrives from the top-left. Shade bottom right, light top
+ *      left, mirrored offsets, no exceptions anywhere on the page.
+ *   3. Blur is about twice the offset. A tight blur reads as a drawn line.
+ *   4. Inset is the pressed state. Wells, tracks and active states invert.
+ *   5. The base is mid-tone. Pure white has nothing lighter to paint.
+ *   6. The accent fills actionable controls only: primary actions, active
+ *      segments, checked boxes, the value arc of a dial. Surfaces never take
+ *      an accent fill, and every control keeps a real focus ring, because a
+ *      soft shadow is not a perceivable boundary on its own.
+ *
+ * Every selector is scoped to `[data-appearance="neumorphism"]`.
  */
 
-/* ═══ §N0 · CHANNELS, TOKENS, AND THE SHARED VOCABULARY ═════════════════ */
+/* ═══ §N0 · THE RECIPE ══════════════════════════════════════════════════ */
 
 [data-appearance="neumorphism"] {
   color-scheme: dark;
 
-  /* Bench multipliers. Inline values from useStudio replace these only when
-     a dial has actually moved; at rest this stylesheet is the recipe. */
+  /* Bench multipliers. Inline values from useStudio replace these only when a
+     dial has actually moved; at rest this stylesheet is the recipe. */
   --neu-depth: 1;
   --neu-distance: 1;
   --neu-softness: 1;
+  --neu-lift: 1;
 
-  /* ── THE PLATE AND THE PAGE ───────────────────────────────────────────
-   *
-   * The reference kit this family is drawn from is white plates on a grey
-   * ground. The page is the colour the cast shadows land on; the card is the
-   * same material, raised and lit. That separation is the material, and it is
-   * what a flat grey page cannot fake.
-   *
-   * It stays a lightness step of one hue, never a tint: a card that turns a
-   * different colour is a coloured tile with a drop shadow, which is a
-   * different design language. `--neu-face` is therefore the page lifted by a
-   * step, and `Surface lift` in the studio scales the step (welding it flat at
-   * its lowest reading). Wells sit under the page for the same reason.
-   */
-  --neu-canvas: 32 36 44;
-  --neu-face: 45 50 60;
-  --neu-raised: 54 60 71;
-  --neu-overlay: 60 66 78;
-  --neu-inset: 25 28 34;
+  /* One base, five roles, identical. The recipe is explicit that page and
+     component share a colour; `face` is not a raised tint, it is the same
+     paint. Depth is entirely in the shadow pair and the curvature below. */
+  --neu-canvas: 45 50 57;
+  --neu-face: 45 50 57;
+  --neu-raised: 45 50 57;
+  --neu-overlay: 45 50 57;
+  --neu-inset: 45 50 57;
 
-  --neu-light-source: 88 97 114;
-  --neu-dark-source: 12 14 18;
+  /* The pair. Dark mode is a retune, never an inversion: the highlight is a
+     lit slate, not white, and the shade is a darker grey, not black. */
+  --neu-light-source: 55 61 70;
+  --neu-dark-source: 35 39 45;
+  --neu-light-alpha: 1;
+  --neu-dark-alpha: 1;
   --neu-line: 66 72 84;
 
-  /* Shadow strength. These are high on purpose: the reference pair is 100%
-     opaque, and anything softer disappears against the fill it sits on. The
-     depth dial multiplies them (clamping at 1.0), so a dropped offset still
-     lets a visitor soften the material. */
-  --neu-light-alpha: 0.92;
-  --neu-dark-alpha: 1;
+  /* Geometry, in the recipe's own ratio. Blur is twice the offset at every
+     rung; distance scales offsets and softness scales blurs, so the bench
+     moves the whole material as one object. */
+  --neu-offset-sm: calc(6px * var(--neu-distance));
+  --neu-offset: calc(9px * var(--neu-distance));
+  --neu-offset-lg: calc(12px * var(--neu-distance));
+  --neu-offset-in: calc(6px * var(--neu-distance));
+  --neu-blur-sm: calc(12px * var(--neu-softness));
+  --neu-blur: calc(18px * var(--neu-softness));
+  --neu-blur-lg: calc(24px * var(--neu-softness));
+  --neu-blur-in: calc(12px * var(--neu-softness));
+  --neu-offset-float: calc(14px * var(--neu-distance));
+  --neu-blur-float: calc(28px * var(--neu-softness));
 
-  /* Big soft corners. The reference panels turn on a ~32px arc, and the
-     visitor's corner dial multiplies --radius-user on top of the family
-     factor (1.5 here), so the shipped card is 30px and the panel 42px. */
-  --neu-radius: calc(22px * var(--radius-scale));
-  --neu-radius-large: calc(32px * var(--radius-scale));
-  --neu-radius-control: calc(16px * var(--radius-scale));
-  --neu-radius-well: calc(18px * var(--radius-scale));
-  /* The kit's controls are pills and discs, not rounded rectangles: a
-     neumorphic button reads as a moulded capsule and a neumorphic icon as a
-     moulded disc. */
+  /* Raised: shade bottom right, light top left, both outside the box. */
+  --neu-shadow-raise:
+    var(--neu-offset) var(--neu-offset) var(--neu-blur)
+      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
+    calc(-1 * var(--neu-offset)) calc(-1 * var(--neu-offset)) var(--neu-blur)
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
+
+  --neu-shadow-raise-lg:
+    var(--neu-offset-lg) var(--neu-offset-lg) var(--neu-blur-lg)
+      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
+    calc(-1 * var(--neu-offset-lg)) calc(-1 * var(--neu-offset-lg)) var(--neu-blur-lg)
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
+
+  /* The small rung: 6/12, for discs, chips and thumbs. */
+  --neu-shadow-small:
+    var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
+      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
+    calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
+
+  /* Inset: the same pair, moved inside. Wells, tracks, pressed states. */
+  --neu-shadow-well:
+    inset var(--neu-offset-in) var(--neu-offset-in) var(--neu-blur-in)
+      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
+    inset calc(-1 * var(--neu-offset-in)) calc(-1 * var(--neu-offset-in)) var(--neu-blur-in)
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
+
+  --neu-shadow-press:
+    inset calc(4px * var(--neu-distance)) calc(4px * var(--neu-distance)) calc(8px * var(--neu-softness))
+      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
+    inset calc(-4px * var(--neu-distance)) calc(-4px * var(--neu-distance)) calc(8px * var(--neu-softness))
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
+
+  /* Curvature: the fourth axis. A six percent gradient at 145deg, light at
+     the top left and shade at the bottom right, agreeing with the shadows.
+     `--neu-lift` scales it, so the bench can go flat at the low end. */
+  --neu-face-light:
+    linear-gradient(145deg,
+      rgb(255 255 255 / calc(0.09 * var(--neu-lift))) 0%,
+      rgb(255 255 255 / calc(0.03 * var(--neu-lift))) 46%,
+      rgb(0 0 0 / calc(0.18 * var(--neu-lift))) 100%);
+  /* Concave, for wells: the stops reverse so the surface dishes away. */
+  --neu-face-shade:
+    linear-gradient(145deg,
+      rgb(0 0 0 / calc(0.16 * var(--neu-lift))) 0%,
+      rgb(255 255 255 / calc(0.02 * var(--neu-lift))) 54%,
+      rgb(255 255 255 / calc(0.07 * var(--neu-lift))) 100%);
+
+  /* Corners. Cards and panels get the recipe's soft radius, controls the
+     tighter one, discs the full circle. */
+  --neu-radius: calc(20px * var(--radius-scale));
+  --neu-radius-large: calc(28px * var(--radius-scale));
+  --neu-radius-control: calc(12px * var(--radius-scale));
+  --neu-radius-well: calc(14px * var(--radius-scale));
   --neu-radius-pill: 999px;
 
-  /* Re-point the site's shared surface vocabulary at the material channels.
-     Tailwind utilities receive RGB triplets through these tokens. */
+  /* The family's shared elevation vocabulary, re-pointed at the recipe so the
+     rest of the site paints this material without knowing its numbers. */
+  --shadow-panel: var(--neu-shadow-raise);
+  --shadow-raised: var(--neu-shadow-raise-lg);
+  --shadow-float: var(--neu-shadow-raise-lg);
+  --shadow-well: var(--neu-shadow-well);
+  --shadow-glow: var(--neu-shadow-raise);
+  --shadow-glow-strong: var(--neu-shadow-raise-lg);
+
+  /* Re-point the site's shared surface channels at the material. */
   --ink-950: var(--neu-canvas);
   --ink-900: var(--neu-face);
   --ink-850: var(--neu-raised);
   --ink-800: var(--neu-overlay);
   --ink-700: var(--neu-line);
   --line: var(--neu-line);
-  --line-soft: var(--neu-inset);
+  --line-soft: var(--neu-line);
   --line-strong: var(--neu-light-source);
 
-  --text-1: 247 248 250;
-  --text-2: 228 232 240;
-  --text-3: 195 201 214;
-  --text-4: 164 171 187;
+  --text-1: 241 243 246;
+  --text-2: 214 219 227;
+  --text-3: 176 184 196;
+  --text-4: 146 155 170;
 
   --radius-family: 1.5;
 
-  /* Solid material: no translucency tiers, no backdrop work, no borders. */
+  /* Solid material: no translucency tiers, no backdrop work, no borders, no
+     ambient colour pools. A gradient behind the page breaks the illusion as
+     surely as a tinted card does. */
   --surface-alpha: 1;
   --surface-alpha-2: 1;
   --surface-alpha-3: 1;
@@ -129,282 +196,76 @@
   --card-highlight: transparent;
   --card-edge: transparent;
   --card-edge-hover: transparent;
-  --selection: rgb(var(--brand-500) / 0.38);
+  --selection: rgb(var(--brand-500) / 0.32);
 
-  /* ── The room ─────────────────────────────────────────────────────────
-   *
-   * The reference's page is not a flat fill: it is one soft light falling
-   * across a tinted ground, bright where the lamp is and settling into its
-   * own shade at the far edge. That gradient is a large part of why the
-   * reference reads rich while a flat grey page reads minimal, and it costs
-   * nothing, it is the same wallpaper layer every family already paints.
-   *
-   * Note the direction: the lamp sits high and slightly left, matching the
-   * single light source the shadows obey. A page lit from anywhere else
-   * would contradict every shadow on it.
-   */
-  --pool-1: rgb(var(--brand-500) / 0.1);
-  --pool-2: rgb(var(--brand-400) / 0.06);
-  --pool-3: rgb(var(--neu-dark-source) / 0.14);
-  --wall-wash-1: rgb(var(--neu-light-source) / 0.11);
-  --wall-wash-2: rgb(var(--brand-500) / 0.07);
-  --wall-sheen: rgb(var(--neu-light-source) / 0.05);
+  --pool-1: transparent;
+  --pool-2: transparent;
+  --pool-3: transparent;
+  --wall-wash-1: transparent;
+  --wall-wash-2: transparent;
+  --wall-sheen: transparent;
   --wall-grid: transparent;
   --wall-grid-major: transparent;
-  --wall-vignette: rgb(var(--neu-dark-source) / 0.3);
-  --wall-lamp: rgb(var(--neu-light-source) / 0.16);
-  --wall-floor: rgb(var(--neu-dark-source) / 0.2);
+  --wall-vignette: transparent;
+  --wall-lamp: transparent;
+  --wall-floor: transparent;
   --sweep-1: transparent;
   --sweep-2: transparent;
   --sweep-3: transparent;
-  --sweep-4: transparent;
-  --sweep-5: transparent;
 
-  --viz-grid: rgb(var(--neu-light-source) / 0.25);
-  --viz-part: rgb(var(--brand-400) / 0.9);
-  --viz-part-2: rgb(var(--brand-300) / 0.78);
-  --viz-scrap: rgb(var(--neu-line) / 0.65);
-  --viz-plate: rgb(var(--neu-inset) / 0.98);
-
-  /* ── Geometry: the reference ladder ────────────────────────────────────
-   *
-   * The cast is wide and low, roughly twice as blurred as it is offset, which
-   * is what makes a plate read as resting on the page rather than cut out of
-   * it. Four rungs of that ratio:
-   *
-   *   sm   small objects: icon discs, thumbs, chips (6px / 12px)
-   *   base cards and panels (14px / 30px)
-   *   lg   a plate already floating over another (22px / 44px)
-   *   in   the press well, shallower and inverted (8px / 18px)
-   *
-   * Distance scales the offsets and Softness scales the blurs, so the dials
-   * move the whole material as one object.
-   */
-  --neu-offset-sm: calc(6px * var(--neu-distance));
-  --neu-offset: calc(14px * var(--neu-distance));
-  --neu-offset-lg: calc(22px * var(--neu-distance));
-  --neu-blur-sm: calc(12px * var(--neu-softness));
-  --neu-blur: calc(30px * var(--neu-softness));
-  --neu-blur-lg: calc(44px * var(--neu-softness));
-  /* The press well's own pair: shallower than a raised card, as in the
-     reference's "inner shadow" plate. */
-  --neu-offset-in: calc(8px * var(--neu-distance));
-  --neu-blur-in: calc(18px * var(--neu-softness));
-
-  /* Shadow pairs. Dark bottom-right, light top-left, BOTH OUTSIDE the box,
-   * an inset pair on every card is what produced the "framed rectangle" look
-   * in the previous pass. Inset belongs to wells and pressed states only. */
-  --neu-shadow-surface:
-    var(--neu-offset) var(--neu-offset) var(--neu-blur)
-      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
-    calc(-1 * var(--neu-offset)) calc(-1 * var(--neu-offset)) var(--neu-blur)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
-
-  /* A panel is the same pair, at the reference rung. One pair per surface,
-     stacking a second, smaller pair under the first (an earlier revision did)
-     doubles the contact shadow into a muddy halo and the extrusion stops
-     reading as a single lit object. */
-  --neu-shadow-panel:
-    var(--neu-offset) var(--neu-offset) var(--neu-blur)
-      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
-    calc(-1 * var(--neu-offset)) calc(-1 * var(--neu-offset)) var(--neu-blur)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
-
-  --neu-shadow-raised:
-    var(--neu-offset-lg) var(--neu-offset-lg) var(--neu-blur-lg)
-      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
-    calc(-1 * var(--neu-offset-lg)) calc(-1 * var(--neu-offset-lg)) var(--neu-blur-lg)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
-
-  /* Pressed / recessed: the same two lights, moved INSIDE the box. */
-  --neu-shadow-well:
-    inset var(--neu-offset-in) var(--neu-offset-in) var(--neu-blur-in)
-      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
-    inset calc(-1 * var(--neu-offset-in)) calc(-1 * var(--neu-offset-in)) var(--neu-blur-in)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
-
-  /* Compact pair for small controls (range thumbs, chips). */
-  --neu-shadow-small:
-    var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
-      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
-    calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
-
-  --neu-specular:
-    inset calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) calc(var(--neu-blur-sm) * 0.5) 0
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * 0.5 * var(--neu-depth)));
-
-  /* The face catches the room's light: a wash that is brightest where the
-     lamp is (top-left) and dies before it reaches the opposite corner. This
-     is not a fill colour, the base under it is still exactly the page, it
-     is the light lying ON that fill, and it is most of why the reference's
-     cards read as softly lit objects rather than flat panels. */
-  --neu-face-light:
-    linear-gradient(158deg, rgb(255 255 255 / 0.1) 0%, rgb(255 255 255 / 0.03) 40%, transparent 66%);
-
-  /* ═══════════════════════════════════════════════════════════════════════
-   * THE MOULD, the layer that makes this material read rich.
-   * ═══════════════════════════════════════════════════════════════════════
-   *
-   * A paired drop shadow alone extrudes a box: it touches the page, it does
-   * not turn. The reference plate the family is built from shows the second
-   * half of the technique, an INNER shadow that curves light around the
-   * corner: a soft sheen pooling from the top-left, its own shade gathering
-   * into the bottom-right. That inner pair is what reads as moulded, and it
-   * is the whole difference between "flat with a shadow" and "soft UI".
-   *
-   * It is deliberately blurred far wider than it is offset (offset ~5px,
-   * blur ~12px) so it never resolves into a drawn edge, a crisp inset line
-   * is a border, and this family draws no borders.
-   *
-   * Hue-keyed, like the family this borrows its richness from: the shade
-   * carries the plate hue rather than neutral grey, so a re-hued surface
-   * re-hues its own shadow with it.
-   */
-  --neu-sheen-rgb: var(--neu-light-source);
-  --neu-mould-shade-rgb: var(--neu-dark-source);
-  --neu-sheen-alpha: 0.5;
-  --neu-mould-shade-alpha: 0.42;
-  --neu-mould-offset: calc(4px * var(--neu-distance));
-  --neu-mould-blur: calc(12px * var(--neu-softness));
-
-  /* The corner mould on its own, for controls that carry no cast shadow. */
-  --neu-mould:
-    inset var(--neu-mould-offset) var(--neu-mould-offset) var(--neu-mould-blur)
-      rgba(var(--neu-sheen-rgb) / calc(var(--neu-sheen-alpha) * var(--neu-depth))),
-    inset calc(-1 * var(--neu-mould-offset)) calc(-1 * var(--neu-mould-offset)) var(--neu-mould-blur)
-      rgba(var(--neu-mould-shade-rgb) / calc(var(--neu-mould-shade-alpha) * var(--neu-depth)));
-
-  /* Resting card = cast pair + mould. Four stops in one box-shadow is the
-     richness: contact, lift, then light and shade travelling around the
-     corner. This is the tier every named surface wears. */
-  --neu-shadow-card:
-    var(--neu-offset) var(--neu-offset) var(--neu-blur)
-      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
-    calc(-1 * var(--neu-offset)) calc(-1 * var(--neu-offset)) var(--neu-blur)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
-    var(--neu-mould);
-
-  --neu-shadow-card-raised:
-    var(--neu-offset-lg) var(--neu-offset-lg) var(--neu-blur-lg)
-      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
-    calc(-1 * var(--neu-offset-lg)) calc(-1 * var(--neu-offset-lg)) var(--neu-blur-lg)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
-    var(--neu-mould);
-
-  /* The fourth tier the family was missing: menus and dropdowns hang over
-     arbitrary content, so they cast a genuinely long shadow, the same
-     light source, simply further from the page. */
-  --neu-offset-float: calc(28px * var(--neu-distance));
-  --neu-blur-float: calc(58px * var(--neu-softness));
-  --neu-shadow-float:
-    var(--neu-offset-float) var(--neu-offset-float) var(--neu-blur-float)
-      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
-    calc(-1 * var(--neu-offset-float)) calc(-1 * var(--neu-offset-float)) var(--neu-blur-float)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth) * 0.7)),
-    var(--neu-mould);
-
-  /* Controls wear the same construction at the small rung: a short cast pair
-     plus the mould, so a 40px button still turns at its corner the way a
-     plate does. Without the mould a small control reads as a grey rectangle
-     with a smudge under it. */
-  --neu-shadow-control:
-    var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
-      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
-    calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
-    var(--neu-mould);
-
-  /* The one place the material is allowed to carry the accent as LIGHT:
-     a brand-hued bloom under a focal plate, and the press/selection glow.
-     A saturated fill would break the family; light does not. */
-  --neu-glow-soft: 0 0 28px -8px rgb(var(--brand-500) / 0.28);
-  --neu-glow: 0 0 42px -6px rgb(var(--brand-500) / 0.42);
-  --neu-glow-strong: 0 0 64px -8px rgb(var(--brand-500) / 0.55);
-
-  /* Physicality, one spring for every touchable object, borrowed from the
-     family whose richness this pass takes its cue from. */
-  --neu-ease: cubic-bezier(0.25, 0.8, 0.3, 1);
-  --neu-spring: cubic-bezier(0.3, 1.4, 0.4, 1);
-
-  /* The family's shared elevation vocabulary, re-pointed at the moulded
-     tiers. `--shadow-glow` becomes a real bloom of the accent rather than a
-     reprised drop shadow, that glow is the single cheapest piece of
-     richness on the page, and it is the one the reference uses on its focal
-     ring. */
-  --shadow-panel: var(--neu-shadow-card);
-  --shadow-raised: var(--neu-shadow-card-raised);
-  --shadow-float: var(--neu-shadow-float);
-  --shadow-well: var(--neu-shadow-well);
-  --shadow-glow: var(--neu-glow);
-  --shadow-glow-strong: var(--neu-glow-strong);
+  /* One focus ring, the accent, always visible. The recipe's guardrail: a
+     soft shadow never carries focus on its own. */
+  --neu-focus: 0 0 0 3px rgb(var(--brand-500) / 0.45);
 }
 
-/* A light neumorphic surface needs a real shade to read as moulded: at the
-   old 0.22 the bottom-right shadow resolved to under two percent separation
-   from the canvas and the whole family looked like flat paper. The shade is a
-   mid grey at just over half strength; the highlight is near-white.
-   (Declared here rather than inside the block: the stylesheet contract test
-   parses selector heads by splitting on braces, and a comment inside a
-   declaration block confuses it.) */
+/* Daylight: the canonical plate.
+ *
+ *   page #E0E5EC · shade #A3B1C6 at 62% (composites to #BEC3C9) · light
+ *   #FFFFFF at 90%. Mid-tone, so there is room to go both lighter and
+ *   darker, which is the one thing pure white cannot offer. */
 [data-theme="daylight"][data-appearance="neumorphism"] {
   color-scheme: light;
 
-  /* The reference plate, value for value:
-   *
-   *   page   #E2E7EE (226 231 238)  the ground the casts land on
-   *   card   #F6F9FC (246 249 252)  the same material, lifted and lit
-   *   shade  #BAC4D4 (186 196 212)  the page taken well down
-   *   light  #FFFFFF                the lamp, at full strength
-   *
-   * The shade is carried just under full alpha so a stored depth below 1.00
-   * can still soften the pair without the colour shifting toward the page. */
-  --neu-canvas: 226 231 238;
-  --neu-face: 246 249 252;
-  --neu-raised: 252 253 255;
-  --neu-overlay: 255 255 255;
-  --neu-inset: 214 220 229;
+  --neu-canvas: 224 229 236;
+  --neu-face: 224 229 236;
+  --neu-raised: 224 229 236;
+  --neu-overlay: 224 229 236;
+  --neu-inset: 224 229 236;
+
   --neu-light-source: 255 255 255;
-  --neu-dark-source: 186 196 212;
-  --neu-line: 205 213 227;
-  --neu-light-alpha: 1;
-  --neu-dark-alpha: 0.92;
+  --neu-dark-source: 163 177 198;
+  --neu-light-alpha: 0.9;
+  --neu-dark-alpha: 0.62;
+  --neu-line: 199 208 220;
 
-  /* On paper the light reads as a soft top-left sheen, not a lit pane: the
-     wash is kept well under half strength so the face never drifts away from
-     the page it sits on, the identity of face and canvas is the one rule
-     this material cannot bend. The depth comes from the mould, not from a
-     brighter card. */
   --neu-face-light:
-    linear-gradient(158deg, rgb(255 255 255 / 0.6) 0%, rgb(255 255 255 / 0.18) 30%, transparent 62%);
-  --neu-sheen-alpha: 0.55;
-  --neu-mould-shade-alpha: 0.34;
+    linear-gradient(145deg,
+      rgb(255 255 255 / calc(0.62 * var(--neu-lift))) 0%,
+      rgb(255 255 255 / calc(0.16 * var(--neu-lift))) 38%,
+      rgb(var(--neu-dark-source) / calc(0.3 * var(--neu-lift))) 100%);
+  --neu-face-shade:
+    linear-gradient(145deg,
+      rgb(var(--neu-dark-source) / calc(0.26 * var(--neu-lift))) 0%,
+      rgb(var(--neu-dark-source) / calc(0.06 * var(--neu-lift))) 48%,
+      rgb(255 255 255 / calc(0.55 * var(--neu-lift))) 100%);
 
-  --text-1: 30 35 47;
-  --text-2: 48 56 70;
-  --text-3: 76 86 102;
-  --text-4: 99 108 124;
-
-  /* Paper under a window: the same single lamp, washing the top of the page
-     toward white and letting the corners settle into the shade colour. */
-  /* The ground has to stay a readable grey: a lamp bright enough to wash the
-     top of the page to white would dissolve the plates standing on it. The
-     lighting here is therefore a suggestion of a window, not a spotlight. */
-  --wall-vignette: rgb(var(--neu-dark-source) / 0.12);
-  --wall-lamp: rgb(255 255 255 / 0.26);
-  --wall-floor: rgb(var(--neu-dark-source) / 0.12);
-  --wall-wash-1: rgb(255 255 255 / 0.22);
-  --wall-wash-2: rgb(var(--neu-dark-source) / 0.1);
-  --pool-1: rgb(var(--brand-400) / 0.07);
-  --pool-2: rgb(var(--brand-300) / 0.05);
-  --pool-3: rgb(var(--neu-dark-source) / 0.1);
-  --viz-plate: rgb(var(--neu-raised) / 0.98);
+  /* The ink ladder on #E0E5EC. The faint tier is deliberately dark enough to
+     clear 4.5:1 on the page itself, because soft UI has no other boundary to
+     lean on when a caption sits on a raised plate. */
+  --text-1: 45 52 66;
+  --text-2: 66 75 92;
+  --text-3: 78 88 106;
+  --text-4: 90 100 120;
 }
 
-/* ═══ §N1 · CANVAS AND UTILITY-CARRIER LIFT ═════════════════════════════ */
+/* ═══ §N1 · THE PAGE AND THE UTILITY CARRIERS ═══════════════════════════ */
 
+/* A flat, mid-tone page. No pools, no lamp: the recipe's first rule is that
+   the ground is one colour, and a wash behind a card turns that card back
+   into a panel sitting on a background. */
 [data-appearance="neumorphism"] body {
   background-color: rgb(var(--neu-canvas));
+  background-image: none;
 }
 
 [data-appearance="neumorphism"] [class*="backdrop-blur"] {
@@ -412,28 +273,14 @@
   backdrop-filter: none !important;
 }
 
-/*
- * Utility-authored panes become tonal extrusions: the face colour, then the
- * shadow pair on the card-shaped ones. State and brand fills are deliberately
- * excluded, their semantic colour remains theirs.
- *
- * ⚠ Both selectors below are COMPOUND (`:where(A):where(B)`, no space). An
- * earlier revision had a descendant combinator here, so a
- * `<div class="bg-ink-900 rounded-2xl">` never received the face colour or
- * the shadow itself, only its children did. Every utility card on the site
- * therefore stayed a flat glass fill with a gradient, and the family read as
- * "minimal, not neumorphism" no matter how the tokens were tuned. The
- * element has to match both halves of the test.
- *
- * `bg-ink-950` is excluded: that is the page/band fill, and a full-bleed band
- * must stay canvas so the extrusions sitting on it have something to lift off.
- */
+/* Utility-authored panes become the same material: base fill, convex
+   gradient, dual shadow. `bg-ink-950` is excluded, it is the page itself. */
 [data-appearance="neumorphism"]
   :where([class*="bg-ink-"], [class*="bg-white"], [class*="bg-line"], [class*="bg-glass"]):where(
     :not([class*="bg-ink-950"]):not(option):not(.decor):not(.liquid-scene)
   ) {
   background-color: rgb(var(--neu-face));
-  background-image: none;
+  background-image: var(--neu-face-light);
   border-color: transparent;
 }
 
@@ -446,12 +293,9 @@
     [class*="rounded-2xl"],
     [class*="rounded-3xl"]
   ):where(:not([class*="bg-ink-950"])) {
-  box-shadow: var(--neu-shadow-panel);
+  box-shadow: var(--neu-shadow-raise);
 }
 
-/* A rounded non-card block (a stats row, an inset group) is a small object,
-   so it takes the small rung of the same pair. An 18px offset on a 40px chip
-   would read as a detached plate. */
 [data-appearance="neumorphism"]
   :where([class*="bg-ink-"], [class*="bg-white"], [class*="bg-glass"]):where(
     [class*="rounded-lg"],
@@ -469,24 +313,21 @@
 }
 
 [data-appearance="neumorphism"] :is([class*="shadow-panel"], .shadow-panel, [class*="shadow-md"], [class*="shadow-lg"]) {
-  box-shadow: var(--neu-shadow-panel);
+  box-shadow: var(--neu-shadow-raise);
 }
 
 [data-appearance="neumorphism"] :is([class*="shadow-raised"], .shadow-raised, [class*="shadow-xl"], [class*="shadow-2xl"]) {
-  box-shadow: var(--neu-shadow-raised);
+  box-shadow: var(--neu-shadow-raise-lg);
 }
 
 [data-appearance="neumorphism"] :is([class*="shadow-sm"], [class*="shadow-card"], [class*="shadow-accent"]) {
-  box-shadow: var(--neu-shadow-surface);
+  box-shadow: var(--neu-shadow-small);
 }
 
-/* ═══ §N2 · NAMED SURFACES ═══════════════════════════════════════════════ */
+/* ═══ §N2 · SURFACES ════════════════════════════════════════════════════ */
 
-/* The generic card-edge dial remains available to the other families, but
-   it must not thicken this material into an outlined card system. Strict
-   neumorphism carries its boundary in shadow, so every surface here keeps a
-   hairline-thin transparent border only to hold anti-aliasing, and the
-   shadow pair does the real work. */
+/* Strict soft UI draws no outline. The transparent 1px border only holds
+   anti-aliasing for the radius. */
 [data-appearance="neumorphism"]
   :is(
     .surface,
@@ -507,11 +348,10 @@
   border-color: transparent;
 }
 
-/* The fill is the page colour, see §N0. `background-image: none` is
-   load-bearing: `.surface` in globals.css paints a stack of glass layers and
-   the family's accent tint on top of its fill, so without this the card is a
-   violet-tinted pane with a shadow, which is the exact look this family must
-   never have. */
+/* The card: page colour, convex gradient, dual shadow. `background-image` is
+   set here because globals.css paints a stack of glass layers and an accent
+   tint on `.surface`; without this override the card is a violet pane with a
+   shadow, which is a different design language. */
 [data-appearance="neumorphism"]
   :is(.surface, .stat-tile, .plate, .card-live, .card-glass, .glass-rows, .studio-sheet) {
   --corner-radius: var(--neu-radius);
@@ -519,7 +359,7 @@
   background-image: var(--neu-face-light);
   border-radius: var(--neu-radius);
   border: 1px solid transparent;
-  box-shadow: var(--neu-shadow-card);
+  box-shadow: var(--neu-shadow-raise);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -527,41 +367,40 @@
 [data-appearance="neumorphism"]
   :is(.surface-raised, .panel-feature, .float-card, .menu-card, .card-accent) {
   --corner-radius: var(--neu-radius-large);
-  background-color: rgb(var(--neu-raised));
+  background-color: rgb(var(--neu-face));
   background-image: var(--neu-face-light);
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
-  box-shadow: var(--neu-shadow-card-raised);
+  box-shadow: var(--neu-shadow-raise-lg);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
 
 [data-appearance="neumorphism"] .glass-primary {
-  background-color: rgb(var(--neu-raised));
+  background-color: rgb(var(--neu-face));
   background-image: var(--neu-face-light);
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
-  box-shadow: var(--neu-shadow-card-raised), var(--neu-glow);
+  box-shadow: var(--neu-shadow-raise-lg);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
 
-/* The focal plate carries the accent as LIGHT, a bloom in the corner and a
-   brand glow beneath it. Clay's richness comes from a saturated plate; this
-   family keeps its tonal fill (a coloured fill is what it must never be) and
-   buys the same presence with illumination instead. */
+/* The focal plate is not tinted. The accent is a light, never a fill on a
+   surface: a soft accent ring sits inside the radius and the plate keeps the
+   material's own colour. */
 [data-appearance="neumorphism"] .card-accent {
   background-image:
     var(--neu-face-light),
-    radial-gradient(120% 130% at 12% 0%, rgb(var(--brand-500) / 0.16) 0%, transparent 58%);
-  box-shadow: var(--neu-shadow-card-raised), var(--neu-glow);
+    radial-gradient(120% 140% at 8% 0%, rgb(var(--brand-500) / 0.14) 0%, transparent 56%);
+  box-shadow: var(--neu-shadow-raise-lg), inset 0 0 0 1px rgb(var(--brand-500) / 0.22);
 }
 
 [data-appearance="neumorphism"]
   :is(.studio-inset, .glass-metric, .neu-well, .input-well) {
-  background-color: rgb(var(--neu-inset));
-  background-image: none;
-  border-radius: var(--neu-radius);
+  background-color: rgb(var(--neu-face));
+  background-image: var(--neu-face-shade);
+  border-radius: var(--neu-radius-well);
   border: 1px solid transparent;
   box-shadow: var(--neu-shadow-well);
 }
@@ -576,54 +415,35 @@
 [data-appearance="neumorphism"] .card-interactive:hover,
 [data-appearance="neumorphism"] .card-interactive:focus-visible {
   border-color: transparent;
-  box-shadow: var(--neu-shadow-card-raised);
-  transform: translateY(-3px);
+  box-shadow: var(--neu-shadow-raise-lg);
+  transform: translateY(-2px);
 }
 
-/* The press inverts the plate: it goes into the page rather than merely
-   going darker, and it shrinks a hair as if pushed from above. */
 [data-appearance="neumorphism"] .card-interactive:active {
-  box-shadow: var(--neu-shadow-well);
-  transform: translateY(1px) scale(0.994);
+  box-shadow: var(--neu-shadow-press);
+  transform: translateY(0);
 }
 
-/* Bands are broad tonal fields, not floating cards: they keep their section
-   separation and lose the sweep/glow language, but they are still lit. A
-   band that is a flat rectangle of colour is the single biggest reason a
-   soft-UI page reads as a grey wireframe. */
-[data-appearance="neumorphism"] .band-deep {
-  background-color: rgb(var(--neu-inset));
-  background-image:
-    var(--neu-face-light),
-    radial-gradient(120% 130% at 10% 0%, rgb(var(--brand-500) / 0.1) 0%, transparent 60%);
-  box-shadow: var(--neu-shadow-well);
-}
-
-/* The raised band is lit across, not tinted: the lamp catches its top edge
-   and the accent pools at the end the eye enters from. */
-[data-appearance="neumorphism"] .band-rich {
-  background-color: rgb(var(--neu-face));
-  background-image:
-    var(--neu-face-light),
-    radial-gradient(90% 140% at 6% 0%, rgb(var(--brand-500) / 0.12) 0%, transparent 56%),
-    radial-gradient(80% 120% at 100% 100%, rgb(var(--brand-400) / 0.07) 0%, transparent 58%);
-  box-shadow: var(--neu-shadow-card);
-}
-
+/* Bands are large fields of the same paint. They carry the material's flat
+   convex gradient and no shadow, because a full-bleed band has no edge to
+   cast from. */
+[data-appearance="neumorphism"] .band-deep,
+[data-appearance="neumorphism"] .band-rich,
 [data-appearance="neumorphism"] .band-solid,
 [data-appearance="neumorphism"] .band-veil {
   background-color: rgb(var(--neu-canvas));
   background-image: var(--neu-face-light);
+  box-shadow: none;
 }
 
-/* ═══ §N3 · CHROME, MENUS, AND NAVIGATION ═══════════════════════════════ */
+/* ═══ §N3 · CHROME, MENUS, AND NAVIGATION ══════════════════════════════ */
 
 [data-appearance="neumorphism"] .nav-glass {
   background-color: rgb(var(--neu-canvas));
   background-image: var(--neu-face-light);
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
-  box-shadow: var(--neu-shadow-card);
+  box-shadow: var(--neu-shadow-raise);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -634,11 +454,11 @@
 }
 
 [data-appearance="neumorphism"] .nav-pill {
-  background-color: rgb(var(--neu-face));
+  background-color: rgb(var(--neu-canvas));
   background-image: var(--neu-face-light);
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
-  box-shadow: var(--neu-shadow-card);
+  box-shadow: var(--neu-shadow-raise);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -654,136 +474,130 @@
   background-image: var(--neu-face-light);
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
-  box-shadow: var(--neu-shadow-float);
+  box-shadow: var(--neu-shadow-raise-lg);
 }
 
-/* A menu is the tier that genuinely hangs in the air above the page, so it
-   takes the long cast, clay's `float`, the fourth rung this family was
-   missing. Everything else stays on the card rung. */
+/* A menu is the one surface that genuinely floats over other content, so it
+   takes the long rung and a wider radius. */
 [data-appearance="neumorphism"] .menu-card {
-  background-color: rgb(var(--neu-raised));
+  background-color: rgb(var(--neu-canvas));
   background-image: var(--neu-face-light);
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
-  box-shadow: var(--neu-shadow-float);
+  box-shadow: var(--neu-shadow-raise-lg);
 }
 
 [data-appearance="neumorphism"]
   :is(.nav-glass, .nav-pill, .nav-sheet, .menu-card)
   :is(a, button)[aria-current="page"] {
-  background-color: rgb(var(--neu-inset));
-  border-radius: var(--neu-radius);
+  background-color: rgb(var(--neu-canvas));
+  background-image: var(--neu-face-shade);
+  border-radius: var(--neu-radius-control);
   box-shadow: var(--neu-shadow-well);
 }
 
 /* ═══ §N4 · BUTTONS, CHIPS, AND PRESSED STATES ═════════════════════════ */
 
-[data-appearance="neumorphism"] .btn-primary {
-  background-color: rgb(var(--brand-600));
-  background-image: linear-gradient(
-    145deg,
-    rgb(var(--brand-400) / 0.35) 0%,
-    transparent 52%,
-    rgb(var(--brand-700) / 0.35) 100%
-  );
-  border-radius: var(--neu-radius-control);
-  border-color: transparent;
-  /* The one plate allowed to carry the accent, and the only place the family
-     spends its bloom. The hard 1px inset bevels that used to sit here are
-     gone: a 1px line is a border, and this family draws none. The plate is
-     lit by the mould and lifted by a brand glow instead. */
-  box-shadow:
-    var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
-      rgba(var(--brand-700) / calc(0.5 * var(--neu-depth))),
-    calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
-    var(--neu-mould),
-    var(--neu-glow);
-}
-
-[data-appearance="neumorphism"] .btn-primary::before,
-[data-appearance="neumorphism"] .btn::before {
-  background: linear-gradient(
-    100deg,
-    transparent 42%,
-    rgb(255 255 255 / 0.25) 50%,
-    transparent 58%
-  );
-  mix-blend-mode: normal;
-}
-
-[data-appearance="neumorphism"] .btn-primary:hover,
-[data-appearance="neumorphism"] .btn-primary:focus-visible {
-  box-shadow:
-    var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
-      rgba(var(--brand-700) / calc(0.55 * var(--neu-depth))),
-    calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
-    var(--neu-mould),
-    var(--neu-glow-strong),
-    inset -1px -1px 0 rgba(var(--brand-700) / 0.35);
-}
-
+/* Controls use the recipe's tighter corner: 12px on a 40px button, and a
+   capsule when the layout asks for one. */
 [data-appearance="neumorphism"]
   :is(.btn, .btn-secondary, .btn[class*="bg-ink-"], .btn[class*="border-line"]) {
   border-radius: var(--neu-radius-control);
   border-color: transparent;
-}
-
-[data-appearance="neumorphism"]
-  :is(.btn-secondary, .btn[class*="bg-ink-"], .btn[class*="border-line"]) {
   background-color: rgb(var(--neu-face));
   background-image: var(--neu-face-light);
-  box-shadow: var(--neu-shadow-control);
+  box-shadow: var(--neu-shadow-small);
+  color: rgb(var(--text-1));
 }
 
 [data-appearance="neumorphism"]
   :is(.btn-secondary, .btn[class*="bg-ink-"], .btn[class*="border-line"]):hover {
-  background-color: rgb(var(--neu-raised));
-  box-shadow: var(--neu-shadow-control), var(--neu-glow);
+  box-shadow: var(--neu-shadow-raise);
+}
+
+/* The primary action is the one control the recipe keeps filled, and every
+   source says the same thing: a soft shadow alone cannot mark the most
+   important action, and the accent is where it belongs. Shape, weight and
+   spacing still do the work; this is not a gradient plate. */
+[data-appearance="neumorphism"] .btn-primary {
+  background-color: rgb(var(--brand-600));
+  background-image: none;
+  border-color: transparent;
+  border-radius: var(--neu-radius-control);
+  color: rgb(255 255 255);
+  box-shadow:
+    var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
+      rgba(var(--brand-700) / calc(0.55 * var(--neu-depth))),
+    calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
+      rgba(var(--neu-light-source) / calc(0.35 * var(--neu-light-alpha)));
+}
+
+[data-appearance="neumorphism"] .btn-primary:hover,
+[data-appearance="neumorphism"] .btn-primary:focus-visible {
+  background-color: rgb(var(--brand-500));
+  box-shadow:
+    var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
+      rgba(var(--brand-700) / calc(0.6 * var(--neu-depth))),
+    calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
+      rgba(var(--neu-light-source) / calc(0.4 * var(--neu-light-alpha)));
+}
+
+/* The sheen pseudo-elements belong to the glass families. */
+[data-appearance="neumorphism"] .btn-primary::before,
+[data-appearance="neumorphism"] .btn::before {
+  background: none;
+  opacity: 0;
 }
 
 [data-appearance="neumorphism"] .btn:active,
 [data-appearance="neumorphism"] .btn-primary:active,
 [data-appearance="neumorphism"] .btn-secondary:active {
-  box-shadow: var(--neu-shadow-well);
-  transform: translateY(1px) scale(0.985);
+  transform: translateY(1px);
+}
+
+/* The recipe's pressed state: both shadows move inside. A button that only
+   changes colour on press loses the whole metaphor. */
+[data-appearance="neumorphism"] .btn:not(.btn-primary):active,
+[data-appearance="neumorphism"] .btn-secondary:not(.btn-primary):active {
+  background-image: var(--neu-face-shade);
+  box-shadow: var(--neu-shadow-press);
+}
+
+[data-appearance="neumorphism"] .btn-primary:active {
+  box-shadow: inset 0 2px 6px rgba(var(--brand-700) / 0.55);
 }
 
 [data-appearance="neumorphism"] .btn:disabled,
 [data-appearance="neumorphism"] .btn-primary:disabled,
 [data-appearance="neumorphism"] .btn-secondary:disabled {
-  box-shadow: var(--neu-shadow-surface);
+  box-shadow: none;
+  opacity: 0.55;
 }
 
 [data-appearance="neumorphism"]
-  :is(.chip, .eyebrow-chip, .badge-pill, .icon-chip, .icon-chip-strong, .index-chip) {
-  border-radius: var(--neu-radius-control);
-  box-shadow: var(--neu-shadow-control);
-}
-
-/* The global plate paints icon tiles with a saturated brand gradient and
-   `!important`. Neumorphism carries state in shadow, so the tile becomes an
-   extruded neutral disc and the glyph keeps the accent. `!important` here is
-   answering the `!important` in globals.css, not starting a fight. */
-[data-appearance="neumorphism"] :is(.icon-chip, .icon-chip-strong) {
-  background-color: rgb(var(--neu-raised)) !important;
-  background-image: var(--neu-face-light) !important;
-  border-color: transparent !important;
-  border-radius: var(--neu-radius-control);
-  color: rgb(var(--brand-300)) !important;
-  box-shadow:
-    var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
-      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
-    calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
-    0 0 22px -6px rgb(var(--brand-500) / 0.38) !important;
-}
-
-[data-appearance="neumorphism"] :is(.chip, .eyebrow-chip) {
-  background-color: rgb(var(--neu-face));
-  background-image: none;
+  :is(.chip, .eyebrow-chip, .badge-pill, .index-chip) {
+  border-radius: var(--neu-radius-pill);
   border-color: transparent;
+  background-color: rgb(var(--neu-face));
+  background-image: var(--neu-face-light);
+  box-shadow: var(--neu-shadow-small);
+}
+
+/* A disc, not a tile: the kit's most repeated object. */
+[data-appearance="neumorphism"] :is(.icon-chip, .icon-chip-strong) {
+  display: inline-grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: var(--neu-radius-pill);
+  border-color: transparent !important;
+  background-color: rgb(var(--neu-face)) !important;
+  background-image: var(--neu-face-light) !important;
+  color: rgb(var(--brand-300)) !important;
+  box-shadow: var(--neu-shadow-small) !important;
+}
+
+[data-appearance="neumorphism"] :is(.chip, .eyebrow-chip):hover {
+  box-shadow: var(--neu-shadow-raise);
 }
 
 [data-appearance="neumorphism"]
@@ -792,19 +606,20 @@
   box-shadow: var(--neu-shadow-well);
 }
 
-/* ═══ §N5 · FORM WELLS AND NATIVE CONTROLS ══════════════════════════════ */
+/* ═══ §N5 · FORM CONTROLS ═══════════════════════════════════════════════ */
 
+/* Inputs are wells: base fill, concave gradient, inset pair. */
 [data-appearance="neumorphism"]
   :is(input, textarea, select, .field-control)
   :where(
     :not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"])
   ) {
-  background-color: rgb(var(--neu-inset));
+  background-color: rgb(var(--neu-face));
+  background-image: var(--neu-face-shade);
   border-radius: var(--neu-radius-well);
   border-color: transparent;
   box-shadow: var(--neu-shadow-well);
   color: rgb(var(--text-1));
-  caret-color: rgb(var(--brand-400));
 }
 
 [data-appearance="neumorphism"] :is(input, textarea)::placeholder {
@@ -812,79 +627,153 @@
   opacity: 1;
 }
 
-[data-appearance="neumorphism"]
-  :is(input, textarea, select, .field-control):focus-visible {
-  outline: 2px solid rgb(var(--brand-400) / 0.78);
+[data-appearance="neumorphism"] :is(input, textarea, [contenteditable]) {
+  caret-color: rgb(var(--brand-500));
+}
+
+[data-appearance="neumorphism"] :is(input, textarea, select, .field-control):focus-visible {
+  outline: 2px solid rgb(var(--brand-500) / 0.9);
   outline-offset: 2px;
-  box-shadow:
-    var(--neu-shadow-well),
-    0 0 0 4px rgb(var(--brand-500) / 0.16);
+  box-shadow: var(--neu-shadow-well), var(--neu-focus);
 }
 
-[data-appearance="neumorphism"]
-  :is(input, textarea, select, .field-control):disabled {
-  background-color: rgb(var(--neu-face));
-  box-shadow: var(--neu-shadow-surface);
-}
-
-[data-appearance="neumorphism"] :is(input[type="checkbox"], input[type="radio"]) {
-  accent-color: rgb(var(--brand-500));
+[data-appearance="neumorphism"] :is(input, textarea, select, .field-control):disabled {
+  box-shadow: none;
+  opacity: 0.55;
 }
 
 [data-appearance="neumorphism"] option {
-  background-color: rgb(var(--neu-face));
+  background-color: rgb(var(--neu-canvas));
   color: rgb(var(--text-1));
 }
 
 [data-appearance="neumorphism"] input[type="color"] {
   background-color: rgb(var(--neu-face));
+  background-image: var(--neu-face-light);
   border-radius: var(--neu-radius-control);
   border-color: transparent;
-  box-shadow: var(--neu-shadow-surface);
+  box-shadow: var(--neu-shadow-small);
 }
 
 [data-appearance="neumorphism"] input[type="color"]::-webkit-color-swatch {
+  border: 0;
   border-radius: calc(var(--neu-radius-control) * 0.7);
 }
 
+/* Checkbox and radio: the smallest wells in the kit. Unchecked they are a
+   pressed socket; checked they are filled with the accent, which is how the
+   reference kit marks state. */
+[data-appearance="neumorphism"] input[type="checkbox"],
+[data-appearance="neumorphism"] input[type="radio"] {
+  appearance: none;
+  display: inline-grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  border: 0;
+  background-color: rgb(var(--neu-face));
+  box-shadow: var(--neu-shadow-well);
+  cursor: pointer;
+  transition: background-color 0.16s var(--ease-out), box-shadow 0.16s var(--ease-out);
+}
+
+[data-appearance="neumorphism"] input[type="checkbox"] {
+  border-radius: 6px;
+}
+
+[data-appearance="neumorphism"] input[type="radio"] {
+  border-radius: var(--neu-radius-pill);
+}
+
+[data-appearance="neumorphism"] input[type="checkbox"]::after,
+[data-appearance="neumorphism"] input[type="radio"]::after {
+  content: "";
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: inherit;
+  background: rgb(var(--brand-500));
+  transform: scale(0);
+  transition: transform 0.18s var(--ease-out);
+}
+
+[data-appearance="neumorphism"] input[type="checkbox"]:checked::after,
+[data-appearance="neumorphism"] input[type="radio"]:checked::after {
+  transform: scale(1);
+}
+
+[data-appearance="neumorphism"] :is(input[type="checkbox"], input[type="radio"]):focus-visible {
+  outline: 2px solid rgb(var(--brand-500) / 0.9);
+  outline-offset: 2px;
+}
+
+[data-appearance="neumorphism"] :is(input[type="checkbox"], input[type="radio"]):disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* The groove: an inset track and a raised thumb, with the filled portion in
+   the accent. `--neu-range-fill` is written by the Slider component; the
+   browser has no way to know a range's percentage in pure CSS. */
 [data-appearance="neumorphism"] input[type="range"] {
   background: transparent;
   box-shadow: none;
+  accent-color: rgb(var(--brand-500));
 }
 
 [data-appearance="neumorphism"] input[type="range"]::-webkit-slider-runnable-track {
-  height: 8px;
-  border: none;
-  border-radius: 999px;
-  background: rgb(var(--neu-inset));
+  height: 12px;
+  border: 0;
+  border-radius: var(--neu-radius-pill);
+  background:
+    linear-gradient(
+      90deg,
+      rgb(var(--brand-500)) 0 var(--neu-range-fill, 0%),
+      transparent var(--neu-range-fill, 0%) 100%
+    ),
+    rgb(var(--neu-face));
   box-shadow: var(--neu-shadow-well);
 }
 
 [data-appearance="neumorphism"] input[type="range"]::-webkit-slider-thumb {
   margin-top: -6px;
-  height: 20px;
-  width: 20px;
-  border: none;
-  border-radius: 999px;
-  background: linear-gradient(145deg, rgb(var(--brand-400)), rgb(var(--brand-600)));
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: var(--neu-radius-pill);
+  background-color: rgb(var(--neu-face));
+  background-image: var(--neu-face-light);
   box-shadow: var(--neu-shadow-small);
 }
 
 [data-appearance="neumorphism"] input[type="range"]::-moz-range-track {
-  height: 8px;
-  border: none;
-  border-radius: 999px;
-  background: rgb(var(--neu-inset));
+  height: 12px;
+  border: 0;
+  border-radius: var(--neu-radius-pill);
+  background-color: rgb(var(--neu-face));
   box-shadow: var(--neu-shadow-well);
 }
 
+[data-appearance="neumorphism"] input[type="range"]::-moz-range-progress {
+  height: 12px;
+  border-radius: var(--neu-radius-pill);
+  background: rgb(var(--brand-500));
+}
+
 [data-appearance="neumorphism"] input[type="range"]::-moz-range-thumb {
-  height: 18px;
-  width: 18px;
-  border: none;
-  border-radius: 999px;
-  background: linear-gradient(145deg, rgb(var(--brand-400)), rgb(var(--brand-600)));
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: var(--neu-radius-pill);
+  background-color: rgb(var(--neu-face));
+  background-image: var(--neu-face-light);
   box-shadow: var(--neu-shadow-small);
+}
+
+[data-appearance="neumorphism"] input[type="range"]:focus-visible {
+  outline: 2px solid rgb(var(--brand-500) / 0.9);
+  outline-offset: 4px;
+  border-radius: var(--neu-radius-pill);
 }
 
 /* ═══ §N6 · TABLES, CODE, PROGRESS, AND FOCUS ═══════════════════════════ */
@@ -894,7 +783,8 @@
 }
 
 [data-appearance="neumorphism"] :is(th, .studio-table th) {
-  background-color: rgb(var(--neu-inset));
+  background-color: rgb(var(--neu-face));
+  background-image: var(--neu-face-shade);
   box-shadow: var(--neu-shadow-well);
 }
 
@@ -903,151 +793,49 @@
 }
 
 [data-appearance="neumorphism"] :is(tbody tr:hover, .studio-table tbody tr:hover) {
-  background-color: rgb(var(--neu-raised) / 0.6);
+  background-color: rgb(var(--neu-face));
+  background-image: var(--neu-face-light);
 }
 
 [data-appearance="neumorphism"] :is(code, pre, kbd) {
-  background-color: rgb(var(--neu-inset));
+  background-color: rgb(var(--neu-face));
+  background-image: var(--neu-face-shade);
   border-color: transparent;
+  border-radius: calc(var(--neu-radius-control) * 0.75);
   box-shadow: var(--neu-shadow-well);
 }
 
 [data-appearance="neumorphism"] .theme-progress {
-  background: rgb(var(--neu-inset));
+  background: rgb(var(--neu-face));
   box-shadow: var(--neu-shadow-well);
+  border-radius: var(--neu-radius-pill);
 }
 
-[data-appearance="neumorphism"]
-  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-  outline: 2px solid rgb(var(--brand-400) / 0.78);
-  outline-offset: 3px;
+[data-appearance="neumorphism"] :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid rgb(var(--brand-500) / 0.9);
+  outline-offset: 2px;
 }
 
 [data-appearance="neumorphism"] .skeleton {
-  background-color: rgb(var(--neu-inset));
+  background-color: rgb(var(--neu-face));
+  background-image: var(--neu-face-shade);
   box-shadow: var(--neu-shadow-well);
 }
 
-/* ═══ §N7 · THE RICHNESS PASS, the clay lesson, on this material ══════
- *
- * The reference family reads rich for four reasons. All four now exist here,
- * re-expressed in soft-extruded terms and without borrowing a single one of
- * its colours. This section holds the last two; the first two are tokens and
- * surfaces, so they live where the material is defined:
- *
- *   1. MASS     four shadow tiers (card, raised, float, control), each a cast
- *               pair plus a moulded inner pair, and large radii throughout
- *               (§N0 tokens, §N2 surfaces, §N3 chrome, §N4 controls)
- *   2. GROUND   the page is lit, not filled: one lamp washing a tinted ground
- *               into its own shade at the edge, plus a faint grid for scale
- *               (§N0 `--wall-*` / `--pool-*`, §N7 item 3 below)
- *   3. BLOOM    the accent arrives as LIGHT, never as a saturated fill
- *   4. ANSWER   the material answers the hand: a spring on every touchable
- *               object, a press that sinks, focus that glows in the family hue
- *
- * What it does NOT borrow is clay's saturated plates. A coloured fill is the
- * one thing soft UI cannot survive, so the accent is delivered as
- * illumination instead, which buys the same presence without breaking the
- * material.
- */
-
-/* ── 1 · Bloom: the accent as light ──────────────────────────────────────
- *
- * Where the accent is spent, and how: `--neu-glow` under the focal plate and
- * the primary action (§N2 `.card-accent`, §N4 `.btn-primary`), a stronger
- * bloom on hover, a fixed 22px halo on icon tiles (§N4), and a corner bloom
- * on the raised band (§N2). Nothing here is filled with the accent, it is
- * only ever lit by it.
- */
-
-/* ── 2 · Answer: the hand ──────────────────────────────────────────────── */
-
-[data-appearance="neumorphism"]
-  :is(.btn, .btn-primary, .btn-secondary, .card-interactive, .menu-card a, .menu-card button, .chip) {
-  transition:
-    transform 0.18s var(--neu-ease),
-    box-shadow 0.18s var(--neu-ease),
-    background-color 0.18s var(--neu-ease),
-    border-color 0.18s var(--neu-ease),
-    color 0.18s var(--neu-ease);
-}
-
-[data-appearance="neumorphism"] :is(.btn, .btn-primary, .btn-secondary):hover {
-  transform: translateY(-2px);
-}
-
-/* Focus glows in the family hue rather than drawing a neutral ring, and the
-   outline stays for assistive clarity, the glow is an addition, never the
-   only affordance. */
-[data-appearance="neumorphism"]
-  :is(input, textarea, select, .field-control):focus-visible {
-  outline: 2px solid rgb(var(--brand-400) / 0.78);
-  outline-offset: 2px;
-  box-shadow:
-    var(--neu-shadow-well),
-    0 0 0 4px rgb(var(--brand-500) / 0.2),
-    0 0 26px -6px rgb(var(--brand-500) / 0.5);
-}
-
 [data-appearance="neumorphism"] ::selection {
-  background: rgb(var(--brand-500) / 0.42);
+  background: rgb(var(--brand-500) / 0.32);
   color: rgb(var(--text-1));
 }
 
-[data-appearance="neumorphism"] :is(input, textarea, [contenteditable]) {
-  caret-color: rgb(var(--brand-400));
-}
+/* ═══ §N7 · THE CONTROL KIT ═════════════════════════════════════════════ */
 
-/* ── 3 · Texture: the room reads as a material, not a fill ─────────────── */
+/* The reference kit is a vocabulary, not a page of shadows: a pill switch
+   sliding in a socket, disc buttons, a knob whose ring fills as it turns, a
+   groove slider, a socket checkbox. Each control here is operable and built
+   from the same four primitives as the surfaces: base paint, convex or
+   concave gradient, dual shadow, and the accent for state. */
 
-/* A grid kept far below the threshold of decoration, it gives the flat
-   ground a sense of scale the way the reference's soft gradient does, and
-   vanishes under a card because the cards cast real shadow. */
-[data-appearance="neumorphism"] {
-  --wall-grid: rgb(var(--neu-dark-source) / 0.045);
-  --wall-grid-major: rgb(var(--neu-dark-source) / 0.075);
-}
-
-/* Figures get the smallest touch of light so a wall of type has depth. */
-[data-appearance="neumorphism"] :is(.figure, .metric-value) {
-  text-shadow: 0 1px 0 rgb(var(--neu-light-source) / 0.22);
-}
-
-/* ═══ §N8 · THE CONTROL KIT, moulded switches, dials, and grooves ══════
- *
- * The reference kit is not only cards: it is a vocabulary of moulded
- * controls. A pill switch that slides in a recessed track, a disc button, a
- * knob whose ring fills as it turns, a groove slider with a raised white
- * thumb. Porting those as real, operable controls is what makes the family
- * read as a design system instead of a page with soft shadows.
- *
- * Everything below is built from the same four primitives the surfaces use:
- * the face plus its light, a cast pair, the mould, and a well. No borders,
- * no fills of colour, no blur.
- */
-
-/* ── Pills and discs ──────────────────────────────────────────────────── */
-
-[data-appearance="neumorphism"]
-  :is(.btn, .btn-primary, .btn-secondary, .chip, .eyebrow-chip, .badge-pill) {
-  border-radius: var(--neu-radius-pill);
-}
-
-[data-appearance="neumorphism"] :is(.icon-chip, .icon-chip-strong),
-[data-appearance="neumorphism"] :is(.btn, .btn-secondary, .btn-primary):is(.rounded-full) {
-  border-radius: var(--neu-radius-pill);
-}
-
-/* A disc is the kit's most repeated object, so it gets the full treatment:
-   a mould at the small rung, and a lit top edge that makes it read round. */
-[data-appearance="neumorphism"] :is(.icon-chip, .icon-chip-strong) {
-  aspect-ratio: 1;
-  display: inline-grid;
-  place-items: center;
-}
-
-/* ── The segmented switch: a raised pill sliding in a recessed track ──── */
-
+/* Segmented control: an inset socket with a raised thumb that slides. */
 [data-appearance="neumorphism"] .neu-segment {
   position: relative;
   display: grid;
@@ -1056,7 +844,8 @@
   gap: 0;
   padding: 4px;
   border-radius: var(--neu-radius-pill);
-  background-color: rgb(var(--neu-inset));
+  background-color: rgb(var(--neu-face));
+  background-image: var(--neu-face-shade);
   box-shadow: var(--neu-shadow-well);
 }
 
@@ -1065,13 +854,11 @@
   top: 4px;
   bottom: 4px;
   left: 4px;
-  width: calc((100% - 8px) / var(--neu-segment-count, 2));
-  transform: translateX(calc(var(--neu-segment-index, 0) * 100%));
   border-radius: var(--neu-radius-pill);
-  background-color: rgb(var(--neu-raised));
+  background-color: rgb(var(--neu-face));
   background-image: var(--neu-face-light);
-  box-shadow: var(--neu-shadow-control);
-  transition: transform 0.34s var(--neu-spring);
+  box-shadow: var(--neu-shadow-small);
+  transition: transform 0.3s var(--ease-out), opacity 0.2s var(--ease-out);
   pointer-events: none;
 }
 
@@ -1083,9 +870,9 @@
   border-radius: var(--neu-radius-pill);
   background: transparent;
   color: rgb(var(--text-3));
-  font-weight: 700;
   font-size: 0.75rem;
-  transition: color 0.2s var(--neu-ease);
+  font-weight: 700;
+  transition: color 0.18s var(--ease-out);
 }
 
 [data-appearance="neumorphism"] .neu-segment > button[aria-pressed="true"],
@@ -1093,13 +880,8 @@
   color: rgb(var(--text-1));
 }
 
-[data-appearance="neumorphism"] .neu-segment > button:focus-visible {
-  outline: 2px solid rgb(var(--brand-400) / 0.8);
-  outline-offset: 3px;
-}
-
-/* ── The knob: a moulded disc whose ring fills as it turns ────────────── */
-
+/* The knob: a convex disc with an accent arc that grows with the value, and
+   a raised inner face. The arc is the only colour on it. */
 [data-appearance="neumorphism"] .neu-dial {
   position: relative;
   display: grid;
@@ -1109,36 +891,27 @@
   border-radius: var(--neu-radius-pill);
   background-color: rgb(var(--neu-face));
   background-image: var(--neu-face-light);
-  box-shadow: var(--neu-shadow-card), var(--neu-glow-soft);
+  box-shadow: var(--neu-shadow-raise);
 }
 
-/* The ring is a conic arc, masked into an annulus. It is the one place a
-   control carries colour, and it is a reading, not decoration: the sweep is
-   the value. */
 [data-appearance="neumorphism"] .neu-dial-ring {
   position: absolute;
-  inset: 7%;
+  inset: 8%;
   border-radius: var(--neu-radius-pill);
-  background: conic-gradient(
-    from 225deg,
-    rgb(var(--brand-500) / 0.95) 0deg var(--neu-dial-arc, 0deg),
-    rgb(var(--neu-inset)) var(--neu-dial-arc, 0deg) 270deg,
-    transparent 270deg
-  );
-  -webkit-mask: radial-gradient(closest-side, transparent 0 76%, #000 77%);
-  mask: radial-gradient(closest-side, transparent 0 76%, #000 77%);
+  -webkit-mask: radial-gradient(closest-side, transparent 0 78%, rgb(var(--text-1)) 79%);
+  mask: radial-gradient(closest-side, transparent 0 78%, rgb(var(--text-1)) 79%);
 }
 
 [data-appearance="neumorphism"] .neu-dial-face {
   position: relative;
   display: grid;
   place-items: center;
-  width: 62%;
+  width: 60%;
   aspect-ratio: 1;
   border-radius: var(--neu-radius-pill);
-  background-color: rgb(var(--neu-raised));
+  background-color: rgb(var(--neu-face));
   background-image: var(--neu-face-light);
-  box-shadow: var(--neu-shadow-card-raised);
+  box-shadow: var(--neu-shadow-small);
 }
 
 [data-appearance="neumorphism"] .neu-dial-needle {
@@ -1146,13 +919,11 @@
   bottom: 50%;
   left: 50%;
   width: 3px;
-  height: 26%;
+  height: 24%;
   margin-left: -1.5px;
-  border-radius: 999px;
+  border-radius: var(--neu-radius-pill);
   background: rgb(var(--brand-500));
   transform-origin: 50% 100%;
-  transform: rotate(var(--neu-dial-turn, 0deg));
-  transition: transform 0.28s var(--neu-spring);
 }
 
 [data-appearance="neumorphism"] .neu-dial-input {
@@ -1170,15 +941,11 @@
 }
 
 [data-appearance="neumorphism"] .neu-dial:focus-within {
-  box-shadow:
-    var(--neu-shadow-card-raised),
-    0 0 0 4px rgb(var(--brand-500) / 0.22),
-    0 0 32px -6px rgb(var(--brand-500) / 0.55);
+  box-shadow: var(--neu-shadow-raise-lg), var(--neu-focus);
 }
 
 [data-appearance="neumorphism"] .neu-dial:has(.neu-dial-input:disabled) {
-  opacity: 0.45;
-  filter: saturate(0.6);
+  opacity: 0.5;
 }
 
 [data-appearance="neumorphism"] .neu-dial:has(.neu-dial-input:disabled) .neu-dial-input {
@@ -1189,62 +956,17 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Grooves: sliders read as a channel with a raised thumb ───────────── */
-
-[data-appearance="neumorphism"] input[type="range"]::-webkit-slider-runnable-track {
-  height: 12px;
-  border-radius: var(--neu-radius-pill);
-  background:
-    linear-gradient(rgb(var(--neu-dark-source) / 0.16), transparent 60%),
-    rgb(var(--neu-inset));
-  box-shadow: var(--neu-shadow-well);
-}
-
-[data-appearance="neumorphism"] input[type="range"]::-webkit-slider-thumb {
-  margin-top: -6px;
-  height: 24px;
-  width: 24px;
-  border: none;
-  border-radius: var(--neu-radius-pill);
-  background:
-    radial-gradient(circle at 50% 50%, rgb(var(--brand-500)) 0 3px, transparent 3.5px),
-    rgb(var(--neu-raised));
-  box-shadow: var(--neu-shadow-control);
-}
-
-[data-appearance="neumorphism"] input[type="range"]::-moz-range-track {
-  height: 12px;
-  border-radius: var(--neu-radius-pill);
-  background: rgb(var(--neu-inset));
-  box-shadow: var(--neu-shadow-well);
-}
-
-[data-appearance="neumorphism"] input[type="range"]::-moz-range-thumb {
-  height: 22px;
-  width: 22px;
-  border: none;
-  border-radius: var(--neu-radius-pill);
-  background:
-    radial-gradient(circle at 50% 50%, rgb(var(--brand-500)) 0 3px, transparent 3.5px),
-    rgb(var(--neu-raised));
-  box-shadow: var(--neu-shadow-control);
-}
-
-/* ── The studio's own plates ──────────────────────────────────────────────
- *
- * Every choice in the drawer is a plate you press, so the plates become
- * moulded pills and discs rather than outlined rectangles. The active state
- * is the well: in this material a choice is announced by sinking, and the
- * brand only lights the text and the ring. */
-
+/* The studio's plates. Every choice is a convex plate; the active one is
+   pressed into the page, which is the recipe's state language. The colour
+   swatches are excluded, they are their own object. */
 [data-appearance="neumorphism"]
   .menu-card
   :is(button[aria-pressed], button[aria-selected]):not([data-color-plate]) {
   border-color: transparent;
-  border-radius: var(--neu-radius-pill);
+  border-radius: var(--neu-radius-control);
   background-color: rgb(var(--neu-face));
   background-image: var(--neu-face-light);
-  box-shadow: var(--neu-shadow-control);
+  box-shadow: var(--neu-shadow-small);
   color: rgb(var(--text-2));
 }
 
@@ -1252,21 +974,17 @@
   .menu-card
   :is(button[aria-pressed], button[aria-selected]):not([data-color-plate]):hover:not(:disabled) {
   color: rgb(var(--text-1));
-  box-shadow: var(--neu-shadow-control), var(--neu-glow);
+  box-shadow: var(--neu-shadow-raise);
 }
 
 [data-appearance="neumorphism"]
   .menu-card
   :is(button[aria-pressed="true"], button[aria-selected="true"]):not([data-color-plate]) {
-  background-color: rgb(var(--neu-inset));
-  background-image: none;
+  background-image: var(--neu-face-shade);
   box-shadow: var(--neu-shadow-well);
   color: rgb(var(--text-1));
 }
 
-/* The switch's own buttons sit INSIDE the track, so they must not grow a
-   plate of their own: the moving thumb is the plate. Declared after the
-   studio-plate rule above, which is what makes this the winner. */
 [data-appearance="neumorphism"] .menu-card .neu-segment > button,
 [data-appearance="neumorphism"] .menu-card .neu-segment > button:hover:not(:disabled) {
   background-color: transparent;
@@ -1275,65 +993,25 @@
   border-color: transparent;
 }
 
-/* ── Checkbox and radio: the smallest wells in the kit ────────────────── */
+/* ═══ §N8 · MOTION AND FORCED-COLOUR FLOORS ═════════════════════════════ */
 
-[data-appearance="neumorphism"] input[type="checkbox"],
-[data-appearance="neumorphism"] input[type="radio"] {
-  appearance: none;
-  width: 1.25rem;
-  height: 1.25rem;
-  border: 0;
-  background-color: rgb(var(--neu-inset));
-  box-shadow: var(--neu-shadow-well);
-  display: inline-grid;
-  place-items: center;
-  cursor: pointer;
+[data-appearance="neumorphism"]
+  :is(.btn, .btn-primary, .btn-secondary, .card-interactive, .chip, .icon-chip) {
+  transition:
+    box-shadow 0.18s var(--ease-out),
+    transform 0.18s var(--ease-out),
+    background-color 0.18s var(--ease-out),
+    color 0.18s var(--ease-out);
 }
-
-[data-appearance="neumorphism"] input[type="checkbox"] {
-  border-radius: 7px;
-}
-
-[data-appearance="neumorphism"] input[type="radio"] {
-  border-radius: var(--neu-radius-pill);
-}
-
-[data-appearance="neumorphism"] input[type="checkbox"]::after,
-[data-appearance="neumorphism"] input[type="radio"]::after {
-  content: "";
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: inherit;
-  background: rgb(var(--brand-500));
-  transform: scale(0);
-  transition: transform 0.2s var(--neu-spring);
-}
-
-[data-appearance="neumorphism"] input[type="checkbox"]:checked::after,
-[data-appearance="neumorphism"] input[type="radio"]:checked::after {
-  transform: scale(1);
-}
-
-[data-appearance="neumorphism"] input[type="checkbox"]:disabled,
-[data-appearance="neumorphism"] input[type="radio"]:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ═══ §N9 · MOTION AND FORCED-COLOUR FLOORS ═════════════════════════════ */
 
 @media (prefers-reduced-motion: reduce) {
   [data-appearance="neumorphism"] .card-interactive,
   [data-appearance="neumorphism"] .btn,
   [data-appearance="neumorphism"] .btn-primary,
-  [data-appearance="neumorphism"] .btn-secondary {
+  [data-appearance="neumorphism"] .btn-secondary,
+  [data-appearance="neumorphism"] .neu-segment-thumb {
     transform: none;
-    transition-property: background-color, border-color, box-shadow, color;
-  }
-
-  [data-appearance="neumorphism"] .btn::before,
-  [data-appearance="neumorphism"] .btn-primary::before {
-    display: none;
+    transition-property: background-color, box-shadow, color;
   }
 }
 
@@ -1358,7 +1036,9 @@
       input,
       textarea,
       select,
-      .field-control
+      .field-control,
+      .neu-segment,
+      .neu-dial
     ) {
     border: 1px solid CanvasText;
     box-shadow: none;

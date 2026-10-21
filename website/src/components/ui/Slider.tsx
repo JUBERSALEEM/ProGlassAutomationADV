@@ -64,6 +64,10 @@ export function Slider({
    */
   const [dragValue, setDragValue] = useState<number | null>(null);
   const shown = dragValue ?? value;
+  /* The filled part of the groove. A native range cannot report its own
+     percentage to CSS, so the component writes it: the kit's sliders show the
+     value as a filled channel, not just a moved thumb. */
+  const fillPercent = Math.round(((shown - min) / (max - min || 1)) * 100);
   const beginLive = () => {
     document.documentElement.setAttribute("data-studio-live", "");
   };
@@ -95,6 +99,7 @@ export function Slider({
         onPointerUp={endLive}
         onBlur={endLive}
         className="mt-1"
+        style={{ ["--neu-range-fill" as string]: `${fillPercent}%` }}
       />
       {hint ? <span className="mt-1 block text-[0.6875rem] leading-snug text-text-muted">{hint}</span> : null}
     </label>

@@ -165,7 +165,7 @@ describe("neumorphism bench, write-only-when-moved", () => {
     expect(prop("--neu-lift")).toBe("1.90");
   });
 
-  it("clamps a hostile surface-lift value and keeps the material ladder", () => {
+  it("clamps a hostile curvature value and keeps the material ladder", () => {
     root().dataset.appearance = "neumorphism";
     root().dataset.theme = "midnight";
     applyStudioVars({ ...defaultStudio, accentKey: "Rose", accent: "#E11D48", neuLift: 9 });
@@ -173,43 +173,30 @@ describe("neumorphism bench, write-only-when-moved", () => {
     expect(prop("--neu-lift")).toBe("2.40");
 
     const canvas = hslOf(prop("--neu-canvas"));
-    const raised = hslOf(prop("--neu-raised"));
-    const inset = hslOf(prop("--neu-inset"));
 
-    /* Lift moves the extrusions; the canvas the text is measured against
-       never moves, the plate steps up off it, and the wells stay under. */
-    const face = hslOf(prop("--neu-face"));
-    expect(canvas.l).toBeGreaterThan(0.1);
-    expect(canvas.l).toBeLessThan(0.2);
-    expect(prop("--neu-face")).not.toBe(prop("--neu-canvas"));
-    expect(face.l).toBeGreaterThan(canvas.l);
-    expect(raised.l).toBeGreaterThanOrEqual(face.l);
-    expect(inset.l).toBeLessThan(canvas.l);
+    /* Curvature is a gradient, so the surface colours never move with it.
+       The page stays mid-tone and every role shares its exact triplet. */
+    expect(canvas.l).toBeGreaterThan(0.12);
+    expect(canvas.l).toBeLessThan(0.24);
+    for (const key of ["--neu-face", "--neu-raised", "--neu-overlay", "--neu-inset"]) {
+      expect(prop(key)).toBe(prop("--neu-canvas"));
+    }
   });
 
-  it("raises face separation with lift without touching the canvas", () => {
+  it("keeps the page and the plate identical at every curvature setting", () => {
     root().dataset.appearance = "neumorphism";
     root().dataset.theme = "midnight";
 
     applyStudioVars({ ...defaultStudio, accentKey: "Rose", accent: "#E11D48", neuLift: 0.4 });
     const flatCanvas = hslOf(prop("--neu-canvas"));
-    const flatFace = hslOf(prop("--neu-face"));
-    const flatInset = hslOf(prop("--neu-inset"));
 
     applyStudioVars({ ...defaultStudio, accentKey: "Rose", accent: "#E11D48", neuLift: 2.4 });
     const deepCanvas = hslOf(prop("--neu-canvas"));
-    const deepFace = hslOf(prop("--neu-face"));
-    const deepInset = hslOf(prop("--neu-inset"));
 
-    /* The page never moves, text contrast is measured against it. */
+    /* The recipe's first rule: one colour. Curvature changes the gradient on
+       the surface, never the colour it is painted on. */
     expect(deepCanvas.l).toBeCloseTo(flatCanvas.l, 3);
-    /* The plate's separation from the page is the material, and the dial
-       scales it: flattened it nearly welds to the canvas, pushed it is
-       unmistakably raised. */
-    expect(flatFace.l - flatCanvas.l).toBeGreaterThan(0);
-    expect(deepFace.l - deepCanvas.l).toBeGreaterThan(flatFace.l - flatCanvas.l);
-    /* …while the well sinks further with the dial. */
-    expect(flatCanvas.l - deepInset.l).toBeGreaterThan(flatCanvas.l - flatInset.l);
+    expect(prop("--neu-face")).toBe(prop("--neu-canvas"));
   });
 
   it("ships recipes whose every value survives normalization unchanged", () => {
@@ -262,21 +249,18 @@ describe("neumorphism accent adoption", () => {
 
     const canvas = hslOf(prop("--neu-canvas"));
     const face = hslOf(prop("--neu-face"));
-    const raised = hslOf(prop("--neu-raised"));
-    const inset = hslOf(prop("--neu-inset"));
 
     expect(hueDistance(canvas.h, 347)).toBeLessThanOrEqual(3);
     expect(canvas.s).toBeLessThanOrEqual(0.26);
     expect(canvas.l).toBeGreaterThan(0.12);
-    expect(canvas.l).toBeLessThan(0.2);
-    /* The plate is the page lifted, never the page tinted: same hue, a
-       higher lightness, and raised above the face. A different hue here
-       would turn the material into a coloured card system. */
-    expect(prop("--neu-face")).not.toBe(prop("--neu-canvas"));
-    expect(hueDistance(face.h, canvas.h)).toBeLessThanOrEqual(6);
-    expect(face.l).toBeGreaterThan(canvas.l);
-    expect(raised.l).toBeGreaterThanOrEqual(face.l);
-    expect(inset.l).toBeLessThan(canvas.l);
+    expect(canvas.l).toBeLessThan(0.24);
+    /* THE canonical rule, straight from every published recipe: the element
+       background equals the page. A face that steps away from the canvas
+       turns the card into a tinted panel and kills the extrusion. */
+    expect(prop("--neu-face")).toBe(prop("--neu-canvas"));
+    expect(face.l).toBeCloseTo(canvas.l, 4);
+    expect(prop("--neu-raised")).toBe(prop("--neu-canvas"));
+    expect(prop("--neu-inset")).toBe(prop("--neu-canvas"));
     expect(prop("--ink-950")).toBe(prop("--neu-canvas"));
     expect(prop("--ink-900")).toBe(prop("--neu-face"));
   });
@@ -287,19 +271,16 @@ describe("neumorphism accent adoption", () => {
 
     const canvas = hslOf(prop("--neu-canvas"));
     const face = hslOf(prop("--neu-face"));
-    const raised = hslOf(prop("--neu-raised"));
-    const inset = hslOf(prop("--neu-inset"));
 
     expect(hueDistance(canvas.h, 217)).toBeLessThanOrEqual(3);
     expect(canvas.s).toBeLessThanOrEqual(0.26);
     expect(canvas.l).toBeGreaterThan(0.85);
-    expect(canvas.l).toBeLessThan(0.93);
-    /* White plates on a grey ground, the reference's own reading: the page
-       carries the shade, the plate carries the light. */
-    expect(face.l).toBeGreaterThan(canvas.l + 0.05);
-    expect(face.l).toBeLessThan(0.995);
-    expect(raised.l).toBeGreaterThanOrEqual(face.l);
-    expect(inset.l).toBeLessThan(canvas.l);
+    expect(canvas.l).toBeLessThan(0.95);
+    /* #E0E5EC territory: mid-tone, so there is room to go lighter and
+       darker. Every role shares the exact triplet. */
+    expect(prop("--neu-face")).toBe(prop("--neu-canvas"));
+    expect(face.l).toBeCloseTo(canvas.l, 4);
+    expect(prop("--neu-inset")).toBe(prop("--neu-canvas"));
   });
 
   it("keeps achromatic accents achromatic", () => {
@@ -341,13 +322,17 @@ describe("neumorphism accent adoption", () => {
 describe("neumorphism stylesheet contract", () => {
   const css = readFileSync(resolve(process.cwd(), "src/app/neumorphism-engine.css"), "utf8");
 
-  it("owns dual-shadow, raised, and pressed material tokens", () => {
-    expect(css).toContain("--neu-shadow-panel");
-    expect(css).toContain("--neu-shadow-raised");
-    expect(css).toContain("--neu-shadow-well");
+  it("owns the canonical pair, the wells, and the curvature axis", () => {
+    expect(css).toContain("--neu-shadow-raise:");
+    expect(css).toContain("--neu-shadow-raise-lg:");
+    expect(css).toContain("--neu-shadow-well:");
+    expect(css).toContain("--neu-shadow-press:");
+    expect(css).toContain("--neu-face-light:");
+    expect(css).toContain("--neu-face-shade:");
     expect(css).toContain("--neu-depth");
     expect(css).toContain("--neu-distance");
     expect(css).toContain("--neu-softness");
+    expect(css).toContain("--neu-lift");
     expect(css).toContain("--neu-light-source");
     expect(css).toContain("--neu-dark-source");
   });
@@ -360,77 +345,44 @@ describe("neumorphism stylesheet contract", () => {
     expect(css).toContain(".nav-glass");
     expect(css).toContain(".btn-primary");
     expect(css).toContain(":is(input, textarea, select, .field-control)");
-    expect(css).toContain("input[type=\"range\"]::-webkit-slider-thumb");
+    expect(css).toContain('input[type="range"]::-webkit-slider-thumb');
     expect(css).toContain("@media (forced-colors: active)");
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");
   });
 
-  it("keeps the reference recipe: white plate on a grey page, wide solid pair", () => {
-    /* The kit this family is measured against:
-       page #E2E7EE · plate #F6F9FC · cast 14px/30px #BAC4D4 · light #FFFFFF.
-       The plate is the page lifted and lit, which is the whole material: a
-       card welded to the canvas leaves only a smudge beside it. */
-    expect(css).toContain("--neu-canvas: 226 231 238");
-    expect(css).toContain("--neu-face: 246 249 252");
-    expect(css).toContain("--neu-dark-source: 186 196 212");
+  it("quotes the published recipe: #E0E5EC, #A3B1C6, #FFFFFF, 9/18 and 6/12", () => {
+    /* The canonical values, as published by the generator and by every
+       reference that follows it. These are the whole design. */
+    expect(css).toContain("--neu-canvas: 224 229 236");
+    expect(css).toContain("--neu-face: 224 229 236");
+    expect(css).toContain("--neu-dark-source: 163 177 198");
     expect(css).toContain("--neu-light-source: 255 255 255");
-    expect(css).toContain("calc(14px * var(--neu-distance))");
-    expect(css).toContain("calc(30px * var(--neu-softness))");
-
-    /* Both shadow colours are carried at full strength. A 20–40% alpha grey
-       is what made the pair invisible against the fill. */
-    expect(css).toContain("--neu-light-alpha: 1;");
-
-    /* A card must not repaint a tint or a glass stack over its own fill. It
-       may paint the room's light ON that fill, which is the gradient below. */
-    expect(css).toContain("background-image: none");
+    expect(css).toContain("--neu-dark-alpha: 0.62");
+    expect(css).toContain("--neu-light-alpha: 0.9");
+    expect(css).toContain("calc(9px * var(--neu-distance))");
+    expect(css).toContain("calc(18px * var(--neu-softness))");
+    expect(css).toContain("calc(6px * var(--neu-distance))");
+    expect(css).toContain("calc(12px * var(--neu-softness))");
   });
 
-  it("keeps the moulded plate: cast pair outward, corner pair inward", () => {
-    /* The plate the family is built from is moulded, not merely dropped: a
-       cast pair travelling outward plus an inner pair curving light around
-       the corner. The cast pair must stay OUTSIDE the box (an inset cast on
-       every card reads as a framed rectangle, not a pillow); the inset
-       belongs to the mould that follows it. */
-    const cardBlock = css.slice(
-      css.indexOf("--neu-shadow-card:"),
-      css.indexOf("--neu-shadow-card-raised:"),
-    );
-    expect(cardBlock).toContain("var(--neu-mould)");
-    expect(cardBlock.slice(0, cardBlock.indexOf("var(--neu-mould)"))).not.toContain("inset");
-
-    const mouldBlock = css.slice(css.indexOf("--neu-mould:"), css.indexOf("--neu-shadow-card:"));
-    expect(mouldBlock).toContain("inset");
-    expect(mouldBlock).not.toContain("1px");
+  it("retunes dark mode instead of inverting it", () => {
+    expect(css).toContain("--neu-canvas: 45 50 57");
+    expect(css).toContain("--neu-dark-source: 35 39 45");
+    expect(css).toContain("--neu-light-source: 55 61 70");
+    /* A white highlight on a dark page is the classic failure: the object
+       looks like it is emitting light. */
+    expect(css).not.toContain("--neu-light-source: 255 255 255;\n  --neu-light-alpha: 1;");
   });
 
-  it("carries the four richness devices the reference family owns", () => {
-    /* Mass, ground, bloom, answer, ported from the reference without
-       borrowing a single one of its colours. */
-    expect(css).toContain("--neu-shadow-float");
-    expect(css).toContain("--neu-glow:");
-    expect(css).toContain("--neu-face-light");
-    expect(css).toContain("--wall-lamp:");
-    expect(css).toContain("--wall-vignette:");
-    expect(css).toContain("--neu-ease:");
-    expect(css).toContain("::selection");
-    expect(css).toContain("caret-color");
-    expect(css).toContain("card-interactive:hover");
-  });
-
-  it("ships the control kit as real, operable controls", () => {
-    /* A dial, a segmented switch, a groove slider, a disc. The kit is what
-       makes the family read as a system rather than as soft shadows on a
-       page, and each of these has to exist for the bench to use it. */
-    expect(css).toContain(".neu-dial");
-    expect(css).toContain(".neu-dial-ring");
-    expect(css).toContain(".neu-dial-input");
-    expect(css).toContain(".neu-segment");
-    expect(css).toContain(".neu-segment-thumb");
-    expect(css).toContain("--neu-radius-pill");
-    expect(css).toContain('input[type="range"]::-webkit-slider-thumb');
-    expect(css).toContain('input[type="checkbox"]');
-    expect(css).toContain("appearance: none");
+  it("keeps curvature in agreement with the light source", () => {
+    /* Convex runs light to dark along 145deg, concave runs dark to light.
+       A gradient at any other angle is a second light source. */
+    expect(css).toContain("linear-gradient(145deg");
+    const convex = css.slice(css.indexOf("--neu-face-light:"), css.indexOf("--neu-face-shade:"));
+    const concave = css.slice(css.indexOf("--neu-face-shade:"), css.indexOf("/* Corners."));
+    expect(convex).toContain("255 255 255");
+    expect(concave).toContain("255 255 255");
+    expect(convex).not.toContain("inset");
   });
 
   it("never leaks a selector outside the neumorphism family", () => {

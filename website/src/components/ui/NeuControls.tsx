@@ -72,7 +72,7 @@ export function NeuDial({
           aria-hidden="true"
           className="neu-dial-ring pointer-events-none absolute inset-[7%] rounded-full"
           style={{
-            background: `conic-gradient(from 225deg, rgb(var(--brand-500) / 0.95) 0deg ${arc}deg, rgb(var(--line) / 0.75) ${arc}deg 270deg, transparent 270deg)`,
+            background: `conic-gradient(from 225deg, rgb(var(--brand-500)) 0deg ${arc}deg, rgb(var(--neu-dark-source) / 0.35) ${arc}deg 270deg, transparent 270deg)`,
             /* The annulus mask. `mask` is painted by the same trick twice for
                the two engines; the opaque stop is the ink role, not a colour
                of the design. */

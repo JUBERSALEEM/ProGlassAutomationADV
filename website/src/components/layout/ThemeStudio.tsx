@@ -552,7 +552,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                 ? "font-medium text-text-muted"
                 : "rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2 font-semibold text-text-secondary",
             )}>
-              {t("Depth, distance, softness and lift for the Neumorphism family — raised cards and pressed-in wells shaped by one top-left light, with four whole recipes above the dials. Applies when Neumorphism is active; the canvas and the text ladder never move.")}
+              {t("The canonical soft-UI bench: paired shade and light from one top-left source, the surface curvature, and four whole recipes. The page and the cards share one colour by design; depth is shadow and relief, never a tinted fill.")}
             </p>
             <div className={family === "neumorphism" ? undefined : "pointer-events-none select-none opacity-50 saturate-[0.6]"}>
               <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-5">
@@ -592,7 +592,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                   hint={t("How diffuse the extrusion feels. Lower values read firmer and more machined; higher values melt the edges into the canvas.")}
                 />
                 <NeuDial
-                  label={t("Lift — face separation from the canvas")}
+                  label={t("Curvature, surface relief")}
                   value={studio.neuLift}
                   min={0.4}
                   max={2.4}
@@ -600,7 +600,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                   disabled={neuGated}
                   display={`${studio.neuLift.toFixed(2)}×`}
                   onChange={(value) => setStudio({ neuLift: value })}
-                  hint={t("How far the plate stands off the page and how deep a well sinks into it. At 0.40 the card welds to the canvas; higher values make the plate unmistakably raised.")}
+                  hint={t("The six percent gradient that makes a surface bulge toward you. 0.40 is flat material, 1.00 is the shipped relief, 2.40 is a pronounced dome. The colour never moves.")}
                 />
               </div>
               {/* Four whole recipes, because the dials interact: a deep shadow

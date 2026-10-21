@@ -294,14 +294,14 @@ export function AppearancePreview() {
                 hint={t("Shadow blur: firmer and more machined at the low end, melted into the canvas at the high end.")}
               />
               <Slider
-                label={t("Lift")}
+                label={t("Curvature")}
                 value={studio.neuLift}
                 min={0.4}
                 max={2.4}
                 step={0.05}
                 display={`${studio.neuLift.toFixed(2)}×`}
                 onChange={(value) => setStudio({ neuLift: value })}
-                hint={t("How far the plate stands off the page and how deep a well sinks into it. At the low end the plate welds to the canvas; the canvas itself never moves.")}
+                hint={t("The gradient that makes a surface bulge toward you. Flat at the low end; the colour of the page and the card never moves.")}
               />
             </>
           ) : null}

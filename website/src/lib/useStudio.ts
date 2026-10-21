@@ -1079,85 +1079,62 @@ export function applyStudioVars(studio: Studio) {
       );
 
     /*
-     * The Surface-lift dial scales the tonal separation around a FIXED canvas.
-     * Neumorphism reads as moulded because a face stands a measurable step off
-     * the page and a well sits a step under it — at the shipped 1.00 that is
-     * two lightness points by night and one by day, which is the canonical
-     * recipe but a soft one. Lift lets a visitor push the material until the
-     * extrusions are unmistakable, or flatten it to a whisper, without ever
-     * moving the canvas the text is measured against.
+     * The recipe, value for value.
+     *
+     * The canonical soft-UI plate is ONE colour: the page and every surface
+     * share it, and depth comes from the dual shadow and the surface
+     * gradient. That is not an aesthetic preference, it is the technique:
+     * the moment a card is tinted away from its page the eye reads a panel
+     * sitting on a background, and the extrusion is gone.
+     *
+     * Quoted values (see neumorphism-engine.css §N0 for sources):
+     *   light  page #E0E5EC, shade #A3B1C6, light #FFFFFF
+     *   dark   page #2D3239, shade #23272D, light #373D46
+     * Surface lift scales the CURVATURE of the convex gradient, the recipe's
+     * fourth axis, so a visitor can flatten the moulding without ever moving
+     * the colour the text is measured against.
      */
     const neuLiftScale = Math.min(2.4, Math.max(0.4, finite(studio.neuLift, 0.4, 2.4, 1)));
-    /*
-     * The ladder, in points of HSL lightness, per reading.
-     *
-     * The plate sits ABOVE the page, and that separation is the whole
-     * material. The reference kit this family is measured against is white
-     * plates on a grey ground: the page carries the shade, the card is the lit
-     * face, and the eye reads a raised object before it reads any shadow. A
-     * card welded to the canvas (an earlier revision did exactly that) leaves
-     * nothing but a faint grey smudge beside the plate, which is why the
-     * family kept being reported as flat.
-     *
-     * The separation is a step, never a colour: the same hue at a higher
-     * lightness, so it can never read as a coloured tile. Surface lift scales
-     * the step, so a visitor can weld it flat if they want to, while the
-     * canvas the text is measured against never moves.
-     */
-    const neuLadder = target === "dark"
-      ? { canvas: 0.132, face: 0.062, raised: 0.030, overlay: 0.046, inset: 0.026 }
-      : { canvas: 0.882, face: 0.080, raised: 0.026, overlay: 0.050, inset: 0.058 };
-    const neuStep = (points: number) => points * neuLiftScale;
-    const neuCanvas = neuColor(neuLadder.canvas);
-    const neuFace = neuColor(neuLadder.canvas + neuStep(neuLadder.face));
-    const neuRaised = neuColor(neuLadder.canvas + neuStep(neuLadder.face + neuLadder.raised));
-    const neuOverlay = neuColor(neuLadder.canvas + neuStep(neuLadder.face + neuLadder.overlay));
-    const neuInset = neuColor(neuLadder.canvas - neuStep(neuLadder.inset));
-    /* The pair, in the reference's physics: the highlight is light at full
-       strength (white on paper, a lit slate by night, never white on a dark
-       page), and the shade is the page taken well down, so the cast shadow
-       has real weight against the ground it falls on. */
-    const neuLightSource = neuColor(target === "dark" ? 0.34 : 1, 1.06);
-    const neuDarkSource = neuColor(target === "dark" ? 0.045 : 0.79, 1.08);
-    const neuLine = neuColor(target === "dark" ? 0.29 : 0.74);
+    const neuLadder = target === "dark" ? 0.2 : 0.902;
+    const neuCanvas = neuColor(neuLadder);
+    /* Shadow sources, derived from the base exactly as the generator does:
+       the shade is the page taken down, the light is the page pushed up.
+       Dark mode is a retune, not an inversion: a lit slate, never white. */
+    const neuLightSource = target === "dark" ? neuColor(0.255) : neuColor(1);
+    const neuDarkSource = target === "dark" ? neuColor(0.148) : neuColor(0.712, 1.25);
+    const neuLine = target === "dark" ? neuColor(0.3) : neuColor(0.8);
 
     vars["--neu-canvas"] = neuCanvas;
-    vars["--neu-face"] = neuFace;
-    vars["--neu-raised"] = neuRaised;
-    vars["--neu-overlay"] = neuOverlay;
-    vars["--neu-inset"] = neuInset;
+    /* Identical on purpose. See the block comment above. */
+    vars["--neu-face"] = neuCanvas;
+    vars["--neu-raised"] = neuCanvas;
+    vars["--neu-overlay"] = neuCanvas;
+    vars["--neu-inset"] = neuCanvas;
     vars["--neu-lift"] = neuLiftScale.toFixed(2);
     vars["--neu-light-source"] = neuLightSource;
     vars["--neu-dark-source"] = neuDarkSource;
     vars["--neu-line"] = neuLine;
 
     vars["--ink-950"] = neuCanvas;
-    vars["--ink-900"] = neuFace;
-    vars["--ink-850"] = neuRaised;
-    vars["--ink-800"] = neuOverlay;
+    vars["--ink-900"] = neuCanvas;
+    vars["--ink-850"] = neuCanvas;
+    vars["--ink-800"] = neuCanvas;
     vars["--ink-700"] = neuLine;
     vars["--line"] = neuLine;
-    vars["--line-soft"] = neuInset;
+    vars["--line-soft"] = neuLine;
     vars["--line-strong"] = neuLightSource;
 
-    /* No hue wash on a card: this family's tint is light, not colour. */
+    /* No hue wash on a card, and no ambient pools on the page: this family's
+       tint is light, and a wash behind a card breaks the extrusion. */
     vars["--card-tint"] = "transparent";
     vars["--card-tint-2"] = "transparent";
-    vars["--card-edge"] = `rgb(${neuLightSource} / 0.16)`;
-    vars["--card-edge-hover"] = `rgb(${vars["--brand-400"] ?? neuColor(0.52, 1.4)} / 0.55)`;
-    vars["--pool-1"] = `rgb(${neuLightSource} / ${target === "dark" ? 0.1 : 0.12})`;
-    vars["--pool-2"] = `rgb(${neuColor(0.62, 1.25)} / 0.07)`;
-    vars["--pool-3"] = `rgb(${neuDarkSource} / ${target === "dark" ? 0.12 : 0.06})`;
-    vars["--wall-wash-1"] = `rgb(${neuLightSource} / ${target === "dark" ? 0.07 : 0.12})`;
-    vars["--wall-wash-2"] = `rgb(${neuColor(0.68, 1.15)} / ${target === "dark" ? 0.05 : 0.08})`;
-    vars["--wall-grid"] = `rgb(${neuLightSource} / 0.045)`;
-    vars["--wall-grid-major"] = `rgb(${neuLightSource} / 0.065)`;
-    vars["--wall-sheen"] = `rgb(${neuLightSource} / ${target === "dark" ? 0.035 : 0.18})`;
-    vars["--wall-vignette"] = `rgb(${neuDarkSource} / ${target === "dark" ? 0.5 : 0.1})`;
-    vars["--wall-lamp"] = `rgb(${neuLightSource} / ${target === "dark" ? 0.08 : 0.34})`;
-    vars["--wall-floor"] = `rgb(${neuDarkSource} / ${target === "dark" ? 0.16 : 0.08})`;
-    vars["--viz-grid"] = `rgb(${neuLightSource} / 0.28)`;
-    vars["--viz-plate"] = `rgb(${neuInset} / 0.98)`;
+    vars["--card-edge"] = "transparent";
+    vars["--card-edge-hover"] = "transparent";
+    for (const key of ["--pool-1", "--pool-2", "--pool-3", "--wall-wash-1", "--wall-wash-2", "--wall-sheen", "--wall-grid", "--wall-grid-major", "--wall-vignette", "--wall-lamp", "--wall-floor"]) {
+      vars[key] = "transparent";
+    }
+    vars["--viz-grid"] = `rgb(${neuLine} / 0.4)`;
+    vars["--viz-plate"] = `rgb(${neuCanvas} / 0.98)`;
   }
 
   /*
