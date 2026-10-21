@@ -350,25 +350,28 @@ describe("neumorphism stylesheet contract", () => {
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");
   });
 
-  it("quotes the published recipe: #E0E5EC, #A3B1C6, #FFFFFF, 9/18 and 6/12", () => {
+  it("quotes the published recipe: a solid pair on #E0E5EC, 11/22 and 7/14", () => {
     /* The canonical values, as published by the generator and by every
        reference that follows it. These are the whole design. */
     expect(css).toContain("--neu-canvas: 224 229 236");
     expect(css).toContain("--neu-face: 224 229 236");
-    expect(css).toContain("--neu-dark-source: 163 177 198");
+    /* The published plates print the pair as solid hex; a faint alpha pair
+       over a light ground resolves to haze, not to a moulded edge. */
+    expect(css).toContain("--neu-light-alpha: 1;");
+    expect(css).toContain("--neu-dark-source: 154 168 193");
     expect(css).toContain("--neu-light-source: 255 255 255");
-    expect(css).toContain("--neu-dark-alpha: 0.62");
-    expect(css).toContain("--neu-light-alpha: 0.9");
-    expect(css).toContain("calc(9px * var(--neu-distance))");
-    expect(css).toContain("calc(18px * var(--neu-softness))");
-    expect(css).toContain("calc(6px * var(--neu-distance))");
-    expect(css).toContain("calc(12px * var(--neu-softness))");
+    expect(css).toContain("--neu-dark-alpha: 1;");
+    expect(css).toContain("--neu-light-alpha: 1;");
+    expect(css).toContain("calc(11px * var(--neu-distance))");
+    expect(css).toContain("calc(22px * var(--neu-softness))");
+    expect(css).toContain("calc(7px * var(--neu-distance))");
+    expect(css).toContain("calc(14px * var(--neu-softness))");
   });
 
   it("retunes dark mode instead of inverting it", () => {
     expect(css).toContain("--neu-canvas: 45 50 57");
-    expect(css).toContain("--neu-dark-source: 35 39 45");
-    expect(css).toContain("--neu-light-source: 55 61 70");
+    expect(css).toContain("--neu-dark-source: 22 26 31");
+    expect(css).toContain("--neu-light-source: 68 76 88");
     /* A white highlight on a dark page is the classic failure: the object
        looks like it is emitting light. */
     expect(css).not.toContain("--neu-light-source: 255 255 255;\n  --neu-light-alpha: 1;");

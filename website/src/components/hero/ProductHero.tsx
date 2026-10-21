@@ -227,7 +227,7 @@ export function ProductHero({ t }: { t: Translator }) {
               t={t}
               title={t("Dashboard — Overview")}
               railActive="Dashboard"
-              className="lg:translate-x-2"
+              className="lg:translate-x-2 lg:[zoom:0.8]"
               note={
                 <>
                   <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">

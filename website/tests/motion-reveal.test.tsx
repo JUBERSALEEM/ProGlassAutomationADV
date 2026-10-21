@@ -79,7 +79,14 @@ describe("§Q top panel (hero frame rebuild)", () => {
 
   it("dashboard tiles keep two readable columns until the frame is wide", () => {
     const live = read("src/components/product/LiveSurface.tsx");
-    expect(live).toContain('<dl className="grid grid-cols-2 gap-2 lg:grid-cols-4">');
+    expect(live).toContain('<dl className="kpi-row grid grid-cols-2 gap-2 lg:grid-cols-4">');
+    /* The frame is embedded at a width no viewport query can see, so the tier
+       is read from the workspace container instead: two columns until the
+       window itself is 42rem wide, then four. */
+    const grid = read("src/app/responsive-card-grid.css");
+    expect(grid).toContain(".preview-workspace {");
+    expect(grid).toContain("container-type: inline-size;");
+    expect(grid).toContain("@container (min-width: 42rem)");
   });
 
   it("no fragile height chain remains in the inline dashboard path", () => {

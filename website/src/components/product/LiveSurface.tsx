@@ -1232,7 +1232,7 @@ function DashboardEngine({
         </div>
       ) : null}
 
-      <dl className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+      <dl className="kpi-row grid grid-cols-2 gap-2 lg:grid-cols-4">
         {summary.map((item, index) => (
           <div key={`${t(item.label)}-${index}`} className="surface-raised p-2.5">
             <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t(item.label)}</dt>

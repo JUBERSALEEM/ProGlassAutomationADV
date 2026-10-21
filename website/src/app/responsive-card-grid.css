@@ -34,3 +34,22 @@
     display: none;
   }
 }
+
+/* The product preview is a window, not a page: it is embedded at a width far
+ * below the viewport, so viewport breakpoints pick the wrong tier. At 1440 a
+ * 470px preview was still four columns wide and every KPI tile wrapped to five
+ * characters a line. The workspace is therefore its own query container and
+ * the preview's collection grids read their own width instead. */
+.preview-workspace {
+  container-type: inline-size;
+}
+
+.preview-workspace :is(.dense-card-grid, .kpi-row) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@container (min-width: 42rem) {
+  .preview-workspace :is(.dense-card-grid, .kpi-row) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

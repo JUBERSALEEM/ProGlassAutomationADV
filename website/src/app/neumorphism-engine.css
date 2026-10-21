@@ -65,8 +65,8 @@
 
   /* The pair. Dark mode is a retune, never an inversion: the highlight is a
      lit slate, not white, and the shade is a darker grey, not black. */
-  --neu-light-source: 55 61 70;
-  --neu-dark-source: 35 39 45;
+  --neu-light-source: 68 76 88;
+  --neu-dark-source: 22 26 31;
   --neu-light-alpha: 1;
   --neu-dark-alpha: 1;
   --neu-line: 66 72 84;
@@ -74,16 +74,16 @@
   /* Geometry, in the recipe's own ratio. Blur is twice the offset at every
      rung; distance scales offsets and softness scales blurs, so the bench
      moves the whole material as one object. */
-  --neu-offset-sm: calc(6px * var(--neu-distance));
-  --neu-offset: calc(9px * var(--neu-distance));
-  --neu-offset-lg: calc(12px * var(--neu-distance));
-  --neu-offset-in: calc(6px * var(--neu-distance));
-  --neu-blur-sm: calc(12px * var(--neu-softness));
-  --neu-blur: calc(18px * var(--neu-softness));
-  --neu-blur-lg: calc(24px * var(--neu-softness));
-  --neu-blur-in: calc(12px * var(--neu-softness));
-  --neu-offset-float: calc(14px * var(--neu-distance));
-  --neu-blur-float: calc(28px * var(--neu-softness));
+  --neu-offset-sm: calc(7px * var(--neu-distance));
+  --neu-offset: calc(10px * var(--neu-distance));
+  --neu-offset-lg: calc(13px * var(--neu-distance));
+  --neu-offset-in: calc(7px * var(--neu-distance));
+  --neu-blur-sm: calc(14px * var(--neu-softness));
+  --neu-blur: calc(20px * var(--neu-softness));
+  --neu-blur-lg: calc(26px * var(--neu-softness));
+  --neu-blur-in: calc(14px * var(--neu-softness));
+  --neu-offset-float: calc(15px * var(--neu-distance));
+  --neu-blur-float: calc(30px * var(--neu-softness));
 
   /* Raised: shade bottom right, light top left, both outside the box. */
   --neu-shadow-raise:
@@ -112,6 +112,14 @@
     inset calc(-1 * var(--neu-offset-in)) calc(-1 * var(--neu-offset-in)) var(--neu-blur-in)
       rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
 
+  /* The tight well: chips, segmented tracks and small controls, where a 7px
+     inset is most of the object's height. */
+  --neu-shadow-well-sm:
+    inset calc(3px * var(--neu-distance)) calc(3px * var(--neu-distance)) calc(6px * var(--neu-softness))
+      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
+    inset calc(-3px * var(--neu-distance)) calc(-3px * var(--neu-distance)) calc(6px * var(--neu-softness))
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
+
   --neu-shadow-press:
     inset calc(4px * var(--neu-distance)) calc(4px * var(--neu-distance)) calc(8px * var(--neu-softness))
       rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
@@ -126,12 +134,25 @@
       rgb(255 255 255 / calc(0.09 * var(--neu-lift))) 0%,
       rgb(255 255 255 / calc(0.03 * var(--neu-lift))) 46%,
       rgb(0 0 0 / calc(0.18 * var(--neu-lift))) 100%);
+  /* A large plate cannot carry the same gradient as a 40px button: over a
+     thousand pixels it stops reading as curvature and reads as a wash. Big
+     surfaces get the same direction at a third of the strength. */
+  --neu-face-plate:
+    linear-gradient(145deg,
+      rgb(255 255 255 / calc(0.1 * var(--neu-lift))) 0%,
+      rgb(255 255 255 / calc(0.035 * var(--neu-lift))) 55%,
+      rgb(0 0 0 / calc(0.22 * var(--neu-lift))) 100%);
   /* Concave, for wells: the stops reverse so the surface dishes away. */
   --neu-face-shade:
     linear-gradient(145deg,
       rgb(0 0 0 / calc(0.16 * var(--neu-lift))) 0%,
       rgb(255 255 255 / calc(0.02 * var(--neu-lift))) 54%,
       rgb(255 255 255 / calc(0.07 * var(--neu-lift))) 100%);
+  --neu-face-plate-shade:
+    linear-gradient(145deg,
+      rgb(0 0 0 / calc(0.16 * var(--neu-lift))) 0%,
+      rgb(0 0 0 / calc(0.05 * var(--neu-lift))) 55%,
+      rgb(255 255 255 / calc(0.05 * var(--neu-lift))) 100%);
 
   /* Corners. Cards and panels get the recipe's soft radius, controls the
      tighter one, discs the full circle. */
@@ -233,22 +254,48 @@
   --neu-overlay: 224 229 236;
   --neu-inset: 224 229 236;
 
+  /* Solid, as the published plates print them: `9px 9px 16px #b5bbc2,
+     -9px -9px 16px #f8fbff`. A transparent pair on a light ground resolves
+     to a haze; a solid pair resolves to a moulded edge. */
   --neu-light-source: 255 255 255;
-  --neu-dark-source: 163 177 198;
-  --neu-light-alpha: 0.9;
-  --neu-dark-alpha: 0.62;
+  --neu-dark-source: 154 168 193;
+  --neu-light-alpha: 1;
+  --neu-dark-alpha: 1;
   --neu-line: 199 208 220;
+
+  /* Daylight reaches a touch further: on a light ground the eye needs the
+     shade to travel before it reads as cast. */
+  --neu-offset-sm: calc(7px * var(--neu-distance));
+  --neu-offset: calc(11px * var(--neu-distance));
+  --neu-offset-lg: calc(14px * var(--neu-distance));
+  --neu-offset-in: calc(7px * var(--neu-distance));
+  --neu-offset-float: calc(16px * var(--neu-distance));
+  --neu-blur-sm: calc(14px * var(--neu-softness));
+  --neu-blur: calc(22px * var(--neu-softness));
+  --neu-blur-lg: calc(30px * var(--neu-softness));
+  --neu-blur-in: calc(14px * var(--neu-softness));
+  --neu-blur-float: calc(32px * var(--neu-softness));
 
   --neu-face-light:
     linear-gradient(145deg,
       rgb(255 255 255 / calc(0.62 * var(--neu-lift))) 0%,
       rgb(255 255 255 / calc(0.16 * var(--neu-lift))) 38%,
       rgb(var(--neu-dark-source) / calc(0.3 * var(--neu-lift))) 100%);
+  --neu-face-plate:
+    linear-gradient(145deg,
+      rgb(255 255 255 / calc(0.42 * var(--neu-lift))) 0%,
+      rgb(255 255 255 / calc(0.14 * var(--neu-lift))) 58%,
+      rgb(var(--neu-dark-source) / calc(0.16 * var(--neu-lift))) 100%);
   --neu-face-shade:
     linear-gradient(145deg,
       rgb(var(--neu-dark-source) / calc(0.26 * var(--neu-lift))) 0%,
       rgb(var(--neu-dark-source) / calc(0.06 * var(--neu-lift))) 48%,
       rgb(255 255 255 / calc(0.55 * var(--neu-lift))) 100%);
+  --neu-face-plate-shade:
+    linear-gradient(145deg,
+      rgb(var(--neu-dark-source) / calc(0.3 * var(--neu-lift))) 0%,
+      rgb(var(--neu-dark-source) / calc(0.1 * var(--neu-lift))) 52%,
+      rgb(255 255 255 / calc(0.5 * var(--neu-lift))) 100%);
 
   /* The ink ladder on #E0E5EC. The faint tier is deliberately dark enough to
      clear 4.5:1 on the page itself, because soft UI has no other boundary to
@@ -259,6 +306,53 @@
   --text-4: 90 100 120;
 }
 
+/* ═══ §N0b · THE ROOM IS EMPTY ══════════════════════════════════════════
+ *
+ * Soft UI has one ground. Every decorative light the other families use (the
+ * aurora fields, the hero glow, the photon ribbon, glass shards, sweep lines,
+ * noise) is painted on top of the page, and on this family each one turns the
+ * flat mid-tone the whole illusion depends on into a gradient. They are
+ * switched off here rather than dimmed: a "quiet" aurora is still a second
+ * light source, and one light source is the entire technique.
+ *
+ * Content is untouched. Only the layers that exist to be looked at are.
+ */
+[data-appearance="neumorphism"] :is(
+  .aurora-field,
+  .hero-aurora,
+  .hero-aurora-strong,
+  .hero-backdrop-parallax,
+  .hero-banner-parallax,
+  .hero-shard,
+  .ribbon-photon,
+  .orb,
+  .decor,
+  .decor-ring,
+  .decor-orb,
+  .decor-dot,
+  .decor-pill,
+  .noise,
+  .grain,
+  .sweep,
+  .sweep-line,
+  .liquid-scene
+) {
+  display: none !important;
+}
+
+[data-appearance="neumorphism"] body::before,
+[data-appearance="neumorphism"] body::after {
+  background-image: none !important;
+  opacity: 0 !important;
+}
+
+/* Hero and band overlays are gradient scrims for a lit background. With the
+   background gone they would only tint the page, so they go too. */
+[data-appearance="neumorphism"] :is(section, div, figure)[class*="band"]::before,
+[data-appearance="neumorphism"] :is(section, div, figure)[class*="band"]::after {
+  background-image: none !important;
+}
+
 /* ═══ §N1 · THE PAGE AND THE UTILITY CARRIERS ═══════════════════════════ */
 
 /* A flat, mid-tone page. No pools, no lamp: the recipe's first rule is that
@@ -267,6 +361,11 @@
 [data-appearance="neumorphism"] body {
   background-color: rgb(var(--neu-canvas));
   background-image: none;
+}
+
+[data-appearance="neumorphism"] [class*="bg-sheen"],
+[data-appearance="neumorphism"] .band-solid > [aria-hidden="true"] {
+  display: none;
 }
 
 [data-appearance="neumorphism"] [class*="backdrop-blur"] {
@@ -281,10 +380,14 @@
     :not([class*="bg-ink-950"]):not(option):not(.decor):not(.liquid-scene)
   ) {
   background-color: rgb(var(--neu-face));
-  background-image: var(--neu-face-light);
+  background-image: var(--neu-face-plate);
   border-color: transparent;
 }
 
+/* A painted utility block is a REGION, not an object: it takes the material's
+   flat paint and nothing else. This is the difference between a soft-UI page
+   and a page where every div casts a shadow, and the reference kits are
+   emphatic about it: most of the surface is still just surface. */
 [data-appearance="neumorphism"]
   :where([class*="bg-ink-"], [class*="bg-white"], [class*="bg-glass"]):where(
     [class*="rounded-card"],
@@ -292,17 +395,24 @@
     [class*="rounded-hero"],
     [class*="rounded-xl"],
     [class*="rounded-2xl"],
-    [class*="rounded-3xl"]
-  ):where(:not([class*="bg-ink-950"])) {
-  box-shadow: var(--neu-shadow-raise);
-}
-
-[data-appearance="neumorphism"]
-  :where([class*="bg-ink-"], [class*="bg-white"], [class*="bg-glass"]):where(
+    [class*="rounded-3xl"],
     [class*="rounded-lg"],
     [class*="rounded-md"]
   ):where(:not([class*="bg-ink-950"])) {
-  box-shadow: var(--neu-shadow-small);
+  box-shadow: none;
+}
+
+/* An inset group is the other half of the language: the kit's recessed trays.
+   A bordered grouping inside a card reads as a well; a rounded one reads as a
+   panel. This gives the page its rhythm without adding another elevation. */
+[data-appearance="neumorphism"]
+  :is([class*="border-line"], [class*="border-ink-"]):where(
+    [class*="rounded-xl"],
+    [class*="rounded-2xl"],
+    [class*="rounded-3xl"]
+  ):where(:not(.surface):not(.surface-raised):not(.stat-tile):not(.plate):not(.card-live):not(.menu-card)) {
+  background-image: var(--neu-face-shade);
+  box-shadow: var(--neu-shadow-well);
 }
 
 [data-appearance="neumorphism"] :is([class*="border-line"], [class*="border-ink-"]) {
@@ -357,7 +467,7 @@
   :is(.surface, .stat-tile, .plate, .card-live, .card-glass, .glass-rows, .studio-sheet) {
   --corner-radius: var(--neu-radius);
   background-color: rgb(var(--neu-face));
-  background-image: var(--neu-face-light);
+  background-image: var(--neu-face-plate);
   border-radius: var(--neu-radius);
   border: 1px solid transparent;
   box-shadow: var(--neu-shadow-raise);
@@ -369,7 +479,7 @@
   :is(.surface-raised, .panel-feature, .float-card, .menu-card, .card-accent) {
   --corner-radius: var(--neu-radius-large);
   background-color: rgb(var(--neu-face));
-  background-image: var(--neu-face-light);
+  background-image: var(--neu-face-plate);
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
   box-shadow: var(--neu-shadow-raise-lg);
@@ -400,9 +510,46 @@
 [data-appearance="neumorphism"]
   :is(.studio-inset, .glass-metric, .neu-well, .input-well) {
   background-color: rgb(var(--neu-face));
-  background-image: var(--neu-face-shade);
+  background-image: var(--neu-face-plate-shade);
   border-radius: var(--neu-radius-well);
   border: 1px solid transparent;
+  box-shadow: var(--neu-shadow-well);
+}
+
+/* Small objects take a small corner. The site's radius factor makes the card
+   token 30px, which on a 94px KPI tile is a capsule rather than a plate; the
+   clamp keeps the family's softness and the object's own proportion. */
+[data-appearance="neumorphism"] :is(.stat-tile, .chip, .badge-pill, .index-chip, .icon-chip, .icon-chip-strong) {
+  border-radius: min(var(--neu-radius), 20px);
+}
+
+/* The application window is a small UI on a large page: its tiles read as
+   plates, not capsules, at the frame's own scale. */
+[data-appearance="neumorphism"] figure.surface-raised :is(.surface, .surface-raised, .stat-tile) {
+  border-radius: min(var(--neu-radius), 18px);
+  box-shadow: var(--neu-shadow-small);
+}
+
+[data-appearance="neumorphism"]
+  figure.surface-raised
+  :is([class*="border-line"], [class*="border-ink-"]):where(
+    [class*="rounded-xl"],
+    [class*="rounded-2xl"],
+    [class*="rounded-lg"],
+    [class*="rounded-md"],
+    [class*="rounded-full"]
+  ):where(:not(.surface):not(.surface-raised):not(.stat-tile)) {
+  box-shadow: var(--neu-shadow-well-sm);
+}
+
+/* The rail is the window's one recessed tray. Chrome and workspace stay on
+   the plate's face, so the window reads as a moulded object with a channel
+   cut into it rather than as three stacked bands. */
+[data-appearance="neumorphism"] .app-rail {
+  margin: 0.75rem 0 0.75rem 0.75rem;
+  border-radius: var(--neu-radius-well);
+  background-color: rgb(var(--neu-face));
+  background-image: var(--neu-face-shade);
   box-shadow: var(--neu-shadow-well);
 }
 
@@ -433,7 +580,7 @@
 [data-appearance="neumorphism"] .band-solid,
 [data-appearance="neumorphism"] .band-veil {
   background-color: rgb(var(--neu-canvas));
-  background-image: var(--neu-face-light);
+  background-image: none;
   box-shadow: none;
 }
 
@@ -441,7 +588,7 @@
 
 [data-appearance="neumorphism"] .nav-glass {
   background-color: rgb(var(--neu-canvas));
-  background-image: var(--neu-face-light);
+  background-image: var(--neu-face-plate);
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
   box-shadow: var(--neu-shadow-raise);
@@ -472,7 +619,7 @@
 
 [data-appearance="neumorphism"] .nav-sheet {
   background-color: rgb(var(--neu-canvas));
-  background-image: var(--neu-face-light);
+  background-image: var(--neu-face-plate);
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
   box-shadow: var(--neu-shadow-raise-lg);
@@ -482,7 +629,7 @@
    takes the long rung and a wider radius. */
 [data-appearance="neumorphism"] .menu-card {
   background-color: rgb(var(--neu-canvas));
-  background-image: var(--neu-face-light);
+  background-image: var(--neu-face-plate);
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
   box-shadow: var(--neu-shadow-raise-lg);

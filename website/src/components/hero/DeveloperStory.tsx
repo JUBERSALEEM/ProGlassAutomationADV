@@ -130,7 +130,7 @@ export function DeveloperStory({ t }: { t: Translator }) {
                   <GlassCubeEmblem size={72} className="relative" />
                 </div>
                 <div className="min-w-0">
-                  <p className="mono-label">{t("Author &amp; maintainer")}</p>
+                  <p className="mono-label">{t("Author &amp; maintainer").replace("&amp;", "&")}</p>
                   <p className="mt-1.5 text-xl font-semibold tracking-tight text-text-primary">
                     {site.developerName}
                   </p>

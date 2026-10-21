@@ -214,7 +214,7 @@ export function AppFrame({
 
           <div
             className={cn(
-              "bg-ink-850/30 p-3 sm:p-5",
+              "preview-workspace bg-ink-850/30 p-3 sm:p-5",
               tall ? "min-h-[clamp(17rem,58vh,36rem)]" : "min-h-[13rem] sm:min-h-[16rem]",
             )}
           >
