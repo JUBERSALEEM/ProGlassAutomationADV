@@ -340,6 +340,26 @@
   display: none !important;
 }
 
+/* Band rules and pane edges are the glass family's seams. In this one the
+   material is joined to itself, so the seams go: no bright line above a band,
+   no divider standing in for a shadow. */
+[data-appearance="neumorphism"]
+  :is(.band-solid, .band-rich, .band-deep, .mat-stage, .mpane__glass, .mpane__stage-caption) {
+  border-color: transparent;
+}
+
+/* A dashed edge marks "planned, not recorded" in the other families. Here the
+   same idea is a recessed face: the tray reads as not yet filled in. */
+[data-appearance="neumorphism"] [class*="border-dashed"] {
+  border-color: transparent;
+  background-image: var(--neu-face-shade);
+  box-shadow: var(--neu-shadow-well);
+}
+
+[data-appearance="neumorphism"] .facts-strip > li {
+  border-color: transparent;
+}
+
 [data-appearance="neumorphism"] body::before,
 [data-appearance="neumorphism"] body::after {
   background-image: none !important;
@@ -407,12 +427,43 @@
    panel. This gives the page its rhythm without adding another elevation. */
 [data-appearance="neumorphism"]
   :is([class*="border-line"], [class*="border-ink-"]):where(
+    [class*="rounded-lg"],
     [class*="rounded-xl"],
     [class*="rounded-2xl"],
     [class*="rounded-3xl"]
-  ):where(:not(.surface):not(.surface-raised):not(.stat-tile):not(.plate):not(.card-live):not(.menu-card)) {
+  ):where(
+    :not(.surface):not(.surface-raised):not(.stat-tile):not(.plate):not(.card-live):not(.menu-card):not(th):not(
+        [class*="rounded-full"]
+      )
+  ) {
   background-image: var(--neu-face-shade);
   box-shadow: var(--neu-shadow-well);
+}
+
+/* A table heading is a label, not a tray: a 7px inset on a 29px cell fills
+   the cell and its own text turns into a smear. It gets the plate paint. */
+[data-appearance="neumorphism"] :is(thead th, .studio-table th) {
+  background-color: rgb(var(--neu-face)) !important;
+  background-image: none;
+  box-shadow: none;
+  border-color: transparent;
+}
+
+/* A row label sits on the face of the table, so it has to be the page's
+   ink. The reference's own CAD swatch for a row label is a pale grey that
+   disappears on a light plate. */
+[data-appearance="neumorphism"] .studio-table :is(th[scope="row"], tbody th) {
+  color: rgb(var(--text-1));
+}
+
+/* A disc is a control, not a tray: the numbered stage marks are raised, like
+   every other thing on this page that can be pressed. */
+[data-appearance="neumorphism"]
+  :is([class*="border-line"], [class*="border-ink-"])[class*="rounded-full"]:where(
+    :not(.surface):not(.surface-raised):not([class*="btn"])
+  ) {
+  background-image: var(--neu-face-light);
+  box-shadow: var(--neu-shadow-small);
 }
 
 [data-appearance="neumorphism"] :is([class*="border-line"], [class*="border-ink-"]) {

@@ -3709,7 +3709,7 @@ html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
 
   .spine-node {
     position: absolute;
-    inset-inline-start: 0;
+    inset-inline-start: -1.7rem;
     top: 0.15rem;
     display: grid;
     place-items: center;
