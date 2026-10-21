@@ -6,38 +6,53 @@
  * published recipe, not an interpretation of it:
  *
  *   page and every surface   #E0E5EC  (one base, identical everywhere)
- *   shade (bottom right)     #A3B1C6 at 62%, which composites to the #BEC3C9
- *                            the recipe quotes on #E0E5EC
- *   light (top left)         #FFFFFF at 90%
- *   geometry                 9px / 18px raised, 6px / 12px inset (blur 2x)
- *   corners                  20px cards, 28px panels, 12px controls, discs
- *                            (the site's 1.5 family factor makes them 30/42/18)
- *   curvature                linear-gradient(145deg, lighter, darker)
- *   dark mode                #2D3239 base, #23272D shade, #373D46 light
+ *   cast shade (bottom right) #BEC3C9, printed solid
+ *   cast light (top left)     #FFFFFF
+ *   face                      linear-gradient(145deg, #E6E9F0, #CFD4DE)
+ *   geometry                  9px / 18px raised, 6px / 12px inset (blur 2x)
+ *   edge                      a short inset light/shade pair, the rolled rim
+ *   corners                   20px cards, 28px panels, 12px controls, discs
+ *                             (the site's 1.5 family factor makes them 30/42/18)
+ *   dark mode                 #2D3239 base, #23272D shade, #373D46 light
  *
  * Sources are recorded here because the numbers are the design:
  *
  *   neumorphism.io (adamgiebl/neumorphism, src/Configuration.js) generates the
  *   pair as `colorLuminance(base, +/-0.15)` at `blur = distance * 2`, and adds
  *   the convex `linear-gradient(145deg, ...)` when the surface should bulge.
- *   superdesign.dev/styles/neumorphism, csstools.io/blog/css-neumorphism-guide,
- *   setproduct.com/blog/neumorphism-design-guide and theplusaddons.com all
- *   publish the same light and dark pairs used above.
+ *   superdesign.dev/styles/neumorphism prints `9px 9px 18px #bec3c9,
+ *   -9px -9px 18px #ffffff` on a #e0e5ec page and warns that "the moment the
+ *   ground and the surface differ, the illusion dies".
+ *
+ * How this family relates to Clay (the other soft material on this site), in
+ * one line: the shadows are reversed. Clay casts a coloured drop from the
+ * surface's own hue and sits on a page of a different colour, so its cards
+ * float. Neumorphism casts one shade and one light that are the page's own
+ * shade and light, so its cards are the page, extruded. Same light direction,
+ * same top-left source, opposite construction.
  *
  * The rules those sources agree on are the contract here:
  *
  *   1. The element background EQUALS the page background. Depth comes from
- *      the shadow pair and the surface gradient, never from a lighter fill.
- *      A card tinted away from the page reads as a card, not as extrusion.
+ *      the shadow pair, the rolled rim and the face gradient, never from a
+ *      tinted fill. A card tinted away from the page reads as a card.
  *   2. Light always arrives from the top-left. Shade bottom right, light top
- *      left, mirrored offsets, no exceptions anywhere on the page.
- *   3. Blur is about twice the offset. A tight blur reads as a drawn line.
- *   4. Inset is the pressed state. Wells, tracks and active states invert.
- *   5. The base is mid-tone. Pure white has nothing lighter to paint.
- *   6. The accent fills actionable controls only: primary actions, active
- *      segments, checked boxes, the value arc of a dial. Surfaces never take
- *      an accent fill, and every control keeps a real focus ring, because a
- *      soft shadow is not a perceivable boundary on its own.
+ *      left, mirrored offsets, everywhere on the page, in both modes.
+ *   3. A raised object turns over at its own edge: a short light inset along
+ *      the top left, a short shade inset along the bottom right. Without that
+ *      pair the shape floats above the page instead of standing out of it,
+ *      which is the difference between a drop shadow and an extrusion.
+ *   4. The face is a 145deg gradient from the light to the shade, so the
+ *      surface curves between them. Flat paint with shadows on it reads as a
+ *      sticker; the gradient is what makes it a surface.
+ *   5. Blur is about twice the offset. A tight blur reads as a drawn line; a
+ *      longer, softer one reads as haze over a flat plate.
+ *   6. Inset is the pressed state. Wells, tracks and active states invert,
+ *      and the face gradient reverses with them.
+ *   7. The base is mid-tone. Pure white has nothing lighter to paint.
+ *   8. The accent fills actionable controls only: primary actions, active
+ *      segments, checked boxes, the value arc of a dial. Every control keeps
+ *      a real focus ring, because a soft shadow is not a perceivable boundary.
  *
  * Every selector is scoped to `[data-appearance="neumorphism"]`.
  */
@@ -63,47 +78,92 @@
   --neu-overlay: 45 50 57;
   --neu-inset: 45 50 57;
 
-  /* The pair. Dark mode is a retune, never an inversion: the highlight is a
-     lit slate, not white, and the shade is a darker grey, not black. */
-  --neu-light-source: 68 76 88;
-  --neu-dark-source: 22 26 31;
+  /* The pair, as published for this ground (`9px 9px 18px #23272D,
+     -9px -9px 18px #373D46`): a lit slate for the highlight, never white,
+     and a deeper slate for the shade, never black. */
+  --neu-light-source: 55 61 70;
+  --neu-dark-source: 35 39 45;
   --neu-light-alpha: 1;
   --neu-dark-alpha: 1;
+  /* Rim and curvature strengths. The rim is the whole trick at night: the
+     cast pair is only 1.4:1 on this ground, and it is the inside edge that
+     tells the eye the surface is standing up rather than printed on. */
+  --neu-rim-light: 0.45;
+  --neu-rim-shade: 0.85;
+  --neu-fill-light: 0.3;
+  --neu-fill-shade: 0.22;
+  --neu-face-tint: 0.55;
+  --neu-face-shade-tint: 0.85;
   --neu-line: 66 72 84;
 
   /* Geometry, in the recipe's own ratio. Blur is twice the offset at every
      rung; distance scales offsets and softness scales blurs, so the bench
      moves the whole material as one object. */
-  --neu-offset-sm: calc(7px * var(--neu-distance));
-  --neu-offset: calc(10px * var(--neu-distance));
-  --neu-offset-lg: calc(13px * var(--neu-distance));
-  --neu-offset-in: calc(7px * var(--neu-distance));
-  --neu-blur-sm: calc(14px * var(--neu-softness));
-  --neu-blur: calc(20px * var(--neu-softness));
-  --neu-blur-lg: calc(26px * var(--neu-softness));
-  --neu-blur-in: calc(14px * var(--neu-softness));
-  --neu-offset-float: calc(15px * var(--neu-distance));
-  --neu-blur-float: calc(30px * var(--neu-softness));
+  --neu-offset-sm: calc(5px * var(--neu-distance));
+  --neu-offset: calc(9px * var(--neu-distance));
+  --neu-offset-lg: calc(12px * var(--neu-distance));
+  --neu-offset-in: calc(6px * var(--neu-distance));
+  --neu-blur-sm: calc(10px * var(--neu-softness));
+  --neu-blur: calc(18px * var(--neu-softness));
+  --neu-blur-lg: calc(24px * var(--neu-softness));
+  --neu-blur-in: calc(12px * var(--neu-softness));
+  --neu-offset-float: calc(14px * var(--neu-distance));
+  --neu-blur-float: calc(28px * var(--neu-softness));
+  /* The rolled rim. A shadow pair alone makes a shape float; a real extruded
+     object also turns over at its edge, and this pair is that edge: a short
+     light inset along the top left and a short shade inset along the bottom
+     right, both inside the radius. It is a shadow, never a border, and it is
+     what separates "a card with a drop shadow" from "a surface pressed up
+     out of the page". */
+  --neu-rim-offset: calc(2px * var(--neu-distance));
+  --neu-rim-blur: calc(4px * var(--neu-softness));
+  --neu-rim-offset-sm: calc(1.5px * var(--neu-distance));
 
-  /* Raised: shade bottom right, light top left, both outside the box. */
+  /* Raised. The published four: shade cast bottom right, light cast top
+     left, both outside the box, and the rolled rim inside it. Every rung is
+     the same four in the same order, so the whole page is one material. */
   --neu-shadow-raise:
     var(--neu-offset) var(--neu-offset) var(--neu-blur)
       rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
     calc(-1 * var(--neu-offset)) calc(-1 * var(--neu-offset)) var(--neu-blur)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
+    inset var(--neu-rim-offset) var(--neu-rim-offset) var(--neu-rim-blur)
+      rgba(var(--neu-light-source) / calc(var(--neu-rim-light) * var(--neu-depth))),
+    inset calc(-1 * var(--neu-rim-offset)) calc(-1 * var(--neu-rim-offset)) var(--neu-rim-blur)
+      rgba(var(--neu-dark-source) / calc(var(--neu-rim-shade) * var(--neu-depth)));
+
+  /* The fill light. Large soft-UI plates are not one thin rim: the whole top
+     edge is a lit facet that runs a third of the way down the shape before
+     the face takes over. Without it a 900px panel is a flat field with an
+     outline of shadow, which is exactly how it used to read. This is the
+     same light as the cast, aimed inward, so it is not a second source. */
+  --neu-fill:
+    inset 0 calc(10px * var(--neu-distance)) calc(22px * var(--neu-softness))
+      rgba(var(--neu-light-source) / calc(var(--neu-fill-light) * var(--neu-depth))),
+    inset 0 calc(-10px * var(--neu-distance)) calc(22px * var(--neu-softness))
+      rgba(var(--neu-dark-source) / calc(var(--neu-fill-shade) * var(--neu-depth)));
 
   --neu-shadow-raise-lg:
     var(--neu-offset-lg) var(--neu-offset-lg) var(--neu-blur-lg)
       rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
     calc(-1 * var(--neu-offset-lg)) calc(-1 * var(--neu-offset-lg)) var(--neu-blur-lg)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
+    inset var(--neu-rim-offset) var(--neu-rim-offset) var(--neu-rim-blur)
+      rgba(var(--neu-light-source) / calc(var(--neu-rim-light) * var(--neu-depth))),
+    inset calc(-1 * var(--neu-rim-offset)) calc(-1 * var(--neu-rim-offset)) var(--neu-rim-blur)
+      rgba(var(--neu-dark-source) / calc(var(--neu-rim-shade) * var(--neu-depth))),
+    var(--neu-fill);
 
-  /* The small rung: 6/12, for discs, chips and thumbs. */
+  /* The small rung: discs, chips and thumbs. */
   --neu-shadow-small:
     var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
       rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
     calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
+    inset var(--neu-rim-offset-sm) var(--neu-rim-offset-sm) calc(var(--neu-rim-blur) * 0.75)
+      rgba(var(--neu-light-source) / calc(var(--neu-rim-light) * var(--neu-depth))),
+    inset calc(-1 * var(--neu-rim-offset-sm)) calc(-1 * var(--neu-rim-offset-sm)) calc(var(--neu-rim-blur) * 0.75)
+      rgba(var(--neu-dark-source) / calc(var(--neu-rim-shade) * var(--neu-depth)));
 
   /* Inset: the same pair, moved inside. Wells, tracks, pressed states. */
   --neu-shadow-well:
@@ -112,7 +172,7 @@
     inset calc(-1 * var(--neu-offset-in)) calc(-1 * var(--neu-offset-in)) var(--neu-blur-in)
       rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
 
-  /* The tight well: chips, segmented tracks and small controls, where a 7px
+  /* The tight well: chips, segmented tracks and small controls, where a 6px
      inset is most of the object's height. */
   --neu-shadow-well-sm:
     inset calc(3px * var(--neu-distance)) calc(3px * var(--neu-distance)) calc(6px * var(--neu-softness))
@@ -126,33 +186,35 @@
     inset calc(-4px * var(--neu-distance)) calc(-4px * var(--neu-distance)) calc(8px * var(--neu-softness))
       rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
 
-  /* Curvature: the fourth axis. A six percent gradient at 145deg, light at
-     the top left and shade at the bottom right, agreeing with the shadows.
-     `--neu-lift` scales it, so the bench can go flat at the low end. */
+  /* Curvature. The published face is not flat paint with two shadows on it:
+     it is a `linear-gradient(145deg, lighter, darker)` across the shape, the
+     same two lights as the shadow pair, so the face turns from the light at
+     the top-left to the shade at the bottom-right. `--neu-lift` scales it,
+     so the bench can flatten the curve without touching the geometry. */
   --neu-face-light:
     linear-gradient(145deg,
-      rgb(255 255 255 / calc(0.09 * var(--neu-lift))) 0%,
-      rgb(255 255 255 / calc(0.03 * var(--neu-lift))) 46%,
-      rgb(0 0 0 / calc(0.18 * var(--neu-lift))) 100%);
-  /* A large plate cannot carry the same gradient as a 40px button: over a
-     thousand pixels it stops reading as curvature and reads as a wash. Big
-     surfaces get the same direction at a third of the strength. */
+      rgb(var(--neu-light-source) / calc(var(--neu-face-tint) * var(--neu-lift))) 0%,
+      rgb(var(--neu-light-source) / calc(var(--neu-face-tint) * 0.34 * var(--neu-lift))) 46%,
+      rgb(var(--neu-dark-source) / calc(var(--neu-face-shade-tint) * var(--neu-lift))) 100%);
+  /* A large plate carries the same curve at a lower strength: over a thousand
+     pixels the full stop pair reads as a wash rather than as a bulge. */
   --neu-face-plate:
     linear-gradient(145deg,
-      rgb(255 255 255 / calc(0.1 * var(--neu-lift))) 0%,
-      rgb(255 255 255 / calc(0.035 * var(--neu-lift))) 55%,
-      rgb(0 0 0 / calc(0.22 * var(--neu-lift))) 100%);
-  /* Concave, for wells: the stops reverse so the surface dishes away. */
+      rgb(var(--neu-light-source) / calc(var(--neu-face-tint) * 0.72 * var(--neu-lift))) 0%,
+      rgb(var(--neu-light-source) / calc(var(--neu-face-tint) * 0.24 * var(--neu-lift))) 55%,
+      rgb(var(--neu-dark-source) / calc(var(--neu-face-shade-tint) * 0.7 * var(--neu-lift))) 100%);
+  /* Concave, for wells: the stops reverse so the surface dishes away from
+     the same light. This is the pressed half of the grammar. */
   --neu-face-shade:
     linear-gradient(145deg,
-      rgb(0 0 0 / calc(0.16 * var(--neu-lift))) 0%,
-      rgb(255 255 255 / calc(0.02 * var(--neu-lift))) 54%,
-      rgb(255 255 255 / calc(0.07 * var(--neu-lift))) 100%);
+      rgb(var(--neu-dark-source) / calc(var(--neu-face-shade-tint) * var(--neu-lift))) 0%,
+      rgb(var(--neu-light-source) / calc(var(--neu-face-tint) * 0.3 * var(--neu-lift))) 54%,
+      rgb(var(--neu-light-source) / calc(var(--neu-face-tint) * var(--neu-lift))) 100%);
   --neu-face-plate-shade:
     linear-gradient(145deg,
-      rgb(0 0 0 / calc(0.16 * var(--neu-lift))) 0%,
-      rgb(0 0 0 / calc(0.05 * var(--neu-lift))) 55%,
-      rgb(255 255 255 / calc(0.05 * var(--neu-lift))) 100%);
+      rgb(var(--neu-dark-source) / calc(var(--neu-face-shade-tint) * 0.8 * var(--neu-lift))) 0%,
+      rgb(var(--neu-light-source) / calc(var(--neu-face-tint) * 0.2 * var(--neu-lift))) 55%,
+      rgb(var(--neu-light-source) / calc(var(--neu-face-tint) * 0.72 * var(--neu-lift))) 100%);
 
   /* Corners. Cards and panels get the recipe's soft radius, controls the
      tighter one, discs the full circle. */
@@ -258,44 +320,40 @@
      -9px -9px 16px #f8fbff`. A transparent pair on a light ground resolves
      to a haze; a solid pair resolves to a moulded edge. */
   --neu-light-source: 255 255 255;
-  --neu-dark-source: 154 168 193;
+  --neu-dark-source: 190 195 201;
   --neu-light-alpha: 1;
   --neu-dark-alpha: 1;
   --neu-line: 199 208 220;
+  /* The rim is nearly the full light on this ground: it is the bright turn
+     of the edge, and the shade side of it stays softer so the edge never
+     reads as a drawn outline. */
+  --neu-rim-light: 0.95;
+  --neu-rim-shade: 0.6;
+  --neu-fill-light: 0.5;
+  --neu-fill-shade: 0.16;
+  /* The face tints are the published stop pair over #E0E5EC: white at 0.19
+     composites to #E6E9F0 at the top left, the shade at 0.45 composites to
+     #CFD4DE at the bottom right, which is exactly the generator's
+     `linear-gradient(145deg, #E6E9F0, #CFD4DE)`. */
+  --neu-face-tint: 0.19;
+  --neu-face-shade-tint: 0.45;
 
-  /* Daylight reaches a touch further: on a light ground the eye needs the
-     shade to travel before it reads as cast. */
-  --neu-offset-sm: calc(7px * var(--neu-distance));
-  --neu-offset: calc(11px * var(--neu-distance));
-  --neu-offset-lg: calc(14px * var(--neu-distance));
-  --neu-offset-in: calc(7px * var(--neu-distance));
-  --neu-offset-float: calc(16px * var(--neu-distance));
-  --neu-blur-sm: calc(14px * var(--neu-softness));
-  --neu-blur: calc(22px * var(--neu-softness));
-  --neu-blur-lg: calc(30px * var(--neu-softness));
-  --neu-blur-in: calc(14px * var(--neu-softness));
-  --neu-blur-float: calc(32px * var(--neu-softness));
+  /* The published geometry, `9/18` raised and `6/12` inset, blur twice the
+     offset at every rung. Daylight does not stretch it: the cast's reach is
+     the recipe, and a longer, softer one is what turns a moulded edge into
+     a haze. */
+  --neu-offset-sm: calc(5px * var(--neu-distance));
+  --neu-offset: calc(9px * var(--neu-distance));
+  --neu-offset-lg: calc(12px * var(--neu-distance));
+  --neu-offset-in: calc(6px * var(--neu-distance));
+  --neu-offset-float: calc(14px * var(--neu-distance));
+  --neu-blur-sm: calc(10px * var(--neu-softness));
+  --neu-blur: calc(18px * var(--neu-softness));
+  --neu-blur-lg: calc(24px * var(--neu-softness));
+  --neu-blur-in: calc(12px * var(--neu-softness));
+  --neu-blur-float: calc(28px * var(--neu-softness));
 
-  --neu-face-light:
-    linear-gradient(145deg,
-      rgb(255 255 255 / calc(0.62 * var(--neu-lift))) 0%,
-      rgb(255 255 255 / calc(0.16 * var(--neu-lift))) 38%,
-      rgb(var(--neu-dark-source) / calc(0.3 * var(--neu-lift))) 100%);
-  --neu-face-plate:
-    linear-gradient(145deg,
-      rgb(255 255 255 / calc(0.42 * var(--neu-lift))) 0%,
-      rgb(255 255 255 / calc(0.14 * var(--neu-lift))) 58%,
-      rgb(var(--neu-dark-source) / calc(0.16 * var(--neu-lift))) 100%);
-  --neu-face-shade:
-    linear-gradient(145deg,
-      rgb(var(--neu-dark-source) / calc(0.26 * var(--neu-lift))) 0%,
-      rgb(var(--neu-dark-source) / calc(0.06 * var(--neu-lift))) 48%,
-      rgb(255 255 255 / calc(0.55 * var(--neu-lift))) 100%);
-  --neu-face-plate-shade:
-    linear-gradient(145deg,
-      rgb(var(--neu-dark-source) / calc(0.3 * var(--neu-lift))) 0%,
-      rgb(var(--neu-dark-source) / calc(0.1 * var(--neu-lift))) 52%,
-      rgb(255 255 255 / calc(0.5 * var(--neu-lift))) 100%);
+
 
   /* The ink ladder on #E0E5EC. The faint tier is deliberately dark enough to
      clear 4.5:1 on the page itself, because soft UI has no other boundary to
@@ -303,7 +361,11 @@
   --text-1: 45 52 66;
   --text-2: 66 75 92;
   --text-3: 78 88 106;
-  --text-4: 90 100 120;
+  /* The faint tier is measured on the darkest part of a card face rather
+     than on the page: the face now runs down to #CFD4DE, and a caption at
+     90/100/120 fell to 4.1:1 there. 4.8:1 keeps it readable on the whole
+     curve without lifting it off the page it sits on. */
+  --text-4: 76 86 106;
 }
 
 /* ═══ §N0b · THE ROOM IS EMPTY ══════════════════════════════════════════
@@ -518,7 +580,7 @@
   :is(.surface, .stat-tile, .plate, .card-live, .card-glass, .glass-rows, .studio-sheet) {
   --corner-radius: var(--neu-radius);
   background-color: rgb(var(--neu-face));
-  background-image: var(--neu-face-plate);
+  background-image: var(--neu-face-light);
   border-radius: var(--neu-radius);
   border: 1px solid transparent;
   box-shadow: var(--neu-shadow-raise);
@@ -530,7 +592,7 @@
   :is(.surface-raised, .panel-feature, .float-card, .menu-card, .card-accent) {
   --corner-radius: var(--neu-radius-large);
   background-color: rgb(var(--neu-face));
-  background-image: var(--neu-face-plate);
+  background-image: var(--neu-face-light);
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
   box-shadow: var(--neu-shadow-raise-lg);

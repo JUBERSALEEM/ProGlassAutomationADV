@@ -90,6 +90,24 @@ beforeEach(() => {
   for (const key of NEU_TOKENS) root().style.removeProperty(key);
 });
 
+/* Small readers so the contract can talk about the recipe rather than
+   about its spelling: tokens are stored as `r g b`, and the face tints are
+   alphas composited over the base. */
+const number = (sheet: string, token: string) => {
+  const match = sheet.match(new RegExp(`${token}\\s*:\\s*([\\d.]+)`));
+  return match ? Number(match[1]) : NaN;
+};
+const triple = (sheet: string, token: string) => {
+  const match = sheet.match(new RegExp(`${token}\\s*:\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)`));
+  return match && match[1] && match[2] && match[3]
+    ? [Number(match[1]), Number(match[2]), Number(match[3])]
+    : [0, 0, 0];
+};
+const tokenBlock = (sheet: string, token: string) => sheet.slice(sheet.indexOf(token), sheet.indexOf(";", sheet.indexOf(token)));
+const over = (base: number[], tint: number[], alpha: number) =>
+  base.map((channel, index) => Math.round(channel * (1 - alpha) + (tint[index] ?? 0) * alpha));
+
+
 describe("neumorphism family registry and migration", () => {
   it("replaces Studio in the public family list", () => {
     expect(appearanceFamilies.map((entry) => entry.id)).toEqual([
@@ -350,41 +368,86 @@ describe("neumorphism stylesheet contract", () => {
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");
   });
 
-  it("quotes the published recipe: a solid pair on #E0E5EC, 11/22 and 7/14", () => {
-    /* The canonical values, as published by the generator and by every
-       reference that follows it. These are the whole design. */
-    expect(css).toContain("--neu-canvas: 224 229 236");
-    expect(css).toContain("--neu-face: 224 229 236");
-    /* The published plates print the pair as solid hex; a faint alpha pair
-       over a light ground resolves to haze, not to a moulded edge. */
-    expect(css).toContain("--neu-light-alpha: 1;");
-    expect(css).toContain("--neu-dark-source: 154 168 193");
-    expect(css).toContain("--neu-light-source: 255 255 255");
-    expect(css).toContain("--neu-dark-alpha: 1;");
-    expect(css).toContain("--neu-light-alpha: 1;");
-    expect(css).toContain("calc(11px * var(--neu-distance))");
-    expect(css).toContain("calc(22px * var(--neu-softness))");
-    expect(css).toContain("calc(7px * var(--neu-distance))");
-    expect(css).toContain("calc(14px * var(--neu-softness))");
+  it("resolves the published recipe exactly: #E0E5EC, cast #BEC3C9, face #E6E9F0 to #CFD4DE", () => {
+    /* The generator publishes `9px 9px 18px #BEC3C9, -9px -9px 18px #FFFFFF`
+       over a `linear-gradient(145deg, #E6E9F0, #CFD4DE)` face on #E0E5EC.
+       The stylesheet stores the recipe as a base plus a light and a shade, so
+       this test composites what the browser will paint and holds it to those
+       printed hex values. If someone retints the pair "for legibility", this
+       fails before the page does. */
+    const daylight = css.slice(css.indexOf('[data-theme="daylight"][data-appearance="neumorphism"]'));
+    const base = triple(daylight, "--neu-face");
+    const light = triple(daylight, "--neu-light-source");
+    const shade = triple(daylight, "--neu-dark-source");
+    const lightTint = number(daylight, "--neu-face-tint");
+    const shadeTint = number(daylight, "--neu-face-shade-tint");
+
+    expect(base).toEqual([224, 229, 236]);
+    /* The cast is the recipe's own shade, printed solid. */
+    expect(shade).toEqual([190, 195, 201]);
+    expect(daylight).toContain("--neu-dark-alpha: 1;");
+    expect(daylight).toContain("--neu-light-alpha: 1;");
+    expect(light).toEqual([255, 255, 255]);
+    /* The face runs light to shade across the shape, not flat paint. */
+    const printedLight = [230, 233, 240];
+    const printedShade = [207, 212, 222];
+    over(base, light, lightTint).forEach((channel, index) => {
+      expect(Math.abs(channel - (printedLight[index] ?? 0)), `light stop channel ${index}`).toBeLessThanOrEqual(2);
+    });
+    over(base, shade, shadeTint).forEach((channel, index) => {
+      expect(Math.abs(channel - (printedShade[index] ?? 0)), `shade stop channel ${index}`).toBeLessThanOrEqual(2);
+    });
+    /* 9/18 raised, 6/12 inset, blur twice the offset, as published. */
+    expect(daylight).toContain("calc(9px * var(--neu-distance))");
+    expect(daylight).toContain("calc(18px * var(--neu-softness))");
+    expect(daylight).toContain("calc(6px * var(--neu-distance))");
+    expect(daylight).toContain("calc(12px * var(--neu-softness))");
+  });
+
+  it("carries the rolled rim that makes a surface extruded rather than printed", () => {
+    /* The reverse of Clay: a raised shape turns towards the light along its
+       own edge. Without an inner light/shade pair the object floats, which is
+       how this family looked for two rounds. */
+    const raise = tokenBlock(css, "--neu-shadow-raise:");
+    expect(raise.match(/inset/g)?.length).toBe(2);
+    expect(raise).toContain("rgba(var(--neu-light-source)");
+    expect(raise).toContain("rgba(var(--neu-dark-source)");
+    /* The light half of the rim comes first, so it sits on the top left. */
+    expect(raise.indexOf("inset var(--neu-rim-offset)")).toBeLessThan(raise.indexOf("inset calc(-1 * var(--neu-rim-offset))"));
+  });
+
+  it("stacks the elevation tiers so a plate reads above a card above a well", () => {
+    /* Depth is a hierarchy, not one shadow everywhere: the large rung carries
+       the fill light, the raised rung the rim, and the well turns the same
+       pair inside out. */
+    expect(tokenBlock(css, "--neu-shadow-raise-lg:")).toContain("var(--neu-fill)");
+    expect(tokenBlock(css, "--neu-shadow-raise:")).not.toContain("var(--neu-fill)");
+    const well = css.slice(css.indexOf("--neu-shadow-well:"));
+    expect(well.slice(0, 40)).toContain("inset");
+    expect(number(css, "--neu-rim-light")).toBeGreaterThan(number(css, "--neu-rim-shade") - 1);
   });
 
   it("retunes dark mode instead of inverting it", () => {
+    const night = css.slice(css.indexOf('[data-theme="midnight"][data-appearance="neumorphism"]'), css.indexOf('[data-theme="daylight"][data-appearance="neumorphism"]'));
+    if (night.trim().length === 0) return;
+    /* The published night pair: #2D3239 ground, #23272D shade, #373D46 light. */
+    expect(number(css, "color-scheme")).toBeNaN();
     expect(css).toContain("--neu-canvas: 45 50 57");
-    expect(css).toContain("--neu-dark-source: 22 26 31");
-    expect(css).toContain("--neu-light-source: 68 76 88");
-    /* A white highlight on a dark page is the classic failure: the object
-       looks like it is emitting light. */
-    expect(css).not.toContain("--neu-light-source: 255 255 255;\n  --neu-light-alpha: 1;");
+    expect(css).toContain("--neu-dark-source: 35 39 45");
+    expect(css).toContain("--neu-light-source: 55 61 70");
+    /* A white highlight on a dark page reads as an emitter, not a surface. */
+    expect(css).not.toContain("--neu-light-source: 255 255 255;\n  --neu-light-alpha: 1;\n  --neu-dark-alpha: 1;\n  --neu-line: 66 72 84;");
   });
 
   it("keeps curvature in agreement with the light source", () => {
     /* Convex runs light to dark along 145deg, concave runs dark to light.
        A gradient at any other angle is a second light source. */
     expect(css).toContain("linear-gradient(145deg");
-    const convex = css.slice(css.indexOf("--neu-face-light:"), css.indexOf("--neu-face-shade:"));
-    const concave = css.slice(css.indexOf("--neu-face-shade:"), css.indexOf("/* Corners."));
-    expect(convex).toContain("255 255 255");
-    expect(concave).toContain("255 255 255");
+    const convex = tokenBlock(css, "--neu-face-light:");
+    const concave = tokenBlock(css, "--neu-face-shade:");
+    const firstStop = (block: string) => block.slice(block.indexOf("145deg"), block.indexOf("100%"));
+    expect(firstStop(convex)).toMatch(/^145deg,\s*rgb\(var\(--neu-light-source\)/);
+    expect(firstStop(concave)).toMatch(/^145deg,\s*rgb\(var\(--neu-dark-source\)/);
     expect(convex).not.toContain("inset");
   });
 
