@@ -21,6 +21,7 @@ import {
 
 import { luminance } from "@/lib/color";
 import { Slider, edgeReadout } from "@/components/ui/Slider";
+import { NeuDial, NeuSegment } from "@/components/ui/NeuControls";
 import { useT } from "@/i18n/provider";
 
 /**
@@ -554,9 +555,9 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
               {t("Depth, distance, softness and lift for the Neumorphism family — raised cards and pressed-in wells shaped by one top-left light, with four whole recipes above the dials. Applies when Neumorphism is active; the canvas and the text ladder never move.")}
             </p>
             <div className={family === "neumorphism" ? undefined : "pointer-events-none select-none opacity-50 saturate-[0.6]"}>
-              <div className="mt-3 grid gap-3">
-                <div ref={neuDepthRef} className={cn("rounded-card", neuDepthHot && "ring-2 ring-brand-400/80")}>
-                  <Slider
+              <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-5">
+                <div ref={neuDepthRef} className={cn("rounded-card", neuDepthHot && "rounded-panel ring-2 ring-brand-400/80")}>
+                  <NeuDial
                     label={t("Depth — paired light and shade strength")}
                     value={studio.neuDepth}
                     min={0.35}
@@ -568,7 +569,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                     hint={t("1.00 is the shipped extrusion. Lower values flatten the material; higher values deepen both the top-left light and bottom-right shade without changing surface colour.")}
                   />
                 </div>
-                <Slider
+                <NeuDial
                   label={t("Distance — shadow offset")}
                   value={studio.neuDistance}
                   min={0.5}
@@ -577,9 +578,9 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                   disabled={neuGated}
                   display={`${studio.neuDistance.toFixed(2)}×`}
                   onChange={(value) => setStudio({ neuDistance: value })}
-                  hint={t("How far the light and shade travel from each raised or pressed edge. 1.00 keeps the 4–11px engine ladder.")}
+                  hint={t("How far the light and shade travel from each raised or pressed edge. 1.00 keeps the engine's 6–22px ladder.")}
                 />
-                <Slider
+                <NeuDial
                   label={t("Softness — shadow blur")}
                   value={studio.neuSoftness}
                   min={0.5}
@@ -590,7 +591,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                   onChange={(value) => setStudio({ neuSoftness: value })}
                   hint={t("How diffuse the extrusion feels. Lower values read firmer and more machined; higher values melt the edges into the canvas.")}
                 />
-                <Slider
+                <NeuDial
                   label={t("Lift — face separation from the canvas")}
                   value={studio.neuLift}
                   min={0.4}
@@ -599,48 +600,43 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
                   disabled={neuGated}
                   display={`${studio.neuLift.toFixed(2)}×`}
                   onChange={(value) => setStudio({ neuLift: value })}
-                  hint={t("How far a raised face stands off the page and how deep a well sinks into it. 1.00 is the canonical two-point step by night and one by day; the canvas and the text ladder never move.")}
+                  hint={t("How far the plate stands off the page and how deep a well sinks into it. At 0.40 the card welds to the canvas; higher values make the plate unmistakably raised.")}
                 />
               </div>
               {/* Four whole recipes, because the dials interact: a deep shadow
                   with a tight blur reads as a hard line, and a soft blur with
                   no lift reads as fog. One press gets a combination that
                   works; the dials stay free above it. */}
-              <p className="mono-label mt-3">{t("Recipes")}</p>
-              <div className="mt-1.5 grid grid-cols-2 gap-2">
-                {neuPresets.map((preset) => {
-                  const active =
-                    Math.abs(studio.neuDepth - preset.neuDepth) < 0.001 &&
-                    Math.abs(studio.neuDistance - preset.neuDistance) < 0.001 &&
-                    Math.abs(studio.neuSoftness - preset.neuSoftness) < 0.001 &&
-                    Math.abs(studio.neuLift - preset.neuLift) < 0.001;
-                  return (
-                    <button
-                      key={preset.key}
-                      type="button"
-                      aria-pressed={active}
-                      disabled={neuGated}
-                      title={t(preset.note)}
-                      onClick={() =>
-                        setStudio({
-                          neuDepth: preset.neuDepth,
-                          neuDistance: preset.neuDistance,
-                          neuSoftness: preset.neuSoftness,
-                          neuLift: preset.neuLift,
-                        })
-                      }
-                      className={cn(
-                        "rounded-card border-2 px-2 py-2 text-left text-[0.75rem] font-bold transition-colors",
-                        active
-                          ? "border-brand-400 bg-brand-500/15 text-text-primary"
-                          : "border-line-strong/70 text-text-secondary hover:border-brand-400/60 hover:text-text-primary",
-                      )}
-                    >
-                      {t(preset.name)}
-                    </button>
-                  );
-                })}
-              </div>
+              <p className="mono-label mt-4">{t("Recipes")}</p>
+              {/* One pill switch, not four outlined rectangles: the recipes are
+                  mutually exclusive readings of the same material, so the
+                  control should say so. Pressing one writes all four dials
+                  together, and the dials stay free above it. */}
+              <NeuSegment
+                label={t("Neumorphism recipe")}
+                className="mt-2"
+                disabled={neuGated}
+                value={
+                  neuPresets.find(
+                    (preset) =>
+                      Math.abs(studio.neuDepth - preset.neuDepth) < 0.001 &&
+                      Math.abs(studio.neuDistance - preset.neuDistance) < 0.001 &&
+                      Math.abs(studio.neuSoftness - preset.neuSoftness) < 0.001 &&
+                      Math.abs(studio.neuLift - preset.neuLift) < 0.001,
+                  )?.key ?? ""
+                }
+                options={neuPresets.map((preset) => ({ id: preset.key as string, label: t(preset.name) }))}
+                onChange={(key) => {
+                  const preset = neuPresets.find((entry) => entry.key === key);
+                  if (!preset) return;
+                  setStudio({
+                    neuDepth: preset.neuDepth,
+                    neuDistance: preset.neuDistance,
+                    neuSoftness: preset.neuSoftness,
+                    neuLift: preset.neuLift,
+                  });
+                }}
+              />
               {studio.neuDepth !== 1 || studio.neuDistance !== 1 || studio.neuSoftness !== 1 || studio.neuLift !== 1 ? (
                 <button
                   type="button"

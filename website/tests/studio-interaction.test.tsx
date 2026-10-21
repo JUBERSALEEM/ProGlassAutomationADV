@@ -298,6 +298,28 @@ describe("P21 · the neumorphism bench — depth / distance / softness", () => {
     expect(inline("--neu-softness")).toBe("");
   });
 
+  it("the recipe switch writes all four dials at once", async () => {
+    const user = userEvent.setup();
+    render(<ThemeStudio />);
+    const panel = await openStudio(user);
+
+    await user.click(within(panel).getByRole("button", { name: /^neumorphism$/i }));
+    await settle();
+
+    /* The four recipes are mutually exclusive readings, so they are one
+       segmented switch: no plate is pressed while the dials are free-form. */
+    const crisp = within(panel).getByRole("button", { name: /^crisp$/i });
+    expect(crisp.getAttribute("aria-pressed")).toBe("false");
+    await user.click(crisp);
+    await settle();
+
+    expect(crisp.getAttribute("aria-pressed")).toBe("true");
+    expect(inline("--neu-depth")).toBe("1.30");
+    expect(inline("--neu-distance")).toBe("0.80");
+    expect(inline("--neu-softness")).toBe("0.65");
+    expect(inline("--neu-lift")).toBe("1.40");
+  });
+
   it("adopts a picked accent into the neumorphic material channels", async () => {
     const user = userEvent.setup();
     render(<ThemeStudio />);

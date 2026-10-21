@@ -1091,26 +1091,34 @@ export function applyStudioVars(studio: Studio) {
     /*
      * The ladder, in points of HSL lightness, per reading.
      *
-     * `face` is ZERO. A neumorphic surface is the page — the canonical plate
-     * puts the card and the background on the identical hex (#ECF0F3), and the
-     * moment a face steps away from its canvas the eye reads a coloured tile
-     * with a drop shadow instead of a moulded surface. Surface lift therefore
-     * moves the SHADOW pair and the well/raised steps, never the card fill.
+     * The plate sits ABOVE the page, and that separation is the whole
+     * material. The reference kit this family is measured against is white
+     * plates on a grey ground: the page carries the shade, the card is the lit
+     * face, and the eye reads a raised object before it reads any shadow. A
+     * card welded to the canvas (an earlier revision did exactly that) leaves
+     * nothing but a faint grey smudge beside the plate, which is why the
+     * family kept being reported as flat.
+     *
+     * The separation is a step, never a colour: the same hue at a higher
+     * lightness, so it can never read as a coloured tile. Surface lift scales
+     * the step, so a visitor can weld it flat if they want to, while the
+     * canvas the text is measured against never moves.
      */
     const neuLadder = target === "dark"
-      ? { canvas: 0.155, face: 0, raised: 0.012, overlay: 0.018, inset: 0.012 }
-      : { canvas: 0.939, face: 0, raised: 0.006, overlay: 0.012, inset: 0.012 };
+      ? { canvas: 0.132, face: 0.062, raised: 0.030, overlay: 0.046, inset: 0.026 }
+      : { canvas: 0.882, face: 0.080, raised: 0.026, overlay: 0.050, inset: 0.058 };
     const neuStep = (points: number) => points * neuLiftScale;
     const neuCanvas = neuColor(neuLadder.canvas);
-    const neuFace = neuCanvas;
-    const neuRaised = neuColor(neuLadder.canvas + neuStep(neuLadder.raised));
-    const neuOverlay = neuColor(neuLadder.canvas + neuStep(neuLadder.overlay));
+    const neuFace = neuColor(neuLadder.canvas + neuStep(neuLadder.face));
+    const neuRaised = neuColor(neuLadder.canvas + neuStep(neuLadder.face + neuLadder.raised));
+    const neuOverlay = neuColor(neuLadder.canvas + neuStep(neuLadder.face + neuLadder.overlay));
     const neuInset = neuColor(neuLadder.canvas - neuStep(neuLadder.inset));
-    /* Reference pair: near-white highlight, shade = page darkened ~12%. Night
-       uses a light slate rather than white, which is the documented dark-mode
-       reading of the same recipe. */
-    const neuLightSource = neuColor(target === "dark" ? 0.29 : 1, 1.08);
-    const neuDarkSource = neuColor(target === "dark" ? 0.075 : 0.855, 1.05);
+    /* The pair, in the reference's physics: the highlight is light at full
+       strength (white on paper, a lit slate by night, never white on a dark
+       page), and the shade is the page taken well down, so the cast shadow
+       has real weight against the ground it falls on. */
+    const neuLightSource = neuColor(target === "dark" ? 0.34 : 1, 1.06);
+    const neuDarkSource = neuColor(target === "dark" ? 0.045 : 0.79, 1.08);
     const neuLine = neuColor(target === "dark" ? 0.29 : 0.74);
 
     vars["--neu-canvas"] = neuCanvas;
@@ -1132,8 +1140,9 @@ export function applyStudioVars(studio: Studio) {
     vars["--line-soft"] = neuInset;
     vars["--line-strong"] = neuLightSource;
 
-    vars["--card-tint"] = `rgb(${neuColor(target === "dark" ? 0.38 : 0.48, 1.2)} / 0.07)`;
-    vars["--card-tint-2"] = `rgb(${neuColor(target === "dark" ? 0.48 : 0.58, 1.1)} / 0.045)`;
+    /* No hue wash on a card: this family's tint is light, not colour. */
+    vars["--card-tint"] = "transparent";
+    vars["--card-tint-2"] = "transparent";
     vars["--card-edge"] = `rgb(${neuLightSource} / 0.16)`;
     vars["--card-edge-hover"] = `rgb(${vars["--brand-400"] ?? neuColor(0.52, 1.4)} / 0.55)`;
     vars["--pool-1"] = `rgb(${neuLightSource} / ${target === "dark" ? 0.1 : 0.12})`;
