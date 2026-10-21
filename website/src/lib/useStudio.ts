@@ -1088,20 +1088,29 @@ export function applyStudioVars(studio: Studio) {
      * moving the canvas the text is measured against.
      */
     const neuLiftScale = Math.min(2.4, Math.max(0.4, finite(studio.neuLift, 0.4, 2.4, 1)));
-    /* The ladder in points of HSL lightness, per reading. Night holds a wider
-       step than paper: an ivory page turns into a grey card system long before
-       a slate one does. */
+    /*
+     * The ladder, in points of HSL lightness, per reading.
+     *
+     * `face` is ZERO. A neumorphic surface is the page — the canonical plate
+     * puts the card and the background on the identical hex (#ECF0F3), and the
+     * moment a face steps away from its canvas the eye reads a coloured tile
+     * with a drop shadow instead of a moulded surface. Surface lift therefore
+     * moves the SHADOW pair and the well/raised steps, never the card fill.
+     */
     const neuLadder = target === "dark"
-      ? { canvas: 0.135, face: 0.02, raised: 0.045, overlay: 0.07, inset: 0.03 }
-      : { canvas: 0.875, face: 0.01, raised: 0.03, overlay: 0.055, inset: 0.06 };
+      ? { canvas: 0.155, face: 0, raised: 0.012, overlay: 0.018, inset: 0.012 }
+      : { canvas: 0.939, face: 0, raised: 0.006, overlay: 0.012, inset: 0.012 };
     const neuStep = (points: number) => points * neuLiftScale;
     const neuCanvas = neuColor(neuLadder.canvas);
-    const neuFace = neuColor(neuLadder.canvas + neuStep(neuLadder.face));
+    const neuFace = neuCanvas;
     const neuRaised = neuColor(neuLadder.canvas + neuStep(neuLadder.raised));
     const neuOverlay = neuColor(neuLadder.canvas + neuStep(neuLadder.overlay));
     const neuInset = neuColor(neuLadder.canvas - neuStep(neuLadder.inset));
-    const neuLightSource = neuColor(target === "dark" ? 0.34 : 0.995, 1.08);
-    const neuDarkSource = neuColor(target === "dark" ? 0.045 : 0.66, 1.05);
+    /* Reference pair: near-white highlight, shade = page darkened ~12%. Night
+       uses a light slate rather than white, which is the documented dark-mode
+       reading of the same recipe. */
+    const neuLightSource = neuColor(target === "dark" ? 0.29 : 1, 1.08);
+    const neuDarkSource = neuColor(target === "dark" ? 0.075 : 0.855, 1.05);
     const neuLine = neuColor(target === "dark" ? 0.29 : 0.74);
 
     vars["--neu-canvas"] = neuCanvas;

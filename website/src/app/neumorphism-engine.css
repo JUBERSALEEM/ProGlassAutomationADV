@@ -38,30 +38,51 @@
   --neu-distance: 1;
   --neu-softness: 1;
 
-  /* Midnight material channels. Face is one step lighter than canvas so the
-     shadow pair can read as extrusion; raised is lighter still so elevated
-     panels pop off the page. Inset wells are darker than canvas so they read
-     as pushed into the surface. */
-  --neu-canvas: 30 33 40;
-  --neu-face: 38 42 50;
-  --neu-raised: 46 51 61;
-  --neu-overlay: 55 60 71;
-  --neu-inset: 24 26 32;
+  /* ── THE ONE RULE THAT MAKES OR BREAKS IT ─────────────────────────────
+   *
+   * A neumorphic surface is the page. `--neu-face` is DELIBERATELY identical
+   * to `--neu-canvas`: not one point lighter, identical.
+   *
+   * The earlier revision stepped the face up two lightness points so faces
+   * would "read as extrusion". That is the opposite of the technique: the
+   * moment a card's fill differs from the page, the eye sees a coloured tile
+   * with a drop shadow, the illusion dies, and the whole family reads as flat
+   * minimal UI — which is exactly the report this reference answers. Depth
+   * comes from the paired shadow, never from a fill difference.
+   *
+   * Raised an overlay keep a *half*-point step (1–2 units of 255) purely so a
+   * nested panel is not indistinguishable from its parent at a glance; wells
+   * are a step under. Everything else is the same material.
+   */
+  --neu-canvas: 40 44 52;
+  --neu-face: 40 44 52;
+  --neu-raised: 46 50 59;
+  --neu-overlay: 50 55 65;
+  --neu-inset: 32 35 42;
 
-  /* The two shadow colours — light from the top-left, dark to the bottom-right.
-     Kept as raw RGB triplets so every shadow token can divide them by alpha. */
-  --neu-light-source: 238 242 250;
-  --neu-dark-source: 10 11 15;
-  --neu-line: 71 77 92;
+  /* The two shadow colours: light from the top-left, shade to the bottom-right.
+   *
+   * Reference recipe (the plate this family is built from):
+   *   bg #ECF0F3 · shadow 18px/30px #D1D9E6 · highlight -18px/30px #FFFFFF
+   * Those are SOLID colours, not a low-alpha grey — the shade is the page
+   * darkened ~12% and the highlight is the page pushed to white. At night the
+   * same physics runs on a slate page, so the highlight is a light slate and
+   * NOT white (a white highlight on a dark page looks like a bevel sticker).
+   */
+  --neu-light-source: 78 86 102;
+  --neu-dark-source: 22 24 29;
+  --neu-line: 66 72 84;
 
-  /* Alpha floors per bench multiplier. depth clamps these so a hostile stored
-     value can never erase the shadow pair or blow it out past readable. */
-  --neu-light-alpha: 0.45;
-  --neu-dark-alpha: 0.6;
+  /* Shadow strength. These are high on purpose: the reference pair is 100%
+     opaque, and anything softer disappears against the fill it sits on. The
+     depth dial multiplies them (clamping at 1.0), so a dropped offset still
+     lets a visitor soften the material. */
+  --neu-light-alpha: 0.85;
+  --neu-dark-alpha: 0.95;
 
-  /* Large, soft geometry — neumorphism reads best with puffed corners. The
-     rest state is already a substantial soft arc; the visitor's corner dial
-     multiplies --radius-user on top of the family factor (1.5 here). */
+  /* Big soft corners. The reference panels turn on a ~32px arc, and the
+     visitor's corner dial multiplies --radius-user on top of the family
+     factor (1.5 here), so the shipped card is 30px and the panel 42px. */
   --neu-radius: calc(20px * var(--radius-scale));
   --neu-radius-large: calc(28px * var(--radius-scale));
   --neu-radius-control: calc(14px * var(--radius-scale));
@@ -83,8 +104,6 @@
   --text-3: 195 201 214;
   --text-4: 164 171 187;
 
-  /* Large, soft geometry — neumorphism reads best with puffed corners. The
-     visitor's radius dial multiplies through --radius-user. */
   --radius-family: 1.5;
 
   /* Solid material: no translucency tiers, no backdrop work, no borders. */
@@ -126,7 +145,7 @@
   --wall-sheen: rgb(var(--neu-light-source) / 0.03);
   --wall-grid: transparent;
   --wall-grid-major: transparent;
-  --wall-vignette: rgb(var(--neu-dark-source) / 0.45);
+  --wall-vignette: rgb(var(--neu-dark-source) / 0.22);
   --wall-lamp: rgb(var(--neu-light-source) / 0.05);
   --wall-floor: rgb(var(--neu-dark-source) / 0.1);
   --sweep-1: transparent;
@@ -141,65 +160,70 @@
   --viz-scrap: rgb(var(--neu-line) / 0.65);
   --viz-plate: rgb(var(--neu-inset) / 0.98);
 
-  /* Derived geometry. One offset/blur ladder feeds every raised and inset
-     surface so the three bench dials move the whole material as one object.
-     Offset is the light/shade travel, blur is ~2x offset, and both are
-     multiplied by the Distance and Softness dials. At rest the extrusion is
-     already substantial; the dials deepen, spread, or melt it. */
-  --neu-offset-sm: calc(6px * var(--neu-distance));
-  --neu-offset: calc(10px * var(--neu-distance));
-  --neu-offset-lg: calc(16px * var(--neu-distance));
-  --neu-blur-sm: calc(12px * var(--neu-softness));
-  --neu-blur: calc(20px * var(--neu-softness));
-  --neu-blur-lg: calc(32px * var(--neu-softness));
+  /* ── Geometry: the reference ladder ────────────────────────────────────
+   *
+   * The plate this family comes from pairs an 18px offset with a 30px blur —
+   * blur ≈ 1.7× offset, which is what makes the shade read as a soft cast
+   * rather than a hard line. Three rungs of that same ratio:
+   *
+   *   sm   the reference's small-object pair (5–6px / 10–12px)
+   *   base the reference itself (18px / 30px) — cards and panels
+   *   lg   one rung up, for a surface already floating over another
+   *
+   * Distance scales the offsets and Softness scales the blurs, so the three
+   * dials move the whole material as one object.
+   */
+  --neu-offset-sm: calc(7px * var(--neu-distance));
+  --neu-offset: calc(18px * var(--neu-distance));
+  --neu-offset-lg: calc(24px * var(--neu-distance));
+  --neu-blur-sm: calc(14px * var(--neu-softness));
+  --neu-blur: calc(30px * var(--neu-softness));
+  --neu-blur-lg: calc(40px * var(--neu-softness));
+  /* The press well's own pair: shallower than a raised card, as in the
+     reference's "inner shadow" plate. */
+  --neu-offset-in: calc(9px * var(--neu-distance));
+  --neu-blur-in: calc(18px * var(--neu-softness));
 
-  /* Shadow pair: dark bottom-right, light top-left. No inset hairlines —
-     strict neumorphism models edges with shadow alone. alpha is clamped so
-     the pair never vanishes or saturates past readable at any bench value. */
-  /* A card is a full pillow: the mid offset/blur pair, at near-full alpha,
-     plus an inset top-left glance and an inset bottom-right shade. The inset
-     pair is what separates a moulded surface from a rectangle with a drop
-     shadow — it curves the light around the corner rather than only outside
-     the box. It is shadow, never a border. */
+  /* Shadow pairs. Dark bottom-right, light top-left, BOTH OUTSIDE the box —
+   * an inset pair on every card is what produced the "framed rectangle" look
+   * in the previous pass. Inset belongs to wells and pressed states only. */
   --neu-shadow-surface:
     var(--neu-offset) var(--neu-offset) var(--neu-blur)
-      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth) * 0.95)),
-    calc(-1 * var(--neu-offset)) calc(-1 * var(--neu-offset)) var(--neu-blur)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth) * 0.95)),
-    inset calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth) * 0.5)),
-    inset var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
-      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth) * 0.45));
-
-  --neu-shadow-panel:
-    calc(var(--neu-offset) * 1.15) calc(var(--neu-offset) * 1.15) calc(var(--neu-blur) * 1.15)
       rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
-    calc(-1 * var(--neu-offset) * 1.15) calc(-1 * var(--neu-offset) * 1.15) calc(var(--neu-blur) * 1.15)
+    calc(-1 * var(--neu-offset)) calc(-1 * var(--neu-offset)) var(--neu-blur)
       rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
+
+  /* A panel is the same pair, one rung up. */
+  --neu-shadow-panel:
+    var(--neu-offset) var(--neu-offset) var(--neu-blur)
+      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
+    calc(-1 * var(--neu-offset)) calc(-1 * var(--neu-offset)) var(--neu-blur)
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
+    var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
+      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth) * 0.5)),
+    calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth) * 0.5));
 
   --neu-shadow-raised:
     var(--neu-offset-lg) var(--neu-offset-lg) var(--neu-blur-lg)
-      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth) * 1.15)),
-    calc(-1 * var(--neu-offset-lg)) calc(-1 * var(--neu-offset-lg)) var(--neu-blur-lg)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth) * 1.1));
-
-  --neu-shadow-well:
-    inset var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
       rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
-    inset calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
+    calc(-1 * var(--neu-offset-lg)) calc(-1 * var(--neu-offset-lg)) var(--neu-blur-lg)
       rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
 
-  /* Compact pair for small controls (range thumbs, chips) — same physics,
-     smaller scale so a thumb reads as a pressed-in knob rather than a dot. */
+  /* Pressed / recessed: the same two lights, moved INSIDE the box. */
+  --neu-shadow-well:
+    inset var(--neu-offset-in) var(--neu-offset-in) var(--neu-blur-in)
+      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
+    inset calc(-1 * var(--neu-offset-in)) calc(-1 * var(--neu-offset-in)) var(--neu-blur-in)
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
+
+  /* Compact pair for small controls (range thumbs, chips). */
   --neu-shadow-small:
     var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
-      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth) * 0.8)),
+      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
     calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth) * 0.8));
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
 
-  /* Specular rim light caught by the top-left rounded edge — a thin bright
-     glance that makes the surface read as solid material rather than flat
-     paint. Applied on top of the shadow pair for raised and surface tiers. */
   --neu-specular:
     inset calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) calc(var(--neu-blur-sm) * 0.5) 0
       rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * 0.5 * var(--neu-depth)));
@@ -222,16 +246,23 @@
 [data-theme="daylight"][data-appearance="neumorphism"] {
   color-scheme: light;
 
-  --neu-canvas: 226 230 236;
-  --neu-face: 232 236 242;
-  --neu-raised: 240 243 247;
+  /* The reference plate, value for value:
+   *
+   *   bg #ECF0F3 (236 240 243) · face IDENTICAL to the page
+   *   shadow 18/30 #D1D9E6 (209 217 230) · highlight -18/30 #FFFFFF
+   *
+   * The shade is carried at 0.95 alpha so a stored depth below 1.00 can still
+   * soften the pair without the colour shifting toward the page. */
+  --neu-canvas: 236 240 243;
+  --neu-face: 236 240 243;
+  --neu-raised: 241 244 247;
   --neu-overlay: 245 247 250;
-  --neu-inset: 208 214 223;
+  --neu-inset: 226 231 237;
   --neu-light-source: 255 255 255;
-  --neu-dark-source: 145 154 166;
-  --neu-line: 181 190 204;
-  --neu-light-alpha: 0.92;
-  --neu-dark-alpha: 0.52;
+  --neu-dark-source: 209 217 230;
+  --neu-line: 205 213 227;
+  --neu-light-alpha: 1;
+  --neu-dark-alpha: 0.95;
 
   --text-1: 30 35 47;
   --text-2: 48 56 70;
@@ -349,10 +380,16 @@
   border-color: transparent;
 }
 
+/* The fill is the page colour — see §N0. `background-image: none` is
+   load-bearing: `.surface` in globals.css paints a stack of glass layers and
+   the family's accent tint on top of its fill, so without this the card is a
+   violet-tinted pane with a shadow, which is the exact look this family must
+   never have. */
 [data-appearance="neumorphism"]
   :is(.surface, .stat-tile, .plate, .card-live, .card-glass, .glass-rows, .studio-sheet) {
   --corner-radius: var(--neu-radius);
   background-color: rgb(var(--neu-face));
+  background-image: none;
   border-radius: var(--neu-radius);
   border: 1px solid transparent;
   box-shadow: var(--neu-shadow-surface);
@@ -364,6 +401,7 @@
   :is(.surface-raised, .panel-feature, .float-card, .menu-card, .card-accent) {
   --corner-radius: var(--neu-radius-large);
   background-color: rgb(var(--neu-raised));
+  background-image: none;
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
   box-shadow: var(--neu-shadow-raised);
@@ -373,6 +411,7 @@
 
 [data-appearance="neumorphism"] .glass-primary {
   background-color: rgb(var(--neu-raised));
+  background-image: none;
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
   box-shadow: var(--neu-shadow-raised);
@@ -381,13 +420,13 @@
 }
 
 [data-appearance="neumorphism"] .card-accent {
-  background-image:
-    linear-gradient(150deg, rgb(var(--brand-500) / 0.12) 0%, transparent 55%);
+  background-image: none;
 }
 
 [data-appearance="neumorphism"]
   :is(.studio-inset, .glass-metric, .neu-well, .input-well) {
   background-color: rgb(var(--neu-inset));
+  background-image: none;
   border-radius: var(--neu-radius);
   border: 1px solid transparent;
   box-shadow: var(--neu-shadow-well);
@@ -433,6 +472,7 @@
 
 [data-appearance="neumorphism"] .nav-glass {
   background-color: rgb(var(--neu-canvas));
+  background-image: none;
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
   box-shadow: var(--neu-shadow-panel);
@@ -447,6 +487,7 @@
 
 [data-appearance="neumorphism"] .nav-pill {
   background-color: rgb(var(--neu-face));
+  background-image: none;
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
   box-shadow: var(--neu-shadow-panel);
@@ -462,6 +503,7 @@
 
 [data-appearance="neumorphism"] .nav-sheet {
   background-color: rgb(var(--neu-canvas));
+  background-image: none;
   border-radius: var(--neu-radius-large);
   border: 1px solid transparent;
   box-shadow: var(--neu-shadow-panel);
@@ -527,6 +569,7 @@
 [data-appearance="neumorphism"]
   :is(.btn-secondary, .btn[class*="bg-ink-"], .btn[class*="border-line"]) {
   background-color: rgb(var(--neu-face));
+  background-image: none;
   box-shadow: var(--neu-shadow-surface);
 }
 
@@ -570,6 +613,7 @@
 
 [data-appearance="neumorphism"] :is(.chip, .eyebrow-chip) {
   background-color: rgb(var(--neu-face));
+  background-image: none;
   border-color: transparent;
 }
 

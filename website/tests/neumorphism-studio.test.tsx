@@ -173,16 +173,15 @@ describe("neumorphism bench — write-only-when-moved", () => {
     expect(prop("--neu-lift")).toBe("2.40");
 
     const canvas = hslOf(prop("--neu-canvas"));
-    const face = hslOf(prop("--neu-face"));
     const raised = hslOf(prop("--neu-raised"));
     const inset = hslOf(prop("--neu-inset"));
 
-    /* Lift moves the faces and the wells; the canvas the text is measured
-       against never moves, and the order of the ladder is preserved. */
+    /* Lift moves the extrusions; the canvas the text is measured against
+       never moves, the face stays welded to it, and the wells stay under. */
     expect(canvas.l).toBeGreaterThan(0.12);
-    expect(canvas.l).toBeLessThan(0.17);
-    expect(face.l).toBeGreaterThan(canvas.l);
-    expect(raised.l).toBeGreaterThan(face.l);
+    expect(canvas.l).toBeLessThan(0.2);
+    expect(prop("--neu-face")).toBe(prop("--neu-canvas"));
+    expect(raised.l).toBeGreaterThanOrEqual(canvas.l);
     expect(inset.l).toBeLessThan(canvas.l);
   });
 
@@ -192,14 +191,17 @@ describe("neumorphism bench — write-only-when-moved", () => {
 
     applyStudioVars({ ...defaultStudio, accentKey: "Rose", accent: "#E11D48", neuLift: 0.4 });
     const flatCanvas = hslOf(prop("--neu-canvas"));
-    const flatFace = hslOf(prop("--neu-face"));
+    const flatInset = hslOf(prop("--neu-inset"));
 
     applyStudioVars({ ...defaultStudio, accentKey: "Rose", accent: "#E11D48", neuLift: 2.4 });
     const deepCanvas = hslOf(prop("--neu-canvas"));
-    const deepFace = hslOf(prop("--neu-face"));
+    const deepInset = hslOf(prop("--neu-inset"));
 
+    /* The page never moves — text contrast is measured against it. */
     expect(deepCanvas.l).toBeCloseTo(flatCanvas.l, 3);
-    expect(deepFace.l - deepCanvas.l).toBeGreaterThan(flatFace.l - flatCanvas.l);
+    expect(prop("--neu-face")).toBe(prop("--neu-canvas"));
+    /* …while the well sinks further with the dial. */
+    expect(flatCanvas.l - deepInset.l).toBeGreaterThan(flatCanvas.l - flatInset.l);
   });
 
   it("ships recipes whose every value survives normalization unchanged", () => {
@@ -258,9 +260,13 @@ describe("neumorphism accent adoption", () => {
     expect(hueDistance(canvas.h, 347)).toBeLessThanOrEqual(3);
     expect(canvas.s).toBeLessThanOrEqual(0.26);
     expect(canvas.l).toBeGreaterThan(0.12);
-    expect(canvas.l).toBeLessThan(0.17);
-    expect(face.l).toBeGreaterThan(canvas.l);
-    expect(raised.l).toBeGreaterThan(face.l);
+    expect(canvas.l).toBeLessThan(0.2);
+    /* THE canonical rule: a card is the page. Face and canvas must be the
+       identical triplet, or the surface reads as a coloured tile and the
+       whole family collapses into flat minimal UI. */
+    expect(prop("--neu-face")).toBe(prop("--neu-canvas"));
+    expect(face.l).toBeCloseTo(canvas.l, 4);
+    expect(raised.l).toBeGreaterThanOrEqual(canvas.l);
     expect(inset.l).toBeLessThan(canvas.l);
     expect(prop("--ink-950")).toBe(prop("--neu-canvas"));
     expect(prop("--ink-900")).toBe(prop("--neu-face"));
@@ -277,10 +283,11 @@ describe("neumorphism accent adoption", () => {
 
     expect(hueDistance(canvas.h, 217)).toBeLessThanOrEqual(3);
     expect(canvas.s).toBeLessThanOrEqual(0.26);
-    expect(canvas.l).toBeGreaterThan(0.84);
-    expect(canvas.l).toBeLessThan(0.9);
-    expect(face.l).toBeGreaterThan(canvas.l);
-    expect(raised.l).toBeGreaterThan(face.l);
+    expect(canvas.l).toBeGreaterThan(0.9);
+    expect(canvas.l).toBeLessThan(0.97);
+    expect(prop("--neu-face")).toBe(prop("--neu-canvas"));
+    expect(face.l).toBeCloseTo(canvas.l, 4);
+    expect(raised.l).toBeGreaterThanOrEqual(canvas.l);
     expect(inset.l).toBeLessThan(canvas.l);
   });
 
@@ -345,6 +352,33 @@ describe("neumorphism stylesheet contract", () => {
     expect(css).toContain("input[type=\"range\"]::-webkit-slider-thumb");
     expect(css).toContain("@media (forced-colors: active)");
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");
+  });
+
+  it("keeps the canonical reference recipe: one colour, solid pair, 18/30, identity fill", () => {
+    /* The plate this family is built from:
+       bg #ECF0F3 · shadow 18px/30px #D1D9E6 · highlight -18px/30px #FFFFFF,
+       with the card fill IDENTICAL to the page. */
+    expect(css).toContain("--neu-canvas: 236 240 243");
+    expect(css).toContain("--neu-face: 236 240 243");
+    expect(css).toContain("--neu-dark-source: 209 217 230");
+    expect(css).toContain("--neu-light-source: 255 255 255");
+    expect(css).toContain("calc(18px * var(--neu-distance))");
+    expect(css).toContain("calc(30px * var(--neu-softness))");
+
+    /* Both shadow colours are carried at full strength. A 20–40% alpha grey
+       is what made the pair invisible against the fill. */
+    expect(css).toContain("--neu-light-alpha: 1;");
+
+    /* A card must not repaint a tint or a glass stack over its own fill. */
+    expect(css).toContain("background-image: none");
+
+    /* The outer pair belongs to cards; inset belongs to wells. A card that
+       carries an inset pair reads as a framed rectangle, not a pillow. */
+    const surfaceBlock = css.slice(
+      css.indexOf("--neu-shadow-surface:"),
+      css.indexOf("--neu-shadow-panel:"),
+    );
+    expect(surfaceBlock).not.toContain("inset");
   });
 
   it("never leaks a selector outside the neumorphism family", () => {
