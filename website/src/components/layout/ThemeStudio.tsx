@@ -545,7 +545,7 @@ export function ThemeStudio({ autoOpen = false }: { autoOpen?: boolean } = {}) {
               paired top-left light and bottom-right shade together; surface
               lightness and text ink remain engine-owned. */}
           <fieldset className="mt-4">
-            <legend className="mono-label">{t("Neumorphism engine — soft-extrusion bench")}</legend>
+            <legend className="mono-label">{t("Neumorphism engine, soft-UI bench")}</legend>
             <p className={cn(
               "mt-1.5 text-[0.75rem] leading-relaxed",
               family === "neumorphism"
