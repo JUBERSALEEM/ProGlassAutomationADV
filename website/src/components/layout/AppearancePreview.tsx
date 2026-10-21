@@ -270,7 +270,7 @@ export function AppearancePreview() {
                   step={0.05}
                   display={`${studio.neuDepth.toFixed(2)}×`}
                   onChange={(value) => setStudio({ neuDepth: value })}
-                  hint={t("Paired top-left light and bottom-right shade. The tonal face and text contrast stay fixed.")}
+                  hint={t("Paired top-left light and bottom-right shade. The plate, the page, and the text ladder are set by the engine.")}
                 />
               </div>
               <Slider
@@ -301,7 +301,7 @@ export function AppearancePreview() {
                 step={0.05}
                 display={`${studio.neuLift.toFixed(2)}×`}
                 onChange={(value) => setStudio({ neuLift: value })}
-                hint={t("How far a raised face stands off the page and how deep a well sinks. The canvas and the text ladder never move.")}
+                hint={t("How far the plate stands off the page and how deep a well sinks into it. At the low end the plate welds to the canvas; the canvas itself never moves.")}
               />
             </>
           ) : null}

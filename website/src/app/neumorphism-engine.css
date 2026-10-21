@@ -1004,8 +1004,8 @@
    ground a sense of scale the way the reference's soft gradient does, and
    vanishes under a card because the cards cast real shadow. */
 [data-appearance="neumorphism"] {
-  --wall-grid: rgb(var(--neu-dark-source) / 0.06);
-  --wall-grid-major: rgb(var(--neu-dark-source) / 0.1);
+  --wall-grid: rgb(var(--neu-dark-source) / 0.045);
+  --wall-grid-major: rgb(var(--neu-dark-source) / 0.075);
 }
 
 /* Figures get the smallest touch of light so a wall of type has depth. */
