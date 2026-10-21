@@ -193,16 +193,15 @@
     calc(-1 * var(--neu-offset)) calc(-1 * var(--neu-offset)) var(--neu-blur)
       rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
 
-  /* A panel is the same pair, one rung up. */
+  /* A panel is the same pair, at the reference rung. One pair per surface —
+     stacking a second, smaller pair under the first (an earlier revision did)
+     doubles the contact shadow into a muddy halo and the extrusion stops
+     reading as a single lit object. */
   --neu-shadow-panel:
     var(--neu-offset) var(--neu-offset) var(--neu-blur)
       rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth))),
     calc(-1 * var(--neu-offset)) calc(-1 * var(--neu-offset)) var(--neu-blur)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth))),
-    var(--neu-offset-sm) var(--neu-offset-sm) var(--neu-blur-sm)
-      rgba(var(--neu-dark-source) / calc(var(--neu-dark-alpha) * var(--neu-depth) * 0.5)),
-    calc(-1 * var(--neu-offset-sm)) calc(-1 * var(--neu-offset-sm)) var(--neu-blur-sm)
-      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth) * 0.5));
+      rgba(var(--neu-light-source) / calc(var(--neu-light-alpha) * var(--neu-depth)));
 
   --neu-shadow-raised:
     var(--neu-offset-lg) var(--neu-offset-lg) var(--neu-blur-lg)
@@ -323,14 +322,15 @@
   box-shadow: var(--neu-shadow-panel);
 }
 
-/* A rounded non-card utility block (a stats row, an inset group) is a thin
-   plate rather than a panel: face fill, surface extrusion. */
+/* A rounded non-card block (a stats row, an inset group) is a small object,
+   so it takes the small rung of the same pair. An 18px offset on a 40px chip
+   would read as a detached plate. */
 [data-appearance="neumorphism"]
   :where([class*="bg-ink-"], [class*="bg-white"], [class*="bg-glass"]):where(
     [class*="rounded-lg"],
     [class*="rounded-md"]
   ):where(:not([class*="bg-ink-950"])) {
-  box-shadow: var(--neu-shadow-surface);
+  box-shadow: var(--neu-shadow-small);
 }
 
 [data-appearance="neumorphism"] :is([class*="border-line"], [class*="border-ink-"]) {
