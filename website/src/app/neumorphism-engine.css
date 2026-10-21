@@ -10,7 +10,8 @@
  *                            the recipe quotes on #E0E5EC
  *   light (top left)         #FFFFFF at 90%
  *   geometry                 9px / 18px raised, 6px / 12px inset (blur 2x)
- *   corners                  16 to 20px cards, 12px controls, 50% discs
+ *   corners                  20px cards, 28px panels, 12px controls, discs
+ *                            (the site's 1.5 family factor makes them 30/42/18)
  *   curvature                linear-gradient(145deg, lighter, darker)
  *   dark mode                #2D3239 base, #23272D shade, #373D46 light
  *
