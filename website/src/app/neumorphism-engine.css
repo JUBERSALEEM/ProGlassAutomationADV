@@ -104,6 +104,9 @@
      clear a contrast floor. */
   --neu-accent-ink: var(--brand-300);
   --neu-accent-ink-hover: var(--brand-200);
+  /* On a deep ground violet needs to be pushed to register as light at all. */
+  --neu-selected-light-alpha: 0.6;
+  --neu-selected-shade-alpha: 0.5;
   --neu-face-tint: 0.55;
   --neu-face-shade-tint: 0.85;
   --neu-line: 66 72 84;
@@ -183,9 +186,9 @@
 
   --neu-shadow-selected:
     inset var(--neu-offset-in) var(--neu-offset-in) var(--neu-blur-in)
-      rgb(var(--neu-selected-shade) / calc(0.34 * var(--neu-depth))),
+      rgb(var(--neu-selected-shade) / calc(var(--neu-selected-shade-alpha) * var(--neu-depth))),
     inset calc(-1 * var(--neu-offset-in)) calc(-1 * var(--neu-offset-in)) var(--neu-blur-in)
-      rgb(var(--neu-selected-light) / calc(0.34 * var(--neu-depth)));
+      rgb(var(--neu-selected-light) / calc(var(--neu-selected-light-alpha) * var(--neu-depth)));
 
   /* The small rung: discs, chips and thumbs. */
   --neu-shadow-small:
@@ -368,6 +371,8 @@
   --neu-selected-shade: var(--brand-700);
   --neu-accent-ink: var(--brand-600);
   --neu-accent-ink-hover: var(--brand-700);
+  --neu-selected-light-alpha: 0.38;
+  --neu-selected-shade-alpha: 0.34;
   /* The face tints are the published stop pair over #E0E5EC: white at 0.19
      composites to #E6E9F0 at the top left, the shade at 0.45 composites to
      #CFD4DE at the bottom right, which is exactly the generator's
