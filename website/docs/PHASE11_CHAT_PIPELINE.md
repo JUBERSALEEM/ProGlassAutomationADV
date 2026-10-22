@@ -198,7 +198,7 @@ estimator, assignment and delivery counts must be unchanged.
 - [ ] The browser matrix has not been run. The structural side is proven above;
       what remains is two signed-in accounts plus a moderator walking
       `PHASE11_LIVE_VERIFICATION.md` section 4.
-- [ ] Repository changes for this phase are uncommitted at the time of writing.
+- [x] Repository changes committed and pushed (`2304adc`).
 - [ ] Room features still absent: attachments, pinned decisions, message
       editing (delete only), presence and typing.
 - [ ] The production coordination room has a complete database layer
@@ -206,8 +206,28 @@ estimator, assignment and delivery counts must be unchanged.
       read position, categories, pinning, edit and delete) and **no website
       surface at all**. Nothing in `src/` references it. This is the largest
       remaining piece of Phase 11 as originally scoped.
-- [ ] Locale translations for the new copy; the pages currently fall back to
-      their English source strings.
+- [ ] Locale translations for the new copy. The three new pages write their
+      copy directly rather than through `t()`, so they render English inside
+      otherwise translated chrome. The dictionaries stand at `en-US` 100
+      percent, six locales at 75 to 76 percent and six at 10 to 11 percent, so
+      parity for the whole site is a separate, mechanical programme rather than
+      a Phase 11 close-out item.
+
+## Distance to a WPF handoff
+
+The WPF boundary in `PHASE9_ESTIMATOR_AND_PRODUCTION_COORDINATION.md` gates
+desktop work on the Phase 9 assignment and handoff contracts, not on website
+polish. Those contracts are applied and verified except for the Windows live
+run. Nothing above blocks the desktop, and nothing below is required before it.
+
+| Gate | State | Owner |
+|---|---|---|
+| Phase 9A to 9D RLS, assignment and communication | applied and live-tested | closed |
+| Phase 9E handoff schema and v2 manifest | applied, 3 delivery columns and 3 RPCs verified | closed |
+| Phase 9E dry-run, apply and recovery on Windows | open | needs the Windows PC |
+| WPF compiles at all | open: no .NET SDK has ever built this tree | needs the Windows PC |
+| An inbox-consumption destination in WPF | open: zero references to an inbox in C# | design, then implementation |
+| Website chat pipeline | implemented, schema verified | independent of WPF |
 
 ## Must not change
 
