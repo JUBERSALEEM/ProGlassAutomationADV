@@ -54,6 +54,15 @@ arithmetic, excerpting), `lib/customer-inquiry-chat.ts`,
       new line, character warning near the limit.
 - [x] Honest gates for "chat is not configured", "we could not confirm your
       saved sign-in" and "sign in to join", never a fake empty room.
+- [x] Search across the whole room. The query runs against the table with a
+      quoted, escaped `ilike`, so a match in an unloaded page is found and a
+      term containing `%`, `*`, `_` or `"` cannot change the query. The result
+      list is capped at 30, newest first, and says when the cap was reached.
+      Selecting a result loads older pages until the message is on screen, then
+      highlights it.
+- [x] Mentions. `@` plus a member's display name, or the first word of it, is
+      marked in the bubble for the member it names and announced as "mentions
+      you"; another member's name stays plain text.
 
 ### Wiring
 
@@ -125,27 +134,29 @@ estimator, assignment and delivery counts must be unchanged.
 | `tests/global-chat-workspace.test.tsx` | unread rendering, no realtime restart on duplicate auth events, sixteen-message density, room surviving a Realtime setup throw |
 | `tests/customer-account-workspace.test.tsx` | saved session, icon save, redirect continuation, signed-out copy |
 | `tests/website-session.test.tsx` | invalid first read refresh, unreachable auth does not sign out, one refresh after a 401 |
-| `scripts/inquiry-global-chat.test.mjs` | 16 static contracts: signed-in-only SQL, RLS and RPC-only writes, realtime publication, reply and receipt safety, browser-direct room, reply and tick UI, account profile scope |
+| `tests/global-chat-search.test.tsx` | search term normalisation, the query-safe pattern, excerpt around a mid-message match, mention matching and splitting |
+| `scripts/inquiry-global-chat.test.mjs` | 18 static contracts: signed-in-only SQL, RLS and RPC-only writes, realtime publication, reply and receipt safety, browser-direct room, reply and tick UI, account profile scope, whole-table search, mention scope |
 
 ## Gates (2026-10-22)
 
 - `npx tsc --noEmit` clean.
 - `npm run lint` clean.
-- `npx vitest run` 15 files, 146 tests passed.
+- `npx vitest run` 16 files, 160 tests passed.
 - `node --test scripts/*.test.mjs` 562 tests, 562 passed.
 - `npm run build` succeeded, 533 prerendered routes, build cache recorded.
-- Chat security script alone: 16 of 16 passed.
+- Chat security script alone: 18 of 18 passed.
 
 ## Not done
 
 - [ ] The three migrations are written but nowhere recorded as applied. No
       structural verification result exists for them.
-- [ ] No live matrix has been run against a disposable Supabase project:
-      signed-out denial, two-account reading, receipt creation on a second
-      device, delete permission, profile isolation, realtime delivery.
+- [ ] No live matrix has been run against a disposable Supabase project.
+      `PHASE11_LIVE_VERIFICATION.md` holds the exact procedure, the structural
+      query with expected counts, the 15-row functional matrix, the negative
+      checks, the failure behaviour and the rollback order.
 - [ ] Repository changes for this phase are uncommitted at the time of writing.
-- [ ] Room features still absent: search, mentions, attachments, pinned
-      decisions, message editing (delete only), presence and typing.
+- [ ] Room features still absent: attachments, pinned decisions, message
+      editing (delete only), presence and typing.
 - [ ] Production coordination categories and action items.
 - [ ] Locale translations for the new copy; the pages currently fall back to
       their English source strings.

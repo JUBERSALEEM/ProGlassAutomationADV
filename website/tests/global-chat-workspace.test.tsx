@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 
 const mocks = vi.hoisted(() => {
@@ -94,6 +94,7 @@ const mocks = vi.hoisted(() => {
 
   class Query implements PromiseLike<unknown> {
     private head = false;
+    private ilikePattern: string | null = null;
     constructor(private table: string) {}
     select(_columns?: string, options?: { head?: boolean }) {
       this.head = Boolean(options?.head);
@@ -102,6 +103,11 @@ const mocks = vi.hoisted(() => {
     eq() { return this; }
     neq() { return this; }
     is() { return this; }
+    ilike(column: string, pattern: string) {
+      this.ilikePattern = `${column}:${pattern}`;
+      state.searchPatterns.push(pattern);
+      return this;
+    }
     gt() { return this; }
     lt() { return this; }
     in() { return this; }
@@ -121,6 +127,9 @@ const mocks = vi.hoisted(() => {
       return Promise.resolve({ data: null, error: null });
     }
     private result() {
+      if (this.table === "global_chat_messages" && this.ilikePattern !== null) {
+        return { data: state.searchRows, count: null, error: null };
+      }
       if (this.table === "global_chat_messages" && this.head) return { data: null, count: 1, error: null };
       if (this.table === "global_chat_messages") {
         if (state.denseMessages) {
@@ -170,7 +179,17 @@ const mocks = vi.hoisted(() => {
     channelTables: string[];
     rpcCalls: Array<{ name: string; args?: unknown }>;
     denseMessages: boolean;
-  } = { authCallback: null, channelCalls: [], channelTables, rpcCalls, denseMessages: false };
+    searchPatterns: string[];
+    searchRows: unknown[];
+  } = {
+    authCallback: null,
+    channelCalls: [],
+    channelTables,
+    rpcCalls,
+    denseMessages: false,
+    searchPatterns: [],
+    searchRows: [messages[0]],
+  };
 
   const client = {
     auth: {
@@ -248,6 +267,8 @@ afterEach(() => {
   mocks.state.rpcCalls.length = 0;
   mocks.state.authCallback = null;
   mocks.state.denseMessages = false;
+  mocks.state.searchPatterns.length = 0;
+  mocks.state.searchRows = [mocks.state.searchRows[0] ?? null];
 });
 
 describe("community chat signed-in workspace", () => {
@@ -334,5 +355,48 @@ describe("community chat signed-in workspace", () => {
     await waitFor(() => expect(screen.getAllByText("i am fine you say").length).toBeGreaterThan(0));
     expect(await screen.findByText("Simulated realtime failure")).not.toBeNull();
     expect(screen.getAllByText("how are you").length).toBeGreaterThan(0);
+  });
+
+  it("searches every message through the table and reveals the match it finds", async () => {
+    Element.prototype.scrollIntoView = vi.fn();
+    HTMLElement.prototype.scrollTo = vi.fn();
+
+    render(<GlobalChatWorkspace />);
+
+    await waitFor(() => expect(screen.getAllByText("i am fine you say").length).toBeGreaterThan(0));
+
+    fireEvent.click(screen.getByRole("button", { name: "Search the room" }));
+    const box = await screen.findByRole("searchbox", { name: "Search all community messages" });
+    fireEvent.change(box, { target: { value: "fine" } });
+
+    // The query goes to the table with a quoted, escaped pattern, so a match
+    // three screens back is found rather than reported as missing.
+    await waitFor(() => expect(mocks.state.searchPatterns).toEqual(['"%fine%"']));
+    expect(screen.getByRole("status").textContent).toContain("1 match");
+
+    fireEvent.click(screen.getByRole("button", { name: /Search result from/ }));
+
+    await waitFor(() => expect(screen.queryByRole("searchbox")).toBeNull());
+    expect(screen.getAllByText(/i am fine you say/).length).toBeGreaterThan(0);
+  });
+
+  it("waits for two characters and closes the search with Escape", async () => {
+    Element.prototype.scrollIntoView = vi.fn();
+    HTMLElement.prototype.scrollTo = vi.fn();
+
+    render(<GlobalChatWorkspace />);
+
+    await waitFor(() => expect(screen.getAllByText("i am fine you say").length).toBeGreaterThan(0));
+
+    fireEvent.click(screen.getByRole("button", { name: "Search the room" }));
+    const box = await screen.findByRole("searchbox", { name: "Search all community messages" });
+    fireEvent.change(box, { target: { value: "f" } });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 320));
+    });
+    expect(mocks.state.searchPatterns).toEqual([]);
+
+    fireEvent.keyDown(box, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("searchbox")).toBeNull());
   });
 });

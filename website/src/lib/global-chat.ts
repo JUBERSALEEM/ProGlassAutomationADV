@@ -3,6 +3,8 @@ import type { GlobalChatMessage, GlobalChatReadState, GlobalChatReceipt } from "
 export const GLOBAL_CHAT_PATH = "/chat";
 export const GLOBAL_CHAT_MAX_BODY = 1000;
 export const GLOBAL_CHAT_PAGE_SIZE = 100;
+export const GLOBAL_CHAT_SEARCH_MIN = 2;
+export const GLOBAL_CHAT_SEARCH_LIMIT = 30;
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -178,9 +180,9 @@ function dateFormatter(locale: string | undefined, options: Intl.DateTimeFormatO
 }
 
 export function formatGlobalChatTime(value: string | null | undefined, locale?: string): string {
-  if (typeof value !== "string" || !value) return "—";
+  if (typeof value !== "string" || !value) return "-";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return "-";
   return dateFormatter(locale, { hour: "numeric", minute: "2-digit" }).format(date);
 }
 
@@ -193,9 +195,9 @@ export function formatGlobalChatDay(
   locale?: string,
   now: Date = new Date(),
 ): string {
-  if (typeof value !== "string" || !value) return "—";
+  if (typeof value !== "string" || !value) return "-";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return "-";
   const safeNow = now instanceof Date && !Number.isNaN(now.getTime()) ? now : new Date();
   if (sameLocalDay(date, safeNow)) return "Today";
   const yesterday = new Date(safeNow);
@@ -205,9 +207,9 @@ export function formatGlobalChatDay(
 }
 
 export function formatGlobalChatDateTime(value: string | null | undefined, locale?: string): string {
-  if (typeof value !== "string" || !value) return "—";
+  if (typeof value !== "string" || !value) return "-";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return "-";
   const day = formatGlobalChatDay(value, locale);
   return `${day} · ${formatGlobalChatTime(value, locale)}`;
 }
@@ -255,4 +257,117 @@ export function groupGlobalChatReceiptsByMessage(
     grouped.set(receipt.message_id, rows);
   }
   return grouped;
+}
+
+/**
+ * Room search runs on the server, not over the messages already in memory.
+ * A filter over the loaded page would answer "no such message" for a
+ * conversation that exists three screens back, which is the one thing a search
+ * box must never do. These helpers keep the query honest and bounded.
+ */
+export function normalizeGlobalChatSearchTerm(value: string): string {
+  const text = typeof value === "string" ? value.normalize("NFKC").replace(/\s+/g, " ").trim() : "";
+  return text.slice(0, 80);
+}
+
+export function isGlobalChatSearchReady(value: string): boolean {
+  return normalizeGlobalChatSearchTerm(value).length >= GLOBAL_CHAT_SEARCH_MIN;
+}
+
+/**
+ * PostgREST reads `,` `.` `:` `(` `)` `%` and `*` inside a filter value as
+ * syntax, so an unescaped term can change the query or break it. The pattern
+ * is quoted and the wildcards, quotes and backslashes are escaped, so a search
+ * for `50%` asks for those three characters.
+ */
+export function globalChatSearchPattern(value: string): string {
+  const term = normalizeGlobalChatSearchTerm(value);
+  const escaped = term
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/%/g, "\\%")
+    .replace(/_/g, "\\_")
+    .replace(/\*/g, "\\*");
+  return `"%${escaped}%"`;
+}
+
+export function matchesGlobalChatSearch(body: string, query: string): boolean {
+  const term = normalizeGlobalChatSearchTerm(query).toLocaleLowerCase();
+  if (!term) return false;
+  return (typeof body === "string" ? body : "").toLocaleLowerCase().includes(term);
+}
+
+export type GlobalChatSearchExcerpt = { before: string; match: string; after: string };
+
+/**
+ * The result row shows the words around the match rather than the first 160
+ * characters, because a match in the middle of a long message would otherwise
+ * be listed without the text that was searched for.
+ */
+export function globalChatSearchExcerpt(
+  body: string,
+  query: string,
+  radius = 48,
+): GlobalChatSearchExcerpt | null {
+  const text = (typeof body === "string" ? body : "").replace(/\s+/g, " ").trim();
+  const term = normalizeGlobalChatSearchTerm(query);
+  if (!text || !term) return null;
+  const index = text.toLocaleLowerCase().indexOf(term.toLocaleLowerCase());
+  if (index < 0) return null;
+  const safeRadius = Number.isFinite(radius) ? Math.max(0, Math.trunc(radius)) : 48;
+  const start = Math.max(0, index - safeRadius);
+  const end = Math.min(text.length, index + term.length + safeRadius);
+  return {
+    before: `${start > 0 ? "…" : ""}${text.slice(start, index)}`,
+    match: text.slice(index, index + term.length),
+    after: `${text.slice(index + term.length, end)}${end < text.length ? "…" : ""}`,
+  };
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * A mention is `@` plus the member's display name, or the first word of it when
+ * the name has more than one word, matched case-insensitively and only when the
+ * name is not followed by another letter or digit. `@Juber Saleem` and `@Juber`
+ * both reach Juber Saleem; `@JuberX` reaches nobody.
+ */
+export function globalChatMentionPattern(displayName: string): RegExp | null {
+  const name = (typeof displayName === "string" ? displayName : "").replace(/\s+/g, " ").trim();
+  if (!name) return null;
+  const firstWord = name.split(" ")[0] ?? "";
+  const candidates = [...new Set([name, firstWord])]
+    .filter((candidate) => candidate.length >= 2)
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegExp);
+  if (!candidates.length) return null;
+  return new RegExp(`@(?:${candidates.join("|")})(?![\\p{L}\\p{N}_])`, "giu");
+}
+
+export function mentionsGlobalChatUser(body: string, displayName: string): boolean {
+  const pattern = globalChatMentionPattern(displayName);
+  if (!pattern) return false;
+  pattern.lastIndex = 0;
+  return pattern.test(typeof body === "string" ? body : "");
+}
+
+export type GlobalChatBodySegment = { text: string; mention: boolean };
+
+export function splitGlobalChatMentions(body: string, displayName: string): GlobalChatBodySegment[] {
+  const text = typeof body === "string" ? body : "";
+  if (!text) return [];
+  const pattern = globalChatMentionPattern(displayName);
+  if (!pattern) return [{ text, mention: false }];
+  const segments: GlobalChatBodySegment[] = [];
+  let cursor = 0;
+  for (const found of text.matchAll(pattern)) {
+    const index = found.index ?? 0;
+    if (index > cursor) segments.push({ text: text.slice(cursor, index), mention: false });
+    segments.push({ text: found[0], mention: true });
+    cursor = index + found[0].length;
+  }
+  if (cursor < text.length) segments.push({ text: text.slice(cursor), mention: false });
+  return segments.length ? segments : [{ text, mention: false }];
 }

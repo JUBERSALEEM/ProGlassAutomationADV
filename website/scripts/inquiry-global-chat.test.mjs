@@ -336,3 +336,31 @@ test("community chat workspace supports WhatsApp-style replies, ticks and who-re
   assert.match(communityWorkspace, /formatGlobalChatDateTime\(receipt\.read_at/);
   assert.match(communityWorkspace, /formatGlobalChatDateTime\(receipt\.delivered_at/);
 });
+
+test("community room searches the whole table, not only the loaded page", () => {
+  assert.match(communityHelpers, /GLOBAL_CHAT_SEARCH_LIMIT = 30/);
+  assert.match(communityHelpers, /GLOBAL_CHAT_SEARCH_MIN = 2/);
+  assert.match(communityHelpers, /export function globalChatSearchPattern/);
+  assert.match(communityHelpers, /\.replace\(\/%\/g, "\\\\%"\)/);
+  assert.match(communityHelpers, /return `"%\$\{escaped\}%"`/);
+  assert.match(communityWorkspace, /\.ilike\("body", globalChatSearchPattern\(normalizedSearchTerm\)\)/);
+  assert.match(communityWorkspace, /\.is\("deleted_at", null\)/);
+  assert.match(communityWorkspace, /\.limit\(GLOBAL_CHAT_SEARCH_LIMIT\)/);
+  assert.match(communityWorkspace, /isGlobalChatSearchReady\(normalizedSearchTerm\)/);
+  assert.doesNotMatch(communityWorkspace, /messages\.filter\(\(message\) => message\.body/);
+  assert.match(communityWorkspace, /aria-expanded=\{searchOpen\}/);
+  assert.match(communityWorkspace, /aria-controls="global-chat-search"/);
+  assert.match(communityWorkspace, /Searches every message in the room, not only the loaded page/);
+  assert.match(communityWorkspace, /revealSearchResult/);
+});
+
+test("a mention is highlighted only for the member it names", () => {
+  assert.match(communityHelpers, /export function globalChatMentionPattern/);
+  assert.match(communityHelpers, /export function mentionsGlobalChatUser/);
+  assert.match(communityHelpers, /export function splitGlobalChatMentions/);
+  assert.match(communityHelpers, /\(\?!\[\\\\p\{L\}\\\\p\{N\}_\]\)/);
+  assert.match(communityWorkspace, /function MentionedBody/);
+  assert.match(communityWorkspace, /splitGlobalChatMentions\(body, displayName\)/);
+  assert.match(communityWorkspace, /\(mentions you\)/);
+  assert.match(communityWorkspace, /displayName=\{currentProfile\?\.display_name \?\? ""\}/);
+});

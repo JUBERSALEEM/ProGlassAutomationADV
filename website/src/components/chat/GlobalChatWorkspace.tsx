@@ -17,6 +17,8 @@ import {
   GLOBAL_CHAT_MAX_BODY,
   GLOBAL_CHAT_PAGE_SIZE,
   GLOBAL_CHAT_PATH,
+  GLOBAL_CHAT_SEARCH_LIMIT,
+  GLOBAL_CHAT_SEARCH_MIN,
   countUnreadGlobalChatMessages,
   firstUnreadGlobalChatMessageId,
   formatGlobalChatDateTime,
@@ -24,7 +26,10 @@ import {
   formatGlobalChatTime,
   globalChatDisplayName,
   globalChatMessageExcerpt,
+  globalChatSearchExcerpt,
+  globalChatSearchPattern,
   groupGlobalChatReceiptsByMessage,
+  isGlobalChatSearchReady,
   mergeGlobalChatMessages,
   normalizeGlobalChatDraft,
   normalizeGlobalChatMessage,
@@ -32,6 +37,8 @@ import {
   normalizeGlobalChatReadState,
   normalizeGlobalChatReceipt,
   normalizeGlobalChatReceipts,
+  normalizeGlobalChatSearchTerm,
+  splitGlobalChatMentions,
   summarizeGlobalChatReceipts,
 } from "@/lib/global-chat";
 import { isSupabaseConfigured, supabaseBrowser } from "@/lib/supabase";
@@ -151,6 +158,30 @@ function ChatAvatar({
   );
 }
 
+/**
+ * A mention is only highlighted when it names the member reading the room.
+ * Rendering someone else's name as a marked word would read like a notification
+ * that is not yours.
+ */
+function MentionedBody({ body, displayName }: { body: string; displayName: string }) {
+  const segments = splitGlobalChatMentions(body, displayName);
+  const mentionsYou = segments.some((segment) => segment.mention);
+  return (
+    <>
+      {segments.map((segment, index) =>
+        segment.mention ? (
+          <mark key={index} className="rounded bg-brand-400/35 px-0.5 font-bold text-text-primary">
+            {segment.text}
+          </mark>
+        ) : (
+          <span key={index}>{segment.text}</span>
+        ),
+      )}
+      {mentionsYou ? <span className="sr-only"> (mentions you)</span> : null}
+    </>
+  );
+}
+
 function DayDivider({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-2 py-0.5" aria-label={`Messages from ${label}`}>
@@ -186,6 +217,10 @@ export function GlobalChatWorkspace() {
   const [infoMessage, setInfoMessage] = useState<GlobalChatMessage | null>(null);
   const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
   const [quotedMessages, setQuotedMessages] = useState<Map<string, GlobalChatMessage>>(new Map());
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<GlobalChatMessage[]>([]);
+  const [searchState, setSearchState] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [profilesByUserId, setProfilesByUserId] = useState<Map<string, UserProfile>>(new Map());
   // A fresh topic for every mounted workspace prevents Supabase from handing
   // back a same-topic channel from the previous mount while its asynchronous
@@ -216,6 +251,7 @@ export function GlobalChatWorkspace() {
   const refreshInFlightRef = useRef(false);
   const refreshLatestRef = useRef<() => Promise<void>>(async () => {});
   const visibleReadFrameRef = useRef<number | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   const normalizedDraft = useMemo(() => normalizeGlobalChatDraft(draft), [draft]);
   const draftTooLong = normalizedDraft.length > GLOBAL_CHAT_MAX_BODY;
@@ -813,7 +849,7 @@ export function GlobalChatWorkspace() {
     markReadRef.current = markRead;
   }, [markRead]);
 
-  const jumpToQuoted = useCallback(
+  const revealMessage = useCallback(
     async (originalId: string) => {
       const highlight = () => {
         scrollToMessage(originalId);
@@ -834,6 +870,74 @@ export function GlobalChatWorkspace() {
     },
     [loadOlder, scrollToMessage],
   );
+
+  const jumpToQuoted = revealMessage;
+
+  const closeSearch = useCallback(() => {
+    setSearchOpen(false);
+    setSearchState("idle");
+    setSearchTerm("");
+    setSearchResults([]);
+  }, []);
+
+  const openSearch = useCallback(() => {
+    setSearchOpen(true);
+    setSearchState("idle");
+    setSearchTerm("");
+    setSearchResults([]);
+    requestAnimationFrame(() => searchInputRef.current?.focus());
+  }, []);
+
+  const revealSearchResult = useCallback(
+    (message: GlobalChatMessage) => {
+      closeSearch();
+      void revealMessage(message.id).finally(() => requestAnimationFrame(() => composerRef.current?.focus()));
+    },
+    [closeSearch, revealMessage],
+  );
+
+  const normalizedSearchTerm = useMemo(() => normalizeGlobalChatSearchTerm(searchTerm), [searchTerm]);
+
+  // Search runs against the table, so a match three screens back is found. The
+  // result list is capped and says so rather than implying the room is short.
+  useEffect(() => {
+    if (!searchOpen || !configured || !user?.id) return;
+    if (!isGlobalChatSearchReady(normalizedSearchTerm)) {
+      setSearchResults([]);
+      setSearchState("idle");
+      return;
+    }
+    let active = true;
+    const timer = window.setTimeout(() => {
+      setSearchState("loading");
+      void (async () => {
+        try {
+          const { data, error: searchError } = await supabaseBrowser()
+            .from("global_chat_messages")
+            .select(MESSAGE_SELECT)
+            .is("deleted_at", null)
+            .ilike("body", globalChatSearchPattern(normalizedSearchTerm))
+            .order("created_at", { ascending: false })
+            .order("id", { ascending: false })
+            .limit(GLOBAL_CHAT_SEARCH_LIMIT);
+          if (!active) return;
+          if (searchError) throw searchError;
+          const rows = normalizeGlobalChatMessages(data);
+          setSearchResults(rows);
+          setSearchState("done");
+          void fetchProfiles(rows.map((message) => message.author_user_id));
+        } catch (reason) {
+          if (!active) return;
+          setSearchState("error");
+          setError(friendlyError(reason, "Room search is unavailable right now. Try again."));
+        }
+      })();
+    }, 260);
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+    };
+  }, [configured, fetchProfiles, normalizedSearchTerm, searchOpen, user?.id]);
 
   const startReply = useCallback((message: GlobalChatMessage) => {
     setReplyTarget(message);
@@ -1313,6 +1417,17 @@ export function GlobalChatWorkspace() {
               </LocaleLink>
               <button
                 type="button"
+                onClick={() => (searchOpen ? closeSearch() : openSearch())}
+                aria-label={searchOpen ? "Close room search" : "Search the room"}
+                aria-expanded={searchOpen}
+                aria-controls="global-chat-search"
+                title="Search all messages"
+                className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-line-strong text-[13px] font-black text-text-secondary hover:bg-ink-850"
+              >
+                ⌕
+              </button>
+              <button
+                type="button"
                 onClick={() => void refreshLatest()}
                 aria-label="Refresh messages now"
                 title="Refresh messages now"
@@ -1322,6 +1437,93 @@ export function GlobalChatWorkspace() {
               </button>
             </div>
           </header>
+
+          {searchOpen ? (
+            <section
+              id="global-chat-search"
+              aria-label="Search the community room"
+              className="border-b border-line bg-ink-900 px-2 py-1.5"
+            >
+              <div className="flex items-center gap-1.5">
+                <label htmlFor="global-chat-search-input" className="sr-only">
+                  Search all community messages
+                </label>
+                <input
+                  ref={searchInputRef}
+                  id="global-chat-search-input"
+                  type="search"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape") {
+                      event.preventDefault();
+                      closeSearch();
+                    }
+                  }}
+                  placeholder="Search all messages…"
+                  autoComplete="off"
+                  className="h-8 min-w-0 flex-1 rounded-full border border-line-strong bg-ink-950 px-3 text-xs text-text-primary placeholder:text-text-faint focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/40"
+                />
+                <button
+                  type="button"
+                  onClick={closeSearch}
+                  aria-label="Close search"
+                  className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-line-strong text-[11px] text-text-muted hover:text-text-primary"
+                >
+                  ✕
+                </button>
+              </div>
+              <p role="status" className="mt-1 px-1 text-[9px] leading-none text-text-faint">
+                {searchState === "loading"
+                  ? "Searching the whole room…"
+                  : searchState === "error"
+                    ? "Search is unavailable right now. Try again."
+                    : searchState === "done"
+                      ? searchResults.length
+                        ? `${searchResults.length}${searchResults.length >= GLOBAL_CHAT_SEARCH_LIMIT ? "+" : ""} match${searchResults.length === 1 ? "" : "es"}${searchResults.length >= GLOBAL_CHAT_SEARCH_LIMIT ? ", newest first. Add a word to narrow it." : "."}`
+                        : "No message matches that."
+                      : `Searches every message in the room, not only the loaded page. Use at least ${GLOBAL_CHAT_SEARCH_MIN} characters.`}
+              </p>
+              {searchState === "done" && searchResults.length ? (
+                <ul className="mt-1 max-h-40 space-y-1 overflow-y-auto pr-0.5">
+                  {searchResults.map((result) => {
+                    const excerpt = globalChatSearchExcerpt(result.body, normalizedSearchTerm);
+                    const authorName = profileFor(result.author_user_id, result.author_display_name).display_name;
+                    return (
+                      <li key={result.id}>
+                        <button
+                          type="button"
+                          onClick={() => revealSearchResult(result)}
+                          aria-label={`Search result from ${authorName} on ${formatGlobalChatDateTime(result.created_at, locale)}`}
+                          className="w-full rounded-lg border border-line bg-ink-950 px-2 py-1 text-left hover:border-brand-400/60"
+                        >
+                          <span className="flex items-baseline justify-between gap-2 text-[8px] font-black uppercase leading-none tracking-wider text-brand-200">
+                            <span className="truncate">{authorName}</span>
+                            <time dateTime={result.created_at} className="shrink-0 font-semibold normal-case tracking-normal text-text-faint">
+                              {formatGlobalChatDateTime(result.created_at, locale)}
+                            </time>
+                          </span>
+                          <span className="mt-1 block break-words text-[10px] leading-tight text-text-secondary">
+                            {excerpt ? (
+                              <>
+                                {excerpt.before}
+                                <mark className="rounded bg-brand-400/35 px-0.5 font-bold text-text-primary">
+                                  {excerpt.match}
+                                </mark>
+                                {excerpt.after}
+                              </>
+                            ) : (
+                              globalChatMessageExcerpt(result.body, 140)
+                            )}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : null}
+            </section>
+          ) : null}
 
           <details className="border-b border-line bg-brand-400/10 px-2.5 py-1 text-[9px] leading-tight text-brand-100">
             <summary className="cursor-pointer truncate font-bold">Public room · keep private work private</summary>
@@ -1491,7 +1693,14 @@ export function GlobalChatWorkspace() {
                                   ) : !own && !deleted ? (
                                     <span className="sr-only">{authorName}: </span>
                                   ) : null}
-                                  {deleted ? "This message was deleted." : message.body}
+                                  {deleted ? (
+                                    "This message was deleted."
+                                  ) : (
+                                    <MentionedBody
+                                      body={message.body}
+                                      displayName={currentProfile?.display_name ?? ""}
+                                    />
+                                  )}
                                 </p>
                                 <span
                                   className={`ml-auto flex shrink-0 translate-y-px items-center gap-1 whitespace-nowrap text-[8.5px] font-semibold leading-none ${
