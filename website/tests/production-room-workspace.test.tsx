@@ -152,6 +152,9 @@ const messageRow = (overrides: Record<string, unknown> = {}) => ({
   edit_count: 0,
   deleted_by: null,
   deleted_at: null,
+  action_owner_user_id: null,
+  action_due_at: null,
+  action_status: null,
   ...overrides,
 });
 
@@ -260,5 +263,106 @@ describe("production room workspace", () => {
     await waitFor(() => expect(screen.getByText("An old note of mine")).not.toBeNull());
     expect(screen.getAllByRole("button", { name: "Edit" })).toHaveLength(1);
     expect(screen.getAllByRole("button", { name: "Delete" })).toHaveLength(1);
+  });
+});
+
+describe("production room action items in the workspace", () => {
+  it("posts an action item with its owner and due time in one write", async () => {
+    mocks.state.memberRows = [
+      memberRow(),
+      memberRow({ user_id: mocks.other, display_name: "Site Engineer", department: "Install" }),
+    ];
+    mocks.state.messageRows = [];
+
+    render(<ProductionRoomWorkspace />);
+
+    await waitFor(() => expect(screen.getByLabelText("Message the production room")).not.toBeNull());
+    fireEvent.change(screen.getByLabelText("Category"), { target: { value: "action_item" } });
+
+    const owner = await screen.findByLabelText("Action owner");
+    fireEvent.change(owner, { target: { value: mocks.other } });
+    fireEvent.change(screen.getByLabelText("Action due date"), { target: { value: "2026-10-30T09:00" } });
+    fireEvent.change(screen.getByLabelText("Message the production room"), {
+      target: { value: "Chase the anodised trim" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Post" }));
+
+    await waitFor(() => expect(mocks.state.rpcCalls).toHaveLength(1));
+    const call = mocks.state.rpcCalls[0]!;
+    expect(call.name).toBe("post_production_room_action_item");
+    expect(call.args).toMatchObject({ p_body: "Chase the anodised trim", p_owner_user_id: mocks.other });
+    expect(new Date((call.args as { p_due_at: string }).p_due_at).getTime()).toBe(
+      new Date("2026-10-30T09:00").getTime(),
+    );
+  });
+
+  it("keeps the owner and due fields out of a plain message", async () => {
+    mocks.state.memberRows = [memberRow()];
+    mocks.state.messageRows = [];
+
+    render(<ProductionRoomWorkspace />);
+
+    await waitFor(() => expect(screen.getByLabelText("Message the production room")).not.toBeNull());
+    expect(screen.queryByLabelText("Action owner")).toBeNull();
+    expect(screen.queryByLabelText("Action due date")).toBeNull();
+    fireEvent.change(screen.getByLabelText("Category"), { target: { value: "action_item" } });
+    expect(await screen.findByLabelText("Action owner")).not.toBeNull();
+  });
+
+  it("shows an overdue action and lets its owner close it", async () => {
+    const overdue = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+    mocks.state.memberRows = [memberRow({ is_room_admin: false })];
+    mocks.state.messageRows = [
+      messageRow({
+        id: "action-1",
+        author_user_id: mocks.other,
+        category: "action_item",
+        body: "Book the crane",
+        action_owner_user_id: mocks.me.id,
+        action_due_at: overdue,
+        action_status: "open",
+      }),
+    ];
+
+    render(<ProductionRoomWorkspace />);
+
+    await waitFor(() => expect(screen.getByText("Book the crane")).not.toBeNull());
+    // Both the item chip and the filter chip can say "Overdue".
+    expect(screen.getAllByText("Overdue").length).toBeGreaterThan(0);
+    expect(screen.getByText(/Owner: Production Lead/)).not.toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Mark done" }));
+
+    await waitFor(() =>
+      expect(mocks.state.rpcCalls[0]).toEqual({
+        name: "set_production_room_action",
+        args: {
+          p_message_id: "action-1",
+          p_owner_user_id: mocks.me.id,
+          p_due_at: overdue,
+          p_status: "done",
+        },
+      }),
+    );
+  });
+
+  it("does not offer close or assign on somebody else's action", async () => {
+    mocks.state.memberRows = [memberRow({ is_room_admin: false })];
+    mocks.state.messageRows = [
+      messageRow({
+        id: "action-2",
+        author_user_id: mocks.other,
+        category: "action_item",
+        body: "Order the gaskets",
+        action_owner_user_id: mocks.other,
+        action_status: "open",
+      }),
+    ];
+
+    render(<ProductionRoomWorkspace />);
+
+    await waitFor(() => expect(screen.getByText("Order the gaskets")).not.toBeNull());
+    expect(screen.queryByRole("button", { name: "Mark done" })).toBeNull();
+    expect(screen.queryByText("Assign")).toBeNull();
   });
 });

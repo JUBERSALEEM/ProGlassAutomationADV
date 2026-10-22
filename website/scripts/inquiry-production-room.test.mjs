@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 
 const roomSql = read("../supabase-production-room-phase11a.sql");
+const actionSql = read("../supabase-production-room-actions.sql");
 const roomLib = read("../src/lib/production-room.ts");
 const roomTypes = read("../src/types/production-room.ts");
 const workspace = read("../src/components/production/ProductionRoomWorkspace.tsx");
@@ -39,7 +40,7 @@ test("the production room migration is reproducible, member scoped and RPC writt
   assert.match(roomSql, /REPLICA IDENTITY FULL/);
 });
 
-test("the production room writes only through its nine functions", () => {
+test("the production room writes only through its functions", () => {
   for (const rpc of [
     "post_production_room_message",
     "edit_production_room_message",
@@ -97,4 +98,55 @@ test("the production room is honest about access and about failure", () => {
   assert.match(workspace, /Auto-refresh on/);
   // No fake data path: the room must never render sample posts to look busy.
   assert.doesNotMatch(workspace, /sample|placeholder post|mock/i);
+});
+
+test("action items carry an owner, a due time and a status that the database polices", () => {
+  for (const column of ["action_owner_user_id", "action_due_at", "action_status"]) {
+    assert.match(
+      actionSql,
+      new RegExp(`ADD COLUMN IF NOT EXISTS ${column}`),
+      `${column} is declared`,
+    );
+    assert.match(roomTypes, new RegExp(`${column}`), `${column} is typed`);
+  }
+  // The three fields are either all empty or belong to a live, top-level action.
+  assert.match(actionSql, /production_room_messages_action_status_check/);
+  assert.match(actionSql, /action_status IN \('open','done','cancelled'\)/);
+  assert.match(actionSql, /production_room_messages_action_shape_check/);
+  assert.match(
+    actionSql,
+    /category = 'action_item' AND parent_id IS NULL/,
+    "action fields cannot ride on a reply",
+  );
+  // Overdue work is found by an index rather than a scan.
+  assert.match(actionSql, /ix_production_room_messages_action_due/);
+  assert.match(actionSql, /action_status <> 'done'/);
+});
+
+test("action items are written only through their two functions", () => {
+  const rpcs = [
+    ["set_production_room_action", "uuid,uuid,timestamptz,text"],
+    ["post_production_room_action_item", "text,uuid,timestamptz"],
+  ];
+  for (const [rpc, signature] of rpcs) {
+    assert.match(actionSql, new RegExp(`CREATE OR REPLACE FUNCTION public\\.${rpc}`), `${rpc} is defined`);
+    assert.match(actionSql, new RegExp(`SECURITY DEFINER`), `${rpc} runs as definer`);
+    assert.match(
+      actionSql,
+      new RegExp(`REVOKE ALL ON FUNCTION public\\.${rpc}\\(${signature}\\) FROM PUBLIC, anon;`),
+      `${rpc} is closed to anon`,
+    );
+    assert.match(
+      actionSql,
+      new RegExp(`GRANT EXECUTE ON FUNCTION public\\.${rpc}\\(${signature}\\) TO authenticated;`),
+      `${rpc} is open to members`,
+    );
+  }
+  // The status is validated before it can reach the row.
+  assert.match(actionSql, /v_status NOT IN \('open','done','cancelled'\)/);
+  // An owner who is neither author nor admin may only change the status.
+  assert.match(actionSql, /v_is_owner AND NOT v_is_admin AND NOT v_is_author/);
+  // The room screen calls both functions by name.
+  assert.match(workspace, /rpc\("set_production_room_action"/);
+  assert.match(workspace, /rpc\("post_production_room_action_item"/);
 });

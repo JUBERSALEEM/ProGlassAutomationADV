@@ -22,6 +22,10 @@ export const PRODUCTION_ROOM_CATEGORIES = [
 
 export type ProductionRoomCategory = (typeof PRODUCTION_ROOM_CATEGORIES)[number];
 
+export const PRODUCTION_ROOM_ACTION_STATUSES = ["open", "done", "cancelled"] as const;
+
+export type ProductionRoomActionStatus = (typeof PRODUCTION_ROOM_ACTION_STATUSES)[number];
+
 export type ProductionRoomMessage = {
   id: string;
   parent_id: string | null;
@@ -36,6 +40,14 @@ export type ProductionRoomMessage = {
   edit_count: number;
   deleted_by: string | null;
   deleted_at: string | null;
+  /**
+   * Only a top-level `action_item` may carry these three. A null status means
+   * the same thing as `open`; the column is nullable so every other category
+   * and every existing row stays valid without a backfill.
+   */
+  action_owner_user_id: string | null;
+  action_due_at: string | null;
+  action_status: ProductionRoomActionStatus | null;
 };
 
 export type ProductionRoomMember = {

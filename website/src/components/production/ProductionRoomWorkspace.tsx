@@ -26,15 +26,23 @@ import {
   PRODUCTION_ROOM_MAX_BODY,
   PRODUCTION_ROOM_PAGE_SIZE,
   PRODUCTION_ROOM_PATH,
+  actionDueInputToIso,
+  actionDueIsoToInput,
   canDeleteProductionRoomMessage,
   canEditProductionRoomMessage,
+  canManageActionItem,
   canPinProductionRoomMessage,
+  canReassignActionItem,
   countUnreadProductionRoomMessages,
   filterProductionRoomThreads,
   firstUnreadProductionRoomMessageId,
   formatProductionRoomDateTime,
+  formatProductionRoomDueDate,
   formatProductionRoomTime,
   groupProductionRoomThreads,
+  isActionClosed,
+  isActionItem,
+  isActionOverdue,
   isProductionRoomDraftValid,
   mergeProductionRoomMessages,
   normalizeProductionRoomDraft,
@@ -42,6 +50,7 @@ import {
   normalizeProductionRoomMessages,
   normalizeProductionRoomRead,
   pinnedProductionRoomDecisions,
+  productionRoomActionStatusLabel,
   productionRoomCategoryMeta,
   productionRoomExcerpt,
   productionRoomStats,
@@ -57,7 +66,7 @@ import type {
 } from "@/types/production-room";
 
 const MESSAGE_SELECT =
-  "id,parent_id,author_user_id,category,body,is_pinned,pinned_by,pinned_at,created_at,edited_at,edit_count,deleted_by,deleted_at";
+  "id,parent_id,author_user_id,category,body,is_pinned,pinned_by,pinned_at,created_at,edited_at,edit_count,deleted_by,deleted_at,action_owner_user_id,action_due_at,action_status";
 const MEMBER_SELECT = "user_id,display_name,department,is_room_admin,active,created_at,updated_at";
 
 type RoomUser = { id: string; email: string | null; displayName: string };
@@ -107,7 +116,12 @@ export function ProductionRoomWorkspace() {
   const [filterCategory, setFilterCategory] = useState<ProductionRoomCategory | "all">("all");
   const [filterQuery, setFilterQuery] = useState("");
   const [unreadOnly, setUnreadOnly] = useState(false);
+  const [openActionsOnly, setOpenActionsOnly] = useState(false);
+  const [mineOnly, setMineOnly] = useState(false);
+  const [overdueOnly, setOverdueOnly] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
+  const [actionOwner, setActionOwner] = useState("");
+  const [actionDue, setActionDue] = useState("");
   const [memberForm, setMemberForm] = useState({
     email: "",
     displayName: "",
@@ -141,7 +155,10 @@ export function ProductionRoomWorkspace() {
   );
 
   const threads = useMemo(() => groupProductionRoomThreads(messages), [messages]);
-  const stats = useMemo(() => productionRoomStats(messages), [messages]);
+  const stats = useMemo(
+    () => productionRoomStats(messages, { userId: user?.id ?? null }),
+    [messages, user?.id],
+  );
   const pinned = useMemo(() => pinnedProductionRoomDecisions(messages), [messages]);
   const unreadCount = useMemo(
     () => countUnreadProductionRoomMessages(messages, user?.id ?? null, lastReadAt),
@@ -155,10 +172,10 @@ export function ProductionRoomWorkspace() {
     () =>
       filterProductionRoomThreads(
         threads,
-        { category: filterCategory, query: filterQuery, unreadOnly },
+        { category: filterCategory, query: filterQuery, unreadOnly, openActionsOnly, mineOnly, overdueOnly },
         { userId: user?.id ?? null, lastReadAt },
       ),
-    [filterCategory, filterQuery, lastReadAt, threads, unreadOnly, user?.id],
+    [filterCategory, filterQuery, lastReadAt, mineOnly, openActionsOnly, overdueOnly, threads, unreadOnly, user?.id],
   );
 
   const memberName = useCallback(
@@ -328,12 +345,19 @@ export function ProductionRoomWorkspace() {
     if (!canSend) return;
     setBusy(true);
     setError("");
+    const postingAction = !replyTarget && category === "action_item";
     try {
-      const { data, error: postError } = await supabaseBrowser().rpc("post_production_room_message", {
-        p_body: normalizedDraft,
-        p_category: replyTarget ? replyTarget.category : category,
-        p_parent_id: replyTarget?.id ?? null,
-      });
+      const { data, error: postError } = postingAction
+        ? await supabaseBrowser().rpc("post_production_room_action_item", {
+            p_body: normalizedDraft,
+            p_owner_user_id: actionOwner || null,
+            p_due_at: actionDueInputToIso(actionDue),
+          })
+        : await supabaseBrowser().rpc("post_production_room_message", {
+            p_body: normalizedDraft,
+            p_category: replyTarget ? replyTarget.category : category,
+            p_parent_id: replyTarget?.id ?? null,
+          });
       if (postError) throw postError;
       const row = normalizeProductionRoomMessages([data])[0];
       if (!row) throw new Error("The message was saved but could not be displayed. Reload the room.");
@@ -342,6 +366,8 @@ export function ProductionRoomWorkspace() {
       setMessages(merged);
       setDraft("");
       setReplyTarget(null);
+      setActionOwner("");
+      setActionDue("");
       requestAnimationFrame(() => composerRef.current?.focus());
       void markRead(row.created_at);
     } catch (reason) {
@@ -421,6 +447,33 @@ export function ProductionRoomWorkspace() {
       }
     } catch (reason) {
       setError(friendlyError(reason, "Unable to change the pin."));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const updateAction = async (
+    message: ProductionRoomMessage,
+    changes: { ownerUserId?: string | null; dueAt?: string | null; status?: string | null },
+  ) => {
+    setBusy(true);
+    setError("");
+    try {
+      const { data, error: actionError } = await supabaseBrowser().rpc("set_production_room_action", {
+        p_message_id: message.id,
+        p_owner_user_id: changes.ownerUserId === undefined ? message.action_owner_user_id : changes.ownerUserId,
+        p_due_at: changes.dueAt === undefined ? message.action_due_at : changes.dueAt,
+        p_status: changes.status === undefined ? message.action_status : changes.status,
+      });
+      if (actionError) throw actionError;
+      const row = normalizeProductionRoomMessages([data])[0];
+      if (row) {
+        const merged = mergeProductionRoomMessages(messagesRef.current, [row]);
+        messagesRef.current = merged;
+        setMessages(merged);
+      }
+    } catch (reason) {
+      setError(friendlyError(reason, "Unable to update that action item."));
     } finally {
       setBusy(false);
     }
@@ -780,6 +833,52 @@ export function ProductionRoomWorkspace() {
               {meta.short} ({stats.byCategory[meta.value]})
             </button>
           ))}
+          <button
+            type="button"
+            onClick={() => {
+              setOpenActionsOnly((value) => !value);
+              if (openActionsOnly) setOverdueOnly(false);
+            }}
+            aria-pressed={openActionsOnly}
+            className={`rounded-full border px-3 py-1 text-[11px] font-bold ${
+              openActionsOnly ? "border-brand-300 text-brand-200" : "border-line-strong text-text-muted"
+            }`}
+          >
+            Open actions ({stats.openActions})
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMineOnly((value) => !value);
+              if (mineOnly) setOverdueOnly(false);
+            }}
+            aria-pressed={mineOnly}
+            className={`rounded-full border px-3 py-1 text-[11px] font-bold ${
+              mineOnly ? "border-brand-300 text-brand-200" : "border-line-strong text-text-muted"
+            }`}
+          >
+            Mine ({stats.myOpenActions})
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setOverdueOnly((value) => !value);
+              if (overdueOnly) {
+                setMineOnly(false);
+                setOpenActionsOnly(false);
+              }
+            }}
+            aria-pressed={overdueOnly}
+            className={`rounded-full border px-3 py-1 text-[11px] font-bold ${
+              overdueOnly
+                ? "border-state-danger text-state-danger"
+                : stats.overdueActions
+                  ? "border-state-danger/50 text-state-danger"
+                  : "border-line-strong text-text-muted"
+            }`}
+          >
+            Overdue ({stats.overdueActions})
+          </button>
           <input
             type="search"
             value={filterQuery}
@@ -816,7 +915,7 @@ export function ProductionRoomWorkspace() {
                     </h3>
                     <p className="mx-auto mt-2 max-w-sm text-sm text-text-muted">
                       {threads.length
-                        ? "Clear the category, the search, or the unread filter to see the rest of the room."
+                        ? "Clear the category, the search, the unread filter or the action filters to see the rest of the room."
                         : "Post the first item: a blocker, a shortage, a decision, or an action with an owner."}
                     </p>
                   </div>
@@ -841,6 +940,10 @@ export function ProductionRoomWorkspace() {
                     onReply={startReply}
                     onDelete={(message) => void removeMessage(message)}
                     onPin={(message) => void togglePin(message)}
+                    canManageAction={(message) => canManageActionItem(message, user.id, isRoomAdmin)}
+                    canReassignAction={(message) => canReassignActionItem(message, user.id, isRoomAdmin)}
+                    onChangeAction={(message, changes) => void updateAction(message, changes)}
+                    members={members.filter((member) => member.active)}
                   />
                 ))
               )}
@@ -880,6 +983,38 @@ export function ProductionRoomWorkspace() {
                     </option>
                   ))}
                 </select>
+                {!replyTarget && category === "action_item" ? (
+                  <>
+                    <label className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-text-faint">
+                      Owner
+                      <select
+                        aria-label="Action owner"
+                        value={actionOwner}
+                        onChange={(event) => setActionOwner(event.target.value)}
+                        className="h-9 rounded-xl border border-line-strong bg-ink-950 px-2 text-xs font-normal normal-case tracking-normal text-text-primary"
+                      >
+                        <option value="">Unassigned</option>
+                        {members
+                          .filter((member) => member.active)
+                          .map((member) => (
+                            <option key={member.user_id} value={member.user_id}>
+                              {member.display_name}
+                            </option>
+                          ))}
+                      </select>
+                    </label>
+                    <label className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-text-faint">
+                      Due
+                      <input
+                        type="datetime-local"
+                        aria-label="Action due date"
+                        value={actionDue}
+                        onChange={(event) => setActionDue(event.target.value)}
+                        className="h-9 rounded-xl border border-line-strong bg-ink-950 px-2 text-xs font-normal normal-case tracking-normal text-text-primary"
+                      />
+                    </label>
+                  </>
+                ) : null}
                 <label className="sr-only" htmlFor="production-room-composer">
                   Message the production room
                 </label>
@@ -934,6 +1069,20 @@ export function ProductionRoomWorkspace() {
                   <dt className="text-text-muted">Unread</dt>
                   <dd className="font-bold">{unreadCount}</dd>
                 </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-text-muted">Open actions</dt>
+                  <dd className="font-bold">{stats.openActions}</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-text-muted">Overdue</dt>
+                  <dd className={`font-bold ${stats.overdueActions ? "text-state-danger" : ""}`}>
+                    {stats.overdueActions}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-text-muted">Mine to close</dt>
+                  <dd className="font-bold">{stats.myOpenActions}</dd>
+                </div>
               </dl>
             </section>
             <section className="rounded-3xl border border-line-strong bg-ink-900 p-4">
@@ -982,6 +1131,10 @@ function RoomThread({
   onReply,
   onDelete,
   onPin,
+  canManageAction,
+  canReassignAction,
+  onChangeAction,
+  members,
 }: {
   thread: ProductionRoomThread;
   locale: string;
@@ -999,8 +1152,19 @@ function RoomThread({
   onReply: (message: ProductionRoomMessage) => void;
   onDelete: (message: ProductionRoomMessage) => void;
   onPin: (message: ProductionRoomMessage) => void;
+  canManageAction: (message: ProductionRoomMessage) => boolean;
+  canReassignAction: (message: ProductionRoomMessage) => boolean;
+  onChangeAction: (
+    message: ProductionRoomMessage,
+    changes: { ownerUserId?: string | null; dueAt?: string | null; status?: string | null },
+  ) => void;
+  members: ProductionRoomMember[];
 }) {
   const meta = productionRoomCategoryMeta(thread.root.category);
+  const action = isActionItem(thread.root) ? thread.root : null;
+  const actionStatus = action ? productionRoomActionStatusLabel(action) : "";
+  const actionClosed = action ? isActionClosed(action) : false;
+  const actionOverdue = action ? isActionOverdue(action) : false;
   return (
     <article
       data-message-id={thread.root.id}
@@ -1019,6 +1183,27 @@ function RoomThread({
           <span className="rounded-full border border-emerald-300/50 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
             Pinned
           </span>
+        ) : null}
+        {action ? (
+          <>
+            <span
+              className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${
+                actionClosed
+                  ? "border-line-strong text-text-faint"
+                  : actionOverdue
+                    ? "border-state-danger/60 text-state-danger"
+                    : "border-brand-300/50 text-brand-200"
+              }`}
+            >
+              {actionStatus}
+            </span>
+            <span className="text-[11px] text-text-muted">
+              {action.action_owner_user_id
+                ? `Owner: ${memberName(action.action_owner_user_id)}`
+                : "Unassigned"}
+              {action.action_due_at ? ` · due ${formatProductionRoomDueDate(action.action_due_at, locale)}` : ""}
+            </span>
+          </>
         ) : null}
         <span className="text-xs font-semibold text-text-secondary">{memberName(thread.root.author_user_id)}</span>
         <time dateTime={thread.root.created_at} className="text-[11px] text-text-faint">
@@ -1074,6 +1259,73 @@ function RoomThread({
           >
             Reply
           </button>
+        ) : null}
+        {action && canManageAction(action) ? (
+          <>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() =>
+                onChangeAction(action, { status: actionClosed ? "open" : "done" })
+              }
+              className={`font-bold disabled:opacity-50 ${
+                actionClosed ? "text-brand-300 hover:text-brand-200" : "text-emerald-300 hover:opacity-80"
+              }`}
+            >
+              {actionClosed ? "Reopen" : "Mark done"}
+            </button>
+            {!actionClosed && action.action_status !== "cancelled" ? (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => onChangeAction(action, { status: "cancelled" })}
+                className="font-bold text-text-muted hover:text-state-warning disabled:opacity-50"
+              >
+                Cancel item
+              </button>
+            ) : null}
+            {canReassignAction(action) ? (
+              <details className="inline-block">
+                <summary className="cursor-pointer font-bold text-text-muted hover:text-text-primary">
+                  Assign
+                </summary>
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <label className="text-[10px] font-bold uppercase tracking-wide text-text-faint">
+                    Owner
+                    <select
+                      aria-label={`Owner for ${productionRoomExcerpt(action.body, 40)}`}
+                      value={action.action_owner_user_id ?? ""}
+                      disabled={busy}
+                      onChange={(event) =>
+                        onChangeAction(action, { ownerUserId: event.target.value || null })
+                      }
+                      className="ml-1 h-7 rounded-lg border border-line-strong bg-ink-950 px-1 text-[11px] font-normal normal-case tracking-normal text-text-primary"
+                    >
+                      <option value="">Unassigned</option>
+                      {members.map((member) => (
+                        <option key={member.user_id} value={member.user_id}>
+                          {member.display_name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="text-[10px] font-bold uppercase tracking-wide text-text-faint">
+                    Due
+                    <input
+                      type="datetime-local"
+                      aria-label={`Due date for ${productionRoomExcerpt(action.body, 40)}`}
+                      value={actionDueIsoToInput(action.action_due_at)}
+                      disabled={busy}
+                      onChange={(event) =>
+                        onChangeAction(action, { dueAt: actionDueInputToIso(event.target.value) })
+                      }
+                      className="ml-1 h-7 rounded-lg border border-line-strong bg-ink-950 px-1 text-[11px] font-normal normal-case tracking-normal text-text-primary"
+                    />
+                  </label>
+                </div>
+              </details>
+            ) : null}
+          </>
         ) : null}
         {canPinProductionRoomMessage(thread.root, isRoomAdmin) ? (
           <button

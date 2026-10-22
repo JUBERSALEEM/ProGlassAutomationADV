@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
   PRODUCTION_ROOM_CATEGORY_META,
+  actionDueInputToIso,
+  actionDueIsoToInput,
+  canManageActionItem,
+  canReassignActionItem,
+  isActionClosed,
+  isActionDueToday,
+  isActionItem,
+  isActionOverdue,
+  productionRoomActionStatusLabel,
   PRODUCTION_ROOM_EDIT_WINDOW_MS,
   canDeleteProductionRoomMessage,
   canEditProductionRoomMessage,
@@ -41,6 +50,9 @@ function message(overrides: Partial<Record<keyof ProductionRoomMessage, unknown>
     edit_count: 0,
     deleted_by: null,
     deleted_at: null,
+    action_owner_user_id: null,
+    action_due_at: null,
+    action_status: null,
     ...overrides,
   };
 }
@@ -259,5 +271,100 @@ describe("production room stats and validation", () => {
     expect(validateProductionRoomMemberInput({ ...valid, email: "nope" })).toContain("email");
     expect(validateProductionRoomMemberInput({ ...valid, displayName: "" })).toContain("Display name");
     expect(validateProductionRoomMemberInput({ ...valid, department: "" })).toContain("Department");
+  });
+});
+
+describe("production room action items", () => {
+  const action = (overrides: Partial<Record<keyof ProductionRoomMessage, unknown>> = {}) =>
+    normalizeProductionRoomMessage(
+      message({ category: "action_item", action_status: "open", ...overrides }),
+    )!;
+
+  it("recognises only a top-level action item", () => {
+    expect(isActionItem(action())).toBe(true);
+    expect(isActionItem(action({ parent_id: "root" }))).toBe(false);
+    expect(isActionItem(normalizeProductionRoomMessage(message({ category: "decision" }))!)).toBe(false);
+  });
+
+  it("treats a null status as open, because the column is nullable by design", () => {
+    const unset = normalizeProductionRoomMessage(message({ category: "action_item" }))!;
+    expect(unset.action_status).toBeNull();
+    expect(isActionClosed(unset)).toBe(false);
+    expect(productionRoomActionStatusLabel(unset, NOW)).toBe("No due date");
+  });
+
+  it("counts an item overdue only while it is open and past its date", () => {
+    const overdue = action({ action_due_at: "2026-10-20T08:00:00.000Z" });
+    expect(isActionOverdue(overdue, NOW)).toBe(true);
+    expect(productionRoomActionStatusLabel(overdue, NOW)).toBe("Overdue");
+    expect(isActionOverdue(action({ action_due_at: "2026-10-24T08:00:00.000Z" }), NOW)).toBe(false);
+    // A closed item is never overdue, however old the date is.
+    expect(
+      isActionOverdue(action({ action_due_at: "2026-10-20T08:00:00.000Z", action_status: "done" }), NOW),
+    ).toBe(false);
+    // No date means no clock.
+    expect(isActionOverdue(action(), NOW)).toBe(false);
+  });
+
+  it("marks an item due today without calling it overdue", () => {
+    const today = action({ action_due_at: "2026-10-22T17:00:00.000Z" });
+    expect(isActionDueToday(today, NOW)).toBe(true);
+    expect(isActionOverdue(today, NOW)).toBe(false);
+    expect(productionRoomActionStatusLabel(today, NOW)).toBe("Due today");
+  });
+
+  it("lets the owner close their own item but not reassign it", () => {
+    const owned = action({ action_owner_user_id: OTHER });
+    expect(canManageActionItem(owned, OTHER, false)).toBe(true);
+    expect(canReassignActionItem(owned, OTHER, false)).toBe(false);
+    // The author and an admin can both reassign.
+    expect(canReassignActionItem(owned, AUTHOR, false)).toBe(true);
+    expect(canReassignActionItem(owned, OTHER, true)).toBe(true);
+    // An unrelated member can do neither.
+    expect(canManageActionItem(owned, "33333333-3333-4333-8333-333333333333", false)).toBe(false);
+  });
+
+  it("converts a datetime-local value to an instant and back", () => {
+    const iso = actionDueInputToIso("2026-10-24T09:30");
+    expect(iso).not.toBeNull();
+    expect(new Date(iso as string).getTime()).toBe(new Date("2026-10-24T09:30").getTime());
+    expect(actionDueInputToIso("")).toBeNull();
+    expect(actionDueInputToIso("not a date")).toBeNull();
+    expect(actionDueIsoToInput(null)).toBe("");
+    expect(actionDueIsoToInput("2026-10-24T09:30:00.000Z")).toMatch(/^2026-10-24T\d{2}:\d{2}$/);
+  });
+
+  it("filters on open, mine and overdue without hiding other categories by accident", () => {
+    const root = action({
+      id: "action-1",
+      action_owner_user_id: AUTHOR,
+      action_due_at: "2026-10-20T08:00:00.000Z",
+    });
+    const done = action({ id: "action-2", action_owner_user_id: AUTHOR, action_status: "done" });
+    const chat = normalizeProductionRoomMessage(message({ id: "chat-1", category: "general_production" }))!;
+    const threads = groupProductionRoomThreads([root, done, chat]);
+
+    expect(filterProductionRoomThreads(threads, { openActionsOnly: true }).map((thread) => thread.root.id)).toEqual([
+      "action-1",
+    ]);
+    expect(filterProductionRoomThreads(threads, { mineOnly: true }, { userId: AUTHOR }).map((thread) => thread.root.id)).toEqual([
+      "action-1",
+      "action-2",
+    ]);
+    expect(filterProductionRoomThreads(threads, { overdueOnly: true }).map((thread) => thread.root.id)).toEqual([
+      "action-1",
+    ]);
+  });
+
+  it("reports open, overdue and mine in the stats", () => {
+    const rows = [
+      action({ id: "a1", action_owner_user_id: AUTHOR, action_due_at: "2026-10-20T08:00:00.000Z" }),
+      action({ id: "a2", action_owner_user_id: OTHER }),
+      action({ id: "a3", action_status: "done" }),
+    ];
+    const stats = productionRoomStats(rows, { userId: AUTHOR });
+    expect(stats.openActions).toBe(2);
+    expect(stats.overdueActions).toBe(1);
+    expect(stats.myOpenActions).toBe(1);
   });
 });

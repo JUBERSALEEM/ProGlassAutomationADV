@@ -256,6 +256,41 @@ agree.
       the footer and the sitemap. A room that names customers, machines and
       dates has no business in an index.
 
+### Action items
+
+An `action_item` is the only post that carries structured work: an owner, a due
+time and a status. The composer shows the owner and due fields the moment the
+category is `action_item`, and hides them again for every other category, so the
+shape cannot drift by accident. The database enforces what the camera roll
+cannot see:
+
+| Field | Rule |
+|---|---|
+| `action_owner_user_id` | must be an active room member, `ON DELETE RESTRICT` |
+| `action_due_at` | within five years either side of now |
+| `action_status` | `open`, `done` or `cancelled`, `open` on creation |
+
+Constraint `production_room_messages_action_shape_check` allows three empty
+fields or three fields on a live, top-level `action_item`; a reply can never
+carry them. A partial index on `(action_due_at, id)` keeps the overdue filter
+cheap.
+
+Rights mirror the rest of the room. A room admin or the author can assign and
+re-date; the current owner can close or reopen what they own but cannot hand it
+to somebody else. A member who is neither author, owner nor admin sees no action
+control at all rather than a button that would be refused.
+
+- `post_production_room_action_item(p_body, p_owner_user_id, p_due_at)` inserts
+  the post as `action_item` with status `open` and audits `message_created` plus
+  `action_assigned` when an owner is named.
+- `set_production_room_action(p_message_id, p_owner_user_id, p_due_at, p_status)`
+  is the only way to change the three fields and writes exactly one event:
+  `action_assigned`, `action_updated`, `action_completed` or `action_reopened`.
+
+The screen adds three filter chips (`open actions`, `mine`, `overdue`) and three
+stat rows (open, overdue, mine), all derived from the same loaded thread, so a
+count and its list can never disagree.
+
 ### Database change made with the UI
 
 The room tables had never been added to the Realtime publication, so a browser
@@ -267,26 +302,28 @@ profile tables plus the room's message table.
 
 ### Verification
 
-- `tests/production-room.test.tsx` — 24 assertions over normalisation,
-  threading, unread arithmetic, and the three permission mirrors (edit window,
-  delete window, pin shape).
-- `tests/production-room-workspace.test.tsx` — 5 DOM tests: the non-member gate
+- `tests/production-room.test.tsx`: 32 assertions over normalisation,
+  threading, unread arithmetic, the three permission mirrors (edit window,
+  delete window, pin shape) and the action helpers (status labels, overdue and
+  due today, reassignment rights).
+- `tests/production-room-workspace.test.tsx`: 9 DOM tests: the non-member gate
   renders no composer, a member posts with the selected category, a reply
-  inherits the root category, a pin is offered only on a decision, and edit and
-  delete disappear after thirty minutes.
-- `scripts/inquiry-production-room.test.mjs` — 5 static contracts: RLS and
+  inherits the root category, a pin is offered only on a decision, edit and
+  delete disappear after thirty minutes, an action item posts with its owner and
+  due time in one call, an owner closes their own item, and a member who neither
+  wrote nor owns an item is offered no control at all.
+- `scripts/inquiry-production-room.test.mjs`: 7 static contracts: RLS and
   RPC-only writes, the nine categories matching the check constraint, the 30
   minute and 4,000 character bounds matching the SQL, noindex and no navigation,
-  and no fake data path.
-- Applied and verified on the project: 4 tables, 4 policies, 9 functions, 1
+  no fake data path, the action columns with their shape constraint, and the two
+  action functions with their grants.
+- Applied and verified on the project: 4 tables, 4 policies, 11 functions, 1
   published table, `SELECT` only for `authenticated`, nothing for `anon`.
 
 ### Still open in the room
 
 - [ ] Attachments. The table has no document column and no storage policy, so
       this is a schema change plus a bucket policy, not a UI addition.
-- [ ] Action item owner and due date as structured fields. The `action_item`
-      category exists but the owner lives in the prose today.
 - [ ] Optional stable links to PI, job order, delivery or inquiry.
 - [ ] Mentions and typing indicators.
 - [ ] Locale translations, as with the chat pages.
@@ -306,7 +343,7 @@ run. Nothing above blocks the desktop, and nothing below is required before it.
 | WPF compiles at all | open: no .NET SDK has ever built this tree | needs the Windows PC |
 | An inbox-consumption destination in WPF | open: zero references to an inbox in C# | design, then implementation |
 | Website chat pipeline | implemented, schema verified | independent of WPF |
-| Production room | UI and schema implemented, realtime published | independent of WPF |
+| Production room | UI, schema and action items implemented, realtime published | independent of WPF |
 
 ## Must not change
 

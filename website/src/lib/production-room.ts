@@ -1,5 +1,7 @@
 import {
+  PRODUCTION_ROOM_ACTION_STATUSES,
   PRODUCTION_ROOM_CATEGORIES,
+  type ProductionRoomActionStatus,
   type ProductionRoomCategory,
   type ProductionRoomMember,
   type ProductionRoomMessage,
@@ -158,7 +160,17 @@ export function normalizeProductionRoomMessage(value: unknown): ProductionRoomMe
     edit_count: Math.max(0, Math.trunc(numberOr(record, "edit_count", 0))),
     deleted_by: nullableText(record, "deleted_by"),
     deleted_at: nullableText(record, "deleted_at"),
+    action_owner_user_id: nullableText(record, "action_owner_user_id"),
+    action_due_at: nullableText(record, "action_due_at"),
+    action_status: isProductionRoomActionStatus(record.action_status) ? record.action_status : null,
   };
+}
+
+export function isProductionRoomActionStatus(value: unknown): value is ProductionRoomActionStatus {
+  return (
+    typeof value === "string" &&
+    (PRODUCTION_ROOM_ACTION_STATUSES as readonly string[]).includes(value)
+  );
 }
 
 export function normalizeProductionRoomMessages(value: unknown): ProductionRoomMessage[] {
@@ -342,6 +354,12 @@ export type ProductionRoomFilter = {
   category?: ProductionRoomCategory | "all";
   query?: string;
   unreadOnly?: boolean;
+  /** Only open action items, whether or not they have been assigned. */
+  openActionsOnly?: boolean;
+  /** Only action items owned by the reader. */
+  mineOnly?: boolean;
+  /** Only action items past their due moment and not yet closed. */
+  overdueOnly?: boolean;
 };
 
 /**
@@ -356,6 +374,9 @@ export function filterProductionRoomThreads(
   const category = filter.category ?? "all";
   const query = (filter.query ?? "").replace(/\s+/g, " ").trim().toLocaleLowerCase();
   const unreadOnly = filter.unreadOnly === true;
+  const openActionsOnly = filter.openActionsOnly === true;
+  const mineOnly = filter.mineOnly === true;
+  const overdueOnly = filter.overdueOnly === true;
   const userId = options.userId ?? null;
   const lastReadAt = options.lastReadAt ?? null;
 
@@ -369,6 +390,10 @@ export function filterProductionRoomThreads(
   return threads.filter((thread) => {
     if (category !== "all" && thread.root.category !== category) return false;
     if (unreadOnly && !unreadIn(thread)) return false;
+    if (openActionsOnly && !isActionItem(thread.root)) return false;
+    if (openActionsOnly && isActionClosed(thread.root)) return false;
+    if (mineOnly && (!isActionItem(thread.root) || thread.root.action_owner_user_id !== userId)) return false;
+    if (overdueOnly && !isActionOverdue(thread.root)) return false;
     if (!query) return true;
     if (matches(thread.root)) return true;
     return thread.replies.some(matches);
@@ -380,26 +405,149 @@ export type ProductionRoomStats = {
   threads: number;
   replies: number;
   pinnedDecisions: number;
+  openActions: number;
+  overdueActions: number;
+  myOpenActions: number;
   byCategory: Record<ProductionRoomCategory, number>;
 };
 
 export function productionRoomStats(
   messages: readonly ProductionRoomMessage[],
+  options: { userId?: string | null; now?: number } = {},
 ): ProductionRoomStats {
   const byCategory = Object.fromEntries(
     PRODUCTION_ROOM_CATEGORIES.map((category) => [category, 0]),
   ) as Record<ProductionRoomCategory, number>;
+  const userId = options.userId ?? null;
+  const now = options.now ?? Date.now();
   let total = 0;
   let replies = 0;
   let pinnedDecisions = 0;
+  let openActions = 0;
+  let overdueActions = 0;
+  let myOpenActions = 0;
   for (const message of normalizeProductionRoomMessages(messages)) {
     if (isProductionRoomDeleted(message)) continue;
     total += 1;
-    if (message.parent_id !== null) replies += 1;
-    else byCategory[message.category] += 1;
+    if (message.parent_id !== null) {
+      replies += 1;
+      continue;
+    }
+    byCategory[message.category] += 1;
     if (message.is_pinned && message.category === "decision") pinnedDecisions += 1;
+    if (isActionItem(message) && !isActionClosed(message)) {
+      openActions += 1;
+      if (isActionOverdue(message, now)) overdueActions += 1;
+      if (userId && message.action_owner_user_id === userId) myOpenActions += 1;
+    }
   }
-  return { total, threads: total - replies, replies, pinnedDecisions, byCategory };
+  return { total, threads: total - replies, replies, pinnedDecisions, openActions, overdueActions, myOpenActions, byCategory };
+}
+
+/** True only for a top-level action item, which is the only row a filter may read. */
+export function isActionItem(message: ProductionRoomMessage): boolean {
+  return message.category === "action_item" && message.parent_id === null;
+}
+
+/** A null status means open, exactly as the writer treats it. */
+export function productionRoomActionStatus(
+  message: ProductionRoomMessage,
+): ProductionRoomActionStatus | null {
+  if (!isActionItem(message)) return null;
+  return message.action_status ?? "open";
+}
+
+export function isActionClosed(message: ProductionRoomMessage): boolean {
+  const status = productionRoomActionStatus(message);
+  return status === "done" || status === "cancelled";
+}
+
+/**
+ * Overdue is a fact about the due moment, not about the status: a closed item
+ * is never overdue however old it is, and an item with no date can be late in
+ * spirit but not on the clock, so it is not counted here.
+ */
+export function isActionOverdue(
+  message: ProductionRoomMessage,
+  now: number = Date.now(),
+): boolean {
+  if (!isActionItem(message) || isActionClosed(message)) return false;
+  if (!message.action_due_at) return false;
+  const due = new Date(message.action_due_at).getTime();
+  return Number.isFinite(due) && due < now;
+}
+
+export function isActionDueToday(
+  message: ProductionRoomMessage,
+  now: number = Date.now(),
+): boolean {
+  if (!isActionItem(message) || isActionClosed(message) || !message.action_due_at) return false;
+  const due = new Date(message.action_due_at);
+  const today = new Date(now);
+  return (
+    due.getFullYear() === today.getFullYear() &&
+    due.getMonth() === today.getMonth() &&
+    due.getDate() === today.getDate()
+  );
+}
+
+export function productionRoomActionStatusLabel(
+  message: ProductionRoomMessage,
+  now: number = Date.now(),
+): string {
+  const status = productionRoomActionStatus(message);
+  if (status === "done") return "Done";
+  if (status === "cancelled") return "Cancelled";
+  if (isActionOverdue(message, now)) return "Overdue";
+  if (isActionDueToday(message, now)) return "Due today";
+  if (!message.action_due_at) return "No due date";
+  return "Open";
+}
+
+/** Mirrors `set_production_room_action`: admin or author reassigns, owner closes. */
+export function canManageActionItem(
+  message: ProductionRoomMessage,
+  userId: string | null,
+  isRoomAdmin: boolean,
+): boolean {
+  if (!userId || !isActionItem(message) || isProductionRoomDeleted(message)) return false;
+  return isRoomAdmin || message.author_user_id === userId || message.action_owner_user_id === userId;
+}
+
+/** An owner who is neither the author nor an admin may only close or reopen. */
+export function canReassignActionItem(
+  message: ProductionRoomMessage,
+  userId: string | null,
+  isRoomAdmin: boolean,
+): boolean {
+  if (!userId || !isActionItem(message) || isProductionRoomDeleted(message)) return false;
+  return isRoomAdmin || message.author_user_id === userId;
+}
+
+/** `datetime-local` gives "YYYY-MM-DDTHH:mm"; the API needs a full instant. */
+export function actionDueInputToIso(value: string): string | null {
+  const text = typeof value === "string" ? value.trim() : "";
+  if (!text) return null;
+  const parsed = new Date(text);
+  return Number.isFinite(parsed.getTime()) ? parsed.toISOString() : null;
+}
+
+export function actionDueIsoToInput(value: string | null): string {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (part: number) => String(part).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+export function formatProductionRoomDueDate(
+  value: string | null | undefined,
+  locale?: string,
+): string {
+  if (!value) return "No due date";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "No due date";
+  return formatter(locale, { dateStyle: "medium", timeStyle: "short" }).format(date);
 }
 
 export function normalizeProductionRoomDraft(value: string): string {
