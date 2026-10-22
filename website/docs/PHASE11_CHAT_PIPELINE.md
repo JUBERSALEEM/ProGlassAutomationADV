@@ -201,17 +201,95 @@ estimator, assignment and delivery counts must be unchanged.
 - [x] Repository changes committed and pushed (`2304adc`).
 - [ ] Room features still absent: attachments, pinned decisions, message
       editing (delete only), presence and typing.
-- [ ] The production coordination room has a complete database layer
-      (`production_room_phase11a`: 4 tables, 9 RPCs, 4 policies, membership,
-      read position, categories, pinning, edit and delete) and **no website
-      surface at all**. Nothing in `src/` references it. This is the largest
-      remaining piece of Phase 11 as originally scoped.
+- [x] The production coordination room now has a website surface at
+      `/[locale]/production`, built on the nine applied RPCs. See the section
+      below.
 - [ ] Locale translations for the new copy. The three new pages write their
       copy directly rather than through `t()`, so they render English inside
       otherwise translated chrome. The dictionaries stand at `en-US` 100
       percent, six locales at 75 to 76 percent and six at 10 to 11 percent, so
       parity for the whole site is a separate, mechanical programme rather than
       a Phase 11 close-out item.
+
+## The production coordination room
+
+Route: `/[locale]/production`, component
+`src/components/production/ProductionRoomWorkspace.tsx`, contract
+`src/lib/production-room.ts` and `src/types/production-room.ts`.
+
+The database layer predates the UI: migration `production_room_phase11a`
+created four tables, nine functions and four policies, and the browser never
+used them. The original migration file was applied through the dashboard and
+never committed, so `supabase-production-room-phase11a.sql` reconstructs it from
+the live project and is idempotent; applying it to a project that already has
+the objects changes nothing. A contract test asserts the file and the component
+agree.
+
+### What the UI does
+
+- [x] Membership gate. A signed-in visitor without an active membership row is
+      told the room is empty on purpose and shown nothing; RLS would have
+      returned no rows anyway, and pretending that is an empty room would be a
+      lie.
+- [x] Nine categories, each with a sentence describing what belongs in it, and
+      filter chips carrying live counts.
+- [x] Composer with category selection, 4,000 character bound, Enter to post,
+      Shift plus Enter for a new line, Escape to cancel a reply.
+- [x] One level of threading. A reply inherits the root category, because the
+      insert function does.
+- [x] Pinned decisions strip. Pin and unpin are offered only on a live,
+      top-level decision, which is exactly what the check constraint allows.
+- [x] Author edit and delete inside thirty minutes; a room admin can delete at
+      any time. Buttons are hidden when the write would be refused, rather than
+      failing after the click.
+- [x] Search, unread-only filter, unread divider and jump to the first unread.
+- [x] Member administration for room admins and inquiry admins: register by
+      email, deactivate, reactivate. The database refuses to remove the last
+      active room admin.
+- [x] Realtime on `production_room_messages` plus a twelve second reconcile, so
+      a dropped socket degrades to slower rather than stuck.
+- [x] Read position written through `mark_production_room_read`, coalesced by a
+      1.2 second timer.
+- [x] Honest states: not configured, saved sign-in unconfirmed, signed out, not
+      a member, loading, no posts, nothing matches the filter.
+- [x] `robots: noindex, nofollow`, and the route is absent from navigation,
+      the footer and the sitemap. A room that names customers, machines and
+      dates has no business in an index.
+
+### Database change made with the UI
+
+The room tables had never been added to the Realtime publication, so a browser
+subscription could not fire and "Live" would have been a false claim. Migration
+`production_room_realtime` adds `production_room_messages` to
+`supabase_realtime`, and sets `REPLICA IDENTITY FULL` on the messages and
+members tables. Published tables in the project are now four: the three chat and
+profile tables plus the room's message table.
+
+### Verification
+
+- `tests/production-room.test.tsx` — 24 assertions over normalisation,
+  threading, unread arithmetic, and the three permission mirrors (edit window,
+  delete window, pin shape).
+- `tests/production-room-workspace.test.tsx` — 5 DOM tests: the non-member gate
+  renders no composer, a member posts with the selected category, a reply
+  inherits the root category, a pin is offered only on a decision, and edit and
+  delete disappear after thirty minutes.
+- `scripts/inquiry-production-room.test.mjs` — 5 static contracts: RLS and
+  RPC-only writes, the nine categories matching the check constraint, the 30
+  minute and 4,000 character bounds matching the SQL, noindex and no navigation,
+  and no fake data path.
+- Applied and verified on the project: 4 tables, 4 policies, 9 functions, 1
+  published table, `SELECT` only for `authenticated`, nothing for `anon`.
+
+### Still open in the room
+
+- [ ] Attachments. The table has no document column and no storage policy, so
+      this is a schema change plus a bucket policy, not a UI addition.
+- [ ] Action item owner and due date as structured fields. The `action_item`
+      category exists but the owner lives in the prose today.
+- [ ] Optional stable links to PI, job order, delivery or inquiry.
+- [ ] Mentions and typing indicators.
+- [ ] Locale translations, as with the chat pages.
 
 ## Distance to a WPF handoff
 
@@ -228,6 +306,7 @@ run. Nothing above blocks the desktop, and nothing below is required before it.
 | WPF compiles at all | open: no .NET SDK has ever built this tree | needs the Windows PC |
 | An inbox-consumption destination in WPF | open: zero references to an inbox in C# | design, then implementation |
 | Website chat pipeline | implemented, schema verified | independent of WPF |
+| Production room | UI and schema implemented, realtime published | independent of WPF |
 
 ## Must not change
 
