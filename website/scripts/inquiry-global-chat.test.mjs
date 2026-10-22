@@ -21,6 +21,7 @@ const communityPage = read("../src/app/[locale]/chat/page.tsx");
 const communityWorkspace = read("../src/components/chat/GlobalChatWorkspace.tsx");
 const communityHelpers = read("../src/lib/global-chat.ts");
 const communitySql = read("../supabase-global-chat.sql");
+const grantSql = read("../supabase-phase11-grant-tightening.sql");
 const communitySqlV2 = read("../supabase-global-chat-v2-replies-receipts.sql");
 const communityTypes = read("../src/types/global-chat.ts");
 const accountWorkspace = read("../src/components/account/CustomerAccountWorkspace.tsx");
@@ -363,4 +364,23 @@ test("a mention is highlighted only for the member it names", () => {
   assert.match(communityWorkspace, /splitGlobalChatMentions\(body, displayName\)/);
   assert.match(communityWorkspace, /\(mentions you\)/);
   assert.match(communityWorkspace, /displayName=\{currentProfile\?\.display_name \?\? ""\}/);
+});
+
+test("phase 11 leaves no unused table privilege reachable from the browser", () => {
+  // TRUNCATE ignores Row Level Security, so the tightening migration has to
+  // cover it explicitly rather than relying on PostgREST not exposing it.
+  assert.match(grantSql, /REVOKE ALL ON TABLE/);
+  assert.match(grantSql, /public\.global_chat_messages/);
+  assert.match(grantSql, /public\.user_profiles/);
+  assert.match(grantSql, /public\.production_room_messages/);
+  assert.match(grantSql, /FROM anon, authenticated/);
+  assert.match(grantSql, /GRANT SELECT ON TABLE/);
+  assert.match(grantSql, /GRANT SELECT, INSERT, UPDATE ON TABLE public\.user_profiles TO authenticated/);
+  // Strip comments first: the file explains TRUNCATE, TRIGGER and REFERENCES
+  // in prose, and the assertions are about statements.
+  const statements = grantSql.replace(/--[^\n]*/g, "");
+  assert.doesNotMatch(statements, /GRANT[^;]*TRUNCATE/i);
+  assert.doesNotMatch(statements, /GRANT[^;]*DELETE/i);
+  assert.doesNotMatch(statements, /GRANT[^;]*TRIGGER/i);
+  assert.doesNotMatch(statements, /GRANT[^;]*REFERENCES/i);
 });

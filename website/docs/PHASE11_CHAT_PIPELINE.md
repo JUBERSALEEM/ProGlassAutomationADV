@@ -3,8 +3,9 @@
 **Scope:** `website/` only. No WPF source, migration, production data or secret
 was touched.
 **Branch:** `arena/2611f8ff-proglassautomationadv`
-**Status:** implemented in source, local gates green, migrations written but not
-recorded as applied, live matrix open.
+**Status:** implemented in source, local gates green, all four migrations applied
+and structurally verified on project `afpbdyamedpanwijxghk` on 2026-10-22, live
+browser matrix still open.
 
 ## Why this is Phase 11
 
@@ -77,6 +78,50 @@ arithmetic, excerpting), `lib/customer-inquiry-chat.ts`,
       unreachable Supabase project cannot be mistaken for an expired session and
       bounce a signed-in user back to the login form.
 
+## Applied on the project (2026-10-22)
+
+Migration history from the project, in application order:
+
+| Version | Name |
+|---|---|
+| `20261019043256` | `production_room_phase11a` |
+| `20261019072133` | `global_community_chat` |
+| `20261019074255` | `global_community_chat_replies_receipts` |
+| `20261019084503` | `customer_user_profiles_avatar` |
+| `20261022` | `phase11_revoke_unused_table_privileges` |
+
+Read-only verification returned, for the five chat and profile tables: **5
+tables, 5 with RLS, 7 policies, 6 chat routines, 3 Realtime-published tables, 3
+tables with `REPLICA IDENTITY FULL`, 10 indexes, 0 anon grants**. The
+one-argument `post_global_chat_message(text)` no longer exists because the v2
+migration replaced it with the two-argument signature, which is what the browser
+calls.
+
+Live content at the time of verification: 3 messages, 1 receipt, 3 audit
+events, 2 profiles. Untouched by this work: 7 customer submissions, 23
+documents, 2 production room members.
+
+### Privilege drift found and fixed
+
+Supabase grants `ALL` on every new table in `public` by default. The Phase 11
+migrations revoked `ALL` from `anon` and revoked `INSERT`, `UPDATE`, `DELETE`
+from `authenticated` on the chat tables, which left three privileges behind, and
+left `DELETE` on `user_profiles`:
+
+| Table group | Was | Is now |
+|---|---|---|
+| four chat tables | `SELECT, REFERENCES, TRIGGER, TRUNCATE` | `SELECT` |
+| `user_profiles` | `DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE` | `SELECT, INSERT, UPDATE` |
+| four production room tables | `SELECT, REFERENCES, TRIGGER, TRUNCATE` | `SELECT` |
+| `anon` | 0 | 0 |
+
+`TRUNCATE` was the one that mattered: it ignores Row Level Security entirely, so
+it must not be reachable by a signed-in browser session even though PostgREST
+does not expose it. Every write path is a `SECURITY DEFINER` function with a
+pinned `search_path`, and no application code calls `.delete()` on any table, so
+the revoke removes nothing the site uses. `supabase-phase11-grant-tightening.sql`
+carries the change so the repository matches the project.
+
 ## Database contract
 
 Three additive migrations, applied in this order. None of them alters an
@@ -148,16 +193,19 @@ estimator, assignment and delivery counts must be unchanged.
 
 ## Not done
 
-- [ ] The three migrations are written but nowhere recorded as applied. No
-      structural verification result exists for them.
-- [ ] No live matrix has been run against a disposable Supabase project.
-      `PHASE11_LIVE_VERIFICATION.md` holds the exact procedure, the structural
-      query with expected counts, the 15-row functional matrix, the negative
-      checks, the failure behaviour and the rollback order.
+- [x] The four migrations are applied and recorded on the project, with the
+      structural verification above.
+- [ ] The browser matrix has not been run. The structural side is proven above;
+      what remains is two signed-in accounts plus a moderator walking
+      `PHASE11_LIVE_VERIFICATION.md` section 4.
 - [ ] Repository changes for this phase are uncommitted at the time of writing.
 - [ ] Room features still absent: attachments, pinned decisions, message
       editing (delete only), presence and typing.
-- [ ] Production coordination categories and action items.
+- [ ] The production coordination room has a complete database layer
+      (`production_room_phase11a`: 4 tables, 9 RPCs, 4 policies, membership,
+      read position, categories, pinning, edit and delete) and **no website
+      surface at all**. Nothing in `src/` references it. This is the largest
+      remaining piece of Phase 11 as originally scoped.
 - [ ] Locale translations for the new copy; the pages currently fall back to
       their English source strings.
 

@@ -1,9 +1,12 @@
 # Phase 11 live verification runbook
 
-**Scope:** the three Phase 11 migrations and the room behaviour they support.
-Nothing here is authorised by this document. Each step needs an explicit go
-ahead, and every step runs against a disposable Supabase project, never
-production.
+**Scope:** the Phase 11 migrations and the room behaviour they support.
+
+Status on 2026-10-22: sections 2 and 3 are **done on project
+`afpbdyamedpanwijxghk`** and recorded in `PHASE11_CHAT_PIPELINE.md`. What remains
+is section 4 onwards, which needs two signed-in accounts and a moderator. Only
+one project exists in this organisation, so the browser matrix runs against that
+project; the data it creates is three chat messages and their receipts.
 
 ## 1. Prerequisites
 
@@ -25,6 +28,7 @@ run its verification block. A failure at any step is a stop, not a retry.
 | 1 | `supabase-global-chat.sql` | `global_chat_messages`, `global_chat_reads`, `global_chat_events`, 3 policies, 4 RPCs, Realtime publication |
 | 2 | `supabase-global-chat-v2-replies-receipts.sql` | `global_chat_receipts`, `reply_to_message_id`, the two-argument post RPC, 1 policy, 2 receipt RPCs |
 | 3 | `supabase-user-profiles.sql` | `user_profiles`, 3 policies, `touch_user_profiles_updated_at` |
+| 4 | `supabase-phase11-grant-tightening.sql` | revokes the unused default privileges; leaves `SELECT` on the seven read-only tables and `SELECT, INSERT, UPDATE` on `user_profiles` |
 
 Existing inquiry, intake, estimator, assignment and delivery counts are captured
 before step 1 and compared after step 3. Any change is a failure.
@@ -55,8 +59,9 @@ where table_schema = 'public' and grantee = 'authenticated' and privilege_type i
   and table_name in ('global_chat_messages','global_chat_reads','global_chat_events','global_chat_receipts');
 ```
 
-Expected: 5 tables, 5 RLS tables, 7 policies, 7 RPC rows, 3 published tables,
-**0** anon grants, **0** write grants on the four chat tables.
+Expected: 5 tables, 5 RLS tables, 7 policies, **6** chat routines (`post` exists
+only with its two-argument signature), 3 published tables, **0** anon grants,
+**0** write grants on the four chat tables. Verified on 2026-10-22.
 
 ## 4. Functional matrix
 
