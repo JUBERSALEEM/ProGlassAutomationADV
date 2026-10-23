@@ -647,25 +647,19 @@ namespace ProGlassAutomation
                 Config.Appearance?.WallpaperPath ?? "",
                 Config.Appearance?.WallpaperOpacity ?? 0.85);
 
-            // 9e) Restore the persisted accent — preset palette key OR
-            //     the free-pick custom hex — and re-derive the full
-            //     accent family (hover/tint/contrast) from it so the UI
-            //     keeps the colour between sessions.
-            string persistedPreset = Config.Appearance?.AccentPreset ?? "GlassBlue";
-            System.Windows.Media.Color? persistedAccent =
-                persistedPreset == ProGlassAutomation.Services.Theme.AccentPresets.Custom
-                    ? ProGlassAutomation.Services.Theme.AccentPresets.TryParseHex(
-                        Config.Appearance?.CustomAccentHex)
-                    : ProGlassAutomation.Services.Theme.AccentPresets.ColorFor(persistedPreset);
-            ProGlassAutomation.Services.ThemeManager.ApplyAccent(
-                persistedAccent,
-                raiseEvent: false);
+            // 9e) Persisted accent restore — REMOVED (owner ruling,
+            //     Phase A "no old accent"). Startup never calls
+            //     ThemeManager.ApplyAccent(persisted): the package's
+            //     AccentPrimary, published by the V3 apply above, is the
+            //     accent on the FIRST frame and every frame after. The
+            //     intentional skip is logged once per distinct saved pair
+            //     by V3ThemeApplier (Operation=V3AccentSkip); the preset
+            //     itself stays in Config so Settings can still display it.
 
-            // 9f) Restore the persisted card/pill outline choice. Must run
-            //     AFTER ApplyAccent, because both write into the same live
-            //     resource dictionary and this one must win for OutlineBrush.
-            //     The custom card-edge colour is restored FIRST so the
-            //     ApplyOutline below paints with it.
+            // 9f) Restore the persisted card/pill outline choice. Runs
+            //     against the package keyline — no ApplyAccent runs at
+            //     startup anymore (9e above). The custom card-edge colour
+            //     is restored FIRST so the ApplyOutline below paints with it.
             ProGlassAutomation.Services.ThemeManager.ApplyCardEdgeColor(
                 Config.Appearance?.CardEdgeColor);
             ProGlassAutomation.Services.ThemeManager.ApplyOutline(
