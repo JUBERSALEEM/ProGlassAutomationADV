@@ -2155,6 +2155,7 @@
     <sys:String x:Key="Settings.SecAi">المساعد الذكي</sys:String>
     <sys:String x:Key="Settings.SecAppearance">المظهر</sys:String>
     <sys:String x:Key="Settings.SecData">البيانات والنسخ الاحتياطي</sys:String>
+    <sys:String x:Key="Settings.SecRecordsSync">مزامنة السجلات</sys:String>
     <sys:String x:Key="Settings.SecDemo">مركز العروض</sys:String>
     <sys:String x:Key="Settings.SecFeatures">الميزات</sys:String>
     <sys:String x:Key="Settings.SecLicense">الترخيص</sys:String>

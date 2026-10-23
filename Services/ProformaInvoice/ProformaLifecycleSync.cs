@@ -61,8 +61,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                 // e.g. the Production role deleting a Job Order still gets
                 // the PI cancelled. It also raises the change signal so the
                 // saved-invoices list refreshes to "Cancelled" immediately.
+                var invoice = await App.Invoices.GetByProformaIdAsync(proformaId);
+                if (invoice == null) return;
                 bool updated = await App.Invoices
-                    .MarkCancelledAsync(proformaId);
+                    .MarkCancelledAsync(proformaId, invoice.RowVersion);
                 if (!updated)
                     return;
 

@@ -27,9 +27,17 @@ namespace ProGlassAutomation.Models.Audit
         [Key]
         public int Id { get; set; }
 
-        /// <summary>Login name. Unique (enforced by index in DbContext).</summary>
+        /// <summary>Login name as entered (display casing is retained).</summary>
         [Required, MaxLength(60)]
         public string Username { get; set; } = "";
+
+        /// <summary>
+        /// Canonical identity key: trimmed, Unicode Form KC, invariant
+        /// uppercase. A unique database index enforces case-insensitive
+        /// uniqueness rather than relying on an application pre-check.
+        /// </summary>
+        [Required, MaxLength(120)]
+        public string UsernameNormalized { get; set; } = "";
 
         /// <summary>Display name shown in the UI and audit trail.</summary>
         [Required, MaxLength(120)]

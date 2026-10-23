@@ -149,13 +149,19 @@ namespace ProGlassAutomation.Tests.Agent
         // ══════════════════════════════════════════════════════════
 
         [Theory]
-        [InlineData(3840L * 2160, "ultrafast")]
+        // 4K was "ultrafast" until the 2026-10-05 quality pass: ultrafast
+        // disables 8x8 DCT, CABAC, deblocking and aq-mode, which is what made
+        // 4K screen text go soft, and it left "-tune stillimage" inert
+        // (psy-rd needs subme >= 6; ultrafast is subme 0). superfast restores
+        // all four. AdjustPreset still demotes to ultrafast on a measurement
+        // that says the machine cannot hold the rate.
+        [InlineData(3840L * 2160, "superfast")]
         [InlineData(3840L * 2160 - 1, "superfast")]   // just below 4K
         [InlineData(2560L * 1440, "superfast")]
         [InlineData(2560L * 1440 - 1, "veryfast")]    // just below 1440p
         [InlineData(1920L * 1080, "veryfast")]
         [InlineData(1280L * 720, "veryfast")]
-        public void DefaultPresetForOutput_MatchesTheHistoricalLadder(long pixels, string expected)
+        public void DefaultPresetForOutput_MatchesTheLadder(long pixels, string expected)
         {
             Assert.Equal(expected, VideoEncoder.DefaultPresetForOutput(pixels));
         }

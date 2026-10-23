@@ -59,6 +59,7 @@ using ProGlassAutomation.Services.Inquiry;
 using ProGlassAutomation.Services.JobOrder.Database;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.MasterData.Database;
+using ProGlassAutomation.Services.OrderReport.Database;
 using ProGlassAutomation.Services.Production;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
@@ -282,6 +283,30 @@ namespace ProGlassAutomation.Services.Database
             },
             new DbDescriptor
             {
+                Key = "OrderReports",
+                DisplayName = "Order Reports (orderreports.db)",
+                PathProvider = () => OrderReportDbContext.DatabaseFilePath,
+                CountTables = new[] { "OrderReports" },
+                Expect = new[]
+                {
+                    new DatabaseSchemaExpectation
+                    {
+                        Table = "OrderReports",
+                        RequiredColumns = new[]
+                        {
+                            "Id", "ReportNumber", "FullSnapshotJson", "FilterJson",
+                            "PdfPath", "RowVersion", "CreatedAt", "UpdatedAt"
+                        }
+                    }
+                },
+                Recreate = () =>
+                {
+                    using var db = new OrderReportDbContext();
+                    db.Database.EnsureCreated();
+                }
+            },
+            new DbDescriptor
+            {
                 Key = "Statements",
                 DisplayName = "Statements (statements.db)",
                 PathProvider = () => StatementDbContext.DatabaseFilePath,
@@ -447,8 +472,9 @@ namespace ProGlassAutomation.Services.Database
             try
             {
                 using var conn = new SqliteConnection(
-                    $"Data Source={dbPath};Mode=ReadOnly");
+                    SqliteResilience.BuildReadOnlyConnectionString(dbPath));
                 conn.Open();
+                SqliteResilience.ApplyReadOnlyConnectionPolicy(conn);
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = "PRAGMA user_version;";
                 var v = cmd.ExecuteScalar();
@@ -466,8 +492,9 @@ namespace ProGlassAutomation.Services.Database
         {
             var list = new List<TableCount>();
             await using var conn = new SqliteConnection(
-                $"Data Source={dbPath};Mode=ReadOnly");
+                SqliteResilience.BuildReadOnlyConnectionString(dbPath));
             await conn.OpenAsync(ct);
+            SqliteResilience.ApplyReadOnlyConnectionPolicy(conn);
             foreach (var t in tables)
             {
                 ct.ThrowIfCancellationRequested();
@@ -500,8 +527,9 @@ namespace ProGlassAutomation.Services.Database
             if (expect == null || expect.Count == 0) return notes;
 
             await using var conn = new SqliteConnection(
-                $"Data Source={dbPath};Mode=ReadOnly");
+                SqliteResilience.BuildReadOnlyConnectionString(dbPath));
             await conn.OpenAsync(ct);
+            SqliteResilience.ApplyReadOnlyConnectionPolicy(conn);
 
             foreach (var e in expect)
             {

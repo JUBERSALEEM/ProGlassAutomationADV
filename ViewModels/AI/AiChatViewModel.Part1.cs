@@ -557,43 +557,29 @@ public AiChatViewModel(
             try
             {
                 // ── Phase 1: context (visible progress, never silent) ──
-                StatusMessage = "🧠 Preparing live data & memory…";
+                StatusMessage = "🧠 Preparing permitted context…";
 
                 var systemPrompt = BuildSystemPrompt();
                 string dataContext = string.Empty;
-                string learningContext = string.Empty;
 
-                if (_config?.Ai?.UseRealData == true)
+                // This is an egress boundary: with real business data OFF,
+                // BuildContextAsync returns before cache or database access.
+                // Persisted AI memory and audit events are not appended. The
+                // user's current message is still sent to the selected cloud
+                // provider as part of ordinary chat.
+                try
                 {
-                    try
-                    {
-                        dataContext =
-                            await AiContextBuilder.BuildContextAsync();
-                    }
-                    catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
+                    dataContext = await AiContextBuilder.BuildContextAsync(
+                        _config?.Ai?.UseRealData == true);
                 }
-                else
-                {
-                    // v3 MEMORY FIX: memory was only recalled when
-                    // real-data (RAG) was switched on, so with it off
-                    // the assistant "forgot" everything between
-                    // sessions. Learning context is now recalled ALWAYS.
-                    try
-                    {
-                        learningContext = await AiContextBuilder
-                            .BuildLearningContextAsync();
-                    }
-                    catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
-                }
+                catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
 
                 var fullSystemPrompt = systemPrompt;
                 if (!string.IsNullOrEmpty(dataContext))
                     fullSystemPrompt += "\n" + dataContext;
-                else if (!string.IsNullOrEmpty(learningContext))
-                    fullSystemPrompt += "\n" + learningContext;
 
-                // Detected entity reference (hoisted so the learning
-                // memory below can record it after the response).
+                // Detected entity reference is passed to the local memory
+                // store after the response; it is not recalled into cloud prompts.
                 EntityReference? entityRef = null;
 
                 if (_config?.Ai?.UseRealData == true)

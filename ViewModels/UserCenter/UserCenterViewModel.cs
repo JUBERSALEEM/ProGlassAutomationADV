@@ -199,11 +199,11 @@ namespace ProGlassAutomation.ViewModels.UserCenter
                     return;
                 }
 
-                bool ok = await AuditService
+                var (ok, error) = await AuditService
                     .SetUserActiveAsync(card.Id, !card.IsActive);
                 Status = ok
                     ? (card.IsActive ? "Deactivated: " : "Activated: ") + card.DisplayName
-                    : "Could not change activation (last active Admin is protected).";
+                    : error;
                 await LoadAsync();
             });
 

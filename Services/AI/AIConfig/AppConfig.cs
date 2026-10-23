@@ -18,11 +18,22 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// <summary>Use a shared LAN/Wi-Fi folder for all business SQLite databases.</summary>
         public bool UseSharedDataRoot { get; set; }
 
-        /// <summary>UNC or mapped-drive folder, e.g. \\SERVER\ProGlassData.</summary>
+        /// <summary>UNC or mapped-drive folder, e.g. \\OFFICE-PC\ProGlassData (replace OFFICE-PC with the host PC name).</summary>
         public string SharedDataRootPath { get; set; } = "";
 
-        /// <summary>When true, copy the current local data set into an empty shared folder before switching.</summary>
-        public bool CopyLocalDataOnEnable { get; set; } = true;
+        /// <summary>
+        /// Set after this workstation has used its local database because a
+        /// configured shared root was unavailable. Prevents a later startup
+        /// from silently switching to the shared dataset and hiding offline
+        /// local changes; the operator must explicitly reconnect and restart from Settings.
+        /// </summary>
+        public bool SharedRootOfflineFallbackNeedsReview { get; set; }
+
+        /// <summary>One-time local-mode/reconnect notice not yet acknowledged by the operator.</summary>
+        public bool SharedRootLocalModeNoticePending { get; set; }
+
+        /// <summary>Prevents repeating the one-time notice that a saved share has returned.</summary>
+        public bool SharedRootReconnectNoticeShown { get; set; }
 
         /// <summary>Station label for audit/support; defaults to machine name when blank.</summary>
         public string WorkstationName { get; set; } = "";

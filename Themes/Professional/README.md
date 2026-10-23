@@ -1,5 +1,9 @@
 # MERIDIAN — the ProGlass design system (Pg*)
 
+<!-- pg-nav -->
+> **[Repository root](../../README.md)** · [All documents](../../docs/README.md) · [Application workflow](../../docs/WORKFLOW.md) · [Design system](../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
+
 The full 0→100 UI rewrite (2026-09) of the MainWindow shell + all 7 module
 dashboards runs on this design system. Everything here is prefixed **`Pg*`**
 so it can never collide with the app's other token layers.
@@ -59,3 +63,9 @@ The previous dashboard grammar is gone:
 Rule: dashboards, the module bar and the shell reference **only** `Pg*` keys.
 New dashboard surfaces get a `Pg*` token — never a local style, never an
 unprefixed key.
+
+<!-- pg-nav -->
+---
+
+*This README documents `Themes/Professional/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../docs/README.md).*
+<!-- pg-nav -->

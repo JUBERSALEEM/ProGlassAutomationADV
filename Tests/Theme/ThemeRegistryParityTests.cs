@@ -25,6 +25,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using ProGlassAutomation.Services.Theme;
+using ProGlassAutomation.Services.Theme.Eight;
 using Xunit;
 
 namespace ProGlassAutomation.Tests.Theme
@@ -209,33 +210,50 @@ namespace ProGlassAutomation.Tests.Theme
         // family's wallpaper. Two of four rows were wrong that way, and
         // every existing test was green, because the catalogue and the
         // picker were each internally consistent and never compared.
+        //
+        // EIGHT-FAMILY CONTRACT (2026-10-19): the defect is now IMPOSSIBLE
+        // rather than merely tested for. The picker used to be a
+        // hand-written `new(VisualThemeEngine.X)` array in the view model,
+        // which is precisely the shape that let it drift from the engine.
+        // It is now built by iterating EightThemeNames.All, so parity is
+        // structural: a family cannot reach the engine without reaching the
+        // picker, and cannot reach the picker without a scene.
+        //
+        // The test is rewritten rather than deleted, because the invariant it
+        // protects — "every offered row resolves to a catalogued scene" — is
+        // still exactly right, it is simply now guaranteed by construction
+        // instead of by inspection. What is asserted below is the assertion
+        // that actually matters now: the runtime list and the scene
+        // catalogue agree, in both directions, with no hand-written list in
+        // between to disagree.
         [Fact]
         public void ThemeDropdown_OffersExactlyTheCataloguedFamilies()
         {
-            string vm = Read(
-                "ViewModels/Settings/SettingsViewModel.ThemeWallpaper.cs");
-            int start = vm.IndexOf("VisualThemeOptions", StringComparison.Ordinal);
-            Assert.True(start >= 0, "VisualThemeOptions is gone from the VM");
-            int end = vm.IndexOf("};", start, StringComparison.Ordinal);
-            Assert.True(end > start, "cannot bound the VisualThemeOptions list");
-
-            var offered = Regex.Matches(vm.Substring(start, end - start),
-                    @"new\(\s*(?:[\w\.]*\.)?VisualThemeEngine\.(\w+)\s*\)")
-                .Cast<Match>()
-                .Select(m => ConstValue(m.Groups[1].Value))
-                .ToList();
-
-            Assert.Equal(
-                AllFamilies.OrderBy(k => k, StringComparer.Ordinal),
-                offered.OrderBy(k => k, StringComparer.Ordinal));
-
-            // ...and every offered row resolves to a catalogued scene, so the
-            // "Studio" fallback can never fire again.
-            var catalogued = BuiltinWallpaperScenes.All
+            var offered = EightThemeNames.All.ToHashSet(StringComparer.Ordinal);
+            var catalogued = BuiltinWallpaperScenes.EightFamilies
                 .Select(row => row.Key)
                 .ToHashSet(StringComparer.Ordinal);
+
+            // Every offered family has a scene, and every catalogued scene is
+            // offered. A family in one and not the other is the drift this
+            // whole test exists to catch.
+            Assert.Equal(
+                offered.OrderBy(k => k, StringComparer.Ordinal),
+                catalogued.OrderBy(k => k, StringComparer.Ordinal));
+
+            // ...and the picker really does derive its rows from the
+            // catalogue rather than from a second list.
+            string vm = Read(
+                "ViewModels/Settings/SettingsViewModel.ThemeWallpaper.cs");
+            Assert.Contains("EightThemeNames.All", vm, StringComparison.Ordinal);
+            Assert.DoesNotContain(
+                "new(ProGlassAutomation.Services.Theme.VisualThemeEngine",
+                vm, StringComparison.Ordinal);
+
+            // ...and every offered row resolves to a paintable scene, so the
+            // "Studio" fallback can never fire again.
             foreach (var family in offered)
-                Assert.Contains(family, catalogued);
+                Assert.NotNull(BuiltinWallpaperScenes.For(family));
         }
 
         [Fact]
@@ -250,6 +268,17 @@ namespace ProGlassAutomation.Tests.Theme
                     "empty scene label for " + key);
                 Assert.NotEqual(VisualThemeEngine.FamilyDisplayName(key), label);
                 Assert.NotEqual(key, label);
+            }
+
+            // Eight families, same rule. A "Liquid Glass — Liquid Glass"
+            // row is the exact defect this pins.
+            foreach (var (identity, label, _) in EightThemeScenes.All)
+            {
+                Assert.False(string.IsNullOrWhiteSpace(label),
+                    "empty scene label for " + identity);
+                Assert.NotEqual(
+                    VisualThemeEngine.FamilyDisplayName(identity), label);
+                Assert.NotEqual(identity, label);
             }
         }
 

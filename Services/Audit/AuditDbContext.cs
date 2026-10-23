@@ -49,7 +49,14 @@ namespace ProGlassAutomation.Services.Audit
         {
             modelBuilder.Entity<AppUser>(entity =>
             {
+                // Username's original casing remains indexed for simple list
+                // queries, but identity uniqueness is enforced on the stored
+                // canonical key (Admin/admin and Unicode compatibility forms
+                // cannot become separate accounts).
                 entity.HasIndex(e => e.Username).IsUnique();
+                entity.HasIndex(e => e.UsernameNormalized)
+                    .IsUnique()
+                    .HasDatabaseName("IX_AppUsers_UsernameNormalized");
             });
 
             modelBuilder.Entity<ActivityLogEntry>(entity =>

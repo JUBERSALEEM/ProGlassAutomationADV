@@ -13,6 +13,8 @@
              xmlns:dn="clr-namespace:ProGlassAutomation.Views.Dashboard.DeliveryNote.DnDashboard"
              xmlns:ti="clr-namespace:ProGlassAutomation.Views.Dashboard.TaxInvoice.TiDashboard"
              xmlns:st="clr-namespace:ProGlassAutomation.Views.Dashboard.Statement"
+             xmlns:opt="clr-namespace:ProGlassAutomation.Views.Dashboard.Optimization"
+             xmlns:prd="clr-namespace:ProGlassAutomation.Views.Dashboard.Production"
              FontFamily="Segoe UI" Background="{DynamicResource Ov.Canvas}"
              UseLayoutRounding="True" SnapsToDevicePixels="True"
              TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType" Loaded="OnLoaded" SizeChanged="OnDashboardSizeChanged">
@@ -21,7 +23,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Overview/IndigoStudioResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <!-- All seven original page mappings and the same navigation VM. -->
+            <!-- All nine page mappings and the same navigation VM. -->
             <DataTemplate DataType="{x:Type vm:OverviewDashboardViewModel}"><ov:OverviewDashboardView/></DataTemplate>
             <DataTemplate DataType="{x:Type vm:SheetStoreDashboardViewModel}"><ss:SheetStoreDashboardView/></DataTemplate>
             <DataTemplate DataType="{x:Type vm:PiDashboardViewModel}"><pi:PiDashboardView/></DataTemplate>
@@ -29,6 +31,10 @@
             <DataTemplate DataType="{x:Type vmDn:DnDashboardViewModel}"><dn:DnDashboardView/></DataTemplate>
             <DataTemplate DataType="{x:Type vmTi:TiDashboardViewModel}"><ti:TiDashboardView/></DataTemplate>
             <DataTemplate DataType="{x:Type vmSt:StDashboardViewModel}"><st:StDashboardView/></DataTemplate>
+            <!-- Phase 28 — Optimization and Production. Both VMs are declared in
+                 the vm: namespace, so they reuse that prefix. -->
+            <DataTemplate DataType="{x:Type vm:OptimizationDashboardViewModel}"><opt:OptimizationDashboardView/></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:ProductionDashboardViewModel}"><prd:ProductionDashboardView/></DataTemplate>
             <DataTemplate x:Key="ModuleSegmentTemplate">
                 <Button Command="{Binding DataContext.SelectTabCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                         CommandParameter="{Binding}" ToolTip="{Binding TabSubtitle}" AutomationProperties.Name="{Binding TabTitle}"

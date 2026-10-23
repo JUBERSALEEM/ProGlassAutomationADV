@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Bento/BentoControls.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Bento Grid — control templates
+
+     THE TEMPLATES ARE THE ARGUMENT.
+
+     Every template below declares the same two parts and nothing else:
+
+         PART_BentoFill     the cell: rounded fill plus a real 1px edge
+         PART_BentoFocus    focus is a non-decorative requirement
+
+     There is no shadow host in any of them. Not one with no Effect on
+     it — not one at all. Compare Themes/Neumorphism/NeuControls.xaml,
+     which needs two stacked Borders per shadow because WPF allows one
+     Effect per element. This file needs no host whatsoever, because the
+     gutter does the separating here and a gutter is a layout property,
+     not a material one. Leaving the part out is what keeps that true:
+     a template author cannot attach something the ControlTemplate has
+     nowhere to attach it to.
+
+     THE NUMBERS ARE RELATIONSHIPS, NOT TASTE
+
+     Every dimension below traces to a line in
+     Services/Theme/Bento/README.md, and most of them are constrained
+     by something other than taste:
+
+       gutter 16   the load-bearing number. Too tight and the tiles
+                   fuse into one block; too generous and the
+                   composition falls apart into unrelated cards.
+       radius 24   must keep the gutter between HALF the radius and the
+                   full radius, or the cells stop reading as
+                   neighbours. 16 sits between 12 and 24.
+       padding 24  roughly half the gutter is the rule, so padding is
+                   ~2x gutter; 24 is the low end of the published band
+                   because a 104px row cannot carry 32.
+       row 104     FIXED. Rows that size to content are the mechanism by
+                   which a bento grid quietly becomes a uniform grid.
+
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:bento="clr-namespace:ProGlassAutomation.Controls.Bento"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         PALETTE BRIDGE
+
+         Declared as consumers rather than literal colours, so these
+         follow EightThemePainter when the active family changes. A
+         literal brush captured at dictionary-load time would pin every
+         bento cell to the light palette the moment the app launched, and
+         dark mode would then be a relaunch rather than a switch.
+
+         BentoPalette.Publish() writes these same keys, which is what
+         lets the control code path and the XAML path agree.
+         ═══════════════════════════════════════════════════════════ -->
+    <SolidColorBrush x:Key="BentoCanvasBrush" Color="#F2F2F0" />
+    <SolidColorBrush x:Key="BentoSurfaceBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="BentoInkBrush" Color="#111111" />
+    <SolidColorBrush x:Key="BentoMutedBrush" Color="#5A5A5A" />
+    <SolidColorBrush x:Key="BentoEdgeBrush" Color="#111111" />
+    <SolidColorBrush x:Key="BentoAccentBrush" Color="#2F6FEB" />
+
+    <!-- ═══════════════════════════════════════════════════════════
+         THE MEASUREMENT SYSTEM
+
+         Kept as explicit resources rather than hard-coded numbers in
+         each template, because the whole family is defined by the
+         RELATIONSHIP between these values. A radius that drifts away
+         from the gutter breaks the composition without looking wrong,
+         and a shared key is the only way that drift gets noticed.
+         ═══════════════════════════════════════════════════════════ -->
+    <sys:Double x:Key="BentoUnitScalar">8</sys:Double>
+    <sys:Double x:Key="BentoGutterScalar">16</sys:Double>
+    <sys:Double x:Key="BentoRowHeightScalar">104</sys:Double>
+    <!-- Matches SoftUiAccessibility.FocusRingWidth, which is what the
+         control code applies at run time. Declared here only as the
+         template's resting value — every real state is set in code,
+         because the ring's visibility depends on the resolved stack. -->
+    <sys:Double x:Key="BentoFocusWidth">3</sys:Double>
+
+    <Thickness x:Key="BentoUnit">8</Thickness>
+    <Thickness x:Key="BentoGutter">16</Thickness>
+    <Thickness x:Key="BentoCellPadding">24</Thickness>
+    <Thickness x:Key="BentoSectionMargin">48</Thickness>
+    <sys:Double x:Key="BentoRadiusValue">24</sys:Double>
+    <CornerRadius x:Key="BentoRadius">24</CornerRadius>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         THE FOCUS RING
+
+         Drawn OUTSIDE the cell and against the CANVAS, not against the
+         cell's own fill, so its contrast never depends on how similar
+         the tile happens to be to its own background.
+
+         A ring, and a real one. A bento cell is large, and size is
+         itself an affordance — a big target reads as clickable before
+         anything else does — so the ring is the only thing confirming
+         the cell is genuinely focusable rather than merely big.
+         ═══════════════════════════════════════════════════════════ -->
+    <Style x:Key="BentoFocusRing" TargetType="{x:Type Border}">
+        <Setter Property="BorderThickness"
+                Value="{StaticResource BentoFocusWidth}" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CELL
+
+         The edge is part of PART_BentoFill rather than its own part,
+         because a bento edge is the cell's own outline: it shares the
+         cell's radius and thickens for selection on the same element.
+         Splitting it would mean keeping two widths in step for no
+         expressive gain.
+
+         It is always drawn, even at rest. A tile whose outline only
+         appeared on hover would make the resting grid read as a field
+         with gaps rather than as a set of cells.
+         ═══════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="BentoSurfaceTemplate"
+                     TargetType="{x:Type bento:BentoSurface}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_BentoFill"
+                    Background="{DynamicResource BentoSurfaceBrush}"
+                    BorderBrush="{DynamicResource BentoEdgeBrush}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource BentoRadius}">
+                <ContentPresenter Margin="{StaticResource BentoCellPadding}"
+                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+            </Border>
+            <Border x:Name="PART_BentoFocus"
+                    Style="{StaticResource BentoFocusRing}"
+                    Visibility="Collapsed" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type bento:BentoSurface}">
+        <Setter Property="Template"
+                Value="{StaticResource BentoSurfaceTemplate}" />
+        <Setter Property="Background"
+                Value="{DynamicResource BentoCanvasBrush}" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Top" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <!-- No TabIndex setter. Deliberately, and this is the one
+             omission worth explaining.
+             Setting TabIndex to make the tab order agree with the visual
+             layout is the documented trap: it looks like the fix, and it
+             is the defect. The next edit that reorders the panel's
+             Children desynchronises tab order from visual order and
+             nothing reports it. BentoPanel lays out in declaration
+             order and sets KeyboardNavigation once, so reading order,
+             visual order, hit-test order and tab order are all the same
+             sequence — there is only one order to get wrong. -->
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         THE ANCHOR
+
+         A separate implicit style for the Hero cell, and the ONLY
+         difference is type scale and padding. Not a different fill, not
+         a different radius, not a shadow.
+
+         The research is specific that the anchor gets no special
+         material: "a hero that got its own material would stop being
+         the biggest cell of one composition and become the special
+         card". Its job is to be the cell the eye lands on FIRST, and
+         size does that. Anything more turns the grid into a card with
+         seven accessories.
+         ═══════════════════════════════════════════════════════════ -->
+    <Style x:Key="BentoHeroType"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource {x:Type TextBlock}}">
+        <Setter Property="FontSize" Value="40" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource BentoInkBrush}" />
+        <!-- TextOptions, never bare TextRenderingMode. That property is
+             declared on TextElement and TextBlock derives from
+             FrameworkElement, so a Style with TargetType="TextBlock"
+             cannot resolve the bare name. -->
+        <Setter Property="TextOptions.TextFormattingMode"
+                Value="Display" />
+        <Setter Property="TextOptions.TextRenderingMode"
+                Value="ClearType" />
+    </Style>
+
+    <Style x:Key="BentoMetricType"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource {x:Type TextBlock}}">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource BentoInkBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode"
+                Value="Display" />
+        <Setter Property="TextOptions.TextRenderingMode"
+                Value="ClearType" />
+    </Style>
+
+    <!-- Small tile content is ONE label or ONE number. Both the
+         research and the type scale enforce it: a 1x1 cell has room for
+         a figure and a word, and a caption that wraps turns the cell
+         into a paragraph that happens to be small. -->
+    <Style x:Key="BentoLabelType"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource {x:Type TextBlock}}">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource BentoMutedBrush}" />
+        <!-- Not uppercase and not tracked. Tracked small caps is listed
+             among the visual anti-patterns for this family, and it also
+             costs legibility at 13px, which is the size most cell
+             captions actually render at. -->
+        <Setter Property="TextOptions.TextFormattingMode"
+                Value="Display" />
+        <Setter Property="TextOptions.TextRenderingMode"
+                Value="ClearType" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         BUTTON
+
+         Interaction changes fill and edge. It does NOT translate, scale
+         or shade — see the file header in Controls/Bento/BentoButton.cs
+         for why that is load-bearing rather than a matter of taste.
+         ═══════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="BentoButtonTemplate"
+                     TargetType="{x:Type bento:BentoButton}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_BentoFill"
+                    Background="{DynamicResource BentoSurfaceBrush}"
+                    BorderBrush="{DynamicResource BentoEdgeBrush}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource BentoRadius}">
+                <ContentPresenter Margin="{StaticResource BentoCellPadding}"
+                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+            </Border>
+            <Border x:Name="PART_BentoFocus"
+                    Style="{StaticResource BentoFocusRing}"
+                    Visibility="Collapsed" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type bento:BentoButton}">
+        <Setter Property="Template"
+                Value="{StaticResource BentoButtonTemplate}" />
+        <Setter Property="Background"
+                Value="{DynamicResource BentoCanvasBrush}" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <!-- FocusVisualStyle is nulled deliberately and the ring is
+             rebuilt by hand in PART_BentoFocus. WPF's default focus
+             visual is a dotted rectangle that ignores the template's
+             corner radius, so on a 24px rounded cell it draws a square
+             around a round thing. -->
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         FIELD
+
+         NO RECESS. Every other soft-UI family treats a text field as
+         the one element that wants a well, because you are writing into
+         the surface rather than pressing it. That is right for clay and
+         neumorphism and wrong here.
+
+         A bento's structure is carried entirely by the gutter — cells
+         are separated by empty canvas, and that is what makes the
+         composition read as one object. An inset field introduces a
+         second competing depth axis inside an already-flat cell, and
+         the grid stops being a set of peers.
+
+         The field gets the same edge as everything else and earns its
+         "editable" signal from the caret and the focus ring instead.
+         ═══════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="BentoFieldTemplate"
+                     TargetType="{x:Type bento:BentoField}">
+        <Grid Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_BentoFill"
+                    Background="{DynamicResource BentoSurfaceBrush}"
+                    BorderBrush="{DynamicResource BentoEdgeBrush}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource BentoRadius}">
+                <!-- Padding is inside the cell, and the text starts at the
+                     same inset as every other cell's content, so a field
+                     and a caption in adjacent cells share a baseline. -->
+                <ScrollViewer x:Name="PART_BentoScroll"
+                              Margin="{StaticResource BentoCellPadding}"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <TextBox x:Name="PART_BentoText"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             Foreground="{DynamicResource BentoInkBrush}"
+                             CaretBrush="{DynamicResource BentoInkBrush}"
+                             SelectionBrush="{DynamicResource BentoAccentBrush}"
+                             FontSize="14"
+                             Padding="0"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             IsReadOnly="{TemplateBinding IsReadOnly}"
+                             Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                             TextOptions.TextFormattingMode="Display"
+                             TextOptions.TextRenderingMode="ClearType" />
+                </ScrollViewer>
+            </Border>
+            <Border x:Name="PART_BentoFocus"
+                    Style="{StaticResource BentoFocusRing}"
+                    Visibility="Collapsed" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type bento:BentoField}">
+        <Setter Property="Template"
+                Value="{StaticResource BentoFieldTemplate}" />
+        <Setter Property="Background"
+                Value="{DynamicResource BentoCanvasBrush}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource BentoInkBrush}" />
+        <Setter Property="CaretBrush"
+                Value="{DynamicResource BentoInkBrush}" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         THE PANEL
+
+         No visual styling at all, and that is the whole design. A
+         BentoPanel has no template: it is a layout engine, and the only
+         thing it paints is the gutter between the cells its children
+         already draw themselves.
+         ═══════════════════════════════════════════════════════════ -->
+    <Style TargetType="{x:Type bento:BentoPanel}">
+        <Setter Property="Background"
+                Value="{DynamicResource BentoCanvasBrush}" />
+        <Setter Property="Margin"
+                Value="{StaticResource BentoSectionMargin}" />
+    </Style>
+</ResourceDictionary>

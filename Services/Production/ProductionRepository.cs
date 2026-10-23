@@ -114,6 +114,7 @@ namespace ProGlassAutomation.Services.Production
         /// </summary>
         public static async Task<ProductionReleaseResult> ReleaseAsync(ProductionJobPlan plan)
         {
+            ProductionWriteGuard.Demand("release a job to production");
             EnsureInitialized();
             var result = new ProductionReleaseResult();
 
@@ -888,6 +889,7 @@ namespace ProGlassAutomation.Services.Production
         public static async Task<(bool Ok, int AppliedQty, string Message)> SetDoneQtyAsync(
             int itemId, int requestedQty)
         {
+            ProductionWriteGuard.Demand("record production completion quantity");
             EnsureInitialized();
             using var db = new ProductionDbContext();
             await db.Database.OpenConnectionAsync().ConfigureAwait(false);
@@ -1048,6 +1050,7 @@ namespace ProGlassAutomation.Services.Production
             IReadOnlyList<(int ItemId, int RequestedQty)> updates)
         {
             if (updates.Count == 0) return (true, new List<string>());
+            ProductionWriteGuard.Demand("record production completion quantities");
             EnsureInitialized();
             using var db = new ProductionDbContext();
             await db.Database.OpenConnectionAsync().ConfigureAwait(false);

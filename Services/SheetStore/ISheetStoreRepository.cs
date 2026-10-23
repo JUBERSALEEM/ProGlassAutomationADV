@@ -15,8 +15,8 @@ namespace ProGlassAutomation.Services.SheetStore
         Task<List<GlassSheet>> GetAllAsync();
         Task<GlassSheet?> GetByIdAsync(int id);
         Task<GlassSheet> AddAsync(GlassSheet sheet);
-        Task UpdateAsync(GlassSheet sheet);
-        Task DeleteAsync(int id);
+        Task UpdateAsync(GlassSheet sheet, int expectedRowVersion);
+        Task DeleteAsync(int id, int expectedRowVersion);
 
         /// <summary>
         /// SQL-side filtered + sorted + paged read (Phase 10 - performance).
@@ -34,8 +34,14 @@ namespace ProGlassAutomation.Services.SheetStore
             int take = 200);
 
         // ============ BUSINESS OPERATIONS ============
-        Task BuyStockAsync(int sheetId, int quantity, decimal? newPurchasePrice = null);
-        Task UseStockAsync(int sheetId, int quantity);
+        Task BuyStockAsync(
+            int sheetId, int quantity, decimal? newPurchasePrice = null,
+            string? source = null);
+        Task<GlassSheet?> UseStockAsync(
+            int sheetId, int quantity, string origin = "Sheet Store",
+            string? documentReference = null, string? customerName = null,
+            string? projectName = null, string? salesman = null,
+            string? panePosition = null);
 
         // ============ LOOKUPS (for filter dropdowns) ============
         Task<List<string>> GetCategoriesAsync();

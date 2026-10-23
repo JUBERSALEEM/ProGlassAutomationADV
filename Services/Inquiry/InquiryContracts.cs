@@ -56,6 +56,7 @@ namespace ProGlassAutomation.Services.Inquiry
         public int? ProformaInvoiceId { get; init; }
         public string ProformaNumber { get; init; } = "";
         public string JobOrderNumber { get; init; } = "";
+        public int RowVersion { get; init; }
 
         // ── Full-lifecycle projection (hydrated by IInquiryLifecycleService) ──
         // Defaults represent "not started" so a row that fails the lifecycle
@@ -90,19 +91,23 @@ namespace ProGlassAutomation.Services.Inquiry
         Task<InquiryStatistics> GetStatisticsAsync(InquiryQuery query, CancellationToken ct = default);
         Task<InquiryRecord?> GetDetailAsync(int id, CancellationToken ct = default);
         Task<InquiryRecord> CreateAsync(InquiryRecord inquiry, CancellationToken ct = default);
-        Task<InquiryRecord> UpdateAsync(InquiryRecord inquiry, CancellationToken ct = default);
+        Task<InquiryRecord> UpdateAsync(
+            InquiryRecord inquiry, int expectedRowVersion, CancellationToken ct = default);
 
         /// <summary>
         /// PHASE 2 — replace-all persistence for an inquiry's scope of
         /// supply (BOQ). One atomic commit; a communication entry is
         /// written so scope reshapes are visible in the inquiry history.
         /// </summary>
-        Task SaveLineItemsAsync(
+        Task<int> SaveLineItemsAsync(
             int inquiryId,
             IReadOnlyList<InquiryLineItem> items,
+            int expectedRowVersion,
             string updatedBy,
             CancellationToken ct = default);
-        Task<bool> ChangeStatusAsync(int id, string status, string actor, CancellationToken ct = default);
+        Task<bool> ChangeStatusAsync(
+            int id, string status, string actor, int expectedRowVersion,
+            CancellationToken ct = default);
         Task<IReadOnlyList<InquiryAttachment>> GetAttachmentsAsync(int inquiryId, CancellationToken ct = default);
         Task<InquiryAttachment> AddAttachmentAsync(InquiryAttachment attachment, CancellationToken ct = default);
         Task<bool> DeleteAttachmentAsync(long attachmentId, CancellationToken ct = default);

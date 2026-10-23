@@ -53,6 +53,10 @@ namespace ProGlassAutomation.Services.Statement.Database
             // ── SavedStatement ────────────────────────────────────────────
             modelBuilder.Entity<SavedStatement>(entity =>
             {
+                entity.Property(e => e.RowVersion)
+                    .IsConcurrencyToken()
+                    .ValueGeneratedNever();
+
                 // Unique statement number (STMT-YYYY-NNN)
                 entity.HasIndex(e => e.StatementNumber)
                       .IsUnique();

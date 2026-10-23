@@ -1,311 +1,42 @@
 # ═══════════════════════════════════════════════════════════════════════════
-# dotnet-desktop.yml — ProGlass Automation
-#
-# ⚠️  WHY THIS FILE LIVES IN docs/ci/ AND NOT .github/workflows/
-# ─────────────────────────────────────────────────────────────────
-# The GitHub App that pushes from this development sandbox does NOT have
-# the `workflows` permission scope, so any push that creates or modifies a
-# file under `.github/workflows/` is rejected with:
-#     "refusing to allow a GitHub App to create or update workflow
-#      `.github/workflows/dotnet-desktop.yml` without `workflows`
-#      permission"
-#
-# To work around this (without disabling the safety), the canonical copy of
-# this workflow lives here. To activate it, a maintainer with admin rights
-# copies this file into `.github/workflows/dotnet-desktop.yml` (one command —
-# see docs/CI.md, "Activating the workflow"). The contents below are exactly
-# what should live in `.github/workflows/`, so the workflow behaves the same.
-#
-# If/when the App's installation is later granted the `workflows` scope, the
-# canonical location should move back to `.github/workflows/dotnet-desktop.yml`
-# and this header stripped.
+# SUPERSEDED — 2026-10-05. This file is no longer a workflow template.
 # ═══════════════════════════════════════════════════════════════════════════
-
-# ─────────────────────────────────────────────────────────────────────────────
-# ProGlass Automation — .NET Desktop publish + OTA release pipeline
-# ─────────────────────────────────────────────────────────────────────────────
-# Runs on Windows (the WPF app targets net8.0-windows and cannot build on
-# the Ubuntu runners used by the old dotnet.yml).
 #
-# Two jobs:
-#   build-test   restore -> build (Release) -> xUnit test gate.
-#                Runs on every push, every PR, and every manual dispatch.
-#   release      only on a version tag (v*.*.*) or a manual workflow_dispatch:
-#                  1. dotnet publish   (self-contained win-x64, Release.pubxml)
-#                  2. vpk pack         -> Setup.exe + full/delta .nupkg + portable
-#                                        (signed via --signParams when the
-#                                        CODESIGN_PFX_* secrets are configured)
-#                  3. vpk upload github -> publishes the Velopack feed as a
-#                     GitHub Release. THIS is what the in-app OTA reads.
+# This was the most accurate of the four templates, and it is the one the
+# live workflows are descended from. It now lives, split by trigger, at:
 #
-# OTA wiring (why this file exists):
-#   * VelopackUpdateService -> GithubSource("JUBERSALEEM/ProGlassAutomationADV")
-#     consumes the RELEASES feed that `vpk upload github` publishes.
-#   * The feed channel is "stable" (installer/velopack.json). It MUST be passed
-#     to vpk download/pack/upload — never left at the default "win" — or the
-#     in-app updater will look in the wrong channel and report "no update".
+#     .github/workflows/ci.yml       (its build-test job, plus static checks
+#                                     and the two portable test projects)
+#     .github/workflows/release.yml  (its release job: version from the
+#                                     csproj, vpk 1.2.0, --channel stable,
+#                                     feed published to GitHub Releases)
 #
-# Versioning (single source of truth): <Version> in ProGlassAutomation.csproj.
-# A tag vX.Y.Z must equal that value or the release job fails; the resolved
-# version is then stamped into Version / AssemblyVersion / FileVersion so the
-# built binary and the release always agree.
+# Kept as a comment-only file rather than deleted because seven documents
+# link to it, including audits written before CI existed. Two copies of a
+# workflow is how this repository accumulates drift, so the executable
+# content is gone; only this pointer remains.
 #
-# Code-signing (Settings -> Secrets and variables -> Actions):
-#   CODESIGN_PFX_BASE64    base64 of the .pfx code-signing certificate
-#   CODESIGN_PFX_PASSWORD  its password
-# Signing is delegated to `vpk pack --signParams` so Velopack signs the app
-# binaries AND the Setup.exe / Update.exe it generates during packaging (a
-# post-pack signtool pass would invalidate the release-feed checksums).
-# Without the secrets the release is published unsigned; the desktop updater's
-# Authenticode check will then refuse the update (safe for internal testing —
-# never ship unsigned builds to customers).
-# ─────────────────────────────────────────────────────────────────────────────
-
-name: .NET Desktop (publish + OTA release)
-
-on:
-  push:
-    branches: ["**"]
-    tags: ["v*.*.*"]
-  pull_request:
-    branches: ["**"]
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Version to publish (MAJOR.MINOR.PATCH). Leave empty to use <Version> from ProGlassAutomation.csproj."
-        required: false
-        default: ""
-      prerelease:
-        description: "Publish as a pre-release (excluded from the stable OTA feed)"
-        type: boolean
-        required: false
-        default: false
-
-env:
-  DOTNET_NOLOGO: "true"
-  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
-  # Pinned to match the Velopack 1.2.0 NuGet library referenced by
-  # ProGlassAutomation.csproj, so the CLI writes a RELEASES feed the app reads.
-  VPK_VERSION: "1.2.0"
-  VPK_CHANNEL: "stable"
-
-jobs:
-  # ────────────────────────────────────────────────────────────────────────────
-  # Gate: build + test on Windows. Runs for every push / PR / manual dispatch.
-  # ────────────────────────────────────────────────────────────────────────────
-  build-test:
-    name: Build + test
-    runs-on: windows-latest
-    timeout-minutes: 30
-    concurrency:
-      group: build-test-${{ github.ref }}
-      cancel-in-progress: true
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup .NET 8 SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-
-      # Build the TEST project (not the app project) so the test DLL is
-      # produced in the same step: the test project has a ProjectReference on
-      # the app, and the app csproj has <Compile Remove="Tests/**" />. Building
-      # the app directly would skip the test project and make the
-      # `dotnet test --no-build` step below fail with "test source not found".
-      - name: Restore
-        run: dotnet restore Tests/ProGlassAutomation.Tests.csproj --verbosity minimal
-
-      - name: Build (Release)
-        run: >
-          dotnet build Tests/ProGlassAutomation.Tests.csproj
-          -c Release
-          --no-restore
-          --verbosity minimal
-          -p:ContinuousIntegrationBuild=true
-
-      - name: Test
-        run: >
-          dotnet test Tests/ProGlassAutomation.Tests.csproj
-          -c Release
-          --no-build
-          --verbosity normal
-
-  # ────────────────────────────────────────────────────────────────────────────
-  # Release: publish + Velopack pack (signed) + GitHub Release (OTA feed).
-  # Only on a version tag or an explicit manual dispatch — normal pushes never
-  # create releases (see docs/OTA.md).
-  # ────────────────────────────────────────────────────────────────────────────
-  release:
-    name: Publish + OTA release
-    needs: build-test
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
-    runs-on: windows-latest
-    timeout-minutes: 60
-    permissions:
-      contents: write # required for vpk to create the GitHub Release + upload assets
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup .NET 8 SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-
-      - name: Resolve release version
-        id: version
-        shell: pwsh
-        env:
-          INPUT_VERSION: ${{ github.event.inputs.version }}
-        run: |
-          $csproj = Get-Content ProGlassAutomation.csproj -Raw
-          $m = [regex]::Match($csproj, '<Version>(?<v>[^<]+)</Version>')
-          $csprojVersion = if ($m.Success) { $m.Groups['v'].Value.Trim() } else { '' }
-
-          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME.StartsWith('v')) {
-            $version = $env:GITHUB_REF_NAME.TrimStart('v', 'V')
-          }
-          elseif ($env:INPUT_VERSION) {
-            $version = $env:INPUT_VERSION.TrimStart('v', 'V')
-          }
-          else {
-            $version = $csprojVersion
-          }
-
-          if ($version -notmatch '^\d+\.\d+\.\d+$') {
-            Write-Host "::error::Resolved version '$version' is not a valid MAJOR.MINOR.PATCH version."
-            exit 1
-          }
-
-          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $csprojVersion -and $csprojVersion -ne $version) {
-            Write-Host "::error::Tag '$env:GITHUB_REF_NAME' ($version) does not match <Version>$csprojVersion</Version> in ProGlassAutomation.csproj. Bump the csproj, commit, and re-tag."
-            exit 1
-          }
-
-          "VERSION=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          "TAG=v$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          Write-Host "Publishing ProGlass Automation $version (tag v$version, channel $env:VPK_CHANNEL)"
-
-      - name: Restore (win-x64)
-        run: dotnet restore ProGlassAutomation.csproj -r win-x64 --verbosity minimal
-
-      # Self-contained win-x64 via the shared Release.pubxml profile; the
-      # resolved version is stamped into Version / AssemblyVersion / FileVersion
-      # so the shipped binary identity always matches the release tag.
-      - name: Publish (self-contained win-x64)
-        shell: pwsh
-        env:
-          APP_VERSION: ${{ steps.version.outputs.VERSION }}
-        run: |
-          $v = $env:APP_VERSION
-          $assemblyVersion = '{0}.0' -f $v
-          $fileVersion     = '{0}.0' -f $v
-
-          if (Test-Path publish) { Remove-Item -Recurse -Force publish }
-
-          dotnet publish ProGlassAutomation.csproj `
-            -c Release `
-            -r win-x64 `
-            --self-contained true `
-            --no-restore `
-            -p:PublishProfile=Release `
-            -o publish `
-            -p:Version=$v `
-            -p:AssemblyVersion=$assemblyVersion `
-            -p:FileVersion=$fileVersion
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      # Package the publish tree with Velopack and publish the resulting feed
-      # as a GitHub Release. The install + download + pack + upload happen in
-      # one step so the freshly installed vpk CLI is on PATH for every command.
-      - name: Package + publish Velopack OTA feed
-        shell: pwsh
-        env:
-          APP_VERSION: ${{ steps.version.outputs.VERSION }}
-          APP_TAG: ${{ steps.version.outputs.TAG }}
-          IS_PRERELEASE: ${{ inputs.prerelease }}
-          PFX_CERT: ${{ secrets.CODESIGN_PFX_BASE64 }}
-          PFX_PASSWORD: ${{ secrets.CODESIGN_PFX_PASSWORD }}
-          VPK_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          dotnet tool install --global vpk --version $env:VPK_VERSION
-
-          $repo = "https://github.com/$env:GITHUB_REPOSITORY"
-
-          # Signing must happen DURING pack: Setup.exe / Update.exe / the
-          # portable stub are generated by vpk at pack time, so a post-pack
-          # signtool pass would miss them AND invalidate the feed checksums.
-          # --signParams passes our signtool arguments (minus the 'sign' verb)
-          # straight to Velopack, which signs every file it ships.
-          $signParams = $null
-          if (-not [string]::IsNullOrWhiteSpace($env:PFX_CERT)) {
-            $pfx = Join-Path $env:RUNNER_TEMP "codesign.pfx"
-            [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:PFX_CERT))
-            $signParams = '/fd SHA256 /f "' + $pfx + '" /p "' + $env:PFX_PASSWORD + '" /tr http://timestamp.digicert.com /td SHA256'
-          }
-          else {
-            Write-Host "::warning::No code-signing certificate configured — publishing unsigned (the in-app updater will refuse it; fine for internal testing)."
-          }
-
-          # Download the previous release so vpk can compute deltas and extend
-          # the RELEASES feed. Best-effort: the very first release has nothing
-          # to download, so a failure here is expected and harmless.
-          vpk download github --repoUrl $repo --channel $env:VPK_CHANNEL --outputDir releases
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "::warning::No previous release found — building a full package without deltas (first release?)."
-          }
-          $LASTEXITCODE = 0
-
-          # Package: Setup.exe + full/delta .nupkg + portable package + RELEASES.
-          if ($signParams) {
-            vpk pack `
-              --packId      ProGlassAutomation `
-              --packVersion $env:APP_VERSION `
-              --packDir     publish `
-              --outputDir   releases `
-              --packTitle   "ProGlass Automation" `
-              --packAuthors "Juber Saleem" `
-              --icon        favicon.ico `
-              --channel     $env:VPK_CHANNEL `
-              --mainExe     ProGlassAutomation.exe `
-              --signParams  $signParams
-          }
-          else {
-            vpk pack `
-              --packId      ProGlassAutomation `
-              --packVersion $env:APP_VERSION `
-              --packDir     publish `
-              --outputDir   releases `
-              --packTitle   "ProGlass Automation" `
-              --packAuthors "Juber Saleem" `
-              --icon        favicon.ico `
-              --channel     $env:VPK_CHANNEL `
-              --mainExe     ProGlassAutomation.exe
-          }
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-          # Publish the feed as a GitHub Release. This is the step that
-          # "connects the OTA with GitHub Releases": VelopackUpdateService's
-          # GithubSource reads the RELEASES file uploaded here on launch.
-          if ($env:IS_PRERELEASE -eq 'true') {
-            vpk upload github `
-              --repoUrl $repo --channel $env:VPK_CHANNEL --outputDir releases `
-              --publish --pre `
-              --releaseName "ProGlass Automation $env:APP_VERSION" `
-              --tag $env:APP_TAG
-          }
-          else {
-            vpk upload github `
-              --repoUrl $repo --channel $env:VPK_CHANNEL --outputDir releases `
-              --publish `
-              --releaseName "ProGlass Automation $env:APP_VERSION" `
-              --tag $env:APP_TAG
-          }
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+# What the live release job does differently, and why
+# ─────────────────────────────────────────────────────────────────────────
+#   * It no longer inlines `dotnet publish` + `vpk pack`. It calls
+#     `scripts/build-installer.ps1` — the same script a developer runs — so
+#     there is one declaration of what a release contains (publish through
+#     Release.pubxml, strip PRODUCTION_READINESS, bundle FFmpeg, paint the
+#     splash and MSI art, pack, portable zip, SHA-256 summary). This template
+#     re-implemented a subset of that inline, which is how the CI package and
+#     the locally built package were able to differ.
+#   * Code signing is therefore NOT wired: the script has no signing
+#     passthrough. A CI release is unsigned, exactly like a local run. This
+#     template's `--signParams` approach is still the right one and is
+#     recorded as an open item — signing must happen DURING pack, because a
+#     post-pack signtool pass misses the Setup.exe/Update.exe that vpk
+#     generates and invalidates the feed checksums.
+#   * No delta packages: the script clears `releases\` immediately before
+#     packing, and deltas are computed from packages already in the output
+#     directory, so this template's `vpk download github` step cannot feed
+#     it. Every update downloads the full package.
+#   * The tag/`<Version>` agreement check is kept verbatim, because a
+#     mislabelled package is either unreachable by OTA (UpdateService.IsNewer
+#     is a strict greater-than compare) or silently skips a release.
+#
+# The handbook is `docs/CI.md`.

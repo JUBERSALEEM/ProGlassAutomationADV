@@ -18,6 +18,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Licensing;
 using ProGlassAutomation.Services.Logging;
 using Xunit;
@@ -227,6 +228,74 @@ namespace ProGlassAutomation.Tests.Logging
             Assert.Contains("Last ", text);   // last log lines header
             Assert.Contains("X.Y", text);
             Assert.Contains("stack1", text);
+        }
+
+        [Fact]
+        public void BuildReport_indents_multiline_recent_log_messages()
+        {
+            const string marker = "CRASH-LOG-MULTILINE-TEST";
+            AppLogService.Info(marker + " first line\r\nsecond line");
+
+            var report = CrashReportService.BuildReport(
+                "ERR-MULTILOG", new Exception("synthetic"));
+            string line = report.RecentLog.Last(x => x.Contains(marker));
+
+            Assert.Contains(
+                marker + " first line" + Environment.NewLine + "      second line",
+                line);
+        }
+
+        [Fact]
+        public void AppLogService_indents_multiline_exception_chain()
+        {
+            const string marker = "APP-LOG-EXCEPTION-MULTILINE-TEST";
+            var exception = new SharedDataRootUnavailableException(
+                @"\\OFFICE\ProGlassData",
+                new IOException("The underlying network path could not be opened."),
+                "The shared folder did not respond within 4 seconds.");
+
+            AppLogService.Error(marker, exception);
+            var entry = AppLogService.GetRecent(50).Last(x => x.Message == marker);
+
+            Assert.Contains(
+                "  SharedDataRootUnavailableException: The configured shared company data folder is unavailable:",
+                entry.ExceptionText);
+            Assert.Contains(
+                Environment.NewLine + "      Database access is blocked.",
+                entry.ExceptionText);
+            Assert.Contains(
+                "  caused by:" + Environment.NewLine +
+                "  IOException: The underlying network path could not be opened.",
+                entry.ExceptionText);
+        }
+
+        [Fact]
+        public void Report_ToText_indents_shared_root_message_and_keeps_inner_cause_separate()
+        {
+            const string folder = @"\\OFFICE\ProGlassData";
+            const string reason = "The shared folder did not respond within 4 seconds.";
+            var root = new SharedDataRootUnavailableException(
+                folder,
+                new TimeoutException("The SMB startup probe exceeded four seconds."),
+                reason);
+
+            var report = CrashReportService.BuildReport("ERR-SHARE", root);
+            string topMessage = report.ExceptionChain[0].Message;
+            string text = report.ToText();
+
+            Assert.Equal(
+                topMessage.IndexOf(folder, StringComparison.Ordinal),
+                topMessage.LastIndexOf(folder, StringComparison.Ordinal));
+            Assert.Equal(
+                topMessage.IndexOf(reason, StringComparison.Ordinal),
+                topMessage.LastIndexOf(reason, StringComparison.Ordinal));
+            Assert.Contains("    Message : The configured shared company data folder is unavailable:", text);
+            Assert.Contains("              Database access is blocked.", text);
+            Assert.Contains("              Reason: " + reason, text);
+            Assert.Contains("── caused by ──", text);
+            Assert.Contains("TimeoutException", text);
+            Assert.Contains("The SMB startup probe exceeded four seconds.", text);
+            Assert.DoesNotContain("Technical detail:", topMessage);
         }
 
         // ── HandleCrash (the full pipeline) ──────────────────

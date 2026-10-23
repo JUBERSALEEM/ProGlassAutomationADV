@@ -242,6 +242,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreItems
             ReorderLevel = s.ReorderLevel,
             PurchasePricePerUnit = s.PurchasePricePerUnit,
             SellPricePerUnit = s.SellPricePerUnit,
+            RowVersion = s.RowVersion,
             CreatedAt = s.CreatedAt,
             LastUpdated = s.LastUpdated,
             LastPurchaseDate = s.LastPurchaseDate

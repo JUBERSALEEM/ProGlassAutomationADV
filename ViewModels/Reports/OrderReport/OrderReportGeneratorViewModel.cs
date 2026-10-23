@@ -870,7 +870,8 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                 // ── PDF ───────────────────────────────────────────────────
                 SetGenerationStage(4, 86, "Writing PDF", "Writing the PDF…");
                 string pdfPath = await Task.Run(() => OrderReportPdfExporter.Generate(bundle));
-                await Task.Run(() => _repo.UpdatePdfPathAsync(entity.Id, pdfPath));
+                entity.RowVersion = await Task.Run(() => _repo.UpdatePdfPathAsync(
+                    entity.Id, pdfPath, entity.RowVersion));
 
                 // ── Populate review ────────────────────────────────────────
                 Warnings.Clear();

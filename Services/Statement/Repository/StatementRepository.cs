@@ -114,7 +114,8 @@ namespace ProGlassAutomation.Services.Statement.Repository
                     OverdueAmount = s.OverdueAmount,
                     PdfPath = s.PdfPath,
                     HasAttachments = s.HasAttachments,
-                    CreatedAt = s.CreatedAt
+                    CreatedAt = s.CreatedAt,
+                    RowVersion = s.RowVersion
                 })
                 .ToListAsync(cancellationToken).ConfigureAwait(false);
         }
@@ -327,40 +328,70 @@ namespace ProGlassAutomation.Services.Statement.Repository
             }
         }
 
-        public async Task UpdateAsync(SavedStatement entity)
+        public async Task UpdateAsync(
+            SavedStatement entity,
+            int expectedRowVersion)
         {
             ReadOnlyGate.Demand("update a statement");
-            // A-1: service-layer authorization. The UI also checks,
-            // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.StatementGenerate, "update a statement");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
 
             await using var ctx = new StatementDbContext();
+            var stored = await ctx.Statements
+                .FirstOrDefaultAsync(s => s.Id == entity.Id).ConfigureAwait(false);
+            if (stored == null)
+                throw new ConcurrencyConflictException(
+                    "Statement", entity.StatementNumber,
+                    expectedRowVersion, actualRowVersion: -1);
+            if (stored.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Statement", stored.StatementNumber,
+                    expectedRowVersion, stored.RowVersion);
 
-            entity.UpdatedAt = DateTime.UtcNow;
-
-            // ── Delete existing line items (delete-then-reinsert) ─────────
-            // Same pattern as TaxInvoiceRepository.UpdateAsync
             var existingLines = await ctx.LineItems
                 .Where(l => l.StatementId == entity.Id)
                 .ToListAsync().ConfigureAwait(false);
-
             ctx.LineItems.RemoveRange(existingLines);
 
-            // Ensure new line items have correct StatementId FK
-            foreach (var line in entity.LineItems)
-                line.StatementId = entity.Id;
+            DateTime now = DateTime.UtcNow;
+            entity.Id = stored.Id;
+            entity.CreatedAt = stored.CreatedAt;
+            entity.UpdatedAt = now;
+            entity.RowVersion = expectedRowVersion + 1;
+            foreach (var line in entity.LineItems ?? new List<StatementLineItem>())
+            {
+                line.Id = 0;
+                line.StatementId = stored.Id;
+                line.Statement = stored;
+            }
 
-            // Update parent entity
-            ctx.Statements.Update(entity);
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            // Copy scalar values to the tracked row so EF's concurrency-token
+            // predicate uses the version read above rather than trusting the
+            // detached entity's Current/Original values.
+            ctx.Entry(stored).CurrentValues.SetValues(entity);
+            ctx.LineItems.AddRange(entity.LineItems ?? new List<StatementLineItem>());
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync())
+                    .ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(ctx, stored.Id)
+                    .ConfigureAwait(false);
+                throw new ConcurrencyConflictException(
+                    "Statement", stored.StatementNumber,
+                    expectedRowVersion, actual);
+            }
+
+            entity.RowVersion = stored.RowVersion;
+            entity.UpdatedAt = stored.UpdatedAt;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, int expectedRowVersion)
         {
             ReadOnlyGate.Demand("delete a statement");
-            // A-1: service-layer authorization. The UI also checks,
-            // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.StatementGenerate, "delete a statement");
 
@@ -369,12 +400,38 @@ namespace ProGlassAutomation.Services.Statement.Repository
                 .Include(s => s.LineItems)
                 .FirstOrDefaultAsync(s => s.Id == id).ConfigureAwait(false);
 
-            if (entity == null) return;
+            if (entity == null)
+                throw new ConcurrencyConflictException(
+                    "Statement", id.ToString(), expectedRowVersion,
+                    actualRowVersion: -1);
+            if (entity.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Statement", entity.StatementNumber,
+                    expectedRowVersion, entity.RowVersion);
 
-            // Cascade-delete removes LineItems automatically
-            // (configured in StatementDbContext.OnModelCreating)
             ctx.Statements.Remove(entity);
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync())
+                    .ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(ctx, id)
+                    .ConfigureAwait(false);
+                throw new ConcurrencyConflictException(
+                    "Statement", entity.StatementNumber,
+                    expectedRowVersion, actual);
+            }
+        }
+
+        private static async Task<int> GetCurrentRowVersionAsync(
+            StatementDbContext context, int id)
+        {
+            return await context.Statements.AsNoTracking()
+                .Where(s => s.Id == id)
+                .Select(s => (int?)s.RowVersion)
+                .FirstOrDefaultAsync().ConfigureAwait(false) ?? -1;
         }
 
         // ── Existence checks ──────────────────────────────────────────────
@@ -393,23 +450,42 @@ namespace ProGlassAutomation.Services.Statement.Repository
         public async Task UpdatePdfPathAsync(
             int statementId,
             string pdfPath,
-            bool hasAttachments)
+            bool hasAttachments,
+            int expectedRowVersion)
         {
             ReadOnlyGate.Demand("update a statement PDF path");
-            // A-1: service-layer authorization. The UI also checks,
-            // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.StatementGenerate, "update a statement PDF path");
 
             await using var ctx = new StatementDbContext();
-            var entity = await ctx.Statements.FindAsync(statementId).ConfigureAwait(false);
-            if (entity == null) return;
+            var entity = await ctx.Statements
+                .FirstOrDefaultAsync(s => s.Id == statementId).ConfigureAwait(false);
+            if (entity == null)
+                throw new ConcurrencyConflictException(
+                    "Statement", statementId.ToString(),
+                    expectedRowVersion, actualRowVersion: -1);
+            if (entity.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Statement", entity.StatementNumber,
+                    expectedRowVersion, entity.RowVersion);
 
             entity.PdfPath = pdfPath;
             entity.HasAttachments = hasAttachments;
             entity.UpdatedAt = DateTime.UtcNow;
-
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            entity.RowVersion++;
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync())
+                    .ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(ctx, entity.Id)
+                    .ConfigureAwait(false);
+                throw new ConcurrencyConflictException(
+                    "Statement", entity.StatementNumber,
+                    expectedRowVersion, actual);
+            }
         }
 
         // ── Private helpers ───────────────────────────────────────────────
@@ -436,7 +512,8 @@ namespace ProGlassAutomation.Services.Statement.Repository
             OverdueAmount = s.OverdueAmount,
             PdfPath = s.PdfPath,
             HasAttachments = s.HasAttachments,
-            CreatedAt = s.CreatedAt
+            CreatedAt = s.CreatedAt,
+            RowVersion = s.RowVersion
         };
 
         // ── ANALYTICS PROJECTION ─────────────────────────────────────────

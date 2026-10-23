@@ -73,7 +73,7 @@ green for a customer.
 |---|:---:|---|
 | Velopack pack manifest | ✅ | `installer/velopack.json` (`f081632`). |
 | `dotnet publish` profile (SelfContained win-x64, ReadyToRun on, no PDBs, deterministic) | ✅ | `Properties/PublishProfiles/Release.pubxml` (`ffbe701`); whitelisted in `.gitignore`. |
-| Local build script for a Windows dev box | ✅ | `tools/build-installer.ps1` (restore → build → test gate → publish → vpk pack → portable zip, with SHA-256 summary). |
+| Local build script for a Windows dev box | ✅ | `scripts/build-installer.ps1` (restore → build → test gate → publish → vpk pack → portable zip, with SHA-256 summary). |
 | CI release workflow (`v*` tag → Setup.exe + nupkg + portable zip + GitHub Release) | ✅ | `.github/workflows/release.yml` (existing) — triggers on tag push, runs on `windows-latest`, uses `vpk pack` + `vpk publish github` + `softprops/action-gh-release@v2`. |
 | Authenticode code signing of the shipped .exe / .dll | ⚠️ | The release workflow reads `CODESIGN_PFX_BASE64` + `CODESIGN_PFX_PASSWORD` and runs `signtool`. To do: repo admin creates the secrets in **Settings → Secrets and variables → Actions** before tagging the first customer release. Without the secrets, the workflow logs a skip and ships unsigned. |
 | Delta upgrades | ⚠️ | Velopack delta nupkg is produced by `vpk pack` automatically. To do: confirm on a clean VM that an existing 2.0.0 install upgrades to 2.0.1 by downloading only the delta. |

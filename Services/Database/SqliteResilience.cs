@@ -9,19 +9,15 @@
 // with a bare-minimum `options.UseSqlite("Data Source=…")` and nothing
 // else. That produced three classes of production bug:
 //
-//   1. "database is locked" (SQLITE_BUSY, error code 5) whenever two
-//      code paths tried to write at the same instant — for example the
-//      Inquiry editor's auto-save colliding with the lifecycle-service
-//      background hydration. SQLite's default rollback journal is a
-//      single-writer, single-reader mode: any concurrent open on the
-//      same file fails immediately with error 5.
+//   1. Transient SQLITE_BUSY / SQLITE_LOCKED errors when overlapping
+//      application writes contend for SQLite's single-writer lock.
+//      Local databases use WAL; shared databases use rollback-journal
+//      DELETE mode with a longer busy timeout because WAL shared-memory
+//      coordination is not safe across SMB/NAS.
 //
-//   2. Silent cascade-delete failures because SQLite's foreign-key
-//      enforcement is OFF by default (a legacy compatibility choice).
-//      InquiryDbContext declared OnDelete(DeleteBehavior.Cascade) but
-//      SQLite never enforced it — deleting an Inquiry would leave
-//      orphan InquiryAttachment / InquiryCommunication rows behind
-//      unless the repository remembered to RemoveRange() them first.
+//   2. Silent cascade-delete failures because SQLite foreign-key
+//      enforcement is connection-local and OFF by default. The shared
+//      interceptor enables and verifies it for every new EF connection.
 //
 //   3. UNIQUE-violation retry loops that could not actually retry
 //      because they reused the same DbContext instance across attempts
@@ -30,36 +26,16 @@
 //
 // WHAT THIS FILE DOES
 // ───────────────────
-// One-stop configuration + retry helper that every DbContext calls from
-// OnConfiguring:
+// One-stop connection/journal policy + retry helper used by every DbContext,
+// raw migration connection, and path-aware read-only probe:
 //
 //     options.UseSqlite(SqliteResilience.BuildConnectionString(path))
 //            .AddInterceptors(SqliteResilience.PragmaInterceptor);
 //
-// Pragmas applied on every new physical connection:
-//
-//     PRAGMA journal_mode  = WAL      → true multi-reader + single-writer,
-//                                        no "database is locked" on read
-//                                        during a write.
-//     PRAGMA synchronous   = NORMAL   → WAL-safe fsync policy. FULL is
-//                                        the SQLite default and is 2-3x
-//                                        slower for zero durability win
-//                                        in WAL mode.
-//     PRAGMA busy_timeout  = 5000     → any statement that hits a lock
-//                                        blocks up to 5 s instead of
-//                                        throwing immediately. Covers
-//                                        checkpoint stalls and short
-//                                        writer bursts.
-//     PRAGMA foreign_keys  = ON       → cascade / restrict / set-null
-//                                        are enforced. Off by default
-//                                        for legacy compatibility.
-//     PRAGMA temp_store    = MEMORY   → temp b-trees for ORDER BY /
-//                                        GROUP BY stay in RAM.
-//     PRAGMA mmap_size     = 64 MB    → read-only pages are memory-
-//                                        mapped, cutting per-query
-//                                        overhead on large tables.
-//     PRAGMA cache_size    = -16000   → 16 MB per-connection page cache
-//                                        (negative = kB, positive = pages).
+// Local-root connections use WAL/NORMAL; shared-root connections use
+// DELETE/FULL and a longer busy timeout, because WAL shared-memory
+// coordination is not safe across SMB/NAS. Both policies enable FK checks.
+// Connection-local cache/temp settings are tuned without mapping shared files.
 //
 // Retry helper: SaveChanges wrappers that catch transient SQLITE_BUSY /
 // SQLITE_LOCKED (codes 5 / 6) and retry with exponential back-off.
@@ -74,11 +50,10 @@
 //   starts with PRAGMA defaults regardless of what the previous
 //   connection set.
 //
-// • WAL is a file-format setting persisted to the header. Applying it
-//   on an existing rollback-journal database is a one-time upgrade and
-//   is a no-op afterwards. Applying it on a read-only medium (network
-//   share, CD-ROM) is silently ignored — the pragma returns the old
-//   mode. We don't fail startup for that.
+// • journal_mode is persisted in the database header. Local paths request
+//   WAL; shared paths request DELETE and fail closed if SQLite does not
+//   report DELETE. Read-only probes verify the recorded mode without trying
+//   to change it.
 //
 // • busy_timeout is a per-connection setting. It affects only future
 //   statements on the same connection.
@@ -99,6 +74,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using ProGlassAutomation.Services.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
@@ -107,13 +83,13 @@ using System.Threading.Tasks;
 namespace ProGlassAutomation.Services.Database
 {
     /// <summary>
-    /// Central SQLite hardening: pragmas, busy_timeout, WAL, foreign_keys,
+    /// Central SQLite hardening: path-aware journal pragmas, busy_timeout, foreign_keys,
     /// and a transient-error retry helper. See the file-header comment
     /// for the rationale.
     /// </summary>
     public static class SqliteResilience
     {
-        // ── Pragma script applied to every new connection ────────────────
+        // ── Central journal scripts for writable connections ────────────
         //
         // A single SQL batch is faster than N round-trips: SqliteCommand.
         // ExecuteNonQuery over a semicolon-separated batch runs all
@@ -136,21 +112,55 @@ namespace ProGlassAutomation.Services.Database
             "PRAGMA temp_store   = MEMORY;" +
             "PRAGMA cache_size   = -12000;";
 
-        internal static string PragmaScriptFor(string? databaseFilePath) =>
-            IsSharedRootDatabase(databaseFilePath) ? NetworkSharePragmaScript : PragmaScript;
+        internal static string PragmaScriptFor(
+            string? databaseFilePath, bool? sharedRootOverride = null) =>
+            IsSharedRootDatabase(databaseFilePath, sharedRootOverride)
+                ? NetworkSharePragmaScript
+                : PragmaScript;
 
-        private static bool IsSharedRootDatabase(string? databaseFilePath)
+        private static string ReadOnlyPragmaScriptFor(bool shared) => shared
+            ? "PRAGMA busy_timeout = 15000;PRAGMA foreign_keys = ON;"
+            : "PRAGMA busy_timeout = 5000;PRAGMA foreign_keys = ON;";
+
+        private static readonly ConcurrentDictionary<string, string> LoggedJournalModes =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// True when the database path is inside the configured company root,
+        /// a UNC path, or a mapped network drive. This is deliberately based
+        /// on the path itself/configured root, not on whether startup managed
+        /// to reach the share; the policy remains non-WAL for unavailable or
+        /// newly mounted shared paths too.
+        /// </summary>
+        internal static bool IsSharedRootDatabase(string? databaseFilePath) =>
+            IsSharedRootDatabase(databaseFilePath, sharedRootOverride: null);
+
+        private static bool IsSharedRootDatabase(
+            string? databaseFilePath, bool? sharedRootOverride)
         {
+            if (sharedRootOverride.HasValue) return sharedRootOverride.Value;
+            if (string.IsNullOrWhiteSpace(databaseFilePath)) return false;
             try
             {
-                if (!AppDataRoot.IsSharedDataRootEnabled || string.IsNullOrWhiteSpace(databaseFilePath))
-                    return false;
                 string db = System.IO.Path.GetFullPath(databaseFilePath);
-                string root = System.IO.Path.GetFullPath(AppDataRoot.SharedDataRoot)
-                    .TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar);
-                return db.Equals(root, StringComparison.OrdinalIgnoreCase)
-                    || db.StartsWith(root + System.IO.Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
-                    || db.StartsWith(root + System.IO.Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+                string configuredRoot = AppDataRoot.ConfiguredSharedDataRoot;
+                if (!string.IsNullOrWhiteSpace(configuredRoot))
+                {
+                    string root = System.IO.Path.GetFullPath(configuredRoot);
+                    string rootPrefix = root.EndsWith(System.IO.Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal)
+                        || root.EndsWith(System.IO.Path.AltDirectorySeparatorChar.ToString(), StringComparison.Ordinal)
+                        ? root
+                        : root + System.IO.Path.DirectorySeparatorChar;
+                    if (db.Equals(root, StringComparison.OrdinalIgnoreCase)
+                        || db.StartsWith(rootPrefix, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+
+                if (db.StartsWith(@"\\", StringComparison.Ordinal)
+                    || db.StartsWith("//", StringComparison.Ordinal))
+                    return true;
+
+                return !string.IsNullOrWhiteSpace(AppDataRoot.GetMappedNetworkPath(db));
             }
             catch
             {
@@ -158,41 +168,193 @@ namespace ProGlassAutomation.Services.Database
             }
         }
 
+        /// <summary>
+        /// Applies the central path-aware SQLite policy and verifies the
+        /// journal mode SQLite actually accepted. Runtime EF connections and
+        /// raw migration/conversion connections call this exact routine.
+        /// A caller can explicitly identify a known shared-root file with
+        /// <paramref name="sharedRootOverride"/> when path detection alone is insufficient.
+        /// </summary>
+        internal static string ApplyConnectionPolicy(
+            SqliteConnection connection, bool? sharedRootOverride = null)
+        {
+            if (connection == null) throw new ArgumentNullException(nameof(connection));
+
+            bool shared = IsSharedRootDatabase(connection.DataSource, sharedRootOverride);
+            string requiredMode = shared ? "delete" : "wal";
+            try
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = PragmaScriptFor(connection.DataSource, sharedRootOverride);
+                command.CommandType = CommandType.Text;
+                command.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Error(
+                    $"[SqliteResilience] Could not apply SQLite connection policy to '{connection.DataSource}'.",
+                    ex,
+                    new LogContext
+                    {
+                        Module = "Database",
+                        Class = nameof(SqliteResilience),
+                        Operation = "ApplyPragmas"
+                    });
+                if (shared)
+                    throw new InvalidOperationException(
+                        $"Could not apply the required non-WAL SQLite policy to shared database '{connection.DataSource}'. " +
+                        "Database access is blocked to avoid unsafe shared-file writes.", ex);
+            }
+
+            return VerifyEffectiveJournalMode(connection, shared, requiredMode);
+        }
+
+        /// <summary>
+        /// Applies non-mutating connection-local settings to a read-only
+        /// connection, then verifies/logs its effective journal mode against
+        /// the same path-aware policy. It never tries to change a database's
+        /// persistent journal mode from a read-only handle.
+        /// </summary>
+        internal static string ApplyReadOnlyConnectionPolicy(SqliteConnection connection)
+        {
+            if (connection == null) throw new ArgumentNullException(nameof(connection));
+            bool shared = IsSharedRootDatabase(connection.DataSource);
+            string requiredMode = shared ? "delete" : "wal";
+            try
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = ReadOnlyPragmaScriptFor(shared);
+                command.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Error(
+                    $"[SqliteResilience] Could not apply read-only SQLite settings to '{connection.DataSource}'.",
+                    ex,
+                    new LogContext
+                    {
+                        Module = "Database",
+                        Class = nameof(SqliteResilience),
+                        Operation = "ApplyReadOnlyPragmas"
+                    });
+                if (shared)
+                    throw new InvalidOperationException(
+                        $"Could not apply the required read-only connection settings to shared database '{connection.DataSource}'. " +
+                        "Database access is blocked.", ex);
+            }
+
+            return VerifyEffectiveJournalMode(connection, shared, requiredMode);
+        }
+
+        private static string VerifyEffectiveJournalMode(
+            SqliteConnection connection, bool shared, string requiredMode)
+        {
+            string effectiveMode;
+            try
+            {
+                using var check = connection.CreateCommand();
+                check.CommandText = "PRAGMA journal_mode;";
+                effectiveMode = Convert.ToString(check.ExecuteScalar(),
+                    System.Globalization.CultureInfo.InvariantCulture)?.Trim().ToLowerInvariant() ?? "";
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Error(
+                    $"[SqliteResilience] Could not verify journal_mode for '{connection.DataSource}'.",
+                    ex,
+                    new LogContext
+                    {
+                        Module = "Database",
+                        Class = nameof(SqliteResilience),
+                        Operation = "VerifyJournalMode"
+                    });
+                if (shared)
+                    throw new InvalidOperationException(
+                        $"Could not verify the SQLite journal mode for shared database '{connection.DataSource}'. " +
+                        "Database access is blocked.", ex);
+                return "unknown";
+            }
+
+            string key = connection.DataSource ?? "";
+            string modeLog = $"required={requiredMode}, effective={effectiveMode}";
+            if (!LoggedJournalModes.TryGetValue(key, out var previous)
+                || !string.Equals(previous, modeLog, StringComparison.OrdinalIgnoreCase))
+            {
+                LoggedJournalModes[key] = modeLog;
+                AppLogService.Info(
+                    $"SQLite journal policy for '{key}': {modeLog}.",
+                    new LogContext
+                    {
+                        Module = "Database",
+                        Class = nameof(SqliteResilience),
+                        Operation = "VerifyJournalMode"
+                    });
+            }
+
+            if (shared && !string.Equals(effectiveMode, "delete", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException(
+                    $"Shared database '{connection.DataSource}' is using journal_mode={effectiveMode}, " +
+                    "but DELETE is required for a LAN/Wi-Fi data root. Database access is blocked. " +
+                    "Close every ProGlass workstation, make a backup, and retry. If the journal mode " +
+                    "still cannot be changed safely, contact ProGlass support before using this folder.");
+
+            if (!shared && !string.Equals(effectiveMode, "wal", StringComparison.OrdinalIgnoreCase))
+                AppLogService.Warning(
+                    $"Local SQLite database '{connection.DataSource}' requested journal_mode=WAL but SQLite reports '{effectiveMode}'.",
+                    new LogContext
+                    {
+                        Module = "Database",
+                        Class = nameof(SqliteResilience),
+                        Operation = "VerifyJournalMode"
+                    });
+
+            return effectiveMode;
+        }
+
         // ── Public helpers ──────────────────────────────────────────────
 
         /// <summary>
-        /// Preferred connection string builder. Uses <see cref="SqliteOpenMode.ReadWriteCreate"/>
-        /// (the EF default) plus <see cref="SqliteCacheMode.Shared"/> which lets
-        /// multiple in-process connections share the same page cache — WAL
-        /// still gives the concurrency guarantees, but the shared cache
-        /// avoids duplicated buffers when several DbContext instances are
-        /// active. Pooling is enabled by default in Microsoft.Data.Sqlite
-        /// 8.x, so we don't need to opt in.
+        /// Preferred connection-string builder. Local paths use a shared page
+        /// cache; configured/UNC/mapped shared roots use the default cache and
+        /// the central non-WAL journal policy. The returned connection string
+        /// never chooses a journal mode itself; ApplyConnectionPolicy owns and
+        /// verifies that choice after open.
         /// </summary>
-        public static string BuildConnectionString(string databaseFilePath)
+        public static string BuildConnectionString(string databaseFilePath) =>
+            BuildConnectionStringCore(
+                databaseFilePath, SqliteOpenMode.ReadWriteCreate, sharedRootOverride: null);
+
+        /// <summary>
+        /// Builds a connection for an explicitly identified shared-root file,
+        /// even when path detection alone cannot classify the location.
+        /// </summary>
+        internal static string BuildSharedRootConnectionString(string databaseFilePath) =>
+            BuildConnectionStringCore(
+                databaseFilePath, SqliteOpenMode.ReadWriteCreate, sharedRootOverride: true);
+
+        /// <summary>
+        /// Builds a read-only connection string with the same cache choice,
+        /// timeout, and path-aware shared-root classification as write paths.
+        /// </summary>
+        internal static string BuildReadOnlyConnectionString(string databaseFilePath) =>
+            BuildConnectionStringCore(
+                databaseFilePath, SqliteOpenMode.ReadOnly, sharedRootOverride: null);
+
+        private static string BuildConnectionStringCore(
+            string databaseFilePath,
+            SqliteOpenMode mode,
+            bool? sharedRootOverride)
         {
             if (string.IsNullOrWhiteSpace(databaseFilePath))
                 throw new ArgumentException("Database file path is required.", nameof(databaseFilePath));
 
+            bool shared = IsSharedRootDatabase(databaseFilePath, sharedRootOverride);
             var builder = new SqliteConnectionStringBuilder
             {
                 DataSource = databaseFilePath,
-                Mode = SqliteOpenMode.ReadWriteCreate,
-                Cache = IsSharedRootDatabase(databaseFilePath)
-                    ? SqliteCacheMode.Default
-                    : SqliteCacheMode.Shared,
-                // 30 s default statement timeout is fine for a desktop
-                // app; the busy_timeout PRAGMA above already covers
-                // transient lock waits. The connection-string
-                // DefaultTimeout only affects "how long does a single
-                // ExecuteXxx allow before ADO.NET gives up", it does
-                // not affect SQLite's internal retry.
+                Mode = mode,
+                Cache = shared ? SqliteCacheMode.Default : SqliteCacheMode.Shared,
                 DefaultTimeout = 30,
-                // Foreign keys are enforced by PRAGMA (see PragmaScript).
-                // The connection-string ForeignKeys option only sets
-                // the pragma at open time, but we do that explicitly
-                // via the interceptor to keep every setting in one
-                // place and to survive connection-pool checkout.
                 ForeignKeys = null
             };
             return builder.ToString();
@@ -273,13 +435,10 @@ namespace ProGlassAutomation.Services.Database
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Bulk writes are what make a counter increment safe on SQLite. A
-        /// read-modify-write in C# — load the row, check the balance, add to it,
-        /// save — loses an update whenever two operators touch the same row,
-        /// because both read the same starting value and the second write
-        /// silently overwrites the first. Expressing the increment and its guard
-        /// as a single conditional UPDATE lets SQLite evaluate and apply them
-        /// under one write lock, which removes the race entirely.
+        /// This helper only retries transient SQLITE_BUSY / SQLITE_LOCKED
+        /// failures. Callers still need an atomic SQL statement or a serializable
+        /// transaction for correctness; retrying alone does not prevent lost
+        /// updates from an application-level read-modify-write.
         /// </para>
         /// <para>
         /// The retry policy is shared rather than duplicated: a bulk write hits
@@ -333,104 +492,11 @@ namespace ProGlassAutomation.Services.Database
 
             private static void ApplyPragmas(DbConnection connection)
             {
-                // Defensive: only run for SQLite. This interceptor is
-                // referenced by every DbContext.OnConfiguring, and if a
-                // future refactor points one at a different provider
-                // (or a test harness swaps in InMemory) the PRAGMA
-                // batch would be invalid SQL. Silently skip.
-                if (connection is not SqliteConnection sqlite) return;
-                try
-                {
-                    using var cmd = sqlite.CreateCommand();
-                    cmd.CommandText = PragmaScriptFor(sqlite.DataSource);
-                    cmd.CommandType = CommandType.Text;
-                    cmd.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    // A pragma failure must NOT prevent the connection
-                    // from being used. Read-only media (network share,
-                    // CD-ROM) can reject journal_mode=WAL; the connection
-                    // still works with the previous journal mode.
-                    // (The one exception — WAL still active on a
-                    // shared-root database — is verified AFTER this
-                    // catch, below.)
-                    //
-                    // Error, not Warning (Phase 14). This is the one silent
-                    // degradation that quietly changes data integrity rather
-                    // than performance: if foreign_keys did not take,
-                    // referential integrity is unenforced for every write on
-                    // this connection and nothing else in the application will
-                    // ever say so. Warning is what this codebase reserves for
-                    // things that recovered; this one did not — it continued
-                    // unhardened. The exception object is passed too, so the
-                    // ErrorId carries a stack rather than only ex.Message.
-                    AppLogService.Error(
-                        $"[SqliteResilience] Could not apply hardening pragmas to '{sqlite.DataSource}'. " +
-                        "The connection will still be used, but WAL / foreign_keys may not be active.",
-                        ex,
-                        new LogContext
-                        {
-                            Module = "Database",
-                            Class = nameof(SqliteResilience),
-                            Operation = "ApplyPragmas"
-                        });
-                }
-
-                // Senior audit (2026-09-24): on a shared-root database, WAL
-                // is not a performance preference — it is UNSAFE across
-                // SMB/NAS (the -shm coordination file is not reliable over
-                // the network redirector, and two workstations can diverge
-                // silently). journal_mode=DELETE is a file-format change
-                // that needs exclusive access, so it can fail to take
-                // effect while another workstation holds the file. Verify
-                // the mode that is actually live and fail loud instead of
-                // risking silent corruption of the company database.
-                if (IsSharedRootDatabase(sqlite.DataSource))
-                {
-                    try
-                    {
-                        using var check = sqlite.CreateCommand();
-                        check.CommandText = "PRAGMA journal_mode;";
-                        using var reader = check.ExecuteReader();
-                        if (reader.Read())
-                        {
-                            string mode = reader.GetString(0);
-                            if (string.Equals(mode, "wal", StringComparison.OrdinalIgnoreCase))
-                            {
-                                // Documented public ctor: (string? message, int errorCode).
-                                // Code 1 = SQLITE_ERROR: the classifier treats it as
-                                // non-transient, so this surfaces immediately instead
-                                // of retrying a condition that will not clear itself.
-                                throw new SqliteException(
-                                    "The shared company database is in WAL journal mode, which is " +
-                                    "unsafe over a WiFi/LAN share (SQLITE journal-mode verification " +
-                                    "failed at connection open). Run Settings → Data → " +
-                                    "“Prepare Folder” once (it converts the databases to " +
-                                    "rollback-journal mode), then restart every workstation.",
-                                    1);
-                            }
-                        }
-                    }
-                    catch (SqliteException security)
-                    {
-                        throw security;
-                    }
-                    catch (Exception ex)
-                    {
-                        // Verification itself failing (connection trouble)
-                        // is logged; the connection is still used.
-                        AppLogService.Error(
-                            $"[SqliteResilience] journal_mode verification failed on '{sqlite.DataSource}': {ex.Message}",
-                            ex,
-                            new LogContext
-                            {
-                                Module = "Database",
-                                Class = nameof(SqliteResilience),
-                                Operation = "VerifySharedJournalMode"
-                            });
-                    }
-                }
+                // This interceptor is shared by all EF contexts. Raw
+                // migration connections call ApplyConnectionPolicy directly,
+                // so runtime and migration policy cannot drift.
+                if (connection is SqliteConnection sqlite)
+                    ApplyConnectionPolicy(sqlite);
             }
         }
     }

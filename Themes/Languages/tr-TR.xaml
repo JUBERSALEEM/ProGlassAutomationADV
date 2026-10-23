@@ -2155,6 +2155,7 @@
     <sys:String x:Key="Settings.SecAi">Yapay zekâ asistanı</sys:String>
     <sys:String x:Key="Settings.SecAppearance">Görünüm</sys:String>
     <sys:String x:Key="Settings.SecData">Veri ve yedekleme</sys:String>
+    <sys:String x:Key="Settings.SecRecordsSync">Kayıt Senkronizasyonu</sys:String>
     <sys:String x:Key="Settings.SecDemo">Demo merkezi</sys:String>
     <sys:String x:Key="Settings.SecFeatures">Özellikler</sys:String>
     <sys:String x:Key="Settings.SecLicense">Lisans</sys:String>

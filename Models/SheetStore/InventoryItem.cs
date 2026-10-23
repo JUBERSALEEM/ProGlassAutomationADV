@@ -136,6 +136,13 @@ namespace ProGlassAutomation.Models.SheetStore
         public decimal Used { get; set; }
 
         /// <summary>
+        /// Application-managed concurrency token shared by editors and
+        /// stock movements. It prevents a stale edit from replacing a
+        /// receipt or issue committed by another workstation.
+        /// </summary>
+        public int RowVersion { get; set; }
+
+        /// <summary>
         /// Reorder threshold. Zero disables the alert, so existing rows
         /// and items with no meaningful minimum stay quiet.
         /// </summary>

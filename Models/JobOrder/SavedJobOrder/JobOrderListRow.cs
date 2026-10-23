@@ -35,6 +35,7 @@ namespace ProGlassAutomation.Models.JobOrder.SavedJobOrder
         public DateTime? DeliveryDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public int RowVersion { get; set; }
 
         /// <summary>
         /// ERP lifecycle hardening (Phase 1): true when the job order has been

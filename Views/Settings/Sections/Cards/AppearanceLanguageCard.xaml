@@ -58,7 +58,7 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="&#xE8EC;" FontFamily="{DynamicResource FontFamily.Icon}"
                            FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
-                           Foreground="{DynamicResource AccentBrush}"/>
+                           Foreground="{DynamicResource AccentPrimary}"/>
                 <StackPanel Grid.Column="1" Margin="{StaticResource SettingsInlineGap6}">
                     <TextBlock Text="Regional Standards" Style="{StaticResource SettingsRowTitleStyle}"/>
                     <TextBlock Text="System language, accounting currency symbol, and dialing code"
@@ -86,7 +86,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="&#xE8EC;" FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                                       Foreground="{DynamicResource AccentPrimary}"/>
                             <TextBlock Grid.Column="1" Text="{DynamicResource Settings.LblLanguage}"
                                        Style="{StaticResource SettingsRowTitleStyle}"
                                        Margin="{StaticResource SettingsInlineGap6}"
@@ -125,7 +125,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="&#xE8B9;" FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                                       Foreground="{DynamicResource AccentPrimary}"/>
                             <TextBlock Grid.Column="1" Text="{DynamicResource Settings.LblCurrency}"
                                        Style="{StaticResource SettingsRowTitleStyle}"
                                        Margin="{StaticResource SettingsInlineGap6}"
@@ -164,7 +164,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="&#xE716;" FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                                       Foreground="{DynamicResource AccentPrimary}"/>
                             <TextBlock Grid.Column="1" Text="{DynamicResource Settings.LblPhoneCountry}"
                                        Style="{StaticResource SettingsRowTitleStyle}"
                                        Margin="{StaticResource SettingsInlineGap6}"
@@ -211,7 +211,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="&#xE774;" FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                                       Foreground="{DynamicResource AccentPrimary}"/>
                             <TextBlock Grid.Column="1" Text="{DynamicResource Settings.LblAutoDetect}"
                                        Style="{StaticResource SettingsRowTitleStyle}"
                                        Margin="{StaticResource SettingsInlineGap6}"
@@ -223,7 +223,7 @@
                                       IsChecked="{Binding AutoSuggestByRegion, Mode=TwoWay}"
                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                       FontSize="{DynamicResource FontSize.BodySmall}"
-                                      Foreground="{DynamicResource TextPrimaryBrush}"
+                                      Foreground="{DynamicResource TextPrimary}"
                                       VerticalContentAlignment="Center"
                                       Margin="0,0,0,6"
                                       AutomationProperties.AutomationId="Settings.AutoSuggestByRegion"/>
@@ -255,7 +255,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="&#xE77C;" FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                                       Foreground="{DynamicResource AccentPrimary}"/>
                             <TextBlock Grid.Column="1" Text="{DynamicResource Settings.ResetToEnglish}"
                                        Style="{StaticResource SettingsRowTitleStyle}"
                                        Margin="{StaticResource SettingsInlineGap6}"
@@ -294,7 +294,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="&#xE9F5;" FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                                       Foreground="{DynamicResource AccentPrimary}"/>
                             <TextBlock Grid.Column="1" Text="{DynamicResource Settings.ReducedMotion}"
                                        Style="{StaticResource SettingsRowTitleStyle}"
                                        Margin="{StaticResource SettingsInlineGap6}"
@@ -307,7 +307,7 @@
                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                       IsChecked="{Binding ReducedMotion, Mode=TwoWay}"
-                                      Foreground="{DynamicResource TextPrimaryBrush}"
+                                      Foreground="{DynamicResource TextPrimary}"
                                       Margin="0,0,0,6"/>
                             <TextBlock Text="{DynamicResource Settings.ReducedMotionTip}"
                                        Style="{StaticResource SettingsRowMetaStyle}"

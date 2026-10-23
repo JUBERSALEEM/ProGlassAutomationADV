@@ -181,9 +181,23 @@ namespace ProGlassAutomation.Agent.Demo.Video
             }
             string outPixFmt = VideoEncoder.PixelFormatName(effectivePixFmt);
 
+            // 2026-10-05 QUALITY PASS — unsharp added. This is the path that
+            // produces the delivered file, and it was the ONLY one of the three
+            // encode paths with no sharpening: the JPEG compose path in
+            // FfmpegMp4Composer has carried "unsharp=5:5:0.8:5:5:0.0" since the
+            // crisp-demo pass. That matters because the scale above is very
+            // often an UPSCALE — capture is the window's client area in
+            // physical pixels (GdiWindowCapture.Prepare -> GetClientRect), so a
+            // maximised window on a 1080p screen yields ~1920x1040 and the
+            // default 4K output stretches it 2x. Lanczos cannot invent detail,
+            // so upscaled UI text arrives soft; a mild luma unsharp restores
+            // perceived edge contrast. Chroma amount stays 0.0 to avoid colour
+            // halos on coloured text, matching the compose path.
             string vf =
                 $"scale={outW}:{outH}:flags=lanczos:force_original_aspect_ratio=decrease," +
-                $"pad={outW}:{outH}:(ow-iw)/2:(oh-ih)/2:color=black,format={outPixFmt}";
+                $"pad={outW}:{outH}:(ow-iw)/2:(oh-ih)/2:color=black," +
+                "unsharp=5:5:0.8:5:5:0.0," +
+                $"format={outPixFmt}";
 
             // ── RESOLUTION-AWARE PRESET (4K UHD support, 2026-09-10) ──
             // The x264 preset trades CPU per frame against compression.
@@ -196,10 +210,16 @@ namespace ProGlassAutomation.Agent.Demo.Video
             //
             //   ≤1080p : veryfast — plenty of headroom, best compression.
             //   1440p  : superfast.
-            //   2160p  : ultrafast — 4K raw is ~33 MB/frame; only the
-            //            cheapest preset sustains a usable rate on a CPU
-            //            encoder. Quality is preserved by the low CRF, and
-            //            YouTube re-encodes on upload anyway.
+            //   2160p  : superfast (was ultrafast — see VideoEncoder
+            //            .DefaultPresetForOutput). The old comment claimed
+            //            "quality is preserved by the low CRF". It is not: CRF
+            //            sets how much error the encoder may introduce, while
+            //            the preset decides WHICH TOOLS it has to spend that
+            //            error budget with, and ultrafast turns off 8x8 DCT,
+            //            CABAC, deblocking and aq-mode — the four that carry
+            //            fine UI detail. It also left -tune stillimage inert,
+            //            because psy-rd needs subme >= 6. Cost is covered by
+            //            AdjustPreset below and the FPS guard at start time.
             long outPixels = (long)outW * outH;
             string preset = VideoEncoder.DefaultPresetForOutput(outPixels);
 

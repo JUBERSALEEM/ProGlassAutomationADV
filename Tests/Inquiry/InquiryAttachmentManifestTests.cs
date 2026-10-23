@@ -35,9 +35,12 @@ namespace ProGlassAutomation.Tests.Inquiry
             public Task<InquiryRecord?> GetDetailAsync(int id, CancellationToken ct = default) => Task.FromResult<InquiryRecord?>(null);
             public Task<InquiryRecord> CreateAsync(InquiryRecord inquiry, CancellationToken ct = default)
                 => throw new NotSupportedException();
-            public Task<InquiryRecord> UpdateAsync(InquiryRecord inquiry, CancellationToken ct = default)
+            public Task<InquiryRecord> UpdateAsync(
+                InquiryRecord inquiry, int expectedRowVersion, CancellationToken ct = default)
                 => throw new NotSupportedException();
-            public Task<bool> ChangeStatusAsync(int id, string status, string actor, CancellationToken ct = default)
+            public Task<bool> ChangeStatusAsync(
+                int id, string status, string actor, int expectedRowVersion,
+                CancellationToken ct = default)
                 => throw new NotSupportedException();
             public Task<IReadOnlyList<InquiryAttachment>> GetAttachmentsAsync(int inquiryId, CancellationToken ct = default)
                 => GetAttachmentsThrows
@@ -58,9 +61,10 @@ namespace ProGlassAutomation.Tests.Inquiry
             public Task<InquiryRecord> DuplicateAsync(int sourceId, CancellationToken ct = default)
                 => throw new NotSupportedException();
             // PHASE 2: BOQ persistence — the manifest tests don't exercise it.
-            public Task SaveLineItemsAsync(int inquiryId,
-                IReadOnlyList<InquiryLineItem> items, string updatedBy,
-                CancellationToken ct = default) => Task.CompletedTask;
+            public Task<int> SaveLineItemsAsync(int inquiryId,
+                IReadOnlyList<InquiryLineItem> items, int expectedRowVersion,
+                string updatedBy, CancellationToken ct = default)
+                => throw new NotSupportedException();
             public Task<bool> SetProformaLinkAsync(int inquiryId, int? proformaInvoiceId, string proformaNumber, CancellationToken ct = default)
                 => throw new NotSupportedException();
             public void InvalidateLifecycle(int inquiryId) { /* no-op */ }
@@ -104,7 +108,7 @@ namespace ProGlassAutomation.Tests.Inquiry
             return path;
         }
 
-        [Fact(Skip = "Test references InquiryAttachment properties via a constructor that does not exist on the production type. The constructor signature has changed.")]
+        [Fact(Skip = "Deferred: fixture uses AppDataRoot.CurrentFolder and creates real application-data files; Add/Delete also start fire-and-forget audit writes. Isolate the root and audit completion before enabling; the model members are present.")]
         public async Task Add_persists_to_manifest_and_disk_without_any_entity_save()
         {
             var repo = new StubRepository();
@@ -127,7 +131,7 @@ namespace ProGlassAutomation.Tests.Inquiry
             // files in the folder depending on probe order).
         }
 
-        [Fact(Skip = "Test references InquiryAttachment properties via a constructor that does not exist on the production type. The constructor signature has changed.")]
+        [Fact(Skip = "Deferred: fixture uses AppDataRoot.CurrentFolder and creates real application-data files; Add/Delete also start fire-and-forget audit writes. Isolate the root and audit completion before enabling; the model members are present.")]
         public async Task Delete_removes_manifest_entry_and_file()
         {
             var service = new InquiryAttachmentService(new StubRepository());
@@ -139,7 +143,7 @@ namespace ProGlassAutomation.Tests.Inquiry
             Assert.False(File.Exists(record.StoragePath));
         }
 
-        [Fact(Skip = "Test references InquiryAttachment properties via a constructor that does not exist on the production type. The constructor signature has changed.")]
+        [Fact(Skip = "Deferred: fixture uses AppDataRoot.CurrentFolder and creates real application-data files; Add/Delete also start fire-and-forget audit writes. Isolate the root and audit completion before enabling; the model members are present.")]
         public async Task Corrupt_manifest_reads_as_empty_never_throws()
         {
             var service = new InquiryAttachmentService(new StubRepository());
@@ -150,7 +154,7 @@ namespace ProGlassAutomation.Tests.Inquiry
             Assert.Empty(await service.GetAsync(990003));
         }
 
-        [Fact(Skip = "Test references InquiryAttachment properties via a constructor that does not exist on the production type. The constructor signature has changed.")]
+        [Fact(Skip = "Deferred: fixture uses AppDataRoot.CurrentFolder and creates real application-data files; Add/Delete also start fire-and-forget audit writes. Isolate the root and audit completion before enabling; the model members are present.")]
         public async Task Legacy_ef_rows_migrate_into_manifest_with_resolved_paths()
         {
             // A legacy install: EF rows exist, file lives in the inquiry folder,
@@ -178,7 +182,7 @@ namespace ProGlassAutomation.Tests.Inquiry
             Assert.True(File.Exists(Path.Combine(folder, "manifest.json")));
         }
 
-        [Fact(Skip = "Test references InquiryAttachment properties via a constructor that does not exist on the production type. The constructor signature has changed.")]
+        [Fact(Skip = "Deferred: fixture uses AppDataRoot.CurrentFolder and creates real application-data files; Add/Delete also start fire-and-forget audit writes. Isolate the root and audit completion before enabling; the model members are present.")]
         public async Task Broken_legacy_table_never_blocks_the_module()
         {
             var repo = new StubRepository { GetAttachmentsThrows = true };
@@ -192,7 +196,7 @@ namespace ProGlassAutomation.Tests.Inquiry
             Assert.True(File.Exists(record.StoragePath));
         }
 
-        [Fact(Skip = "Test references InquiryAttachment properties via a constructor that does not exist on the production type. The constructor signature has changed.")]
+        [Fact(Skip = "Deferred: fixture uses AppDataRoot.CurrentFolder and creates real application-data files; Add/Delete also start fire-and-forget audit writes. Isolate the root and audit completion before enabling; the model members are present.")]
         public async Task Unsupported_extension_or_missing_file_is_rejected_upfront()
         {
             var service = new InquiryAttachmentService(new StubRepository());

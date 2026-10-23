@@ -589,16 +589,20 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 && (boqToPersist.Count > 0 || !wasNewRecord)
                 && Services.Audit.PermissionService.Can(
                     Services.Audit.AppPermissions.InquiryEdit);
+            int expectedRowVersion = Record.RowVersion;
             var saved = wasNewRecord
                 ? await _workflow.CreateAsync(Record)
-                : await _workflow.UpdateAsync(Record);
+                : await _workflow.UpdateAsync(Record, expectedRowVersion);
+            Record.RowVersion = saved.RowVersion;
             Record.LineItems = boqToPersist;
             if (persistBoq)
             {
-                await App.Inquiries!.SaveLineItemsAsync(
-                    saved?.Id ?? Record.Id,
+                int boqRowVersion = await App.Inquiries!.SaveLineItemsAsync(
+                    saved.Id,
                     boqToPersist,
+                    saved.RowVersion,
                     Services.Audit.AuditService.CurrentUser?.DisplayName ?? "").ConfigureAwait(false);
+                Record.RowVersion = saved.RowVersion = boqRowVersion;
             }
             else if (boqToPersist.Count > 0)
             {
@@ -771,8 +775,10 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             IsBusy = true;
             try
             {
-                if (await _workflow.ChangeStatusAsync(Record.Id, Record.Status, next))
+                if (await _workflow.ChangeStatusAsync(
+                    Record.Id, Record.Status, next, Record.RowVersion))
                 {
+                    Record.RowVersion++;
                     Record.Status = InquiryStatuses.Normalize(next);
                     // Mirror the workflow timestamps so the stepper reflects the
                     // transition immediately (persisted by the repository).

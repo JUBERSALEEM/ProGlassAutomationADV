@@ -316,7 +316,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" HorizontalAlignment="Center">
-                        <Viewbox MaxHeight="28" HorizontalAlignment="Center">
+                        <Viewbox MaxHeight="28" MaxWidth="180" StretchDirection="DownOnly" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding HistoryTotalOrdered}"
                                        FontSize="{DynamicResource FontSize.H2}"
                                        FontWeight="{DynamicResource Weight.Bold}"
@@ -328,7 +328,7 @@
                                    Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center">
-                        <Viewbox MaxHeight="28" HorizontalAlignment="Center">
+                        <Viewbox MaxHeight="28" MaxWidth="180" StretchDirection="DownOnly" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding HistoryTotalDelivered}"
                                        FontSize="{DynamicResource FontSize.H2}"
                                        FontWeight="{DynamicResource Weight.Bold}"
@@ -340,7 +340,7 @@
                                    Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2" HorizontalAlignment="Center">
-                        <Viewbox MaxHeight="28" HorizontalAlignment="Center">
+                        <Viewbox MaxHeight="28" MaxWidth="180" StretchDirection="DownOnly" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding HistoryTotalBalance}"
                                        FontSize="{DynamicResource FontSize.H2}"
                                        FontWeight="{DynamicResource Weight.Bold}"

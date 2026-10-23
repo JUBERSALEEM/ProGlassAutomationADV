@@ -37,6 +37,9 @@ namespace ProGlassAutomation.Services.JobOrder.Database
             base.OnModelCreating(modelBuilder);
 
             var entity = modelBuilder.Entity<SavedJobOrder>();
+            entity.Property(j => j.RowVersion)
+                .IsConcurrencyToken()
+                .ValueGeneratedNever();
 
             // UNIQUE index on user-facing ID for duplicate detection
             entity.HasIndex(j => j.JobOrderId)

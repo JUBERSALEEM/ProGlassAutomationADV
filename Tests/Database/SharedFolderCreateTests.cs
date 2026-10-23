@@ -1,28 +1,29 @@
-// Pins the LAN/Wi-Fi "Create Folder" path. Prepare used to cancel on a
-// failed safety backup and never created the folder. CreateSharedFolder
-// must create a writable folder outside AppData without copying data.
-
+using ProGlassAutomation.Services.Database;
 using System;
 using System.IO;
-using ProGlassAutomation.Services.Database;
 using Xunit;
 
 namespace ProGlassAutomation.Tests.Database
 {
-    public class SharedFolderCreateTests
+    public sealed class SharedFolderProbeTests
     {
         [Fact]
-        public void CreateSharedFolder_CreatesFolderAndManifest_WithoutPublishingAShare()
+        public void Probe_tests_an_existing_folder_without_changing_its_data()
         {
-            string folder = Path.Combine(Path.GetTempPath(), "ProGlassShareCreate-" + Guid.NewGuid().ToString("N"));
+            string folder = Path.Combine(
+                Path.GetTempPath(), "ProGlassSharedFolderProbe-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(folder);
+            string existingData = Path.Combine(folder, "company.db");
+            File.WriteAllText(existingData, "existing company dataset");
+
             try
             {
-                var created = SharedDataRootService.CreateSharedFolder(folder, publishWindowsShare: false);
+                var result = SharedDataRootService.Probe(folder);
 
-                Assert.True(created.Ok, created.Message);
-                Assert.True(Directory.Exists(created.Path), created.Message);
-                Assert.True(File.Exists(Path.Combine(created.Path, "proglass_shared_root.json")), created.Message);
-                Assert.DoesNotContain("Safety backup failed", created.Message, StringComparison.Ordinal);
+                Assert.True(result.Ok, result.Message);
+                Assert.Equal(1, result.DatabaseFileCount);
+                Assert.Equal("existing company dataset", File.ReadAllText(existingData));
+                Assert.Single(Directory.GetFiles(folder));
             }
             finally
             {
@@ -32,24 +33,25 @@ namespace ProGlassAutomation.Tests.Database
         }
 
         [Fact]
-        public void CreateSharedFolder_RejectsTheLocalAppDataRoot()
+        public void Probe_does_not_create_a_missing_folder()
         {
-            var created = SharedDataRootService.CreateSharedFolder(
-                AppDataRoot.ProductionFolder, publishWindowsShare: false);
+            string folder = Path.Combine(
+                Path.GetTempPath(), "ProGlassMissingSharedFolder-" + Guid.NewGuid().ToString("N"));
 
-            Assert.False(created.Ok);
-            Assert.Contains("AppData", created.Message, StringComparison.Ordinal);
+            var result = SharedDataRootService.Probe(folder);
+
+            Assert.False(result.Ok);
+            Assert.False(Directory.Exists(folder));
         }
 
         [Fact]
-        public void SuggestShareableFolder_IsNotTheLocalAppDataRoot()
+        public void Probe_rejects_local_AppData_as_a_shared_root()
         {
-            string suggested = SharedDataRootService.SuggestShareableFolder();
-            Assert.False(string.IsNullOrWhiteSpace(suggested));
-            Assert.NotEqual(
-                Path.GetFullPath(AppDataRoot.ProductionFolder),
-                Path.GetFullPath(suggested),
-                StringComparer.OrdinalIgnoreCase);
+            var result = SharedDataRootService.Probe(AppDataRoot.ProductionFolder);
+
+            Assert.False(result.Ok);
+            Assert.Contains("local ProGlass AppData", result.Message,
+                StringComparison.OrdinalIgnoreCase);
         }
     }
 }

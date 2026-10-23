@@ -10,12 +10,12 @@
 
 <br>
 
-![Version](https://img.shields.io/badge/version-2.0.0-0E6A8A?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-2.0.11-0E6A8A?style=for-the-badge)
 ![.NET 8](https://img.shields.io/badge/.NET-8-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
 ![WPF](https://img.shields.io/badge/Platform-WPF-0078D4?style=for-the-badge&logo=windows&logoColor=white)
 ![C%23](https://img.shields.io/badge/C%23-12-239120?style=for-the-badge&logo=csharp&logoColor=white)
 ![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-1%2C148-2E7D32?style=for-the-badge)
+![Tests](https://img.shields.io/badge/tests-2%2C369-2E7D32?style=for-the-badge)
 ![Languages](https://img.shields.io/badge/languages-15-C2185B?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-Proprietary-lightgrey?style=for-the-badge)
 
@@ -26,8 +26,9 @@
 **Every step carries the last one forward. Nothing is re-keyed.**
 
 [🧭 Application Workflow](docs/WORKFLOW.md) ·
+[🏗️ Build, Package & Release](#build-run-package-and-release) ·
 [📚 All Documents](docs/README.md) ·
-[🗺️ Upgrade Roadmap](docs/ERP_UPGRADE_ROADMAP.md) ·
+[🗺️ Upgrade Phases](docs/UPGRADE_PHASES_2026-10-05.md) ·
 [🎨 Design System](docs/DESIGN_SYSTEM.md) ·
 [⚠️ Money-Path Policy](docs/MONEY_PATH_ERROR_POLICY.md)
 
@@ -84,40 +85,50 @@ Full detail, with the code path for each handoff: **[`docs/WORKFLOW.md`](docs/WO
 
 ## At a glance
 
-Numbers below were measured against this tree on 2026-09-09, not copied from
-an earlier release note. The measurement is stated so you can reproduce it and
-disagree with it.
+Every number below was **measured against this tree on 2026-10-05**
+(commit `694c4247`) with the commands shown under the table. They are not
+carried forward from an earlier release note, and the earlier note was
+wrong — see the correction box.
 
 | | |
 |---|---|
-| **Production code** | 1,112 C# files · 225,915 lines |
-| **UI** | 229 XAML files · 114,658 lines |
-| **Tests** | 186 files · **1,396 `[Fact]`/`[Theory]`** · 33,405 lines |
-| **Test-to-production ratio** | 1 : 6.8 |
-| **Modules** | 24 view areas · 38 service domains |
-| **Data** | 12 SQLite databases, one `DbContext` each, additive-only migrations |
-| **Authorisation** | 8 roles (`AppRoles.All`) + 1 legacy · 29 granular `Module.Capability` permissions |
+| **Production code** | 1,391 C# files · 299,696 lines |
+| **UI** | 346 XAML files · 143,570 lines |
+| **Tests** | 288 files · **2,369 `[Fact]`/`[Theory]`** · 56,463 lines |
+| **Test-to-production ratio** | 1 : 5.3 (by lines) |
+| **Modules** | 27 view areas · 43 service domains |
+| **Data** | 15 SQLite `DbContext`s, additive-only migrations |
+| **Authorisation** | 8 roles (`AppRoles.All`) + 1 legacy · 34 granular `Module.Capability` permissions |
 | **Localisation** | 15 locales as pure XAML dictionaries — adding one needs no C# change |
-| **Debt markers in shipped code** | **0** TODO · **0** FIXME · **0** `NotImplementedException` · **0** empty `catch` |
+| **Buildable projects** | 6 (app, licensing library, licensing tests, app tests, license generator, engine regression) |
+| **Debt markers in shipped code** | **0** TODO · **0** FIXME · **0** `NotImplementedException` · 1 legacy `HACK` banner (documented, `Models/ProformaInvoice/Step6OtherCharges/OtherChargeRow.cs:309`) |
+| **Empty `catch { }` blocks** | 101 in audited folders, **55 of them with no allow-list entry** — the audit test that polices this is currently red. See [Engineering health](#engineering-health--an-honest-assessment). |
 
-That last row is the one to look at. It is policed by a test
-(`Tests/Security/SilentCatchAuditTests.cs`), not by discipline — which is
-the only way it stays true.
+> **Correction, 2026-10-05.** The previous revision of this table reported
+> *1,112 production files / 225,915 lines*, *1,396 tests*, *12 databases*,
+> *38 service domains*, *24 view areas*, *29 permissions* and *140
+> documents*, and a badge claiming *1,148 tests* that disagreed with the
+> table beside it. None of those matched the tree. The table above is
+> reproducible with the commands below; the old one was not. It also
+> claimed **"0 empty `catch`"**, which is false today: the audit finds 101,
+> and 55 are not covered by `SilentCatchAuditTests.AllowedSilentCatches`.
+> That claim is now stated as measured, not as a badge.
 
-**How to reproduce these.** Production C# is every `.cs` outside `Tests/`,
-`obj/` and `bin/`; tests are everything under `Tests/`; the
-`[Fact]`/`[Theory]` figure counts live attributes (zero are commented out).
+**How to reproduce these** (bash, repo root):
 
-> **Correction, 2026-09-08.** An earlier revision of this table reported
-> *1,273 production C# files*. That number counted **every** `.cs` in the
-> tree, tests included. At the time that was 1,106 production plus 167 test
-> files. The ratio was therefore computed against an inflated production
-> figure. Both numbers above are production-only, and the honest ratio at the
-> time was 1 : 7.4, not 1 : 7.6. It has since improved to **1 : 6.8** as the
-> 2026-09-09 work added 88 tests against 1,331 new production lines.
-> The class count was dropped rather than restated: "test classes" has no
-> stable definition here (nested helper classes and shared fixtures make any
-> count arbitrary), and a number that cannot be defined cannot be measured.
+```bash
+# production C# (everything outside Tests/, obj/, bin/, .claude/)
+find . -name '*.cs' -not -path './.git/*' -not -path '*/obj/*' -not -path '*/bin/*' \
+       -not -path './Tests/*' -not -path './.claude/*' | wc -l
+
+# live [Fact]/[Theory] attributes (commented-out ones do not count)
+grep -rho --include='*.cs' -E '^\s*\[(Fact|Theory)' Tests | wc -l
+
+# XAML, DbContexts, service domains, view areas, locales
+find . -name '*.xaml' -not -path './.git/*' -not -path './.claude/*' -not -path './Tests/*' | wc -l
+grep -rl ": DbContext" --include='*.cs' Services | wc -l
+ls -d Services/*/ | wc -l ; ls -d Views/*/ | wc -l ; ls Themes/Languages | wc -l
+```
 
 ---
 
@@ -149,23 +160,24 @@ Step 9 Profit & Loss ◀── Step 8 Attachments ◀── Step 7 Summary
 
 | | Module | Notes |
 |---|---|---|
-| 🏠 | **Dashboard** | Seven module dashboards on one shared grammar ([`Styles/DashboardKit.xaml`](Styles/DashboardKit.xaml)) + an order-to-cash pipeline rail on Overview: Quote → Production → Delivery → Invoice → Payment. Every page renders all four states — loading, error, empty, data. |
+| 🏠 | **Dashboard** | Seven module dashboards on one shared grammar ([`Styles/DashboardStyles.xaml`](Styles/DashboardStyles.xaml)) + an order-to-cash pipeline rail on Overview: Quote → Production → Delivery → Invoice → Payment. Every page renders all four states — loading, error, empty, data. |
 | 📨 | **Inquiries** | Pre-sales register with scope-of-supply (BOQ), attachments with SHA-256 dedup, lifecycle log. |
 | 🧾 | **Proforma Invoice** | The 9-step wizard above. |
-| 🏭 | **Job Order** | Factory workload, priority, production status. |
+| 🏭 | **Job Order** | Factory workload, priority, production status, material reservation and cutting completion. |
 | 🚚 | **Delivery Note** | Multi-movement dispatch → signed → received, with pending-piece tracking. |
 | 🧮 | **Tax Invoice** | VAT-compliant conversion from PI; `Issued` → `Paid` / `Overdue`; version history. |
 | 📄 | **Statement** | Customer balances grouped from invoices. |
 | 📦 | **Sheet Store** | Stock, buy/sell prices, suppliers, purchase/use history. Every write stamps a price-version signal. |
 | 🏺 | **Specifications** | Reusable spec library, live in Step 5. |
 | 📈 | **Job Profitability** | Reads the approved-PI snapshot; flags `⚠` when sheet-store prices moved. |
-| 📊 | **Reports** | Data-driven reporting on persisted figures. |
+| 📊 | **Reports** | Data-driven reporting on persisted figures, plus the Statement and Order report generators (4-step wizards). |
 | 🏢 | **Company Center** | Legal-entity profiles with field-diff audit on every change set. |
 | 👥 | **System Center** | Users, roles, operation-based permissions. |
 | 🧰 | **Logs & Activity** | App log, activity log, audit DB with GitHub-style diffs, crash reports with error IDs. |
-| ⚙️ | **Settings** | Appearance, themes, module wallpapers, feature toggles, backup/restore, updates, licensing. |
+| ⚙️ | **Settings** | Appearance, themes, module wallpapers, feature toggles, backup/restore, updates, licensing, shared LAN data root. |
 | 🤖 | **AI Assistant** | Cloud providers plus an always-offline local brain — no key and no network still answers from the knowledge base and live data. |
-| ✂️ | **Optimization** | Cutting-layout module (placeholder, V2). |
+| ✂️ | **Optimization** | 2D cutting-layout engine (guillotine packer, pattern search, capacity strips) with its own portable regression suite. |
+| 🎬 | **Demo Center** | Scripted walkthroughs with screen recording, TTS narration and FFmpeg-composed MP4 export. |
 
 ---
 
@@ -173,17 +185,22 @@ Step 9 Profit & Loss ◀── Step 8 Attachments ◀── Step 7 Summary
 
 ```
 ProGlassAutomationADV/
-├── Views/ + ViewModels/       MVVM; one folder per business module
-├── Services/                  38 domains — repositories, workflows, export,
+├── Views/ + ViewModels/       MVVM; one folder per business module (27 areas)
+├── Services/                  43 domains — repositories, workflows, export,
 │   ├── ProformaInvoice/       audit, licensing, theme, AI, dashboard metrics
 │   ├── Audit/                 OperationGuard + AppRoles + AppPermissions
 │   ├── Dashboard/Core/        aggregate DTOs; ViewModels never see EF entities
-│   └── Database/              12 DbContexts, additive-only migrations
-├── Controls/ Themes/ Styles/  design system, chart controls, themes
+│   ├── Production/            material allocation, pairing, cutting, control
+│   └── Database/              15 DbContexts, additive-only migrations
+├── Agent/                     AI orchestrator, local LLM, demo director
+├── Controls/ Themes/ Styles/  design system, chart controls, themes, 15 locales
 ├── Models/                    domain models, one folder per module
-├── Tests/                     xUnit — 1,394 tests
-├── docs/                      140 documents, indexed at docs/README.md
-└── scripts/                   verification and generation tooling
+├── Licensing/                 ProGlass.Licensing — the license contract library
+├── Tools/                     LicenseGenerator (vendor), EngineRegression (tests)
+├── Tests/                     xUnit — 2,369 [Fact]/[Theory]
+├── docs/                      308 documents, indexed at docs/README.md
+├── scripts/                   verification, generation and packaging tooling
+└── installer/                 Velopack manifest + MSI wizard content
 ```
 
 **Platform properties**
@@ -193,13 +210,18 @@ ProGlassAutomationADV/
 - 📝 **Audit on every meaningful write** — before/after diffs with session,
   actor and module.
 - 💾 **SQLite, WAL, busy-timeouts**, migrations wrapped
-  backup → transaction → rollback. Never destructive.
-- 🔄 **OTA updates** from GitHub Releases; `<Version>` in the csproj is the
-  single version source.
+  backup → transaction → rollback. Never destructive. A shared LAN/Wi-Fi
+  data root is supported, and a share that is unreachable at startup
+  degrades to local **as visible state** (`SharedRootFallbackActive`),
+  never silently.
+- 🔄 **OTA updates** from GitHub Releases via Velopack (installed builds)
+  with a GitHub-Release fallback for portable builds; `<Version>` in the
+  csproj is the single version source.
 - 🧩 **Partial-class decomposition** for large ViewModels — the split is
   deliberate, not accidental.
 - 🧪 **Workflow regression net** pins company semantics, inquiry→PI
-  conversion, price-basis determinism and status-vocabulary funnels.
+  conversion, price-basis determinism, status-vocabulary funnels and the
+  optimisation engine's cut patterns.
 
 ---
 
@@ -212,243 +234,556 @@ rules, not aspirations.
 |---|---|
 | Reporting **reads** money from the persisted Step-9 snapshot; it never recomputes it | `JobProfitabilityViewModel`, `ReportingDataService` |
 | A stale price basis is **flagged `⚠`**, never silently rescored | `GlassPriceStamper` |
-| Statuses enter through one normalising home. **Unknown statuses pass through — they are never remapped to something plausible** | `ProformaInvoiceStatus`, `InquiryStatuses` |
+| Statuses enter through one normalising home. **Unknown statuses pass through — they are never remapped to something plausible** | `ProformaInvoiceStatus`, `InquiryStatuses`, `JobOrderStatusValues`, `DeliveryNoteStatusValues` |
 | Every money-path `catch` is classed A–D and documented | [`docs/MONEY_PATH_ERROR_POLICY.md`](docs/MONEY_PATH_ERROR_POLICY.md) |
 | Company profile: preserve-blank on invoice save, field-diff trail on every change | `MasterDataRepository` |
-| No silent catches anywhere in shipped code | `Tests/Security/SilentCatchAuditTests.cs` |
+| Silent catches are policed by a test, not by discipline | `Tests/Security/SilentCatchAuditTests.cs` — **currently red**, see below |
 
 ---
 
-## Engineering health — an honest assessment
+## Build, run, package and release
 
-> **Read this before trusting any number below.** Two self-assessments exist
-> in this repository and they disagree: `docs/ERP_UPGRADE_ROADMAP.md` claims
-> **9.7/10** (after Phase 4) while `docs/CODE_RATING_REPORT.md` (2026-09-02) rates
-> **9.0/10** after an independent deep audit. Neither was produced by a green
-> `dotnet build` + `dotnet test`, because **this repository has no CI**. Treat
-> both as engineering judgement, not as measured results. A first manual build
-> was run on 2026-09-09 — see the P1 row in the table below — which is evidence
-> about the code, but it is not a green build and it is not repeatable.
+This section is the complete operator guide: what to install, what to type,
+what comes out, and what to do when it does not work. It covers the app, the
+test suites, the license generator, and the five publish shapes including
+the single-EXE build and the Velopack installer.
 
-### What is genuinely strong
+> **Platform.** The app targets `net8.0-windows` with `UseWPF`. Build,
+> test, publish and run all require **Windows 10 (1809+) or Windows 11,
+> x64**. Linux and macOS can run the *static* checks at the end of this
+> section and nothing else.
 
-| Area | Evidence |
-|---|---|
-| **Domain correctness** | One pricing engine, one status vocabulary per module, pinned cost basis. The money path is designed, not accumulated. |
-| **Error discipline** | Zero empty catches and zero raw `ex.Message` to users in shipped code; `ExceptionMessages.Deep()` everywhere; correlation IDs end-to-end. |
-| **Data safety** | Migrations run backup → transaction → rollback and are additive-only. Delete guards check downstream documents first. |
-| **Security** | RSA-2048-PSS with no v1.5 fallback, DPAPI for secrets, PBKDF2 for passwords, machine fingerprinting, rate-limited key generation. |
-| **Test intent** | 1,394 tests targeting the *workflow invariants* rather than getters — company semantics, conversion, price-basis determinism. |
-| **Hygiene** | Zero TODO/FIXME/`NotImplementedException` in 225,915 lines of production code. Rare at this size. |
+### 1. Toolchain
 
-### What is open
-
-Every item below has a phase, a concrete action and an acceptance test in
-**[`docs/REMEDIATION_PLAN.md`](docs/REMEDIATION_PLAN.md)**.
-
-| Priority | Issue | Evidence |
+| Need | Why | Check |
 |---|---|---|
-| **P0** | **Stock counter race — glass sheets fixed, consumables still open.** `SheetStoreRepository.UseStockAsync` read, checked and wrote stock in three steps, so two operators issuing from the same sheet both passed a check against the same stale balance and one movement was lost silently. The check now lives in the UPDATE's WHERE clause, so SQLite evaluates it and applies the increment under one write lock; 6 regression tests run against a real SQLite file. **Still open:** `InventoryItemRepository.ConsumeAsync` and `ReceiveAsync` have the identical race — both read `item`, check, then do `item.Used += quantity` / `item.Stock += quantity`, so the second writer overwrites the first. **Corrected 2026-09-09:** the claim that this "needs a migration" is wrong. `IsConcurrencyToken()` is model-only and a guarded `ExecuteUpdateAsync` needs no schema change at all — only a `rowversion`/`[Timestamp]` column would need one, and SQLite has no native rowversion. Both fixes are genuinely available. What actually blocks them is narrower and worth stating precisely: the SQL-arithmetic fix is ruled out on measured evidence (the columns are TEXT affinity, so `Used + @q` routes through a REAL and loses precision above 15 significant digits, while the schema permits 18,2), and the two that remain each carry a risk that cannot be retired without running the app — an equality guard on a TEXT column can fail permanently against rows whose stored formatting differs from EF's (a CSV-import path exists), and `BEGIN IMMEDIATE` cannot be assumed because the one transaction in the tree is a raw deferred `BeginTransaction()` with no isolation level. | `docs/phases/PHASE-01-transactions-and-concurrency.md` |
-| ~~P0~~ | ~~**The VAT submission report validates nothing.**~~ **Fixed 2026-09-09.** `IsValid` is now derived from `Errors.Count` so the flag cannot drift from the list beside it. `ValidateInvoice` rejects on irreconcilable VAT and on VAT charged to a zero total, warns (but still files) on negatives, zero-rated supplies and future dates, and `ReportingDataService.Vat.cs` logs *which* invoice was excluded and why instead of only a count. 9 tests. | `docs/phases/PHASE-03-vat-validation.md` |
-| **P0** | **Two rounding policies in one money pipeline — structural fix applied, migration open.** `Services/Reporting/MoneyRounding.cs` is now the single declaration, the misleading "banker's rounding" comment is corrected, and the VAT and invoice layers route through it (behaviour-identical — they already rounded `AwayFromZero`). Policy: [`docs/MONEY_ROUNDING_POLICY.md`](docs/MONEY_ROUNDING_POLICY.md). **What remains:** 334 call sites in 62 files still inherit the framework default `ToEven`. They are *not* converted blind, because the same call rounds square metres to 3-4 dp elsewhere in the same files and there is no compiler here to catch a misclassification. `MoneyRoundingRatchetTests` pins the count at 334 and fails on any growth, so the migration proceeds one file at a time. | `docs/phases/PHASE-02-rounding-policy.md` |
-| **P0** | **No CI — deliberately deferred, not overlooked.** `.github/workflows/` does not exist. Four complete workflow files sit in `docs/ci/` and `docs/CI/`, ready to drop in. Phase 0 is **skipped by the owner's instruction** until a machine is available; the GitHub App token in this environment also lacks the `workflows` scope, so the files could not be committed from here regardless. Until then nothing proves this tree builds automatically — the 2026-09-09 build below was run by hand. | `ls .github/` → `CODEOWNERS`, `dependabot.yml`, `pull_request_template.md` |
-| **P1** | **Whole-table loads — 11 sites left, and six of them must *not* be paginated.** Down from 25 / 18. Every lookup, dashboard aggregate, picker and full-text search is done: those were the categories where adding a page would have silently dropped the row being looked for. **Corrected 2026-09-09:** "all of them real list screens" was wrong. Read individually, six of the eleven are lookups or complete-set consumers where adding a page is a regression — three feed `RebuildFilterOptions()`/`ApplyItemFilters()` so pagination silently drops filter choices, one feeds a progressively-narrowed stock match that would report "no matching sheet" for a sheet that exists, one is a duplicate check that would start creating duplicate statements, and one is full-text search that would stop finding anything past page one. None of those fails loudly. **Four** are genuine list screens (`OrderReportListViewModel`, `StatementListViewModel`, `TaxInvoiceGodViewViewModel`, `HistoryViewModel`); the eleventh file is both, with a picker source at line 719 and a list at line 797. Those four need a pager in XAML, which is a change to make with a compiler open. `PagedResult<T>` and `GlobalQueryEngine.ExecutePagedQueryAsync` already exist; `InquiryListView.xaml:1403-1430` is the pager to copy. The ratchet holds at 11 and fails on growth. | `docs/phases/PHASE-08-pagination.md` |
-| ~~P1~~ | ~~**UI virtualization gaps on list screens.**~~ **Resolved 2026-09-09.** Pagination (above) bounds how many rows are *loaded*; virtualization bounds how many are *realized into visual containers*, and the two are independent — a fully-loaded list still renders smoothly for hundreds of thousands of rows if it recycles containers. An audit of all 103 view XAMLs found four genuine large-data lists that set `VirtualizingPanel.IsVirtualizing="True"` but omitted `ScrollViewer.CanContentScroll="True"`, so WPF silently fell back to realizing every row (the classic "virtualization declared but not engaged" trap): `OrderReportListView`, `SheetStoreView` (Items), `SheetDetailWindow` (Movements) and `OrderReport/PreviewStep`. All four now carry `CanContentScroll=True` + `ScrollUnit=Pixel` + a `400,800`px recycling cache, matching the already-correct `ModuleReportListBoxStyle` that every report list shares. Deliberately **not** touched: the PI Step-5 line-items grid (intentionally non-virtualized for Excel-style cell navigation, and bounded per-invoice), and `ItemsControl`s nested inside an outer `ScrollViewer` (Settings, System Center activity feeds) where virtualization needs a structural change a compiler must verify. | commit below |
-| **P1** | **First real build happened 2026-09-09 — 9 errors, 2 root causes, both fixed.** This row was **P0 "nothing has been compiled"** and it is now materially different. The owner built on Windows and reported nine errors; every one traced to two mistakes made while writing blind. **(1)** `SearchPattern.EscapeChar` was declared `const char`, but the overload is `Like(this DbFunctions, string, string, string? escapeCharacter)` — a string. One declaration change cleared all eight CS1503s. The error said *argument 4* for a three-argument call because an extension method's implicit `this` receiver counts as the first argument. **(2)** `TaxInvoiceDetailViewModel.InitNew.cs:187` still referenced `allDns`, the whole-table load that `GetByProformaIdAsync` replaced — a rename that missed one use (CS0103). Fixed in `0673ffd`. Rather than patch only what was reported, every changed file was diffed against the base for removed declarations with surviving references: six candidates, five false positives, one real. The **absence** of IDE0005 in that error list is evidence too, not luck — it is not in `WarningsNotAsErrors` while `TreatWarningsAsErrors` is on, so a single orphaned `using` would have appeared. **Still unproven:** whether the tree is now clean. Rebuild and report. | commit `0673ffd` |
-| **P2** | **Test ratio 1 : 6.8.** Improved from 1 : 7.4 as the 2026-09-09 work added 88 tests, but still thin for software that computes money. The pricing engine in particular deserves property-based coverage. The earlier *1 : 7.6* figure was computed with test files counted as production — see the correction in [At a glance](#at-a-glance). | 33,405 test lines vs 225,915 |
-| **P2** | **Large classes.** 13 files exceed 990 lines; `JobProfitabilityViewModel.cs` is 1,933 and contains **no `#region` markers at all**. The real target is not the file but `LoadAsync` — **350 lines** (1187-1536), larger than every method in most files, and the entry point where every data dependency is visible at once. Extracting its stages would do more than splitting the file. Four of the 13 already carry `Part1` in the name: those splits were started and not finished. | `find . -name '*.cs' \| xargs wc -l` |
-| **P2** | **No obfuscation.** Release binaries are readable in dnSpy. Acceptable for desktop, a raised bar for a commercial product. | `docs/CODE_RATING_REPORT.md` |
-| **P3** | **One acknowledged hack, still open — and the blocker is now precise.** `OtherChargeRow.MetricQty` hardcodes delivery quantity to `1m` per invoice (`if (IsDeliveryRow) return 1m;`), so a multi-trip delivery cannot be billed without a manual Custom Charge. Documented, deliberate, and marked *"proper fix planned for Chat 8"*; Chat 8 happened, the fix did not. **Step 1 is in place:** characterisation tests pin current behaviour for every branch. What the real fix needs is now stated rather than assumed, and it is why this stays open: a settable per-trip quantity means a **persisted field**, an **editable UI column**, and **PDF/Excel export parity** — the comment says the current `1m` "matches PDF/Excel export behavior", so all three must change together or the printed invoice stops agreeing with the screen. That is a money-path change across schema, UI and export with no compiler; the characterisation tests are the precondition, not the fix. | `OtherChargeRow.cs:316` · `OtherChargeRowMetricQtyCharacterisationTests.cs` |
-| ~~P3~~ | ~~**25 `.md` files in the repository root.**~~ **Resolved 2026-09-08** — 24 audit/analysis documents moved to `docs/` with `git mv`, all inbound references rewritten, links re-verified. `README.md` is now the only root document. | `ls *.md` |
-| **P3** | **No anti-debug checks.** A debugger can patch memory to bypass licensing. Acceptable for desktop ERP; not zero-risk. | `docs/CODE_RATING_REPORT.md` |
-| ~~P1~~ | ~~**Status vocabularies disagreed between screens.**~~ **Resolved 2026-09-08** — see the section below. | commits `122a32b`, `fdfea80`, `5c10f90` |
-| ~~P1~~ | ~~**The largest status-literal offender still had 17 raw comparisons.**~~ **Resolved 2026-09-09** — all 17 in `DeliveryNoteRepository.Part1.cs` now read from `DeliveryNoteStatusValues`. The ratchet baseline falls **60 → 43 across 11 files**, and its stale-entry test forced the allow-list update rather than letting the cleaned file linger. Safe without a build because the constants are `const string`: the compiler inlines them into the LINQ tree, so EF sees the same literal and **the generated SQL is byte-identical**. | `StatusLiteralRatchetTests` · commit below |
-| ~~P1~~ | ~~**Every dashboard loaded its whole table to compute four numbers.**~~ **Resolved 2026-09-08** — all seven dashboards now read aggregates from `IDashboardMetricsService`. Migrating the last three turned up a second copy of the Master-DN rule: the metrics service counted notes that no list screen shows, in both its aggregates *and* the Overview activity feed. Both now filter, and a new ratchet fails if an unfiltered delivery query is added. | commit `52f69ee` · `MasterDnFilterParityTests.cs` |
-
-### The fifteen-phase programme, and what it actually changed
-
-Everything above is the residue of a systematic pass, not a backlog discovered
-by accident. Fifteen phases were written from a full read of the code, then each
-was applied as far as this environment safely allows — one commit per phase, in
-[`docs/phases/`](docs/phases/README.md). **Phase 0 (CI) is skipped by
-instruction.** Two phases are complete; the rest are partial, and in every case
-the phase file records exactly which piece stopped and why.
-
-| | Phase | Outcome |
-|---|---|---|
-| ✅ | 3 VAT validation · 12 one home per rule | **Complete** |
-| ◐ | 1 transactions · 2 rounding · 4 licensing · 5 tax/currency · 6 UTC · 7 startup · 8 pagination · 9 security · 11 themes · 13 test depth · 14 observability · 15 release | **Partial** — each with a ratchet or a characterisation test holding the line |
-| ▣ | 10 decomposition | **Mapped, not moved** — the premise was wrong and the real target is now identified |
-| — | 0 CI | **Skipped by instruction** |
-
-The blocking reason is worth stating precisely, because "blocked" is doing real
-work here and it is not a euphemism for *difficult*. This workspace has no .NET
-SDK and no network, so nothing written in it has ever been compiled, and four
-specific classes of change cannot be made safely without one:
-
-| class | why | phases |
-|---|---|---|
-| signature changes that ripple | a `const` is inlined into every call site, so changing one is not a local edit | 1, 5 |
-| schema migrations | a migration can silently change a reported number through one missing `WHERE` | 1, 5, 14 |
-| XAML layout edits | a control that cannot be seen cannot be checked | 8, 11 |
-| file and method splits | "behaviour unchanged" depends on the compiler catching a lost `using` — and `TreatWarningsAsErrors` makes that a hard error | 10 |
-
-**Three premises in the original analysis were wrong**, and each would have
-produced confident, plausible, broken work. They are recorded here rather than
-quietly fixed, because the pattern is more useful than the corrections:
-
-- **Phase 12** was scoped to give proforma status a canonical home.
-  `ProformaInvoiceStatus.cs` already existed with all six constants, an `All`
-  list and a `Normalize`. The genuine duplicate was elsewhere — a low-stock
-  threshold that read **2** to the AI agent and **5** on the dashboard, from the
-  same column, so a sheet holding 3 or 4 was simultaneously low stock and fine.
-- **Phase 10** was scoped to a "12,162-line `MainViewModel`". No such file
-  exists: `MainViewModel` is 1,467 lines across three partials and the largest
-  file here is 1,933.
-- **Phase 8** was scoped as "20 call sites to paginate". Six of the eleven that
-  remain are lookups, filter sources or search, where pagination is a regression
-  rather than a fix.
-
-The lesson the programme keeps producing: **a count is not a finding.** Each of
-those three came from counting something — literals, lines, call sites — and
-stopping there. In every case the authority (a transition table, a partial-class
-split, what the loaded collection is actually *used for*) said something
-different.
-
-### One defect class, three screens, one afternoon
-
-The single most useful thing found in the 2026-09-08 work was not a feature
-gap. It was that three modules each declared a status or a threshold more than
-once, in two spellings or two values, with no canonical home — and each
-disagreement was silently wrong rather than loudly broken.
-
-| | The split | What the user saw |
-|---|---|---|
-| Job Order | `"In Production"` vs `"InProduction"` | Overview under-counted jobs in production; the Job Order screen disagreed with it |
-| Delivery Note | `"Draft"` vs `"Dispatching"` | `Preparing + Dispatched` did not equal `TotalNotes` |
-| Target pricing | `0.005m` vs `0.05m` | One invoice read **ABOVE TARGET** on the quotation and **AT TARGET** in Job Profitability |
-| VAT | `0.05m` / `1.05m` hardcoded in three money paths | Nothing wrong *today* — all three said 5%. It would have gone wrong the day the UAE rate changed |
-
-The root cause was structural: `SavedJobOrder.Status` and
-`SavedDeliveryNote.Status` are `string`, not the enums sitting next to them, so
-nothing stopped a call site from inventing its own literal. Each module now has
-one canonical home — `JobOrderStatusValues`, `DeliveryNoteStatusValues`,
-`TargetMarginTolerance` — and a source-scan ratchet test that fails the build
-if a second declaration appears.
-
-`StatusLiteralRatchetTests` generalises the lesson. It does not know about
-`"In Production"` or `"Dispatching"`; it flags the *shape* — a persisted status
-compared against an inline literal — which is the shape all three bugs had. The
-baseline was 60 such comparisons across 12 files, capped per file, so the number
-can only fall.
-
-**The first migration is done (2026-09-09).** `DeliveryNoteRepository.Part1.cs`
-was the largest offender at 17 — all of them per-status filters in the list
-query — and every one now reads from `DeliveryNoteStatusValues`. The baseline is
-**43 across 11 files**, and the ratchet's own stale-entry test forced the
-allow-list update rather than letting a cleaned-up file linger.
-
-That this was safe is worth recording, because it is why the remaining 43 can be
-migrated the same way: the canonical constants are `const string`, so the
-compiler inlines them into the LINQ expression tree and EF sees the same literal
-it saw before. **The generated SQL is byte-identical; only the source changed.**
-The next targets, in order: `ReportingDataService.TaxInvoice.cs` (9),
-`AiContextBuilder.cs` (5), then four files at 4.
-
-Two things worth saying plainly:
-
-- **The tolerance value is a business decision, not a technical one.** It was
-  unified on `0.005m` because the Proforma side classifies first and persists
-  the result. Margins between 0.005 and 0.05 now read ABOVE or BELOW where they
-  previously read AT. If the rule should be ±0.05, change one constant.
-- **Tax Invoice was checked and is *not* affected.** Nothing in the repository
-  stores `"Partially Paid"`; only the PascalCase form is written. It gained a
-  canonical home anyway, because the absence of one is what let the other three
-  drift.
-
-### The rating, stated plainly
-
-If you want one number: **9.0/10 is the defensible figure**, because it came
-from an audit rather than a phase sign-off. The missing point is not missing
-features — it is missing *verification*.
-
-That gap narrowed on 2026-09-09, when the tree was compiled for the first time
-since the analysis work began. It came back with **nine errors from two root
-causes**, both from code written blind, both now fixed. That is a better result
-than it sounds — 225,914 lines with nine errors, no architectural surprises, and
-not one of them a logic error in the money path — but it is also exactly why the
-number is not higher: the errors existed because nothing had been compiled, and
-the tree has not been proven clean since.
-
-To move the number from judgement to evidence: get a green build and keep it
-green with the CI files already sitting in `docs/ci/`; paginate the four list
-views that genuinely need it; and deepen pricing-engine coverage, which is where
-the money is computed and where 1 : 6.8 is still thin.
-
----
-
-## Build & run
-
-Requires **Windows 10/11** and the **.NET 8 SDK**. The project targets
-`net8.0-windows` with `UseWPF`, so it will not build on Linux or macOS.
+| Windows 10/11 x64 | WPF + `net8.0-windows` | — |
+| **.NET 8 SDK** (8.0.x) | target framework for every project | `dotnet --list-sdks` |
+| PowerShell 5.1 **or** 7+ | installer pipeline (`*.ps1`) | `powershell -Command $PSVersionTable` / `pwsh -v` |
+| **Velopack CLI** (`vpk`) | `Setup.exe` / MSI / delta packages | `vpk --version` |
+| Python 3.10+ | static repo checks and the i18n generator (optional) | `python3 --version` |
+| Visual Studio 2022 **17.13+** | *only* if you want to open the solution (`.slnx`) | — |
 
 ```powershell
-dotnet restore
-dotnet build
-dotnet run --project ProGlassAutomation.csproj
+# one-time: Velopack CLI, pinned to the library version in the csproj (1.2.0)
+dotnet tool install --global vpk --version 1.2.0
+vpk --version
 ```
 
-The solution file is `ProGlassAutomation.slnx` (the newer XML format). Older
-8.0.x SDK CLIs do not resolve it, so build the projects explicitly if you
-hit that.
+`dotnet tool install -g vpk` without `--version` also works, but the app
+references `Velopack 1.2.0` (`ProGlassAutomation.csproj:171`) and a CLI from
+a different major line writes a release feed the client may not read. Pin it.
+
+> **The SDK is pinned.** [`global.json`](global.json) requires `8.0.100` with
+> `"rollForward": "latestFeature"`, so any installed 8.0.x SDK satisfies it but
+> a 9.x/10.x SDK is refused. That is deliberate: with
+> `<AnalysisLevel>latest</AnalysisLevel>` and
+> `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, a newer SDK can turn a
+> brand-new analyzer warning into a hard build error on code nobody touched.
+> If you *want* to build on a newer SDK, relax the pin (`"rollForward":
+> "latestMajor"`) locally and expect analyzer fallout — do not commit it.
+>
+> One consequence: form B below (`dotnet build ProGlassAutomation.slnx` on a
+> 9.x SDK) no longer works while the pin is in place. Use form A — name the
+> project — which is the documented primary path anyway.
+
+### 2. What is buildable in this repo
+
+Six projects. `ProGlassAutomation.slnx` lists five of them.
+
+| Project | Path | What it is |
+|---|---|---|
+| **ProGlassAutomation** | `ProGlassAutomation.csproj` | The WPF application. Lives at the repo **root**, so its csproj explicitly removes `Tests/**`, `Licensing/**`, `Tools/**` and `PRODUCTION_READINESS/**` from the SDK's default globbing. |
+| **ProGlass.Licensing** | `Licensing/ProGlass.Licensing.csproj` | `net8.0` library. The single source of truth for the license format, canonical JSON, RSA-PSS sign/verify and validation. No WPF, no EF, no app services. |
+| **ProGlass.Licensing.Tests** | `Licensing/ProGlass.Licensing.Tests/ProGlass.Licensing.Tests.csproj` | xUnit suite for the contract: tamper, plan catalogue, offline-activation protocol. |
+| **ProGlassAutomation.Tests** | `Tests/ProGlassAutomation.Tests.csproj` | The main xUnit suite (2,369 `[Fact]`/`[Theory]`), including the source-scanning ratchet tests. |
+| **ProGlassAutomation.LicenseGenerator** | `Tools/LicenseGenerator/ProGlassAutomation.LicenseGenerator.csproj` | Vendor-only WPF tool that signs license keys. **Never shipped to customers.** |
+| **EngineRegression** | `Tools/EngineRegression/EngineRegression.csproj` | `net8.0` xUnit project that links the optimisation engine sources directly, with no WPF and no EF, so the packer can be tested on any OS. **Not in the `.slnx`** — build it by path. |
+
+Dependency shape, and why it matters:
+
+```
+ProGlass.Licensing  (contract: format, canonical JSON, RSA-PSS, validation)
+        ├──▶ ProGlassAutomation            (PUBLIC key — verifies)
+        └──▶ ProGlassAutomation.LicenseGenerator  (PRIVATE key — signs)
+```
+
+The app and the generator never reference each other. The private signing
+key must never reach the app project — that separation is enforced by the
+`<Compile Remove="Tools/**" />` block in `ProGlassAutomation.csproj`.
+
+### 3. The `.slnx` trap — read before typing anything
+
+The repo has `ProGlassAutomation.slnx` and **no `.sln`**. `.slnx` is the newer
+XML solution format and older 8.0.x SDK CLIs cannot resolve it, so:
 
 ```powershell
-# tests
+dotnet build        # ✗ fails: cannot resolve ProGlassAutomation.slnx
+```
+
+The failure message looks like a missing project file and has nothing to do
+with the code. Two ways out:
+
+```powershell
+# A — name the project explicitly (what CI does; always works)
+dotnet build ProGlassAutomation.csproj -c Release
+
+# B — install the .NET 9 SDK alongside 8; it understands .slnx and can
+#     still build net8.0-windows targets
+dotnet build ProGlassAutomation.slnx -c Release
+```
+
+Everything below uses form A.
+
+### 4. Everyday: restore, build, run
+
+```powershell
+# restore (slowest step the first time; needs internet for NuGet)
+dotnet restore ProGlassAutomation.csproj --verbosity minimal
+
+# build the app — Release is what CI and the installer use.
+# TreatWarningsAsErrors is TRUE here, so a new warning fails the build.
+dotnet build ProGlassAutomation.csproj -c Release --no-restore --verbosity minimal
+
+# run it (Debug; the login window is the first thing you see)
+dotnet run --project ProGlassAutomation.csproj
+
+# or run the built binary directly
+.\bin\Debug\net8.0-windows\ProGlassAutomation.exe
+```
+
+Build the **test project** rather than the app when you want both, because
+the test project has a `ProjectReference` on the app and MSBuild will
+compile the app first:
+
+```powershell
+dotnet build Tests/ProGlassAutomation.Tests.csproj -c Release --verbosity minimal
+```
+
+The reverse does **not** work: `dotnet build ProGlassAutomation.csproj`
+never compiles the test project (its csproj excludes `Tests/**`), so a
+following `dotnet test --no-build` fails with *"test source file not found"*.
+This exact mistake is documented in `scripts/build-installer.ps1`, and it used
+to live in a CI template as well; `.github/workflows/ci.yml` builds the test
+project for precisely this reason.
+
+### 5. Tests
+
+```powershell
+# the whole app suite (the release gate)
+dotnet test Tests/ProGlassAutomation.Tests.csproj -c Release --no-build --verbosity normal
+
+# the licensing contract suite
+dotnet test Licensing/ProGlass.Licensing.Tests/ProGlass.Licensing.Tests.csproj -c Release
+
+# the optimisation engine, with no WPF and no EF in the process
+dotnet test Tools/EngineRegression/EngineRegression.csproj -c Release
+
+# targeted regression filters (all four class names verified present)
 dotnet test Tests --filter "FullyQualifiedName~CompanyUpdateSemanticsTests"
 dotnet test Tests --filter "FullyQualifiedName~PriceBasisSignalTests"
 dotnet test Tests --filter "FullyQualifiedName~InquiryBoqConversionTests"
 dotnet test Tests --filter "FullyQualifiedName~SilentCatchAuditTests"
 
-# publish
-dotnet publish -c Release -r win-x64
+# ratchets — these fail when a guard-rail regresses, and the message
+# names the offending file and the canonical home to use
+dotnet test Tests --filter "FullyQualifiedName~MoneyRoundingRatchetTests"
+dotnet test Tests --filter "FullyQualifiedName~StatusLiteralRatchetTests"
+dotnet test Tests --filter "FullyQualifiedName~PaginationRatchetTests"
+
+# machine-readable results + coverage
+dotnet test Tests/ProGlassAutomation.Tests.csproj -c Release --no-build `
+  --logger "trx;LogFileName=results.trx" --results-directory ./TestResults `
+  --collect:"XPlat Code Coverage"
 ```
 
-User data lives at `%AppData%\ProGlassAutomation\`. Upgrades never touch it.
+`dotnet test Tests` works because `Tests/` contains exactly one project.
+`TreatWarningsAsErrors` is **false** for both test projects, so a warning
+there will not block you.
 
-### Verifying without a build
+> **Two tests are red on the current tree** — established by re-deriving each
+> test's own scanning algorithm over this tree, not by running `dotnet test`.
+> They are red for reasons worth knowing before you run anything:
+> `SilentCatchAuditTests` (55 empty catches with no allow-list entry) and
+> `MoneyRoundingRatchetTests.Only_the_money_home_may_declare_the_rounding_mode`
+> (2 files allowed, 9 present). Both are baseline drift, not new defects —
+> code landed after the baselines were pinned. Phases 18 and 19 of the
+> [upgrade plan](docs/UPGRADE_PHASES_2026-10-05.md) close them without
+> touching behaviour.
 
-Several checks run without the SDK and are safe to run on any machine:
+### 6. Publish — five shapes, pick one
+
+All publish commands run from the repo root on Windows. `-r win-x64` is
+required for every self-contained shape.
+
+**6a. Framework-dependent** — smallest output, needs the .NET 8 Desktop
+Runtime installed on the target machine.
+
+```powershell
+dotnet publish ProGlassAutomation.csproj -c Release -r win-x64 --self-contained false -o publish-fd
+```
+
+**6b. Self-contained folder** — the shape that actually ships. Bundles the
+desktop runtime; the customer installs nothing. This is what
+`Properties/PublishProfiles/Release.pubxml` produces.
+
+```powershell
+dotnet publish ProGlassAutomation.csproj -c Release -r win-x64 --self-contained true `
+  -p:PublishProfile=Release -o publish
+```
+
+The profile also sets `PublishReadyToRun=true` (+ composite),
+`PublishSingleFile=false`, `DebugType=embedded`, deterministic build on, and
+`PublishDir=publish\`. Do not rename that folder: both
+`scripts/build-installer.ps1` and the release workflow read it by name.
+
+**6c. Single-file EXE** — see §7.
+
+**6d. Portable ZIP** — same binaries as 6b, zip-wrapped, for sysadmins who
+block `Setup.exe`. In portable mode the Velopack updater is inactive and
+the app falls back to the GitHub-Release check.
+
+```powershell
+Compress-Archive -Path .\publish\* -DestinationPath ProGlassAutomation-Portable.zip -CompressionLevel Optimal
+```
+
+**6e. Velopack installer** — `Setup.exe` + MSI + full/delta `.nupkg` + the
+`RELEASES` feed the in-app updater reads. See §8.
+
+> **Trimming is not available.** `<PublishTrimmed>` must stay `false`:
+> the .NET trimmer does not support WPF. `Release.pubxml` already sets it
+> false; do not "optimise" it.
+
+### 7. The single-EXE build
+
+One self-contained `ProGlassAutomation.exe` with the runtime and managed
+assemblies bundled inside:
+
+```powershell
+dotnet publish ProGlassAutomation.csproj -c Release -r win-x64 `
+  --self-contained true `
+  -p:PublishSingleFile=true `
+  -p:IncludeNativeLibrariesForSelfExtract=true `
+  -p:EnableCompressionInSingleFile=true `
+  -p:PublishReadyToRun=true `
+  -p:DebugType=embedded `
+  -o publish-single
+```
+
+`IncludeNativeLibrariesForSelfExtract=true` is not optional here. This app
+carries native payloads — `Whisper.net.Runtime` (GGML inference),
+`LLamaSharp.Backend.Cpu`, `SkiaSharp`, and `System.Speech` — and without it
+those assemblies are left beside the exe or fail to load at runtime with a
+`DllNotFoundException`.
+
+**Three things to know before you ship a single-file build:**
+
+1. **It cannot go through the OTA pipeline.** Velopack patches individual
+   assemblies to build deltas; `Release.pubxml` deliberately sets
+   `PublishSingleFile=false` for exactly this reason. Single-file is for
+   hand distribution (thumb drive, e-mail, kiosk), not for the update feed.
+2. **It is slower to start** the first time: the bundle extracts native
+   assets to a cache folder on launch.
+3. **It is unverified in this environment.** The commands above were not
+   executed on a Windows machine (see the verification note at the end of
+   this section). Run §9's smoke test after the first build.
+
+### 8. The installer pipeline
+
+`scripts/build-installer.ps1` is the local mirror of the CI release job.
+It restores, builds Release, runs the test gate, publishes self-contained
+win-x64, bundles FFmpeg, paints the installer art, runs `vpk pack`, zips the
+portable build, and prints the SHA-256 of every artefact.
+
+```powershell
+# from the repo root
+powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -Version 2.0.11
+powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -SkipTests
+powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -Clean -SkipFfmpeg
+```
+
+| Switch | Effect |
+|---|---|
+| `-Version <x.y.z>` | Package version. **Omit it** — the script now reads `<Version>` from `ProGlassAutomation.csproj`, so the package always matches the assemblies. Pass it only to build a hotfix under a different version than the source says (it also fails the run if the value is not `MAJOR.MINOR.PATCH`). |
+| `-PackId` / `-PackTitle` / `-PackAuthors` | Velopack pack identity. |
+| `-SkipTests` | Skips the test gate. The script itself warns: *do not publish this build to customers.* |
+| `-SkipFfmpeg` | Omits `ffmpeg.exe`/`ffprobe.exe` from the payload; Settings can still download them later. |
+| `-Clean` | Deletes `publish\` and `releases\` first. |
+
+Exit codes: `1` toolchain missing · `2` build or test gate failed ·
+`3` publish failed · `4` `vpk pack` failed.
+
+Artefacts land in `releases\`:
+
+| File | Purpose |
+|---|---|
+| `Setup.exe` | One-click Velopack installer (splash, per-user or per-machine, then launch). |
+| `ProGlassAutomation-<ver>-full.nupkg` | Full payload; future deltas diff against it. |
+| `ProGlassAutomation-<ver>-delta.nupkg` | Binary delta — only when a previous release exists in `releases\`. |
+| `ProGlassAutomation-Portable-<ver>.zip` | No-installer build. |
+| `RELEASES` | The feed the in-app updater reads. |
+
+Supporting pieces, all wired up by the script:
+
+| File | Role |
+|---|---|
+| `installer/velopack.json` | Durable pack metadata (id, title, authors, copyright, icon, rid, framework, channel `stable`). The script passes these as explicit flags because `vpk` 1.x does not accept `--config`. |
+| `installer/content/` | Welcome / readme / licence / conclusion text for the MSI wizard. |
+| `scripts/generate-installer-art.ps1` | Paints `installer/generated/splash.png` + the two MSI bitmaps. Requires Windows (`System.Drawing`). Generated, never committed. |
+| `scripts/bundle-ffmpeg.ps1` | Downloads the Gyan FFmpeg essentials build into `publish\tools\`. |
+| `Properties/PublishProfiles/Release.pubxml` | The publish profile shared by the script and CI. |
+
+> **Path correction.** `docs/INSTALLER.md` and the `Release.pubxml` header
+> both refer to `tools\build-installer.ps1`. The script lives at
+> **`scripts\build-installer.ps1`**; there is no `tools\build-installer.ps1`
+> in the tree.
+
+**Publishing a release.** Draft the GitHub Release, then either attach the
+contents of `releases\` by hand, or let the Velopack CLI publish the feed:
+
+```powershell
+vpk upload github --repoUrl https://github.com/JUBERSALEEM/ProGlassAutomationADV `
+  --channel stable --outputDir releases --publish --pre false --tag v2.0.11
+```
+
+`--channel stable` is not optional. `installer/velopack.json` and the pack
+step both use `stable`, and a feed packed into a different channel is
+invisible to the updater.
+
+### 9. Version discipline and OTA
+
+There is **one** authoritative version: `<Version>` in
+`ProGlassAutomation.csproj` (currently `2.0.11`, with `AssemblyVersion` and
+`FileVersion` beside it). `AppInfo.Version` reads it from the assembly
+identity at runtime, and About / Settings / the update checker / crash logs
+all read `AppInfo`.
+
+Bump the **patch digit on every behavioural fix**. `UpdateService.IsNewer`
+is a strict greater-than compare, so two builds that share a version number
+are indistinguishable to OTA — a machine on the older one is never offered
+the newer one, and no log excerpt can say which build produced it. The
+csproj carries this warning in a comment block at line 27; it was learned
+the hard way when `<Version>` sat at `2.0.1` for nine days across several
+behaviour-changing commits.
+
+Four copies of this number existed. Phase 20 (committed) removed two of them
+and redefined the third:
+
+| Place | Value | Effect |
+|---|---|---|
+| `ProGlassAutomation.csproj:41` | **2.0.11** | authoritative |
+| `scripts/build-installer.ps1` | *reads the csproj* | **fixed** — `-Version` now defaults to empty and is resolved from `<Version>`; the run fails if the csproj or the element is missing |
+| `installer/velopack.json:5-6` | `2.0.11` / `2.0.11.0` | **fixed** — the pack step overrides both on the command line, so these values are documentation and no longer contradict the payload |
+| `Services/Updates/AppInfo.cs` | `FallbackVersion = "2.0.4"` | **kept on purpose** — it is a *floor*, not a mirror. Used only when the entry-assembly identity cannot be read, which means an unreadable build reports an older version than it is: `UpdateService.IsNewer` is a strict greater-than compare, so that can offer an update the machine already has, but can never offer a downgrade or hide a newer release. The Velopack path never reads it. Its comment now says so and warns that raising it *above* the current release would suppress real updates. |
+
+The durable fix — injecting the csproj value at build time so the constant
+disappears — is still open; see Phase 20 of the
+[upgrade plan](docs/UPGRADE_PHASES_2026-10-05.md).
+
+**Two update paths, one behaviour.** Installed (Velopack) builds use
+`VelopackUpdateService` → `UpdateManager(GithubSource(...))` against
+`https://github.com/JUBERSALEEM/ProGlassAutomationADV`, and
+`ApplyUpdatesAndRestart` swaps the app under itself. Portable and dev builds
+use the classic GitHub-Releases check in `UpdateService` plus a manual
+installer. Neither path can ever brick the running app: a failed check is
+logged and ignored.
+
+Unsigned releases are refused by the updater's Authenticode check
+(`UpdateSignatureVerifier`). Signing must happen **during** `vpk pack` via
+`--signParams`, not afterwards with `signtool` — a post-pack pass misses
+`Setup.exe`/`Update.exe` and invalidates the feed checksums.
+
+### 10. The license generator (vendor tool)
+
+```powershell
+dotnet build Tools/LicenseGenerator/ProGlassAutomation.LicenseGenerator.csproj -c Release
+dotnet run  --project Tools/LicenseGenerator/ProGlassAutomation.LicenseGenerator.csproj
+
+# single-EXE vendor build
+dotnet publish Tools/LicenseGenerator/ProGlassAutomation.LicenseGenerator.csproj `
+  -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true `
+  -o publish-licensegen
+```
+
+Flow: pick a plan from `LicensePlanCatalog` (7 days → 2 years), press
+GENERATE, hand the customer the armored key. The generator rate-limits to
+10 keys/hour/machine and writes an audit record per generation
+(`Tools/LicenseGenerator/KeyProtection.cs`).
+
+> ⚠️ **The production signing key is currently committed in plaintext** at
+> `Tools/LicenseGenerator/ProductionSigningKey.cs:52` (`PrivateKeyXml`), and
+> its public half is embedded in the customer app — so anyone with
+> repository or binary access can forge keys the app accepts.
+> `Tools/LicenseGenerator/README.md` states the opposite ("no longer embeds
+> a production private key in source"), and the DPAPI wrapper keeps the
+> plaintext constant as a bootstrap fallback, which makes it advisory
+> rather than protective. This is **Phase 18, the highest-priority item in
+> the [upgrade plan](docs/UPGRADE_PHASES_2026-10-05.md)**: rotate the key
+> pair, move the private half out of Git into a `.pgkey` file, and keep the
+> old public half in the trust ring so issued keys stay valid. Until it is
+> done, treat this repository as containing a live signing secret.
+
+### 11. Static checks that need no SDK
+
+Safe on any OS. They catch broken references, malformed markup and
+truncated blocks; they do **not** prove the application compiles.
 
 ```bash
-python3 scripts/verify-readmes.py       # every doc link resolves, index fresh
-python3 scripts/verify-dashboard.py     # XAML well-formedness, resource and
-                                        # binding resolution, style discipline
-python3 scripts/gen-docs-index.py --check
+python3 scripts/verify-readmes.py       # every doc link resolves, index fresh, nav present
+python3 scripts/gen-docs-index.py --check  # docs/README.md matches the docs/ tree
+python3 scripts/verify-dashboard.py     # XAML well-formedness, resource + binding resolution
+python3 scripts/xaml-resource-lint.py   # resource keys resolve
+python3 scripts/binding-lint.py         # binding paths exist on the target type
 
 # balance-check the C# touched since a known-good commit
 git diff --name-only BASE..HEAD | grep '\.cs$' \
   | xargs python3 scripts/check-csharp-balance.py
 ```
 
-These are static. They catch broken references, malformed markup and truncated
-blocks; they do **not** prove the application compiles or behaves.
+`check-csharp-balance.py` counts `{`/`}` while tracking whether it is inside
+a string, char, verbatim or interpolated literal or a comment — the naive
+count disagrees with itself in this codebase, which has regex literals
+containing an escaped `\(`.
 
-> **Nothing since `b86a3bc` has been compiled.** There was no .NET SDK in the
-> environment it was written in. **[`docs/BUILD_VERIFICATION_GUIDE.md`](docs/BUILD_VERIFICATION_GUIDE.md)**
-> is the checklist for the first real build — the exact commands, where errors
-> are most likely, and the on-screen numbers to sanity-check afterwards. Read
-> its §1 before typing anything: the repo has only `ProGlassAutomation.slnx`
-> and no `.sln`, so a bare `dotnet build` fails for a reason unrelated to the
-> code.
+### 12. When it does not build
 
-`check-csharp-balance.py` is worth a word, because the obvious version of it is
-wrong. Counting `{` and `}` characters also counts the ones inside string
-literals, character literals, verbatim strings, interpolated strings and
-comments — and this codebase has regex literals containing an escaped `\(`,
-which makes the naive count disagree with itself. The script tracks whether it
-is inside a string or a comment and reports the line where depth first goes
-negative. It catches one class of mistake — a block truncated or duplicated by
-scripted find-and-replace — and nothing else.
+| Symptom | Cause | Fix |
+|---|---|---|
+| *"project file does not exist"* on a bare `dotnet build` | `.slnx` is not resolved by older 8.0.x SDKs | Name the project explicitly (§3) |
+| *"test source file not found"* after `dotnet test --no-build` | You built `ProGlassAutomation.csproj`, which excludes `Tests/**` | Build `Tests/ProGlassAutomation.Tests.csproj` first (§4) |
+| `CS0017` (multiple entry points) | A `Main` was declared in `App.xaml.cs` | Remove it — `App.xaml` stays `ApplicationDefinition` and generates `Main` |
+| `CS1061 InitializeComponent` | `App.xaml` was reclassified as `Page` | Restore `ApplicationDefinition` |
+| `CS0246` on xUnit types in the app | `Tests/**` or `Licensing/**` crept back into the app's globbing | Check the `<Compile Remove>` block in the csproj |
+| `CS5001` / `CS0234` about `Program` | `Tools/**` was compiled into the app | Same block — the generator is a separate executable |
+| A `CAxxxx` analyzer error you did not write | `<AnalysisLevel>latest</AnalysisLevel>` + `TreatWarningsAsErrors` on a newer SDK | `global.json` pins 8.0.x, so this means the pin was relaxed — restore it, or add the code to `WarningsNotAsErrors` with a reason |
+| `A compatible .NET SDK was not found` on startup | `global.json` pins `8.0.100` / `latestFeature` and only a 9.x+ SDK is installed | Install a .NET 8 SDK (recommended), or relax the pin locally without committing it |
+| `DllNotFoundException` for GGML/llama at runtime | Native assets not extracted in a single-file publish | Add `-p:IncludeNativeLibrariesForSelfExtract=true` (§7) |
+| `RG1000 same key already added` | Duplicate `<Resource>` entries for the same file | One entry per file; see the comment block in the csproj |
+| `vpk` not on PATH | Velopack CLI not installed | `dotnet tool install -g vpk --version 1.2.0`, then reopen the shell |
+
+Capture failures as text, not screenshots:
+
+```powershell
+dotnet build ProGlassAutomation.csproj -c Release --no-restore --verbosity normal > build.log 2>&1
+Select-String -Path build.log -Pattern "error [A-Z]+[0-9]+" |
+  ForEach-Object { $_.Line.Trim() } | Sort-Object -Unique > errors.txt
+```
+
+[`docs/BUILD_VERIFICATION_GUIDE.md`](docs/BUILD_VERIFICATION_GUIDE.md) has
+the longer walkthrough and the tiered list of where a first build is most
+likely to fail.
+
+### 13. Running it: data, portability, uninstall
+
+| | |
+|---|---|
+| **Installed data** | `%AppData%\ProGlassAutomation\` — one SQLite file per module, `config.json`, `logs\`, `Backups\`, per-module attachment folders. Full layout in [`docs/INSTALL.md`](docs/INSTALL.md). |
+| **Shared LAN/Wi-Fi root** | Configured in Settings → Data using the real host/share path. Startup probes that saved path (it does not scan arbitrary LAN shares). If unavailable, the app launches in local mode with a visible warning; local writes do not sync. A persisted review marker prevents silently switching datasets when the share returns; explicitly prepare/reconcile and reconnect from Settings. |
+| **Demo mode** | A separate `ProGlassAutomation.Demo` data folder, so a demonstration can never touch production records. |
+| **Upgrades** | Never touch the data folder. Migrations are additive-only and run backup → transaction → rollback. |
+| **Uninstall** | Velopack removes the app; `%AppData%\ProGlassAutomation\` is left alone on purpose. Delete it to remove all data. |
+
+> **Verification note for this section.** The commands above were written
+> against this tree on 2026-10-05 and cross-checked against
+> `scripts/build-installer.ps1`, `Properties/PublishProfiles/Release.pubxml`,
+> `installer/velopack.json` and the workflows in `.github/workflows/`. They
+> were **not executed**: the environment had no .NET SDK,
+> no PowerShell and no network access to NuGet (`curl https://api.nuget.org`
+> → HTTP 000). Every file path, flag and default quoted here was read from
+> the file it came from. The publish matrix in §6c/§7 in particular needs a
+> first run on Windows before it is trusted.
+
+---
+
+## Engineering health — an honest assessment
+
+> Two self-assessments exist in this repository and they disagree:
+> `docs/ERP_UPGRADE_ROADMAP.md` claims **9.7/10** while
+> `docs/CODE_RATING_REPORT.md` (2026-09-02) rates **9.0/10** after an
+> independent audit. Neither was produced by a green `dotnet build` +
+> `dotnet test`, because when they were written this repository had no CI.
+> CI is written and verified ([`docs/ci/activate/`](docs/ci/activate/README.md),
+> 2026-10-05) and needs one command from a machine with the `workflows`
+> permission to go live, so the next assessment can be a measurement instead
+> of a judgement. Until a run is green, treat both numbers as engineering
+> judgement: the defensible figure remains **9.0/10**, and the missing point
+> is not missing features — it is missing *verification*.
+
+### What is genuinely strong
+
+| Area | Evidence |
+|---|---|
+| **Domain correctness** | One pricing engine, one status vocabulary per module (`JobOrderStatusValues`, `DeliveryNoteStatusValues`, `TargetMarginTolerance`), pinned cost basis. The money path is designed, not accumulated. |
+| **Error discipline** | Correlation IDs end-to-end; `ExceptionMessages.Deep()` instead of raw `ex.Message` to users; four last-chance exception sinks; crash reports with error IDs. |
+| **Data safety** | Migrations run backup → transaction → rollback and are additive-only. Delete guards check downstream documents first. 12 `BeginTransaction*` sites, 10 of them with an explicit isolation level, all in `Services/Production` and the schema runner. |
+| **Security** | RSA-2048-PSS, DPAPI for secrets, PBKDF2 for passwords, machine fingerprinting, rate-limited key generation. |
+| **Test intent** | 2,369 `[Fact]`/`[Theory]` aimed at *workflow invariants* — company semantics, conversion, price-basis determinism, cut-pattern stability — not at getters. |
+| **Hygiene** | Zero TODO/FIXME/`NotImplementedException` in 299,696 lines of production code. Rare at this size. |
+
+### What is open
+
+Measured on 2026-10-05, each with a phase, a concrete action and an
+acceptance test in **[`docs/UPGRADE_PHASES_2026-10-05.md`](docs/UPGRADE_PHASES_2026-10-05.md)**.
+
+| # | Issue | Evidence | Status |
+|---|---|---|---|
+| **18** | **The license-signing private key is in Git, in plaintext.** Anyone with repo or binary access can forge keys the app accepts, and the tool's own README says this is not the case. | `Tools/LicenseGenerator/ProductionSigningKey.cs:52` | **Open — blocked.** Needs the vendor to generate a replacement key on their own machine and to rotate what the app trusts; the swap cannot be done safely from a sandbox, and one test currently asserts the key *is* embedded. |
+| **19** | **Two guard-rail tests were red from baseline drift**, so the suite could not be used as a release gate. 61 findings had no allow-list entry (55 empty catches with no path match, plus 6 whose file matched but whose member could not); the rounding-mode ratchet allowed 2 files and found 9. | `Tests/Security/SilentCatchAuditTests.cs`, `Tests/Architecture/MoneyRoundingRatchetTests.cs` | **Fixed** (allow-lists rebaselined; 101/101 catches covered, both lists re-derived to green). Follow-up 19c: repair the auditor's enclosing-member resolution and tighten six `"*"` entries back to member-specific. |
+| **20** | **Four copies of the version number, three of them stale** (2.0.11 / 2.0.0 / 2.0.0 / 2.0.4). A default installer build packaged a *lower* version than the binaries it contained, so OTA could never offer it. | csproj:41 · build-installer.ps1 · velopack.json:5 · AppInfo.cs | **Fixed** — the script reads the csproj; the pack manifest matches; `FallbackVersion` is documented as a floor. Injecting the value at build time (retiring the constant) is still open. |
+| **21** | **No CI.** Nothing proved the tree builds, and the four workflow templates disagreed with each other about signing and about whether the update channel is declared. | `ls .github/` → 3 files, no `workflows/` | **Written, not yet live.** `global.json` pins 8.0.100/`latestFeature`, and `docs/ci/activate/` holds two complete, verified workflows — a CI gate (static checks + the two portable suites + the Windows WPF gate) and a release pipeline (tag → installer → OTA feed). Placing them in `.github/workflows/` is refused for the sandbox credential (*"without `workflows` permission"*, and `403` via the Contents API), so it needs one command from your machine — see `docs/ci/activate/README.md`. Open afterwards: no code signing, no delta packages, no coverage. |
+| **22** | **One CI template had the known-broken build/test sequence** the installer script documents as a bug — and it was the one `docs/CI.md` told maintainers to activate. | `docs/ci/build-test.yml` (build app → `test --no-build`) | **Fixed** — the live workflow builds `Tests/ProGlassAutomation.Tests.csproj`, plus the licensing and engine-regression projects no solution reaches. All four templates are retired to comment-only pointers so there is one copy of each pipeline, and `docs/CI.md` is rewritten as a runbook. |
+| **23** | **Stock counter race on consumables.** Read-check-write lost an update under concurrency: two operators issuing from the same item both passed the balance check on the same stale read, and one issue vanished with the row looking consistent afterwards. Glass sheets were fixed; this table was not. | `Services/SheetStore/InventoryItemRepository.cs` — `ConsumeAsync`, `ReceiveAsync` | **Fixed, not yet compile-verified** — both movements now run inside one serializable transaction (the arithmetic stays in C# on `decimal`, because these columns are TEXT affinity and SQL arithmetic would route them through `REAL`). Eight regression tests added in `Tests/Database/InventoryStockConcurrencyTests.cs`; they have not run yet. |
+| **24** | **Documentation drift that costs readers time**: a broken stylesheet link in this file, a stale docs index, and installer docs pointing at a script path that does not exist. | `scripts/verify-readmes.py`, `docs/INSTALLER.md` | **Fixed** (a–d, g, and now the two remainders): the nine scripts under lowercase `tools/` moved to `scripts/`, so only `Tools/` is left and the Windows case collision is gone; `Release.pubxml`'s header now names the workflow file that actually exists. The dated audit documents still say `tools/xaml_validator.py` — they are correct for their date and are left alone by design. |
+| **25** | **Whole-table loads**: 104 `GetAllAsync(` call sites remain, of which a minority are genuinely paginatable lists (the rest are lookups, pickers and searches where pagination would be a regression). | `PaginationRatchetTests` allow-list | **Open** — needs per-site judgement plus a running app. |
+| **26** | **Security observability.** Refused authentication left no durable record — every *successful* sign-in and password change was audited, none of the seven refusal paths were, and the only trace was a 14-day text file outside the backup set. Log files had no size bound, so one runaway loop could fill the volume the database lives on. And five audit / user-management read paths swallowed every exception and returned empty data, so a corrupt `audit.db` looked like an install with nothing to show — including `HasAnyUsersAsync`, whose `false` means "fresh install" and so sent established operators to the setup wizard on a transient read error. | `Services/Audit/AuditService.Part1.cs`, `Services/Logging/AppLogService.cs`, `ViewModels/Optimization/OptimizationViewModel.Jobs.cs` | **Fixed** — one writer covers all seven refusals (visible in Diagnostics → Users, which already existed); logs cap at 8 MB per file with two rotated parts and a 200 MB folder sweep; all five silent paths now log at `Error`; the last unsanctioned `async void` routes through `AsyncUtility.SafeFireAndForget`. |
+| **27** | **4K screen recording was blurry.** Four compounding defects: the output was a ~2× upscale of the window's physical client area; 4K encoded at x264 `ultrafast`, which disables 8x8 DCT, CABAC, deblocking and `aq-mode` — the four tools that carry fine UI text; `-tune stillimage` was inert there (psy-rd needs subme ≥ 6, ultrafast is 0); and the live path had no `unsharp`. Worse, `EncoderProbe` benchmarked libx264 at its default `medium` because no `-preset` was passed, so both guards that act on that measurement were biased toward the softest output. | `Agent/Demo/Video/` | **Fixed** — 4K starts at `superfast`, the probe measures the real preset, the live path sharpens luma, and the offline path uses `-tune stillimage`. |
+| **28** | **Optimization and Production had no dashboard.** Seven module pages existed, but the two modules with the most to say about shop-floor money — nesting yield and factory queue pressure — were absent, so both had to be read off their working screens. | `ViewModels/Dashboard/`, `Views/Dashboard/`, `Services/Optimization/OptimizationDashboardService.cs` | **Added** — both pages follow the existing `DashboardPageBase` contract; Production reuses the existing `ProductionDashboardService`, and Optimization gets one new *projected* query so the megabyte-per-row JSON payloads are never materialised. |
+
+Nothing in the Status column was verified by executing the test suite: no .NET
+SDK is available in the environment where this pass was made, so every
+"Fixed" above means *re-derived from each test's own algorithm, 1:1, over this
+tree* — or, for prose and configuration, checked by the SDK-free verifiers in
+§11. `dotnet test` is still the only thing that can confirm it.
+
+### One defect class worth naming
+
+The most useful thing the 2026-09-08 pass found was not a feature gap. It
+was that three modules each declared a status or a threshold more than once,
+in two spellings or two values, with no canonical home — and each
+disagreement was silently wrong rather than loudly broken.
+
+| | The split | What the user saw |
+|---|---|---|
+| Job Order | `"In Production"` vs `"InProduction"` | Overview under-counted jobs in production |
+| Delivery Note | `"Draft"` vs `"Dispatching"` | `Preparing + Dispatched` did not equal `TotalNotes` |
+| Target pricing | `0.005m` vs `0.05m` | One invoice read **ABOVE TARGET** on the quotation and **AT TARGET** in Job Profitability |
+| VAT | `0.05m` / `1.05m` hardcoded in three money paths | Nothing wrong *today*; it would break the day the UAE rate changed |
+
+The root cause was structural: `SavedJobOrder.Status` and
+`SavedDeliveryNote.Status` are `string`, not the enums beside them. Each
+module now has one canonical home, and `StatusLiteralRatchetTests` flags the
+*shape* — a persisted status compared against an inline literal — rather
+than the specific spellings, so the next one cannot arrive quietly.
+
+The lesson the programme keeps producing: **a count is not a finding.**
+Three phases in the original plan were scoped from a count (literals, lines,
+call sites) and were wrong: `ProformaInvoiceStatus.cs` already existed;
+there is no 12,162-line `MainViewModel` (the largest file is ~1,900 lines
+across three partials); and six of the eleven remaining whole-table loads
+are lookups where pagination is a regression, not a fix.
+
+### The rating, stated plainly
+
+**9.0/10**, and the missing point is verification. Three things move it:
+
+1. **Rotate the signing key and get it out of Git** (Phase 18). A live
+   signing secret in a repository caps the score regardless of code quality.
+2. ~~Green the two red ratchets and turn on CI~~ (Phases 19–22) — **done**.
+   The next move is to read the first green run and let it replace the
+   judgement in this section with a measurement.
+3. **Close the consumables race and keep the pagination ratchet falling**
+   (Phases 23, 25).
 
 ---
 
@@ -457,17 +792,20 @@ scripted find-and-replace — and nothing else.
 | Start here | |
 |---|---|
 | [`docs/WORKFLOW.md`](docs/WORKFLOW.md) | The end-to-end business chain with the real code path per handoff |
-| [`docs/README.md`](docs/README.md) | Index of all 140 documents, generated from the tree |
+| [`docs/README.md`](docs/README.md) | Index of all 308 documents, generated from the tree |
+| [`docs/UPGRADE_PHASES_2026-10-05.md`](docs/UPGRADE_PHASES_2026-10-05.md) | **Phases 18–25**: every open issue above, with evidence, steps, acceptance criteria and a "must not change" list |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Layering, boundaries, the data path |
+| [`docs/INSTALL.md`](docs/INSTALL.md) · [`docs/INSTALLER.md`](docs/INSTALLER.md) | End-user install · installer pipeline internals |
+| [`docs/BUILD_VERIFICATION_GUIDE.md`](docs/BUILD_VERIFICATION_GUIDE.md) | First-build checklist, error capture, likely failure points |
+| [`docs/CI.md`](docs/CI.md) · [`docs/OTA.md`](docs/OTA.md) | The live pipelines, the release runbook and what they cannot yet do · how updates reach a customer |
 | [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) | Design tokens, brushes, motion, wallpapers |
 | [`docs/MONEY_PATH_ERROR_POLICY.md`](docs/MONEY_PATH_ERROR_POLICY.md) | What may and may not happen on a money path — read before touching pricing |
-| [`docs/ERP_UPGRADE_ROADMAP.md`](docs/ERP_UPGRADE_ROADMAP.md) | Phase history and acceptance gates |
-| [`docs/REMEDIATION_PLAN.md`](docs/REMEDIATION_PLAN.md) | Phased plan for every open issue above, with acceptance criteria |
+| [`docs/MONEY_ROUNDING_POLICY.md`](docs/MONEY_ROUNDING_POLICY.md) | One rounding rule, and the migration ratchet |
 | [`docs/RELEASE_GATE.md`](docs/RELEASE_GATE.md) | Release checklist |
 | [`Tests/README.md`](Tests/README.md) | Test filters and gate conventions |
 
-Every significant folder carries its own `README.md`; all 30 are linked from
-the documentation index.
+Every significant folder carries its own `README.md`; 37 of them are linked
+from the documentation index.
 
 Documents whose filename carries a date are point-in-time audits — accurate
 for that day, **not** a description of the current build. When a dated audit
@@ -483,7 +821,7 @@ and an undated document disagree, the undated one wins.
 
 <br/>
 
-`WPF` · `.NET 8` · `C# 12` · `MVVM` · `SQLite + EF Core` · **v2.0.0**
+`WPF` · `.NET 8` · `C# 12` · `MVVM` · `SQLite + EF Core` · **v2.0.11**
 
 <br/>
 

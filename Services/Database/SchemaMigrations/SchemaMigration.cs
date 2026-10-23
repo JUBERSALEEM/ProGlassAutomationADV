@@ -14,8 +14,9 @@
 // data.
 //
 // DESIGN RULES (see SchemaMigrationRunner):
-//   • Migrations are ADDITIVE and IDEMPOTENT — they only add tables,
-//     columns and indexes; they never drop or rewrite existing rows.
+//   • Migrations are IDEMPOTENT. Existing data is not silently rewritten;
+//     legacy columns can be renamed/dropped only after explicit value-copy
+//     verification or a proof that the removed column is empty.
 //   • Version is an integer tracked per database file via
 //     PRAGMA user_version.
 //   • The database file is backed up BEFORE any migration applies.
@@ -48,10 +49,18 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
         /// </summary>
         public System.Action<SqliteConnection> Apply { get; }
 
+        /// <summary>
+        /// Optional post-apply assertions for critical indexes and migrated
+        /// data. Runs inside the same transaction; throwing aborts the whole
+        /// migration and leaves user_version unchanged.
+        /// </summary>
+        public System.Action<SqliteConnection>? Verify { get; }
+
         public SchemaMigration(
             int version,
             string name,
-            System.Action<SqliteConnection> apply)
+            System.Action<SqliteConnection> apply,
+            System.Action<SqliteConnection>? verify = null)
         {
             if (version <= 0)
                 throw new System.ArgumentOutOfRangeException(
@@ -61,6 +70,7 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
             Version = version;
             Name = name;
             Apply = apply ?? throw new System.ArgumentNullException(nameof(apply));
+            Verify = verify;
         }
     }
 }

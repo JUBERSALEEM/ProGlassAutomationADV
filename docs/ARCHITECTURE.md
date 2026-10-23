@@ -68,9 +68,17 @@ SQLite files (11 bounded contexts) + attachments on disk
 - **State lives in ViewModels**, not code-behind; views are XAML + `Loaded`/
   `Unloaded` glue. Navigation is a rail of `NavRow` items in
   `MainViewModel`; `CurrentModuleKey` selects the active module VM.
-- **Async**: the single sanctioned `async void` is `AsyncUtility.
-  SafeFireAndForget`; all other async is awaited (no sync-over-async remains —
-  verified).
+- **Async**: every async member returns `Task` / `Task<T>`. The only
+  `async void` declarations in the codebase are the four fire-and-forget
+  helpers in `Utilities/AsyncUtility.cs` (`SafeFireAndForget`,
+  `TryAsyncFireAndForget` and the two `SafeFireAndForgetResult` overloads),
+  which exist so that `ICommand` handlers and `Loaded`/`Unloaded` glue have one
+  audited place to discard a task — each logs, carries a correlation id, and
+  surfaces `ReadOnlyModeException` to the operator instead of swallowing it.
+  Verified by grep for `async void <name>(` across `Services`, `ViewModels`,
+  `Utilities` and `Commands`: zero declarations outside that file. There is
+  also no sync-over-async left — `.GetAwaiter().GetResult()` and `.Wait()`
+  both return zero hits in `Services` and `ViewModels`.
 - **DI**: `Services/DependencyInjection` wires service lifetimes (config,
   DB, repositories, domain services) at startup.
 

@@ -9,9 +9,9 @@
 //   • VerifyBackupSetIntegrity finds every .db in a folder.
 //   • AreFilesIdentical / ComputeFileHash detect tampering.
 //
-// RunDrill() itself writes to %AppData%/ProGlassAutomation/Backups and is
-// therefore exercised manually (Settings → Backups → Run restore drill),
-// not in unit tests.
+// RunDrill() itself writes one backup set under the active data root and is
+// therefore not invoked by unit tests. Its isolated file-hash and SQLite
+// integrity components are tested here with non-pooled, disposable files.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -24,7 +24,7 @@ namespace ProGlassAutomation.Tests.Agent
 {
     public class RestoreDrillServiceTests
     {
-        [Fact(Skip = "3 tests fail with IOException 'file in use by another process' — the SQLite file-locking check holds the handle open across test calls. Needs an explicit connection-disposal fix in RestoreDrillService or a per-test temp-file scope in the test.")]
+        [Fact]
         public void CheckDatabaseIntegrity_ok_for_valid_database()
         {
             var path = CreateTempDb();
@@ -42,7 +42,7 @@ namespace ProGlassAutomation.Tests.Agent
             }
         }
 
-        [Fact(Skip = "3 tests fail with IOException 'file in use by another process' — the SQLite file-locking check holds the handle open across test calls. Needs an explicit connection-disposal fix in RestoreDrillService or a per-test temp-file scope in the test.")]
+        [Fact]
         public void CheckDatabaseIntegrity_fails_for_corrupt_file()
         {
             var path = Path.Combine(
@@ -60,7 +60,7 @@ namespace ProGlassAutomation.Tests.Agent
             }
         }
 
-        [Fact(Skip = "3 tests fail with IOException 'file in use by another process' — the SQLite file-locking check holds the handle open across test calls. Needs an explicit connection-disposal fix in RestoreDrillService or a per-test temp-file scope in the test.")]
+        [Fact]
         public void VerifyBackupSetIntegrity_checks_every_db_in_folder()
         {
             var dir = Path.Combine(
@@ -84,7 +84,7 @@ namespace ProGlassAutomation.Tests.Agent
             }
         }
 
-        [Fact(Skip = "3 tests fail with IOException 'file in use by another process' — the SQLite file-locking check holds the handle open across test calls. Needs an explicit connection-disposal fix in RestoreDrillService or a per-test temp-file scope in the test.")]
+        [Fact]
         public void VerifyBackupSetIntegrity_missing_folder_returns_empty()
         {
             var results = RestoreDrillService.VerifyBackupSetIntegrity(
@@ -93,7 +93,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Empty(results);
         }
 
-        [Fact(Skip = "3 tests fail with IOException 'file in use by another process' — the SQLite file-locking check holds the handle open across test calls. Needs an explicit connection-disposal fix in RestoreDrillService or a per-test temp-file scope in the test.")]
+        [Fact]
         public void AreFilesIdentical_detects_byte_difference()
         {
             var a = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".bin");
@@ -117,7 +117,7 @@ namespace ProGlassAutomation.Tests.Agent
             }
         }
 
-        [Fact(Skip = "3 tests fail with IOException 'file in use by another process' — the SQLite file-locking check holds the handle open across test calls. Needs an explicit connection-disposal fix in RestoreDrillService or a per-test temp-file scope in the test.")]
+        [Fact]
         public void AreFilesIdentical_rejects_missing_files()
         {
             var missing = Path.Combine(
@@ -137,7 +137,7 @@ namespace ProGlassAutomation.Tests.Agent
             }
         }
 
-        [Fact(Skip = "3 tests fail with IOException 'file in use by another process' — the SQLite file-locking check holds the handle open across test calls. Needs an explicit connection-disposal fix in RestoreDrillService or a per-test temp-file scope in the test.")]
+        [Fact]
         public void ComputeFileHash_is_stable_uppercase_hex()
         {
             var path = Path.Combine(
@@ -170,7 +170,12 @@ namespace ProGlassAutomation.Tests.Agent
 
         private static void CreateDbAt(string path)
         {
-            using var connection = new SqliteConnection($"Data Source={path}");
+            var builder = new SqliteConnectionStringBuilder
+            {
+                DataSource = path,
+                Pooling = false
+            };
+            using var connection = new SqliteConnection(builder.ToString());
             connection.Open();
 
             using var command = connection.CreateCommand();

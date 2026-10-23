@@ -99,15 +99,9 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         // ── CRUD ──────────────────────────────────────────────────────────
 
         Task<SavedTaxInvoice> InsertAsync(SavedTaxInvoice entity);
-        Task UpdateAsync(SavedTaxInvoice entity);
-
-        /// <summary>
-        /// Update with optimistic-concurrency check (Phase 5). Pass the
-        /// RowVersion the editor loaded; throws ConcurrencyConflictException if
-        /// the stored version moved on. Pass null for legacy behaviour.
-        /// </summary>
-        Task UpdateAsync(SavedTaxInvoice entity, int? expectedRowVersion);
-        Task DeleteAsync(int id);
+        /// <summary>Update using the required RowVersion captured by the caller.</summary>
+        Task UpdateAsync(SavedTaxInvoice entity, int expectedRowVersion);
+        Task DeleteAsync(int id, int expectedRowVersion);
 
         /// <summary>
         /// ERP lifecycle hardening (Phase 1): SOFT-CLOSE (void) an ISSUED tax
@@ -116,7 +110,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         /// to the void target, and clears any DN "invoiced" links so those
         /// DNs can be re-invoiced. Permission-gated like DeleteAsync.
         /// </summary>
-        Task VoidAsync(int id, string reason);
+        Task VoidAsync(int id, int expectedRowVersion, string reason);
 
         /// <summary>
         /// Invoices (any family) whose PurchaseOrderNumber equals the given
@@ -138,7 +132,10 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
         // ── Status management ─────────────────────────────────────────────
 
-        Task UpdateStatusAsync(string invoiceNumber, string newStatus);
+        Task<SavedTaxInvoice?> UpdateStatusAsync(
+            string invoiceNumber,
+            string newStatus,
+            int expectedRowVersion);
 
         // ── Attachments ───────────────────────────────────────────────────
 

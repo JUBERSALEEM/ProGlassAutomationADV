@@ -56,7 +56,7 @@ namespace ProGlassAutomation.Tests.Agent
             };
         }
 
-        [Fact(Skip = "Test references StatementSnapshot/StatementHeader/StatementCustomerInfo properties that do not exist on the production types.")]
+        [Fact]
         public void FilterByInvoices_restricts_rows_to_selected_numbers()
         {
             var original = Sample();
@@ -77,7 +77,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(10.5m, projected.Financial.TotalSqm);
         }
 
-        [Fact(Skip = "Test references StatementSnapshot/StatementHeader/StatementCustomerInfo properties that do not exist on the production types.")]
+        [Fact]
         public void FilterByInvoices_recomputes_aging_buckets_over_selected()
         {
             var original = Sample();
@@ -91,7 +91,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(157.5m, projected.Financial.TotalOutstanding);
         }
 
-        [Fact(Skip = "Test references StatementSnapshot/StatementHeader/StatementCustomerInfo properties that do not exist on the production types.")]
+        [Fact]
         public void FilterByInvoices_preserves_header_and_customer_info()
         {
             var projected = StatementSnapshotProjector.FilterByInvoices(

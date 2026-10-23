@@ -164,10 +164,9 @@ namespace ProGlassAutomation.Views.Login
             try
             {
                 var (ok, error) = await Task.Run(() =>
-                    AuditService.CreateUserAsync(
-                        username, displayName,
-                        AppRoles.Administrator, password,
-                        reason: "First-run setup (Commit 5)."));
+                    AuditService.BootstrapFirstAdministratorAsync(
+                        username, displayName, password,
+                        reason: "First-run setup (AUTH-001)."));
 
                 if (!ok)
                 {

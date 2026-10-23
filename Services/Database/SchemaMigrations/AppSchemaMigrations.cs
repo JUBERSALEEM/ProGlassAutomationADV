@@ -10,16 +10,19 @@
 // additive migrations instead of relying on EnsureCreated (which can never
 // alter an existing database).
 //
-// RULE: every migration is additive/idempotent (add columns/tables/indexes
-// only). Never drop or rewrite existing rows.
+// RULE: migrations are idempotent; preserve old-column values before a
+// rename/drop and verify the result. Unknown columns may only be dropped when
+// empty. Unique-key collisions abort with concrete keys; identifiers/rows are
+// never silently rewritten to force a migration through.
 //
 // NOTE (audit.db): audit.db already had its own hand-written additive
 // migrator (AuditDbMigrations) before this framework existed. To avoid a
 // behaviour change to a security-critical file in the same change that
-// introduces the framework, audit.db keeps calling its existing migrator for
-// now. Its operations are identical in spirit (idempotent ADD COLUMN /
-// CREATE TABLE IF NOT EXISTS) and can be folded into this registry in a
-// later, separately-verified phase.
+// introduces the framework, audit.db keeps its hand-written additive migrator
+// for now. It uses the central connection/journal policy and verifies its
+// required columns, indexes, and normalized-user data after applying changes;
+// folding it into the versioned runner (and adding runner-style pre-migration
+// snapshots/atomic versioning) remains a separately-verified follow-up.
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.Data.Sqlite;
@@ -107,6 +110,63 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                     SchemaMigrationSql.AddColumnIfMissing(connection, "SheetHistories", "IsReversed",        "INTEGER NOT NULL DEFAULT 0");
                     SchemaMigrationSql.CreateIndexIfNotExists(connection,
                         "CREATE INDEX IF NOT EXISTS IX_SheetHistories_ReversesHistoryId ON SheetHistories(ReversesHistoryId);");
+                }),
+
+                new(1005, "Sheet Store: optimistic-concurrency counters", connection =>
+                {
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "GlassSheets", "RowVersion",
+                        "INTEGER NOT NULL DEFAULT 0");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "InventoryItems", "RowVersion",
+                        "INTEGER NOT NULL DEFAULT 0");
+                    SchemaMigrationSql.RequireColumn(connection, "GlassSheets", "RowVersion");
+                    SchemaMigrationSql.RequireNoNullValues(connection, "GlassSheets", "RowVersion");
+                    SchemaMigrationSql.RequireColumn(connection, "InventoryItems", "RowVersion");
+                    SchemaMigrationSql.RequireNoNullValues(connection, "InventoryItems", "RowVersion");
+                }, connection =>
+                {
+                    SchemaMigrationSql.RequireColumn(connection, "GlassSheets", "RowVersion");
+                    SchemaMigrationSql.RequireNoNullValues(connection, "GlassSheets", "RowVersion");
+                    SchemaMigrationSql.RequireColumn(connection, "InventoryItems", "RowVersion");
+                    SchemaMigrationSql.RequireNoNullValues(connection, "InventoryItems", "RowVersion");
+                }),
+
+                new(1006, "Sheet Store: atomic inventory movement history", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS InventoryItemMovements (
+                            Id              INTEGER NOT NULL CONSTRAINT PK_InventoryItemMovements PRIMARY KEY AUTOINCREMENT,
+                            InventoryItemId INTEGER NOT NULL,
+                            ItemDescription TEXT    NOT NULL DEFAULT '',
+                            Action          TEXT    NOT NULL DEFAULT '',
+                            Details         TEXT    NOT NULL DEFAULT '',
+                            QuantityChanged TEXT    NOT NULL DEFAULT '0',
+                            ValueChanged    TEXT    NULL,
+                            UserName        TEXT    NOT NULL DEFAULT '',
+                            Timestamp       TEXT    NOT NULL
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_InventoryItemMovements_ItemId ON InventoryItemMovements(InventoryItemId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_InventoryItemMovements_Timestamp ON InventoryItemMovements(Timestamp);");
+
+                    // Preserve the composite identity constraint already
+                    // declared in AppDbContext for databases created before
+                    // the unique index was present. Duplicates abort loudly.
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_GlassSheet_Unique ON GlassSheets(" +
+                        "Category, ThicknessMm, Color, WidthMm, HeightMm, Supplier);");
+                }, connection =>
+                {
+                    SchemaMigrationSql.RequireColumn(connection, "InventoryItemMovements", "InventoryItemId");
+                    SchemaMigrationSql.RequireColumn(connection, "InventoryItemMovements", "QuantityChanged");
+                    SchemaMigrationSql.RequireNoNullValues(connection, "InventoryItemMovements", "QuantityChanged");
+                    SchemaMigrationSql.RequireIndex(connection, "IX_InventoryItemMovements_ItemId",
+                        "InventoryItemMovements", unique: false, expectedColumns: new[] { "InventoryItemId" });
+                    SchemaMigrationSql.RequireIndex(connection, "IX_InventoryItemMovements_Timestamp",
+                        "InventoryItemMovements", unique: false, expectedColumns: new[] { "Timestamp" });
+                    SchemaMigrationSql.RequireIndex(connection, "IX_GlassSheet_Unique", "GlassSheets",
+                        unique: true, expectedColumns: new[]
+                        { "Category", "ThicknessMm", "Color", "WidthMm", "HeightMm", "Supplier" });
                 })
             };
 
@@ -130,24 +190,11 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 // Do NOT rewrite colliding numbers (DN/TI key the string).
                 new(1003, "Job Order: unique JobOrderId index", connection =>
                 {
-                    try
-                    {
-                        SchemaMigrationSql.CreateIndexIfNotExists(connection,
-                            "CREATE UNIQUE INDEX IF NOT EXISTS IX_JobOrder_JobOrderId_Unique ON JobOrders(JobOrderId);");
-                    }
-                    catch (SqliteException ex)
-                    {
-                        AppLogService.Warning(
-                            "[JobOrders] unique JobOrderId index not applied: " +
-                            ex.Message,
-                            new LogContext
-                            {
-                                Module = "Database",
-                                Class = "SchemaMigrations",
-                                Operation = "JobOrderIdUniqueIndex"
-                            });
-                    }
-                })
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_JobOrder_JobOrderId_Unique ON JobOrders(JobOrderId);");
+                }, connection =>
+                    SchemaMigrationSql.RequireIndex(connection, "IX_JobOrder_JobOrderId_Unique",
+                        "JobOrders", unique: true, expectedColumns: new[] { "JobOrderId" }))
             };
 
         // deliverynotes.db
@@ -171,24 +218,27 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
             // Do NOT rewrite colliding numbers (TI keys the string).
             new(1003, "Delivery Note: unique DeliveryNoteId index", connection =>
             {
-                try
-                {
-                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
-                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_DeliveryNotes_DeliveryNoteId ON DeliveryNotes(DeliveryNoteId);");
-                }
-                catch (SqliteException ex)
-                {
-                    AppLogService.Warning(
-                        "[DeliveryNotes] unique DeliveryNoteId index not applied: " +
-                        ex.Message,
-                        new LogContext
-                        {
-                            Module = "Database",
-                            Class = "SchemaMigrations",
-                            Operation = "DeliveryNoteIdUniqueIndex"
-                        });
-                }
-            })
+                SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                    "CREATE UNIQUE INDEX IF NOT EXISTS IX_DeliveryNotes_DeliveryNoteId ON DeliveryNotes(DeliveryNoteId);");
+            }, connection =>
+                SchemaMigrationSql.RequireIndex(connection, "IX_DeliveryNotes_DeliveryNoteId",
+                    "DeliveryNotes", unique: true, expectedColumns: new[] { "DeliveryNoteId" })),
+
+            // Sequence allocation is serialized in DeliveryNoteRepository and
+            // this index is the durable cross-process backstop. A legacy
+            // duplicate fails the migration with representative key values;
+            // we deliberately do not renumber externally referenced DNs.
+            new(1004, "Delivery Note: unique per-job sequence", connection =>
+            {
+                SchemaMigrationSql.RequireNoDuplicateKeyValues(
+                    connection, "DeliveryNotes", "JobOrderId", "SequenceNumber");
+                SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                    "CREATE UNIQUE INDEX IF NOT EXISTS IX_DeliveryNotes_JobOrderId_SequenceNumber_Unique " +
+                    "ON DeliveryNotes(JobOrderId, SequenceNumber);");
+            }, connection =>
+                SchemaMigrationSql.RequireIndex(connection,
+                    "IX_DeliveryNotes_JobOrderId_SequenceNumber_Unique", "DeliveryNotes",
+                    unique: true, expectedColumns: new[] { "JobOrderId", "SequenceNumber" }))
         };
 
         // taxinvoices.db
@@ -210,24 +260,11 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 // Do NOT rewrite colliding numbers (DN keys the string).
                 new(1003, "Tax Invoice: unique InvoiceNumber index", connection =>
                 {
-                    try
-                    {
-                        SchemaMigrationSql.CreateIndexIfNotExists(connection,
-                            "CREATE UNIQUE INDEX IF NOT EXISTS IX_TaxInvoices_InvoiceNumber ON TaxInvoices(InvoiceNumber);");
-                    }
-                    catch (SqliteException ex)
-                    {
-                        AppLogService.Warning(
-                            "[TaxInvoices] unique InvoiceNumber index not applied: " +
-                            ex.Message,
-                            new LogContext
-                            {
-                                Module = "Database",
-                                Class = "SchemaMigrations",
-                                Operation = "InvoiceNumberUniqueIndex"
-                            });
-                    }
-                })
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_TaxInvoices_InvoiceNumber ON TaxInvoices(InvoiceNumber);");
+                }, connection =>
+                    SchemaMigrationSql.RequireIndex(connection, "IX_TaxInvoices_InvoiceNumber",
+                        "TaxInvoices", unique: true, expectedColumns: new[] { "InvoiceNumber" }))
             };
 
         // inquiries.db
@@ -241,7 +278,8 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
         //
         // 1001 converges ANY legacy shape to the current model. It is
         // idempotent: CREATE TABLE IF NOT EXISTS, one ADD COLUMN per missing
-        // column, duplicate numbers made unique, then the indexes. Reserved
+        // column, unique-index duplicates reported without renumbering, then
+        // the remaining indexes. Reserved
         // high version for the same reason as ProformaInvoices above.
         public static IReadOnlyList<SchemaMigration> Inquiries { get; } = new List<SchemaMigration>
         {
@@ -253,7 +291,8 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
             // rather than mutating 1001, which is the documented baseline
             // for what EnsureCreated should look like after first run.
             new(1002, "Drop legacy Inquiry columns (InquiryDate, etc.) not in the model", connection =>
-                DropLegacyInquiriesColumns(connection)),
+                DropLegacyInquiriesColumns(connection), connection =>
+                VerifyInquirySchema(connection)),
             // PHASE 2 — scope of supply (BOQ) on inquiries.
             // EnsureCreated only creates missing DATABASE files; any install
             // that already ran the app has inquiries.db without this table.
@@ -280,6 +319,13 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                     "CREATE INDEX IF NOT EXISTS \"IX_InquiryLineItems_InquiryId\" ON InquiryLineItems(InquiryId);");
                 SchemaMigrationSql.CreateIndexIfNotExists(connection,
                     "CREATE INDEX IF NOT EXISTS \"IX_InquiryLineItems_InquiryId_SortOrder\" ON InquiryLineItems(InquiryId, SortOrder);");
+            }),
+            new(1004, "Inquiry: RowVersion concurrency counter", connection =>
+            {
+                SchemaMigrationSql.AddColumnIfMissing(connection, "Inquiries", "RowVersion",
+                    "INTEGER NOT NULL DEFAULT 0");
+                SchemaMigrationSql.RequireColumn(connection, "Inquiries", "RowVersion");
+                SchemaMigrationSql.RequireNoNullValues(connection, "Inquiries", "RowVersion");
             })
         };
 
@@ -344,33 +390,25 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                             "WHERE RootProformaId IS NULL OR RootProformaId = '';";
                         cmd.ExecuteNonQuery();
                     }
+                }, connection =>
+                {
+                    SchemaMigrationSql.RequireNoNullValues(
+                        connection, "ProformaInvoices", "RevisionNumber");
+                    SchemaMigrationSql.RequireNoEmptyValues(
+                        connection, "ProformaInvoices", "RootProformaId");
                 }),
 
                 // Unique ProformaId is in OnModelCreating (fresh EnsureCreated).
                 // Existing field DBs never received it via additive migration.
-                // Do NOT rewrite colliding numbers (JO/TI/attachments key off
-                // the string). If duplicates exist, log and leave the app-level
-                // insert retry as the safety net.
+                // The common index helper reports duplicate values and aborts;
+                // ProformaId is referenced by related records and is never rewritten.
                 new(1006, "Proforma Invoice: unique ProformaId index", connection =>
                 {
-                    try
-                    {
-                        SchemaMigrationSql.CreateIndexIfNotExists(connection,
-                            "CREATE UNIQUE INDEX IF NOT EXISTS IX_ProformaInvoices_ProformaId ON ProformaInvoices(ProformaId);");
-                    }
-                    catch (SqliteException ex)
-                    {
-                        AppLogService.Warning(
-                            "[ProformaInvoices] unique ProformaId index not applied: " +
-                            ex.Message,
-                            new LogContext
-                            {
-                                Module = "Database",
-                                Class = "SchemaMigrations",
-                                Operation = "ProformaIdUniqueIndex"
-                            });
-                    }
-                })
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_ProformaInvoices_ProformaId ON ProformaInvoices(ProformaId);");
+                }, connection =>
+                    SchemaMigrationSql.RequireIndex(connection, "IX_ProformaInvoices_ProformaId",
+                        "ProformaInvoices", unique: true, expectedColumns: new[] { "ProformaId" }))
             };
 
         // specifications.db
@@ -467,6 +505,50 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
         public static IReadOnlyList<SchemaMigration> MasterData { get; }
             = new List<SchemaMigration>();
 
+        // orderreports.db — list and special PDF-path writes use the same
+        // application-managed RowVersion as full report edits/deletes.
+        public static IReadOnlyList<SchemaMigration> OrderReports { get; }
+            = new List<SchemaMigration>
+            {
+                new(1001, "Order Report: RowVersion and required indexes", connection =>
+                {
+                    AddRowVersionColumn(connection, "OrderReports");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_OrderReports_ReportNumber ON OrderReports(ReportNumber);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_OrderReports_FilterCustomer ON OrderReports(FilterCustomer);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_OrderReports_FilterCompany ON OrderReports(FilterCompany);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_OrderReports_FilterProject ON OrderReports(FilterProject);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_OrderReports_FilterSalesman ON OrderReports(FilterSalesman);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_OrderReports_CreatedAt ON OrderReports(CreatedAt);");
+                }, connection =>
+                {
+                    SchemaMigrationSql.RequireColumn(connection, "OrderReports", "RowVersion");
+                    SchemaMigrationSql.RequireNoNullValues(connection, "OrderReports", "RowVersion");
+                    SchemaMigrationSql.RequireNoEmptyValues(connection, "OrderReports", "ReportNumber");
+                    SchemaMigrationSql.RequireNoDuplicateKeyValues(
+                        connection, "OrderReports", "ReportNumber");
+                    SchemaMigrationSql.RequireNoEmptyValues(connection, "OrderReports", "FullSnapshotJson");
+                    SchemaMigrationSql.RequireNoEmptyValues(connection, "OrderReports", "FilterJson");
+                    SchemaMigrationSql.RequireIndex(connection, "IX_OrderReports_ReportNumber",
+                        "OrderReports", unique: true, expectedColumns: new[] { "ReportNumber" });
+                    SchemaMigrationSql.RequireIndex(connection, "IX_OrderReports_FilterCustomer",
+                        "OrderReports", unique: false, expectedColumns: new[] { "FilterCustomer" });
+                    SchemaMigrationSql.RequireIndex(connection, "IX_OrderReports_FilterCompany",
+                        "OrderReports", unique: false, expectedColumns: new[] { "FilterCompany" });
+                    SchemaMigrationSql.RequireIndex(connection, "IX_OrderReports_FilterProject",
+                        "OrderReports", unique: false, expectedColumns: new[] { "FilterProject" });
+                    SchemaMigrationSql.RequireIndex(connection, "IX_OrderReports_FilterSalesman",
+                        "OrderReports", unique: false, expectedColumns: new[] { "FilterSalesman" });
+                    SchemaMigrationSql.RequireIndex(connection, "IX_OrderReports_CreatedAt",
+                        "OrderReports", unique: false, expectedColumns: new[] { "CreatedAt" });
+                })
+            };
+
         // statements.db
         public static IReadOnlyList<SchemaMigration> Statements { get; }
             = new List<SchemaMigration>
@@ -475,23 +557,15 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 // Existing field DBs never received it via additive migration.
                 new(1003, "Statement: unique StatementNumber index", connection =>
                 {
-                    try
-                    {
-                        SchemaMigrationSql.CreateIndexIfNotExists(connection,
-                            "CREATE UNIQUE INDEX IF NOT EXISTS IX_Statements_StatementNumber ON Statements(StatementNumber);");
-                    }
-                    catch (SqliteException ex)
-                    {
-                        AppLogService.Warning(
-                            "[Statements] unique StatementNumber index not applied: " +
-                            ex.Message,
-                            new LogContext
-                            {
-                                Module = "Database",
-                                Class = "SchemaMigrations",
-                                Operation = "StatementNumberUniqueIndex"
-                            });
-                    }
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_Statements_StatementNumber ON Statements(StatementNumber);");
+                }, connection =>
+                    SchemaMigrationSql.RequireIndex(connection, "IX_Statements_StatementNumber",
+                        "Statements", unique: true, expectedColumns: new[] { "StatementNumber" })),
+
+                new(1004, "Statement: RowVersion concurrency counter", connection =>
+                {
+                    AddRowVersionColumn(connection, "Statements");
                 })
             };
 
@@ -1204,6 +1278,11 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
             SchemaMigrationSql.CreateIndexIfNotExists(connection,
                 $"CREATE INDEX IF NOT EXISTS IX_{table}_IsVoid ON {table}(IsVoid);");
+            foreach (string column in new[] { "IsVoid", "VoidedAtUtc", "VoidedBy", "VoidReason" })
+                SchemaMigrationSql.RequireColumn(connection, table, column);
+            SchemaMigrationSql.RequireNoNullValues(connection, table, "IsVoid");
+            SchemaMigrationSql.RequireIndex(connection, $"IX_{table}_IsVoid", table,
+                unique: false, expectedColumns: new[] { "IsVoid" });
         }
 
         // ── shared: ERP optimistic-concurrency counter (Phase 5) ────────
@@ -1218,6 +1297,8 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
         private static void AddRowVersionColumn(SqliteConnection connection, string table)
         {
             SchemaMigrationSql.AddColumnIfMissing(connection, table, "RowVersion", "INTEGER NOT NULL DEFAULT 0");
+            SchemaMigrationSql.RequireColumn(connection, table, "RowVersion");
+            SchemaMigrationSql.RequireNoNullValues(connection, table, "RowVersion");
         }
 
         // ── inquiries.db helpers (migration 1001) ───────────────────────
@@ -1343,19 +1424,10 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
             foreach (var (table, column, definition) in columns)
                 SchemaMigrationSql.AddColumnIfMissing(connection, table, column, definition);
 
-            // 3) Rows with duplicate InquiryNumbers (possible from the era
-            //    before the unique index) would make step 4 fail. Keep the
-            //    oldest row's number, make later duplicates unique.
-            SchemaMigrationSql.Execute(connection, """
-                UPDATE "Inquiries"
-                   SET "InquiryNumber" = "InquiryNumber" || '-' || "Id"
-                 WHERE "Id" NOT IN (SELECT MIN("Id") FROM "Inquiries" GROUP BY "InquiryNumber")
-                   AND "InquiryNumber" IN (SELECT "InquiryNumber" FROM "Inquiries"
-                                            GROUP BY "InquiryNumber" HAVING COUNT(*) > 1);
-                """);
-
-            // 4) Indexes. The unique inquiry-number index is best-effort:
-            //    column convergence above must never be blocked by data.
+            // 3) Indexes. Unique-index creation preflights collisions and
+            //    fails with representative values. Inquiry numbers are
+            //    externally referenced business identifiers, so migrations
+            //    never silently renumber them to make an index succeed.
             foreach (string sql in new[]
             {
                 "CREATE INDEX IF NOT EXISTS \"IX_Inquiries_ReceivedAt\" ON \"Inquiries\" (\"ReceivedAt\");",
@@ -1371,18 +1443,43 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
             {
                 SchemaMigrationSql.CreateIndexIfNotExists(connection, sql);
             }
-            try
+            SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Inquiries_InquiryNumber\" ON \"Inquiries\" (\"InquiryNumber\");");
+        }
+
+        private static void VerifyInquirySchema(SqliteConnection connection)
+        {
+            foreach (string column in new[]
             {
-                SchemaMigrationSql.CreateIndexIfNotExists(connection,
-                    "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Inquiries_InquiryNumber\" ON \"Inquiries\" (\"InquiryNumber\");");
-            }
-            catch (SqliteException ex)
-            {
-                // Non-fatal on purpose: the register still works without the
-                // constraint, and the repository's number generator already
-                // regenerates on unique collisions.
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("[AppSchemaMigrations] Unique-index creation skipped: " + ex.Message);
-            }
+                "InquiryNumber", "InquiryReference", "CustomerName", "ProjectName",
+                "SalesmanName", "PreparedByName", "ReceivedAt", "InquiryValue"
+            })
+                SchemaMigrationSql.RequireColumn(connection, "Inquiries", column);
+
+            SchemaMigrationSql.RequireNoEmptyValues(connection, "Inquiries", "InquiryNumber");
+            SchemaMigrationSql.RequireNoDuplicateKeyValues(
+                connection, "Inquiries", "InquiryNumber");
+            SchemaMigrationSql.RequireIndex(connection, "IX_Inquiries_InquiryNumber",
+                "Inquiries", unique: true, expectedColumns: new[] { "InquiryNumber" });
+            SchemaMigrationSql.RequireIndex(connection, "IX_Inquiries_ReceivedAt",
+                "Inquiries", unique: false, expectedColumns: new[] { "ReceivedAt" });
+            SchemaMigrationSql.RequireIndex(connection, "IX_Inquiries_UpdatedAt",
+                "Inquiries", unique: false, expectedColumns: new[] { "UpdatedAt" });
+            SchemaMigrationSql.RequireIndex(connection, "IX_Inquiries_Status",
+                "Inquiries", unique: false, expectedColumns: new[] { "Status" });
+            SchemaMigrationSql.RequireIndex(connection, "IX_Inquiries_CustomerId",
+                "Inquiries", unique: false, expectedColumns: new[] { "CustomerId" });
+            SchemaMigrationSql.RequireIndex(connection, "IX_Inquiries_SalesmanId",
+                "Inquiries", unique: false, expectedColumns: new[] { "SalesmanId" });
+            SchemaMigrationSql.RequireIndex(connection, "IX_Inquiries_PreparedByUserId",
+                "Inquiries", unique: false, expectedColumns: new[] { "PreparedByUserId" });
+            SchemaMigrationSql.RequireIndex(connection, "IX_InquiryAttachments_InquiryId",
+                "InquiryAttachments", unique: false, expectedColumns: new[] { "InquiryId" });
+            SchemaMigrationSql.RequireIndex(connection, "IX_InquiryAttachments_UploadedAt",
+                "InquiryAttachments", unique: false, expectedColumns: new[] { "UploadedAt" });
+            SchemaMigrationSql.RequireIndex(connection, "IX_InquiryCommunications_InquiryId_OccurredAt",
+                "InquiryCommunications", unique: false,
+                expectedColumns: new[] { "InquiryId", "OccurredAt" });
         }
 
         /// <summary>
@@ -1430,34 +1527,25 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
             }
             catch { /* snapshot logging is best-effort */ }
 
-            // 1) Rename known legacy columns so user data is preserved.
-            //    Maps "old name" → "new name". Each entry is run as
-            //    "ALTER TABLE Inquiries RENAME COLUMN old TO new"
-            //    which is supported on SQLite 3.25+. The runner
-            //    ignores failures (the column may not exist on a
-            //    particular install, OR the new name may already
-            //    exist from migration 1001) and logs to AppLogService
-            //    so ops can see what actually happened. The drop pass
-            //    below still runs after the renames, so a renamed
-            //    column with a duplicate new-name is cleaned up by
-            //    the orphan drop.
+            // 1) Move known legacy values into the current columns before
+            //    removing old names. If both columns exist, non-empty conflicts
+            //    abort this transaction instead of silently discarding either
+            //    value; blank/default target values are safely backfilled.
             var renames = new (string OldName, string NewName)[]
             {
-                ("InquiryDate", "ReceivedAt"),     // pre-2025 build
-                ("Salesman",    "SalesmanName"),   // pre-2025 build (no "Name" suffix)
-                ("Customer",    "CustomerName"),   // pre-2025 build (no "Name" suffix)
-                ("Project",     "ProjectName"),    // pre-2025 build (no "Name" suffix)
-                ("PreparedBy",  "PreparedByName"), // pre-2025 build (no "Name" suffix)
+                ("InquiryDate", "ReceivedAt"),
+                ("Salesman",    "SalesmanName"),
+                ("Customer",    "CustomerName"),
+                ("Project",     "ProjectName"),
+                ("PreparedBy",  "PreparedByName"),
             };
             foreach (var (oldName, newName) in renames)
-            {
-                TryRenameColumn(connection, "Inquiries", oldName, newName);
-            }
+                MergeOrRenameLegacyColumn(connection, "Inquiries", oldName, newName);
 
-            // 2) Drop any column that exists but isn't in the
-            //    expected model. Idempotent on a fresh DB: a
-            //    CREATE-TABLE'd Inquiries only has the expected
-            //    columns, so the Except set is empty.
+            // 2) A remaining unknown legacy column can be dropped only when
+            //    it carries no non-empty values. Otherwise the operator must
+            //    map/export it first; the migration never destroys unknown
+            //    business data to make a schema converge.
             string[] expectedInquiriesColumns = new[]
             {
                 "Id", "InquiryNumber", "InquiryReference", "CustomerId", "CustomerName", "CustomerLocation",
@@ -1477,9 +1565,10 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
             var expectedSet = new HashSet<string>(expectedInquiriesColumns, StringComparer.OrdinalIgnoreCase);
             var orphans = liveColumns.Where(c => !expectedSet.Contains(c)).ToList();
             foreach (var orphan in orphans)
-            {
-                TryDropColumn(connection, "Inquiries", orphan);
-            }
+                DropEmptyLegacyColumn(connection, "Inquiries", orphan);
+
+            foreach (var requiredColumn in expectedInquiriesColumns)
+                SchemaMigrationSql.RequireColumn(connection, "Inquiries", requiredColumn);
 
             // 3) Loud verification step. After the pass, log the
             //    final column list so an operator reading the log
@@ -1502,81 +1591,109 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
         }
 
         /// <summary>
-        /// Renames an Inquiries column from <paramref name="oldName"/>
-        /// to <paramref name="newName"/> if it exists. Idempotent:
-        /// silently skips when the source column isn't present.
-        /// Failures are logged to AppLogService so ops can see
-        /// what actually happened — the previous implementation
-        /// swallowed errors to Debug.WriteLine, which is invisible
-        /// in production.
+        /// Renames an old column when the current name is absent; when both
+        /// names exist, copies old non-empty values into blank/default target
+        /// cells and refuses to proceed on conflicting values. The old column
+        /// is dropped only after a post-copy equality check.
         /// </summary>
-        private static void TryRenameColumn(SqliteConnection connection, string table, string oldName, string newName)
+        private static void MergeOrRenameLegacyColumn(
+            SqliteConnection connection, string table, string oldName, string newName)
         {
-            try
+            var columns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            using (var command = connection.CreateCommand())
             {
-                // Confirm the source column exists. PRAGMA table_info
-                // is case-insensitive on the column-name match, but
-                // we keep the case the user typed in their DDL for
-                // the ALTER statement.
-                using (var check = connection.CreateCommand())
-                {
-                    check.CommandText = $"PRAGMA table_info(\"{table}\");";
-                    using var reader = check.ExecuteReader();
-                    bool exists = false;
-                    while (reader.Read())
-                    {
-                        if (string.Equals(reader.GetString(1), oldName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            exists = true;
-                            break;
-                        }
-                    }
-                    if (!exists) return; // column not present, nothing to rename
-                }
+                command.CommandText = $"PRAGMA table_info(\"{table}\");";
+                using var reader = command.ExecuteReader();
+                while (reader.Read()) columns.Add(reader.GetString(1));
+            }
 
-                using var cmd = connection.CreateCommand();
-                cmd.CommandText = $"ALTER TABLE \"{table}\" RENAME COLUMN \"{oldName}\" TO \"{newName}\";";
-                cmd.ExecuteNonQuery();
-                AppLogService.Info(
-                    $"[Inquiries] renamed legacy column '{oldName}' → '{newName}' (user data preserved).",
-                    new LogContext { Module = "Database", Class = "SchemaMigrations", Operation = "TryRenameColumn" });
-            }
-            catch (Exception ex)
+            bool hasOld = columns.Contains(oldName);
+            bool hasNew = columns.Contains(newName);
+            if (!hasOld) return;
+            if (!hasNew)
             {
-                // Non-fatal: another column with the same shape may
-                // already exist (the new name is in the model), or
-                // the rename is unsupported on this SQLite build.
-                // Either way we log and continue so the drop pass
-                // below still runs.
-                AppLogService.Warning(
-                    $"[Inquiries] could not rename column '{oldName}' → '{newName}': {ex.Message}",
-                    new LogContext { Module = "Database", Class = "SchemaMigrations", Operation = "TryRenameColumn" });
+                SchemaMigrationSql.Execute(connection,
+                    $"ALTER TABLE \"{table}\" RENAME COLUMN \"{oldName}\" TO \"{newName}\";");
+                AppLogService.Info(
+                    $"[{table}] renamed legacy column '{oldName}' → '{newName}' (data preserved).",
+                    new LogContext { Module = "Database", Class = "SchemaMigrations", Operation = "MergeLegacyColumn" });
+                return;
             }
+
+            string oldValue = $"CAST(\"{oldName}\" AS TEXT)";
+            string newValue = $"CAST(\"{newName}\" AS TEXT)";
+            string oldHasValue = $"\"{oldName}\" IS NOT NULL AND TRIM({oldValue}) <> ''";
+            string newHasValue = $"\"{newName}\" IS NOT NULL AND TRIM({newValue}) <> ''";
+            string isDefaultDate = $"\"{newName}\" = '0001-01-01 00:00:00'";
+
+            using (var conflict = connection.CreateCommand())
+            {
+                conflict.CommandText =
+                    $"SELECT COUNT(*) FROM \"{table}\" WHERE {oldHasValue} AND {newHasValue} " +
+                    $"AND NOT ({isDefaultDate}) AND {oldValue} <> {newValue};";
+                long count = Convert.ToInt64(conflict.ExecuteScalar() ?? 0,
+                    System.Globalization.CultureInfo.InvariantCulture);
+                if (count != 0)
+                    throw new InvalidOperationException(
+                        $"Legacy column '{table}.{oldName}' conflicts with '{newName}' in {count} row(s). " +
+                        "No source values were dropped; resolve the conflicts and retry the migration.");
+            }
+
+            using (var copy = connection.CreateCommand())
+            {
+                copy.CommandText =
+                    $"UPDATE \"{table}\" SET \"{newName}\" = \"{oldName}\" " +
+                    $"WHERE {oldHasValue} AND (\"{newName}\" IS NULL OR TRIM({newValue}) = '' OR {isDefaultDate});";
+                copy.ExecuteNonQuery();
+            }
+
+            using (var verify = connection.CreateCommand())
+            {
+                verify.CommandText =
+                    $"SELECT COUNT(*) FROM \"{table}\" WHERE {oldHasValue} " +
+                    $"AND (\"{newName}\" IS NULL OR TRIM({newValue}) = '' OR {newValue} <> {oldValue});";
+                long unpreserved = Convert.ToInt64(verify.ExecuteScalar() ?? 0,
+                    System.Globalization.CultureInfo.InvariantCulture);
+                if (unpreserved != 0)
+                    throw new InvalidOperationException(
+                        $"Could not verify preservation of {unpreserved} value(s) from '{table}.{oldName}'.");
+            }
+
+            SchemaMigrationSql.DropColumnIfExists(
+                connection, table, oldName, dataPreservationVerified: true);
+            AppLogService.Info(
+                $"[{table}] copied legacy values from '{oldName}' to '{newName}', verified them, and removed the old column.",
+                new LogContext { Module = "Database", Class = "SchemaMigrations", Operation = "MergeLegacyColumn" });
         }
 
         /// <summary>
-        /// Drops a single orphan column from a table. Idempotent:
-        /// silently skips when the column isn't present. Failures
-        /// are logged to AppLogService (was previously swallowed
-        /// to Debug.WriteLine, which is invisible in production).
+        /// Drops an unknown legacy column only when all values are NULL or
+        /// whitespace. Non-empty values abort the migration for manual
+        /// preservation; failures are never swallowed.
         /// </summary>
-        private static void TryDropColumn(SqliteConnection connection, string table, string column)
+        private static void DropEmptyLegacyColumn(
+            SqliteConnection connection, string table, string column)
         {
-            try
+            string quotedTable = $"\"{table}\"";
+            string quotedColumn = $"\"{column}\"";
+            using (var check = connection.CreateCommand())
             {
-                using var drop = connection.CreateCommand();
-                drop.CommandText = $"ALTER TABLE \"{table}\" DROP COLUMN \"{column}\";";
-                drop.ExecuteNonQuery();
-                AppLogService.Info(
-                    $"[{table}] dropped orphan column '{column}'.",
-                    new LogContext { Module = "Database", Class = "SchemaMigrations", Operation = "TryDropColumn" });
+                check.CommandText =
+                    $"SELECT COUNT(*) FROM {quotedTable} WHERE {quotedColumn} IS NOT NULL " +
+                    $"AND TRIM(CAST({quotedColumn} AS TEXT)) <> '';";
+                long count = Convert.ToInt64(check.ExecuteScalar() ?? 0,
+                    System.Globalization.CultureInfo.InvariantCulture);
+                if (count != 0)
+                    throw new InvalidOperationException(
+                        $"Unknown legacy column '{table}.{column}' contains {count} non-empty value(s). " +
+                        "The migration preserved the column and aborted; export or map these values before retrying.");
             }
-            catch (Exception ex)
-            {
-                AppLogService.Warning(
-                    $"[{table}] could not drop orphan column '{column}': {ex.Message}",
-                    new LogContext { Module = "Database", Class = "SchemaMigrations", Operation = "TryDropColumn" });
-            }
+
+            SchemaMigrationSql.DropColumnIfExists(
+                connection, table, column, dataPreservationVerified: true);
+            AppLogService.Info(
+                $"[{table}] dropped empty legacy column '{column}'.",
+                new LogContext { Module = "Database", Class = "SchemaMigrations", Operation = "DropEmptyLegacyColumn" });
         }
     }
 }

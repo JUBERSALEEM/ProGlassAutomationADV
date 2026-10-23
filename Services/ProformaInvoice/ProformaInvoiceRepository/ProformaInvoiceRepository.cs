@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Common;
+using ProGlassAutomation.Services.Workflow;
 
 namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 {
@@ -49,6 +50,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         //  redundant read, never a wrong number on screen.
         // ══════════════════════════════════════════════════════════════
         public static event Action? SavedInvoicesChanged;
+
+        private enum DeleteOutcome
+        {
+            NotFound,
+            Deleted,
+            Voided
+        }
 
         private static void RaiseChanged()
         {
@@ -199,13 +207,18 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
             if (invoice == null)
                 throw new ArgumentNullException(nameof(invoice));
+            if (invoice.IsVoid
+                || DocumentLifecyclePolicy.HasVoidMetadata(
+                    invoice.VoidedAtUtc, invoice.VoidedBy, invoice.VoidReason)
+                || !DocumentLifecyclePolicy.CanEditBody(
+                    StatusTransitions.Kind.ProformaInvoice, invoice.Status))
+                throw new InvalidOperationException(
+                    "Only a non-void, editable-status Proforma Invoice can be created.");
 
-            bool idReallocated = false;
             if (ProformaInvoiceStatus.IsUnallocatedSeed(invoice.ProformaId))
             {
                 invoice.ProformaId = await SuggestNextIdAsync(
                     $"PI-{DateTime.Now.Year}-000").ConfigureAwait(false);
-                idReallocated = true;
             }
 
             // Senior audit fix (Aug 2026): concurrent SuggestNextIdAsync
@@ -227,18 +240,20 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     // Bump to the next free id and retry.
                     invoice.ProformaId = await SuggestNextIdAsync(
                         invoice.ProformaId).ConfigureAwait(false);
-                    idReallocated = true;
                     continue;
                 }
 
                 invoice.CreatedAt = DateTime.Now;
                 invoice.UpdatedAt = DateTime.Now;
+                invoice.RowVersion = 0;
 
-                // Seed / unique-retry may have changed the column id after
-                // the wizard snapshot was serialized. Keep JSON identity
-                // aligned so restore / JO / attachments see one ProformaId.
-                if (idReallocated)
-                    SyncSnapshotProformaId(invoice);
+                // This single safe canonicalization owns every duplicated
+                // header field; it parses directly and fails closed on a
+                // missing/corrupt snapshot instead of using the mapper's
+                // empty-snapshot fallback.
+                if (!ProformaInvoiceMapper.SynchronizeSnapshotHeader(invoice))
+                    throw new InvalidOperationException(
+                        $"Proforma Invoice {invoice.ProformaId} snapshot is missing a readable header; it cannot be created safely.");
 
                 db.ProformaInvoices.Add(invoice);
                 try
@@ -254,7 +269,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     invoice.ProformaId = await SuggestNextIdAsync(
                         invoice.ProformaId).ConfigureAwait(false);
                     invoice.Id = 0;
-                    idReallocated = true;
                     continue;
                 }
 
@@ -290,53 +304,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             ProGlassAutomation.Services.Database.SqliteErrorClassifier.IsUnique(ex);
 
         /// <summary>
-        /// When InsertAsync reallocates ProformaId, rewrite Company.ProformaId
-        /// inside FullSnapshotJson so load/restore matches the column.
-        /// Never throws — a snapshot miss must not fail the insert.
+        /// Updates an existing Proforma Invoice using the version captured by
+        /// its caller. Missing rows and stale versions are conflicts; creation
+        /// must use InsertAsync.
         /// </summary>
-        private static void SyncSnapshotProformaId(SavedProformaInvoice invoice)
-        {
-            if (invoice == null || string.IsNullOrWhiteSpace(invoice.ProformaId))
-                return;
-            if (string.IsNullOrWhiteSpace(invoice.FullSnapshotJson))
-                return;
-            try
-            {
-                var snap = ProformaInvoiceMapper.DeserializeSnapshot(invoice);
-                if (snap?.Company == null) return;
-                if (string.Equals(snap.Company.ProformaId, invoice.ProformaId,
-                        StringComparison.Ordinal))
-                    return;
-                snap.Company.ProformaId = invoice.ProformaId;
-                invoice.FullSnapshotJson = ProformaInvoiceMapper.SerializeSnapshot(snap);
-            }
-            catch (Exception ex)
-            {
-                AppLogService.Warning(
-                    "Could not sync snapshot ProformaId after reallocation: " +
-                    ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Updates an existing invoice or creates a new one if missing.
-        ///
-        /// BUG-10: do not insert on the same open SQLite context as the
-        /// lookup. Missing-row path disposes then calls InsertAsync so
-        /// unique-id retry is shared with create.
-        /// </summary>
-        public async Task UpdateAsync(SavedProformaInvoice invoice)
-            => await UpdateAsync(invoice, expectedRowVersion: null).ConfigureAwait(false);
-
-        /// <summary>
-        /// Updates a proforma invoice (or inserts if missing). When
-        /// <paramref name="expectedRowVersion"/> is supplied and the stored
-        /// RowVersion has moved on, a
-        /// <see cref="ProGlassAutomation.Services.Database.ConcurrencyConflictException"/>
-        /// is thrown so a concurrent save isn't silently overwritten. Null keeps
-        /// legacy behaviour; the counter still increments on update.
-        /// </summary>
-        public async Task UpdateAsync(SavedProformaInvoice invoice, int? expectedRowVersion)
+        public async Task UpdateAsync(
+            SavedProformaInvoice invoice,
+            int expectedRowVersion)
         {
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
@@ -353,27 +327,29 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             var existing = await db.ProformaInvoices
                 .FirstOrDefaultAsync(x => x.ProformaId == invoice.ProformaId).ConfigureAwait(false);
 
-            int? previousInquiryId = existing?.InquiryId;
-
-            // ERP hardening (Phase 5): optimistic-concurrency check.
-            if (expectedRowVersion.HasValue
-                && existing != null
-                && existing.RowVersion != expectedRowVersion.Value)
-            {
+            if (existing == null)
                 throw new ProGlassAutomation.Services.Database.ConcurrencyConflictException(
                     "Proforma Invoice", invoice.ProformaId,
-                    expectedRowVersion.Value, existing.RowVersion);
-            }
+                    expectedRowVersion, actualRowVersion: -1);
+            if (existing.RowVersion != expectedRowVersion)
+                throw new ProGlassAutomation.Services.Database.ConcurrencyConflictException(
+                    "Proforma Invoice", invoice.ProformaId,
+                    expectedRowVersion, existing.RowVersion);
 
-            if (existing == null)
-            {
-                // Missing-row update is a create: reuse InsertAsync so
-                // unique-id retry applies. Dispose this read context first
-                // (BUG-10: two live SQLite writers lock).
-                db.Dispose();
-                await InsertAsync(invoice).ConfigureAwait(false);
-                return;
-            }
+            int? previousInquiryId = existing.InquiryId;
+
+            if (existing.IsVoid
+                || !DocumentLifecyclePolicy.CanEditBody(
+                    StatusTransitions.Kind.ProformaInvoice, existing.Status))
+                throw new InvalidOperationException(
+                    $"Proforma Invoice {existing.ProformaId} is voided or its lifecycle status locks the body.");
+
+            string nextStatus = ProformaInvoiceStatus.Normalize(invoice.Status);
+            var transition = StatusTransitions.Validate(
+                StatusTransitions.Kind.ProformaInvoice, existing.Status, nextStatus);
+            if (!transition.IsValid)
+                throw new InvalidOperationException(
+                    transition.Reason ?? "Invalid Proforma Invoice status transition.");
 
             // Copy fields onto tracked entity
             existing.InquiryId = invoice.InquiryId;
@@ -392,10 +368,28 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             existing.VatAmount = invoice.VatAmount;
             existing.GrandTotalVatInclusive = invoice.GrandTotalVatInclusive;
             existing.FullSnapshotJson = invoice.FullSnapshotJson;
-            existing.RowVersion = existing.RowVersion + 1;   // Phase 5: concurrency counter
+            if (!ProformaInvoiceMapper.SynchronizeSnapshotHeader(existing))
+                throw new InvalidOperationException(
+                    $"Proforma Invoice {existing.ProformaId} snapshot is missing a readable header; the update was not saved.");
+            existing.RowVersion++;
             existing.UpdatedAt = DateTime.Now;
 
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync())
+                    .ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(db, existing.ProformaId)
+                    .ConfigureAwait(false);
+                throw new ProGlassAutomation.Services.Database.ConcurrencyConflictException(
+                    "Proforma Invoice", existing.ProformaId,
+                    expectedRowVersion, actual);
+            }
+
+            invoice.RowVersion = existing.RowVersion;
+            invoice.UpdatedAt = existing.UpdatedAt;
             RaiseChanged();
 
             // Senior audit fix — the update may have re-pointed the PI at
@@ -431,6 +425,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
             await InquiryLinkSync.AfterUpdateAsync(existing)
                 .ConfigureAwait(false);
+        }
+
+        private static async Task<int> GetCurrentRowVersionAsync(
+            ProformaInvoicesDbContext context,
+            string proformaId)
+        {
+            return await context.ProformaInvoices.AsNoTracking()
+                .Where(x => x.ProformaId == proformaId)
+                .Select(x => (int?)x.RowVersion)
+                .FirstOrDefaultAsync().ConfigureAwait(false) ?? -1;
         }
 
         public async Task<SavedProformaInvoice?> GetByIdAsync(int id)
@@ -487,6 +491,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 .Select(x => new ProformaListRow
                 {
                     Id = x.Id,
+                    RowVersion = x.RowVersion,
                     ProformaId = x.ProformaId ?? "",
                     CompanyName = x.CompanyName ?? "",
                     CustomerName = x.CustomerName ?? "",
@@ -561,22 +566,57 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 .ToListAsync().ConfigureAwait(false);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, int expectedRowVersion)
+        {
+            OperationGuard.Demand(
+                AppPermissions.ProformaDelete, "delete a proforma invoice");
+            ReadOnlyGate.Demand("delete a proforma invoice");
+            await DeleteCoreAsync(id, expectedRowVersion).ConfigureAwait(false);
+        }
+
+        private async Task<DeleteOutcome> DeleteCoreAsync(
+            int id, int expectedRowVersion)
         {
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.ProformaDelete, "delete a proforma invoice");
-
             ReadOnlyGate.Demand("delete a proforma invoice");
 
             using var db = new ProformaInvoicesDbContext();
             var entity = await db.ProformaInvoices.FindAsync(id).ConfigureAwait(false);
-            if (entity == null) return;
+            if (entity == null) return DeleteOutcome.NotFound;
+            if (entity.RowVersion != expectedRowVersion)
+                throw new ProGlassAutomation.Services.Database.ConcurrencyConflictException(
+                    "Proforma Invoice", entity.ProformaId,
+                    expectedRowVersion, entity.RowVersion);
+
+            string? proformaId = entity.ProformaId;
+            if (entity.IsVoid)
+                throw new InvalidOperationException(
+                    $"Proforma {proformaId} is voided and must be retained.");
+            bool hasLinkedDocuments =
+                await HasLinkedDocumentsAsync(proformaId).ConfigureAwait(false);
+            var decision = DocumentLifecyclePolicy.DecideDelete(
+                StatusTransitions.Kind.ProformaInvoice, entity.Status, hasLinkedDocuments);
+
+            if (decision == DocumentLifecyclePolicy.DeleteDecision.Blocked)
+                throw new InvalidOperationException(
+                    $"Proforma {proformaId} is linked to retained Job Order, Delivery Note, or Tax Invoice records and cannot be deleted. Handle the linked records first.");
+            if (decision == DocumentLifecyclePolicy.DeleteDecision.Retained)
+                throw new InvalidOperationException(
+                    $"Proforma {proformaId} cannot be safely deleted or voided from status '{entity.Status}' and must be retained.");
+            if (decision == DocumentLifecyclePolicy.DeleteDecision.Void)
+            {
+                await VoidAsync(
+                    id, expectedRowVersion,
+                    "Delete requested; lifecycle policy requires retention.")
+                    .ConfigureAwait(false);
+                return DeleteOutcome.Voided;
+            }
 
             // Capture identifiers BEFORE removing so we can synchronise
             // the Inquiry back-link and attachments after the row is gone.
-            string? proformaId = entity.ProformaId;
             var deletedSnapshot = new SavedProformaInvoice
             {
                 Id = entity.Id,
@@ -585,19 +625,52 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             };
 
             db.ProformaInvoices.Remove(entity);
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync())
+                    .ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(db, proformaId ?? "")
+                    .ConfigureAwait(false);
+                throw new ProGlassAutomation.Services.Database.ConcurrencyConflictException(
+                    "Proforma Invoice", proformaId ?? id.ToString(),
+                    expectedRowVersion, actual);
+            }
             RaiseChanged();
+            AuditService.Log(
+                AuditSections.Proforma, "Proforma invoice deleted",
+                $"Deleted draft proforma invoice {proformaId}",
+                entityType: nameof(SavedProformaInvoice), entityId: proformaId ?? "");
 
-            // Senior audit fix — clear the PI back-link on the source
-            // inquiry so ConvertToPi becomes available again and the
-            // list projection stops showing a stale PI number.
+            // Clear the Inquiry back-link and remove draft-only attachments.
             await InquiryLinkSync.AfterDeleteAsync(deletedSnapshot)
                 .ConfigureAwait(false);
-
-            // Remove the invoice's Step 8 attachments (files + manifest)
-            // so no orphaned files remain and a re-created invoice with
-            // the same Proforma ID cannot resurrect stale attachments.
             await ClearAttachmentsQuietlyAsync(proformaId);
+            return DeleteOutcome.Deleted;
+        }
+
+        /// <summary>
+        /// Cross-database dependent checks fail closed: if a service is
+        /// unavailable or a query fails, the PI must not be physically deleted.
+        /// Retained voided children count as links too.
+        /// </summary>
+        private static async Task<bool> HasLinkedDocumentsAsync(string? proformaId)
+        {
+            if (string.IsNullOrWhiteSpace(proformaId)) return false;
+            if (App.Jobs == null || App.DeliveryNotes == null || App.TaxInvoices == null)
+                throw new InvalidOperationException(
+                    "Cannot verify linked documents because one or more document repositories are unavailable.");
+
+            if ((await App.Jobs.GetBySourceProformaIdAsync(proformaId)
+                    .ConfigureAwait(false)).Count > 0)
+                return true;
+            if ((await App.DeliveryNotes.GetByProformaIdAsync(proformaId)
+                    .ConfigureAwait(false)).Count > 0)
+                return true;
+            return (await App.TaxInvoices.GetByProformaIdAsync(proformaId)
+                    .ConfigureAwait(false)).Count > 0;
         }
 
         /// <summary>
@@ -608,7 +681,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// the Inquiry back-link are intentionally NOT torn down (unlike
         /// DeleteAsync), because the voided document still exists.
         /// </summary>
-        public async Task VoidAsync(int id, string reason)
+        public async Task VoidAsync(
+            int id, int expectedRowVersion, string reason)
         {
             OperationGuard.Demand(
                 AppPermissions.ProformaDelete, "void a proforma invoice");
@@ -616,18 +690,54 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
             using var db = new ProformaInvoicesDbContext();
             var entity = await db.ProformaInvoices.FindAsync(id).ConfigureAwait(false);
-            if (entity == null) return;
-            if (entity.IsVoid) return;   // idempotent — already voided
+            if (entity == null)
+                throw new ProGlassAutomation.Services.Database.ConcurrencyConflictException(
+                    "Proforma Invoice", id.ToString(), expectedRowVersion,
+                    actualRowVersion: -1);
+            if (entity.RowVersion != expectedRowVersion)
+                throw new ProGlassAutomation.Services.Database.ConcurrencyConflictException(
+                    "Proforma Invoice", entity.ProformaId,
+                    expectedRowVersion, entity.RowVersion);
+            if (entity.IsVoid) return;   // idempotent when the supplied version is current
+            if (!DocumentLifecyclePolicy.CanVoid(
+                    StatusTransitions.Kind.ProformaInvoice, entity.Status))
+                throw new InvalidOperationException(
+                    $"Proforma {entity.ProformaId} cannot be voided from status '{entity.Status}'; it must be retained.");
+            if (await HasLinkedDocumentsAsync(entity.ProformaId).ConfigureAwait(false))
+                throw new InvalidOperationException(
+                    $"Proforma {entity.ProformaId} cannot be voided while linked Job Order, Delivery Note, or Tax Invoice records remain.");
 
             entity.IsVoid = true;
             entity.VoidedAtUtc = DateTime.UtcNow;
             entity.VoidedBy = AuditService.CurrentUsername;
-            entity.VoidReason = string.IsNullOrWhiteSpace(reason) ? "(no reason given)" : reason.Trim();
+            entity.VoidReason = DocumentLifecyclePolicy.NormalizeVoidReason(reason);
             entity.Status = Services.Workflow.DocumentLifecyclePolicy.VoidTargetStatus(
                 Services.Workflow.StatusTransitions.Kind.ProformaInvoice);
             entity.UpdatedAt = DateTime.Now;
+            entity.RowVersion += 1;
 
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            if (!ProformaInvoiceMapper.SynchronizeSnapshotHeader(entity))
+                throw new InvalidOperationException(
+                    $"Proforma Invoice {entity.ProformaId} snapshot is missing a readable header; the void was not saved.");
+
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync())
+                    .ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(db, entity.ProformaId)
+                    .ConfigureAwait(false);
+                throw new ProGlassAutomation.Services.Database.ConcurrencyConflictException(
+                    "Proforma Invoice", entity.ProformaId,
+                    expectedRowVersion, actual);
+            }
+            AuditService.Log(
+                AuditSections.Proforma, "Proforma invoice voided",
+                $"Voided proforma invoice {entity.ProformaId}",
+                entityType: nameof(SavedProformaInvoice), entityId: entity.ProformaId,
+                reason: entity.VoidReason);
             RaiseChanged();
         }
 
@@ -642,12 +752,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// throw PermissionDeniedException inside the sync and never be
         /// persisted — leaving the PI stuck in its old status.
         /// </summary>
-        public async Task<bool> MarkCancelledAsync(string proformaId)
+        public async Task<bool> MarkCancelledAsync(
+            string proformaId, int expectedRowVersion)
         {
-            // A-1: service-layer authorization. The UI also checks,
-            // but this is the boundary that cannot be bypassed.
+            // Derived status sync follows an already-authorized downstream
+            // mutation, but still requires an active identity and a writable
+            // session at this repository boundary.
             OperationGuard.Demand(
-                AppPermissions.ProformaDelete, "cancel a proforma invoice");
+                AppPermissions.DocumentLifecycleSync,
+                "synchronize a proforma lifecycle status");
+            ReadOnlyGate.Demand("synchronize a proforma lifecycle status");
 
             if (string.IsNullOrWhiteSpace(proformaId)) return false;
 
@@ -655,23 +769,45 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             var entity = await db.ProformaInvoices
                 .FirstOrDefaultAsync(x => x.ProformaId == proformaId).ConfigureAwait(false);
             if (entity == null) return false;
+            if (entity.RowVersion != expectedRowVersion)
+                throw new ProGlassAutomation.Services.Database.ConcurrencyConflictException(
+                    "Proforma Invoice", proformaId,
+                    expectedRowVersion, entity.RowVersion);
 
             // Lifecycle-forced write (downstream delete cascade, see
             // ProformaLifecycleSync): this is a dedicated cancellation write
             // with its own authorization semantics, so it deliberately
             // bypasses the user-transition table (the PI is being cancelled
             // because a dependent document was deleted, not by user action).
+            string previousStatus = entity.Status;
             entity.Status = ProformaInvoiceStatus.Rejected;
             entity.UpdatedAt = DateTime.Now;
+            entity.RowVersion += 1;
 
-            // Keep the snapshot's status in sync so Step 1 / print preview
-            // reflect the cancellation too.
-            var snap = ProformaInvoiceMapper.DeserializeSnapshot(entity);
-            if (snap.Company != null)
-                snap.Company.ProformaStatus = "Rejected";
-            entity.FullSnapshotJson = ProformaInvoiceMapper.SerializeSnapshot(snap);
+            // Keep the snapshot header canonical without the mapper's
+            // empty-snapshot fallback; malformed data must not be replaced
+            // with a blank body during a lifecycle-only write.
+            if (!ProformaInvoiceMapper.SynchronizeSnapshotHeader(entity))
+                throw new InvalidOperationException(
+                    $"Proforma Invoice {entity.ProformaId} snapshot is missing a readable header; the lifecycle status was not saved.");
 
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync())
+                    .ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(db, proformaId)
+                    .ConfigureAwait(false);
+                throw new ProGlassAutomation.Services.Database.ConcurrencyConflictException(
+                    "Proforma Invoice", proformaId,
+                    expectedRowVersion, actual);
+            }
+            AuditService.Log(
+                AuditSections.Proforma, "Proforma status synchronized",
+                $"Proforma {proformaId}: {previousStatus} → {entity.Status} after downstream lifecycle change.",
+                entityType: nameof(SavedProformaInvoice), entityId: proformaId);
             RaiseChanged();
             return true;
         }
@@ -718,6 +854,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.ProformaEdit, "create a proforma invoice (Result variant)");
+            ReadOnlyGate.Demand("create a proforma invoice");
 
             var corrId = correlationId ?? CorrelationContext.NewIdFor("ProformaInvoice", invoice?.ProformaId);
             using var scope = CorrelationContext.BeginDocumentScope("ProformaInvoice", invoice?.ProformaId ?? "", corrId);
@@ -759,19 +896,23 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// <summary>
         /// Phase 2: Update with Result and CorrelationId.
         /// </summary>
-        public async Task<Result> UpdateWithResultAsync(SavedProformaInvoice invoice, string? correlationId = null)
+        public async Task<Result> UpdateWithResultAsync(
+            SavedProformaInvoice invoice,
+            int expectedRowVersion,
+            string? correlationId = null)
         {
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.ProformaEdit, "update a proforma invoice (Result variant)");
+            ReadOnlyGate.Demand("update a proforma invoice");
 
             var corrId = correlationId ?? CorrelationContext.NewIdFor("ProformaInvoice", invoice?.ProformaId);
             using var scope = CorrelationContext.BeginDocumentScope("ProformaInvoice", invoice?.ProformaId ?? "", corrId);
 
             try
             {
-                await UpdateAsync(invoice!);
+                await UpdateAsync(invoice!, expectedRowVersion);
                 AppLogService.Info(
                     $"PI updated: {invoice!.ProformaId}",
                     new LogContext
@@ -806,26 +947,38 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// <summary>
         /// Phase 2: Delete with Result and CorrelationId.
         /// </summary>
-        public async Task<Result> DeleteWithResultAsync(int id, string? proformaId = null, string? correlationId = null)
+        public async Task<Result> DeleteWithResultAsync(
+            int id, int expectedRowVersion,
+            string? proformaId = null, string? correlationId = null)
         {
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.ProformaDelete, "delete a proforma invoice (Result variant)");
+            ReadOnlyGate.Demand("delete a proforma invoice");
 
             var corrId = correlationId ?? CorrelationContext.NewIdFor("ProformaInvoice", proformaId ?? id.ToString());
             using var scope = CorrelationContext.BeginDocumentScope("ProformaInvoice", proformaId ?? id.ToString(), corrId);
 
             try
             {
-                await DeleteAsync(id);
+                var outcome = await DeleteCoreAsync(id, expectedRowVersion)
+                    .ConfigureAwait(false);
+                if (outcome == DeleteOutcome.NotFound)
+                    return Result.Fail(
+                        $"Proforma Invoice {proformaId ?? id.ToString()} was not found; nothing was deleted.",
+                        corrId);
+
+                bool wasVoided = outcome == DeleteOutcome.Voided;
                 AppLogService.Info(
-                    $"PI deleted: Id={id}, ProformaId={proformaId}",
+                    wasVoided
+                        ? $"PI voided by delete request: Id={id}, ProformaId={proformaId}"
+                        : $"PI deleted: Id={id}, ProformaId={proformaId}",
                     new LogContext
                     {
                         Module = "Proforma",
                         Class = nameof(ProformaInvoiceRepository),
-                        Operation = "Delete",
+                        Operation = wasVoided ? "Void" : "Delete",
                         DocumentId = proformaId ?? id.ToString(),
                         DocumentType = "ProformaInvoice",
                         CorrelationId = corrId

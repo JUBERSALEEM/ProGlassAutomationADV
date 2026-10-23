@@ -38,6 +38,8 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         public string CompanyName { get; set; } = "";
         public string CompanyTrn { get; set; } = "";
         public string CompanyLocation { get; set; } = "";
+        public string CompanyTelephone { get; set; } = "";
+        public string CompanyWebsite { get; set; } = "";
         public string LogoPath { get; set; } = "";
         public string Representative { get; set; } = "";
         // IsDefault removed 2026-09-04 (default-mark mechanism deleted).
@@ -85,6 +87,8 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         private string _name = "";
         private string _trn = "";
         private string _location = "";
+        private string _telephone = "";
+        private string _website = "";
         private string _logoPath = "";
         private string _representative = "";
         private string _mobile = "";
@@ -118,6 +122,16 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         {
             get => _location;
             set { _location = value; OnPropertyChanged(); MarkDirtyChanged(); }
+        }
+        public string CompanyTelephone
+        {
+            get => _telephone;
+            set { _telephone = value ?? string.Empty; OnPropertyChanged(); MarkDirtyChanged(); }
+        }
+        public string CompanyWebsite
+        {
+            get => _website;
+            set { _website = value ?? string.Empty; OnPropertyChanged(); MarkDirtyChanged(); }
         }
         public string LogoPath
         {
@@ -333,6 +347,8 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                         CompanyName = CompanyName.Trim(),
                         CompanyTrn = CompanyTrn.Trim(),
                         CompanyLocation = CompanyLocation.Trim(),
+                        CompanyTelephone = CompanyTelephone.Trim(),
+                        CompanyWebsite = CompanyWebsite.Trim(),
                         LogoPath = LogoPath,
                         Representative = Representative.Trim(),
                         RepresentativeMobile = RepresentativeMobile.Trim(),
@@ -462,6 +478,8 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
             Compare("Name", before.CompanyName, after.CompanyName);
             Compare("TRN", before.CompanyTrn, after.CompanyTrn);
             Compare("Location", before.CompanyLocation, after.CompanyLocation);
+            Compare("Telephone", before.CompanyTelephone, after.CompanyTelephone);
+            Compare("Website", before.CompanyWebsite, after.CompanyWebsite);
             Compare("Logo", before.LogoPath, after.LogoPath);
             Compare("Logo layout",
                 before.LogoLayout.ToString(), after.LogoLayout.ToString());
@@ -500,6 +518,8 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                         CompanyName = c.CompanyName,
                         CompanyTrn = c.CompanyTrn,
                         CompanyLocation = c.CompanyLocation,
+                        CompanyTelephone = c.CompanyTelephone ?? "",
+                        CompanyWebsite = c.CompanyWebsite ?? "",
                         LogoPath = c.LogoPath ?? "",
                         Representative = c.Representative ?? "",
                         UsageCount = c.UsageCount,
@@ -534,6 +554,8 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                 CompanyName = card?.CompanyName ?? "";
                 CompanyTrn = card?.CompanyTrn ?? "";
                 CompanyLocation = card?.CompanyLocation ?? "";
+                CompanyTelephone = card?.CompanyTelephone ?? "";
+                CompanyWebsite = card?.CompanyWebsite ?? "";
                 LogoPath = card?.LogoPath ?? "";
                 Representative = card?.Representative ?? "";
                 RepresentativeMobile = "";
@@ -587,6 +609,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         {
             _editingId.ToString(System.Globalization.CultureInfo.InvariantCulture),
             CompanyName ?? "", CompanyTrn ?? "", CompanyLocation ?? "",
+            CompanyTelephone ?? "", CompanyWebsite ?? "",
             LogoPath ?? "", Representative ?? "", RepresentativeMobile ?? "",
             CompanyEmail ?? "", AccountNumber ?? "", BankName ?? "",
             LogoLayout.ToString(),
@@ -619,6 +642,8 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                 if (entity == null) return;
 
                 RepresentativeMobile = entity.RepresentativeMobile ?? "";
+                CompanyTelephone = entity.CompanyTelephone ?? "";
+                CompanyWebsite = entity.CompanyWebsite ?? "";
                 CompanyEmail = entity.CompanyEmail ?? "";
                 AccountNumber = entity.AccountNumber ?? "";
                 BankName = entity.BankName ?? "";

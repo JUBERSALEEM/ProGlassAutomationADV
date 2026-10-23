@@ -160,9 +160,12 @@ namespace ProGlassAutomation.Services.Logging
                 {
                     if (depth > 0) sb.AppendLine("── caused by ──");
                     sb.AppendLine("[" + depth + "] " + e.TypeName);
-                    sb.AppendLine("    Message : " + e.Message);
+                    AppendLabeledBlock(sb, "    Message : ", e.Message);
                     if (!string.IsNullOrEmpty(e.StackTrace))
-                        sb.AppendLine("    Stack   :\n" + e.StackTrace);
+                    {
+                        sb.AppendLine("    Stack   :");
+                        AppendIndentedLines(sb, e.StackTrace, "              ");
+                    }
                     depth++;
                 }
 
@@ -172,6 +175,35 @@ namespace ProGlassAutomation.Services.Logging
 
                 return sb.ToString();
             }
+
+            private static void AppendLabeledBlock(
+                StringBuilder builder, string prefix, string value)
+            {
+                string[] lines = NormalizeLines(value).Split('\n');
+                builder.Append(prefix).AppendLine(lines[0]);
+                for (int i = 1; i < lines.Length; i++)
+                {
+                    if (lines[i].Length == 0)
+                        builder.AppendLine();
+                    else
+                        builder.Append("              ").AppendLine(lines[i]);
+                }
+            }
+
+            private static void AppendIndentedLines(
+                StringBuilder builder, string value, string indent)
+            {
+                foreach (string line in NormalizeLines(value).Split('\n'))
+                {
+                    if (line.Length == 0)
+                        builder.AppendLine();
+                    else
+                        builder.Append(indent).AppendLine(line);
+                }
+            }
+
+            private static string NormalizeLines(string value) =>
+                (value ?? "").Replace("\r\n", "\n").Replace('\r', '\n');
         }
 
         /// <summary>
@@ -313,7 +345,8 @@ namespace ProGlassAutomation.Services.Logging
                 sb.Append("  (").Append(e.ErrorId).Append(")");
             if (!string.IsNullOrEmpty(e.CorrelationId))
                 sb.Append("  ").Append(e.CorrelationId);
-            sb.Append("  ").Append(e.Message);
+            sb.Append("  ");
+            AppendMultiline(sb, e.Message, "      ");
             if (!string.IsNullOrEmpty(e.ExceptionText))
             {
                 // One-line exception summary, not the full
@@ -325,6 +358,20 @@ namespace ProGlassAutomation.Services.Logging
                 sb.Append(" | ").Append(firstLine.Trim());
             }
             return sb.ToString();
+        }
+
+        private static void AppendMultiline(
+            StringBuilder builder, string value, string continuationIndent)
+        {
+            string normalized = (value ?? "").Replace("\r\n", "\n").Replace('\r', '\n');
+            string[] lines = normalized.Split('\n');
+            builder.Append(lines[0]);
+            for (int i = 1; i < lines.Length; i++)
+            {
+                builder.AppendLine();
+                if (lines[i].Length > 0)
+                    builder.Append(continuationIndent).Append(lines[i]);
+            }
         }
 
         private static string BuildLicenseSummary()

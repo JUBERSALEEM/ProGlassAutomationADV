@@ -27,6 +27,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ProGlassAutomation.Services.Workflow
 {
@@ -129,6 +130,28 @@ namespace ProGlassAutomation.Services.Workflow
                 ("Applied",   new[] { "Applied" }),
                 ("Cancelled", new[] { "Cancelled" }),
             });
+
+        /// <summary>
+        /// Returns the allowed next statuses for a source status, including the
+        /// current value when it is known. This is for presenting choices only;
+        /// every write must still call <see cref="Validate"/> at the business boundary.
+        /// Unknown legacy values remain selectable only as-is so a UI cannot
+        /// silently normalize them to a different state.
+        /// </summary>
+        public static IReadOnlyList<string> GetAllowedTargets(Kind kind, string? current)
+        {
+            var from = string.IsNullOrWhiteSpace(current) ? string.Empty : current.Trim();
+            if (from.Length == 0)
+                return Array.Empty<string>();
+
+            var table = TableFor(kind);
+            if (table == null || !table.TryGetValue(from, out var allowed))
+                return new[] { from };
+
+            return allowed
+                .OrderBy(status => status, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+        }
 
         /// <summary>
         /// Validates a transition. Returns Ok when the transition is allowed

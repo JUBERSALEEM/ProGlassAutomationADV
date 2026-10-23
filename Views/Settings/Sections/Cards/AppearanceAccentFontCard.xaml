@@ -51,7 +51,7 @@
                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.LblAccent}"/>
                     </StackPanel>
                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                               Text="{DynamicResource Settings.ButtonsTintsHoverStatesMonetGlassSurfaces}"/>
+                               Text="Buttons, tints, hover states and card surfaces"/>
                     <!-- Palette chips generated from SettingsViewModel.AccentPalette -->
                     <ItemsControl ItemsSource="{Binding AccentPalette}" Margin="{StaticResource SettingsStackGap4}">
                         <ItemsControl.ItemsPanel>
@@ -77,12 +77,12 @@
                     
                     <!-- Free-pick colour: hex input -->
                     <Border Margin="{StaticResource SettingsStackGap12}" Padding="10,8" CornerRadius="{DynamicResource Radius.Small}"
-                            Background="{DynamicResource SurfaceElevatedBrush}"
+                            Background="{DynamicResource SurfaceElevated}"
                             HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal">
                             <Ellipse Width="14" Height="14"
                                      Fill="{Binding CustomAccentSwatch}"
-                                     Stroke="{DynamicResource BorderDefaultBrush}" StrokeThickness="1"
+                                     Stroke="{DynamicResource BorderSubtle}" StrokeThickness="1"
                                      VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap10R}"/>
                             <TextBox Text="{Binding CustomAccentHex, UpdateSourceTrigger=PropertyChanged}"
                                      Width="110" Padding="8,6" FontSize="{DynamicResource FontSize.Title}"
@@ -155,8 +155,8 @@
                     <WrapPanel Margin="{StaticResource SettingsStackGap8}">
                         <Button Command="{Binding ApplyFontCommand}"
                                 Style="{StaticResource AccentChipStyle}"
-                                Background="{DynamicResource AccentBrush}"
-                                Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                Background="{DynamicResource AccentPrimary}"
+                                Foreground="{DynamicResource TextOnAccent}"
                                 ToolTip="Apply selected typography settings across the entire application">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}"
@@ -192,11 +192,11 @@
                     <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="&#xE8EC;" FontFamily="{DynamicResource FontFamily.Icon}"
                                    FontSize="{DynamicResource FontSize.H3}"
-                                   Foreground="{DynamicResource AccentBrush}"
+                                   Foreground="{DynamicResource AccentPrimary}"
                                    VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
                         <TextBlock Text="Live Typography Preview" FontWeight="Bold"
                                    FontSize="{DynamicResource FontSize.Title}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   Foreground="{DynamicResource TextPrimary}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
                     <Button DockPanel.Dock="Right"
@@ -216,18 +216,18 @@
 
                 <!-- Preview container with smooth rounded corners directly on card surface -->
                 <Border CornerRadius="{DynamicResource Radius.Small}"
-                        Background="{DynamicResource SurfaceElevatedBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                        Background="{DynamicResource SurfaceElevated}"
+                        BorderBrush="{DynamicResource BorderSubtle}"
                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                         Padding="16,12">
                     <StackPanel>
-                        <TextBlock Text="ProGlass Industrial Studio — 3210 × 2250 mm Glass Fabrication &amp; 2D Cutting"
+                        <TextBlock Text="ProGlass Studio — 3210 × 2250 mm Glass Fabrication &amp; 2D Cutting"
                                    FontFamily="{Binding PreviewFontFamily}"
                                    FontWeight="{Binding PreviewFontWeight}"
                                    FontStyle="{Binding PreviewFontStyle}"
                                    TextDecorations="{Binding PreviewTextDecorations}"
                                    FontSize="{DynamicResource FontSize.H2}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   Foreground="{DynamicResource TextPrimary}"
                                    TextWrapping="Wrap"/>
                         <TextBlock Text="The quick brown fox jumps over the lazy dog. 0123456789 — AED 14,850.00 — 6mm Clear Float (Tempered &amp; Polished)"
                                    FontFamily="{Binding PreviewFontFamily}"
@@ -235,7 +235,7 @@
                                    FontStyle="{Binding PreviewFontStyle}"
                                    TextDecorations="{Binding PreviewTextDecorations}"
                                    FontSize="{DynamicResource FontSize.BodySmall}"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Foreground="{DynamicResource TextSecondary}"
                                    Margin="{StaticResource SettingsStackGap8}"
                                    TextWrapping="Wrap"/>
                     </StackPanel>

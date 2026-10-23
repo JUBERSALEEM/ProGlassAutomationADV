@@ -24,7 +24,7 @@
             <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.CardCornerRadius}"/>
             <Viewbox MaxHeight="18" VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}">
                 <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource AccentBrush}">
+                           Foreground="{DynamicResource AccentPrimary}">
                     <Run Text="{Binding CardCornerRadius, Mode=OneWay, StringFormat={}{0:0}}"/>
                     <Run Text="{DynamicResource Settings.Px}"/>
                 </TextBlock>

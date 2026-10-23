@@ -68,14 +68,14 @@
          because Ov.Surface is a fixed studio white, and aliased snapping
          dropped the corner arc of the edge colour. -->
     <Style x:Key="Ov.Card" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Appearance.StudioFace}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Appearance.StudioEdge}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimary}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtle}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="18"/>
         <Setter Property="Padding" Value="24"/>
         <Setter Property="SnapsToDevicePixels" Value="False"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
-        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="True"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="False"/>
     </Style>
     <Style x:Key="Ov.CardCompact" TargetType="Border" BasedOn="{StaticResource Ov.Card}">
         <Setter Property="CornerRadius" Value="14"/>

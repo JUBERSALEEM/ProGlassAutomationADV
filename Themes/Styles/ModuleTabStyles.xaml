@@ -288,8 +288,10 @@
 
     <!-- Individual pill tab item — rounded border, accent when selected -->
     <Style x:Key="PillTabItemStyle" TargetType="TabItem">
+        <!-- Foreground is inherited by the TabItem's CONTENT (logical child).
+             Keep it page-ink; the pill header colors live on ContentSite only. -->
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="18,9"/>
@@ -311,7 +313,7 @@
                                           ContentSource="Header"
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
-                                          TextBlock.Foreground="{TemplateBinding Foreground}"
+                                          TextBlock.Foreground="{DynamicResource SecondaryForegroundBrush}"
                                           TextBlock.FontSize="{TemplateBinding FontSize}"
                                           TextBlock.FontWeight="{TemplateBinding FontWeight}"/>
                     </Border>
@@ -319,7 +321,7 @@
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource AccentBrush}"/>
                             <Setter TargetName="TabBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            <Setter TargetName="ContentSite" Property="TextBlock.Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -327,7 +329,7 @@
                                 <Condition Property="IsSelected" Value="False"/>
                             </MultiTrigger.Conditions>
                             <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
-                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                            <Setter TargetName="ContentSite" Property="TextBlock.Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                         </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

@@ -97,6 +97,134 @@
                 <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidControls.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidNavigation.xaml"/>
+                <!-- Claymorphism control plane. Merged unconditionally, like
+                     the Crystal Fluid dictionaries above: a ControlTemplate
+                     is inert until a host adopts it, and the clay controls
+                     fall back to a plain rounded surface when claymorphism
+                     is not the active family. The styles are therefore
+                     purely additive nouns and nothing existing changes
+                     until a view places a ClaySurface / ClayButton /
+                     ClayWell / ClayStatusPill. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Claymorphism/ClayControls.xaml"/>
+                <!-- Neumorphism control plane, merged on the same terms:
+                     inert until a host adopts it, and the controls fall
+                     back to a plain rounded surface when neumorphism is
+                     not the active family. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Neumorphism/NeuControls.xaml"/>
+                <!-- Swiss International control plane, merged on the same
+                     terms. The one family here whose templates declare NO
+                     shadow host at all, because the style treats any
+                     shadow as a defect — see the header note in the file.
+                     Inert until a host adopts SwissSurface / SwissButton /
+                     SwissField. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Swiss/SwissControls.xaml"/>
+                <!-- Holographic / Iridescent control plane, merged on the
+                     same terms. The family whose foil lives on the RIM
+                     and never on the ground: the templates declare no
+                     foil-on-ground part at all, so there is nothing a
+                     host could fill with spectrum and put a label on.
+                     Inert until a host adopts HoloSurface / HoloButton /
+                     HoloChip. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Holo/HoloControls.xaml"/>
+                <!-- Liquid Glass control plane, merged on the same terms.
+                     The only family here whose templates must build a box
+                     rather than abstain from one: the material IS the
+                     surface. Every template declares the specular rim as
+                     its own part, because the recipe assigns that rim a
+                     gradient and a flat BorderBrush cannot express the
+                     ramp that stops the panel reading as tinted film.
+                     Inert until a host adopts LiquidSurface / LiquidButton /
+                     LiquidField. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/LiquidGlass/LiquidGlassControls.xaml"/>
+                <!-- Bento Grid control plane, merged on the same terms.
+                     The one family here that is a LAYOUT family rather
+                     than a material family, so its dictionary carries a
+                     measurement system (gutter 16, radius 24, fixed row
+                     104) and states the RELATIONSHIP between them: a
+                     bento reads as one object only while the gap stays
+                     between half the radius and the full radius. Like
+                     Swiss, its templates declare no shadow host at all —
+                     the gutter does the separating, and a gutter is a
+                     layout property rather than a material one. Inert
+                     until a host adopts BentoSurface / BentoButton /
+                     BentoField inside a BentoPanel. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Bento/BentoControls.xaml"/>
+                <!-- Spatial / Immersive control plane, merged on the same
+                     terms. The only family here whose TEMPLATES ARE THE
+                     POINT: Fluent builds elevation from a PAIR of shadows
+                     (a sharp directional key plus a soft diffused
+                     ambient), and WPF allows one Effect per element, so
+                     each template nests two shadow hosts around the fill.
+                     The file header also states plainly that these are
+                     not acrylic — WPF's BlurEffect blurs a control's own
+                     content, not the backdrop — and that depth here is
+                     simulated by the shadow ladder and per-plane opacity.
+                     Inert until a host adopts SpatialSurface /
+                     SpatialButton / SpatialField. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Spatial/SpatialControls.xaml"/>
+                <!-- Glassmorphism control plane, merged on the same terms.
+                     The eighth and last family. Two template parts and NO
+                     shadow host: the 2020 recipe has a UNIFORM blur and no
+                     elevation ladder, so unlike Spatial it has nothing for
+                     a shadow to encode.
+                     Its 1px rim is an accessibility feature, not
+                     decoration — Windows high contrast strips the
+                     transparency and leaves that border as the only
+                     visible edge, which on WPF is one property read away.
+                     Note the placement defaults: GlassSurface is Content
+                     and therefore opaque, GlassButton is Chrome and
+                     therefore translucent. That is the family working as
+                     designed — glassmorphism cannot be made WCAG-compliant
+                     over a dynamic backdrop, so the translucency is spent
+                     on chrome and text surfaces stay readable. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Glassmorphism/GlassControls.xaml"/>
+                <!-- Aurora control plane. The NINTH family, and the first
+                     in this list whose subject is the BACKDROP rather than
+                     the control: AuroraSurface owns three slow drifting
+                     colour fields, and every panel in the family is
+                     described relative to the sky behind it.
+
+                     Two things are load-bearing in this merge.
+
+                     First, the sky is a SEPARATE control from the panels.
+                     The mesh is never painted onto a card or a button, so
+                     AuroraSurface wraps the app root and the panels sit in
+                     front of it. Putting a mesh gradient on a control is
+                     how a moving backdrop ends up under a text label, and
+                     from there it is one contrast failure away from
+                     being unusable.
+
+                     Second, the rim is a GRADIENT here rather than the flat
+                     hairline the other families draw. A flat 1px edge
+                     loses contrast exactly when a blob drifts toward it,
+                     so a two-stop rim keeps a bright edge on both sides
+                     at once. That rim is also the accessibility fallback
+                     under Windows high contrast, which strips the
+                     translucency and leaves the edge as the only thing
+                     describing the surface. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Aurora/AuroraControls.xaml"/>
+                <!-- Neo-Brutalism control plane. The TENTH family, and
+                     the only one in this app whose shadow has a hard
+                     edge.
+
+                     Two things are load-bearing here and neither is
+                     obvious. First, every template reserves NeoShadowRoom
+                     around its root: a hard offset extends past the
+                     control's own bounds and does NOT fade at the edge,
+                     so without that margin a parent clips it. A blurred
+                     shadow forgives this; this one cannot.
+
+                     Second, there is no corner radius anywhere in the
+                     dictionary, and every CornerRadius is an explicit
+                     zero rather than merely the Border default. Radius 0
+                     is the third of this family's three rules, and a
+                     value that is only the absence of configuration is
+                     not a value.
+
+                     Note that Swiss also sits at radius 0. Between them
+                     they are the reason radius reads as a dial in this
+                     engine rather than as an identity. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/NeoBrutal/NeoBrutalControls.xaml"/>
                 <!-- Glass Blush — Personal UI family plane (GB-P1, 2026-09-18).
                      Measured token plane for the second ProGlass experience.
                      Managed keys are republished by the family painter (GB-P14). -->

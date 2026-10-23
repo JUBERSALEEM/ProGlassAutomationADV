@@ -78,6 +78,20 @@ namespace ProGlassAutomation.Tests.Database
             Assert.Equal(SqliteCacheMode.Shared, b.Cache);
         }
 
+        [Fact]
+        public void Shared_paths_use_default_cache_and_delete_journal_policy()
+        {
+            const string sharedDb = @"\\OFFICE-PC\ProGlassData\proglass.db";
+            var builder = new SqliteConnectionStringBuilder(
+                SqliteResilience.BuildConnectionString(sharedDb));
+
+            Assert.Equal(SqliteCacheMode.Default, builder.Cache);
+            Assert.Contains("PRAGMA journal_mode = DELETE",
+                SqliteResilience.PragmaScriptFor(sharedDb));
+            Assert.Contains("PRAGMA journal_mode = WAL",
+                SqliteResilience.PragmaScriptFor(_dbPath));
+        }
+
         // ── Interceptor / pragma application ─────────────────────────────
 
         [Fact]

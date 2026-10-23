@@ -254,9 +254,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             {
                 if (SelectedRow == row) SelectedRow = null;
                 await _deliveryNotes!.DeleteAsync(row.Id);
-                AuditService.Log(
-                    AuditSections.DeliveryNote, "Delivery note deleted",
-                    row.DeliveryNoteId, "DN", row.DeliveryNoteId);
                 await LoadAsync();
             }
             catch (Exception ex)
@@ -295,10 +292,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 if (SelectedRow == row) SelectedRow = null;
                 await _deliveryNotes.VoidAsync(row.Id, reason);
 
-                AuditService.Log(
-                    AuditSections.DeliveryNote, "Delivery note voided",
-                    row.DeliveryNoteId, "DN", row.DeliveryNoteId, reason);
-
                 _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Void.MsgVoidedX"), row.DeliveryNoteId),
                     LocalizationService.Instance.T("Void.CapVoided"),
@@ -313,6 +306,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     LocalizationService.Instance.T("Void.CapVoidFailed"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        /// <summary>
+        /// Register quick-edit entry point. The existing list method performs
+        /// the authoritative transition check and repository write.
+        /// </summary>
+        public async Task ChangeStatusFromRegisterAsync(int deliveryNoteId, string newStatus)
+        {
+            if (deliveryNoteId <= 0 || string.IsNullOrWhiteSpace(newStatus)) return;
+            await ChangeStatusAsync(
+                new DeliveryNoteRowViewModel(new DeliveryNoteListItem { Id = deliveryNoteId }),
+                newStatus);
         }
 
         private async Task ChangeStatusAsync(
@@ -337,9 +342,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     return;
                 }
 
-                entity.Status = newStatus;
-                entity.UpdatedAt = DateTime.Now;
-                await _deliveryNotes.UpdateAsync(entity);
+                await _deliveryNotes.UpdateStatusAsync(
+                    entity.Id, newStatus, entity.RowVersion);
                 await LoadAsync();
             }
             catch (Exception ex)

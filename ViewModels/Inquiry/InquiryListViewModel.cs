@@ -51,6 +51,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
     public sealed class InquiryListRow
     {
         public int Id { get; private set; }
+        public int RowVersion { get; private set; }
         public string InquiryNumber { get; private set; } = "";
         public string InquiryReference { get; private set; } = "";
         public string CustomerName { get; private set; } = "";
@@ -178,7 +179,8 @@ namespace ProGlassAutomation.ViewModels.Inquiry
 
         public static InquiryListRow FromProjection(InquiryListProjection x) => new()
         {
-            Id = x.Id, InquiryNumber = x.InquiryNumber, InquiryReference = x.InquiryReference,
+            Id = x.Id, RowVersion = x.RowVersion,
+            InquiryNumber = x.InquiryNumber, InquiryReference = x.InquiryReference,
             CustomerName = x.CustomerName, CustomerLocation = x.CustomerLocation,
             Project = x.ProjectName, Subject = x.ProjectDescription,
             Salesman = x.SalesmanName, PreparedBy = x.PreparedByName, PreparedByRole = x.PreparedByRole,

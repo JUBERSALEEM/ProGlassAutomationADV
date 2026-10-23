@@ -115,11 +115,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
             try
             {
-                await _taxInvoices.VoidAsync(_editingId, reason);
-
-                AuditService.Log(
-                    AuditSections.TaxInvoice, "Tax invoice voided",
-                    _editingInvoiceNumber, "TI", _editingInvoiceNumber, reason);
+                if (!_loadedRowVersion.HasValue)
+                    throw new InvalidOperationException(
+                        "The Tax Invoice version was not loaded. Reload it before voiding.");
+                await _taxInvoices.VoidAsync(
+                    _editingId, _loadedRowVersion.Value, reason);
 
                 _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Void.MsgVoidedX"), _editingInvoiceNumber),

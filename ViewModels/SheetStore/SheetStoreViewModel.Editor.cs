@@ -69,6 +69,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             SellPricePerSqm = s.SellPricePerSqm,
             Stock = s.Stock,
             Used = s.Used,
+            RowVersion = s.RowVersion,
             CreatedAt = s.CreatedAt,
             LastUpdated = s.LastUpdated,
             LastPurchaseDate = s.LastPurchaseDate

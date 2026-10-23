@@ -38,6 +38,7 @@ using ProGlassAutomation.Services.Inquiry;
 using ProGlassAutomation.Services.MasterData.Repository;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
+using ProGlassAutomation.Services.RecordsSync;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.Services.Statement.Repository;
 using ProGlassAutomation.Services.OrderReport.Repository;
@@ -100,6 +101,11 @@ namespace ProGlassAutomation.Services.DependencyInjection
             // is shared across all navigation instances of the register.
             services.AddSingleton<IInquiryLifecycleService, InquiryLifecycleService>();
             services.AddSingleton<IProformaInvoiceRepository, ProformaInvoiceRepository>();
+
+            // Records → Supabase pipeline integration (read-only against the
+            // proforma DB; dormant until recordssync.json + SecretVault key
+            // exist, so registering it costs one idle singleton).
+            services.AddSingleton<RecordsSyncService>();
             services.AddSingleton<IJobOrderRepository, JobOrderRepository>();
             services.AddSingleton<IDeliveryNoteRepository, DeliveryNoteRepository>();
             services.AddSingleton<ITaxInvoiceRepository, TaxInvoiceRepository>();
@@ -179,6 +185,10 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddTransient<ViewModels.ProformaInvoice.Step8Attachments.AttachmentsStepViewModel>();
             services.AddTransient<ViewModels.ProformaInvoice.Step9ProfitLoss.ProfitLossStepViewModel>();
             services.AddTransient<ViewModels.ProformaInvoice.SavedInvoicesList.SavedInvoicesListViewModel>();
+
+            // Cross-document operations register — read model over the three
+            // existing document repositories; no parallel register store.
+            services.AddTransient<ProGlassAutomation.ViewModels.DocumentRegisterViewModel>();
 
             // Job Order
             services.AddTransient<JobOrderViewModel>();

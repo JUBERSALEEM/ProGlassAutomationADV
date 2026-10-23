@@ -87,6 +87,9 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// The page template binds the section's DataContext to this.</summary>
         public ProGlassAutomation.ViewModels.Settings.Pages.SettingsSharingPageViewModel SharingPage { get; private set; } = null!;
 
+        /// <summary>PI-only Records Sync connection settings page.</summary>
+        public ProGlassAutomation.ViewModels.Settings.Pages.SettingsRecordsSyncPageViewModel RecordsSyncPage { get; private set; } = null!;
+
         /// <summary>Voice page (v3 promotion #2: Whisper picker/downloader).
         /// The page template binds the section's DataContext to this.</summary>
         public ProGlassAutomation.ViewModels.Settings.Pages.SettingsVoicePageViewModel VoicePage { get; private set; } = null!;
@@ -118,6 +121,8 @@ namespace ProGlassAutomation.ViewModels.Settings
         private void InitializeCore()
         {
             SharingPage = new ProGlassAutomation.ViewModels.Settings.Pages.SettingsSharingPageViewModel(_config);
+            RecordsSyncPage = new ProGlassAutomation.ViewModels.Settings.Pages.SettingsRecordsSyncPageViewModel(
+                App.RecordsSync ?? App.ServiceProvider?.GetService<ProGlassAutomation.Services.RecordsSync.RecordsSyncService>());
             VoicePage = new ProGlassAutomation.ViewModels.Settings.Pages.SettingsVoicePageViewModel(
                 _config,
                 () => _speechToText,

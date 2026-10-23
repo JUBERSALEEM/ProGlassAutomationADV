@@ -29,6 +29,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Updates;
+using System.Text.Json;
 using Xunit;
 
 namespace ProGlassAutomation.Tests.Agent
@@ -41,11 +42,11 @@ namespace ProGlassAutomation.Tests.Agent
         // "return false".
 
         [Theory]
-        [InlineData("https://github.com/JUBERSALEEM/ProGlassAutomationADV/releases/download/v2.0.1/Setup.exe")]
+        [InlineData("https://github.com/JUBERSALEEM/ProGlassAutomationssss/releases/download/v2.0.1/Setup.exe")]
         [InlineData("https://objects.githubusercontent.com/github-production-release-asset/1/2")]
         [InlineData("https://release-assets.githubusercontent.com/github-production-release-asset/9")]
         [InlineData("https://api.github.com/repos/JUBERSALEEM/ProGlassAutomationADV/releases/assets/1")]
-        [InlineData("https://www.github.com/JUBERSALEEM/ProGlassAutomationADV/releases/download/v1/a.zip")]
+        [InlineData("https://www.github.com/JUBERSALEEM/ProGlassAutomationssss/releases/download/v1/a.zip")]
         public void Accepts_genuine_github_release_urls(string url)
         {
             Assert.True(UpdateService.IsAllowedDownloadUrl(url));
@@ -157,4 +158,56 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.False(UpdateService.IsDownloadComplete(1000, -1));
         }
     }
+
+    public class UpdateReleaseAssetSelectionTests
+    {
+        [Fact]
+        public void Prefers_setup_installer_over_standalone_app_and_velopack_packages()
+        {
+            using var document = JsonDocument.Parse(
+                """{"assets":[{"name":"ProGlassAutomation-v2.0.12-win-x64.exe"},{"name":"ProGlassAutomation-win-full.nupkg"},{"name":"Setup.exe"},{"name":"SHA256SUMS.txt"}]}""");
+
+            int index = UpdateService.FindPreferredReleaseAssetIndex(
+                document.RootElement.GetProperty("assets"), "v2.0.12");
+
+            Assert.Equal(2, index);
+        }
+
+        [Fact]
+        public void Never_selects_license_generator_or_arbitrary_first_asset()
+        {
+            using var document = JsonDocument.Parse(
+                """{"assets":[{"name":"ProGlassAutomation.LicenseGenerator.exe"},{"name":"ProGlassAutomation-win-full.nupkg"},{"name":"SHA256SUMS.txt"}]}""");
+
+            int index = UpdateService.FindPreferredReleaseAssetIndex(
+                document.RootElement.GetProperty("assets"), "v2.0.12");
+
+            Assert.Equal(-1, index);
+        }
+
+        [Fact]
+        public void Does_not_treat_a_standalone_app_exe_as_an_installer()
+        {
+            using var document = JsonDocument.Parse(
+                """{"assets":[{"name":"ProGlassAutomation-v2.0.12-win-x64.exe"},{"name":"ProGlassAutomation-win-full.nupkg"},{"name":"SHA256SUMS.txt"}]}""");
+
+            int index = UpdateService.FindPreferredReleaseAssetIndex(
+                document.RootElement.GetProperty("assets"), "v2.0.12");
+
+            Assert.Equal(-1, index);
+        }
+
+        [Fact]
+        public void Supports_existing_setup_asset_for_legacy_releases()
+        {
+            using var document = JsonDocument.Parse(
+                """{"assets":[{"name":"ProGlassAutomation-win-full.nupkg"},{"name":"ProGlassAutomation-Setup.exe"}]}""");
+
+            int index = UpdateService.FindPreferredReleaseAssetIndex(
+                document.RootElement.GetProperty("assets"), "v2.0.12");
+
+            Assert.Equal(1, index);
+        }
+    }
+
 }

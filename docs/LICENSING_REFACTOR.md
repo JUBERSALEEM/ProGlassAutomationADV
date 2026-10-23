@@ -289,7 +289,7 @@ dotnet test  Tests\ProGlassAutomation.Tests.csproj -c Release --no-build
 pwsh -File tools\audit-licensing-refactor.ps1
 
 # 3. Build the installer
-tools\build-installer.ps1
+scripts\build-installer.ps1
 ```
 
 Expected results:

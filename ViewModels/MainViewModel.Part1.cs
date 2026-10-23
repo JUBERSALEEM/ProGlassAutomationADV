@@ -18,6 +18,7 @@ using ProGlassAutomation.ViewModels.JobOrder;
 using ProGlassAutomation.ViewModels.Inquiry;
 using ProGlassAutomation.ViewModels.JobProfitability;
 using ProGlassAutomation.ViewModels.Optimization;
+using ProGlassAutomation.ViewModels.Printing.Stickers;
 using ProGlassAutomation.ViewModels.ProformaInvoice;
 using ProGlassAutomation.ViewModels.Production;
 using ProGlassAutomation.ViewModels.Reports;
@@ -101,8 +102,68 @@ namespace ProGlassAutomation.ViewModels
         private Specifications.SpecificationsCenterViewModel? _lazySpecificationsVM;
         public Specifications.SpecificationsCenterViewModel SpecificationsVM => _lazySpecificationsVM ??= ResolveOrNew<Specifications.SpecificationsCenterViewModel>();
         public JobOrderViewModel JobOrderVM { get; }
+        private DocumentRegisterViewModel? _lazyDocumentRegisterVM;
+        public DocumentRegisterViewModel DocumentRegisterVM =>
+            _lazyDocumentRegisterVM ??= WireDocumentRegisterCallbacks(
+                ResolveOrNew<DocumentRegisterViewModel>());
+
+        private DocumentRegisterViewModel WireDocumentRegisterCallbacks(DocumentRegisterViewModel vm)
+        {
+            vm.OnNewProformaRequested = () =>
+            {
+                Navigate("ProformaInvoice");
+                ProformaInvoiceVM.TriggerNewInvoice();
+            };
+            vm.OnNewJobOrderRequested = () =>
+            {
+                Navigate("JobOrder");
+                JobOrderVM.ListVM.CreateJobOrderCommand.Execute(null);
+            };
+            vm.OnNewDeliveryNoteRequested = () =>
+            {
+                Navigate("DeliveryNote");
+                DeliveryNoteVM.ListVM.CreateDnCommand.Execute(null);
+            };
+
+            vm.OnOpenProformaRequested = async id =>
+            {
+                Navigate("ProformaInvoice");
+                await ProformaInvoiceVM.OpenSavedInvoiceAsync(id);
+            };
+            vm.OnOpenJobOrderRequested = async id =>
+            {
+                Navigate("JobOrder");
+                await JobOrderVM.OpenJobOrderAsync(id);
+            };
+            vm.OnOpenDeliveryNoteRequested = async id =>
+            {
+                Navigate("DeliveryNote");
+                await DeliveryNoteVM.OpenDeliveryNoteAsync(id);
+            };
+
+            // These are the existing source-list workflows. They own status
+            // validation, snapshot synchronization, permissions and audit.
+            vm.OnChangeProformaStatusRequested =
+                (id, status) => ProformaInvoiceVM.SavedInvoicesListVM
+                    .ChangeStatusFromRegisterAsync(id, status);
+            vm.OnChangeJobOrderStatusRequested =
+                (id, status) => JobOrderVM.ListVM
+                    .ChangeStatusFromRegisterAsync(id, status);
+            vm.OnChangeJobOrderPriorityRequested =
+                (id, priority) => JobOrderVM.ListVM
+                    .ChangePriorityFromRegisterAsync(id, priority);
+            vm.OnChangeDeliveryNoteStatusRequested =
+                (id, status) => DeliveryNoteVM.ListVM
+                    .ChangeStatusFromRegisterAsync(id, status);
+
+            return vm;
+        }
+
         private OptimizationViewModel? _lazyOptimizationVM;
         public OptimizationViewModel OptimizationVM => _lazyOptimizationVM ??= ResolveOrNew<OptimizationViewModel>();
+        private StickerPrinterViewModel? _lazyStickerPrinterVM;
+        public StickerPrinterViewModel StickerPrinterVM => _lazyStickerPrinterVM ??= ResolveOrNew<StickerPrinterViewModel>();
+        public StickerPrinterViewModel? ExistingStickerPrinterVM => _lazyStickerPrinterVM;
         private CuttingViewModel? _lazyCuttingVM;
         public CuttingViewModel CuttingVM => _lazyCuttingVM ??= WireProductionCrossNav(ResolveOrNew<CuttingViewModel>());
         private CuttingWorkCenterViewModel? _lazyCuttingWorkCenterVM;
@@ -349,10 +410,12 @@ namespace ProGlassAutomation.ViewModels
                 if (_currentViewModel is ProformaInvoiceViewModel) return "Proforma Invoice Operations";
                 if (_currentViewModel is InquiryListViewModel) return "Inquiry Management";
                 if (_currentViewModel is JobOrderViewModel) return "Job Order Operations";
+                if (_currentViewModel is DocumentRegisterViewModel) return "Document Register";
                 if (_currentViewModel is DeliveryNoteViewModel) return "Delivery Note Logistics";
                 if (_currentViewModel is TaxInvoiceViewModel) return "Tax Invoice Accounting";
                 if (_currentViewModel is SheetStoreViewModel) return "Sheet Store Warehouse";
                 if (_currentViewModel is ProGlassAutomation.ViewModels.Specifications.SpecificationsCenterViewModel) return "Glass Specifications";
+                if (_currentViewModel is StickerPrinterViewModel) return "Sticker Printer Studio";
                 if (_currentViewModel is OptimizationViewModel) return "Glass Cutting Optimization";
                 if (_currentViewModel is ProductionControlCenterViewModel || _currentViewModel is ProductionStageViewModelBase) return "Factory Floor Control";
                 if (_currentViewModel is SalesReportViewModel) return "Executive Reports & Analytics";
@@ -387,10 +450,12 @@ namespace ProGlassAutomation.ViewModels
                 if (_currentViewModel is ProformaInvoiceViewModel) return "Commercial glass cutting, tempering, laminating & billing schedules";
                 if (_currentViewModel is InquiryListViewModel) return "Customer inquiries, architectural specifications & quotation intake";
                 if (_currentViewModel is JobOrderViewModel) return "Shop floor routing, cutting schedules & work center queue";
+                if (_currentViewModel is DocumentRegisterViewModel) return "Linked PI, JO, and DN tracking with workflow-safe quick updates";
                 if (_currentViewModel is DeliveryNoteViewModel) return "Fleet dispatch, site deliveries & customer proof of receipt";
                 if (_currentViewModel is TaxInvoiceViewModel) return "FTA VAT 5% compliant invoicing, settlements & ledger";
                 if (_currentViewModel is SheetStoreViewModel) return "Raw glass inventory, stock replenishment & yield analysis";
                 if (_currentViewModel is ProGlassAutomation.ViewModels.Specifications.SpecificationsCenterViewModel) return "Technical glass definitions, tints & processing rules";
+                if (_currentViewModel is StickerPrinterViewModel) return "Design reusable glass-label layouts, common fields and printer profiles";
                 if (_currentViewModel is OptimizationViewModel) return "2D Nesting algorithms, scrap minimization & sheet yield";
                 if (_currentViewModel is ProductionControlCenterViewModel || _currentViewModel is ProductionStageViewModelBase) return "Work center scheduling, tempering furnaces & autoclave lines";
                 if (_currentViewModel is SalesReportViewModel) return "Executive summaries, order book analysis & financial statements";

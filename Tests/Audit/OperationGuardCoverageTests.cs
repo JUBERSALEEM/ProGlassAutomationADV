@@ -2,30 +2,23 @@
 // FILE: Tests/Audit/OperationGuardCoverageTests.cs
 // PROJECT: ProGlassAutomation.Tests
 //
-// AUDIT FINDING A-1 (re-check): 18 permission checks existed in
-// ViewModels and ZERO in the service / repository layer. The
-// brief's rule — "never rely only on hiding a button" — was not
-// implemented. The OperationGuard.Demand coverage was added
-// (28 calls across 5 repositories) in an earlier round, but
-// the coverage was not pinned: a developer adding a new
-// mutating method could skip the Demand call without the
-// build failing. This test pins the coverage.
+// AUTHZ-001: every public mutating repository entry point in the
+// configured document, Inquiry, and Sheet Store repositories must
+// contain a service-layer OperationGuard.Demand call. The UI may hide
+// buttons, but direct repository callers must fail closed too. This
+// source-level gate makes omissions visible during the later Windows build.
 //
 // HOW IT WORKS
 //   1. Walks the configured list of repository files.
 //   2. Parses each one with Roslyn and finds every public
-//      method whose name starts with a mutating verb
-//      (Save / Insert / Update / Delete / Mark / Approve /
-//      Reject / Post / Cancel / Close / Submit / Convert /
-//      Assign / Reset / Clear / Duplicate / Archive / Soft-
-//      Delete / HardDelete / AutoSave), suffixed with
-//      anything that ends in `Async`.
-//   3. Excludes methods on the best-effort allow list
-//      (DeleteMasterDnQuietlyAsync, ClearLinkedDeliveryNotes-
-//      Async, ClearInvoicedByTaxInvoiceAsync, AutoSaveFrom-
-//      InvoiceAsync) — these are explicitly the "do best
-//      effort, do not block" path. Adding a new name to the
-//      allow list requires a comment explaining why.
+//      asynchronous method whose name starts with a known
+//      mutating verb (including Save, Insert, Update, Delete,
+//      Void, Add, Receive, Consume, Link, and Synchronize).
+//   3. Excludes two explicit delegation exceptions: the expression-bodied
+//      ClearInvoicedByTaxInvoiceAsync delegates to the guarded full-sync
+//      method, while AutoSaveFromInvoiceAsync calls independently guarded
+//      master-data upserts and is intentionally best-effort. Adding an
+//      exception requires a comment explaining its delegated boundary.
 //   4. Asserts every other mutating method body contains a
 //      call to OperationGuard.Demand.
 //
@@ -79,11 +72,17 @@ namespace ProGlassAutomation.Tests.Audit
         {
             "Services/MasterData/Repository/MasterDataRepository.cs",
             "Services/DeliveryNote/Repository/DeliveryNoteRepository.cs",
+            "Services/DeliveryNote/Repository/DeliveryNoteRepository.Part1.cs",
+            "Services/DeliveryNote/Repository/DeliveryNoteRepository.Part2.cs",
             "Services/TaxInvoice/Repository/TaxInvoiceRepository.cs",
+            "Services/CreditNote/Repository/CreditNoteRepository.cs",
             "Services/Statement/Repository/StatementRepository.cs",
             "Services/JobOrder/Repository/JobOrderRepository.cs",
             "Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceRepository.cs",
             "Services/Inquiry/InquiryRepository.cs",
+            "Services/SheetStore/SheetStoreRepository.cs",
+            "Services/SheetStore/InventoryItemRepository.cs",
+            "Services/SheetStore/SheetStoreHistory/SheetHistoryRepository.cs",
         };
 
         // ── Mutating-verb prefix list ──────────────────────────
@@ -94,24 +93,23 @@ namespace ProGlassAutomation.Tests.Audit
         // convention in the codebase; if a new convention
         // lands, add the new verb here.
         private static readonly Regex MutatingVerbPattern = new(
-            @"^(?<verb>Save|Insert|Update|Delete|Mark|Approve|Reject|Post|"
+            @"^(?<verb>Save|Insert|Update|Delete|Void|Mark|Approve|Reject|Post|"
             + @"Cancel|Close|Submit|Convert|Assign|Reset|Clear|Duplicate|"
-            + @"Archive|SoftDelete|HardDelete|AutoSave)",
+            + @"Archive|SoftDelete|HardDelete|AutoSave|Add|Buy|Use|Receive|"
+            + @"Consume|Log|Reverse|Set|Create|Record|Synchronize|Link)",
             RegexOptions.Compiled);
 
-        // ── Best-effort allow list ─────────────────────────────
+        // ── Explicit delegation exceptions ─────────────────────
         //
-        // Methods whose name advertises "Quietly", "AutoSave",
-        // or "ClearLinked" are explicitly the best-effort path:
-        // they are called from contexts where the permission
-        // has already been checked at a higher level, or the
-        // operation is a data fixup that the system is allowed
-        // to skip. Adding a new name here requires a comment
-        // explaining the reason.
-        private static readonly string[] BestEffortMethods =
+        // ClearInvoicedByTaxInvoiceAsync is an expression-bodied wrapper
+        // over SynchronizeTaxInvoiceLinksAsync, which performs the guard,
+        // read-only check, transaction, and verification. AutoSaveFrom-
+        // InvoiceAsync is a best-effort orchestrator whose individual
+        // SaveOrUpdate calls each enforce Settings.Manage; it must not
+        // block a PI save when optional master-data enrichment fails.
+        // Keep this list minimal and reviewed.
+        private static readonly string[] DelegatedGuardMethods =
         {
-            "DeleteMasterDnQuietlyAsync",
-            "ClearLinkedDeliveryNotesAsync",
             "ClearInvoicedByTaxInvoiceAsync",
             "AutoSaveFromInvoiceAsync",
         };
@@ -225,8 +223,8 @@ namespace ProGlassAutomation.Tests.Audit
                 if (!name.EndsWith("Async",
                         StringComparison.Ordinal)) continue;
 
-                // Best-effort allow list.
-                if (BestEffortMethods.Contains(name)) continue;
+                // Documented, guarded delegation exceptions.
+                if (DelegatedGuardMethods.Contains(name)) continue;
 
                 // Look for an OperationGuard.Demand call anywhere
                 // in the method body.

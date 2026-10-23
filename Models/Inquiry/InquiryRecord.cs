@@ -56,6 +56,8 @@ namespace ProGlassAutomation.Models.Inquiry
         public int? ProformaInvoiceId { get; set; }
         [MaxLength(50)] public string ProformaNumber { get; set; } = "";
         [MaxLength(50)] public string JobOrderNumber { get; set; } = "";
+        /// <summary>Optimistic-concurrency counter advanced by each persisted edit.</summary>
+        public int RowVersion { get; set; }
         public List<InquiryAttachment> Attachments { get; set; } = new();
         public List<InquiryCommunication> Communications { get; set; } = new();
 

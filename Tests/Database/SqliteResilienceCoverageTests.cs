@@ -116,7 +116,7 @@ namespace ProGlassAutomation.Tests.Database
             Assert.True(failures.Count == 0,
                 "Unwrapped SaveChangesAsync detected — every write must go " +
                 "through SqliteResilience.SaveWithRetryAsync so transient " +
-                "SQLITE_BUSY under WAL is retried. Fix by wrapping:" +
+                "SQLITE_BUSY under the configured journal policy is retried. Fix by wrapping:" +
                 Environment.NewLine +
                 "    await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());" +
                 Environment.NewLine + Environment.NewLine +
@@ -125,13 +125,12 @@ namespace ProGlassAutomation.Tests.Database
         }
 
         [Fact]
-        public void SchemaMigrationRunner_and_AuditDbMigrations_apply_pragmas_manually()
+        public void Raw_migration_connections_use_the_central_verified_policy()
         {
-            // Both files own a `Open()` helper that creates a raw
+            // Both files own an Open() helper that creates a raw
             // SqliteConnection (bypassing the EF DbConnectionInterceptor).
-            // They MUST manually run SqliteResilience.PragmaScript after
-            // Open — otherwise their migration statements run under the
-            // default rollback-journal / FK-off / no-busy-timeout mode.
+            // They must use BuildConnectionString + ApplyConnectionPolicy so
+            // local and shared paths get the same pragmas and mode verification.
             var root = LocateProjectRoot();
             foreach (var rel in new[]
             {
@@ -143,9 +142,18 @@ namespace ProGlassAutomation.Tests.Database
                 Assert.True(File.Exists(path), $"Missing: {rel}");
                 var src = File.ReadAllText(path);
 
-                Assert.Contains("SqliteResilience.PragmaScript", src);
-                Assert.Contains("SqliteResilience", src);
+                Assert.Contains("BuildConnectionString", src);
+                Assert.Contains("ApplyConnectionPolicy(connection)", src);
+                if (rel.EndsWith("SchemaMigrationRunner.cs", StringComparison.Ordinal))
+                    Assert.Contains("ApplyConnectionPolicy(destination)", src);
+                Assert.Contains("VerifyJournalMode", File.ReadAllText(Path.Combine(
+                    root, "Services", "Database", "SqliteResilience.cs")));
             }
+
+            string drill = File.ReadAllText(Path.Combine(root,
+                "Services", "Database", "DatabaseBackup", "RestoreDrillService.cs"));
+            Assert.Contains("BuildReadOnlyConnectionString(dbPath)", drill);
+            Assert.Contains("ApplyReadOnlyConnectionPolicy(connection)", drill);
         }
 
         private static string LocateProjectRoot()

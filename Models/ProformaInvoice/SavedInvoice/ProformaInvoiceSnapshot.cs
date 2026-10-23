@@ -99,6 +99,10 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string CompanyName { get; set; } = "";
         public string CompanyTrn { get; set; } = "";
         public string CompanyLocation { get; set; } = "";
+        /// <summary>Additive company telephone; old snapshots deserialize to blank.</summary>
+        public string CompanyTelephone { get; set; } = "";
+        /// <summary>Additive company website; old snapshots deserialize to blank.</summary>
+        public string CompanyWebsite { get; set; } = "";
         public string ProformaId { get; set; } = "";
         public int? InquiryId { get; set; }
 

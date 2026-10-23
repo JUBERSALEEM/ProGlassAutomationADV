@@ -88,6 +88,41 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.NormalMonetIos17pm}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+
+                        <!-- ═══ THEME CENTER — the eight families ═══
+                             A bento tray of eight cards. Every card paints
+                             a live miniature from the family's OWN recipe,
+                             so the choice is made by looking rather than
+                             by reading a name. The ComboBox below stays
+                             as the keyboard/screen-reader path to the
+                             same selection — the cards are the affordance,
+                             not the only affordance. -->
+                        <ItemsControl x:Name="ThemeCenterList"
+                                      ItemsSource="{Binding VisualThemeOptions}"
+                                      Margin="0,12,0,4"
+                                      AutomationProperties.AutomationId="Settings.ThemeCenter">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="2"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemContainerStyle>
+                                <Style TargetType="ContentPresenter">
+                                    <!-- Uniform gutter, and inner padding
+                                         at least equal to it: the Bento Grid
+                                         family's own rule, applied by the
+                                         Theme Center to its own first
+                                         family. -->
+                                    <Setter Property="Margin" Value="6"/>
+                                </Style>
+                            </ItemsControl.ItemContainerStyle>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <cards:ThemeCenterCard/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
                         <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
                             <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
                                 <StackPanel Orientation="Horizontal">

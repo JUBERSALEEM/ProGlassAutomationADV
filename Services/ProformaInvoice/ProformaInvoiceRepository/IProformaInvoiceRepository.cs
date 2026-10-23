@@ -31,15 +31,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// <summary>Persist a new invoice. Throws if ProformaId already exists.</summary>
         Task<int> InsertAsync(SavedProformaInvoice invoice);
 
-        /// <summary>Update the invoice matching ProformaId. Creates if missing.</summary>
-        Task UpdateAsync(SavedProformaInvoice invoice);
-
         /// <summary>
-        /// Update with optimistic-concurrency check (Phase 5). Pass the loaded
-        /// RowVersion; throws ConcurrencyConflictException if it moved on. Pass
-        /// null for legacy behaviour.
+        /// Update an existing invoice using the version loaded by the caller.
+        /// Missing or changed rows throw ConcurrencyConflictException; creation
+        /// must use InsertAsync.
         /// </summary>
-        Task UpdateAsync(SavedProformaInvoice invoice, int? expectedRowVersion);
+        Task UpdateAsync(SavedProformaInvoice invoice, int expectedRowVersion);
 
         /// <summary>
         /// Fetches by numeric primary key.
@@ -116,7 +113,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         Task<List<ProformaListRow>> GetListRowsAsync(
             CancellationToken cancellationToken = default);
 
-        Task DeleteAsync(int id);
+        Task DeleteAsync(int id, int expectedRowVersion);
 
         /// <summary>
         /// ERP lifecycle hardening (Phase 1): SOFT-CLOSE (void) a posted or
@@ -125,7 +122,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// number, snapshot and audit trail survive. Permission-gated exactly
         /// like DeleteAsync.
         /// </summary>
-        Task VoidAsync(int id, string reason);
+        Task VoidAsync(int id, int expectedRowVersion, string reason);
 
         /// <summary>
         /// Internal lifecycle write: marks the invoice with the given
@@ -141,6 +138,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// bookkeeping philosophy as JobOrderRepository's master-DN
         /// cleanup. Returns false when no invoice has that ProformaId.
         /// </summary>
-        Task<bool> MarkCancelledAsync(string proformaId);
+        Task<bool> MarkCancelledAsync(string proformaId, int expectedRowVersion);
     }
 }

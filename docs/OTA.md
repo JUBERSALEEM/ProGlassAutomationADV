@@ -29,16 +29,17 @@ Services/Updates/UpdateService      single edit point)
         └─► UpdateHistoryService (deduplicated on-screen ledger)
 ```
 
-**Next step (after first green on-device build):** the Velopack provider
-plugs into `UpdateService` and replaces "download + manual installer"
-with full in-app **download → apply → restart**, and packages the app
-for first-time installation. No UI change will be needed — the states
-above already cover it.
+Installed Velopack deployments use the Velopack provider for
+**download → apply → restart**. Portable/non-Velopack builds use the
+GitHub Release metadata for version and changelog, then download the
+signed standalone EXE. That portable EXE does not silently replace an
+existing installation; the Updates page reveals the downloaded file and
+explains the manual launch step.
 
 ## Where releases are hosted
 
-GitHub Releases on `JUBERSALEEM/ProGlassAutomationADV`.
-The desktop app calls the **public** releases API — it contains **no
+GitHub Releases on the public distribution repository `JUBERSALEEM/ProGlassAutomationssss`. Application source and the License Generator remain in the private `ProGlassAutomationADV` repository.
+The desktop app calls the **public distribution repository's** releases API — it contains **no
 GitHub token or secret anywhere** (spec §9/§23). CI secrets live only
 in GitHub Actions.
 
@@ -54,14 +55,28 @@ host scenarios.
 
 ## Release tagging & GitHub Actions
 
-- Tags use the `v` prefix: `v2.0.1`, `v2.1.0`, …
-- Normal pushes **never** create releases. A release is triggered
-  **intentionally** by pushing a version tag.
-- The pipeline template lives at [`Docs/CI/release.yml`](CI/release.yml)
-  (the Arena session cannot push into `.github/workflows/` directly —
-  copy it there once to activate, alongside `Docs/CI/build.yml`).
-- Pipeline: checkout → restore → build (Release) → publish → package →
-  create GitHub Release with generated notes → upload artifacts.
+- Tags use the `v` prefix and must match `<Version>` in
+  `ProGlassAutomation.csproj` exactly (for example `2.0.12` ↔ `v2.0.12`).
+- Normal pushes **never** publish a release. The active workflow is
+  [`.github/workflows/release.yml`](../.github/workflows/release.yml);
+  pushing a matching version tag triggers it.
+- The pipeline restores, builds, runs regression tests, and publishes a
+  **self-contained single-file win-x64 EXE**. It also builds the License
+  Generator as a separate single-file EXE and stores that output only as
+  a short-lived private GitHub Actions artifact. The License Generator is
+  never attached to GitHub Release assets and is never selected by OTA.
+- The application EXE is Authenticode-signed before release. Configure
+  private source-repository Actions secrets `CODESIGN_PFX_BASE64`,
+  `CODESIGN_PFX_PASSWORD`, and `OTA_RELEASE_TOKEN` (a token with
+  Contents read/write access to `JUBERSALEEM/ProGlassAutomationssss`).
+  Publishing intentionally fails if trusted signing credentials or the
+  release-host token are missing because the updater refuses unsigned
+  downloads and cannot write to another repository with the source repo's
+  default token.
+- Velopack packages remain available for installed-client OTA. The release
+  also contains the versioned standalone app EXE and SHA-256 checksum.
+  The release changelog is generated from commits between the previous
+  source tag and this tag, then shown in full on the OTA Updates page.
 
 ## How users receive updates
 
@@ -69,9 +84,12 @@ host scenarios.
 2. Or Settings → Updates → **Check for updates**
 3. Update found → release name, date, notes shown in the card
 4. **Download update** → live progress bar
-5. **Install & restart** → installer launches, app closes, new version
-   installs over application files only
-6. Everything is recorded in the Activity log (section **Updates**)
+5. Installed Velopack builds download/apply/restart through Velopack.
+   Portable builds reveal the downloaded standalone EXE and ask the user
+   to close ProGlass and run that file; the existing installation is not
+   silently overwritten.
+6. The full release changelog and update activity are available in
+   Settings → Updates and the Activity log (section **Updates**).
 
 ## Database & user-data safety (spec §19–§21)
 

@@ -37,7 +37,28 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 {
         public partial class SavedJobOrdersListViewModel : ViewModelBase, IDisposable
     {
-            private async Task ChangePriorityAsync(JobOrderRowViewModel row, string newPriority)
+        /// <summary>
+        /// Register quick-edit entry points. Both reuse the normal saved-list
+        /// workflow so status transitions, snapshot synchronization, repository
+        /// authorization, and audit behaviour remain in one place.
+        /// </summary>
+        public async Task ChangeStatusFromRegisterAsync(int jobOrderId, string newStatus)
+        {
+            if (jobOrderId <= 0 || string.IsNullOrWhiteSpace(newStatus)) return;
+            var row = _allJobs.FirstOrDefault(item => item.Id == jobOrderId)
+                ?? new JobOrderRowViewModel(new JobOrderListRow { Id = jobOrderId });
+            await ChangeStatusAsync(row, newStatus);
+        }
+
+        public async Task ChangePriorityFromRegisterAsync(int jobOrderId, string newPriority)
+        {
+            if (jobOrderId <= 0 || string.IsNullOrWhiteSpace(newPriority)) return;
+            var row = _allJobs.FirstOrDefault(item => item.Id == jobOrderId)
+                ?? new JobOrderRowViewModel(new JobOrderListRow { Id = jobOrderId });
+            await ChangePriorityAsync(row, newPriority);
+        }
+
+        private async Task ChangePriorityAsync(JobOrderRowViewModel row, string newPriority)
         {
             try
             {
@@ -58,7 +79,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     entity.FullSnapshotJson = JobOrderMapper.SerializeSnapshot(snapshot);
                 }
 
-                await _jobs.UpdateAsync(entity);
+                await _jobs.UpdateAsync(entity, row.RowVersion);
 
                 AuditService.Log(
                     AuditSections.JobOrder, "Job order priority changed",

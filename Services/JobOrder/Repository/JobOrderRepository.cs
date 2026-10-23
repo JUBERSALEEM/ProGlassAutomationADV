@@ -10,8 +10,10 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.Services.JobOrder.Mapper;
+using ProGlassAutomation.Services.Logging;
 
 using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
+using ProGlassAutomation.Services.Workflow;
 namespace ProGlassAutomation.Services.JobOrder.Repository
 {
     /// <summary>
@@ -68,7 +70,8 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
                     DeliveryDate = j.DeliveryDate,
                     CreatedAt = j.CreatedAt,
                     UpdatedAt = j.UpdatedAt,
-                    IsVoid = j.IsVoid
+                    IsVoid = j.IsVoid,
+                    RowVersion = j.RowVersion
                 })
                 .ToListAsync().ConfigureAwait(false);
         }
@@ -92,6 +95,13 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
 
             if (jobOrder == null)
                 throw new ArgumentNullException(nameof(jobOrder));
+            if (jobOrder.IsVoid
+                || DocumentLifecyclePolicy.HasVoidMetadata(
+                    jobOrder.VoidedAtUtc, jobOrder.VoidedBy, jobOrder.VoidReason)
+                || !DocumentLifecyclePolicy.CanEditBody(
+                    StatusTransitions.Kind.JobOrder, jobOrder.Status))
+                throw new InvalidOperationException(
+                    "A new Job Order must be non-void and in an editable workflow status.");
 
             bool idReallocated = false;
             for (int attempt = 0; attempt < 5; attempt++)
@@ -162,17 +172,11 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
             }
         }
 
-        public async Task UpdateAsync(SavedJobOrder jobOrder)
-            => await UpdateAsync(jobOrder, expectedRowVersion: null).ConfigureAwait(false);
-
         /// <summary>
-        /// Updates a job order. When <paramref name="expectedRowVersion"/> is
-        /// supplied and the stored RowVersion has moved on, a
-        /// <see cref="Services.Database.ConcurrencyConflictException"/> is thrown
-        /// so a concurrent save isn't silently overwritten. Null keeps legacy
-        /// behaviour; the counter still increments.
+        /// Updates a job order using the version captured by the caller. EF's
+        /// concurrency-token predicate closes the check-then-write race.
         /// </summary>
-        public async Task UpdateAsync(SavedJobOrder jobOrder, int? expectedRowVersion)
+        public async Task UpdateAsync(SavedJobOrder jobOrder, int expectedRowVersion)
         {
             ReadOnlyGate.Demand("update a job order");
             // A-1: service-layer authorization. The UI also checks,
@@ -180,28 +184,139 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
             OperationGuard.Demand(
                 AppPermissions.JobOrderEdit, "update a job order");
 
+            if (jobOrder == null)
+                throw new ArgumentNullException(nameof(jobOrder));
+
             using var db = new JobOrdersDbContext();
+            var stored = await db.JobOrders
+                .FirstOrDefaultAsync(x => x.Id == jobOrder.Id).ConfigureAwait(false);
+            if (stored == null)
+                throw new InvalidOperationException("The Job Order no longer exists.");
+            if (stored.IsVoid || !DocumentLifecyclePolicy.CanEditBody(
+                    StatusTransitions.Kind.JobOrder, stored.Status))
+                throw new InvalidOperationException(
+                    $"Job Order {stored.JobOrderId} is voided or its lifecycle status locks the body.");
+            if (!string.Equals(stored.Status, jobOrder.Status,
+                    StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException(
+                    "Job Order status changes must use the validated status-transition operation.");
+            if (!string.Equals(stored.JobOrderId, jobOrder.JobOrderId,
+                    StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(stored.SourceProformaId, jobOrder.SourceProformaId,
+                    StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException(
+                    "Job Order number and source Proforma link are immutable.");
 
-            // ERP hardening (Phase 5): optimistic-concurrency check + counter.
-            var storedRowVersion = await db.JobOrders
-                .Where(x => x.Id == jobOrder.Id)
-                .Select(x => (int?)x.RowVersion)
-                .FirstOrDefaultAsync().ConfigureAwait(false);
+            var incomingSnapshot = JobOrderMapper.DeserializeSnapshot(jobOrder);
+            var storedSnapshot = JobOrderMapper.DeserializeSnapshot(stored);
+            if (incomingSnapshot == null || storedSnapshot == null
+                || storedSnapshot.EmbeddedInvoice == null)
+                throw new InvalidOperationException(
+                    $"Job Order {stored.JobOrderId} has a missing or unreadable snapshot/source invoice; the update was not saved.");
 
-            if (expectedRowVersion.HasValue
-                && storedRowVersion.HasValue
-                && storedRowVersion.Value != expectedRowVersion.Value)
-            {
+            // The JSON repeats the indexed identity/status fields and embeds
+            // the source PI. Keep those values canonical even for direct
+            // repository callers that bypass the editor mapper.
+            incomingSnapshot.JobOrderId = stored.JobOrderId;
+            incomingSnapshot.SourceProformaId = stored.SourceProformaId;
+            incomingSnapshot.EmbeddedInvoice = storedSnapshot.EmbeddedInvoice;
+            incomingSnapshot.Production ??= storedSnapshot.Production ?? new();
+            incomingSnapshot.Production.Status = stored.Status;
+            incomingSnapshot.Production.Priority = jobOrder.Priority;
+            incomingSnapshot.Production.DeliveryDate = jobOrder.DeliveryDate;
+
+            if (stored.RowVersion != expectedRowVersion)
                 throw new Services.Database.ConcurrencyConflictException(
-                    "Job Order", jobOrder.JobOrderId,
-                    expectedRowVersion.Value, storedRowVersion.Value);
+                    "Job Order", stored.JobOrderId,
+                    expectedRowVersion, stored.RowVersion);
+
+            // Copy only mutable production fields. Immutable identity, source
+            // invoice, fiscal totals, and void metadata are never overwritten
+            // from a detached UI object.
+            stored.Priority = jobOrder.Priority;
+            stored.DeliveryDate = jobOrder.DeliveryDate;
+            stored.FullSnapshotJson = JobOrderMapper.SerializeSnapshot(incomingSnapshot);
+            stored.RowVersion += 1;
+            stored.UpdatedAt = DateTime.Now;
+
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(db, stored.Id).ConfigureAwait(false);
+                throw new Services.Database.ConcurrencyConflictException(
+                    "Job Order", stored.JobOrderId, expectedRowVersion, actual);
+            }
+            jobOrder.Status = stored.Status;
+            jobOrder.JobOrderId = stored.JobOrderId;
+            jobOrder.SourceProformaId = stored.SourceProformaId;
+            jobOrder.FullSnapshotJson = stored.FullSnapshotJson;
+            jobOrder.RowVersion = stored.RowVersion;
+            jobOrder.UpdatedAt = stored.UpdatedAt;
+            DocumentLifecycle.Raise();
+        }
+
+        public async Task<SavedJobOrder?> UpdateStatusAsync(
+            int id, string newStatus, int expectedRowVersion)
+        {
+            ReadOnlyGate.Demand("change a job order status");
+            OperationGuard.Demand(
+                AppPermissions.JobOrderEdit, "change a job order status");
+            if (string.IsNullOrWhiteSpace(newStatus))
+                throw new ArgumentException("A target status is required.", nameof(newStatus));
+
+            using var db = new JobOrdersDbContext();
+            var stored = await db.JobOrders
+                .FirstOrDefaultAsync(x => x.Id == id).ConfigureAwait(false);
+            if (stored == null) return null;
+            if (stored.RowVersion != expectedRowVersion)
+                throw new Services.Database.ConcurrencyConflictException(
+                    "Job Order", stored.JobOrderId, expectedRowVersion, stored.RowVersion);
+            if (stored.IsVoid)
+                throw new InvalidOperationException(
+                    $"Job Order {stored.JobOrderId} is voided and cannot change status.");
+
+            string next = newStatus.Trim();
+            var transition = StatusTransitions.Validate(
+                StatusTransitions.Kind.JobOrder, stored.Status, next);
+            if (!transition.IsValid)
+                throw new InvalidOperationException(
+                    transition.Reason ?? "Invalid Job Order status transition.");
+            if (string.Equals(stored.Status, next, StringComparison.OrdinalIgnoreCase))
+                return stored;
+
+            string previous = stored.Status;
+            var snapshot = JobOrderMapper.DeserializeSnapshot(stored)
+                ?? throw new InvalidOperationException(
+                    $"Job Order {stored.JobOrderId} has an invalid snapshot; status was not changed.");
+            snapshot.Production ??= new Models.JobOrder.ProductionDetails.ProductionDetails();
+            snapshot.Production.Status = next;
+            snapshot.Production.LastEditedAt = DateTime.Now;
+            snapshot.Production.LastEditedBy = AuditService.CurrentUsername;
+
+            stored.Status = next;
+            stored.FullSnapshotJson = JobOrderMapper.SerializeSnapshot(snapshot);
+            stored.UpdatedAt = DateTime.Now;
+            stored.RowVersion += 1;
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(db, stored.Id).ConfigureAwait(false);
+                throw new Services.Database.ConcurrencyConflictException(
+                    "Job Order", stored.JobOrderId, expectedRowVersion, actual);
             }
 
-            jobOrder.RowVersion = (storedRowVersion ?? jobOrder.RowVersion) + 1;
-            jobOrder.UpdatedAt = DateTime.Now;
-            db.JobOrders.Update(jobOrder);
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            AuditService.Log(
+                AuditSections.JobOrder, "Job Order status changed",
+                $"{stored.JobOrderId}: {previous} → {next}",
+                entityType: nameof(SavedJobOrder), entityId: stored.JobOrderId);
             DocumentLifecycle.Raise();
+            return stored;
         }
 
         public async Task DeleteAsync(int id)
@@ -218,9 +333,43 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
 
             string? sourcePi = job.SourceProformaId;
             string? jobOrderId = job.JobOrderId;
+            if (job.IsVoid)
+                throw new InvalidOperationException(
+                    $"Job Order {jobOrderId} is already voided and must be retained.");
+
+            bool hasLinkedDeliveryNotes = false;
+            if (!string.IsNullOrWhiteSpace(jobOrderId))
+            {
+                if (App.DeliveryNotes == null)
+                    throw new InvalidOperationException(
+                        "Cannot verify linked Delivery Notes; the delivery repository is unavailable.");
+                hasLinkedDeliveryNotes = (await App.DeliveryNotes
+                    .GetByJobOrderIdAsync(jobOrderId).ConfigureAwait(false)).Count > 0;
+            }
+
+            var decision = DocumentLifecyclePolicy.DecideDelete(
+                StatusTransitions.Kind.JobOrder, job.Status,
+                hasLinkedDeliveryNotes);
+            if (decision == DocumentLifecyclePolicy.DeleteDecision.Blocked)
+                throw new InvalidOperationException(
+                    $"Job Order {jobOrderId} has linked Delivery Notes and cannot be deleted or voided until those records are handled.");
+            if (decision == DocumentLifecyclePolicy.DeleteDecision.Retained)
+                throw new InvalidOperationException(
+                    $"Job Order {jobOrderId} cannot be safely deleted or voided from status '{job.Status}' and must be retained.");
+            if (decision == DocumentLifecyclePolicy.DeleteDecision.Void)
+            {
+                await VoidAsync(id, "Delete requested; lifecycle policy requires retention.")
+                    .ConfigureAwait(false);
+                return;
+            }
 
             db.JobOrders.Remove(job);
             await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            AuditService.Log(
+                AuditSections.JobOrder, "Job Order deleted",
+                $"Deleted draft Job Order {jobOrderId}"
+                    + (string.IsNullOrWhiteSpace(sourcePi) ? "" : $" (source PI {sourcePi})"),
+                entityType: nameof(SavedJobOrder), entityId: jobOrderId ?? "");
 
             await DeleteMasterDnQuietlyAsync(jobOrderId);
 
@@ -248,18 +397,52 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
             var job = await db.JobOrders.FindAsync(id).ConfigureAwait(false);
             if (job == null) return;
             if (job.IsVoid) return;   // idempotent
+            if (!DocumentLifecyclePolicy.CanVoid(
+                    StatusTransitions.Kind.JobOrder, job.Status))
+                throw new InvalidOperationException(
+                    $"Job Order {job.JobOrderId} cannot be voided from status '{job.Status}'; it must be retained.");
 
             string? sourcePi = job.SourceProformaId;
+            if (!string.IsNullOrWhiteSpace(job.JobOrderId))
+            {
+                if (App.DeliveryNotes == null)
+                    throw new InvalidOperationException(
+                        "Cannot verify linked Delivery Notes; the delivery repository is unavailable.");
+                if ((await App.DeliveryNotes.GetByJobOrderIdAsync(job.JobOrderId)
+                        .ConfigureAwait(false)).Count > 0)
+                    throw new InvalidOperationException(
+                        $"Job Order {job.JobOrderId} cannot be voided while linked Delivery Notes remain.");
+            }
 
             job.IsVoid = true;
             job.VoidedAtUtc = DateTime.UtcNow;
             job.VoidedBy = AuditService.CurrentUsername;
-            job.VoidReason = string.IsNullOrWhiteSpace(reason) ? "(no reason given)" : reason.Trim();
+            job.VoidReason = DocumentLifecyclePolicy.NormalizeVoidReason(reason);
             job.Status = Services.Workflow.DocumentLifecyclePolicy.VoidTargetStatus(
                 Services.Workflow.StatusTransitions.Kind.JobOrder);
             job.UpdatedAt = DateTime.Now;
+            job.RowVersion += 1;
+
+            var snapshot = JobOrderMapper.DeserializeSnapshot(job);
+            if (snapshot?.Production != null)
+            {
+                snapshot.Production.Status = job.Status;
+                snapshot.Production.LastEditedAt = job.UpdatedAt;
+                snapshot.Production.LastEditedBy = AuditService.CurrentUsername;
+                job.FullSnapshotJson = JobOrderMapper.SerializeSnapshot(snapshot);
+            }
+            else
+            {
+                AppLogService.Warning(
+                    $"Job Order {job.JobOrderId} was voided but its snapshot status could not be refreshed.");
+            }
 
             await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            AuditService.Log(
+                AuditSections.JobOrder, "Job Order voided",
+                $"Voided Job Order {job.JobOrderId}",
+                entityType: nameof(SavedJobOrder), entityId: job.JobOrderId,
+                reason: job.VoidReason);
 
             // Recover the parent PI's derived status just like a delete would.
             await ProformaLifecycleSync.AfterDownstreamChangeAsync(sourcePi);
@@ -388,6 +571,15 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
                     Status = j.Status
                 })
                 .ToListAsync().ConfigureAwait(false);
+        }
+
+        private static async Task<int> GetCurrentRowVersionAsync(
+            JobOrdersDbContext db, int id)
+        {
+            return await db.JobOrders.AsNoTracking()
+                .Where(x => x.Id == id)
+                .Select(x => (int?)x.RowVersion)
+                .FirstOrDefaultAsync().ConfigureAwait(false) ?? -1;
         }
 
         // ── LOOKUP FROM PI ────────────────────────────────────────────────

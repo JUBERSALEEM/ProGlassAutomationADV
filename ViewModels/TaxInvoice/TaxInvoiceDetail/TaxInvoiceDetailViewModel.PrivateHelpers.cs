@@ -368,7 +368,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 foreach (var member in others)
                 {
                     await _taxInvoices.UpdateStatusAsync(
-                        member.InvoiceNumber, "Issued");
+                        member.InvoiceNumber, "Issued", member.RowVersion);
                     AuditService.Log(
                         AuditSections.TaxInvoice, "Tax invoice issued",
                         $"{member.InvoiceNumber} — Issue all",

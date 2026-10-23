@@ -355,6 +355,22 @@ namespace ProGlassAutomation.Services.Updates
                         return;
                     }
 
+                    // A versioned win-x64 EXE is the portable app itself,
+                    // not a setup program. Do not launch a second copy and do
+                    // not shut down the current session as though it had
+                    // installed over it. Reveal it and explain the manual step.
+                    if (Path.GetFileName(path).EndsWith(
+                            "-win-x64.exe", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ProcessStartGuard.TryOpenExplorerSelect(
+                            path, CorrelationContext.NewId());
+                        SetState(UpdateState.DownloadCompleted,
+                            "The standalone update EXE is downloaded and verified. " +
+                            "Close ProGlass, then run the downloaded EXE to start this version. " +
+                            "This portable build does not replace an existing installation.");
+                        return;
+                    }
+
                     // 2026-08-25 senior fix: the launch result was ignored
                     // and the app shut down unconditionally 800 ms later —
                     // if the installer never started, the user was left
@@ -462,6 +478,52 @@ namespace ProGlassAutomation.Services.Updates
             return client;
         }
 
+        /// <summary>
+        /// Selects only recognized application release assets. Public for
+        /// regression tests; returns -1 when the release has no safe,
+        /// supported download asset. Velopack packages are left to Velopack,
+        /// and a portable app EXE is never treated as an installer.
+        /// </summary>
+        public static int FindPreferredReleaseAssetIndex(
+            JsonElement assets, string tag)
+        {
+            if (assets.ValueKind != JsonValueKind.Array)
+                return -1;
+
+            var candidates = assets.EnumerateArray().ToArray();
+            string ReadName(JsonElement item) =>
+                item.TryGetProperty("name", out var name)
+                    ? name.GetString() ?? "" : "";
+
+            // The manual update command launches an installer. Prefer the
+            // Velopack Setup.exe even when the standalone app EXE appears
+            // first in the GitHub API response; executing a portable app EXE
+            // would only start another app instance, not install an update.
+            int index = Array.FindIndex(candidates, item =>
+                string.Equals(ReadName(item), "Setup.exe",
+                    StringComparison.OrdinalIgnoreCase));
+            if (index >= 0) return index;
+
+            // Backward compatibility with earlier release asset names.
+            index = Array.FindIndex(candidates, item =>
+                string.Equals(ReadName(item), "ProGlassAutomation-Setup.exe",
+                    StringComparison.OrdinalIgnoreCase));
+            if (index >= 0) return index;
+
+            index = Array.FindIndex(candidates, item =>
+                ReadName(item).EndsWith("-Setup.exe",
+                    StringComparison.OrdinalIgnoreCase));
+            if (index >= 0) return index;
+
+            // Old releases may contain a portable ZIP rather than an installer.
+            return Array.FindIndex(candidates, item =>
+            {
+                var name = ReadName(item);
+                return name.StartsWith("ProGlassAutomation-", StringComparison.OrdinalIgnoreCase)
+                    && name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+            });
+        }
+
         /// <summary>Checks GitHub for a newer release. Never throws.</summary>
         public static async Task<UpdateCheckResult> CheckForUpdateAsync()
         {
@@ -497,11 +559,20 @@ namespace ProGlassAutomation.Services.Updates
                     assets.ValueKind == JsonValueKind.Array &&
                     assets.GetArrayLength() > 0)
                 {
-                    var asset = assets.EnumerateArray().First();
-                    downloadUrl = asset.TryGetProperty("browser_download_url", out var d)
-                        ? d.GetString() ?? "" : "";
-                    fileName = asset.TryGetProperty("name", out var n)
-                        ? n.GetString() ?? "" : "";
+                    // A GitHub Release may contain Velopack delta packages,
+                    // checksums, and the private License Generator artifact
+                    // is deliberately never a release asset. Never select the
+                    // first asset blindly: prefer this release's signed
+                    // installer, then known legacy installer assets.
+                    int selectedIndex = FindPreferredReleaseAssetIndex(assets, tag);
+                    if (selectedIndex >= 0)
+                    {
+                        var asset = assets[selectedIndex];
+                        downloadUrl = asset.TryGetProperty("browser_download_url", out var d)
+                            ? d.GetString() ?? "" : "";
+                        fileName = asset.TryGetProperty("name", out var n)
+                            ? n.GetString() ?? "" : "";
+                    }
                 }
 
                 // Parse the publish date (ISO-8601 from GitHub).

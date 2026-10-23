@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/NeoBrutal/NeoBrutalControls.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Neo-Brutalism — the stamped family
+
+         PART_NeoFill    the block: flat fill, thick border
+         PART_NeoShadow  the HARD OFFSET PLATE, behind it
+         PART_NeoFocus   the focus outline, OUTSIDE the border
+
+     ── EVERY TEMPLATE RESERVES ITS OWN SHADOW ROOM ───────────────────
+
+     A hard offset shadow extends past the block's own bounds, so a
+     control with no margin around it gets its shadow clipped by its
+     parent. A blurred shadow forgives this because the blur fades before
+     it reaches the edge. This one does not fade, so every root Grid here
+     carries NeoShadowRoom and the offset always has somewhere to go.
+
+     ── THREE RULES, AND THAT IS THE WHOLE STYLE ─────────────────────
+
+     1. Thick border, 2-6px solid. At 1px it is a hairline that separates
+        two regions; at 4px it is a graphic element in its own right.
+     2. Hard offset shadow, zero blur. Leaving even 2px of blur is the
+        difference between the style reading as intentional and reading
+        as a mistake.
+     3. Radius zero. Square corners. That is the point.
+
+     Every CornerRadius in this file is an explicit zero. It looks
+     redundant against the Border default and it is not: radius 0 is
+     rule three of this family, and a value that is only the ABSENCE of
+     configuration is not a value.
+
+     ── THE FOCUS OUTLINE IS OUTSIDE THE BORDER ──────────────────────
+
+     Focus states get eaten. A 4px black border means a focus ring drawn
+     inside the control lands on an existing black outline and becomes
+     invisible, so the only focused thing on screen looks unfocused.
+     PART_NeoFocus therefore sits OUTSIDE the border with a negative
+     margin, which NeoBrutalSurfaceParts.Apply computes from the live
+     border width rather than guessing at 4.
+     ═══════════════════════════════════════════════════════════════ -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:neo="clr-namespace:ProGlassAutomation.Controls.NeoBrutal"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         TOKENS
+         Design-time values. The LIVE fill, border and offset are set in
+         code by NeoBrutalSurfaceParts.Apply on every repaint, so these
+         are what a block looks like before the palette resolves, and
+         what it falls back to if resolution fails.
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- RULE THREE. -->
+    <sys:Double x:Key="NeoRadius">0</sys:Double>
+    <CornerRadius x:Key="NeoSquare">0</CornerRadius>
+
+    <!-- RULE ONE: a border thick enough to read as ornament. -->
+    <Thickness x:Key="NeoBorderThin">2</Thickness>
+    <Thickness x:Key="NeoBorder">4</Thickness>
+    <Thickness x:Key="NeoBorderThick">6</Thickness>
+
+    <!-- RULE TWO: hard offsets, zero blur, down and right. -->
+    <sys:Double x:Key="NeoShadowSmall">3</sys:Double>
+    <sys:Double x:Key="NeoShadowMedium">5</sys:Double>
+    <sys:Double x:Key="NeoShadowLarge">8</sys:Double>
+
+    <!-- Room for the offset so it is never clipped by the parent. -->
+    <Thickness x:Key="NeoShadowRoom">8</Thickness>
+
+    <!-- Must exceed NeoShadowLarge, because hard shadows do not fade and
+         two touching plates merge into a black wedge. -->
+    <Thickness x:Key="NeoGutter">12</Thickness>
+    <Thickness x:Key="NeoPad">16</Thickness>
+
+    <sys:Double x:Key="NeoFocusWeight">3</sys:Double>
+    <sys:Double x:Key="NeoFocusOffset">3</sys:Double>
+    <sys:Double x:Key="NeoHitTarget">44</sys:Double>
+    <!-- Impact has no curve. -->
+    <sys:Double x:Key="NeoPressDuration">0</sys:Double>
+
+    <!-- One ink, drawn at two weights. Border and shadow are the same
+         colour by design. -->
+    <SolidColorBrush x:Key="NeoInkBrush" Color="#0A0A0A" />
+    <SolidColorBrush x:Key="NeoBorderBrush" Color="#0A0A0A" />
+    <SolidColorBrush x:Key="NeoShadowBrush" Color="#0A0A0A" />
+
+    <SolidColorBrush x:Key="NeoPaperBrush" Color="#FFFDF5" />
+    <SolidColorBrush x:Key="NeoSurfaceBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="NeoMutedBrush" Color="#4A4A4A" />
+
+    <!-- The accents. Every one of these takes INK text, never white. -->
+    <SolidColorBrush x:Key="NeoAccentBrush" Color="#FFDE00" />
+    <SolidColorBrush x:Key="NeoAccentInkBrush" Color="#0A0A0A" />
+    <SolidColorBrush x:Key="NeoDangerBrush" Color="#FF6B6B" />
+    <SolidColorBrush x:Key="NeoInfoBrush" Color="#00E5FF" />
+    <SolidColorBrush x:Key="NeoSuccessBrush" Color="#C4F000" />
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         BUTTON
+         Shadow plate first, so it sits BEHIND. Then the block. Then the
+         focus outline, last, because it is the only part that is allowed
+         to sit outside anything.
+         ═══════════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="NeoBrutalButtonTemplate"
+                     TargetType="{x:Type neo:NeoBrutalButton}">
+        <Grid Margin="{StaticResource NeoShadowRoom}"
+              Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_NeoShadow"
+                    IsHitTestVisible="False"
+                    Background="{StaticResource NeoShadowBrush}"
+                    CornerRadius="{StaticResource NeoSquare}" />
+            <Border x:Name="PART_NeoFill"
+                    Background="{StaticResource NeoSurfaceBrush}"
+                    BorderBrush="{StaticResource NeoBorderBrush}"
+                    BorderThickness="{StaticResource NeoBorder}"
+                    CornerRadius="{StaticResource NeoSquare}">
+                <ContentPresenter Margin="{StaticResource NeoPad}"
+                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+            </Border>
+            <Border x:Name="PART_NeoFocus"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed"
+                    BorderBrush="{StaticResource NeoAccentBrush}"
+                    BorderThickness="{StaticResource NeoFocusWeight}"
+                    CornerRadius="{StaticResource NeoSquare}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         CARD
+         Same three parts. The visible difference is that a card never
+         reports itself focusable, so PART_NeoFocus stays collapsed
+         forever — it is kept because the parts binder looks it up by
+         name and a template that omitted it would paint a block whose
+         focus state could never be expressed.
+         ═══════════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="NeoBrutalCardTemplate"
+                     TargetType="{x:Type neo:NeoBrutalCard}">
+        <Grid Margin="{StaticResource NeoShadowRoom}"
+              Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_NeoShadow"
+                    IsHitTestVisible="False"
+                    Background="{StaticResource NeoShadowBrush}"
+                    CornerRadius="{StaticResource NeoSquare}" />
+            <Border x:Name="PART_NeoFill"
+                    Background="{StaticResource NeoSurfaceBrush}"
+                    BorderBrush="{StaticResource NeoBorderBrush}"
+                    BorderThickness="{StaticResource NeoBorder}"
+                    CornerRadius="{StaticResource NeoSquare}">
+                <ContentPresenter Margin="{StaticResource NeoPad}"
+                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+            </Border>
+            <Border x:Name="PART_NeoFocus"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed"
+                    BorderBrush="{StaticResource NeoAccentBrush}"
+                    BorderThickness="{StaticResource NeoFocusWeight}"
+                    CornerRadius="{StaticResource NeoSquare}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         FIELD
+         PART_ContentHost is mandatory for TextBox: without that exact
+         name the control renders, measures correctly, and accepts no
+         keystrokes at all.
+         ═══════════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="NeoBrutalFieldTemplate"
+                     TargetType="{x:Type neo:NeoBrutalField}">
+        <Grid Margin="{StaticResource NeoShadowRoom}"
+              Background="{TemplateBinding Background}"
+              SnapsToDevicePixels="True">
+            <Border x:Name="PART_NeoShadow"
+                    IsHitTestVisible="False"
+                    Background="{StaticResource NeoShadowBrush}"
+                    CornerRadius="{StaticResource NeoSquare}" />
+            <Border x:Name="PART_NeoFill"
+                    Background="{StaticResource NeoSurfaceBrush}"
+                    BorderBrush="{StaticResource NeoBorderBrush}"
+                    BorderThickness="{StaticResource NeoBorder}"
+                    CornerRadius="{StaticResource NeoSquare}">
+                <ScrollViewer x:Name="PART_ContentHost"
+                              Margin="{StaticResource NeoPad}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                              Focusable="False"
+                              HorizontalScrollBarVisibility="Hidden"
+                              VerticalScrollBarVisibility="Hidden" />
+            </Border>
+            <Border x:Name="PART_NeoFocus"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed"
+                    BorderBrush="{StaticResource NeoAccentBrush}"
+                    BorderThickness="{StaticResource NeoFocusWeight}"
+                    CornerRadius="{StaticResource NeoSquare}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         STYLES
+         Uppercase throughout, because "no typographic subtlety: size,
+         weight and contrast do the work".
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <Style TargetType="{x:Type neo:NeoBrutalButton}">
+        <Setter Property="Template" Value="{StaticResource NeoBrutalButtonTemplate}" />
+        <Setter Property="Foreground" Value="{StaticResource NeoInkBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="MinHeight" Value="{StaticResource NeoHitTarget}" />
+        <Setter Property="MinWidth" Value="{StaticResource NeoHitTarget}" />
+        <Setter Property="Margin" Value="{StaticResource NeoGutter}" />
+    </Style>
+
+    <!-- The primary action: acid fill, ink label. -->
+    <Style x:Key="NeoPrimaryButtonStyle"
+           TargetType="{x:Type neo:NeoBrutalButton}"
+           BasedOn="{StaticResource {x:Type neo:NeoBrutalButton}}">
+        <Setter Property="NeoPrimary" Value="True" />
+        <Setter Property="Foreground" Value="{StaticResource NeoAccentInkBrush}" />
+    </Style>
+
+    <!-- Destructive: still ink on the fill, never white. -->
+    <Style x:Key="NeoDangerButtonStyle"
+           TargetType="{x:Type neo:NeoBrutalButton}"
+           BasedOn="{StaticResource {x:Type neo:NeoBrutalButton}}">
+        <Setter Property="NeoDanger" Value="True" />
+        <Setter Property="Foreground" Value="{StaticResource NeoInkBrush}" />
+    </Style>
+
+    <Style TargetType="{x:Type neo:NeoBrutalCard}">
+        <Setter Property="Template" Value="{StaticResource NeoBrutalCardTemplate}" />
+        <Setter Property="Foreground" Value="{StaticResource NeoInkBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="MinHeight" Value="{StaticResource NeoHitTarget}" />
+        <Setter Property="Margin" Value="{StaticResource NeoGutter}" />
+    </Style>
+
+    <!-- The KPI block: the acid fill marks the headline figure without
+         making the card look clickable. -->
+    <Style x:Key="NeoKpiCardStyle"
+           TargetType="{x:Type neo:NeoBrutalCard}"
+           BasedOn="{StaticResource {x:Type neo:NeoBrutalCard}}">
+        <Setter Property="NeoAccent" Value="True" />
+        <Setter Property="Foreground" Value="{StaticResource NeoAccentInkBrush}" />
+        <Setter Property="MinHeight" Value="120" />
+    </Style>
+
+    <Style TargetType="{x:Type neo:NeoBrutalField}">
+        <Setter Property="Template" Value="{StaticResource NeoBrutalFieldTemplate}" />
+        <Setter Property="Foreground" Value="{StaticResource NeoInkBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="MinHeight" Value="{StaticResource NeoHitTarget}" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+</ResourceDictionary>

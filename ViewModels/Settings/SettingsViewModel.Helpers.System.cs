@@ -46,6 +46,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             try { ThemeManager.ThemeChanged -= _themeChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: ThemeChanged detach failed: " + ExceptionMessages.Deep(ex)); }
             try { ThemeManager.UiScaleChanged -= _uiScaleChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: UiScaleChanged detach failed: " + ExceptionMessages.Deep(ex)); }
             try { UpdatesPage?.Detach(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: UpdateService detach failed: " + ExceptionMessages.Deep(ex)); }
+            try { RecordsSyncPage?.Detach(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: Records Sync status detach failed: " + ExceptionMessages.Deep(ex)); }
             try { TeardownAppearanceSection(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: appearance-section detach failed: " + ExceptionMessages.Deep(ex)); }
             try { FlushDebouncedSave(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: debounced save flush failed: " + ExceptionMessages.Deep(ex)); }
             GC.SuppressFinalize(this);
@@ -73,7 +74,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         ///   4. on ANY failure keeps the app OPEN and tells the user,
         ///      so a failed restart can never strand them closed.
         /// </summary>
-        private void RestartApplication()
+        private bool RestartApplication()
         {
             try
             {
@@ -94,7 +95,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                         LocalizationService.Instance.T("Msg.CapRestartUnavailable"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
-                    return; // never close without launching
+                    return false; // never close without launching
                 }
 
                 // 2) Self-identity check: only this process's own exe.
@@ -115,7 +116,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                         LocalizationService.Instance.T("Msg.CapRestartBlocked"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
-                    return; // never close without launching
+                    return false; // never close without launching
                 }
 
                 // 3) Launch FIRST — only exit once the new instance
@@ -134,7 +135,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                         LocalizationService.Instance.T("Msg.CapRestartFailed"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
-                    return; // never close without launching
+                    return false; // never close without launching
                 }
                 started.Dispose();
 
@@ -142,6 +143,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 // before this instance tears down.
                 System.Threading.Thread.Sleep(400);
                 System.Windows.Application.Current.Shutdown();
+                return true;
             }
             catch (System.Exception ex)
             {
@@ -159,8 +161,9 @@ namespace ProGlassAutomation.ViewModels.Settings
                         System.Windows.MessageBoxImage.Warning);
                 }
                 catch {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("catch suppressed");
-            }
+                    ProGlassAutomation.Services.Logging.AppLogService.Debug("catch suppressed");
+                }
+                return false;
             }
         }
     }

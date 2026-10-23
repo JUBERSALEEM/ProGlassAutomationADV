@@ -150,6 +150,19 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
                         report.FilesFailed++;
                 }
 
+                // Attachment trees are part of the backup set and must be
+                // drilled too; checking only set-root files could give a
+                // clean report while external Inquiry/PI/DN documents were
+                // missing or unreadable.
+                foreach (var sub in BackupService.ExtraDataSubfolders)
+                {
+                    var sourceDir = Path.Combine(setFolder, sub);
+                    if (!Directory.Exists(sourceDir)) continue;
+
+                    CopyAndVerifyDirectoryTree(
+                        sourceDir, Path.Combine(scratch, sub), report);
+                }
+
                 // 4. SQLite integrity check on every restored database.
                 var integrity = VerifyBackupSetIntegrity(scratch);
                 report.IntegrityResults = integrity;
@@ -166,6 +179,25 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
                         CorrelationId = corrId,
                         Extra = $"Set={report.BackupSetPath}"
                     });
+
+                if (!report.IsClean)
+                {
+                    var verificationError =
+                        $"Restore drill verification failed: " +
+                        $"{report.FilesVerified}/{report.FilesCopied} files verified, " +
+                        $"{report.FilesFailed} file failure(s), " +
+                        $"{report.DatabasesOk}/{report.DatabasesChecked} database integrity checks passed.";
+                    AppLogService.Warning(
+                        verificationError,
+                        new LogContext
+                        {
+                            Module = "Backup",
+                            Operation = "RestoreDrill",
+                            CorrelationId = corrId,
+                            Extra = $"Set={report.BackupSetPath}"
+                        });
+                    return Result<RestoreDrillReport>.Fail(verificationError, corrId);
+                }
 
                 return Result<RestoreDrillReport>.Ok(report, corrId);
             }
@@ -204,6 +236,33 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
             }
         }
 
+        private static void CopyAndVerifyDirectoryTree(
+            string sourceDir,
+            string targetDir,
+            RestoreDrillReport report)
+        {
+            Directory.CreateDirectory(targetDir);
+
+            foreach (var file in Directory.GetFiles(sourceDir))
+            {
+                var copyPath = Path.Combine(targetDir, Path.GetFileName(file));
+                File.Copy(file, copyPath, overwrite: true);
+                report.FilesCopied++;
+                if (AreFilesIdentical(file, copyPath))
+                    report.FilesVerified++;
+                else
+                    report.FilesFailed++;
+            }
+
+            foreach (var subDir in Directory.GetDirectories(sourceDir))
+            {
+                CopyAndVerifyDirectoryTree(
+                    subDir,
+                    Path.Combine(targetDir, Path.GetFileName(subDir)),
+                    report);
+            }
+        }
+
         /// <summary>
         /// Opens every .db file in a folder read-only and runs
         /// PRAGMA integrity_check. Returns one result per database.
@@ -235,14 +294,19 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
 
             try
             {
-                var builder = new SqliteConnectionStringBuilder
+                var builder = new SqliteConnectionStringBuilder(
+                    SqliteResilience.BuildReadOnlyConnectionString(dbPath))
                 {
-                    DataSource = dbPath,
-                    Mode = SqliteOpenMode.ReadOnly
+                    // Integrity checks are short-lived and must release the
+                    // handle deterministically (not return it to a pool).
+                    // This also lets the isolated test/drill scratch folder
+                    // be deleted immediately on Windows.
+                    Pooling = false
                 };
 
                 using var connection = new SqliteConnection(builder.ToString());
                 connection.Open();
+                SqliteResilience.ApplyReadOnlyConnectionPolicy(connection);
 
                 using var command = connection.CreateCommand();
                 command.CommandText = "PRAGMA integrity_check;";

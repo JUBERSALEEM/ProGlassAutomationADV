@@ -827,10 +827,6 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     if (existing == null)
                     {
                         var added = await _repo.AddAsync(row);
-                        await _historyRepo.LogAsync(
-                            added.Id, DescribeSheet(added), "Added",
-                            $"[CSV Import] Initial stock: {added.Stock} sheets. Value: {added.TotalPurchaseValue:N2} AED.",
-                            added.Stock, added.TotalPurchaseValue);
                         addedCount++;
 
                         // Append the row just written instead of reloading the
@@ -875,13 +871,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                         case DuplicateAction.AddToStock:
                             if (row.Stock > 0)
                             {
-                                var oldStock = existing.Stock;
-                                await _repo.BuyStockAsync(existing.Id, row.Stock);
-                                var value = row.Stock * existing.SqmPerSheet * existing.PurchasePricePerSqm;
-                                await _historyRepo.LogAsync(
-                                    existing.Id, DescribeSheet(existing), "Bought",
-                                    $"[CSV Import] Added {row.Stock} sheets. Stock: {oldStock} → {oldStock + row.Stock}. Value: {value:N2} AED.",
-                                    row.Stock, value);
+                                await _repo.BuyStockAsync(
+                                    existing.Id, row.Stock, source: "[CSV Import]");
                                 stockAddedCount++;
                             }
                             else skippedCount++;
@@ -892,11 +883,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                             existing.SellPricePerSqm = row.SellPricePerSqm;
                             existing.Stock = row.Stock;
                             existing.Used = row.Used;
-                            await _repo.UpdateAsync(existing);
-                            await _historyRepo.LogAsync(
-                                existing.Id, DescribeSheet(existing), "Edited",
-                                $"[CSV Import] Overwritten. Buy: {existing.PurchasePricePerSqm:N2}, " +
-                                $"Sell: {existing.SellPricePerSqm:N2}, Stock: {existing.Stock}, Used: {existing.Used}.");
+                            await _repo.UpdateAsync(existing, existing.RowVersion);
                             updatedCount++;
                             break;
                     }
@@ -935,17 +922,6 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 var added = await _repo.AddAsync(toAdd);
                 try
                 {
-                    await _historyRepo.LogAsync(
-                        added.Id, DescribeSheet(added), "Added",
-                        $"Initial stock: {added.Stock} sheets @ {added.PurchasePricePerSqm:N2} AED/SQM. " +
-                        $"Total value: {added.TotalPurchaseValue:N2} AED.",
-                        added.Stock, added.TotalPurchaseValue);
-                }
-                catch {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("PersistNewSheetAsync suppressed");
-            }
-                try
-                {
                     AuditService.Log(AuditSections.SheetStore, "Sheet added",
                         $"{DescribeSheet(added)} — stock {added.Stock}",
                         "SHEET", added.Id.ToString());
@@ -970,6 +946,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         private static GlassSheet SnapshotForDiff(GlassSheet s) => new()
         {
             Id = s.Id,
+            RowVersion = s.RowVersion,
             Stock = s.Stock,
             PurchasePricePerSqm = s.PurchasePricePerSqm,
             SellPricePerSqm = s.SellPricePerSqm
@@ -988,7 +965,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
             try
             {
-                await _repo.UpdateAsync(edited);
+                await _repo.UpdateAsync(edited, before.RowVersion);
 
                 var changes = new List<string>();
                 var diff = new List<AuditChange>();
@@ -1014,13 +991,6 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 }
                 var details = changes.Count > 0 ? string.Join(" | ", changes) : "Details edited";
 
-                try
-                {
-                    await _historyRepo.LogAsync(edited.Id, DescribeSheet(edited), "Edited", details);
-                }
-                catch {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
-            }
                 try
                 {
                     AuditService.LogWithChanges(

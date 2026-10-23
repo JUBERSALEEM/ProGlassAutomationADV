@@ -16,6 +16,8 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Licensing;
+using ProGlassAutomation.Services.Workflow;
 
 namespace ProGlassAutomation.Services.DeliveryNote.Repository
 {
@@ -52,6 +54,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 DeliveryTime = x.DeliveryTime,
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt,
+                RowVersion = x.RowVersion,
                 TaxInvoiceId = x.TaxInvoiceId,
                 HasTaxInvoice = x.HasTaxInvoice,
                 IsVoid = x.IsVoid
@@ -128,6 +131,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.DeliveryNoteEdit, "create a master delivery note");
+            ReadOnlyGate.Demand("create a master delivery note");
 
             using var ctx = new DeliveryNotesDbContext();
 
@@ -182,6 +186,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.DeliveryNoteEdit, "update a master delivery note");
+            ReadOnlyGate.Demand("update a master delivery note");
 
             using var ctx = new DeliveryNotesDbContext();
 
@@ -263,6 +268,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 masterDn.TotalDeliveredQty;
             masterDn.LastUpdatedFromDnId = triggeredByDnId;
             masterDn.UpdatedAt = DateTime.Now;
+            masterDn.RowVersion++;
 
             // The master DN and its Items are already tracked (loaded with
             // Include above), so the change tracker persists the in-place
@@ -280,134 +286,293 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             return await Task.FromResult($"MDN-{core}");
         }
 
-        // ── CHAT 19 INVOICED — mark DNs as invoiced ──────────────────────
+        // ── Tax Invoice ↔ Delivery Note links ───────────────────────────
 
-        /// <summary>
-        /// Marks a single DN as invoiced after Tax Invoice is saved.
-        /// Sets HasTaxInvoice = true and TaxInvoiceId on the DN.
-        /// Only updates indexed columns — FullSnapshotJson NOT rebuilt
-        /// (snapshot is used for PDF/export only, not for invoiced state).
-        /// Idempotent — safe to call multiple times on same DN.
-        /// </summary>
-        public async Task MarkAsInvoicedAsync(
-            string deliveryNoteId,
-            string taxInvoiceId)
+        /// <summary>Marks one confirmed DN as invoiced by a TI.</summary>
+        public Task MarkAsInvoicedAsync(string deliveryNoteId, string taxInvoiceId)
         {
-            // A-1: service-layer authorization. The UI also checks,
-            // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
-                AppPermissions.DeliveryNoteEdit, "mark a delivery note as invoiced");
-
-            if (string.IsNullOrWhiteSpace(deliveryNoteId)) return;
-            if (string.IsNullOrWhiteSpace(taxInvoiceId)) return;
-
-            using var ctx = new DeliveryNotesDbContext();
-
-            var entity = await ctx.DeliveryNotes
-                .FirstOrDefaultAsync(x =>
-                    x.DeliveryNoteId == deliveryNoteId).ConfigureAwait(false);
-
-            if (entity == null) return;
-
-            // Already marked with same TI — no-op
-            if (entity.HasTaxInvoice &&
-                string.Equals(entity.TaxInvoiceId, taxInvoiceId,
-                    StringComparison.OrdinalIgnoreCase))
-                return;
-
-            entity.HasTaxInvoice = true;
-            entity.TaxInvoiceId = taxInvoiceId;
-            entity.UpdatedAt = DateTime.Now;
-
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
-            DocumentLifecycle.Raise();
+                AppPermissions.DeliveryNoteInvoiceLink, "mark a delivery note as invoiced");
+            ReadOnlyGate.Demand("mark a delivery note as invoiced");
+            if (string.IsNullOrWhiteSpace(deliveryNoteId))
+                throw new ArgumentException("A Delivery Note id is required.", nameof(deliveryNoteId));
+            return MarkMultipleAsInvoicedAsync(new[] { deliveryNoteId }, taxInvoiceId);
         }
 
         /// <summary>
-        /// Marks multiple DNs as invoiced in one operation.
-        /// Used when a Master Invoice covers multiple sibling DNs.
-        /// deliveryNoteIds parsed from DeliveryNoteReference (comma-separated).
-        /// All DNs get the same taxInvoiceId.
-        /// Idempotent. Safe with empty list — no-ops gracefully.
-        /// Single SaveChangesAsync call for performance.
+        /// Adds the specified TI links without clearing other links owned by the
+        /// invoice. All target rows are validated before any row is changed.
         /// </summary>
         public async Task MarkMultipleAsInvoicedAsync(
             IEnumerable<string> deliveryNoteIds,
             string taxInvoiceId)
         {
-            // A-1: service-layer authorization. The UI also checks,
-            // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
-                AppPermissions.DeliveryNoteEdit, "mark delivery notes as invoiced in bulk");
+                AppPermissions.DeliveryNoteInvoiceLink, "mark delivery notes as invoiced");
+            ReadOnlyGate.Demand("link delivery notes to a tax invoice");
 
-            if (string.IsNullOrWhiteSpace(taxInvoiceId)) return;
+            string invoiceKey = (taxInvoiceId ?? string.Empty).Trim();
+            if (invoiceKey.Length == 0)
+                throw new ArgumentException("A Tax Invoice id is required.", nameof(taxInvoiceId));
 
-            var idList = deliveryNoteIds
+            var ids = (deliveryNoteIds ?? Array.Empty<string>())
                 .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Select(id => id.Trim())
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
+            if (ids.Count == 0) return;
 
-            if (idList.Count == 0) return;
-
+            await EnsureTaxInvoiceOwnerAsync(invoiceKey, requireLive: true)
+                .ConfigureAwait(false);
+            var keys = ids.Select(id => id.ToLowerInvariant()).ToList();
             using var ctx = new DeliveryNotesDbContext();
+            await using var tx = await ctx.Database.BeginTransactionAsync().ConfigureAwait(false);
 
             var entities = await ctx.DeliveryNotes
-                .Where(x => idList.Contains(x.DeliveryNoteId))
+                .Where(x => keys.Contains(x.DeliveryNoteId.ToLower()))
                 .ToListAsync().ConfigureAwait(false);
-
-            if (entities.Count == 0) return;
-
-            var now = DateTime.Now;
-            bool anyChanged = false;
+            var entityMap = entities.ToDictionary(
+                x => x.DeliveryNoteId, StringComparer.OrdinalIgnoreCase);
+            var missing = ids.Where(id => !entityMap.ContainsKey(id)).ToList();
+            if (missing.Count > 0)
+                throw new InvalidOperationException(
+                    "Cannot link Tax Invoice " + invoiceKey + ": Delivery Note(s) not found: " +
+                    string.Join(", ", missing) + ".");
 
             foreach (var entity in entities)
             {
-                if (entity.HasTaxInvoice &&
-                    string.Equals(entity.TaxInvoiceId, taxInvoiceId,
-                        StringComparison.OrdinalIgnoreCase))
-                    continue;
+                if (entity.IsVoid || entity.IsMasterDn
+                    || !DeliveryNoteStatusValues.HasLeftTheBuilding(entity.Status))
+                    throw new InvalidOperationException(
+                        $"Delivery Note {entity.DeliveryNoteId} is void, internal, or not a confirmed delivery and cannot be invoiced.");
 
-                entity.HasTaxInvoice = true;
-                entity.TaxInvoiceId = taxInvoiceId;
-                entity.UpdatedAt = now;
-                anyChanged = true;
+                bool hasExistingLink = entity.HasTaxInvoice
+                    || !string.IsNullOrWhiteSpace(entity.TaxInvoiceId);
+                if (hasExistingLink
+                    && !string.Equals(entity.TaxInvoiceId, invoiceKey,
+                        StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException(
+                        $"Delivery Note {entity.DeliveryNoteId} is already linked to Tax Invoice '{entity.TaxInvoiceId}'.");
+                if (entity.HasTaxInvoice && string.IsNullOrWhiteSpace(entity.TaxInvoiceId))
+                    throw new InvalidOperationException(
+                        $"Delivery Note {entity.DeliveryNoteId} has an inconsistent invoice-link flag and must be corrected before invoicing.");
             }
 
-            if (anyChanged)
+            DateTime now = DateTime.Now;
+            bool changed = false;
+            foreach (var entity in entities)
             {
-                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+                if (entity.HasTaxInvoice
+                    && string.Equals(entity.TaxInvoiceId, invoiceKey,
+                        StringComparison.OrdinalIgnoreCase))
+                    continue;
+                entity.HasTaxInvoice = true;
+                entity.TaxInvoiceId = invoiceKey;
+                entity.UpdatedAt = now;
+                entity.RowVersion++;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                await ctx.SaveChangesAsync().ConfigureAwait(false);
+                var verified = await ctx.DeliveryNotes.AsNoTracking()
+                    .Where(x => keys.Contains(x.DeliveryNoteId.ToLower()))
+                    .Select(x => new { x.DeliveryNoteId, x.HasTaxInvoice, x.TaxInvoiceId })
+                    .ToListAsync().ConfigureAwait(false);
+                if (verified.Count != ids.Count || verified.Any(x =>
+                        !x.HasTaxInvoice
+                        || !string.Equals(x.TaxInvoiceId, invoiceKey,
+                            StringComparison.OrdinalIgnoreCase)))
+                    throw new InvalidOperationException(
+                        $"Tax Invoice {invoiceKey} was not linked to every referenced Delivery Note.");
+
+                await EnsureTaxInvoiceOwnerAsync(invoiceKey, requireLive: true)
+                    .ConfigureAwait(false);
+                await tx.CommitAsync().ConfigureAwait(false);
+                AuditService.Log(
+                    AuditSections.DeliveryNote, "Tax Invoice-DN links added",
+                    $"Tax Invoice {invoiceKey} linked to {ids.Count} Delivery Note(s): {string.Join(", ", ids)}",
+                    entityType: "TaxInvoice", entityId: invoiceKey);
                 DocumentLifecycle.Raise();
+            }
+            else
+            {
+                await EnsureTaxInvoiceOwnerAsync(invoiceKey, requireLive: true)
+                    .ConfigureAwait(false);
+                await tx.CommitAsync().ConfigureAwait(false);
             }
         }
 
         /// <summary>
-        /// Clears the invoiced flags on every DN still pointing at this
-        /// tax invoice. Used when the TI is deleted so list badges and
-        /// the DN dependency check match remaining documents.
+        /// Replaces this invoice's link set inside deliverynotes.db. It clears
+        /// only links currently owned by the same invoice, and validates all
+        /// target DNs before changing any row. This transaction cannot include
+        /// the separate taxinvoices.db commit; callers surface any partial-save
+        /// error rather than claiming the cross-database operation succeeded.
         /// </summary>
-        public async Task ClearInvoicedByTaxInvoiceAsync(string taxInvoiceId)
+        public async Task SynchronizeTaxInvoiceLinksAsync(
+            string taxInvoiceId,
+            IEnumerable<string> deliveryNoteIds)
         {
-            if (string.IsNullOrWhiteSpace(taxInvoiceId)) return;
+            OperationGuard.Demand(
+                AppPermissions.DeliveryNoteInvoiceLink, "synchronize Tax Invoice-Delivery Note links");
+            ReadOnlyGate.Demand("synchronize Tax Invoice-Delivery Note links");
+
+            string invoiceKey = (taxInvoiceId ?? string.Empty).Trim();
+            if (invoiceKey.Length == 0)
+                throw new ArgumentException("A Tax Invoice id is required.", nameof(taxInvoiceId));
+
+            var ids = (deliveryNoteIds ?? Array.Empty<string>())
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Select(id => id.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            await EnsureTaxInvoiceOwnerAsync(invoiceKey, requireLive: ids.Count > 0)
+                .ConfigureAwait(false);
+            var keys = ids.Select(id => id.ToLowerInvariant()).ToList();
+            string invoiceKeyLower = invoiceKey.ToLowerInvariant();
 
             using var ctx = new DeliveryNotesDbContext();
+            await using var tx = await ctx.Database.BeginTransactionAsync().ConfigureAwait(false);
 
-            var entities = await ctx.DeliveryNotes
-                .Where(x => x.HasTaxInvoice &&
-                            x.TaxInvoiceId == taxInvoiceId)
+            var ownedLinks = await ctx.DeliveryNotes
+                .Where(x => x.TaxInvoiceId.ToLower() == invoiceKeyLower)
                 .ToListAsync().ConfigureAwait(false);
+            var targets = ids.Count == 0
+                ? new List<SavedDeliveryNote>()
+                : await ctx.DeliveryNotes
+                    .Where(x => keys.Contains(x.DeliveryNoteId.ToLower()))
+                    .ToListAsync().ConfigureAwait(false);
+            var targetMap = targets.ToDictionary(
+                x => x.DeliveryNoteId, StringComparer.OrdinalIgnoreCase);
+            var missing = ids.Where(id => !targetMap.ContainsKey(id)).ToList();
+            if (missing.Count > 0)
+                throw new InvalidOperationException(
+                    "Cannot synchronize Tax Invoice " + invoiceKey + ": Delivery Note(s) not found: " +
+                    string.Join(", ", missing) + ".");
 
-            if (entities.Count == 0) return;
-
-            var now = DateTime.Now;
-            foreach (var entity in entities)
+            foreach (var entity in targets)
             {
-                entity.HasTaxInvoice = false;
-                entity.TaxInvoiceId = "";
-                entity.UpdatedAt = now;
+                if (entity.IsVoid || entity.IsMasterDn
+                    || !DeliveryNoteStatusValues.HasLeftTheBuilding(entity.Status))
+                    throw new InvalidOperationException(
+                        $"Delivery Note {entity.DeliveryNoteId} is void, internal, or not a confirmed delivery and cannot be invoiced.");
+
+                bool hasExistingLink = entity.HasTaxInvoice
+                    || !string.IsNullOrWhiteSpace(entity.TaxInvoiceId);
+                if (hasExistingLink
+                    && !string.Equals(entity.TaxInvoiceId, invoiceKey,
+                        StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException(
+                        $"Delivery Note {entity.DeliveryNoteId} is already linked to Tax Invoice '{entity.TaxInvoiceId}'.");
+                if (entity.HasTaxInvoice && string.IsNullOrWhiteSpace(entity.TaxInvoiceId))
+                    throw new InvalidOperationException(
+                        $"Delivery Note {entity.DeliveryNoteId} has an inconsistent invoice-link flag and must be corrected before invoicing.");
             }
 
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
-            DocumentLifecycle.Raise();
+            var targetSet = new HashSet<string>(ids, StringComparer.OrdinalIgnoreCase);
+            DateTime now = DateTime.Now;
+            int cleared = 0;
+            int added = 0;
+            foreach (var entity in ownedLinks)
+            {
+                if (targetSet.Contains(entity.DeliveryNoteId)) continue;
+                entity.HasTaxInvoice = false;
+                entity.TaxInvoiceId = string.Empty;
+                entity.UpdatedAt = now;
+                entity.RowVersion++;
+                cleared++;
+            }
+
+            foreach (var entity in targets)
+            {
+                if (entity.HasTaxInvoice
+                    && string.Equals(entity.TaxInvoiceId, invoiceKey,
+                        StringComparison.OrdinalIgnoreCase))
+                    continue;
+                entity.HasTaxInvoice = true;
+                entity.TaxInvoiceId = invoiceKey;
+                entity.UpdatedAt = now;
+                entity.RowVersion++;
+                added++;
+            }
+
+            if (cleared > 0 || added > 0)
+            {
+                await ctx.SaveChangesAsync().ConfigureAwait(false);
+                var verifiedTargets = await ctx.DeliveryNotes.AsNoTracking()
+                    .Where(x => keys.Contains(x.DeliveryNoteId.ToLower()))
+                    .Select(x => new { x.HasTaxInvoice, x.TaxInvoiceId })
+                    .ToListAsync().ConfigureAwait(false);
+                if (verifiedTargets.Count != ids.Count || verifiedTargets.Any(x =>
+                        !x.HasTaxInvoice
+                        || !string.Equals(x.TaxInvoiceId, invoiceKey,
+                            StringComparison.OrdinalIgnoreCase)))
+                    throw new InvalidOperationException(
+                        $"Tax Invoice {invoiceKey} link verification failed.");
+
+                bool staleRemain = await ctx.DeliveryNotes.AsNoTracking()
+                    .AnyAsync(x => x.TaxInvoiceId.ToLower() == invoiceKeyLower
+                        && !keys.Contains(x.DeliveryNoteId.ToLower()))
+                    .ConfigureAwait(false);
+                if (staleRemain)
+                    throw new InvalidOperationException(
+                        $"Stale Delivery Note links remain for Tax Invoice {invoiceKey}.");
+
+                await EnsureTaxInvoiceOwnerAsync(invoiceKey, requireLive: ids.Count > 0)
+                    .ConfigureAwait(false);
+                await tx.CommitAsync().ConfigureAwait(false);
+                AuditService.Log(
+                    AuditSections.DeliveryNote, "Tax Invoice-DN links synchronized",
+                    $"Tax Invoice {invoiceKey}: {added} link(s) assigned, {cleared} stale link(s) cleared.",
+                    entityType: "TaxInvoice", entityId: invoiceKey);
+                DocumentLifecycle.Raise();
+            }
+            else
+            {
+                await EnsureTaxInvoiceOwnerAsync(invoiceKey, requireLive: ids.Count > 0)
+                    .ConfigureAwait(false);
+                await tx.CommitAsync().ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>Clears every DN link currently owned by this TI.</summary>
+        public Task ClearInvoicedByTaxInvoiceAsync(string taxInvoiceId) =>
+            SynchronizeTaxInvoiceLinksAsync(taxInvoiceId, Array.Empty<string>());
+
+        private static async Task EnsureTaxInvoiceOwnerAsync(
+            string invoiceKey, bool requireLive)
+        {
+            if (App.TaxInvoices == null)
+                throw new InvalidOperationException(
+                    "Cannot validate Delivery Note links because the Tax Invoice repository is unavailable.");
+
+            var invoice = await App.TaxInvoices
+                .GetByInvoiceNumberAsync(invoiceKey).ConfigureAwait(false);
+            if (invoice == null)
+                throw new InvalidOperationException(
+                    $"Cannot link Delivery Notes to missing Tax Invoice {invoiceKey}.");
+
+            if (requireLive && (invoice.IsVoid || DocumentLifecyclePolicy.IsVoidTerminal(
+                    StatusTransitions.Kind.TaxInvoice, invoice.Status)))
+                throw new InvalidOperationException(
+                    $"Cannot assign Delivery Notes to void or terminal Tax Invoice {invoiceKey}.");
+        }
+
+        /// <summary>Returns all DNs whose stored invoice id matches, including voided DNs.</summary>
+        public async Task<List<DeliveryNoteListItem>> GetByTaxInvoiceIdAsync(string taxInvoiceId)
+        {
+            if (string.IsNullOrWhiteSpace(taxInvoiceId))
+                return new List<DeliveryNoteListItem>();
+            string key = taxInvoiceId.Trim().ToLowerInvariant();
+            using var ctx = new DeliveryNotesDbContext();
+            return await ctx.DeliveryNotes
+                .Where(x => x.TaxInvoiceId.ToLower() == key)
+                .AsNoTracking()
+                .OrderBy(x => x.DeliveryNoteId)
+                .Select(ToListItemProjection)
+                .ToListAsync().ConfigureAwait(false);
         }
 
         // ── List retrieval ───────────────────────────────────────────────
@@ -946,14 +1111,16 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             return max + 1;
         }
 
-        public async Task<string> BuildDeliveryNoteIdAsync(
-            string jobOrderId, int sequence)
+        public Task<string> BuildDeliveryNoteIdAsync(
+            string jobOrderId, int sequence) =>
+            Task.FromResult(BuildDeliveryNoteId(jobOrderId, sequence));
+
+        private static string BuildDeliveryNoteId(string jobOrderId, int sequence)
         {
             string core = jobOrderId.StartsWith(
                 "JOB-", StringComparison.OrdinalIgnoreCase)
                 ? jobOrderId.Substring(4)
                 : jobOrderId;
-
             return $"DN-{core}-{sequence:D2}";
         }
 
@@ -961,158 +1128,308 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         public async Task<SavedDeliveryNote> InsertAsync(SavedDeliveryNote entity)
         {
-            // A-1: service-layer authorization. The UI also checks,
-            // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.DeliveryNoteEdit, "create a delivery note");
+            ReadOnlyGate.Demand("create a delivery note");
 
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
-
-            // Master / Dummy tracker ids (MDN-…) are not sequence-bumped.
             if (entity.IsMasterDn)
+                throw new InvalidOperationException(
+                    "Master Delivery Notes must be created through CreateMasterDnAsync.");
+            if (entity.IsVoid
+                || DocumentLifecyclePolicy.HasVoidMetadata(
+                    entity.VoidedAtUtc, entity.VoidedBy, entity.VoidReason)
+                || !DocumentLifecyclePolicy.CanEditBody(
+                    StatusTransitions.Kind.DeliveryNote, entity.Status))
+                throw new InvalidOperationException(
+                    "A new Delivery Note must be a live, editable draft/dispatching document.");
+            if (string.IsNullOrWhiteSpace(entity.JobOrderId))
+                throw new InvalidOperationException(
+                    "A Job Order reference is required to allocate a Delivery Note sequence.");
+
+            const int maxAttempts = 5;
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
             {
-                using var masterCtx = new DeliveryNotesDbContext();
-                entity.CreatedAt = DateTime.Now;
-                entity.UpdatedAt = DateTime.Now;
-                masterCtx.DeliveryNotes.Add(entity);
-                await SqliteResilience.SaveWithRetryAsync(_ => masterCtx.SaveChangesAsync());
-                DocumentLifecycle.Raise();
-                return entity;
-            }
-
-            bool idReallocated = false;
-            for (int attempt = 0; attempt < 5; attempt++)
-            {
-                await using var ctx = new DeliveryNotesDbContext();
-
-                bool exists = await ctx.DeliveryNotes
-                    .AnyAsync(x => x.DeliveryNoteId == entity.DeliveryNoteId)
-                    .ConfigureAwait(false);
-                if (exists)
-                {
-                    ReallocateDeliveryNoteId(entity);
-                    idReallocated = true;
-                    continue;
-                }
-
-                if (idReallocated)
-                    SyncSnapshotDeliveryNoteId(entity);
-
-                entity.CreatedAt = DateTime.Now;
-                entity.UpdatedAt = DateTime.Now;
-                ctx.DeliveryNotes.Add(entity);
                 try
                 {
-                    await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
-                }
-                catch (DbUpdateException ex)
-                    when (SqliteErrorClassifier.IsUnique(ex) && attempt < 4)
-                {
-                    ctx.Entry(entity).State = EntityState.Detached;
-                    if (entity.Items != null)
-                    {
-                        foreach (var item in entity.Items)
-                            ctx.Entry(item).State = EntityState.Detached;
-                    }
-                    ReallocateDeliveryNoteId(entity);
-                    entity.Id = 0;
-                    idReallocated = true;
-                    continue;
-                }
+                    await using var ctx = new DeliveryNotesDbContext();
+                    // Microsoft.Data.Sqlite starts this SERIALIZABLE transaction
+                    // with BEGIN IMMEDIATE (non-deferred), acquiring the single
+                    // writer reservation before MAX(SequenceNumber) is read. All
+                    // app instances therefore allocate against a serialized view.
+                    await using var transaction = await ctx.Database
+                        .BeginTransactionAsync(System.Data.IsolationLevel.Serializable)
+                        .ConfigureAwait(false);
+                    SchemaMigrationSql.RequireIndex(
+                        (Microsoft.Data.Sqlite.SqliteConnection)ctx.Database.GetDbConnection(),
+                        "IX_DeliveryNotes_JobOrderId_SequenceNumber_Unique",
+                        "DeliveryNotes",
+                        unique: true,
+                        expectedColumns: new[] { "JobOrderId", "SequenceNumber" });
 
-                DocumentLifecycle.Raise();
-                return entity;
+                    int highest = await ctx.DeliveryNotes
+                        .Where(x => x.JobOrderId == entity.JobOrderId)
+                        .MaxAsync(x => (int?)x.SequenceNumber)
+                        .ConfigureAwait(false) ?? 0;
+                    int sequence = checked(highest + 1);
+                    entity.SequenceNumber = sequence;
+                    entity.DeliveryNoteId = BuildDeliveryNoteId(entity.JobOrderId, sequence);
+                    PrepareAllocatedIdentity(entity);
+
+                    DateTime now = DateTime.Now;
+                    entity.Id = 0;
+                    entity.CreatedAt = now;
+                    entity.UpdatedAt = now;
+                    entity.RowVersion = 0;
+                    ctx.DeliveryNotes.Add(entity);
+                    await ctx.SaveChangesAsync().ConfigureAwait(false);
+                    await transaction.CommitAsync().ConfigureAwait(false);
+
+                    DocumentLifecycle.Raise();
+                    return entity;
+                }
+                catch (DbUpdateException ex) when (SqliteErrorClassifier.IsUnique(ex))
+                {
+                    if (attempt == maxAttempts)
+                        throw new InvalidOperationException(
+                            $"A unique Delivery Note key conflict persisted while allocating for '{entity.JobOrderId}'. " +
+                            "No existing records were renumbered.", ex);
+                    // A legacy/older client may still race this allocator. The
+                    // unique composite index is authoritative; start a fresh
+                    // transaction/context and recalculate from committed rows.
+                    ResetGeneratedKeys(entity);
+                    await Task.Delay(20 * attempt + Random.Shared.Next(0, 30))
+                        .ConfigureAwait(false);
+                }
+                catch (Exception ex) when (SqliteErrorClassifier.IsTransient(ex))
+                {
+                    if (attempt == maxAttempts) throw;
+                    ResetGeneratedKeys(entity);
+                    await Task.Delay(25 * attempt + Random.Shared.Next(0, 35))
+                        .ConfigureAwait(false);
+                }
             }
 
             throw new InvalidOperationException(
-                "Could not allocate a free DeliveryNoteId after 5 retries " +
-                $"starting from '{entity.DeliveryNoteId}'.");
+                $"Could not allocate a unique Delivery Note number for Job Order '{entity.JobOrderId}' " +
+                $"after {maxAttempts} serialized attempts. No renumbering of existing records was performed.");
         }
 
         /// <summary>
-        /// Bump SequenceNumber and rebuild DN-{{core}}-{{nn}}. Does not rewrite
-        /// an existing stored number; only the in-memory insert that collided.
+        /// Rewrites every denormalized copy of the allocated key before insert:
+        /// the header, normalized items, optional attachment references, and
+        /// JSON snapshot. Snapshot failures abort the transaction.
         /// </summary>
-        private static void ReallocateDeliveryNoteId(SavedDeliveryNote entity)
+        private static void PrepareAllocatedIdentity(SavedDeliveryNote entity)
         {
-            entity.SequenceNumber = Math.Max(1, entity.SequenceNumber) + 1;
-            string jo = entity.JobOrderId ?? "";
-            string core = jo.StartsWith("JOB-", StringComparison.OrdinalIgnoreCase)
-                ? jo.Substring(4)
-                : jo;
-            string next = $"DN-{core}-{entity.SequenceNumber:D2}";
-            entity.DeliveryNoteId = next;
-            if (entity.Items == null) return;
-            foreach (var item in entity.Items)
+            foreach (var item in entity.Items ?? new List<DeliveryNoteItem>())
             {
-                item.DeliveryNoteId = next;
                 item.Id = 0;
+                item.DeliveryNoteId = entity.DeliveryNoteId;
+                item.JobOrderId = entity.JobOrderId;
+                item.DeliveryNote = entity;
             }
+
+            foreach (var attachment in entity.Attachments ?? new List<DeliveryNoteAttachment>())
+            {
+                attachment.Id = 0;
+                attachment.DeliveryNoteId = entity.DeliveryNoteId;
+                attachment.DeliveryNote = entity;
+            }
+
+            var snapshot = Mapper.DeliveryNoteMapper.DeserializeSnapshot(entity)
+                ?? throw new InvalidOperationException(
+                    "The Delivery Note snapshot is missing or unreadable; its allocated number cannot be safely propagated.");
+            Mapper.DeliveryNoteMapper.RefreshSnapshot(entity, snapshot.JobOrderRef);
         }
 
-        private static void SyncSnapshotDeliveryNoteId(SavedDeliveryNote entity)
+        private static void ResetGeneratedKeys(SavedDeliveryNote entity)
         {
-            try
-            {
-                var snap = Mapper.DeliveryNoteMapper.DeserializeSnapshot(entity);
-                Mapper.DeliveryNoteMapper.RefreshSnapshot(entity, snap?.JobOrderRef);
-            }
-            catch (Exception ex)
-            {
-                AppLogService.Warning(
-                    "Could not sync DN snapshot DeliveryNoteId after reallocation: " +
-                    ex.Message);
-            }
+            entity.Id = 0;
+            foreach (var item in entity.Items ?? new List<DeliveryNoteItem>())
+                item.Id = 0;
+            foreach (var attachment in entity.Attachments ?? new List<DeliveryNoteAttachment>())
+                attachment.Id = 0;
         }
-
-        public async Task UpdateAsync(SavedDeliveryNote entity)
-            => await UpdateAsync(entity, expectedRowVersion: null).ConfigureAwait(false);
 
         /// <summary>
-        /// Updates a delivery note. When <paramref name="expectedRowVersion"/>
-        /// is supplied and the stored RowVersion has moved on, a
-        /// <see cref="Services.Database.ConcurrencyConflictException"/> is thrown
-        /// so a concurrent save isn't silently overwritten. Null keeps legacy
-        /// behaviour; the counter still increments.
+        /// Updates a delivery note using the version captured by the caller.
+        /// EF's concurrency-token predicate closes the check-then-write race.
         /// </summary>
-        public async Task UpdateAsync(SavedDeliveryNote entity, int? expectedRowVersion)
+        public async Task UpdateAsync(SavedDeliveryNote entity, int expectedRowVersion)
         {
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.DeliveryNoteEdit, "update a delivery note");
+            ReadOnlyGate.Demand("update a delivery note");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
 
             using var ctx = new DeliveryNotesDbContext();
+            var stored = await ctx.DeliveryNotes
+                .Include(x => x.Items)
+                .Include(x => x.Attachments)
+                .FirstOrDefaultAsync(x => x.Id == entity.Id)
+                .ConfigureAwait(false);
+            if (stored == null)
+                throw new KeyNotFoundException($"Delivery Note {entity.Id} was not found.");
 
             // ERP hardening (Phase 5): optimistic-concurrency check + counter.
-            var storedRowVersion = await ctx.DeliveryNotes
-                .Where(x => x.Id == entity.Id)
-                .Select(x => (int?)x.RowVersion)
-                .FirstOrDefaultAsync().ConfigureAwait(false);
-
-            if (expectedRowVersion.HasValue
-                && storedRowVersion.HasValue
-                && storedRowVersion.Value != expectedRowVersion.Value)
-            {
+            if (stored.RowVersion != expectedRowVersion)
                 throw new Services.Database.ConcurrencyConflictException(
-                    "Delivery Note", entity.DeliveryNoteId,
-                    expectedRowVersion.Value, storedRowVersion.Value);
+                    "Delivery Note", stored.DeliveryNoteId,
+                    expectedRowVersion, stored.RowVersion);
+
+            if (stored.IsVoid
+                || DocumentLifecyclePolicy.IsVoidTerminal(
+                    StatusTransitions.Kind.DeliveryNote, stored.Status))
+                throw new InvalidOperationException(
+                    $"Voided Delivery Note {stored.DeliveryNoteId} is retained and cannot be edited.");
+            if (stored.IsMasterDn)
+                throw new InvalidOperationException("Master Delivery Notes are system-managed and cannot be edited.");
+            if (!DocumentLifecyclePolicy.CanEditBody(
+                    StatusTransitions.Kind.DeliveryNote, stored.Status))
+                throw new InvalidOperationException(
+                    $"Delivery Note {stored.DeliveryNoteId} is body-locked in status '{stored.Status}'. Use a valid status-only transition or void it.");
+            if (stored.HasTaxInvoice || !string.IsNullOrWhiteSpace(stored.TaxInvoiceId))
+                throw new InvalidOperationException(
+                    $"Delivery Note {stored.DeliveryNoteId} is linked to a Tax Invoice and its body is retained.");
+
+            if (!string.Equals(stored.DeliveryNoteId, entity.DeliveryNoteId, StringComparison.Ordinal)
+                || !string.Equals(stored.JobOrderId, entity.JobOrderId, StringComparison.Ordinal)
+                || !string.Equals(stored.ProformaId, entity.ProformaId, StringComparison.Ordinal)
+                || stored.SequenceNumber != entity.SequenceNumber
+                || stored.IsMasterDn != entity.IsMasterDn
+                || !string.Equals(stored.DeliveryType, entity.DeliveryType, StringComparison.Ordinal))
+                throw new InvalidOperationException(
+                    "Delivery Note identity, source links, sequence, and type are immutable after creation.");
+
+            var transition = StatusTransitions.Validate(
+                StatusTransitions.Kind.DeliveryNote, stored.Status, entity.Status);
+            if (!transition.IsValid)
+                throw new InvalidOperationException(
+                    transition.Reason ?? "Invalid Delivery Note status transition.");
+
+            // Copy only mutable business fields into the tracked row. Void,
+            // invoice-link, attachment, identity, and creation metadata cannot
+            // be overwritten by a detached UI object.
+            stored.Status = entity.Status;
+            stored.IsFoc = entity.IsFoc;
+            stored.DriverName = entity.DriverName;
+            stored.VehicleNumber = entity.VehicleNumber;
+            stored.ReceiverName = entity.ReceiverName;
+            stored.DeliveryDate = entity.DeliveryDate;
+            stored.DeliveryTime = entity.DeliveryTime;
+            stored.Notes = entity.Notes;
+            stored.TotalOrderedQty = entity.TotalOrderedQty;
+            stored.TotalDeliveredQty = entity.TotalDeliveredQty;
+            stored.TotalBalanceQty = entity.TotalBalanceQty;
+            stored.TotalPreviouslyDeliveredQty = entity.TotalPreviouslyDeliveredQty;
+
+            ctx.DeliveryNoteItems.RemoveRange(stored.Items);
+            stored.Items.Clear();
+            foreach (var item in entity.Items ?? new List<DeliveryNoteItem>())
+            {
+                item.Id = 0;
+                item.DeliveryNoteId = stored.DeliveryNoteId;
+                item.JobOrderId = stored.JobOrderId;
+                item.DeliveryNote = stored;
+                ctx.Entry(item).State = EntityState.Added;
             }
 
-            entity.RowVersion = (storedRowVersion ?? entity.RowVersion) + 1;
-            entity.UpdatedAt = DateTime.Now;
+            try
+            {
+                var snapshot = Mapper.DeliveryNoteMapper.DeserializeSnapshot(stored);
+                Mapper.DeliveryNoteMapper.RefreshSnapshot(stored, snapshot?.JobOrderRef);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    "The Delivery Note snapshot could not be safely refreshed; no update was saved.", ex);
+            }
 
-            var existingItems = await ctx.DeliveryNoteItems
-                .Where(i => i.DeliveryNoteId == entity.DeliveryNoteId)
-                .ToListAsync().ConfigureAwait(false);
-            ctx.DeliveryNoteItems.RemoveRange(existingItems);
-
-            entity.Attachments.Clear();
-
-            ctx.DeliveryNotes.Update(entity);
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            stored.RowVersion++;
+            stored.UpdatedAt = DateTime.Now;
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(ctx, stored.Id).ConfigureAwait(false);
+                throw new Services.Database.ConcurrencyConflictException(
+                    "Delivery Note", stored.DeliveryNoteId, expectedRowVersion, actual);
+            }
+            entity.RowVersion = stored.RowVersion;
+            entity.UpdatedAt = stored.UpdatedAt;
             DocumentLifecycle.Raise();
+        }
+
+        private static async Task<int> GetCurrentRowVersionAsync(
+            DeliveryNotesDbContext context, int id)
+        {
+            return await context.DeliveryNotes.AsNoTracking()
+                .Where(x => x.Id == id)
+                .Select(x => (int?)x.RowVersion)
+                .FirstOrDefaultAsync().ConfigureAwait(false) ?? -1;
+        }
+
+        public async Task<SavedDeliveryNote?> UpdateStatusAsync(
+            int id, string newStatus, int expectedRowVersion)
+        {
+            OperationGuard.Demand(
+                AppPermissions.DeliveryNoteEdit, "change a delivery note status");
+            ReadOnlyGate.Demand("change a delivery note status");
+            if (string.IsNullOrWhiteSpace(newStatus))
+                throw new ArgumentException("A target status is required.", nameof(newStatus));
+
+            using var ctx = new DeliveryNotesDbContext();
+            var stored = await ctx.DeliveryNotes
+                .Include(x => x.Items)
+                .Include(x => x.Attachments)
+                .FirstOrDefaultAsync(x => x.Id == id)
+                .ConfigureAwait(false);
+            if (stored == null) return null;
+            if (stored.RowVersion != expectedRowVersion)
+                throw new Services.Database.ConcurrencyConflictException(
+                    "Delivery Note", stored.DeliveryNoteId, expectedRowVersion, stored.RowVersion);
+            if (stored.IsVoid || DocumentLifecyclePolicy.IsVoidTerminal(
+                    StatusTransitions.Kind.DeliveryNote, stored.Status))
+                throw new InvalidOperationException(
+                    $"Voided Delivery Note {stored.DeliveryNoteId} cannot change status.");
+            if (stored.IsMasterDn)
+                throw new InvalidOperationException("Master Delivery Notes are system-managed.");
+
+            var transition = StatusTransitions.Validate(
+                StatusTransitions.Kind.DeliveryNote, stored.Status, newStatus);
+            if (!transition.IsValid)
+                throw new InvalidOperationException(
+                    transition.Reason ?? "Invalid Delivery Note status transition.");
+
+            string oldStatus = stored.Status;
+            stored.Status = newStatus.Trim();
+            var snapshot = Mapper.DeliveryNoteMapper.DeserializeSnapshot(stored);
+            Mapper.DeliveryNoteMapper.RefreshSnapshot(stored, snapshot?.JobOrderRef);
+            stored.UpdatedAt = DateTime.Now;
+            stored.RowVersion++;
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(ctx, stored.Id).ConfigureAwait(false);
+                throw new Services.Database.ConcurrencyConflictException(
+                    "Delivery Note", stored.DeliveryNoteId, expectedRowVersion, actual);
+            }
+
+            AuditService.Log(
+                AuditSections.DeliveryNote, "Delivery Note status changed",
+                $"{stored.DeliveryNoteId}: {oldStatus} → {stored.Status}",
+                entityType: nameof(SavedDeliveryNote), entityId: stored.DeliveryNoteId);
+            DocumentLifecycle.Raise();
+            return stored;
         }
     }
 }

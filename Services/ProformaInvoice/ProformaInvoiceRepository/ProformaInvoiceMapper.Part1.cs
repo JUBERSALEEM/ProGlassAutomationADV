@@ -62,6 +62,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             }
         }
 
+        private static string LogoBase64ForSnapshot(string? path, string? fallback)
+        {
+            string embedded = TryEmbedLogoBase64(path);
+            return !string.IsNullOrWhiteSpace(embedded)
+                ? embedded
+                : fallback ?? string.Empty;
+        }
+
         private static CompanyLogoLayout EffectiveLogoLayout(
             string? logoPath,
             CompanyLogoLayout layout,
@@ -125,6 +133,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 DiscountAmount = summary.DiscountAmount,
                 VatAmount = summary.VatAmount,
                 GrandTotalVatInclusive = summary.GrandTotalVatInclusive,
+                RowVersion = string.Equals(
+                    printable.LoadedProformaId, company.ProformaId,
+                    StringComparison.OrdinalIgnoreCase)
+                    ? printable.LoadedRowVersion ?? 0
+                    : 0,
 
                 FullSnapshotJson = json
             };
@@ -154,6 +167,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     companyName: company.CompanyName ?? "",
                     companyTrn: company.CompanyTrn ?? "",
                     companyLocation: company.CompanyLocation ?? "",
+                    companyTelephone: company.CompanyTelephone ?? "",
+                    companyWebsite: company.CompanyWebsite ?? "",
 
                     // AUDIT-FIX F-2: Step 1 profile fields enrich the saved
                     // company record. The repository preserves any stored
@@ -208,6 +223,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     CompanyName = company.CompanyName ?? "",
                     CompanyTrn = company.CompanyTrn ?? "",
                     CompanyLocation = company.CompanyLocation ?? "",
+                    CompanyTelephone = company.CompanyTelephone ?? "",
+                    CompanyWebsite = company.CompanyWebsite ?? "",
                     ProformaId = company.ProformaId ?? "",
                     InquiryId = company.InquiryId,
                     IssueDate = company.IssueDate,
@@ -219,7 +236,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     AccountNumber = company.AccountNumber ?? "",
                     BankName = company.BankName ?? "",
                     LogoPath = company.LogoPath ?? "",
-                    LogoBase64 = TryEmbedLogoBase64(company.LogoPath),
+                    LogoBase64 = LogoBase64ForSnapshot(company.LogoPath, company.LogoBase64),
                     CompanyRecordId = company.CompanyRecordId,
                     LogoLayout = EffectiveLogoLayout(company.LogoPath, company.LogoLayout, company.LogoWidthMm, company.LogoHeightMm),
                     LogoWidthMm = company.LogoWidthMm,
@@ -601,6 +618,61 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         public static string SerializeSnapshot(ProformaInvoiceSnapshot snapshot)
             => JsonSerializer.Serialize(snapshot ?? new ProformaInvoiceSnapshot(), _jsonOptions);
 
+        /// <summary>
+        /// Canonicalizes duplicated PI identity/workflow fields in the JSON
+        /// from the persisted entity row. A detached snapshot is not allowed
+        /// to disagree with the row's ProformaId, InquiryId, or status.
+        /// Returns false rather than replacing a missing/corrupt snapshot with
+        /// a blank one.
+        /// </summary>
+        public static bool SynchronizeSnapshotHeader(SavedProformaInvoice entity)
+        {
+            if (entity == null || string.IsNullOrWhiteSpace(entity.FullSnapshotJson))
+                return false;
+
+            try
+            {
+                using var document = JsonDocument.Parse(entity.FullSnapshotJson);
+                if (document.RootElement.ValueKind != JsonValueKind.Object)
+                    return false;
+
+                JsonElement companyElement = default;
+                foreach (var property in document.RootElement.EnumerateObject())
+                {
+                    if (string.Equals(property.Name, "Company",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        companyElement = property.Value;
+                        break;
+                    }
+                }
+
+                // Reject empty/default snapshots (including whitespace variants
+                // of "{}") before deserialization can produce a new blank body.
+                if (companyElement.ValueKind != JsonValueKind.Object
+                    || !companyElement.EnumerateObject().Any())
+                    return false;
+
+                var snapshot = JsonSerializer.Deserialize<ProformaInvoiceSnapshot>(
+                    entity.FullSnapshotJson, _jsonOptions);
+                if (snapshot?.Company == null) return false;
+
+                snapshot.Company.ProformaId = entity.ProformaId;
+                snapshot.Company.InquiryId = entity.InquiryId;
+                snapshot.Company.ProformaStatus = entity.Status;
+                snapshot.Company.IssueDate = entity.IssueDate;
+                snapshot.Company.ValidUntil = entity.ValidUntil;
+                entity.FullSnapshotJson = SerializeSnapshot(snapshot);
+                return true;
+            }
+            catch (JsonException ex)
+            {
+                AppLogService.Warning(
+                    $"Could not synchronize PI snapshot header for {entity.ProformaId}: {ex.Message}");
+                return false;
+            }
+        }
+
         public static void RestoreWizardFromSnapshot(
             ProformaInvoiceSnapshot snap,
             CompanySetupViewModel company,
@@ -629,6 +701,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 company.CompanyName = snap.Company.CompanyName ?? "";
                 company.CompanyTrn = snap.Company.CompanyTrn ?? "";
                 company.CompanyLocation = snap.Company.CompanyLocation ?? "";
+                company.CompanyTelephone = snap.Company.CompanyTelephone ?? "";
+                company.CompanyWebsite = snap.Company.CompanyWebsite ?? "";
                 company.ProformaId = snap.Company.ProformaId ?? "";
                 company.InquiryId = snap.Company.InquiryId;
                 company.IssueDate = snap.Company.IssueDate;
@@ -640,6 +714,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 company.AccountNumber = snap.Company.AccountNumber ?? "";
                 company.BankName = snap.Company.BankName ?? "";
                 company.LogoPath = snap.Company.LogoPath ?? "";
+                company.LogoBase64 = snap.Company.LogoBase64 ?? "";
                 company.CompanyRecordId = snap.Company.CompanyRecordId;
                 company.LogoLayout = snap.Company.LogoLayout;
                 company.LogoWidthMm = snap.Company.LogoWidthMm;

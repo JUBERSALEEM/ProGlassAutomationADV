@@ -130,10 +130,13 @@ namespace ProGlassAutomation.Tests.Production
         public void Physical_used_is_usestock_not_production_consumed()
         {
             string link = Read("Services/ProformaInvoice/SheetStockLinkService.cs");
-            Assert.Contains("await _repo.UseStockAsync(sheet.Id, quantity)", link);
+            Assert.Contains("var committed = await _repo.UseStockAsync(", link);
+            Assert.Contains("documentReference: jobReference", link);
 
             string use = Read("Services/SheetStore/SheetStoreRepository.cs");
-            Assert.Contains("g.Id == sheetId && g.Stock - g.Used >= quantity", use);
+            Assert.Contains("int balance = sheet.Stock - sheet.Used;", use);
+            Assert.Contains("if (balance < quantity)", use);
+            Assert.Contains("db.SheetHistories.Add(CreateHistory(", use);
 
             string consume = Read("Services/Production/MaterialAllocationService.cs");
             Assert.DoesNotContain("UseStockAsync", consume);

@@ -132,6 +132,87 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public ICommand ExportIndustrialReportCommand { get; }
         public ICommand ExportAllCommand { get; }
 
+        private RelayCommand? _printStickersCommand;
+        /// <summary>Opens the custom-size sticker preview for the current Optimization pane rows.</summary>
+        public ICommand PrintStickersCommand =>
+            _printStickersCommand ??= new RelayCommand(_ => PrintOptimizationStickers());
+
+        private void PrintOptimizationStickers()
+        {
+            try
+            {
+                var jobsById = AvailableJobs
+                    .Where(j => !string.IsNullOrWhiteSpace(j.JobOrderId))
+                    .GroupBy(j => j.JobOrderId, StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+
+                var sourceRows = new List<Services.Printing.Stickers.OptimizationStickerSourceRow>();
+                foreach (var piece in Pieces)
+                {
+                    if (piece == null || !piece.TryParse(out int width, out int height, out int quantity))
+                        continue;
+
+                    JobOptionVm? job = null;
+                    if (!string.IsNullOrWhiteSpace(piece.JobOrderId))
+                        jobsById.TryGetValue(piece.JobOrderId, out job);
+                    if (job == null && !string.IsNullOrWhiteSpace(piece.ProformaId))
+                        job = AvailableJobs.FirstOrDefault(j => string.Equals(
+                            j.SourceProformaId, piece.ProformaId, StringComparison.OrdinalIgnoreCase));
+
+                    var invoice = job?.SourceInvoice;
+                    string jobOrderNumber = !string.IsNullOrWhiteSpace(piece.JobOrderId)
+                        ? piece.JobOrderId.Trim()
+                        : job?.JobOrderId ?? string.Empty;
+                    string proformaNumber = !string.IsNullOrWhiteSpace(piece.ProformaId)
+                        ? piece.ProformaId.Trim()
+                        : job?.SourceProformaId ?? string.Empty;
+                    string glassName = Services.Printing.Stickers.GlassStickerLabelBuilder
+                        .ComposeGlassName(piece.GlassRef, piece.Color, piece.ThicknessMm);
+
+                    sourceRows.Add(new Services.Printing.Stickers.OptimizationStickerSourceRow
+                    {
+                        Company = Services.Printing.Stickers.StickerCompanyProfile
+                            .FromSnapshot(invoice?.Company),
+                        OrderNumber = !string.IsNullOrWhiteSpace(jobOrderNumber)
+                            ? jobOrderNumber : proformaNumber,
+                        JobOrderNumber = jobOrderNumber,
+                        ProformaNumber = proformaNumber,
+                        CustomerCompanyName = invoice?.Client?.CustomerName
+                            ?? job?.CustomerName ?? string.Empty,
+                        GlassName = glassName,
+                        GlassType = piece.GlassType ?? string.Empty,
+                        GlassReference = piece.PieceLabel ?? string.Empty,
+                        WidthMm = width,
+                        HeightMm = height,
+                        Quantity = quantity,
+                        Reference = Services.Printing.Stickers.GlassStickerLabelBuilder
+                            .BuildReference(invoice),
+                        PanePosition = piece.Position ?? string.Empty,
+                        Source = "Optimization pane list",
+                        SpecGroupNumber = piece.SpecGroupNumber,
+                        SerialNumber = piece.SourceRowSerial
+                    });
+                }
+
+                var labels = Services.Printing.Stickers.GlassStickerLabelBuilder
+                    .FromOptimization(sourceRows);
+                Services.Printing.Stickers.StickerPrintDialogService.Show(
+                    System.Windows.Application.Current?.MainWindow,
+                    labels,
+                    "Optimization glass stickers" +
+                    (string.IsNullOrWhiteSpace(DocumentKey) ? string.Empty : " — " + DocumentKey));
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Error("[Optimization] Sticker label preparation failed", ex);
+                System.Windows.MessageBox.Show(
+                    "Could not prepare stickers from the Optimization rows.\n\n" + ex.Message,
+                    "Sticker preparation failed",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error);
+            }
+        }
+
         /// <summary>Maps a button parameter to the export format (default CSV).</summary>
         private static ExportFormat ParseExportFormat(object? parameter)
         {

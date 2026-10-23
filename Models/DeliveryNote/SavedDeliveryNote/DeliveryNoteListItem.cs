@@ -69,6 +69,7 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         public string DeliveryTime { get; set; } = "";
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public int RowVersion { get; set; }
 
         // ── Tax Invoice link ─────────────────────────────────────────────
 

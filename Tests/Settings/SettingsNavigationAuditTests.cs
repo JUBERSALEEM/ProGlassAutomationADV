@@ -53,9 +53,9 @@ namespace ProGlassAutomation.Tests.Settings
                 .Select(m => m.Groups[1].Value)
                 .ToList();
 
-            Assert.True(registered.Count >= 12,
+            Assert.True(registered.Count >= 13,
                 $"The settings registry declares only {registered.Count} pages; the " +
-                "shell hosts twelve sections.");
+                "shell must host all registered sections.");
 
             // ...and no navigation surface may hand-copy one again.
             foreach (var rel in new[] { QuickPanel, SettingsView })
@@ -108,13 +108,14 @@ namespace ProGlassAutomation.Tests.Settings
                 .ToList();
 
             var view = File.ReadAllText(Path.Combine(root, SettingsView));
-            // Case-INSENSITIVE on purpose: EqualityToVisibilityConverter tries
-            // Equals() first and then falls back to
-            // StringComparison.OrdinalIgnoreCase, so the registry's "AI" and
-            // the host's ConverterParameter=Ai do resolve. The comparison here
-            // must mirror the converter, not the other way round — a
-            // case-sensitive check would report a dead page that is live.
-            var hosted = Regex.Matches(view, "ConverterParameter=([A-Za-z]+),")
+            Assert.Contains("SettingsNavGroups", view);
+            Assert.Contains("SwitchSettingsPageCommand", view);
+
+            // The current shell is data-driven: page keys are hosted by the
+            // lazy template dictionary instead of visibility converters.
+            var templates = File.ReadAllText(Path.Combine(
+                root, PageTemplates.Replace('/', Path.DirectorySeparatorChar)));
+            var hosted = Regex.Matches(templates, "x:Key=\"SettingsPage\\.(\\w+)\"")
                 .Select(m => m.Groups[1].Value)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
@@ -123,8 +124,8 @@ namespace ProGlassAutomation.Tests.Settings
                 .Where(k => !hosted.Contains(k, StringComparer.OrdinalIgnoreCase))
                 .ToList();
             Assert.True(missingHost.Count == 0,
-                "These registered settings pages have no section host in " +
-                $"{SettingsView}: {string.Join(", ", missingHost)}");
+                "These registered settings pages have no section template in " +
+                $"{PageTemplates}: {string.Join(", ", missingHost)}");
 
             var orphanHost = hosted
                 .Where(k => !registered.Contains(k, StringComparer.OrdinalIgnoreCase))
@@ -367,6 +368,7 @@ namespace ProGlassAutomation.Tests.Settings
             ("SettingsVoiceSection",   "VoicePage"),
             ("SettingsUpdatesSection", "UpdatesPage"),
             ("SettingsSharingSection", "SharingPage"),
+            ("SettingsRecordsSyncSection", "RecordsSyncPage"),
         };
 
         [Fact]
@@ -443,8 +445,8 @@ namespace ProGlassAutomation.Tests.Settings
                     "new\\(\"(\\w+)\"")
                 .Cast<Match>().Select(m => m.Groups[1].Value).ToList();
 
-            Assert.True(navKeys.Count >= 12,
-                "expected the twelve-page nav registry, found " + navKeys.Count);
+            Assert.True(navKeys.Count >= 13,
+                "expected the thirteen-page nav registry, found " + navKeys.Count);
 
             var templateKeys = Regex.Matches(
                     templates, "x:Key=\"SettingsPage\\.(\\w+)\"")

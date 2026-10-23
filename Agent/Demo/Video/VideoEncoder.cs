@@ -317,7 +317,24 @@ namespace ProGlassAutomation.Agent.Demo.Video
         /// </summary>
         public static string DefaultPresetForOutput(long outPixels)
         {
-            if (outPixels >= 3840L * 2160) return "ultrafast";
+            // 4K was "ultrafast". That is the single biggest cause of the
+            // "4K looks blurry" report, for a reason that is not obvious from
+            // the CRF number: x264's ultrafast disables 8x8 DCT, CABAC,
+            // deblocking AND adaptive quantization (--aq-mode 0). Fine detail
+            // is exactly what those tools carry — small ERP text, 1px grid
+            // lines, icon strokes — so at ultrafast they go soft and blocky no
+            // matter how low the CRF is. It also makes "-tune stillimage"
+            // inert, because psy-rd needs subme >= 6 and ultrafast uses
+            // subme 0; the one knob added to sharpen UI could not run.
+            //
+            // superfast restores all four (8x8 DCT, CABAC, deblock, aq-mode 1)
+            // for roughly 1.5-2x the CPU. That cost is covered by the two
+            // measurement-driven guards that already exist: AdjustPreset steps
+            // back down to ultrafast when the probe says the rate cannot be
+            // held, and UserScreenRecordService's FPS guard downgrades
+            // 4K -> 2K -> 1080p when the machine cannot encode 4K smoothly at
+            // all. So this raises the STARTING rung, not the floor.
+            if (outPixels >= 3840L * 2160) return "superfast";
             if (outPixels >= 2560L * 1440) return "superfast";
             return "veryfast";
         }

@@ -8,6 +8,7 @@ using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Database.SchemaMigrations;
 using ProGlassAutomation.Services.Licensing;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Workflow;
 using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.Services.TaxInvoice.Database;
 using ProGlassAutomation.Services.TaxInvoice.Mapper;
@@ -30,6 +31,12 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
     /// </summary>
     public class TaxInvoiceRepository : ITaxInvoiceRepository
     {
+        private enum DeleteOutcome
+        {
+            Deleted,
+            Voided
+        }
+
         public async Task InitializeAsync()
         {
             using var ctx = new TaxInvoiceDbContext();
@@ -126,6 +133,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                     TotalSqm = x.TotalSqm,
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt,
+                    RowVersion = x.RowVersion,
                     IsVoid = x.IsVoid
                 })
                 .ToListAsync().ConfigureAwait(false);
@@ -303,6 +311,13 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             ReadOnlyGate.Demand("create a tax invoice");
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
+            if (entity.IsVoid
+                || DocumentLifecyclePolicy.HasVoidMetadata(
+                    entity.VoidedAtUtc, entity.VoidedBy, entity.VoidReason)
+                || !DocumentLifecyclePolicy.CanEditBody(
+                    StatusTransitions.Kind.TaxInvoice, entity.Status))
+                throw new InvalidOperationException(
+                    "Only a non-void Tax Invoice in Draft status can be created or edited.");
             ThrowIfInvalid(TaxInvoiceValidationService.ValidateSave(entity));
 
             bool idReallocated = false;
@@ -322,6 +337,16 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
                 if (idReallocated)
                     SyncSnapshotInvoiceNumber(entity);
+                if (!TaxInvoiceMapper.SynchronizeSnapshotHeader(entity))
+                    throw new InvalidOperationException(
+                        $"Tax Invoice {entity.InvoiceNumber} snapshot is missing a readable header; it cannot be created safely.");
+                foreach (var item in entity.Items ?? new List<TaxInvoiceItem>())
+                {
+                    item.Id = 0;
+                    item.InvoiceNumber = entity.InvoiceNumber;
+                    item.ProformaId = entity.ProformaId;
+                    item.TaxInvoice = null;
+                }
 
                 entity.CreatedAt = DateTime.Now;
                 entity.UpdatedAt = DateTime.Now;
@@ -346,6 +371,8 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                 }
 
                 DocumentLifecycle.Raise();
+                await SynchronizeDeliveryNoteLinksAsync(entity)
+                    .ConfigureAwait(false);
                 return entity;
             }
 
@@ -394,17 +421,37 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             }
         }
 
-        public async Task UpdateAsync(SavedTaxInvoice entity)
-            => await UpdateAsync(entity, expectedRowVersion: null).ConfigureAwait(false);
+        private static async Task SynchronizeDeliveryNoteLinksAsync(
+            SavedTaxInvoice invoice, bool requireRepositoryWhenNoReferences = false)
+        {
+            var dnIds = TaxInvoiceDnReconciler.ParseDnRefs(invoice.DeliveryNoteReference);
+            if (App.DeliveryNotes == null)
+            {
+                if (dnIds.Count == 0 && !requireRepositoryWhenNoReferences) return;
+                throw new TaxInvoiceLinkSynchronizationException(
+                    invoice,
+                    new InvalidOperationException(
+                        "the Delivery Note repository is unavailable"));
+            }
+
+            try
+            {
+                await App.DeliveryNotes.SynchronizeTaxInvoiceLinksAsync(
+                    invoice.InvoiceNumber, dnIds).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                throw new TaxInvoiceLinkSynchronizationException(invoice, ex);
+            }
+        }
 
         /// <summary>
-        /// Updates a tax invoice. When <paramref name="expectedRowVersion"/> is
-        /// supplied (the value the editor loaded) and the stored RowVersion has
-        /// moved on, a <see cref="ConcurrencyConflictException"/> is thrown so a
-        /// second user's save can't be silently overwritten. Passing null keeps
-        /// the legacy last-writer-wins behaviour; the counter still increments.
+        /// Updates a tax invoice using the RowVersion captured by the caller.
+        /// Every update path must provide that version; there is no last-writer-wins overload.
         /// </summary>
-        public async Task UpdateAsync(SavedTaxInvoice entity, int? expectedRowVersion)
+        public async Task UpdateAsync(
+            SavedTaxInvoice entity,
+            int expectedRowVersion)
         {
             OperationGuard.Demand(AppPermissions.TaxInvoiceEdit, "update a tax invoice");
             ReadOnlyGate.Demand("update a tax invoice");
@@ -412,37 +459,132 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
             using var ctx = new TaxInvoiceDbContext();
 
-            // ERP hardening (Phase 5): optimistic-concurrency check + counter.
-            var storedRowVersion = await ctx.TaxInvoices
-                .Where(x => x.Id == entity.Id)
-                .Select(x => (int?)x.RowVersion)
-                .FirstOrDefaultAsync().ConfigureAwait(false);
-
-            if (expectedRowVersion.HasValue
-                && storedRowVersion.HasValue
-                && storedRowVersion.Value != expectedRowVersion.Value)
-            {
+            // ERP hardening: check existence, void/lifecycle state, and
+            // optimistic concurrency before replacing the body.
+            var stored = await ctx.TaxInvoices
+                .FirstOrDefaultAsync(x => x.Id == entity.Id).ConfigureAwait(false);
+            if (stored == null)
                 throw new ConcurrencyConflictException(
                     "Tax Invoice", entity.InvoiceNumber,
-                    expectedRowVersion.Value, storedRowVersion.Value);
-            }
+                    expectedRowVersion, actualRowVersion: -1);
+            if (stored.IsVoid
+                || !DocumentLifecyclePolicy.CanEditBody(
+                    StatusTransitions.Kind.TaxInvoice, stored.Status))
+                throw new InvalidOperationException(
+                    $"Tax Invoice {stored.InvoiceNumber} is issued, voided, or terminal; its body is retained and cannot be edited.");
+            if (!string.Equals(stored.Status, entity.Status,
+                    StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException(
+                    "Tax Invoice status changes must use the validated status-transition operation.");
 
-            entity.RowVersion = (storedRowVersion ?? entity.RowVersion) + 1;
+            // A detached update must not be able to forge the void trail or
+            // re-key a fiscal document into another invoice/family/sequence.
+            if (entity.IsVoid != stored.IsVoid
+                || entity.VoidedAtUtc != stored.VoidedAtUtc
+                || !string.Equals(entity.VoidedBy, stored.VoidedBy, StringComparison.Ordinal)
+                || !string.Equals(entity.VoidReason, stored.VoidReason, StringComparison.Ordinal))
+                throw new InvalidOperationException(
+                    "Tax Invoice void metadata can only be changed by VoidAsync.");
+            if (!string.Equals(stored.InvoiceNumber, entity.InvoiceNumber,
+                    StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(stored.ProformaId, entity.ProformaId,
+                    StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(stored.JobOrderId, entity.JobOrderId,
+                    StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(stored.InvoiceType, entity.InvoiceType,
+                    StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(stored.SequenceLetter, entity.SequenceLetter,
+                    StringComparison.OrdinalIgnoreCase)
+                || stored.SequenceNumber != entity.SequenceNumber)
+                throw new InvalidOperationException(
+                    "Tax Invoice number, source family, job-order, type, and sequence identity are immutable.");
+
+            int storedRowVersion = stored.RowVersion;
+            if (storedRowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Tax Invoice", stored.InvoiceNumber,
+                    expectedRowVersion, storedRowVersion);
+
+            // Normalize identity/system fields before copying scalar values to
+            // the tracked row. Keep the detached object from replacing audit
+            // metadata even when a caller supplied a case-only identity edit.
+            entity.Id = stored.Id;
+            entity.InvoiceNumber = stored.InvoiceNumber;
+            entity.ProformaId = stored.ProformaId;
+            entity.JobOrderId = stored.JobOrderId;
+            entity.InvoiceType = stored.InvoiceType;
+            entity.SequenceLetter = stored.SequenceLetter;
+            entity.SequenceNumber = stored.SequenceNumber;
+            entity.Status = stored.Status;
+            entity.IsVoid = stored.IsVoid;
+            entity.VoidedAtUtc = stored.VoidedAtUtc;
+            entity.VoidedBy = stored.VoidedBy;
+            entity.VoidReason = stored.VoidReason;
+            entity.CreatedAt = stored.CreatedAt;
+            entity.RowVersion = storedRowVersion + 1;
             entity.UpdatedAt = DateTime.Now;
+            if (!TaxInvoiceMapper.SynchronizeSnapshotHeader(entity))
+                throw new InvalidOperationException(
+                    $"Tax Invoice {stored.InvoiceNumber} snapshot is missing a readable header; the update was not saved.");
 
             var existingItems = await ctx.TaxInvoiceItems
-                .Where(i => i.InvoiceNumber == entity.InvoiceNumber)
+                .Where(i => i.InvoiceNumber == stored.InvoiceNumber)
                 .ToListAsync().ConfigureAwait(false);
             ctx.TaxInvoiceItems.RemoveRange(existingItems);
 
-            entity.Attachments.Clear();
+            var incomingItems = entity.Items ?? new List<TaxInvoiceItem>();
+            foreach (var item in incomingItems)
+            {
+                item.Id = 0;
+                item.InvoiceNumber = stored.InvoiceNumber;
+                item.ProformaId = stored.ProformaId;
+                item.TaxInvoice = null;
+            }
+            entity.Attachments?.Clear();
 
-            ctx.TaxInvoices.Update(entity);
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            // Update the tracked row only. EF Update(entity) on a detached
+            // object would also persist caller-supplied IsVoid/void metadata
+            // and could rewrite the stable invoice key.
+            ctx.Entry(stored).CurrentValues.SetValues(entity);
+            ctx.TaxInvoiceItems.AddRange(incomingItems);
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync())
+                    .ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(ctx, stored.Id)
+                    .ConfigureAwait(false);
+                throw new ConcurrencyConflictException(
+                    "Tax Invoice", stored.InvoiceNumber,
+                    expectedRowVersion, actual);
+            }
+            entity.RowVersion = stored.RowVersion;
+            entity.UpdatedAt = stored.UpdatedAt;
             DocumentLifecycle.Raise();
+            await SynchronizeDeliveryNoteLinksAsync(
+                stored, requireRepositoryWhenNoReferences: true).ConfigureAwait(false);
         }
 
-        public async Task DeleteAsync(int id)
+        private static async Task<int> GetCurrentRowVersionAsync(
+            TaxInvoiceDbContext context, int id)
+        {
+            return await context.TaxInvoices.AsNoTracking()
+                .Where(x => x.Id == id)
+                .Select(x => (int?)x.RowVersion)
+                .FirstOrDefaultAsync().ConfigureAwait(false) ?? -1;
+        }
+
+        public async Task DeleteAsync(int id, int expectedRowVersion)
+        {
+            OperationGuard.Demand(AppPermissions.TaxInvoiceDelete, "delete a tax invoice");
+            ReadOnlyGate.Demand("delete a tax invoice");
+            await DeleteCoreAsync(id, expectedRowVersion).ConfigureAwait(false);
+        }
+
+        private async Task<DeleteOutcome> DeleteCoreAsync(
+            int id, int expectedRowVersion)
         {
             OperationGuard.Demand(AppPermissions.TaxInvoiceDelete, "delete a tax invoice");
             ReadOnlyGate.Demand("delete a tax invoice");
@@ -453,25 +595,71 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                 .Include(x => x.Attachments)
                 .FirstOrDefaultAsync(x => x.Id == id).ConfigureAwait(false);
 
-            if (entity == null) return;
+            if (entity == null)
+                throw new ConcurrencyConflictException(
+                    "Tax Invoice", id.ToString(), expectedRowVersion,
+                    actualRowVersion: -1);
+            if (entity.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Tax Invoice", entity.InvoiceNumber,
+                    expectedRowVersion, entity.RowVersion);
+            if (entity.IsVoid)
+                throw new InvalidOperationException(
+                    $"Tax Invoice {entity.InvoiceNumber} is voided and must be retained.");
+
+            bool hasLinkedDeliveryNotes = await HasLinkedDeliveryNotesAsync(entity.InvoiceNumber)
+                .ConfigureAwait(false);
+            var decision = DocumentLifecyclePolicy.DecideDelete(
+                StatusTransitions.Kind.TaxInvoice, entity.Status, hasLinkedDeliveryNotes);
+            if (decision == DocumentLifecyclePolicy.DeleteDecision.Blocked)
+            {
+                if (!DocumentLifecyclePolicy.CanVoid(
+                        StatusTransitions.Kind.TaxInvoice, entity.Status))
+                    throw new InvalidOperationException(
+                        $"Tax Invoice {entity.InvoiceNumber} is linked to Delivery Notes and cannot be voided from status '{entity.Status}'; retain it and handle the links through an approved accounting correction.");
+                throw new InvalidOperationException(
+                    $"Tax Invoice {entity.InvoiceNumber} is linked to Delivery Notes and cannot be hard-deleted. Use the explicit void operation to release those links.");
+            }
+            if (decision == DocumentLifecyclePolicy.DeleteDecision.Retained)
+                throw new InvalidOperationException(
+                    $"Tax Invoice {entity.InvoiceNumber} cannot be safely deleted or voided from status '{entity.Status}' and must be retained.");
+            if (decision == DocumentLifecyclePolicy.DeleteDecision.Void)
+            {
+                await VoidAsync(
+                    id, expectedRowVersion,
+                    "Delete requested; lifecycle policy requires retention.")
+                    .ConfigureAwait(false);
+                return DeleteOutcome.Voided;
+            }
 
             string invoiceNumber = entity.InvoiceNumber;
             string? proformaId = entity.ProformaId;
 
             ctx.TaxInvoices.Remove(entity);
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync())
+                    .ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(ctx, id)
+                    .ConfigureAwait(false);
+                throw new ConcurrencyConflictException(
+                    "Tax Invoice", invoiceNumber,
+                    expectedRowVersion, actual);
+            }
 
-            // ERP hardening (Phase 5): destroying a fiscal document must leave
-            // an audit trail even though only a childless draft can reach here.
+            // Only a childless draft can reach a physical deletion.
             AuditService.Log(
                 AuditSections.TaxInvoice, "Tax invoice deleted",
                 $"Deleted draft tax invoice {invoiceNumber}"
                     + (string.IsNullOrWhiteSpace(proformaId) ? "" : $" (proforma {proformaId})"),
                 entityType: nameof(SavedTaxInvoice), entityId: invoiceNumber);
 
-            await ClearLinkedDeliveryNotesAsync(invoiceNumber);
             await ProformaLifecycleSync.AfterDownstreamChangeAsync(proformaId);
             DocumentLifecycle.Raise();
+            return DeleteOutcome.Deleted;
         }
 
         /// <summary>
@@ -482,7 +670,8 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         /// target (Cancelled). Linked DNs are un-invoiced so they can be
         /// re-invoiced (or credited) — the same cleanup a delete did.
         /// </summary>
-        public async Task VoidAsync(int id, string reason)
+        public async Task VoidAsync(
+            int id, int expectedRowVersion, string reason)
         {
             OperationGuard.Demand(AppPermissions.TaxInvoiceDelete, "void a tax invoice");
             ReadOnlyGate.Demand("void a tax invoice");
@@ -491,21 +680,60 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             var entity = await ctx.TaxInvoices
                 .FirstOrDefaultAsync(x => x.Id == id).ConfigureAwait(false);
 
-            if (entity == null) return;
-            if (entity.IsVoid) return;   // idempotent
-
+            if (entity == null)
+                throw new ConcurrencyConflictException(
+                    "Tax Invoice", id.ToString(), expectedRowVersion,
+                    actualRowVersion: -1);
             string invoiceNumber = entity.InvoiceNumber;
             string? proformaId = entity.ProformaId;
+            if (entity.IsVoid)
+            {
+                // A prior void may have committed in taxinvoices.db before
+                // its cross-database DN unlink failed. Retry that idempotent
+                // companion write instead of treating the partial state as
+                // fully repaired.
+                await ClearLinkedDeliveryNotesAsync(invoiceNumber)
+                    .ConfigureAwait(false);
+                await ProformaLifecycleSync.AfterDownstreamChangeAsync(proformaId)
+                    .ConfigureAwait(false);
+                DocumentLifecycle.Raise();
+                return;
+            }
+            if (entity.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Tax Invoice", invoiceNumber,
+                    expectedRowVersion, entity.RowVersion);
+            if (!DocumentLifecyclePolicy.CanVoid(
+                    StatusTransitions.Kind.TaxInvoice, entity.Status))
+                throw new InvalidOperationException(
+                    $"Tax Invoice {invoiceNumber} cannot be voided from status '{entity.Status}'; it must be retained.");
 
             entity.IsVoid = true;
             entity.VoidedAtUtc = DateTime.UtcNow;
             entity.VoidedBy = AuditService.CurrentUsername;
-            entity.VoidReason = string.IsNullOrWhiteSpace(reason) ? "(no reason given)" : reason.Trim();
-            entity.Status = Services.Workflow.DocumentLifecyclePolicy.VoidTargetStatus(
-                Services.Workflow.StatusTransitions.Kind.TaxInvoice);
+            entity.VoidReason = DocumentLifecyclePolicy.NormalizeVoidReason(reason);
+            TaxInvoiceMapper.SetHeaderStatus(
+                entity,
+                DocumentLifecyclePolicy.VoidTargetStatus(StatusTransitions.Kind.TaxInvoice));
+            if (!TaxInvoiceMapper.SynchronizeSnapshotHeader(entity))
+                throw new InvalidOperationException(
+                    $"Tax Invoice {invoiceNumber} snapshot is missing a readable header; the void was not saved.");
             entity.UpdatedAt = DateTime.Now;
+            entity.RowVersion++;
 
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync())
+                    .ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(ctx, entity.Id)
+                    .ConfigureAwait(false);
+                throw new ConcurrencyConflictException(
+                    "Tax Invoice", invoiceNumber,
+                    expectedRowVersion, actual);
+            }
 
             // ERP hardening (Phase 5): a void carries a mandatory reason and
             // must be auditable — it's the compliant alternative to deletion.
@@ -521,18 +749,38 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             DocumentLifecycle.Raise();
         }
 
+        private static async Task<bool> HasLinkedDeliveryNotesAsync(string invoiceNumber)
+        {
+            if (App.DeliveryNotes == null)
+                throw new InvalidOperationException(
+                    "Cannot verify linked Delivery Notes because the repository is unavailable.");
+            return (await App.DeliveryNotes.GetByTaxInvoiceIdAsync(invoiceNumber)
+                .ConfigureAwait(false)).Count > 0;
+        }
+
         private static async Task ClearLinkedDeliveryNotesAsync(string? invoiceNumber)
         {
-            if (string.IsNullOrWhiteSpace(invoiceNumber) || App.DeliveryNotes == null)
-                return;
+            if (string.IsNullOrWhiteSpace(invoiceNumber))
+                throw new ArgumentException("A Tax Invoice id is required.", nameof(invoiceNumber));
+            if (App.DeliveryNotes == null)
+                throw new InvalidOperationException(
+                    $"Tax Invoice {invoiceNumber} changed state, but the Delivery Note repository is unavailable; its links could not be cleared.");
 
             try
             {
-                await App.DeliveryNotes.ClearInvoicedByTaxInvoiceAsync(invoiceNumber);
+                await App.DeliveryNotes.ClearInvoicedByTaxInvoiceAsync(invoiceNumber)
+                    .ConfigureAwait(false);
+                if (await HasLinkedDeliveryNotesAsync(invoiceNumber).ConfigureAwait(false))
+                    throw new InvalidOperationException(
+                        $"one or more Delivery Notes still point to Tax Invoice {invoiceNumber}");
             }
             catch (Exception ex)
             {
-                AppLogService.Warning("[TaxInvoiceRepository] Linked-DN badge cleanup failed: " + ex.Message);
+                AppLogService.Error(
+                    $"Tax Invoice {invoiceNumber} was voided, but its Delivery Note links could not be cleared.",
+                    ex);
+                throw new InvalidOperationException(
+                    $"Tax Invoice {invoiceNumber} was voided, but its Delivery Note links could not be cleared: {ex.Message}", ex);
             }
         }
 
@@ -552,7 +800,10 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
         // ── Status management ──────────────────────────────────────
 
-        public async Task UpdateStatusAsync(string invoiceNumber, string newStatus)
+        public async Task<SavedTaxInvoice?> UpdateStatusAsync(
+            string invoiceNumber,
+            string newStatus,
+            int expectedRowVersion)
         {
             OperationGuard.Demand(AppPermissions.TaxInvoiceEdit, "change a tax invoice status");
             ReadOnlyGate.Demand("change a tax invoice status");
@@ -561,13 +812,46 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             var entity = await ctx.TaxInvoices
                 .FirstOrDefaultAsync(x => x.InvoiceNumber == invoiceNumber).ConfigureAwait(false);
 
-            if (entity == null) return;
+            if (entity == null)
+                throw new ConcurrencyConflictException(
+                    "Tax Invoice", invoiceNumber,
+                    expectedRowVersion, actualRowVersion: -1);
+            if (entity.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Tax Invoice", invoiceNumber,
+                    expectedRowVersion, entity.RowVersion);
+            if (entity.IsVoid || DocumentLifecyclePolicy.IsVoidTerminal(
+                    StatusTransitions.Kind.TaxInvoice, entity.Status))
+                throw new InvalidOperationException(
+                    $"Tax Invoice {invoiceNumber} is voided or terminal and cannot change status.");
 
-            ThrowIfInvalid(TaxInvoiceValidationService.ValidateStatusTransition(entity.Status, newStatus));
+            string previousStatus = entity.Status;
+            ThrowIfInvalid(TaxInvoiceValidationService.ValidateStatusTransition(previousStatus, newStatus));
             TaxInvoiceMapper.SetHeaderStatus(entity, newStatus);
+            if (!TaxInvoiceMapper.SynchronizeSnapshotHeader(entity))
+                throw new InvalidOperationException(
+                    $"Tax Invoice {invoiceNumber} snapshot is missing a readable header; the status change was not saved.");
             entity.UpdatedAt = DateTime.Now;
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            entity.RowVersion++;
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync())
+                    .ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(ctx, entity.Id)
+                    .ConfigureAwait(false);
+                throw new ConcurrencyConflictException(
+                    "Tax Invoice", invoiceNumber,
+                    expectedRowVersion, actual);
+            }
+            AuditService.Log(
+                AuditSections.TaxInvoice, "Tax Invoice status changed",
+                $"{invoiceNumber}: {previousStatus} → {entity.Status}",
+                entityType: nameof(SavedTaxInvoice), entityId: invoiceNumber);
             DocumentLifecycle.Raise();
+            return entity;
         }
 
         // ── Attachments ─────────────────────────────────────────────
@@ -743,7 +1027,8 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                 TotalQty = e.TotalQty,
                 TotalSqm = e.TotalSqm,
                 CreatedAt = e.CreatedAt,
-                UpdatedAt = e.UpdatedAt
+                UpdatedAt = e.UpdatedAt,
+                RowVersion = e.RowVersion
             };
 
         // ── Result-pattern variants ─────────────────────────────────
@@ -771,6 +1056,23 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                     });
                 return Result<SavedTaxInvoice>.Ok(result, corrId);
             }
+            catch (TaxInvoiceLinkSynchronizationException linkEx)
+            {
+                var persisted = linkEx.PersistedInvoice;
+                var errorId = AppLogService.Error(
+                    $"TI {persisted.InvoiceNumber} was committed, but DN-link synchronization failed: {linkEx.InnerException?.Message ?? linkEx.Message}",
+                    linkEx,
+                    new LogContext
+                    {
+                        Module = "TaxInvoice",
+                        Operation = "SynchronizeDeliveryNoteLinks",
+                        DocumentId = persisted.InvoiceNumber,
+                        DocumentType = "TaxInvoice",
+                        CorrelationId = corrId
+                    });
+                return Result<SavedTaxInvoice>.Fail(
+                    linkEx.Message, linkEx, corrId, errorId);
+            }
             catch (Exception ex)
             {
                 var errorId = AppLogService.Error(
@@ -790,7 +1092,9 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             }
         }
 
-        public async Task<Result> DeleteWithResultAsync(int id, string? invoiceNumber = null, string? correlationId = null)
+        public async Task<Result> DeleteWithResultAsync(
+            int id, int expectedRowVersion,
+            string? invoiceNumber = null, string? correlationId = null)
         {
             OperationGuard.Demand(AppPermissions.TaxInvoiceDelete, "delete a tax invoice (Result variant)");
             ReadOnlyGate.Demand("delete a tax invoice");
@@ -800,13 +1104,18 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
             try
             {
-                await DeleteAsync(id);
+                var outcome = await DeleteCoreAsync(id, expectedRowVersion)
+                    .ConfigureAwait(false);
+
+                bool wasVoided = outcome == DeleteOutcome.Voided;
                 AppLogService.Info(
-                    $"TI deleted: Id={id}, InvoiceNumber={invoiceNumber}",
+                    wasVoided
+                        ? $"TI voided by delete request: Id={id}, InvoiceNumber={invoiceNumber}"
+                        : $"TI deleted: Id={id}, InvoiceNumber={invoiceNumber}",
                     new LogContext
                     {
                         Module = "TaxInvoice",
-                        Operation = "Delete",
+                        Operation = wasVoided ? "Void" : "Delete",
                         DocumentId = invoiceNumber ?? id.ToString(),
                         DocumentType = "TaxInvoice",
                         CorrelationId = corrId

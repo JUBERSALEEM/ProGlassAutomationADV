@@ -37,6 +37,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public DateTime DeliveryDate { get; }
         public string DeliveryTime { get; }
         public DateTime CreatedAt { get; }
+        public int RowVersion { get; }
 
         // ── CHAT 19 — Master DN ───────────────────────────────────────────
 
@@ -134,6 +135,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             DeliveryDate = e.DeliveryDate;
             DeliveryTime = e.DeliveryTime;
             CreatedAt = e.CreatedAt;
+            RowVersion = e.RowVersion;
 
             // CHAT 19: Master DN
             IsMasterDn = e.IsMasterDn;

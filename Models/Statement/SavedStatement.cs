@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Models/Statement/SavedStatement.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report (Chat 16)
@@ -124,6 +124,9 @@ namespace ProGlassAutomation.Models.Statement
 
         /// <summary>Set explicitly by repository in InsertAsync + UpdateAsync.</summary>
         public DateTime UpdatedAt { get; set; }
+
+        /// <summary>Application-managed optimistic-concurrency counter.</summary>
+        public int RowVersion { get; set; }
 
         // ── Navigation (EF relationships) ─────────────────────────────────
 

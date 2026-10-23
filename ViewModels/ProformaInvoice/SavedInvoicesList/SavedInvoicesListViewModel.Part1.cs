@@ -637,6 +637,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     var item = new SavedInvoiceListItem
                     {
                         Id = e.Id,
+                        RowVersion = e.RowVersion,
                         ProformaId = e.ProformaId,
                         CompanyName = e.CompanyName,
                         CustomerName = e.CustomerName,
@@ -1270,10 +1271,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
                 try
                 {
-                    await _invoices.DeleteAsync(item.Id);
-                    AuditService.Log(
-                        AuditSections.Proforma, "Invoice deleted",
-                        item.ProformaId, "PI", item.ProformaId);
+                    await _invoices.DeleteAsync(item.Id, item.RowVersion);
                     await LoadInvoicesAsync();
                 }
                 catch (Exception ex)
@@ -1294,7 +1292,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         /// <summary>
         /// ERP lifecycle hardening (Phase 1): soft-close (void) a PI that may
         /// not be hard-deleted. Explains why, captures a mandatory reason via
-        /// the shared dialog, calls the repository VoidAsync, and audits it.
+        /// the shared dialog and calls the repository VoidAsync, which owns the audit entry.
         /// </summary>
         private async Task VoidDocumentAsync(SavedInvoiceListItem item)
         {
@@ -1314,11 +1312,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             try
             {
-                await _invoices.VoidAsync(item.Id, reason);
-
-                AuditService.Log(
-                    AuditSections.Proforma, "Invoice voided",
-                    item.ProformaId, "PI", item.ProformaId, reason);
+                await _invoices.VoidAsync(item.Id, item.RowVersion, reason);
 
                 _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Void.MsgVoidedX"), item.ProformaId),
@@ -1334,6 +1328,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     LocalizationService.Instance.T("Void.CapVoidFailed"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        /// <summary>
+        /// Register quick-edit entry point. It delegates to the same list
+        /// workflow as the Proforma Invoice screen (including status guards,
+        /// approval evidence flow, snapshot synchronization and audit), rather
+        /// than writing a register projection directly.
+        /// </summary>
+        public async Task ChangeStatusFromRegisterAsync(int invoiceId, string newStatus)
+        {
+            if (invoiceId <= 0 || string.IsNullOrWhiteSpace(newStatus)) return;
+
+            var item = _allItems.FirstOrDefault(row => row.Id == invoiceId)
+                ?? new SavedInvoiceListItem { Id = invoiceId };
+            await ChangeStatusAsync(item, newStatus);
         }
 
         private async Task ChangeStatusAsync(
@@ -1385,7 +1394,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 entity.Status = newStatus;
                 entity.UpdatedAt = DateTime.Now;
                 SyncSnapshotWorkflow(entity, newStatus, null);
-                await _invoices.UpdateAsync(entity);
+                await _invoices.UpdateAsync(entity, entity.RowVersion);
 
                 // Cancelling / rejecting a PI clears its Step 8 attachments
                 // so a later re-approval starts clean — but ONLY when this

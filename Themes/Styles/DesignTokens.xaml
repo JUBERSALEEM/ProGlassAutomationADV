@@ -62,7 +62,7 @@
     <SolidColorBrush x:Key="Surface.Primary.BackgroundBrush" Color="#F8FFFFFF"/>
     <SolidColorBrush x:Key="Surface.Secondary.BackgroundBrush" Color="#EFFFFFFF"/>
     <SolidColorBrush x:Key="Surface.Detail.BackgroundBrush" Color="#00FFFFFF"/>
-    <SolidColorBrush x:Key="Surface.Primary.BorderBrush" Color="#2EFFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Primary.BorderBrush" Color="#3394A3B8"/>
     <SolidColorBrush x:Key="Surface.Secondary.BorderBrush" Color="#CBD5E1"/>
     <SolidColorBrush x:Key="Surface.Detail.BorderBrush" Color="#CBD5E1"/>
     <SolidColorBrush x:Key="Surface.Primary.OverlayBrush" Color="#00FFFFFF"/>

@@ -139,7 +139,7 @@ namespace ProGlassAutomation.Tests.Agent
         [Theory]
         [InlineData("")]
         [InlineData("NotARole")]
-        [InlineData("administrator")]   // case-sensitive by design
+        [InlineData("notadministrator")]
         public void Unknown_role_grants_nothing(string role)
         {
             Assert.False(RolePermissions.Has(role, AppPermissions.ProformaView));
@@ -157,6 +157,18 @@ namespace ProGlassAutomation.Tests.Agent
                 AppRoles.Operator, AppPermissions.SheetStoreEdit));
             Assert.True(RolePermissions.Has(
                 "Admin", AppPermissions.SettingsManage));
+        }
+
+        [Theory]
+        [InlineData("Administrator")]
+        [InlineData("administrator")]
+        [InlineData("ADMINISTRATOR")]
+        [InlineData("Admin")]
+        [InlineData("admin")]
+        public void Administrator_role_aliases_resolve_to_the_canonical_admin_permissions(string role)
+        {
+            Assert.Equal(AppRoles.Administrator, AppRoles.Normalize(role));
+            Assert.True(RolePermissions.Has(role, AppPermissions.SettingsManage));
         }
 
         [Fact]

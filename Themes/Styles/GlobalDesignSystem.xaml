@@ -394,7 +394,7 @@
     <!-- Surface hierarchy — canonical 6 levels -->
     <!-- Primary: default card, 12 radius, 12,9 padding, soft shadow -->
     <SolidColorBrush x:Key="Surface.Primary.Background" Color="#F8FFFFFF"/>
-    <SolidColorBrush x:Key="Surface.Primary.Border" Color="#2EFFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Primary.Border" Color="#3394A3B8"/>
     <Thickness x:Key="Surface.Primary.BorderThickness">1.5</Thickness>
     <CornerRadius x:Key="Surface.Primary.Radius">12</CornerRadius>
     <Thickness x:Key="Surface.Primary.Padding">12,9</Thickness>
@@ -459,7 +459,7 @@
     <Color x:Key="Appearance.StudioEdgeColor">#E2DBEF</Color>
     <SolidColorBrush x:Key="Appearance.StudioFace" Color="#FFFEFC"/>
     <SolidColorBrush x:Key="Appearance.StudioEdge" Color="#E2DBEF"/>
-    <SolidColorBrush x:Key="Surface.Primary.BorderBrush" Color="#2EFFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Primary.BorderBrush" Color="#3394A3B8"/>
     <SolidColorBrush x:Key="Surface.Secondary.BorderBrush" Color="#FFCBD5E1"/>
     <SolidColorBrush x:Key="Surface.Detail.BorderBrush" Color="#FFCBD5E1"/>
 
@@ -484,7 +484,7 @@
         <Setter Property="Effect" Value="{DynamicResource Surface.Primary.Effect}"/>
         <Setter Property="SnapsToDevicePixels" Value="False"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
-        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="True"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="False"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
     </Style>
     <Style x:Key="SurfaceSecondaryStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
@@ -1254,10 +1254,15 @@
          Pill button KEYS are NOT restyled here — GlassPillButtonTemplate owns
          Tag-as-icon. That template is industrialized in Styles/ButtonStyles.xaml. -->
     <Style x:Key="SoftCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
-    <!-- Last-win MUST match 2026-09-12 dusk-navy (31138eb). Do not BasedOn
-         SurfacePrimaryStyle — that flattened Optimization to empty cream cards. -->
+    <!-- Readability ratchet (2026-10-06): card surfaces must come from the
+         theme-paired Surface* family so the background always contrasts the
+         Text*/PrimaryForeground ink these cards' typography styles paint.
+         WindowBackground/ElevatedSurface resolve to dark dusk-glass in the
+         glass families while the text stayed light-mode ink — black-on-black
+         on Sizes/Stocks/Settings/Summary/Reports. The 2D view's dark hero
+         cards keep their explicit white-on-dark text and are unaffected. -->
     <Style x:Key="OptPanelCard" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="12"/>
@@ -1265,7 +1270,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
     <Style x:Key="OptInnerCard" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="10"/>
@@ -1306,6 +1311,7 @@
 
     <Style x:Key="ErpPageRootStyle" TargetType="UserControl">
         <Setter Property="Background" Value="{DynamicResource SurfaceWorkspaceBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>

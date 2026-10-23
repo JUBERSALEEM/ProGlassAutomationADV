@@ -2155,6 +2155,7 @@
     <sys:String x:Key="Settings.SecAi">KI-Assistent</sys:String>
     <sys:String x:Key="Settings.SecAppearance">Darstellung</sys:String>
     <sys:String x:Key="Settings.SecData">Daten &amp; Backup</sys:String>
+    <sys:String x:Key="Settings.SecRecordsSync">Datensynchronisierung</sys:String>
     <sys:String x:Key="Settings.SecDemo">Demo-Center</sys:String>
     <sys:String x:Key="Settings.SecFeatures">Funktionen</sys:String>
     <sys:String x:Key="Settings.SecLicense">Lizenz</sys:String>

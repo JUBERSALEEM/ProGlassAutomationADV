@@ -5,8 +5,8 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:trend="clr-namespace:ProGlassAutomation.Controls.TrendChart"
              xmlns:mini="clr-namespace:ProGlassAutomation.Controls.MiniBarChart"
-             FontFamily="Segoe UI" Foreground="{DynamicResource Ov.Ink}"
-             Background="{DynamicResource Ov.Canvas}" UseLayoutRounding="True"
+             FontFamily="Segoe UI" Foreground="{DynamicResource TextPrimary}"
+             Background="{DynamicResource ApplicationBackground}" UseLayoutRounding="True"
              SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType" SizeChanged="OnOverviewSizeChanged" Loaded="OnOverviewLoaded">
     <UserControl.Resources>
@@ -31,7 +31,7 @@
                 </StackPanel>
                 <StackPanel x:Name="HeroActions" Grid.Column="1" VerticalAlignment="Center">
                     <WrapPanel HorizontalAlignment="Right" Margin="0,0,0,8">
-                        <Border x:Name="SnapshotBadge" Background="{DynamicResource Ov.Soft}" CornerRadius="6" Padding="8,3" Margin="0,0,10,0">
+                        <Border x:Name="SnapshotBadge" Background="{DynamicResource SurfaceSecondary}" CornerRadius="6" Padding="8,3" Margin="0,0,10,0">
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Style.Triggers>
@@ -58,11 +58,11 @@
             </Grid>
 
             <!-- Explicit failure: never paint a failed load as a healthy zero dashboard. -->
-            <Border Style="{StaticResource Ov.Card}" Background="{DynamicResource Ov.DangerSoft}" Margin="0,0,0,18"
+            <Border Style="{StaticResource Ov.Card}" Background="{DynamicResource StatusErrorSurface}" Margin="0,0,0,18"
                     Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
                     AutomationProperties.LiveSetting="Assertive">
                 <StackPanel>
-                    <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource Ov.Text}" Foreground="{DynamicResource Ov.Danger}"/>
+                    <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource Ov.Text}" Foreground="{DynamicResource StatusError}"/>
                     <TextBlock Text="Switch to another dashboard tab and return to Overview to retry."
                                Style="{StaticResource Ov.Meta}" Margin="0,8,0,0"/>
                 </StackPanel>
@@ -98,19 +98,19 @@
                 <Grid x:Name="PrimaryGrid" Margin="0,0,0,18">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                    <Border x:Name="PulseCard" Style="{StaticResource Ov.Card}" Background="{DynamicResource Ov.Hero}" BorderThickness="0" MinHeight="218">
+                    <Border x:Name="PulseCard" Style="{StaticResource Ov.Card}" Background="{DynamicResource HeroBackground}" BorderThickness="0" MinHeight="218">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <TextBlock Text="Total proforma value" Style="{StaticResource Ov.CardTitle}" Foreground="{DynamicResource Ov.OnAccentMuted}"/>
+                            <TextBlock Text="Total proforma value" Style="{StaticResource Ov.CardTitle}" Foreground="{DynamicResource TextOnAccent}"/>
                             <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" Margin="0,18,0,14">
-                                <TextBlock Text="{Binding PulseDisplay}" Style="{StaticResource Ov.Value}" FontSize="38" Foreground="{DynamicResource Ov.OnAccent}"/>
+                                <TextBlock Text="{Binding PulseDisplay}" Style="{StaticResource Ov.Value}" FontSize="38" Foreground="{DynamicResource TextOnAccent}"/>
                             </Viewbox>
-                            <TextBlock Grid.Row="2" Text="{Binding PulseHint}" Style="{StaticResource Ov.Text}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource Ov.OnAccent}"/>
+                            <TextBlock Grid.Row="2" Text="{Binding PulseHint}" Style="{StaticResource Ov.Text}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource TextOnAccent}"/>
                             <Grid Grid.Row="3" Margin="0,14,0,0">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="120"/></Grid.ColumnDefinitions>
-                                <TextBlock Text="Proforma values · VAT included" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource Ov.OnAccentMuted}" VerticalAlignment="Bottom" Margin="0,0,10,0"/>
+                                <TextBlock Text="Proforma values · VAT included" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource TextOnAccent}" VerticalAlignment="Bottom" Margin="0,0,10,0"/>
                                 <mini:MiniBarChartControl Grid.Column="1" Height="46" Values="{Binding PulseSpark}"
-                                                          BarBrush="{DynamicResource Ov.OnAccentMuted}" HighlightBrush="{DynamicResource Ov.OnAccent}"
+                                                          BarBrush="{DynamicResource TextOnAccent}" HighlightBrush="{DynamicResource TextOnAccent}"
                                                           AutomationProperties.Name="Six-month proforma sparkline"/>
                             </Grid>
                         </Grid>
@@ -146,7 +146,7 @@
                         <Border Style="{StaticResource Ov.Card}" Margin="7,0,7,7">
                             <StackPanel><TextBlock Text="{DynamicResource Dashboard.Production}" Style="{StaticResource Ov.Meta}"/>
                                 <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" Margin="0,12,0,0">
-                                    <TextBlock Text="{Binding InProductionDisplay}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource Ov.Accent}"/>
+                                    <TextBlock Text="{Binding InProductionDisplay}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource AccentPrimary}"/>
                                 </Viewbox>
                             </StackPanel>
                         </Border>
@@ -155,7 +155,7 @@
                                 <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" Margin="0,12,0,0">
                                 <TextBlock Text="{Binding OverdueDisplay}">
                                     <TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource Ov.Value}">
-                                        <Style.Triggers><DataTrigger Binding="{Binding HasOverdueJobs}" Value="True"><Setter Property="Foreground" Value="{DynamicResource Ov.Danger}"/></DataTrigger></Style.Triggers>
+                                        <Style.Triggers><DataTrigger Binding="{Binding HasOverdueJobs}" Value="True"><Setter Property="Foreground" Value="{DynamicResource StatusError}"/></DataTrigger></Style.Triggers>
                                     </Style></TextBlock.Style>
                                 </TextBlock>
                                 </Viewbox>
@@ -164,7 +164,7 @@
                         <Border Style="{StaticResource Ov.Card}" Margin="7,0,7,7">
                             <StackPanel><TextBlock Text="{DynamicResource Dashboard.PendingPCS}" Style="{StaticResource Ov.Meta}"/>
                                 <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" Margin="0,12,0,0">
-                                    <TextBlock Text="{Binding PendingPcsDisplay}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource Ov.Warning}"/>
+                                    <TextBlock Text="{Binding PendingPcsDisplay}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource StatusWarning}"/>
                                 </Viewbox>
                             </StackPanel>
                         </Border>
@@ -177,8 +177,8 @@
                             <TextBlock Grid.Row="1" Text="{Binding ChartTitle}" Style="{StaticResource Ov.Meta}" Margin="0,6,0,18"/>
                             <trend:TrendChartControl Grid.Row="2" Height="260" Points="{Binding MonthlySalesBars}" SeriesKind="Area"
                                                      ValuePrefix="AED " EmptyMessage="No proforma value recorded yet."
-                                                     SeriesBrush="{DynamicResource Ov.Accent}" SeriesEndBrush="{DynamicResource Ov.AreaEnd}"
-                                                     GridBrush="{DynamicResource Ov.Line}" LabelBrush="{DynamicResource Ov.Muted}"
+                                                     SeriesBrush="{DynamicResource AccentPrimary}" SeriesEndBrush="{DynamicResource AccentSoft}"
+                                                     GridBrush="{DynamicResource BorderSubtle}" LabelBrush="{DynamicResource TextMuted}"
                                                      AutomationProperties.Name="Monthly proforma value, in AED"/>
                         </Grid>
                     </Border>
@@ -246,7 +246,7 @@
                         </StackPanel>
                     </Border>
                 </UniformGrid>
-                <Border BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="0,16,0,0" Margin="0,6,0,0">
+                <Border BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,1,0,0" Padding="0,16,0,0" Margin="0,6,0,0">
                     <StackPanel>
                         <TextBlock Text="Proforma value is not collected revenue. Inventory uses selling-price valuation." Style="{StaticResource Ov.Meta}"/>
                         <TextBlock Text="Payment count includes paid / partly paid tax invoices issued this month." Style="{StaticResource Ov.Meta}" Margin="0,5,0,0"/>

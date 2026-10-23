@@ -51,6 +51,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Theming;
 using System;
 
 namespace ProGlassAutomation.Services.Theme
@@ -68,11 +69,15 @@ namespace ProGlassAutomation.Services.Theme
         {
             try
             {
+                // PHASE 1 (V3 adapter): routed through ThemeManager.ApplyTheme
+                // (itself a thin V3 wrapper) so CurrentTheme — the resolver
+                // ApplyCurrent reads — stays live on every toggle, then the
+                // legacy ThemeChanged notification. The old overlay +
+                // family repaint + accent chain lives inside the V3
+                // applier's post-pass now; no second chain here.
                 ThemeManager.ApplyTheme(
                     isDark ? AppTheme.Dark : AppTheme.Light,
                     deferPostProcessing: true);
-                RebuildFamily(
-                    $"full-rebuild · {reason} · mode={(isDark ? "Dark" : "Light")}");
                 ThemeManager.NotifyThemeChanged();
             }
             catch (Exception ex)
@@ -96,57 +101,14 @@ namespace ProGlassAutomation.Services.Theme
         {
             try
             {
-                var appearance = App.Config?.Appearance;
-
-                // 2) ONE module pass paints family baseline + module and
-                //    wallpaper/scene layers (ApplyModule rebuilds the
-                //    family internally; its finally block runs the ONE
-                //    canonical studio re-apply on the fresh family
-                //    snapshot — OnFamilyApplied).
-                //
-                //    2026-09-05 (ERR-50472F postmortem): this used to call
-                //    VisualThemeEngine.Apply() FIRST and ApplyModule()
-                //    after — the ENTIRE 64-key dictionary was torn down
-                //    and republished TWICE per switch. That was the
-                //    visible flash/"dull blur" bounce the owner reported,
-                //    and it opened two missing-key windows instead of
-                //    one — the second killed a customer's app when a
-                //    template inflated against the half-rebuilt
-                //    dictionary. Now: a family change flips the scene
-                //    signature, so this pass always repaints for real;
-                //    an identical repeat is skipped — zero churn.
-                VisualThemeEngine.ApplyModule(
-                    VisualThemeEngine.LastRequestedModule, appearance);
-
-                // 2b) Radius unification (2026-09-13): families (iOS 26, Crystal,
-                // Industrial, Monet) publish their own CardCornerRadius baseline.
-                // Re-apply the user's Appearance slider immediately after the family
-                // baseline so the slider wins and Surface.Primary.CornerRadius
-                // (via ReapplySemanticSurfaces below) follows it too.
-                ThemeManager.ReapplyCardCornerRadius();
-                ThemeManager.ReapplyCardBorderThickness();
-                ThemeManager.ReapplyCardEdgeThickness();
-
-                // 3) Accent family re-derived from the NEW surfaces —
-                //    the keyline source must be the post-family surface.
-                ThemeManager.ApplyAccent(
-                    ThemeManager.AccentColor, raiseEvent: false);
-
-                // 4) The user's Defined Card Edges choice reads the
-                //    freshly derived accent keyline — then the semantic ERP
-                //    surface layer derives Primary/Secondary/Detail resources
-                //    from that final keyline.
-                ThemeManager.ReapplyOutlinePreference();
-                ThemeManager.ReapplySemanticSurfaces();
-                ThemeManager.PublishProGlassDesignSystem();
-
-                // 2026-09-17: Ensure About surface tokens (corner radii + borders)
-                // stay in sync with the live family & slider on every family rebuild.
-                AboutSurfaceTokens.Publish(System.Windows.Application.Current?.Resources, ThemeManager.CardCornerRadius);
+                // PHASE A (one publisher): the second radius/accent/About
+                // chain is GONE. ApplyCurrent already runs the package
+                // swap, the legacy dual-write and the preference
+                // post-pass — nothing repaints or re-derives here twice.
+                Theming.V3ThemeApplier.ApplyCurrent();
 
                 AppLogService.Debug(
-                    $"[ThemePipeline] Rebuilt: {reason} | family={appearance?.VisualTheme} " +
-                    $"wallpaper={appearance?.WallpaperMode}/{appearance?.BuiltinScene}",
+                    $"[ThemePipeline] Rebuilt: {reason}",
                     new LogContext { Module = "Themes", Operation = "Pipeline" });
             }
             catch (Exception ex)
@@ -168,9 +130,10 @@ namespace ProGlassAutomation.Services.Theme
             try
             {
                 VisualThemeEngine.InvalidateSceneCache();
-                VisualThemeEngine.ApplyModule(
-                    VisualThemeEngine.LastRequestedModule,
-                    App.Config?.Appearance);
+                // PHASE 1 (V3 adapter): named path — direct full V3 apply
+                // with the current Light/Dark. No wallpaper painting is
+                // re-added; the scene layer stays retired.
+                Theming.V3ThemeApplier.ApplyCurrent();
                 ThemeManager.PublishProGlassDesignSystem();
                 AppLogService.Debug(
                     $"[ThemePipeline] Wallpaper layer rebuilt: {reason}",

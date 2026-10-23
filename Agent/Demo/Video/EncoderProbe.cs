@@ -38,6 +38,22 @@ namespace ProGlassAutomation.Agent.Demo.Video
 {
     public sealed class EncoderProbe
     {
+        /// <summary>
+        /// Largest frame the throughput probe will itself encode. 1080p:
+        /// enough frames-per-second signal to be meaningful, a quarter of the
+        /// memory and CPU of the 4K encode it replaces, and
+        /// <see cref="VideoEncoder.EstimateEncodeFps"/> scales the result to
+        /// whatever output size the recording actually uses.
+        /// </summary>
+        public const long MaxProbePixels = 1920L * 1080;
+
+        /// <summary>
+        /// Requested output size the current measurement was taken for. Only
+        /// touched inside <see cref="RunProbe"/>, which <c>_inFlight</c>
+        /// already serialises to one execution at a time.
+        /// </summary>
+        private static long _lastProbedOutputPixels;
+
         /// <summary>Immutable capability snapshot for consumers.</summary>
         public sealed class Snapshot
         {
@@ -136,17 +152,87 @@ namespace ProGlassAutomation.Agent.Demo.Video
             double? measuredFps = prev.MeasuredFps;
             int mw = prev.MeasuredWidth, mh = prev.MeasuredHeight;
             string me = prev.MeasuredEncoder;
+            // ── PROBE RESOLUTION CAP (2026-10-06, ERR-7F77C4) ──────────
+            // A field crash report showed the throughput probe starting a
+            // 3-second 3840x2160 libx264 encode and the FIRST
+            // OutOfMemoryException landing 324 ms later in WPF's
+            // MediaContext.CompleteRender, during HwndTarget.OnResize. The
+            // benchmark was competing with the UI thread for the memory the
+            // render pass needed, and the crash handler then amplified it
+            // (see the latch in App.CrashHelpers.cs).
+            //
+            // The 4K encode was never necessary. EstimateEncodeFps scales a
+            // measurement across resolutions by pixel ratio — that is its
+            // entire job, and both consumers already call it with the
+            // snapshot's MeasuredWidth/MeasuredHeight:
+            //   est = measured x (measuredPixels / targetPixels)
+            // So measuring at 1080p and letting the existing math scale to
+            // 4K gives the same answer for a quarter of the pixels, which is
+            // a quarter of the frame buffers and a quarter of the CPU. The
+            // snapshot records the size actually measured, so the scaling
+            // stays honest.
+            //
+            // The PRESET still comes from the requested OUTPUT size, not the
+            // capped one: the point of the 2026-10-05 change was to measure
+            // the configuration that will really run, and per-pixel cost is
+            // what the ratio scaling carries across.
+            int probeW = width, probeH = height;
+            long requestedPixels = (long)width * height;
+            if (requestedPixels > MaxProbePixels && requestedPixels > 0)
+            {
+                double scale = Math.Sqrt((double)MaxProbePixels / requestedPixels);
+                probeW = Math.Max(2, (int)(width * scale)) & ~1;
+                probeH = Math.Max(2, (int)(height * scale)) & ~1;
+            }
+
+            // The capped size alone is not enough to decide whether to
+            // re-measure: 4K and 2K both cap to a 1920x1080 probe, but the
+            // recording preset they map to differs (superfast vs superfast vs
+            // veryfast at 1080p), and per-pixel cost is preset-dependent. So
+            // the requested OUTPUT size is part of the identity too — a switch
+            // of output resolution re-measures, a repeat at the same one does
+            // not.
             bool needThroughput =
-                !measuredFps.HasValue || me != selection.Name || mw != width || mh != height;
+                !measuredFps.HasValue || me != selection.Name
+                || mw != probeW || mh != probeH
+                || _lastProbedOutputPixels != requestedPixels;
             if (needThroughput)
             {
                 string qArgs = VideoEncoder.BuildQualityArgs(selection, 18).Args;
-                if (TestEncodeWithTiming(selection, width, height, fps, 3, qArgs, out double mFps, out _))
+
+                // 2026-10-05 QUALITY PASS — the probe was measuring the WRONG
+                // configuration. BuildQualityArgs returns only "-crf 18" for
+                // the software encoders (the hardware ones already carry their
+                // own "-preset p5"), so this test encode ran libx264 at its
+                // DEFAULT preset — medium — while a real 4K recording runs at
+                // the rung from DefaultPresetForOutput. medium is several times
+                // slower, so every measured fps here was a large
+                // UNDER-estimate of what recording actually achieves.
+                //
+                // That pessimism fed straight back into the quality settings:
+                // AdjustPreset demotes the preset whenever the measurement is
+                // below the requested rate, and the FPS guard in
+                // UserScreenRecordService downgrades 4K -> 2K -> 1080p on the
+                // same number. Both were therefore biased toward the softest,
+                // smallest output the machine could be talked into. Measuring
+                // at the rung that will actually be used makes both decisions
+                // describe reality.
+                if (!selection.Hardware)
+                    qArgs += " -preset " + VideoEncoder.DefaultPresetForOutput(
+                        (long)width * height);
+
+                if (TestEncodeWithTiming(selection, probeW, probeH, fps, 3, qArgs, out double mFps, out _))
                 {
-                    measuredFps = mFps; mw = width; mh = height; me = selection.Name;
+                    // Store what was ACTUALLY measured. EstimateEncodeFps
+                    // divides by these, so recording the requested size while
+                    // having encoded the capped one would misreport every
+                    // downstream estimate.
+                    measuredFps = mFps; mw = probeW; mh = probeH; me = selection.Name;
+                    _lastProbedOutputPixels = requestedPixels;
                     AppLogService.Info(
-                        $"[EncoderProbe] encoder={selection.Name} resolution={width}x{height} " +
-                        $"sustained={mFps:0.##}fps (measured)",
+                        $"[EncoderProbe] encoder={selection.Name} measured at {probeW}x{probeH} " +
+                        $"(requested {width}x{height}) sustained={mFps:0.##}fps; " +
+                        $"callers scale by pixel ratio",
                         new LogContext { Module = "Recording", Operation = "EncoderProbe" });
                 }
             }

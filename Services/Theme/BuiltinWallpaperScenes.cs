@@ -33,6 +33,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 
@@ -60,6 +61,27 @@ namespace ProGlassAutomation.Services.Theme
             (VisualThemeEngine.Ios26,            "Grouped Glass"),
         };
 
+        /// <summary>The eight-family scene catalogue. Kept SEPARATE from
+        /// <see cref="All"/> rather than merged into it, because a family
+        /// that declares <c>Material.AllowBackdrop == false</c> (swiss,
+        /// neumorphism) must never offer a scene tile in the first place.
+        /// Offering one and then silently not painting it is worse than
+        /// not offering it — the user picks a wallpaper and nothing
+        /// happens.</summary>
+        public static readonly (string Key, string Label, string Type)[] EightFamilies =
+            ProGlassAutomation.Services.Theme.Eight.EightThemeScenes.All;
+
+        /// <summary>True when this key is one of the eight families and that
+        /// family permits a backdrop layer.</summary>
+        public static bool AllowsBackdropFor(string? key)
+        {
+            var profile =
+                ProGlassAutomation.Services.Theme.Eight.EightThemeCatalog.Resolve(key);
+            return ProGlassAutomation.Services.Theme.Eight
+                .EightThemeCatalog.IsKnown(key)
+                && profile.Material.AllowBackdrop;
+        }
+
         /// <summary>Draws the scene for a family. Unknown/empty family →
         /// the Normal studio sweep (the default family). NEVER throws past
         /// its own guard — a wallpaper must never take the app down.</summary>
@@ -74,6 +96,17 @@ namespace ProGlassAutomation.Services.Theme
                 string f = string.IsNullOrWhiteSpace(family)
                     ? VisualThemeEngine.NormalIndustrial
                     : family!;
+
+                // ── EIGHT-FAMILY CONTRACT ────────────────────────────
+                // Checked FIRST, and deliberately before the legacy
+                // families: the eight are the product surface and each
+                // has its own ground. Returning a legacy scene here is the
+                // bug where Liquid Glass and Bento Grid painted the same
+                // warm cream wash and users reported "the new themes all
+                // look the same".
+                if (Eight.EightThemeCatalog.IsKnown(f))
+                    return Eight.EightThemeScenes.For(
+                        Eight.EightThemeCatalog.Resolve(f).Identity, dark);
 
                 if (f == VisualThemeEngine.CrystalFluid)
                     return CrystalFluidScene(dark);
@@ -192,6 +225,16 @@ namespace ProGlassAutomation.Services.Theme
         /// so two tiles never read as the same scene.</summary>
         public static string WallpaperType(string? key)
         {
+            // Eight families carry their own caption, so a Bento Grid tile
+            // never reads "Industrial pattern wallpaper".
+            if (Eight.EightThemeCatalog.IsKnown(key))
+            {
+                var scene = Eight.EightThemeScenes.All.FirstOrDefault(
+                    s => string.Equals(s.Identity, key,
+                        StringComparison.OrdinalIgnoreCase));
+                return scene.Type ?? "";
+            }
+
             if (key == VisualThemeEngine.Monet) return "Accent dusk wallpaper";
             if (key == VisualThemeEngine.CrystalFluid) return "Water atmosphere wallpaper";
             if (key == VisualThemeEngine.Ios26) return "Grouped glass wallpaper";

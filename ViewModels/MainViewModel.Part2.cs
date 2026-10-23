@@ -260,8 +260,16 @@ namespace ProGlassAutomation.ViewModels
                     }
                     break;
                 case "Specifications": CurrentViewModel = SpecificationsVM; break;
+                case "StickerPrinter": CurrentViewModel = StickerPrinterVM; break;
                 case "ProformaInvoice": CurrentViewModel = ProformaInvoiceVM; break;
                 case "JobOrder": CurrentViewModel = JobOrderVM; break;
+                case "DocumentRegister":
+                {
+                    var documentRegister = DocumentRegisterVM;
+                    CurrentViewModel = documentRegister;
+                    AsyncUtility.SafeFireAndForget(documentRegister.LoadAsync, "Document Register navigation load");
+                    break;
+                }
                 case "Optimization": CurrentViewModel = OptimizationVM; break;
                 case "Cutting": CurrentViewModel = CuttingVM; break;
                 case "CuttingWorkCenter": CurrentViewModel = CuttingWorkCenterVM; break;
@@ -328,6 +336,7 @@ namespace ProGlassAutomation.ViewModels
                 "Specifications" => ProGlassAutomation.Services.Theme.WallpaperModules.SheetStore,
                 "ProformaInvoice" => ProGlassAutomation.Services.Theme.WallpaperModules.ProformaInvoice,
                 "JobOrder" => ProGlassAutomation.Services.Theme.WallpaperModules.JobOrder,
+                "DocumentRegister" => ProGlassAutomation.Services.Theme.WallpaperModules.ProformaInvoice,
                 "DeliveryNote" => ProGlassAutomation.Services.Theme.WallpaperModules.DeliveryNote,
                 "TaxInvoice" => ProGlassAutomation.Services.Theme.WallpaperModules.TaxInvoice,
                 "SalesReport" => ProGlassAutomation.Services.Theme.WallpaperModules.SalesReport,
@@ -421,6 +430,7 @@ namespace ProGlassAutomation.ViewModels
             try { DeliveryNoteVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: DeliveryNoteVM teardown failed: " + ExceptionMessages.Deep(ex)); }
             try { ProformaInvoiceVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: ProformaInvoiceVM teardown failed: " + ExceptionMessages.Deep(ex)); }
             try { TaxInvoiceVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: TaxInvoiceVM teardown failed: " + ExceptionMessages.Deep(ex)); }
+            try { _lazyDocumentRegisterVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: DocumentRegisterVM teardown failed: " + ExceptionMessages.Deep(ex)); }
             GC.SuppressFinalize(this);
         }
     }

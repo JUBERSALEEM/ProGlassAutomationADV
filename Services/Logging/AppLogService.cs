@@ -35,6 +35,40 @@ namespace ProGlassAutomation.Services.Logging
         private const int MaxBuffered = 500;
         private const int RetentionDays = 14;
 
+        // ── SIZE BOUNDS (2026-10-05) ──────────────────────────────────────
+        // Retention was time-only: files older than RetentionDays are deleted
+        // in Initialize(), which runs ONCE at startup. Two consequences that
+        // only show up in trouble:
+        //
+        //   • A session left open for a week never prunes anything.
+        //   • Nothing caps a single file, so one runaway loop — a retry storm,
+        //     a binding error raised per frame, an exception inside a
+        //     timer — writes without limit until the volume is full.
+        //
+        // That matters more than usual here: the data root can be redirected
+        // onto a network share (see Services/Database/SharedDataRootService),
+        // so filling it is not "logs got big", it is an ERP that cannot write
+        // to its own database.
+        //
+        // These are safety nets, not a working limit. A normal day of use
+        // writes a few hundred kilobytes; 8 MB is roughly twenty times a heavy
+        // day. Worst case is bounded at MaxLogFileBytes x (MaxRotatedParts + 1)
+        // per day, and MaxLogFolderBytes bounds the folder absolutely.
+        private const long MaxLogFileBytes = 8L * 1024 * 1024;
+        private const int MaxRotatedParts = 2;
+        private const long MaxLogFolderBytes = 200L * 1024 * 1024;
+
+        // Written-bytes accounting, so the size check adds no syscall per
+        // line. File.AppendAllText already opens and closes the file for every
+        // entry, and a runaway loop is exactly the case this guard exists for,
+        // so stat-ing the file on every line would make the failure mode
+        // worse. Seeded from the real length whenever the path changes, so a
+        // second session appending to the same file cannot hide its growth.
+        // All three are only ever touched inside _writeLock.
+        private static string? _sizedPath;
+        private static long _sizedBytes;
+        private static int _nextPart = 1;
+
         private static string LogFolder => Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "ProGlassAutomation", "logs");
@@ -42,16 +76,54 @@ namespace ProGlassAutomation.Services.Logging
         /// <summary>
         /// "Session is open" marker. Written when logging initialises,
         /// removed by <see cref="MarkCleanShutdown"/>. If it still exists
-        /// at the next startup, the previous session ended without a clean
-        /// shutdown — the signature of an uncatchable crash (a
-        /// StackOverflowException, native fault or kill) that could not run
-        /// any exception handler and therefore wrote no crash report.
+        /// at the next startup, the previous process did not complete marker
+        /// cleanup. This can follow a crash, forced termination, OS shutdown,
+        /// or a failure during shutdown; the marker alone does not identify
+        /// the cause or prove that an exception was unhandled.
         /// </summary>
         private static string SessionMarkerPath =>
             Path.Combine(LogFolder, "session-open.marker");
 
         /// <summary>Raised on the UI thread after each entry is written.</summary>
         public static event EventHandler<LogEntry>? LogWritten;
+
+        /// <summary>
+        /// Rolls the current day's file over to <c>app-yyyyMMdd.N.log</c> and
+        /// returns the path to keep writing to. The part number cycles through
+        /// 1..<see cref="MaxRotatedParts"/>, deleting the slot it is about to
+        /// reuse, so a loop that logs without end is bounded instead of
+        /// filling the volume. Called under <c>_writeLock</c>.
+        /// </summary>
+        /// <remarks>
+        /// If the rename fails the counter is deliberately NOT reset: the next
+        /// entry tries to rotate again, and if it never succeeds the file
+        /// simply keeps growing — the pre-existing behaviour, and the least
+        /// surprising outcome for a safety net that could not do its job.
+        /// Resetting it would silently disable the guard for the rest of the
+        /// session.
+        /// </remarks>
+        private static string RotateLog(string path)
+        {
+            try
+            {
+                var dir = Path.GetDirectoryName(path);
+                if (string.IsNullOrEmpty(dir)) dir = LogFolder;
+                var stem = Path.GetFileNameWithoutExtension(path);
+                var target = Path.Combine(dir, $"{stem}.{_nextPart}.log");
+
+                if (File.Exists(target)) File.Delete(target);
+                File.Move(path, target);
+
+                _nextPart = _nextPart >= MaxRotatedParts ? 1 : _nextPart + 1;
+                _sizedBytes = 0;
+            }
+            catch
+            {
+                // Logging must never be the reason the app misbehaves. See the
+                // remarks: the counter stays high so the next write retries.
+            }
+            return path;
+        }
 
         /// <summary>Creates the log folder and prunes old files once.</summary>
         public static void Initialize()
@@ -67,20 +139,41 @@ namespace ProGlassAutomation.Services.Logging
                 {
                     file.Delete();
                 }
+
+                // Age alone is not a bound: fourteen days of a runaway loop is
+                // fourteen times whatever one day produced. Sweep oldest-first
+                // until the folder is under MaxLogFolderBytes. Today's file is
+                // excluded — it is the one being appended to, and deleting the
+                // live log to save space would destroy exactly the evidence
+                // that explains why the disk filled up.
+                var today = Path.Combine(LogFolder, $"app-{DateTime.Now:yyyyMMdd}.log");
+                var byAge = new DirectoryInfo(LogFolder)
+                    .GetFiles("app-*.log")
+                    .Where(f => !string.Equals(
+                        f.FullName, today, StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(f => f.LastWriteTime)
+                    .ToList();
+
+                long total = byAge.Sum(f => f.Length);
+                if (File.Exists(today)) total += new FileInfo(today).Length;
+
+                foreach (var file in byAge)
+                {
+                    if (total <= MaxLogFolderBytes) break;
+                    total -= file.Length;
+                    file.Delete();
+                }
             }
             catch { /* never fail startup because of logging */ }
 
             // ── Unclean-shutdown detection (2026-09-17) ─────────────────
-            // A StackOverflowException (or any native / process-level fault)
-            // terminates a .NET process immediately: DispatcherUnhandledException,
-            // AppDomain.UnhandledException and UnobservedTaskException NEVER
-            // run for it, so no log entry and no crash-*.txt can be written
-            // at the moment of death. The marker below is the evidence that
-            // survives: it is only removed on a clean exit, so its presence
-            // at startup proves the previous run died hard. The app-*.log
-            // lines around the recorded end time then show the last thing
-            // the app was doing (module navigation breadcrumbs are written
-            // synchronously to disk for exactly this reason).
+            // A process crash can prevent OnExit from removing the marker,
+            // but so can a forced termination, OS interruption, or failure
+            // while writing/deleting the marker. Its presence is only evidence
+            // that clean-shutdown bookkeeping did not complete; it cannot
+            // identify a StackOverflowException or prove that no crash report
+            // was written. Use the marker and surrounding log lines as clues,
+            // then consult Windows Event Viewer when the exit was unexpected.
             try
             {
                 bool unclean = File.Exists(SessionMarkerPath);
@@ -96,18 +189,17 @@ namespace ProGlassAutomation.Services.Logging
                 if (unclean)
                 {
                     Warning(
-                        "Previous session ended WITHOUT a clean shutdown " +
-                        "(no OnExit). This is the signature of an uncatchable " +
-                        "crash such as a StackOverflowException — those bypass " +
-                        "every .NET exception handler, which is why no crash " +
-                        "report was written at the time. Previous session: " +
+                        "Previous session's clean-shutdown marker remained. " +
+                        "This can follow a forced exit, OS interruption, process " +
+                        "crash, or shutdown/marker-cleanup failure; the marker " +
+                        "alone does not identify the cause or prove an unhandled " +
+                        "exception. Previous session: " +
                         (string.IsNullOrWhiteSpace(previousMarker)
                             ? "(marker unreadable)"
                             : previousMarker.Trim()) +
-                        ". Check the log lines immediately before this entry " +
-                        "and the Windows Event Viewer (Application log, " +
-                        ".NET Runtime / Application Error) for the faulting " +
-                        "module.",
+                        ". Review the surrounding log lines and, if the exit " +
+                        "was unexpected, the Windows Event Viewer (Application " +
+                        "log, .NET Runtime / Application Error).",
                         new LogContext { Operation = "Startup" });
                 }
             }
@@ -121,11 +213,10 @@ namespace ProGlassAutomation.Services.Logging
         }
 
         /// <summary>
-        /// Removes the "session is open" marker. Called from App.OnExit so
-        /// only a clean shutdown clears it. A crash-triggered Shutdown still
-        /// runs OnExit — that is fine, because a catchable crash has already
-        /// written its crash report; this marker exists for the uncatchable
-        /// ones that write nothing.
+        /// Removes the "session is open" marker at the end of App.OnExit,
+        /// after shutdown work completes. If the marker remains, cleanup did
+        /// not complete, but that alone does not identify whether the cause
+        /// was an abrupt process exit, an OS interruption, or shutdown I/O.
         /// </summary>
         public static void MarkCleanShutdown()
         {
@@ -147,6 +238,10 @@ namespace ProGlassAutomation.Services.Logging
 
         public static void Warning(string message, LogContext? context = null)
             => Write(LogLevel.Warning, message, null, context);
+
+        public static void Warning(
+            string message, Exception? ex, LogContext? context = null)
+            => Write(LogLevel.Warning, message, ex, context);
 
         /// <summary>Logs an error; returns its ErrorId for user-facing dialogs.</summary>
         public static string Error(
@@ -240,7 +335,7 @@ namespace ProGlassAutomation.Services.Logging
                     LogFolder,
                     $"app-{DateTime.Now:yyyyMMdd}.log");
 
-                var line = new StringBuilder()
+                var lineBuilder = new StringBuilder()
                     .Append(entry.TimestampUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss.fff"))
                     .Append("  [").Append(entry.LevelDisplay.PadRight(8)).Append("]")
                     .Append(string.IsNullOrEmpty(errorId) ? "" : $"  ({errorId})")
@@ -249,14 +344,37 @@ namespace ProGlassAutomation.Services.Logging
                     .Append(string.IsNullOrEmpty(entry.DocumentId) ? "" : $"  {entry.DocumentId}")
                     .Append(string.IsNullOrEmpty(entry.Username) ? "" : $"  user={entry.Username}")
                     .Append(entry.ContextDisplay.Length == 0 ? "" : $"  [{entry.ContextDisplay}]")
-                    .Append("  ").Append(entry.Message)
-                    .AppendLine(entry.ExceptionText.Length == 0
-                        ? ""
-                        : Environment.NewLine + entry.ExceptionText)
-                    .ToString();
+                    .Append("  ");
+
+                AppendMultiline(lineBuilder, entry.Message, "      ");
+                if (entry.ExceptionText.Length > 0)
+                    lineBuilder.AppendLine().Append(entry.ExceptionText);
+                lineBuilder.AppendLine();
+                var line = lineBuilder.ToString();
 
                 lock (_writeLock)
+                {
+                    if (_sizedPath != path)
+                    {
+                        _sizedPath = path;
+                        _sizedBytes = File.Exists(path)
+                            ? new FileInfo(path).Length
+                            : 0;
+                    }
+
+                    if (_sizedBytes >= MaxLogFileBytes)
+                        path = RotateLog(path);
+
                     File.AppendAllText(path, line);
+
+                    // A character count used as a byte estimate. The log
+                    // format is almost entirely ASCII, so the two agree; where
+                    // they do not, this under-counts, which only means the cap
+                    // trips marginally later. Measuring UTF-8 bytes exactly
+                    // would cost a pass over every line to sharpen a safety
+                    // net that does not need sharpening.
+                    _sizedBytes += line.Length;
+                }
             }
             catch
             {
@@ -273,6 +391,19 @@ namespace ProGlassAutomation.Services.Logging
             }
         }
 
+        private static void AppendMultiline(
+            StringBuilder builder, string value, string continuationIndent)
+        {
+            string[] lines = NormalizeLines(value).Split('\n');
+            builder.Append(lines[0]);
+            for (int i = 1; i < lines.Length; i++)
+            {
+                builder.AppendLine();
+                if (lines[i].Length > 0)
+                    builder.Append(continuationIndent).Append(lines[i]);
+            }
+        }
+
         private static string FormatException(Exception ex)
         {
             var sb = new StringBuilder();
@@ -282,12 +413,30 @@ namespace ProGlassAutomation.Services.Logging
             while (current != null && depth < 4)
             {
                 if (depth > 0) sb.AppendLine("  caused by:");
+
+                string[] messageLines = NormalizeLines(current.Message).Split('\n');
                 sb.Append("  ").Append(current.GetType().Name)
-                  .Append(": ").AppendLine(current.Message);
+                    .Append(": ").AppendLine(messageLines[0]);
+                for (int i = 1; i < messageLines.Length; i++)
+                {
+                    if (messageLines[i].Length == 0)
+                        sb.AppendLine();
+                    else
+                        sb.Append("      ").AppendLine(messageLines[i]);
+                }
 
                 var stack = current.StackTrace ?? "";
                 if (stack.Length > 1500) stack = stack[..1500] + " ...";
-                if (stack.Length > 0) sb.AppendLine(stack);
+                if (stack.Length > 0)
+                {
+                    foreach (string stackLine in NormalizeLines(stack).Split('\n'))
+                    {
+                        if (stackLine.Length == 0)
+                            sb.AppendLine();
+                        else
+                            sb.Append("    ").AppendLine(stackLine);
+                    }
+                }
 
                 current = current.InnerException;
                 depth++;
@@ -295,6 +444,9 @@ namespace ProGlassAutomation.Services.Logging
 
             return sb.ToString().TrimEnd();
         }
+
+        private static string NormalizeLines(string value) =>
+            (value ?? "").Replace("\r\n", "\n").Replace('\r', '\n');
 
         private static string NewErrorId() =>
             "ERR-" + Guid.NewGuid().ToString("N")[..6].ToUpperInvariant();

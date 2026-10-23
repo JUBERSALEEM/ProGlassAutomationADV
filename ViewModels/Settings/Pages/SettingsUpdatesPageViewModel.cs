@@ -276,9 +276,10 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
                 ? result.PublishedAtUtc.Value.ToLocalTime()
                     .ToString("dd MMM yyyy")
                 : "";
-            ReleaseNotesPreview = (result.ReleaseNotes ?? "").Length > 400
-                ? result.ReleaseNotes[..400] + "…"
-                : (result.ReleaseNotes ?? "");
+            // Show the complete generated GitHub Release changelog,
+            // not a 400-character teaser. The Updates view provides a
+            // bounded scroll area so long release notes remain readable.
+            ReleaseNotesPreview = result.ReleaseNotes ?? "";
             HasReleaseInfo = !string.IsNullOrEmpty(result.LatestVersion);
         }
 

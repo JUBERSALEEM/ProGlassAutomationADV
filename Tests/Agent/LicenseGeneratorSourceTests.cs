@@ -39,7 +39,7 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Generator_window_is_a_single_click_plan_based_signer()
+        public void Generator_window_keeps_output_blank_when_signing_is_disabled()
         {
             string root = LocateProjectRoot();
             string xaml = File.ReadAllText(Path.Combine(root,
@@ -54,8 +54,12 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("Plan1YearRadio", xaml);
             Assert.Contains("Plan2YearsRadio", xaml);
 
-            // One button signs with the embedded production key.
+            // The UI must route through the fail-closed issuance gate and
+            // clear any previously generated output on failure.
             Assert.Contains("LicenseGeneratorCore.GenerateLicenseKey", code);
+            Assert.Contains("if (!result.Success)", code);
+            Assert.Contains("LicenseKeyOutputBox.Text = string.Empty;", code);
+            Assert.Contains("SetStatus(result.Message, StatusKind.Error)", code);
             Assert.Contains("result.ArmoredKey", code);
 
             // No key-file UI and no request/response machinery remain.

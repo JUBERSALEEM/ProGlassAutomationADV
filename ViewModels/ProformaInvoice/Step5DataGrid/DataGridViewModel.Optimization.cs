@@ -45,6 +45,61 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             IReadOnlyList<SpecGroupSnapshot> specGroups, string stage);
 
         private Step5OptimizationRunner? _optimizationRunner;
+        private Action<IReadOnlyList<SpecGroupSnapshot>>? _stickerPrintAction;
+        private RelayCommand? _printStickersCommand;
+
+        /// <summary>True once a sticker printer has been bound by the invoice composer.</summary>
+        public bool CanPrintStickers => _stickerPrintAction != null;
+
+        /// <summary>Binds the Step 5 snapshot to the shared sticker print window.</summary>
+        public void BindStickerPrintAction(Action<IReadOnlyList<SpecGroupSnapshot>>? printAction)
+        {
+            _stickerPrintAction = printAction;
+            OnPropertyChanged(nameof(CanPrintStickers));
+            _printStickersCommand?.RaiseCanExecuteChanged();
+        }
+
+        /// <summary>Preview, customize and print labels from the live Step 5 grid.</summary>
+        public ICommand PrintStickersCommand =>
+            _printStickersCommand ??= new RelayCommand(
+                _ => PrintStickersFromStep5(), _ => CanPrintStickers);
+
+        private void PrintStickersFromStep5()
+        {
+            var printer = _stickerPrintAction;
+            if (printer == null)
+            {
+                IoStatus = "Sticker printing is not available on this screen.";
+                return;
+            }
+
+            try
+            {
+                try
+                {
+                    if (System.Windows.Input.Keyboard.FocusedElement is System.Windows.FrameworkElement fe)
+                        fe.GetBindingExpression(System.Windows.Controls.TextBox.TextProperty)?.UpdateSource();
+                }
+                catch { }
+
+                var groups = BuildSpecGroupSnapshotsForOptimization();
+                if (groups.Count == 0)
+                {
+                    IoStatus = "No valid glass panes to print — enter pane sizes and quantity on Step 5.";
+                    return;
+                }
+
+                IoStatus = "Opening sticker preview for the current Step 5 rows.";
+                printer(groups);
+            }
+            catch (Exception ex)
+            {
+                IoStatus = "Could not prepare glass stickers: " + ex.Message;
+                Services.Logging.AppLogService.Warning(
+                    "[Step5] sticker print preparation failed: " +
+                    Utilities.ExceptionMessages.Deep(ex));
+            }
+        }
 
         /// <summary>True once the composer has bound a runner AND no run is in
         /// flight, so the buttons disable instead of failing on click — either

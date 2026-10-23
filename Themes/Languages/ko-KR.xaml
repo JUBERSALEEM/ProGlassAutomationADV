@@ -2155,6 +2155,7 @@
     <sys:String x:Key="Settings.SecAi">AI 어시스턴트</sys:String>
     <sys:String x:Key="Settings.SecAppearance">모양</sys:String>
     <sys:String x:Key="Settings.SecData">데이터 및 백업</sys:String>
+    <sys:String x:Key="Settings.SecRecordsSync">레코드 동기화</sys:String>
     <sys:String x:Key="Settings.SecDemo">데모 센터</sys:String>
     <sys:String x:Key="Settings.SecFeatures">기능</sys:String>
     <sys:String x:Key="Settings.SecLicense">라이선스</sys:String>

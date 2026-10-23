@@ -360,7 +360,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
             try
             {
-                await _itemRepo.DeleteAsync(item.Id);
+                await _itemRepo.DeleteAsync(item.Id, item.RowVersion);
                 try
                 {
                     AuditService.Log(AuditSections.SheetStore, "Inventory item deleted",
@@ -433,7 +433,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             form.Commit();
             if (form.Result == null) return;
 
-            bool isNew = _editingItemOriginal == null;
+            var original = _editingItemOriginal;
+            bool isNew = original == null;
+            int expectedRowVersion = original?.RowVersion ?? 0;
             var result = form.Result;
 
             ItemEditor = null;
@@ -444,7 +446,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 if (isNew)
                     await _itemRepo.AddAsync(result);
                 else
-                    await _itemRepo.UpdateAsync(result);
+                    await _itemRepo.UpdateAsync(result, expectedRowVersion);
 
                 try
                 {

@@ -12,6 +12,8 @@
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.Production.SavedProduction;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ProGlassAutomation.Services.Production
 {
@@ -57,6 +59,30 @@ namespace ProGlassAutomation.Services.Production
             // every other isolated database in this app.
             ProGlassAutomation.Services.Database.SqliteResilience
                 .ConfigureFor(options, DatabaseFilePath);
+        }
+
+        // Last-chance repository boundary: every tracked write to production.db
+        // revalidates identity, role permission, and license read-only state.
+        // Public workflow methods also call ProductionWriteGuard before doing
+        // work, but no direct DbContext caller can bypass this commit gate.
+        public override int SaveChanges() => SaveChanges(acceptAllChangesOnSuccess: true);
+
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            ProductionWriteGuard.Demand("write production records");
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        public override Task<int> SaveChangesAsync(
+            CancellationToken cancellationToken = default) =>
+            SaveChangesAsync(true, cancellationToken);
+
+        public override Task<int> SaveChangesAsync(
+            bool acceptAllChangesOnSuccess,
+            CancellationToken cancellationToken = default)
+        {
+            ProductionWriteGuard.Demand("write production records");
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

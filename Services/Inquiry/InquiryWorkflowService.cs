@@ -12,8 +12,11 @@ namespace ProGlassAutomation.Services.Inquiry
     public interface IInquiryWorkflowService
     {
         Task<InquiryRecord> CreateAsync(InquiryRecord inquiry, CancellationToken ct = default);
-        Task<InquiryRecord> UpdateAsync(InquiryRecord inquiry, CancellationToken ct = default);
-        Task<bool> ChangeStatusAsync(int id, string current, string next, CancellationToken ct = default);
+        Task<InquiryRecord> UpdateAsync(
+            InquiryRecord inquiry, int expectedRowVersion, CancellationToken ct = default);
+        Task<bool> ChangeStatusAsync(
+            int id, string current, string next, int expectedRowVersion,
+            CancellationToken ct = default);
 
         /// <summary>
         /// Clone an existing inquiry as a brand new draft. The clone
@@ -66,20 +69,23 @@ namespace ProGlassAutomation.Services.Inquiry
             return saved;
         }
 
-        public async Task<InquiryRecord> UpdateAsync(InquiryRecord inquiry, CancellationToken ct = default)
+        public async Task<InquiryRecord> UpdateAsync(
+            InquiryRecord inquiry, int expectedRowVersion, CancellationToken ct = default)
         {
             OperationGuard.DemandAny(
                 new[] { AppPermissions.InquiryEdit, AppPermissions.ProformaEdit },
                 "edit an inquiry");
             ReadOnlyGate.Demand("edit an inquiry");
             Validate(inquiry); inquiry.UpdatedBy = AuditService.CurrentUsername;
-            var saved = await _repository.UpdateAsync(inquiry, ct).ConfigureAwait(false);
+            var saved = await _repository.UpdateAsync(inquiry, expectedRowVersion, ct).ConfigureAwait(false);
             AuditService.Log(AuditSections.Proforma, "Inquiry updated", saved.InquiryNumber, "INQ", saved.InquiryNumber);
             await VersionHistoryService.AddVersionAsync("INQ", saved.InquiryNumber, "Inquiry updated", Snapshot(saved));
             return saved;
         }
 
-        public async Task<bool> ChangeStatusAsync(int id, string current, string next, CancellationToken ct = default)
+        public async Task<bool> ChangeStatusAsync(
+            int id, string current, string next, int expectedRowVersion,
+            CancellationToken ct = default)
         {
             OperationGuard.DemandAny(
                 new[] { AppPermissions.InquiryEdit, AppPermissions.ProformaEdit },
@@ -87,7 +93,8 @@ namespace ProGlassAutomation.Services.Inquiry
             ReadOnlyGate.Demand("change inquiry status");
             next = InquiryStatuses.Normalize(next);
             if (!CanTransition(current, next)) throw new InvalidOperationException($"Inquiry cannot move from {current} to {next}.");
-            bool changed = await _repository.ChangeStatusAsync(id, next, AuditService.CurrentUsername, ct).ConfigureAwait(false);
+            bool changed = await _repository.ChangeStatusAsync(
+                id, next, AuditService.CurrentUsername, expectedRowVersion, ct).ConfigureAwait(false);
             if (changed) AuditService.Log(AuditSections.Proforma, "Inquiry status changed", $"{current} → {next}", "INQ", id.ToString());
             return changed;
         }
@@ -135,7 +142,7 @@ namespace ProGlassAutomation.Services.Inquiry
                 return true; // idempotent no-op
             detail.Priority = normalized;
             detail.UpdatedBy = AuditService.CurrentUsername;
-            await _repository.UpdateAsync(detail, ct).ConfigureAwait(false);
+            await _repository.UpdateAsync(detail, detail.RowVersion, ct).ConfigureAwait(false);
             AuditService.Log(AuditSections.Proforma, "Inquiry priority changed",
                 $"{detail.InquiryNumber} → {normalized}", "INQ", detail.InquiryNumber);
             return true;

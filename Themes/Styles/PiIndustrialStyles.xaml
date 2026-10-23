@@ -420,7 +420,8 @@
                     <Setter Property="Padding"    Value="12,6"/>
                     <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
                     <Setter Property="FontWeight" Value="SemiBold"/>
-                    <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                    <!-- Foreground is inherited by tab CONTENT: keep page ink. -->
+                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="TabItem">
@@ -431,14 +432,15 @@
                                         Padding="{TemplateBinding Padding}"
                                         Margin="0,0,8,0"
                                         SnapsToDevicePixels="True">
-                                    <ContentPresenter ContentSource="Header"
+                                    <ContentPresenter x:Name="HdrSite" ContentSource="Header"
                                                       HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"/>
+                                                      VerticalAlignment="Center"
+                                                      TextBlock.Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsSelected" Value="True">
                                         <Setter TargetName="TabBd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                        <Setter TargetName="HdrSite" Property="TextBlock.Foreground" Value="{DynamicResource AccentBrush}"/>
                                     </Trigger>
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Setter TargetName="TabBd" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>

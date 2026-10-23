@@ -2155,6 +2155,7 @@
     <sys:String x:Key="Settings.SecAi">AIアシスタント</sys:String>
     <sys:String x:Key="Settings.SecAppearance">外観</sys:String>
     <sys:String x:Key="Settings.SecData">データとバックアップ</sys:String>
+    <sys:String x:Key="Settings.SecRecordsSync">レコード同期</sys:String>
     <sys:String x:Key="Settings.SecDemo">デモセンター</sys:String>
     <sys:String x:Key="Settings.SecFeatures">機能</sys:String>
     <sys:String x:Key="Settings.SecLicense">ライセンス</sys:String>

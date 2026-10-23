@@ -16,8 +16,9 @@
 // with no exception and nothing in the log. Enough overlap and the balance
 // check passes against a stale number, letting Used pass Stock.
 //
-// These tests fail against the old code. That is the point: they are the
-// regression net for the conversion to a single guarded conditional UPDATE.
+// These tests fail against the old code. They assert the final counters and
+// the matching ledger rows, which are now committed in the same serializable
+// transaction rather than as separate stock and history writes.
 //
 // WHAT IS ACTUALLY BEING ASSERTED
 // ───────────────────────────────
@@ -40,6 +41,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Licensing;
 using ProGlassAutomation.Services.SheetStore;
 using Xunit;
@@ -56,6 +58,7 @@ namespace ProGlassAutomation.Tests.Database
         private readonly string _tempFolder;
         private readonly string? _savedFolderOverride;
         private readonly bool? _savedReadOnlyOverride;
+        private readonly bool _savedOperationGuard;
 
         public StockConcurrencyTests()
         {
@@ -72,12 +75,15 @@ namespace ProGlassAutomation.Tests.Database
             // rather than the licence.
             _savedReadOnlyOverride = ReadOnlyGate.OverrideReadOnlyForTests;
             ReadOnlyGate.OverrideReadOnlyForTests = false;
+            _savedOperationGuard = OperationGuard.Enabled;
+            OperationGuard.Enabled = false;
         }
 
         public void Dispose()
         {
             AppDataRoot.TestFolderOverride = _savedFolderOverride;
             ReadOnlyGate.OverrideReadOnlyForTests = _savedReadOnlyOverride;
+            OperationGuard.Enabled = _savedOperationGuard;
             SqliteConnection.ClearAllPools();
             try { Directory.Delete(_tempFolder, recursive: true); }
             catch { /* best effort — a lingering temp folder fails nothing */ }
@@ -103,6 +109,7 @@ namespace ProGlassAutomation.Tests.Database
             var (stock, used) = await ReadSheetCountersAsync(id);
             Assert.Equal(100, stock);
             Assert.Equal(40, used);          // a lost update would leave < 40
+            Assert.Equal(40, await CountSheetMovementsAsync(id, "Used"));
         }
 
         [Fact]
@@ -124,6 +131,7 @@ namespace ProGlassAutomation.Tests.Database
             var (stock, used) = await ReadSheetCountersAsync(id);
             Assert.Equal(10, stock);
             Assert.Equal(10, used);          // exactly drained, never overspent
+            Assert.Equal(10, await CountSheetMovementsAsync(id, "Used"));
         }
 
         [Fact]
@@ -139,6 +147,7 @@ namespace ProGlassAutomation.Tests.Database
             var (stock, used) = await ReadSheetCountersAsync(id);
             Assert.Equal(100, stock);        // 20 × 5, none overwritten
             Assert.Equal(0, used);
+            Assert.Equal(20, await CountSheetMovementsAsync(id, "Bought"));
         }
 
         [Fact]
@@ -159,6 +168,7 @@ namespace ProGlassAutomation.Tests.Database
             var (stock, used) = await ReadSheetCountersAsync(id);
             Assert.Equal(4, stock);
             Assert.Equal(0, used);           // a refused write wrote nothing
+            Assert.Equal(0, await CountSheetMovementsAsync(id, "Used"));
         }
 
         [Fact]
@@ -191,6 +201,51 @@ namespace ProGlassAutomation.Tests.Database
             // Zero and null both mean "leave the price alone".
             await repo.BuyStockAsync(id, 5, newPurchasePrice: 0m);
             Assert.Equal(310m, await ReadPurchasePriceAsync(id));
+            Assert.Equal(3, await CountSheetMovementsAsync(id, "Bought"));
+        }
+
+        [Fact]
+        public async Task Stale_edit_cannot_overwrite_a_stock_movement()
+        {
+            var repo = new SheetStoreRepository();
+            int id = await SeedSheetAsync(stock: 10);
+            var stale = await repo.GetByIdAsync(id);
+            Assert.NotNull(stale);
+
+            await repo.BuyStockAsync(id, 1);
+            stale!.SellPricePerSqm = 500m;
+
+            await Assert.ThrowsAsync<ConcurrencyConflictException>(
+                () => repo.UpdateAsync(stale, stale.RowVersion));
+
+            var (stock, used) = await ReadSheetCountersAsync(id);
+            Assert.Equal(11, stock);
+            Assert.Equal(0, used);
+            Assert.Equal(1, await CountSheetMovementsAsync(id, "Bought"));
+        }
+
+        [Fact]
+        public async Task Manual_stock_and_used_adjustments_write_separate_ledger_entries()
+        {
+            var repo = new SheetStoreRepository();
+            int id = await SeedSheetAsync(stock: 10);
+            var sheet = await repo.GetByIdAsync(id);
+            Assert.NotNull(sheet);
+
+            sheet!.Stock = 12;
+            sheet.Used = 3;
+            await repo.UpdateAsync(sheet, sheet.RowVersion);
+
+            using var db = new AppDbContext();
+            var edited = await db.SheetHistories.AsNoTracking()
+                .Where(h => h.SheetId == id && h.Action == "Edited")
+                .OrderBy(h => h.Id)
+                .ToListAsync();
+            Assert.Equal(2, edited.Count);
+            Assert.Contains(edited, h => h.QuantityChanged == 2
+                && h.Details.StartsWith("Stock manually adjusted:", StringComparison.Ordinal));
+            Assert.Contains(edited, h => h.QuantityChanged == 3
+                && h.Details.StartsWith("Used quantity manually adjusted:", StringComparison.Ordinal));
         }
 
         // ───────────────────────────────────────────────────────────────
@@ -253,6 +308,13 @@ namespace ProGlassAutomation.Tests.Database
             using var db = new AppDbContext();
             var sheet = await db.GlassSheets.AsNoTracking().SingleAsync(g => g.Id == id);
             return (sheet.Stock, sheet.Used);
+        }
+
+        private static async Task<int> CountSheetMovementsAsync(int id, string action)
+        {
+            using var db = new AppDbContext();
+            return await db.SheetHistories.AsNoTracking()
+                .CountAsync(h => h.SheetId == id && h.Action == action);
         }
 
         private static async Task<decimal> ReadPurchasePriceAsync(int id)

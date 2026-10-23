@@ -91,6 +91,34 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
             }
         }
 
+        private string _companyTelephone = string.Empty;
+        public string CompanyTelephone
+        {
+            get => _companyTelephone;
+            set
+            {
+                string next = value ?? string.Empty;
+                if (_companyTelephone == next) return;
+                _companyTelephone = next;
+                OnPropertyChanged();
+                MarkUserEditedIfNotLoading();
+            }
+        }
+
+        private string _companyWebsite = string.Empty;
+        public string CompanyWebsite
+        {
+            get => _companyWebsite;
+            set
+            {
+                string next = value ?? string.Empty;
+                if (_companyWebsite == next) return;
+                _companyWebsite = next;
+                OnPropertyChanged();
+                MarkUserEditedIfNotLoading();
+            }
+        }
+
         // ═══════════════════════════════════════════════════════════════
         //  PROFORMA FIELDS
         // ═══════════════════════════════════════════════════════════════
@@ -259,6 +287,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 var normalized = value ?? string.Empty;
                 if (_logoPath == normalized) return;
                 _logoPath = normalized;
+                _logoBase64 = string.Empty;
                 if (string.IsNullOrWhiteSpace(_logoPath))
                     LogoLayout = Models.MasterData.CompanyLogoLayout.None;
                 else if (LogoLayout == Models.MasterData.CompanyLogoLayout.None)
@@ -267,6 +296,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 OnPropertyChanged(nameof(HasLogo));
                 InvalidateLogoImage();
             }
+        }
+
+        // Embedded invoice-snapshot fallback: a moved logo file should not
+        // erase branding from a previously saved invoice or its stickers.
+        private string _logoBase64 = string.Empty;
+        public string LogoBase64
+        {
+            get => _logoBase64;
+            set => _logoBase64 = value ?? string.Empty;
         }
 
         /// <summary>True when a company logo is loaded.</summary>
@@ -570,7 +608,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
             // logo picker so the operator can attach branding without leaving
             // the wizard. Picking a card later overrides with that record.
             PickLogoCommand = new RelayCommand(_ => PickLogo());
-            ClearLogoCommand = new RelayCommand(_ => LogoPath = "");
+            ClearLogoCommand = new RelayCommand(_ =>
+            {
+                LogoPath = "";
+                LogoBase64 = "";
+            });
         }
 
         private void PickLogo()
@@ -612,6 +654,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                         CompanyName = c.CompanyName ?? "",
                         Trn = c.CompanyTrn ?? "",
                         Location = c.CompanyLocation ?? "",
+                        CompanyTelephone = c.CompanyTelephone ?? "",
+                        CompanyWebsite = c.CompanyWebsite ?? "",
                         UsageCount = c.UsageCount,
                         LogoPath = c.LogoPath ?? "",
                         Representative = c.Representative ?? "",
@@ -739,6 +783,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 CompanyName = profile.CompanyName;
                 CompanyTrn = profile.Trn;
                 CompanyLocation = profile.Location;
+                CompanyTelephone = profile.CompanyTelephone;
+                CompanyWebsite = profile.CompanyWebsite;
                 LoadedProfileName = profile.CompanyName;
                 Representative = profile.Representative;
                 LogoPath = profile.LogoPath;

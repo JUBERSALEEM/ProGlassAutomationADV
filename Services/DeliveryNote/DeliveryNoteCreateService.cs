@@ -161,13 +161,9 @@ namespace ProGlassAutomation.Services.DeliveryNote
             string dnId = await App.DeliveryNotes
                 .BuildDeliveryNoteIdAsync(master.JobOrderId, nextSeq);
 
-            if (await App.DeliveryNotes.ExistsByDeliveryNoteIdAsync(dnId))
-            {
-                return DnCreateResult.Fail(
-                    $"Delivery note '{dnId}' already exists.\n\n" +
-                    "Please refresh and try again.");
-            }
-
+            // These are presentation hints only. InsertAsync re-allocates the
+            // authoritative sequence and ID under BEGIN IMMEDIATE plus the
+            // unique (JobOrderId, SequenceNumber) constraint.
             var newDn = DeliveryNoteMapper.FromMasterBalance(master, dnId, nextSeq);
             if (newDn.Items == null || newDn.Items.Count == 0)
             {
@@ -198,9 +194,8 @@ namespace ProGlassAutomation.Services.DeliveryNote
             string dnId = await App.DeliveryNotes
                 .BuildDeliveryNoteIdAsync(jobOrder.JobOrderId, nextSeq);
 
-            if (await App.DeliveryNotes.ExistsByDeliveryNoteIdAsync(dnId))
-                return DnCreateResult.Fail($"Delivery note '{dnId}' already exists.");
-
+            // ID/sequence values are hints; repository insert performs the
+            // atomic authoritative allocation for this job order.
             var dnEntity = DeliveryNoteMapper.FromJobOrder(
                 jobOrder, snapshot, dnId, nextSeq);
 

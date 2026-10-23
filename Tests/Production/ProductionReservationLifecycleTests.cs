@@ -84,7 +84,7 @@ namespace ProGlassAutomation.Tests.Production
         [Fact]
         public void Physical_used_callers_are_not_production_consume()
         {
-            Assert.Contains("await _repo.UseStockAsync(sheet.Id, quantity)",
+            Assert.Contains("var committed = await _repo.UseStockAsync(",
                 Read("Services/ProformaInvoice/SheetStockLinkService.cs"));
             Assert.Contains("var link = await SheetStockLinkService.CommitConsumptionAsync(",
                 Read("ViewModels/SheetStore/SheetStoreViewModel.Part2.cs"));
@@ -103,10 +103,12 @@ namespace ProGlassAutomation.Tests.Production
         public void UseStock_cas_rejects_overdraw_and_ignores_non_positive_qty()
         {
             string use = Read("Services/SheetStore/SheetStoreRepository.cs");
-            Assert.Contains("g.Id == sheetId && g.Stock - g.Used >= quantity", use);
-            Assert.Contains("if (quantity <= 0) return;", use);
+            Assert.Contains("BeginTransactionAsync(IsolationLevel.Serializable)", use);
+            Assert.Contains("int balance = sheet.Stock - sheet.Used;", use);
+            Assert.Contains("if (balance < quantity)", use);
+            Assert.Contains("if (quantity <= 0) return null;", use);
             Assert.Contains("Not enough stock. Available:", use);
-            Assert.Contains("if (balance == null) return;", use);
+            Assert.Contains("db.SheetHistories.Add(CreateHistory(", use);
         }
 
         [Fact]

@@ -40,14 +40,14 @@
                     <TextBlock Text="License studio" FontSize="12" FontWeight="Bold"
                                Foreground="{StaticResource OnHeroMutedBrush}"/>
                     <TextBlock Text="ProGlass License Key Generator" Style="{StaticResource HeaderText}" Margin="0,2,0,0"/>
-                    <TextBlock Text="Pick a plan, generate one PGKEY1 block, and send it. The customer pastes it in the app and activates instantly."
+                    <TextBlock Text="License issuance is paused pending secure rotation of the exposed production signing key. Do not use older generator binaries."
                                FontSize="13" Foreground="{StaticResource OnHeroMutedBrush}"
                                TextWrapping="Wrap" Margin="0,4,0,0"/>
                 </StackPanel>
                 <Border Grid.Column="2" Background="#33FFFFFF" CornerRadius="14" Padding="14,10"
                         VerticalAlignment="Center" MaxWidth="280">
                     <TextBlock x:Name="KeyStatusText"
-                               Text="Production signing key embedded — ready."
+                               Text="ISSUANCE PAUSED — key rotation required."
                                FontSize="12" FontWeight="SemiBold"
                                Foreground="{StaticResource OnHeroBrush}"
                                TextWrapping="Wrap"/>
@@ -60,7 +60,7 @@
             <StackPanel>
                 <TextBlock Text="PLAN" Style="{StaticResource SectionLabel}"/>
                 <TextBlock Style="{StaticResource HelpText}" Margin="0,0,0,8"
-                           Text="Each card is a validity window. The selected plan is signed into the key the moment you generate it."/>
+                           Text="Plan cards remain for reference only. New license issuance is disabled until a replacement signer is approved."/>
 
                 <UniformGrid Columns="5" Margin="-6,0,-6,8">
                     <RadioButton x:Name="Plan7DaysRadio" GroupName="LicensePlan"
@@ -179,7 +179,8 @@
                         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="22,16,22,0">
                             <Button x:Name="GenerateLicenseKeyButton"
                                     Style="{StaticResource PrimaryButton}"
-                                    Content="GENERATE LICENSE KEY"
+                                    Content="ISSUANCE PAUSED"
+                                    IsEnabled="False"
                                     Click="GenerateLicenseKeyButton_Click"/>
                             <Button x:Name="CopyLicenseKeyButton"
                                     Style="{StaticResource CopyButton}"

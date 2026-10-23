@@ -35,9 +35,9 @@
                                Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
                 </StackPanel>
                 <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
-                        Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
+                        Background="{DynamicResource AccentSoft}" VerticalAlignment="Center">
                     <Viewbox MaxHeight="20">
-                        <TextBlock Style="{StaticResource SettingsChipTextStyle}" Foreground="{DynamicResource AccentBrush}">
+                        <TextBlock Style="{StaticResource SettingsChipTextStyle}" Foreground="{DynamicResource AccentPrimary}">
                             <Run Text="{Binding UiScalePercent, Mode=OneWay}"/><Run Text="%"/>
                         </TextBlock>
                     </Viewbox>
@@ -68,10 +68,10 @@
                 <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="&#xE71E;" FontFamily="{DynamicResource FontFamily.Icon}"
                                FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
-                               Foreground="{DynamicResource AccentBrush}" Margin="{StaticResource SettingsInlineGap8R}"/>
+                               Foreground="{DynamicResource AccentPrimary}" Margin="{StaticResource SettingsInlineGap8R}"/>
                     <TextBlock Text="{DynamicResource Settings.UIScale}"
                                Style="{StaticResource SettingsRowTitleStyle}" VerticalAlignment="Center"/>
-                    <TextBlock Text=" — " Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text=" — " Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center"/>
                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}" VerticalAlignment="Center">
                         <Run Text="{Binding UiScalePercent, Mode=OneWay}"/><Run Text="% native display DPI"/>
                     </TextBlock>

@@ -35,7 +35,7 @@ namespace ProGlassAutomation.Services.Audit
             {
                 using var db = new AuditDbContext();
                 var user = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username == username).ConfigureAwait(false);
+                    .FirstOrDefaultAsync(u => u.UsernameNormalized == UsernameNormalizer.Normalize(username)).ConfigureAwait(false);
                 return user == null ? 0 : LockoutRemainingSeconds(user);
             }
             catch
@@ -99,8 +99,9 @@ namespace ProGlassAutomation.Services.Audit
             return new AppUser
             {
                 Username = username,
+                UsernameNormalized = UsernameNormalizer.Normalize(username),
                 DisplayName = displayName,
-                Role = role,
+                Role = AppRoles.Normalize(role),
                 PasswordSalt = salt,
                 PasswordHash = HashPassword(password, salt),
                 IsActive = true

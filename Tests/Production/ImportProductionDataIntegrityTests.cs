@@ -93,7 +93,7 @@ namespace ProGlassAutomation.Tests.Production
                 Read("Services/Production/MaterialAllocationService.cs"));
             Assert.DoesNotContain("UseStockAsync",
                 Read("Services/Production/Cutting/CuttingCompletionService.cs"));
-            Assert.Contains("await _repo.UseStockAsync(sheet.Id, quantity)",
+            Assert.Contains("var committed = await _repo.UseStockAsync(",
                 Read("Services/ProformaInvoice/SheetStockLinkService.cs"));
         }
 

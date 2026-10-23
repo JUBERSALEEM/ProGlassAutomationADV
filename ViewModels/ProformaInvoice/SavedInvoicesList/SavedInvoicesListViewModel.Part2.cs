@@ -103,7 +103,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             entity.Status = ProformaInvoiceStatus.Approved;
             entity.UpdatedAt = DateTime.Now;
             SyncSnapshotWorkflow(entity, ProformaInvoiceStatus.Approved, lpoToSave);
-            await _invoices.UpdateAsync(entity);
+            await _invoices.UpdateAsync(entity, entity.RowVersion);
 
             AuditService.Log(
                 AuditSections.Proforma, "Invoice approved",
@@ -234,27 +234,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                         string released = ProGlassAutomation.Models.JobOrder.Common
                             .JobOrderStatus.JobOrderStatusValues.Released;
 
-                        job.Status = released;
-                        job.UpdatedAt = DateTime.Now;
-
-                        var existingJobSnapshot = JobOrderMapper.DeserializeSnapshot(job);
-                        if (existingJobSnapshot?.Production != null)
-                        {
-                            existingJobSnapshot.Production.Status = released;
-                            existingJobSnapshot.Production.LastEditedAt = DateTime.Now;
-                            existingJobSnapshot.Production.LastEditedBy = Environment.UserName;
-                            job.FullSnapshotJson = JobOrderMapper.SerializeSnapshot(existingJobSnapshot);
-                        }
-
-                        await _jobs.UpdateAsync(job);
+                        var releasedJob = await _jobs.UpdateStatusAsync(
+                            job.Id, released, job.RowVersion);
+                        if (releasedJob == null)
+                            throw new InvalidOperationException(
+                                $"Job Order {job.JobOrderId} disappeared while it was being released.");
                         if (!string.IsNullOrWhiteSpace(job.JobOrderId))
                             releasedIds.Add(job.JobOrderId);
-
-                        AuditService.Log(
-                            AuditSections.JobOrder,
-                            "Draft job released on invoice approval",
-                            $"{job.JobOrderId} ← {piEntity.ProformaId} (was Draft)",
-                            "JO", job.JobOrderId);
                     }
 
                     if (releasedIds.Count > 0)

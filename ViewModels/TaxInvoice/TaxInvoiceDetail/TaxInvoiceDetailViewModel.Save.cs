@@ -56,6 +56,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             using var _critical = ProGlassAutomation.Services.Safety
                 .CriticalOperationTracker.Begin("Saving tax invoice");
 
+            string savedInvoiceNumber = _editingInvoiceNumber;
+            string savedSnapshotJson = "";
+            bool statusOnlyTransition = false;
+            bool bodySaveCommitted = false;
+            bool statusTransitionAttempted = false;
+            bool statusTransitionCommitted = false;
+
             try
             {
                 IsSaving = true;
@@ -72,8 +79,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     return;
 
                 var state = BuildWizardState();
-                string savedInvoiceNumber;
-                string savedSnapshotJson = "";   // v2 §24 version capture
 
                 if (IsNewInvoice)
                 {
@@ -166,43 +171,89 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                         StatusMessage = "Invoice not found — cannot update.";
                         return;
                     }
+                    if (!_loadedRowVersion.HasValue)
+                        throw new ProGlassAutomation.Services.Database.ConcurrencyConflictException(
+                            "Tax Invoice", entity.InvoiceNumber,
+                            expectedRowVersion: -1, actualRowVersion: entity.RowVersion);
+
+                    string targetStatus = Status;
+                    bool statusChanged = !string.Equals(
+                        targetStatus, entity.Status, StringComparison.OrdinalIgnoreCase);
+                    bool bodyEditableAtStoredStatus =
+                        ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.CanEditBody(
+                            ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.TaxInvoice,
+                            entity.Status);
+                    if (!bodyEditableAtStoredStatus && !statusChanged)
+                    {
+                        StatusMessage = "This Tax Invoice is body-locked; choose a valid status transition or cancel the save.";
+                        return;
+                    }
+                    statusOnlyTransition = statusChanged && !bodyEditableAtStoredStatus;
+
+                    if (statusChanged)
+                    {
+                        var transition = ProGlassAutomation.Services.Workflow.StatusTransitions
+                            .Validate(
+                                ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.TaxInvoice,
+                                entity.Status, targetStatus);
+                        if (!transition.IsValid)
+                        {
+                            StatusMessage = transition.Reason ?? "Invalid Tax Invoice status transition.";
+                            return;
+                        }
+                    }
 
                     var updated = TaxInvoiceMapper.BuildEntity(
                         state, entity.InvoiceNumber,
                         entity.SequenceNumber, entity.SequenceLetter);
                     updated.Id = entity.Id;
                     updated.CreatedAt = entity.CreatedAt;
-                    savedSnapshotJson = updated.FullSnapshotJson;
 
-                    // ERP hardening (Phase 5): pass the RowVersion we loaded so
-                    // a concurrent save by another user is detected instead of
-                    // silently overwritten.
-                    await _taxInvoices.UpdateAsync(updated, _loadedRowVersion);
-                    _loadedRowVersion = updated.RowVersion;   // re-baseline for next save
+                    if (bodyEditableAtStoredStatus)
+                    {
+                        // Body updates remain status-neutral. First commit the
+                        // validated draft body using its stored source status;
+                        // then use the repository's status-only transition.
+                        TaxInvoiceMapper.SetHeaderStatus(updated, entity.Status);
+                        await _taxInvoices.UpdateAsync(updated, _loadedRowVersion.Value);
+                        _loadedRowVersion = updated.RowVersion;
+                        bodySaveCommitted = true;
+                        savedSnapshotJson = updated.FullSnapshotJson;
+                        savedInvoiceNumber = entity.InvoiceNumber;
+                    }
+
+                    if (statusChanged)
+                    {
+                        statusTransitionAttempted = true;
+                        var statusUpdated = await _taxInvoices.UpdateStatusAsync(
+                            entity.InvoiceNumber, targetStatus, _loadedRowVersion.Value);
+                        if (statusUpdated != null)
+                            _loadedRowVersion = statusUpdated.RowVersion;
+                        statusTransitionCommitted = true;
+                    }
+
+                    var refreshed = await _taxInvoices.GetByInvoiceNumberAsync(entity.InvoiceNumber);
+                    if (refreshed == null)
+                        throw new InvalidOperationException("The Tax Invoice no longer exists.");
+                    updated = refreshed;
+                    _loadedRowVersion = updated.RowVersion;
+                    savedSnapshotJson = updated.FullSnapshotJson;
                     savedInvoiceNumber = entity.InvoiceNumber;
                     StatusMessage = $"✅ Updated {entity.InvoiceNumber}";
                 }
 
-                // ── CHAT 19 INVOICED: mark DNs as invoiced after TI saved ────────
-                //
-                // DeliveryNoteReference stores DN IDs in two formats:
-                //   Single DN : "DN-2026-001-01"
-                //   Multiple  : "DN-2026-001-01,DN-2026-001-02,DN-2026-001-03"
-                //
-                // We parse all IDs and mark each one as invoiced.
-                // MarkMultipleAsInvoicedAsync handles both single and multiple.
-                // It is idempotent — safe to call even if already marked.
-                // Only marks DNs that exist in the DB — missing IDs silently skipped.
-                //
-                // This fires regardless of Insert or Update so that:
-                //   a) Newly saved TI immediately marks DNs
-                //   b) Re-saving existing TI keeps DNs marked (idempotent)
+                // TaxInvoiceRepository synchronizes the complete TI↔DN link set
+                // after its own save and throws an explicit partial-commit error
+                // if the second database cannot be updated or verified.
 
                 // Single audit point — both insert and update reach here.
-                AuditService.Log(
-                    AuditSections.TaxInvoice, "Tax invoice saved",
-                    $"{savedInvoiceNumber} — status {Status}",
-                    "TI", savedInvoiceNumber);
+                if (!statusOnlyTransition)
+                {
+                    AuditService.Log(
+                        AuditSections.TaxInvoice, "Tax invoice saved",
+                        $"{savedInvoiceNumber} — status {Status}",
+                        "TI", savedInvoiceNumber);
+                }
 
                 CaptureCleanState();   // v2 §28: saved = clean
 
@@ -216,10 +267,34 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                             savedSnapshotJson);
                 }
 
-                await MarkDnsAsInvoicedAsync(savedInvoiceNumber);
+                // TaxInvoiceRepository owns cross-database TI↔DN synchronization;
+                // it returns success only after the link set is verified.
 
                 // Chat 16: reload family sidebar after save
                 await LoadFamilyAsync(ProformaId);
+            }
+            catch (TaxInvoiceLinkSynchronizationException linkEx)
+            {
+                // The invoice row committed, but the second SQLite file did
+                // not. Preserve the assigned identity/version so a retry edits
+                // this invoice rather than creating a duplicate.
+                var persisted = linkEx.PersistedInvoice;
+                _editingId = persisted.Id;
+                _editingInvoiceNumber = persisted.InvoiceNumber;
+                _loadedRowVersion = persisted.RowVersion;
+                Status = persisted.Status;
+                IsNewInvoice = false;
+                CaptureCleanState();
+                StatusMessage = linkEx.Message;
+                AuditService.Log(
+                    AuditSections.TaxInvoice, "Tax invoice saved with link failure",
+                    $"Tax Invoice {persisted.InvoiceNumber} committed; DN link synchronization failed.",
+                    "TI", persisted.InvoiceNumber, reason: linkEx.InnerException?.Message ?? linkEx.Message);
+                _dialogs.Show(
+                    linkEx.Message,
+                    LocalizationService.Instance.T("Msg.CapSaveFailed"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
             catch (ProGlassAutomation.Services.Database.ConcurrencyConflictException cc)
             {
@@ -233,6 +308,32 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (Exception ex)
             {
+                if (bodySaveCommitted && statusTransitionAttempted
+                    && !statusTransitionCommitted)
+                {
+                    StatusMessage =
+                        "Tax Invoice body was saved, but the status transition failed: " +
+                        ExceptionMessages.Deep(ex);
+                    AuditService.Log(
+                        AuditSections.TaxInvoice, "Tax invoice body saved; status change failed",
+                        $"Tax Invoice {savedInvoiceNumber} body committed; requested status " +
+                            $"'{Status}' was not confirmed.",
+                        "TI", savedInvoiceNumber,
+                        reason: ExceptionMessages.Deep(ex));
+                    if (!string.IsNullOrEmpty(savedSnapshotJson))
+                    {
+                        _ = ProGlassAutomation.Services.Audit.VersionHistoryService
+                            .AddVersionAsync(
+                                "TI", savedInvoiceNumber,
+                                "Body saved; status transition failed",
+                                savedSnapshotJson);
+                    }
+                    _dialogs.Show(StatusMessage,
+                        LocalizationService.Instance.T("Msg.CapSaveFailed"),
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 StatusMessage = $"Save failed: {ExceptionMessages.Deep(ex)}";
                 _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedToSaveX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapSaveFailed"), MessageBoxButton.OK,
@@ -251,130 +352,46 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         private async Task<bool> EnsureReferencedDnsInvoiceableAsync(
             string? thisInvoiceNumber)
         {
-            if (_deliveryNotes == null) return true;
             if (string.IsNullOrWhiteSpace(DeliveryNoteReference)) return true;
 
             var dnIds = TaxInvoiceDnReconciler.ParseDnRefs(DeliveryNoteReference);
+            if (dnIds.Count == 0) return true;
+            if (_deliveryNotes == null)
+            {
+                const string unavailable = "Delivery Note repository is unavailable; the Tax Invoice cannot be saved with unverified links.";
+                StatusMessage = unavailable;
+                _dialogs.Show(unavailable,
+                    LocalizationService.Instance.T("Msg.CapSaveFailed"),
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
             foreach (var id in dnIds)
             {
                 var dn = await _deliveryNotes.GetByDeliveryNoteIdAsync(id);
-                if (dn == null) continue;
-                if (TaxInvoiceLineService.CanInvoiceDeliveryNote(
-                        dn.IsMasterDn,
-                        dn.Status,
-                        dn.HasTaxInvoice,
-                        dn.TaxInvoiceId,
-                        thisInvoiceNumber))
-                    continue;
+                string? problem = null;
+                if (dn == null)
+                    problem = $"Delivery Note '{id}' does not exist.";
+                else if (dn.IsVoid)
+                    problem = $"Delivery Note '{id}' is voided and cannot be invoiced.";
+                else if (!TaxInvoiceLineService.CanInvoiceDeliveryNote(
+                             dn.IsMasterDn, dn.Status, dn.HasTaxInvoice,
+                             dn.TaxInvoiceId, thisInvoiceNumber))
+                    problem = dn.HasTaxInvoice
+                        ? $"Delivery Note '{id}' is already invoiced as {dn.TaxInvoiceId}."
+                        : $"Delivery Note '{id}' is not a confirmed delivery (status {dn.Status}).";
 
-                string msg = dn.HasTaxInvoice
-                    ? $"Delivery note '{id}' is already invoiced as {dn.TaxInvoiceId}."
-                    : $"Delivery note '{id}' is not a confirmed delivery (status {dn.Status}).";
-                StatusMessage = msg;
-                _dialogs.Show(
-                    msg,
+                if (problem == null) continue;
+                StatusMessage = problem;
+                _dialogs.Show(problem,
                     LocalizationService.Instance.T("Msg.CapSaveFailed"),
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             return true;
         }
 
-        /// <summary>
-        /// CHAT 19 INVOICED — marks all referenced DNs as invoiced.
-        /// Called after every successful TI save (insert or update).
-        ///
-        /// Parses DeliveryNoteReference field which may contain:
-        ///   "DN-2026-001-01"                          ← single DN
-        ///   "DN-2026-001-01,DN-2026-001-02"           ← multiple DNs (comma)
-        ///
-        /// Uses MarkMultipleAsInvoicedAsync which is:
-        ///   • Idempotent — safe to call multiple times
-        ///   • Batch — one DB call for all IDs
-        ///   • Null-safe — empty/blank IDs filtered before DB call
-        ///
-        /// Non-fatal: if DN marking fails, TI is already saved.
-        /// Error is logged to debug output only — no user-facing error.
-        /// </summary>
-        private async Task MarkDnsAsInvoicedAsync(string taxInvoiceId)
-        {
-            if (_deliveryNotes == null) return;
-            if (string.IsNullOrWhiteSpace(DeliveryNoteReference)) return;
-            if (string.IsNullOrWhiteSpace(taxInvoiceId)) return;
-
-            try
-            {
-                // Phase 11/12: reuse the shared DN-reference parser (single
-                // implementation, also used by the reconciliation sweep).
-                var dnIds = ProGlassAutomation.Services.TaxInvoice.Repository
-                    .TaxInvoiceDnReconciler.ParseDnRefs(DeliveryNoteReference)
-                    .ToList();
-
-                if (dnIds.Count == 0) return;
-
-                // Mark all referenced DNs as invoiced in one DB call
-                await _deliveryNotes.MarkMultipleAsInvoicedAsync(
-                    dnIds, taxInvoiceId);
-
-                AppLogService.Debug(
-                    $"[TaxInvoiceDetailVM] Marked {dnIds.Count} DN(s) as " +
-                    $"invoiced with TI '{taxInvoiceId}': " +
-                    string.Join(", ", dnIds));
-            }
-            catch (Exception ex)
-            {
-                // ══════════════════════════════════════════════════════
-                //  AUDIT D-4 / R-1 — this is the cross-database seam.
-                //
-                //  The tax invoice is already committed to taxinvoices.db.
-                //  This second write targets deliverynotes.db, a DIFFERENT
-                //  database file, so no transaction can span the two. If
-                //  it fails, the books disagree: an invoice exists while
-                //  its delivery notes still look un-invoiced, so the same
-                //  DNs can be invoiced again.
-                //
-                //  It was reported ONLY through Debug.WriteLine, which is
-                //  [Conditional("DEBUG")] and therefore absent from the
-                //  Release build — the inconsistency was completely
-                //  invisible in production. It now reaches the log file
-                //  and the audit trail so it can be found and corrected.
-                //
-                //  Still deliberately non-fatal: failing the whole save
-                //  here would be worse, because the invoice IS saved and
-                //  telling the user otherwise would be a lie. Re-saving
-                //  the invoice re-runs this and repairs the link, since
-                //  MarkMultipleAsInvoicedAsync is idempotent.
-                // ══════════════════════════════════════════════════════
-                ProGlassAutomation.Services.Logging.AppLogService.Error(
-                    "Tax invoice saved but its delivery notes could not be " +
-                    "marked as invoiced. Re-save the invoice to repair the " +
-                    $"link. TI='{taxInvoiceId}', DNs='{DeliveryNoteReference}'.",
-                    ex,
-                    new ProGlassAutomation.Services.Logging.LogContext
-                    {
-                        Module = "TaxInvoice",
-                        Class = nameof(TaxInvoiceDetailViewModel),
-                        Operation = "MarkDnsAsInvoiced"
-                    });
-
-                try
-                {
-                    AuditService.Log(
-                        AuditSections.TaxInvoice,
-                        "DN invoiced-link FAILED",
-                        $"TI {taxInvoiceId} saved, but delivery notes " +
-                        $"'{DeliveryNoteReference}' were not marked invoiced. " +
-                        "Re-save to repair.");
-                }
-                catch (System.Exception auditEx)
-                {
-                    // Audit failure must not mask the original problem.
-                    ProGlassAutomation.Services.Logging.AppLogService.Warning("[TaxInvoiceDetailViewModel] Audit write failed after TI save: " + auditEx.Message);
-                }
-            }
-        }
 
     }
 }

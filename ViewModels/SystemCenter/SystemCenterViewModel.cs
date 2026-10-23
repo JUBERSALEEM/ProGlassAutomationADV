@@ -285,13 +285,13 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
         {
             if (row == null) return;
 
-            bool ok = await AuditService.SetUserActiveAsync(
+            var (ok, error) = await AuditService.SetUserActiveAsync(
                 row.Id, !row.IsActive);
 
             if (!ok)
             {
                 _dialogs.Show(
-                    LocalizationService.Instance.T("Msg.CannotChangeThisUserThe"),
+                    error,
                     LocalizationService.Instance.T("SystemCenter.Users"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);

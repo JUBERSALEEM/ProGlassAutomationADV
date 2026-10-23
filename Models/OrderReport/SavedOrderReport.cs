@@ -69,6 +69,9 @@ namespace ProGlassAutomation.Models.OrderReport
         [Required, Column(TypeName = "TEXT")]
         public string FilterJson { get; set; } = "{}";
 
+        /// <summary>Application-managed optimistic-concurrency token.</summary>
+        public int RowVersion { get; set; }
+
         // ── Timestamps (set explicitly by repository — BUG-11 pattern) ────
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
@@ -80,6 +83,7 @@ namespace ProGlassAutomation.Models.OrderReport
     public class OrderReportListItem
     {
         public int Id { get; set; }
+        public int RowVersion { get; set; }
         public string ReportNumber { get; set; } = "";
         public string Title { get; set; } = "";
         public string FilterCompany { get; set; } = "";

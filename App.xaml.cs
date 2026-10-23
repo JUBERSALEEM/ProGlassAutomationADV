@@ -108,6 +108,11 @@ namespace ProGlassAutomation
         public static Services.Workflow.IStatusService Status { get; private set; } = null!;
         public static Services.Dialogs.IDialogService Dialogs { get; private set; } = null!;
 
+        /// <summary>Records → Supabase sync (Services/RecordsSync). Null when
+        /// the DI container fell back to manual construction; the service is
+        /// dormant unless the operator configured it, so null is safe.</summary>
+        public static Services.RecordsSync.RecordsSyncService? RecordsSync { get; private set; }
+
         /// <summary>
         /// DI composition root — built once at startup. New code must
         /// resolve services via constructor injection; legacy App.* statics
@@ -165,12 +170,12 @@ namespace ProGlassAutomation
         //  remotely.
         //
         //  THE FIX
-        //  The entire original body moved unchanged into
-        //  StartupCoreAsync(). This wrapper awaits it inside a try/catch
-        //  so any startup fault is logged, written to the crash report,
-        //  and shown to the user in the same professional format used by
-        //  the dispatcher handler. Startup logic itself is untouched —
-        //  this only adds the safety net around it.
+        //  The original body moved into StartupCoreAsync(). This wrapper
+        //  awaits it inside a try/catch so unexpected startup faults are
+        //  logged, written to the crash report, and shown to the user.
+        //  A share that is offline at the initial probe selects visible local
+        //  mode and continues startup. The separate shared-root exception
+        //  path is reserved for a selected share that fails during startup.
         // ══════════════════════════════════════════════════════════════
         private async void Application_Startup(
             object sender, StartupEventArgs e)
@@ -181,10 +186,53 @@ namespace ProGlassAutomation
                 Velopack.VelopackApp.Build().Run();
                 await StartupCoreAsync(sender, e);
             }
+            catch (SharedDataRootUnavailableException ex)
+            {
+                HandleSharedDataRootUnavailable(ex);
+            }
             catch (Exception ex)
             {
                 HandleFatalStartupFailure(ex);
             }
+        }
+
+        /// <summary>
+        /// A share that was selected as the active root but fails during
+        /// database initialization must not silently switch to local data:
+        /// some databases may already have opened on the share. Stop this
+        /// partial startup cleanly and explain recovery without a crash report.
+        /// </summary>
+        private void HandleSharedDataRootUnavailable(
+            SharedDataRootUnavailableException ex)
+        {
+            string summary =
+                "Startup blocked because the configured shared data root is unavailable. " +
+                "Path: " + ex.SharedFolder;
+            if (!string.IsNullOrWhiteSpace(ex.FailureReason))
+                summary += " Reason: " + ex.FailureReason;
+
+            AppLogService.Warning(
+                summary,
+                new LogContext
+                {
+                    Module = "Database",
+                    Operation = "StartupBlockedBySharedDataRoot"
+                });
+
+            try
+            {
+                Prompts.Show(
+                    ex.Message,
+                    "Company data unavailable",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+            catch
+            {
+                // No UI available — nothing further we can do.
+            }
+
+            Shutdown(1);
         }
 
         /// <summary>

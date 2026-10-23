@@ -2155,6 +2155,7 @@
     <sys:String x:Key="Settings.SecAi">AI সহায়ক</sys:String>
     <sys:String x:Key="Settings.SecAppearance">চেহারা</sys:String>
     <sys:String x:Key="Settings.SecData">ডেটা ও ব্যাকআপ</sys:String>
+    <sys:String x:Key="Settings.SecRecordsSync">রেকর্ডস সিঙ্ক</sys:String>
     <sys:String x:Key="Settings.SecDemo">ডেমো কেন্দ্র</sys:String>
     <sys:String x:Key="Settings.SecFeatures">বৈশিষ্ট্য</sys:String>
     <sys:String x:Key="Settings.SecLicense">লাইসেন্স</sys:String>

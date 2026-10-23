@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.SheetStore;
+using ProGlassAutomation.Models.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.Services.Database;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using ProGlassAutomation.Services.Audit;
@@ -94,164 +96,334 @@ namespace ProGlassAutomation.Services.SheetStore
 
         public async Task<GlassSheet> AddAsync(GlassSheet sheet)
         {
-            // A-1: service-layer authorization. The UI also checks,
-            // but this is the boundary that cannot be bypassed.
+            ReadOnlyGate.Demand("add a glass sheet");
             OperationGuard.Demand(
                 AppPermissions.SheetStoreCreate, "add a glass sheet");
+            if (sheet == null) throw new ArgumentNullException(nameof(sheet));
+            if (sheet.Stock < 0 || sheet.Used < 0 || sheet.Stock < sheet.Used)
+                throw new InvalidOperationException("Opening stock must be non-negative and cannot be below used stock.");
 
             using var db = new AppDbContext();
-            sheet.CreatedAt = DateTime.Now;
-            sheet.LastUpdated = DateTime.Now;
+            await db.Database.OpenConnectionAsync().ConfigureAwait(false);
+            await using var tx = await db.Database
+                .BeginTransactionAsync(IsolationLevel.Serializable).ConfigureAwait(false);
+
+            DateTime now = DateTime.Now;
+            sheet.CreatedAt = now;
+            sheet.LastUpdated = now;
+            sheet.RowVersion = 0;
             if (sheet.Stock > 0)
-                sheet.LastPurchaseDate = DateTime.Now;
+                sheet.LastPurchaseDate = now;
 
             db.GlassSheets.Add(sheet);
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            await db.SaveChangesAsync().ConfigureAwait(false);
+
+            // The sheet needs its generated Id before the immutable movement
+            // row can reference it. Both saves remain inside this transaction:
+            // either the sheet and opening-stock history commit together or
+            // neither does.
+            if (sheet.Stock > 0)
+            {
+                db.SheetHistories.Add(CreateHistory(
+                    sheet, "Added", sheet.Stock, sheet.TotalPurchaseValue,
+                    $"Initial stock: {sheet.Stock} sheets @ {sheet.PurchasePricePerSqm:N2} AED/SQM. " +
+                    $"Total value: {sheet.TotalPurchaseValue:N2} AED."));
+                await db.SaveChangesAsync().ConfigureAwait(false);
+            }
+
+            await tx.CommitAsync().ConfigureAwait(false);
             return sheet;
         }
 
-        public async Task UpdateAsync(GlassSheet sheet)
+        public async Task UpdateAsync(GlassSheet sheet, int expectedRowVersion)
         {
             ReadOnlyGate.Demand("update a glass sheet");
-            // A-1: service-layer authorization. The UI also checks,
-            // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.SheetStoreEdit, "update a glass sheet");
+            if (sheet == null) throw new ArgumentNullException(nameof(sheet));
 
             using var db = new AppDbContext();
-            sheet.LastUpdated = DateTime.Now;
-            db.GlassSheets.Update(sheet);
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            await db.Database.OpenConnectionAsync().ConfigureAwait(false);
+            await using var tx = await db.Database
+                .BeginTransactionAsync(IsolationLevel.Serializable).ConfigureAwait(false);
+
+            var stored = await db.GlassSheets
+                .FirstOrDefaultAsync(g => g.Id == sheet.Id).ConfigureAwait(false);
+            if (stored == null)
+                throw new ConcurrencyConflictException(
+                    "Glass sheet", sheet.Id.ToString(), expectedRowVersion,
+                    actualRowVersion: -1);
+            if (stored.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Glass sheet", DescribeSheet(stored), expectedRowVersion,
+                    stored.RowVersion);
+            if (sheet.Stock < 0 || sheet.Used < 0 || sheet.Stock < sheet.Used)
+                throw new InvalidOperationException("Stock and used quantities must be non-negative, and stock cannot be below used stock.");
+
+            int oldStock = stored.Stock;
+            int oldUsed = stored.Used;
+            decimal oldPurchasePrice = stored.PurchasePricePerSqm;
+            decimal oldSellPrice = stored.SellPricePerSqm;
+            string oldCategory = stored.Category;
+            string oldColor = stored.Color;
+            int oldThickness = stored.ThicknessMm;
+            int oldWidth = stored.WidthMm;
+            int oldHeight = stored.HeightMm;
+            string oldSupplier = stored.Supplier;
+            DateTime createdAt = stored.CreatedAt;
+
+            db.Entry(stored).CurrentValues.SetValues(sheet);
+            stored.CreatedAt = createdAt;
+            stored.LastUpdated = DateTime.Now;
+            stored.RowVersion = expectedRowVersion + 1;
+
+            var metadataChanges = new List<string>();
+            if (oldPurchasePrice != stored.PurchasePricePerSqm)
+                metadataChanges.Add($"Buy: {oldPurchasePrice:N2} → {stored.PurchasePricePerSqm:N2} AED/SQM");
+            if (oldSellPrice != stored.SellPricePerSqm)
+                metadataChanges.Add($"Sell: {oldSellPrice:N2} → {stored.SellPricePerSqm:N2} AED/SQM");
+            if (oldCategory != stored.Category) metadataChanges.Add($"Category: {oldCategory} → {stored.Category}");
+            if (oldColor != stored.Color) metadataChanges.Add($"Color: {oldColor} → {stored.Color}");
+            if (oldThickness != stored.ThicknessMm) metadataChanges.Add($"Thickness: {oldThickness} → {stored.ThicknessMm}mm");
+            if (oldWidth != stored.WidthMm || oldHeight != stored.HeightMm)
+                metadataChanges.Add($"Size: {oldWidth} × {oldHeight} → {stored.WidthMm} × {stored.HeightMm}");
+            if (oldSupplier != stored.Supplier) metadataChanges.Add($"Supplier: {oldSupplier} → {stored.Supplier}");
+
+            int stockDelta = stored.Stock - oldStock;
+            int usedDelta = stored.Used - oldUsed;
+
+            // Stock and Used are separate counters, so a single generic edit
+            // row cannot truthfully encode both deltas in QuantityChanged.
+            // Write one immutable ledger entry per changed counter in this
+            // same transaction as the sheet update. This also means CSV
+            // DuplicateAction.UpdateAll cannot silently bypass movement
+            // history when it replaces imported balances.
+            if (stockDelta != 0)
+            {
+                db.SheetHistories.Add(CreateHistory(
+                    stored, "Edited", stockDelta,
+                    stockDelta * stored.SqmPerSheet * stored.PurchasePricePerSqm,
+                    $"Stock manually adjusted: {oldStock} → {stored.Stock}."));
+            }
+            if (usedDelta != 0)
+            {
+                db.SheetHistories.Add(CreateHistory(
+                    stored, "Edited", usedDelta,
+                    usedDelta * stored.SqmPerSheet * stored.PurchasePricePerSqm,
+                    $"Used quantity manually adjusted: {oldUsed} → {stored.Used}."));
+            }
+
+            // Metadata-only changes still need an audit row. When a quantity
+            // counter also changed, keep its movement row unambiguous and
+            // record the scalar edits separately with quantity zero.
+            if (metadataChanges.Count > 0 || (stockDelta == 0 && usedDelta == 0))
+            {
+                string details = metadataChanges.Count == 0
+                    ? "Sheet details saved without scalar changes."
+                    : string.Join(" | ", metadataChanges);
+                db.SheetHistories.Add(CreateHistory(
+                    stored, "Edited", 0, null, details));
+            }
+
+            try
+            {
+                await db.SaveChangesAsync().ConfigureAwait(false);
+                await tx.CommitAsync().ConfigureAwait(false);
+                sheet.RowVersion = stored.RowVersion;
+                sheet.LastUpdated = stored.LastUpdated;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                await tx.RollbackAsync().ConfigureAwait(false);
+                int actual = await db.GlassSheets.AsNoTracking()
+                    .Where(g => g.Id == sheet.Id)
+                    .Select(g => (int?)g.RowVersion)
+                    .FirstOrDefaultAsync().ConfigureAwait(false) ?? -1;
+                throw new ConcurrencyConflictException(
+                    "Glass sheet", DescribeSheet(sheet), expectedRowVersion, actual);
+            }
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, int expectedRowVersion)
         {
             ReadOnlyGate.Demand("delete a glass sheet");
-            // A-1: service-layer authorization. The UI also checks,
-            // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.SheetStoreDelete, "delete a glass sheet");
 
             using var db = new AppDbContext();
-            var sheet = await db.GlassSheets.FindAsync(id).ConfigureAwait(false);
-            if (sheet != null)
+            await db.Database.OpenConnectionAsync().ConfigureAwait(false);
+            await using var tx = await db.Database
+                .BeginTransactionAsync(IsolationLevel.Serializable).ConfigureAwait(false);
+
+            var sheet = await db.GlassSheets
+                .FirstOrDefaultAsync(g => g.Id == id).ConfigureAwait(false);
+            if (sheet == null)
+                throw new ConcurrencyConflictException(
+                    "Glass sheet", id.ToString(), expectedRowVersion,
+                    actualRowVersion: -1);
+            if (sheet.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Glass sheet", DescribeSheet(sheet), expectedRowVersion,
+                    sheet.RowVersion);
+
+            db.SheetHistories.Add(CreateHistory(
+                sheet, "Deleted", sheet.Stock,
+                sheet.TotalPurchaseValue,
+                $"Removed from inventory. Lost {sheet.Stock} sheets worth {sheet.TotalPurchaseValue:N2} AED."));
+            db.GlassSheets.Remove(sheet);
+
+            try
             {
-                db.GlassSheets.Remove(sheet);
-                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+                await db.SaveChangesAsync().ConfigureAwait(false);
+                await tx.CommitAsync().ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                await tx.RollbackAsync().ConfigureAwait(false);
+                int actual = await db.GlassSheets.AsNoTracking()
+                    .Where(g => g.Id == id)
+                    .Select(g => (int?)g.RowVersion)
+                    .FirstOrDefaultAsync().ConfigureAwait(false) ?? -1;
+                throw new ConcurrencyConflictException(
+                    "Glass sheet", id.ToString(), expectedRowVersion, actual);
             }
         }
 
         /// <summary>
-        /// Records a stock purchase as a single atomic increment.
+        /// Atomically increments stock and records the matching purchase
+        /// movement in the same SQLite transaction. The current counters are
+        /// read after taking the serializable write transaction, so concurrent
+        /// receipts cannot overwrite each other or leave an unlogged change.
+        /// A missing sheet still returns without error.
         /// </summary>
-        /// <remarks>
-        /// Was a read-modify-write: load the sheet, add to <c>Stock</c>, save.
-        /// Two operators booking stock into the same sheet at once both read the
-        /// same starting value, and whichever saved second overwrote the first —
-        /// a lost update, silent, with no exception and no way to notice except
-        /// that the count was wrong later.
-        ///
-        /// The increment now happens in SQL (<c>SET Stock = Stock + @q</c>), so
-        /// SQLite applies it under one write lock and both purchases land.
-        /// Every column the old code touched is named in the setter list, because
-        /// a bulk write bypasses change tracking and will not set anything that
-        /// is not listed.
-        ///
-        /// A missing sheet still returns without error, exactly as before.
-        /// </remarks>
-        public async Task BuyStockAsync(int sheetId, int quantity, decimal? newPurchasePrice = null)
+        public async Task BuyStockAsync(
+            int sheetId, int quantity, decimal? newPurchasePrice = null,
+            string? source = null)
         {
             ReadOnlyGate.Demand("record a stock purchase");
+            OperationGuard.Demand(
+                AppPermissions.SheetStoreEdit, "record a stock purchase");
             if (quantity <= 0) return;
 
             using var db = new AppDbContext();
-            var now = DateTime.Now;
-            var applyPrice = newPurchasePrice.HasValue && newPurchasePrice.Value > 0;
+            await db.Database.OpenConnectionAsync().ConfigureAwait(false);
+            await using var tx = await db.Database
+                .BeginTransactionAsync(IsolationLevel.Serializable).ConfigureAwait(false);
 
-            // Two explicit branches rather than one setter list with a
-            // conditional inside it: keeping the purchase price untouched and
-            // overwriting it are different statements, and writing them out
-            // separately leaves no doubt about which columns move.
-            await SqliteResilience.ExecuteWithRetryAsync(ct => applyPrice
-                ? db.GlassSheets
-                    .Where(g => g.Id == sheetId)
-                    .ExecuteUpdateAsync(setters => setters
-                        .SetProperty(g => g.Stock, g => g.Stock + quantity)
-                        .SetProperty(g => g.PurchasePricePerSqm, _ => newPurchasePrice!.Value)
-                        .SetProperty(g => g.LastPurchaseDate, _ => now)
-                        .SetProperty(g => g.LastUpdated, _ => now), ct)
-                : db.GlassSheets
-                    .Where(g => g.Id == sheetId)
-                    .ExecuteUpdateAsync(setters => setters
-                        .SetProperty(g => g.Stock, g => g.Stock + quantity)
-                        .SetProperty(g => g.LastPurchaseDate, _ => now)
-                        .SetProperty(g => g.LastUpdated, _ => now), ct));
+            var sheet = await db.GlassSheets
+                .FirstOrDefaultAsync(g => g.Id == sheetId).ConfigureAwait(false);
+            if (sheet == null) return;
+
+            int oldStock = sheet.Stock;
+            if (newPurchasePrice.HasValue && newPurchasePrice.Value > 0)
+                sheet.PurchasePricePerSqm = newPurchasePrice.Value;
+            sheet.Stock += quantity;
+            DateTime now = DateTime.Now;
+            sheet.LastPurchaseDate = now;
+            sheet.LastUpdated = now;
+            sheet.RowVersion++;
+
+            decimal value = quantity * sheet.SqmPerSheet * sheet.PurchasePricePerSqm;
+            string reason = string.IsNullOrWhiteSpace(source)
+                ? "Purchase received"
+                : source.Trim();
+            db.SheetHistories.Add(CreateHistory(
+                sheet, "Bought", quantity, value,
+                $"{reason}: purchased {quantity} sheet(s). Stock: {oldStock} → {sheet.Stock}. " +
+                $"Value: {value:N2} AED."));
+
+            await db.SaveChangesAsync().ConfigureAwait(false);
+            await tx.CommitAsync().ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Consumes stock as a single guarded atomic increment.
+        /// Consumes stock and records a matching Used movement atomically.
+        /// The balance guard, row-version bump, and history insert all share
+        /// one serializable transaction; a failed history write rolls back the
+        /// stock change as well. A missing sheet is returned as null;
+        /// insufficient stock throws an InvalidOperationException.
         /// </summary>
-        /// <remarks>
-        /// The balance check used to run in C# between the read and the write:
-        ///
-        /// <code>
-        /// var sheet = await db.GlassSheets.FindAsync(sheetId);  // read
-        /// if (sheet.Balance &lt; quantity) throw ...;            // check
-        /// sheet.Used += quantity;                               // write
-        /// </code>
-        ///
-        /// Two operators issuing from the same sheet both read the same balance,
-        /// both pass the check, and both write from the same starting value — so
-        /// one issue is lost and the balance ends up higher than the physical
-        /// stock. With enough overlap the balance can even go negative, because
-        /// nothing re-checks at write time.
-        ///
-        /// The guard is now part of the UPDATE's WHERE clause, evaluated and
-        /// applied together under SQLite's write lock. There is no window.
-        ///
-        /// <c>Balance</c> is a computed property (<c>Stock - Used</c>), not a
-        /// column, so the guard is written as the arithmetic EF translates it to.
-        ///
-        /// Both outcomes the old code produced are preserved: a missing sheet
-        /// returns silently, insufficient stock throws — callers depend on the
-        /// throw (<c>UpdateSheetStockTool</c>, <c>SheetStoreDashboardViewModel</c>).
-        /// </remarks>
-        /// <exception cref="InvalidOperationException">
-        /// The sheet exists but does not hold <paramref name="quantity"/> sheets.
-        /// </exception>
-        public async Task UseStockAsync(int sheetId, int quantity)
+        public async Task<GlassSheet?> UseStockAsync(
+            int sheetId, int quantity, string origin = "Sheet Store",
+            string? documentReference = null, string? customerName = null,
+            string? projectName = null, string? salesman = null,
+            string? panePosition = null)
         {
             ReadOnlyGate.Demand("record stock usage");
-            if (quantity <= 0) return;
+            OperationGuard.Demand(
+                AppPermissions.SheetStoreEdit, "record stock usage");
+            if (quantity <= 0) return null;
 
             using var db = new AppDbContext();
-            var now = DateTime.Now;
+            await db.Database.OpenConnectionAsync().ConfigureAwait(false);
+            await using var tx = await db.Database
+                .BeginTransactionAsync(IsolationLevel.Serializable).ConfigureAwait(false);
 
-            int updated = await SqliteResilience.ExecuteWithRetryAsync(ct =>
-                db.GlassSheets
-                    .Where(g => g.Id == sheetId && g.Stock - g.Used >= quantity)
-                    .ExecuteUpdateAsync(setters => setters
-                        .SetProperty(g => g.Used, g => g.Used + quantity)
-                        .SetProperty(g => g.LastUpdated, _ => now), ct));
+            var sheet = await db.GlassSheets
+                .FirstOrDefaultAsync(g => g.Id == sheetId).ConfigureAwait(false);
+            if (sheet == null) return null;
 
-            if (updated > 0) return;
+            int balance = sheet.Stock - sheet.Used;
+            if (balance < quantity)
+                throw new InvalidOperationException(
+                    $"Not enough stock. Available: {balance}, Requested: {quantity}");
 
-            // Nothing was written. Two reasons, and they are not the same:
-            // the sheet may not exist (the old code returned silently) or it may
-            // exist and be short (the old code threw). Re-read to tell them
-            // apart. This read is only used to choose the error message — the
-            // decision about whether to write was already made atomically above,
-            // so a concurrent change here cannot corrupt anything.
-            int? balance = await db.GlassSheets
-                .AsNoTracking()
-                .Where(g => g.Id == sheetId)
-                .Select(g => (int?)(g.Stock - g.Used))
-                .FirstOrDefaultAsync().ConfigureAwait(false);
+            int oldUsed = sheet.Used;
+            sheet.Used += quantity;
+            sheet.LastUpdated = DateTime.Now;
+            sheet.RowVersion++;
 
-            if (balance == null) return;
+            decimal value = quantity * sheet.SqmPerSheet * sheet.SellPricePerSqm;
+            string safeOrigin = string.IsNullOrWhiteSpace(origin)
+                ? "Sheet Store"
+                : origin.Trim();
+            string jobTag = string.IsNullOrWhiteSpace(documentReference)
+                ? string.Empty
+                : $" [Job: {documentReference.Trim()}]";
+            db.SheetHistories.Add(CreateHistory(
+                sheet, "Used", quantity, value,
+                $"Consumed {quantity} sheet(s) via {safeOrigin}.{jobTag} " +
+                $"Used: {oldUsed} → {sheet.Used}. Value: {value:N2} AED.",
+                documentReference, customerName, projectName, salesman,
+                panePosition));
 
-            throw new InvalidOperationException(
-                $"Not enough stock. Available: {balance.Value}, Requested: {quantity}");
+            await db.SaveChangesAsync().ConfigureAwait(false);
+            await tx.CommitAsync().ConfigureAwait(false);
+            return sheet;
+        }
+
+        private static SheetHistory CreateHistory(
+            GlassSheet sheet, string action, int quantityChanged,
+            decimal? valueChanged, string details,
+            string? documentReference = null, string? customerName = null,
+            string? projectName = null, string? salesman = null,
+            string? panePosition = null) => new()
+        {
+            SheetId = sheet.Id,
+            SheetDescription = Limit(DescribeSheet(sheet), 200),
+            Action = Limit(action, 20),
+            Details = Limit(details, 500),
+            QuantityChanged = quantityChanged,
+            ValueChanged = valueChanged,
+            UserName = Limit(Environment.UserName, 100),
+            Timestamp = DateTime.Now,
+            DocumentReference = CleanTrace(documentReference),
+            CustomerName = CleanTrace(customerName),
+            ProjectName = CleanTrace(projectName),
+            Salesman = CleanTrace(salesman),
+            PanePosition = CleanTrace(panePosition)
+        };
+
+        private static string DescribeSheet(GlassSheet sheet) =>
+            $"{sheet.Color} {sheet.ThicknessMm}mm {sheet.SizeDisplay}";
+
+        private static string? CleanTrace(string? value) =>
+            string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+        private static string Limit(string? value, int maxLength)
+        {
+            value ??= string.Empty;
+            return value.Length <= maxLength ? value : value[..maxLength];
         }
 
         public async Task<List<string>> GetCategoriesAsync()

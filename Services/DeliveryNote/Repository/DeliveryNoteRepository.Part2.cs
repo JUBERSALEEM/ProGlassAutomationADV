@@ -15,6 +15,8 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Licensing;
+using ProGlassAutomation.Services.Workflow;
 
 namespace ProGlassAutomation.Services.DeliveryNote.Repository
 {
@@ -26,6 +28,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.DeliveryNoteEdit, "delete a delivery note");
+            ReadOnlyGate.Demand("delete a delivery note");
 
             using var ctx = new DeliveryNotesDbContext();
             var entity = await ctx.DeliveryNotes
@@ -40,8 +43,36 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             string deliveryNoteId = entity.DeliveryNoteId;
             bool isMaster = entity.IsMasterDn;
 
+            if (!isMaster)
+            {
+                if (entity.IsVoid)
+                    throw new InvalidOperationException(
+                        $"Delivery Note {deliveryNoteId} is voided and must be retained.");
+
+                bool linkedToTaxInvoice = entity.HasTaxInvoice
+                    || !string.IsNullOrWhiteSpace(entity.TaxInvoiceId);
+                var decision = DocumentLifecyclePolicy.DecideDelete(
+                    StatusTransitions.Kind.DeliveryNote, entity.Status, linkedToTaxInvoice);
+                if (decision == DocumentLifecyclePolicy.DeleteDecision.Blocked)
+                    throw new InvalidOperationException(
+                        $"Delivery Note {deliveryNoteId} is linked to a Tax Invoice and cannot be hard-deleted. Unlink or void the invoice first.");
+                if (decision == DocumentLifecyclePolicy.DeleteDecision.Retained)
+                    throw new InvalidOperationException(
+                        $"Delivery Note {deliveryNoteId} cannot be safely deleted or voided from status '{entity.Status}' and must be retained.");
+                if (decision == DocumentLifecyclePolicy.DeleteDecision.Void)
+                {
+                    await VoidAsync(id, "Delete requested; lifecycle policy requires retention.")
+                        .ConfigureAwait(false);
+                    return;
+                }
+            }
+
             ctx.DeliveryNotes.Remove(entity);
             await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            AuditService.Log(
+                AuditSections.DeliveryNote, "Delivery Note deleted",
+                $"Deleted draft {(isMaster ? "master " : "")}Delivery Note {deliveryNoteId}",
+                entityType: nameof(SavedDeliveryNote), entityId: deliveryNoteId);
 
             // Master DNs are internal trackers — they do not participate
             // in the PI display status. A real DN delete may cancel the
@@ -79,28 +110,51 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             OperationGuard.Demand(
                 AppPermissions.DeliveryNoteEdit, "void a delivery note");
+            ReadOnlyGate.Demand("void a delivery note");
 
             using var ctx = new DeliveryNotesDbContext();
             var entity = await ctx.DeliveryNotes
+                .Include(x => x.Items)
+                .Include(x => x.Attachments)
                 .FirstOrDefaultAsync(x => x.Id == id).ConfigureAwait(false);
 
             if (entity == null) return;
             if (entity.IsVoid) return;   // idempotent
+            if (!DocumentLifecyclePolicy.CanVoid(
+                    StatusTransitions.Kind.DeliveryNote, entity.Status))
+                throw new InvalidOperationException(
+                    $"Delivery Note {entity.DeliveryNoteId} cannot be voided from status '{entity.Status}'; it must be retained.");
 
             string? proformaId = entity.ProformaId;
             string jobOrderId = entity.JobOrderId;
             string deliveryNoteId = entity.DeliveryNoteId;
             bool isMaster = entity.IsMasterDn;
+            if (entity.HasTaxInvoice || !string.IsNullOrWhiteSpace(entity.TaxInvoiceId))
+                throw new InvalidOperationException(
+                    $"Delivery Note {deliveryNoteId} cannot be voided while it remains linked to Tax Invoice {entity.TaxInvoiceId}.");
 
             entity.IsVoid = true;
             entity.VoidedAtUtc = DateTime.UtcNow;
             entity.VoidedBy = AuditService.CurrentUsername;
-            entity.VoidReason = string.IsNullOrWhiteSpace(reason) ? "(no reason given)" : reason.Trim();
+            entity.VoidReason = DocumentLifecyclePolicy.NormalizeVoidReason(reason);
             entity.Status = Services.Workflow.DocumentLifecyclePolicy.VoidTargetStatus(
                 Services.Workflow.StatusTransitions.Kind.DeliveryNote);
             entity.UpdatedAt = DateTime.Now;
+            entity.RowVersion += 1;
+
+            var snapshot = Mapper.DeliveryNoteMapper.DeserializeSnapshot(entity);
+            if (snapshot != null)
+                Mapper.DeliveryNoteMapper.RefreshSnapshot(entity, snapshot.JobOrderRef);
+            else
+                AppLogService.Warning(
+                    $"Delivery Note {deliveryNoteId} was voided but its snapshot could not be refreshed.");
 
             await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            AuditService.Log(
+                AuditSections.DeliveryNote, "Delivery Note voided",
+                $"Voided Delivery Note {deliveryNoteId}",
+                entityType: nameof(SavedDeliveryNote), entityId: deliveryNoteId,
+                reason: entity.VoidReason);
 
             if (!isMaster)
             {
@@ -158,6 +212,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.DeliveryNoteEdit, "add a delivery note attachment");
+            ReadOnlyGate.Demand("add a delivery note attachment");
 
             using var ctx = new DeliveryNotesDbContext();
             entity.UploadedAt = DateTime.Now;
@@ -172,6 +227,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.DeliveryNoteEdit, "delete a delivery note attachment");
+            ReadOnlyGate.Demand("delete a delivery note attachment");
 
             using var ctx = new DeliveryNotesDbContext();
             var entity = await ctx.DeliveryNoteAttachments
@@ -246,6 +302,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.DeliveryNoteEdit, "create a delivery note (Result variant)");
+            ReadOnlyGate.Demand("create a delivery note");
 
             var corrId = correlationId ?? CorrelationContext.NewIdFor("DeliveryNote", entity?.DeliveryNoteId);
             using var scope = CorrelationContext.BeginDocumentScope("DeliveryNote", entity?.DeliveryNoteId ?? "", corrId);
@@ -282,19 +339,23 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             }
         }
 
-        public async Task<Result> UpdateWithResultAsync(SavedDeliveryNote entity, string? correlationId = null)
+        public async Task<Result> UpdateWithResultAsync(
+            SavedDeliveryNote entity,
+            int expectedRowVersion,
+            string? correlationId = null)
         {
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.DeliveryNoteEdit, "update a delivery note (Result variant)");
+            ReadOnlyGate.Demand("update a delivery note");
 
             var corrId = correlationId ?? CorrelationContext.NewIdFor("DeliveryNote", entity?.DeliveryNoteId);
             using var scope = CorrelationContext.BeginDocumentScope("DeliveryNote", entity?.DeliveryNoteId ?? "", corrId);
 
             try
             {
-                await UpdateAsync(entity!);
+                await UpdateAsync(entity!, expectedRowVersion);
                 AppLogService.Info(
                     $"DN updated: {entity!.DeliveryNoteId}",
                     new LogContext

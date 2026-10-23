@@ -107,6 +107,8 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             var columns = new (string Name, string Ddl)[]
             {
                 ("LogoPath", "TEXT NOT NULL DEFAULT ''"),
+                ("CompanyTelephone", "TEXT NOT NULL DEFAULT ''"),
+                ("CompanyWebsite", "TEXT NOT NULL DEFAULT ''"),
                 ("Representative", "TEXT NOT NULL DEFAULT ''"),
                 ("RepresentativeMobile", "TEXT NOT NULL DEFAULT ''"),
                 ("CompanyEmail", "TEXT NOT NULL DEFAULT ''"),
@@ -205,6 +207,8 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 // DISTINCT actions — the path the data took is part of the
                 // trail, not guesswork.
                 string beforeLocation = existing.CompanyLocation;
+                string beforeTelephone = existing.CompanyTelephone;
+                string beforeWebsite = existing.CompanyWebsite;
                 string beforeLogo = existing.LogoPath;
                 var beforeLogoLayout = existing.LogoLayout;
                 double beforeLogoW = existing.LogoWidthMm;
@@ -225,6 +229,10 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                     // — defaults are managed explicitly in Company Center.
                     SetIfProvided(v => existing.CompanyLocation = v,
                         company.CompanyLocation);
+                    SetIfProvided(v => existing.CompanyTelephone = v,
+                        company.CompanyTelephone);
+                    SetIfProvided(v => existing.CompanyWebsite = v,
+                        company.CompanyWebsite);
                     SetIfProvided(v => existing.LogoPath = v, company.LogoPath);
                     SetIfProvided(v => existing.Representative = v,
                         company.Representative);
@@ -259,6 +267,10 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                     // multiple rows could look default forever.
                     existing.CompanyLocation =
                         company.CompanyLocation?.Trim() ?? "";
+                    existing.CompanyTelephone =
+                        company.CompanyTelephone?.Trim() ?? "";
+                    existing.CompanyWebsite =
+                        company.CompanyWebsite?.Trim() ?? "";
                     existing.LogoPath = company.LogoPath ?? "";
                     existing.Representative =
                         company.Representative?.Trim() ?? "";
@@ -296,7 +308,8 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 // never throws — auditing must never block a save).
                 LogCompanyChanges(
                     existing, preserveUnsetProfileFields,
-                    beforeName, beforeTrn, beforeLocation, beforeLogo,
+                    beforeName, beforeTrn, beforeLocation, beforeTelephone,
+                    beforeWebsite, beforeLogo,
                     beforeLogoLayout, beforeLogoW, beforeLogoH,
                     beforeRep, beforeRepMobile, beforeEmail,
                     beforeAccount, beforeBank);
@@ -338,7 +351,8 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             SavedCompany after,
             bool preserveMode,
             string beforeName, string beforeTrn,
-            string beforeLocation, string beforeLogo,
+            string beforeLocation, string beforeTelephone, string beforeWebsite,
+            string beforeLogo,
             CompanyLogoLayout beforeLogoLayout,
             double beforeLogoW, double beforeLogoH,
             string beforeRep, string beforeRepMobile,
@@ -363,6 +377,8 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             Add(changes, "Name", beforeName, after.CompanyName);
             Add(changes, "TRN", beforeTrn, after.CompanyTrn);
             Add(changes, "Location", beforeLocation, after.CompanyLocation);
+            Add(changes, "Telephone", beforeTelephone, after.CompanyTelephone);
+            Add(changes, "Website", beforeWebsite, after.CompanyWebsite);
             Add(changes, "Logo", beforeLogo, after.LogoPath);
             Add(changes, "Logo layout",
                 beforeLogoLayout.ToString(), after.LogoLayout.ToString());
@@ -805,7 +821,9 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             string? companyBankName = null,
             CompanyLogoLayout companyLogoLayout = CompanyLogoLayout.None,
             double companyLogoWidthMm = 0,
-            double companyLogoHeightMm = 0)
+            double companyLogoHeightMm = 0,
+            string? companyTelephone = null,
+            string? companyWebsite = null)
         {
             ReadOnlyGate.Demand("auto-save master data from an invoice");
             // ── Company ──────────────────────────────────────────────────
@@ -822,6 +840,8 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                         CompanyName = companyName.Trim(),
                         CompanyTrn = (companyTrn ?? "").Trim(),
                         CompanyLocation = (companyLocation ?? "").Trim(),
+                        CompanyTelephone = (companyTelephone ?? "").Trim(),
+                        CompanyWebsite = (companyWebsite ?? "").Trim(),
                         LogoPath = companyLogoPath ?? "",
                         Representative = (companyRepresentative ?? "").Trim(),
                         RepresentativeMobile =

@@ -1,35 +1,13 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Tools/LicenseGenerator/KeyProtection.cs
 // PROJECT: ProGlassAutomation.LicenseGenerator
-// MODULE: DPAPI-protected key storage + rate limiter + audit trail
+// MODULE: Fail-closed signing gate + rate limiter + audit trail
 //
-// PURPOSE
-// ───────
-// The production private signing key was stored as a plain-text
-// const string in ProductionSigningKey.cs. Anyone with access to the
-// compiled generator binary could extract it from the string table
-// using ildasm/dnSpy and sign unlimited valid license keys.
-//
-// This module wraps the private key with Windows DPAPI so:
-//   • The key is NOT visible in the binary's string table
-//   • The key is bound to the vendor's Windows user account
-//   • Extracting the key requires both the binary AND the user's
-//     DPAPI master key (which requires their Windows login)
-//
-// ADDITIONAL PROTECTIONS
-// ─────────────────────
-//   • Rate limiter: max 10 key generations per hour per machine.
-//     Prevents mass key generation if the tool is stolen.
-//   • Audit trail: every key generation is logged to a file with
-//     timestamp, plan, and machine fingerprint.
-//
-// FIRST-RUN SETUP
-// ────────────────
-// On first run, the generator detects the plain-text key in
-// ProductionSigningKey.cs, encrypts it with DPAPI, stores the
-// encrypted blob in %AppData%\ProGlassAutomation\Generator\,
-// and the plain-text const remains as a fallback for bootstrap.
-// After bootstrap, the DPAPI-protected version is always preferred.
+// The previous production private key was exposed in tracked source and
+// is treated as compromised. This generator must not read either the old
+// DPAPI cache or an embedded fallback. License issuance stays disabled
+// until an owner-approved replacement signing process is provisioned.
+// Rate-limit and audit helpers remain for a future approved signer.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -42,16 +20,13 @@ using ProGlassAutomation.Services.Logging;
 namespace ProGlassAutomation.Tools.LicenseGenerator;
 
 /// <summary>
-/// DPAPI-protected key storage with rate limiting and audit logging.
+/// Fail-closed production signing gate with retained rate-limit/audit helpers.
 /// </summary>
 internal static class KeyProtection
 {
     private static readonly string GeneratorFolder = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "ProGlassAutomation", "Generator");
-
-    private static readonly string ProtectedKeyPath =
-        Path.Combine(GeneratorFolder, "signingkey.protected");
 
     private static readonly string RateLimitPath =
         Path.Combine(GeneratorFolder, "ratelimit.json");
@@ -63,68 +38,15 @@ internal static class KeyProtection
     private const int MaxGenerationsPerHour = 10;
 
     /// <summary>
-    /// Gets the private signing key, preferring the DPAPI-protected
-    /// version. Falls back to the plain-text const if DPAPI hasn't
-    /// been bootstrapped yet.
+    /// Fails closed while the exposed production key is being rotated.
+    /// Existing DPAPI caches are deliberately ignored because they contain
+    /// the same compromised key and must not re-enable license issuance.
     /// </summary>
     public static string GetPrivateKey()
     {
-        // Try DPAPI-protected version first
-        try
-        {
-            if (File.Exists(ProtectedKeyPath))
-            {
-                byte[] encrypted = File.ReadAllBytes(ProtectedKeyPath);
-                byte[] decrypted = ProtectedData.Unprotect(
-                    encrypted,
-                    GetEntropy(),
-                    DataProtectionScope.CurrentUser);
-                string key = Encoding.UTF8.GetString(decrypted);
-                if (!string.IsNullOrWhiteSpace(key))
-                    return key;
-            }
-        }
-        catch
-        {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("GetPrivateKey suppressed");
-            }
-
-        // Bootstrap: encrypt the plain-text key with DPAPI for future use
-        try
-        {
-            BootstrapProtection();
-        }
-        catch
-        {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("GetPrivateKey suppressed");
-            }
-
-        return ProductionSigningKey.PrivateKeyXml;
-    }
-
-    /// <summary>
-    /// Encrypts the plain-text private key with DPAPI and stores it.
-    /// Called automatically on first use.
-    /// </summary>
-    private static void BootstrapProtection()
-    {
-        Directory.CreateDirectory(GeneratorFolder);
-        byte[] keyBytes = Encoding.UTF8.GetBytes(ProductionSigningKey.PrivateKeyXml);
-        byte[] encrypted = ProtectedData.Protect(
-            keyBytes,
-            GetEntropy(),
-            DataProtectionScope.CurrentUser);
-        File.WriteAllBytes(ProtectedKeyPath, encrypted);
-    }
-
-    /// <summary>
-    /// Additional entropy for DPAPI — includes the key ID so the
-    /// blob can't be replayed against a different key.
-    /// </summary>
-    private static byte[] GetEntropy()
-    {
-        return SHA256.HashData(Encoding.UTF8.GetBytes(
-            "ProGlassGenerator:" + ProductionSigningKey.KeyId));
+        throw new InvalidOperationException(
+            "License issuance is disabled: the embedded production signing key was exposed. " +
+            "Provision and approve a replacement signing key before issuing licenses.");
     }
 
     /// <summary>

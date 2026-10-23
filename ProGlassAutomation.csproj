@@ -38,9 +38,9 @@
 		     could say which 2.0.1 produced it. Bump the PATCH digit on
 		     every behavioural fix; that is what makes the update
 		     reachable and the build identifiable.          -->
-		<Version>2.0.11</Version>
-		<AssemblyVersion>2.0.11.0</AssemblyVersion>
-		<FileVersion>2.0.11.0</FileVersion>
+		<Version>2.0.16</Version>
+		<AssemblyVersion>2.0.16.0</AssemblyVersion>
+		<FileVersion>2.0.16.0</FileVersion>
 	</PropertyGroup>
 
 	<!-- ══════════════════════════════════════════════════════════════
@@ -136,6 +136,10 @@
 		<PackageReference Include="QuestPDF" Version="2025.12.4" />
 		<PackageReference Include="PdfSharp-WPF" Version="6.1.1" />
 		<PackageReference Include="SkiaSharp" Version="2.88.8" />
+		<!-- V3 Bento analytics (Theme/V3/step1.f.Analytics): BentoChart /
+		     BentoKpi are required by ThemeContract.RequiredStyles. Version
+		     matches V3's ProGlassAutomation.csproj exactly. -->
+		<PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.4" />
 		<PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.8" />
 		<!-- Windows DPAPI (ProtectedData) — used by Services/Security/SecretVault
 		     to keep API keys out of plain-text config files. -->
@@ -533,6 +537,31 @@
 			<SubType>Code</SubType>
 		</Compile>
 
+	</ItemGroup>
+
+	<!-- ═══════════════════════════════════════════════════════════════
+	     Phase 28 — Optimization + Production dashboard pages.
+	     Designer metadata only (Generator / SubType / DependentUpon);
+	     SDK-style globbing already compiles these as Page + Compile.
+	═══════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<Page Update="Views\Dashboard\Optimization\OptimizationDashboardView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Dashboard\Optimization\OptimizationDashboardView.xaml.cs">
+			<DependentUpon>OptimizationDashboardView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<Page Update="Views\Dashboard\Production\ProductionDashboardView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Dashboard\Production\ProductionDashboardView.xaml.cs">
+			<DependentUpon>ProductionDashboardView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
 	</ItemGroup>
 
 </Project>

@@ -41,6 +41,8 @@ namespace ProGlassAutomation
 {
     public partial class App : Application
     {
+        private static int _taxInvoiceReconciliationScheduled;
+
         private static void OnSignOutRequested(object? sender, EventArgs e)
         {
             try
@@ -92,6 +94,64 @@ namespace ProGlassAutomation
                 AppLogService.Warning(
                     $"Presence identity update failed: {ex.Message}",
                     new LogContext { Module = "Network", Operation = "Presence.UpdateIdentity" });
+            }
+
+            // The startup sweep can repair DN links, so it is a write path.
+            // Schedule it only for an active user with the narrow finance-link
+            // permission; a viewer signing in first must not consume the one
+            // successful-sweep slot. A failed sweep clears the slot so a later
+            // eligible CurrentUserChanged event can retry it.
+            if (AuditService.CurrentUser?.IsActive == true
+                && PermissionService.Can(AppPermissions.DeliveryNoteInvoiceLink)
+                && System.Threading.Interlocked.CompareExchange(
+                    ref _taxInvoiceReconciliationScheduled, 1, 0) == 0)
+            {
+                ProGlassAutomation.Utilities.AsyncUtility.SafeFireAndForget(
+                    async () =>
+                    {
+                        bool succeeded = false;
+                        try
+                        {
+                            var corrId = ProGlassAutomation.Services.Common
+                                .CorrelationContext.NewIdFor("Reconciler", "PostLogin");
+                            using var scope = ProGlassAutomation.Services.Common
+                                .CorrelationContext.BeginScope(corrId, null, "Reconciler");
+                            var result = await ProGlassAutomation.Services.TaxInvoice.Repository
+                                .TaxInvoiceDnReconciler.ReconcileWithResultAsync(corrId);
+                            succeeded = result.IsSuccess;
+                            if (result.IsFailure)
+                            {
+                                AppLogService.Warning(
+                                    $"Post-login TI↔DN reconciliation failed [{corrId}]: " +
+                                    $"{result.Error} (ErrorId={result.ErrorId})",
+                                    new LogContext
+                                    {
+                                        Module = "TaxInvoice",
+                                        Operation = "PostLoginReconcile",
+                                        CorrelationId = corrId
+                                    });
+                            }
+                            else if (result.Value > 0)
+                            {
+                                AppLogService.Info(
+                                    $"Post-login TI↔DN reconciliation repaired {result.Value} link(s) [{corrId}]",
+                                    new LogContext
+                                    {
+                                        Module = "TaxInvoice",
+                                        Operation = "PostLoginReconcile",
+                                        CorrelationId = corrId,
+                                        Extra = $"Repaired={result.Value}"
+                                    });
+                            }
+                        }
+                        finally
+                        {
+                            if (!succeeded)
+                                System.Threading.Interlocked.Exchange(
+                                    ref _taxInvoiceReconciliationScheduled, 0);
+                        }
+                    },
+                    "Post-login TI↔DN reconciliation failed");
             }
         }
 

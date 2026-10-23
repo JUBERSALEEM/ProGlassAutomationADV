@@ -93,19 +93,30 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 var freshAttachments = await _deliveryNotes
                     .GetAttachmentsAsync(_entity.DeliveryNoteId);
 
+                // The repository rechecks stored state and may retain/void a
+                // record that changed after the UI preflight. Confirm that the
+                // row is physically gone before deleting any attachment bytes.
+                await _deliveryNotes.DeleteAsync(_entity.Id);
+                var retained = await _deliveryNotes.GetByIdAsync(_entity.Id);
+                if (retained != null)
+                {
+                    _dialogs.Show(
+                        "The Delivery Note was retained by lifecycle rules; its attachments were preserved.",
+                        LocalizationService.Instance.T("Msg.CapCannotDelete"),
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    OnRequestBackToList?.Invoke();
+                    return;
+                }
+
                 foreach (var att in freshAttachments)
                 {
                     try { _attachmentService.DeleteFile(att.FilePath); }
-                    catch {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("foreach suppressed");
-            }
+                    catch
+                    {
+                        ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                            "Delivery Note attachment cleanup failed after record deletion.");
+                    }
                 }
-
-                await _deliveryNotes.DeleteAsync(_entity.Id);
-
-                AuditService.Log(
-                    AuditSections.DeliveryNote, "Delivery note deleted",
-                    DeliveryNoteId, "DN", DeliveryNoteId);
 
                 _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.DeliveryNoteXDeletedSuccessfully"), DeliveryNoteId),
@@ -154,10 +165,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             {
                 IsSaving = true;
                 await _deliveryNotes.VoidAsync(_entity.Id, reason);
-
-                AuditService.Log(
-                    AuditSections.DeliveryNote, "Delivery note voided",
-                    DeliveryNoteId, "DN", DeliveryNoteId, reason);
 
                 _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Void.MsgVoidedX"), DeliveryNoteId),
@@ -661,9 +668,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                         Status, DeliveryNoteStatusValues.Received).IsValid)
                     return;
 
-                Status = DeliveryNoteStatusValues.Received;
-                _entity.Status = DeliveryNoteStatusValues.Received;
-                await _deliveryNotes.UpdateAsync(_entity);
+                var updated = await _deliveryNotes.UpdateStatusAsync(
+                    _entity.Id, DeliveryNoteStatusValues.Received, _entity.RowVersion);
+                if (updated != null)
+                {
+                    _entity = updated;
+                    Status = updated.Status;
+                }
             }
             catch (Exception ex)
             {

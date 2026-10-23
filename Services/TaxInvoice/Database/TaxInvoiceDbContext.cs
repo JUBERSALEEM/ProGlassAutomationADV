@@ -81,6 +81,10 @@ namespace ProGlassAutomation.Services.TaxInvoice.Database
             // ── TaxInvoices table ────────────────────────────────────────
             modelBuilder.Entity<SavedTaxInvoice>(e =>
             {
+                e.Property(x => x.RowVersion)
+                    .IsConcurrencyToken()
+                    .ValueGeneratedNever();
+
                 // Unique constraint on user-facing invoice number
                 e.HasIndex(x => x.InvoiceNumber).IsUnique();
 

@@ -18,6 +18,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         }
 
         public int Id => _item.Id;
+        public int RowVersion => _item.RowVersion;
         public string ReportNumber => _item.ReportNumber;
         public string Title => _item.Title;
         public string SubTitle => _item.SubTitle;

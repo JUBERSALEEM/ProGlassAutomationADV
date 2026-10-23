@@ -1,0 +1,11 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <ResourceDictionary.MergedDictionaries>
+  <ResourceDictionary Source="step1.e.2.Foundation.xaml" />
+  <ResourceDictionary Source="step1.e.3.Buttons.xaml" />
+  <ResourceDictionary Source="step1.e.4.Inputs.xaml" />
+  <ResourceDictionary Source="step1.e.5.Selections.xaml" />
+  <ResourceDictionary Source="step1.e.6.PopupsAndScroll.xaml" />
+  <ResourceDictionary Source="step1.e.9.Workspace.xaml" />
+  <ResourceDictionary Source="step1.e.10.Analytics.xaml" />
+ </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

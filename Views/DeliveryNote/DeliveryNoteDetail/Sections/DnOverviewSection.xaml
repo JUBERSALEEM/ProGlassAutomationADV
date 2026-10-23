@@ -573,10 +573,14 @@
                                                                                TextTrimming="CharacterEllipsis"
                                                                                ToolTip="{Binding GlassRef}"/>
                                                                     <TextBlock Grid.Column="2" Text="{Binding W1}"
-                                                                              />
+                                                                               Style="{StaticResource GridNumericCell}"
+                                                                               FontWeight="{DynamicResource Weight.Regular}"/>
                                                                     <TextBlock Grid.Column="3" Text="{Binding H1}"
-                                                                              />
-                                                                    <TextBlock Grid.Column="4">
+                                                                               Style="{StaticResource GridNumericCell}"
+                                                                               FontWeight="{DynamicResource Weight.Regular}"/>
+                                                                    <TextBlock Grid.Column="4"
+                                                                               HorizontalAlignment="Right"
+                                                                               Margin="6,4,10,4">
                                                                         <TextBlock.Style>
                                                                             <Style TargetType="TextBlock"
                                                                                    BasedOn="{StaticResource OptionalDimStyle}">
@@ -591,7 +595,9 @@
                                                                             </Style>
                                                                         </TextBlock.Style>
                                                                     </TextBlock>
-                                                                    <TextBlock Grid.Column="5">
+                                                                    <TextBlock Grid.Column="5"
+                                                                               HorizontalAlignment="Right"
+                                                                               Margin="6,4,10,4">
                                                                         <TextBlock.Style>
                                                                             <Style TargetType="TextBlock"
                                                                                    BasedOn="{StaticResource OptionalDimStyle}">
@@ -638,13 +644,13 @@
                                                                                     UpdateSourceTrigger=PropertyChanged}"
                                                                              behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
                                                                              Style="{StaticResource Input.TextBox}"
+                                                                             Margin="6,2,6,2"
+                                                                             MinWidth="60"
+                                                                             VerticalAlignment="Center"
                                                                              ToolTip="{Binding ProductionHint}"/>
-                                                                    <TextBlock Grid.Column="12"
-                                                                               Text="{Binding DeliveredQty}"
-                                                                               Style="{StaticResource Typography.DataGrid}"/>
                                                                     <TextBlock Grid.Column="13"
                                                                                Text="{Binding BalanceQty}"
-                                                                               Style="{StaticResource Typography.DataGrid}"/>
+                                                                               Style="{StaticResource GridNumericCell}"/>
                                                                 </Grid>
                                                             </Border>
                                                         </DataTemplate>

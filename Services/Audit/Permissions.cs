@@ -37,6 +37,31 @@ namespace ProGlassAutomation.Services.Audit
         /// <summary>Legacy role kept for backward compatibility.</summary>
         public const string Operator = "Operator";
 
+        /// <summary>
+        /// Canonicalizes persisted/input roles. In particular, legacy
+        /// "Admin" is always treated as the canonical "Administrator" role.
+        /// Known role names are case-insensitive; unknown names remain
+        /// trimmed and fail closed in <see cref="RolePermissions"/>.
+        /// </summary>
+        public static string Normalize(string? role)
+        {
+            string value = (role ?? string.Empty).Trim();
+            if (value.Length == 0) return string.Empty;
+            if (string.Equals(value, "Admin", StringComparison.OrdinalIgnoreCase))
+                return Administrator;
+            if (string.Equals(value, Operator, StringComparison.OrdinalIgnoreCase))
+                return Operator;
+
+            foreach (string known in All)
+                if (string.Equals(value, known, StringComparison.OrdinalIgnoreCase))
+                    return known;
+
+            return value;
+        }
+
+        public static bool IsAdministrator(string? role) =>
+            string.Equals(Normalize(role), Administrator, StringComparison.Ordinal);
+
         /// <summary>Options shown in the Users UI.</summary>
         public static readonly string[] All =
         {
@@ -72,6 +97,12 @@ namespace ProGlassAutomation.Services.Audit
 
         public const string DeliveryNoteView = "DeliveryNote.View";
         public const string DeliveryNoteEdit = "DeliveryNote.Edit";
+        /// <summary>Narrow system-owned TI↔DN invoiced-link write; not DN body edit.</summary>
+        public const string DeliveryNoteInvoiceLink = "DeliveryNote.InvoiceLink";
+
+        public const string ProductionEdit = "Production.Edit";
+        /// <summary>Internal consistency update after an authorized downstream write.</summary>
+        public const string DocumentLifecycleSync = "DocumentLifecycle.Sync";
 
         public const string TaxInvoiceView = "TaxInvoice.View";
         public const string TaxInvoiceEdit = "TaxInvoice.Edit";
@@ -122,7 +153,8 @@ namespace ProGlassAutomation.Services.Audit
                 AppPermissions.ProformaDelete, AppPermissions.ProformaExport,
                 AppPermissions.ProformaPrint,
                 AppPermissions.JobOrderEdit, AppPermissions.JobOrderDelete,
-                AppPermissions.DeliveryNoteEdit,
+                AppPermissions.DeliveryNoteEdit, AppPermissions.DeliveryNoteInvoiceLink,
+                AppPermissions.ProductionEdit, AppPermissions.DocumentLifecycleSync,
                 AppPermissions.TaxInvoiceEdit, AppPermissions.TaxInvoiceExport,
                 AppPermissions.TaxInvoiceDelete,
                 AppPermissions.CreditNoteEdit, AppPermissions.CreditNoteExport,
@@ -139,7 +171,7 @@ namespace ProGlassAutomation.Services.Audit
                 AppPermissions.InquiryEdit,
                 AppPermissions.ProformaView, AppPermissions.ProformaCreate,
                 AppPermissions.ProformaEdit, AppPermissions.ProformaExport,
-                AppPermissions.ProformaPrint,
+                AppPermissions.ProformaPrint, AppPermissions.DocumentLifecycleSync,
                 AppPermissions.SheetStoreView,
                 AppPermissions.JobOrderView, AppPermissions.ReportsView
             },
@@ -151,7 +183,7 @@ namespace ProGlassAutomation.Services.Audit
                 AppPermissions.InquiryEdit,
                 AppPermissions.ProformaView, AppPermissions.ProformaCreate,
                 AppPermissions.ProformaEdit, AppPermissions.ProformaExport,
-                AppPermissions.ProformaPrint,
+                AppPermissions.ProformaPrint, AppPermissions.DocumentLifecycleSync,
                 AppPermissions.JobOrderView, AppPermissions.DeliveryNoteView,
                 AppPermissions.TaxInvoiceView, AppPermissions.ReportsView
             },
@@ -162,6 +194,7 @@ namespace ProGlassAutomation.Services.Audit
                 AppPermissions.InquiryView,
                 AppPermissions.JobOrderView, AppPermissions.JobOrderEdit,
                 AppPermissions.DeliveryNoteView, AppPermissions.DeliveryNoteEdit,
+                AppPermissions.ProductionEdit, AppPermissions.DocumentLifecycleSync,
                 AppPermissions.ProformaView, AppPermissions.SheetStoreView
             },
 
@@ -179,6 +212,8 @@ namespace ProGlassAutomation.Services.Audit
                 AppPermissions.DashboardView,
                 AppPermissions.TaxInvoiceView, AppPermissions.TaxInvoiceEdit,
                 AppPermissions.TaxInvoiceExport,
+                AppPermissions.DocumentLifecycleSync,
+                AppPermissions.DeliveryNoteInvoiceLink,
                 AppPermissions.CreditNoteView, AppPermissions.CreditNoteEdit,
                 AppPermissions.CreditNoteExport,
                 AppPermissions.ReportsView, AppPermissions.ReportsExport,
@@ -208,7 +243,7 @@ namespace ProGlassAutomation.Services.Audit
 
         /// <summary>Permission set for a role (empty when unknown).</summary>
         public static IReadOnlyCollection<string> For(string role) =>
-            Map.TryGetValue(role ?? "", out var set)
+            Map.TryGetValue(AppRoles.Normalize(role), out var set)
                 ? set
                 : Array.Empty<string>();
 
@@ -228,8 +263,10 @@ namespace ProGlassAutomation.Services.Audit
     {
         public static bool Can(string permission)
         {
-            var role = AuditService.CurrentUser?.Role ?? "";
-            return RolePermissions.Has(role, permission);
+            var user = AuditService.CurrentUser;
+            return user != null
+                && user.IsActive
+                && RolePermissions.Has(user.Role, permission);
         }
 
         /// <summary>

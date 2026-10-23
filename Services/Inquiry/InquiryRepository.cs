@@ -58,7 +58,8 @@ namespace ProGlassAutomation.Services.Inquiry
                     InquiryValue = x.InquiryValue, Notes = x.Notes,
                     ReceivedAt = x.ReceivedAt, UpdatedAt = x.UpdatedAt, UpdatedBy = x.UpdatedBy,
                     AttachmentCount = x.Attachments.Count, ProformaInvoiceId = x.ProformaInvoiceId,
-                    ProformaNumber = x.ProformaNumber, JobOrderNumber = x.JobOrderNumber
+                    ProformaNumber = x.ProformaNumber, JobOrderNumber = x.JobOrderNumber,
+                    RowVersion = x.RowVersion
                 }, query.Page, Math.Clamp(query.PageSize, 10, 200), ct).ConfigureAwait(false);
             var ids = page.Items.Select(x => x.Id).ToList();
             if (ids.Count > 0)
@@ -131,9 +132,10 @@ namespace ProGlassAutomation.Services.Inquiry
         /// Writes a communication entry so the inquiry's history shows
         /// who reshaped the scope of supply and when.
         /// </summary>
-        public async Task SaveLineItemsAsync(
+        public async Task<int> SaveLineItemsAsync(
             int inquiryId,
             IReadOnlyList<InquiryLineItem> items,
+            int expectedRowVersion,
             string updatedBy,
             CancellationToken ct = default)
         {
@@ -155,6 +157,9 @@ namespace ProGlassAutomation.Services.Inquiry
                 .ConfigureAwait(false)
                 ?? throw new InvalidOperationException(
                     "Inquiry no longer exists. It may have been removed by another user — refresh the register.");
+            if (stored.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Inquiry", stored.InquiryNumber, expectedRowVersion, stored.RowVersion);
 
             // ORDER: wipe + insert. If the insert throws, the transaction
             // rolls the wipe back with it — the caller retains the UI list
@@ -185,6 +190,7 @@ namespace ProGlassAutomation.Services.Inquiry
 
             stored.UpdatedAt = now;
             stored.UpdatedBy = updatedBy ?? "";
+            stored.RowVersion++;
             db.Communications.Add(new InquiryCommunication
             {
                 InquiryId = inquiryId,
@@ -195,14 +201,25 @@ namespace ProGlassAutomation.Services.Inquiry
                 ActorName = updatedBy ?? ""
             });
 
-            await SqliteResilience.SaveWithRetryAsync(
-                token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(
+                    token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(db, inquiryId, ct).ConfigureAwait(false);
+                throw new ConcurrencyConflictException(
+                    "Inquiry", stored.InquiryNumber, expectedRowVersion, actual);
+            }
             _lifecycle.Invalidate(inquiryId);
+            return stored.RowVersion;
         }
 
         public async Task<InquiryRecord> CreateAsync(InquiryRecord inquiry, CancellationToken ct = default)
         {
             ReadOnlyGate.Demand("create an inquiry");
+            OperationGuard.Demand(AppPermissions.InquiryCreate, "create an inquiry");
             if (inquiry == null) throw new ArgumentNullException(nameof(inquiry));
 
             // Senior audit (Aug 2026): the prior implementation reused ONE
@@ -317,7 +334,8 @@ namespace ProGlassAutomation.Services.Inquiry
         private static bool IsUniqueViolation(DbUpdateException ex) =>
             SqliteErrorClassifier.IsUnique(ex);
 
-        public async Task<InquiryRecord> UpdateAsync(InquiryRecord inquiry, CancellationToken ct = default)
+        public async Task<InquiryRecord> UpdateAsync(
+            InquiryRecord inquiry, int expectedRowVersion, CancellationToken ct = default)
         {
             ReadOnlyGate.Demand("update an inquiry");
             // A-1: service-layer authorization. The UI also checks,
@@ -329,6 +347,9 @@ namespace ProGlassAutomation.Services.Inquiry
             await using var db = new InquiryDbContext();
             var stored = await db.Inquiries.SingleOrDefaultAsync(x => x.Id == inquiry.Id, ct).ConfigureAwait(false)
                 ?? throw new InvalidOperationException("Inquiry no longer exists. It may have been removed by another user — refresh the register.");
+            if (stored.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Inquiry", stored.InquiryNumber, expectedRowVersion, stored.RowVersion);
             stored.InquiryReference = inquiry.InquiryReference;
             stored.CustomerId = inquiry.CustomerId; stored.CustomerName = inquiry.CustomerName;
             stored.CustomerLocation = inquiry.CustomerLocation; stored.ProjectId = inquiry.ProjectId;
@@ -341,17 +362,34 @@ namespace ProGlassAutomation.Services.Inquiry
             // default; a stale binding must not reset the date to 0001-01-01.)
             if (inquiry.ReceivedAt != default) stored.ReceivedAt = inquiry.ReceivedAt;
             stored.UpdatedAt = DateTime.Now; stored.UpdatedBy = inquiry.UpdatedBy;
-            await SqliteResilience.SaveWithRetryAsync(token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
+            stored.RowVersion++;
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(
+                    token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(db, inquiry.Id, ct).ConfigureAwait(false);
+                throw new ConcurrencyConflictException(
+                    "Inquiry", stored.InquiryNumber, expectedRowVersion, actual);
+            }
             _lifecycle.Invalidate(stored.Id);
             return stored;
         }
 
-        public async Task<bool> ChangeStatusAsync(int id, string status, string actor, CancellationToken ct = default)
+        public async Task<bool> ChangeStatusAsync(
+            int id, string status, string actor, int expectedRowVersion,
+            CancellationToken ct = default)
         {
             ReadOnlyGate.Demand("change an inquiry status");
+            OperationGuard.Demand(AppPermissions.InquiryEdit, "change an inquiry status");
             await using var db = new InquiryDbContext();
             var row = await db.Inquiries.SingleOrDefaultAsync(x => x.Id == id, ct).ConfigureAwait(false);
             if (row == null) return false;
+            if (row.RowVersion != expectedRowVersion)
+                throw new ConcurrencyConflictException(
+                    "Inquiry", row.InquiryNumber, expectedRowVersion, row.RowVersion);
             string next = InquiryStatuses.Normalize(status);
             row.Status = next; row.UpdatedAt = DateTime.Now; row.UpdatedBy = actor ?? "";
             if (next == InquiryStatuses.Prepared)
@@ -368,13 +406,24 @@ namespace ProGlassAutomation.Services.Inquiry
             }
             if (next == InquiryStatuses.Sent) row.SentAt ??= row.UpdatedAt;
             if (next == InquiryStatuses.Confirmed) row.ConfirmedAt ??= row.UpdatedAt;
+            row.RowVersion++;
             db.Communications.Add(new InquiryCommunication
             {
                 InquiryId = id, EventType = next, Title = $"Inquiry {next}",
                 Description = $"Status changed to {next}.", OccurredAt = row.UpdatedAt,
                 ActorName = actor ?? ""
             });
-            await SqliteResilience.SaveWithRetryAsync(token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
+            try
+            {
+                await SqliteResilience.SaveWithRetryAsync(
+                    token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                int actual = await GetCurrentRowVersionAsync(db, id, ct).ConfigureAwait(false);
+                throw new ConcurrencyConflictException(
+                    "Inquiry", row.InquiryNumber, expectedRowVersion, actual);
+            }
             _lifecycle.Invalidate(id);
             return true;
         }
@@ -389,6 +438,7 @@ namespace ProGlassAutomation.Services.Inquiry
         public async Task<InquiryAttachment> AddAttachmentAsync(InquiryAttachment attachment, CancellationToken ct = default)
         {
             ReadOnlyGate.Demand("add an inquiry attachment");
+            OperationGuard.Demand(AppPermissions.InquiryEdit, "add an inquiry attachment");
             await using var db = new InquiryDbContext();
             db.Attachments.Add(attachment);
             await SqliteResilience.SaveWithRetryAsync(token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
@@ -485,6 +535,7 @@ namespace ProGlassAutomation.Services.Inquiry
 
         public async Task<InquiryRecord> DuplicateAsync(int sourceId, CancellationToken ct = default)
         {
+            ReadOnlyGate.Demand("duplicate an inquiry");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -595,11 +646,10 @@ namespace ProGlassAutomation.Services.Inquiry
         //
         //  DELIBERATE CHOICES
         //  ──────────────────
-        //  • No permission demand — this is bookkeeping triggered by a
-        //    PI operation that already passed ProformaCreate / Edit /
-        //    Delete. Demanding InquiryEdit here would refuse the link
-        //    write for a Sales role that only holds ProformaCreate,
-        //    leaving the columns stale.
+        //  • A narrow DocumentLifecycleSync permission is required — this
+        //    is bookkeeping triggered by a PI operation, not a user editing
+        //    inquiry content. Sales/Manager/Admin receive that permission;
+        //    an InquiryEdit demand would incorrectly block Sales-created PIs.
         //  • Best-effort — logs a warning and returns false on any
         //    exception. The PI operation must not roll back just
         //    because the denormalised cache write failed.
@@ -611,11 +661,14 @@ namespace ProGlassAutomation.Services.Inquiry
             int inquiryId, int? proformaInvoiceId, string proformaNumber,
             CancellationToken ct = default)
         {
-            if (inquiryId <= 0) return false;
-            proformaNumber ??= string.Empty;
-
             try
             {
+                OperationGuard.Demand(
+                    AppPermissions.DocumentLifecycleSync,
+                    "synchronize the inquiry-to-proforma link");
+                ReadOnlyGate.Demand("synchronize the inquiry-to-proforma link");
+                if (inquiryId <= 0) return false;
+                proformaNumber ??= string.Empty;
                 await using var db = new InquiryDbContext();
                 var row = await db.Inquiries
                     .FirstOrDefaultAsync(x => x.Id == inquiryId, ct)
@@ -638,7 +691,21 @@ namespace ProGlassAutomation.Services.Inquiry
                 row.ProformaInvoiceId = proformaInvoiceId;
                 row.ProformaNumber = proformaNumber;
                 row.UpdatedAt = DateTime.Now;
-                await SqliteResilience.SaveWithRetryAsync(token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
+                row.RowVersion++;
+                try
+                {
+                    await SqliteResilience.SaveWithRetryAsync(
+                        token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    // This best-effort cross-document back-link must never
+                    // overwrite a concurrent user edit. The concurrency token
+                    // rejects the stale write; the PI operation can retry sync.
+                    Services.Logging.AppLogService.Warning(
+                        $"Inquiry {inquiryId} changed during PI-link synchronization; stale link was not written: {ex.Message}");
+                    return false;
+                }
                 _lifecycle.Invalidate(inquiryId);
                 return true;
             }
@@ -656,6 +723,15 @@ namespace ProGlassAutomation.Services.Inquiry
                     });
                 return false;
             }
+        }
+
+        private static async Task<int> GetCurrentRowVersionAsync(
+            InquiryDbContext db, int inquiryId, CancellationToken ct)
+        {
+            return await db.Inquiries.AsNoTracking()
+                .Where(x => x.Id == inquiryId)
+                .Select(x => (int?)x.RowVersion)
+                .FirstOrDefaultAsync(ct).ConfigureAwait(false) ?? -1;
         }
 
         private static IQueryable<InquiryRecord> ApplyFilters(

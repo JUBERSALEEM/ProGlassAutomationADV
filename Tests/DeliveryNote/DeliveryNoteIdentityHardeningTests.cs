@@ -10,17 +10,20 @@ namespace ProGlassAutomation.Tests.DeliveryNote
     public sealed class DeliveryNoteIdentityHardeningTests
     {
         [Fact]
-        public void InsertAsync_retries_unique_DeliveryNoteId_and_syncs_snapshot()
+        public void InsertAsync_serializes_sequence_allocation_and_propagates_the_final_identity()
         {
             string src = File.ReadAllText(Path.Combine(LocateProjectRoot(),
                 "Services", "DeliveryNote", "Repository",
                 "DeliveryNoteRepository.Part1.cs"));
 
-            Assert.Contains("for (int attempt = 0; attempt < 5; attempt++)", src);
+            Assert.Contains("const int maxAttempts = 5", src);
+            Assert.Contains("attempt <= maxAttempts", src);
             Assert.Contains("SqliteErrorClassifier.IsUnique(ex)", src);
-            Assert.Contains("ReallocateDeliveryNoteId(entity)", src);
-            Assert.Contains("SyncSnapshotDeliveryNoteId(entity)", src);
-            Assert.Contains("item.DeliveryNoteId = next", src);
+            Assert.Contains("BeginTransactionAsync(System.Data.IsolationLevel.Serializable)", src);
+            Assert.Contains("entity.DeliveryNoteId = BuildDeliveryNoteId(entity.JobOrderId, sequence)", src);
+            Assert.Contains("PrepareAllocatedIdentity(entity)", src);
+            Assert.Contains("item.DeliveryNoteId = entity.DeliveryNoteId", src);
+            Assert.DoesNotContain("ReallocateDeliveryNoteId(entity)", src);
         }
 
         [Fact]
@@ -31,7 +34,7 @@ namespace ProGlassAutomation.Tests.DeliveryNote
                 "DeliveryNoteRepository.Part1.cs"));
 
             Assert.Contains("if (entity.IsMasterDn)", src);
-            Assert.Contains("Master / Dummy tracker ids", src);
+            Assert.Contains("Master Delivery Notes must be created through CreateMasterDnAsync", src);
         }
 
         [Fact]

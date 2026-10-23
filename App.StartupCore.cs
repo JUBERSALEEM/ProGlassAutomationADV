@@ -104,6 +104,31 @@ namespace ProGlassAutomation
                     return;
                 }
 
+                // ── CRASH LATCH (2026-10-06, ERR-7F77C4) ─────────────
+                // Only the FIRST unhandled UI exception gets the full
+                // treatment. Later ones are counted and dropped, because
+                // args.Handled = true keeps the dispatcher pumping and a
+                // fault that repeats per render pass would otherwise run
+                // this whole path — log, crash report, HTTP post, dialog,
+                // watchdog — once per failure. See App.CrashHelpers.cs.
+                if (Interlocked.Exchange(ref _crashTaken, 1) != 0)
+                {
+                    int n = Interlocked.Increment(ref _suppressedCrashes);
+                    if (n == 1 &&
+                        Interlocked.Exchange(ref _suppressionNoted, 1) == 0)
+                    {
+                        // One line, written once, so the report says the
+                        // storm was recognised rather than looking like 90
+                        // independent faults. Never repeated.
+                        AppLogService.Info(
+                            "Further unhandled UI exceptions are being " +
+                            "suppressed while the first crash report completes.",
+                            new LogContext { Operation = "UnhandledException" });
+                    }
+                    args.Handled = true;
+                    return;
+                }
+
                 string errorId = AppLogService.Critical(
                     "Unhandled UI exception", args.Exception,
                     new LogContext { Operation = "UnhandledException" });
@@ -114,19 +139,39 @@ namespace ProGlassAutomation
                 // a plain MessageBox. The dialog has
                 // buttons for Restart, Copy Error ID,
                 // Open Crash Folder, and Close.
-                try
+                // OutOfMemoryException gets no dialog. CrashReportDialog is a
+                // Window, so showing it means laying out and rendering — the
+                // exact operation that just failed, in the ERR-7F77C4 stack
+                // (MediaContext.CompleteRender → HwndTarget.OnResize). Trying
+                // it allocates more of the memory whose absence caused the
+                // crash, and the report showed it throwing
+                // "Cannot set Visibility ... while a Window is closing" once
+                // the shutdown was already under way. The ErrorId is already
+                // in the log and in the crash report file, so nothing
+                // diagnostic is lost by going straight to exit.
+                if (args.Exception is OutOfMemoryException)
                 {
-                    var dialog = new ProGlassAutomation.Views
-                        .CrashReports.CrashReportDialog(
-                            errorId,
-                            crashPath,
-                            args.Exception.GetType().Name,
-                            args.Exception.Message ?? "");
-                    dialog.ShowDialog();
+                    AppLogService.Info(
+                        "Skipping the crash dialog for OutOfMemoryException; " +
+                        "error " + errorId + " is in the crash report.",
+                        new LogContext { Operation = "UnhandledException" });
                 }
-                catch
+                else
                 {
-                    // Dialog itself must never crash.
+                    try
+                    {
+                        var dialog = new ProGlassAutomation.Views
+                            .CrashReports.CrashReportDialog(
+                                errorId,
+                                crashPath,
+                                args.Exception.GetType().Name,
+                                args.Exception.Message ?? "");
+                        dialog.ShowDialog();
+                    }
+                    catch
+                    {
+                        // Dialog itself must never crash.
+                    }
                 }
                 args.Handled = true;
 
@@ -272,7 +317,59 @@ namespace ProGlassAutomation
             // 1a) DATA ROOT — must be applied BEFORE any DbContext opens.
             // When Settings enables a LAN/Wi-Fi shared data folder, every
             // business DbContext now resolves through AppDataRoot.CurrentFolder.
+            // An unavailable share selects one explicit, visible local mode
+            // for this whole startup; it never hot-switches during a session.
+            // The persisted review marker prevents a later launch from
+            // silently selecting a different dataset after offline writes.
+            bool hadOfflineFallbackReview =
+                Config.DataConnectivity?.SharedRootOfflineFallbackNeedsReview == true;
+            bool hadFallbackNotice =
+                Config.DataConnectivity?.SharedRootLocalModeNoticePending == true;
+            bool hadReconnectNotice =
+                Config.DataConnectivity?.SharedRootReconnectNoticeShown == true;
             AppDataRoot.ConfigureFrom(Config);
+            bool fallbackStateChanged =
+                (!hadOfflineFallbackReview &&
+                 Config.DataConnectivity?.SharedRootOfflineFallbackNeedsReview == true)
+                || (!hadFallbackNotice &&
+                    Config.DataConnectivity?.SharedRootLocalModeNoticePending == true)
+                || (!hadReconnectNotice &&
+                    Config.DataConnectivity?.SharedRootReconnectNoticeShown == true);
+            if (fallbackStateChanged)
+            {
+                // Persist the local-fallback history before any business data
+                // can be written, so the next startup cannot hide offline
+                // records by silently switching to a recovered network share.
+                if (!ConfigService.TrySave(Config))
+                {
+                    const string saveFailure =
+                        "ProGlass could not save the offline data-root review state. " +
+                        "No business database has been opened. To avoid writing local data " +
+                        "that a later startup could hide, ProGlass will close. Check that " +
+                        "your Windows profile's AppData folder is writable, then launch again.";
+                    AppLogService.Error(
+                        "Startup stopped because the offline shared-root review state could not be persisted.",
+                        null,
+                        new LogContext { Module = "Database", Operation = "PersistOfflineRootReview" });
+                    try
+                    {
+                        Prompts.Show(
+                            saveFailure,
+                            "Offline mode could not be saved",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                    }
+                    catch (Exception promptEx)
+                    {
+                        AppLogService.Warning(
+                            "Could not display the offline-mode persistence warning.",
+                            promptEx,
+                            new LogContext { Module = "Database", Operation = "PersistOfflineRootReview" });
+                    }
+                    Shutdown();
+                    return;
+                }
+            }
 
             // 1b) GLOBAL LOCALE — language, currency, country.
             //     • GeoService: cached country first, IP refresh after.
@@ -373,6 +470,21 @@ namespace ProGlassAutomation
                 Dialogs = new Services.Dialogs.DialogService();
             }
 
+            // ── Records → Supabase sync (integration, dormant by default) ──
+            // StartIfConfigured only reads two small local files and arms a
+            // timer whose FIRST pass is 2 minutes away — no network, no
+            // database, no UI on the startup path. Wrapped in its own
+            // try/catch so a sync fault can never touch app startup.
+            try
+            {
+                RecordsSync = ServiceProvider?.GetService<Services.RecordsSync.RecordsSyncService>();
+                RecordsSync?.StartIfConfigured();
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Error("[RecordsSync] startup hook failed; sync disabled.", ex);
+            }
+
             // Named, and every failure logged rather than only the first.
             //
             // Task.WhenAll surfaces a single exception. With eleven EnsureCreated
@@ -449,44 +561,9 @@ namespace ProGlassAutomation
                 }
             }
 
-            // 9c-2) Cross-database integrity sweep (Phase 2 — Result + Correlation):
-            //       reconcile Tax Invoice → Delivery Note invoiced links on
-            //       startup, so any link left broken by a crash / failed write
-            //       is automatically healed. Runs in the background and never
-            //       blocks startup; failures are logged with CorrelationId, never fatal.
-            //       Now uses Result pattern: returns Result<int> with repaired count.
-            ProGlassAutomation.Utilities.AsyncUtility.SafeFireAndForget(
-                async () =>
-                {
-                    var corrId = ProGlassAutomation.Services.Common.CorrelationContext.NewIdFor("Reconciler", "Startup");
-                    using var scope = ProGlassAutomation.Services.Common.CorrelationContext.BeginScope(corrId, null, "Reconciler");
-                    var result = await ProGlassAutomation.Services.TaxInvoice.Repository
-                        .TaxInvoiceDnReconciler.ReconcileWithResultAsync(corrId);
-                    if (result.IsFailure)
-                    {
-                        AppLogService.Warning(
-                            $"Reconciliation sweep failed [{corrId}]: {result.Error} (ErrorId={result.ErrorId})",
-                            new LogContext
-                            {
-                                Module = "TaxInvoice",
-                                Operation = "StartupReconcile",
-                                CorrelationId = corrId
-                            });
-                    }
-                    else if (result.Value > 0)
-                    {
-                        AppLogService.Info(
-                            $"Reconciliation sweep healed {result.Value} DN link(s) [{corrId}]",
-                            new LogContext
-                            {
-                                Module = "TaxInvoice",
-                                Operation = "StartupReconcile",
-                                CorrelationId = corrId,
-                                Extra = $"Repaired={result.Value}"
-                            });
-                    }
-                },
-                "Tax-invoice → delivery-note reconciliation sweep failed");
+            // The TI↔DN reconciliation sweep is scheduled after successful
+            // sign-in in OnCurrentUserChanged. It must not run here before an
+            // authenticated identity exists: link repairs are permission-gated.
 
             // 9c-2) Same-network user presence (Users page).
             // Start the service now, but do NOT broadcast an identity until
@@ -497,8 +574,6 @@ namespace ProGlassAutomation
             {
                 Presence = new UserPresenceService();
                 Presence.Start("", "");
-
-                AuditService.CurrentUserChanged += OnCurrentUserChanged;
             }
             catch (Exception ex)
             {
@@ -507,12 +582,19 @@ namespace ProGlassAutomation
                     new LogContext { Module = "Network", Operation = "Startup" });
             }
 
+            // Authentication lifecycle work must not depend on optional
+            // presence/network startup succeeding. Keep the named handler
+            // attached independently so post-login finance reconciliation
+            // still runs when Presence is unavailable.
+            AuditService.CurrentUserChanged -= OnCurrentUserChanged;
+            AuditService.CurrentUserChanged += OnCurrentUserChanged;
+
             // 9c-0) Specification ledger ground truth. Subscribes to invoice
             // writes and runs the initial heal on a background thread: spec
             // counts/history are derived from SAVED invoices only, purging
             // phantom Step-4-APPLY rows and deleted-PI references. Start()
-            // never throws and never blocks startup (same contract as the
-            // TI→DN sweep above).
+            //       never throws and never blocks startup (background repair
+            //       with explicit logging).
             try
             {
                 ProGlassAutomation.Services.Specifications
@@ -530,6 +612,19 @@ namespace ProGlassAutomation
             //     nearest tier in 60/90/120/144/165 fps, then publishes
             //     MotionDuration* / TargetFps resources for the XAML.
             PerformanceProfileService.Apply();
+
+            // ── V3 THEME ENGINE (Phase 1 adapter) ────────────────────────
+            // Applied right here — after the converter dictionaries merged
+            // in App.xaml (parse precedes this handler), before the first
+            // window is shown. Activates the V3 Bento package and
+            // publishes the legacy compatibility vocabulary, so the shell
+            // renders from ONE package instead of the painter chain below.
+            // Steps 9d–9h still run: they are now thin wrappers or
+            // user-preference overlays on top of this package.
+            ProGlassAutomation.Theming.V3ThemeApplier.EnsureInitialized(
+                Config.Appearance?.Theme == "Dark"
+                    ? ProGlassAutomation.Theming.Appearance.Dark
+                    : ProGlassAutomation.Theming.Appearance.Light);
 
             // 9d) Base colour mode (Light/Dark) + visual theme family +
             //     wallpaper (Normal / Normal (Industrial) / Monet /
@@ -552,25 +647,19 @@ namespace ProGlassAutomation
                 Config.Appearance?.WallpaperPath ?? "",
                 Config.Appearance?.WallpaperOpacity ?? 0.85);
 
-            // 9e) Restore the persisted accent — preset palette key OR
-            //     the free-pick custom hex — and re-derive the full
-            //     accent family (hover/tint/contrast) from it so the UI
-            //     keeps the colour between sessions.
-            string persistedPreset = Config.Appearance?.AccentPreset ?? "GlassBlue";
-            System.Windows.Media.Color? persistedAccent =
-                persistedPreset == ProGlassAutomation.Services.Theme.AccentPresets.Custom
-                    ? ProGlassAutomation.Services.Theme.AccentPresets.TryParseHex(
-                        Config.Appearance?.CustomAccentHex)
-                    : ProGlassAutomation.Services.Theme.AccentPresets.ColorFor(persistedPreset);
-            ProGlassAutomation.Services.ThemeManager.ApplyAccent(
-                persistedAccent,
-                raiseEvent: false);
+            // 9e) Persisted accent restore — REMOVED (owner ruling,
+            //     Phase A "no old accent"). Startup never calls
+            //     ThemeManager.ApplyAccent(persisted): the package's
+            //     AccentPrimary, published by the V3 apply above, is the
+            //     accent on the FIRST frame and every frame after. The
+            //     intentional skip is logged once per distinct saved pair
+            //     by V3ThemeApplier (Operation=V3AccentSkip); the preset
+            //     itself stays in Config so Settings can still display it.
 
-            // 9f) Restore the persisted card/pill outline choice. Must run
-            //     AFTER ApplyAccent, because both write into the same live
-            //     resource dictionary and this one must win for OutlineBrush.
-            //     The custom card-edge colour is restored FIRST so the
-            //     ApplyOutline below paints with it.
+            // 9f) Restore the persisted card/pill outline choice. Runs
+            //     against the package keyline — no ApplyAccent runs at
+            //     startup anymore (9e above). The custom card-edge colour
+            //     is restored FIRST so the ApplyOutline below paints with it.
             ProGlassAutomation.Services.ThemeManager.ApplyCardEdgeColor(
                 Config.Appearance?.CardEdgeColor);
             ProGlassAutomation.Services.ThemeManager.ApplyOutline(
@@ -982,6 +1071,43 @@ namespace ProGlassAutomation
             // written whichever way it is answered, including Escape or the
             // window's X.
             await ShowLanguageOfferIfPendingAsync(mainWindow);
+
+            // A shared-root outage no longer blocks launch, but the operator
+            // must know this session is using this PC's database. Show the
+            // warning only after the shell is visible; never shut down or
+            // interrupt the database initialization path.
+            if (AppDataRoot.SharedRootFallbackActive &&
+                Config.DataConnectivity?.SharedRootLocalModeNoticePending == true)
+            {
+                string localModeNotice = AppDataRoot.SharedRootFallbackReason +
+                    "\n\nProGlass has continued in local mode, so you can use the application. " +
+                    "Changes are saved on this workstation only and are not synchronized or merged " +
+                    "automatically. Before reconnecting, review the local and shared datasets in " +
+                    "Settings → Data, enter the same UNC or mapped-drive path used by the other " +
+                    "workstations, test it, and explicitly apply it. ProGlass will not copy or merge records.";
+                try
+                {
+                    Prompts.Show(
+                        localModeNotice,
+                        "Local database mode",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    if (Config.DataConnectivity != null)
+                    {
+                        Config.DataConnectivity.SharedRootLocalModeNoticePending = false;
+                        ConfigService.Save(Config);
+                    }
+                }
+                catch (Exception noticeEx)
+                {
+                    // The informational warning must never turn a valid
+                    // local-mode startup into a fatal startup failure.
+                    AppLogService.Warning(
+                        "Could not display the local-database-mode notice.",
+                        noticeEx,
+                        new LogContext { Module = "Database", Operation = "ShowLocalFallbackNotice" });
+                }
+            }
 
             // 15) v3 OTA §18 — daily background update check.
             // Fully async + offline-safe; never delays or blocks
