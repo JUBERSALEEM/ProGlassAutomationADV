@@ -7,6 +7,7 @@ import {
   sha256Hex,
   validateInquiryDocumentCandidate,
 } from "@/lib/inquiry-documents";
+import { withoutPipelineFields } from "@/lib/inquiry-pipeline";
 import type { CustomerInquiryDocument, CustomerInquiryListItem, CustomerInquiryProfile, CustomerInquiryProject, CustomerInquirySubmission, CustomerInquiryType } from "@/types/inquiry-submissions";
 
 export const CUSTOMER_INQUIRY_MAX_FILES = 15;
@@ -250,7 +251,9 @@ export async function listCustomerInquiries(token: string): Promise<CustomerInqu
     .eq("customer_user_id", userId).eq("upload_state", "complete").order("submitted_at", { ascending: false }).limit(100);
   if (result.error) failDatabase(result.error);
   return (result.data || []).map((row) => {
-    const { inquiry_customer_documents, description: _description, phone: _phone, ...rest } = row;
+    // The desktop pipeline columns are internal workflow state, so they are
+    // removed here rather than trusted not to travel to a customer browser.
+    const { inquiry_customer_documents, description: _description, phone: _phone, ...rest } = withoutPipelineFields(row);
     return { ...rest, document_count: Array.isArray(inquiry_customer_documents) ? inquiry_customer_documents.length : 0 } as CustomerInquiryListItem;
   });
 }
@@ -294,7 +297,7 @@ export async function getCustomerInquiry(token: string, id: string): Promise<Cus
   if (!result.data) throw new CustomerInquiryFailure("NOT_FOUND", "Inquiry submission not found.");
   const docs = await client.from("inquiry_customer_documents").select("id,original_filename,extension,detected_mime,byte_size,content_sha256,uploaded_at").eq("submission_id", id).order("uploaded_at");
   if (docs.error) failDatabase(docs.error);
-  return asSubmission(result.data as Record<string, unknown>, (docs.data || []) as CustomerInquiryDocument[]);
+  return asSubmission(withoutPipelineFields(result.data as Record<string, unknown>), (docs.data || []) as CustomerInquiryDocument[]);
 }
 
 export async function downloadCustomerInquiryDocument(token: string, submissionId: string, documentId: string) {

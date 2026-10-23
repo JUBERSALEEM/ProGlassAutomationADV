@@ -56,3 +56,29 @@ test("both bridge contracts gate on the role and close the anon door", () => {
   assert.equal(gates.length, 2, "each function checks the role in its own body");
   assert.match(bridgeSql, /RAISE EXCEPTION 'Inquiry bridge role required\.' USING ERRCODE = '42501'/);
 });
+
+const register = readFileSync(new URL("../src/components/inquiries/CustomerSubmissionRegister.tsx", import.meta.url), "utf8");
+const review = readFileSync(new URL("../src/components/inquiries/CustomerSubmissionReview.tsx", import.meta.url), "utf8");
+const submissionsApi = readFileSync(new URL("../src/lib/inquiry-submissions-api.ts", import.meta.url), "utf8");
+
+test("the operator pages report the desktop pipeline, the customer pages never see it", () => {
+  // Operators get the state on the list row and on the review screen.
+  assert.match(register, /hasInquiryPipelineStatus\(r\)/);
+  assert.match(register, /Desktop: \{inquiryPipelineLabel\(r\.pipeline_status\)\}/);
+  assert.match(review, /<b>Desktop pipeline:<\/b>/);
+  assert.match(review, /formatInquiryPipelineTime\(item\.pipeline_updated_at\)/);
+  // The two customer-facing reads remove the columns before responding, so the
+  // internal workflow state cannot reach a customer browser even though the
+  // queries themselves select star.
+  const customerSection = submissionsApi.slice(submissionsApi.indexOf("export async function listCustomerInquiries"));
+  assert.match(customerSection, /withoutPipelineFields\(row\)/);
+  assert.match(customerSection, /asSubmission\(withoutPipelineFields\(/);
+  assert.doesNotMatch(
+    submissionsApi.slice(
+      submissionsApi.indexOf("export async function listOperatorCustomerInquiries"),
+      submissionsApi.indexOf("export async function reviewOperatorCustomerInquiry"),
+    ),
+    /withoutPipelineFields/,
+    "the operator list keeps the columns",
+  );
+});

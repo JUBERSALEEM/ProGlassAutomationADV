@@ -46,7 +46,8 @@ INQUIRY_INBOX_MAX_ITEMS=25
 
 Two contracts in `supabase-inquiry-inbox-bridge-phase12.sql`, applied as
 migrations `inquiry_inbox_bridge_status_write_back` and
-`inquiry_inbox_bridge_chat_pull` on project `afpbdyamedpanwijxghk`.
+`inquiry_inbox_bridge_chat_pull` on project `afpbdyamedpanwijxghk`. Guarded by
+`scripts/inquiry-inbox-bridge.test.mjs` and `tests/inquiry-pipeline.test.tsx`.
 
 Both are inert until the desktop enables its two Inbox settings, "Report status
 to website" and "Sync website chat". Neither changes a CHECK constraint, an
@@ -80,6 +81,31 @@ pulled the one existing room message for `WEB-2026-000007` and wrote
 `prepared` with note "TEST desktop write-back", which was rolled back; an
 unsigned call, a disabled bridge account and an inquiry admin all failed with
 `42501`.
+
+### Operator display
+
+The internal Customer submissions list and its review screen now report the
+workflow state, so a report can answer "where did the shop get to" without
+opening the desktop.
+
+- List row: `Desktop: Prepared`, with the full status, note and update time in
+  the row's tooltip. Nothing renders for an inquiry the desktop has never
+  reported on, so the list is unchanged for every existing row.
+- Review screen: a `Desktop pipeline` line with the status, the note and the
+  update time, or `Not reported`.
+
+Both read through `src/lib/inquiry-pipeline.ts`, which holds the five statuses,
+their labels and the shop-time formatter. The formatter pins `Asia/Dubai`, so the
+time reads the same on the shop PC and on a laptop abroad.
+
+The operator queries already select every column, so no query changed. The two
+customer-facing reads do strip the four columns before responding
+(`withoutPipelineFields`), so internal workflow state cannot reach a customer
+browser. That is a tightening of the payload, not a change to any customer
+screen.
+
+Display only: no new route, no new filter, no change to the status control, the
+review RPC or the operator permissions.
 
 ## Recovery
 

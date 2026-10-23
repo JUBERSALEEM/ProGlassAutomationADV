@@ -37,6 +37,12 @@ export type CustomerInquirySubmission = {
   closed_at: string | null;
   estimated_response_at: string | null;
   operator_note: string;
+  // Written only by the desktop bridge through update_customer_inquiry_status_v1.
+  // Never sent to a customer-facing response; see withoutPipelineFields.
+  pipeline_status?: string | null;
+  pipeline_note?: string | null;
+  pipeline_updated_at?: string | null;
+  pipeline_updated_by?: string | null;
   documents: CustomerInquiryDocument[];
 };
 
