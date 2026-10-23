@@ -51,6 +51,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Theming;
 using System;
 
 namespace ProGlassAutomation.Services.Theme
@@ -68,11 +69,12 @@ namespace ProGlassAutomation.Services.Theme
         {
             try
             {
-                ThemeManager.ApplyTheme(
-                    isDark ? AppTheme.Dark : AppTheme.Light,
-                    deferPostProcessing: true);
-                RebuildFamily(
-                    $"full-rebuild · {reason} · mode={(isDark ? "Dark" : "Light")}");
+                // PHASE 1 (V3 adapter): the full-rebuild chain (dictionary
+                // overlay + family repaint + accent/outline/surface passes)
+                // is retired. One V3 package swap + one dual-write publish,
+                // then the legacy ThemeChanged notification.
+                Theming.V3ThemeApplier.Apply(
+                    isDark ? Appearance.Dark : Appearance.Light);
                 ThemeManager.NotifyThemeChanged();
             }
             catch (Exception ex)

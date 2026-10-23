@@ -461,168 +461,31 @@ namespace ProGlassAutomation.Services.Theme
             string family, string wallpaperPath = "",
             double wallpaperOpacity = 0.85)
         {
+            // PHASE 1 (V3 adapter): the family painters (Monet /
+            // Crystal Fluid / Industrial / iOS 26) and the wallpaper
+            // stage are retired. The V3 package is the single source of
+            // truth; this entry point only re-publishes the legacy
+            // vocabulary so existing call sites stay theme-inert. The
+            // arguments are kept for API compatibility — the persisted
+            // family/wallpaper values no longer drive rendering.
             var resources = Application.Current?.Resources;
             if (resources == null) return;
 
-            // Apply() writes the family baseline directly; the module
-            // fingerprint no longer describes what is on screen, so the
-            // next ApplyModule must run for real.
-            InvalidateSceneCache();
-
             try
             {
-                _lastWallpaperPath = wallpaperPath ?? "";
-                _lastWallpaperOpacity = ClampOpacity(wallpaperOpacity);
-
-                ClearOverrides(resources);
-                // Crystal Fluid gate (non-managed key by design —
-                // NOT in ManagedKeys; see tokens file). Published as an
-                // explicit FALSE at every non-crystal family switch: the
-                // indexer raises ResourcesChanged, so every
-                // CrystalWaterControl's DynamicResource reference
-                // re-evaluates immediately. Remove() did not reliably
-                // notify, which left water stuck at its TRUE DP default
-                // under Normal / Monet / Industrial (water rendering
-                // outside Ios-17pm).
-                resources["CrystalWaterDefaultEnabled"] = false;
-                // Ios-17pm P4a: family-gated shell ambient host
-                // (MainWindow wallpaper layer) — removed with the
-                // same contract as the water gate.
-                resources["CrystalAmbientHostVisibility"] = Visibility.Collapsed;
-                resources["CrystalPreviewHostVisibility"] = Visibility.Collapsed;
-                SeedCrystalPipelineTokens(resources);
-                // iOS 26 removal contract (2026-09-11): notify-critical gates
-                // get explicit fallback SETS (the indexer raises
-                // ResourcesChanged; Remove() did not reliably notify — the
-                // CrystalWaterDefaultEnabled lesson); every other key is
-                // removed so the theme-dictionary defaults shine through.
-                foreach (var ck in Ios26TokenKeys)
-                {
-                    if (ck == "AboutGlassChromeVisibility")
-                        resources["AboutGlassChromeVisibility"] =
-                            System.Windows.Visibility.Collapsed;
-                    else if (ck == "AboutWallpaperBrush")
-                        resources["AboutWallpaperBrush"] = Ios26NeutralWallpaper;
-                    else if (!resources.Contains(ck))
-                    {
-                        var fill = new SolidColorBrush(Colors.Transparent);
-                        fill.Freeze();
-                        resources[ck] = fill;
-                    }
-                }
-                // Re-seed the About glass keys from the CURRENT Surface.*
-                // values BEFORE the family switch (ERR-50472F lesson: no
-                // absence window — iOS 26 overrides them right after in the
-                // switch; every other family keeps the live aliases).
-                SeedNeutralAboutTokens(resources);
-                // PRE-SEED (2026-09-05 — ERR-50472F): ClearOverrides just
-                // opened a window where managed keys are ABSENT. A
-                // template inflating against this dictionary in the same
-                // dispatcher turn then dies with
-                // ResourceReferenceKeyNotFoundException ('DashAmbientBrush'
-                // crashed a customer's app mid-switch). Seeding the
-                // critical set now means every key transitions
-                // old → fallback → family value — never through ABSENT.
-                GuaranteeCriticalResources(resources, silent: true);
-                Current = Normalize(family);
-
-                switch (Current)
-                {
-                    case Monet:
-                        ApplyMonet(resources, _lastWallpaperPath,
-                            _lastWallpaperOpacity);
-                        break;
-
-                    case CrystalFluid:
-                        ApplyCrystalFluid(resources);
-                        break;
-
-                    case NormalIndustrial:
-                        ApplyIndustrial(resources);
-                        break;
-
-                    // FAMILY FIX (2026-09-17): ApplyIos26 had NO case in
-                    // either dispatch switch, so the iOS 26 family could never
-                    // paint even with Normalize fixed. Same contract as the
-                    // other families: write through the indexer so live
-                    // DynamicResource references re-evaluate.
-                    case Ios26:
-                        ApplyIos26(resources);
-                        break;
-                }
-
-                // ── EIGHT-FAMILY CONTRACT ────────────────────────────
-                // Routed AFTER the legacy cases above so a build that
-                // still names a retired family keeps working, while every
-                // current selection resolves to one of the eight. The
-                // migration in Normalize() guarantees Current is always
-                // either a legacy constant or an eight-family identity,
-                // so exactly one case in the two switches fires.
-                if (IsEightThemeFamily)
-                    ApplyEightTheme(resources, Current);
-
-                // Cache the family's pre-wallpaper surfaces so the next
-                // ApplyModule can fast-path a wallpaper-only change (see
-                // ApplyModule's familyChanged branch for the full story).
-                // The signature is built from Current (the family ACTUALLY
-                // painted) so it can never drift from what is on screen,
-                // and uses the SAME field layout as BuildFamilySignature.
-                _familyWindowBrush = resources["WindowBackgroundBrush"];
-                _familyModuleBrush = resources["ModuleBackgroundBrush"];
-                _familyBaselineSignature = string.Join("¦",
-                    ThemeManager.CurrentTheme,
-                    ThemeManager.AccentColor.ToString(
-                        System.Globalization.CultureInfo.InvariantCulture),
-                    Current,
-                    _lastWallpaperPath ?? "",
-                    ClampOpacity(_lastWallpaperOpacity).ToString("F3",
-                        System.Globalization.CultureInfo.InvariantCulture),
-                    FontPreferenceSignature());
-
-                // System-wide wallpaper chrome: paint the window
-                // background for non-Monet families (Monet handles it
-                // above). The module-area layer is owned by
-                // ApplyModule, which callers invoke right after this —
-                // that keeps module-specific wallpapers authoritative.
-                if (FileWallpaperApplies &&
-                    !string.IsNullOrWhiteSpace(_lastWallpaperPath) &&
-                    File.Exists(_lastWallpaperPath))
-                {
-                    var windowBrush = BuildWallpaperBrush(
-                        _lastWallpaperPath, _lastWallpaperOpacity);
-                    if (windowBrush != null)
-                        resources["WindowBackgroundBrush"] = windowBrush;
-                }
-
-                // Last: the global Font Color preference (or its Auto
-                // restore) so a user-chosen text palette always wins
-                // over whatever the family/wallpaper just wrote.
-                ApplyFontPreference(resources, false);
-
-                AppLogService.Info(
-                    $"Visual theme applied: {Current}",
-                    new LogContext
-                    {
-                        Module = "Themes",
-                        Class = nameof(VisualThemeEngine),
-                        Operation = "Apply"
-                    });
+                if (Theming.V3ThemeApplier.Instance is { } service)
+                    Theming.V3CompatibilityHub.Publish(
+                        service.ActivePackage, service.ActiveAppearance);
             }
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    $"Visual theme apply failed: {ex.Message}",
+                    "Visual theme apply failed: " + ex.Message,
                     new LogContext
                     {
                         Module = "Themes",
                         Class = nameof(VisualThemeEngine)
                     });
-            }
-            finally
-            {
-                // Last line of defense — the UI must never be left with
-                // unresolved surfaces, text or window stage.
-                GuaranteeCriticalResources(resources);
             }
         }
 
@@ -638,265 +501,31 @@ namespace ProGlassAutomation.Services.Theme
             string moduleKey,
             AI.AIConfig.AppearanceSettings appearance)
         {
+            // PHASE 1 (V3 adapter): the family painters, module wallpaper
+            // layers and studio re-applies are retired. The V3 package is
+            // the single source of truth; this entry point only
+            // re-publishes the legacy vocabulary so module navigation is
+            // theme-inert. Wallpaper layers (file/scene) no longer paint
+            // here — the canvas shows the V3 ApplicationBackground until
+            // Phase 5 removes the wallpaper-theme coupling entirely.
             var resources = Application.Current?.Resources;
             if (resources == null) return;
 
-            // ── IDEMPOTENCE GUARD (2026-09-02) ───────────────────────────
-            // ApplyModule tears the family down (ClearOverrides removes ~60
-            // brush keys from the application resource scope) and rebuilds
-            // it. Every DynamicResource-bound surface therefore repaints
-            // TWICE — once to the theme-file fallback, once to the rebuilt
-            // family value. That double repaint is the visible colour
-            // "bounce" users reported over the splash and on navigation.
-            //
-            // During startup alone this ran 3-4 times with byte-identical
-            // inputs (extra XAML-constructed MainViewModel, DI MainViewModel,
-            // Settings' ApplyVisualTheme, MainWindow retry). Re-applying an
-            // identical scene is a pure no-op visually but an expensive,
-            // FLASHING no-op — so skip it.
-            //
-            // The signature covers every input the render depends on. Any
-            // real change (family, module, wallpaper path/opacity, per-module
-            // override) produces a different signature and applies normally.
-            string signature = BuildSceneSignature(moduleKey, appearance);
-            if (signature == _lastAppliedSignature && _hasAppliedOnce)
-                return;
-
-            // 2026-09-07 fast path: a wallpaper-only change (per-module
-            // toggle / opacity tick) must NOT tear the family down. If the
-            // family baseline is unchanged, only the wallpaper layer is
-            // re-layered below — the family surfaces stay untouched, so
-            // every DynamicResource-bound card repaints ZERO times instead
-            // of twice. A real family/mode/accent/font change still runs
-            // the full rebuild.
-            string familySignature = BuildFamilySignature(appearance);
-            bool familyChanged = familySignature != _familyBaselineSignature
-                                 || !_hasAppliedOnce;
-
             try
             {
-                LastRequestedModule = moduleKey ?? "";
-
-                _lastWallpaperPath = appearance?.WallpaperPath ?? "";
-                _lastWallpaperOpacity =
-                    ClampOpacity(appearance?.WallpaperOpacity ?? 0.85);
-
-                Current = Normalize(appearance?.VisualTheme ?? Normal);
-
-                if (familyChanged)
-                {
-                    // Rebuild the family baseline (removes the previous
-                    // module's wallpaper layer).
-                    ClearOverrides(resources);
-                    // Crystal Fluid gate (non-managed key by design —
-                    // NOT in ManagedKeys; see tokens file). Published as an
-                    // explicit FALSE at every non-crystal family switch: the
-                    // indexer raises ResourcesChanged, so every
-                    // CrystalWaterControl's DynamicResource reference
-                    // re-evaluates immediately. Remove() did not reliably
-                    // notify, which left water stuck at its TRUE DP default
-                    // under Normal / Monet / Industrial (water rendering
-                    // outside Ios-17pm).
-                    resources["CrystalWaterDefaultEnabled"] = false;
-                    // Ios-17pm P4a: family-gated shell ambient host
-                    // (MainWindow wallpaper layer) — removed with the
-                    // same contract as the water gate.
-                    resources["CrystalAmbientHostVisibility"] = Visibility.Collapsed;
-                    resources["CrystalPreviewHostVisibility"] = Visibility.Collapsed;
-                    SeedCrystalPipelineTokens(resources);
-                    // PRE-SEED (2026-09-05 — ERR-50472F): never leave the
-                    // dictionary with absent keys between teardown and the
-                    // family republish — see Apply() for the full rationale.
-                    GuaranteeCriticalResources(resources, silent: true);
-
-                    switch (Current)
-                    {
-                        case Monet:
-                            ApplyMonet(resources, _lastWallpaperPath,
-                                _lastWallpaperOpacity);
-                            break;
-                        case CrystalFluid:
-                            ApplyCrystalFluid(resources);
-                            break;
-                        case NormalIndustrial:
-                            ApplyIndustrial(resources);
-                            break;
-                        case Ios26:
-                            ApplyIos26(resources);
-                            break;
-                    }
-
-                    // ── EIGHT-FAMILY CONTRACT (module dispatch) ──────
-                    // Same routing contract as Apply(): the eight families
-                    // are checked last so a retired identity still lands on
-                    // its own painter, while every current selection paints
-                    // through EightThemePainter. This switch runs inside the
-                    // familyChanged branch, which is why it is the branch
-                    // that has to know about the eight at all — a
-                    // wallpaper-only repaint must NOT repaint the family.
-                    if (IsEightThemeFamily)
-                        ApplyEightTheme(resources, Current);
-
-                    // Cache the family's pre-wallpaper surfaces so a
-                    // wallpaper-only change can restore them and skip the
-                    // teardown above.
-                    _familyWindowBrush = resources["WindowBackgroundBrush"];
-                    _familyModuleBrush = resources["ModuleBackgroundBrush"];
-                    _familyBaselineSignature = familySignature;
-                }
-                else
-                {
-                    // Wallpaper-only change: the family surfaces on screen
-                    // are still correct. Restore the cached pre-wallpaper
-                    // surfaces and clear the previous wallpaper layer, then
-                    // fall through to the SAME wallpaper layering below.
-                    if (_familyWindowBrush != null)
-                        resources["WindowBackgroundBrush"] = _familyWindowBrush;
-                    if (_familyModuleBrush != null)
-                        resources["ModuleBackgroundBrush"] = _familyModuleBrush;
-                    {
-                        var none = new SolidColorBrush(Colors.Transparent);
-                        none.Freeze();
-                        resources["ModuleWallpaperBrush"] = none;
-                    }
-                }
-
-                if (FileWallpaperApplies &&
-                    !string.IsNullOrWhiteSpace(_lastWallpaperPath) &&
-                    File.Exists(_lastWallpaperPath))
-                {
-                    var windowBrush = BuildWallpaperBrush(
-                        _lastWallpaperPath, _lastWallpaperOpacity);
-                    if (windowBrush != null)
-                        resources["WindowBackgroundBrush"] = windowBrush;
-                }
-
-                CurrentModule = "";
-
-                // 1) Module-specific wallpaper wins when enabled.
-                //    (iOS 26: never — the family stages plain white.)
-                if (ModuleWallpaperApplies &&
-                    !string.IsNullOrEmpty(moduleKey) && appearance != null &&
-                    appearance.ModuleWallpapers.TryGetValue(
-                        moduleKey, out var moduleWallpaper) &&
-                    moduleWallpaper != null &&
-                    moduleWallpaper.Enabled &&
-                    File.Exists(moduleWallpaper.Path))
-                {
-                    var brush = BuildWallpaperBrush(
-                        moduleWallpaper.Path,
-                        ClampOpacity(moduleWallpaper.Opacity));
-
-                    if (brush != null)
-                    {
-                        resources["ModuleWallpaperBrush"] = brush;
-                        CurrentModule = moduleKey;
-
-                        // Let the image read through the module surface.
-                        SetTranslucent(resources, "ModuleBackgroundBrush",
-                            ThemeManager.GetThemeColor(
-                                "ModuleBackgroundBrush", Colors.White), 0.78);
-                        AdaptTypographyForWallpaper(resources);
-
-                        // Global font colour preference still wins last.
-                        ApplyFontPreference(resources, true);
-
-                        return;
-                    }
-                }
-
-                // 2) Otherwise the system-wide wallpaper shows in
-                //    every view.
-                bool systemWallpaperLayered = false;
-                if (FileWallpaperApplies &&
-                    !string.IsNullOrWhiteSpace(_lastWallpaperPath) &&
-                    File.Exists(_lastWallpaperPath))
-                {
-                    LayerWallpaperBehindContent(
-                        resources, _lastWallpaperPath,
-                        _lastWallpaperOpacity, translucentSurface: 0.82);
-                    systemWallpaperLayered = true;
-                }
-
-                // Last: the global Font Color preference (or its Auto
-                // restore) runs after the wallpaper typography, so a
-                // user-chosen text palette always wins.
-                ApplyFontPreference(resources, systemWallpaperLayered);
-
+                if (Theming.V3ThemeApplier.Instance is { } service)
+                    Theming.V3CompatibilityHub.Publish(
+                        service.ActivePackage, service.ActiveAppearance);
             }
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    $"Module wallpaper apply failed: {ex.Message}",
+                    "Module theme publish failed: " + ex.Message,
                     new LogContext
                     {
                         Module = "Themes",
                         Class = nameof(VisualThemeEngine)
                     });
-            }
-            finally
-            {
-                // Last line of defense — see GuaranteeCriticalResources.
-                GuaranteeCriticalResources(resources);
-
-                // ── Theme-linked / pinned built-in wallpaper scene
-                // (2026-09-05 v2 — ROOT-CAUSE FIX). v1 wrote ONLY
-                // "ModuleWallpaperBrush" — a key consumed by exactly ONE
-                // view (About): every module root paints
-                // "ModuleBackgroundBrush" over MainWindow's
-                // WindowBackgroundBrush stage, so the scene existed but
-                // stayed invisible = the owner's "all fake/broken". The
-                // scene now follows the exact contract the FILE-wallpaper
-                // path established:
-                //   WindowBackgroundBrush ← the scene (app-wide stage)
-                //   ModuleBackgroundBrush ← translucent (scene reads
-                //       through every module)
-                //   wallpaper typography strengthened, font preference
-                //       re-asserted, About's direct consumer set.
-                // Explicit per-module image wallpapers still WIN
-                // (CurrentModule is non-empty only when one painted in
-                // this very pass). An active OS backdrop (Mica/Acrylic)
-                // keeps the window stage translucent instead.
-                if (CurrentModule == ""
-                    && WallpaperOrchestrator.TryGetLinkedScene(
-                           out var sceneBrush, out double sceneOpacity)
-                    && sceneBrush != null)
-                {
-                    try
-                    {
-                        sceneBrush.Opacity = sceneOpacity;
-                        bool osBackdrop = WallpaperOrchestrator.BackdropActive;
-                        if (!osBackdrop)
-                            resources["WindowBackgroundBrush"] = sceneBrush;
-
-                        SetTranslucent(resources, "ModuleBackgroundBrush",
-                            ThemeManager.GetThemeColor(
-                                "ModuleBackgroundBrush", Colors.White),
-                            osBackdrop ? 0.55 : 0.80);
-                        AdaptTypographyForWallpaper(resources);
-                        ApplyFontPreference(resources, true);
-
-                        resources["ModuleWallpaperBrush"] = sceneBrush;
-                    }
-                    catch (Exception sceneEx)
-                    {
-                        AppLogService.Warning(
-                            $"Wallpaper scene overlay skipped: {sceneEx.Message}",
-                            new LogContext
-                            {
-                                Module = "Themes",
-                                Class = nameof(VisualThemeEngine)
-                            });
-                    }
-                }
-
-                // Record the rendered scene LAST (in finally, because the
-                // module-wallpaper branch returns early). A pass that threw
-                // still records: the catch already restored a guaranteed
-                // scene, and re-running the same failing input would only
-                // flash again.
-                _lastAppliedSignature = signature;
-                _hasAppliedOnce = true;
             }
         }
 

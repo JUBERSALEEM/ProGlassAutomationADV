@@ -613,6 +613,19 @@ namespace ProGlassAutomation
             //     MotionDuration* / TargetFps resources for the XAML.
             PerformanceProfileService.Apply();
 
+            // ── V3 THEME ENGINE (Phase 1 adapter) ────────────────────────
+            // Applied right here — after the converter dictionaries merged
+            // in App.xaml (parse precedes this handler), before the first
+            // window is shown. Activates the V3 Bento package and
+            // publishes the legacy compatibility vocabulary, so the shell
+            // renders from ONE package instead of the painter chain below.
+            // Steps 9d–9h still run: they are now thin wrappers or
+            // user-preference overlays on top of this package.
+            ProGlassAutomation.Theming.V3ThemeApplier.EnsureInitialized(
+                Config.Appearance?.Theme == "Dark"
+                    ? ProGlassAutomation.Theming.Appearance.Dark
+                    : ProGlassAutomation.Theming.Appearance.Light);
+
             // 9d) Base colour mode (Light/Dark) + visual theme family +
             //     wallpaper (Normal / Normal (Industrial) / Monet /
             //     Ios-17pm). The base theme is restored FIRST so the

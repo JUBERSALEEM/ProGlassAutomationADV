@@ -25,14 +25,10 @@ namespace ProGlassAutomation.Services.Settings
             var corrId = correlationId ?? CorrelationContext.NewId();
             try
             {
-                // 2026-09-05 PIPELINE UNIFICATION (senior rewrite): this
-                // method used to run its own 6-step make-it-up chain that
-                // re-entered ApplyModule and the studio re-apply twice
-                // (up to 4 repaints for one toggle — the "every click
-                // looks different" machine). EVERYTHING now funnels
-                // through ThemePipeline — theme swap, family repaint,
-                // module/scene overlay, ONE studio re-apply, accent +
-                // outline re-derivation — in one deterministic order.
+                // PHASE 1 (V3 adapter): funnels through THE one pipeline.
+                // ThemePipeline.Rebuild is now a thin V3 wrapper (package
+                // swap + dual-write + ThemeChanged) — no family painters,
+                // no dictionary overlays, one deterministic path.
                 ThemePipeline.Rebuild(isDark, "theme-toggle (Light/Dark)");
 
                 // Persist the base colour mode so it survives restarts

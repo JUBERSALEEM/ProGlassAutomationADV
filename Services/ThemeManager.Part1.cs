@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Theme;
+using ProGlassAutomation.Theming;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -148,32 +149,19 @@ namespace ProGlassAutomation.Services
 
         public static void ApplyTheme(AppTheme theme, bool deferPostProcessing = false)
         {
-            // The new dictionary replaces the merged brushes. The live-fill
-            // cache must not skip the republish that puts the operator's
-            // plate back on top of that dictionary. The family key is
-            // cleared for the same reason: the next surface pass has to
-            // publish once, then slider ticks can skip that copy.
+            // PHASE 1 (V3 adapter): the legacy dictionary overlay +
+            // family post-processing chain is retired. One V3 package
+            // swap + one dual-write publish — nothing paints family
+            // materials anymore. The cache keys are still cleared so a
+            // stale live-fill/family signature can never skip the
+            // republish that puts the V3 surfaces on screen.
             _liveFillSignature = null;
             _familyPublishKey = null;
             _publishedSurfaceStroke = null;
-            ResourceDictionary palette;
-            try
-            {
-                palette = LoadThemeDictionary(theme);
-            }
-            catch (Exception ex)
-            {
-                ProGlassAutomation.Services.Logging.AppLogService.Warning(
-                    $"Theme dictionary load failed ({theme}): {ex.Message}",
-                    new ProGlassAutomation.Services.Logging.LogContext
-                    {
-                        Module = "Themes",
-                        Operation = "ApplyTheme"
-                    });
-                return;
-            }
 
-            OverlayThemeDictionary(palette);
+            Theming.V3ThemeApplier.Apply(
+                theme == AppTheme.Dark ? Appearance.Dark : Appearance.Light);
+
             _currentTheme = theme;
 
             // 2026-09-16 (owner report: "cards not accepting dynamic colors …
@@ -184,26 +172,15 @@ namespace ProGlassAutomation.Services
             // three different dictionaries, so verify them here after every
             // apply and repair anything absent with live theme tokens, then
             // name the repaired keys in one warning line.
+            // Kept as a safety net on top of the V3 dual-write: if a
+            // legacy About key is missing from the hub map, this repairs
+            // it instead of leaving a blank card.
             var aboutScope = Application.Current?.Resources;
             if (aboutScope != null)
                 Theme.AboutModuleTokenGuard.Ensure(aboutScope);
 
             if (!deferPostProcessing)
-            {
-                ApplyThemePostProcessing(theme);
                 ThemeChanged?.Invoke(null, EventArgs.Empty);
-            }
-            else
-            {
-                // ThemePipeline performs the family/accent/outline/surface
-                // sequence once, after the dictionary swap. Keep only the
-                // cheap Liquid reference palette update here; skipping the
-                // duplicate accent/outline/family work removes a visible
-                // switching stutter on large modules without changing the
-                // public ApplyTheme behavior.
-                PublishLiquidReference(theme == AppTheme.Dark);
-                InvalidateVisualThemeSceneCache();
-            }
         }
 
         public static void ToggleTheme()
