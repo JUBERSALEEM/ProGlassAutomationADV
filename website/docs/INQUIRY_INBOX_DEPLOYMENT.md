@@ -42,6 +42,45 @@ INQUIRY_INBOX_MAX_ITEMS=25
 9. Disable the bridge role and prove dry-run fails before revealing a plan.
 10. Only after acceptance, schedule with Windows Task Scheduler under a least-privilege service identity and prevent overlapping runs.
 
+## Phase 12: opt-in desktop integrations
+
+Two contracts in `supabase-inquiry-inbox-bridge-phase12.sql`, applied as
+migrations `inquiry_inbox_bridge_status_write_back` and
+`inquiry_inbox_bridge_chat_pull` on project `afpbdyamedpanwijxghk`.
+
+Both are inert until the desktop enables its two Inbox settings, "Report status
+to website" and "Sync website chat". Neither changes a CHECK constraint, an
+existing policy, an inbox RPC, the community room, or anything a customer sees.
+
+| Contract | Function | Grants |
+|---|---|---|
+| Pipeline status write-back | `update_customer_inquiry_status_v1(uuid, text, text)` | definer, `authenticated` only |
+| Read-only chat pull | `list_customer_inquiry_communications_v1(uuid)` | definer, stable, `authenticated` only |
+
+The write-back adds four nullable columns to `inquiry_customer_submissions`
+(`pipeline_status`, `pipeline_note`, `pipeline_updated_at`,
+`pipeline_updated_by`). It accepts `prepared`, `sent`, `confirmed`, `hold` and
+`cancelled`, and nothing else. Each accepted write records one `status_changed`
+event with `customer_visible = false`, so the shop's workflow state is audited
+without appearing in the customer timeline. The customer-facing `status` column
+is never touched by this path.
+
+The chat pull returns the thread for one submission, with the author's display
+name resolved through `user_profiles` and a fallback of "Website user". There is
+no companion write function, by design: the desktop renders the conversation and
+cannot post into it, so no machine identity can speak to a customer.
+
+Both functions gate on `has_inquiry_role(ARRAY['inquiry_bridge'])` inside the
+body and raise `42501` otherwise, so the gate holds even for a signed-in caller
+who is not the bridge. `EXECUTE` is revoked from `PUBLIC` and `anon`.
+
+Verified on the project: both functions are `SECURITY DEFINER`, `anon` execute is
+false and `authenticated` execute is true for both; a simulated bridge claim
+pulled the one existing room message for `WEB-2026-000007` and wrote
+`prepared` with note "TEST desktop write-back", which was rolled back; an
+unsigned call, a disabled bridge account and an inquiry admin all failed with
+`42501`.
+
 ## Recovery
 
 `.staging/*.partial` folders are never operator-visible completed deliveries. They are removed on a handled failure, and a later apply removes stale interrupted staging directories before retrying. If the process stops after atomic rename but before acknowledgement, the next apply validates the existing manifest and every delivered file hash before safely acknowledging without downloading duplicate files. A conflicting existing final folder stops the run. Remote acknowledgement is idempotent only for the same manifest hash and document count; conflicts fail closed.
