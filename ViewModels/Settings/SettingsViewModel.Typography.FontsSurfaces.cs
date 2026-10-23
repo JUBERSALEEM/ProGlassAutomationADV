@@ -68,9 +68,13 @@ namespace ProGlassAutomation.ViewModels.Settings
                 ApplyCustomAccent();
                 return;
             }
-            var color = ProGlassAutomation.Services.Theme.AccentPresets
-                .ColorFor(presetKey);
-            ThemeManager.ApplyAccent(color);
+            // OWNER RULING (Settings Appearance): never call
+            // ThemeManager.ApplyAccent from this page — it would paint the
+            // ADV accent family over the live V3 package (Bento). The pick
+            // is persisted below; the single publisher re-runs and
+            // ApplyUserPreferences logs the intentional skip (V3AccentSkip)
+            // while the package's AccentPrimary stays in charge.
+            ProGlassAutomation.Theming.V3ThemeApplier.ApplyCurrent();
             // Persist so the chosen colour survives app restarts.
             if (_config?.Appearance != null)
             {
@@ -81,7 +85,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             ProGlassAutomation.Services.Audit.AuditService.Log(
                 ProGlassAutomation.Services.Audit.AuditSections.Settings,
-                "Accent changed",
+                "Accent preference saved (package accent kept)",
                 presetKey == "GlassBlue" ? "Glass Blue (default)" : presetKey);
         }
 

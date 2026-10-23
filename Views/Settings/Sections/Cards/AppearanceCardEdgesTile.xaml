@@ -24,7 +24,7 @@
             <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.DefinedCardEdges}"/>
             <Viewbox MaxHeight="18" VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}">
                 <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource AccentBrush}">
+                           Foreground="{DynamicResource AccentPrimary}">
                     <Run Text="{Binding CardEdgeThickness, Mode=OneWay, StringFormat={}{0:0.#}}"/>
                     <Run Text="{DynamicResource Settings.DIP}"/>
                 </TextBlock>
@@ -83,7 +83,7 @@
             <StackPanel Orientation="Horizontal">
                 <Ellipse Width="14" Height="14"
                          Fill="{Binding CardEdgeSwatch}"
-                         Stroke="{DynamicResource BorderDefaultBrush}" StrokeThickness="1"
+                         Stroke="{DynamicResource BorderSubtle}" StrokeThickness="1"
                          VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap10R}"/>
                 <TextBox Text="{Binding CardEdgeColor, UpdateSourceTrigger=PropertyChanged}"
                          Width="110" Padding="8,6" FontSize="{DynamicResource FontSize.Body}"

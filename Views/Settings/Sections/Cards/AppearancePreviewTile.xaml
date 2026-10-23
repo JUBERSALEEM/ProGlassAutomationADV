@@ -24,8 +24,8 @@
                    Text="{DynamicResource Settings.PreviewCaption}"/>
 
         <!-- 🌟 100% Professional Live Dynamic Preview Deck -->
-        <Border Margin="{StaticResource SettingsStackGap10}" Padding="14,12" Background="{DynamicResource SurfaceSecondaryBrush}"
-                BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+        <Border Margin="{StaticResource SettingsStackGap10}" Padding="14,12" Background="{DynamicResource SurfaceSecondary}"
+                BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                 CornerRadius="{DynamicResource CardCornerRadius}">
             <Grid>
                 <Grid.RowDefinitions>
@@ -40,27 +40,27 @@
                 <!-- Interactive Palette & Typography Specimen -->
                 <StackPanel Grid.Row="0" Grid.Column="0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Width="12" Height="12" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource AccentBrush}" Margin="{StaticResource SettingsInlineGap8R}"/>
-                        <TextBlock Text="Live Token Specimen" FontSize="{DynamicResource FontSize.Body}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <Border Width="12" Height="12" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource AccentPrimary}" Margin="{StaticResource SettingsInlineGap8R}"/>
+                        <TextBlock Text="Live Token Specimen" FontSize="{DynamicResource FontSize.Body}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}"/>
                     </StackPanel>
                     <TextBlock Text="All cards, inputs, and controls adapt dynamically in real-time."
-                               FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="{StaticResource SettingsStackGap4}"/>
+                               FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextMuted}" Margin="{StaticResource SettingsStackGap4}"/>
                 </StackPanel>
 
                 <!-- Live Accent & Status Pills -->
                 <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4" Margin="{StaticResource SettingsInlineGap6R}">
-                        <TextBlock Text="Active Accent" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                    <Border Background="{DynamicResource AccentSoft}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4" Margin="{StaticResource SettingsInlineGap6R}">
+                        <TextBlock Text="Active Accent" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource AccentPrimary}"/>
                     </Border>
-                    <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4">
-                        <TextBlock Text="Optimal" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                    <Border Background="{DynamicResource StatusSuccessSurface}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4">
+                        <TextBlock Text="Optimal" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource StatusSuccess}"/>
                     </Border>
                 </StackPanel>
 
                 <!-- Interactive Component Strip -->
                 <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="{StaticResource SettingsStackGap12}" Padding="12,8"
-                        Background="{DynamicResource SurfacePrimaryBrush}"
-                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                        Background="{DynamicResource SurfacePrimary}"
+                        BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                         CornerRadius="{DynamicResource Radius.Small}">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -68,9 +68,9 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
+                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource StatusSuccess}" VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
                             <TextBlock Text="Theme Engine Pipeline: Synced &amp; WCAG Contrast Verified"
-                                       FontSize="{DynamicResource FontSize.Caption}" FontWeight="Medium" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                       FontSize="{DynamicResource FontSize.Caption}" FontWeight="Medium" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center"/>
                         </StackPanel>
                         <Button Grid.Column="1" Style="{StaticResource PrimaryPillButton}" Height="26" Padding="12,0" Content="Test State" VerticalAlignment="Center"/>
                     </Grid>

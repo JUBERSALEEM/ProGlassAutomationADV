@@ -103,7 +103,7 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                                        BorderBrush="{DynamicResource BorderSubtle}"
                                                         BorderThickness="{DynamicResource Border.RightBottomHairlineThickness}"
                                                         Padding="4,7"
                                                         Margin="{StaticResource SettingsTrailingGap}" Style="{StaticResource SettingsWashTileStyle}">
@@ -132,12 +132,12 @@
                                                                    VerticalAlignment="Center"
                                                                    TextTrimming="CharacterEllipsis"
                                                                    Margin="{StaticResource SettingsInlineGap6R}"
-                                                                   Foreground="{DynamicResource TextPrimaryBrush}">
+                                                                   Foreground="{DynamicResource TextPrimary}">
                                                             <TextBlock.ToolTip>
                                                                 <StackPanel>
                                                                     <TextBlock Text="{Binding Label}" FontWeight="{DynamicResource Weight.SemiBold}" TextWrapping="Wrap"/>
                                                                     <TextBlock Text="{Binding FileName}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                               Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
+                                                                               Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap"/>
                                                                 </StackPanel>
                                                             </TextBlock.ToolTip>
                                                         </TextBlock>
@@ -205,9 +205,9 @@
                                     <TextBlock Text="{DynamicResource Settings.WallpaperBuiltin}"
                                                FontSize="{DynamicResource FontSize.Title}"
                                                FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource TextPrimaryBrush}"
+                                               Foreground="{DynamicResource TextPrimary}"
                                                VerticalAlignment="Center"/>
-                                    <TextBlock Text="Industrial pattern wallpaper, plus one distinct type per theme family"
+                                    <TextBlock Text="Pattern wallpaper, plus one distinct type per theme family"
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                HorizontalAlignment="Right"
                                                VerticalAlignment="Center"/>
@@ -232,8 +232,8 @@
                                                 <Button.Template>
                                                     <ControlTemplate TargetType="Button">
                                                         <Border x:Name="CardBd"
-                                                                Background="{DynamicResource Ios26AccentSoftBrush}"
-                                                                BorderBrush="{DynamicResource Ios26AccentBrush}"
+                                                                Background="{DynamicResource AccentSoft}"
+                                                                BorderBrush="{DynamicResource AccentPrimary}"
                                                                 BorderThickness="1.5"
                                                                 Padding="8"
                                                                 CornerRadius="{DynamicResource Radius.Large}">
@@ -242,19 +242,19 @@
                                                                 <Border Height="80"
                                                                         CornerRadius="{DynamicResource Radius.Small}"
                                                                         Background="{Binding Preview}"
-                                                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                                                        BorderBrush="{DynamicResource BorderSubtle}"
                                                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                                         SnapsToDevicePixels="True">
                                                                     <Grid Margin="{StaticResource SettingsInset4}">
                                                                         <Border HorizontalAlignment="Right"
                                                                                 VerticalAlignment="Top"
-                                                                                Background="{DynamicResource LiquidOverlayBrush}"
+                                                                                Background="{DynamicResource OverlayBrush}"
                                                                                 CornerRadius="{DynamicResource Radius.XSmall}"
                                                                                 Padding="5,2">
                                                                             <TextBlock Text="Scene"
                                                                                        FontSize="{DynamicResource FontSize.Caption}"
                                                                                        FontWeight="{DynamicResource Weight.SemiBold}"
-                                                                                       Foreground="{DynamicResource Ios26AccentBrush}"/>
+                                                                                       Foreground="{DynamicResource AccentPrimary}"/>
                                                                         </Border>
                                                                     </Grid>
                                                                 </Border>
@@ -263,18 +263,18 @@
                                                                     <TextBlock Text="{Binding Label}"
                                                                                FontWeight="{DynamicResource Weight.Bold}"
                                                                                FontSize="{DynamicResource FontSize.Body}"
-                                                                               Foreground="{DynamicResource TextPrimaryBrush}"
+                                                                               Foreground="{DynamicResource TextPrimary}"
                                                                                VerticalAlignment="Center"/>
                                                                     <TextBlock Text="&#xE73E;"
                                                                                FontFamily="{DynamicResource FontFamily.Icon}"
                                                                                FontSize="{DynamicResource FontSize.Caption}"
-                                                                               Foreground="{DynamicResource AccentBrush}"
+                                                                               Foreground="{DynamicResource AccentPrimary}"
                                                                                HorizontalAlignment="Right"
                                                                                VerticalAlignment="Center"/>
                                                                 </DockPanel>
                                                                 <TextBlock Text="{Binding TypeLabel}"
                                                                            FontSize="{DynamicResource FontSize.Caption}"
-                                                                           Foreground="{DynamicResource Ios26AccentBrush}"
+                                                                           Foreground="{DynamicResource AccentPrimary}"
                                                                            TextWrapping="Wrap"
                                                                            Margin="{StaticResource SettingsDockCaptionMargin}"/>
                                                             </StackPanel>
@@ -282,9 +282,9 @@
                                                         <ControlTemplate.Triggers>
                                                             <Trigger Property="IsMouseOver" Value="True">
                                                                 <Setter TargetName="CardBd" Property="BorderBrush"
-                                                                        Value="{DynamicResource AccentBrush}"/>
+                                                                        Value="{DynamicResource AccentPrimary}"/>
                                                                 <Setter TargetName="CardBd" Property="Background"
-                                                                        Value="{DynamicResource SurfaceSecondaryBrush}"/>
+                                                                        Value="{DynamicResource SurfaceSecondary}"/>
                                                             </Trigger>
                                                             <Trigger Property="IsPressed" Value="True">
                                                                 <Setter TargetName="CardBd" Property="Opacity" Value="0.82"/>
@@ -300,7 +300,7 @@
                                 <!-- Download 4K from the internet -->
                                 <TextBlock Text="{DynamicResource Settings.WallpaperOnline}"
                                            FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Margin="{StaticResource SettingsStackGap6Bottom2}"
-                                           Foreground="{DynamicResource AccentBrush}"/>
+                                           Foreground="{DynamicResource AccentPrimary}"/>
                                 <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom4}">
                                     <ComboBox ItemsSource="{Binding OnlineCategoryRows}"
                                               DisplayMemberPath="Label" SelectedValuePath="Key"
@@ -313,7 +313,7 @@
                                             Content="{DynamicResource Settings.WallpaperFetch}"/>
                                     <ProgressBar Width="120" Height="8" Margin="{StaticResource SettingsInlineGap14}"
                                                  VerticalAlignment="Center" IsIndeterminate="True"
-                                                 Foreground="{DynamicResource AccentBrush}"
+                                                 Foreground="{DynamicResource AccentPrimary}"
                                                  Visibility="{Binding IsWallpaperBusy, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 </StackPanel>
                                 <!-- Phase 3: failure is now VISIBLE — the status
@@ -326,12 +326,12 @@
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Foreground"
-                                                    Value="{DynamicResource TextSecondaryBrush}"/>
+                                                    Value="{DynamicResource TextSecondary}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsWallpaperFetchError}"
                                                              Value="True">
                                                     <Setter Property="Foreground"
-                                                            Value="{DynamicResource TintRedBrush}"/>
+                                                            Value="{DynamicResource StatusErrorSurface}"/>
                                                     <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -343,7 +343,7 @@
                                 <DockPanel Margin="{StaticResource SettingsStackGap4Bottom2}">
                                     <TextBlock Text="{DynamicResource Settings.WallpaperLibrary}"
                                                FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource AccentBrush}"
+                                               Foreground="{DynamicResource AccentPrimary}"
                                                VerticalAlignment="Center"/>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                         <Button Style="{StaticResource OutlinedPillButton}"
@@ -357,7 +357,7 @@
                                 </DockPanel>
                                 <TextBlock Text="{Binding WallpaperLibrarySummary}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondary}"
                                            Margin="{StaticResource SettingsStackBottom4}"/>
                                 <ScrollViewer MaxHeight="170" VerticalScrollBarVisibility="Auto"
                                               HorizontalScrollBarVisibility="Disabled">
@@ -381,7 +381,7 @@
                                                             Content="{DynamicResource Settings.WallpaperApply}"/>
                                                     <TextBlock DockPanel.Dock="Right" Text="{Binding SizeText}"
                                                                FontSize="{DynamicResource FontSize.BodySmall}"
-                                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                                               Foreground="{DynamicResource TextSecondary}"
                                                                VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextTightMargin}"/>
                                                     <TextBlock Text="{Binding Name}"
                                                                FontSize="{DynamicResource FontSize.Body}"
@@ -396,7 +396,7 @@
                                 <!-- OS-level window backdrop (experimental) -->
                                 <TextBlock Text="{DynamicResource Settings.WallpaperBackdrop}"
                                            FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Margin="{StaticResource SettingsStackGap12Bottom2}"
-                                           Foreground="{DynamicResource AccentBrush}"/>
+                                           Foreground="{DynamicResource AccentPrimary}"/>
                                 <StackPanel Orientation="Horizontal">
                                     <Button Style="{StaticResource OutlinedPillButton}"
                                             Command="{Binding SetWindowBackdropCommand}" CommandParameter="Off"
@@ -412,7 +412,7 @@
                                 </StackPanel>
                                 <TextBlock Text="{DynamicResource Settings.WallpaperBackdropCaption}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondary}"
                                            TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap2}"/>
                             </StackPanel>
 

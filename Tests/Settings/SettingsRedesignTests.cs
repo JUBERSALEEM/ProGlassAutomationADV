@@ -147,7 +147,7 @@ namespace ProGlassAutomation.Tests.Settings
         }
 
         [Theory]
-        [InlineData("SettingsAppearanceSection.xaml", "SelectedVisualTheme")]
+        [InlineData("SettingsAppearanceSection.xaml", "SelectedV3Theme")]
         [InlineData("SettingsAppearanceSection.xaml", "UseDefinedOutline")]
         [InlineData("SettingsAppearanceSection.xaml", "CardEdgeColor")]
         [InlineData("SettingsAppearanceSection.xaml", "CardEdgeThickness")]
@@ -179,7 +179,7 @@ namespace ProGlassAutomation.Tests.Settings
         [InlineData("SettingsAppearanceSection.xaml", "ImportFontCommand")]
         [InlineData("SettingsAppearanceSection.xaml", "ResetFontCommand")]
         [InlineData("SettingsAppearanceSection.xaml", "ModuleWallpaperRows")]
-        [InlineData("SettingsAppearanceSection.xaml", "VisualThemeOptions")]
+        [InlineData("SettingsAppearanceSection.xaml", "V3ThemeOptions")]
         [InlineData("SettingsAppearanceSection.xaml", "ReducedMotion")]
         [InlineData("SettingsAiSection.xaml", "IsAiEnabled")]
         [InlineData("SettingsAiSection.xaml", "UseRealData")]

@@ -30,7 +30,7 @@
         <TextBlock Grid.Row="1"
                    Style="{StaticResource SettingsRowMetaStyle}"
                    TextWrapping="Wrap"
-                   Text="{DynamicResource Settings.RendersMonetGlassCardsWindowBackgroundAccent}"/>
+                   Text="Tints card fills with a soft accent gradient over the window background"/>
         <ToggleButton Grid.Row="3"
                       AutomationProperties.Name="{DynamicResource Settings.GradientSurfaces}"
                       HorizontalAlignment="Left"

@@ -181,11 +181,12 @@ namespace ProGlassAutomation.ViewModels.Settings
 
 
         // ══════════════════════════════════════════════════════════════
-        //  ACCENT COLOR (Dynamic Theme Engine)
+        //  ACCENT COLOR (V3 package accent)
         //
-        //  One-click presets feed the adaptive accent engine
-        //  (ThemeManager.ApplyAccent) which derives hover/tint/contrast
-        //  brushes automatically. "Glass Blue" resets to the default.
+        //  One-click presets persist the pick for Settings + future use;
+        //  the V3 package's AccentPrimary stays the live accent and
+        //  ThemeManager.ApplyAccent is never called from this page
+        //  (owner ruling). "Glass Blue" resets the saved default.
         // ══════════════════════════════════════════════════════════════
 
         public ICommand ApplyAccentCommand { get; private set; }
@@ -294,7 +295,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     return "Type a colour like #7C3AED and press APPLY.";
                 return ProGlassAutomation.Services.Theme.AccentPresets
                     .TryParseHex(_customAccentHex) != null
-                    ? "Ready — every surface, tint and Monet glass will adapt to this colour."
+                    ? "Ready — saved with the app; the active theme's AccentPrimary stays in charge."
                     : "Not a recognised colour — use #RGB or #RRGGBB.";
             }
             set
@@ -314,7 +315,11 @@ namespace ProGlassAutomation.ViewModels.Settings
                 return;
             }
 
-            ThemeManager.ApplyAccent(color.Value);
+            // OWNER RULING (Settings Appearance): no ApplyAccent from this
+            // page — persist the hex below and re-run the single publisher;
+            // the package's AccentPrimary stays the live accent (the skip
+            // is logged once per distinct saved pair as V3AccentSkip).
+            ProGlassAutomation.Theming.V3ThemeApplier.ApplyCurrent();
 
             if (_config?.Appearance != null)
             {
@@ -328,7 +333,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             ProGlassAutomation.Services.Audit.AuditService.Log(
                 ProGlassAutomation.Services.Audit.AuditSections.Settings,
-                "Accent changed",
+                "Accent preference saved (package accent kept)",
                 "Custom colour " + _config?.Appearance?.CustomAccentHex);
 
             OnPropertyChanged(nameof(CustomAccentHex));

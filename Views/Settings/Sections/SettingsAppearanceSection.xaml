@@ -62,19 +62,19 @@
             </Border>
 
             <!-- ═══ 5-CARD SMART BENTO DECK: COMPACT PREFERENCE CONTROLS ═══ -->
-            <!-- Row 1: 3-column Bento grid (Mode, Density & Scale, Splash Screen).
-                 Top alignment: a taller sibling must not inflate the shorter cards. -->
+            <!-- Row 1: Mode + Density & Scale. Splash Screen host removed
+                 (owner ruling: no Crystal Glassmorphism splash, no "10
+                 corporate glass architectures", no splash reboot on this
+                 page — the card file stays unhosted). -->
             <!-- Row gap is the card's own margin. A second 16px on the
                  grid stacked on that and left a hole under the shorter cards. -->
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1.3*"/>
-                    <ColumnDefinition Width="1.3*"/>
                 </Grid.ColumnDefinitions>
                 <cards:AppearanceModeCard Grid.Column="0" Margin="{StaticResource SettingsBentoCol3Left}" VerticalAlignment="Top"/>
                 <cards:AppearanceDensityCard Grid.Column="1" Margin="{StaticResource SettingsBentoCol3Mid}" VerticalAlignment="Top"/>
-                <cards:AppearanceSplashCard Grid.Column="2" Margin="{StaticResource SettingsBentoCol3Right}" VerticalAlignment="Top"/>
             </Grid>
 
             <!-- Theme & Layout is the tall surface card. It used to share a
@@ -86,23 +86,13 @@
 
             <cards:AppearanceLanguageCard/>
 
-            <!-- Card material restored from the 2026-09-24 theme-card rewrite.
-                 The tiles and their commands were never removed from the
-                 view-model; only the hosts were. Each card sizes to content. -->
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Border Grid.Column="0" Style="{StaticResource SettingsCompactCardStyle}"
-                        Margin="0,0,8,10" VerticalAlignment="Top">
-                    <cards:AppearanceFrostTile/>
-                </Border>
-                <Border Grid.Column="1" Style="{StaticResource SettingsCompactCardStyle}"
-                        Margin="8,0,0,10" VerticalAlignment="Top">
-                    <cards:AppearanceCardEdgesTile/>
-                </Border>
-            </Grid>
+            <!-- Frosted-module-card tile unhosted (owner ruling: no
+                 opacity/transparency surface sliders on this page). The
+                 outline choice stays — it is a kept preference. -->
+            <Border Style="{StaticResource SettingsCompactCardStyle}"
+                    Margin="0,0,0,10" VerticalAlignment="Top">
+                <cards:AppearanceCardEdgesTile/>
+            </Border>
 
             <!-- Theme family stays in the Theme Engine combo above. A second
                  copy of that combo was the old tile; hosting both on this
@@ -137,9 +127,8 @@
                 </Border>
             </Grid>
 
-            <!-- Collapsed unless Crystal Fluid is the active family, so it
-                 does not reserve a hole on the other themes. -->
-            <cards:AppearanceCrystalTile/>
+            <!-- Crystal Fluid environment tile unhosted (owner ruling:
+                 this page must not sell Crystal) — file left unhosted. -->
 
             <!-- ═══ MAJOR STUDIO CARDS ═══ -->
             <!-- 1. Brand Accent Palette & Typography Studio -->

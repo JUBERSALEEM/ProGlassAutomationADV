@@ -215,7 +215,9 @@ def check_hub():
 
     refs = set()
     for f in g.glob("Views/**/*.xaml", recursive=True) + g.glob("Controls/**/*.xaml", recursive=True):
-        refs |= set(re.findall(r"\{DynamicResource ((?:Ov|Ios26)[A-Za-z0-9_.]+)\}", read(f)))
+        # "Ov." is dotted (legacy keys are Ov.Canvas-style); a bare "Ov"
+        # prefix also matched legitimate pack keys like OverlayBrush.
+        refs |= set(re.findall(r"\{DynamicResource ((?:Ov\.[A-Za-z0-9_.]+|Ios26[A-Za-z0-9_.]+))\}", read(f)))
     ref_uncovered = sorted(k for k in refs if k not in targets and k != "Ios26CardShadow")
     if ref_uncovered:
         ok = False
