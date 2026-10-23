@@ -5,11 +5,11 @@
      SYSTEM: Concept 30 PORCELAIN FLOW (Study 07 Editorial Wordmark)
 
      ART DIRECTION:
-       - Continuous porcelain-white (#FCFCFE) L-shaped surface forming the
+       - Continuous light L-shaped surface forming the
          top header and open left sidebar, joined top-left by a large rounded
          INNER elbow (smooth concave fillet).
-       - Nested thin keylines (#D9D5E6 double hairlines) following the L edges.
-       - Black-violet ink #211D31 typography on straight baselines.
+       - Nested thin keylines (double hairlines) following the L edges.
+       - Ink typography on straight baselines.
        - PRIMARY TOP ROW:
            • Thin hamburger icon (ToggleMenuCommand). One click closes
              the sidebar and this bar together. A floating pill reopens both.
@@ -33,14 +33,14 @@
            • Editorial scale menu labels with thin icons:
              "Dashboard", "Sheet Store", "Specifications"
            • "Sales & Orders" with one chevron, EXPANDED:
-             "Inquiry", "Proforma Invoice" (SINGLE SELECTED ROW: dark-violet
-             #443A86 filled rounded row, white text), "Job Order", "Tax Invoice"
+             "Inquiry", "Proforma Invoice" (SINGLE SELECTED ROW: filled
+             rounded row, light text), "Job Order", "Tax Invoice"
            • Collapsed groups, one chevron each:
              "Production", "Dispatch", "Finance & Accounting",
              "Reports", "Master Data", "System"
            • Sidebar footer: tiny "Local storage —" and "View breakdown", NO meter
        - MODULE REGION:
-           • Blank very pale grey (#F5F5F8)
+           • Blank module canvas (ApplicationBackground)
            • Bottom-right small caption "30 / PORCELAIN FLOW"
        - STRICT EXCLUSIONS:
            • Flat opaque surfaces only: NO 3D, shadows, blur, translucency,
@@ -116,7 +116,7 @@
         FontWeight="{DynamicResource AppFontWeight}"
         FontStyle="{DynamicResource AppFontStyle}"
         Icon="pack://application:,,,/favicon.ico"
-        Background="{DynamicResource BackgroundBrush}"
+        Background="{DynamicResource ApplicationBackground}"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
         TextOptions.TextHintingMode="Auto"
@@ -232,7 +232,7 @@
     <!-- ═══════════════════════════════════════════════════════════════
          ROOT LAYOUT (Row 0: Top Header, Row 1: Sidebar + Module)
     ═══════════════════════════════════════════════════════════════ -->
-    <Grid Background="{StaticResource PgAppCreamBrush}">
+    <Grid Background="{DynamicResource ApplicationBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -240,7 +240,7 @@
 
         <!-- Base stage background -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="{DynamicResource BackgroundBrush}"
+                Background="{DynamicResource ApplicationBackground}"
                 IsHitTestVisible="False"/>
 
         <!-- Glass Blush Personal shell (visible only when IsPersonalExperience is true) -->
@@ -261,8 +261,8 @@
                 VerticalAlignment="Top"
                 Margin="0,12,0,0"
                 Panel.ZIndex="600"
-                Background="{DynamicResource SettingsCardFaceBrush}"
-                BorderBrush="{DynamicResource AccentPrimaryBrush}"
+                Background="{DynamicResource SurfaceElevated}"
+                BorderBrush="{DynamicResource AccentPrimary}"
                 BorderThickness="1.5"
                 CornerRadius="16"
                 Padding="10,6,14,6"
@@ -272,7 +272,7 @@
                     <Setter Property="Visibility" Value="Collapsed"/>
                     <Setter Property="Effect">
                         <Setter.Value>
-                            <DropShadowEffect Color="#211D31" BlurRadius="16" ShadowDepth="2" Opacity="0.12"/>
+                            <DropShadowEffect Color="{DynamicResource LiquidShadowColor}" BlurRadius="16" ShadowDepth="2" Opacity="0.12"/>
                         </Setter.Value>
                     </Setter>
                     <Style.Triggers>
@@ -297,13 +297,13 @@
                     <TextBlock Text="&#xE700;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="15"
-                               Foreground="{DynamicResource AccentPrimaryBrush}"
+                               Foreground="{DynamicResource AccentPrimary}"
                                VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding CurrentModuleTitle, FallbackValue='ProGlass'}"
                                Margin="8,0,0,0"
                                FontSize="12.5"
                                FontWeight="Bold"
-                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               Foreground="{DynamicResource TextPrimary}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
@@ -354,25 +354,25 @@
                     <!-- final-05: isometric stacked-glass emblem SGU/DGU/LAM -->
                     <Canvas Width="40" Height="30" Margin="0,0,8,0" VerticalAlignment="Center"
                             AutomationProperties.Name="ProGlass ERP">
-                        <Path Data="M2,8 L12,4 L12,22 L2,26 Z" Fill="#BBDEFB" Stroke="#1565C0" StrokeThickness="1.2"/>
-                        <Path Data="M14,7 L24,3 L24,21 L14,25 Z" Fill="#90CAF9" Stroke="#1565C0" StrokeThickness="1.2"/>
-                        <Path Data="M26,6 L36,2 L36,20 L26,24 Z" Fill="#64B5F6" Stroke="#0D47A1" StrokeThickness="1.2"/>
+                        <Path Data="M2,8 L12,4 L12,22 L2,26 Z" Fill="{DynamicResource AccentSoft}" Stroke="{DynamicResource AccentPrimary}" StrokeThickness="1.2"/>
+                        <Path Data="M14,7 L24,3 L24,21 L14,25 Z" Fill="{DynamicResource AccentSoft}" Stroke="{DynamicResource AccentPrimary}" StrokeThickness="1.2"/>
+                        <Path Data="M26,6 L36,2 L36,20 L26,24 Z" Fill="{DynamicResource AccentSoft}" Stroke="{DynamicResource AccentPrimary}" StrokeThickness="1.2"/>
                     </Canvas>
                     <TextBlock Text="ProGlass" Style="{StaticResource PgBrandTitleStyle}" FontSize="17"/>
                     <TextBlock Text="ERP" FontSize="17" FontWeight="Light"
-                               Foreground="{StaticResource PgTextInkBrush}" VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextPrimary}" VerticalAlignment="Center"
                                Margin="4,0,0,0"/>
                     <Border Margin="8,0,0,0"
                             Padding="6,1"
                             CornerRadius="4"
                             VerticalAlignment="Center"
-                            Background="{DynamicResource SurfaceSecondaryBrush}"
-                            BorderBrush="{DynamicResource BorderDefaultBrush}"
+                            Background="{DynamicResource SurfaceSecondary}"
+                            BorderBrush="{DynamicResource BorderSubtle}"
                             BorderThickness="1">
                         <TextBlock Text="SUITE"
                                    FontSize="9"
                                    FontWeight="Bold"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                   Foreground="{DynamicResource TextSecondary}"/>
                     </Border>
                 </StackPanel>
 
@@ -387,14 +387,14 @@
                                FontFamily="{DynamicResource AppFontFamily}"
                                FontSize="14.5"
                                FontWeight="Bold"
-                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               Foreground="{DynamicResource TextPrimary}"
                                HorizontalAlignment="Center"
                                TextTrimming="CharacterEllipsis"
                                MaxWidth="520"/>
                     <TextBlock Text="{Binding CurrentModuleSubText}"
                                FontFamily="{DynamicResource AppFontFamily}"
                                FontSize="10"
-                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               Foreground="{DynamicResource TextSecondary}"
                                HorizontalAlignment="Center"
                                TextTrimming="CharacterEllipsis"
                                TextWrapping="NoWrap"
@@ -419,12 +419,12 @@
                                 ToolTip="{DynamicResource ToolTip.DateTime}">
                         <TextBlock Text="{Binding CurrentDateText, FallbackValue='22 Sep 2026'}"
                                    FontSize="11"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Foreground="{DynamicResource TextSecondary}"
                                    VerticalAlignment="Center"/>
                         <TextBlock Text=" " FontSize="11" VerticalAlignment="Center"/>
                         <TextBlock Text="{Binding CurrentTimeText, FallbackValue='10:30'}"
                                    FontSize="11"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Foreground="{DynamicResource TextSecondary}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
 
@@ -438,7 +438,7 @@
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsDarkTheme}" Value="True">
                                         <Setter Property="Content" Value="&#xE706;"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource AccentPrimary}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -455,7 +455,7 @@
                                 <TextBlock Text="{Binding CurrentUserInitials, FallbackValue='U'}"
                                            FontSize="11"
                                            FontWeight="Bold"
-                                           Foreground="{DynamicResource AccentBrush}"
+                                           Foreground="{DynamicResource AccentPrimary}"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
                             </Border>
@@ -463,12 +463,12 @@
                                 <TextBlock Text="{Binding CurrentUserDisplayName, FallbackValue='User'}"
                                            FontSize="11"
                                            FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Foreground="{DynamicResource TextPrimary}"
                                            TextTrimming="CharacterEllipsis"
                                            MaxWidth="88"/>
                                 <TextBlock Text="{Binding CurrentUserRole, FallbackValue='Role'}"
                                            FontSize="9.5"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondary}"
                                            TextTrimming="CharacterEllipsis"
                                            MaxWidth="88"/>
                             </StackPanel>
@@ -476,7 +476,7 @@
                     </Button>
 
                     <Border Width="1" Height="20" Margin="2,0,6,0"
-                            Background="{DynamicResource BorderDefaultBrush}"
+                            Background="{DynamicResource BorderSubtle}"
                             VerticalAlignment="Center"/>
 
                     <Button x:Name="AiBotButton"
@@ -488,8 +488,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding AiChatVM.IsOpen}" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
-                                        <Setter Property="Foreground" Value="{StaticResource PgFocusRimBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource AccentPrimary}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextOnAccent}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -506,8 +506,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsAgentChatOpen}" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
-                                        <Setter Property="Foreground" Value="{StaticResource PgFocusRimBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource AccentPrimary}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextOnAccent}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -524,8 +524,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsNotificationsOpen}" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
-                                        <Setter Property="Foreground" Value="{StaticResource PgFocusRimBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource AccentPrimary}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextOnAccent}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -542,8 +542,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsSettingsOpen}" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
-                                        <Setter Property="Foreground" Value="{StaticResource PgFocusRimBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource AccentPrimary}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextOnAccent}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -560,8 +560,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsShellMoreOpen}" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
-                                        <Setter Property="Foreground" Value="{StaticResource PgFocusRimBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource AccentPrimary}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextOnAccent}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -572,7 +572,7 @@
                 <Border Grid.ColumnSpan="5"
                         Height="1"
                         VerticalAlignment="Bottom"
-                        Background="{DynamicResource BorderDefaultBrush}"
+                        Background="{DynamicResource BorderSubtle}"
                         SnapsToDevicePixels="True"/>
             </Grid>
         </Border>
@@ -591,14 +591,14 @@
 
             <!-- ═══════════════════════════════════════════════════════════
                  OPEN LEFT SIDEBAR (through the inner elbow)
-                 Continuous porcelain-white (#FCFCFE) surface
+                 Continuous light surface
                  "Menu" + one X close icon only (no logo)
-                 Nested double keylines along right edge (#D9D5E6)
+                 Nested double keylines along right edge
             ═══════════════════════════════════════════════════════════════ -->
             <!-- final-05: floating rounded sidebar card on periwinkle gradient rail -->
             <Border Grid.Column="0"
                     Width="264"
-                    Background="{StaticResource PgRailGradient}"
+                    Background="{DynamicResource SurfaceSecondary}"
                     CornerRadius="16"
                     Margin="12,0,10,12"
                     Panel.ZIndex="10"
@@ -616,8 +616,8 @@
                 <Grid Background="Transparent">
                     <!-- Right edge nested double keylines -->
                     <Grid Width="3" HorizontalAlignment="Right" Panel.ZIndex="15">
-                        <Border Width="1" HorizontalAlignment="Left" Background="{DynamicResource BorderDefaultBrush}" SnapsToDevicePixels="True"/>
-                        <Border Width="1" HorizontalAlignment="Right" Background="{DynamicResource BorderDefaultBrush}" SnapsToDevicePixels="True"/>
+                        <Border Width="1" HorizontalAlignment="Left" Background="{DynamicResource BorderSubtle}" SnapsToDevicePixels="True"/>
+                        <Border Width="1" HorizontalAlignment="Right" Background="{DynamicResource BorderSubtle}" SnapsToDevicePixels="True"/>
                     </Grid>
 
                     <Grid>
@@ -633,7 +633,7 @@
                                        FontFamily="{DynamicResource AppFontFamily}"
                                        FontSize="16"
                                        FontWeight="SemiBold"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       Foreground="{DynamicResource TextPrimary}"
                                        VerticalAlignment="Center"/>
                             <Button Style="{StaticResource PgTopIconButtonStyle}"
                                     Content="&#xE711;"
@@ -704,7 +704,7 @@
                                                     Command="{Binding NavigateCommand}"
                                                     CommandParameter="Inquiry"/>
 
-                                            <!-- Proforma Invoice — SINGLE SELECTED ROW: dark-violet (#443A86) filled rounded row, white text -->
+                                            <!-- Proforma Invoice — SINGLE SELECTED ROW: filled rounded row, light text (selected gradient stays in the shell style until Phase C) -->
                                             <Button Style="{StaticResource PgSidebarSubItemStyle}"
                                                     Content="{DynamicResource Nav.ProformaInvoice}"
                                                     Command="{Binding NavigateCommand}"
@@ -948,7 +948,7 @@
                      text. Radius 0 is the off state, so a solid page is
                      unchanged until Appearance raises the frost. -->
                 <Border IsHitTestVisible="False"
-                        Background="{DynamicResource BackgroundBrush}"/>
+                        Background="{DynamicResource ApplicationBackground}"/>
                 <Border IsHitTestVisible="False"
                         Background="{DynamicResource ModuleWallpaperBrush}"
                         Effect="{DynamicResource ModuleSkinBlurEffect}"/>
@@ -970,8 +970,8 @@
                         VerticalAlignment="Top"
                         Padding="16,10"
                         CornerRadius="8"
-                        Background="#FFFBEB"
-                        BorderBrush="#F59E0B"
+                        Background="{DynamicResource StatusWarningSurface}"
+                        BorderBrush="{DynamicResource StatusWarning}"
                         BorderThickness="1"
                         SnapsToDevicePixels="True"
                         Visibility="{Binding IsReadOnly,
@@ -988,16 +988,16 @@
                                    Text="&#xE7BA;"
                                    FontFamily="Segoe MDL2 Assets"
                                    FontSize="20"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   Foreground="{DynamicResource TextPrimary}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,12,0"/>
 
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource Shell.ReadOnly}"
                                        FontSize="14" FontWeight="Bold"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                       Foreground="{DynamicResource TextPrimary}"/>
                             <TextBlock FontSize="12"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       Foreground="{DynamicResource TextPrimary}"
                                        TextWrapping="Wrap"
                                        Text="{Binding StatusDescription,
                                               Source={x:Static vmLicensing:LicenseStatusViewModel.Instance}}"/>
@@ -1008,8 +1008,8 @@
                                 Padding="14,6"
                                 VerticalAlignment="Center"
                                 Command="{Binding OpenLicenseSettingsCommand}"
-                                Background="#F59E0B"
-                                Foreground="#FFFFFF"
+                                Background="{DynamicResource StatusWarning}"
+                                Foreground="{DynamicResource TextOnAccent}"
                                 BorderThickness="0"
                                 Cursor="Hand"/>
                     </Grid>
@@ -1020,8 +1020,8 @@
                         Panel.ZIndex="100"
                         Margin="16"
                         CornerRadius="10"
-                        Background="#FFFFFF"
-                        BorderBrush="{DynamicResource AccentBrush}"
+                        Background="{DynamicResource SurfaceElevated}"
+                        BorderBrush="{DynamicResource AccentPrimary}"
                         BorderThickness="2"
                         SnapsToDevicePixels="True"
                         Visibility="{Binding IsLicenseRequired,
@@ -1072,9 +1072,9 @@
                         VerticalAlignment="Bottom"
                         CornerRadius="14"
                         ClipToBounds="True"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                        BorderBrush="{DynamicResource BorderSubtle}"
                         BorderThickness="1"
-                        Background="{DynamicResource SurfacePrimaryBrush}">
+                        Background="{DynamicResource SurfacePrimary}">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="24" ShadowDepth="4"
                                           Opacity="0.14" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
@@ -1098,7 +1098,7 @@
                             <ColumnDefinition Width="4"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Background="{DynamicResource AccentBrush}"/>
+                        <Border Grid.Column="0" Background="{DynamicResource AccentPrimary}"/>
                         <agentUi:AgentChatView Grid.Column="1" DataContext="{Binding AgentChatVM}"/>
                     </Grid>
                 </Border>
@@ -1181,8 +1181,8 @@
                     Width="232"
                     Margin="8"
                     CornerRadius="12"
-                    Background="{DynamicResource ShellLiquidBrush}"
-                    BorderBrush="{DynamicResource BorderDefaultBrush}"
+                    Background="{DynamicResource SurfaceElevated}"
+                    BorderBrush="{DynamicResource BorderSubtle}"
                     BorderThickness="1"
                     Padding="6,6,6,8"
                     SnapsToDevicePixels="True">
@@ -1197,9 +1197,9 @@
                             ToolTip="{DynamicResource ToolTip.Screenshot}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xEB9F;" FontFamily="Segoe MDL2 Assets" FontSize="12"
-                                       Width="20" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                       Width="20" Foreground="{DynamicResource TextPrimary}"/>
                             <TextBlock Text="Screenshot" Margin="8,0,0,0" FontSize="12"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                       Foreground="{DynamicResource TextPrimary}"/>
                         </StackPanel>
                     </Button>
                     <Button x:Name="RecordButton"
@@ -1209,9 +1209,9 @@
                             AutomationProperties.AutomationId="Shell.ScreenRecord">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE714;" FontFamily="Segoe MDL2 Assets" FontSize="12"
-                                       Width="20" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                       Width="20" Foreground="{DynamicResource TextPrimary}"/>
                             <TextBlock Text="Record" Margin="8,0,0,0" FontSize="12"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                       Foreground="{DynamicResource TextPrimary}"/>
                         </StackPanel>
                     </Button>
                     <Button x:Name="AboutButton"
@@ -1220,9 +1220,9 @@
                             ToolTip="{DynamicResource ToolTip.About}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE949;" FontFamily="Segoe MDL2 Assets" FontSize="12"
-                                       Width="20" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                       Width="20" Foreground="{DynamicResource TextPrimary}"/>
                             <TextBlock Text="About" Margin="8,0,0,0" FontSize="12"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                       Foreground="{DynamicResource TextPrimary}"/>
                         </StackPanel>
                     </Button>
                     <Button x:Name="ExperienceSwitchButton"
@@ -1232,19 +1232,19 @@
                             AutomationProperties.AutomationId="Shell.ExperienceSwitch">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE771;" FontFamily="Segoe MDL2 Assets" FontSize="12"
-                                       Width="20" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                       Width="20" Foreground="{DynamicResource TextPrimary}"/>
                             <TextBlock Text="Experience" Margin="8,0,0,0" FontSize="12"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                       Foreground="{DynamicResource TextPrimary}"/>
                         </StackPanel>
                     </Button>
-                    <Border Height="1" Margin="8,6" Background="{DynamicResource BorderDefaultBrush}"/>
+                    <Border Height="1" Margin="8,6" Background="{DynamicResource BorderSubtle}"/>
                     <StackPanel Orientation="Horizontal" Margin="12,2,8,4"
                                 ToolTip="{Binding ConnectivityLabel, FallbackValue='Network node'}">
                         <TextBlock Text="&#xE701;" FontFamily="Segoe MDL2 Assets" FontSize="12"
-                                   Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                   Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center"/>
                         <TextBlock Text="{Binding ConnectivityLabel, FallbackValue='Network node'}"
                                    Margin="8,0,0,0" FontSize="11"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Foreground="{DynamicResource TextSecondary}"
                                    VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </StackPanel>
