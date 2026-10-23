@@ -69,12 +69,15 @@ namespace ProGlassAutomation.Services.Theme
         {
             try
             {
-                // PHASE 1 (V3 adapter): the full-rebuild chain (dictionary
-                // overlay + family repaint + accent/outline/surface passes)
-                // is retired. One V3 package swap + one dual-write publish,
-                // then the legacy ThemeChanged notification.
-                Theming.V3ThemeApplier.Apply(
-                    isDark ? Appearance.Dark : Appearance.Light);
+                // PHASE 1 (V3 adapter): routed through ThemeManager.ApplyTheme
+                // (itself a thin V3 wrapper) so CurrentTheme — the resolver
+                // ApplyCurrent reads — stays live on every toggle, then the
+                // legacy ThemeChanged notification. The old overlay +
+                // family repaint + accent chain lives inside the V3
+                // applier's post-pass now; no second chain here.
+                ThemeManager.ApplyTheme(
+                    isDark ? AppTheme.Dark : AppTheme.Light,
+                    deferPostProcessing: true);
                 ThemeManager.NotifyThemeChanged();
             }
             catch (Exception ex)
@@ -117,8 +120,10 @@ namespace ProGlassAutomation.Services.Theme
                 //    dictionary. Now: a family change flips the scene
                 //    signature, so this pass always repaints for real;
                 //    an identical repeat is skipped — zero churn.
-                VisualThemeEngine.ApplyModule(
-                    VisualThemeEngine.LastRequestedModule, appearance);
+                // PHASE 1 (V3 adapter): named path — direct full V3 apply
+                // with the current Light/Dark (was ApplyModule, which is
+                // hub-only-free now and a one-line delegate itself).
+                Theming.V3ThemeApplier.ApplyCurrent();
 
                 // 2b) Radius unification (2026-09-13): families (iOS 26, Crystal,
                 // Industrial, Monet) publish their own CardCornerRadius baseline.
@@ -170,9 +175,10 @@ namespace ProGlassAutomation.Services.Theme
             try
             {
                 VisualThemeEngine.InvalidateSceneCache();
-                VisualThemeEngine.ApplyModule(
-                    VisualThemeEngine.LastRequestedModule,
-                    App.Config?.Appearance);
+                // PHASE 1 (V3 adapter): named path — direct full V3 apply
+                // with the current Light/Dark. No wallpaper painting is
+                // re-added; the scene layer stays retired.
+                Theming.V3ThemeApplier.ApplyCurrent();
                 ThemeManager.PublishProGlassDesignSystem();
                 AppLogService.Debug(
                     $"[ThemePipeline] Wallpaper layer rebuilt: {reason}",

@@ -69,6 +69,22 @@ public static class V3ThemeApplier
     }
 
     /// <summary>
+    /// Full apply with the CURRENT Light/Dark. Every live entry point
+    /// (VisualThemeEngine.Apply/ApplyModule, ThemePipeline, module nav,
+    /// wallpaper orchestrator) funnels through this so the package swap +
+    /// dual-write + user preferences always run together. ThemeManager
+    /// CurrentTheme is kept live by ApplyTheme, which is the resolver's
+    /// single source of truth.
+    /// </summary>
+    public static void ApplyCurrent()
+    {
+        Apply(ProGlassAutomation.Services.ThemeManager.CurrentTheme ==
+                  ProGlassAutomation.Services.AppTheme.Dark
+              ? Appearance.Dark
+              : Appearance.Light);
+    }
+
+    /// <summary>
     /// Activates the given appearance on the active theme and dual-writes
     /// the legacy vocabulary. The active theme is ThemeService.ActiveTheme
     /// (Bento until Phase 4 ports the remaining packages).
@@ -113,7 +129,7 @@ public static class V3ThemeApplier
             // user work and must survive every apply, so they are
             // re-derived after the dual-write in the order ThemePipeline
             // used to run them (radius → accent → outline → semantics).
-            ApplyUserPreferences();
+            ApplyUserPreferences(instance.ActivePackage);
         }
         catch (Exception ex)
         {
@@ -128,7 +144,7 @@ public static class V3ThemeApplier
     /// of the freshly applied package. Not theme painting — restoring the
     /// user's own settings after every package swap.
     /// </summary>
-    private static void ApplyUserPreferences()
+    private static void ApplyUserPreferences(ResourceDictionary package)
     {
         var config = App.Config?.Appearance;
 
@@ -146,6 +162,14 @@ public static class V3ThemeApplier
                 : ProGlassAutomation.Services.Theme.AccentPresets.ColorFor(preset);
         ProGlassAutomation.Services.ThemeManager.ApplyAccent(accent, raiseEvent: false);
 
+        // DIAGNOSTICS (owner request): when the persisted accent differs
+        // from the package's AccentPrimary, the accent family written above
+        // supersedes the contract-derived values the hub published a moment
+        // earlier — AccentPrimary itself stays the package's, so a Windows
+        // Light/Dark report can see exactly which colour won. Logged once
+        // per distinct pair (nav triggers this on every apply).
+        ReportAccentOverwrite(package);
+
         ProGlassAutomation.Services.ThemeManager.ReapplyOutlinePreference();
         ProGlassAutomation.Services.ThemeManager.ReapplySemanticSurfaces();
 
@@ -158,4 +182,29 @@ public static class V3ThemeApplier
             Application.Current?.Resources,
             ProGlassAutomation.Services.ThemeManager.CardCornerRadius);
     }
+
+    private static string? _lastAccentOverwritePair;
+
+    private static void ReportAccentOverwrite(ResourceDictionary package)
+    {
+        if (!package.TryGetValue("AccentPrimary", out var raw)
+            || raw is not System.Windows.Media.SolidColorBrush packageBrush)
+            return;
+
+        var effective = ProGlassAutomation.Services.ThemeManager.AccentColor;
+        if (effective == packageBrush.Color) return; // no overwrite visible
+
+        string pair = Hex(packageBrush.Color) + "->" + Hex(effective);
+        if (pair == _lastAccentOverwritePair) return;
+        _lastAccentOverwritePair = pair;
+
+        AppLogService.Info(
+            "ApplyUserPreferences: persisted accent overwrites package " +
+            $"AccentPrimary — package {Hex(packageBrush.Color)} -> " +
+            $"effective {Hex(effective)}",
+            new LogContext { Module = "Themes", Operation = "V3AccentOverlay" });
+    }
+
+    private static string Hex(System.Windows.Media.Color c)
+        => $"#{c.A:X2}{c.R:X2}{c.G:X2}{c.B:X2}";
 }

@@ -461,32 +461,11 @@ namespace ProGlassAutomation.Services.Theme
             string family, string wallpaperPath = "",
             double wallpaperOpacity = 0.85)
         {
-            // PHASE 1 (V3 adapter): the family painters (Monet /
-            // Crystal Fluid / Industrial / iOS 26) and the wallpaper
-            // stage are retired. The V3 package is the single source of
-            // truth; this entry point only re-publishes the legacy
-            // vocabulary so existing call sites stay theme-inert. The
-            // arguments are kept for API compatibility — the persisted
-            // family/wallpaper values no longer drive rendering.
-            var resources = Application.Current?.Resources;
-            if (resources == null) return;
-
-            try
-            {
-                if (Theming.V3ThemeApplier.Instance is { } service)
-                    Theming.V3CompatibilityHub.Publish(
-                        service.ActivePackage, service.ActiveAppearance);
-            }
-            catch (Exception ex)
-            {
-                AppLogService.Warning(
-                    "Visual theme apply failed: " + ex.Message,
-                    new LogContext
-                    {
-                        Module = "Themes",
-                        Class = nameof(VisualThemeEngine)
-                    });
-            }
+            // PHASE 1 (V3 adapter): one-line delegate. Family and wallpaper
+            // are retired inputs — this is now a FULL V3 apply with the
+            // current Light/Dark (package swap + legacy dual-write + user
+            // preferences). No painters, no ClearOverrides, no scene stage.
+            Theming.V3ThemeApplier.ApplyCurrent();
         }
 
         // ── PER-MODULE WALLPAPER (§9) ────────────────────────────────────
@@ -501,32 +480,14 @@ namespace ProGlassAutomation.Services.Theme
             string moduleKey,
             AI.AIConfig.AppearanceSettings appearance)
         {
-            // PHASE 1 (V3 adapter): the family painters, module wallpaper
-            // layers and studio re-applies are retired. The V3 package is
-            // the single source of truth; this entry point only
-            // re-publishes the legacy vocabulary so module navigation is
-            // theme-inert. Wallpaper layers (file/scene) no longer paint
-            // here — the canvas shows the V3 ApplicationBackground until
-            // Phase 5 removes the wallpaper-theme coupling entirely.
-            var resources = Application.Current?.Resources;
-            if (resources == null) return;
-
-            try
-            {
-                if (Theming.V3ThemeApplier.Instance is { } service)
-                    Theming.V3CompatibilityHub.Publish(
-                        service.ActivePackage, service.ActiveAppearance);
-            }
-            catch (Exception ex)
-            {
-                AppLogService.Warning(
-                    "Module theme publish failed: " + ex.Message,
-                    new LogContext
-                    {
-                        Module = "Themes",
-                        Class = nameof(VisualThemeEngine)
-                    });
-            }
+            // PHASE 1 (V3 adapter): one-line delegate (owner-approved).
+            // Module key and appearance are retired inputs — a FULL V3
+            // apply with the current Light/Dark. Signature kept so every
+            // live caller (MainViewModel nav, WallpaperOrchestrator,
+            // ThemePipeline, Settings wallpaper rows, dead ThemeManager
+            // post-processing) funnels through here without argument
+            // churn. No painters, no wallpaper stage, no ClearOverrides.
+            Theming.V3ThemeApplier.ApplyCurrent();
         }
 
         // ── THEME INTEGRITY GUARANTEE (2026-08-29) ──────────────────────
