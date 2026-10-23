@@ -152,23 +152,18 @@ public static class V3ThemeApplier
         ProGlassAutomation.Services.ThemeManager.ReapplyCardBorderThickness();
         ProGlassAutomation.Services.ThemeManager.ReapplyCardEdgeThickness();
 
-        // Persisted accent — preset key or free-pick hex — resolved the
-        // same way the startup path resolves it (App.StartupCore 9e).
+        // PHASE A (no old accent): the persisted ADV preset is NOT
+        // written into AccentPrimary/AccentBrush/Ov.Accent anymore. The
+        // package's AccentPrimary — and the hub's derivation from it — is
+        // the single accent source. Radius/outline below may stay. The
+        // skip is logged (once per distinct saved pair) so a Windows
+        // report can see exactly why a saved custom accent is silent.
         string preset = config?.AccentPreset ?? "GlassBlue";
-        System.Windows.Media.Color? accent =
+        ReportAccentSkip(
+            package, preset,
             preset == ProGlassAutomation.Services.Theme.AccentPresets.Custom
-                ? ProGlassAutomation.Services.Theme.AccentPresets.TryParseHex(
-                    config?.CustomAccentHex)
-                : ProGlassAutomation.Services.Theme.AccentPresets.ColorFor(preset);
-        ProGlassAutomation.Services.ThemeManager.ApplyAccent(accent, raiseEvent: false);
-
-        // DIAGNOSTICS (owner request): when the persisted accent differs
-        // from the package's AccentPrimary, the accent family written above
-        // supersedes the contract-derived values the hub published a moment
-        // earlier — AccentPrimary itself stays the package's, so a Windows
-        // Light/Dark report can see exactly which colour won. Logged once
-        // per distinct pair (nav triggers this on every apply).
-        ReportAccentOverwrite(package);
+                ? config?.CustomAccentHex
+                : null);
 
         ProGlassAutomation.Services.ThemeManager.ReapplyOutlinePreference();
         ProGlassAutomation.Services.ThemeManager.ReapplySemanticSurfaces();
@@ -183,26 +178,36 @@ public static class V3ThemeApplier
             ProGlassAutomation.Services.ThemeManager.CardCornerRadius);
     }
 
-    private static string? _lastAccentOverwritePair;
+    private static string? _lastAccentSkipPair;
 
-    private static void ReportAccentOverwrite(ResourceDictionary package)
+    /// <summary>
+    /// Phase A contract: a persisted accent different from the package's
+    /// AccentPrimary is intentionally NOT applied. Log it once per
+    /// distinct pair so Windows diagnosis can see the skip, never spam
+    /// (module nav re-runs this on every apply).
+    /// </summary>
+    private static void ReportAccentSkip(
+        ResourceDictionary package, string preset, string? customHex)
     {
         if (!package.TryGetValue("AccentPrimary", out var raw)
             || raw is not System.Windows.Media.SolidColorBrush packageBrush)
             return;
 
-        var effective = ProGlassAutomation.Services.ThemeManager.AccentColor;
-        if (effective == packageBrush.Color) return; // no overwrite visible
+        System.Windows.Media.Color? saved =
+            preset == ProGlassAutomation.Services.Theme.AccentPresets.Custom
+                ? ProGlassAutomation.Services.Theme.AccentPresets.TryParseHex(customHex)
+                : ProGlassAutomation.Services.Theme.AccentPresets.ColorFor(preset);
+        if (saved is not { } user || user == packageBrush.Color) return;
 
-        string pair = Hex(packageBrush.Color) + "->" + Hex(effective);
-        if (pair == _lastAccentOverwritePair) return;
-        _lastAccentOverwritePair = pair;
+        string pair = Hex(packageBrush.Color) + "!=" + Hex(user);
+        if (pair == _lastAccentSkipPair) return;
+        _lastAccentSkipPair = pair;
 
         AppLogService.Info(
-            "ApplyUserPreferences: persisted accent overwrites package " +
-            $"AccentPrimary — package {Hex(packageBrush.Color)} -> " +
-            $"effective {Hex(effective)}",
-            new LogContext { Module = "Themes", Operation = "V3AccentOverlay" });
+            "ApplyUserPreferences: persisted ADV accent skipped — package " +
+            $"AccentPrimary retained ({Hex(packageBrush.Color)}); saved " +
+            $"preset {preset} ({Hex(user)}) not applied",
+            new LogContext { Module = "Themes", Operation = "V3AccentSkip" });
     }
 
     private static string Hex(System.Windows.Media.Color c)
