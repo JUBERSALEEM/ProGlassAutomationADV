@@ -149,6 +149,11 @@ public static class V3ThemeApplier
         ProGlassAutomation.Services.ThemeManager.ReapplyOutlinePreference();
         ProGlassAutomation.Services.ThemeManager.ReapplySemanticSurfaces();
 
+        // Closes the Surface.*.BorderBrush + semantic-alias half of the
+        // legacy chain (ReattachAppearanceWins -> PublishSurfaceEdgeBrushes)
+        // that RebuildFamily used to run after the surface pass.
+        ProGlassAutomation.Services.ThemeManager.PublishProGlassDesignSystem();
+
         ProGlassAutomation.Services.Theme.AboutSurfaceTokens.Publish(
             Application.Current?.Resources,
             ProGlassAutomation.Services.ThemeManager.CardCornerRadius);

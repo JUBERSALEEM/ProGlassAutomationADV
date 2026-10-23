@@ -115,11 +115,82 @@ def check_package():
 
 
 # ── [B] hub coverage ──────────────────────────────────────────────────────
+# ManagedKeys = ManagedKeySeeds.Concat(EightThemePainter.AllTokenKeys)
+# since de3b1b4. Exemptions, each with the reason it is not a hub row:
 EFFECT_EXEMPTION = {
+    # DropShadowEffect — V3's contract has no Effect tokens; authored
+    # values live in merged dictionaries and resolve for both modes.
     "ShadowSoft", "ShadowElevated", "GlassShadowSoft", "GlassShadowSoftBorder",
     "GlassShadowSoftButton", "GlassShadowSoftCheckBox", "GlassShadowSoftTextBox",
     "GlassShadowSoftToggle",
+    "ShadowDeep", "DashCardShadowEffect", "DashSubtleShadowEffect",
+    "DashInteractiveShadowEffect", "GlassShadowPanel", "GlassShadowActive",
+    "GlassShadowActiveButton",
+    # Neumorphism extrude effects — orphaned (zero consumers outside the
+    # retired painter); the Neu family package is Phase 4.
+    "NeuLightEffect", "NeuShadeEffect", "NeuPressedLightEffect",
+    "NeuPressedShadeEffect",
 }
+GRADIENT_EXEMPTION = {
+    # LinearGradientBrush, consumed only inside merged theme styles (0
+    # view references). Flattening them to a solid contract token would
+    # REDUCE the authored material; both modes keep their authored value.
+    "LiquidGlassFrostedBrush", "LiquidAccentGradient", "DashHeroBlueBrush",
+    "DashLiquidBorderBrush",
+}
+MOTION_EXEMPTION = {
+    # Mode-invariant authored values: MotionFast/Normal/Slow/Reduced in
+    # SemanticMotion.xaml (App-reached via ProGlassDesignSystem), the two
+    # KeySplines in a merged token file. The painters' per-family motion
+    # tuning is retired with them.
+    "MotionFast", "MotionNormal", "MotionSlow", "MotionReduced",
+    "MotionEaseOutKeySpline", "MotionSpringKeySpline",
+}
+RADIUS_EXEMPTION = {
+    # Mode-invariant authored geometry: defined in LightTheme +
+    # ProGlassDesignSystem/DesignTokens (both App-merged) and referenced by
+    # views — they resolve in both modes. The painter's family geometry
+    # (Control-4 / Control / Card / profile Hero) is retired with the
+    # painters; a V3-derived substitute would change production-tested
+    # view radii without a V3 token to derive Hero from.
+    "Radius.Small", "Radius.Medium", "Radius.Large", "Radius.Hero",
+}
+SURFACE_PASS_EXEMPTION = {
+    # Surface.*.Background/Border/CornerRadius: written by the applier's
+    # post-pass (ReapplySemanticSurfaces + PublishProGlassDesignSystem),
+    # not by the hub map itself.
+    "Surface.Primary.BackgroundBrush", "Surface.Secondary.BackgroundBrush",
+    "Surface.Detail.BackgroundBrush", "Surface.Primary.BorderBrush",
+    "Surface.Secondary.BorderBrush", "Surface.Detail.BorderBrush",
+    "Surface.Primary.CornerRadius", "Surface.Secondary.CornerRadius",
+    "Surface.Detail.CornerRadius",
+}
+EXEMPT = (EFFECT_EXEMPTION | GRADIENT_EXEMPTION | MOTION_EXEMPTION
+          | SURFACE_PASS_EXEMPTION | RADIUS_EXEMPTION)
+
+
+def effective_managed_keys():
+    """ManagedKeySeeds ∪ EightThemePainter.AllTokenKeys (both de3b1b4+)."""
+    part1 = read("Services/Theme/VisualThemeEngine.Part1.cs")
+    m = re.search(r"ManagedKeySeeds\s*=\s*\n?\s*\{(.*?)\n\s*\};", part1, re.S)
+    seeds = re.findall(r'"([A-Za-z0-9_.]+)"', m.group(1)) if m else []
+    painter = read("Services/Theme/Eight/EightThemePainter.cs")
+    keys, seen = list(seeds), set(seeds)
+    # each group array
+    for g in re.findall(
+        r'(?:private|internal) static readonly string\[\] (\w+)\s*=\s*\n?\s*\{(.*?)\n\s*\};',
+        painter, re.S,
+    ):
+        for k in re.findall(r'"([A-Za-z0-9_.]+)"', g[1]):
+            if k not in seen:
+                seen.add(k); keys.append(k)
+    # the trailing new[] { ... } literal inside Combine(...)
+    m2 = re.search(r"new\[\]\s*\{(.*?)\}\);", painter, re.S)
+    if m2:
+        for k in re.findall(r'"([A-Za-z0-9_.]+)"', m2.group(1)):
+            if k not in seen:
+                seen.add(k); keys.append(k)
+    return keys
 
 
 def check_hub():
@@ -132,15 +203,15 @@ def check_hub():
     targets |= set(re.findall(r'SetValue\(app,\s*"([^"]+)"', hub))
 
     ok = True
-    m = re.search(r"ManagedKeys\s*=\s*\{(.*?)\n\s*\};", read("Services/Theme/VisualThemeEngine.Part1.cs"), re.S)
-    managed = re.findall(r'"([A-Za-z0-9_]+)"', m.group(1))
-    uncovered = [k for k in managed if k not in targets and k not in EFFECT_EXEMPTION]
+    managed = effective_managed_keys()
+    uncovered = [k for k in managed if k not in targets and k not in EXEMPT]
     if uncovered:
         ok = False
-        FAILS.append(f"[B] ManagedKeys uncovered (not an Effect): {uncovered}")
+        FAILS.append(f"[B] ManagedKeys uncovered (no hub row, no exemption): {uncovered}")
     else:
-        eff = [k for k in managed if k in EFFECT_EXEMPTION]
-        print(f"[B] ManagedKeys: {len(managed) - len(eff)}/72 hub-mapped, {len(eff)} Effect-exempt  OK")
+        mapped = sum(1 for k in managed if k in targets)
+        print(f"[B] ManagedKeys: {mapped}/{len(managed)} hub-mapped, "
+              f"{len(managed) - mapped} exempt (effects/gradients/motion/radius/surface-pass)  OK")
 
     refs = set()
     for f in g.glob("Views/**/*.xaml", recursive=True) + g.glob("Controls/**/*.xaml", recursive=True):

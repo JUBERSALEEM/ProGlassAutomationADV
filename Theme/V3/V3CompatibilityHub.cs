@@ -201,6 +201,19 @@ public static class V3CompatibilityHub
         // replaces the retired violet gradient.
         ("Ov.Hero", "HeroBackground"),
 
+        // ── Restored eight-theme stack (de3b1b4): keys the eight-family
+        // painter used to publish every switch. Audited by consumer count:
+        // AccentForegroundBrush alone feeds 89 files, CardBorderThickness 33,
+        // PopupSurfaceBrush 10 — none is defined in an App-merged dictionary,
+        // so without these rows they resolve null once the painter is thin.
+        ("AccentForegroundBrush", "TextOnAccent"),
+        ("FocusRingBrush", "FocusIndicator"),
+        ("CardBorderThickness", "BorderThicknessControl"),
+        ("PopupSurfaceBrush", "SurfaceElevated"),   // opaque elevated (14 documented consumers)
+        ("OutlineStrongBrush", "BorderStrong"),
+        ("ShellLiquidBorderBrush", "BorderSubtle"),
+        ("ShellSheenBrush", "SurfaceElevated"),
+
         // Remaining VisualThemeEngine ManagedKeys (brush-typed only):
         // Liquid*/Glass*/About* keys consumed by merged style files and
         // About sections — mapped so they follow Light/Dark like the rest.
