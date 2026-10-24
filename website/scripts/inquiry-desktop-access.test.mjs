@@ -179,6 +179,16 @@ test("the website side of the desk is documented with the account decision", () 
   assert.doesNotMatch(doc, /—/, "no em dashes");
 });
 
+test("the self-report columns the desktop parses are still declared", () => {
+  const report = bodyOf(matrixSql, "get_my_inquiry_access_v1");
+  for (const column of [
+    "authenticated", "user_id", "email", "roles", "capabilities", "denial_reason",
+  ]) {
+    assert.match(report, new RegExp(`\\b${column}\\b`), `the report still returns ${column}`);
+  }
+  assert.match(report, /RETURNS TABLE/, "the report stays a row, never an opaque blob");
+});
+
 test("the two Phase 12 contracts are untouched, because Phase 13 already widened them", () => {
   assert.doesNotMatch(desktopSql, /CREATE OR REPLACE FUNCTION public\.update_customer_inquiry_status_v1/);
   assert.doesNotMatch(desktopSql, /CREATE OR REPLACE FUNCTION public\.list_customer_inquiry_communications_v1/);

@@ -198,3 +198,28 @@ They are the only desktop-side causes this repository can prove from the source
 tree plus the live database. Everything else in the screenshots is a
 consequence: the 403 was a role decision, now resolved on the website side, and
 the credentials message was the app's own fallback wording.
+
+## Verified against the desktop commits
+
+The desktop work landed on `arena/da841e06-proglassautomation3-0` as `7bcdf28`,
+`7caf5dc`, `03b22dd`, `56e4edd` and `fabffc8`. Reviewed here against the live
+contract on 2026-10-24:
+
+| Contract point | Database says | Desktop does | Verdict |
+|---|---|---|---|
+| Access report shape | `get_my_inquiry_access_v1` returns `TABLE(authenticated, user_id, email, display_name, roles, capabilities, denial_reason)`, so PostgREST answers with an array of one object | `InquiryInboxAccessReport.Parse` accepts an array or a bare object and reads `email`, `roles`, `capabilities`, `denial_reason` | matches |
+| Capability gate | `inquiry_admin` and `inquiry_bridge` both hold `inbox.plan.bridge`; an estimator, an auditor, a viewer and a role-less account hold none | gate runs before plan, document plan, acknowledge and download | matches |
+| Refusal shape | `42501` with "Inquiry bridge or admin role required.", which PostgREST reports as 403 | `PermissionDenied` on 403, reported as an access refusal, ledger untouched | matches |
+| Storage read | private bucket, object readable by an enabled admin and by the bridge for accepted, complete submissions | GET sends `apikey` and the bearer token | matches |
+| Acknowledgement replay | identical replay returns quietly; a different manifest raises `23505` | treated as an idempotent success or a "delivered elsewhere" note | matches |
+| Pipeline write-back | admin already held `pipeline.write` before Phase 14 | not gated by the delivery capability, so it is unaffected | matches |
+| Original credentials failure | both accounts have a password on the project | a changed account email now refuses to save or test without a new password, which is exactly how the old saved bridge password ended up paired with the admin email | root cause closed |
+
+Still open, and only the shop PC can settle them: `dotnet build` and the
+network-free C# checks were not run in the environment that wrote those commits,
+and manual steps a to e are unperformed. Nothing in this repository blocks them.
+
+One watch item, not a defect: `InquiryStatusReporter` builds a fresh client per
+report, so every status write-back signs in again. Supabase rate limits the
+password grant per IP. If heavy editing starts returning `429`, cache one token
+per settings object instead of signing in per save.
