@@ -1,10 +1,14 @@
 # Phase 13: Inquiry role matrix, self-access, and inbox scope
 
-Status: **proposed, not applied.** The migration in
-`supabase-inquiry-role-matrix-phase13.sql` has not run on any project, no role
-assignment has changed, and nothing has been deployed. Everything below marked
-"verified" was read-only inspection plus simulated-claim calls inside
-transactions that were rolled back.
+Status: **applied on 2026-10-24.** The migration in
+`supabase-inquiry-role-matrix-phase13.sql` is live on
+`afpbdyamedpanwijxghk` as four ordered migrations (names in section 3), and the
+post-apply evidence is recorded there. No role assignment was changed by the
+apply: the two operator accounts and the one bridge account already held the
+roles the matrix expects. Anything below marked "verified" before the apply was
+read-only inspection plus simulated-claim calls inside transactions that were
+rolled back; section 3.1 lists what was re-checked against the live schema
+afterwards.
 
 Project inspected: `afpbdyamedpanwijxghk` (`https://afpbdyamedpanwijxghk.supabase.co`,
 "Proglass Automation", ap-northeast-1). It is the only project on the connected
@@ -189,27 +193,62 @@ without error.
 
 ## 3. Applying it
 
-Order, once approved:
+Applied on project `afpbdyamedpanwijxghk` on 2026-10-24 through the project
+migration path, in four ordered steps, because the single file is too large for
+one payload. History and repository agree: the four names below are the whole of
+Phase 13, and re-running any of them is a no-op.
 
-1. Review the file and this document.
-2. Apply `supabase-inquiry-role-matrix-phase13.sql` through the project's
-   migration path, not the SQL editor, so history matches the repository.
-3. Verify (read-only):
+| Version | Migration | Contents |
+|---|---|---|
+| 20261024080329 | `inquiry_role_matrix_phase13_access` | `inquiry_capabilities_for_roles`, `get_my_inquiry_access_v1`, `inquiry_can_read_submission`, `list_customer_inquiry_inbox_v1` |
+| 20261024080348 | `inquiry_role_matrix_phase13_scope` | the three intake policies without `inquiry_viewer`, `authorize_customer_inquiry_document_download`, `update_customer_inquiry_status_v1`, `list_customer_inquiry_communications_v1`, `acknowledge_customer_inquiry_delivery_v2` |
+| 20261024080355 | `inquiry_role_matrix_phase13_audit` | `inquiry_operator_role_audit`, its RLS and read policy, `log_inquiry_operator_role_change` and the trigger |
+| 20261024080424 | `inquiry_role_matrix_phase13_body_comments` | the in-body comment lines that make `md5(prosrc)` match the file |
 
-```sql
-select p.proname, pg_get_function_identity_arguments(p.oid) as args,
-       has_function_privilege('anon', p.oid, 'EXECUTE') as anon_exec,
-       has_function_privilege('authenticated', p.oid, 'EXECUTE') as auth_exec
-  from pg_proc p join pg_namespace n on n.oid = p.pronamespace
- where n.nspname = 'public'
-   and p.proname in ('get_my_inquiry_access_v1','list_customer_inquiry_inbox_v1',
-                     'inquiry_can_read_submission','inquiry_capabilities_for_roles');
-```
+### 3.1 Verification after apply
 
-4. Call `get_my_inquiry_access_v1` as an admin and as an estimator and confirm the
-   roles and capabilities are what the matrix says.
-5. Confirm the bridge still plans: `select * from plan_customer_inquiry_deliveries_v2(5);`
-   as the bridge account.
+All of this was read as the live project, and every write below ran inside a
+transaction that was rolled back.
+
+- Nine functions present with the definer flag, `search_path` and privileges the
+  matrix calls for: `anon` cannot execute any of them, `authenticated` can
+  execute all but the trigger function.
+- Three intake policies carry exactly `inquiry_auditor, inquiry_admin` plus the
+  owner branch. No policy qual mentions `inquiry_viewer`.
+- `get_my_inquiry_access_v1` self-report:
+  - `techwithyassh@gmail.com` (`inquiry_admin`): `audit.read, chat.read,
+    chat.write, estimator.manage, inbox.download, inbox.read.all, inbox.review,
+    pipeline.write`, and 7 inbox rows with scope `all`.
+  - `jubersaleem01@gmail.com` (`inquiry_estimator`): scope `assigned`,
+    capabilities `chat.read, chat.write, inbox.download, inbox.read.assigned,
+    pipeline.write`, and exactly one inbox row, `WEB-2026-000007`.
+  - `up17mix@gmail.com` (`inquiry_bridge`): `chat.read, inbox.acknowledge,
+    inbox.download, inbox.plan.bridge, pipeline.write`, one planned delivery, one
+    chat row.
+  - `ffyassh@gmail.com` (a bridge role with `enabled = false`): authenticated,
+    zero roles, zero capabilities, denial reason "Signed in as
+    ffyassh@gmail.com, but the account has no enabled inquiry role."
+  - No session at all: `authenticated = false`, null `user_id`, and the
+    "No Supabase Auth session reached the database" reason.
+- The bridge is refused the person inbox with `42501`, which is the intended
+  separation and also explains the 403 the desktop saw after a good sign-in.
+- An assigned estimator can write the pipeline state on `99bcc4ab-905e-486a-832f-55afafe48036`:
+  `pipeline_updated_by` becomes the estimator uuid and the `status_changed` event
+  records `source = website_operator`, `customer_visible = false`, the estimator
+  as actor, and the previous status (null on the first transition in the
+  fixture) as `from`. An unassigned estimator writing to `da912f35-...` is
+  refused with `42501`.
+- Acknowledgement replay returns quietly: the second identical call does not
+  raise, the ledger still holds one row and one `inbox_delivered` event, and the
+  status stays `downloaded`.
+- Customer isolation is intact: `ffyassh@gmail.com` reads only its own
+  `WEB-2026-000001` and one document, and zero rows belonging to
+  `techwithyassh@gmail.com`.
+- The role audit is closed: an estimator reads zero rows from it.
+
+One note for whoever repeats this: a role row updated by `postgres` records
+`actor_user_id = null` and `actor_role = postgres`, which is correct. The audit
+captures the caller's uid when the database role is the actor.
 
 ### Rollback
 
@@ -243,8 +282,8 @@ psql "$SCRATCH_URL" -v ON_ERROR_STOP=1 -f supabase-inquiry-role-matrix-phase13.s
 psql "$SCRATCH_URL" -v ON_ERROR_STOP=1 -f supabase-tests/phase13-role-matrix-assertions.sql
 ```
 
-34 cases, each run as `authenticated` with a simulated claim, covering: no
-session, bridge, admin, assigned estimator, unrelated estimator, auditor, viewer,
+26 cases and 34 assertions, each run as `authenticated` with a simulated claim,
+covering: no session, bridge, admin, assigned estimator, unrelated estimator, auditor, viewer,
 a disabled role, an account with no role, admin inbox scope, estimator inbox
 scope, empty estimator inbox, table-level RLS for each role, customer isolation
 including a draft, download authorization for allowed and refused callers,
@@ -294,8 +333,26 @@ on conflict (user_id) do update set role = excluded.role, enabled = true, update
 4. Assign work with `set_customer_inquiry_estimators`.
 5. Confirm with `get_my_inquiry_access_v1` as that user.
 
-Every one of those changes now lands in `inquiry_operator_role_audit` once the
-migration is applied.
+Every one of those changes now lands in `inquiry_operator_role_audit`; the audit
+trigger is live.
+
+### 6.1 The two accounts the owner named
+
+Both were checked against the live project and neither needed a change. Both have
+a password, a confirmed email, no ban, and both signed in today.
+
+| Account | Role | State | What it can do |
+|---|---|---|---|
+| `techwithyassh@gmail.com` | `inquiry_admin` | enabled | the full operator surface, including the whole inbox, the role audit, estimator management and pipeline write-back |
+| `up17mix@gmail.com` | `inquiry_bridge` | enabled | the desktop handoff only: plan deliveries, download, acknowledge, pull chat, write pipeline state. It cannot open the person inbox |
+
+`up17mix` cannot also be read-only. `inquiry_operator_roles` has `user_id` as its
+primary key, so an account holds exactly one role, and the role it holds is the
+one the desktop needs. Read-only viewing for a human needs its own login.
+`inquiry_auditor` reads the whole inbox, downloads documents, and reads the audit
+trail, but writes no pipeline state and no chat. `inquiry_viewer` has no inbox
+access in this matrix unless it is approved separately. Do not repurpose the
+machine account.
 
 ## 7. Privacy notes
 

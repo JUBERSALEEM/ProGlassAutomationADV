@@ -1,18 +1,27 @@
 -- PHASE 13: INQUIRY ROLE MATRIX, SELF-ACCESS, AND INBOX SCOPE
 --
--- NOT APPLIED. This file is a proposal. It must be reviewed and approved by the
--- owner before it runs on project afpbdyamedpanwijxghk. See
--- docs/PHASE13_INQUIRY_ROLE_MATRIX.md for the matrix, the evidence behind it,
--- the apply order and the rollback.
+-- Approved by the owner and applied on project afpbdyamedpanwijxghk on
+-- 2026-10-24 in four ordered steps, because the file is too large for one
+-- payload. See docs/PHASE13_INQUIRY_ROLE_MATRIX.md for the matrix, the evidence
+-- behind it, the verification after apply, the apply order and the rollback.
 --
--- Additive only, with four deliberate exceptions that are called out here so
--- nobody has to discover them from a diff:
+--   sections 1 to 4  -> inquiry_role_matrix_phase13_access  (20261024080329)
+--   sections 5 to 9  -> inquiry_role_matrix_phase13_scope   (20261024080348)
+--   section 10       -> inquiry_role_matrix_phase13_audit   (20261024080355)
+--   the whole file   -> inquiry_role_matrix_phase13_body_comments (20261024080424)
+--
+-- The body comments matter: md5(prosrc) only matches this file once they are
+-- included in the function bodies.
+--
+-- Additive only, with four deliberate behaviour changes that were approved
+-- before apply and are called out here so nobody has to discover them from a
+-- diff:
 --
 --   1. Three intake SELECT policies are recreated without inquiry_viewer, and
 --      authorize_customer_inquiry_document_download stops accepting that role.
 --      The matrix gives inquiry_viewer no inbox access unless it is approved
---      separately. No live account holds that role, so the blast radius is nil
---      today, but this is still a behaviour change and needs a decision.
+--      separately. No live account held that role, so the blast radius was nil
+--      on the day of apply.
 --   2. update_customer_inquiry_status_v1 and the chat pull widen from
 --      inquiry_bridge to bridge + admin + an actively assigned estimator. The
 --      bridge branch is unchanged.

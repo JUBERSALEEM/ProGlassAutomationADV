@@ -107,15 +107,18 @@ screen.
 Display only: no new route, no new filter, no change to the status control, the
 review RPC or the operator permissions.
 
-## Phase 13: role matrix and self-access (proposed)
+## Phase 13: role matrix and self-access (applied)
 
 `supabase-inquiry-role-matrix-phase13.sql` adds `get_my_inquiry_access_v1`, a
 database-scoped operator inbox (`list_customer_inquiry_inbox_v1`), a role audit,
-and three behaviour changes that need an owner decision before they are applied:
-the viewer role leaves the intake surfaces, pipeline write-back and the chat pull
-widen to admins and assigned estimators, and the acknowledgement replay is fixed.
-It has not been applied. Read `PHASE13_INQUIRY_ROLE_MATRIX.md` first; it also
-carries the triage for a bridge call that is refused after a successful sign-in.
+and three approved behaviour changes: the viewer role leaves the intake
+surfaces, pipeline write-back and the chat pull widen to admins and assigned
+estimators, and the acknowledgement replay is fixed. It is live on project
+`afpbdyamedpanwijxghk` as four ordered migrations, the last of which only
+restores in-body comments. Read `PHASE13_INQUIRY_ROLE_MATRIX.md` for the matrix,
+the post-apply evidence, and the triage for a bridge call that is refused after
+a successful sign-in.
+
 
 ## Recovery
 
