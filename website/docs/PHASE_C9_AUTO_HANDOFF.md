@@ -91,11 +91,41 @@ table policies, and the five-value type list. Re-typing any existing
 `proforma_invoice` row is the only data step a rollback would need, and it is
 written out there.
 
-**Not applied to production yet.** Applying it changes what the shop PC
-downloads on its next check: the six open submissions would arrive immediately.
-The desktop in `ProglassAutomation3.0` already stages, verifies and only then
-acknowledges, so that is the right order of operations — but it should be the
-owner's decision, on a build that is known to be deployed.
+**Applied to production on 2026-10-24**, after validating the same statements
+on a disposable PostgreSQL 17.9 database.
+
+The live database already carried slightly different function headers from the
+ones in this file (comments, `SET search_path` spelling), so the migration was
+applied by widening each function's own current text rather than by pasting this
+file's copies over it. That keeps production's functions byte-identical to what
+they were except for the nine lines that matter, which was verified by diffing
+every function before and after:
+
+| Function | Lines changed |
+| --- | --- |
+| `plan_customer_inquiry_deliveries_v2` | the `WHERE … status = 'accepted'` gate → `IN ('submitted','accepted')` |
+| `plan_customer_inquiry_delivery_documents` | the same gate, and the `P0002` message |
+| `acknowledge_customer_inquiry_delivery_v2` | the document-count gate, and the `SET status='downloaded'` predicate |
+| `finalize_customer_inquiry_submission` | the status `CASE`, `accepted_at=NULL`, and the `desktop_handoff` event field |
+| `create_customer_inquiry_draft_v2`, `save_customer_inquiry_project` | the `inquiry_type` list only |
+
+Nothing else in any of the six functions changed, no row was rewritten, and no
+role or grant moved. Running this file as it stands against production is still
+safe: it is idempotent and produces the same predicates.
+
+The effect was immediate. Within minutes of the change the shop PC had pulled the
+backlog on its own — no acceptance step, no operator action:
+
+| Submission | Before | After |
+| --- | --- | --- |
+| `WEB-2026-000001` | `submitted`, never offered | downloaded 14:12 UTC |
+| `WEB-2026-000002` | `submitted`, never offered | downloaded 14:12 UTC |
+| `WEB-2026-000004` | `submitted`, never offered | downloaded 13:50 UTC |
+| `WEB-2026-000005`, `WEB-2026-000008` | `submitted` | queued for the next check |
+
+A bridge-role probe confirmed the three read rules agree: the bridge saw 4
+submissions, 4 documents, 4 storage objects, and the delivery plan returned the
+same 4 rows, all with `status='submitted'`.
 
 ## What the owner will see
 

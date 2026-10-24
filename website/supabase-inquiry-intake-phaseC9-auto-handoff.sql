@@ -334,7 +334,7 @@ USING(public.has_inquiry_role(ARRAY['inquiry_bridge']) AND EXISTS(SELECT 1 FROM 
 DROP POLICY IF EXISTS "Inquiry bridge reads accepted intake objects" ON storage.objects;
 DROP POLICY IF EXISTS "Inquiry bridge reads deliverable intake objects" ON storage.objects;
 CREATE POLICY "Inquiry bridge reads deliverable intake objects" ON storage.objects FOR SELECT TO authenticated
-USING(bucket_id='inquiry-intake-documents' AND public.has_inquiry_role(ARRAY['inquiry_bridge','inquiry_admin']) AND EXISTS(
+USING(bucket_id='inquiry-intake-documents' AND public.has_inquiry_role(ARRAY['inquiry_bridge']) AND EXISTS(
   SELECT 1 FROM public.inquiry_customer_documents d JOIN public.inquiry_customer_submissions s ON s.id=d.submission_id
   WHERE d.storage_object_key=name AND s.upload_state='complete' AND s.status IN ('submitted','accepted')));
 
