@@ -4,6 +4,7 @@ import type {
   CustomerInquiryStatus,
   CustomerInquiryType,
 } from "@/types/inquiry-submissions";
+import { CUSTOMER_INQUIRY_TYPE_LABELS } from "@/types/inquiry-submissions";
 
 export type CustomerInquiryStatusCounts = Record<CustomerInquiryStatus, number> & {
   total: number;
@@ -27,20 +28,12 @@ const STATUS_LABELS: Record<CustomerInquiryStatus, string> = {
   closed: "Closed",
 };
 
-const TYPE_LABELS: Record<CustomerInquiryType, string> = {
-  quotation: "Quotation",
-  drawing_review: "Drawing review",
-  technical: "Technical",
-  order_handover: "Order handover",
-  other: "Other",
-};
-
 export function customerInquiryStatusLabel(status: CustomerInquiryStatus): string {
   return STATUS_LABELS[status] ?? status.replaceAll("_", " ");
 }
 
 export function customerInquiryTypeLabel(type: CustomerInquiryType): string {
-  return TYPE_LABELS[type] ?? type.replaceAll("_", " ");
+  return CUSTOMER_INQUIRY_TYPE_LABELS[type] ?? type.replaceAll("_", " ");
 }
 
 export function countCustomerInquiriesByStatus(

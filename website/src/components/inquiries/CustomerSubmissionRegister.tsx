@@ -176,7 +176,7 @@ export function CustomerSubmissionRegister({
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <LocaleLink href="/inquiries" className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted hover:text-text-primary">
+            <LocaleLink href="/inquiries/register" className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted hover:text-text-primary">
               Inquiry inbox
             </LocaleLink>
             <LocaleLink href="/inquiries/estimator" className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted hover:text-text-primary">

@@ -9,7 +9,7 @@ import {
 } from "@/lib/inquiry-documents";
 import { withoutPipelineFields } from "@/lib/inquiry-pipeline";
 import type { CustomerInquiryDocument, CustomerInquiryListItem, CustomerInquiryPage, CustomerInquiryProfile, CustomerInquiryProject, CustomerInquiryStatus, CustomerInquiryStatusCounts, CustomerInquirySubmission, CustomerInquiryType } from "@/types/inquiry-submissions";
-import { CUSTOMER_INQUIRY_STATUSES } from "@/types/inquiry-submissions";
+import { CUSTOMER_INQUIRY_STATUSES, CUSTOMER_INQUIRY_TYPES } from "@/types/inquiry-submissions";
 import { isCustomerInquiryStatus } from "@/lib/inquiry-submission-status";
 
 export const CUSTOMER_INQUIRY_MAX_FILES = 15;
@@ -65,7 +65,7 @@ function field(form: FormData, name: string, max: number, required = false): str
   if ((required && !normalized) || normalized.length > max) throw new CustomerInquiryFailure("INVALID", `Invalid ${name.replaceAll("_", " ")}.`);
   return normalized;
 }
-const INQUIRY_TYPES = new Set<CustomerInquiryType>(["quotation","drawing_review","technical","order_handover","other"]);
+const INQUIRY_TYPES = new Set<CustomerInquiryType>(CUSTOMER_INQUIRY_TYPES);
 function inquiryType(value: FormDataEntryValue | null): CustomerInquiryType {
   const normalized = typeof value === "string" ? value : "";
   if (!INQUIRY_TYPES.has(normalized as CustomerInquiryType)) throw new CustomerInquiryFailure("INVALID", "Invalid inquiry type.");

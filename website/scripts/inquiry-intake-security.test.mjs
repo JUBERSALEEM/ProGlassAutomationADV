@@ -233,7 +233,7 @@ test("customer document downloads are ownership-authorized, audited and integrit
  */
 test("the inquiries page routes by role and never shows a customer an operator register", () => {
   const landing = readFileSync(new URL("../src/components/inquiries/InquiryLanding.tsx", import.meta.url), "utf8");
-  const customer = readFileSync(new URL("../src/components/inquiries/CustomerInquiriesHome.tsx", import.meta.url), "utf8");
+  const customer = readFileSync(new URL("../src/components/inquiries/InquiryWelcome.tsx", import.meta.url), "utf8");
   const gate = readFileSync(new URL("../src/components/inquiries/InquiryAccessGate.tsx", import.meta.url), "utf8");
   const roles = readFileSync(new URL("../src/lib/inquiry-access-roles.ts", import.meta.url), "utf8");
   const page = readFileSync(new URL("../src/app/[locale]/inquiries/page.tsx", import.meta.url), "utf8");
@@ -241,7 +241,8 @@ test("the inquiries page routes by role and never shows a customer an operator r
   // One role list, and it is the pair the database policy names.
   assert.match(roles, /INQUIRY_REGISTER_ROLES = \["inquiry_auditor", "inquiry_admin"\] as const/);
   assert.match(landing, /classifyInquirySurface\(access\.role, access\.enabled\)/);
-  assert.match(page, /InquiryLanding/);
+  assert.match(page, /InquiryWelcome/);
+  assert.match(readFileSync(new URL("../src/app/[locale]/inquiries/register/page.tsx", import.meta.url), "utf8"), /InquiryLanding/);
 
   // The register mounts only for a register role; every other branch is a
   // notice or the customer page.
@@ -249,7 +250,7 @@ test("the inquiries page routes by role and never shows a customer an operator r
   assert.match(landing, /if \(surface === "estimator"\)/);
   assert.match(landing, /if \(surface === "bridge"\)/);
   assert.match(landing, /if \(surface === "restricted"\) \{/);
-  assert.match(landing, /<CustomerInquiriesHome/);
+  assert.match(landing, /<InquiryWelcome \/>/);
 
   // A failed access read must fail closed: no register, a retry instead.
   assert.match(landing, /if \(state\.status === "failed"\) \{/);
@@ -258,10 +259,13 @@ test("the inquiries page routes by role and never shows a customer an operator r
   // Customers get their own three surfaces, and nothing internal is advertised
   // to them: no queue link, no register link, no role screenshot.
   assert.match(customer, /href="\/inquiries\/submit"/);
+  assert.match(customer, /href="\/inquiries\/submit\/proforma"/);
   assert.match(customer, /href="\/inquiries\/chat"/);
   assert.match(customer, /href="\/account\/proformas"/);
-  assert.match(customer, /staff only/i);
-  assert.doesNotMatch(customer, /customer-submissions/);
+  assert.match(customer, /href="\/inquiries\/register"/);
+  assert.match(customer, /require a staff role/i);
+  assert.match(customer, /never shown to a customer account/);
+  assert.doesNotMatch(customer, /href="\/inquiries\/customer-submissions"/);
   assert.doesNotMatch(customer, /inquiry_auditor/);
 
   // The refusal screen no longer points at another internal page, and it does

@@ -225,3 +225,73 @@ operator register. A customer gets their own page; `inquiry_bridge` and
 `inquiry_admin` get the register. No database policy, grant, role or bridge
 setting was changed, and no submission was accepted or acknowledged to produce
 this. See `CUSTOMER_AND_STAFF_INQUIRY_SURFACES.md`.
+
+---
+
+# Addendum for the desktop agent: instant sync, and show the files
+
+The website side changed after the prompt above: a complete submission is now
+handed to the desk **as soon as the customer sends it**, with no acceptance step
+(`supabase-inquiry-intake-phaseC9-auto-handoff.sql`). A `proforma_invoice`
+request is the one exception — it is finalized in `under_review` and stays
+invisible until a coordinator accepts it.
+
+That makes the check interval the thing that decides how "instant" the desk
+feels. Paste this second block into the same session.
+
+```
+Two more changes, in the same repository. Do not touch the delivery contract.
+
+CHANGE 6 — the automatic check should feel instant.
+Today the view model keeps `PollMinutes` with a default of 5 and options
+1, 5, 15, 30, 60 (Inquiry/ViewModels/InquiryInboxViewModel.cs ~line 159), so a
+customer's inquiry can sit on the website for five minutes before this PC knows
+about it. The website now offers a submission the moment it is finalized, so the
+delay is entirely ours.
+
+Required:
+  * Replace `PollMinutes` with `PollSeconds`: default 30, options 15, 30, 60,
+    300, 900. Keep the existing clamp-on-set and the AutoSyncText line, which
+    must read "Automatic check every 30 seconds" / "…every 1 minute".
+  * Migrate the saved settings object: if it only has the old minute value,
+    convert it to seconds (minutes × 60) clamped to the new range, save once, and
+    never read the minute field again. An unreadable or absent value is 30.
+  * Run one check immediately after a successful sign-in, and one when the
+    window becomes active again (Window.Activated), debounced to at most one
+    check per 10 seconds.
+  * Never run two checks at once: one in-flight guard that returns the running
+    task instead of starting a second. Cancellation on close must still leave the
+    next window able to check.
+  * Check now stays as it is and is never disabled because the plan is empty.
+  * Acceptance test: settings without the new key migrate to 30 seconds;
+    a stored 5 minutes migrates to 300; two rapid Activated events produce one
+    plan call; a check that overlaps a running one does not call the plan twice.
+
+CHANGE 7 — show the folder and the files, not just a count.
+The grid shows "Files" as a number (`DocumentsText` bound to a DataGridTextColumn
+in Inquiry/Views/InquiryInboxView.xaml ~line 290). A shop user cannot see what
+actually arrived or where it went.
+
+Required:
+  * Each delivered row must expose the full local folder
+    (…\CustomerInquiryInbox\{assigned\<CODE>|unassigned}\<reference>_<submission_id>)
+    and the manifest's document list: original filename, byte size, and the
+    first 12 characters of its SHA-256.
+  * Clicking the Files cell (or a "View files" button on the row) opens a detail
+    panel for that submission: the reference, the routing key, the full folder
+    path, one row per file, and three actions — Open folder (explorer.exe with
+    the folder path), Open file (the selected file), and Copy path.
+  * If the folder or a file is missing, say which one and when the manifest
+    expected it, instead of showing an empty list.
+  * The inbox header shows the inbox root path with a Copy button, so support can
+    ask for it over the phone.
+  * Never open Explorer automatically after a download, never auto-print, and
+    never run anything from the downloaded folder.
+  * Acceptance tests: a row with three files lists three names and sizes from
+    the manifest; a row whose folder was deleted shows "files missing here" and
+    does not throw; Open folder is a no-op on a missing folder with a message.
+
+Keep every rule from the first block: verify before acknowledging, acknowledge
+once, never delete a delivered payload, never show a delivered submission as
+Failed, and never widen anything.
+```

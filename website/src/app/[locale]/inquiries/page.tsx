@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { InquiryLanding } from "@/components/inquiries/InquiryLanding";
+import { InquiryWelcome } from "@/components/inquiries/InquiryWelcome";
 import { PageOverlay } from "@/i18n/PageOverlay";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
@@ -13,35 +12,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     locale: t.locale,
     title: t("Inquiries"),
     description: t(
-      "Submit a private customer inquiry, follow its review and read the documents ProGlass shares with your account.",
+      "Submit a private inquiry or a proforma invoice request to ProGlass, then follow the review, the messages and the documents shared with your account.",
     ),
     path: "/inquiries",
-    ogEyebrow: t("Inquiries"),
+    ogEyebrow: t("Customer inquiries"),
   });
 }
 
 /**
- * One URL, two audiences.
+ * The public inquiry page.
  *
- * A customer sees their own inquiry surfaces; a staff role sees the register.
- * The decision is made in the browser by `InquiryLanding` from the account's
- * single role, but it is only a router: every register read still goes through
- * an API that checks the role and through Row Level Security that returns a
- * customer nothing but their own submissions.
+ * This is a welcome screen, not a register: send an inquiry, send one with a
+ * proforma invoice, sign in or create an account. The internal register is a
+ * different page (`/inquiries/register`) and a different audience; the two used
+ * to share a URL, which made a private queue look public.
  */
 export default async function InquiriesPage({ params }: PageProps) {
   const t = await translatorFor(params);
   return (
     <PageOverlay locale={t.locale} route="inquiries">
-      <Suspense
-        fallback={
-          <div className="grid min-h-[60vh] place-items-center bg-ink-950 text-xs text-text-muted">
-            Loading inquiry access…
-          </div>
-        }
-      >
-        <InquiryLanding />
-      </Suspense>
+      <InquiryWelcome />
     </PageOverlay>
   );
 }

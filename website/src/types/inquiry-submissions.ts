@@ -16,7 +16,32 @@ export const CUSTOMER_INQUIRY_REVIEW_STATUSES = ["under_review", "accepted", "re
 
 export type CustomerInquiryReviewStatus = (typeof CUSTOMER_INQUIRY_REVIEW_STATUSES)[number];
 
-export type CustomerInquiryType = "quotation" | "drawing_review" | "technical" | "order_handover" | "other";
+export const CUSTOMER_INQUIRY_TYPES = [
+  "quotation",
+  "drawing_review",
+  "technical",
+  "order_handover",
+  "proforma_invoice",
+  "other",
+] as const;
+
+export type CustomerInquiryType = (typeof CUSTOMER_INQUIRY_TYPES)[number];
+
+/**
+ * What the customer is asking for, in their words.
+ *
+ * `proforma_invoice` is the one type that is held for a coordinator: a customer
+ * asking for a PI is asking for a priced document, and the desktop inbox is not
+ * allowed to receive it until a human has accepted it on the website.
+ */
+export const CUSTOMER_INQUIRY_TYPE_LABELS: Record<CustomerInquiryType, string> = {
+  quotation: "Quotation",
+  drawing_review: "Drawing review",
+  technical: "Technical question",
+  order_handover: "Order handover",
+  proforma_invoice: "Proforma invoice",
+  other: "Other",
+};
 export type CustomerInquiryProfile = { contact_name: string; company_name: string; phone: string; vat_trn_number: string; attention_name: string };
 export type CustomerInquiryProject = { id: string; project_name: string; project_location: string; default_inquiry_type: CustomerInquiryType; active: boolean; created_at: string; updated_at: string };
 

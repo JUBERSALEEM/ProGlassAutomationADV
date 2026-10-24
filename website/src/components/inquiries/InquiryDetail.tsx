@@ -81,7 +81,7 @@ export function InquiryDetail({ inquiryId }: { inquiryId: string }) {
 
   return <main className="min-h-screen bg-ink-950 pb-20 text-text-primary">
     <div className="shell py-6">
-      <LocaleLink href="/inquiries" className="text-xs font-semibold text-text-muted hover:text-brand-200">← Inquiry register</LocaleLink>
+      <LocaleLink href="/inquiries/register" className="text-xs font-semibold text-text-muted hover:text-brand-200">← Inquiry register</LocaleLink>
       {loading && !data && <div className="mt-5 space-y-3 rounded-2xl border border-line-strong/60 bg-ink-900/80 p-5">{Array.from({ length: 6 }).map((_, index) => <div key={index} className="h-12 animate-pulse rounded-xl bg-ink-850" />)}</div>}
       {error && !data && (
         error.code === "FORBIDDEN" ? (
@@ -94,7 +94,7 @@ export function InquiryDetail({ inquiryId }: { inquiryId: string }) {
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <LocaleLink href="/reports/login?redirect=%2Finquiries" className="rounded-xl bg-brand-400 px-3 py-2 text-xs font-semibold text-accent-ink">Sign in with another account</LocaleLink>
-              <LocaleLink href="/inquiries" className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted">Return to register</LocaleLink>
+              <LocaleLink href="/inquiries/register" className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted">Return to register</LocaleLink>
               <LocaleLink href="/inquiries/customer-submissions" className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted">Customer submissions</LocaleLink>
             </div>
           </section>
@@ -109,7 +109,7 @@ export function InquiryDetail({ inquiryId }: { inquiryId: string }) {
               {error.code !== "NOT_FOUND" ? (
                 <button onClick={() => { setLoading(true); setRefresh((value) => value + 1); }} className="rounded-xl border border-state-danger/40 px-3 py-2 text-xs font-semibold text-state-danger">Try again</button>
               ) : null}
-              <LocaleLink href="/inquiries" className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted">Return to register</LocaleLink>
+              <LocaleLink href="/inquiries/register" className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted">Return to register</LocaleLink>
             </div>
           </section>
         )

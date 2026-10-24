@@ -24,7 +24,7 @@ import { groupIcons } from "@/data/groupIcons";
  * footer and the rail hand out for those subjects — one chain, one hand.
  */
 const STEPS = [
-  { href: "/inquiries", match: "/inquiries", label: "Inquiry", hint: "Documents", icon: groupIcons.Sales },
+  { href: "/inquiries/register", match: "/inquiries/register", label: "Inquiry", hint: "Documents", icon: groupIcons.Sales },
   { href: "/reports?status=Confirmed", match: "/reports", label: "Proforma Invoice", hint: "Confirmed", icon: groupIcons.Sales },
   { href: "/job-orders", match: "/job-orders", label: "Job Order", hint: "Hand-off", icon: footerLinkIcons["/job-orders"]! },
   { href: "/deliveries", match: "/deliveries", label: "Delivery Note", hint: "Dispatch", icon: footerLinkIcons["/deliveries"]! },

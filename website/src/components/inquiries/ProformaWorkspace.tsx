@@ -256,7 +256,7 @@ export function ProformaWorkspace({ inquiryId }: { inquiryId: string }) {
             link may be from an old page. A proforma always belongs to an inquiry, so start from the register.
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
-            <LocaleLink href="/inquiries" className="rounded-xl bg-brand-400 px-4 py-2 text-sm font-semibold text-accent-ink">
+            <LocaleLink href="/inquiries/register" className="rounded-xl bg-brand-400 px-4 py-2 text-sm font-semibold text-accent-ink">
               Back to the register
             </LocaleLink>
             <LocaleLink href="/inquiries/customer-submissions" className="rounded-xl border border-line-strong px-4 py-2 text-sm font-semibold text-text-muted">
@@ -274,7 +274,7 @@ export function ProformaWorkspace({ inquiryId }: { inquiryId: string }) {
         <div className="shell flex flex-wrap items-center justify-between gap-x-6 gap-y-3 py-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 text-3xs text-text-faint">
-              <LocaleLink href="/inquiries" className="hover:text-brand-200 hover:underline">Inquiry inbox</LocaleLink>
+              <LocaleLink href="/inquiries/register" className="hover:text-brand-200 hover:underline">Inquiry register</LocaleLink>
               <span aria-hidden="true">/</span>
               <LocaleLink href={`/inquiries/${inquiryId}`} className="hover:text-brand-200 hover:underline">
                 {data?.inquiry.inquiry_number || "Inquiry"}

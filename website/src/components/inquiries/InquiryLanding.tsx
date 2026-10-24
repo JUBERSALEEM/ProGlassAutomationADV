@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { CustomerInquiriesHome } from "@/components/inquiries/CustomerInquiriesHome";
+import { InquiryWelcome } from "@/components/inquiries/InquiryWelcome";
 import { InquiriesDashboard } from "@/components/inquiries/InquiriesDashboard";
 import { InquiryAccessGate } from "@/components/inquiries/InquiryAccessGate";
 import { LocaleLink } from "@/components/ui/LocaleLink";
@@ -136,7 +136,7 @@ export function InquiryLanding() {
   }, [attempt, authToken, checking, requireAuth]);
 
   if (checking) return <Loading />;
-  if (!authToken) return <CustomerInquiriesHome signedIn={false} />;
+  if (!authToken) return <InquiryWelcome />;
   if (state.status === "reading") return <Loading />;
   if (state.status === "failed") {
     return (
@@ -190,14 +190,8 @@ export function InquiryLanding() {
   }
 
   if (surface === "restricted") {
-    return <InquiryAccessGate redirectPath="/inquiries" />;
+    return <InquiryAccessGate redirectPath="/inquiries/register" />;
   }
 
-  return (
-    <CustomerInquiriesHome
-      signedIn
-      email={access.email || userEmail}
-      onSignOut={() => void signOut()}
-    />
-  );
+  return <InquiryWelcome />;
 }

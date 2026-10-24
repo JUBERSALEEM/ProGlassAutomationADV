@@ -97,27 +97,32 @@ afterEach(() => {
 });
 
 describe("the inquiries page and who may see what", () => {
-  it("gives a signed-out visitor the public customer page, not the register", async () => {
+  it("gives a signed-out visitor the public inquiry page, not the register", async () => {
     session.authToken = null;
     const fetchMock = respondWith(null);
     renderLanding();
 
-    expect(await screen.findByRole("heading", { name: /your inquiries with proglass/i })).toBeTruthy();
-    expect(screen.getByRole("link", { name: /sign in to submit an inquiry/i })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: /^inquiries$/i })).toBeTruthy();
+    expect(screen.getByRole("link", { name: /^sign in$/i }).getAttribute("href")).toContain("/reports/login");
+    expect(screen.getByRole("link", { name: /^create an account$/i })).toBeTruthy();
     expect(screen.queryByTestId("operator-inbox")).toBeNull();
     expect(screen.queryByTestId("access-gate")).toBeNull();
     // Nothing to ask the server when there is no session.
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("gives a plain customer account the customer surfaces and no operator register", async () => {
+  it("gives a plain customer account the public inquiry page and no operator register", async () => {
     const fetchMock = respondWith(access(null));
     renderLanding();
 
-    expect(await screen.findByRole("heading", { name: /your inquiries with proglass/i })).toBeTruthy();
-    expect(screen.getByRole("link", { name: /submit an inquiry/i })).toBeTruthy();
-    expect(screen.getByRole("link", { name: /my inquiries and messages/i })).toBeTruthy();
-    expect(screen.getByRole("link", { name: /proforma invoices shared with me/i })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: /^inquiries$/i })).toBeTruthy();
+    // The two ways in, each with its own destination.
+    expect(screen.getByRole("heading", { name: /^submit an inquiry$/i })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /^submit an inquiry with a proforma invoice$/i })).toBeTruthy();
+    expect(document.querySelector('a[href="/inquiries/submit"]')).toBeTruthy();
+    expect(document.querySelector('a[href="/inquiries/submit/proforma"]')).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /^my inquiries and messages$/i })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /^proformas shared with me$/i })).toBeTruthy();
     expect(screen.queryByTestId("operator-inbox")).toBeNull();
     expect(screen.queryByTestId("access-gate")).toBeNull();
     // The internal queue is not advertised to a customer at all.
@@ -134,7 +139,7 @@ describe("the inquiries page and who may see what", () => {
     renderLanding();
 
     await waitFor(() => expect(screen.getByTestId("operator-inbox")).toBeTruthy());
-    expect(screen.queryByRole("heading", { name: /your inquiries with proglass/i })).toBeNull();
+    expect(screen.queryByRole("heading", { name: /^inquiries$/i })).toBeNull();
   });
 
   it("sends an auditor to the register as well", async () => {
@@ -168,7 +173,7 @@ describe("the inquiries page and who may see what", () => {
     renderLanding();
 
     await waitFor(() => expect(screen.getByTestId("access-gate")).toBeTruthy());
-    expect(screen.getByTestId("access-gate").textContent).toContain("/inquiries");
+    expect(screen.getByTestId("access-gate").textContent).toContain("/inquiries/register");
     expect(screen.queryByTestId("operator-inbox")).toBeNull();
   });
 

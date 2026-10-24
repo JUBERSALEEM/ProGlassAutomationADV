@@ -7,7 +7,6 @@ import { InboxFilters } from "@/components/inquiries/InboxFilters";
 import { InboxHeader } from "@/components/inquiries/InboxHeader";
 import { InboxSummary } from "@/components/inquiries/InboxSummary";
 import { InquiryAccessGate } from "@/components/inquiries/InquiryAccessGate";
-import { OperationsTabs } from "@/components/operations/OperationsTabs";
 import { WebsiteSubmissionsPanel } from "@/components/inquiries/WebsiteSubmissionsPanel";
 import { ProformaLauncher } from "@/components/inquiries/ProformaLauncher";
 import { useOperatorSession } from "@/lib/useOperatorSession";
@@ -34,7 +33,7 @@ const PAGE_SIZE = 50;
  */
 export function InquiriesDashboard() {
   const router = useRouter();
-  const pathname = usePathname() || "/inquiries";
+  const pathname = usePathname() || "/inquiries/register";
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<InboxFilterState>(() => parseInboxFilters(searchParams));
   const [data, setData] = useState<InquiryListData | null>(null);
@@ -133,7 +132,6 @@ export function InquiriesDashboard() {
       />
 
       <div className="shell mt-5 space-y-4">
-        <OperationsTabs className="w-full" />
         {data ? (
           <ProformaLauncher rows={rows} total={data.pagination.totalEntries} filtered={activeFilterCount(filters) > 0} />
         ) : null}
