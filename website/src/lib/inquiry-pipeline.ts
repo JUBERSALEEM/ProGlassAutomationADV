@@ -75,3 +75,40 @@ export function withoutPipelineFields<T extends object>(row: T): T {
   delete rest.pipeline_updated_by;
   return rest as T;
 }
+
+/**
+ * Where the desktop handoff stands, derived from the columns the acknowledgement
+ * already writes: an accepted submission is eligible for the desktop queue, and
+ * a delivered one has moved to `downloaded` with a timestamp. Nothing here reads
+ * the delivery ledger, which stays closed to the browser on purpose.
+ */
+export type InquiryHandoffFields = {
+  status?: string | null;
+  downloaded_at?: string | null;
+};
+
+const HANDOFF_READY = "Ready for desktop";
+const HANDOFF_DONE = "Handed to desktop";
+
+export function inquiryHandoffLabel(row: InquiryHandoffFields | null | undefined): string {
+  if (!row?.status) return "";
+  if (row.status === "downloaded") return HANDOFF_DONE;
+  if (row.status === "accepted") return HANDOFF_READY;
+  return "";
+}
+
+export function isInquiryHandedOff(row: InquiryHandoffFields | null | undefined): boolean {
+  return inquiryHandoffLabel(row) === HANDOFF_DONE;
+}
+
+/** One line for the review screen, empty when there is nothing to say yet. */
+export function inquiryHandoffSummary(
+  row: InquiryHandoffFields,
+  locale?: string,
+  timeZone = "Asia/Dubai",
+): string {
+  const label = inquiryHandoffLabel(row);
+  if (!label) return "";
+  const at = formatInquiryPipelineTime(row.downloaded_at, locale, timeZone);
+  return at ? `${label}, ${at}` : label;
+}

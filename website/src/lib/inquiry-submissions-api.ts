@@ -49,7 +49,9 @@ async function operatorClient(token: string): Promise<SupabaseClient> {
   const { client, userId } = await customerClient(token);
   const role = await client.from("inquiry_operator_roles").select("role,enabled").eq("user_id", userId).maybeSingle();
   if (role.error) failDatabase(role.error);
-  if (!role.data?.enabled || !["inquiry_viewer", "inquiry_auditor", "inquiry_admin"].includes(role.data.role)) {
+  // The Phase 12 matrix gives inquiry_viewer no inbox access, so the page refuses
+  // it here as clearly as the database does.
+  if (!role.data?.enabled || !["inquiry_auditor", "inquiry_admin"].includes(role.data.role)) {
     throw new CustomerInquiryFailure("FORBIDDEN", "An enabled inquiry operator role is required.");
   }
   return client;

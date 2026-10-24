@@ -3,8 +3,11 @@ import {
   INQUIRY_PIPELINE_STATUSES,
   formatInquiryPipelineTime,
   hasInquiryPipelineStatus,
+  inquiryHandoffLabel,
+  inquiryHandoffSummary,
   inquiryPipelineLabel,
   inquiryPipelineSummary,
+  isInquiryHandedOff,
   isInquiryPipelineStatus,
   withoutPipelineFields,
 } from "../src/lib/inquiry-pipeline";
@@ -88,5 +91,33 @@ describe("customer-facing payloads", () => {
     });
     // The source row is untouched, so an operator response can still read it.
     expect(row.pipeline_status).toBe("prepared");
+  });
+});
+
+describe("desktop handoff", () => {
+  it("separates the queue from the handoff", () => {
+    expect(inquiryHandoffLabel({ status: "accepted" })).toBe("Ready for desktop");
+    expect(inquiryHandoffLabel({ status: "downloaded" })).toBe("Handed to desktop");
+    expect(isInquiryHandedOff({ status: "downloaded" })).toBe(true);
+    expect(isInquiryHandedOff({ status: "accepted" })).toBe(false);
+  });
+
+  it("says nothing for a submission the desktop has not reached", () => {
+    for (const status of ["submitted", "under_review", "rejected", "closed", "", null, undefined]) {
+      expect(inquiryHandoffLabel({ status })).toBe("");
+      expect(inquiryHandoffSummary({ status })).toBe("");
+    }
+  });
+
+  it("dates the handoff in shop time", () => {
+    const line = inquiryHandoffSummary(
+      { status: "downloaded", downloaded_at: "2026-10-23T10:00:00.000Z" },
+      "en-GB",
+    );
+    expect(line).toBe("Handed to desktop, 23 Oct 2026, 14:00");
+  });
+
+  it("does not invent a time when the stamp is missing", () => {
+    expect(inquiryHandoffSummary({ status: "downloaded" }, "en-GB")).toBe("Handed to desktop");
   });
 });

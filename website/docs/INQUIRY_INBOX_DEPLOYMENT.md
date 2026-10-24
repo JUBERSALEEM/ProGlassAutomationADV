@@ -107,6 +107,16 @@ screen.
 Display only: no new route, no new filter, no change to the status control, the
 review RPC or the operator permissions.
 
+## Phase 13: role matrix and self-access (proposed)
+
+`supabase-inquiry-role-matrix-phase13.sql` adds `get_my_inquiry_access_v1`, a
+database-scoped operator inbox (`list_customer_inquiry_inbox_v1`), a role audit,
+and three behaviour changes that need an owner decision before they are applied:
+the viewer role leaves the intake surfaces, pipeline write-back and the chat pull
+widen to admins and assigned estimators, and the acknowledgement replay is fixed.
+It has not been applied. Read `PHASE13_INQUIRY_ROLE_MATRIX.md` first; it also
+carries the triage for a bridge call that is refused after a successful sign-in.
+
 ## Recovery
 
 `.staging/*.partial` folders are never operator-visible completed deliveries. They are removed on a handled failure, and a later apply removes stale interrupted staging directories before retrying. If the process stops after atomic rename but before acknowledgement, the next apply validates the existing manifest and every delivered file hash before safely acknowledging without downloading duplicate files. A conflicting existing final folder stops the run. Remote acknowledgement is idempotent only for the same manifest hash and document count; conflicts fail closed.
