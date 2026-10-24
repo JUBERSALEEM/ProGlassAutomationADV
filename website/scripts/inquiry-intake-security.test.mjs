@@ -223,3 +223,51 @@ test("customer document downloads are ownership-authorized, audited and integrit
   assert.match(api, /createHash\("sha256"\)/);
   assert.match(api, /bytes\.byteLength !== Number\(metadata\.byte_size\)/);
 });
+
+/* Phase C8: the inquiries page has two audiences.
+ *
+ * A customer used to sign in, land on the operator register, and be refused by
+ * the database; the refusal screen then offered them a link to the website
+ * submission queue, which is internal too. The page now decides from the
+ * account's single role, and a customer only ever reaches their own surfaces.
+ */
+test("the inquiries page routes by role and never shows a customer an operator register", () => {
+  const landing = readFileSync(new URL("../src/components/inquiries/InquiryLanding.tsx", import.meta.url), "utf8");
+  const customer = readFileSync(new URL("../src/components/inquiries/CustomerInquiriesHome.tsx", import.meta.url), "utf8");
+  const gate = readFileSync(new URL("../src/components/inquiries/InquiryAccessGate.tsx", import.meta.url), "utf8");
+  const roles = readFileSync(new URL("../src/lib/inquiry-access-roles.ts", import.meta.url), "utf8");
+  const page = readFileSync(new URL("../src/app/[locale]/inquiries/page.tsx", import.meta.url), "utf8");
+
+  // One role list, and it is the pair the database policy names.
+  assert.match(roles, /INQUIRY_REGISTER_ROLES = \["inquiry_auditor", "inquiry_admin"\] as const/);
+  assert.match(landing, /classifyInquirySurface\(access\.role, access\.enabled\)/);
+  assert.match(page, /InquiryLanding/);
+
+  // The register mounts only for a register role; every other branch is a
+  // notice or the customer page.
+  assert.match(landing, /if \(surface === "register"\) return <InquiriesDashboard \/>;/);
+  assert.match(landing, /if \(surface === "estimator"\)/);
+  assert.match(landing, /if \(surface === "bridge"\)/);
+  assert.match(landing, /if \(surface === "restricted"\) \{/);
+  assert.match(landing, /<CustomerInquiriesHome/);
+
+  // A failed access read must fail closed: no register, a retry instead.
+  assert.match(landing, /if \(state\.status === "failed"\) \{/);
+  assert.doesNotMatch(landing, /status === "failed"[\s\S]{0,200}InquiriesDashboard/);
+
+  // Customers get their own three surfaces, and nothing internal is advertised
+  // to them: no queue link, no register link, no role screenshot.
+  assert.match(customer, /href="\/inquiries\/submit"/);
+  assert.match(customer, /href="\/inquiries\/chat"/);
+  assert.match(customer, /href="\/account\/proformas"/);
+  assert.match(customer, /staff only/i);
+  assert.doesNotMatch(customer, /customer-submissions/);
+  assert.doesNotMatch(customer, /inquiry_auditor/);
+
+  // The refusal screen no longer points at another internal page, and it does
+  // not explain staff roles to an account that has none.
+  assert.doesNotMatch(gate, /href="\/inquiries\/customer-submissions"/);
+  assert.match(gate, /customerAccount \? "Staff only" : "Restricted internal documents"/);
+  assert.match(gate, /href=\{role === "inquiry_estimator" \? "\/inquiries\/estimator" : "\/inquiries"\}/);
+  assert.match(gate, /\{customerAccount \? null : \(/);
+});

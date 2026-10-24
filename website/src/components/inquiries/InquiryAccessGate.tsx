@@ -72,7 +72,10 @@ export function InquiryAccessGate({ redirectPath }: { redirectPath: string }) {
   const access = state.status === "known" ? state.access : null;
   const email = access?.email || userEmail || "";
   const role = access?.role ?? null;
-  const roleHelp = role ? ROLE_HELP[role] : "This account holds no inquiry operator role.";
+  const customerAccount = state.status === "known" && !role;
+  const roleHelp = role
+    ? ROLE_HELP[role]
+    : "This is a customer account. It can submit inquiries and follow its own submissions, but the internal registers are staff only.";
 
   return (
     <main className="min-h-[70vh] bg-ink-950 px-4 py-16 text-text-primary">
@@ -80,9 +83,9 @@ export function InquiryAccessGate({ redirectPath }: { redirectPath: string }) {
         className="mx-auto w-full max-w-xl rounded-panel border border-line-strong/80 bg-ink-900 text-left shadow-raised card-pad"
         aria-labelledby="inquiry-access-title"
       >
-        <Badge tone="warning">Restricted internal documents</Badge>
+        <Badge tone="warning">{customerAccount ? "Staff only" : "Restricted internal documents"}</Badge>
         <h1 id="inquiry-access-title" className="mt-3 text-xl font-bold tracking-tight">
-          This account cannot open the inquiry register
+          {customerAccount ? "This page is for ProGlass staff" : "This account cannot open the inquiry register"}
         </h1>
 
         <dl className="mt-4 grid gap-2 rounded-xl border border-line-strong/60 bg-ink-950/60 p-3 text-xs sm:grid-cols-2">
@@ -99,7 +102,9 @@ export function InquiryAccessGate({ redirectPath }: { redirectPath: string }) {
           </div>
           <div className="sm:col-span-2">
             <dt className="text-3xs uppercase tracking-wider text-text-faint">This page needs</dt>
-            <dd className="mt-0.5 font-mono text-text-primary">inquiry_auditor or inquiry_admin, enabled</dd>
+            <dd className="mt-0.5 font-mono text-text-primary">
+              {customerAccount ? "a ProGlass staff role" : "inquiry_auditor or inquiry_admin, enabled"}
+            </dd>
           </div>
         </dl>
 
@@ -121,10 +126,10 @@ export function InquiryAccessGate({ redirectPath }: { redirectPath: string }) {
           </button>
           <div className="grid gap-2 sm:grid-cols-2">
             <LocaleLink
-              href="/inquiries/customer-submissions"
+              href={role === "inquiry_estimator" ? "/inquiries/estimator" : "/inquiries"}
               className="flex h-10 items-center justify-center rounded-xl border border-brand-400/40 bg-brand-500/10 text-xs font-semibold text-brand-300 hover:text-brand-200"
             >
-              Customer submissions
+              {role === "inquiry_estimator" ? "Estimator workspace" : "Your inquiries"}
             </LocaleLink>
             <LocaleLink
               href="/"
@@ -135,6 +140,7 @@ export function InquiryAccessGate({ redirectPath }: { redirectPath: string }) {
           </div>
         </div>
 
+        {customerAccount ? null : (
         <details className="mt-4 rounded-xl border border-line-strong/60 bg-ink-950/60 p-3">
           <summary className="cursor-pointer text-3xs font-semibold uppercase tracking-wider text-text-faint">
             How an administrator grants the role
@@ -150,6 +156,7 @@ export function InquiryAccessGate({ redirectPath }: { redirectPath: string }) {
  where user_id = '${access?.user_id ?? "<auth user id>"}';`}
           </pre>
         </details>
+        )}
       </section>
     </main>
   );
