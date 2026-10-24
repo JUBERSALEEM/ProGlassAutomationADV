@@ -15,7 +15,7 @@ import {
   inquiryPipelineLabel,
   inquiryPipelineSummary,
 } from "@/lib/inquiry-pipeline";
-import { isCustomerInquiryStatus, statusLabel, statusSummary, statusTone } from "@/lib/inquiry-submission-status";
+import { isAwaitingProformaApproval, isCustomerInquiryStatus, statusLabel, statusSummary, statusTone } from "@/lib/inquiry-submission-status";
 import { useOperatorSession } from "@/lib/useOperatorSession";
 import type { CustomerInquiryPage, CustomerInquiryStatusCounts, CustomerInquiryListItem } from "@/types/inquiry-submissions";
 
@@ -284,6 +284,7 @@ export function CustomerSubmissionRegister({
                     <div className="flex flex-wrap items-center gap-2">
                       <strong className="font-mono text-sm tracking-tight">{r.submission_reference}</strong>
                       <Badge tone={statusTone(r.status)}>{statusLabel(r.status)}</Badge>
+                      {isAwaitingProformaApproval(r) ? <Badge tone="warning">PI request · awaiting approval</Badge> : null}
                     </div>
                     <p className="mt-2 text-sm font-semibold">{r.company_name} · {r.project_name}</p>
                     <p className="mt-1 text-xs text-text-muted">

@@ -5,6 +5,8 @@ import test from "node:test";
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 
 const sql = read("../supabase-inquiry-intake-phaseC9-auto-handoff.sql");
+const c10 = read("../supabase-inquiry-intake-phaseC10-proforma-requests-visible.sql");
+const c10Applied = c10.split("ROLLBACK")[0].replace(/^\s*--.*$/gm, "");
 const page = read("../src/app/[locale]/inquiries/page.tsx");
 const registerPage = read("../src/app/[locale]/inquiries/register/page.tsx");
 const welcome = read("../src/components/inquiries/InquiryWelcome.tsx");
@@ -44,14 +46,25 @@ test("a complete submission is deliverable without an acceptance step", () => {
   assert.match(sql, /p_routing_key IS DISTINCT FROM v_route/);
 });
 
-test("a proforma invoice request waits for a coordinator", () => {
+test("a proforma invoice request reaches the desk and is flagged for approval", () => {
   assert.match(types, /"proforma_invoice"/);
   assert.match(sql, /inquiry_type IN \('quotation','drawing_review','technical','order_handover','proforma_invoice','other'\)/);
   assert.match(sql, /default_inquiry_type IN \('quotation','drawing_review','technical','order_handover','proforma_invoice','other'\)/);
-  // Finalize parks only that type, and says so in the customer-visible event.
-  assert.match(sql, /status=CASE WHEN v_submission\.inquiry_type='proforma_invoice'\s*\n\s*THEN 'under_review' ELSE 'submitted' END/);
-  assert.match(sql, /'desktop_handoff',CASE WHEN v_submission\.inquiry_type='proforma_invoice'/);
-  assert.match(sql, /THEN 'held_for_coordinator' ELSE 'ready' END/);
+
+  // C9 introduced the type and the delivery gate. C10 removed the hold: every
+  // complete submission is finalized as submitted, and the request is flagged
+  // instead of parked.
+  assert.match(sql, /s\.status IN \('submitted','accepted'\)/);
+  assert.doesNotMatch(c10Applied, /under_review/);
+  assert.match(c10Applied, /status='submitted',\n\s+accepted_at=NULL/);
+  assert.match(c10Applied, /'approval_required',v_submission\.inquiry_type='proforma_invoice'/);
+  assert.doesNotMatch(c10Applied, /held_for_coordinator/);
+
+  // under_review is still the deliberate operator hold, and it is still not
+  // deliverable; the rollback in the file restores the C9 branch.
+  assert.match(sql, /WHERE s\.upload_state='complete' AND s\.status IN \('submitted','accepted'\) AND x\.submission_id IS NULL/);
+  assert.match(c10, /status=CASE WHEN v_submission\.inquiry_type='proforma_invoice'\s*\n\s*THEN 'under_review' ELSE 'submitted' END/);
+
   // The portal offers the type and the dedicated route preselects it.
   assert.match(portal, /CUSTOMER_INQUIRY_TYPES\.map/);
   assert.match(portal, /defaultValue=\{intent\}/);

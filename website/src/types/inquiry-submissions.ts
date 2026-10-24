@@ -30,9 +30,10 @@ export type CustomerInquiryType = (typeof CUSTOMER_INQUIRY_TYPES)[number];
 /**
  * What the customer is asking for, in their words.
  *
- * `proforma_invoice` is the one type that is held for a coordinator: a customer
- * asking for a PI is asking for a priced document, and the desktop inbox is not
- * allowed to receive it until a human has accepted it on the website.
+ * `proforma_invoice` is the one type that carries an approval: a customer asking
+ * for a PI is asking for a priced document. It reaches the desk like any other
+ * submission — the files are there to read — and a coordinator still accepts it
+ * on the website, which records the decision. Acceptance is a flag, not a gate.
  */
 export const CUSTOMER_INQUIRY_TYPE_LABELS: Record<CustomerInquiryType, string> = {
   quotation: "Quotation",

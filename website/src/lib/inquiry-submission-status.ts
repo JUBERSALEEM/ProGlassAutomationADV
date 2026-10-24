@@ -82,3 +82,18 @@ export function reviewSelection(status: CustomerInquiryStatus): CustomerInquiryR
 export function isReviewLocked(status: CustomerInquiryStatus): boolean {
   return status === "rejected" || status === "closed";
 }
+
+/**
+ * A proforma invoice request that no coordinator has accepted yet.
+ *
+ * The desk receives a proforma request like any other submission — the files
+ * are there and they can be downloaded — so "awaiting approval" is not a
+ * delivery state. It is a decision someone still owes, and it outlives the
+ * download: a request pulled by the shop PC and never accepted is still awaiting
+ * approval. Derived from the type and the status on purpose, so there is one
+ * fact to read and none to keep in step.
+ */
+export function isAwaitingProformaApproval(row: { inquiry_type: string; status: string }): boolean {
+  if (row.inquiry_type !== "proforma_invoice") return false;
+  return row.status === "submitted" || row.status === "under_review" || row.status === "downloaded";
+}

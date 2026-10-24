@@ -6,13 +6,18 @@ empty inbox. The owner's instruction is now explicit — an ordinary inquiry mus
 reach the shop PC as soon as the customer sends it, with no acceptance step, and
 only a **proforma invoice request** should wait for a coordinator.
 
+> **C10 changed that last rule.** A proforma invoice request is no longer parked:
+> it reaches the desk like any other submission, with its files, and a
+> coordinator still accepts it — as a recorded decision rather than a gate. See
+> `PHASE_C10_PROFORMA_REQUEST_VISIBLE.md`. Everything else below still holds.
+
 ## The rule, before and after
 
 | | Before | After |
 | --- | --- | --- |
 | Offered to the desk | `complete` **and** `accepted` **and** not yet delivered | `complete` **and** (`submitted` or `accepted`) **and** not yet delivered |
 | A normal inquiry | waits for a human | delivered on the next check |
-| A `proforma_invoice` request | waits for a human | finalized in `under_review`; delivered only after a coordinator accepts it |
+| A `proforma_invoice` request | waits for a human | finalized as `submitted` and delivered like any other; a coordinator accepts it afterwards (C10) |
 | An operator hold | only `accepted` was delivered, so `under_review` was already a hold | unchanged: `under_review` is still a hold |
 | The files | readable only while `accepted` | readable while `submitted` or `accepted` |
 
@@ -32,6 +37,8 @@ and it is the mandatory gate for a priced document.
    `complete`, but it sets `under_review` for a `proforma_invoice` request and
    `submitted` for everything else, and it records
    `desktop_handoff: held_for_coordinator|ready` in the customer-visible event.
+   *(C10 removed the `under_review` branch: every type is finalized as
+   `submitted`, and the event records `approval_required` instead.)*
 3. **The delivery gate.** `plan_customer_inquiry_deliveries_v2`,
    `plan_customer_inquiry_delivery_documents` and
    `acknowledge_customer_inquiry_delivery_v2` accept `submitted` or `accepted`.

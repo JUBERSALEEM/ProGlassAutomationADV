@@ -11,7 +11,7 @@ import {
   inquiryHandoffSummary,
   inquiryPipelineLabel,
 } from "@/lib/inquiry-pipeline";
-import { isReviewLocked, isReviewStatus, reviewSelection, statusLabel, statusSummary, statusTone } from "@/lib/inquiry-submission-status";
+import { isAwaitingProformaApproval, isReviewLocked, isReviewStatus, reviewSelection, statusLabel, statusSummary, statusTone } from "@/lib/inquiry-submission-status";
 import { useOperatorSession } from "@/lib/useOperatorSession";
 import {
   CUSTOMER_INQUIRY_REVIEW_STATUSES,
@@ -216,6 +216,13 @@ export function CustomerSubmissionReview({ id }: { id: string }) {
               {statusSummary(item.status)}
               {formatInquiryPipelineTime(item.status_updated_at) ? ` Status last changed ${formatInquiryPipelineTime(item.status_updated_at)}.` : ""}
             </p>
+            {isAwaitingProformaApproval(item) ? (
+              <p className="mt-2 max-w-2xl rounded-xl border border-line-strong/70 bg-ink-900/70 px-3 py-2 text-xs text-text-secondary">
+                <b className="text-text-primary">Proforma invoice request.</b> The desk already has this submission and its
+                files, so nothing is being held back. Choosing <b className="text-text-primary">Accepted</b> records the
+                coordinator&rsquo;s approval of the priced document; the desk keeps the submission either way.
+              </p>
+            ) : null}
           </div>
           <LocaleLink href="/inquiries/customer-submissions" className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted hover:text-text-primary">
             Back to the queue
