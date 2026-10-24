@@ -120,6 +120,15 @@ the post-apply evidence, and the triage for a bridge call that is refused after
 a successful sign-in.
 
 
+## Phase 14: admin on the desktop delivery loop (applied)
+
+`supabase-inquiry-desktop-access-phase14.sql` lets an enabled `inquiry_admin`
+run the three delivery calls the desk makes, alongside the machine bridge. It
+was applied because the owner's own account signed in and was then refused with
+`42501` by a plan call gated to `inquiry_bridge` alone. Read
+`PHASE14_DESKTOP_OPERATOR_ACCESS.md` for the diagnosis, the trade-off, the
+verification, and the three desktop-side fixes this repository cannot make.
+
 ## Recovery
 
 `.staging/*.partial` folders are never operator-visible completed deliveries. They are removed on a handled failure, and a later apply removes stale interrupted staging directories before retrying. If the process stops after atomic rename but before acknowledgement, the next apply validates the existing manifest and every delivered file hash before safely acknowledging without downloading duplicate files. A conflicting existing final folder stops the run. Remote acknowledgement is idempotent only for the same manifest hash and document count; conflicts fail closed.

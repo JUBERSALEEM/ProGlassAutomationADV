@@ -199,7 +199,7 @@ test("the deterministic database assertions cover the matrix", () => {
     "customer isolation holds",
     "unassigned estimator cannot download",
     "acknowledgement is idempotent and fails closed",
-    "acknowledgement stays bridge-only",
+    "acknowledgement stays closed to an estimator",
     "unassigned estimator cannot write",
     "the role audit is admin and auditor only",
     "anon closed, authenticated open",

@@ -61,6 +61,12 @@ CREATE TABLE public.inquiry_customer_submissions (
   company_name text NOT NULL DEFAULT 'Company',
   project_name text NOT NULL DEFAULT 'Project',
   project_location text NOT NULL DEFAULT '',
+  phone text NOT NULL DEFAULT '',
+  customer_reference text NOT NULL DEFAULT '',
+  attention_name text NOT NULL DEFAULT '',
+  vat_trn_number text NOT NULL DEFAULT '',
+  salesman_reference text NOT NULL DEFAULT '',
+  handover_estimator_name text NOT NULL DEFAULT '',
   inquiry_type text NOT NULL DEFAULT 'quotation',
   description text NOT NULL DEFAULT 'A description of the work.',
   status text NOT NULL DEFAULT 'submitted'
@@ -298,16 +304,22 @@ BEGIN
 END $$;
 GRANT EXECUTE ON FUNCTION public.list_customer_inquiry_communications_v1(uuid) TO authenticated;
 
--- The bridge plan RPC, as it exists live today (bridge-only, undelivered only).
+-- The bridge plan RPC, as it exists live today (bridge-only, undelivered only,
+-- full 20-column row shape after Phase 13).
 CREATE OR REPLACE FUNCTION public.plan_customer_inquiry_deliveries_v2(p_limit integer DEFAULT 25)
 RETURNS TABLE (submission_id uuid, submission_reference text, submitted_at timestamptz, status text,
-  company_name text, document_count bigint, primary_estimator_code text, assignment_snapshot jsonb, routing_key text)
+  contact_name text, company_name text, phone text, customer_reference text, attention_name text,
+  vat_trn_number text, salesman_reference text, handover_estimator_name text, project_name text,
+  project_location text, inquiry_type text, description text, document_count bigint,
+  primary_estimator_code text, assignment_snapshot jsonb, routing_key text)
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=public,pg_temp AS $$
 BEGIN
   IF NOT public.has_inquiry_role(ARRAY['inquiry_bridge']) THEN
     RAISE EXCEPTION 'Inquiry bridge role required.' USING ERRCODE='42501'; END IF;
-  RETURN QUERY SELECT s.id, s.submission_reference, s.submitted_at, s.status, s.company_name,
-    count(d.id)::bigint, p.estimator_code, public.customer_inquiry_assignment_snapshot(s.id),
+  RETURN QUERY SELECT s.id,s.submission_reference,s.submitted_at,s.status,s.contact_name,s.company_name,
+    s.phone,s.customer_reference,s.attention_name,s.vat_trn_number,s.salesman_reference,
+    s.handover_estimator_name,s.project_name,s.project_location,s.inquiry_type,s.description,
+    count(d.id)::bigint,p.estimator_code,public.customer_inquiry_assignment_snapshot(s.id),
     CASE WHEN p.estimator_code IS NULL THEN 'unassigned' ELSE 'assigned/'||p.estimator_code END
   FROM public.inquiry_customer_submissions s
   LEFT JOIN public.inquiry_customer_documents d ON d.submission_id=s.id AND d.availability='available'
@@ -318,8 +330,7 @@ BEGIN
     WHERE a.submission_id=s.id AND a.active AND a.assignment_role='primary' AND e.active LIMIT 1
   ) p ON true
   WHERE s.upload_state='complete' AND s.status='accepted' AND x.submission_id IS NULL
-  GROUP BY s.id, p.estimator_code ORDER BY s.submitted_at, s.id
-  LIMIT greatest(1, least(coalesce(p_limit,25),100));
+  GROUP BY s.id,p.estimator_code ORDER BY s.submitted_at,s.id LIMIT greatest(1,least(coalesce(p_limit,25),100));
 END $$;
 REVOKE ALL ON FUNCTION public.plan_customer_inquiry_deliveries_v2(integer) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.plan_customer_inquiry_deliveries_v2(integer) TO authenticated;

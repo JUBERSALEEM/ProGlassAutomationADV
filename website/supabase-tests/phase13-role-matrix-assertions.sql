@@ -366,21 +366,23 @@ END $$;
 ROLLBACK;
 SELECT 'case 18 ok: acknowledgement is idempotent and fails closed' AS result;
 
--- 19. Only the bridge acknowledges; people do not.
+-- 19. Acknowledgement stays closed to an estimator. Phase 14 widened this
+-- to the admin as well, which the Phase 14 assertions cover; the estimator
+-- boundary is the one this case keeps guarding.
 BEGIN;
-SELECT set_config('request.jwt.claims', json_build_object('sub','aaaaaaaa-0000-4000-8000-000000000002')::text, true);
+SELECT set_config('request.jwt.claims', json_build_object('sub','aaaaaaaa-0000-4000-8000-000000000004')::text, true);
 SET LOCAL ROLE authenticated;
 DO $$
 BEGIN
   BEGIN
     PERFORM public.acknowledge_customer_inquiry_delivery_v2(
       'ffffffff-0000-4000-8000-000000000001', repeat('c',64), 1, 'assigned/EST-A', '[]'::jsonb);
-    RAISE EXCEPTION 'case 19: admin acknowledged';
+    RAISE EXCEPTION 'case 19: estimator acknowledged';
   EXCEPTION WHEN insufficient_privilege THEN NULL;
   END;
 END $$;
 ROLLBACK;
-SELECT 'case 19 ok: acknowledgement stays bridge-only' AS result;
+SELECT 'case 19 ok: acknowledgement stays closed to an estimator' AS result;
 
 -- 20. Pipeline write-back follows the matrix and keeps attribution.
 BEGIN;
