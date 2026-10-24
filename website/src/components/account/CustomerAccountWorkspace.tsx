@@ -620,6 +620,7 @@ export function CustomerAccountWorkspace() {
             <div className="mt-4 space-y-3">
               <QuickLink href="/chat" title="Community chat" description="Compact live room with replies, delivery ticks, Read by, and Delivered to." />
               <QuickLink href={customerInquiryChatPath()} title="My inquiry chats" description="Private conversations and status for inquiries that belong to your account." />
+              <QuickLink href="/account/proformas" title="Proforma invoices" description="The proforma invoices shared with your account, with the figures that were shared." />
               <QuickLink href="/inquiries/submit" title="Submit a new inquiry" description="Send project documents and details for a quotation or technical review." />
             </div>
           </section>

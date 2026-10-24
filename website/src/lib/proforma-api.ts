@@ -75,6 +75,111 @@ async function authorizedClient(token: string, mode: "read" | "write"): Promise<
   return client;
 }
 
+/** What the customer currently holds, and whether that is the current revision. */
+export type ProformaShareState = {
+  proforma_id: string | null;
+  current_revision: number;
+  /** False when the inquiry has no linked customer submission, so nobody to share with. */
+  customer_linked: boolean;
+  share: { revision: number; shared_at: string } | null;
+  /** True when a newer revision exists than the one the customer was given. */
+  stale: boolean;
+  /** True when this account may share or withdraw (administrator only). */
+  can_write: boolean;
+};
+
+/**
+ * Read the share state of the inquiry's website proforma.
+ *
+ * A deployment that has not applied C1 has no `web_submission_id`, and one that
+ * has not applied C7 has no share ledger. Neither is an error here: the panel
+ * says the document cannot be shared yet instead of breaking the workspace.
+ */
+export async function readProformaShare(token: string, inquiryId: string): Promise<ProformaShareState> {
+  if (!isUuid(inquiryId)) throw new ProformaApiFailure("NOT_FOUND", "Inquiry not found.");
+  const client = await authorizedClient(token, "read");
+  const empty: ProformaShareState = { proforma_id: null, current_revision: 0, customer_linked: false, share: null, stale: false, can_write: false };
+
+  // The role decides whether the panel offers the action. It is read from the
+  // same table every write function checks, so the button and the refusal agree.
+  const user = await client.auth.getUser(token);
+  const roleRow = user.data.user
+    ? await client.from("inquiry_operator_roles").select("role").eq("user_id", user.data.user.id).maybeSingle()
+    : { data: null };
+  const canWrite = Boolean(roleRow.data && (roleRow.data as { role?: string }).role === "inquiry_admin");
+
+  const proforma = await client
+    .from("inquiry_proformas")
+    .select("id,revision,status")
+    .eq("inquiry_id", inquiryId)
+    .eq("source_system", "website")
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (proforma.error) {
+    if (missingRelation(proforma.error)) return { ...empty, can_write: canWrite };
+    databaseFailure(proforma.error);
+  }
+  if (!proforma.data) return { ...empty, can_write: canWrite };
+
+  const linked = await client.from("inquiries").select("web_submission_id").eq("id", inquiryId).maybeSingle();
+  const customerLinked = !linked.error && Boolean((linked.data as unknown as Record<string, unknown> | null)?.web_submission_id);
+
+  const share = await client
+    .from("inquiry_proforma_shares")
+    .select("revision,shared_at")
+    .eq("proforma_id", String(proforma.data.id))
+    .maybeSingle();
+  if (share.error && !missingRelation(share.error)) databaseFailure(share.error);
+
+  const currentRevision = numeric((proforma.data as unknown as Record<string, unknown>).revision);
+  const shared = share.data
+    ? { revision: numeric((share.data as unknown as Record<string, unknown>).revision), shared_at: String((share.data as unknown as Record<string, unknown>).shared_at || "") }
+    : null;
+
+  return {
+    proforma_id: String(proforma.data.id),
+    current_revision: currentRevision,
+    customer_linked: customerLinked,
+    share: shared,
+    stale: Boolean(shared && shared.revision !== currentRevision),
+    can_write: canWrite,
+  };
+}
+
+/**
+ * Share the current revision with the customer account that owns the inquiry.
+ * The database decides who that is and refuses when the inquiry is unlinked.
+ */
+export async function shareProforma(token: string, inquiryId: string): Promise<number> {
+  const state = await readProformaShare(token, inquiryId);
+  if (!state.proforma_id) throw new ProformaApiFailure("NOT_FOUND", "Save the proforma before sharing it.");
+  const client = await authorizedClient(token, "write");
+  const { data, error } = await client.rpc("share_inquiry_proforma", { p_proforma_id: state.proforma_id });
+  if (error) {
+    if (error.code === "42501" || /permission denied|needs an enabled/i.test(error.message || "")) {
+      throw new ProformaApiFailure("FORBIDDEN", error.message || "Sharing a proforma needs an inquiry administrator role.");
+    }
+    if (error.code === "P0002") throw new ProformaApiFailure("INVALID", error.message);
+    if (error.code === "22023") throw new ProformaApiFailure("INVALID", error.message);
+    databaseFailure(error);
+  }
+  return numeric(data);
+}
+
+export async function revokeProformaShare(token: string, inquiryId: string): Promise<void> {
+  const state = await readProformaShare(token, inquiryId);
+  if (!state.proforma_id) throw new ProformaApiFailure("NOT_FOUND", "There is no proforma to withdraw.");
+  const client = await authorizedClient(token, "write");
+  const { error } = await client.rpc("revoke_inquiry_proforma_share", { p_proforma_id: state.proforma_id });
+  if (error) {
+    if (error.code === "42501" || /permission denied|needs an enabled/i.test(error.message || "")) {
+      throw new ProformaApiFailure("FORBIDDEN", error.message || "Withdrawing a shared proforma needs an inquiry administrator role.");
+    }
+    databaseFailure(error);
+  }
+}
+
 function lineRow(row: Record<string, unknown>): ProformaLine {
   return {
     group_no: numeric(row.group_no),

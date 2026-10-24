@@ -33,15 +33,18 @@ describe("the approved proforma status vocabulary", () => {
     expect(normaliseProformaStatus("SENT")).toBe("Draft");
   });
 
-  it("claims no transition the website cannot perform", () => {
-    // Sending, acceptance and issuance have no operation behind them on the
-    // website, so nothing may appear to move a document into those states.
-    expect(IMPLEMENTED_TRANSITIONS).toEqual([]);
+  it("claims only the transition that has an operation behind it", () => {
+    // Phase C7 made sharing the document with the customer account real, and that
+    // operation is what moves Draft to Sent. Acceptance and issuance still have no
+    // operation, so they must not appear here.
+    expect(IMPLEMENTED_TRANSITIONS).toHaveLength(1);
+    expect(IMPLEMENTED_TRANSITIONS[0]).toMatchObject({ from: "Draft", to: "Sent" });
+    expect(IMPLEMENTED_TRANSITIONS.some((transition) => transition.to === "Approved")).toBe(false);
+    expect(IMPLEMENTED_TRANSITIONS.some((transition) => transition.to === "Issued")).toBe(false);
   });
 
   it("records the transitions that are still missing as pending", () => {
     const pending = PENDING_TRANSITIONS.map((transition) => `${transition.from}->${transition.to}`);
-    expect(pending).toContain("Draft->Sent");
     expect(pending).toContain("Sent->Approved");
     expect(pending).toContain("Sent->Issued");
     expect(pending).toContain("Draft->Cancelled");

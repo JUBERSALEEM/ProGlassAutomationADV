@@ -5,6 +5,7 @@ import { LocaleLink } from "@/components/ui/LocaleLink";
 import { InquiryAccessGate } from "@/components/inquiries/InquiryAccessGate";
 import { ProformaBuilder } from "@/components/inquiries/proforma/ProformaBuilder";
 import { ProformaDocument } from "@/components/inquiries/proforma/ProformaDocument";
+import { ProformaSharePanel } from "@/components/inquiries/proforma/ProformaSharePanel";
 import { draftDiffersFromSaved } from "@/lib/proforma-document";
 import { EMPTY_RATE_SETTING, applyRatePlan, planRates, settingsFromServer, settingsPayload, type RateSetting } from "@/lib/proforma-rates";
 import { ProformaSpecification } from "@/components/inquiries/proforma/ProformaSpecification";
@@ -337,6 +338,7 @@ export function ProformaWorkspace({ inquiryId }: { inquiryId: string }) {
       </header>
 
       <div className="shell mt-4 space-y-3">
+        <ProformaSharePanel inquiryId={inquiryId} authToken={authToken} />
         {error ? (
           <section role="alert" className="rounded-2xl border border-state-danger/45 bg-state-danger/10 p-3">
             <p className="text-xs text-state-danger">{error}</p>

@@ -9,12 +9,12 @@
  * converted every legacy Void row to Cancelled, and this module normalises any
  * value still arriving from an older database so a page never shows the old word.
  *
- * What is implemented today is only what the website can honestly perform. There is
- * no send operation, no acceptance operation and no issuance operation on the
- * website, so no code here moves a document into Sent, Approved or Issued. Listing
- * them as allowed targets without an operation behind them would be a lie in a
- * type, so `IMPLEMENTED_TRANSITIONS` is deliberately empty and the vocabulary
- * exists for reading and for the operations that will be added with their contracts.
+ * What is implemented today is only what the website can honestly perform. Phase C7
+ * added one operation: sharing a saved revision with the customer account that owns
+ * the inquiry, which is how the customer receives the document and is therefore the
+ * moment Draft becomes Sent. There is still no acceptance and no issuance operation,
+ * so nothing moves a document into Approved or Issued. Listing those without an
+ * operation behind them would be a lie in a type.
  */
 
 export type ProformaStatus = "Draft" | "Sent" | "Approved" | "Issued" | "Cancelled";
@@ -54,14 +54,19 @@ export function isLegacyStatus(value: string | null | undefined): boolean {
  * operation that causes it, so nothing can mark a document as sent when it was
  * never sent.
  */
-export const IMPLEMENTED_TRANSITIONS: ReadonlyArray<{ from: ProformaStatus; to: ProformaStatus; operation: string }> = [];
+export const IMPLEMENTED_TRANSITIONS: ReadonlyArray<{ from: ProformaStatus; to: ProformaStatus; operation: string }> = [
+  {
+    from: "Draft",
+    to: "Sent",
+    operation: "share the saved revision with the customer account that owns the inquiry (phase C7)",
+  },
+];
 
 /**
  * Transitions that belong to operations the website does not have yet. Recorded so
  * the gap is explicit rather than implied by a missing button.
  */
 export const PENDING_TRANSITIONS: ReadonlyArray<{ from: ProformaStatus; to: ProformaStatus; operation: string }> = [
-  { from: "Draft", to: "Sent", operation: "send the PI to the customer" },
   { from: "Sent", to: "Approved", operation: "record customer acceptance" },
   { from: "Sent", to: "Issued", operation: "the verified issuance workflow" },
   { from: "Draft", to: "Cancelled", operation: "cancel the PI" },
