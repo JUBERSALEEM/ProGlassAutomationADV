@@ -8,7 +8,9 @@ import {
   validateInquiryDocumentCandidate,
 } from "@/lib/inquiry-documents";
 import { withoutPipelineFields } from "@/lib/inquiry-pipeline";
-import type { CustomerInquiryDocument, CustomerInquiryListItem, CustomerInquiryProfile, CustomerInquiryProject, CustomerInquirySubmission, CustomerInquiryType } from "@/types/inquiry-submissions";
+import type { CustomerInquiryDocument, CustomerInquiryListItem, CustomerInquiryPage, CustomerInquiryProfile, CustomerInquiryProject, CustomerInquiryStatus, CustomerInquiryStatusCounts, CustomerInquirySubmission, CustomerInquiryType } from "@/types/inquiry-submissions";
+import { CUSTOMER_INQUIRY_STATUSES } from "@/types/inquiry-submissions";
+import { isCustomerInquiryStatus } from "@/lib/inquiry-submission-status";
 
 export const CUSTOMER_INQUIRY_MAX_FILES = 15;
 export const CUSTOMER_INQUIRY_MAX_FILE_BYTES = 30 * 1024 * 1024;
@@ -247,6 +249,111 @@ export async function finalizeCustomerInquiry(token: string, submissionId: strin
   return getCustomerInquiry(token, submissionId);
 }
 
+/* ------------------------------------------------------------------ *
+ * Operator queue query
+ *
+ * The register used to fetch up to two hundred rows and narrow them in the
+ * browser, which meant the browser decided what an operator could see and the
+ * page could not say how many rows existed at all. These helpers move the
+ * status, the search and the paging to PostgREST, under the operator's own
+ * token, so RLS still decides the scope and the counts come from the database.
+ * ------------------------------------------------------------------ */
+
+export type OperatorSubmissionQueryInput = {
+  status?: string | null;
+  q?: string | null;
+  page?: string | number | null;
+  pageSize?: string | number | null;
+};
+
+export type OperatorSubmissionQuery = {
+  status: CustomerInquiryStatus | "";
+  search: string;
+  page: number;
+  pageSize: number;
+};
+
+/** The page sizes the register offers, smallest first. */
+export const OPERATOR_PAGE_SIZES = [10, 25, 50, 100] as const;
+export const OPERATOR_PAGE_SIZE_DEFAULT = 25;
+const OPERATOR_SEARCH_LIMIT = 80;
+const OPERATOR_PAGE_LIMIT = 10_000;
+
+function boundedInteger(value: string | number | null | undefined, fallback: number, min: number, max: number): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(max, Math.max(min, Math.trunc(parsed)));
+}
+
+/**
+ * Anything unrecognised is dropped rather than refused: a stale bookmark with
+ * `?status=archived` should open the queue on "All statuses", not fail.
+ */
+export function parseOperatorSubmissionQuery(input: OperatorSubmissionQueryInput = {}): OperatorSubmissionQuery {
+  return {
+    status: isCustomerInquiryStatus(input.status) ? input.status : "",
+    search: operatorSearchTerm(String(input.q ?? "")),
+    page: boundedInteger(input.page, 1, 1, OPERATOR_PAGE_LIMIT),
+    pageSize: boundedInteger(input.pageSize, OPERATOR_PAGE_SIZE_DEFAULT, 1, 100),
+  };
+}
+
+/**
+ * Free text becomes a single search term.
+ *
+ * `,`, `(`, `)` and the pattern wildcards are removed because they are the
+ * characters PostgREST and `ilike` read as syntax; leaving one in would either
+ * break the request or widen it, and a widened search on a restricted queue is
+ * a bug even when RLS keeps the rows scoped.
+ */
+export function operatorSearchTerm(search: string): string {
+  return search
+    .normalize("NFKC")
+    .replace(/[,()*%\\"']/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, OPERATOR_SEARCH_LIMIT);
+}
+
+/** The `or=(…)` expression, or null when there is nothing to search for. */
+export function operatorSearchFilter(search: string): string | null {
+  const term = operatorSearchTerm(search);
+  if (!term) return null;
+  return ["submission_reference", "company_name", "project_name", "project_location", "customer_reference"]
+    .map((column) => `${column}.ilike.%${term}%`)
+    .join(",");
+}
+
+/** Inclusive PostgREST range for a one-based page. */
+export function operatorPageRange(page: number, pageSize: number): [number, number] {
+  const from = (page - 1) * pageSize;
+  return [from, from + pageSize - 1];
+}
+
+/**
+ * The counts each tab prints, from the database.
+ *
+ * The status filter is deliberately not applied here, so a tally does not move
+ * when the operator clicks it; the search is applied, so the tabs describe the
+ * rows the search leaves behind.
+ */
+async function operatorStatusCounts(client: SupabaseClient, searchFilter: string | null): Promise<CustomerInquiryStatusCounts> {
+  const entries = await Promise.all(
+    CUSTOMER_INQUIRY_STATUSES.map(async (status) => {
+      let request = client
+        .from("inquiry_customer_submissions")
+        .select("id", { count: "exact", head: true })
+        .eq("upload_state", "complete")
+        .eq("status", status);
+      if (searchFilter) request = request.or(searchFilter);
+      const { count, error } = await request;
+      if (error) failDatabase(error);
+      return [status, count ?? 0] as const;
+    }),
+  );
+  return Object.fromEntries(entries) as CustomerInquiryStatusCounts;
+}
+
 export async function listCustomerInquiries(token: string): Promise<CustomerInquiryListItem[]> {
   const { client, userId } = await customerClient(token);
   const result = await client.from("inquiry_customer_submissions").select("*,inquiry_customer_documents(id)")
@@ -260,15 +367,40 @@ export async function listCustomerInquiries(token: string): Promise<CustomerInqu
   });
 }
 
-export async function listOperatorCustomerInquiries(token: string): Promise<CustomerInquiryListItem[]> {
+export async function listOperatorCustomerInquiries(token: string, input: OperatorSubmissionQueryInput = {}): Promise<CustomerInquiryPage> {
   const client = await operatorClient(token);
-  const result = await client.from("inquiry_customer_submissions").select("*,inquiry_customer_documents(id)")
-    .eq("upload_state", "complete").order("submitted_at", { ascending: false }).limit(200);
-  if (result.error) failDatabase(result.error);
-  return (result.data || []).map((row) => {
+  const query = parseOperatorSubmissionQuery(input);
+  const searchFilter = operatorSearchFilter(query.search);
+
+  let request = client
+    .from("inquiry_customer_submissions")
+    .select("*,inquiry_customer_documents(id)", { count: "exact" })
+    .eq("upload_state", "complete");
+  if (query.status) request = request.eq("status", query.status);
+  if (searchFilter) request = request.or(searchFilter);
+
+  const [from, to] = operatorPageRange(query.page, query.pageSize);
+  const page = await request.order("submitted_at", { ascending: false }).order("submission_reference", { ascending: false }).range(from, to);
+  if (page.error) failDatabase(page.error);
+
+  const rows = (page.data || []).map((row) => {
     const { inquiry_customer_documents, description: _description, phone: _phone, ...rest } = row;
     return { ...rest, document_count: Array.isArray(inquiry_customer_documents) ? inquiry_customer_documents.length : 0 } as CustomerInquiryListItem;
   });
+
+  const counts = await operatorStatusCounts(client, searchFilter);
+  const allTotal = CUSTOMER_INQUIRY_STATUSES.reduce((sum, status) => sum + counts[status], 0);
+  const total = typeof page.count === "number" ? page.count : rows.length;
+
+  return {
+    rows,
+    total,
+    page: query.page,
+    pageSize: query.pageSize,
+    pageCount: total === 0 ? 0 : Math.ceil(total / query.pageSize),
+    counts,
+    allTotal,
+  };
 }
 
 export async function reviewOperatorCustomerInquiry(token: string, id: string, values: { status: string; estimatedResponseAt: string | null; operatorNote: string }): Promise<CustomerInquirySubmission> {

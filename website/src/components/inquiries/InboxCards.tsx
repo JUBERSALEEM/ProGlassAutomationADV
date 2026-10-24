@@ -16,10 +16,18 @@ export function InboxCards({
   rows,
   loading,
   onReset,
+  filtered = true,
 }: {
   rows: InquiryListRow[];
   loading: boolean;
   onReset: () => void;
+  /**
+   * Whether a filter is narrowing the register. An empty register with no
+   * filters is a different sentence from an empty result: the desktop register
+   * is authored by the Windows bridge, and the website queue is a separate page
+   * that the inbox now counts above the cards.
+   */
+  filtered?: boolean;
 }) {
   if (loading && rows.length === 0) {
     return (
@@ -35,16 +43,22 @@ export function InboxCards({
     return (
       <EmptyState
         glyph="M4 12h16M12 4v16"
-        title="No inquiries match these filters"
-        body="Clear one or more filters, or wait for the authorized Windows bridge to publish a complete source scan."
+        title={filtered ? "No inquiries match these filters" : "The desktop register is empty"}
+        body={
+          filtered
+            ? "Clear one or more filters, or wait for the authorized Windows bridge to publish a complete source scan."
+            : "This register is published by the Windows bridge and fills when an accepted website submission is downloaded there. The website queue holds every complete submission already, in every review state."
+        }
         action={
-          <button
-            type="button"
-            onClick={onReset}
-            className="mt-4 rounded-xl border border-line-strong px-4 py-2 text-xs font-semibold text-brand-300"
-          >
-            Reset filters
-          </button>
+          filtered ? (
+            <button
+              type="button"
+              onClick={onReset}
+              className="mt-4 rounded-xl border border-line-strong px-4 py-2 text-xs font-semibold text-brand-300"
+            >
+              Reset filters
+            </button>
+          ) : undefined
         }
       />
     );

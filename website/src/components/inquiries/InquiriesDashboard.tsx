@@ -8,6 +8,7 @@ import { InboxHeader } from "@/components/inquiries/InboxHeader";
 import { InboxSummary } from "@/components/inquiries/InboxSummary";
 import { InquiryAccessGate } from "@/components/inquiries/InquiryAccessGate";
 import { OperationsTabs } from "@/components/operations/OperationsTabs";
+import { WebsiteSubmissionsPanel } from "@/components/inquiries/WebsiteSubmissionsPanel";
 import { useOperatorSession } from "@/lib/useOperatorSession";
 import {
   activeFilterCount,
@@ -133,6 +134,7 @@ export function InquiriesDashboard() {
 
       <div className="shell mt-5 space-y-4">
         <OperationsTabs className="w-full" />
+        <WebsiteSubmissionsPanel authToken={authToken} checking={checking} />
         {data ? <InboxSummary summary={data.summary} /> : null}
         <InboxFilters filters={filters} busy={loading} onChange={apply} onReset={reset} />
 
@@ -160,7 +162,7 @@ export function InquiriesDashboard() {
 
         {!error ? (
           <>
-            <InboxCards rows={rows} loading={loading} onReset={reset} />
+            <InboxCards rows={rows} loading={loading} onReset={reset} filtered={activeFilterCount(filters) > 0} />
             {data && rows.length > 0 ? (
               <p className="text-3xs text-text-faint">
                 Showing {rows.length} of {data.pagination.totalEntries.toLocaleString()} published inquiries
