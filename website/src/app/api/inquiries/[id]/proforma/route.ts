@@ -47,8 +47,33 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
   } catch {
     return errorResponse(new ProformaApiFailure("INVALID", "The request body is not valid JSON."));
   }
-  const payload = (body || {}) as { expected_revision?: unknown; currency?: unknown; lines?: unknown };
+  const payload = (body || {}) as {
+    expected_revision?: unknown;
+    currency?: unknown;
+    lines?: unknown;
+    groups?: unknown;
+  };
   const lines = Array.isArray(payload.lines) ? (payload.lines as ProformaLineInput[]) : [];
+  const groups = Array.isArray(payload.groups)
+    ? (payload.groups as Array<Record<string, unknown>>)
+        .map((group) => ({
+          group_no: Number(group.group_no),
+          base_rate: Number(group.base_rate),
+          surcharge_percent: Number(group.surcharge_percent),
+        }))
+        .filter(
+          (group) =>
+            Number.isInteger(group.group_no) &&
+            group.group_no >= 1 &&
+            group.group_no <= 50 &&
+            Number.isFinite(group.base_rate) &&
+            group.base_rate >= 0 &&
+            group.base_rate <= 1_000_000 &&
+            Number.isFinite(group.surcharge_percent) &&
+            group.surcharge_percent >= 0 &&
+            group.surcharge_percent <= 1000,
+        )
+    : [];
 
   try {
     const { id } = await context.params;
@@ -57,6 +82,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
       expected_revision: Number(payload.expected_revision),
       currency: String(payload.currency || "AED"),
       lines,
+      groups,
     });
     return NextResponse.json({ ok: true, data }, { headers: HEADERS });
   } catch (error) {

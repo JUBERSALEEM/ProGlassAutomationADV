@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isSupabaseConfigured, isSupabaseUnavailableError, supabaseServerWithToken } from "@/lib/supabase";
 import { isUuid } from "@/lib/inquiries-api";
+import { normaliseProformaStatus } from "@/lib/proforma-status";
 import type { InquiryStatus } from "@/types/inquiries";
 import type {
   ProformaApiError,
@@ -91,6 +92,14 @@ function lineRow(row: Record<string, unknown>): ProformaLine {
   };
 }
 
+function groupRow(row: Record<string, unknown>): { group_no: number; base_rate: number; surcharge_percent: number } {
+  return {
+    group_no: numeric(row.group_no),
+    base_rate: numeric(row.base_rate),
+    surcharge_percent: numeric(row.surcharge_percent),
+  };
+}
+
 function recordRow(row: Record<string, unknown>): ProformaRecord {
   return {
     id: String(row.id),
@@ -100,7 +109,7 @@ function recordRow(row: Record<string, unknown>): ProformaRecord {
     source_proforma_number: String(row.source_proforma_number || ""),
     inquiry_number: String(row.inquiry_number || ""),
     customer_name: String(row.customer_name || ""),
-    status: (row.status as ProformaRecord["status"]) || "Draft",
+    status: normaliseProformaStatus(row.status as string | null),
     currency: String(row.currency || "AED"),
     revision: numeric(row.revision),
     line_count: numeric(row.line_count),
@@ -135,28 +144,32 @@ export async function fetchProformaWorkspace(token: string, inquiryId: string): 
     inquiry_value: numeric(inquiry.data.inquiry_value),
   };
 
+  /*
+   * A cancelled proforma is still opened and shown as cancelled. Hiding it would
+   * silently present an earlier draft as the current one, which is exactly the
+   * confusion a cancellation is meant to end.
+   */
   const proforma = await client
     .from("inquiry_proformas")
     .select("*")
     .eq("inquiry_id", inquiryId)
     .eq("source_system", "website")
-    .neq("status", "Void")
     .order("updated_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
   if (proforma.error) {
     if (missingRelation(proforma.error)) {
-      return { inquiry: header, proforma: null, lines: [], saves: [], installed: false };
+      return { inquiry: header, proforma: null, lines: [], groups: [], groups_persisted: false, saves: [], installed: false };
     }
     databaseFailure(proforma.error);
   }
   if (!proforma.data) {
-    return { inquiry: header, proforma: null, lines: [], saves: [], installed: true };
+    return { inquiry: header, proforma: null, lines: [], groups: [], groups_persisted: true, saves: [], installed: true };
   }
 
   const record = recordRow(proforma.data as unknown as Record<string, unknown>);
-  const [lines, saves] = await Promise.all([
+  const [lines, saves, groups] = await Promise.all([
     client
       .from("inquiry_proforma_lines")
       .select("group_no,line_no,glass_ref,w1,h1,w2,h2,qty,approved_rate,sqm,total_sqm,line_value")
@@ -169,14 +182,28 @@ export async function fetchProformaWorkspace(token: string, inquiryId: string): 
       .eq("proforma_id", record.id)
       .order("revision", { ascending: false })
       .limit(20),
+    client
+      .from("inquiry_proforma_groups")
+      .select("group_no,base_rate,surcharge_percent")
+      .eq("proforma_id", record.id)
+      .eq("revision", record.revision)
+      .order("group_no", { ascending: true }),
   ]);
   if (lines.error) databaseFailure(lines.error);
   if (saves.error) databaseFailure(saves.error);
+  // A deployment without the C5 table still opens: the settings are simply absent,
+  // and the page says they are not stored rather than inventing them.
+  const groupsInstalled = !groups.error;
+  if (groups.error && !missingRelation(groups.error)) databaseFailure(groups.error);
 
   return {
     inquiry: header,
     proforma: record,
     lines: ((lines.data || []) as unknown as Record<string, unknown>[]).map(lineRow),
+    groups: groupsInstalled
+      ? ((groups.data || []) as unknown as Record<string, unknown>[]).map(groupRow)
+      : [],
+    groups_persisted: groupsInstalled,
     saves: ((saves.data || []) as unknown as Record<string, unknown>[]).map((row) => ({
       revision: numeric(row.revision),
       line_count: numeric(row.line_count),
@@ -238,13 +265,35 @@ export async function saveProforma(token: string, inquiryId: string, input: Prof
   const lines = validateLines(input.lines);
 
   const client = await authorizedClient(token, "write");
-  const saved = await client.rpc("save_inquiry_proforma_v1", {
+  const groups = (input.groups || []).map((group) => ({
+    group_no: Math.trunc(group.group_no),
+    base_rate: Math.round(group.base_rate * 100) / 100,
+    surcharge_percent: Math.round(group.surcharge_percent * 100) / 100,
+  }));
+
+  /*
+   * v2 stores the lines and the specification settings in one revision. If this
+   * deployment has not applied the C5 migration, the function does not exist and
+   * the save falls back to v1, which stores the lines exactly as before; the
+   * settings are then reported as not stored rather than silently dropped.
+   */
+  let saved = await client.rpc("save_inquiry_proforma_v2", {
     p_inquiry_id: inquiryId,
     p_idempotency_key: input.idempotency_key,
     p_expected_revision: input.expected_revision,
     p_currency: currency,
     p_lines: lines,
+    p_groups: groups,
   });
+  if (saved.error && (saved.error.code === "42883" || saved.error.code === "PGRST202")) {
+    saved = await client.rpc("save_inquiry_proforma_v1", {
+      p_inquiry_id: inquiryId,
+      p_idempotency_key: input.idempotency_key,
+      p_expected_revision: input.expected_revision,
+      p_currency: currency,
+      p_lines: lines,
+    });
+  }
   if (saved.error) {
     if (saved.error.code === "40001") {
       throw new ProformaApiFailure("CONFLICT", "This proforma changed since it was loaded. Reload it and apply the change again.");

@@ -1,6 +1,8 @@
 "use client";
 
 import { formatMoney, formatSqm, type DraftLine, type GroupTotal, type PricedLine } from "@/lib/proforma-draft";
+import { EMPTY_RATE_SETTING, planRates, type RateSetting } from "@/lib/proforma-rates";
+import { SpecificationRateBar } from "@/components/inquiries/proforma/SpecificationRateBar";
 
 const CELL = "border-b border-line/40 px-2 py-1.5 align-middle";
 const INPUT = "h-8 w-full rounded-lg border border-line-strong bg-ink-950 px-2 text-xs text-text-primary";
@@ -20,9 +22,14 @@ export function ProformaSpecification({
   activeGroup,
   currency,
   totals,
+  rateSettings,
+  onRateChange,
+  onApplyRates,
   onEdit,
   onAddLine,
   onRemoveLine,
+  onDuplicateLine,
+  onMoveLine,
   onAddGroup,
   onRemoveGroup,
   onFocusGroup,
@@ -33,9 +40,14 @@ export function ProformaSpecification({
   activeGroup: number;
   currency: string;
   totals: { lines: number; sqm: number; value: number };
+  rateSettings: Record<number, RateSetting>;
+  onRateChange: (groupNo: number, patch: Partial<RateSetting>) => void;
+  onApplyRates: (groupNo: number) => void;
   onEdit: (key: string, patch: Partial<DraftLine>) => void;
   onAddLine: (groupNo: number) => void;
   onRemoveLine: (key: string) => void;
+  onDuplicateLine: (key: string) => void;
+  onMoveLine: (key: string, direction: -1 | 1) => void;
   onAddGroup: () => void;
   onRemoveGroup: (groupNo: number) => void;
   onFocusGroup: (groupNo: number) => void;
@@ -108,6 +120,16 @@ export function ProformaSpecification({
               </div>
             </header>
 
+            <SpecificationRateBar
+              groupNo={groupNo}
+              setting={rateSettings[groupNo] ?? EMPTY_RATE_SETTING}
+              plan={planRates(priced, groupNo, (rateSettings[groupNo] ?? EMPTY_RATE_SETTING).base, (rateSettings[groupNo] ?? EMPTY_RATE_SETTING).percent)}
+              rowCount={rows.length}
+              currency={currency}
+              onChange={(patch) => onRateChange(groupNo, patch)}
+              onApply={() => onApplyRates(groupNo)}
+            />
+
             <div className="overflow-x-auto">
               <table className="w-full min-w-[62rem] border-collapse text-left text-xs">
                 <thead>
@@ -127,7 +149,7 @@ export function ProformaSpecification({
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((line) => (
+                  {rows.map((line, rowIndex) => (
                     <tr key={line.key} className="hover:bg-ink-850/40">
                       <td className={`${CELL} font-mono text-3xs text-text-faint`}>{line.lineNo}</td>
                       <td className={`${CELL} min-w-[14rem]`}>
@@ -183,15 +205,43 @@ export function ProformaSpecification({
                         />
                       </td>
                       <td className={`${CELL} whitespace-nowrap text-right font-mono text-xs font-bold text-text-primary`}>{formatMoney(line.value, currency)}</td>
-                      <td className={`${CELL} text-right`}>
-                        <button
-                          type="button"
-                          onClick={() => onRemoveLine(line.key)}
-                          aria-label={`Remove line ${line.lineNo} of specification ${groupNo}`}
-                          className="rounded-lg border border-line-strong px-2 py-1 text-3xs text-text-faint hover:text-state-danger"
-                        >
-                          Remove
-                        </button>
+                      <td className={`${CELL} whitespace-nowrap text-right`}>
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            type="button"
+                            onClick={() => onMoveLine(line.key, -1)}
+                            disabled={rowIndex === 0}
+                            aria-label={`Move line ${line.lineNo} of specification ${groupNo} up`}
+                            className="rounded-lg border border-line-strong px-1.5 py-1 text-3xs text-text-faint hover:text-text-primary disabled:opacity-40"
+                          >
+                            Up
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onMoveLine(line.key, 1)}
+                            disabled={rowIndex === rows.length - 1}
+                            aria-label={`Move line ${line.lineNo} of specification ${groupNo} down`}
+                            className="rounded-lg border border-line-strong px-1.5 py-1 text-3xs text-text-faint hover:text-text-primary disabled:opacity-40"
+                          >
+                            Down
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onDuplicateLine(line.key)}
+                            aria-label={`Duplicate line ${line.lineNo} of specification ${groupNo}`}
+                            className="rounded-lg border border-line-strong px-1.5 py-1 text-3xs text-text-faint hover:text-brand-200"
+                          >
+                            Copy
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onRemoveLine(line.key)}
+                            aria-label={`Remove line ${line.lineNo} of specification ${groupNo}`}
+                            className="rounded-lg border border-line-strong px-1.5 py-1 text-3xs text-text-faint hover:text-state-danger"
+                          >
+                            Remove
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

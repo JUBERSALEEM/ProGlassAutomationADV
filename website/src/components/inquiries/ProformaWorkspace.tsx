@@ -4,17 +4,22 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { InquiryAccessGate } from "@/components/inquiries/InquiryAccessGate";
 import { ProformaBuilder } from "@/components/inquiries/proforma/ProformaBuilder";
+import { ProformaDocument } from "@/components/inquiries/proforma/ProformaDocument";
+import { draftDiffersFromSaved } from "@/lib/proforma-document";
+import { EMPTY_RATE_SETTING, applyRatePlan, planRates, settingsFromServer, settingsPayload, type RateSetting } from "@/lib/proforma-rates";
 import { ProformaSpecification } from "@/components/inquiries/proforma/ProformaSpecification";
 import { useOperatorSession } from "@/lib/useOperatorSession";
 import {
   draftIssues,
   draftTotals,
+  duplicateLine,
   emptyLine,
   formatMoney,
   formatSqm,
   fromSavedLine,
   groupTotals,
   groupsOf,
+  moveLine,
   newIdempotencyKey,
   nextGroupNo,
   priceDraft,
@@ -46,6 +51,15 @@ export function ProformaWorkspace({ inquiryId }: { inquiryId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [issued, setIssues] = useState<string[]>([]);
+  /** Which half of the workspace is on screen: the working grid or the saved document. */
+  const [view, setView] = useState<"specification" | "document">("specification");
+  /**
+   * Step 5's per specification rate entry. The two inputs are stored with the
+   * revision that saved them and loaded back with it, so closing and reopening the
+   * workspace shows the figures the revision was priced with. The money that gets
+   * charged is still the rate each line carries.
+   */
+  const [rateSettings, setRateSettings] = useState<Record<number, RateSetting>>({});
   const saveKey = useRef<string | null>(null);
 
   const [refresh, setRefresh] = useState(0);
@@ -76,6 +90,7 @@ export function ProformaWorkspace({ inquiryId }: { inquiryId: string }) {
           return;
         }
         setData(body.data);
+        setRateSettings(settingsFromServer(body.data.groups));
         const restored = body.data.lines.map(fromSavedLine);
         setLines(restored.length ? restored : [emptyLine(1)]);
         setActiveGroup(restored.length ? Math.min(...restored.map((line) => line.groupNo)) : 1);
@@ -110,6 +125,16 @@ export function ProformaWorkspace({ inquiryId }: { inquiryId: string }) {
       return next.length ? next : [emptyLine(1)];
     });
   };
+  const duplicateRow = (key: string) => {
+    setIssues([]);
+    setLines((current) => duplicateLine(current, key));
+    setNotice("Copied the row into the same specification.");
+  };
+  const moveRow = (key: string, direction: -1 | 1) => {
+    setIssues([]);
+    setLines((current) => moveLine(current, key, direction));
+  };
+
   const addGroup = () => {
     const groupNo = nextGroupNo(lines);
     setLines((current) => [...current, emptyLine(groupNo)]);
@@ -119,6 +144,39 @@ export function ProformaWorkspace({ inquiryId }: { inquiryId: string }) {
     const next = removeGroup(lines, groupNo);
     setLines(next.length ? next : [emptyLine(1)]);
     setActiveGroup(groupsOf(next.length ? next : [emptyLine(1)])[0] || 1);
+  };
+
+  const changeRate = (groupNo: number, patch: Partial<RateSetting>) => {
+    setNotice(null);
+    setRateSettings((current) => ({
+      ...current,
+      [groupNo]: { ...(current[groupNo] ?? EMPTY_RATE_SETTING), ...patch },
+    }));
+  };
+
+  /**
+   * Write a specification's base and oversize rates into its rows.
+   *
+   * This is the Step 5 behaviour the desktop applies when a row's area changes:
+   * every row takes the base rate, and the rows at or above the threshold take the
+   * surcharged rate. The figures the operator can see are the figures saved.
+   */
+  const applyRates = (groupNo: number) => {
+    const setting = rateSettings[groupNo] ?? EMPTY_RATE_SETTING;
+    const plan = planRates(priced, groupNo, setting.base, setting.percent);
+    if (!plan) {
+      setIssues([`Specification ${groupNo}: enter a base rate before applying rates.`]);
+      return;
+    }
+    setIssues([]);
+    setLines((current) => applyRatePlan(current, plan));
+    const surcharged = plan.surchargedCount;
+    setNotice(
+      `Applied ${formatMoney(plan.baseRate, currency)} per m² to specification ${groupNo}` +
+        (plan.percent > 0
+          ? `, with ${formatMoney(plan.surchargeRate, currency)} on ${surcharged} oversize row${surcharged === 1 ? "" : "s"}.`
+          : "."),
+    );
   };
 
   const save = async () => {
@@ -135,7 +193,12 @@ export function ProformaWorkspace({ inquiryId }: { inquiryId: string }) {
       const response = await fetch(`/api/inquiries/${inquiryId}/proforma`, {
         method: "POST",
         headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json", "Idempotency-Key": key },
-        body: JSON.stringify({ expected_revision: revision, currency, lines: toLineInputs(lines) }),
+        body: JSON.stringify({
+          expected_revision: revision,
+          currency,
+          lines: toLineInputs(lines),
+          groups: settingsPayload(rateSettings),
+        }),
       });
       const body = (await response.json().catch(() => null)) as ProformaResponse | null;
       if (response.status === 401) {
@@ -153,8 +216,14 @@ export function ProformaWorkspace({ inquiryId }: { inquiryId: string }) {
       }
       saveKey.current = null;
       setData(body.data);
+      setRateSettings(settingsFromServer(body.data.groups));
       setLines(body.data.lines.map(fromSavedLine));
-      setNotice(`Saved revision ${body.data.proforma?.revision ?? 1} of ${body.data.proforma?.proforma_number ?? "the draft"}.`);
+      setNotice(
+        `Saved revision ${body.data.proforma?.revision ?? 1} of ${body.data.proforma?.proforma_number ?? "the draft"}.` +
+          (body.data.groups_persisted
+            ? " Specification base rates and surcharges are stored with this revision."
+            : " This deployment has no specification rate storage, so the base rates and surcharges were not saved."),
+      );
     } catch {
       setError("The save did not reach the server. Try again, the same save will not be duplicated.");
     } finally {
@@ -202,6 +271,26 @@ export function ProformaWorkspace({ inquiryId }: { inquiryId: string }) {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {userEmail ? <span className="hidden max-w-[14rem] truncate text-3xs text-text-faint sm:inline">{userEmail}</span> : null}
+            <div role="group" aria-label="Proforma view" className="flex overflow-hidden rounded-xl border border-line-strong">
+              <button
+                type="button"
+                aria-pressed={view === "specification"}
+                onClick={() => setView("specification")}
+                className={`px-3 py-2 text-xs font-semibold ${view === "specification" ? "bg-ink-800 text-text-primary" : "text-text-muted hover:text-text-primary"}`}
+              >
+                Specification
+              </button>
+              <button
+                type="button"
+                aria-pressed={view === "document"}
+                onClick={() => setView("document")}
+                disabled={!data?.proforma}
+                title={data?.proforma ? `Open the saved revision ${data.proforma.revision}` : "Save a revision before a document exists"}
+                className={`px-3 py-2 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50 ${view === "document" ? "bg-ink-800 text-text-primary" : "text-text-muted hover:text-text-primary"}`}
+              >
+                Document
+              </button>
+            </div>
             <button
               type="button"
               onClick={() => void save()}
@@ -257,7 +346,17 @@ export function ProformaWorkspace({ inquiryId }: { inquiryId: string }) {
           </section>
         ) : null}
 
-        {data && data.installed ? (
+        {data && data.installed && view === "document" && data.proforma ? (
+          <ProformaDocument
+            proforma={data.proforma}
+            inquiry={data.inquiry}
+            lines={data.lines}
+            hasUnsavedChanges={draftDiffersFromSaved(toLineInputs(lines), data.lines)}
+            onClose={() => setView("specification")}
+          />
+        ) : null}
+
+        {data && data.installed && view === "specification" ? (
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_26rem]">
             <ProformaSpecification
               priced={priced}
@@ -266,9 +365,14 @@ export function ProformaWorkspace({ inquiryId }: { inquiryId: string }) {
               activeGroup={activeGroup}
               currency={currency}
               totals={totals}
+              rateSettings={rateSettings}
+              onRateChange={changeRate}
+              onApplyRates={applyRates}
               onEdit={edit}
               onAddLine={addLine}
               onRemoveLine={removeLine}
+              onDuplicateLine={duplicateRow}
+              onMoveLine={moveRow}
               onAddGroup={addGroup}
               onRemoveGroup={dropGroup}
               onFocusGroup={setActiveGroup}

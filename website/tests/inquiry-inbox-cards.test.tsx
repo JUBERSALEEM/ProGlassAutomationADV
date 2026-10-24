@@ -117,9 +117,14 @@ describe("proforma specification surface", () => {
         activeGroup={2}
         currency="AED"
         totals={{ lines: 3, sqm: 22.14, value: 3665.99 }}
+        rateSettings={{}}
+        onRateChange={() => {}}
+        onApplyRates={() => {}}
         onEdit={() => {}}
         onAddLine={() => {}}
         onRemoveLine={() => {}}
+        onDuplicateLine={() => {}}
+        onMoveLine={() => {}}
         onAddGroup={() => {}}
         onRemoveGroup={() => {}}
         onFocusGroup={() => {}}

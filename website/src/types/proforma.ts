@@ -1,6 +1,18 @@
 import type { InquiryStatus } from "@/types/inquiries";
+import type { ProformaStatus } from "@/lib/proforma-status";
 
-export type ProformaStatus = "Draft" | "Issued" | "Void";
+export type { ProformaStatus };
+
+/**
+ * A specification's stored pricing settings, pinned to the revision that saved
+ * them. `base_rate` and `surcharge_percent` are what the rate bar shows; the saved
+ * money is still the per-line rate the write function priced.
+ */
+export type ProformaGroupSetting = {
+  group_no: number;
+  base_rate: number;
+  surcharge_percent: number;
+};
 export type ProformaSourceSystem = "website" | "desktop";
 
 /**
@@ -65,6 +77,14 @@ export type ProformaWorkspaceData = {
   inquiry: ProformaInquiryHeader;
   proforma: ProformaRecord | null;
   lines: ProformaLine[];
+  /** The settings stored for the revision this workspace loaded, if any. */
+  groups: ProformaGroupSetting[];
+  /**
+   * False when this deployment has no `inquiry_proforma_groups` table or no
+   * `save_inquiry_proforma_v2`, so the rate bar still works but cannot store its
+   * two inputs. The page says so rather than pretending they were saved.
+   */
+  groups_persisted: boolean;
   saves: ProformaSaveSummary[];
   /**
    * False when the proforma tables are not installed in this deployment. The
@@ -90,6 +110,8 @@ export type ProformaSaveInput = {
   expected_revision: number;
   currency: string;
   lines: ProformaLineInput[];
+  /** Specification settings to store with this revision. Omitted when unknown. */
+  groups?: Array<{ group_no: number; base_rate: number; surcharge_percent: number }>;
 };
 
 export type ProformaApiError = {
