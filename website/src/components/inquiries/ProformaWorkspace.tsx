@@ -49,6 +49,8 @@ export function ProformaWorkspace({ inquiryId }: { inquiryId: string }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Only the load failure decides what the page is: a save failure must not replace it. */
+  const [loadFailure, setLoadFailure] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [issued, setIssues] = useState<string[]>([]);
   /** Which half of the workspace is on screen: the working grid or the saved document. */
@@ -87,6 +89,7 @@ export function ProformaWorkspace({ inquiryId }: { inquiryId: string }) {
         const body = (await response.json().catch(() => null)) as ProformaResponse | null;
         if (!body || !body.ok) {
           setError(body && !body.ok ? body.error.message : "The proforma service is not available in this deployment.");
+        setLoadFailure(body && !body.ok ? body.error.code : "INTERNAL_ERROR");
           return;
         }
         setData(body.data);
@@ -238,7 +241,31 @@ export function ProformaWorkspace({ inquiryId }: { inquiryId: string }) {
       </main>
     );
   }
-  if (isAuthRequired) return <InquiryAccessGate redirectPath={`/inquiries/${inquiryId}/proforma`} />;
+  if (isAuthRequired || loadFailure === "FORBIDDEN") {
+    return <InquiryAccessGate redirectPath={`/inquiries/${inquiryId}/proforma`} />;
+  }
+
+  if (!data && loadFailure === "NOT_FOUND") {
+    return (
+      <main className="min-h-[70vh] bg-ink-950 px-4 py-16 text-text-primary">
+        <section className="mx-auto w-full max-w-lg rounded-panel border border-line-strong/80 bg-ink-900 card-pad" aria-labelledby="proforma-not-found">
+          <h1 id="proforma-not-found" className="text-xl font-bold tracking-tight">Inquiry not found</h1>
+          <p className="mt-2 text-xs leading-relaxed text-text-muted">
+            No published inquiry has this reference. It may have been removed by a later desktop publication, or the
+            link may be from an old page. A proforma always belongs to an inquiry, so start from the register.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <LocaleLink href="/inquiries" className="rounded-xl bg-brand-400 px-4 py-2 text-sm font-semibold text-accent-ink">
+              Back to the register
+            </LocaleLink>
+            <LocaleLink href="/inquiries/customer-submissions" className="rounded-xl border border-line-strong px-4 py-2 text-sm font-semibold text-text-muted">
+              Customer submissions
+            </LocaleLink>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-ink-950 pb-20 text-text-primary">

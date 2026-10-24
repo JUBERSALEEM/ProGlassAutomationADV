@@ -9,6 +9,7 @@ import { InboxSummary } from "@/components/inquiries/InboxSummary";
 import { InquiryAccessGate } from "@/components/inquiries/InquiryAccessGate";
 import { OperationsTabs } from "@/components/operations/OperationsTabs";
 import { WebsiteSubmissionsPanel } from "@/components/inquiries/WebsiteSubmissionsPanel";
+import { ProformaLauncher } from "@/components/inquiries/ProformaLauncher";
 import { useOperatorSession } from "@/lib/useOperatorSession";
 import {
   activeFilterCount,
@@ -94,10 +95,9 @@ export function InquiriesDashboard() {
       } catch (reason) {
         if (reason instanceof Error && reason.name === "AbortError") return;
         const [message, code] = (reason instanceof Error ? reason.message : "Unable to load inquiries.").split("\u0000");
-        if (code === "FORBIDDEN") {
-          router.replace(`${pathname.replace(/\/$/, "")}/submit`);
-          return;
-        }
+        // A refused role is shown on this page. It is not a reason to move the
+        // reader somewhere else: the gate names the account, the role it holds
+        // and the role the register needs.
         setError({ message: message || "Unable to load inquiries.", code });
       } finally {
         if (!controller.signal.aborted) setLoading(false);
@@ -134,6 +134,9 @@ export function InquiriesDashboard() {
 
       <div className="shell mt-5 space-y-4">
         <OperationsTabs className="w-full" />
+        {data ? (
+          <ProformaLauncher rows={rows} total={data.pagination.totalEntries} filtered={activeFilterCount(filters) > 0} />
+        ) : null}
         <WebsiteSubmissionsPanel authToken={authToken} checking={checking} />
         {data ? <InboxSummary summary={data.summary} /> : null}
         <InboxFilters filters={filters} busy={loading} onChange={apply} onReset={reset} />

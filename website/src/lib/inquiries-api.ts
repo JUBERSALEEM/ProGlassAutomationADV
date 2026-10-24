@@ -50,6 +50,50 @@ async function authorizedClient(token: string): Promise<SupabaseClient> {
   return client;
 }
 
+/**
+ * What the signed-in operator may do, for the page that has to say why it
+ * refused them.
+ *
+ * This is a description, not a permission: every route and every write function
+ * checks the role again on its own. It exists because a gate that only says
+ * "access required" leaves the reader guessing which account or which role is
+ * missing, and the answer is usually that they signed in as the desktop bridge
+ * account, which is a sync identity and deliberately cannot read the register.
+ */
+export type OperatorAccess = {
+  email: string;
+  user_id: string;
+  /** The single role this account holds, or null when it holds none. */
+  role: string | null;
+  enabled: boolean;
+  /** Audit and admin roles can open the register and review submissions. */
+  can_read_inbox: boolean;
+  /** Only an admin role can save a proforma invoice. */
+  can_write_proforma: boolean;
+};
+
+export async function readOperatorAccess(token: string): Promise<OperatorAccess> {
+  if (!token) throw new InquiryApiFailure("UNAUTHORIZED", "Sign in to see your access.");
+  if (!isSupabaseConfigured()) throw new InquiryApiFailure("NOT_CONFIGURED", "Supabase is not configured for the private inquiry workflow.");
+  const client = supabaseServerWithToken(token);
+  const user = await client.auth.getUser(token);
+  if (user.error && isSupabaseUnavailableError(user.error)) throw new InquiryApiFailure("TEMPORARY_FAILURE", "The authentication service is temporarily unreachable. Please try again.");
+  if (user.error || !user.data.user) throw new InquiryApiFailure("UNAUTHORIZED", "Your operator session is expired or invalid.");
+  const { data, error } = await client.from("inquiry_operator_roles").select("role, enabled").eq("user_id", user.data.user.id).maybeSingle();
+  if (error) databaseFailure(error);
+  const role = (data?.role as string | undefined) ?? null;
+  const enabled = data?.enabled === true;
+  const reader = enabled && Boolean(role && VIEW_ROLES.includes(role as (typeof VIEW_ROLES)[number]));
+  return {
+    email: user.data.user.email || "",
+    user_id: user.data.user.id,
+    role,
+    enabled,
+    can_read_inbox: reader,
+    can_write_proforma: enabled && role === "inquiry_admin",
+  };
+}
+
 function safeSearch(value: string): string {
   return value.normalize("NFKC").replace(/[^\p{L}\p{N}\s._/-]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 120);
 }

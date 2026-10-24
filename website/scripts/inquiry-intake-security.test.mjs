@@ -93,7 +93,10 @@ test("OTP users can establish a password and return with password authentication
   assert.match(authForm,/localStorage\.setItem\(REMEMBERED_EMAIL_KEY, value\)/);
   assert.doesNotMatch(authForm,/localStorage\.setItem\([^,]+,\s*password/);
   assert.match(dashboard,/code === "FORBIDDEN"/);
-  assert.match(dashboard,/\/submit/);
+  // Phase C6: a refused role is answered on the register itself. Redirecting the
+  // operator to the public submission form hid the reason and looked like a bug.
+  assert.match(dashboard,/InquiryAccessGate/);
+  assert.doesNotMatch(dashboard,/pathname\.replace/);
 });
 
 test("profile and project APIs prefill, persist, associate, and filter customer inquiries", () => {

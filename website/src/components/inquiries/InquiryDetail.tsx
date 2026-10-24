@@ -83,7 +83,37 @@ export function InquiryDetail({ inquiryId }: { inquiryId: string }) {
     <div className="shell py-6">
       <LocaleLink href="/inquiries" className="text-xs font-semibold text-text-muted hover:text-brand-200">← Inquiry register</LocaleLink>
       {loading && !data && <div className="mt-5 space-y-3 rounded-2xl border border-line-strong/60 bg-ink-900/80 p-5">{Array.from({ length: 6 }).map((_, index) => <div key={index} className="h-12 animate-pulse rounded-xl bg-ink-850" />)}</div>}
-      {error && !data && <section role="alert" className="mt-5 rounded-2xl border border-state-danger/45 bg-state-danger/10 p-5"><h1 className="text-lg font-bold text-state-danger">Inquiry unavailable</h1><p className="mt-2 text-xs text-text-secondary">{error.message}</p><div className="mt-4 flex gap-2"><button onClick={() => { setLoading(true); setRefresh((value) => value + 1); }} className="rounded-xl border border-state-danger/40 px-3 py-2 text-xs font-semibold text-state-danger">Try again</button><LocaleLink href="/inquiries" className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted">Return to register</LocaleLink></div></section>}
+      {error && !data && (
+        error.code === "FORBIDDEN" ? (
+          <section role="alert" className="mt-5 rounded-2xl border border-state-danger/45 bg-state-danger/10 p-5">
+            <h1 className="text-lg font-bold text-state-danger">This account cannot open inquiries</h1>
+            <p className="mt-2 text-xs text-text-secondary">{error.message}</p>
+            <p className="mt-1 text-2xs text-text-muted">
+              The register, its proformas and its attachments need an enabled inquiry_auditor or inquiry_admin role. The
+              bridge account that publishes inquiries is a sync identity and cannot read them.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <LocaleLink href="/reports/login?redirect=%2Finquiries" className="rounded-xl bg-brand-400 px-3 py-2 text-xs font-semibold text-accent-ink">Sign in with another account</LocaleLink>
+              <LocaleLink href="/inquiries" className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted">Return to register</LocaleLink>
+              <LocaleLink href="/inquiries/customer-submissions" className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted">Customer submissions</LocaleLink>
+            </div>
+          </section>
+        ) : (
+          <section role="alert" className="mt-5 rounded-2xl border border-state-danger/45 bg-state-danger/10 p-5">
+            <h1 className="text-lg font-bold text-state-danger">{error.code === "NOT_FOUND" ? "Inquiry not found" : "Inquiry unavailable"}</h1>
+            <p className="mt-2 text-xs text-text-secondary">{error.message}</p>
+            {error.code === "NOT_FOUND" ? (
+              <p className="mt-1 text-2xs text-text-muted">This inquiry is not in the published register. Open the register and choose the inquiry a proforma should belong to.</p>
+            ) : null}
+            <div className="mt-4 flex flex-wrap gap-2">
+              {error.code !== "NOT_FOUND" ? (
+                <button onClick={() => { setLoading(true); setRefresh((value) => value + 1); }} className="rounded-xl border border-state-danger/40 px-3 py-2 text-xs font-semibold text-state-danger">Try again</button>
+              ) : null}
+              <LocaleLink href="/inquiries" className="rounded-xl border border-line-strong px-3 py-2 text-xs font-semibold text-text-muted">Return to register</LocaleLink>
+            </div>
+          </section>
+        )
+      )}
       {data && <>
         <header className="mt-5 rounded-2xl border border-line-strong/60 bg-ink-900/90 p-5 shadow-panel">
           <div className="flex flex-wrap items-start justify-between gap-4"><div><div className="flex flex-wrap items-center gap-2"><span className="eyebrow text-brand-300">Desktop-authoritative inquiry</span><Badge tone={statusTone(data.status)}>{data.status}</Badge>{data.availability !== "available" && <Badge tone="warning">{data.availability.replace("_", " ")}</Badge>}</div><h1 className="mt-2 font-mono text-2xl font-bold sm:text-3xl">{data.inquiry_number}</h1><p className="mt-1 text-sm text-text-muted">{data.customer_name || "Unassigned customer"} · {data.project_name || "No project"}</p></div><div className="flex flex-col items-stretch gap-2 sm:items-end"><LocaleLink href={`/inquiries/${data.id}/proforma`} className="rounded-xl border border-brand-400/70 bg-brand-500/10 px-3 py-2 text-center text-xs font-bold text-brand-200 hover:bg-brand-500/20">{proformaAction(data).label}</LocaleLink><span className="text-center text-3xs text-text-faint sm:text-right">{proformaAction(data).detail}</span><div className="rounded-xl border border-line-strong/60 bg-ink-950/60 px-3 py-2 text-right"><div className="text-3xs uppercase tracking-wider text-text-faint">Priority</div><div className="mt-0.5 text-sm font-bold">{data.priority}</div></div></div></div>
