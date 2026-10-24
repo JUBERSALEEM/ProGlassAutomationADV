@@ -21,6 +21,19 @@ export type InquiryListRow = {
   availability: InquiryAvailability;
   attachment_count: number;
   published_at: string;
+  /**
+   * The open website proforma draft for this inquiry, when one exists.
+   *
+   * `proforma_number` above is the desktop's reference, copied from the
+   * publication. This field is the website's own draft, and the two are never
+   * the same document.
+   */
+  proforma_draft: ProformaDraftSummary | null;
+};
+
+export type ProformaDraftSummary = {
+  id: string;
+  revision: number;
 };
 
 export type InquiryDocumentRow = {

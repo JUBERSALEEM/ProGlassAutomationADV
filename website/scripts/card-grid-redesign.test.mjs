@@ -12,7 +12,7 @@ const routes={
   developer:["src/app/[locale]/developer/page.tsx"],
   features:["src/app/[locale]/features/page.tsx","src/components/product/ModuleBrowser.tsx"],
   "how-it-works":["src/app/[locale]/how-it-works/page.tsx"],
-  inquiries:["src/app/[locale]/inquiries/page.tsx","src/components/inquiries/InquiriesDashboard.tsx"],
+  inquiries:["src/app/[locale]/inquiries/page.tsx","src/components/inquiries/InquiriesDashboard.tsx","src/components/inquiries/InboxSummary.tsx"],
   "job-orders":["src/app/[locale]/job-orders/page.tsx","src/components/job-orders/JobOrdersSummaryCards.tsx"],
   optimization:["src/app/[locale]/optimization/page.tsx"],
   pricing:["src/app/[locale]/pricing/page.tsx"],

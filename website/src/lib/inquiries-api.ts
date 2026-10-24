@@ -3,7 +3,10 @@ import { isSupabaseConfigured, isSupabaseUnavailableError, supabaseServerWithTok
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { InquiryDetail, InquiryDocumentRow, InquiryListData, InquiryListRow, InquiryPriority, InquiryStatus } from "@/types/inquiries";
 
-const VIEW_ROLES = ["inquiry_viewer", "inquiry_auditor", "inquiry_admin"] as const;
+// The Phase 13 database matrix grants inbox reads to these two roles. The list
+// is repeated here so a route can refuse early, and it is checked again by the
+// database. It carries no viewer role: that matrix does not grant one.
+const VIEW_ROLES = ["inquiry_auditor", "inquiry_admin"] as const;
 const STATUSES: InquiryStatus[] = ["Received", "Prepared", "Sent", "Confirmed", "Hold", "Cancelled"];
 const PRIORITIES: InquiryPriority[] = ["Low", "Normal", "High", "Urgent"];
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -53,7 +56,28 @@ function safeSearch(value: string): string {
 function numeric(value: unknown): number {
   const parsed = Number(value); return Number.isFinite(parsed) ? parsed : 0;
 }
-function listRow(row: Record<string, unknown>, attachmentCount = 0): InquiryListRow {
+/**
+ * The open website proforma drafts for a set of inquiries.
+ *
+ * One query for the page, and a deployment without the Phase 15 tables reads as
+ * "no drafts" rather than breaking the inbox. The desktop proforma reference is
+ * a different field and is not consulted here.
+ */
+async function draftSummaries(client: SupabaseClient, ids: string[]): Promise<Map<string, InquiryListRow["proforma_draft"]>> {
+  const drafts = new Map<string, InquiryListRow["proforma_draft"]>();
+  if (!ids.length) return drafts;
+  const result = await client.from("inquiry_proformas").select("id,inquiry_id,revision").in("inquiry_id", ids).eq("source_system", "website").eq("status", "Draft");
+  if (result.error) {
+    if (result.error.code === "42P01" || result.error.code === "PGRST205") return drafts;
+    databaseFailure(result.error);
+  }
+  for (const row of (result.data || []) as unknown as Record<string, unknown>[]) {
+    drafts.set(String(row.inquiry_id), { id: String(row.id), revision: numeric(row.revision) });
+  }
+  return drafts;
+}
+
+function listRow(row: Record<string, unknown>, attachmentCount = 0, proformaDraft: InquiryListRow["proforma_draft"] = null): InquiryListRow {
   return {
     id: String(row.id), inquiry_number: String(row.inquiry_number || ""), inquiry_reference: String(row.inquiry_reference || ""),
     customer_name: String(row.customer_name || ""), project_name: String(row.project_name || ""), salesman_name: String(row.salesman_name || ""),
@@ -61,6 +85,7 @@ function listRow(row: Record<string, unknown>, attachmentCount = 0): InquiryList
     inquiry_value: numeric(row.inquiry_value), received_at: String(row.received_at || ""), source_updated_at: String(row.source_updated_at || ""),
     proforma_number: String(row.proforma_number || ""), job_order_number: String(row.job_order_number || ""),
     availability: row.availability as InquiryListRow["availability"], attachment_count: attachmentCount, published_at: String(row.published_at || ""),
+    proforma_draft: proformaDraft,
   };
 }
 
@@ -82,6 +107,7 @@ export async function fetchInquiries(token: string, input: { page: number; pageS
   const rows = (result.data || []) as unknown as Record<string, unknown>[];
   const ids = rows.map((row) => String(row.id));
   const counts = new Map<string, number>();
+  const drafts = await draftSummaries(client, ids);
   if (ids.length) {
     const docs = await client.from("inquiry_documents").select("inquiry_id").in("inquiry_id", ids).eq("availability", "available");
     if (docs.error) databaseFailure(docs.error);
@@ -98,7 +124,7 @@ export async function fetchInquiries(token: string, input: { page: number; pageS
   const withDocumentIds = new Set((withDocs.data || []).map((row) => String(row.inquiry_id)));
   const totalEntries = result.count || 0;
   return {
-    rows: rows.map((row) => listRow(row, counts.get(String(row.id)) || 0)),
+    rows: rows.map((row) => listRow(row, counts.get(String(row.id)) || 0, drafts.get(String(row.id)) || null)),
     pagination: { page, pageSize, totalEntries, totalPages: Math.max(1, Math.ceil(totalEntries / pageSize)) },
     summary: { total: result.count || 0, active: active.count || 0, confirmed: confirmed.count || 0, withDocuments: withDocumentIds.size },
     lastSuccessfulSyncAt: source.data?.last_success_at || null,
@@ -123,7 +149,8 @@ export async function fetchInquiryDetail(token: string, id: string): Promise<Inq
     current_version: document.current_version_id && versionsById.has(document.current_version_id) ? versionsById.get(document.current_version_id)! as InquiryDocumentRow["current_version"] : null,
   }));
   const row = inquiry.data as unknown as Record<string, unknown>;
-  return { ...listRow(row, docs.filter((doc) => doc.availability === "available").length), customer_location: String(row.customer_location || ""), project_description: String(row.project_description || ""), prepared_at: row.prepared_at ? String(row.prepared_at) : null, sent_at: row.sent_at ? String(row.sent_at) : null, confirmed_at: row.confirmed_at ? String(row.confirmed_at) : null, last_observed_at: String(row.last_observed_at || ""), documents: docs };
+  const drafts = await draftSummaries(client, [id]);
+  return { ...listRow(row, docs.filter((doc) => doc.availability === "available").length, drafts.get(id) || null), customer_location: String(row.customer_location || ""), project_description: String(row.project_description || ""), prepared_at: row.prepared_at ? String(row.prepared_at) : null, sent_at: row.sent_at ? String(row.sent_at) : null, confirmed_at: row.confirmed_at ? String(row.confirmed_at) : null, last_observed_at: String(row.last_observed_at || ""), documents: docs };
 }
 
 export async function authorizeDocumentDownload(token: string, inquiryId: string, documentId: string) {
