@@ -89,6 +89,7 @@ export function ProformaTechnicalSpecFlow() {
   const activeSpec = specs.find((spec) => spec.id === activeSpecId) ?? specs[0]!;
   const activePanes = paneNames[activeSpec.kind];
   const technicalText = useMemo(() => makeSpecText(specs, rows, specNotes), [specs, rows, specNotes]);
+  const specificationJson = useMemo(() => JSON.stringify({ specs, rows, specNotes }), [specs, rows, specNotes]);
   const completed = step === 3;
 
   function updateSpec(patch: Partial<GlassSpec>) {
@@ -129,6 +130,7 @@ export function ProformaTechnicalSpecFlow() {
   return (
     <div ref={rootRef} data-intake-complete={completed ? "true" : "false"} data-no-intake-advance className="space-y-5" aria-label="Proforma technical specification generator">
       <input type="hidden" name="pi_specification" value={technicalText} />
+      <input type="hidden" name="pi_specification_json" value={specificationJson} />
       <input type="hidden" name="pi_spec_complete" value={completed ? "true" : "false"} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div><p className="text-[.65rem] font-bold uppercase tracking-[.16em] text-brand-200">Proforma workflow · technical only</p><h3 ref={stepHeadingRef} tabIndex={-1} className="mt-1 text-lg font-bold outline-none focus-visible:ring-2 focus-visible:ring-brand-400">{["04 · Glass specification", "05 · Cutting list", "06 · Fabrication details", "07 · Review & send"][step]}</h3></div>

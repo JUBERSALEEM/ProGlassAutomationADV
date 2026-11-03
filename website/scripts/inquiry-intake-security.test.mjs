@@ -106,8 +106,12 @@ test("profile and project APIs prefill, persist, associate, and filter customer 
   assert.match(api, /create_customer_inquiry_draft_v2/);
   assert.match(api, /p_project_id: projectId \|\| null/);
   assert.match(portal, /Loading your saved details and projects/);
-  assert.match(portal, /accepted\.length >= MAX_FILES/);
-  assert.match(portal, /was skipped because the.*document limit is already filled/);
+  assert.match(portal, /accepted\.length >= userFileLimit/);
+  assert.match(portal, /AUTO_PI_ATTACHMENT_COUNT = 3/);
+  assert.match(portal, /generateCustomerPiAttachments/);
+  assert.match(portal, /files = \[\.\.\.userFiles, \.\.\.\(generatedPiFilesRef\.current \|\| \[\]\)\]/);
+  assert.match(portal, /automatically attached as an Excel workbook, CSV, and PDF/);
+  assert.match(portal, /was skipped because the.*document limit for optional uploads is already filled/);
   assert.match(portal, /New project — save from fields below/);
   assert.match(portal, /Filter by project/);
   assert.match(portal, /Filter by inquiry type/);

@@ -10,6 +10,7 @@ import type { CustomerInquiryListItem, CustomerInquiryProfile, CustomerInquiryPr
 
 const ACCEPT = ".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.xlsx,.csv";
 const MAX_FILES = 15;
+const AUTO_PI_ATTACHMENT_COUNT = 3;
 const MAX_BYTES = 30 * 1024 * 1024;
 
 function date(value: string) { const parsed = new Date(value); return Number.isNaN(parsed.getTime()) ? "—" : parsed.toLocaleDateString(); }
@@ -35,6 +36,7 @@ function uploadDocument(token: string, draftId: string, file: File, progress: (l
 
 export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: CustomerInquiryType } = {}) {
   const { checking, authToken, isAuthRequired, userEmail, signOut, requireAuth, unavailable: sessionUnavailable, error: sessionError, refreshSession } = useOperatorSession();
+  const userFileLimit = intent === "proforma_invoice" ? MAX_FILES - AUTO_PI_ATTACHMENT_COUNT : MAX_FILES;
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replaceFileInputRef = useRef<HTMLInputElement>(null);
@@ -42,6 +44,9 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
   const draftIdRef = useRef<string | null>(null);
   const draftReferenceRef = useRef<string | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [generatedPiFiles, setGeneratedPiFiles] = useState<File[]>([]);
+  const generatedPiFilesRef = useRef<File[] | null>(null);
+  const [generatingPiFiles, setGeneratingPiFiles] = useState(false);
   const [flowInstance, setFlowInstance] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [rows, setRows] = useState<CustomerInquiryListItem[]>([]);
@@ -111,8 +116,8 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
           rejected.push(`${file.name} is already attached. Remove or replace the existing document before adding another file with that name.`);
           continue;
         }
-        if (current.length + accepted.length >= MAX_FILES) {
-          rejected.push(`${file.name} was skipped because the ${MAX_FILES}-document limit is already filled.`);
+        if (current.length + accepted.length >= userFileLimit) {
+          rejected.push(`${file.name} was skipped because the ${userFileLimit}-document limit for optional uploads is already filled.`);
           continue;
         }
         accepted.push(file);
@@ -155,14 +160,18 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
       }
     }
     let submissionDescription = String(new FormData(currentForm).get("description") || "").trim();
+    let technicalSpecification = "";
+    let technicalSpecificationJson = "";
     if (intent === "proforma_invoice") {
       const complete = currentForm.querySelector<HTMLInputElement>('input[name="pi_spec_complete"]')?.value === "true";
       const specification = currentForm.querySelector<HTMLInputElement>('input[name="pi_specification"]')?.value.trim() || "";
-      if (!complete || !specification) {
+      technicalSpecificationJson = currentForm.querySelector<HTMLInputElement>('input[name="pi_specification_json"]')?.value || "";
+      if (!complete || !specification || !technicalSpecificationJson) {
         setError("Complete the technical specification steps 4–7 before sending the PI request.");
         currentForm.querySelector<HTMLElement>("[aria-label='Proforma technical specification generator']")?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
+      technicalSpecification = specification;
       submissionDescription = `${submissionDescription}\n\n${specification}`;
       if (submissionDescription.length > 5000) {
         setError("The project description and technical specification exceed the 5,000-character request limit. Shorten the notes or reduce the cutting-list lines.");
@@ -170,17 +179,45 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
       }
     }
     if (!authToken) { requireAuth(); return; }
-    const files = selectedFiles;
-    if (files.length > MAX_FILES) { setError(`Select at most ${MAX_FILES} documents.`); return; }
-    const oversized = files.find((file) => file.size > MAX_BYTES);
+    const userFiles = selectedFiles;
+    if (userFiles.length > userFileLimit) { setError(`Select at most ${userFileLimit} optional project files${intent === "proforma_invoice" ? "; three more slots are reserved for the generated PI files" : ""}.`); return; }
+    const oversized = userFiles.find((file) => file.size > MAX_BYTES);
     if (oversized) { setError(`${oversized.name} exceeds the 30 MB per-file limit.`); return; }
-    const form = new FormData(event.currentTarget); form.delete("documents"); form.set("expected_document_count", String(files.length));
-    if (!draftIdRef.current) {
-      setUploadStates(Object.fromEntries(files.map((_, index) => [index, { status: "waiting", percent: 0, detail: "Waiting" }])));
-      setOverallProgress(0);
-    }
+    const form = new FormData(currentForm); form.delete("documents");
+    form.delete("pi_specification"); form.delete("pi_specification_json"); form.delete("pi_spec_complete");
     setSubmitting(true);
     try {
+      let files = userFiles;
+      if (intent === "proforma_invoice") {
+        if (!generatedPiFilesRef.current) {
+          setGeneratingPiFiles(true);
+          const { generateCustomerPiAttachments } = await import("@/lib/customer-pi-attachments");
+          const generated = await generateCustomerPiAttachments({
+            companyName: String(form.get("company_name") || ""),
+            contactName: String(form.get("contact_name") || ""),
+            customerReference: String(form.get("customer_reference") || ""),
+            projectName: String(form.get("project_name") || ""),
+            projectLocation: String(form.get("project_location") || ""),
+            projectRequirements: String(form.get("description") || ""),
+            technicalSpecification,
+            technicalSpecificationJson,
+          });
+          const collidingName = userFiles.find((file) => generated.some((attachment) => file.name.toLocaleLowerCase() === attachment.name.toLocaleLowerCase()));
+          if (collidingName) throw new Error(`Rename or remove ${collidingName.name}; it conflicts with an automatically generated PI attachment.`);
+          generatedPiFilesRef.current = generated;
+          setGeneratedPiFiles(generated);
+        }
+        setGeneratingPiFiles(false);
+        files = [...userFiles, ...(generatedPiFilesRef.current || [])];
+      }
+      const duplicateFile = files.find((file, index) => files.findIndex((candidate) => candidate.name.normalize("NFKC").trim().toLocaleLowerCase() === file.name.normalize("NFKC").trim().toLocaleLowerCase()) !== index);
+      if (duplicateFile) throw new Error(`${duplicateFile.name} is attached more than once. Rename or remove the duplicate before retrying.`);
+      if (files.length > MAX_FILES) throw new Error(`The request exceeds the ${MAX_FILES}-document upload limit.`);
+      form.set("expected_document_count", String(files.length));
+      if (!draftIdRef.current) {
+        setUploadStates(Object.fromEntries(files.map((_, index) => [index, { status: "waiting", percent: 0, detail: "Waiting" }])));
+        setOverallProgress(0);
+      }
       if (!draftIdRef.current) {
         const profileResponse=await fetch("/api/inquiry-submissions/profile",{method:"PUT",headers:{Authorization:`Bearer ${authToken}`},body:form});
         const profileBody=await profileResponse.json().catch(()=>null); if(!profileResponse.ok||!profileBody?.ok)throw new Error(profileBody?.error?.message||"Customer details could not be saved.");
@@ -228,8 +265,12 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
       if (!finalResponse.ok || !finalBody?.ok) throw new Error(finalBody?.error?.message || "Files uploaded, but the inquiry could not be finalized.");
       const created = finalBody.data as CustomerInquirySubmission;
       setNotice(intent === "proforma_invoice" ? `PI request ${created.submission_reference} was sent to the ProGlass inquiry inbox with ${filesLabel(files.length)}.` : `Inquiry ${created.submission_reference} was submitted securely with ${filesLabel(files.length)}.`);
-      formRef.current?.reset(); setFlowInstance((value) => value + 1); setSelectedFiles([]); setUploadStates({}); setOverallProgress(0); draftIdRef.current=null; draftReferenceRef.current=null; await load();
-    } catch (reason) { setError(reason instanceof Error ? `${reason.message} Draft ${draftReferenceRef.current || ""} is retained; press ${intent === "proforma_invoice" ? "Send PI request to ProGlass" : "Submit inquiry"} to retry only the failed document.` : "The inquiry could not be submitted."); }
+      formRef.current?.reset(); setFlowInstance((value) => value + 1); setSelectedFiles([]); setGeneratedPiFiles([]); generatedPiFilesRef.current = null; setGeneratingPiFiles(false); setUploadStates({}); setOverallProgress(0); draftIdRef.current=null; draftReferenceRef.current=null; await load();
+    } catch (reason) {
+      setGeneratingPiFiles(false);
+      const message = reason instanceof Error ? reason.message : "The inquiry could not be submitted.";
+      setError(draftIdRef.current ? `${message} Draft ${draftReferenceRef.current || ""} is retained; press ${intent === "proforma_invoice" ? "Send PI request to ProGlass" : "Submit inquiry"} to retry the remaining document uploads.` : `${message} No request was sent; correct the issue and try again.`);
+    }
     finally { setSubmitting(false); }
   }
 
@@ -239,7 +280,7 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
   const filteredRows=rows.filter((row)=>(!historyProject||row.project_id===historyProject)&&(!historyType||row.inquiry_type===historyType)&&(!historyStatus||row.status===historyStatus));
 
   return <main className="min-h-screen bg-ink-950 pb-20 text-text-primary">
-    <header className="border-b border-line-strong/60"><div className="shell flex flex-wrap items-center justify-between gap-3 py-6"><div><div className="eyebrow text-brand-300">Secure customer portal</div><h1 className="mt-1 text-2xl font-bold">{intent === "proforma_invoice" ? "Request a proforma invoice" : "Create an inquiry"}</h1><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "Enter customer and project details, then build a technical glass specification through WPF Step 7. No customer pricing is shown; drawings are optional." : "Share your company and project details in one guided flow. Supporting files are optional."}</p></div><div className="text-right"><div className="text-3xs text-text-faint">{userEmail}</div><button type="button" onClick={() => void signOut()} className="mt-2 text-xs font-semibold text-brand-300">Sign out</button></div></div></header>
+    <header className="border-b border-line-strong/60"><div className="shell flex flex-wrap items-center justify-between gap-3 py-6"><div><div className="eyebrow text-brand-300">Secure customer portal</div><h1 className="mt-1 text-2xl font-bold">{intent === "proforma_invoice" ? "Request a proforma invoice" : "Create an inquiry"}</h1><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "Enter customer and project details, then build the technical glass specification through WPF Step 7. Your Excel, CSV, and PDF files are generated and attached automatically; no upload is required." : "Share your company and project details in one guided flow. Supporting files are optional."}</p></div><div className="text-right"><div className="text-3xs text-text-faint">{userEmail}</div><button type="button" onClick={() => void signOut()} className="mt-2 text-xs font-semibold text-brand-300">Sign out</button></div></div></header>
     <div className="shell mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,.9fr)]">
       <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><h2 className="text-lg font-bold">{intent === "proforma_invoice" ? "PI request details" : "Inquiry details"}</h2><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "Customer and project details come first; the glass specification generator follows before the request is sent to the ProGlass team." : "Company, client, and project details are gathered together for the ProGlass team."}</p>
         {error && <div role="alert" className="mt-4 rounded-xl border border-state-danger/40 bg-state-danger/10 p-3 text-xs text-state-danger">{error}</div>}
@@ -306,19 +347,20 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
 
             <section className="mt-4 rounded-2xl border border-line-strong/60 bg-ink-950/45 p-4" aria-labelledby="inquiry-documents-label">
               <div className="flex items-center justify-between gap-3">
-                <div><h3 id="inquiry-documents-label" className="text-sm font-bold text-text-primary">Supporting project files <span className="font-normal text-text-faint">(optional)</span></h3><p className="mt-1 text-xs text-text-muted">These are inquiry drawings or BOQ files for the WPF inbox—not PI invoice attachments. You can send the request without files.</p></div>
+                <div><h3 id="inquiry-documents-label" className="text-sm font-bold text-text-primary">Supporting project files <span className="font-normal text-text-faint">(optional)</span></h3><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "You can submit without uploading anything. Your completed PI specification is automatically attached as an Excel workbook, CSV, and PDF; upload drawings or BOQ files only if you want to." : "Attach inquiry drawings or BOQ files for the WPF inbox, or submit without files."}</p></div>
                 {selectedFiles.length > 0 && <button type="button" onClick={() => setSelectedFiles([])} className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-semibold text-state-danger hover:bg-state-danger/10">Remove all</button>}
               </div>
               <input ref={fileInputRef} id="inquiry-documents" aria-labelledby="inquiry-documents-label" aria-describedby="inquiry-documents-help" name="documents" type="file" multiple accept={ACCEPT} onChange={(event) => { if (event.target.files) addFiles(event.target.files); event.target.value = ""; }} className="sr-only" />
               <input ref={replaceFileInputRef} aria-label="Choose a replacement document" type="file" accept={ACCEPT} onChange={(event) => { const file = event.target.files?.[0]; if (file) replaceFile(file); event.target.value = ""; }} className="sr-only" />
               <button type="button" aria-labelledby="inquiry-documents-label inquiry-document-picker-copy" aria-describedby="inquiry-documents-help" onClick={() => fileInputRef.current?.click()} onDragEnter={(event) => { event.preventDefault(); setDragging(true); }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setDragging(false)} onDrop={(event) => { event.preventDefault(); setDragging(false); addFiles(event.dataTransfer.files); }} className={`mt-3 w-full rounded-2xl border-2 border-dashed p-4 text-center outline-none transition focus-visible:border-brand-300 focus-visible:ring-2 focus-visible:ring-brand-400/50 sm:p-5 ${dragging ? "border-brand-300 bg-brand-500/15" : "border-line-strong bg-ink-950/70 hover:border-brand-400/70"}`}>
-                <span aria-hidden="true" className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-brand-500/15 text-xl text-brand-300">+</span><span id="inquiry-document-picker-copy" className="mt-2 block text-sm font-bold leading-5 text-text-primary">{selectedFiles.length ? "Add more documents" : "Choose drawings or drop them here"}</span><span id="inquiry-documents-help" className="mt-1 block text-xs leading-5 text-text-muted">PDF, images, XLSX or CSV · 30 MB each · {selectedFiles.length}/{MAX_FILES} selected</span>
+                <span aria-hidden="true" className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-brand-500/15 text-xl text-brand-300">+</span><span id="inquiry-document-picker-copy" className="mt-2 block text-sm font-bold leading-5 text-text-primary">{selectedFiles.length ? "Add more documents" : "Choose drawings or drop them here"}</span><span id="inquiry-documents-help" className="mt-1 block text-xs leading-5 text-text-muted">PDF, images, XLSX or CSV · 30 MB each · {selectedFiles.length}/{userFileLimit} optional files{intent === "proforma_invoice" ? ` · ${AUTO_PI_ATTACHMENT_COUNT} PI files auto-generated` : ""}</span>
               </button>
+              {intent === "proforma_invoice" && <div className="mt-3 rounded-xl border border-brand-300/15 bg-brand-400/[.05] p-3 text-xs"><p className="font-bold text-brand-100">Auto-attached PI files · Excel (.xlsx), CSV, and PDF</p><p className="mt-1 text-text-muted">{generatingPiFiles ? "Generating the three files from your Step 4–7 specification…" : generatedPiFiles.length ? generatedPiFiles.map((file, index) => `${file.name} · ${uploadStates[selectedFiles.length + index]?.detail || "ready to attach"}`).join(" · ") : "Generated and attached automatically when you send the PI request. No upload is needed."}</p></div>}
               {selectedFiles.length > 0 && <div aria-live="polite" aria-label={`${selectedFiles.length} documents selected`} className="mt-3 grid gap-2 sm:grid-cols-2">{selectedFiles.map((file, index) => <div key={`${file.name}-${file.size}-${index}`} className="flex items-center justify-between gap-3 rounded-xl border border-line-strong bg-ink-950 px-3 py-2"><div className="min-w-0"><div className="truncate text-xs font-semibold text-text-primary">{file.name}</div><div className="text-3xs text-text-faint">{Math.ceil(file.size / 1024).toLocaleString()} KB · {uploadStates[index]?.detail || "ready to attach"}</div>{uploadStates[index] && <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label={`${file.name} upload progress`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={uploadStates[index]?.percent}><div className={`h-full transition-[width] ${uploadStates[index]?.status === "failed" ? "bg-state-danger" : "bg-brand-400"}`} style={{ width: `${uploadStates[index]?.percent || 0}%` }} /></div>}</div><div className={`shrink-0 gap-1 ${submitting ? "hidden" : "flex"}`}><button type="button" aria-label={`Replace ${file.name}`} onClick={() => { replaceIndexRef.current = index; replaceFileInputRef.current?.click(); }} className="rounded-lg px-2 py-1 text-xs font-semibold text-brand-300 hover:bg-brand-500/10">Replace</button><button type="button" aria-label={`Remove ${file.name}`} onClick={() => setSelectedFiles((current) => current.filter((_, position) => position !== index))} className="rounded-lg px-2 py-1 text-xs font-semibold text-state-danger hover:bg-state-danger/10">Remove</button></div></div>)}</div>}
               <span className="mt-2 block text-3xs text-text-faint">Files stay private and are checked by content, not filename alone. CAD files must be exported to PDF or image.</span>
             </section>
 
-            {submitting && <div className="mt-4" role="status" aria-live="polite"><div className="flex justify-between text-xs font-semibold"><span>Uploading and verifying {filesLabel(selectedFiles.length)}</span><span>{overallProgress}%</span></div><div className="mt-2 h-2.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label="Overall inquiry upload progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={overallProgress}><div className="h-full bg-brand-400 transition-[width]" style={{ width: `${overallProgress}%` }} /></div><p className="mt-2 text-3xs text-text-muted">Keep this page open. Each selected file is uploaded and verified separately.</p></div>}
+            {submitting && <div className="mt-4" role="status" aria-live="polite"><div className="flex justify-between text-xs font-semibold"><span>{generatingPiFiles ? "Generating Excel, CSV, and PDF PI files" : `Uploading and verifying ${filesLabel(selectedFiles.length + generatedPiFiles.length)}`}</span><span>{overallProgress}%</span></div><div className="mt-2 h-2.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label="Overall inquiry upload progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={overallProgress}><div className="h-full bg-brand-400 transition-[width]" style={{ width: `${overallProgress}%` }} /></div><p className="mt-2 text-3xs text-text-muted">Keep this page open. Each selected file is uploaded and verified separately.</p></div>}
             <button disabled={submitting} className="mt-4 w-full rounded-xl bg-brand-400 px-5 py-3.5 text-sm font-bold text-ink-950 transition hover:bg-brand-300 disabled:opacity-50">{submitting ? `Sending request ${overallProgress}%` : intent === "proforma_invoice" ? "Send PI request to ProGlass" : "Submit inquiry"}</button>
           </form>
         )}
