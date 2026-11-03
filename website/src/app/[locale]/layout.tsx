@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { notFound } from "next/navigation";
 import "../globals.css";
+import "../intake-flow.css";
 import "../clay-engine.css";
 import "../crystal-engine.css";
 import "../neumorphism-engine.css";
@@ -11,6 +12,7 @@ import "../component-system.css";
 import { SvgDefs } from "@/components/brand/SvgDefs";
 import { globalGraph } from "@/lib/schema";
 import { WelcomeHeader } from "@/components/layout/WelcomeHeader";
+import { ThemeStudioLazy } from "@/components/layout/ThemeStudioLazy";
 import { brandIcon } from "@/data/assets";
 import { site } from "@/lib/site";
 import { buildStamp } from "@/lib/buildStamp";
@@ -19,6 +21,8 @@ import { I18nProvider } from "@/i18n/provider";
 import { LOCALE_CODES, dirOf, isLocale, localeInfo, type Locale } from "@/i18n/locales";
 import { ogLocale } from "@/i18n/core";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { GlassLife } from "@/components/glass/GlassLife";
+import { SupportBubble } from "@/components/support/SupportBubble";
 import { chromeOverlayFor, translatorForLocale } from "@/i18n/server";
 import { APP_STRINGS } from "@/i18n/app-strings";
 
@@ -324,10 +328,13 @@ export default async function LocaleLayout({
           <a href="#main" className="skip-link">
             {t("Skip to content")}
           </a>
+          <GlassLife />
           <WelcomeHeader />
           <main id="main" tabIndex={-1}>
             {children}
           </main>
+          <ThemeStudioLazy />
+          <SupportBubble />
         </I18nProvider>
         <SpeedInsights />
       </body>

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { LocaleLink } from "@/components/ui/LocaleLink";
 import { LogoMark } from "@/components/brand/Logo";
 import { PageOverlay } from "@/i18n/PageOverlay";
 import { translatorFor } from "@/i18n/server";
@@ -47,28 +46,10 @@ export default async function HomePage({ params }: PageProps) {
               {t("Use this customer portal to tell us about a project, request a proforma invoice, or access your account.")}
             </p>
 
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <LocaleLink
-                href="/inquiries/submit"
-                className="group inline-flex min-h-14 items-center justify-center gap-3 rounded-2xl bg-brand-400 px-6 py-3.5 text-base font-bold text-ink-950 shadow-xl shadow-brand-950/30 transition hover:-translate-y-0.5 hover:bg-brand-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-200"
-              >
-                {t("Create an inquiry")}
-                <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">→</span>
-              </LocaleLink>
-              <LocaleLink
-                href="/inquiries/submit/proforma"
-                className="inline-flex min-h-14 items-center justify-center gap-3 rounded-2xl border border-white/15 bg-white/[0.04] px-6 py-3.5 text-base font-semibold text-white transition hover:-translate-y-0.5 hover:border-brand-200/50 hover:bg-white/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-200"
-              >
-                {t("Request a PI")}
-                <span aria-hidden="true" className="text-brand-200">↗</span>
-              </LocaleLink>
-              <LocaleLink
-                href="/reports/login?mode=signup&redirect=%2Finquiries%2Fsubmit"
-                className="inline-flex min-h-14 items-center justify-center rounded-2xl px-5 py-3.5 text-sm font-semibold text-text-muted transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-200 sm:hidden"
-              >
-                {t("Sign up or log in")}
-              </LocaleLink>
-            </div>
+            <p className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-brand-100">
+              <span aria-hidden="true" className="h-px w-8 bg-brand-300/60" />
+              {t("Start from the Create inquiry menu above whenever you’re ready.")}
+            </p>
           </div>
 
           <aside className="relative mx-auto w-full max-w-md" aria-label={t("What ProGlass does")}>

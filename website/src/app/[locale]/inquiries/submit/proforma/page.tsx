@@ -10,19 +10,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await translatorFor(params);
   return pageMetadata({
     locale: t.locale,
-    title: t("Submit an inquiry with a proforma invoice"),
-    description: t("Send a requirement with the proforma invoice details. A coordinator confirms it before the document is issued."),
+    title: t("Request a proforma invoice"),
+    description: t("Send your company and project details to the ProGlass inquiry inbox so the team can prepare a proforma invoice in the desktop workflow."),
     path: "/inquiries/submit/proforma",
     ogEyebrow: t("Customer inquiry"),
   });
 }
 
 /**
- * The same portal, opened on the one inquiry type that is held for review.
+ * The same portal, opened in PI-request mode.
  *
- * A proforma invoice is a priced document, so the submission is created in
- * `under_review` instead of `submitted` and the desktop inbox does not receive
- * it until a coordinator accepts it on the website.
+ * A request is finalized as a normal submitted intake item and marked
+ * `approval_required` for the desktop workflow. It reaches the WPF inbox via
+ * the configured Supabase-to-Windows bridge; the website does not create or
+ * price the invoice itself.
  */
 export default async function Page({ params }: Props) {
   const t = await translatorFor(params);

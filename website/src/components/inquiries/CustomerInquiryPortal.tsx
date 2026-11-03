@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LocaleLink } from "@/components/ui/LocaleLink";
+import { InquiryPromptFlow } from "@/components/inquiries/InquiryPromptFlow";
 import { useOperatorSession } from "@/lib/useOperatorSession";
 import { CUSTOMER_INQUIRY_TYPES, CUSTOMER_INQUIRY_TYPE_LABELS } from "@/types/inquiry-submissions";
 import type { CustomerInquiryListItem, CustomerInquiryProfile, CustomerInquiryProject, CustomerInquirySubmission, CustomerInquiryType } from "@/types/inquiry-submissions";
@@ -40,6 +41,7 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
   const draftIdRef = useRef<string | null>(null);
   const draftReferenceRef = useRef<string | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [flowInstance, setFlowInstance] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [rows, setRows] = useState<CustomerInquiryListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -135,6 +137,22 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); setError(""); setNotice("");
+    const currentForm = event.currentTarget;
+    const requiredValues: Array<[string, string, number]> = [
+      ["company_name", "Company name", 1],
+      ["contact_name", "Contact name", 1],
+      ["project_name", "Project name", 1],
+      ["description", "Project requirements", 10],
+    ];
+    for (const [name, label, minimum] of requiredValues) {
+      const value = currentForm.elements.namedItem(name);
+      const text = value instanceof HTMLInputElement || value instanceof HTMLTextAreaElement ? value.value.trim() : "";
+      if (text.length < minimum) {
+        setError(`${label} is required${minimum > 1 ? ` (at least ${minimum} characters)` : ""}.`);
+        (value as HTMLElement | null)?.focus();
+        return;
+      }
+    }
     if (!authToken) { requireAuth(); return; }
     const files = selectedFiles;
     if (files.length > MAX_FILES) { setError(`Select at most ${MAX_FILES} documents.`); return; }
@@ -190,9 +208,9 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
       const finalBody = await finalResponse.json().catch(() => null);
       if (!finalResponse.ok || !finalBody?.ok) throw new Error(finalBody?.error?.message || "Files uploaded, but the inquiry could not be finalized.");
       const created = finalBody.data as CustomerInquirySubmission;
-      setNotice(`Inquiry ${created.submission_reference} was submitted securely with ${filesLabel(files.length)}.`);
-      formRef.current?.reset(); setSelectedFiles([]); setUploadStates({}); setOverallProgress(0); draftIdRef.current=null; draftReferenceRef.current=null; await load();
-    } catch (reason) { setError(reason instanceof Error ? `${reason.message} Draft ${draftReferenceRef.current || ""} is retained; press Submit inquiry to retry only the failed document.` : "The inquiry could not be submitted."); }
+      setNotice(intent === "proforma_invoice" ? `PI request ${created.submission_reference} was sent to the ProGlass inquiry inbox with ${filesLabel(files.length)}.` : `Inquiry ${created.submission_reference} was submitted securely with ${filesLabel(files.length)}.`);
+      formRef.current?.reset(); setFlowInstance((value) => value + 1); setSelectedFiles([]); setUploadStates({}); setOverallProgress(0); draftIdRef.current=null; draftReferenceRef.current=null; await load();
+    } catch (reason) { setError(reason instanceof Error ? `${reason.message} Draft ${draftReferenceRef.current || ""} is retained; press ${intent === "proforma_invoice" ? "Send PI request to ProGlass" : "Submit inquiry"} to retry only the failed document.` : "The inquiry could not be submitted."); }
     finally { setSubmitting(false); }
   }
 
@@ -202,30 +220,90 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
   const filteredRows=rows.filter((row)=>(!historyProject||row.project_id===historyProject)&&(!historyType||row.inquiry_type===historyType)&&(!historyStatus||row.status===historyStatus));
 
   return <main className="min-h-screen bg-ink-950 pb-20 text-text-primary">
-    <header className="border-b border-line-strong/60"><div className="shell flex flex-wrap items-center justify-between gap-3 py-6"><div><div className="eyebrow text-brand-300">Secure customer inquiry</div><h1 className="mt-1 text-2xl font-bold">Submit project documents</h1><p className="mt-1 text-xs text-text-muted">PDF, images, XLSX and CSV · up to 30 MB each · 15 files maximum</p></div><div className="text-right"><div className="text-3xs text-text-faint">{userEmail}</div><button type="button" onClick={() => void signOut()} className="mt-2 text-xs font-semibold text-brand-300">Sign out</button></div></div></header>
+    <header className="border-b border-line-strong/60"><div className="shell flex flex-wrap items-center justify-between gap-3 py-6"><div><div className="eyebrow text-brand-300">Secure customer portal</div><h1 className="mt-1 text-2xl font-bold">{intent === "proforma_invoice" ? "Request a proforma invoice" : "Create an inquiry"}</h1><p className="mt-1 text-xs text-text-muted">Share your company and project details in one guided flow. Supporting files are optional.</p></div><div className="text-right"><div className="text-3xs text-text-faint">{userEmail}</div><button type="button" onClick={() => void signOut()} className="mt-2 text-xs font-semibold text-brand-300">Sign out</button></div></div></header>
     <div className="shell mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,.9fr)]">
-      <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><h2 className="text-lg font-bold">New inquiry</h2><p className="mt-1 text-xs text-text-muted">Provide enough information for the estimating team to review your request.</p>
+      <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><h2 className="text-lg font-bold">{intent === "proforma_invoice" ? "PI request details" : "Inquiry details"}</h2><p className="mt-1 text-xs text-text-muted">Company, client, and project details are gathered together for the ProGlass team.</p>
         {error && <div role="alert" className="mt-4 rounded-xl border border-state-danger/40 bg-state-danger/10 p-3 text-xs text-state-danger">{error}</div>}
         {notice && <div role="status" className="mt-4 rounded-xl border border-state-success/40 bg-state-success/10 p-3 text-xs text-state-success">{notice}</div>}
-        {!setupLoaded?<p role="status" className="mt-5 text-xs text-text-muted">Loading your saved details and projects…</p>:<form ref={formRef} onSubmit={submit} className="mt-5 grid gap-4 sm:grid-cols-2">
-          <Field name="contact_name" label="Contact name" required maxLength={120} defaultValue={profile?.contact_name} /><Field name="company_name" label="Company" required maxLength={160} defaultValue={profile?.company_name} />
-          <Field name="phone" label="Phone" maxLength={60} defaultValue={profile?.phone} /><Field name="customer_reference" label="Your reference" maxLength={100} />
-          <Field name="attention_name" label="Attention" maxLength={120} defaultValue={profile?.attention_name} /><Field name="vat_trn_number" label="VAT / TRN number" maxLength={50} defaultValue={profile?.vat_trn_number} />
-          <Field name="salesman_reference" label="Salesman reference" maxLength={120} /><Field name="handover_estimator_name" label="Handover estimator name" maxLength={120} />
-          <label className="sm:col-span-2 text-sm font-semibold leading-5 text-text-secondary">Saved project<select name="project_id" onChange={(event)=>{const project=projects.find((item)=>item.id===event.target.value);if(!project||!formRef.current)return;const elements=formRef.current.elements;(elements.namedItem("project_name") as HTMLInputElement).value=project.project_name;(elements.namedItem("project_location") as HTMLInputElement).value=project.project_location;(elements.namedItem("inquiry_type") as HTMLSelectElement).value=project.default_inquiry_type;}} className="mt-2 min-h-12 w-full rounded-xl border border-line-strong bg-ink-950 px-3 text-base text-text-primary"><option value="">New project — save from fields below</option>{projects.map((project)=><option key={project.id} value={project.id}>{project.project_name}{project.project_location?` · ${project.project_location}`:""}</option>)}</select></label>
-          <Field name="project_name" label="Project name" required maxLength={180} /><Field name="project_location" label="Project location" maxLength={180} />
-          <label className="sm:col-span-2 text-sm font-semibold leading-5 text-text-secondary">Inquiry type<select name="inquiry_type" defaultValue={intent} className="mt-2 min-h-12 w-full rounded-xl border border-line-strong bg-ink-950 px-3 text-base text-text-primary">{CUSTOMER_INQUIRY_TYPES.map((value)=><option key={value} value={value}>{CUSTOMER_INQUIRY_TYPE_LABELS[value]}</option>)}</select><span className="mt-1 block text-3xs font-normal text-text-muted">A proforma invoice request is priced and confirmed by a coordinator before the document is issued.</span></label>
-          <label htmlFor="inquiry-description" className="sm:col-span-2 text-sm font-semibold leading-5 text-text-secondary">Requirements<textarea id="inquiry-description" name="description" required minLength={10} maxLength={5000} rows={6} className="mt-2 min-h-36 w-full rounded-xl border border-line-strong bg-ink-950 p-3 text-base leading-6 text-text-primary caret-brand-300 outline-none focus-visible:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400/40 sm:text-sm" /></label>
-          <div className="sm:col-span-2"><div className="flex items-center justify-between gap-3"><div id="inquiry-documents-label" className="text-sm font-semibold leading-5 text-text-secondary">Documents</div>{selectedFiles.length>0&&<button type="button" onClick={()=>setSelectedFiles([])} className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-semibold text-state-danger hover:bg-state-danger/10 focus-visible:ring-2 focus-visible:ring-state-danger/40">Remove all</button>}</div><input ref={fileInputRef} id="inquiry-documents" aria-labelledby="inquiry-documents-label" aria-describedby="inquiry-documents-help" name="documents" type="file" multiple accept={ACCEPT} onChange={(event)=>{if(event.target.files)addFiles(event.target.files);event.target.value="";}} className="sr-only" /><input ref={replaceFileInputRef} aria-label="Choose a replacement document" type="file" accept={ACCEPT} onChange={(event)=>{const file=event.target.files?.[0];if(file)replaceFile(file);event.target.value="";}} className="sr-only" />
-            <button type="button" aria-labelledby="inquiry-documents-label inquiry-document-picker-copy" aria-describedby="inquiry-documents-help" onClick={()=>fileInputRef.current?.click()} onDragEnter={(event)=>{event.preventDefault();setDragging(true);}} onDragOver={(event)=>event.preventDefault()} onDragLeave={()=>setDragging(false)} onDrop={(event)=>{event.preventDefault();setDragging(false);addFiles(event.dataTransfer.files);}} className={`mt-2 w-full rounded-2xl border-2 border-dashed p-5 text-center outline-none transition focus-visible:border-brand-300 focus-visible:ring-2 focus-visible:ring-brand-400/50 sm:p-6 ${dragging?"border-brand-300 bg-brand-500/15":"border-line-strong bg-ink-950/70 hover:border-brand-400/70 hover:bg-ink-950"}`}>
-              <span aria-hidden="true" className="mx-auto grid h-11 w-11 place-items-center rounded-xl bg-brand-500/15 text-xl text-brand-300">+</span><span id="inquiry-document-picker-copy" className="mt-3 block text-sm font-bold leading-5 text-text-primary">{selectedFiles.length ? "Add more documents" : "Choose documents or drop them here"}</span><span id="inquiry-documents-help" className="mt-1 block text-xs leading-5 text-text-muted">PDF, images, XLSX or CSV · 30 MB each · {selectedFiles.length}/{MAX_FILES} selected</span>
-            </button>
-            {selectedFiles.length>0&&<div aria-live="polite" aria-label={`${selectedFiles.length} documents selected`} className="mt-3 grid gap-2 sm:grid-cols-2">{selectedFiles.map((file,index)=><div key={`${file.name}-${file.size}-${index}`} className="flex items-center justify-between gap-3 rounded-xl border border-line-strong bg-ink-950 px-3 py-2"><div className="min-w-0"><div className="truncate text-xs font-semibold text-text-primary">{file.name}</div><div className="text-3xs text-text-faint">{Math.ceil(file.size/1024).toLocaleString()} KB · {uploadStates[index]?.detail || "ready to attach"}</div>{uploadStates[index]&&<div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label={`${file.name} upload progress`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={uploadStates[index]?.percent}><div className={`h-full transition-[width] ${uploadStates[index]?.status==="failed"?"bg-state-danger":"bg-brand-400"}`} style={{width:`${uploadStates[index]?.percent||0}%`}} /></div>}</div><div className={`shrink-0 gap-1 ${submitting?"hidden":"flex"}`}><button type="button" aria-label={`Replace ${file.name}`} onClick={()=>{replaceIndexRef.current=index;replaceFileInputRef.current?.click();}} className="rounded-lg px-2 py-1 text-xs font-semibold text-brand-300 hover:bg-brand-500/10 focus-visible:ring-2 focus-visible:ring-brand-400/40">Replace</button><button type="button" aria-label={`Remove ${file.name}`} onClick={()=>setSelectedFiles((current)=>current.filter((_,position)=>position!==index))} className="rounded-lg px-2 py-1 text-xs font-semibold text-state-danger hover:bg-state-danger/10 focus-visible:ring-2 focus-visible:ring-state-danger/40">Remove</button></div></div>)}</div>}
-            <span className="mt-2 block text-3xs text-text-faint">Files stay private and are checked by content, not filename alone. CAD files must be exported to PDF or image.</span>
-          </div>
-          {submitting&&<div className="sm:col-span-2" role="status" aria-live="polite"><div className="flex justify-between text-xs font-semibold"><span>Uploading and verifying {filesLabel(selectedFiles.length)}</span><span>{overallProgress}%</span></div><div className="mt-2 h-2.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label="Overall inquiry upload progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={overallProgress}><div className="h-full bg-brand-400 transition-[width]" style={{width:`${overallProgress}%`}} /></div><p className="mt-2 text-3xs text-text-muted">Keep this page open. Each document is uploaded and verified separately.</p></div>}
-          <button disabled={submitting} className="sm:col-span-2 rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink disabled:opacity-50">{submitting ? `Uploading ${overallProgress}%` : "Submit inquiry"}</button>
-        </form>}
+        {!setupLoaded ? <p role="status" className="mt-5 text-xs text-text-muted">Loading your saved details and projects…</p> : (
+          <form ref={formRef} onSubmit={submit} noValidate className="mt-5">
+            <InquiryPromptFlow
+              key={flowInstance}
+              hints={[
+                { group: "Customer + project", title: "Company name", body: "Enter the company name the estimating team should use for this request.", example: "Al Noor Glass LLC" },
+                { group: "Customer + project", title: "Your name", body: "Who should we contact about this project?", example: "Aisha Khan" },
+                { group: "Customer + project", title: "Phone number", body: "Add a direct number if you would like the team to call. This field is optional.", example: "+971 50 123 4567" },
+                { group: "Customer + project", title: "VAT / TRN number", body: "If available, enter the company tax registration number. You can leave it blank.", example: "100123456700003" },
+                { group: "Customer + project", title: "Your reference", body: "Add your own quotation, tender, or purchase reference so the team can match correspondence.", example: "RFQ-2026-018" },
+                { group: "Customer + project", title: "Choose a saved project", body: "Reuse an existing project, or leave this blank and enter a new project in the next prompts." },
+                { group: "Customer + project", title: "Project name", body: "Use the project or site name that should appear in the inquiry inbox.", example: "Marina Residence — Tower B" },
+                { group: "Customer + project", title: "Project location", body: "Enter the site location, city, or address. This helps the ProGlass team route the request.", example: "Al Reem Island, Abu Dhabi" },
+                { group: "Customer + project", title: "Attention", body: "Optional: name the person or department that should receive the response.", example: "Attn: Procurement Department" },
+                { group: "Customer + project", title: "Sales reference", body: "Optional: identify the salesperson or internal reference connected to this request.", example: "Sales team — Khalid" },
+                { group: "Customer + project", title: "Handover estimator", body: "Optional: if an estimator is already assigned, enter their name. Otherwise leave it blank." },
+                { group: "Request details", title: intent === "proforma_invoice" ? "Request type: Proforma Invoice" : "What do you need?", body: intent === "proforma_invoice" ? "This request will be marked as a PI request and delivered to the ProGlass inquiry inbox for the team to prepare. No PI confirmation or invoice attachment step is required here." : "Choose the kind of help you need. You can ask for a quotation, drawing review, technical support, or another inquiry." },
+                { group: "Request details", title: "Describe the project", body: "Tell us what you need estimated or reviewed. Include glass type, quantities, dimensions, deadline, or other useful context.", example: "Please quote 24 DGU panels, 1200 × 1800 mm, clear glass, delivery to Abu Dhabi." },
+              ]}
+            >
+              <Field name="company_name" label="Company name" placeholder="e.g. Al Noor Glass LLC" required maxLength={160} defaultValue={profile?.company_name} />
+              <Field name="contact_name" label="Contact name" placeholder="e.g. Aisha Khan" required maxLength={120} defaultValue={profile?.contact_name} />
+              <Field name="phone" label="Phone" placeholder="e.g. +971 50 123 4567" maxLength={60} defaultValue={profile?.phone} />
+              <Field name="vat_trn_number" label="VAT / TRN number" placeholder="Optional" maxLength={50} defaultValue={profile?.vat_trn_number} />
+              <Field name="customer_reference" label="Your reference" placeholder="e.g. RFQ-2026-018" maxLength={100} />
+              <label className="block text-sm font-semibold leading-5 text-text-secondary">Saved project
+                <select name="project_id" defaultValue="" onChange={(event) => {
+                  const project = projects.find((item) => item.id === event.target.value);
+                  if (!project || !formRef.current) return;
+                  const elements = formRef.current.elements;
+                  (elements.namedItem("project_name") as HTMLInputElement).value = project.project_name;
+                  (elements.namedItem("project_location") as HTMLInputElement).value = project.project_location;
+                  if (intent !== "proforma_invoice") (elements.namedItem("inquiry_type") as HTMLSelectElement).value = project.default_inquiry_type;
+                }} className="mt-2 min-h-12 w-full rounded-xl border border-line-strong bg-ink-950 px-3 text-base text-text-primary">
+                  <option value="">New project — save from fields below</option>
+                  {projects.map((project) => <option key={project.id} value={project.id}>{project.project_name}{project.project_location ? ` · ${project.project_location}` : ""}</option>)}
+                </select>
+              </label>
+              <Field name="project_name" label="Project name" placeholder="e.g. Marina Residence — Tower B" required maxLength={180} />
+              <Field name="project_location" label="Project location" placeholder="e.g. Al Reem Island, Abu Dhabi" maxLength={180} />
+              <Field name="attention_name" label="Attention" placeholder="Optional contact or department" maxLength={120} defaultValue={profile?.attention_name} />
+              <Field name="salesman_reference" label="Sales reference" placeholder="Optional" maxLength={120} />
+              <Field name="handover_estimator_name" label="Handover estimator" placeholder="Optional" maxLength={120} />
+              {intent === "proforma_invoice" ? (
+                <div className="rounded-xl border border-brand-300/15 bg-brand-400/[.06] p-4">
+                  <input type="hidden" name="inquiry_type" value="proforma_invoice" />
+                  <p className="text-sm font-bold text-brand-100">Proforma invoice request</p>
+                  <p className="mt-1 text-xs leading-5 text-text-muted">We route this as a PI request. The ProGlass team will prepare it in the desktop PI workflow.</p>
+                </div>
+              ) : (
+                <label className="block text-sm font-semibold leading-5 text-text-secondary">Inquiry type
+                  <select name="inquiry_type" defaultValue={intent} className="mt-2 min-h-12 w-full rounded-xl border border-line-strong bg-ink-950 px-3 text-base text-text-primary">
+                    {CUSTOMER_INQUIRY_TYPES.map((value) => <option key={value} value={value}>{CUSTOMER_INQUIRY_TYPE_LABELS[value]}</option>)}
+                  </select>
+                </label>
+              )}
+              <label htmlFor="inquiry-description" className="block text-sm font-semibold leading-5 text-text-secondary">Project requirements
+                <textarea id="inquiry-description" name="description" required minLength={10} maxLength={5000} rows={5} placeholder="What should the ProGlass team estimate or review? Add glass type, dimensions, quantities, delivery date, and any important notes." className="mt-2 min-h-36 w-full rounded-xl border border-line-strong bg-ink-950 p-3 text-base leading-6 text-text-primary caret-brand-300 outline-none placeholder:text-text-faint focus-visible:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400/40 sm:text-sm" />
+              </label>
+            </InquiryPromptFlow>
+
+            <section className="mt-4 rounded-2xl border border-line-strong/60 bg-ink-950/45 p-4" aria-labelledby="inquiry-documents-label">
+              <div className="flex items-center justify-between gap-3">
+                <div><h3 id="inquiry-documents-label" className="text-sm font-bold text-text-primary">Supporting project files <span className="font-normal text-text-faint">(optional)</span></h3><p className="mt-1 text-xs text-text-muted">These are inquiry drawings or BOQ files for the WPF inbox—not PI invoice attachments. You can send the request without files.</p></div>
+                {selectedFiles.length > 0 && <button type="button" onClick={() => setSelectedFiles([])} className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-semibold text-state-danger hover:bg-state-danger/10">Remove all</button>}
+              </div>
+              <input ref={fileInputRef} id="inquiry-documents" aria-labelledby="inquiry-documents-label" aria-describedby="inquiry-documents-help" name="documents" type="file" multiple accept={ACCEPT} onChange={(event) => { if (event.target.files) addFiles(event.target.files); event.target.value = ""; }} className="sr-only" />
+              <input ref={replaceFileInputRef} aria-label="Choose a replacement document" type="file" accept={ACCEPT} onChange={(event) => { const file = event.target.files?.[0]; if (file) replaceFile(file); event.target.value = ""; }} className="sr-only" />
+              <button type="button" aria-labelledby="inquiry-documents-label inquiry-document-picker-copy" aria-describedby="inquiry-documents-help" onClick={() => fileInputRef.current?.click()} onDragEnter={(event) => { event.preventDefault(); setDragging(true); }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setDragging(false)} onDrop={(event) => { event.preventDefault(); setDragging(false); addFiles(event.dataTransfer.files); }} className={`mt-3 w-full rounded-2xl border-2 border-dashed p-4 text-center outline-none transition focus-visible:border-brand-300 focus-visible:ring-2 focus-visible:ring-brand-400/50 sm:p-5 ${dragging ? "border-brand-300 bg-brand-500/15" : "border-line-strong bg-ink-950/70 hover:border-brand-400/70"}`}>
+                <span aria-hidden="true" className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-brand-500/15 text-xl text-brand-300">+</span><span id="inquiry-document-picker-copy" className="mt-2 block text-sm font-bold leading-5 text-text-primary">{selectedFiles.length ? "Add more documents" : "Choose drawings or drop them here"}</span><span id="inquiry-documents-help" className="mt-1 block text-xs leading-5 text-text-muted">PDF, images, XLSX or CSV · 30 MB each · {selectedFiles.length}/{MAX_FILES} selected</span>
+              </button>
+              {selectedFiles.length > 0 && <div aria-live="polite" aria-label={`${selectedFiles.length} documents selected`} className="mt-3 grid gap-2 sm:grid-cols-2">{selectedFiles.map((file, index) => <div key={`${file.name}-${file.size}-${index}`} className="flex items-center justify-between gap-3 rounded-xl border border-line-strong bg-ink-950 px-3 py-2"><div className="min-w-0"><div className="truncate text-xs font-semibold text-text-primary">{file.name}</div><div className="text-3xs text-text-faint">{Math.ceil(file.size / 1024).toLocaleString()} KB · {uploadStates[index]?.detail || "ready to attach"}</div>{uploadStates[index] && <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label={`${file.name} upload progress`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={uploadStates[index]?.percent}><div className={`h-full transition-[width] ${uploadStates[index]?.status === "failed" ? "bg-state-danger" : "bg-brand-400"}`} style={{ width: `${uploadStates[index]?.percent || 0}%` }} /></div>}</div><div className={`shrink-0 gap-1 ${submitting ? "hidden" : "flex"}`}><button type="button" aria-label={`Replace ${file.name}`} onClick={() => { replaceIndexRef.current = index; replaceFileInputRef.current?.click(); }} className="rounded-lg px-2 py-1 text-xs font-semibold text-brand-300 hover:bg-brand-500/10">Replace</button><button type="button" aria-label={`Remove ${file.name}`} onClick={() => setSelectedFiles((current) => current.filter((_, position) => position !== index))} className="rounded-lg px-2 py-1 text-xs font-semibold text-state-danger hover:bg-state-danger/10">Remove</button></div></div>)}</div>}
+              <span className="mt-2 block text-3xs text-text-faint">Files stay private and are checked by content, not filename alone. CAD files must be exported to PDF or image.</span>
+            </section>
+
+            {submitting && <div className="mt-4" role="status" aria-live="polite"><div className="flex justify-between text-xs font-semibold"><span>Uploading and verifying {filesLabel(selectedFiles.length)}</span><span>{overallProgress}%</span></div><div className="mt-2 h-2.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label="Overall inquiry upload progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={overallProgress}><div className="h-full bg-brand-400 transition-[width]" style={{ width: `${overallProgress}%` }} /></div><p className="mt-2 text-3xs text-text-muted">Keep this page open. Each selected file is uploaded and verified separately.</p></div>}
+            <button disabled={submitting} className="mt-4 w-full rounded-xl bg-brand-400 px-5 py-3.5 text-sm font-bold text-ink-950 transition hover:bg-brand-300 disabled:opacity-50">{submitting ? `Sending request ${overallProgress}%` : intent === "proforma_invoice" ? "Send PI request to ProGlass" : "Submit inquiry"}</button>
+          </form>
+        )}
       </section>
       <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><div className="flex items-center justify-between"><h2 className="text-lg font-bold">Your submissions</h2><button onClick={() => void load()} className="text-xs font-semibold text-brand-300">Refresh</button></div>
         <div className="mt-3 grid gap-2 sm:grid-cols-3"><select aria-label="Filter by project" value={historyProject} onChange={(event)=>setHistoryProject(event.target.value)} className="h-10 rounded-xl border border-line-strong bg-ink-950 px-2 text-xs"><option value="">All projects</option>{projects.map((project)=><option key={project.id} value={project.id}>{project.project_name}</option>)}</select><select aria-label="Filter by inquiry type" value={historyType} onChange={(event)=>setHistoryType(event.target.value)} className="h-10 rounded-xl border border-line-strong bg-ink-950 px-2 text-xs"><option value="">All types</option>{CUSTOMER_INQUIRY_TYPES.map((value)=><option key={value} value={value}>{CUSTOMER_INQUIRY_TYPE_LABELS[value]}</option>)}</select><select aria-label="Filter by status" value={historyStatus} onChange={(event)=>setHistoryStatus(event.target.value)} className="h-10 rounded-xl border border-line-strong bg-ink-950 px-2 text-xs"><option value="">All statuses</option><option value="submitted">Submitted</option><option value="under_review">Under review</option><option value="accepted">Accepted</option><option value="rejected">Rejected</option><option value="closed">Closed</option></select></div>
@@ -235,7 +313,7 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
   </main>;
 }
 
-function Field({ name, label, required, maxLength, defaultValue }: { name: string; label: string; required?: boolean; maxLength: number; defaultValue?: string }) {
+function Field({ name, label, required, maxLength, defaultValue, placeholder }: { name: string; label: string; required?: boolean; maxLength: number; defaultValue?: string; placeholder?: string }) {
   const id = `inquiry-${name.replaceAll("_", "-")}`;
-  return <label htmlFor={id} className="text-sm font-semibold leading-5 text-text-secondary">{label}<input id={id} name={name} required={required} maxLength={maxLength} defaultValue={defaultValue} className="mt-2 min-h-12 w-full rounded-xl border border-line-strong bg-ink-950 px-3 py-3 text-base leading-6 text-text-primary caret-brand-300 outline-none placeholder:text-text-faint focus-visible:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400/40 sm:text-sm" /></label>;
+  return <label htmlFor={id} className="block text-sm font-semibold leading-5 text-text-secondary">{label}<input id={id} name={name} required={required} maxLength={maxLength} defaultValue={defaultValue} placeholder={placeholder} className="mt-2 min-h-12 w-full rounded-xl border border-line-strong bg-ink-950 px-3 py-3 text-base leading-6 text-text-primary caret-brand-300 outline-none placeholder:text-text-faint focus-visible:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400/40 sm:text-sm" /></label>;
 }
