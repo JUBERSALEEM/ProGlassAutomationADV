@@ -35,6 +35,11 @@ export function InquiryPromptFlow({
 
   function advance() {
     const activePrompt = promptRoot.current?.querySelector<HTMLElement>(`[data-intake-prompt="${active}"]`);
+    const incompleteGenerator = activePrompt?.querySelector<HTMLElement>("[data-intake-complete='false']");
+    if (incompleteGenerator) {
+      incompleteGenerator.dispatchEvent(new CustomEvent("intake-advance-blocked", { bubbles: true }));
+      return;
+    }
     const requiredField = activePrompt?.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>("input[required], select[required], textarea[required]");
     if (requiredField && !requiredField.checkValidity()) {
       requiredField.reportValidity();
@@ -51,7 +56,7 @@ export function InquiryPromptFlow({
   function onPromptKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     if (event.key !== "Enter" || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
     const target = event.target;
-    if (!(target instanceof HTMLElement) || target instanceof HTMLTextAreaElement || target.closest("button")) return;
+    if (!(target instanceof HTMLElement) || target instanceof HTMLTextAreaElement || target.closest("button") || target.closest("[data-no-intake-advance]")) return;
     if (active < prompts.length - 1) {
       event.preventDefault();
       advance();

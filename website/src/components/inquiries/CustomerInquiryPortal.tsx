@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { InquiryPromptFlow } from "@/components/inquiries/InquiryPromptFlow";
+import { ProformaTechnicalSpecFlow } from "@/components/inquiries/ProformaTechnicalSpecFlow";
 import { useOperatorSession } from "@/lib/useOperatorSession";
 import { CUSTOMER_INQUIRY_TYPES, CUSTOMER_INQUIRY_TYPE_LABELS } from "@/types/inquiry-submissions";
 import type { CustomerInquiryListItem, CustomerInquiryProfile, CustomerInquiryProject, CustomerInquirySubmission, CustomerInquiryType } from "@/types/inquiry-submissions";
@@ -153,6 +154,21 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
         return;
       }
     }
+    let submissionDescription = String(new FormData(currentForm).get("description") || "").trim();
+    if (intent === "proforma_invoice") {
+      const complete = currentForm.querySelector<HTMLInputElement>('input[name="pi_spec_complete"]')?.value === "true";
+      const specification = currentForm.querySelector<HTMLInputElement>('input[name="pi_specification"]')?.value.trim() || "";
+      if (!complete || !specification) {
+        setError("Complete the technical specification steps 4–7 before sending the PI request.");
+        currentForm.querySelector<HTMLElement>("[aria-label='Proforma technical specification generator']")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      submissionDescription = `${submissionDescription}\n\n${specification}`;
+      if (submissionDescription.length > 5000) {
+        setError("The project description and technical specification exceed the 5,000-character request limit. Shorten the notes or reduce the cutting-list lines.");
+        return;
+      }
+    }
     if (!authToken) { requireAuth(); return; }
     const files = selectedFiles;
     if (files.length > MAX_FILES) { setError(`Select at most ${MAX_FILES} documents.`); return; }
@@ -173,7 +189,10 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
           const projectBody=await projectResponse.json().catch(()=>null); if(!projectResponse.ok||!projectBody?.ok)throw new Error(projectBody?.error?.message||"Project could not be saved.");
           const saved=Array.isArray(projectBody.data)?projectBody.data[0]:projectBody.data; form.set("project_id",saved.id);
         }
-        const draftResponse = await fetch("/api/inquiry-submissions/drafts", { method: "POST", headers: { Authorization: `Bearer ${authToken}` }, body: form });
+        const draftForm = new FormData();
+        form.forEach((value, key) => draftForm.append(key, value));
+        draftForm.set("description", submissionDescription);
+        const draftResponse = await fetch("/api/inquiry-submissions/drafts", { method: "POST", headers: { Authorization: `Bearer ${authToken}` }, body: draftForm });
         const draftBody = await draftResponse.json().catch(() => null);
         if (draftResponse.status === 401) { requireAuth(); return; }
         if (!draftResponse.ok || !draftBody?.ok) throw new Error(draftBody?.error?.message || "The inquiry draft could not be created.");
@@ -220,13 +239,14 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
   const filteredRows=rows.filter((row)=>(!historyProject||row.project_id===historyProject)&&(!historyType||row.inquiry_type===historyType)&&(!historyStatus||row.status===historyStatus));
 
   return <main className="min-h-screen bg-ink-950 pb-20 text-text-primary">
-    <header className="border-b border-line-strong/60"><div className="shell flex flex-wrap items-center justify-between gap-3 py-6"><div><div className="eyebrow text-brand-300">Secure customer portal</div><h1 className="mt-1 text-2xl font-bold">{intent === "proforma_invoice" ? "Request a proforma invoice" : "Create an inquiry"}</h1><p className="mt-1 text-xs text-text-muted">Share your company and project details in one guided flow. Supporting files are optional.</p></div><div className="text-right"><div className="text-3xs text-text-faint">{userEmail}</div><button type="button" onClick={() => void signOut()} className="mt-2 text-xs font-semibold text-brand-300">Sign out</button></div></div></header>
+    <header className="border-b border-line-strong/60"><div className="shell flex flex-wrap items-center justify-between gap-3 py-6"><div><div className="eyebrow text-brand-300">Secure customer portal</div><h1 className="mt-1 text-2xl font-bold">{intent === "proforma_invoice" ? "Request a proforma invoice" : "Create an inquiry"}</h1><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "Enter customer and project details, then build a technical glass specification through WPF Step 7. No customer pricing is shown; drawings are optional." : "Share your company and project details in one guided flow. Supporting files are optional."}</p></div><div className="text-right"><div className="text-3xs text-text-faint">{userEmail}</div><button type="button" onClick={() => void signOut()} className="mt-2 text-xs font-semibold text-brand-300">Sign out</button></div></div></header>
     <div className="shell mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,.9fr)]">
-      <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><h2 className="text-lg font-bold">{intent === "proforma_invoice" ? "PI request details" : "Inquiry details"}</h2><p className="mt-1 text-xs text-text-muted">Company, client, and project details are gathered together for the ProGlass team.</p>
+      <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><h2 className="text-lg font-bold">{intent === "proforma_invoice" ? "PI request details" : "Inquiry details"}</h2><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "Customer and project details come first; the glass specification generator follows before the request is sent to the ProGlass team." : "Company, client, and project details are gathered together for the ProGlass team."}</p>
         {error && <div role="alert" className="mt-4 rounded-xl border border-state-danger/40 bg-state-danger/10 p-3 text-xs text-state-danger">{error}</div>}
         {notice && <div role="status" className="mt-4 rounded-xl border border-state-success/40 bg-state-success/10 p-3 text-xs text-state-success">{notice}</div>}
         {!setupLoaded ? <p role="status" className="mt-5 text-xs text-text-muted">Loading your saved details and projects…</p> : (
           <form ref={formRef} onSubmit={submit} noValidate className="mt-5">
+            {intent === "proforma_invoice" && <input type="hidden" name="inquiry_type" value="proforma_invoice" />}
             <InquiryPromptFlow
               key={flowInstance}
               hints={[
@@ -241,8 +261,13 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
                 { group: "Customer + project", title: "Attention", body: "Optional: name the person or department that should receive the response.", example: "Attn: Procurement Department" },
                 { group: "Customer + project", title: "Sales reference", body: "Optional: identify the salesperson or internal reference connected to this request.", example: "Sales team — Khalid" },
                 { group: "Customer + project", title: "Handover estimator", body: "Optional: if an estimator is already assigned, enter their name. Otherwise leave it blank." },
-                { group: "Request details", title: intent === "proforma_invoice" ? "Request type: Proforma Invoice" : "What do you need?", body: intent === "proforma_invoice" ? "This request will be marked as a PI request and delivered to the ProGlass inquiry inbox for the team to prepare. No PI confirmation or invoice attachment step is required here." : "Choose the kind of help you need. You can ask for a quotation, drawing review, technical support, or another inquiry." },
-                { group: "Request details", title: "Describe the project", body: "Tell us what you need estimated or reviewed. Include glass type, quantities, dimensions, deadline, or other useful context.", example: "Please quote 24 DGU panels, 1200 × 1800 mm, clear glass, delivery to Abu Dhabi." },
+                ...(intent === "proforma_invoice" ? [
+                  { group: "Customer + project", title: "Project requirements", body: "Add delivery timing, scope, and any project context before you generate the technical glass specifications.", example: "Supply 24 panels for the Marina Residence fit-out; requested delivery in March." },
+                  { group: "PI specification", title: "Build the technical specification", body: "Next configure one or more glass groups: thickness, colour, FT or annealed treatment, stock sheet dimensions, cutting-list lines, overlap, U-insert, polish, and other fabrication details. The final WPF Step 7 preview is technical-only—no customer pricing." },
+                ] : [
+                  { group: "Request details", title: "What do you need?", body: "Choose the kind of help you need. You can ask for a quotation, drawing review, technical support, or another inquiry." },
+                  { group: "Request details", title: "Describe the project", body: "Tell us what you need estimated or reviewed. Include glass type, quantities, dimensions, deadline, or other useful context.", example: "Please quote 24 DGU panels, 1200 × 1800 mm, clear glass, delivery to Abu Dhabi." },
+                ]),
               ]}
             >
               <Field name="company_name" label="Company name" placeholder="e.g. Al Noor Glass LLC" required maxLength={160} defaultValue={profile?.company_name} />
@@ -268,22 +293,15 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
               <Field name="attention_name" label="Attention" placeholder="Optional contact or department" maxLength={120} defaultValue={profile?.attention_name} />
               <Field name="salesman_reference" label="Sales reference" placeholder="Optional" maxLength={120} />
               <Field name="handover_estimator_name" label="Handover estimator" placeholder="Optional" maxLength={120} />
-              {intent === "proforma_invoice" ? (
-                <div className="rounded-xl border border-brand-300/15 bg-brand-400/[.06] p-4">
-                  <input type="hidden" name="inquiry_type" value="proforma_invoice" />
-                  <p className="text-sm font-bold text-brand-100">Proforma invoice request</p>
-                  <p className="mt-1 text-xs leading-5 text-text-muted">We route this as a PI request. The ProGlass team will prepare it in the desktop PI workflow.</p>
-                </div>
-              ) : (
-                <label className="block text-sm font-semibold leading-5 text-text-secondary">Inquiry type
-                  <select name="inquiry_type" defaultValue={intent} className="mt-2 min-h-12 w-full rounded-xl border border-line-strong bg-ink-950 px-3 text-base text-text-primary">
-                    {CUSTOMER_INQUIRY_TYPES.map((value) => <option key={value} value={value}>{CUSTOMER_INQUIRY_TYPE_LABELS[value]}</option>)}
-                  </select>
-                </label>
-              )}
+              {intent !== "proforma_invoice" && <label className="block text-sm font-semibold leading-5 text-text-secondary">Inquiry type
+                <select name="inquiry_type" defaultValue={intent} className="mt-2 min-h-12 w-full rounded-xl border border-line-strong bg-ink-950 px-3 text-base text-text-primary">
+                  {CUSTOMER_INQUIRY_TYPES.map((value) => <option key={value} value={value}>{CUSTOMER_INQUIRY_TYPE_LABELS[value]}</option>)}
+                </select>
+              </label>}
               <label htmlFor="inquiry-description" className="block text-sm font-semibold leading-5 text-text-secondary">Project requirements
-                <textarea id="inquiry-description" name="description" required minLength={10} maxLength={5000} rows={5} placeholder="What should the ProGlass team estimate or review? Add glass type, dimensions, quantities, delivery date, and any important notes." className="mt-2 min-h-36 w-full rounded-xl border border-line-strong bg-ink-950 p-3 text-base leading-6 text-text-primary caret-brand-300 outline-none placeholder:text-text-faint focus-visible:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400/40 sm:text-sm" />
+                <textarea id="inquiry-description" name="description" required minLength={10} maxLength={5000} rows={5} placeholder={intent === "proforma_invoice" ? "Add the project scope, requested delivery timing, and other context before generating glass specifications." : "What should the ProGlass team estimate or review? Add glass type, dimensions, quantities, delivery date, and any important notes."} className="mt-2 min-h-36 w-full rounded-xl border border-line-strong bg-ink-950 p-3 text-base leading-6 text-text-primary caret-brand-300 outline-none placeholder:text-text-faint focus-visible:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400/40 sm:text-sm" />
               </label>
+              {intent === "proforma_invoice" && <ProformaTechnicalSpecFlow />}
             </InquiryPromptFlow>
 
             <section className="mt-4 rounded-2xl border border-line-strong/60 bg-ink-950/45 p-4" aria-labelledby="inquiry-documents-label">
