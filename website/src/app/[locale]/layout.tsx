@@ -9,10 +9,8 @@ import "../top-panel-compact.css";
 import "../responsive-card-grid.css";
 import "../component-system.css";
 import { SvgDefs } from "@/components/brand/SvgDefs";
-import { Navbar } from "@/components/layout/Navbar";
 import { globalGraph } from "@/lib/schema";
-import { Footer } from "@/components/layout/Footer";
-import { ThemeStudioLazy } from "@/components/layout/ThemeStudioLazy";
+import { WelcomeHeader } from "@/components/layout/WelcomeHeader";
 import { brandIcon } from "@/data/assets";
 import { site } from "@/lib/site";
 import { buildStamp } from "@/lib/buildStamp";
@@ -21,8 +19,6 @@ import { I18nProvider } from "@/i18n/provider";
 import { LOCALE_CODES, dirOf, isLocale, localeInfo, type Locale } from "@/i18n/locales";
 import { ogLocale } from "@/i18n/core";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { GlassLife } from "@/components/glass/GlassLife";
-import { SupportBubble } from "@/components/support/SupportBubble";
 import { chromeOverlayFor, translatorForLocale } from "@/i18n/server";
 import { APP_STRINGS } from "@/i18n/app-strings";
 
@@ -257,8 +253,8 @@ export default async function LocaleLayout({
      page's own sentences arrive at a deeper provider: PageOverlay, wrapped
      by each page around its own content. */
   const overlay = { ...APP_STRINGS[locale], ...chromeOverlayFor(locale) };
-  /* The footer renders on the server and takes its translator as a prop, so
-     the layout builds one for the chrome around the page body. */
+  /* The skip link is rendered in the page language, so build the chrome
+     translator for this locale once at the layout boundary. */
   const t = translatorForLocale(locale);
 
   return (
@@ -328,22 +324,10 @@ export default async function LocaleLayout({
           <a href="#main" className="skip-link">
             {t("Skip to content")}
           </a>
-          {/* §C5 living glass — one listener for every lifted surface,
-              gated twice (JS: hover+fine+no-reduce; CSS: reduce unpaints).
-              Renders nothing. */}
-          <GlassLife />
-          <Navbar />
-          <div className="site-stage">
-            <main id="main" className="site-main pt-[var(--nav-height)]" tabIndex={-1}>
-              {children}
-            </main>
-            <Footer t={t} />
-          </div>
-          <ThemeStudioLazy />
-          {/* Inside the provider, not beside it: outside the context the
-              support bubble's labels and links silently resolved through the
-              English fallback on every non-English page. */}
-          <SupportBubble />
+          <WelcomeHeader />
+          <main id="main" tabIndex={-1}>
+            {children}
+          </main>
         </I18nProvider>
         <SpeedInsights />
       </body>

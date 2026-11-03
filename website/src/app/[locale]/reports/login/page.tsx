@@ -12,12 +12,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const t = await translatorFor(params);
   return pageMetadata({
     locale: t.locale,
-    title: t("Reports Access & Sign In"),
-    description: t(
-      "Operator sign in and authentication gateway for ProGlass Automation operational reports and Excel Sync records.",
-    ),
+    title: t("Sign in or create an account"),
+    description: t("Sign in or create a ProGlass Automation customer account to manage your inquiries."),
     path: "/reports/login",
-    ogEyebrow: t("Operations Portal"),
+    ogEyebrow: t("Customer Portal"),
   });
 }
 
@@ -32,11 +30,11 @@ export default async function ReportsLoginPage({ params }: PageProps) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         locale={locale as any}
         path="/reports/login"
-        title={t("Reports Access & Sign In")}
-        description={t("Operator sign in for ProGlass Automation operational reports.")}
+        title={t("Sign in or create an account")}
+        description={t("Customer access for ProGlass Automation inquiries and account services.")}
       />
       <Suspense fallback={<div className="h-96 w-full max-w-md mx-auto rounded-panel bg-ink-900/60 animate-pulse" />}>
-        <ReportsAuthForm />
+        <ReportsAuthForm defaultRedirect="/inquiries/chat" />
       </Suspense>
     </main>
     </PageOverlay>
