@@ -58,13 +58,13 @@ export function WelcomeHeader() {
               <span className="hidden xl:inline">Chat</span>
             </LocaleLink>
             <LocaleLink
-              href="/account?redirect=%2Finquiries%2Fchat"
+              href="/login?redirect=%2Finquiries%2Fchat"
               className="inline-flex h-10 items-center justify-center rounded-full px-3 text-sm font-semibold text-text-muted transition hover:bg-white/5 hover:text-white"
             >
               Log in
             </LocaleLink>
             <LocaleLink
-              href="/account?mode=signup&redirect=%2Finquiries%2Fsubmit"
+              href="/signup?redirect=%2Finquiries%2Fsubmit"
               className="inline-flex h-10 items-center justify-center rounded-full border border-white/15 px-3.5 text-sm font-semibold text-text-primary transition hover:border-brand-300/60 hover:bg-white/5"
             >
               Sign up

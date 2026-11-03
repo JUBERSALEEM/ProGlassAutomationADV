@@ -40,7 +40,7 @@ test("global account route recognizes a saved session before reusing the sign-in
   assert.match(accountWorkspace, /Checking your saved sign-in/);
   assert.match(accountWorkspace, /Saved sign-in found/);
   assert.match(accountWorkspace, /router\.replace\(redirectTo\)/);
-  assert.match(accountWorkspace, /<ReportsAuthForm variant="account" defaultRedirect="\/account" \/>/);
+  assert.match(accountWorkspace, /<ReportsAuthForm\s+key=\{signupRequested \? "signup" : "login"\}\s+variant="account"\s+defaultRedirect="\/account"\s+searchParams=\{searchParams\}\s*\/>/);
   assert.match(authForm, /function safeRedirectPath/);
   assert.match(authForm, /export function safeAuthRedirect/);
   assert.match(authForm, /startsWith\("\/\/"\)/);

@@ -57,6 +57,7 @@ let started = false;
 let authSubscription: { unsubscribe: () => void } | null = null;
 let browserListenersAttached = false;
 let recoveryPromise: Promise<Session | null> | null = null;
+let initialRecoveryWatchdog: number | null = null;
 let lastForcedRecoveryAt = 0;
 let lastForcedRecoveryToken = "";
 
@@ -84,6 +85,10 @@ function sameState(left: WebsiteSessionState, right: WebsiteSessionState): boole
 }
 
 function emit(next: WebsiteSessionState) {
+  if (!next.checking && initialRecoveryWatchdog !== null) {
+    clearTimeout(initialRecoveryWatchdog);
+    initialRecoveryWatchdog = null;
+  }
   if (sameState(state, next)) {
     // Keep the freshest Session object even when its visible identity is the
     // same; later expiry checks read expires_at from it.
@@ -347,6 +352,15 @@ function ensureWebsiteSessionStarted() {
   }
 
   attachBrowserListeners();
+  initialRecoveryWatchdog = window.setTimeout(() => {
+    initialRecoveryWatchdog = null;
+    if (state.checking) {
+      // A network stall must not leave login/signup behind an endless spinner.
+      // Keep the saved credential intact and let the UI show auth controls plus
+      // a retryable warning; a late successful recovery may still restore it.
+      applyUnavailable(new Error("The saved sign-in check timed out after 8 seconds."));
+    }
+  }, 8_000);
   void recoverWebsiteSession();
 }
 
@@ -394,6 +408,10 @@ export function useWebsiteSession({ enabled = true }: { enabled?: boolean } = {}
 
 /** Test-only isolation for the tab-lifetime store. */
 export function resetWebsiteSessionForTests() {
+  if (initialRecoveryWatchdog !== null) {
+    clearTimeout(initialRecoveryWatchdog);
+    initialRecoveryWatchdog = null;
+  }
   try {
     authSubscription?.unsubscribe();
   } catch {

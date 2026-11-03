@@ -13,9 +13,9 @@ const mocks = vi.hoisted(() => {
   const newSession = { user, access_token: "new-access-token", refresh_token: "rotated-refresh-token", expires_at: 4102444800 };
   const state: {
     getSessionResult: { data: { session: typeof oldSession | null }; error: Error | null };
-    refreshResult: { data: { session: typeof newSession | null }; error: Error | null };
-    stored: boolean;
-    unavailable: boolean;
+      refreshResult: { data: { session: typeof newSession | null }; error: Error | null };
+      stored: boolean;
+      unavailable: boolean;
   } = {
     getSessionResult: { data: { session: oldSession }, error: null },
     refreshResult: { data: { session: newSession }, error: null },
@@ -49,6 +49,7 @@ import {
 
 afterEach(() => {
   cleanup();
+  vi.useRealTimers();
   resetWebsiteSessionForTests();
   vi.clearAllMocks();
   mocks.state.getSessionResult = { data: { session: mocks.oldSession }, error: null };
@@ -83,6 +84,23 @@ describe("shared website session", () => {
     expect(result.current.unavailable).toBe(true);
     expect(result.current.isAuthRequired).toBe(false);
     expect(result.current.error).toMatch(/saved sign-in could not be confirmed/i);
+  });
+
+  it("ends an indefinitely slow initial check and marks the service retryable", async () => {
+    vi.useFakeTimers();
+    mocks.client.auth.getSession.mockImplementationOnce(() => new Promise(() => {}));
+
+    const { result } = renderHook(() => useWebsiteSession());
+    expect(result.current.checking).toBe(true);
+
+    await act(async () => {
+      vi.advanceTimersByTime(8_000);
+    });
+
+    expect(result.current.checking).toBe(false);
+    expect(result.current.unavailable).toBe(true);
+    expect(result.current.error).toMatch(/timed out/i);
+    vi.useRealTimers();
   });
 
   it("force-refreshes once after an API 401 instead of discarding the saved login", async () => {

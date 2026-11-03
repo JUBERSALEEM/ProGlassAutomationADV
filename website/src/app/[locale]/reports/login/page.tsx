@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ReportsAuthForm } from "@/components/reports/ReportsAuthForm";
+import { ReportsAuthForm, type AuthSearchParams } from "@/components/reports/ReportsAuthForm";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
 import { PageOverlay } from "@/i18n/PageOverlay";
 
-type PageProps = { params: Promise<{ locale: string }> };
+type PageProps = {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<AuthSearchParams>;
+};
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const t = await translatorFor(params);
@@ -19,8 +21,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default async function ReportsLoginPage({ params }: PageProps) {
-  const { locale } = await params;
+export default async function ReportsLoginPage({ params, searchParams }: PageProps) {
+  const [{ locale }, query] = await Promise.all([params, searchParams]);
   const t = await translatorFor(params);
 
   return (
@@ -33,9 +35,7 @@ export default async function ReportsLoginPage({ params }: PageProps) {
         title={t("Sign in or create an account")}
         description={t("Customer access for ProGlass Automation inquiries and account services.")}
       />
-      <Suspense fallback={<div className="h-96 w-full max-w-md mx-auto rounded-panel bg-ink-900/60 animate-pulse" />}>
-        <ReportsAuthForm defaultRedirect="/inquiries/chat" />
-      </Suspense>
+      <ReportsAuthForm defaultRedirect="/inquiries/chat" searchParams={query} />
     </main>
     </PageOverlay>
   );

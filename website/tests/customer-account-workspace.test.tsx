@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => {
     profile: Record<string, string> | null;
     upserts: Array<Record<string, string>>;
     search: string;
+    authUnavailable: boolean;
     router: { push: ReturnType<typeof vi.fn>; replace: ReturnType<typeof vi.fn>; refresh: ReturnType<typeof vi.fn> };
   } = {
     sessionUser: me,
@@ -27,6 +28,7 @@ const mocks = vi.hoisted(() => {
     },
     upserts: [],
     search: "",
+    authUnavailable: false,
     router: { push: vi.fn(), replace: vi.fn(), refresh: vi.fn() },
   };
 
@@ -54,7 +56,11 @@ const mocks = vi.hoisted(() => {
     auth: {
       getSession: vi.fn(async () => ({
         data: { session: state.sessionUser ? { user: state.sessionUser, access_token: "test-access-token", expires_at: 4102444800 } : null },
-        error: null,
+        error: state.authUnavailable ? new Error("Failed to fetch") : null,
+      })),
+      refreshSession: vi.fn(async () => ({
+        data: { session: null },
+        error: state.authUnavailable ? new Error("Failed to fetch") : null,
       })),
       onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
       updateUser: vi.fn(async (input: { data?: Record<string, unknown>; password?: string }) => ({
@@ -77,7 +83,7 @@ vi.mock("@/lib/supabase", () => ({
   isSupabaseConfigured: () => true,
   supabaseBrowser: () => mocks.client,
   hasStoredSupabaseSession: () => Boolean(mocks.state.sessionUser),
-  isSupabaseUnavailableError: () => false,
+  isSupabaseUnavailableError: () => mocks.state.authUnavailable,
   supabaseAuthStorageKey: () => "sb-test-auth-token",
 }));
 
@@ -114,6 +120,7 @@ afterEach(() => {
   };
   mocks.state.upserts.length = 0;
   mocks.state.search = "";
+  mocks.state.authUnavailable = false;
 });
 
 describe("customer account workspace", () => {
@@ -150,9 +157,7 @@ describe("customer account workspace", () => {
   });
 
   it("automatically continues an explicit redirect when the saved session exists", async () => {
-    mocks.state.search = "redirect=%2Fchat";
-
-    render(<CustomerAccountWorkspace />);
+    render(<CustomerAccountWorkspace searchParams={{ redirect: "/chat" }} />);
 
     expect(await screen.findByText("Saved sign-in found")).not.toBeNull();
     await waitFor(() => expect(mocks.state.router.replace).toHaveBeenCalledWith("/chat"), { timeout: 2000 });
@@ -168,5 +173,16 @@ describe("customer account workspace", () => {
     expect(screen.getByText("One saved sign-in for your projects and chats.")).not.toBeNull();
     expect(screen.getByText("Saved secure session")).not.toBeNull();
     expect(screen.queryByText("Your WhatsApp-style chat profile")).toBeNull();
+  });
+
+  it("keeps login and sign-up visible when Supabase cannot be reached", async () => {
+    mocks.state.sessionUser = null;
+    mocks.state.authUnavailable = true;
+
+    render(<CustomerAccountWorkspace />);
+
+    expect(await screen.findByText("Customer sign-in form")).not.toBeNull();
+    expect(screen.getByText(/authentication service is temporarily unreachable/i)).not.toBeNull();
+    expect(screen.getByRole("button", { name: "Retry saved sign-in check" })).not.toBeNull();
   });
 });

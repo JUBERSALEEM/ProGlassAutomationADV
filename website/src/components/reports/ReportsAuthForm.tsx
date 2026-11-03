@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { isSupabaseConfigured, supabaseBrowser } from "@/lib/supabase";
 import { useWebsiteSession } from "@/lib/website-session";
@@ -48,17 +48,32 @@ export function safeAuthRedirect(value: string | null, fallback: string): string
   return safeRedirectPath(value, fallback);
 }
 
+export type AuthSearchParams = Readonly<Record<string, string | string[] | undefined>>;
+
+function queryValue(value: string | string[] | undefined): string | null {
+  return typeof value === "string" ? value : Array.isArray(value) ? value[0] ?? null : null;
+}
+
 type ReportsAuthFormProps = {
   defaultRedirect?: string;
   variant?: "operations" | "account";
+  /** Initial mode for a dedicated customer sign-in/sign-up route. */
+  initialMode?: "password" | "otp";
+  /** Supplied by the server page so the form can render before client hydration. */
+  searchParams?: AuthSearchParams;
 };
 
-export function ReportsAuthForm({ defaultRedirect = "/reports", variant = "operations" }: ReportsAuthFormProps = {}) {
+export function ReportsAuthForm({
+  defaultRedirect = "/reports",
+  variant = "operations",
+  initialMode = "password",
+  searchParams,
+}: ReportsAuthFormProps = {}) {
   const t = useT();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = safeRedirectPath(searchParams.get("redirect"), defaultRedirect);
-  const signupRequested = searchParams.get("mode") === "signup" || searchParams.get("auth") === "signup";
+  const redirectTo = safeRedirectPath(queryValue(searchParams?.redirect), defaultRedirect);
+  const requestedMode = queryValue(searchParams?.mode) ?? queryValue(searchParams?.auth);
+  const signupRequested = initialMode === "otp" || requestedMode === "signup";
   const customerAccess = variant === "account" || redirectTo.includes("/inquiries") || redirectTo === "/account" || redirectTo === "/chat";
 
   // Password is the normal return path; email OTP also serves signup/recovery.
@@ -78,6 +93,7 @@ export function ReportsAuthForm({ defaultRedirect = "/reports", variant = "opera
 
   const otpInputRef = useRef<HTMLInputElement | null>(null);
   const configured = isSupabaseConfigured();
+
   const websiteSession = useWebsiteSession({ enabled: configured });
   const [useDifferentAccount, setUseDifferentAccount] = useState(false);
   const savedSessionUser = step === "email" && !useDifferentAccount ? websiteSession.user : null;
@@ -317,37 +333,6 @@ export function ReportsAuthForm({ defaultRedirect = "/reports", variant = "opera
     }
   };
 
-  if (configured && websiteSession.checking && step === "email") {
-    return (
-      <div className="w-full max-w-md mx-auto">
-        <div className="rounded-panel border border-line-strong/80 bg-ink-900/80 p-8 text-center shadow-raised backdrop-blur-xl" role="status">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-brand-400 border-t-transparent" />
-          <h1 className="mt-4 text-lg font-bold text-text-primary">{t("Checking your saved sign-in…")}</h1>
-          <p className="mt-2 text-xs leading-relaxed text-text-muted">
-            {t("One ProGlass sign-in is shared by your account, community chat, and private inquiry chat.")}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (configured && websiteSession.unavailable && !websiteSession.user && step === "email") {
-    return (
-      <div className="w-full max-w-md mx-auto">
-        <div className="rounded-panel border border-state-warning/40 bg-ink-900/80 p-8 text-center shadow-raised backdrop-blur-xl">
-          <p className="eyebrow text-state-warning">{t("Saved sign-in")}</p>
-          <h1 className="mt-3 text-xl font-bold text-text-primary">{t("We could not confirm your saved sign-in yet")}</h1>
-          <p className="mt-3 text-xs leading-relaxed text-text-muted">
-            {t("The authentication service is temporarily unreachable. Your saved sign-in has not been discarded.")}
-          </p>
-          <Button type="button" variant="primary" size="lg" className="mt-5 w-full justify-center" onClick={() => void websiteSession.refreshSession()}>
-            {t("Retry saved sign-in")}
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   if (savedSessionUser) {
     return (
       <div className="w-full max-w-md mx-auto">
@@ -430,6 +415,19 @@ export function ReportsAuthForm({ defaultRedirect = "/reports", variant = "opera
             {t("Note: Supabase URL/key not configured in local environment. In production, registered users authenticate against Supabase Auth.")}
           </div>
         )}
+        {configured && websiteSession.checking && !websiteSession.user && step === "email" ? (
+          <p role="status" className="mt-4 rounded-xl border border-line/70 bg-ink-950/60 p-3 text-xs leading-relaxed text-text-muted">
+            {t("Checking whether this browser already has a secure ProGlass sign-in. You can use the form while it checks.")}
+          </p>
+        ) : null}
+        {configured && websiteSession.unavailable && !websiteSession.user ? (
+          <div role="status" className="mt-4 rounded-xl border border-state-warning/40 bg-state-warning/10 p-3 text-xs leading-relaxed text-state-warning">
+            <p>{t("The authentication service is temporarily unreachable. You can still enter your details; sign-in and email verification will work when the service is available.")}</p>
+            <button type="button" onClick={() => void websiteSession.refreshSession()} className="mt-2 font-semibold underline underline-offset-2">
+              {t("Retry saved sign-in check")}
+            </button>
+          </div>
+        ) : null}
 
         {step === "email" && <div className="mt-5 grid grid-cols-2 rounded-xl border border-line-strong bg-ink-950 p-1" role="tablist" aria-label="Sign-in method">
           <button type="button" role="tab" aria-selected={mode === "password"} onClick={() => { setMode("password"); setError(null); setNotice(null); }} className={`rounded-lg px-3 py-2 text-xs font-semibold ${mode === "password" ? "bg-brand-400 text-accent-ink" : "text-text-muted"}`}>{t("Password")}</button>

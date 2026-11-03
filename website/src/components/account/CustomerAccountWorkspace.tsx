@@ -8,9 +8,9 @@ import {
   useState,
   type FormEvent,
 } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
-import { ReportsAuthForm, safeAuthRedirect } from "@/components/reports/ReportsAuthForm";
+import { ReportsAuthForm, safeAuthRedirect, type AuthSearchParams } from "@/components/reports/ReportsAuthForm";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { customerInquiryChatPath } from "@/lib/customer-inquiry-chat";
 import { globalChatDisplayName } from "@/lib/global-chat";
@@ -43,6 +43,10 @@ function recordFrom(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : {};
+}
+
+function queryValue(value: string | string[] | undefined): string | null {
+  return typeof value === "string" ? value : Array.isArray(value) ? value[0] ?? null : null;
 }
 
 function toAccountUser(user: User | null | undefined): AccountUser | null {
@@ -121,16 +125,15 @@ function QuickLink({
   );
 }
 
-export function CustomerAccountWorkspace() {
+export function CustomerAccountWorkspace({ searchParams = {} }: { searchParams?: AuthSearchParams } = {}) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const configured = isSupabaseConfigured();
-  const requestedRedirect = searchParams.get("redirect");
+  const requestedRedirect = queryValue(searchParams.redirect);
+  const signupRequested = queryValue(searchParams.mode) === "signup" || queryValue(searchParams.auth) === "signup";
   const redirectTo = safeAuthRedirect(requestedRedirect, "/account");
   const hasExplicitRedirect = Boolean(requestedRedirect && redirectTo !== "/account");
 
   const websiteSession = useWebsiteSession({ enabled: configured });
-  const checking = configured ? websiteSession.checking : false;
   const user = useMemo(() => toAccountUser(websiteSession.user), [websiteSession.user]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -338,41 +341,6 @@ export function CustomerAccountWorkspace() {
     }
   };
 
-  if (checking) {
-    return (
-      <div className="shell grid min-h-[520px] w-full place-items-center py-14">
-        <div className="w-full max-w-md rounded-[28px] border border-line-strong bg-ink-900 p-8 text-center shadow-panel">
-          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-2 border-brand-400 border-t-transparent" />
-          <h1 className="mt-5 text-xl font-bold">Checking your saved sign-in…</h1>
-          <p className="mt-2 text-sm leading-relaxed text-text-muted">
-            ProGlass keeps this browser signed in securely, so returning to your account should only take a moment.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (configured && websiteSession.unavailable && !websiteSession.user) {
-    return (
-      <div className="shell grid min-h-[520px] w-full place-items-center py-14">
-        <section className="w-full max-w-md rounded-[28px] border border-state-warning/40 bg-ink-900 p-8 text-center shadow-panel">
-          <p className="eyebrow text-state-warning">Saved sign-in</p>
-          <h1 className="mt-3 text-2xl font-black">We could not confirm your saved sign-in yet</h1>
-          <p className="mt-3 text-sm leading-relaxed text-text-muted">
-            {websiteSession.error ?? "The authentication service is temporarily unreachable. Your saved sign-in has not been discarded."}
-          </p>
-          <button
-            type="button"
-            onClick={() => void websiteSession.refreshSession()}
-            className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-brand-400 px-5 text-sm font-bold text-accent-ink"
-          >
-            Retry saved sign-in
-          </button>
-        </section>
-      </div>
-    );
-  }
-
   if (!user || !previewProfile || !currentProfile) {
     return (
       <div className="shell grid w-full items-center gap-10 py-12 lg:grid-cols-[minmax(0,1fr)_480px] lg:py-20">
@@ -385,10 +353,20 @@ export function CustomerAccountWorkspace() {
             Sign in once on this device. Your secure ProGlass session renews automatically, so you can return to private
             inquiry chats and the community room without entering your password every visit.
           </p>
-          {visibleAuthError ? (
-            <p role="alert" className="mt-5 rounded-2xl border border-state-danger/40 bg-state-danger/10 p-4 text-sm text-state-danger">
-              {visibleAuthError}
+          {configured && websiteSession.checking && !user ? (
+            <p role="status" className="mt-5 rounded-2xl border border-line/70 bg-ink-900/60 p-4 text-sm text-text-muted">
+              Checking your saved sign-in. You can use the login or sign-up form while this check runs.
             </p>
+          ) : null}
+          {visibleAuthError ? (
+            <div role={websiteSession.unavailable ? "status" : "alert"} className="mt-5 rounded-2xl border border-state-warning/40 bg-state-warning/10 p-4 text-sm text-state-warning">
+              <p>{visibleAuthError}</p>
+              {websiteSession.unavailable ? (
+                <button type="button" onClick={() => void websiteSession.refreshSession()} className="mt-2 font-semibold underline underline-offset-2">
+                  Retry saved sign-in check
+                </button>
+              ) : null}
+            </div>
           ) : null}
           <ul className="mt-7 grid gap-3 sm:grid-cols-2">
             <Benefit title="Saved secure session" description="Your sign-in stays active on this browser until you sign out or clear browser data." />
@@ -397,7 +375,12 @@ export function CustomerAccountWorkspace() {
             <Benefit title="Password or email code" description="Use your saved password, or verify by email and set a password for next time." />
           </ul>
         </section>
-        <ReportsAuthForm variant="account" defaultRedirect="/account" />
+        <ReportsAuthForm
+          key={signupRequested ? "signup" : "login"}
+          variant="account"
+          defaultRedirect="/account"
+          searchParams={searchParams}
+        />
       </div>
     );
   }
