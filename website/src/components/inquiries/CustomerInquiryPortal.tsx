@@ -87,6 +87,7 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
     if (!authToken) return;
     try {
       const response=await fetch("/api/inquiry-submissions/profile",{headers:{Authorization:`Bearer ${authToken}`},cache:"no-store"});
+      if (response.status === 401) { requireAuth(); return; }
       const body=await response.json(); if(!response.ok||!body.ok) throw new Error(body?.error?.message||"Unable to load saved customer details.");
       setProfile(body.data.profile); setProjects(body.data.projects||[]);
     } catch(reason) { setError(reason instanceof Error?reason.message:"Unable to load saved customer details."); }
@@ -220,9 +221,11 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
       }
       if (!draftIdRef.current) {
         const profileResponse=await fetch("/api/inquiry-submissions/profile",{method:"PUT",headers:{Authorization:`Bearer ${authToken}`},body:form});
+        if (profileResponse.status === 401) { requireAuth(); throw new Error("Your saved sign-in is being refreshed. Please try submitting again in a moment."); }
         const profileBody=await profileResponse.json().catch(()=>null); if(!profileResponse.ok||!profileBody?.ok)throw new Error(profileBody?.error?.message||"Customer details could not be saved.");
         if (!String(form.get("project_id")||"")) {
           const projectResponse=await fetch("/api/inquiry-submissions/projects",{method:"POST",headers:{Authorization:`Bearer ${authToken}`},body:form});
+          if (projectResponse.status === 401) { requireAuth(); throw new Error("Your saved sign-in is being refreshed. Please try submitting again in a moment."); }
           const projectBody=await projectResponse.json().catch(()=>null); if(!projectResponse.ok||!projectBody?.ok)throw new Error(projectBody?.error?.message||"Project could not be saved.");
           const saved=Array.isArray(projectBody.data)?projectBody.data[0]:projectBody.data; form.set("project_id",saved.id);
         }
@@ -269,7 +272,10 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
     } catch (reason) {
       setGeneratingPiFiles(false);
       const message = reason instanceof Error ? reason.message : "The inquiry could not be submitted.";
-      setError(draftIdRef.current ? `${message} Draft ${draftReferenceRef.current || ""} is retained; press ${intent === "proforma_invoice" ? "Send PI request to ProGlass" : "Submit inquiry"} to retry the remaining document uploads.` : `${message} No request was sent; correct the issue and try again.`);
+      const authFailure = /HTTP 401|sign in before submitting|session is expired/i.test(message);
+      if (authFailure) requireAuth();
+      const nextStep = `${authFailure ? "Your saved sign-in is being refreshed. " : ""}${draftIdRef.current ? `Draft ${draftReferenceRef.current || ""} is retained; press ${intent === "proforma_invoice" ? "Send PI request to ProGlass" : "Submit inquiry"} to retry the remaining document uploads.` : "No request was sent; correct the issue and try again."}`;
+      setError(`${authFailure ? "The upload could not use the current sign-in. " : ""}${message} ${nextStep}`);
     }
     finally { setSubmitting(false); }
   }
@@ -281,8 +287,8 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
 
   return <main className="min-h-screen bg-ink-950 pb-20 text-text-primary">
     <header className="border-b border-line-strong/60"><div className="shell flex flex-wrap items-center justify-between gap-3 py-6"><div><div className="eyebrow text-brand-300">Secure customer portal</div><h1 className="mt-1 text-2xl font-bold">{intent === "proforma_invoice" ? "Request a proforma invoice" : "Create an inquiry"}</h1><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "Enter customer and project details, then build the technical glass specification through WPF Step 7. Your Excel, CSV, and PDF files are generated and attached automatically; no upload is required." : "Share your company and project details in one guided flow. Supporting files are optional."}</p></div><div className="text-right"><div className="text-3xs text-text-faint">{userEmail}</div><button type="button" onClick={() => void signOut()} className="mt-2 text-xs font-semibold text-brand-300">Sign out</button></div></div></header>
-    <div className="shell mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,.9fr)]">
-      <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><h2 className="text-lg font-bold">{intent === "proforma_invoice" ? "PI request details" : "Inquiry details"}</h2><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "Customer and project details come first; the glass specification generator follows before the request is sent to the ProGlass team." : "Company, client, and project details are gathered together for the ProGlass team."}</p>
+    <div className={`shell mt-6 grid gap-6 ${intent === "proforma_invoice" ? "grid-cols-1" : "lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,.9fr)]"}`}>
+      <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">{intent === "proforma_invoice" ? "PI request details" : "Inquiry details"}</h2><LocaleLink href={intent === "proforma_invoice" ? "/inquiries/submit" : "/inquiries/submit/proforma"} className="rounded-full border border-brand-300/25 bg-brand-400/[.06] px-3 py-1.5 text-xs font-bold text-brand-100 hover:bg-brand-400/[.12]">{intent === "proforma_invoice" ? "Switch to general inquiry" : "Need a PI? Request a PI →"}</LocaleLink></div><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "Enter customer and project details, add optional supporting files, then complete the WPF Steps 4–7 technical specification beside the file section." : "Company, client, and project details are gathered together for the ProGlass team."}</p>
         {error && <div role="alert" className="mt-4 rounded-xl border border-state-danger/40 bg-state-danger/10 p-3 text-xs text-state-danger">{error}</div>}
         {notice && <div role="status" className="mt-4 rounded-xl border border-state-success/40 bg-state-success/10 p-3 text-xs text-state-success">{notice}</div>}
         {!setupLoaded ? <p role="status" className="mt-5 text-xs text-text-muted">Loading your saved details and projects…</p> : (
@@ -303,8 +309,7 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
                 { group: "Customer + project", title: "Sales reference", body: "Optional: identify the salesperson or internal reference connected to this request.", example: "Sales team — Khalid" },
                 { group: "Customer + project", title: "Handover estimator", body: "Optional: if an estimator is already assigned, enter their name. Otherwise leave it blank." },
                 ...(intent === "proforma_invoice" ? [
-                  { group: "Customer + project", title: "Project requirements", body: "Add delivery timing, scope, and any project context before you generate the technical glass specifications.", example: "Supply 24 panels for the Marina Residence fit-out; requested delivery in March." },
-                  { group: "PI specification", title: "Build the technical specification", body: "Next configure one or more glass groups: thickness, colour, FT or annealed treatment, stock sheet dimensions, cutting-list lines, overlap, U-insert, polish, and other fabrication details. The final WPF Step 7 preview is technical-only—no customer pricing." },
+                  { group: "Customer + project", title: "Project requirements", body: "Add delivery timing, scope, and project context. Then complete the technical-only WPF Steps 4–7 specification beside the optional project-file section.", example: "Supply 24 panels for the Marina Residence fit-out; requested delivery in March." },
                 ] : [
                   { group: "Request details", title: "What do you need?", body: "Choose the kind of help you need. You can ask for a quotation, drawing review, technical support, or another inquiry." },
                   { group: "Request details", title: "Describe the project", body: "Tell us what you need estimated or reviewed. Include glass type, quantities, dimensions, deadline, or other useful context.", example: "Please quote 24 DGU panels, 1200 × 1800 mm, clear glass, delivery to Abu Dhabi." },
@@ -336,16 +341,16 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
               <Field name="handover_estimator_name" label="Handover estimator" placeholder="Optional" maxLength={120} />
               {intent !== "proforma_invoice" && <label className="block text-sm font-semibold leading-5 text-text-secondary">Inquiry type
                 <select name="inquiry_type" defaultValue={intent} className="mt-2 min-h-12 w-full rounded-xl border border-line-strong bg-ink-950 px-3 text-base text-text-primary">
-                  {CUSTOMER_INQUIRY_TYPES.map((value) => <option key={value} value={value}>{CUSTOMER_INQUIRY_TYPE_LABELS[value]}</option>)}
+                  {CUSTOMER_INQUIRY_TYPES.filter((value) => value !== "proforma_invoice").map((value) => <option key={value} value={value}>{CUSTOMER_INQUIRY_TYPE_LABELS[value]}</option>)}
                 </select>
               </label>}
               <label htmlFor="inquiry-description" className="block text-sm font-semibold leading-5 text-text-secondary">Project requirements
                 <textarea id="inquiry-description" name="description" required minLength={10} maxLength={5000} rows={5} placeholder={intent === "proforma_invoice" ? "Add the project scope, requested delivery timing, and other context before generating glass specifications." : "What should the ProGlass team estimate or review? Add glass type, dimensions, quantities, delivery date, and any important notes."} className="mt-2 min-h-36 w-full rounded-xl border border-line-strong bg-ink-950 p-3 text-base leading-6 text-text-primary caret-brand-300 outline-none placeholder:text-text-faint focus-visible:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400/40 sm:text-sm" />
               </label>
-              {intent === "proforma_invoice" && <ProformaTechnicalSpecFlow />}
             </InquiryPromptFlow>
 
-            <section className="mt-4 rounded-2xl border border-line-strong/60 bg-ink-950/45 p-4" aria-labelledby="inquiry-documents-label">
+            <div className={intent === "proforma_invoice" ? "mt-4 grid items-start gap-4 lg:grid-cols-2" : ""}>
+            <section className={`rounded-2xl border border-line-strong/60 bg-ink-950/45 p-4 ${intent === "proforma_invoice" ? "" : "mt-4"}`} aria-labelledby="inquiry-documents-label">
               <div className="flex items-center justify-between gap-3">
                 <div><h3 id="inquiry-documents-label" className="text-sm font-bold text-text-primary">Supporting project files <span className="font-normal text-text-faint">(optional)</span></h3><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "You can submit without uploading anything. Your completed PI specification is automatically attached as an Excel workbook, CSV, and PDF; upload drawings or BOQ files only if you want to." : "Attach inquiry drawings or BOQ files for the WPF inbox, or submit without files."}</p></div>
                 {selectedFiles.length > 0 && <button type="button" onClick={() => setSelectedFiles([])} className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-semibold text-state-danger hover:bg-state-danger/10">Remove all</button>}
@@ -359,6 +364,8 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
               {selectedFiles.length > 0 && <div aria-live="polite" aria-label={`${selectedFiles.length} documents selected`} className="mt-3 grid gap-2 sm:grid-cols-2">{selectedFiles.map((file, index) => <div key={`${file.name}-${file.size}-${index}`} className="flex items-center justify-between gap-3 rounded-xl border border-line-strong bg-ink-950 px-3 py-2"><div className="min-w-0"><div className="truncate text-xs font-semibold text-text-primary">{file.name}</div><div className="text-3xs text-text-faint">{Math.ceil(file.size / 1024).toLocaleString()} KB · {uploadStates[index]?.detail || "ready to attach"}</div>{uploadStates[index] && <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label={`${file.name} upload progress`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={uploadStates[index]?.percent}><div className={`h-full transition-[width] ${uploadStates[index]?.status === "failed" ? "bg-state-danger" : "bg-brand-400"}`} style={{ width: `${uploadStates[index]?.percent || 0}%` }} /></div>}</div><div className={`shrink-0 gap-1 ${submitting ? "hidden" : "flex"}`}><button type="button" aria-label={`Replace ${file.name}`} onClick={() => { replaceIndexRef.current = index; replaceFileInputRef.current?.click(); }} className="rounded-lg px-2 py-1 text-xs font-semibold text-brand-300 hover:bg-brand-500/10">Replace</button><button type="button" aria-label={`Remove ${file.name}`} onClick={() => setSelectedFiles((current) => current.filter((_, position) => position !== index))} className="rounded-lg px-2 py-1 text-xs font-semibold text-state-danger hover:bg-state-danger/10">Remove</button></div></div>)}</div>}
               <span className="mt-2 block text-3xs text-text-faint">Files stay private and are checked by content, not filename alone. CAD files must be exported to PDF or image.</span>
             </section>
+            {intent === "proforma_invoice" && <section className="rounded-2xl border border-brand-300/25 bg-ink-950/45 p-4" aria-labelledby="pi-technical-spec-label"><div className="mb-3"><p className="text-[.65rem] font-bold uppercase tracking-[.16em] text-brand-200">Next · WPF Steps 4–7</p><h3 id="pi-technical-spec-label" className="mt-1 text-sm font-bold text-text-primary">Technical glass specification</h3><p className="mt-1 text-xs leading-5 text-text-muted">Enter the glass build-up, stock dimensions, cutting list, and fabrication details manually. No supporting upload or priced invoice is needed.</p></div><ProformaTechnicalSpecFlow /></section>}
+            </div>
 
             {submitting && <div className="mt-4" role="status" aria-live="polite"><div className="flex justify-between text-xs font-semibold"><span>{generatingPiFiles ? "Generating Excel, CSV, and PDF PI files" : `Uploading and verifying ${filesLabel(selectedFiles.length + generatedPiFiles.length)}`}</span><span>{overallProgress}%</span></div><div className="mt-2 h-2.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label="Overall inquiry upload progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={overallProgress}><div className="h-full bg-brand-400 transition-[width]" style={{ width: `${overallProgress}%` }} /></div><p className="mt-2 text-3xs text-text-muted">Keep this page open. Each selected file is uploaded and verified separately.</p></div>}
             <button disabled={submitting} className="mt-4 w-full rounded-xl bg-brand-400 px-5 py-3.5 text-sm font-bold text-ink-950 transition hover:bg-brand-300 disabled:opacity-50">{submitting ? `Sending request ${overallProgress}%` : intent === "proforma_invoice" ? "Send PI request to ProGlass" : "Submit inquiry"}</button>
