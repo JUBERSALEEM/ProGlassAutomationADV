@@ -38,7 +38,7 @@ function failDatabase(error: { code?: string; message?: string }): never {
 }
 
 async function customerClient(token: string): Promise<{ client: SupabaseClient; userId: string }> {
-  if (!token) throw new CustomerInquiryFailure("UNAUTHORIZED", "Sign in before submitting an inquiry.");
+  if (!token) throw new CustomerInquiryFailure("UNAUTHORIZED", "A valid customer session is required to read or submit inquiries.");
   if (!isSupabaseConfigured()) throw new CustomerInquiryFailure("NOT_CONFIGURED", "Supabase is not configured for inquiry intake.");
   const client = supabaseServerWithToken(token);
   const user = await client.auth.getUser(token);

@@ -10,11 +10,12 @@ type UseCustomerInquiriesOptions = {
 };
 
 const LIST_URL = "/api/inquiry-submissions";
-const UNAVAILABLE_MESSAGE = "We could not authorize the inquiry-list request. A displayed account email does not confirm that the current token is valid; your saved session was checked, and your inquiry data has not been treated as empty. Please retry or sign in again if the problem persists.";
+const UNAVAILABLE_MESSAGE = "Your customer account is still available, but the inquiry service rejected its access token after shared-session recovery was attempted. Your inquiry data has not been treated as empty. Retry, or open Account to check the saved session.";
 
 async function unauthorizedReason(response: Response): Promise<string> {
   const body = await response.clone().json().catch(() => null);
-  return typeof body?.error?.message === "string" ? body.error.message : "The server rejected the current access token.";
+  const code = typeof body?.error?.code === "string" ? body.error.code : "UNAUTHORIZED";
+  return `Server response: HTTP ${response.status} (${code}).`;
 }
 
 export function useCustomerInquiries(

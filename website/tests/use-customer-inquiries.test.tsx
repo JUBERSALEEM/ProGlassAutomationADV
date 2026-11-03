@@ -29,7 +29,7 @@ describe("useCustomerInquiries", () => {
     const onUnauthorized = vi.fn();
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, data: [inquiry] }), { status: 200 }))
-      .mockResolvedValueOnce(new Response(JSON.stringify({ ok: false, error: { message: "Your session is expired or invalid." } }), { status: 401 }));
+      .mockResolvedValueOnce(new Response(JSON.stringify({ ok: false, error: { code: "UNAUTHORIZED", message: "Sign in before submitting an inquiry." } }), { status: 401 }));
     vi.stubGlobal("fetch", fetchMock);
 
     const { result } = renderHook(() => useCustomerInquiries("saved-access-token", { onUnauthorized }));
@@ -40,7 +40,8 @@ describe("useCustomerInquiries", () => {
     });
 
     await waitFor(() => expect(result.current.error).toMatch(/not been treated as empty/i));
-    expect(result.current.error).toContain("Your session is expired or invalid.");
+    expect(result.current.error).toContain("HTTP 401 (UNAUTHORIZED)");
+    expect(result.current.error).not.toMatch(/sign in before submitting|sign in again/i);
     expect(result.current.inquiries).toEqual([inquiry]);
     expect(onUnauthorized).toHaveBeenCalledTimes(1);
   });

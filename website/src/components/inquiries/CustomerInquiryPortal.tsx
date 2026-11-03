@@ -102,7 +102,7 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
       const response = await customerApiFetch("/api/inquiry-submissions", { cache: "no-store" });
       const body = await response.json().catch(() => null);
       if (response.status === 401) {
-        setListError("We could not authorize your inquiry list after checking the saved sign-in. Your submissions have not been treated as an empty account; retry or sign in again if this continues.");
+        setListError("The inquiry service rejected the saved access token after session recovery was attempted. Your submissions have not been treated as an empty account; retry or open Account to check the saved session.");
         return;
       }
       if (!response.ok || !body?.ok || !Array.isArray(body.data)) throw new Error(body?.error?.message || "Unable to load your inquiry history.");
