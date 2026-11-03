@@ -116,4 +116,25 @@ describe("shared website session", () => {
     await waitFor(() => expect(result.current.accessToken).toBe("new-access-token"));
     expect(result.current.isAuthRequired).toBe(false);
   });
+
+  it("does not sign out a saved user when the same API token receives another 401", async () => {
+    const { result } = renderHook(() => useWebsiteSession());
+    await waitFor(() => expect(result.current.accessToken).toBe("old-access-token"));
+
+    await act(async () => {
+      await recoverWebsiteSessionAfterUnauthorized("old-access-token");
+    });
+    mocks.state.getSessionResult = { data: { session: mocks.newSession }, error: null };
+    await waitFor(() => expect(result.current.accessToken).toBe("new-access-token"));
+
+    const recovery: { session?: Awaited<ReturnType<typeof recoverWebsiteSessionAfterUnauthorized>> } = {};
+    await act(async () => {
+      recovery.session = await recoverWebsiteSessionAfterUnauthorized("new-access-token");
+    });
+
+    expect(recovery.session?.access_token).toBe("new-access-token");
+    expect(result.current.accessToken).toBe("new-access-token");
+    expect(result.current.isAuthRequired).toBe(false);
+    expect(result.current.userEmail).toBe("customer@example.com");
+  });
 });

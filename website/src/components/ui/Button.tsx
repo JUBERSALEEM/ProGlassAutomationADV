@@ -6,7 +6,7 @@ type Variant = "primary" | "secondary" | "ghost" | "quiet";
 type Size = "sm" | "md" | "lg";
 
 const base =
-  "btn group relative inline-flex select-none items-center justify-center gap-2 rounded-xl font-semibold tracking-tight transition-[transform,background-color,border-color,box-shadow,color] duration-200 ease-industrial active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-55";
+  "btn group relative inline-flex select-none items-center justify-center gap-2 rounded-xl font-semibold tracking-tight transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--dur-press)] ease-industrial active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-55";
 
 const variants: Record<Variant, string> = {
   /*
@@ -98,12 +98,14 @@ export function Button({
   className,
   trailing,
   loading,
+  disabled,
   ...rest
 }: CommonProps & { loading?: boolean } & ComponentPropsWithoutRef<"button">) {
   return (
     <button
       className={cn(base, variants[variant], sizes[size], variant === "quiet" && "h-auto px-0", className)}
       aria-busy={loading || undefined}
+      disabled={Boolean(loading || disabled)}
       {...rest}
     >
       {loading ? (

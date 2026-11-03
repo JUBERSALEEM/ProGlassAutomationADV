@@ -57,9 +57,9 @@ let started = false;
 let authSubscription: { unsubscribe: () => void } | null = null;
 let browserListenersAttached = false;
 let recoveryPromise: Promise<Session | null> | null = null;
+let unauthorizedRecoveryPromise: Promise<Session | null> | null = null;
 let initialRecoveryWatchdog: number | null = null;
 let lastForcedRecoveryAt = 0;
-let lastForcedRecoveryToken = "";
 
 const listeners = new Set<() => void>();
 
@@ -262,29 +262,59 @@ export async function recoverWebsiteSession(): Promise<Session | null> {
 export async function recoverWebsiteSessionAfterUnauthorized(
   previousToken?: string | null,
 ): Promise<Session | null> {
-  const first = await recoverWebsiteSession();
-  if (first?.access_token && first.access_token !== previousToken) return first;
-  if (!first) return null;
+  // Several data effects can receive the same 401 in one render. One shared
+  // refresh prevents them rotating the same refresh token concurrently.
+  if (unauthorizedRecoveryPromise) return unauthorizedRecoveryPromise;
 
-  const now = Date.now();
-  if (lastForcedRecoveryToken === first.access_token || now - lastForcedRecoveryAt < 15_000) {
-    applySignedOut();
-    return null;
-  }
-  lastForcedRecoveryAt = now;
-  lastForcedRecoveryToken = first.access_token;
+  unauthorizedRecoveryPromise = (async () => {
+    const current = await recoverWebsiteSession();
+    if (!current?.access_token) return null;
 
-  const refreshed = await refreshSavedSession();
-  if (refreshed.session?.user && refreshed.session.access_token) {
-    applySession(refreshed.session);
-    return refreshed.session;
-  }
-  if (refreshed.unavailable) {
-    applyUnavailable(refreshed.error);
-    return null;
-  }
-  applySignedOut();
-  return null;
+    // Another request already refreshed the token while this response was in
+    // flight. Keep the newer session and let the caller's token-bound effect
+    // retry with it instead of refreshing again.
+    if (previousToken && current.access_token !== previousToken) return current;
+
+    const now = Date.now();
+    if (now - lastForcedRecoveryAt < 15_000) {
+      // A repeated API 401 is not proof that Supabase Auth rejected the user.
+      // It may be an endpoint permission/configuration error. Never turn that
+      // into a local sign-out loop; preserve the valid browser session.
+      return current;
+    }
+    lastForcedRecoveryAt = now;
+
+    const refreshed = await refreshSavedSession();
+    if (refreshed.session?.user && refreshed.session.access_token) {
+      applySession(refreshed.session);
+      return refreshed.session;
+    }
+    if (refreshed.unavailable) {
+      applyUnavailable(refreshed.error);
+      return null;
+    }
+
+    // Supabase's SDK clears storage and emits SIGNED_OUT when the refresh token
+    // is definitively rejected. If storage remains, preserve the current user:
+    // an endpoint 401 alone is not enough evidence to erase their login.
+    if (!hasStoredSupabaseSession()) {
+      applySignedOut();
+      return null;
+    }
+
+    emit({
+      ...state,
+      checking: false,
+      isAuthRequired: false,
+      unavailable: false,
+      error: "A request was rejected, but your saved sign-in is still present. Please retry the page.",
+    });
+    return state.session ?? current;
+  })().finally(() => {
+    unauthorizedRecoveryPromise = null;
+  });
+
+  return unauthorizedRecoveryPromise;
 }
 
 export async function signOutWebsiteSession(): Promise<void> {
@@ -420,8 +450,8 @@ export function resetWebsiteSessionForTests() {
   authSubscription = null;
   started = false;
   recoveryPromise = null;
+  unauthorizedRecoveryPromise = null;
   lastForcedRecoveryAt = 0;
-  lastForcedRecoveryToken = "";
   state = INITIAL_STATE;
   for (const listener of listeners) listener();
 }

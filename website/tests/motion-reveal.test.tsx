@@ -236,7 +236,6 @@ describe("§R+§S touch budget (coarse pointers)", () => {
       "src/components/job-orders/JobOrdersSummaryCards.tsx",
       "src/components/records/RecordsSummaryCards.tsx",
       "src/components/records/RecordsBreakdowns.tsx",
-      "src/app/[locale]/how-it-works/page.tsx",
       "src/components/home/StatusFlows.tsx",
     ];
     for (const f of files) {

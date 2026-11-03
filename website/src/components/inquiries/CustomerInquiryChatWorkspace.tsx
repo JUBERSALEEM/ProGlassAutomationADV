@@ -227,8 +227,16 @@ export function CustomerInquiryChatWorkspace({ initialInquiryId }: { initialInqu
         </div>
 
         {error ? (
-          <div role="alert" className="mt-5 rounded-2xl border border-state-danger/40 bg-state-danger/10 p-4 text-sm text-state-danger">
-            {error}
+          <div role="alert" className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-state-danger/40 bg-state-danger/10 p-4 text-sm text-state-danger">
+            <p className="min-w-0 flex-1">{error}</p>
+            <button
+              type="button"
+              onClick={refreshAll}
+              disabled={loading}
+              className="inline-flex min-h-10 items-center justify-center rounded-xl border border-state-danger/40 px-3 font-semibold transition-colors duration-150 hover:bg-state-danger/10 disabled:cursor-wait disabled:opacity-60"
+            >
+              {loading ? "Retrying…" : "Retry now"}
+            </button>
           </div>
         ) : null}
         {requestedUnavailable ? (

@@ -235,7 +235,7 @@ export function ReportsAuthForm({
     try {
       const { data, error: signInError } = await supabaseBrowser().auth.signInWithPassword({ email: cleanEmail, password });
       if (signInError || !data.session) throw signInError || new Error("Authentication session could not be established.");
-      setNotice(t("Signed in successfully. Redirecting...")); router.push(redirectTo); router.refresh();
+      setNotice(t("Signed in successfully. Redirecting...")); router.replace(redirectTo);
     } catch (reason) {
       setError(isNetworkError(reason) ? t("Unable to contact authentication service. Please try again.") : t("Email or password is incorrect. Use an email code if you need to set or reset your password."));
     } finally { setLoading(false); }
@@ -249,7 +249,7 @@ export function ReportsAuthForm({
     try {
       const { error: updateError } = await supabaseBrowser().auth.updateUser({ password: newPassword });
       if (updateError) throw updateError;
-      setNotice(t("Password saved. You can use it for future sign-ins.")); router.push(redirectTo); router.refresh();
+      setNotice(t("Password saved. You can use it for future sign-ins.")); router.replace(redirectTo);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : t("Password could not be saved."));
     } finally { setLoading(false); }
@@ -488,7 +488,7 @@ export function ReportsAuthForm({
             <label htmlFor="confirm-password" className="block text-2xs font-mono uppercase tracking-wider text-text-secondary">{t("Confirm password")}</label>
             <input id="confirm-password" name="password-confirmation" type="password" minLength={8} required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full rounded-xl border border-line-strong bg-ink-950 px-3.5 py-2.5 text-sm text-text-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50" />
             <Button type="submit" variant="primary" size="lg" loading={loading} className="w-full justify-center">{t("Save password and continue")}</Button>
-            <button type="button" onClick={() => { router.push(redirectTo); router.refresh(); }} className="w-full text-xs text-text-muted underline underline-offset-4">{t("Skip for now")}</button>
+            <button type="button" onClick={() => router.replace(redirectTo)} className="w-full text-xs text-text-muted underline underline-offset-4">{t("Skip for now")}</button>
           </form>
         ) : (
           /* STEP B: 6-Digit OTP Verification */

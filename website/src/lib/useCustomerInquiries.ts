@@ -29,7 +29,13 @@ export function useCustomerInquiries(
         });
         const body = await response.json().catch(() => null);
         if (response.status === 401) {
-          setInquiries([]);
+          // A resource-level 401 can race token refresh or reflect an endpoint
+          // policy issue. Keep already-loaded private rows in memory while the
+          // shared auth store verifies/refreshes the session; do not make a
+          // transient response look like an empty account or force a login.
+          if (!signal?.aborted) {
+            setError("We could not refresh your inquiry list. Your sign-in is still saved; please retry in a moment.");
+          }
           onUnauthorized?.();
           return;
         }

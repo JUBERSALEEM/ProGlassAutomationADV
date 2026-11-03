@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { Field } from "@/components/ui/Field";
 import { Feedback } from "@/components/ui/Feedback";
 import { Progress, Skeleton, Spinner } from "@/components/ui/Loading";
+import { Button } from "@/components/ui/Button";
 
 describe("approved field contract", () => {
   it("connects label, hint, and error semantics to the native control", () => {
@@ -26,6 +27,13 @@ describe("approved field contract", () => {
 });
 
 describe("feedback and loading contracts", () => {
+  it("gives buttons immediate pending feedback and prevents duplicate submits", () => {
+    render(<Button loading>Saving</Button>);
+    const button = screen.getByRole("button", { name: "Saving" });
+    expect(button.hasAttribute("disabled")).toBe(true);
+    expect(button.getAttribute("aria-busy")).toBe("true");
+  });
+
   it("announces errors assertively without color-only meaning", () => {
     render(<Feedback tone="error" title="Could not save" description="Try again." />);
     expect(screen.getByText("Could not save").closest("section")?.getAttribute("aria-live")).toBe("assertive");
