@@ -89,13 +89,19 @@ export function CustomerInquiryChatWorkspace({ initialInquiryId }: { initialInqu
     isAuthRequired,
     userEmail,
     requireAuth,
+    signOut,
     unavailable: sessionUnavailable,
     error: sessionError,
     refreshSession,
+    recoverAfterUnauthorized,
   } = useOperatorSession();
-  const { inquiries, loading, error, refresh } = useCustomerInquiries(authToken, {
+  const recoverInquiryListSession = useCallback(async () => {
+    const recovered = await recoverAfterUnauthorized();
+    return recovered?.access_token ?? null;
+  }, [recoverAfterUnauthorized]);
+  const { inquiries, loading, error, refresh, hasSuccessfulLoad } = useCustomerInquiries(authToken, {
     enabled: Boolean(authToken),
-    onUnauthorized: requireAuth,
+    onUnauthorized: recoverInquiryListSession,
   });
   const [selectedId, setSelectedId] = useState(initialInquiryId ?? "");
   const [communicationStatsState, setCommunicationStatsState] = useState<{
@@ -109,6 +115,7 @@ export function CustomerInquiryChatWorkspace({ initialInquiryId }: { initialInqu
     [inquiries, selectedId],
   );
   const counts = useMemo(() => countCustomerInquiriesByStatus(inquiries), [inquiries]);
+  const showInquirySummary = inquiries.length > 0 || (hasSuccessfulLoad && !loading && !error);
   const requestedUnavailable = Boolean(
     initialInquiryId && inquiries.length && !inquiries.some((inquiry) => inquiry.id === initialInquiryId),
   );
@@ -170,21 +177,13 @@ export function CustomerInquiryChatWorkspace({ initialInquiryId }: { initialInqu
             Your inquiry references, documents, current status, and messages are private to your account. Sign in or
             create an account before opening an inquiry conversation.
           </p>
-          <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <LocaleLink
-              href={accountPathForRedirect("/inquiries/chat")}
-              className="inline-flex justify-center rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink"
-            >
-              Sign in
-            </LocaleLink>
-            <LocaleLink
-              href={accountPathForRedirect("/inquiries/chat", "signup")}
-              className="inline-flex justify-center rounded-xl border border-line-strong px-5 py-3 text-sm font-bold text-brand-300"
-            >
-              Create account
-            </LocaleLink>
-          </div>
-          <p className="mt-4 text-xs text-text-faint">New here? Create the account first, then submit your first inquiry.</p>
+          <LocaleLink
+            href={accountPathForRedirect("/inquiries/chat")}
+            className="mt-6 inline-flex justify-center rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink"
+          >
+            Customer account · sign in or sign up
+          </LocaleLink>
+          <p className="mt-4 text-xs text-text-faint">New here? Choose Create account on the shared customer account screen.</p>
         </section>
       </main>
     );
@@ -204,6 +203,19 @@ export function CustomerInquiryChatWorkspace({ initialInquiryId }: { initialInqu
             {userEmail ? <p className="mt-2 text-xs text-text-faint">Signed in as {userEmail}</p> : null}
           </div>
           <div className="flex flex-wrap gap-2">
+            <LocaleLink
+              href="/account"
+              className="rounded-xl border border-brand-400/45 bg-brand-400/10 px-4 py-2.5 text-xs font-bold text-brand-200"
+            >
+              Customer account
+            </LocaleLink>
+            <button
+              type="button"
+              onClick={() => void signOut()}
+              className="rounded-xl border border-line-strong bg-ink-900 px-4 py-2.5 text-xs font-bold text-text-secondary"
+            >
+              Sign out
+            </button>
             <button
               type="button"
               onClick={refreshAll}
@@ -245,27 +257,29 @@ export function CustomerInquiryChatWorkspace({ initialInquiryId }: { initialInqu
           </div>
         ) : null}
 
-        <section aria-label="Your inquiry status summary" className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          <StatCard label="Your inquiries" value={counts.total} detail={`${counts.active} still active`} />
-          <StatCard label="Submitted" value={counts.submitted} />
-          <StatCard label="Under review" value={counts.under_review} />
-          <StatCard
-            label="Accepted / downloaded"
-            value={counts.acceptedOrDownloaded}
-            detail={`${counts.accepted} accepted · ${counts.downloaded} downloaded`}
-          />
-          <StatCard
-            label="Closed / rejected"
-            value={counts.closedOrRejected}
-            detail={`${counts.closed} closed · ${counts.rejected} rejected`}
-          />
-        </section>
+        {showInquirySummary ? (
+          <section aria-label="Your inquiry status summary" className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <StatCard label="Your inquiries" value={counts.total} detail={`${counts.active} still active`} />
+            <StatCard label="Submitted" value={counts.submitted} />
+            <StatCard label="Under review" value={counts.under_review} />
+            <StatCard
+              label="Accepted / downloaded"
+              value={counts.acceptedOrDownloaded}
+              detail={`${counts.accepted} accepted · ${counts.downloaded} downloaded`}
+            />
+            <StatCard
+              label="Closed / rejected"
+              value={counts.closedOrRejected}
+              detail={`${counts.closed} closed · ${counts.rejected} rejected`}
+            />
+          </section>
+        ) : null}
 
-        {loading && inquiries.length === 0 ? (
+        {(loading || !hasSuccessfulLoad) && inquiries.length === 0 && !error ? (
           <div role="status" className="mt-8 rounded-2xl border border-line-strong bg-ink-900 p-6 text-sm text-text-muted">
             Loading your inquiries…
           </div>
-        ) : inquiries.length === 0 ? (
+        ) : hasSuccessfulLoad && !error && inquiries.length === 0 ? (
           <section className="mt-8 rounded-3xl border border-line-strong bg-ink-900 p-6 text-center shadow-panel sm:p-8">
             <h2 className="text-xl font-bold">No inquiry to chat about yet</h2>
             <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-text-muted">

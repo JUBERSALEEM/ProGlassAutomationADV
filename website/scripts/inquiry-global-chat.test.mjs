@@ -92,8 +92,10 @@ test("user profile SQL is chat-safe, own-row writable, participant-readable and 
 });
 
 test("customer chat lists only through the token-bound customer inquiries API hook", () => {
-  assert.match(listHook, /fetch\("\/api\/inquiry-submissions"/);
-  assert.match(listHook, /Authorization: `Bearer \$\{authToken\}`/);
+  assert.match(listHook, /const LIST_URL = "\/api\/inquiry-submissions"/);
+  assert.match(listHook, /fetch\(LIST_URL,\s*\{[\s\S]*?Authorization: `Bearer \$\{authToken\}`/);
+  assert.match(listHook, /Authorization: `Bearer \$\{recoveredToken\}`/);
+  assert.match(listHook, /onUnauthorized\?\.\(\)/);
   assert.match(listHook, /cache: "no-store"/);
   assert.match(listHook, /response\.status === 401/);
   assert.match(workspace, /useCustomerInquiries\(authToken/);
@@ -140,8 +142,8 @@ test("customer status pack covers inquiry totals, selected status, documents and
 
 test("signed-out visitors are sent through account before private inquiries or messages", () => {
   assert.match(workspace, /accountPathForRedirect\("\/inquiries\/chat"\)/);
-  assert.match(workspace, /accountPathForRedirect\("\/inquiries\/chat", "signup"\)/);
-  assert.match(bubble, /accountPathForRedirect\("\/inquiries\/chat", "signup"\)/);
+  assert.match(bubble, /accountPathForRedirect\("\/inquiries\/chat"\)/);
+  assert.doesNotMatch(`${workspace}\n${bubble}`, /accountPathForRedirect\([^)]*,\s*"signup"\)/);
   assert.match(portal, /\/account\?redirect=%2Finquiries%2Fsubmit/);
   assert.match(detail, /\/account\?redirect=/);
   assert.doesNotMatch(`${workspace}\n${bubble}`, /production-room|Production room/i);
@@ -186,7 +188,7 @@ test("community chat workspace is browser-direct realtime with unread handling a
   assert.match(communityPage, /GlobalChatWorkspace/);
   assert.match(communityPage, /path: "\/chat"/);
   assert.match(communityWorkspace, /accountPathForRedirect\(GLOBAL_CHAT_PATH\)/);
-  assert.match(communityWorkspace, /accountPathForRedirect\(GLOBAL_CHAT_PATH, "signup"\)/);
+  assert.doesNotMatch(communityWorkspace, /accountPathForRedirect\(GLOBAL_CHAT_PATH, "signup"\)/);
   assert.match(communityWorkspace, /global-community-chat-/);
   assert.match(communityWorkspace, /postgres_changes/);
   assert.match(communityWorkspace, /table: "global_chat_messages"/);
@@ -293,7 +295,9 @@ test("account and every chat share one recoverable saved website session", () =>
   assert.match(workspace, /sessionUnavailable/);
   assert.match(workspace, /Retry saved sign-in/);
   assert.match(bubble, /useWebsiteSession\(\{ enabled: open \}\)/);
-  assert.match(bubble, /onUnauthorized=\{handleUnauthorized\}/);
+  assert.match(workspace, /onUnauthorized: recoverInquiryListSession/);
+  assert.match(bubble, /onUnauthorized: recoverSupportInquirySession/);
+  assert.match(bubble, /onUnauthorized=\{websiteSession\.requireAuth\}/);
   assert.match(panel, /onUnauthorized/);
   assert.match(panel, /r\.status===401/);
   assert.match(navbar, /href: "\/account"/);

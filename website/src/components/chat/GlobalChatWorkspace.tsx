@@ -1329,20 +1329,12 @@ export function GlobalChatWorkspace() {
               {error}
             </p>
           ) : null}
-          <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <LocaleLink
-              href={accountPathForRedirect(GLOBAL_CHAT_PATH)}
-              className="inline-flex justify-center rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink"
-            >
-              Sign in
-            </LocaleLink>
-            <LocaleLink
-              href={accountPathForRedirect(GLOBAL_CHAT_PATH, "signup")}
-              className="inline-flex justify-center rounded-xl border border-line-strong px-5 py-3 text-sm font-bold text-brand-300"
-            >
-              Create account
-            </LocaleLink>
-          </div>
+          <LocaleLink
+            href={accountPathForRedirect(GLOBAL_CHAT_PATH)}
+            className="mt-6 inline-flex justify-center rounded-xl bg-brand-400 px-5 py-3 text-sm font-bold text-accent-ink"
+          >
+            Customer account · sign in or sign up
+          </LocaleLink>
           <LocaleLink href="/inquiries/chat" className="mt-5 inline-flex text-xs font-bold text-brand-300 underline underline-offset-4">
             I need private inquiry chat instead
           </LocaleLink>

@@ -17,6 +17,27 @@ async function bytesOf(blob: Blob) {
 }
 
 describe("generated PI attachment pack", () => {
+  it("exports a standalone WPF-style technical cut-list PDF without customer pricing", async () => {
+    const { generateCustomerPiCutListPdf } = await import("@/lib/customer-pi-attachments");
+    const file = await generateCustomerPiCutListPdf({
+      companyName: "Example Glass",
+      contactName: "Example Contact",
+      customerReference: "REF-1",
+      projectName: "Sample project",
+      projectLocation: "Abu Dhabi",
+      projectRequirements: "Technical cut list export test.",
+      technicalSpecification: "Technical only",
+      technicalSpecificationJson: JSON.stringify({
+        specs: [{ id: "spec-1", specName: "Facade DGU", kind: "DGU", panes: [] }],
+        rows: [{ reference: "A1", specId: "spec-1", width1: "1200", height1: "1800", width2: "", height2: "", quantity: "2" }],
+        specNotes: "",
+      }),
+    });
+    expect(file.name).toBe("ProGlass_Customer_Cut_List.pdf");
+    expect(file.type).toBe("application/pdf");
+    expect(new TextDecoder().decode(await bytesOf(file).then((bytes) => bytes.slice(0, 5)))).toBe("%PDF-");
+  });
+
   it("creates valid Excel, CSV, and PDF attachments from the technical specification only", async () => {
     const { generateCustomerPiAttachments } = await import("@/lib/customer-pi-attachments");
     const files = await generateCustomerPiAttachments({

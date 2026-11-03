@@ -23,6 +23,7 @@ export type CustomerPiAttachmentInput = {
 type Pane = { thickness?: string; colour?: string; treatment?: string; sheetWidth?: string; sheetHeight?: string };
 type SpecGroup = {
   id?: string;
+  specName?: string;
   kind?: string;
   panes?: Pane[];
   spacerWidth?: string;
@@ -45,7 +46,7 @@ function parseSpec(value: string): ParsedSpec {
     const parsed = JSON.parse(value) as Partial<ParsedSpec>;
     return {
       specs: Array.isArray(parsed.specs) ? parsed.specs.slice(0, 12) as SpecGroup[] : [],
-      rows: Array.isArray(parsed.rows) ? parsed.rows.slice(0, 40) as CuttingRow[] : [],
+      rows: Array.isArray(parsed.rows) ? parsed.rows.slice(0, 250) as CuttingRow[] : [],
       specNotes: asText(parsed.specNotes).slice(0, 1000),
     };
   } catch {
@@ -57,12 +58,6 @@ function groupNumber(specs: SpecGroup[], id: string | undefined) {
   const index = specs.findIndex((spec) => spec.id === id);
   return index < 0 ? 1 : index + 1;
 }
-function safeArea(row: CuttingRow) {
-  const width = Number(row.width1) || 0;
-  const height = Number(row.height1) || 0;
-  return Number.isFinite(width * height) ? Number(((width * height) / 1_000_000).toFixed(3)) : 0;
-}
-
 function buildRows(input: CustomerPiAttachmentInput, parsed: ParsedSpec) {
   const customerRows: FlatRow[] = [
     { field: "Request", value: "Customer proforma invoice inquiry — technical specification only" },
@@ -82,6 +77,7 @@ function buildRows(input: CustomerPiAttachmentInput, parsed: ParsedSpec) {
     panes.slice(0, paneLabels.length).forEach((pane, paneIndex) => {
       glassRows.push({
         "Spec group": group,
+        "Specification name": asText(spec.specName),
         Construction: asText(spec.kind),
         Pane: paneLabels[paneIndex] || `Pane ${paneIndex + 1}`,
         "Thickness (mm)": asText(pane.thickness),
@@ -105,13 +101,13 @@ function buildRows(input: CustomerPiAttachmentInput, parsed: ParsedSpec) {
       Line: index + 1,
       "Glass reference": asText(row.reference) || `Item ${index + 1}`,
       "Spec group": `Spec Group ${groupIndex + 1}`,
+      "Specification name": asText(parsed.specs[groupIndex]?.specName),
       Construction: asText(parsed.specs[groupIndex]?.kind),
       "W1 (mm)": asText(row.width1),
       "H1 (mm)": asText(row.height1),
       "W2 (mm)": asText(row.width2),
       "H2 (mm)": asText(row.height2),
       Quantity: asText(row.quantity),
-      "Panel area (m² each)": safeArea(row),
     };
   });
   return { customerRows, glassRows, cuttingRows };
@@ -121,6 +117,7 @@ function describeGlassRow(row: FlatRow) {
   const stockSize = [row["Stock sheet width (mm)"], row["Stock sheet height (mm)"]].map(asText).filter(Boolean).join(" × ");
   const spacer = [row["Spacer width"], row["Spacer material"]].map(asText).filter(Boolean).join(" ");
   return [
+    asText(row["Specification name"]) ? `Specification ${asText(row["Specification name"])}` : "",
     asText(row["Thickness (mm)"]),
     asText(row.Colour),
     asText(row.Treatment),
@@ -147,14 +144,14 @@ function sheet(name: string, rows: FlatRow[], columns?: string[]): ExportSheet {
 function makeBundle(input: CustomerPiAttachmentInput, parsed: ParsedSpec): OperationsExportBundle {
   const rows = buildRows(input, parsed);
   const customerSheet = sheet("Customer & Project", rows.customerRows, ["field", "value"]);
-  const glassSheet = sheet("Glass Specifications", rows.glassRows, ["Spec group", "Construction", "Pane", "Thickness (mm)", "Colour", "Treatment", "Stock sheet width (mm)", "Stock sheet height (mm)", "Spacer width", "Spacer material", "Interlayer", "Panel extra / overlap", "Spacer extra", "Edge finish", "Fabrication details"]);
-  const cuttingSheet = sheet("Cutting List", rows.cuttingRows, ["Line", "Glass reference", "Spec group", "Construction", "W1 (mm)", "H1 (mm)", "W2 (mm)", "H2 (mm)", "Quantity", "Panel area (m² each)"]);
+  const glassSheet = sheet("Glass Specifications", rows.glassRows, ["Spec group", "Specification name", "Construction", "Pane", "Thickness (mm)", "Colour", "Treatment", "Stock sheet width (mm)", "Stock sheet height (mm)", "Spacer width", "Spacer material", "Interlayer", "Panel extra / overlap", "Spacer extra", "Edge finish", "Fabrication details"]);
+  const cuttingSheet = sheet("Cutting List", rows.cuttingRows, ["Line", "Glass reference", "Spec group", "Specification name", "Construction", "W1 (mm)", "H1 (mm)", "W2 (mm)", "H2 (mm)", "Quantity"]);
   const flatRows: FlatRow[] = [
-    ...rows.customerRows.map((row) => ({ "Record type": "Customer / project", "Spec group": "", Reference: "", Construction: "", Pane: "", Field: row.field, Value: row.value, "W1 (mm)": "", "H1 (mm)": "", "W2 (mm)": "", "H2 (mm)": "", Quantity: "", "Panel area (m² each)": "" })),
-    ...rows.glassRows.map((row) => ({ "Record type": "Glass specification", "Spec group": row["Spec group"], Reference: "", Construction: row.Construction, Pane: row.Pane, Field: "", Value: describeGlassRow(row), "W1 (mm)": "", "H1 (mm)": "", "W2 (mm)": "", "H2 (mm)": "", Quantity: "", "Panel area (m² each)": "" })),
-    ...rows.cuttingRows.map((row) => ({ "Record type": "Cutting list", "Spec group": row["Spec group"], Reference: row["Glass reference"], Construction: row.Construction, Pane: "", Field: "", Value: "", "W1 (mm)": row["W1 (mm)"], "H1 (mm)": row["H1 (mm)"], "W2 (mm)": row["W2 (mm)"], "H2 (mm)": row["H2 (mm)"], Quantity: row.Quantity, "Panel area (m² each)": row["Panel area (m² each)"] })),
+    ...rows.customerRows.map((row) => ({ "Record type": "Customer / project", "Spec group": "", "Specification name": "", Reference: "", Construction: "", Pane: "", Field: row.field, Value: row.value, "W1 (mm)": "", "H1 (mm)": "", "W2 (mm)": "", "H2 (mm)": "", Quantity: "" })),
+    ...rows.glassRows.map((row) => ({ "Record type": "Glass specification", "Spec group": row["Spec group"], "Specification name": row["Specification name"], Reference: "", Construction: row.Construction, Pane: row.Pane, Field: "", Value: describeGlassRow(row), "W1 (mm)": "", "H1 (mm)": "", "W2 (mm)": "", "H2 (mm)": "", Quantity: "" })),
+    ...rows.cuttingRows.map((row) => ({ "Record type": "Cutting list", "Spec group": row["Spec group"], "Specification name": row["Specification name"], Reference: row["Glass reference"], Construction: row.Construction, Pane: "", Field: "", Value: "", "W1 (mm)": row["W1 (mm)"], "H1 (mm)": row["H1 (mm)"], "W2 (mm)": row["W2 (mm)"], "H2 (mm)": row["H2 (mm)"], Quantity: row.Quantity })),
   ];
-  const csvSheet = sheet("PI Technical Request", flatRows, ["Record type", "Spec group", "Reference", "Construction", "Pane", "Field", "Value", "W1 (mm)", "H1 (mm)", "W2 (mm)", "H2 (mm)", "Quantity", "Panel area (m² each)"]);
+  const csvSheet = sheet("PI Technical Request", flatRows, ["Record type", "Spec group", "Specification name", "Reference", "Construction", "Pane", "Field", "Value", "W1 (mm)", "H1 (mm)", "W2 (mm)", "H2 (mm)", "Quantity"]);
   const generatedAt = new Date().toISOString();
   return {
     schemaVersion: 1,
@@ -180,6 +177,11 @@ const styles = StyleSheet.create({
   label: { width: "34%", fontWeight: "bold", color: "#334e68" },
   value: { width: "66%", lineHeight: 1.35 },
   line: { marginBottom: 4, lineHeight: 1.35 },
+  tableHeader: { flexDirection: "row", backgroundColor: "#16324f", paddingVertical: 5, paddingHorizontal: 3 },
+  tableHeaderCell: { width: "14.3%", color: "#ffffff", fontSize: 7, fontWeight: "bold" },
+  tableRow: { flexDirection: "row", paddingVertical: 4, paddingHorizontal: 3, borderBottomWidth: 0.5, borderBottomColor: "#d7e0e8" },
+  tableCell: { width: "14.3%", fontSize: 8, lineHeight: 1.25 },
+  tableCellNarrow: { width: "7%", fontSize: 8, lineHeight: 1.25 },
   footer: { position: "absolute", bottom: 18, left: 34, right: 34, color: "#607789", fontSize: 7, borderTopWidth: 0.5, borderTopColor: "#d7e0e8", paddingTop: 5 },
 });
 
@@ -196,17 +198,52 @@ function PiRequestPdf({ parsed, bundle }: { parsed: ParsedSpec; bundle: Operatio
       <View style={styles.block}>{customer.rows.map((row, index) => <View key={index} style={styles.row} wrap={false}><Text style={styles.label}>{String(row.field)}</Text><Text style={styles.value}>{String(row.value || "—")}</Text></View>)}</View>
       <Text style={styles.heading}>Glass Specifications</Text>
       {parsed.specs.map((spec, specIndex) => <View key={spec.id || specIndex} style={styles.block} wrap>
-        <Text style={styles.line}>Spec Group {specIndex + 1} · {asText(spec.kind)}</Text>
+        <Text style={styles.line}>Spec Group {specIndex + 1} · {asText(spec.kind)}{spec.specName ? ` · ${asText(spec.specName)}` : ""}</Text>
         {glass.rows.filter((row) => row["Spec group"] === `Spec Group ${specIndex + 1}`).map((row, index) => <Text key={index} style={styles.line}>• {String(row.Pane)}: {String(row["Thickness (mm)"])} · {String(row.Colour)} · {String(row.Treatment)} · sheet {String(row["Stock sheet width (mm)"] || "—")} × {String(row["Stock sheet height (mm)"] || "—")} mm</Text>)}
         {(spec.kind === "DGU" || spec.kind === "DGU + LAM") && <Text style={styles.line}>Spacer: {asText(spec.spacerWidth)} · {asText(spec.spacerMaterial)} · {asText(spec.spacerExtra)}</Text>}
         {(spec.kind === "LAM" || spec.kind === "DGU + LAM") && <Text style={styles.line}>Interlayer: {asText(spec.interlayerType)} · {asText(spec.interlayerThickness)} · {asText(spec.interlayerColour)}</Text>}
         <Text style={styles.line}>Fabrication: {asText(spec.panelExtra)} · {asText(spec.edgeFinish)} · {asText(spec.fabricationNotes)}</Text>
       </View>)}
       <Text style={styles.heading}>Cutting List · Dimensions in mm</Text>
-      <View style={styles.block}>{cutting.rows.map((row, index) => <Text key={index} style={styles.line}>{String(row.Line)}. {String(row["Glass reference"])} · {String(row["Spec group"])} · {String(row["W1 (mm)"])} × {String(row["H1 (mm)"])} mm{row["W2 (mm)"] || row["H2 (mm)"] ? ` · secondary ${String(row["W2 (mm)"] || "—")} × ${String(row["H2 (mm)"] || "—")} mm` : ""} · Qty {String(row.Quantity)} · {String(row["Panel area (m² each)"])} m² each</Text>)}</View>
+      <View style={styles.block}>{cutting.rows.map((row, index) => <Text key={index} style={styles.line}>{String(row.Line)}. {String(row["Glass reference"])} · {String(row["Spec group"])}{row["Specification name"] ? ` · ${String(row["Specification name"])}` : ""} · {String(row["W1 (mm)"])} × {String(row["H1 (mm)"])} mm{row["W2 (mm)"] || row["H2 (mm)"] ? ` · secondary ${String(row["W2 (mm)"] || "—")} × ${String(row["H2 (mm)"] || "—")} mm` : ""} · Qty {String(row.Quantity)}</Text>)}</View>
       <Text style={styles.footer}>Generated from the customer PI inquiry. Estimate, verify technical suitability, and prepare any PI in the ProGlass desktop workflow.</Text>
     </Page>
   </Document>;
+}
+
+function CustomerCutListPdf({ parsed, bundle }: { parsed: ParsedSpec; bundle: OperationsExportBundle }) {
+  const cutting = bundle.sheets[2]!;
+  return <Document title="Customer Technical Cutting List — No Pricing" author="ProGlass Automation" subject="Customer-provided cut-list dimensions">
+    <Page size="A4" orientation="landscape" style={styles.page} wrap>
+      <Text style={styles.title}>Customer Technical Cutting List</Text>
+      <Text style={styles.subtitle}>Dimensions in millimetres · planning input for estimator verification · {parsed.specs.length} specification groups</Text>
+      <Text style={styles.notice}>TECHNICAL CUT LIST ONLY — NO PRICES, COSTS, YIELD, MARGINS, OR P&amp;L</Text>
+      <View style={styles.block}>
+        <View style={styles.tableHeader} wrap={false}>
+          {["Line", "Glass reference", "Specification", "Type", "W1 × H1 (mm)", "W2 × H2 (mm)", "Qty"].map((label) => <Text key={label} style={styles.tableHeaderCell}>{label}</Text>)}
+        </View>
+        {cutting.rows.map((row, index) => <View key={index} style={styles.tableRow} wrap={false}>
+          <Text style={styles.tableCellNarrow}>{String(row.Line)}</Text>
+          <Text style={styles.tableCell}>{String(row["Glass reference"] || "—")}</Text>
+          <Text style={styles.tableCell}>{String(row["Specification name"] || row["Spec group"] || "—")}</Text>
+          <Text style={styles.tableCellNarrow}>{String(row.Construction || "—")}</Text>
+          <Text style={styles.tableCell}>{String(row["W1 (mm)"])} × {String(row["H1 (mm)"])}</Text>
+          <Text style={styles.tableCell}>{row["W2 (mm)"] || row["H2 (mm)"] ? `${String(row["W2 (mm)"] || "—")} × ${String(row["H2 (mm)"] || "—")}` : "—"}</Text>
+          <Text style={styles.tableCellNarrow}>{String(row.Quantity)}</Text>
+        </View>)}
+      </View>
+      <Text style={styles.footer}>Customer planning layout only. ProGlass confirms dimensions, edge allowances, glass suitability and the final production cutting plan in the WPF workflow.</Text>
+    </Page>
+  </Document>;
+}
+
+export async function generateCustomerPiCutListPdf(input: CustomerPiAttachmentInput): Promise<File> {
+  const parsed = parseSpec(input.technicalSpecificationJson);
+  if (!parsed.specs.length || !parsed.rows.length) throw new Error("Add a valid technical cutting-list row before exporting the PDF.");
+  const bundle = makeBundle(input, parsed);
+  const pdfBlob = await pdf(<CustomerCutListPdf parsed={parsed} bundle={bundle} />).toBlob();
+  if (!pdfBlob.size || pdfBlob.size > 10 * 1024 * 1024) throw new Error("The technical cut-list PDF is empty or exceeds 10 MB.");
+  return new File([pdfBlob], "ProGlass_Customer_Cut_List.pdf", { type: "application/pdf", lastModified: Date.now() });
 }
 
 function blobFile(bytes: Uint8Array, name: string, type: string) {

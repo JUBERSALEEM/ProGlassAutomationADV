@@ -96,16 +96,21 @@ export function SupportBubble() {
     };
   }, [open]);
 
-  const handleUnauthorized = websiteSession.requireAuth;
+  const recoverAfterUnauthorized = websiteSession.recoverAfterUnauthorized;
+  const recoverSupportInquirySession = useCallback(async () => {
+    const recovered = await recoverAfterUnauthorized();
+    return recovered?.access_token ?? null;
+  }, [recoverAfterUnauthorized]);
 
   const {
     inquiries,
     loading: inquiriesLoading,
     error: inquiriesError,
     refresh: refreshInquiries,
+    hasSuccessfulLoad: inquiriesLoaded,
   } = useCustomerInquiries(authToken, {
     enabled: open && Boolean(authToken),
-    onUnauthorized: handleUnauthorized,
+    onUnauthorized: recoverSupportInquirySession,
   });
 
   const selectedInquiry = useMemo(
@@ -208,22 +213,13 @@ export function SupportBubble() {
                 <p className="mt-1 text-xs leading-relaxed text-text-muted">
                   {t("Sign in or create one website account to submit inquiries, follow current status, and chat privately on your own inquiry.")}
                 </p>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <Link
-                    href={href(accountPathForRedirect("/inquiries/chat"))}
-                    onClick={() => setOpen(false)}
-                    className="rounded-card bg-brand-400 px-3 py-2.5 text-center text-xs font-bold text-accent-ink"
-                  >
-                    {t("Sign in")}
-                  </Link>
-                  <Link
-                    href={href(accountPathForRedirect("/inquiries/chat", "signup"))}
-                    onClick={() => setOpen(false)}
-                    className="rounded-card border border-line-strong px-3 py-2.5 text-center text-xs font-bold text-brand-300"
-                  >
-                    {t("Create account")}
-                  </Link>
-                </div>
+                <Link
+                  href={href(accountPathForRedirect("/inquiries/chat"))}
+                  onClick={() => setOpen(false)}
+                  className="mt-3 block rounded-card bg-brand-400 px-3 py-2.5 text-center text-xs font-bold text-accent-ink"
+                >
+                  {t("Customer account · sign in or sign up")}
+                </Link>
                 <Link
                   href={href(accountPathForRedirect("/inquiries/submit"))}
                   onClick={() => setOpen(false)}
@@ -241,7 +237,7 @@ export function SupportBubble() {
                   </div>
                   <button
                     type="button"
-                    onClick={refreshInquiries}
+                    onClick={() => void refreshInquiries()}
                     className="shrink-0 rounded-card border border-line-strong px-2.5 py-1.5 text-3xs font-bold text-brand-300"
                   >
                     {t("Refresh")}
@@ -250,9 +246,9 @@ export function SupportBubble() {
 
                 {inquiriesError ? (
                   <p role="alert" className="mt-3 text-xs leading-relaxed text-state-danger">{inquiriesError}</p>
-                ) : inquiriesLoading && inquiries.length === 0 ? (
+                ) : (inquiriesLoading || !inquiriesLoaded) && inquiries.length === 0 ? (
                   <p role="status" className="mt-3 text-xs text-text-muted">{t("Loading your inquiries…")}</p>
-                ) : inquiries.length === 0 ? (
+                ) : inquiriesLoaded && inquiries.length === 0 ? (
                   <>
                     <p className="mt-2 text-xs leading-relaxed text-text-muted">
                       {t("You have no completed inquiry yet. Submit one first; its reference will connect the status, documents, and chat.")}
@@ -364,7 +360,7 @@ export function SupportBubble() {
                         internalAccess={false}
                         compact
                         onCommunicationsChanged={handleCommunicationsChanged}
-                        onUnauthorized={handleUnauthorized}
+                        onUnauthorized={websiteSession.requireAuth}
                       />
                     </div>
                   </>

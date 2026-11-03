@@ -36,7 +36,7 @@ function makeRow(index: number, status: CustomerInquiryStatus, uploaded: string,
     project_id: null,
     project_name: `Project ${index}`,
     project_location: "Sharjah",
-    inquiry_type: "quotation",
+    inquiry_type: index === 3 ? "proforma_invoice" : "quotation",
     description: "Internal description",
     status,
     submitted_at: uploaded,
@@ -96,6 +96,9 @@ class FakeQuery {
     this.call.range = [from, to];
     return this;
   }
+  limit(_count: number) {
+    return this;
+  }
   maybeSingle() {
     calls.push(this.call);
     if (this.call.table === "inquiry_operator_roles") {
@@ -153,7 +156,7 @@ vi.mock("../src/lib/supabase", () => ({
   supabaseServerWithToken: () => client,
 }));
 
-import { listOperatorCustomerInquiries } from "../src/lib/inquiry-submissions-api";
+import { listCustomerInquiries, listOperatorCustomerInquiries } from "../src/lib/inquiry-submissions-api";
 
 /** The one list request, not the role read and not the six head counts. */
 function listCall(): Call | undefined {
@@ -162,6 +165,20 @@ function listCall(): Call | undefined {
 
 beforeEach(() => {
   calls.length = 0;
+});
+
+describe("the customer submission list", () => {
+  it("includes first-submitted PI requests with the same completed-inquiry query", async () => {
+    const rows = await listCustomerInquiries("customer-token");
+    const pi = rows.find((row) => row.inquiry_type === "proforma_invoice");
+    expect(pi?.submission_reference).toBe("WEB-2026-000003");
+    const list = calls.find((call) => call.table === "inquiry_customer_submissions");
+    expect(list?.eqs).toEqual([
+      ["customer_user_id", "ee646814-0d2f-47b0-be96-68fcb51dda54"],
+      ["upload_state", "complete"],
+    ]);
+    expect(list?.eqs.some(([column]) => column === "inquiry_type")).toBe(false);
+  });
 });
 
 describe("the operator submission query", () => {

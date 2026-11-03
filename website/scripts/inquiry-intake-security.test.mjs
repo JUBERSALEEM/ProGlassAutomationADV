@@ -112,8 +112,11 @@ test("profile and project APIs prefill, persist, associate, and filter customer 
   assert.match(portal, /files = \[\.\.\.userFiles, \.\.\.\(generatedPiFilesRef\.current \|\| \[\]\)\]/);
   assert.match(portal, /automatically attached as an Excel workbook, CSV, and PDF/);
   assert.match(portal, /Need a PI\? Request a PI/);
-  assert.ok(portal.indexOf('<ProformaTechnicalSpecFlow />') > portal.indexOf('id="inquiry-documents-label"'), "PI technical steps follow optional supporting files");
-  assert.match(portal, /if \(response\.status === 401\) \{ requireAuth\(\); return; \}/);
+  assert.ok(portal.indexOf('<ProformaTechnicalSpecFlow key={flowInstance} onCompleteChange={handlePiCompleteChange} />') > portal.indexOf('id="inquiry-documents-label"'), "PI technical steps follow optional supporting files");
+  assert.match(portal, /async function customerApiFetch/);
+  assert.match(portal, /if \(response\.status !== 401\) return response/);
+  assert.match(portal, /const recovered = await recoverAfterUnauthorized\(\)/);
+  assert.match(portal, /currentAuthTokenRef\.current = recovered\.access_token/);
   assert.match(portal, /was skipped because the.*document limit for optional uploads is already filled/);
   assert.match(portal, /New project — save from fields below/);
   assert.match(portal, /Filter by project/);

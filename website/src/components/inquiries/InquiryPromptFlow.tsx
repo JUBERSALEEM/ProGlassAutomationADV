@@ -12,9 +12,11 @@ type Hint = { title: string; body: string; example?: string; group?: string };
 export function InquiryPromptFlow({
   children,
   hints,
+  completionLabel = "Ready to send",
 }: {
   children: ReactNode;
   hints: Hint[];
+  completionLabel?: string;
 }) {
   const prompts = Children.toArray(children);
   const [active, setActive] = useState(0);
@@ -116,7 +118,7 @@ export function InquiryPromptFlow({
                 <span aria-hidden="true">→</span>
               </button>
             ) : (
-              <span className="rounded-xl border border-emerald-300/20 bg-emerald-300/[.06] px-3 py-2 text-xs font-semibold text-emerald-100">Ready to send</span>
+              <span className="rounded-xl border border-emerald-300/20 bg-emerald-300/[.06] px-3 py-2 text-xs font-semibold text-emerald-100">{completionLabel}</span>
             )}
           </div>
         </div>

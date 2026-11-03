@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { InquiryPromptFlow } from "@/components/inquiries/InquiryPromptFlow";
 import { ProformaTechnicalSpecFlow } from "@/components/inquiries/ProformaTechnicalSpecFlow";
@@ -35,7 +35,9 @@ function uploadDocument(token: string, draftId: string, file: File, progress: (l
 }
 
 export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: CustomerInquiryType } = {}) {
-  const { checking, authToken, isAuthRequired, userEmail, signOut, requireAuth, unavailable: sessionUnavailable, error: sessionError, refreshSession } = useOperatorSession();
+  const { checking, authToken, isAuthRequired, userEmail, signOut, requireAuth, recoverAfterUnauthorized, unavailable: sessionUnavailable, error: sessionError, refreshSession } = useOperatorSession();
+  const currentAuthTokenRef = useRef(authToken);
+  useEffect(() => { currentAuthTokenRef.current = authToken; }, [authToken]);
   const userFileLimit = intent === "proforma_invoice" ? MAX_FILES - AUTO_PI_ATTACHMENT_COUNT : MAX_FILES;
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -48,11 +50,17 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
   const generatedPiFilesRef = useRef<File[] | null>(null);
   const [generatingPiFiles, setGeneratingPiFiles] = useState(false);
   const [flowInstance, setFlowInstance] = useState(0);
+  const [piCompleteFlowInstance, setPiCompleteFlowInstance] = useState<number | null>(null);
+  const handlePiCompleteChange = useCallback((complete: boolean) => {
+    setPiCompleteFlowInstance(complete ? flowInstance : null);
+  }, [flowInstance]);
+  const piSpecificationComplete = piCompleteFlowInstance === flowInstance;
   const [dragging, setDragging] = useState(false);
   const [rows, setRows] = useState<CustomerInquiryListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [listError, setListError] = useState("");
   const [notice, setNotice] = useState("");
   const [uploadStates, setUploadStates] = useState<Record<number, UploadState>>({});
   const [overallProgress, setOverallProgress] = useState(0);
@@ -70,24 +78,44 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
     return () => window.removeEventListener("beforeunload", warn);
   }, [submitting]);
 
+  async function customerApiFetch(url: string, init: RequestInit = {}) {
+    const currentToken = currentAuthTokenRef.current ?? authToken;
+    if (!currentToken) throw new Error("Your saved sign-in is not available for this request.");
+    const withToken = (token: string): RequestInit => {
+      const headers = new Headers(init.headers);
+      headers.set("Authorization", `Bearer ${token}`);
+      return { ...init, headers };
+    };
+    const response = await fetch(url, withToken(currentToken));
+    if (response.status !== 401) return response;
+    const recovered = await recoverAfterUnauthorized();
+    if (!recovered?.access_token) return response;
+    currentAuthTokenRef.current = recovered.access_token;
+    return fetch(url, withToken(recovered.access_token));
+  }
+
   async function load() {
     if (!authToken) return;
     setLoading(true);
+    setListError("");
     try {
-      const response = await fetch("/api/inquiry-submissions", { headers: { Authorization: `Bearer ${authToken}` }, cache: "no-store" });
-      const body = await response.json();
-      if (response.status === 401) { requireAuth(); return; }
-      if (!response.ok || !body.ok) throw new Error(body?.error?.message || "Unable to load your inquiry history.");
+      const response = await customerApiFetch("/api/inquiry-submissions", { cache: "no-store" });
+      const body = await response.json().catch(() => null);
+      if (response.status === 401) {
+        setListError("We could not authorize your inquiry list after checking the saved sign-in. Your submissions have not been treated as an empty account; retry or sign in again if this continues.");
+        return;
+      }
+      if (!response.ok || !body?.ok || !Array.isArray(body.data)) throw new Error(body?.error?.message || "Unable to load your inquiry history.");
       setRows(body.data);
-    } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to load your inquiry history."); }
+    } catch (reason) { setListError(reason instanceof Error ? reason.message : "Unable to load your inquiry history."); }
     finally { setLoading(false); }
   }
 
   async function loadSetup() {
     if (!authToken) return;
     try {
-      const response=await fetch("/api/inquiry-submissions/profile",{headers:{Authorization:`Bearer ${authToken}`},cache:"no-store"});
-      if (response.status === 401) { requireAuth(); return; }
+      const response=await customerApiFetch("/api/inquiry-submissions/profile",{cache:"no-store"});
+      if (response.status === 401) { setError("Customer details could not be authorized after checking the saved sign-in. Please retry."); return; }
       const body=await response.json(); if(!response.ok||!body.ok) throw new Error(body?.error?.message||"Unable to load saved customer details.");
       setProfile(body.data.profile); setProjects(body.data.projects||[]);
     } catch(reason) { setError(reason instanceof Error?reason.message:"Unable to load saved customer details."); }
@@ -173,11 +201,21 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
         return;
       }
       technicalSpecification = specification;
-      submissionDescription = `${submissionDescription}\n\n${specification}`;
-      if (submissionDescription.length > 5000) {
-        setError("The project description and technical specification exceed the 5,000-character request limit. Shorten the notes or reduce the cutting-list lines.");
+      if (submissionDescription.length > 4_400) {
+        setError("For a PI request, keep the project requirements under 4,400 characters so the technical-attachment note fits the secure inquiry description limit.");
         return;
       }
+      let specGroupCount = 0;
+      let cuttingLineCount = 0;
+      try {
+        const parsedSpecification = JSON.parse(technicalSpecificationJson) as { specs?: unknown[]; rows?: unknown[] };
+        specGroupCount = Array.isArray(parsedSpecification.specs) ? parsedSpecification.specs.length : 0;
+        cuttingLineCount = Array.isArray(parsedSpecification.rows) ? parsedSpecification.rows.length : 0;
+      } catch {
+        setError("The PI technical request could not be read. Reopen Step 7 and review the specification, then try again.");
+        return;
+      }
+      submissionDescription = `${submissionDescription}\n\nPI technical specification is attached as Excel, CSV, and PDF (${specGroupCount} specification group${specGroupCount === 1 ? "" : "s"}; ${cuttingLineCount} cutting-list line${cuttingLineCount === 1 ? "" : "s"}). Technical request only; ProGlass confirms the production layout.`;
     }
     if (!authToken) { requireAuth(); return; }
     const userFiles = selectedFiles;
@@ -220,21 +258,21 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
         setOverallProgress(0);
       }
       if (!draftIdRef.current) {
-        const profileResponse=await fetch("/api/inquiry-submissions/profile",{method:"PUT",headers:{Authorization:`Bearer ${authToken}`},body:form});
-        if (profileResponse.status === 401) { requireAuth(); throw new Error("Your saved sign-in is being refreshed. Please try submitting again in a moment."); }
+        const profileResponse=await customerApiFetch("/api/inquiry-submissions/profile",{method:"PUT",body:form});
+        if (profileResponse.status === 401) { throw new Error("Customer details could not be authorized after refreshing the saved sign-in. Please retry."); }
         const profileBody=await profileResponse.json().catch(()=>null); if(!profileResponse.ok||!profileBody?.ok)throw new Error(profileBody?.error?.message||"Customer details could not be saved.");
         if (!String(form.get("project_id")||"")) {
-          const projectResponse=await fetch("/api/inquiry-submissions/projects",{method:"POST",headers:{Authorization:`Bearer ${authToken}`},body:form});
-          if (projectResponse.status === 401) { requireAuth(); throw new Error("Your saved sign-in is being refreshed. Please try submitting again in a moment."); }
+          const projectResponse=await customerApiFetch("/api/inquiry-submissions/projects",{method:"POST",body:form});
+          if (projectResponse.status === 401) { throw new Error("The project could not be authorized after refreshing the saved sign-in. Please retry."); }
           const projectBody=await projectResponse.json().catch(()=>null); if(!projectResponse.ok||!projectBody?.ok)throw new Error(projectBody?.error?.message||"Project could not be saved.");
           const saved=Array.isArray(projectBody.data)?projectBody.data[0]:projectBody.data; form.set("project_id",saved.id);
         }
         const draftForm = new FormData();
         form.forEach((value, key) => draftForm.append(key, value));
         draftForm.set("description", submissionDescription);
-        const draftResponse = await fetch("/api/inquiry-submissions/drafts", { method: "POST", headers: { Authorization: `Bearer ${authToken}` }, body: draftForm });
+        const draftResponse = await customerApiFetch("/api/inquiry-submissions/drafts", { method: "POST", body: draftForm });
         const draftBody = await draftResponse.json().catch(() => null);
-        if (draftResponse.status === 401) { requireAuth(); return; }
+        if (draftResponse.status === 401) throw new Error("The inquiry draft could not be authorized after refreshing the saved sign-in. Please retry.");
         if (!draftResponse.ok || !draftBody?.ok) throw new Error(draftBody?.error?.message || "The inquiry draft could not be created.");
         const createdDraft = draftBody.data as { id: string; submission_reference: string };
         draftIdRef.current = createdDraft.id; draftReferenceRef.current = createdDraft.submission_reference;
@@ -248,7 +286,7 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
         const started = performance.now();
         setUploadStates((current) => ({ ...current, [index]: { status: "uploading", percent: 0, detail: "Starting upload" } }));
         try {
-          await uploadDocument(authToken, draftId, file, (loaded, total) => {
+          await uploadDocument((currentAuthTokenRef.current ?? authToken)!, draftId, file, (loaded, total) => {
             const seconds = Math.max((performance.now() - started) / 1000, 0.1);
             const rate = loaded / seconds; const remaining = rate > 0 ? Math.ceil((total - loaded) / rate) : 0;
             const percent = Math.min(100, Math.round((loaded / Math.max(total, 1)) * 100));
@@ -263,8 +301,9 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
           throw reason;
         }
       }
-      const finalResponse = await fetch(`/api/inquiry-submissions/${draftId}/finalize`, { method: "POST", headers: { Authorization: `Bearer ${authToken}` } });
+      const finalResponse = await customerApiFetch(`/api/inquiry-submissions/${draftId}/finalize`, { method: "POST" });
       const finalBody = await finalResponse.json().catch(() => null);
+      if (finalResponse.status === 401) throw new Error("The inquiry could not be finalized after refreshing the saved sign-in. Please retry.");
       if (!finalResponse.ok || !finalBody?.ok) throw new Error(finalBody?.error?.message || "Files uploaded, but the inquiry could not be finalized.");
       const created = finalBody.data as CustomerInquirySubmission;
       setNotice(intent === "proforma_invoice" ? `PI request ${created.submission_reference} was sent to the ProGlass inquiry inbox with ${filesLabel(files.length)}.` : `Inquiry ${created.submission_reference} was submitted securely with ${filesLabel(files.length)}.`);
@@ -290,12 +329,13 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
     <div className={`shell mt-6 grid gap-6 ${intent === "proforma_invoice" ? "grid-cols-1" : "lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,.9fr)]"}`}>
       <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">{intent === "proforma_invoice" ? "PI request details" : "Inquiry details"}</h2><LocaleLink href={intent === "proforma_invoice" ? "/inquiries/submit" : "/inquiries/submit/proforma"} className="rounded-full border border-brand-300/25 bg-brand-400/[.06] px-3 py-1.5 text-xs font-bold text-brand-100 hover:bg-brand-400/[.12]">{intent === "proforma_invoice" ? "Switch to general inquiry" : "Need a PI? Request a PI →"}</LocaleLink></div><p className="mt-1 text-xs text-text-muted">{intent === "proforma_invoice" ? "Enter customer and project details, add optional supporting files, then complete the WPF Steps 4–7 technical specification beside the file section." : "Company, client, and project details are gathered together for the ProGlass team."}</p>
         {error && <div role="alert" className="mt-4 rounded-xl border border-state-danger/40 bg-state-danger/10 p-3 text-xs text-state-danger">{error}</div>}
-        {notice && <div role="status" className="mt-4 rounded-xl border border-state-success/40 bg-state-success/10 p-3 text-xs text-state-success">{notice}</div>}
+        {notice && <div role="status" className="mt-4 rounded-xl border border-state-success/40 bg-state-success/10 p-3 text-xs text-state-success"><p>{notice}</p><LocaleLink href="/inquiries/chat" className="mt-2 inline-flex font-bold underline underline-offset-4">View in My inquiries &amp; chat →</LocaleLink></div>}
         {!setupLoaded ? <p role="status" className="mt-5 text-xs text-text-muted">Loading your saved details and projects…</p> : (
           <form ref={formRef} onSubmit={submit} noValidate className="mt-5">
             {intent === "proforma_invoice" && <input type="hidden" name="inquiry_type" value="proforma_invoice" />}
             <InquiryPromptFlow
               key={flowInstance}
+              completionLabel={intent === "proforma_invoice" ? "Project details entered · technical specification still required" : "Ready to send"}
               hints={[
                 { group: "Customer + project", title: "Company name", body: "Enter the company name the estimating team should use for this request.", example: "Al Noor Glass LLC" },
                 { group: "Customer + project", title: "Your name", body: "Who should we contact about this project?", example: "Aisha Khan" },
@@ -345,7 +385,7 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
                 </select>
               </label>}
               <label htmlFor="inquiry-description" className="block text-sm font-semibold leading-5 text-text-secondary">Project requirements
-                <textarea id="inquiry-description" name="description" required minLength={10} maxLength={5000} rows={5} placeholder={intent === "proforma_invoice" ? "Add the project scope, requested delivery timing, and other context before generating glass specifications." : "What should the ProGlass team estimate or review? Add glass type, dimensions, quantities, delivery date, and any important notes."} className="mt-2 min-h-36 w-full rounded-xl border border-line-strong bg-ink-950 p-3 text-base leading-6 text-text-primary caret-brand-300 outline-none placeholder:text-text-faint focus-visible:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400/40 sm:text-sm" />
+                <textarea id="inquiry-description" name="description" required minLength={10} maxLength={intent === "proforma_invoice" ? 4400 : 5000} rows={5} placeholder={intent === "proforma_invoice" ? "Add the project scope, requested delivery timing, and other context before generating glass specifications." : "What should the ProGlass team estimate or review? Add glass type, dimensions, quantities, delivery date, and any important notes."} className="mt-2 min-h-36 w-full rounded-xl border border-line-strong bg-ink-950 p-3 text-base leading-6 text-text-primary caret-brand-300 outline-none placeholder:text-text-faint focus-visible:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400/40 sm:text-sm" />
               </label>
             </InquiryPromptFlow>
 
@@ -364,17 +404,18 @@ export function CustomerInquiryPortal({ intent = "quotation" }: { intent?: Custo
               {selectedFiles.length > 0 && <div aria-live="polite" aria-label={`${selectedFiles.length} documents selected`} className="mt-3 grid gap-2 sm:grid-cols-2">{selectedFiles.map((file, index) => <div key={`${file.name}-${file.size}-${index}`} className="flex items-center justify-between gap-3 rounded-xl border border-line-strong bg-ink-950 px-3 py-2"><div className="min-w-0"><div className="truncate text-xs font-semibold text-text-primary">{file.name}</div><div className="text-3xs text-text-faint">{Math.ceil(file.size / 1024).toLocaleString()} KB · {uploadStates[index]?.detail || "ready to attach"}</div>{uploadStates[index] && <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label={`${file.name} upload progress`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={uploadStates[index]?.percent}><div className={`h-full transition-[width] ${uploadStates[index]?.status === "failed" ? "bg-state-danger" : "bg-brand-400"}`} style={{ width: `${uploadStates[index]?.percent || 0}%` }} /></div>}</div><div className={`shrink-0 gap-1 ${submitting ? "hidden" : "flex"}`}><button type="button" aria-label={`Replace ${file.name}`} onClick={() => { replaceIndexRef.current = index; replaceFileInputRef.current?.click(); }} className="rounded-lg px-2 py-1 text-xs font-semibold text-brand-300 hover:bg-brand-500/10">Replace</button><button type="button" aria-label={`Remove ${file.name}`} onClick={() => setSelectedFiles((current) => current.filter((_, position) => position !== index))} className="rounded-lg px-2 py-1 text-xs font-semibold text-state-danger hover:bg-state-danger/10">Remove</button></div></div>)}</div>}
               <span className="mt-2 block text-3xs text-text-faint">Files stay private and are checked by content, not filename alone. CAD files must be exported to PDF or image.</span>
             </section>
-            {intent === "proforma_invoice" && <section className="rounded-2xl border border-brand-300/25 bg-ink-950/45 p-4" aria-labelledby="pi-technical-spec-label"><div className="mb-3"><p className="text-[.65rem] font-bold uppercase tracking-[.16em] text-brand-200">Next · WPF Steps 4–7</p><h3 id="pi-technical-spec-label" className="mt-1 text-sm font-bold text-text-primary">Technical glass specification</h3><p className="mt-1 text-xs leading-5 text-text-muted">Enter the glass build-up, stock dimensions, cutting list, and fabrication details manually. No supporting upload or priced invoice is needed.</p></div><ProformaTechnicalSpecFlow /></section>}
+            {intent === "proforma_invoice" && <section className="rounded-2xl border border-brand-300/25 bg-ink-950/45 p-4" aria-labelledby="pi-technical-spec-label"><div className="mb-3"><p className="text-[.65rem] font-bold uppercase tracking-[.16em] text-brand-200">Next · WPF Steps 4–7</p><h3 id="pi-technical-spec-label" className="mt-1 text-sm font-bold text-text-primary">Technical glass specification</h3><p className="mt-1 text-xs leading-5 text-text-muted">Enter the glass build-up, stock dimensions, cutting list, and fabrication details manually. No supporting upload or priced invoice is needed.</p></div><ProformaTechnicalSpecFlow key={flowInstance} onCompleteChange={handlePiCompleteChange} /></section>}
             </div>
 
             {submitting && <div className="mt-4" role="status" aria-live="polite"><div className="flex justify-between text-xs font-semibold"><span>{generatingPiFiles ? "Generating Excel, CSV, and PDF PI files" : `Uploading and verifying ${filesLabel(selectedFiles.length + generatedPiFiles.length)}`}</span><span>{overallProgress}%</span></div><div className="mt-2 h-2.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-label="Overall inquiry upload progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={overallProgress}><div className="h-full bg-brand-400 transition-[width]" style={{ width: `${overallProgress}%` }} /></div><p className="mt-2 text-3xs text-text-muted">Keep this page open. Each selected file is uploaded and verified separately.</p></div>}
-            <button disabled={submitting} className="mt-4 w-full rounded-xl bg-brand-400 px-5 py-3.5 text-sm font-bold text-ink-950 transition hover:bg-brand-300 disabled:opacity-50">{submitting ? `Sending request ${overallProgress}%` : intent === "proforma_invoice" ? "Send PI request to ProGlass" : "Submit inquiry"}</button>
+            {intent === "proforma_invoice" && !piSpecificationComplete && <p role="status" className="mt-4 rounded-xl border border-state-warning/35 bg-state-warning/10 px-3 py-2.5 text-xs leading-relaxed text-state-warning">Finish Steps 4–7, review the cutting list, and confirm the technical specification to enable PI submission.</p>}
+            <button disabled={submitting || (intent === "proforma_invoice" && !piSpecificationComplete)} className="mt-4 w-full rounded-xl bg-brand-400 px-5 py-3.5 text-sm font-bold text-ink-950 transition hover:bg-brand-300 disabled:cursor-not-allowed disabled:opacity-50">{submitting ? `Sending request ${overallProgress}%` : intent === "proforma_invoice" ? "Send PI request to ProGlass" : "Submit inquiry"}</button>
           </form>
         )}
       </section>
       <section className="rounded-2xl border border-line-strong/60 bg-ink-900/85 p-5"><div className="flex items-center justify-between"><h2 className="text-lg font-bold">Your submissions</h2><button onClick={() => void load()} className="text-xs font-semibold text-brand-300">Refresh</button></div>
         <div className="mt-3 grid gap-2 sm:grid-cols-3"><select aria-label="Filter by project" value={historyProject} onChange={(event)=>setHistoryProject(event.target.value)} className="h-10 rounded-xl border border-line-strong bg-ink-950 px-2 text-xs"><option value="">All projects</option>{projects.map((project)=><option key={project.id} value={project.id}>{project.project_name}</option>)}</select><select aria-label="Filter by inquiry type" value={historyType} onChange={(event)=>setHistoryType(event.target.value)} className="h-10 rounded-xl border border-line-strong bg-ink-950 px-2 text-xs"><option value="">All types</option>{CUSTOMER_INQUIRY_TYPES.map((value)=><option key={value} value={value}>{CUSTOMER_INQUIRY_TYPE_LABELS[value]}</option>)}</select><select aria-label="Filter by status" value={historyStatus} onChange={(event)=>setHistoryStatus(event.target.value)} className="h-10 rounded-xl border border-line-strong bg-ink-950 px-2 text-xs"><option value="">All statuses</option><option value="submitted">Submitted</option><option value="under_review">Under review</option><option value="accepted">Accepted</option><option value="rejected">Rejected</option><option value="closed">Closed</option></select></div>
-        {loading ? <p role="status" className="mt-5 text-xs text-text-muted">Loading…</p> : rows.length === 0 ? <p className="mt-5 text-xs text-text-muted">No website inquiries submitted by this account.</p> : filteredRows.length===0?<p className="mt-5 text-xs text-text-muted">No inquiries match these filters.</p>: <div className="mt-4 space-y-3">{filteredRows.map((row) => <LocaleLink key={row.id} href={`/inquiries/submissions/${row.id}`} className="block rounded-xl border border-line-strong bg-ink-950/70 p-4"><div className="flex justify-between gap-3"><span className="font-mono text-xs font-bold text-brand-300">{row.submission_reference}</span><span className="rounded-full border border-line-strong px-2 py-0.5 text-3xs uppercase text-text-muted">{row.status.replaceAll("_", " ")}</span></div><div className="mt-2 text-sm font-semibold">{row.project_name}</div><div className="mt-1 text-3xs text-text-faint">{row.document_count} document{row.document_count === 1 ? "" : "s"} · submitted {date(row.submitted_at)}</div><div className="mt-2 text-3xs font-semibold text-text-muted">Response estimate: {row.estimated_response_at ? date(row.estimated_response_at) : "pending operator review"}</div>{row.operator_note && <div className="mt-1 text-xs text-text-muted">Operator note: {row.operator_note}</div>}</LocaleLink>)}</div>}
+        {loading ? <p role="status" className="mt-5 text-xs text-text-muted">Loading…</p> : listError ? <div role="alert" className="mt-5 rounded-xl border border-state-danger/40 bg-state-danger/10 p-3 text-xs leading-relaxed text-state-danger"><p>{listError}</p><button type="button" onClick={() => void load()} className="mt-3 rounded-lg border border-state-danger/40 px-3 py-2 font-semibold">Retry inquiry list</button></div> : rows.length === 0 ? <p className="mt-5 text-xs text-text-muted">No website inquiries submitted by this account.</p> : filteredRows.length===0?<p className="mt-5 text-xs text-text-muted">No inquiries match these filters.</p>: <div className="mt-4 space-y-3">{filteredRows.map((row) => <LocaleLink key={row.id} href={`/inquiries/submissions/${row.id}`} className="block rounded-xl border border-line-strong bg-ink-950/70 p-4"><div className="flex justify-between gap-3"><span className="font-mono text-xs font-bold text-brand-300">{row.submission_reference}</span><span className="rounded-full border border-line-strong px-2 py-0.5 text-3xs uppercase text-text-muted">{row.status.replaceAll("_", " ")}</span></div><div className="mt-2 text-sm font-semibold">{row.project_name}</div><div className="mt-1 text-3xs text-text-faint">{row.document_count} document{row.document_count === 1 ? "" : "s"} · submitted {date(row.submitted_at)}</div><div className="mt-2 text-3xs font-semibold text-text-muted">Response estimate: {row.estimated_response_at ? date(row.estimated_response_at) : "pending operator review"}</div>{row.operator_note && <div className="mt-1 text-xs text-text-muted">Operator note: {row.operator_note}</div>}</LocaleLink>)}</div>}
       </section>
     </div>
   </main>;

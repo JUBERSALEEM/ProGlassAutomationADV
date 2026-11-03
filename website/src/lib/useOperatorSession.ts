@@ -30,6 +30,7 @@ export type OperatorSession = {
   unavailable: boolean;
   error: string | null;
   refreshSession: () => Promise<Session | null>;
+  recoverAfterUnauthorized: () => Promise<Session | null>;
   signOut: () => Promise<void>;
   /**
    * Recover after an API 401. A refreshed token updates every subscribed
@@ -45,7 +46,10 @@ export function useOperatorSession(): OperatorSession {
   const router = useRouter();
   const pathname = usePathname();
   const session = useWebsiteSession();
-  const { signOut: signOutSharedSession } = session;
+  const {
+    signOut: signOutSharedSession,
+    recoverAfterUnauthorized: recoverSharedSessionAfterUnauthorized,
+  } = session;
 
   const signOut = useCallback(async () => {
     try {
@@ -73,6 +77,7 @@ export function useOperatorSession(): OperatorSession {
     unavailable: session.unavailable,
     error: session.error,
     refreshSession: session.refreshSession,
+    recoverAfterUnauthorized: recoverSharedSessionAfterUnauthorized,
     signOut,
     requireAuth: session.requireAuth,
   };

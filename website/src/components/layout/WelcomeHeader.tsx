@@ -6,11 +6,17 @@ import { Logo } from "@/components/brand/Logo";
 import { LanguageMenu } from "@/components/layout/LanguageMenu";
 import { ThemeModeSwitch } from "@/components/layout/ThemeModeSwitch";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { globalChatDisplayName } from "@/lib/global-chat";
+import { useWebsiteSession } from "@/lib/website-session";
 
 /** Compact SaaS chrome: account access, inquiry actions, chat and appearance. */
 export function WelcomeHeader() {
   const [inquiryMenuOpen, setInquiryMenuOpen] = useState(false);
   const inquiryMenuRef = useRef<HTMLDivElement>(null);
+  const { checking, user, userEmail } = useWebsiteSession();
+  const accountName = user
+    ? globalChatDisplayName({ email: user.email, metadata: user.user_metadata })
+    : null;
 
   useEffect(() => {
     if (!inquiryMenuOpen) return;
@@ -69,16 +75,12 @@ export function WelcomeHeader() {
               <span className="hidden xl:inline">Chat</span>
             </LocaleLink>
             <LocaleLink
-              href="/login?redirect=%2Finquiries%2Fchat"
-              className="inline-flex h-10 items-center justify-center rounded-full px-3 text-sm font-semibold text-text-secondary transition-[background-color,color] duration-150 hover:bg-ink-900 hover:text-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-300"
+              href={accountName ? "/account" : "/account?redirect=%2Finquiries%2Fchat"}
+              aria-label={accountName ? `Customer account for ${accountName}` : "Sign in or create a customer account"}
+              title={userEmail || undefined}
+              className="inline-flex h-10 max-w-[11rem] items-center justify-center truncate rounded-full border border-line-strong/80 px-3.5 text-sm font-semibold text-text-primary transition-[background-color,border-color,color] duration-150 hover:border-brand-400/60 hover:bg-ink-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-300 sm:max-w-[15rem]"
             >
-              Log in
-            </LocaleLink>
-            <LocaleLink
-              href="/signup?redirect=%2Finquiries%2Fsubmit"
-              className="inline-flex h-10 items-center justify-center rounded-full border border-line-strong/80 px-3.5 text-sm font-semibold text-text-primary transition-[background-color,border-color,color] duration-150 hover:border-brand-400/60 hover:bg-ink-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-300"
-            >
-              Sign up
+              <span className="truncate">{accountName || (checking ? "Account" : "Sign in / sign up")}</span>
             </LocaleLink>
             <div className="relative shrink-0" ref={inquiryMenuRef}>
               <button

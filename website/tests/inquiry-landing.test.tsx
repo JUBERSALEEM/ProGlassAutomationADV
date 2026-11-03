@@ -103,8 +103,9 @@ describe("the inquiries page and who may see what", () => {
     renderLanding();
 
     expect(await screen.findByRole("heading", { name: /^inquiries$/i })).toBeTruthy();
-    expect(screen.getByRole("link", { name: /^sign in$/i }).getAttribute("href")).toContain("/reports/login");
-    expect(screen.getByRole("link", { name: /^create an account$/i })).toBeTruthy();
+    expect(screen.getByRole("link", { name: /customer account · sign in or sign up/i }).getAttribute("href")).toContain("/account");
+    expect(screen.queryByRole("link", { name: /^sign in$/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /^create an account$/i })).toBeNull();
     expect(screen.queryByTestId("operator-inbox")).toBeNull();
     expect(screen.queryByTestId("access-gate")).toBeNull();
     // Nothing to ask the server when there is no session.

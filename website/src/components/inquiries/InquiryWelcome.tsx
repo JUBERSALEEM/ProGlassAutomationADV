@@ -85,6 +85,12 @@ export function InquiryWelcome() {
                 <p className="mt-1 truncate font-mono text-xs text-text-primary">{userEmail || "your account"}</p>
                 <div className="mt-4 grid gap-2">
                   <LocaleLink
+                    href="/account"
+                    className={`flex h-10 items-center justify-center rounded-xl px-3 text-xs font-semibold ${SECONDARY}`}
+                  >
+                    Customer account
+                  </LocaleLink>
+                  <LocaleLink
                     href="/inquiries/chat"
                     className={`flex h-10 items-center justify-center rounded-xl px-3 text-xs font-bold ${PRIMARY}`}
                   >
@@ -113,16 +119,10 @@ export function InquiryWelcome() {
                 </p>
                 <div className="mt-4 grid gap-2">
                   <LocaleLink
-                    href="/reports/login?redirect=%2Finquiries%2Fsubmit"
+                    href="/account?redirect=%2Finquiries%2Fsubmit"
                     className={`flex h-10 items-center justify-center rounded-xl px-3 text-xs font-bold ${PRIMARY}`}
                   >
-                    Sign in
-                  </LocaleLink>
-                  <LocaleLink
-                    href="/reports/login?mode=signup&redirect=%2Finquiries%2Fsubmit"
-                    className={`flex h-10 items-center justify-center rounded-xl px-3 text-xs font-semibold ${SECONDARY}`}
-                  >
-                    Create an account
+                    Customer account · sign in or sign up
                   </LocaleLink>
                   <LocaleLink
                     href="/inquiries/chat"
