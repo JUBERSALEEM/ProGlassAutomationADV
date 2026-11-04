@@ -63,22 +63,38 @@ export const STANDARD_SURCHARGE_PERCENT = 20;
 
 /** A panel's physical area: width × height, in square metres. */
 export function physicalPanelSqm(widthMm: number, heightMm: number): number {
-  if (widthMm <= 0 || heightMm <= 0) return 0;
-  return (widthMm / 1000) * (heightMm / 1000);
+  if (!Number.isInteger(widthMm) || !Number.isInteger(heightMm) || widthMm <= 0 || heightMm <= 0) return 0;
+  // Width and height are integer millimetres, so multiply before dividing to
+  // avoid two independent floating-point conversions. This is deliberately raw
+  // physical area: the WPF stock-sheet/physical-area helpers never apply the
+  // billable minimum or panel display rounding here.
+  return (widthMm * heightMm) / 1_000_000;
+}
+
+/**
+ * WPF SqmCalculator.CalculatePanel's decimal Math.Round(..., 3) (ToEven),
+ * expressed with integer millimetres so exact midpoint cases stay exact.
+ */
+function roundPanelAreaToWpf3dp(widthMm: number, heightMm: number): number {
+  const product = widthMm * heightMm;
+  const wholeMilliSqm = Math.floor(product / 1000);
+  const remainder = product % 1000;
+  const roundUp = remainder > 500 || (remainder === 500 && wholeMilliSqm % 2 === 1);
+  return (wholeMilliSqm + (roundUp ? 1 : 0)) / 1000;
 }
 
 /**
  * A panel's billable area — physical area, floored at `MIN_PANEL_SQM`.
  *
- * `SqmCalculator.CalculatePanel`, including its order of operations: an
- * invalid panel is 0, not the floor. A zero-quantity row must not bill half a
- * square metre. The application rounds this to three places for display; the
- * un-rounded value is kept here because the money is computed from it.
+ * `SqmCalculator.CalculatePanel`, including its order of operations: first
+ * round raw panel area to 3 decimal places using midpoint-to-even, then apply
+ * the 0.5 m² minimum. Invalid dimensions are 0, not the floor. Physical area
+ * remains separately available and is never floored or billable-rounded.
  */
 export function billablePanelSqm(widthMm: number, heightMm: number): number {
   const physical = physicalPanelSqm(widthMm, heightMm);
   if (physical === 0) return 0;
-  return Math.max(physical, MIN_PANEL_SQM);
+  return Math.max(roundPanelAreaToWpf3dp(widthMm, heightMm), MIN_PANEL_SQM);
 }
 
 /** True when the floor, rather than the panel, decided the billable area. */

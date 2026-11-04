@@ -151,12 +151,16 @@ export function ProformaBuilder({
       setProblem("Enter a panel width and height in millimetres.");
       return;
     }
-    if (width > 20000 || height > 20000) {
-      setProblem("A panel side cannot exceed 20000 mm.");
+    if (width > 10000 || height > 10000) {
+      setProblem("A primary panel side cannot exceed 10000 mm.");
       return;
     }
     if (quantity < 1) {
       setProblem("Enter a quantity of at least one.");
+      return;
+    }
+    if (quantity > 10000) {
+      setProblem("A quantity cannot exceed 10000.");
       return;
     }
     setProblem(null);

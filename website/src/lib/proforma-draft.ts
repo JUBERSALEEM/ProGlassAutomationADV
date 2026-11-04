@@ -86,22 +86,24 @@ export function newLineKey(): string {
   return `line-${Date.now()}-${fallbackSeq}`;
 }
 
-function round4(value: number): number {
-  return Math.round(value * 10000) / 10000;
+function round3(value: number): number {
+  // All billable areas arrive as integer thousandths from the WPF-compatible
+  // panel calculator; this only normalizes multiplication/aggregation noise.
+  return Math.round(value * 1000) / 1000;
 }
 
 /**
  * A line's money, rounded the way the database's numeric arithmetic rounds it.
  *
- * Multiplying two decimals in floating point loses a half cent that Postgres
- * keeps: 1.5 sqm at 99.99 is 149.985, which is 149.99. Scaling both factors to
- * integers first keeps the half cent, so the figure on screen is the figure the
- * database will store.
+ * WPF `GlassItemRow.RecalculateAll` sends the three-decimal billable area,
+ * quantity and rate to `MoneyRounding.Round`, which rounds money half away
+ * from zero. Scaling area to integer thousandths and rate to cents preserves
+ * half-cent fixtures such as 1.5 m² at 99.99 = 149.985 → 149.99.
  */
 export function lineValue(totalSqm: number, rate: number): number {
-  const sqmUnits = Math.round(totalSqm * 10000);
-  const rateUnits = Math.round(rate * 100);
-  return Math.round((sqmUnits * rateUnits) / 10000) / 100;
+  const sqmMilliUnits = Math.round(totalSqm * 1000);
+  const rateMinorUnits = Math.round(rate * 100);
+  return Math.round((sqmMilliUnits * rateMinorUnits) / 1000) / 100;
 }
 /** A whole number typed into a dimension or quantity field. */
 export function wholeNumber(value: string): number {
@@ -129,9 +131,9 @@ export function priceLine(line: DraftLine, lineNo = 0): PricedLine {
   const h2 = whole(line.h2);
   const qty = whole(line.qty);
   const rate = moneyRate(decimal(line.rate));
-  const physicalSqm = round4(physicalPanelSqm(w1, h1));
-  const sqm = round4(billablePanelSqm(w1, h1));
-  const totalSqm = round4(sqm * qty);
+  const physicalSqm = physicalPanelSqm(w1, h1);
+  const sqm = billablePanelSqm(w1, h1);
+  const totalSqm = round3(sqm * qty);
   return {
     key: line.key,
     groupNo: line.groupNo,
@@ -148,7 +150,7 @@ export function priceLine(line: DraftLine, lineNo = 0): PricedLine {
     totalSqm,
     value: lineValue(totalSqm, rate),
     floored: isFloored(w1, h1),
-    complete: w1 >= 1 && h1 >= 1 && qty >= 1 && rate >= 0 && w1 <= 20000 && h1 <= 20000,
+    complete: w1 >= 1 && h1 >= 1 && qty >= 1 && rate >= 0 && w1 <= 10000 && h1 <= 10000 && qty <= 10000,
   };
 }
 
@@ -167,7 +169,7 @@ export function groupTotals(priced: PricedLine[]): GroupTotal[] {
     const current = totals.get(line.groupNo) || { groupNo: line.groupNo, lines: 0, quantity: 0, sqm: 0, value: 0 };
     current.lines += 1;
     current.quantity += line.qty;
-    current.sqm = round4(current.sqm + line.totalSqm);
+    current.sqm = round3(current.sqm + line.totalSqm);
     current.value = moneyRate(current.value + line.value);
     totals.set(line.groupNo, current);
   }
@@ -178,7 +180,7 @@ export function draftTotals(priced: PricedLine[]): { lines: number; sqm: number;
   return priced.reduce(
     (acc, line) => ({
       lines: acc.lines + 1,
-      sqm: round4(acc.sqm + line.totalSqm),
+      sqm: round3(acc.sqm + line.totalSqm),
       value: moneyRate(acc.value + line.value),
     }),
     { lines: 0, sqm: 0, value: 0 },
@@ -189,10 +191,10 @@ export function draftTotals(priced: PricedLine[]): { lines: number; sqm: number;
  * The reasons a draft cannot be saved yet, in the order they appear.
  *
  * These mirror the checks `save_inquiry_proforma_v1` makes, so the operator is
- * told here rather than by a rejected save. The limits are the function's own:
- * a panel side from 1 to 20000 mm, an inner size from 0 to 20000 mm, a quantity
- * from 1 to 100000, a rate from 0 to 1000000, at most 50 specifications, at most
- * 500 lines in one specification and at most 200 lines in the document.
+ * told here rather than by a rejected save. Primary panel dimensions and
+ * quantity follow WPF `SpecGroupService.ValidateRow` (1 to 10000); secondary
+ * pane inputs retain the existing API range of 0 to 20000 because that WPF
+ * method does not validate W2/H2. Rate, group and line limits remain unchanged.
  */
 export function draftIssues(lines: DraftLine[]): string[] {
   const issues: string[] = [];
@@ -219,10 +221,10 @@ export function draftIssues(lines: DraftLine[]): string[] {
 
   priced.forEach((line) => {
     if (line.w1 < 1 || line.h1 < 1) issues.push(`Specification ${line.groupNo}, line ${line.lineNo}: enter a width and a height.`);
-    else if (line.w1 > 20000 || line.h1 > 20000) issues.push(`Specification ${line.groupNo}, line ${line.lineNo}: a panel side cannot exceed 20000 mm.`);
+    else if (line.w1 > 10000 || line.h1 > 10000) issues.push(`Specification ${line.groupNo}, line ${line.lineNo}: a primary panel side cannot exceed 10000 mm.`);
     if (line.w2 > 20000 || line.h2 > 20000) issues.push(`Specification ${line.groupNo}, line ${line.lineNo}: an inner size cannot exceed 20000 mm.`);
     if (line.qty < 1) issues.push(`Specification ${line.groupNo}, line ${line.lineNo}: enter a quantity of at least one.`);
-    else if (line.qty > 100000) issues.push(`Specification ${line.groupNo}, line ${line.lineNo}: a quantity cannot exceed 100000.`);
+    else if (line.qty > 10000) issues.push(`Specification ${line.groupNo}, line ${line.lineNo}: a quantity cannot exceed 10000.`);
     if (!Number.isFinite(line.rate)) issues.push(`Specification ${line.groupNo}, line ${line.lineNo}: enter an approved rate.`);
     else if (line.rate < 0) issues.push(`Specification ${line.groupNo}, line ${line.lineNo}: a rate cannot be negative.`);
     else if (line.rate > 1_000_000) issues.push(`Specification ${line.groupNo}, line ${line.lineNo}: a rate cannot exceed 1000000.`);

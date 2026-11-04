@@ -18,10 +18,12 @@ export type ProformaSourceSystem = "website" | "desktop";
 /**
  * One priced line of a website proforma.
  *
- * `sqm` is the billable panel area, floored at half a square metre, `total_sqm`
- * is that area times the quantity, and `line_value` is `total_sqm` times the
- * approved rate. All three are computed by the database on save, so a line read
- * back is the record of what was accepted, not what a browser proposed.
+ * `sqm` is the billable panel area rounded to WPF's three-decimal
+ * midpoint-to-even precision before applying the half-square-metre floor;
+ * `total_sqm` is that area times quantity, rounded to three decimals, and
+ * `line_value` is the money-rounded total at the approved rate. The database
+ * computes all three in the current Phase C8 save RPCs, so a read-back is the
+ * record of what was accepted, not what a browser proposed.
  */
 export type ProformaLine = {
   group_no: number;

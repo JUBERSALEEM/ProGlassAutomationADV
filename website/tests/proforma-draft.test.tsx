@@ -54,6 +54,21 @@ describe("panel arithmetic", () => {
     expect(priced.physicalSqm).toBe(0.09);
   });
 
+  it("rounds panel area to WPF's three decimals using midpoint-to-even before applying the floor", () => {
+    const evenMidpoint = one([line(1, "500", "1001", "1", "100")]);
+    const oddMidpoint = one([line(1, "500", "1003", "1", "100")]);
+    expect(evenMidpoint.physicalSqm).toBe(0.5005);
+    expect(evenMidpoint.sqm).toBe(0.5); // 0.5005 -> 0.500 (even)
+    expect(oddMidpoint.physicalSqm).toBe(0.5015);
+    expect(oddMidpoint.sqm).toBe(0.502); // 0.5015 -> 0.502 (even)
+  });
+
+  it("rounds the quantity area to three decimals and money half away from zero", () => {
+    const priced = one([line(1, "300", "300", "3", "99.99")]);
+    expect(priced.totalSqm).toBe(1.5);
+    expect(priced.value).toBe(149.99); // WPF MoneyRounding.Round(149.985)
+  });
+
   it("does not floor a half typed panel, it reports it as incomplete", () => {
     const priced = one([line(1, "0", "", "1", "100")]);
     expect(priced.sqm).toBe(0);

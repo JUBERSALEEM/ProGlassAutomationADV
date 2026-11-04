@@ -87,8 +87,14 @@ describe("validation that mirrors the write function", () => {
     expect(draftIssues([line(1, "1000", "1000", "1", "100")])).toEqual([]);
   });
 
-  it("refuses a quantity above the function's limit", () => {
-    expect(draftIssues([line(1, "1000", "1000", "100001", "100")]).join(" ")).toContain("cannot exceed 100000");
+  it("matches WPF quantity validation at the 10000 boundary", () => {
+    expect(draftIssues([line(1, "1000", "1000", "10000", "100")])).toEqual([]);
+    expect(draftIssues([line(1, "1000", "1000", "10001", "100")]).join(" ")).toContain("cannot exceed 10000");
+  });
+
+  it("matches WPF primary dimension validation at the 10000 mm boundary", () => {
+    expect(draftIssues([line(1, "10000", "10000", "1", "100")])).toEqual([]);
+    expect(draftIssues([line(1, "10001", "1000", "1", "100")]).join(" ")).toContain("primary panel side cannot exceed 10000 mm");
   });
 
   it("refuses a rate above the function's limit", () => {
