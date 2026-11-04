@@ -110,7 +110,7 @@ test("profile and project APIs prefill, persist, associate, and filter customer 
   assert.match(portal, /AUTO_PI_ATTACHMENT_COUNT = 3/);
   assert.match(portal, /generateCustomerPiAttachments/);
   assert.match(portal, /files = \[\.\.\.userFiles, \.\.\.\(generatedPiFilesRef\.current \|\| \[\]\)\]/);
-  assert.match(portal, /automatically attached as an Excel workbook, CSV, and PDF/);
+  assert.match(portal, /Excel, CSV, and PDF files are generated and attached automatically/);
   assert.match(portal, /Need a PI\? Request a PI/);
   assert.ok(portal.indexOf('<ProformaTechnicalSpecFlow key={flowInstance} onCompleteChange={handlePiCompleteChange} />') > portal.indexOf('id="inquiry-documents-label"'), "PI technical steps follow optional supporting files");
   assert.match(portal, /async function customerApiFetch/);
@@ -271,7 +271,9 @@ test("the inquiries page routes by role and never shows a customer an operator r
   assert.match(customer, /href="\/inquiries\/submit"/);
   assert.match(customer, /href="\/inquiries\/submit\/proforma"/);
   assert.match(customer, /href="\/inquiries\/chat"/);
-  assert.match(customer, /href="\/account\/proformas"/);
+  assert.doesNotMatch(customer, /href="\/account\/proformas"/);
+  assert.match(customer, /unpriced technical PI/);
+  assert.match(customer, /Priced proformas are not available to customer accounts/);
   assert.match(customer, /href="\/inquiries\/register"/);
   assert.match(customer, /require a staff role/i);
   assert.match(customer, /never shown to a customer account/);

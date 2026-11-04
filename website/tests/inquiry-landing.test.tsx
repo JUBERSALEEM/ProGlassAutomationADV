@@ -119,16 +119,17 @@ describe("the inquiries page and who may see what", () => {
     expect(await screen.findByRole("heading", { name: /^inquiries$/i })).toBeTruthy();
     // The two ways in, each with its own destination.
     expect(screen.getByRole("heading", { name: /^submit an inquiry$/i })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: /^submit an inquiry with a proforma invoice$/i })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /^submit an unpriced PI technical inquiry$/i })).toBeTruthy();
     expect(document.querySelector('a[href="/inquiries/submit"]')).toBeTruthy();
     expect(document.querySelector('a[href="/inquiries/submit/proforma"]')).toBeTruthy();
     expect(screen.getByRole("heading", { name: /^my inquiries and messages$/i })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: /^proformas shared with me$/i })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: /^proformas shared with me$/i })).toBeNull();
+    expect(screen.getByText(/priced proformas are not available to customer accounts/i)).toBeTruthy();
     expect(screen.queryByTestId("operator-inbox")).toBeNull();
     expect(screen.queryByTestId("access-gate")).toBeNull();
     // The internal queue is not advertised to a customer at all.
     expect(document.body.textContent).not.toContain("Open the website queue");
-    expect(document.body.textContent).not.toContain("Customer submissions");
+    expect(document.querySelector('a[href="/account/proformas"]')).toBeNull();
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/inquiries/access",
       expect.objectContaining({ cache: "no-store" }),
