@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { billablePanelSqm, physicalPanelSqm } from "../src/data/pricingRules";
 import { draftIssues, emptyLine, priceLine } from "../src/lib/proforma-draft";
+import { ProformaApiFailure, validateLines } from "../src/lib/proforma-api";
 
 const migration = readFileSync("supabase-inquiry-proforma-phaseC8-wpf-step5-parity.sql", "utf8");
 
@@ -28,11 +29,15 @@ describe("WPF Step 5 calculation fixtures", () => {
     expect(priceLine(line)).toMatchObject({ sqm: 0.5, totalSqm: 1.5, value: 149.99 });
   });
 
-  it("matches SpecGroupService.ValidateRow primary dimensions and quantity boundaries", () => {
-    const valid = { ...emptyLine(1), w1: "10000", h1: "10000", qty: "10000", rate: "1" };
-    expect(draftIssues([valid])).toEqual([]);
-    expect(draftIssues([{ ...valid, w1: "10001" }]).join(" ")).toContain("primary panel side cannot exceed 10000 mm");
-    expect(draftIssues([{ ...valid, qty: "10001" }]).join(" ")).toContain("quantity cannot exceed 10000");
+  it("matches SpecGroupService.ValidateRow primary dimensions and quantity boundaries in draft and API validation", () => {
+    const valid = { group_no: 1, line_no: 1, glass_ref: "fixture", w1: 10000, h1: 10000, w2: 0, h2: 0, qty: 10000, rate: 1 };
+    const draft = { ...emptyLine(1), w1: "10000", h1: "10000", qty: "10000", rate: "1" };
+    expect(draftIssues([draft])).toEqual([]);
+    expect(validateLines([valid])[0]).toMatchObject({ w1: 10000, h1: 10000, qty: 10000 });
+    expect(draftIssues([{ ...draft, w1: "10001" }]).join(" ")).toContain("primary panel side cannot exceed 10000 mm");
+    expect(draftIssues([{ ...draft, qty: "10001" }]).join(" ")).toContain("quantity cannot exceed 10000");
+    expect(() => validateLines([{ ...valid, w1: 10001 }])).toThrowError(ProformaApiFailure);
+    expect(() => validateLines([{ ...valid, qty: 10001 }])).toThrow("quantity between 1 and 10000");
   });
 });
 

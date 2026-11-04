@@ -340,9 +340,9 @@ export function validateLines(lines: ProformaLineInput[]): ProformaLineInput[] {
     const rate = Math.round(Number(line.rate) * 100) / 100;
     if (!Number.isInteger(group) || group < 1 || group > MAX_GROUPS) invalid(`Line ${index + 1} is not inside a specification group.`);
     if (!Number.isInteger(lineNo) || lineNo < 1 || lineNo > 500) invalid(`Line ${index + 1} has an invalid position.`);
-    if (!(w1 >= 1 && w1 <= 20000) || !(h1 >= 1 && h1 <= 20000)) invalid(`Line ${index + 1} needs a width and a height between 1 and 20000 mm.`);
+    if (!(w1 >= 1 && w1 <= 10000) || !(h1 >= 1 && h1 <= 10000)) invalid(`Line ${index + 1} needs primary width and height between 1 and 10000 mm.`);
     if (!(w2 >= 0 && w2 <= 20000) || !(h2 >= 0 && h2 <= 20000)) invalid(`Line ${index + 1} has an inner panel size outside 0 to 20000 mm.`);
-    if (!(qty >= 1 && qty <= 100000)) invalid(`Line ${index + 1} needs a quantity of at least one.`);
+    if (!(qty >= 1 && qty <= 10000)) invalid(`Line ${index + 1} needs a quantity between 1 and 10000.`);
     if (!Number.isFinite(rate) || rate < 0 || rate > 1000000) invalid(`Line ${index + 1} has an approved rate outside the accepted range.`);
     if (seen.has(`${group}:${lineNo}`)) invalid(`Specification ${group} has a repeated line number.`);
     seen.add(`${group}:${lineNo}`);
